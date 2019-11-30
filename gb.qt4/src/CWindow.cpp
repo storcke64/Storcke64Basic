@@ -1530,6 +1530,7 @@ MyMainWindow::MyMainWindow(QWidget *parent, const char *name, bool embedded) :
 	setObjectName(name);
 	setFocusPolicy(Qt::NoFocus);
 
+	resize(1, 1);
 	_activate = false;
 }
 
