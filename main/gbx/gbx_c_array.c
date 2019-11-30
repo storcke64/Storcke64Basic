@@ -70,39 +70,15 @@ static void THROW_multidimensional_array()
 	return;
 }
 
-static bool check_not_multi(CARRAY *_object)
-{
-	if (THIS->ref && THIS->ref != THIS)
-	{
-		CARRAY_static_array();
-		return TRUE;
-	}
-	else if (UNLIKELY(THIS->dim != NULL))
-	{
-		THROW_multidimensional_array();
-		return TRUE;
-	}
-	else
-		return FALSE;
-}
+#define check_not_static(_object) ((((CARRAY *)_object)->ref) ? CARRAY_static_array(), TRUE : FALSE)
 
-#define check_not_read_only(_object) ((((CARRAY *)_object)->ref) ? CARRAY_static_array(), TRUE : FALSE)
+#define check_not_read_only(_object) \
+({ \
+	CARRAY *__object = (CARRAY *)(_object); \
+	(__object->ref == __object) ? CARRAY_static_array(), TRUE : FALSE; \
+})
 
-static bool check_not_multi_read_only(CARRAY *_object)
-{
-	if (THIS->ref)
-	{
-		CARRAY_static_array();
-		return TRUE;
-	}
-	else if (UNLIKELY(THIS->dim != NULL))
-	{
-		THROW_multidimensional_array();
-		return TRUE;
-	}
-	else
-		return FALSE;
-}
+#define check_not_multi(_object) ((((CARRAY *)_object)->dim) ? THROW_multidimensional_array(), TRUE : FALSE)
 
 
 static bool check_start_length(int count, int *start, int *length)
@@ -415,7 +391,12 @@ CARRAY *CARRAY_create_static(CLASS *class, void *ref, CLASS_ARRAY *desc, void *d
 	array->ref = ref;
 	array->count = get_count(desc->dim);
 	OBJECT_REF(ref);
-	array->dim = desc->dim;
+	
+	if (desc->dim[0] < 0)
+		array->dim = NULL;
+	else
+		array->dim = desc->dim;
+
 	array->size = CLASS_sizeof_ctype(class, desc->ctype);
 	
 	return array;
@@ -583,9 +564,17 @@ END_METHOD
 BEGIN_PROPERTY(Array_ReadOnly)
 
 	if (READ_PROPERTY)
-		GB_ReturnBoolean(THIS->ref != NULL);
-	else if (!check_not_read_only(THIS))
+		GB_ReturnBoolean(THIS->ref != THIS);
+	else
+	{
+		if (THIS->ref && THIS->ref != THIS)
+		{
+			CARRAY_static_array();
+			return;
+		}
+		
 		THIS->ref = THIS;
+	}
 
 END_PROPERTY
 
@@ -625,10 +614,13 @@ static bool copy_remove(CARRAY *_object, int start, int length, bool copy, bool 
 	void *data;
 	int i, nsize;
 
-	if (check_not_multi(THIS) && (start != 0 || length != -1))
-		return TRUE;
-	
-	if (remove && check_not_read_only(THIS))
+	if (start != 0 || length != -1)
+	{
+		if (check_not_multi(THIS))
+			return TRUE;
+	}
+
+	if (remove && check_not_static(THIS))
 		return TRUE;
 
 	if (check_start_length(count, &start, &length))
@@ -737,7 +729,7 @@ BEGIN_METHOD(Array_Resize, GB_INTEGER size)
 
 	int size = VARG(size);
 
-	if (check_not_multi_read_only(THIS))
+	if (check_not_static(THIS) && check_not_multi(THIS))
 		return;
 
 	CARRAY_resize(THIS, size);
@@ -823,7 +815,7 @@ BEGIN_METHOD_VOID(Array_Shuffle)
 	int i, j;
 	void *swap;
 
-	if (check_not_multi_read_only(THIS) || count <= 1)
+	if (check_not_read_only(THIS) || count <= 1)
 		return;
 	
 	switch (size)
@@ -895,7 +887,7 @@ static void add(CARRAY *_object, GB_VALUE *value, int index)
 {
 	void *data;
 
-	if (check_not_multi_read_only(THIS))
+	if (check_not_static(THIS) && check_not_multi(THIS))
 		return;
 
 	data = insert(THIS, index);
@@ -1032,16 +1024,16 @@ BEGIN_METHOD(Array_Insert, GB_OBJECT array; GB_INTEGER pos)
 	if (GB_CheckObject(array))
 		return;
 
-	if (check_not_multi_read_only(THIS))
-	{
-		GB_ReturnNull();
-		return;
-	}
-
 	count = array->count;
 	
 	if (count > 0)
 	{
+		if (check_not_static(THIS) && check_not_multi(THIS))
+		{
+			GB_ReturnNull();
+			return;
+		}
+
 		if (pos < 0)
 			pos = THIS->count;
 
@@ -1060,9 +1052,9 @@ BEGIN_METHOD_VOID(Array_Pop)
 
 	int index = THIS->count - 1;
 
-	if (check_not_multi_read_only(THIS))
+	if (check_not_static(THIS) && check_not_multi(THIS))
 		return;
-
+	
 	if (index < 0)
 	{
 		GB_Error((char *)E_ARG);
@@ -1094,9 +1086,6 @@ static void array_first_last(CARRAY *_object, void *_param, bool last)
 {
 	void *data;
 	int index = last ? THIS->count - 1 : 0;
-
-	if (check_not_multi(THIS))
-		return;
 
 	data = get_data(THIS, index);
 	if (!data) return;
@@ -1179,7 +1168,7 @@ BEGIN_METHOD(Array_SortUsing, GB_OBJECT order; GB_INTEGER mode)
 		return;
 	}
 	
-	if (check_not_multi_read_only(order))
+	if (check_not_multi(order))
 		return;
 		
 	if (order->count < THIS->count)
@@ -1742,8 +1731,8 @@ static void array_of_struct_first_last(void *_object, void *_param, bool last)
 {
 	int index = last ? THIS->count - 1 : 0;
 
-	if (check_not_multi(THIS))
-		return;
+	/*if (check_not_multi(THIS))
+		return;*/
 
 	void *data = get_data(THIS, index);
 	if (!data) return;

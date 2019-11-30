@@ -115,10 +115,12 @@ void CARRAY_release_static(CLASS *class, CLASS_ARRAY *desc, void *data);
 })
 
 #define CARRAY_check_not_read_only(_object) \
-{ \
-	if (((CARRAY *)_object)->ref) \
+({ \
+	CARRAY *__object = (CARRAY *)(_object); \
+	if (__object->ref == __object) \
 		THROW(E_SARRAY); \
-}
+})
+
 
 #endif  // #ifndef __GBX_CLASS_INFO_C 
 
