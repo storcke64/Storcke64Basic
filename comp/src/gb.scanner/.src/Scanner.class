@@ -37,56 +37,56 @@ Event Begin
 Event Progress
 
 Public Sub _New(sDevice As String)
-  
+
   $sDeviceName = "--device-name='" & sDevice & "'"
   $sName = sDevice
   'If Not IsAvailable() Then
-   ' Error.Raise("Unknown Device")
+  ' Error.Raise("Unknown Device")
   'Endif
-  
+
 End
 
 Private Sub GetInfo()
-  
+
   Dim hInfo As ScannerInfo
-  
+
   hInfo = Scanners._GetInfo($sName)
   $sVendor = hInfo.Vendor
   $sModel = hInfo.Model
   $sType = hInfo.Type
   bHaveInfo = True
-  
+
 End
 
 Private Function Name_Read() As String
-  
+
   Return $sName
-  
+
 End
 
 Private Function Vendor_Read() As String
-  
+
   If Not bHaveInfo Then GetInfo
   Return $sVendor
-  
+
 End
 
 Private Function Type_Read() As String
-  
+
   If Not bHaveInfo Then GetInfo
   Return $sType
-  
+
 End
 
 Private Function Model_Read() As String
-  
+
   If Not bHaveInfo Then GetInfo
   Return $sModel
-  
+
 End
 
 Private Sub GetOptions()
-  
+
   Dim sRet As String
   Dim s, sCurGroup As String
   Dim aLine As String[]
@@ -98,33 +98,35 @@ Private Sub GetOptions()
   Dim sDefault As String
   Dim iStartOptions As Integer
   Dim iEndOptions As Integer
-  
+
   If Not IsAvailable() Then Error.Raise("Unknown device or device not available")
-  
+
   $aOptionsNames = New String[]
   $aOptions = New _Option[]
   Shell "scanimage " & $sDeviceName & " -A" To sRet
-  
-  
+
   For Each s In Split(sRet, "\n")
     s = Trim(s)
     If InStr(s, ":") Then
       sCurGroup = Trim(Left(s, -1))
       Continue
     Endif
-    
+
     If s Begins "-" Then
-      'Correction of some specific mode name
-      s = Replace(s, "[=(", " ")
-      's = Replace(s, ")]", "")
+      'Correction of some specific mode name (ex: [=(yes|no)])
+      If InStr(s, "[=(") Then
+        s = Replace(s, "[=(", " ")
+        s = Replace(s, ")]", "")
+      Endif
+
       iStartOptions = InStr(s, " ")
-      If s Ends "]]" Then 
-      iEndOptions = RInStr(s, "[", RInStr(s, "[") - 1) - 1
+      If s Ends "]]" Then
+        iEndOptions = RInStr(s, "[", RInStr(s, "[") - 1) - 1
       Else
-      iEndOptions = RInStr(s, "[") - 1
+        iEndOptions = RInStr(s, "[") - 1
       Endif
       If iEndOptions = -1 Then iEndOptions = Len(s)
-      
+
       sName = Left(s, iStartOptions - 1)
       sValues = Trim(Mid(s, iStartOptions + 1, iEndOptions - iStartOptions - 1))
       sDefault = Mid(s, iEndOptions + 1)
@@ -134,7 +136,7 @@ Private Sub GetOptions()
       hOption._Group = sCurGroup
       'Manage the option cutting
       iTiret = IIf(sName Begins "--", -2, -1)
-      
+
       'SOme option are standardised so we can manage them with our
       'own way.
       Select Case Right(sName, iTiret)
@@ -157,6 +159,8 @@ Private Sub GetOptions()
       hOption._IsRange = InStr(sValues, "..")
       'Manage the range style option
       If hOption._IsRange Then
+        'if find a coma then remove it and the text next
+        If InStr(sValues, ",") Then sValues = Left(sValues, InStr(sValues, ",") - 1)
         aLine = Split(sValues, " ", "()")
         sValues = aLine[0]
         a = Scan(sValues, "*..*")
@@ -168,10 +172,10 @@ Private Sub GetOptions()
         Else
           hOption._MaxValue = a[1]
         Endif
-        If aLine.Count = 2 Then 
+        If aLine.Count = 2 Then
           hOption._Steps = CFloat(Mid(aLine[1], RInStr(aLine[1], " ")))
         Endif
-        
+
       Else
         'If hOption.Name = "Mode" Then Stop
         'Manage the list style option
@@ -183,7 +187,7 @@ Private Sub GetOptions()
           hOption._Unit = s
         Endif
       Endif
-      
+
       'Manage the default values and the not activate fag
       If sDefault Begins "[" Then
         If InStr(sDefault, "inactive") Then
@@ -201,94 +205,96 @@ Private Sub GetOptions()
       '$Options._Add(hOption)
       Continue
     Endif
-    
+
   Next
-  
+
 End
 
 Private Function GetUnit(sValue As String) As String
-  
+
   Dim i As Integer
   Dim s, sRet As String
-  
-  If Not sValue Then Return 
+
+  If Not sValue Then Return
   If IsLetter(Left(sValue)) Then Return
   For i = 1 To Len(sValue)
     s = Mid(sValue, i, 1)
-    If (Asc(s) >= 97 And Asc(s) <= 122) Or If (s = "%") Then 
+    If (Asc(s) >= 97 And Asc(s) <= 122) Or If (s = "%") Then
       sRet &= s
     Endif
   Next
   If Len(sRet) > 3 Then sRet = ""
   Return sRet
-  
+
 End
 
 
 ''Return if the current scanner is available
 Public Function IsAvailable() As Boolean
-  
+
   Dim s As String
-  
+
   Shell "scanimage " & $sDeviceName & " -n 2>&1" To s
-  
+
   Return InStr(s, "Error during device I/O") = 0
-  
+
 End
 
 Public Function Scan() As Image
-  
+
   'Make the option Line
-  
+
   Dim ss As String
   Dim sOptions As String
   Dim sCommand As String
   'Dim sTemp As String = Temp
   Dim hImage As Image
   Dim hOption As _Option
+
   If Not $aOptionsNames Then GetOptions
   $sImageStack.Clear
   $sCurImagePath = Temp
   For Each hOption In $aOptions
-    
+
     If hOption.Modified Then
-      
-      If hOption._Command Begins "--" Then 
+
+      If hOption._Command Begins "--" Then
         sOptions &= hOption._Command & "=" & IIf(hOption.IsRange, hOption.Value, "'" & hOption.Value & "'") & " "
       Else
         sOptions &= hOption._Command & " " & IIf(hOption.IsRange, hOption.Value, "'" & hOption.Value & "'") & " "
       Endif
-      
+
     Endif
-    
+
   Next
   sCommand = "scanimage " & $sDeviceName & " " & sOptions & "--format=jpeg > " & $sCurImagePath
   If $bDebug Then Debug sCommand
-  If Not $bASync Then 
+  If Not $bASync Then
     Shell sCommand Wait
     'Print ss
     Try hImage = Image.Load($sCurImagePath)
-    If Error Then 
+    If Error Then
       Error.Raise("Can't get the image, something goes wrong" & Error.Text)
       Return
     Endif
     Return hImage
   Else
     Shell sCommand For Read As "Process"
-    
+
     $fProgress = 0
     Raise Begin
   Endif
   'Shell "scanimage"
-  
+
 End
 
 Public Sub Process_Error(sError As String)
 
   Dim fRet As Float
-  If sError Begins "Progress:" Then 
+
+  If sError Begins "Progress:" Then
     fRet = Round(CFloat(Left(RTrim(Scan(Split(sError, "\r")[0], "* *")[1]), -1)) / 100, -2)
-    If fRet > $fProgress Then 
+    If fRet > $fProgress Then
       $fProgress = fRet
       Raise Progress
     Endif
@@ -297,73 +303,73 @@ Public Sub Process_Error(sError As String)
 End
 
 Public Sub Process_Kill()
-  
+
   $sImageStack.Push($sCurImagePath)
   $fProgress = 1
   Raise Finished
-  
+
 End
 
 Private Function Progress_Read() As Float
-  
+
   Return $fProgress
-  
+
 End
 
 ''Return recurssively all the options available
 Public Function _next() As String
-  
+
   Dim s As String
-  
+
   If Not $aOptionsNames Then GetOptions
-  If IsNull(Enum.Index) Then 
+  If IsNull(Enum.Index) Then
     Enum.Index = 0
   Else
     Inc Enum.Index
   Endif
-  If Enum.Index >= $aOptions.Count Then 
+  If Enum.Index >= $aOptions.Count Then
     Enum.Stop
     Return
   Endif
-  
+
   s = $aOptionsNames[Enum.Index]
   Return s
-  
+
 End
 
 ''Find an option from it's name (same as hScan[key])
 Public Sub Find(Key As String) As _Option
-  
+
   If Not $aOptionsNames Then GetOptions
   Try Return $aOptions[$aOptionsNames.Find(Key)]
-  
+
 End
 
 ''Return if the given option exist
 Public Sub Exist(Key As String) As Boolean
-  
+
   If Not $aOptionsNames Then GetOptions
   Return $aOptionsNames.Exist(Key)
-  
+
 End
 
 ''Return an Option from it's name
 Public Function _get(Name As String) As _Option
-  
+
   If Not $aOptionsNames Then GetOptions
-  If Not $aOptionsNames.Exist(Name) Then 
+  If Not $aOptionsNames.Exist(Name) Then
     Error.Raise("Unknown option '" & Name & "' for device : " & $sName)
     Return
   Endif
   Return $aOptions[$aOptionsNames.Find(Name)]
-  
+
 End
 
 
-''Pop and return the last images. 
+''Pop and return the last images.
 ''Return null if not image available
 Public Function Peek() As Image
-  
+
   Dim hImg As Image
 
   If $sImageStack.Count > 0 Then
@@ -371,29 +377,29 @@ Public Function Peek() As Image
     If Error Then Return Null
     Return hImg
   Endif
-  
+
 End
 
 Private Function Debug_Read() As Boolean
-  
-  Return $bDebug 
-  
+
+  Return $bDebug
+
 End
 
 Private Sub Debug_Write(Value As Boolean)
-  
+
   $bDebug = Value
-  
+
 End
 
 Private Function ASync_Read() As Boolean
-  
+
   Return $bASync
-  
+
 End
 
 Private Sub ASync_Write(Value As Boolean)
-  
+
   $bASync = Value
 
 End
