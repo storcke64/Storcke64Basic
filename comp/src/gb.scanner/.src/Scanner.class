@@ -104,7 +104,8 @@ Private Sub GetOptions()
   $aOptionsNames = New String[]
   $aOptions = New _Option[]
   Shell "scanimage " & $sDeviceName & " -A" To sRet
-  'Return
+  
+  
   For Each s In Split(sRet, "\n")
     s = Trim(s)
     If InStr(s, ":") Then
@@ -115,13 +116,17 @@ Private Sub GetOptions()
     If s Begins "-" Then
       'Correction of some specific mode name
       s = Replace(s, "[=(", " ")
-      s = Replace(s, ")]", "")
+      's = Replace(s, ")]", "")
       iStartOptions = InStr(s, " ")
-      iEndOptions = RInStr(s, " ")
+      If s Ends "]]" Then 
+      iEndOptions = RInStr(s, "[", RInStr(s, "[") - 1) - 1
+      Else
+      iEndOptions = RInStr(s, "[") - 1
+      Endif
       If iEndOptions = -1 Then iEndOptions = Len(s)
       
       sName = Left(s, iStartOptions - 1)
-      sValues = Mid(s, iStartOptions + 1, iEndOptions - iStartOptions - 1)
+      sValues = Trim(Mid(s, iStartOptions + 1, iEndOptions - iStartOptions - 1))
       sDefault = Mid(s, iEndOptions + 1)
       'aLine = Split(Mid(s, iStartOptions), " ", "()")
       hOption = New _Option
@@ -143,7 +148,7 @@ Private Sub GetOptions()
           hOption._Name = "Height"
         Case Else
           hOption._Name = Right(sName, iTiret)
-          hOption._Name = UCase(Left(hOption._Name)) & Right(hOption._Name, - 1)
+          hOption._Name = UCase(Left(hOption._Name)) & Right(hOption._Name, -1)
       End Select
       'Remember the real option command line
       hOption._Command = sName
@@ -158,13 +163,13 @@ Private Sub GetOptions()
         hOption._MinValue = a[0]
         s = GetUnit(a[1])
         If s Then
-          hOption._MaxValue = Left(a[1], - Len(s))
+          hOption._MaxValue = Left(a[1], -Len(s))
           hOption._Unit = s
         Else
           hOption._MaxValue = a[1]
         Endif
         If aLine.Count = 2 Then 
-          hOption._Steps = CInt(Mid(aLine[1], RInStr(aLine[1], " ")))
+          hOption._Steps = CFloat(Mid(aLine[1], RInStr(aLine[1], " ")))
         Endif
         
       Else
@@ -174,7 +179,7 @@ Private Sub GetOptions()
         'If the option list have a unit then use it and remove it from the list
         s = GetUnit(hOption._List[hOption._List.Max])
         If s Then
-          hOption._List[hOption._List.Max] = Left(hOption._List[hOption._List.Max], - Len(s))
+          hOption._List[hOption._List.Max] = Left(hOption._List[hOption._List.Max], -Len(s))
           hOption._Unit = s
         Endif
       Endif
@@ -210,10 +215,11 @@ Private Function GetUnit(sValue As String) As String
   If IsLetter(Left(sValue)) Then Return
   For i = 1 To Len(sValue)
     s = Mid(sValue, i, 1)
-    If Asc(s) >= 97 And If Asc(s) <= 122 Then 
+    If (Asc(s) >= 97 And Asc(s) <= 122) Or If (s = "%") Then 
       sRet &= s
     Endif
   Next
+  If Len(sRet) > 3 Then sRet = ""
   Return sRet
   
 End

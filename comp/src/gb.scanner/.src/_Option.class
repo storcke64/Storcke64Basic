@@ -26,7 +26,8 @@ Public _Info As String
 Public _Name As String
 Public _Command As String
 Public _Unit As String
-Public _Steps As Integer
+Public _Steps As Float
+Public _Relative As Boolean
 
 
 Private Function Group_Read() As String
