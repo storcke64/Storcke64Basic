@@ -72,13 +72,18 @@ Public Sub _new(hDoc As CDocumentation, sName As String, sKind As String)
 End
 
 
-Public Sub Copy(sType As String, sNewType As String) As CSymbolInfo
+Public Sub Copy(Optional sType As String, sNewType As String) As CSymbolInfo
   
   Dim hSym As New CSymbolInfo(Documentation, Name, Kind)
   
   With hSym
-    .Type = Replace(Type, sType, sNewType)
-    .Signature = Replace(Signature, sType, sNewType)
+    If sType Then
+      .Type = Replace(Type, sType, sNewType)
+      .Signature = Replace(Signature, sType, sNewType)
+    Else
+      .Type = Type
+      .Signature = Signature
+    Endif
     .Value = Value
     .Class = Class
     .Component = Component

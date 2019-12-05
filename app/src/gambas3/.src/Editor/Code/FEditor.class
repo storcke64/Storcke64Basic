@@ -3678,6 +3678,8 @@ Private Sub CreateLocalVariable() As Boolean
       sType = "File"
     Else If aSym[0] = "SHELL" Or If aSym[0] = "EXEC" Then
       sType = "Process"
+    Else If aSym[0] = "CLOSE" Then
+      sType = "s"
     Else If aSym[0] = "RAISE"
       sType = "b"
     Else If aSym[0] = "READ" And If aSym.Count >= 4 Then
@@ -3738,7 +3740,6 @@ Private Sub CreateLocalVariable() As Boolean
       sName = aSym[I]
       sType = GetSymbolType(sName)
       If sType Then Return
-  
       sType = "s"
     Endif
 
@@ -3748,8 +3749,15 @@ Private Sub CreateLocalVariable() As Boolean
     sName = aSym[1]
     sType = GetSymbolType(sName)
     If sType Then Return
-  
     sType = "i"
+    
+  ' Shell & Exec ... To
+  Else If aSym.Count >= 3 And If aSym[0] = "SHELL" Or aSym[0] = "EXEC" And If aSym[aSym.Count - 2] = "TO" Then
+  
+    sName = aSym[aSym.Max]
+    sType = GetSymbolType(sName)
+    If sType Then Return
+    sType = "s"
   
   Endif
 

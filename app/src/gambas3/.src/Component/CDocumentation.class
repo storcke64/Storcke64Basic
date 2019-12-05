@@ -815,11 +815,23 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
 
       If aName Then
         For Each sName In aName
-          hSymbol2 = hSymbol.Copy("", "")
+          hSymbol2 = hSymbol.Copy()
           hSymbol2.Name = sName
           hSymbol2.LineNumber = hSymbol.LineNumber
           cSymbol[sName] = hSymbol2
         Next
+      Endif
+      
+      ' PROPERTY ... USE
+      
+      If InStr("pr", sKind) And If aSym.Count >= 4 Then
+        If aSym[aSym.Count - 2] = "USE" Then
+          sName = aSym[aSym.Max]
+          hSymbol2 = hSymbol.Copy()
+          hSymbol2.Name = sName
+          hSymbol2.LineNumber = hSymbol.LineNumber
+          cSymbol[sName] = hSymbol2
+        Endif
       Endif
 
       bCanInherit = False
