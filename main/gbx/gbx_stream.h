@@ -58,15 +58,15 @@ typedef
 		unsigned blocking : 1;
 		unsigned redirected : 1;
 		unsigned no_read_ahead : 1;
-		#if DEBUG_STREAM
-		unsigned tag : 5;
-		#else
-		unsigned _reserved : 5;
-		#endif
+		unsigned memory : 1;
+		unsigned _reserved : 4;
 		short buffer_pos;
 		short buffer_len;
 		char *buffer;
 		union STREAM *redirect;
+		#if DEBUG_STREAM
+		int tag;
+		#endif
 		}
 	STREAM_COMMON;
 

@@ -54,6 +54,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
   stream->memory.pos = 0;
 
 	stream->common.available_now = TRUE;
+	stream->common.memory = TRUE;
 
   return FALSE;
 }

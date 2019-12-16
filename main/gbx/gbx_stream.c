@@ -233,6 +233,7 @@ __OPEN:
 	stream->common.redirected = FALSE;
 	stream->common.redirect = NULL;
 	stream->common.no_read_ahead = FALSE;
+	stream->common.memory = FALSE;
 
 	if ((*(sclass->open))(stream, path, mode, NULL))
 		THROW_SYSTEM(errno, path);
@@ -1225,7 +1226,7 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 		case T_STRING:
 
-			if (stream->type == &STREAM_memory)
+			if (stream->common.memory)
 			{
 				ssize_t slen;
 				if (CHECK_strlen(stream->memory.addr + stream->memory.pos, &slen))
@@ -1237,7 +1238,7 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 			if (len > 0)
 			{
-				STRING_new_temp_value(value, NULL, labs(len));
+				STRING_new_temp_value(value, NULL, len);
 				STREAM_read(stream, value->_string.addr, len);
 			}
 			else
@@ -1245,6 +1246,9 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 				STRING_void_value(value);
 			}
 
+			if (stream->common.memory)
+				STREAM_seek(stream, SEEK_CUR, 1);
+				
 			break;
 
 		default:
@@ -1402,7 +1406,7 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 		case T_STRING:
 		case T_CSTRING:
 
-			if (stream->type == &STREAM_memory)
+			if (stream->common.memory)
 			{
 				STREAM_write(stream, value->_string.addr + value->_string.start, value->_string.len);
 				buffer._byte = 0;
