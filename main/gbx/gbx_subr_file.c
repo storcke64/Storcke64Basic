@@ -569,7 +569,6 @@ void SUBR_write(ushort code)
 				lenw = 0;
 			len = lenw;
 			str = (char *)PARAM[1]._pointer.value;
-			fprintf(stderr, "%p\n", str);
 		}
 		else
 		{
