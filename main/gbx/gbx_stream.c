@@ -1431,7 +1431,7 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 				break;
 			}
 			
-			class = OBJECT_class(value->_object.object)
+			class = OBJECT_class(value->_object.object);
 			
 			if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
 			{
