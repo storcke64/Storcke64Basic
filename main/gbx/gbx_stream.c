@@ -1421,15 +1421,19 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 
 		case T_OBJECT:
 		{
-			CLASS *class = OBJECT_class(value->_object.object);
+			CLASS *class;
 			void *structure;
 
 			if (!value->_object.object)
 			{
 				buffer._byte = 0;
 				STREAM_write(stream, &buffer._byte, 1);
+				break;
 			}
-			else if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
+			
+			class = OBJECT_class(value->_object.object)
+			
+			if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
 			{
 				CARRAY *array = (CARRAY *)value->_object.object;
 				VALUE temp;
