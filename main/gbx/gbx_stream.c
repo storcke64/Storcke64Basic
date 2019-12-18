@@ -1306,12 +1306,12 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 	}
 	buffer;
 
-	if (VALUE_is_null(value))
+	/*if (VALUE_is_null(value))
 	{
 		buffer._byte = 0;
 		STREAM_write(stream, &buffer._byte, 1);
 		return;
-	}
+	}*/
 
 	if (type == T_VARIANT)
 	{
@@ -1424,7 +1424,12 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 			CLASS *class = OBJECT_class(value->_object.object);
 			void *structure;
 
-			if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
+			if (!value->_object.object)
+			{
+				buffer._byte = 0;
+				STREAM_write(stream, &buffer._byte, 1);
+			}
+			else if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
 			{
 				CARRAY *array = (CARRAY *)value->_object.object;
 				VALUE temp;
