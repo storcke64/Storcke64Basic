@@ -240,12 +240,15 @@ bool gKey::mustIgnoreEvent(GdkEventKey *event)
 		return (event->type == GDK_KEY_PRESS) && (event->keyval == 0 || !event->string || (uchar)*event->string >= 32);
 }
 
-void gcb_im_commit(GtkIMContext *context, const char *str, gpointer pointer)
+void gcb_im_commit(GtkIMContext *context, const char *str, gControl *control)
 {
 	bool disable = false;
 
+	if (!control)
+		control = _im_control;
+	
 	// Not called from a key press event!
-	if (!_im_control)
+	if (!control)
 		return;
 
 	#if DEBUG_IM
@@ -254,12 +257,12 @@ void gcb_im_commit(GtkIMContext *context, const char *str, gpointer pointer)
 	
 	if (!gKey::valid())
 	{
-		gKey::enable(_im_control, NULL);
+		gKey::enable(control, NULL);
 		gKey::_event.keyval = gKey::_last_key_press;
 		disable = true;
 	}
 
-	gKey::_canceled = gKey::raiseEvent(gEvent_KeyPress, _im_control, str);
+	gKey::_canceled = gKey::raiseEvent(gEvent_KeyPress, control, str);
 #if DEBUG_IM
 	fprintf(stderr, "cb_im_commit: canceled = %d\n", gKey::_canceled);
 #endif

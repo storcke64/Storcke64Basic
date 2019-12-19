@@ -64,7 +64,7 @@ private:
 	static bool _valid;
 };
 
-void gcb_im_commit(GtkIMContext *context, const char *str, gpointer pointer);
+void gcb_im_commit(GtkIMContext *context, const char *str, gControl *control);
 gboolean gcb_key_event(GtkWidget *widget, GdkEvent *event, gControl *data);
 
 #endif

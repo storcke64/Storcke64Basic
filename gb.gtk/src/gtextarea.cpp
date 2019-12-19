@@ -341,7 +341,7 @@ static void cb_insert_text(GtkTextBuffer *buf, GtkTextIter *location, gchar *tex
 	
 	if (gKey::gotCommit())
 	{
-		gcb_im_commit(NULL, text, NULL);
+		gcb_im_commit(NULL, text, ctrl);
 		if (gKey::canceled())
 		{
 			g_signal_stop_emission_by_name(G_OBJECT(buf), "insert-text");

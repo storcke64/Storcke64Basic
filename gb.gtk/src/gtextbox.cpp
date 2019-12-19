@@ -80,7 +80,7 @@ static void cb_before_insert(GtkEditable *editable, gchar *new_text, gint new_te
 {
 	if (gKey::gotCommit())
 	{
-		gcb_im_commit(NULL, new_text, NULL);
+		gcb_im_commit(NULL, new_text, data);
 		if (gKey::canceled())
 			g_signal_stop_emission_by_name (G_OBJECT(editable), "insert-text");
 		*position = gtk_editable_get_position(editable);
