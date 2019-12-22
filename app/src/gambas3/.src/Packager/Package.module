@@ -1117,11 +1117,11 @@ Private Function MakeDebPackage(sSys As String)
   Print "\tdh_prep"
   Print "\tdh_installdirs" 
   If Project.Type = Project.TYPE_NORMAL Then
-    If $sName <> sPackageName Then Print "\tln -s " & Shell$($sName) & " $(CURDIR)/debian" &/ sPackageName &/ "/usr/bin" &/ Shell$(sPackageName)
+    If $sName <> sPackageName Then Print "\tln -s " & Shell$($sName) & " \"$(CURDIR)\"/debian" &/ sPackageName &/ "/usr/bin" &/ Shell$(sPackageName)
   Else If Project.Type = Project.TYPE_COMPONENT Then 
-    Print "\tcp src" &/ $sName & "/.component  $(CURDIR)/debian/" & sPackageName & "/usr/lib/gambas" & System.Version & "/" & Shell$($sComponentName) & ".component"
-    Print "\tcp src" &/ $sName & "/.info  $(CURDIR)/debian/" & sPackageName & "/usr/share/gambas" & System.Version & "/info/" & Shell$($sComponentName) & ".info " ""
-    Print "\tcp src" &/ $sName & "/.list  $(CURDIR)/debian/" & sPackageName & "/usr/share/gambas" & System.Version & "/info/" & Shell$($sComponentName) & ".list"
+    Print "\tcp src" &/ $sName & "/.component \"$(CURDIR)\"/debian/" & sPackageName & "/usr/lib/gambas" & System.Version & "/" & Shell$($sComponentName) & ".component"
+    Print "\tcp src" &/ $sName & "/.info \"$(CURDIR)\"/debian/" & sPackageName & "/usr/share/gambas" & System.Version & "/info/" & Shell$($sComponentName) & ".info " ""
+    Print "\tcp src" &/ $sName & "/.list \"$(CURDIR)\"/debian/" & sPackageName & "/usr/share/gambas" & System.Version & "/info/" & Shell$($sComponentName) & ".list"
   Endif 
   Print "\ttouch install-stamp"
   Print 
@@ -1587,7 +1587,7 @@ Private Function MakeRpmPackage(sSys As String)
           Print #hFile, "install -Dp .icon/48.png %{buildroot}/%{_datadir}/icons/hicolor/48x48/apps" &/ Shell$(sIcon)
           Print #hFile, "install -Dp .icon/64.png %{buildroot}/%{_datadir}/icons/hicolor/64x64/apps" &/ Shell$(sIcon)
           
-          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " %{buildroot}/%{_bindir}/" & Shell$(sPackageName)
+          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " \"%{buildroot}/%{_bindir}\"/" & Shell$(sPackageName)
   
           Print #hFile, "install -d %{buildroot}/%{_datadir}/applications"
           Print #hFile, "cat << EOF > %{buildroot}/%{_datadir}/applications/%{name}.desktop"
@@ -1602,7 +1602,7 @@ Private Function MakeRpmPackage(sSys As String)
           Print #hFile, "install -d %{buildroot}/%{_datadir}/applications"
           Print #hFile, "install -p .icon/48.png %{buildroot}/%{_datadir}/pixmaps" &/ Shell$(sIcon)
           
-          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " %{buildroot}/%{_bindir}/" & Shell$(sPackageName)
+          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " \"%{buildroot}/%{_bindir}\"/" & Shell$(sPackageName)
     
           Print #hFile, "cat << EOF > %{buildroot}%{_datadir}/applications/%{name}.desktop"
           
@@ -1616,7 +1616,7 @@ Private Function MakeRpmPackage(sSys As String)
           Print #hFile, "install -d %{buildroot}/%{_datadir}/applications"
           Print #hFile, "install -p .icon/48.png %{buildroot}/%{_datadir}/pixmaps" &/ Shell$(sIcon)
           
-          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " %{buildroot}/%{_bindir}/" & Shell$(sPackageName)
+          If $sName <> sPackageName Then Print #hFile, "ln -s " & Shell$($sName) & " \"%{buildroot}/%{_bindir}\"/" & Shell$(sPackageName)
     
           Print #hFile, "cat << EOF > %{buildroot}%{_datadir}/applications/%{name}.desktop"
           
@@ -2467,7 +2467,7 @@ Private Function MakeArchPackage(sSys As String)
   
         Print #hFile, "  install -d ${pkgdir}/usr/bin"
         Print #hFile, "  install -m755 " & $sName & ".gambas ${pkgdir}/usr/bin" &/ $sName
-        If $sName <> sPackageName Then Print #hFile, "  ln -s " & Shell$($sName) & " $(pkgdir)/usr/bin" &/ Shell$(sPackageName)
+        If $sName <> sPackageName Then Print #hFile, "  ln -s " & Shell$($sName) & " \"$(pkgdir)\"/usr/bin" &/ Shell$(sPackageName)
         Print #hFile, "  install -D .." &/ Project.Name & ".png \\"
         Print #hFile, "    ${pkgdir}/usr/share/pixmaps" &/ Project.Name & ".png"
         Print #hFile, "  install -D .." &/ sPackageName & ".desktop \\"
