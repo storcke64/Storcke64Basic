@@ -49,9 +49,10 @@ typedef
 		int unknown;
 		unsigned global_used : 1;
 		unsigned global_assigned : 1;
+		unsigned global_no_warning : 1;
 		unsigned local_used : 1;
 		unsigned local_assigned : 1;
-		unsigned _reserved : 28;
+		unsigned _reserved : 27;
 		}
 	PACKED
 	CLASS_SYMBOL;

@@ -228,6 +228,9 @@ void CLASS_check_unused_global(CLASS *class)
 		sym = CLASS_get_symbol(class, i);
 		type = sym->global.type;
 		
+		if (sym->global_no_warning)
+			continue;
+		
 		if (sym->global_used && sym->global_assigned)
 			continue;
 		
@@ -283,6 +286,7 @@ int CLASS_add_function(CLASS *class, TRANS_FUNC *decl)
 		sym = CLASS_declare(class, decl->index, TK_FUNCTION, TRUE);
 		sym->global.type = decl->type;
 		sym->global.value = count;
+		sym->global_no_warning = decl->no_warning;
 	}
 
 	if (TYPE_is_static(decl->type))
@@ -311,7 +315,7 @@ int CLASS_add_function(CLASS *class, TRANS_FUNC *decl)
 	func->vararg = decl->vararg;
 	func->fast = decl->fast;
 	func->unsafe = decl->unsafe;
-
+	
 	// Function startup
 
 	CODE_begin_function(func);

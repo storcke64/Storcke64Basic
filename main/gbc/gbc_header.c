@@ -98,6 +98,14 @@ static void analyze_function_desc(TRANS_FUNC *func, int flag)
 	TRANS_DECL ttyp;
 	uint64_t byref_mask = 1;
 
+	if (PATTERN_is(*look, RS_LBRA))
+	{
+		func->no_warning = TRUE;
+		look++;
+	}
+	else
+		func->no_warning = FALSE;
+		
 	if (!PATTERN_is_identifier(*look))
 		THROW("Syntax error. Invalid identifier in function name");
 
@@ -108,6 +116,13 @@ static void analyze_function_desc(TRANS_FUNC *func, int flag)
 	if (flag & HF_EVENT)
 		func->index = TABLE_copy_symbol_with_prefix(JOB->class->table, func->index, ':');
 
+	if (func->no_warning)
+	{
+		if (!PATTERN_is(*look, RS_RBRA))
+			THROW(E_MISSING, "')'");
+		look++;
+	}
+	
 	func->nparam = 0;
 	func->byref = 0;
 	func->vararg = FALSE;
@@ -396,6 +411,7 @@ static bool header_property(TRANS_PROPERTY *prop)
 
 	return TRUE;
 }
+
 
 static bool header_extern(TRANS_EXTERN *trans)
 {
