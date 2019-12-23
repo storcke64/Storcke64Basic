@@ -548,7 +548,7 @@ Public Sub mnuClose_Click()
 End
 
 
-Private Sub InsertProperty()
+Private Sub InsertProperty(bShift As Boolean)
 
   Dim iPos As Integer
   Dim bStatic As Boolean
@@ -558,28 +558,31 @@ Private Sub InsertProperty()
   Dim sType As String
   Dim iLine As Integer
   Dim iCol As Integer
+  Dim aSymbols As String[]
 
-  If Highlight.Symbols[0] = "STATIC" Then
+  aSymbols = Highlight.Symbols
+
+  If aSymbols[0] = "STATIC" Then
     bStatic = True
     iPos = 2
   Else
     iPos = 1
   Endif
 
-  If Highlight.Symbols[iPos] = "READ" Then
+  If aSymbols[iPos] = "READ" Then
     bRead = True
     Inc iPos
   Endif
 
 ANOTHER_SYMBOL: 
 
-  sName = Highlight.Symbols[iPos]
+  sName = aSymbols[iPos]
   If sName = "{" Then
     Inc iPos
     If Highlight.Types[iPos] <> Highlight.Symbol Then Return
-    sName = Highlight.Symbols[iPos]
+    sName = aSymbols[iPos]
     Inc iPos
-    If Highlight.Symbols[iPos] <> "}" Then Return
+    If aSymbols[iPos] <> "}" Then Return
   Else
     If Highlight.Types[iPos] <> Highlight.Symbol Then Return
   Endif
@@ -587,22 +590,26 @@ ANOTHER_SYMBOL:
 
   Inc iPos
   
-  If Highlight.Symbols[iPos] = "," Then
+  If aSymbols[iPos] = "," Then
     Inc iPos
     Goto ANOTHER_SYMBOL
   Endif
   
   sName = sName2
   
-  If Highlight.Symbols[iPos] <> "AS" Then Return
+  If aSymbols[iPos] <> "AS" Then Return
   Inc iPos
-  sType = Highlight.Symbols[iPos]
+  sType = aSymbols[iPos]
   If Highlight.Types[iPos] <> Highlight.DataType Then Return
   Inc iPos
-  If Highlight.Symbols.Max >= iPos Then
-    If Highlight.Symbols[iPos] = "[" Then
+  If aSymbols.Max >= iPos Then
+    If aSymbols[iPos] = "[" Then
       sType &= "[]"
     Endif
+  Endif
+  
+  If aSymbols[aSymbols.Max - 1] = "USE" Then
+    If Not bShift Then Return
   Endif
 
   iLine = $hEditor.Line
@@ -903,7 +910,7 @@ Public Sub Editors_KeyPress()
 
     If aSymbol.Count >= 4 Then
       If aSymbol[0] = "PROPERTY" Or If aSymbol[0] = "STATIC" And aSymbol[1] = "PROPERTY" Then
-        InsertProperty
+        InsertProperty(Key.Shift)
         '$hEditor.Insert("\n")
         'Stop Event
         Return
