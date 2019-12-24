@@ -356,12 +356,18 @@ Public Sub Main()
     InitWebView
     CRecentProject.Load
     FMain.Load
+    Design.ClearBreakpoints
     Project.Open(sPath)
     
     Dim hComp As CComponent
     For Each hComp In Project.Documentation.Components
       hComp.Load
     Next
+    
+    Project.CloseAllWindows
+    Wait
+    Project.Close
+    Project.Exit
     
     Quit
     'FSearch.FindProject("else")
