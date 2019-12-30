@@ -68,7 +68,7 @@ Public Sub RemoveCookie(Cookie As String, Value As String, Optional Domain As St
   
   sVal = Cookie & "=" & Value
   If Domain Then sVal &= ";domain=" & Domain
-  sVal &= ";expires=" & CGI.FormatDate(Now - 1)
+  sVal &= ";expires=Thu, 01 Jan 1970 00:00:00 GMT"
   If Path Then sVal &= ";path=" & Path
   
   AddHeader("Set-Cookie", sVal)
