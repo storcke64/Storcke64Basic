@@ -819,7 +819,12 @@ Public Function GetHelpURL(Optional bShowFile As Boolean) As String
       sPath = MHelp.GetURL("comp")
       sComp = MHelp.ActualComponent(Component)
       sPath &/= LCase(sComp)
-      sPath &/= LCase(Class) 'Left(Class) & Replace(Mid(Class, 2), "_", "."))
+      ' We keep the class case for custom object arrays
+      If Class Ends "[]" And If Not hComp[Class] Then
+        sPath &/= Class
+      Else
+        sPath &/= LCase(Class) 'Left(Class) & Replace(Mid(Class, 2), "_", "."))
+      Endif
       
       sName = LCase(Name)
       'sName = Left(sName) & Replace(Mid$(sName, 2), "_", ".")
