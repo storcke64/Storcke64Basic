@@ -888,7 +888,7 @@ static void add_quoted_identifier(void)
 	{
 		if (car != '}')
 			THROW("Missing '}'");
-		
+	
 		if (len == 2)
 			THROW("Void identifier");
 	}
@@ -896,6 +896,9 @@ static void add_quoted_identifier(void)
 	{
 		if (!car)
 			len--;
+		
+		if (car != '}' || len <= 2)
+			type = RT_ERROR;
 	}
 	
 	if (!EVAL->analyze && PATTERN_is(last_pattern, RS_EXCL))
@@ -905,12 +908,12 @@ static void add_quoted_identifier(void)
 	}
 	else
 	{
-		if (!EVAL->rewrite)
+		if (!EVAL->rewrite && type != RT_ERROR)
 		{
 			start++;
 			len -= 2;
 		}
-		index = TABLE_add_symbol(EVAL->table, start, len);
+		index = TABLE_add_symbol(type == RT_ERROR ? EVAL->string : EVAL->table, start, len);
 	}
 
 	add_pattern(type, index);
