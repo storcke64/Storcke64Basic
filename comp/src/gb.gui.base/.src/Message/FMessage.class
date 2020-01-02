@@ -28,8 +28,8 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[]) As Integer
   Loop
   
   hPict = Picture["icon:/64/" & sIcon]
-  If Not hPict Then hPict = Picture["message" &/ sIcon & ".png"]
-  If Not hPict Then hPict = Picture["message/info.png"]
+  If Not hPict Then hPict = Picture["./gb.gui.base/message" &/ sIcon & ".png"]
+  If Not hPict Then hPict = Picture["./gb.gui.base/message/info.png"]
   picMessage.Picture = hPict
   
   sText = Replace(sText, "\n", "<br>")

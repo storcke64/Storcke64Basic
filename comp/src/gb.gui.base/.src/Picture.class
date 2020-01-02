@@ -65,7 +65,7 @@ Static Public Sub _get(Path As String) As Picture
     
     sPath = Path
     
-    If File.IsRelative(sPath) Then sPath = ".." &/ sPath
+    If File.IsRelative(sPath) And If sPath Not Begins "./" Then sPath = ".." &/ sPath
     'Debug Path;; System.Backtrace.Join(" ")
     
     ' Support for rtl/ltr icons
