@@ -46,8 +46,11 @@
 	JOB->nobreak = nobreak; \
 }
 
-
+#if defined(__GNUC__) && __GNUC__ == 8
+static volatile int ctrl_level; // Woarkaround a gcc compiler optimization bug
+#else
 static int ctrl_level;
+#endif
 static int ctrl_id;
 static int ctrl_local;
 
