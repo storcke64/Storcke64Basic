@@ -47,7 +47,7 @@
 }
 
 #if defined(__GNUC__) && __GNUC__ == 8
-static volatile int ctrl_level; // Woarkaround a gcc compiler optimization bug
+static volatile int ctrl_level; // Workaround a gcc compiler optimization bug
 #else
 static int ctrl_level;
 #endif
