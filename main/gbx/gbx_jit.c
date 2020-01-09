@@ -307,8 +307,6 @@ bool JIT_exec(bool ret_on_stack)
 	
 	RELEASE_MANY(SP, nparam);
 	
-	RET = ret;
-	
 	STACK_pop_frame(&EXEC_current);
 	
 	if (ret_on_stack)
@@ -322,6 +320,8 @@ bool JIT_exec(bool ret_on_stack)
 		*SP++ = ret;
 		ret.type = T_VOID;
 	}
+	else
+		RET = ret;
 	
 	return FALSE;
 }
