@@ -48,6 +48,7 @@ Static Public Sub _get(Path As String) As Picture
   Dim sPath As String
   Dim sBaseName As String
   Dim sDarkPath As String
+  Dim bMoveUp As Boolean
   
   If Not Path Then Return
   
@@ -65,8 +66,17 @@ Static Public Sub _get(Path As String) As Picture
     
     sPath = Path
     
-    If File.IsRelative(sPath) And If sPath Not Begins "./" Then sPath = ".." &/ sPath
-    'Debug Path;; System.Backtrace.Join(" ")
+    If File.IsRelative(sPath) Then
+      If sPath Begins "./" Then
+        If sPath Not Begins "./gb." Then 
+          bMoveUp = True
+        Endif
+      Else 
+        bMoveUp = True
+      Endif
+    Endif
+    
+    If bMoveUp Then sPath = ".." &/ sPath
     
     ' Support for rtl/ltr icons
     
