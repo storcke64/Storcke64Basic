@@ -378,7 +378,7 @@ enum
   GB_ARRAY_IMPL *_a = (_array).value; \
   int _i = (_index); \
   if (!_a) THROW(E_NOBJECT); \
-  if (_a->ref) THROW(E_SARRAY); \
+  if (_a->ref == _a) THROW(E_SARRAY); \
   if (_i < 0 || _i >= _a->count) THROW(E_BOUND); \
   &((_type *)_a->data)[_i]; \
 })

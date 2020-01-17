@@ -2786,6 +2786,7 @@ _PUSH_DYNAMIC:
 			break;
 			
 		case TC_ARRAY:
+			declare(&_decl_ra, "void *ra = NULL");
 			push(type, "GET_A(CP, OP, &OP[%d], CLASS(%p), %p)", pos, (CLASS *)type, JIT_class->load->array[ctype.value]);
 			break;
 			
