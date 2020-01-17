@@ -57,15 +57,8 @@ int EXPORT GB_INIT(void)
 	{
 #if POPPLER_VERSION_0_83
 		globalParams = std::unique_ptr<GlobalParams>();
-#elif POPPLER_VERSION_0_6
+#else
 		globalParams = new GlobalParams();
-#else
-		globalParams = new GlobalParams("/etc/xpdfrc");
-#endif
-
-#if POPPLER_VERSION_0_5
-#else
-		globalParams->setupBaseFontsFc(NULL);
 #endif
 	}
 
