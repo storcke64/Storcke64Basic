@@ -110,7 +110,7 @@ build:debian-testing:
        libssl-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-keyring --disable-qtwebkit
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-keyring --disable-qt4 --disable-qtwebkit
     - make -j$(nproc)
     - make install
 
@@ -175,6 +175,7 @@ build:alpine:
        sdl2_mixer-dev sdl2_ttf-dev sdl_mixer-dev sqlite-dev unixodbc-dev xdg-utils zlib-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sqlite2 --disable-v4l
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sqlite2 --disable-v4l --disable-gtkopengl
     - make -j$(nproc)
     - make install
+
