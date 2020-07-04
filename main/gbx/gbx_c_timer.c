@@ -41,6 +41,7 @@ static void enable_timer(CTIMER *_object, bool on)
 {
 	if (on != (THIS->id != 0))
 		HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, on);
+
 	if (on && (THIS->id == 0))
 		GB_Error("Too many active timers");
 }
@@ -128,7 +129,7 @@ BEGIN_PROPERTY(Timer_Enabled)
 	if (READ_PROPERTY)
 		GB_ReturnBoolean(THIS->id != 0);
 	else
-		enable_timer(THIS, VPROP(GB_BOOLEAN));
+		enable_timer(THIS, !!VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 

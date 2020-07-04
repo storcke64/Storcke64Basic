@@ -51,6 +51,15 @@ Public Sub _init()
   
 End
 
+Public Sub Reset()
+  
+  $bDecoded = False
+  _Request_Get._Reset
+  _Request_Post._Reset
+  
+End
+
+
 Public Sub _get(Key As String) As String
 
   Dim sVal As String
@@ -199,7 +208,7 @@ End
 
 Private Sub Reload()
   
-  _Request_Get._Reload
+  _Request_Get._Reset
   
 End
 
@@ -243,8 +252,13 @@ Private Function Language_Read() As String
   'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3
   
   If $sLanguage Then Return $sLanguage
-
-  aLang = Split(CGI["HTTP_ACCEPT_LANGUAGE"], ",")
+  
+  aLang = Split(CGI["HTTP_ACCEPT_LANGUAGE"], ",", "", True)
+  If aLang.Count = 0 Then
+    $sLanguage = System.Language
+    Return $sLanguage
+  Endif
+  
   aQuality = New Integer[aLang.Count]
   
   For I = 0 To aLang.Max

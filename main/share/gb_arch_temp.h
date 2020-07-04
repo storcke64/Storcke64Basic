@@ -69,7 +69,7 @@ static void load_arch(ARCH *arch, const char *path)
 	
 	_path = path;
 
-	arch->fd = open(path, O_RDONLY);
+	arch->fd = open(path, O_RDONLY | O_CLOEXEC);
 	if (arch->fd < 0)
 		THROW(E_OPEN, path, strerror(errno));
 

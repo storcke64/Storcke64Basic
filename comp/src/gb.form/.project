@@ -1,23 +1,25 @@
 # Gambas Project File 3.0
 Title=More controls for graphical components
-Startup=FTestFileView
+Startup=FTestFileChooser
 Version=3.14.90
 VersionFile=1
 Component=gb.image
 Component=gb.gui
+Component=gb.form
 Component=gb.settings
+Component=gb.form.stock
 Authors="Benoît Minisini"
-Environment="GB_GUI=gb.qt5"
+Environment="GB_GUI=gb.qt5\nGB_STOCK_DEBUG=1"
 TabSize=2
 Translate=1
 Language=en
 Type=Component
 Maintainer=Benoit Minisini
-Vendor=gb
 Address=benoit@minisini.fr
+Url=www.endoftheinternet.com
 License=General Public Licence
 Prefix=1
-PackageName=gambas3-gb-form-3.8.0
+PackageName=gambas3-gb-form-3.14.90
 CreateEachDirectory=1
 Packager=1
 Systems=autotools

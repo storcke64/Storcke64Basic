@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,112,75)
+  MoveScaled(0,0,112,73)
   Text = ("Project properties")
   Icon = Picture["icon:/small/edit"]
   Persistent = True
@@ -117,114 +117,145 @@
     MoveScaled(1,1,108,66)
     Expand = True
     Arrangement = Arrange.Vertical
-    Count = 9
+    Spacing = True
+    Count = 7
     Border = True
     Index = 0
     Text = ("General")
-    Picture = Picture["icon:/medium/gambas"]
-    { Panel1 Panel
-      MoveScaled(1,0,85,9)
-      { btnIcon ToolButton
-        MoveScaled(0,0,8,8)
-        Border = True
-      }
-      { txtName TextLabel
-        MoveScaled(9,0,66,8)
-        Expand = True
-        Alignment = Align.Left
-      }
-    }
-    { panGeneral HPanel
-      MoveScaled(1,10,84,56)
+    Picture = Picture["icon:/large/gambas"]
+    { Panel4 VBox
+      MoveScaled(0,0,86,65)
       Expand = True
-      AutoResize = True
       Spacing = True
-      { Label16 Label
-        MoveScaled(0,0,16,4)
-        Font = Font["Bold"]
-        Text = ("Project type")
-      }
-      { Panel7 Panel
-        MoveScaled(18,0,61,4)
-        { cmbType ComboBox
-          MoveScaled(0,0,32,4)
-          Expand = True
-          ReadOnly = True
-          List = [("Normal"), ("Library"), ("Component")]
-        }
-      }
-      { Label18 Label
-        MoveScaled(0,5,16,4)
-        Font = Font["Bold"]
-        Text = ("Vendor")
-      }
-      { txtVendor MaskBox
-        MoveScaled(18,5,44,4)
-        Expand = True
-        Filter = "[A-Za-z0-9_-]"
-      }
-      { Label10 Label
-        MoveScaled(0,10,16,4)
-        Font = Font["Bold"]
-        Text = ("Version")
-      }
-      { HBox1 HBox
-        MoveScaled(18,10,64,4)
-        Expand = True
+      { Panel1 HBox
+        MoveScaled(0,0,84,9)
         Spacing = True
-        { txtMajor SpinBox
-          MoveScaled(0,0,9,4)
-          MaxValue = 9999
-        }
-        { txtMinor SpinBox
-          MoveScaled(10,0,9,4)
-          MaxValue = 9999
-        }
-        { txtRelease SpinBox
-          MoveScaled(20,0,12,4)
-          MaxValue = 999999
-        }
-        { chkGetVersionFromFile CheckBox
-          MoveScaled(33,0,24,4)
+        { VBox1 HPanel
+          MoveScaled(0,0,72,9)
           Expand = True
-          Text = ("Get from 'VERSION' file")
+          Spacing = True
+          { Label28 Label
+            MoveScaled(0,0,16,4)
+            Font = Font["Bold"]
+            Text = ("Name")
+          }
+          { lblName Label
+            MoveScaled(18,0,24,4)
+            Font = Font["+4,Bold"]
+            Expand = True
+          }
+          { Label29 Label
+            MoveScaled(0,5,16,4)
+            Font = Font["Bold"]
+            Text = ("Location")
+          }
+          { txtPath TextBox
+            MoveScaled(18,5,27,4)
+            Expand = True
+            ReadOnly = True
+          }
+        }
+        { Panel9 VBox
+          MoveScaled(73,0,9,9)
+          { btnIcon ToolButton
+            MoveScaled(0,0,9,9)
+            Background = Color.TextBackground
+            Border = True
+          }
         }
       }
-      { Label12 Label
-        MoveScaled(0,15,16,4)
-        Font = Font["Bold"]
-        Text = ("Title")
-      }
-      { txtTitle TextBox
-        MoveScaled(18,15,60,4)
+      { panGeneral HPanel
+        MoveScaled(0,10,84,54)
         Expand = True
-      }
-      { Label3 Label
-        MoveScaled(0,19,16,4)
-        Font = Font["Bold"]
-        Text = ("Description")
-      }
-      { txtDesc TextArea
-        MoveScaled(18,20,60,16)
-        Expand = True
-        Wrap = True
-      }
-      { Label11 Label
-        MoveScaled(0,37,16,4)
-        Font = Font["Bold"]
-        Text = ("Authors")
-      }
-      { txtAuthor TextArea
-        MoveScaled(18,37,57,15)
-        Expand = True
-        Wrap = True
+        AutoResize = True
+        Spacing = True
+        { Label16 Label
+          MoveScaled(0,0,16,4)
+          Font = Font["Bold"]
+          Text = ("Type")
+        }
+        { Panel7 Panel
+          MoveScaled(18,0,61,4)
+          { cmbType ComboBox
+            MoveScaled(0,0,32,4)
+            Expand = True
+            ReadOnly = True
+            List = [("Normal"), ("Library"), ("Component")]
+          }
+        }
+        { Label18 Label
+          MoveScaled(0,5,16,4)
+          Font = Font["Bold"]
+          Text = ("Vendor")
+        }
+        { txtVendor MaskBox
+          MoveScaled(18,5,44,4)
+          Expand = True
+          Filter = "[A-Za-z0-9_-]"
+        }
+        { Label10 Label
+          MoveScaled(0,10,16,4)
+          Font = Font["Bold"]
+          Text = ("Version")
+        }
+        { HBox1 HBox
+          MoveScaled(18,10,64,4)
+          Expand = True
+          Spacing = True
+          { txtMajor SpinBox
+            MoveScaled(0,0,9,4)
+            MaxValue = 9999
+          }
+          { txtMinor SpinBox
+            MoveScaled(10,0,9,4)
+            MaxValue = 9999
+          }
+          { txtRelease SpinBox
+            MoveScaled(20,0,12,4)
+            MaxValue = 999999
+          }
+          { chkGetVersionFromFile CheckBox
+            MoveScaled(33,0,24,4)
+            Expand = True
+            Text = ("Get from 'VERSION' file")
+          }
+        }
+        { Label12 Label
+          MoveScaled(0,15,16,4)
+          Font = Font["Bold"]
+          Text = ("Title")
+        }
+        { txtTitle TextBox
+          MoveScaled(18,15,60,4)
+          Expand = True
+        }
+        { Label3 Label
+          MoveScaled(0,19,16,4)
+          Font = Font["Bold"]
+          Text = ("Description")
+        }
+        { txtDesc TextArea
+          MoveScaled(18,20,60,16)
+          Expand = True
+          Wrap = True
+        }
+        { Label11 Label
+          MoveScaled(0,37,16,4)
+          Font = Font["Bold"]
+          Text = ("Authors")
+        }
+        { txtAuthor TextArea
+          MoveScaled(18,37,57,16)
+          Expand = True
+          Wrap = True
+        }
       }
     }
     Index = 1
     Text = ("Information")
-    Picture = Picture["icon:/medium/info"]
+    Picture = Picture["icon:/large/info"]
     { Panel5 VBox
-      MoveScaled(1,1,82,65)
+      MoveScaled(2,1,82,65)
       Expand = True
       Spacing = True
       { lblInfo Label
@@ -385,88 +416,91 @@
     }
     Index = 2
     Text = ("Components")
-    Picture = Picture["icon:/medium/component"]
+    Picture = Picture["icon:/large/component"]
     { choComponent ComponentChooser
       MoveScaled(6,9,67,37)
       Expand = True
     }
     Index = 3
     Text = ("Libraries")
-    Picture = Picture["icon:/medium/plugin"]
-    { Label9 Label
-      MoveScaled(1,1,26,3)
-      Font = Font["Bold"]
-      Text = ("Libraries")
-    }
-    { Label17 Label
-      MoveScaled(2,5,60,4)
-      Visible = False
-      AutoResize = True
-      Text = ("Runtime library search path")
-    }
-    { txtLibraryPath TextBox
-      MoveScaled(2,9,24,4)
-      Visible = False
-    }
-    { Panel2 Panel
-      MoveScaled(1,15,84.875,20.875)
+    Picture = Picture["icon:/large/plugin"]
+    { Panel13 VBox
+      MoveScaled(1,1,85.75,63.875)
       Expand = True
-      Arrangement = Arrange.Vertical
-      Border = Border.Plain
-      { gvwLibrary GridView
-        MoveScaled(1,0,59,14)
+      Spacing = True
+      { Label9 Label
+        MoveScaled(0,0,26,3)
+        Font = Font["Bold"]
+        Text = ("Libraries")
+      }
+      { Label17 Label
+        MoveScaled(1,4,60,4)
+        Visible = False
+        AutoResize = True
+        Text = ("Runtime library search path")
+      }
+      { txtLibraryPath TextBox
+        MoveScaled(1,8,24,4)
+        Visible = False
+      }
+      { Panel2 Panel
+        MoveScaled(0,14,84.875,20.875)
         Expand = True
-        Border = False
-        Mode = Select.Single
-        Grid = False
+        Arrangement = Arrange.Vertical
+        Border = Border.Plain
+        { gvwLibrary GridView
+          MoveScaled(1,0,59,14)
+          Expand = True
+          Border = False
+          Mode = Select.Single
+          Grid = False
+        }
+        { Separator1 Separator
+          MoveScaled(56,14,12,0)
+        }
+        { HBox18 HBox
+          MoveScaled(0,16,84,4)
+          Background = Color.TextBackground
+          { btnInsertLib ToolButton
+            MoveScaled(0,0,17,4)
+            AutoResize = True
+            Text = Shortcut(("Add"), "A") & "..."
+            Picture = Picture["icon:/small/add"]
+          }
+          { btnRemoveLib ToolButton
+            MoveScaled(18,0,17,4)
+            Enabled = False
+            AutoResize = True
+            Text = Shortcut(("Remove"), "R")
+            Picture = Picture["icon:/small/remove"]
+          }
+          { btnMoveUpLib ToolButton
+            MoveScaled(36,0,4,4)
+            Enabled = False
+            Picture = Picture["icon:/small/up"]
+          }
+          { btnMoveDownLib ToolButton
+            MoveScaled(43,0,4,4)
+            Enabled = False
+            Picture = Picture["icon:/small/down"]
+          }
+        }
       }
-      { Separator1 Separator
-        MoveScaled(56,14,12,0)
+      { Label6 Label
+        MoveScaled(0,39,29,3)
+        Font = Font["Bold"]
+        Text = ("Additional references")
       }
-      { HBox18 HBox
-        MoveScaled(0,16,84,4)
-        Background = Color.TextBackground
-        { btnInsertLib ToolButton
-          MoveScaled(0,0,17,4)
-          AutoResize = True
-          Text = Shortcut(("Add"), "A") & "..."
-          Picture = Picture["icon:/small/add"]
-        }
-        { btnRemoveLib ToolButton
-          MoveScaled(18,0,17,4)
-          Enabled = False
-          AutoResize = True
-          Text = Shortcut(("Remove"), "R")
-          Picture = Picture["icon:/small/remove"]
-        }
-        { btnMoveUpLib ToolButton
-          MoveScaled(36,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/up"]
-        }
-        { btnMoveDownLib ToolButton
-          MoveScaled(43,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/down"]
-        }
+      { lstReferences ListEditor
+        MoveScaled(0,43,79,20)
+        Expand = True
+        ReadOnly = True
+        Unique = True
       }
-    }
-    { Panel8 Panel
-      MoveScaled(22,37,6,1)
-    }
-    { Label6 Label
-      MoveScaled(1,40,29,3)
-      Font = Font["Bold"]
-      Text = ("Additional references")
-    }
-    { lstReferences ListEditor
-      MoveScaled(1,44,79,20)
-      Expand = True
-      ReadOnly = True
     }
     Index = 4
     Text = ("Environment")
-    Picture = Picture["icon:/medium/select"]
+    Picture = Picture["icon:/large/attach"]
     { Panel3 Panel
       MoveScaled(9,9,69,42)
       Expand = True
@@ -488,7 +522,7 @@
         { btnInsertEnv MenuButton
           MoveScaled(0,0,19,4)
           AutoResize = True
-          Text = ("&Insert")
+          Text = ("&Add")
           Picture = Picture["icon:/small/add"]
           Border = False
           Menu = "mnuInsertEnv"
@@ -502,60 +536,11 @@
       }
     }
     Index = 5
-    Text = ("Arguments")
-    Picture = Picture["icon:/medium/play"]
-    { Panel4 Panel
-      MoveScaled(1,2,81,60)
-      Expand = True
-      Arrangement = Arrange.Vertical
-      Border = Border.Plain
-      { svwArgList ScrollView
-        MoveScaled(1,1,79,39)
-        Background = Color.TextBackground
-        Expand = True
-        Arrangement = Arrange.Vertical
-        Spacing = True
-        Margin = True
-        Border = False
-        ScrollBar = Scroll.Vertical
-        Focus = True
-      }
-      { Separator3 Separator
-        MoveScaled(24,42,14,0)
-      }
-      { HBox2 HBox
-        MoveScaled(0,45,77,4)
-        Background = Color.TextBackground
-        { btnNewArgument ToolButton
-          MoveScaled(0,0,16,4)
-          AutoResize = True
-          Text = ("Insert")
-          Picture = Picture["icon:/small/add"]
-        }
-        { btnRemoveArgument ToolButton
-          MoveScaled(17,0,16,4)
-          Enabled = False
-          AutoResize = True
-          Text = ("Remove")
-          Picture = Picture["icon:/small/remove"]
-        }
-        { btnMoveUpArg ToolButton
-          MoveScaled(34,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/up"]
-        }
-        { btnMoveDownArg ToolButton
-          MoveScaled(41,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/down"]
-        }
-      }
-    }
-    Index = 6
     Text = ("Options")
-    Picture = Picture["icon:/medium/options"]
+    Picture = Picture["icon:/large/options"]
     { Panel6 VBox
-      MoveScaled(0,0,86,47)
+      MoveScaled(1,2,86,60)
+      Expand = True
       Spacing = True
       { Label7 Label
         MoveScaled(0,0,84,3)
@@ -598,7 +583,6 @@
       { Label8 Label
         MoveScaled(0,14,84,3)
         Font = Font["Bold"]
-        Expand = True
         Text = ("Compilation")
         Alignment = Align.BottomNormal
       }
@@ -644,7 +628,6 @@
       { Label19 Label
         MoveScaled(0,33,84,3)
         Font = Font["Bold"]
-        Expand = True
         Text = ("Translation")
         Alignment = Align.BottomNormal
       }
@@ -676,27 +659,44 @@
           Sorted = True
         }
       }
+      { Label27 Label
+        MoveScaled(0,47,84,3)
+        Font = Font["Bold"]
+        Text = ("Version control")
+        Alignment = Align.BottomNormal
+      }
+      { HBox6 HBox
+        MoveScaled(1,52,83,4)
+        Spacing = True
+        Indent = True
+        { Label23 Label
+          MoveScaled(0,0,46,4)
+          Text = ("Add branch to version number")
+        }
+        { btnVersionAddBranch SwitchButton
+          MoveScaled(47,0,8,4)
+          Animated = True
+        }
+      }
     }
-    Index = 7
+    Index = 6
     Text = ("Statistics")
-    Picture = Picture["icon:/medium/monitor"]
+    Picture = Picture["icon:/large/monitor"]
     { gvwStat GridView
-      MoveScaled(10,7,62,25)
+      MoveScaled(3,4,62,25)
       Expand = True
+      Grid = False
       Padding = 4
     }
-    Index = 8
-    Text = ("Version control")
-    Picture = Picture["icon:/medium/clock"]
     { gvwVcInfo GridView
-      MoveScaled(3,7,62,25)
+      MoveScaled(4,35,62,25)
       Expand = True
       Padding = 4
     }
     Index = 0
   }
   { Panel10 HBox
-    MoveScaled(27,69,81,4)
+    MoveScaled(12,68,83,4)
     Spacing = True
     { Panel11 Panel
       MoveScaled(0,1,14,3)

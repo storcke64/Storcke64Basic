@@ -5,8 +5,6 @@ Export
 Class Stock
 
 Static Private $cCache As New Collection
-Static Private $bInit As Boolean
-Static Private $bDarkTheme As Boolean
 
 Static Private Sub GetKey(sPath As String) As String
   
@@ -91,17 +89,14 @@ Static Public Sub _get(Path As String) As Picture
     
     ' Support for dark themes
     
-    If Not $bInit Then
-      If Color[Color.Background].Luminance < 128 Or If Env["GB_GUI_DARK_THEME"] = "1" Then $bDarkTheme = True
-      $bInit = True
-    Endif
-    
-    If $bDarkTheme Then
+    If Application.DarkTheme Then
       sDarkPath = File.SetBaseName(sPath, sBaseName & "-dark")
       If Exist(sDarkPath) Then
         Try hPict = Image.Load(sDarkPath).Picture
-        If hPict Then Goto __LOAD_OK
+      Else
+        Try hPict = Image.Load(sPath).Invert(True).Picture
       Endif
+      If hPict Then Goto __LOAD_OK
     Endif
     
     Try hPict = Image.Load(sPath).Picture

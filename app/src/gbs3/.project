@@ -2,13 +2,13 @@
 Title=gbs3
 Startup=MMain
 Icon=icon.png
-Version=3.12.0
+Version=3.14.90
 VersionFile=1
 Component=gb.eval
 Description="Gambas Script"
 Authors="Fabien Bodard, Benoit Minisini"
-Arguments=[["--help"],["-e","For i as Integer To 10:Print \"Hello World\":Next"]]
-CurrentArgument=2
+Arguments=[["--help"],["-e","For i as Integer To 10:Print \"Hello World\":Next"],["~/bin/who"],["-v","~/bin/mytest"]]
+CurrentArgument=4
 TabSize=2
 Language=fr
 Maintainer=benoit

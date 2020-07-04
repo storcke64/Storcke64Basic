@@ -38,6 +38,7 @@ public:
 	bool password();
 	int position();
 	virtual char *text();
+	virtual char *placeholder();
 	virtual bool isReadOnly();
 	int selLength();
 	int selStart();
@@ -51,6 +52,7 @@ public:
 	void setPosition(int pos);
 	virtual void setReadOnly(bool vl);
 	virtual void setText(const char *vl);
+	virtual void setPlaceholder(const char *vl);
 	void setSelText(char *txt, int len);
 
 //"Methods"
@@ -80,6 +82,8 @@ public:
 
 #ifdef GTK3
 	static GtkCssProvider *_style_provider;
+#else
+	char *_placeholder;
 #endif
 };
 

@@ -342,6 +342,7 @@ Static Public Sub DndFrame_Drop()
   'Debug
   Drag.X += $iFrameX
   Drag.Y += $iFrameY
+  Drag._Target = $hFrameCtrl
   Object.Raise($hFrameCtrl, "Drop")
   Drag.X -= $iFrameX
   Drag.Y -= $iFrameY

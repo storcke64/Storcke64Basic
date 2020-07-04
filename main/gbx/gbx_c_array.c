@@ -330,7 +330,7 @@ static void borrow(CARRAY *_object, int start, int end)
 	else if (TYPE_is_object(THIS->type))
 	{
 		for (i = start; i < end; i++)
-			OBJECT_ref(((void **)(THIS->data))[i]);
+			OBJECT_REF_CHECK(((void **)(THIS->data))[i]);
 	}
 }
 
@@ -1583,7 +1583,7 @@ BEGIN_METHOD(Array_Read, GB_OBJECT file; GB_INTEGER start; GB_INTEGER length)
 	if (check_start_length(count, &start, &length))
 		return;
 
-	STREAM_read(CSTREAM_stream(VARG(file)), get_data(THIS, start), length * THIS->size);
+	STREAM_read(CSTREAM_TO_STREAM(VARG(file)), get_data(THIS, start), length * THIS->size);
 
 END_METHOD
 
@@ -1597,7 +1597,7 @@ BEGIN_METHOD(Array_Write, GB_OBJECT file; GB_INTEGER start; GB_INTEGER length)
 	if (check_start_length(count, &start, &length))
 		return;
 
-	STREAM_write(CSTREAM_stream(VARG(file)), get_data(THIS, start), length * THIS->size);
+	STREAM_write(CSTREAM_TO_STREAM(VARG(file)), get_data(THIS, start), length * THIS->size);
 
 END_METHOD
 

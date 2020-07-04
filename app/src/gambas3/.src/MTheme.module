@@ -157,7 +157,8 @@ Public Sub InitEditor(hEditor As TextEditor, Optional bDesaturate As Boolean)
   Dim bInvert As Boolean
   Dim sKey As String
   
-  bInvert = Settings["/Editor/InvertTheme", 0]
+  If Application.DarkTheme Then bInvert = Settings["/Editor/InvertTheme", True]
+  
   For iInd = 0 To ColorKeys.Max
     
     sKey = ColorKeys[iInd]
@@ -203,7 +204,7 @@ End
 
 Public Sub InitControl(hControl As Control)
 
-  If Settings["/Editor/InvertTheme", 0] Then
+  If Application.DarkTheme And If Settings["/Editor/InvertTheme", True] Then
     hControl.Background = GetColor("Normal")
     hControl.Foreground = GetColor("Foreground")
   Else
@@ -227,7 +228,7 @@ Public Sub GetStyles() As TextHighlighterStyle[]
   
   aStyles = TextHighlighter.DefaultStyle
   
-  bInvert = Settings["/Editor/InvertTheme", 0]
+  If Application.DarkTheme Then bInvert = Settings["/Editor/InvertTheme", True]
   For iInd = 0 To ColorKeys.Max
     
     sKey = ColorKeys[iInd]

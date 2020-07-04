@@ -566,7 +566,7 @@ GB_DESC CImageDesc[] =
 	GB_METHOD("Colorize", "Image", Image_Colorize, "(Color)i"),
 	GB_METHOD("Mask", "Image", Image_Mask, "(Color)i"),
 	GB_METHOD("Opacity", "Image", Image_Opacity, "(Opacity)f"),
-	GB_METHOD("Invert", "Image", Image_Invert, "[(KeepColor)b]"),
+	GB_METHOD("Invert", "Image", Image_Invert, "[(KeepHue)b]"),
 	
 	GB_METHOD("Copy", "Image", Image_Copy, "[(X)i(Y)i(Width)i(Height)i]"),
 	GB_METHOD("Resize", "Image", Image_Resize, "(Width)i(Height)i"),

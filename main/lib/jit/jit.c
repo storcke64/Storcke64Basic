@@ -494,6 +494,7 @@ char *JIT_translate(const char *name, const char *from)
 	return JIT_end();
 }
 
+
 void JIT_panic(const char *fmt, ...)
 {
 	va_list args;
@@ -509,6 +510,7 @@ void JIT_panic(const char *fmt, ...)
 	fputc('\n', stderr);
 	abort();
 }
+
 
 int JIT_get_code_size(FUNCTION *func)
 {

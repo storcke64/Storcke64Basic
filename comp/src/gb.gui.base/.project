@@ -1,15 +1,15 @@
 # Gambas Project File 3.0
 Title=Common controls and classes for GUI components
-Startup=TestMessage
+Startup=FListBox
 Version=3.14.90
 VersionFile=1
 Component=gb.image
 Component=gb.gui
 Arguments=[["-style=oxygen"],["-style=qtcurve"]]
-CurrentArgument=0
-Environment="GB_GUI=gb.gtk3\nLIBOVERLAY_SCROLLBAR=0\nGB_REVERSE=0"
+Environment="GB_JIT_DEBUG=1\nGB_GUI=gb.qt5\nLIBOVERLAY_SCROLLBAR=0"
 TabSize=2
-Language=fr
+Translate=1
+Language=en
 Type=Component
 Packager=1
 DoNotTranslate=".src/Test"

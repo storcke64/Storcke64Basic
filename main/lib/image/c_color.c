@@ -187,6 +187,20 @@ int COLOR_get_luminance(GB_COLOR col)
 }
 
 
+int COLOR_invert_luminance(int l)
+{
+	double m = 0.7;
+	double d = l / 255.0;
+	
+	if (d < m)
+		d = 1 - (d * (1 - m) / m);
+	else
+		d = (1 - d) * m / (1 - m);
+	
+	return (int)(255 * d);
+}
+
+
 static void set_luminance(CCOLOR *_object, int l)
 {
 	int c;
@@ -597,6 +611,23 @@ BEGIN_METHOD(Color_Distance, GB_INTEGER col1; GB_INTEGER col2)
 
 END_METHOD
 
+BEGIN_METHOD(Color_Invert, GB_INTEGER color; GB_BOOLEAN keep_hue)
+
+	GB_COLOR color = VARG(color);
+
+	if (VARGOPT(keep_hue, FALSE))
+	{
+		GB.ReturnInteger(COLOR_set_luminance(color, COLOR_invert_luminance(COLOR_get_luminance(color))));
+	}
+	else
+	{
+		int r, g, b, a;
+		gt_color_to_rgba(color, &r, &g, &b, &a);
+		GB.ReturnInteger(gt_rgba_to_color(255 - r, 255 - g, 255 - b, a));
+	}
+
+END_METHOD
+
 GB_DESC CColorInfoDesc[] =
 {
   GB_DECLARE("ColorInfo", sizeof(CCOLOR)), GB_NOT_CREATABLE(),
@@ -660,6 +691,7 @@ GB_DESC CColorDesc[] =
   GB_STATIC_METHOD("Gradient", "i", Color_Gradient, "(Color1)i(Color2)i[(Weight)f]"),
   GB_STATIC_METHOD("Blend", "i", Color_Blend, "(Source)i(Destination)i"),
   GB_STATIC_METHOD("Desaturate", "i", Color_Desaturate, "(Color)i"),
+  GB_STATIC_METHOD("Invert", "i", Color_Invert, "(Color)i[(KeepHue)b]"),
 
 	GB_STATIC_METHOD("SetAlpha", "i", Color_SetAlpha, "(Color)i(Alpha)i"),
 	GB_STATIC_METHOD("SetRGB", "i", Color_SetRGB, "(Color)i[(Red)i(Green)i(Blue)i(Alpha)i]"),

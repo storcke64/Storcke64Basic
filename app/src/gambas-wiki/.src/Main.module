@@ -25,6 +25,7 @@ Public FullName As String
 Public (Component) As String
 Public (Class) As String
 Public Symbol As String
+Public SubstClass As String
 
 Private $aDeveloperTable As String[]
 Private $aTranslatorTable As String[]
@@ -416,6 +417,9 @@ Public Sub Main()
   Dim sPath As String
   Dim sText As String
   Dim cUser As Collection
+  Dim sFile As String
+  Dim sSearch As String
+  Dim sReplace As String
   
   ' If Application.Host = "gambasfarm.org" Then
   '   Response.Redirect("http://gambasfarm.org/farm")
@@ -446,6 +450,40 @@ Public Sub Main()
     Case "-offline"
       Shell "cd " & Shell$(File.Dir(Root)) & " && tar cfj gambas-wiki.tar.bz2 --exclude=passwd\\* --exclude=\\*.log --exclude=~page.\\* --exclude=~lock gambas && mv gambas-wiki.tar.bz2 ~/cgi-bin" Wait
       If Process.LastValue = 0 Then File.Save("~/cgi-bin/timestamp", Format(Now, "yyyymmdd"))
+      Return
+      
+    Case "-find"
+      
+      sSearch = Args[2]
+      If Not sSearch Then Quit 1
+      For Each sFile In RDir(Root &/ "data")
+        sPath = Root &/ "data" &/ sFile
+        If IsDir(sPath) Then Continue
+        sData = File.Load(sPath)
+        If InStr(sData, sSearch) Then Print sFile
+      Next
+      Return
+      
+    Case "-replace"
+      
+      sSearch = Args[2]
+      sReplace = Args[3]
+      If Not sSearch Then Quit 1
+      For Each sFile In RDir(Root &/ "data")
+        sPath = Root &/ "data" &/ sFile
+        If IsDir(sPath) Then Continue
+        sData = File.Load(sPath)
+        If InStr(sData, sSearch) Then
+          sData = Replace(sData, sSearch, sReplace)
+          File.Save(sPath, sData)
+          Print sFile
+        Endif
+      Next
+      Return
+      
+    Case "-package-table"
+      Print GetPackageTable().Join("\n")
+      CComponent.Exit
       Return
       
   End Select
@@ -551,6 +589,8 @@ Public Sub Main()
   If Request.Exist("logout") Then
     
     Session.Abandon
+    Redirect()
+    Return
     
   ' Else If Request.Exist("register") Then
   '   
@@ -941,7 +981,7 @@ Public Sub GetClassTitle(Optional sPath As String) As String
   
   If hClass Then
     If sPath Then Return hClass.Name
-    Return hClass.Name & " (" & sComponent & ")"
+    Return Replace(hClass.Name, "*", "\\*") & " (" & sComponent & ")"
   Else
     If sPath Then Return sClass
     Return sClass & " (" & sComponent & ")"
@@ -974,6 +1014,9 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   Try hSym = CComponent.Get(sComponent)[sClass].Symbols[sSymbol]
   
   If sPath Then
+    If Not hSym And If sClass Ends "[]" Then
+      Try hSym = CComponent.Get(sComponent)["*[]"].Symbols[sSymbol]
+    Endif
     If Not hSym Then Return sSymbol & " ?"
     If InStr("e:", hSym.Kind) Then
       Return Mid$(hSym.Name, 2)
@@ -988,9 +1031,9 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
     Case "_new"
       sTitle = "New " & hSym.Class
     Case "_put"
-      sTitle = hSym.Class & "[] = ..."
+      sTitle = hSym.Class & "\\[…] = …"
     Case "_get"
-      sTitle = hSym.Class & "[]"
+      sTitle = "… = " & hSym.Class & "\\[…]"
     Case "_call"
       sTitle = hSym.Class & "()"
     Case "_next"
@@ -1003,7 +1046,7 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
       Endif
   End Select
 
-  Return sTitle & " (" & hSym.Component & ")"
+  Return Replace(sTitle, "*", "\\*") & " (" & hSym.Component & ")"
   
 End
 
@@ -1233,25 +1276,37 @@ Public Sub GetDefaultPage() As String
   Dim iPos As Integer
   Dim sResult As String
   Dim iPos2 As Integer
+  Dim hClass As CClassInfo
   
-  Try hSymbol = CComponent.Get(Main.Component)[Main.Class].Symbols[Main.Symbol]
-  If Not hSymbol Then Return
+  Try hClass = CComponent.Get(Main.Component)[Main.Class]
+  If Not hClass Then Return
   
-  If hSymbol.Help Then Return hSymbol.Help
+  If Main.Symbol Then
   
-  sResult = "\n"
-  sSign = hSymbol.Signature
-  Do
+    Try hSymbol = hClass.Symbols[Main.Symbol]
+    If Not hSymbol Then Return
     
-    iPos = InStr(sSign, "(", iPos + 1)
-    If iPos = 0 Then Break
-    iPos2 = InStr(sSign, ")", iPos + 1)
-    If iPos2 = 0 Then Break
+    If hSymbol.Help Then Return hSymbol.Help
     
-    sResult &= "- ~" & Mid$(sSign, iPos + 1, iPos2 - iPos - 1) & "~\n"
-    iPos = iPos2
+    sResult = "\n"
+    sSign = hSymbol.Signature
+    Do
+      
+      iPos = InStr(sSign, "(", iPos + 1)
+      If iPos = 0 Then Break
+      iPos2 = InStr(sSign, ")", iPos + 1)
+      If iPos2 = 0 Then Break
+      
+      sResult &= "- ~" & Mid$(sSign, iPos + 1, iPos2 - iPos - 1) & "~\n"
+      iPos = iPos2
+      
+    Loop
     
-  Loop
+  Else
+    
+    If hClass.Help Then Return hClass.Help
+
+  Endif
   
   'If hSymbol.Help Then sResult = Trim(sResult) & "\n" & hSymbol.Help
   
@@ -1372,7 +1427,7 @@ Private Sub InitAuthor()
   
   If $bInitAuthor Then Return
   
-  hFile = Open "authors.txt" For Read 
+  hFile = Open "AUTHORS" For Read 
   
   While Not Eof(hFile)
     hAuthor = New CAuthor(hFile)
@@ -1510,10 +1565,20 @@ End
 
 Public Sub GetImageHTML(sPath As String) As String
 
+  Dim sAdd As String
+  
+  If Not Main.ExistPage(sPath) Then
+    If Not Main.ExistPage(sPath, "en") Then
+      Return "<i>" & ("Please upload a file") & "</i>"
+    Else
+      sAdd = "&l=en"
+    Endif
+  Endif
+
   If Main.GetContentTypeFrom(sPath) Begins "video/" Then
-    Return "<video src=\"" & Html(Application.Root &/ sPath) & "?v\" autoplay></video>"
+    Return "<video src=\"" & Html(Application.Root &/ sPath) & "?v" & sAdd & "\" autoplay></video>"
   Else
-    Return "<img src=\"" & Html(Application.Root &/ sPath) & "?v\" />"
+    Return "<img src=\"" & Html(Application.Root &/ sPath) & "?v" & sAdd & "\" />"
   Endif
   
 End

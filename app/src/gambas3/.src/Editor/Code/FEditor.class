@@ -76,6 +76,8 @@ Private $hBookmark As CBookmark
 Private $hCompletion As CCompletion
 Private $hInsertDate As CInsertDate
 
+Private $bDiffMode As Boolean
+
 'Static Private $cLastClassCount As New Collection
 
 
@@ -221,6 +223,8 @@ Public Function Save() As Boolean
   ' TODO: If bReset Then $hEditor.Reset
 
   Save.End()
+  
+  UpdateDiffAction
 
 Catch
 
@@ -250,7 +254,7 @@ End
 
 Private Sub ResetIfModified()
 
-  If Not $bModify Then Return
+  'If Not $bModify Then Return
   If $iScanTimeStamp = Project.TimeStamp Then Return
   
   ResetProcList
@@ -263,16 +267,13 @@ Public Sub Modify(Optional bReset As Boolean)
 
   If Me.ReadOnly Then Return
 
-  $bModify = True
   Inc Project.TimeStamp
   Inc Age
 
-  FSearch.OnFileChange(Me.Path)
   FDebugInfo.RefreshTabs(Me.Path, Me.Name)
 
-  If bReset Then
-    $bModify = False
-  Endif
+  $bModify = Not bReset
+  If $bModify Then FSearch.OnFileChange(Me.Path)
 
   DrawTitle
 
@@ -705,13 +706,17 @@ Private Sub DoStructControlCompletion(iLine As Integer, sLine As String, aSymbol
   Dim iPos, iInd As Integer
   Dim iIndent As Integer
   Dim sIndent As String
+  Dim sAdd As String
 
   If aSymbol.Count >= 1 Then
-    If aSymbol[0] = "IF" And If aSymbol[aSymbol.Max] = "THEN" Then
-      bIndent = True
-      bUnindent = False
-      sClose = "Endif"
-      sClose2 = "Else"
+    If aSymbol[0] = "IF" Then
+      If aSymbol[aSymbol.Max] = "THEN" Or If Not aSymbol.Exist("THEN") Then
+        bIndent = True
+        bUnindent = False
+        If aSymbol[aSymbol.Max] <> "THEN" Then sAdd = " Then"
+        sClose = "Endif"
+        sClose2 = "Else"
+      Endif
     Else If SymbolBegins(aSymbol, "Public Struct") Or If aSymbol[0] = "STRUCT" Then
       bIndent = True
       bUnindent = False
@@ -750,6 +755,7 @@ Private Sub DoStructControlCompletion(iLine As Integer, sLine As String, aSymbol
     Endif
 
     $hEditor.Begin
+    
     If bUnindent And If Not Key.Shift Then
       If IsSpace(Left(sLine, Project.TabSize)) Then
         sLine = Mid$(sLine, Project.TabSize + 1)
@@ -757,15 +763,19 @@ Private Sub DoStructControlCompletion(iLine As Integer, sLine As String, aSymbol
         iIndent -= Project.TabSize
       Endif
     Endif
+    
     sIndent = Space$(iIndent)
-    $hEditor.Insert("\n" & Space$(Project.TabSize) & sIndent)
+    $hEditor.Insert(sAdd & "\n" & Space$(Project.TabSize) & sIndent)
     If StructControlCompletion Then
       If Not bUnindent And If sClose And If Not Key.Shift Then $hEditor.Insert("\n" & sIndent & sClose)
     Endif
+    
     $hEditor.End
     $hEditor.Goto(Project.TabSize + Len(sIndent), iLine + 1)
+    
     Stop Event
     Return True
+    
   Endif
 
 End
@@ -848,12 +858,31 @@ Public Sub Editors_KeyPress()
       '   End With
       ' Next
     
+      Stop Event
+      Return
+      
+    Endif
+    
+    If Not Key.Shift And If Not Key.Alt And If Not Key.Meta Then
+      
+      If Key.Code = Key.Down Then
+        
+        GotoNextProc()
+        Stop Event
+        Return
+        
+      Else If Key.Code = Key.Up Then
+        
+        GotoPreviousProc()
+        Stop Event
+        Return
+        
+      Endif
+    
     Endif
 
-    Return
-    
   Endif
-
+  
   If $hEditor.ReadOnly Then Return
 
   If Asc(Key.Text) = 13 Then
@@ -925,7 +954,6 @@ Public Sub Editors_KeyPress()
     Endif
     
     If DoStructControlCompletion(iLine, sLine, aSymbol) Then Return
-    
     
   Else If Key.Code = Key.Space Or If InStr("(),[]", Key.Text) Then
 
@@ -1301,37 +1329,43 @@ Public Sub mnuSelectAll_Click()
 
 End
 
-' Private Sub GotoPreviousProc()
-' 
-'   Dim iInd As Integer
-' 
-'   For iInd = Editor.Line - 2 To 0 Step -1
-'     If IsProc($hEditor[iInd].Text) Then
-'       Me.Goto(iInd, Editor.Column, True)
-'       Return
-'     Endif
-'   Next
-' 
-'   Me.Goto(0, Editor.Column)
-' 
-' End
-' 
-' Private Sub GotoNextProc()
-' 
-'   Dim iInd As Integer
-' 
-'   For iInd = Editor.Line + 1 To Editor.Lines.Count - 1
-' 
-'     If IsProc($hEditor[iInd].Text) Then
-'       Me.Goto(iInd, Editor.Column, True)
-'       Return
-'     Endif
-' 
-'   Next
-' 
-'   Me.Goto(Editor.Lines.Count - 1, Editor.Column)
-' 
-' End
+Private Sub GotoPreviousProc()
+
+  Dim iInd As Integer
+  Dim sLine As String
+
+  For iInd = $hEditor.Line - 1 DownTo 0
+    sLine = $hEditor[iInd].Text
+    Highlight.Analyze(sLine)
+    If IsCurrentProc() Or If IsCurrentEndProc() Then
+      Me.Goto(iInd, $hEditor.Column, True)
+      Return
+    Endif
+  Next
+
+  Me.Goto(0, $hEditor.Column)
+
+End
+
+Private Sub GotoNextProc()
+
+  Dim iInd As Integer
+  Dim sLine As String
+
+  For iInd = $hEditor.Line + 1 To $hEditor.Count - 1
+
+    sLine = $hEditor[iInd].Text
+    Highlight.Analyze(sLine)
+    If IsCurrentProc() Or If IsCurrentEndProc() Then
+      Me.Goto(iInd, $hEditor.Column, True)
+      Return
+    Endif
+
+  Next
+
+  Me.Goto($hEditor.Count - 1, $hEditor.Column)
+
+End
 
 ' PUBLIC SUB btnGoto_Click()
 '
@@ -2211,6 +2245,8 @@ Public Sub Reload()
   If Settings["/FormatCode/FormatOnLoad"] Then MPrettyCode.Run(Me)
 
   SetReadOnly
+  
+  UpdateDiffAction
 
 End
 
@@ -2567,7 +2603,7 @@ End
 
 Public Sub Editors_MouseUp()
 
-  'HideMessage
+  Dim sText As String
   
   CPosition.Enable
   CPosition.SaveCurrent(Me)
@@ -2585,12 +2621,11 @@ Public Sub Editors_MouseUp()
     Return
   Endif
 
+  sText = Trim($hEditor.SelectedText)
   If Not Project.Running Then
-    'FindDefinition(True, Mouse.X, Mouse.Y)
-    Return
+  Else
+    FDebugInfo.InstantWatch(sText, Me) ', Me, $hEditor.ToPosX($hEditor.Column), $hEditor.ToPosY() + $hEditor.LineHeight)
   Endif
-
-  FDebugInfo.InstantWatch(Trim($hEditor.SelectedText), Me) ', Me, $hEditor.ToPosX($hEditor.Column), $hEditor.ToPosY() + $hEditor.LineHeight)
 
 End
 
@@ -2606,7 +2641,7 @@ Public Sub ShowWatchResult(sStr As String)
     bError = True
   Endif
 
-  $hEditor.ShowMessageLabel(Html(sStr), If(bError, Highlight.Breakpoint, Highlight.CurrentLine))
+  $hEditor.ShowMessageLabel(Html(sStr), If(bError, Highlight.Breakpoint, Highlight.Normal))
 
 End
 
@@ -2959,11 +2994,10 @@ Public Sub SetState(sState As String)
 
 End
 
-Private Sub InitEditor(hEditor As TextEditor)
+Private Sub InitEditor(hEditor As TextEditor, Optional bNoView As Boolean)
 
   With hEditor
     .Border = False
-    .View = edtEditor
     .Mode = edtEditor.Mode
     .Highlight = edtEditor.Highlight
     '.Flags[Editor.Highlight] = True
@@ -2973,8 +3007,9 @@ Private Sub InitEditor(hEditor As TextEditor)
     .Wrap = edtEditor.Wrap
     .TabIndent = edtEditor.TabIndent
     '.Flags[Editor.ShowCursorPosition] = edtEditor.Flags[Editor.ShowCursorPosition]
+    If Not bNoView Then .View = edtEditor
+    .ReadConfig(True)
   End With
-  hEditor.ReadConfig(True)
 
 End
 
@@ -3117,6 +3152,8 @@ End
 Public Sub panToolBar_Configure()
 
   UpdateMenu
+  UpdateDiffAction
+  Project.UpdateLockedAction(Me)
   
   If $sModule Then
     'Action[".show-form"].Picture = Project.GetFileIcon(File.SetExt(Path, $sModule), 16)
@@ -3145,6 +3182,9 @@ Private Sub ToggleProcList()
   iCurrent = $aProc.Find(btnProc.Text)
 
   iCurrent = FProcedureList.Popup(Me, Me.Name, $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, btnProc.W, Me.ClientH - panToolbar.H - Desktop.Scale)
+  
+  $hEditor.SetFocus()
+  
   If iCurrent >= 0 Then
     Try iLine = $cProc[$aProc[iCurrent]]
     If Not Error Then GotoFunction(iLine)
@@ -3310,9 +3350,10 @@ Public Sub GetPosition() As Integer
 
 End
 
-Public Sub SetPosition(hResult As CFindResult, Optional bJustCheck As Boolean) As Boolean
+Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean) As Boolean
 
   Dim bResult As Boolean
+  Dim sWhere As String
 
   If FSearch.CurrentProcedure Then
     bResult = $hEditor.SetPosition(hResult, True)
@@ -3323,6 +3364,13 @@ Public Sub SetPosition(hResult As CFindResult, Optional bJustCheck As Boolean) A
   Else
     bResult = $hEditor.SetPosition(hResult, bJustCheck)
   Endif
+  
+  If bJustCheck And If Not bResult Then
+    sWhere = GetProcAt(hResult.Line)
+    If Not sWhere Then sWhere = ("(Declarations)")
+    hResult.Location = sWhere
+  Endif
+  
   Return bResult
 
 End
@@ -3820,6 +3868,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
     '     $hEditor2.TabIndent = $hEditor.TabIndent
     '   Endif
     
+    Case ".diff"
+      UpdateDiffMode
+    
     Case Else
       Return True
       
@@ -3836,7 +3887,7 @@ End
 
 Public Sub Form_Open()
 
-  Action[".wrap", Me].Value = Settings["/Editor/WrapTextByDefault", False]
+  Action[".wrap", Me].Value = Settings["/Editor/WrapTextByDefault", True]
   'Action[".tab-indent", Me].Value = Settings["/Editor/TabIndentByDefault", False]
 
 End
@@ -3915,5 +3966,56 @@ End
 Public Sub mnuPrint_Click()
 
   MPrint.Run(edtEditor, Me.Title)
+
+End
+
+Private Sub UpdateDiffAction()
+
+  Action[".diff", Me].Visible = Project.IsModified(Path)
+  Action[".diff-next,.diff-previous", Me].Visible = Action[".diff", Me].Visible And Action[".diff", Me].Value
+
+End
+
+Private Sub UpdateDiffMode()
+
+  If Action[".diff", Me].Value = $bDiffMode Then Return
+  
+  $bDiffMode = Action[".diff", Me].Value
+  
+  UpdateDiffAction
+  
+  If $bDiffMode Then
+    
+    Me.Save()
+    If Not Action[".diff", Me].Visible Then 
+      $bDiffMode = False
+      Action[".diff", Me].Value = False
+      Return
+    Endif
+    $hEditor.EnterDiffModeWith(Path)
+    
+  Else
+  
+    $hEditor.LeaveDiffMode()  
+  
+  Endif
+  
+  SetReadOnly
+
+End
+
+Public Sub btnDiffPrevious_Click()
+
+  Dim Y As Integer
+  Y = $hEditor.FindPreviousDiff($hEditor.Line)
+  If Y >= 0 Then $hEditor.Goto($hEditor.Column, Y)
+
+End
+
+Public Sub btnDiffNext_Click()
+
+  Dim Y As Integer
+  Y = $hEditor.FindNextDiff($hEditor.Line)
+  If Y >= 0 Then $hEditor.Goto($hEditor.Column, Y)
 
 End

@@ -121,6 +121,16 @@ BEGIN_PROPERTY(TextBox_Text)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(TextBox_Placeholder)
+
+	if (READ_PROPERTY)
+		RETURN_NEW_STRING(TEXTBOX->placeholderText());
+	else
+		TEXTBOX->setPlaceholderText(QSTRING_PROP());
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(TextBox_Length)
 
 	GB.ReturnInteger(TEXTBOX->text().length());
@@ -880,6 +890,7 @@ GB_DESC CTextBoxDesc[] =
 	GB_PROPERTY("Border", "b", TextBox_Border),
 	GB_PROPERTY("Password", "b", TextBox_Password),
 	GB_PROPERTY("MaxLength", "i", TextBox_MaxLength),
+	GB_PROPERTY("Placeholder", "s", TextBox_Placeholder),
 
 	GB_PROPERTY_SELF("Selection", ".TextBox.Selection"),
 	GB_METHOD("Select", NULL, TextBox_Select, "[(Start)i(Length)i]"),
@@ -925,6 +936,7 @@ GB_DESC CComboBoxDesc[] =
 	GB_PROPERTY("Password", "b", TextBox_Password),
 	GB_PROPERTY("MaxLength", "i", TextBox_MaxLength),
 	GB_PROPERTY("Border", "b", ComboBox_Border),
+	GB_PROPERTY("Placeholder", "s", TextBox_Placeholder),
 
 	GB_PROPERTY_SELF("Selection", ".TextBox.Selection"),
 	GB_METHOD("Select", NULL, TextBox_Select, "[(Start)i(Length)i]"),

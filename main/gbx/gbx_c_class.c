@@ -783,7 +783,7 @@ BEGIN_METHOD(Object_Count, GB_OBJECT object)
 
 	void *object = VARG(object);
 
-	if (GB_CheckObject(object))
+	if (check_null(object))
 		return;
 
 	// We substract one because the object is referenced on the stack

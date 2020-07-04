@@ -190,7 +190,7 @@ RETRY:
   
   W = Me.Width - FW * 2
   H = Me.Height - FW * 2
-  'Debug W;; H;; "/";; $W;; $H
+  'Debug W;; H;; "/";; $W;; $H;; bHBarAllowed;; bVBarAllowed
   
   If W >= $W And If H >= $H Then
     
@@ -242,6 +242,8 @@ RETRY:
       bHBarVisible = bHBarAllowed
     Else
       '$hHBar.Hide
+      $hHBar.MinValue = 0
+      $hHBar.MaxValue = 0
       bHBarVisible = False
     Endif
     
@@ -258,6 +260,8 @@ RETRY:
       bVBarVisible = bVBarAllowed
     Else
       '$hVBar.Hide
+      $hVBar.MinValue = 0
+      $hVBar.MaxValue = 0
       bVBarVisible = False
     Endif
     

@@ -56,6 +56,7 @@ bool CODE_popify_last(void);
 bool CODE_check_statement_last(void);
 bool CODE_check_pop_local_last(short *local);
 bool CODE_check_jump_not(void);
+bool CODE_check_fast_cat(void);
 
 bool CODE_check_varptr(void);
 bool CODE_check_ismissing(void);
@@ -132,6 +133,7 @@ void CODE_push_complex();
 
 void CODE_push_vargs();
 void CODE_drop_vargs();
+void CODE_end_vargs();
 
 void CODE_dup(void);
 

@@ -45,7 +45,7 @@ public:
 	int orientation() const;
 	void setOrientation(int v);
 	
-	int paperModel() const { return _paper_size; }
+	int paperModel() const;
 	void setPaperModel(int v);
 	
 	void getPaperSize(double *width, double *height);
@@ -104,13 +104,11 @@ public:
 private:
 	bool run(bool configure);
 	bool isVirtual();
-	GtkPaperSize *getPaperSize();
 	
 	GtkPrintOperation *_operation;
 	GtkPageSetup *_page;
 	int _page_count;
 	bool _page_count_set;
-	int _paper_size;
 	bool _use_full_page;
 };
 

@@ -94,21 +94,21 @@ static STREAM *get_default(intptr_t val)
 	{
 		case 0:
 			if (_default_in)
-				stream = CSTREAM_stream(((CSTREAM_NODE *)_default_in)->stream);
+				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_in)->stream);
 			else if (CFILE_in)
-				stream = CSTREAM_stream(CFILE_in);
+				stream = CSTREAM_TO_STREAM(CFILE_in);
 			break;
 		case 1:
 			if (_default_out)
-				stream = CSTREAM_stream(((CSTREAM_NODE *)_default_out)->stream);
+				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_out)->stream);
 			else if (CFILE_out)
-				stream = CSTREAM_stream(CFILE_out);
+				stream = CSTREAM_TO_STREAM(CFILE_out);
 			break;
 		case 2:
 			if (_default_err)
-				stream = CSTREAM_stream(((CSTREAM_NODE *)_default_err)->stream);
+				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_err)->stream);
 			else if (CFILE_err)
-				stream = CSTREAM_stream(CFILE_err);
+				stream = CSTREAM_TO_STREAM(CFILE_err);
 			break;
 	}
 
@@ -129,7 +129,7 @@ static inline STREAM *_get_stream(VALUE *value, bool can_default)
 	else
 	{
 		if (TYPE_is_object(value->type) && value->_object.object && OBJECT_class(value->_object.object)->is_stream)
-			stream = CSTREAM_stream(value->_object.object);
+			stream = CSTREAM_TO_STREAM(value->_object.object);
 		else
 		{
 			if (VALUE_is_null(value))
@@ -153,7 +153,7 @@ static inline STREAM *_get_stream(VALUE *value, bool can_default)
 	else \
 	{ \
 		if (TYPE_is_object((_value)->type) && (_value)->_object.object && OBJECT_class((_value)->_object.object)->is_stream) \
-			stream = CSTREAM_stream((_value)->_object.object); \
+			stream = CSTREAM_TO_STREAM((_value)->_object.object); \
 		else \
 		{ \
 			if (VALUE_is_null(_value)) \
@@ -381,7 +381,7 @@ void SUBR_input(ushort code)
 		SP->_string.len = STRING_length(addr);
 	}
 	else
-		VALUE_null(SP);
+		STRING_void_value(SP);
 		
 	SP++;
 }
@@ -493,13 +493,16 @@ void SUBR_read(ushort code)
 		
 		if (len == 0)
 		{
-			VALUE_null(RETURN);
+			STRING_void_value(RETURN);
 		}
 		else if (len > 0)
 		{
 			data = STRING_new_temp(NULL, len);
 			
-			STREAM_read(stream, data, len);
+			if ((code & 0x3F) == 2)
+				STREAM_peek(stream, data, len);
+			else
+				STREAM_read(stream, data, len);
 			
 			RETURN->type = T_STRING;
 			RETURN->_string.addr = data;
@@ -516,7 +519,7 @@ void SUBR_read(ushort code)
 			
 			if (eff == 0)
 			{
-				VALUE_null(RETURN);
+				STRING_void_value(RETURN);
 				STRING_free(&data);
 			}
 			else

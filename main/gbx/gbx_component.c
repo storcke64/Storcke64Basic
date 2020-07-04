@@ -126,6 +126,11 @@ void COMPONENT_load_all(void)
 		COMPONENT_create("gb.eval");
 		COMPONENT_create("gb.debug");
 	}
+	
+	if (PROJECT_run_tests)
+	{
+		COMPONENT_create("gb.test");
+	}
 
 	_load_all = TRUE;
 
@@ -203,9 +208,12 @@ COMPONENT *COMPONENT_create(const char *name)
 	{
 		user_library = TRUE;
 		path = (char *)name;
-		if (*path == ':')
+		if (*name == ':')
 		{
-			name++;
+			name = STRING_new_temp_zero(name + 1);
+			p = index(name, '/');
+			if (p)
+				*p = '.';
 			p = rindex(name, ':');
 			if (p)
 				*p = 0;
@@ -213,7 +221,7 @@ COMPONENT *COMPONENT_create(const char *name)
 		else
 			name = FILE_get_basename(name);
 	}
-
+	
 	comp = COMPONENT_find(name);
 	if (comp)
 		return comp;
@@ -260,7 +268,7 @@ COMPONENT *COMPONENT_create(const char *name)
 				comp->archive = ARCHIVE_create(comp->name, NULL);
 		}
 	}
-
+	
 	//fprintf(stderr, "insert %s\n", comp->name);
 	LIST_insert(&_component_list, comp, &comp->list);
 	COMPONENT_count++;

@@ -6,6 +6,8 @@ Static Property Read Count As Integer
 
 Static Private $aBookmark As New Bookmark[]
 
+Static Public _Age As Integer = 1
+
 Static Public Sub Add(Path As String, Optional Name As String, Icon As String)
 
   Dim hBookmark As Bookmark
@@ -18,6 +20,7 @@ Static Public Sub Add(Path As String, Optional Name As String, Icon As String)
   End With
   
   $aBookmark.Add(hBookmark)
+  Inc _Age
   
 End
 
@@ -35,6 +38,8 @@ Static Public Sub Remove(Path As String)
     Endif
   Wend
 
+  Inc _Age
+  
 End
 
 Static Private Function Count_Read() As Integer
@@ -46,6 +51,7 @@ End
 Static Public Sub Clear()
   
   $aBookmark.Clear
+  Inc _Age
   
 End
 

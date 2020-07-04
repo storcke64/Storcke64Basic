@@ -40,7 +40,7 @@ void *CSTRUCT_create_static(void *ref, CLASS *class, char *addr)
   class->count++;
 
 	if (ref != STRUCT_CONST)
-		OBJECT_REF(ref);
+		OBJECT_REF_CHECK(ref);
   
 	//fprintf(stderr, "CSTRUCT_create_static: %s %p ref = %p addr = %p\n", class->name, object, ref, addr);
 	

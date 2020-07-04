@@ -489,6 +489,21 @@ CANCEL:
   
 End
 
+Private Sub UpdateCount()
+
+  Dim iCount As Integer
+
+  iCount = datData.Count
+  If iCount = 0 Then
+    lblCount.Text = ("No record") & " "
+  Else If iCount = 1 Then
+    lblCount.Text = ("One record") & " "
+  Else
+    lblCount.Text = Subst(("&1 records"), Format(iCount, ",0")) & " "
+  Endif
+
+End
+
 Private Sub ReloadTable()
   
   Dim hTable As Table
@@ -501,7 +516,6 @@ Private Sub ReloadTable()
   Dim hResult As Result
   Dim cDescField As Collection
   Dim cDescIndex As Collection
-  Dim iCount As Integer
   
   'UpdateDefinition($sTable)
   
@@ -591,14 +605,7 @@ Private Sub ReloadTable()
   datData.Table = $sTable
   datData.Refresh
   
-  iCount = datData.Count
-  If iCount = 0 Then
-    lblCount.Text = ("No record") & " "
-  Else If iCount = 1 Then
-    lblCount.Text = ("One record") & " "
-  Else
-    lblCount.Text = Subst(("&1 records"), Format(iCount, ",0")) & " "
-  Endif
+  UpdateCount
   
   splTable.Enabled = True
   
@@ -725,7 +732,7 @@ Public Sub tbvField_Data(Row As Integer, Column As Integer)
         
       Case 0
         If hCField.Key Then
-          .Picture = Picture["img/16/key.png"]
+          .Picture = Picture["icon:/small/key"]
           .Alignment = Align.Center
         Endif
         
@@ -1652,6 +1659,7 @@ Public Sub btnNewTable_Click()
   sName = FNewTable.TableName
   
   If MConnection.CreateTable($hConn, sName, FNewTable.TableType) Then Return
+  UpdateDefinition
   
   lvwTable.Add("T" & sName, sName, Picture["icon:/16/table"])
   'lvwTable["T" & sName].Selected = True
@@ -1702,6 +1710,7 @@ Public Sub btnKill_Click()
   If CheckCurrent() Then Return
   
   $hConn.Tables.Remove($sTable)
+  UpdateDefinition
   'UpdateDefinition($sTable)
   lvwTable.Remove("T" & $sTable)
   datData.Reset
@@ -1736,6 +1745,8 @@ Public Sub btnRename_Click()
     Return
   Endif
   
+  UpdateDefinition
+  
   'Try $hConn.DeleteTable(sOldName)
   LoadList($sTable)
   
@@ -1746,6 +1757,7 @@ Public Sub btnImport_Click()
   If SaveTable() Then Return
   
   FImportTable.Run($hConn, GetTableList()) 
+  UpdateDefinition
   If FImportTable.Table Then
     LoadList(FImportTable.Table)
   Else
@@ -1765,6 +1777,7 @@ Public Sub btnRemoveData_Click()
   If Message.Warning(("Do you really want to remove the selected rows?"), ("Remove"), ("Cancel")) = 2 Then Return
   
   dvwData.Remove
+  UpdateCount
   
 End
 
@@ -1824,6 +1837,7 @@ End
 Public Sub btnSaveData_Click()
   
   dvwData.Save
+  UpdateCount
   
 End
 
@@ -1982,13 +1996,13 @@ End
 
 Public Sub btnSelectAll_Click()
 
-  dvwData.View.SelectAll
+  dvwData.SelectAll()
 
 End
 
 Public Sub btnUnselectAll_Click()
 
-  dvwData.View.UnSelectAll
+  dvwData.UnselectAll()
 
 End
 

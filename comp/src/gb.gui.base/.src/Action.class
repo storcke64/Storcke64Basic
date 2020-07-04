@@ -68,8 +68,6 @@ Static Private Sub SetToggle(hCtrl As Object, bVal As Boolean)
   
 End
 
-
-
 Static Private Sub HasHandler(hForm As Object) As Boolean
 
   Dim bHasHandler As Boolean
@@ -269,7 +267,6 @@ Static Private Sub FindKey(sPattern As String) As String[]
   
 End
 
-
 Private Function GetControls() As Object[]
 
   Dim aObj As Object[]
@@ -338,7 +335,6 @@ Private Function GetControls() As Object[]
   
 End
 
-
 Public Sub _new((Key) As String, Parent As Control)
   
   Dim sKey As String
@@ -359,7 +355,6 @@ Public Sub _new((Key) As String, Parent As Control)
   $hParent = Parent
   
 End
-
 
 Private Function Enabled_Read() As Boolean
 

@@ -21,6 +21,7 @@ Private Sub InitFilter()
   If Project.IsSourceDir($sDir) Then
     
     aFilter = ["*.module", ("Gambas modules"), "*.class", ("Gambas classes")]
+    aFilter.Insert(["*.test", ("Gambas test modules")])
     For Each hModule In CModule.All
       If Not hModule.Used Then Continue
       aFilter.Add("*." & hModule.Key)
@@ -131,13 +132,17 @@ Private Sub ImportFile() As Boolean
     
     Select Case sExt
     
-      Case "module"
+      Case "module", "test", "class"
         sName = File.BaseName(Project.GetUniqueSourceName(sName))
-        Project.InsertSource(sName, "module", $sDir, sTemp,,, chkLink.Value)
+        Project.InsertSource(sName, sExt, $sDir, sTemp,,, chkLink.Value)
     
-      Case "class"
-        sName = File.BaseName(Project.GetUniqueSourceName(sName))
-        Project.InsertSource(sName, "class", $sDir, sTemp,,, chkLink.Value)
+      ' Case "test"
+      '   sName = File.BaseName(Project.GetUniqueSourceName(sName))
+      '   Project.InsertSource(sName, "test", $sDir, sTemp,,, chkLink.Value)
+      ' 
+      ' Case "class"
+      '   sName = File.BaseName(Project.GetUniqueSourceName(sName))
+      '   Project.InsertSource(sName, "class", $sDir, sTemp,,, chkLink.Value)
     
       Case "form", "report", "webform", "termform"
         sName = File.BaseName(Project.GetUniqueSourceName(sName))

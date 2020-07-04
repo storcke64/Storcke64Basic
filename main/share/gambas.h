@@ -34,6 +34,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 /* Gambas API Version */
 
@@ -758,9 +759,11 @@ typedef
 typedef
 	struct {
 		GB_STREAM_DESC *desc;
-		int64_t _reserved;
+		int _reserved;
+		#if __WORDSIZE == 64
+			int _reserved1;
+		#endif
 		intptr_t _reserved2;
-		intptr_t _reserved3;
 		void *tag;
 		}
 	GB_STREAM_BASE;
@@ -768,16 +771,18 @@ typedef
 typedef
 	struct GB_STREAM {
 		GB_STREAM_DESC *desc;
-		int64_t _reserved;
+		int _reserved;
+		#if __WORDSIZE == 64
+			int _reserved1;
+		#endif
 		intptr_t _reserved2;
-		intptr_t _reserved3;
 		void *tag;
 		#if __WORDSIZE == 64
 		int _free[4];
 		#else
 		int _free[5];
 		#endif
-		GB_VARIANT_VALUE _reserved4;
+		GB_VARIANT_VALUE _reserved3;
 		}
 	GB_STREAM;
 
@@ -1068,7 +1073,7 @@ typedef
 
 		GB_DATE_SERIAL *(*SplitDate)(GB_DATE *);
 		bool (*MakeDate)(GB_DATE_SERIAL *, GB_DATE *);
-		void (*MakeDateFromTime)(int, int, GB_DATE *);
+		void (*MakeDateFromTime)(time_t, int, GB_DATE *);
 		bool (*GetTime)(double *, int);
 
 		void (*Watch)(int, int, void *, intptr_t);

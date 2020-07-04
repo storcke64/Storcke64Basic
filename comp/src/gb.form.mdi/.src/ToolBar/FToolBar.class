@@ -1529,19 +1529,47 @@ RAISE_CONFIGURE:
   
 End
 
+Static Public Sub LoadLayout(sKey As String) As Variant
+  
+  Dim sSize As String
+  Dim aConfig As String[]
+
+  sSize = Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Size"]
+  aConfig = Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Layout"]
+  
+  Return [sSize, aConfig]
+  
+End
 
 Public Sub LoadConfig(Optional bInit As Boolean)
   
-  Dim aConfig As String[]
-  Dim sSize As String
-  
   If Not ToolbarKey Then Return
   If $bDesign Then Return
+  SetLayout(LoadLayout(ToolbarKey), bInit)
   
-  sSize = Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Size"]
-  aConfig = Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Layout"]
+End
+
+Static Public Sub SaveLayout(sKey As String, vLayout As Variant, Optional hIgnore As FToolBar)
+
+  Dim hForm As FToolBar
+  Dim sSize As String
+  Dim aConfig As String[]
   
-  SetLayout([sSize, aConfig], bInit)
+  sSize = vLayout[0]
+  aConfig = vLayout[1]
+  
+  Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Size"] = sSize
+  Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Layout"] = aConfig
+  Settings.Save
+  
+  If $cRegister.Exist(sKey) Then
+    For Each hForm In $cRegister[sKey]
+    
+      If hForm = hIgnore Then Continue
+      hForm.LoadConfig()
+    
+    Next
+  Endif
   
 End
 
@@ -1549,9 +1577,8 @@ Public Sub SaveConfig(Optional bReset As Boolean)
   
   Dim aConfig As String[]
   Dim aOldConfig As String[]
-  Dim hForm As FToolBar
   Dim bChange As Boolean
-  Dim sVal As String
+  Dim sSize As String
   Dim aLayout As Variant
   
   If Not ToolbarKey Then Return
@@ -1568,17 +1595,27 @@ Public Sub SaveConfig(Optional bReset As Boolean)
   ' Endif
   'Print "Default config is ";; FindToolbar().DefaultConfig.Join(",")
   
-  sVal = aLayout[0]
+  sSize = aLayout[0]
   aConfig = aLayout[1]
   
-  If sVal <> Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Size"] Then
-    Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Size"] = sVal
+  If sSize <> Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Size"] Then
+    'Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Size"] = sVal
     bChange = True
   Endif
   
   If Not bChange Then
     bChange = True
     aOldConfig = Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Layout"]
+    ' If aOldConfig Then
+    '   Debug "old config = "; aOldConfig.Join()
+    ' Else
+    '   Debug "old config = NULL"
+    ' Endif
+    ' If aConfig Then
+    '   Debug "new config = "; aConfig.Join()
+    ' Else
+    '   Debug "new config = NULL"
+    ' Endif
     If Not aOldConfig And If Not aConfig Then
       bChange = False
     Else If aOldConfig And If aConfig And If aOldConfig.Join(",") = aConfig.Join(",") Then 
@@ -1588,15 +1625,7 @@ Public Sub SaveConfig(Optional bReset As Boolean)
   
   If Not bChange Then Return
   
-  Settings["/gb.form.mdi/Toolbars/" &/ ToolbarKey &/ "Layout"] = aConfig
-  Settings.Save
-  
-  For Each hForm In $cRegister[ToolbarKey]
-  
-    If Not bReset And If hForm = Me Then Continue
-    hForm.LoadConfig
-  
-  Next
+  SaveLayout(ToolBarKey, aLayout, If(bReset, Null, Me))
   
 End
 
@@ -1719,10 +1748,11 @@ Public Sub panToolbar_Draw()
     Paint.Brush = Paint.Image($hConfigureImage)
     Paint.Rectangle(0, 0, panToolBar.W, panToolBar.H)
     Paint.Fill
-    ' Draw.Foreground = panWhere.Background
-    ' 'Draw.LineStyle = Line.Solid
-    ' Draw.Rect(0, 0, panToolBar.W, panToolBar.H)
-    ' Draw.Rect(1, 1, panToolBar.W - 2, panToolBar.H - 2)
+  Else If GetToolBar().Design Then
+    Paint.Rectangle(0.5, 0.5, Paint.W - 1, Paint.H - 1)
+    Paint.LineWidth = 1
+    Paint.Background = Color.LightBackground
+    Paint.Stroke
   Endif
 
 End

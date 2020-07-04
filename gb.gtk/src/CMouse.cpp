@@ -262,6 +262,12 @@ BEGIN_METHOD(Mouse_Translate, GB_INTEGER dx; GB_INTEGER dy)
 
 END_METHOD
 
+BEGIN_PROPERTY(Mouse_Click)
+
+	GB.ReturnInteger(gMouse::clickCount());
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Pointer_ScreenX)
@@ -402,6 +408,7 @@ GB_DESC CMouseDesc[] =
 	GB_STATIC_PROPERTY_READ("Orientation", "i", Mouse_Orientation),
 	GB_STATIC_PROPERTY_READ("Delta", "f", Mouse_Delta),
 	GB_STATIC_PROPERTY_READ("Forward", "b", Mouse_Forward),
+	GB_STATIC_PROPERTY_READ("Click", "i", Mouse_Click),
 	
 	GB_STATIC_METHOD("Translate", NULL, Mouse_Translate, "(DX)i(DY)i"),
 

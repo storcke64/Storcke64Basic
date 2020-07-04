@@ -183,6 +183,7 @@ typedef
 		RS_PRINT,
 		RS_INPUT,
 		RS_READ,
+		RS_PEEK,
 		RS_WRITE,
 		RS_OPEN,
 		RS_CLOSE,

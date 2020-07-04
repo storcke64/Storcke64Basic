@@ -456,13 +456,12 @@ static void analyze_classes(GB_DESC **desc)
 	FREE(&sort);
 }
 
-static bool analyze_native_component(const char *path)
+static bool analyze_native_component(const char *path, bool for_include)
 {
 	lt_dlhandle lib;
 	GB_DESC **desc;
 	GB_DESC **desc_opt;
 	char **include;
-	bool ret = FALSE;
 
 	if (_verbose)
 		fprintf(stderr, "Loading native component: %s\n", path);
@@ -472,7 +471,8 @@ static bool analyze_native_component(const char *path)
 	lib = lt_dlopenext(path);
 	if (!lib)
 	{
-		error(FALSE, "Cannot load shared library: %s", lt_dlerror());
+		if (!for_include || _verbose)
+			error(FALSE, "Cannot load shared library: %s", lt_dlerror());
 		return TRUE;
 	}
 
@@ -500,7 +500,7 @@ static bool analyze_native_component(const char *path)
 	lt_dlclose(lib);
 	#endif
 
-	return ret;
+	return FALSE;
 }
 
 
@@ -600,8 +600,8 @@ static bool analyze(const char *comp, bool include)
 
 	if (_verbose)
 		fprintf(stderr, "%s component %s\n", include ? "Including" : "Analyzing", name);
-	else if (!include)
-		puts(name);
+	/*else if (!include)
+		puts(name);*/
 	
 	native = find_native_component(name);
 		
@@ -645,7 +645,7 @@ static bool analyze(const char *comp, bool include)
 	{
 		snprintf(_buffer, sizeof(_buffer), LIB_PATTERN, _lib_path, name);
 
-		if (analyze_native_component(_buffer))
+		if (analyze_native_component(_buffer, include))
 			ok = FALSE;
 	}
 
@@ -682,7 +682,7 @@ static bool analyze(const char *comp, bool include)
 	
 	STR_free(name);
 	
-	return FALSE;
+	return !ok;
 }
 
 static void run_myself(const char *path, const char *name)
@@ -693,7 +693,7 @@ static void run_myself(const char *path, const char *name)
 	int status;
 	
 	if (_verbose)
-		fprintf(stderr, "Running myself for component %s\n", name);
+		fprintf(stderr, "Running myself for component '%s'...\n\n", name);
 	
 	argv[n++] = path;
 	if (_verbose)
@@ -714,6 +714,8 @@ static void run_myself(const char *path, const char *name)
 		snprintf(_env, sizeof(_env), "LD_PRELOAD=%s", _buffer);
 		putenv(_env);
 	}
+	else
+		unsetenv("LD_PRELOAD");
 
 	pid = fork();
 	switch (pid)
@@ -728,6 +730,9 @@ static void run_myself(const char *path, const char *name)
 		default:
 			waitpid(pid, &status, 0);
 	}
+	
+	if (_verbose)
+		fputc('\n', stderr);
 }
 
 static void make_component_list()
@@ -824,22 +829,24 @@ int main(int argc, char **argv)
 					"\nOptions:"
 					#if HAVE_GETOPT_LONG
 					"\n"
+					"  -h  --help                 display this help\n"
+					"  -L  --license              display license\n"
 					#if DO_PRELOADING
 					"  -p                         disable preloading\n"
 					#endif
 					"  -r  --root <directory>     gives the gambas installation directory\n"
+					"  -v                         verbose output\n"
 					"  -V  --version              display version\n"
-					"  -L  --license              display license\n"
-					"  -h  --help                 display this help\n"
 					#else
 					" (no long options on this system)\n"
+					"  -h                         display this help\n"
+					"  -L                         display license\n"
 					#if DO_PRELOADING
 					"  -p                         disable preloading\n"
 					#endif
 					"  -r <directory>             gives the gambas installation directory\n"
+					"  -v                         verbose output\n"
 					"  -V                         display version\n"
-					"  -L                         display license\n"
-					"  -h                         display this help\n"
 					#endif
 					"\n"
 					);
@@ -880,8 +887,8 @@ int main(int argc, char **argv)
 	
 			if (_verbose)
 			{
-				fprintf(stderr, "component path: %s\n", _lib_path);
-				fprintf(stderr, "info path: %s\n", _info_path);
+				fprintf(stderr, "Browsing component directory: %s\n", _lib_path);
+				fprintf(stderr, "*.info files are stored in: %s\n\n", _info_path);
 			}
 			
 			make_component_list();
@@ -897,6 +904,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
+#if 0
 			if (!getenv("GB_PRELOAD"))
 			{
 				for (ind = optind; ind < argc; ind++)
@@ -908,6 +916,7 @@ int main(int argc, char **argv)
 						preload(argv, "libqt-mt.so.3");*/
 				}
 			}
+#endif
 		
 			for (ind = optind; ind < argc; ind++)
 			{

@@ -36,6 +36,7 @@
 #include "gb.image.h"
 
 #ifndef __MAIN_C
+extern bool MAIN_debug;
 extern GB_INTERFACE GB;
 extern IMAGE_INTERFACE IMAGE;
 #endif

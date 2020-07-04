@@ -33,15 +33,16 @@ Public Sub Form_Open()
   
   If $sDetail Then 
   
-    Project.SetEditorFont(txtDetail)
-    txtDetail.Text = $sDetail
-    panDetail.Show
-    Me.H = panDetail.Y + panDetail.H + DS * 6
+    Project.SetEditorFont(trmDetail)
+    MTheme.InitControl(trmDetail)
+    trmDetail.Print(Replace($sDetail, "\n", "\r\n"))
+    trmDetail.Show
+    Me.Resize(DS * 120, trmDetail.Y + trmDetail.H + DS * 6)
     
   Else
     
-    Me.H = panDetail.Y + DS * 6
-    panDetail.Hide
+    Me.Resize(DS * 60, trmDetail.Y + DS * 6)
+    trmDetail.Hide
     
   Endif
   

@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4 --install
-SUBDIRS = gbc gbx . lib share
+SUBDIRS = gbc gbx . lib share man
 EXTRA_DIST = TODO reconf tools spec README mime gb.*.h
 BUILT_SOURCES = trunk_version.h
 CLEANFILES = trunk_version.h

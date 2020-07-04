@@ -23,6 +23,7 @@
 #define E_ZERO      26
 #define E_IOBJECT   29
 #define E_SARRAY    65
+#define E_UTYPE     71
 
 static inline double frac(double x)
 {
@@ -136,7 +137,9 @@ typedef
 #define EP (JIT.exec->ep)
 
 #define THROW(_err) ({ SP = sp; JIT.throw(_err); })
+#define THROW_PC(_err, _pc) ({ PC = &pc[_pc]; THROW(_err); })
 #define THROW_TYPE(_t1, _t2) ({ SP = sp; JIT.throw_type(_t1, _t2); })
+#define THROW_TYPE_PC(_t1, _t2, _pc) ({ PC = &pc[_pc]; THROW_TYPE(_t1, _t2); })
 
 #define CHECK_FINITE(_val) ({ if (!isfinite(_val)) THROW(E_OVERFLOW); (_val); })
 
@@ -317,6 +320,11 @@ enum
   temp; })
 
 #define GET_FUNCTION(_pc) ({ CALL_UNKNOWN(_pc); POP_u(); })
+
+#define GET_STRING_ADDR(_val) ({ \
+  GB_STRING *temp = &(_val); \
+  temp->value.addr + temp->value.start; \
+})
 
 // TODO: automatic class
 #define ADDR(_val) ({ \

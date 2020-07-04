@@ -51,6 +51,7 @@ DECLARE_EVENT(EVENT_Resize);
 DECLARE_EVENT(EVENT_Title);
 DECLARE_EVENT(EVENT_Icon);
 DECLARE_EVENT(EVENT_Font);
+DECLARE_EVENT(EVENT_State);
 
 void CWINDOW_check_main_window(CWINDOW *win)
 {
@@ -72,6 +73,12 @@ static void cb_font_change(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Font, 0);
+}
+
+static void cb_state(gMainWindow *sender)
+{
+	CWIDGET *_object = GetObject(sender);
+	GB.Raise(THIS, EVENT_State, 0);
 }
 
 /*static void gb_post_window_Open(gMainWindow *sender)
@@ -295,6 +302,7 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent;)
 	WINDOW->onActivate = cb_activate;
 	WINDOW->onDeactivate = cb_deactivate;
 	WINDOW->onFontChange = cb_font_change;
+	WINDOW->onState = cb_state;
 
 END_METHOD
 
@@ -919,6 +927,7 @@ GB_DESC CWindowDesc[] =
 	GB_EVENT("Title", NULL, NULL, &EVENT_Title),
 	GB_EVENT("Icon", NULL, NULL, &EVENT_Icon),
 	GB_EVENT("Font", NULL, NULL, &EVENT_Font),
+	GB_EVENT("State", NULL, NULL, &EVENT_State),
 
 	GB_END_DECLARE
 };

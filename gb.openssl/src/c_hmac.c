@@ -43,7 +43,7 @@
  * HMac
  */
 
-static EVP_MD *get_method(GB_VARIANT_VALUE *varg)
+static const EVP_MD *get_method(GB_VARIANT_VALUE *varg)
 {
 	const EVP_MD *method;
 
@@ -62,7 +62,7 @@ static EVP_MD *get_method(GB_VARIANT_VALUE *varg)
 
 	if (!method)
 		GB.Error("Unknown method");
-	return NULL;
+	return method;
 }
 
 /**G

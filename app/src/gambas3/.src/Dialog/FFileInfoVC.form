@@ -1,0 +1,58 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,125,90)
+  Arrangement = Arrange.Vertical
+  Spacing = True
+  Margin = True
+  { tabInfo TabPanel
+    MoveScaled(1,2,59,43)
+    Expand = True
+    Arrangement = Arrange.Fill
+    Count = 2
+    Index = 0
+    Text = ("Changes")
+    { lblVersioning TextLabel
+      MoveScaled(2,5,42,6)
+      Visible = False
+      Font = Font["Italic"]
+      Padding = 15
+    }
+    { edtChange TextEditor
+      MoveScaled(6,13,40,18)
+      Border = False
+      ReadOnly = True
+      Wrap = True
+    }
+    Index = 1
+    Text = ("History")
+    { edtHistory TextEditor
+      MoveScaled(3,4,38,13)
+      Border = False
+      Highlight = "Custom"
+      ReadOnly = True
+      Wrap = True
+    }
+    Index = 0
+  }
+  { HBox1 HBox
+    MoveScaled(4,54,51,4)
+    { btnRevert Button
+      MoveScaled(0,0,18,4)
+      AutoResize = True
+      Text = Shortcut(("Undo changes"), "U")
+      Picture = Picture["icon:/small/undo"]
+    }
+    { Panel3 Panel
+      MoveScaled(22,0,3,4)
+      Expand = True
+    }
+    { btnClose Button
+      MoveScaled(32,0,16,4)
+      Text = ("Close")
+      Picture = Picture["icon:/small/close"]
+      Default = True
+      Cancel = True
+    }
+  }
+}

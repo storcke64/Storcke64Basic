@@ -3,6 +3,9 @@
 Export
 Create Static
 
+Property Read Count As Integer
+Property Read All As String[]
+
 Public _Slot As Collection
 Public _Parent As String
 
@@ -19,28 +22,38 @@ Public Sub _get(Parent As String) As _Settings_Keys
   
 End
 
-Public Sub _next() As String
+Private Sub GetKeys() As Boolean
   
   Dim vVal As Variant
   Dim cCol As Collection
+
+  If _Parent Then
+    Try cCol = _Slot[_Parent]
+  Else
+    cCol = _Slot
+  Endif
+  If Not cCol Then Return True
+
+  $aKeys = New String[]
+  For Each vVal In cCol
+    If Not _Parent And If vVal.Count = 0 Then Continue
+    $aKeys.Add(cCol.Key)
+  Next
+  $aKeys.Sort
+  
+  Debug $aKeys.Join()
+  
+End
+
+Public Sub _next() As String
+  
   Dim sKey As String
   
   If IsNull(Enum.Index) Then
-    If _Parent Then
-      Try cCol = _Slot[_Parent]
-    Else
-      cCol = _Slot
-    Endif
-    If Not cCol Then 
+    If GetKeys() Then
       Enum.Stop
       Return
     Endif
-    $aKeys = New String[]
-    For Each vVal In cCol
-      If Not _Parent And If vVal.Count = 0 Then Continue
-      $aKeys.Add(cCol.Key)
-    Next
-    $aKeys.Sort
     Enum.Index = 0
   Endif
   
@@ -52,4 +65,29 @@ Public Sub _next() As String
     Return sKey
   Endif
   
+End
+
+Public Sub Exist(Key As String) As Boolean
+  
+  If Not $aKeys Then GetKeys()
+  If $aKeys Then Return $aKeys.Exist(Key)
+  
+End
+
+Private Function Count_Read() As Integer
+
+  If Not $aKeys Then GetKeys()
+  If $aKeys Then Return $aKeys.Count
+
+End
+
+Private Function All_Read() As String[]
+
+  If Not $aKeys Then GetKeys()
+  If $aKeys Then
+    Return $aKeys.Copy()
+  Else
+    Return New String[]
+  Endif
+
 End

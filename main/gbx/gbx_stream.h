@@ -46,6 +46,18 @@ typedef
 
 typedef
 	struct {
+		union STREAM *redirect;
+		char *buffer;
+		short buffer_pos;
+		short buffer_len;
+		char *unread;
+		int unread_pos;
+		int unread_len;
+	}
+	STREAM_EXTRA;
+	
+typedef
+	struct {
 		STREAM_CLASS *type;
 		short mode;
 		unsigned swap : 1;
@@ -58,12 +70,12 @@ typedef
 		unsigned blocking : 1;
 		unsigned redirected : 1;
 		unsigned no_read_ahead : 1;
-		unsigned memory : 1;
+		unsigned null_terminated : 1;
 		unsigned _reserved : 4;
-		short buffer_pos;
-		short buffer_len;
-		char *buffer;
-		union STREAM *redirect;
+		#if __WORDSIZE == 64
+		unsigned _reserved2 : 32;
+		#endif
+		STREAM_EXTRA *extra;
 		#if DEBUG_STREAM
 		int tag;
 		#endif
@@ -130,6 +142,13 @@ typedef
 	STREAM_STRING;
 
 typedef
+	struct {
+		STREAM_COMMON common;
+		intptr_t pos;
+		}
+	STREAM_NULL;
+
+typedef
 	union STREAM {
 		STREAM_CLASS *type;
 		STREAM_COMMON common;
@@ -141,6 +160,7 @@ typedef
 		STREAM_ARCH arch;
 		STREAM_PROCESS process;
 		STREAM_STRING string;
+		STREAM_NULL null;
 		}
 	STREAM;
 
@@ -157,7 +177,8 @@ enum {
 	STO_WATCH       = (1 << 6),
 	STO_PIPE        = (1 << 7),
 	STO_MEMORY      = (1 << 8),
-	STO_STRING      = (1 << 9)
+	STO_STRING      = (1 << 9),
+	STO_NULL        = (1 << 10)
 	};
 
 enum {
@@ -178,7 +199,7 @@ EXTERN STREAM_CLASS STREAM_memory;
 EXTERN STREAM_CLASS STREAM_arch;
 EXTERN STREAM_CLASS STREAM_process;
 EXTERN STREAM_CLASS STREAM_string;
-/*EXTERN STREAM_CLASS STREAM_null;*/
+EXTERN STREAM_CLASS STREAM_null;
 
 #else
 
@@ -214,6 +235,7 @@ char *STREAM_input(STREAM *stream);
 int64_t STREAM_tell(STREAM *stream);
 void STREAM_seek(STREAM *stream, int64_t pos, int whence);
 int STREAM_read(STREAM *stream, void *addr, int len);
+void STREAM_peek(STREAM *stream, void *addr, int len);
 int STREAM_read_max(STREAM *stream, void *addr, int len);
 bool STREAM_read_ahead(STREAM *stream);
 //char STREAM_getchar(STREAM *stream);

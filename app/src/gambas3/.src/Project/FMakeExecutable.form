@@ -1,53 +1,79 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,111,75)
+  MoveScaled(0,0,101,75)
   Text = ("Make executable")
   Icon = Picture["icon:/small/exec"]
   Persistent = True
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
-  { fchExec FileChooser
-    MoveScaled(1,1,102,57)
+  { tabExec TabPanel
+    MoveScaled(4,2,92,56)
     Expand = True
-    ShowButton = True
-  }
-  { panExtension VBox
-    MoveScaled(2,60,102,9)
-    Spacing = True
-    { HBox2 HBox
-      MoveScaled(0,0,68,4)
-      Spacing = True
-      { Label1 Label
-        MoveScaled(0,0,24,4)
-        AutoResize = True
-        Text = ("Run this command after")
-      }
-      { txtCommand TextBox
-        MoveScaled(26,0,24,4)
-        ToolTip = ("<b>$(FILE)</b> will be replaced by the path of the executable")
-        Expand = True
-      }
+    Arrangement = Arrange.Fill
+    Count = 2
+    Index = 0
+    Text = ("Location")
+    { fchExec FileChooser
+      MoveScaled(4,1,76,49)
+      Border = False
+      Margin = True
     }
-    { HBox1 HBox
-      MoveScaled(0,5,101,4)
+    Index = 1
+    Text = ("Options")
+    { VBox1 VBox
+      MoveScaled(1,1,87,43)
       Spacing = True
+      Margin = True
       { chkIncVersion CheckBox
-        MoveScaled(0,0,19,4)
-        AutoResize = True
+        MoveScaled(1,1,19,4)
         Text = ("Increment version")
       }
       { chkDebug CheckBox
-        MoveScaled(20,0,39,4)
-        AutoResize = True
+        MoveScaled(1,5,39,4)
         Text = ("Keep debugging information in executable")
       }
       { chkShortcut CheckBox
-        MoveScaled(60,0,34,4)
-        AutoResize = True
+        MoveScaled(1,9,34,4)
         Text = ("Create a shortcut on the desktop")
       }
+      { chkNoTest CheckBox
+        MoveScaled(1,13,34,4)
+        Text = ("Exclude test modules")
+      }
+      { HBox2 HBox
+        MoveScaled(2,19,68,4)
+        Spacing = True
+        { Label1 Label
+          MoveScaled(0,0,24,4)
+          AutoResize = True
+          Text = ("Run this command after")
+        }
+        { txtCommand TextBox
+          MoveScaled(26,0,24,4)
+          ToolTip = ("<b>$(FILE)</b> will be replaced by the path of the executable")
+          Expand = True
+        }
+      }
+    }
+    Index = 0
+  }
+  { HBox3 HBox
+    MoveScaled(6,62,79,4)
+    Spacing = True
+    { Spring1 Spring
+      MoveScaled(16,2,9,1)
+    }
+    { btnOK Button
+      MoveScaled(35,0,16,4)
+      Text = ("OK")
+      Default = True
+    }
+    { btnCancel Button
+      MoveScaled(54,0,16,4)
+      Text = ("Cancel")
+      Cancel = True
     }
   }
 }

@@ -34,6 +34,8 @@ Public Sub _new()
   $aStyle[Highlight.Label] = New TextEditorStyle(Color.Black, False, False, True) As "Style"
   $aStyle[Highlight.Constant] = New TextEditorStyle(&HA00000&, True) As "Style"
   $aStyle[Highlight.Alternate] = New TextEditorStyle(&HE0E0E0&) As "Style"
+  $aStyle[Highlight.Added] = New TextEditorStyle(&00FF00) As "Style"
+  $aStyle[Highlight.Removed] = New TextEditorStyle(&FF8080) As "Style"
   
   For I = Highlight.Custom To $aStyle.Max
     $aStyle[I] = New TextEditorStyle As "Style"
@@ -55,7 +57,9 @@ Public Sub _get((Style) As Integer) As TextEditorStyle
   Try hStyle = $aStyle[Style]
   If Error Then Error.Raise("Invalid argument")
   If Not hStyle Then
-    $aStyle[Style] = $aStyle[Highlight.Normal].Copy()
+    hStyle = $aStyle[Highlight.Normal].Copy()
+    Object.Attach(hStyle, Me, "Style")
+    $aStyle[Style] = hStyle
   Endif
   
   Return hStyle

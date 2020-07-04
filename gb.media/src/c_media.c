@@ -40,6 +40,8 @@
 
 static void *_from_element = NULL;
 
+static int cb_message(CMEDIAPIPELINE *_object);
+
 void MEDIA_raise_event(void *_object, int event)
 {
 	gst_element_post_message(ELEMENT, gst_message_new_application(GST_OBJECT(ELEMENT), gst_structure_new("SendEvent", "event", G_TYPE_INT, event, NULL)));
@@ -99,11 +101,13 @@ CMEDIACONTROL *MEDIA_get_control_from_element(void *element, bool create)
 	return ctrl;
 }
 
-bool MEDIA_set_state(void *_object, int state, bool error)
+bool MEDIA_set_state(void *_object, int state, bool error, bool async)
 {
 	GstStateChangeReturn status;
 
 	status = gst_element_set_state(ELEMENT, state);
+	if (async)
+		return FALSE;
 	
 	if (status == GST_STATE_CHANGE_ASYNC)
 		status = gst_element_get_state(ELEMENT, NULL, NULL, GST_SECOND);
@@ -114,6 +118,7 @@ bool MEDIA_set_state(void *_object, int state, bool error)
 		return TRUE;
 	}
 	
+	cb_message(THIS_PIPELINE);
 	return FALSE;
 }
 
@@ -157,7 +162,8 @@ static GB_TYPE to_gambas_type(const GValue *value)
 				return GB_T_DATE;
 			else
 			{
-				fprintf(stderr, "gb.media: warning: unsupported data type: %s\n", G_VALUE_TYPE_NAME(value));
+				if (MAIN_debug)
+					fprintf(stderr, "gb.media: warning: unsupported data type: %s\n", G_VALUE_TYPE_NAME(value));
 				//GB.Error("Unsupported property datatype"); 
 				return GB_T_NULL;
 			}
@@ -373,7 +379,8 @@ static void return_value(const GValue *value)
 #endif
 			else
 			{
-				fprintf(stderr, "gb.media: warning: unsupported datatype: %s\n", G_VALUE_TYPE_NAME(value));
+				if (MAIN_debug)
+					fprintf(stderr, "gb.media: warning: unsupported datatype: %s\n", G_VALUE_TYPE_NAME(value));
 				GB.ReturnNull();
 			}
 	}
@@ -1199,7 +1206,7 @@ BEGIN_PROPERTY(MediaControl_State)
 	}
 	else
 	{
-		MEDIA_set_state(THIS, VPROP(GB_INTEGER), TRUE);
+		MEDIA_set_state(THIS, VPROP(GB_INTEGER), TRUE, FALSE);
 	}
 
 END_PROPERTY
@@ -1818,7 +1825,8 @@ void MEDIA_stop_pipeline(CMEDIACONTROL *_object)
 			try++;
 			if (try > 25)
 			{
-				fprintf(stderr, "gb.media: warning: could not catch end of stream\n");
+				if (MAIN_debug)
+					fprintf(stderr, "gb.media: warning: could not catch end of stream\n");
 				break;
 			}
 			cb_message(THIS_PIPELINE);
@@ -1826,8 +1834,7 @@ void MEDIA_stop_pipeline(CMEDIACONTROL *_object)
 		}
 	}
 
-	MEDIA_set_state(THIS, GST_STATE_READY, TRUE);
-	cb_message(THIS_PIPELINE);
+	MEDIA_set_state(THIS, GST_STATE_READY, TRUE, FALSE);
 }
 
 
@@ -1863,11 +1870,10 @@ BEGIN_METHOD_VOID(MediaPipeline_free)
 
 END_METHOD
 
-BEGIN_METHOD_VOID(MediaPipeline_Play)
+BEGIN_METHOD(MediaPipeline_Play, GB_BOOLEAN async)
 
 	THIS->eos = FALSE;
-	MEDIA_set_state(THIS, GST_STATE_PLAYING, TRUE);
-	cb_message(THIS_PIPELINE);
+	MEDIA_set_state(THIS, GST_STATE_PLAYING, TRUE, VARGOPT(async, FALSE));
 	set_pipeline_rate(THIS);
 
 END_METHOD
@@ -1880,8 +1886,7 @@ END_METHOD
 
 BEGIN_METHOD_VOID(MediaPipeline_Close)
 
-	MEDIA_set_state(THIS, GST_STATE_NULL, TRUE);
-	cb_message(THIS_PIPELINE);
+	MEDIA_set_state(THIS, GST_STATE_NULL, TRUE, FALSE);
 
 END_METHOD
 
@@ -1890,8 +1895,7 @@ BEGIN_METHOD_VOID(MediaPipeline_Pause)
 	if (THIS->state != GST_STATE_PLAYING)
 		return;
 	
-	MEDIA_set_state(THIS, GST_STATE_PAUSED, TRUE);
-	cb_message(THIS_PIPELINE);
+	MEDIA_set_state(THIS, GST_STATE_PAUSED, TRUE, FALSE);
 
 END_METHOD
 
@@ -2180,7 +2184,7 @@ GB_DESC MediaPipelineDesc[] =
 	GB_PROPERTY("Pos", "f", MediaPipeline_Position),
 	GB_PROPERTY_READ("Length", "f", MediaPipeline_Duration),
 	
-	GB_METHOD("Play", NULL, MediaPipeline_Play, NULL),
+	GB_METHOD("Play", NULL, MediaPipeline_Play, "[(Async)b]"),
 	GB_METHOD("Stop", NULL, MediaPipeline_Stop, NULL),
 	GB_METHOD("Pause", NULL, MediaPipeline_Pause, NULL),
 	GB_METHOD("Close", NULL, MediaPipeline_Close, NULL),

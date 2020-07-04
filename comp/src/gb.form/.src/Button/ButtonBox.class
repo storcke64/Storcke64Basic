@@ -231,8 +231,8 @@ Public Sub Background_Arrange()
     X = FW
     For Each hCtrl In aCtrl
       hCtrl.W = Desktop.Scale * 3
-      hCtrl.Move(X, FH, hCtrl.W, H)
-      X += hCtrl.W
+      hCtrl.Move(X, FH, H, H)
+      X += H
     Next
     If $hFilter Then
       $hTextBox.Move(X, FH, Me.W - FW - X - H, H)
@@ -244,8 +244,8 @@ Public Sub Background_Arrange()
     X = Me.W - FW
     For Each hCtrl In aCtrl
       hCtrl.W = Desktop.Scale * 3
-      X -= hCtrl.W
-      hCtrl.Move(X, FH, hCtrl.W, H)
+      X -= H
+      hCtrl.Move(X, FH, H, H)
     Next
     If $hFilter Then 
       $hFilter.Move(FW, FH, H, H)
@@ -260,6 +260,9 @@ End
 Public Sub _AddButton(hButton As ToolButton)
   
   hButton.Reparent($hBackground)
+  hButton.Raise
+  If $hClearButton Then $hClearButton.Raise
+  $hButton.Lower
   
 End
 
@@ -332,6 +335,7 @@ Private Sub Filter_Write(Value As Boolean)
     $hTimer.Delay = 500
   Else
     $hFilter.Delete
+    $hFilter = Null
   Endif
   
   Background_Arrange

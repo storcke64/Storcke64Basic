@@ -1,0 +1,219 @@
+' Gambas class file
+
+'Export
+
+Private $aFile As String[]
+Private $aStat As Stat[]
+Private $sDir As String
+
+Static Public Sub _init()
+  
+  Session.Timeout = 60
+  WebForm.Debug = True
+  
+End
+
+
+Public Sub _new()
+  
+  WebTable1.AddColumn("Name")
+  WebTable1.AddColumn("Size", "8em", Align.Right)
+  WebTable1.AddColumn("Last modified", "12em", Align.Right)
+  
+End
+
+
+Public Sub WebForm_Open()
+
+  ReloadTable
+
+  WebTimer1_Timer
+
+End
+
+Public Sub WebButton1_Click()
+
+  WebButton1.Text = "Message !"
+  Message(Message.Question("Happy new year!", "Yes", "No", "Cancel"))
+  WebLabel1.Text = "Happy new year!"
+  WebButton1.Text = "OK"
+  
+End
+
+Public Sub WebTimer1_Timer()
+
+  Try lblTime.Text = Format(Now, "hh:nn:ss")
+
+End
+
+Public Sub WebCheckBox1_Click()
+
+  WebTextBox1.Enabled = WebCheckBox1.Value
+  If WebTextBox1.Enabled Then WebTextBox1.SetFocus()
+
+End
+
+Public Sub WebTextBox1_Change()
+
+  WebLabel1.Text = WebTextBox1.Text
+
+End
+
+Public Sub WebButton2_Click()
+
+  Me.Close
+
+End
+
+Public Sub WebComboBox1_Click()
+
+  WebLabel1.Text = Last.Text
+
+End
+
+Public Sub WebButton3_Click()
+
+  Dim hForm As Webform2
+  Dim I As Integer
+
+  For I = 1 To 10
+    
+    hForm = New Webform2
+    hForm.Move(Rand(0, 800) & "px", Rand(100, 500) & "px")
+    hForm.Show
+    
+  Next
+
+End
+
+Private Sub ReloadTable()
+
+  $sDir = "/home/benoit"
+  $aFile = Dir($sDir).Sort(gb.Natural)
+  $aStat = New Stat[$aFile.Count]
+  WebTable1.Count = $aFile.Count
+
+End
+
+Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebTableData)
+
+  Dim hStat As Stat
+  
+  hStat = $aStat[Row]
+  If Not hStat Then
+    Try hStat = Stat($sDir &/ $aFile[Row])
+    If Not hStat Then Return
+    $aStat[Row] = hStat
+  Endif
+
+  Select Case Column
+    Case 0
+      Data.Text = $aFile[Row]
+    Case 1
+      Data.Text = File.FormatSize(hStat.Size, True)
+    Case 2
+      Data.Text = Format(hStat.LastModified, "dd/mm/yyyy hh:nn:ss")
+  End Select
+  
+Catch
+  
+  Data.Text = Error.Where & ": " & Error.Text
+
+End
+
+Public Sub WebButton4_Click()
+
+  Message("Click")
+  ReloadTable
+
+End
+
+Public Sub WebButton5_Click()
+
+  Message(WebTextBox1.Text)
+
+End
+
+Public Sub WebButton6_Click()
+
+  WebTabPanel1.Remove(1)
+
+End
+
+Public Sub WebButton4_Menu()
+
+  WebMenu1.Popup(WebButton4)
+
+End
+
+Public Sub WebMenu3_Click()
+
+  Message("Open !")
+
+End
+
+Public Sub WebMenu16_Click()
+
+  Message(Last.Name)
+
+End
+
+Public Sub WebFileButton1_Click()
+
+  'WebForm.Print(WebFileButton1.Path)
+  WebFileButton1.Upload()
+
+End
+
+Public Sub WebFileButton1_Progress()
+  
+  WebProgressBar1.Value = WebFileButton1.Progress
+  
+End
+
+Public Sub WebFileButton1_Finish()
+  
+  Message("Finish: " & WebFileButton1.Path)
+  
+End
+
+
+Public Sub WebFileButton1_Abort(Reason As String)
+
+  Message.Error("Unable to upload file.<br><br>" & Html(Reason))
+  WebProgressBar1.Value = 0
+
+End
+
+Public Sub WebButton7_Click()
+
+  WebFileButton1.Abort()
+
+End
+
+Public Sub WebListBox1_Activate()
+
+  Message(WebListBox1.Text)
+
+End
+
+Public Sub WebListBox1_Select()
+
+  Dim aSel As String[] = WebListBox1.Selection
+
+  WebTextArea1.Text = aSel.Join()
+
+End
+
+Public Sub WebButton8_Click()
+
+  WebTextBox1.SetFocus(True)
+
+End
+
+Public Sub WebButton9_Click()
+
+  Message("WebComboBox1.Index = " & WebComboBox1.Index)
+  WebComboBox1.Index = 0
+
+End

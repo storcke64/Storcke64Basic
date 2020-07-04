@@ -237,9 +237,6 @@ static int Begin(GB_PAINT *d)
 		if (init_painting(d, target))
 			return TRUE;
 
-		if (wid->isCached())
-			PAINTER(d)->initFrom(wid);
-
 		d->area.width = wid->width();
 		d->area.height = wid->height();
 		return FALSE;
@@ -932,7 +929,11 @@ static int get_text_width(QPainter *dp, QString &s)
 
 	for (i = 0; i < (int)text_sl.count(); i++)
 	{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+		w = dp->fontMetrics().horizontalAdvance(text_sl[i]);
+#else
 		w = dp->fontMetrics().width(text_sl[i]);
+#endif
 		if (w > width) width = w;
 		text_w[i] = w;
 	}

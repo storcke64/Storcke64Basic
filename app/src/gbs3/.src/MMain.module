@@ -10,10 +10,12 @@ Private $sMainScriptPath As String
 Private $aIncFiles As New String[]
 Private $iLevel As Integer
 Private $cComponents As New Collection
+Private $cLibraries As New Collection
 Private $aSortKey As New Integer[]
 Private $aAppArgs As New String[]
 Private $bNoCache As Boolean
 Private $bVerbose As Boolean
+Private $bWarning As Boolean                 ' added to support warings to be displayed
 Private $aImplemented As New String[]
 Private $bExecuteFromArgs As Boolean
 Private $bFast As Boolean
@@ -65,6 +67,7 @@ Public Sub Main() As Integer
   Else
     Exec ["md5sum", $sPath] To $sMd5
   Endif
+  
   $sMd5 = Scan($sMd5, "* *")[0]
   If $bFast Then $sMd5 &= "-f"
 
@@ -97,9 +100,10 @@ Public Sub Main() As Integer
 
     MakeVirtualProject
 
-    Shell (System.Path &/ "bin/gbc" & System.Version & " -ag " & $sPrjPath & " 2>&1") To sRes
-
-    If sRes <> "OK\n" Then
+    Shell (System.Path &/ "bin/gbc" & System.Version & If($bWarning, " -agw ", " -ag ") & $sPrjPath & " 2>&1") To sRes
+    
+    Dim sResLines As String[] = Split(sRes, "\n", "", True)   ' added to only check the last line from compiler, ignore all others
+    If sResLines[sResLines.max] <> "OK" Then
       Error sRes
       Print File.Load($sPrjPath &/ ".project")
       Print File.Load($sPrjPath &/ ".src" &/ "MMain.module")
@@ -194,6 +198,10 @@ Private Function ParseArgs() As String
       Case "-p"
 
         $bPrecompiler = True
+        
+      Case "-w", "--warnings"
+        
+        $bWarning = True
 
       Case Else
 
@@ -261,6 +269,11 @@ Private Sub MakeVirtualProject()
 
   For Each i In $aSortKey
     sPrjFileContent &= "Component=" & $cComponents[i] & "\n"
+
+  Next
+  
+  For Each ci As String In $cLibraries
+    sPrjFileContent &= "Library=" & ci & "\n"
 
   Next
 
@@ -354,20 +367,26 @@ Private Sub GenerateFiles(Path As String)
     Endif
 
     If aSym.Count >= 2 And If aSym[0] == "USE" Then
-
+      
       For iInd = 1 To aSym.Max Step 2
         If Highlight.Types[iInd] <> Highlight.String Then CompileError(Path, iLine, "Syntax error")
         s = Mid$(aSym[iInd], 2, -1)
-        If $bVerbose Then Print "gbs: use component: "; s
-
-        If Not CComponent.All.Exist(s) Then CompileError(Path, iLine, Subst("Unknown component: &1", s))
-        $cComponents[CComponent.All[s].SortKey] = s
-        $aSortKey.Add(CComponent.All[s].SortKey)
-        $aImplemented.Insert(CComponent.All[s].Implement)
+        
+        If s Like "*:*" Or s Like "/*" Then 
+           If $bVerbose Then Print "gbs: use library: "; s
+           ProcessLibrary(s, iLine, path)
+           
+        Else
+           If $bVerbose Then Print "gbs: use component: "; s
+           ProcessComponent(s, iline, path)
+           
+        Endif 
+        
         If iInd < aSym.Max Then
-          s = aSym[iInd + 1]
-          If s <> "," Then CompileError(Path, iLine, "Comma missing")
+              s = aSym[iInd + 1]
+              If s <> "," Then CompileError(Path, iLine, "Comma missing")
         Endif
+        
       Next
       Continue
     Endif
@@ -404,6 +423,77 @@ Private Sub GenerateFiles(Path As String)
   Dec $iLevel
 
 End
+
+Private Sub processComponent(CompName As String, Progline As Integer, Path As String)
+
+  If Not CComponent.All.Exist(CompName) Then 
+       CompileError(Path, ProgLine, Subst("Unknown component: &1", CompName))
+  Else
+        $cComponents[CComponent.All[CompName].SortKey] = CompName
+        $aSortKey.Add(CComponent.All[CompName].SortKey)
+        $aImplemented.Insert(CComponent.All[CompName].Implement)
+  Endif
+  
+End
+
+Private Sub ProcessLibrary(LibName As String, ProgLine As Integer, Path As String)
+  Dim sSplitLine As String[] = Split(LibName, ":", "", True)
+  Dim LibEntry As String
+  
+  sSplitLine[0] = Replace(sSplitLine[0], ".", "/")
+  LibEntry = sSplitLine[0]
+  'We will allow major version numbers to be used of major.minor numbers
+  If LibEntry[0] = "/" Then
+     If Exist(LibEntry & ":" & sSplitLine[1] & ".gambas") Then   ' we have a whole path
+       LibEntry = LibEntry & ":" & sSplitLine[1] & ".gambas"
+     Else
+       LibEntry = CheckLibVersions(LibEntry, sSplitLine[1])
+     Endif
+  Else
+     libEntry = User.home &/ "/.local/share/gambas" & System.version &/ "lib" &/ LibEntry
+      If Exist(LibEntry & ":" & sSplitLine[1] & ".gambas") Then
+          LibEntry = LibEntry & ":" & sSplitLine[1] & ".gambas"
+      Else
+        LibEntry = CheckLibVersions(LibEntry, sSplitLine[1])
+        If LibEntry = "" Then
+           LibEntry = "/usr/lib/gambas" & System.version &/ sSplitLine[0] & ".gambas"
+           If Exist(LibEntry & ":" & sSplitLine[1] & ".gambas") Then
+             LibEntry = LibEntry & ":" & sSplitLine[1] & ".gambas"
+           Else
+             LibEntry = CheckLibVersions(LibEntry, sSplitLine[1])
+           Endif
+        Endif
+      Endif
+        
+  Endif 
+  
+  If LibEntry = "" Then 
+      CompileError(Path, ProgLine, Subst("Unknown Library: &1", LibName)) 
+  Else
+      If $bVerbose Then Print "gbs: use Library Path: "; LibEntry
+      $cLibraries.Add(LibEntry, File.Name(LibName))
+  Endif
+End
+
+Private Sub CheckLibVersions(sPath As String, Version As String) As String
+  
+  Dim sVersion As String[] = Split(version, ".")
+  If sVersion.count > 0 Then
+    Dim sDir As String = File.Dir(sPath)
+    Dim sName As String = File.Name(sPath) & ":" & sVersion[0] & ".*" & ".gambas"
+    Dim sEntries As String[] = Dir(sDir, sName, gb.file).Sort()
+    If sEntries.count > 0 Then
+      Return sDir &/ sEntries[sEntries.max]   ' return the highest level library
+    Else
+       Return ""
+    Endif
+  Else
+    Return ""
+  Endif
+  
+End
+
+
 
 Public Function IsValid(sPath As String) As Boolean
 

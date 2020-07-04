@@ -50,6 +50,7 @@ EXTERN char **PROJECT_argv;
 EXTERN char *PROJECT_oldcwd;
 EXTERN char *PROJECT_user_home;
 EXTERN bool PROJECT_run_httpd;
+EXTERN bool PROJECT_run_tests;
 #endif
 
 void PROJECT_init(const char *file);

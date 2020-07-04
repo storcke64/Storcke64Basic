@@ -463,8 +463,6 @@ static void load_structure(CLASS *class, int *structure, int nfield)
 		sclass->load->sort = sclass->sort;
 
 	CLASS_search_special(sclass);
-	/*for (i = 0; i < MAX_SPEC; i++)
-		sclass->special[i] = NO_SYMBOL;*/
 
 	sclass->is_struct = TRUE;
 
@@ -598,8 +596,9 @@ static void load_and_relocate(CLASS *class, int len_data, CLASS_DESC **pstart, i
 
 	/* Creation flags */
 
-	class->auto_create = (info->flag & CI_AUTOCREATE) != 0;
-	class->no_create = (info->flag & CI_NOCREATE) != 0;
+	class->auto_create = (info->flag & CI_AUTO_CREATE) != 0;
+	class->no_create = (info->flag & CI_NO_CREATE) != 0;
+	class->is_test = (info->flag & CI_TEST) != 0;
 	//fprintf(stderr, "%s: info->flag = %d auto_create = %d no_create = %d\n", class->name, info->flag, class->auto_create, class->no_create);
 
 	/* Debugging information */
@@ -1024,12 +1023,9 @@ static void load_without_inits(CLASS *class)
 		CATCH
 		{
 			COMPONENT_current = save;
-			THROW_CLASS(class, "Unable to load class file", "");
+			THROW_CLASS(class, ERROR_last.msg, "");
 		}
 		END_TRY
-
-		/*if (BUFFER_load_file(&class->data, FILE_get(name)))
-			THROW(E_CLASS, _class_name, "Unable to load class file", "");*/
 	}
 
 	COMPONENT_current = save;

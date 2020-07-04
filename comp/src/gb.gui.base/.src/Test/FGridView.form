@@ -1,11 +1,11 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,87,68)
+  MoveScaled(0,0,106,68)
   Arrangement = Arrange.Vertical
   Margin = True
   { HBox1 HBox
-    MoveScaled(6,1,75,4)
+    MoveScaled(6,1,87,4)
     Spacing = True
     { txtPadding SpinBox
       MoveScaled(3,0,8,4)
@@ -22,6 +22,10 @@
       AutoResize = True
       Text = ("Drag me")
       Border = Border.Plain
+    }
+    { Button3 Button
+      MoveScaled(68,0,16,4)
+      Text = ("Selection")
     }
   }
   { Separator1 Separator

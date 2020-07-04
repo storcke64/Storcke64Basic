@@ -19,6 +19,8 @@ Public Const EmbedContainer As String = ""              ' Default container clas
 Public Const AutomaticArrangement As Boolean = False    ' If controls are always automatically arranged
 Public Const ForceGrid As Integer = 0                   ' Force grid
 Public Const UseMoveScaled As Boolean = False
+Public Const MenuClass As String = ""                   ' The name of the menu class
+Public Const SelectImagePublic As Boolean = False       ' If images are stored in ".public" directory
 
 Public AllowedProperties As String[]
 
@@ -501,7 +503,7 @@ End
 
 Static Public Sub PaintContainer(X As Float, Y As Float, W As Float, H As Float)
   
-  Paint.Background = Color.SetAlpha(&HFFB0B0, 128)
+  Paint.Background = Color.SetAlpha(&HFF8080, 128)
   Paint.LineWidth = 1
   Paint.Rectangle(X + 0.5, Y + 0.5, W - 1, H - 1)
   Paint.Stroke
@@ -571,11 +573,16 @@ Static Public Sub PaintImage(hCtrl As CControl, sRoot As String, Optional iAlign
     hCtrl["#ImagePath"] = sPath
     hCtrl["#Image"] = Null
     hCtrl["#SvgImage"] = Null
-    sExt = File.Ext(sPath)
-    If sExt = "svg" Or If sExt = "svgz" Then
-      Try hCtrl["#SvgImage"] = SvgImage.Load(Project.Dir &/ sRoot &/ sPath)
+    
+    If sPath Begins "icon:/" Then
+      Try hCtrl["#Image"] = Picture[sPath].Image
     Else
-      Try hCtrl["#Image"] = Image.Load(Project.Dir &/ sRoot &/ sPath)
+      sExt = File.Ext(sPath)
+      If sExt = "svg" Or If sExt = "svgz" Then
+        Try hCtrl["#SvgImage"] = SvgImage.Load(Project.Dir &/ sRoot &/ sPath)
+      Else
+        Try hCtrl["#Image"] = Image.Load(Project.Dir &/ sRoot &/ sPath)
+      Endif
     Endif
   Endif
   
@@ -640,4 +647,18 @@ Public Sub ConvertCoord(iCoord As Integer, (bViewToCoord) As Boolean) As Integer
   
   Return iCoord
   
+End
+
+Public Sub GetPicture(sPict As String) As Picture
+  
+  If Not sPict Then Return
+
+  If sPict Begins "icon:/" Then
+    Return Picture[sPict]
+  Else If Me.SelectImagePublic Then
+    Return Picture.Load(Project.Dir &/ ".public" &/ sPict)
+  Else
+    Return Picture.Load(Project.Dir &/ sPict)
+  Endif
+
 End

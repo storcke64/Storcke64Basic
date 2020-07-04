@@ -71,6 +71,9 @@ public:
 	static void setEvent(GdkEvent *event);
 	static void validate() { _isValid++; }
 	static void invalidate();
+	
+	static void handleClickCount(GdkEvent *event);
+	static int clickCount() { return _isValid ? _click_count : 0; }
 
 private:
 	static int _isValid;
@@ -87,6 +90,10 @@ private:
 	static int _dx;
 	static int _dy;
 	static GdkEvent *_event;
+	static int _click_count;
+	static int _click_x;
+	static int _click_y;
+	static double _click_timer;
 };
 
 #endif

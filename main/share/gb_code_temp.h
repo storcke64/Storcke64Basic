@@ -366,6 +366,25 @@ bool CODE_check_varptr(void)
 	return FALSE;
 }
 
+bool CODE_check_fast_cat(void)
+{
+	unsigned short op;
+	PCODE *last_code;
+	
+	last_code = get_last_code();
+	if (!last_code)
+		return FALSE;
+	
+	op = *last_code;
+	
+	if (!((op & 0xFF00) == C_POP_LOCAL || (op & 0xFF00) == C_POP_PARAM || (op & 0xF800) == C_POP_STATIC || (op & 0xF800) == C_POP_DYNAMIC))
+		return FALSE;
+	
+	cur_func->code[cur_func->ncode - 2] &= 0xFF00;
+	cur_func->code[cur_func->ncode - 2] |= 1;
+	return TRUE;
+}
+
 bool CODE_check_ismissing(void)
 {
 	unsigned short op;
@@ -1410,6 +1429,17 @@ void CODE_drop_vargs(void)
 	#endif
 
 	write_ZZxx(C_PUSH_MISC, CPM_DROP_VARGS);
+}
+
+void CODE_end_vargs(void)
+{
+	LAST_CODE;
+
+	#ifdef DEBUG
+	printf("END VARGS\n");
+	#endif
+
+	write_ZZxx(C_PUSH_MISC, CPM_END_VARGS);
 }
 
 #ifdef CODE_DUMP

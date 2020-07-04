@@ -59,6 +59,7 @@ public:
 	
 	static gControl *getSource() { return _source; }
 	static gControl *getDestination() { return _destination; }
+	static void setDestination(gControl *dest) { _destination = dest; }
 	static int getAction() { return _action; }
 	
 	static int getType();
@@ -90,6 +91,10 @@ public:
 
 	static volatile bool _got_data;
 
+	static gControl *_source;
+	static gControl *_destination;
+	static gControl *_dest;
+
 private:	
 
 	static gControl *drag(gControl *source, GtkTargetList *list);
@@ -98,8 +103,6 @@ private:
 	static gPicture *_icon;
 	static int _icon_x;
 	static int _icon_y;
-	static gControl *_source;
-	static gControl *_destination;
 	static int _action;
 	static int _type;
 	static gPicture *_picture;
@@ -110,7 +113,6 @@ private:
 	static int _x;
 	static int _y;
 	static GdkDragContext *_context;
-	static gControl *_dest;
 	static guint32 _time;
 	static bool _local;
 	static volatile bool _end;

@@ -17,6 +17,9 @@ Private $bNoRefresh As Boolean
 Private $sLast As String
 Private $bShowLabel As Boolean
 
+Private $sSplitFont As String
+Private $aSplitFont As String[]
+
 Public Sub _new()
 
   Inc $iNoChange
@@ -77,20 +80,48 @@ Private Sub SplitFont(sFont As String, N As Integer) As String
 
   Dim I As Integer
   Dim sCar As String
-  Dim S As Integer
 
-  For I = 1 To Len(sFont)
-    sCar = Mid$(sFont, I, 1)
-    If IsUCase(sCar) Or If IsPunct(sCar) Or If sCar = " " Then
-      If S Then
-        If (I - S) >= 2 Or If sCar = " " Or If IsPunct(sCar) Then 
-          Dec N
-          If N = 0 Then Return RTrim(Left$(sFont, I - 1))
+  If sFont <> $sSplitFont Then
+    $sSplitFont = sFont
+    $aSplitFont = New String[]
+    
+    sFont = " " & sFont & " "
+    While Len(sFont) > 1
+      For I = 2 To Len(sFont)
+        sCar = Mid$(sFont, I, 1)
+        If IsPunct(sCar) Or If IsSpace(sCar) Then Goto SPLIT_FONT
+        If IsUCase(sCar) Then
+          sCar = Mid$(sFont, I - 1, 1)
+          If IsPunct(sCar) Or If IsSpace(sCar) Or IsUCase(sCar) Then Continue
+          If Not IsLetter(Mid(sFont, I + 1, 1)) Then Continue
+          Goto SPLIT_FONT
         Endif
-      Endif
-      S = I
-    Endif
-  Next
+        Continue
+      
+      SPLIT_FONT:
+        $aSplitFont.Add(Left$(sFont, I - 1))
+        sFont = Mid$(sFont, I)
+        Break
+        
+      Next
+    Wend
+    
+  Endif
+
+  If N <= $aSplitFont.Count Then Return Trim($aSplitFont.Copy(0, N - 1).Join(""))
+
+  ' For I = 1 To Len(sFont)
+  '   sCar = Mid$(sFont, I, 1)
+  '   If IsUCase(sCar) Or If IsPunct(sCar) Or If sCar = " " Then
+  '     If S Then
+  '       If (I - S) >= 2 Or If sCar = " " Or If IsPunct(sCar) Then 
+  '         Dec N
+  '         If N = 0 Then Return RTrim(Left$(sFont, I - 1))
+  '       Endif
+  '     Endif
+  '     S = I
+  '   Endif
+  ' Next
 
 End
 

@@ -9,9 +9,10 @@ Public Const UseMoveScaled As Boolean = True
 Public Const DropImageClass As String = "PictureBox"
 Public Const DropImageProperty As String = "Picture"
 Public Const AllowScaledProperty As Boolean = True
-Public Const HasMenuEditor As Boolean = True
 Public Const EmbedContainer As String = "Panel"
 Public Const AutomaticArrangement As Boolean = False
+Public Const HasMenuEditor As Boolean = True
+Public Const MenuClass As String = "Menu"
 
 Public Sub GetIcon(hCCtrl As CControl) As String
   
@@ -140,14 +141,21 @@ End
 Public Sub SelectImage(sPropertyType As String, sImage As String) As String
 
   Dim iOption As Integer
+  Dim aSizes As String[]
 
-  If sPropertyType <> "Image" Then iOption = FSelectIcon.SELECT_STOCK
+  'If sPropertyType <> "Image" Then 
+    If Project.Components.Exist("gb.form") Then
+      iOption = FSelectIcon.SELECT_STOCK
+      aSizes = Stock.Sizes
+      aSizes.Insert(["16", "22", "24", "32", "48", "64", "96", "128", "192", "256"])
+    Endif
+  'Endif
   If sPropertyType = "SvgImage" Then
     iOption += FSelectIcon.SELECT_SVGIMAGE
   Else
     iOption += FSelectIcon.SELECT_IMAGE
   Endif
   
-  Return FSelectIcon.Run(sImage, iOption) 'GetPicture()
+  Return FSelectIcon.Run(sImage, iOption, aSizes) 'GetPicture()
       
 End

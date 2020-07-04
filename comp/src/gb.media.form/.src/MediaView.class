@@ -19,6 +19,9 @@ Property Read Duration As Float '' Return the duration of the media in seconds
 Property Position As Float '' Return or set the current position inside the media in seconds.
 Property Speed As Float '' Return or set the playing speed of the media.
 
+Property Volume As Float '' Return or set the volume of the audio track, between 0 and 1.
+Property Muted As Boolean '' Return or set if the audio is muted.
+
 Private $hView As FMediaPlayer
 Private $sUrl As String
 Private $sNextUrl As String
@@ -151,5 +154,29 @@ End
 Private Sub Speed_Write(Value As Float)
 
   $hView.SetSpeed(Value)
+
+End
+
+Private Function Volume_Read() As Float
+
+  Return $hView.Volume
+
+End
+
+Private Sub Volume_Write(Value As Float)
+
+  $hView.Volume = Value
+
+End
+
+Private Function Muted_Read() As Boolean
+
+  Return $hView.Muted
+
+End
+
+Private Sub Muted_Write(Value As Boolean)
+
+  $hView.Muted = Value
 
 End

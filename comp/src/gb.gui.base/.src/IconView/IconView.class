@@ -13,7 +13,6 @@ Property Mode As Integer
 Property Orientation As Integer
 Property Border As Boolean
 Property ScrollBar As Integer
-Property Font As Font
 Property Background As Integer
 
 Property Read Count As Integer
@@ -577,7 +576,7 @@ Public Sub ScrollArea_Arrange()
     
   Else
     
-    $iGridHeight = Max(DS * 4, $iIconSize) + $iIconLines * Me.Font.Height + DS * 3
+    $iGridHeight = Max(DS * 4, $iIconSize) + $iIconLines * Me.Font.Height + DS * 4
     
     If $iGridSize Then
       $iGridWidth = $iGridSize * DS
@@ -1490,19 +1489,6 @@ Private Sub Orientation_Write(Value As Integer)
 
 End
 
-Private Function Font_Read() As Font
-
-  Return Super.Font
-
-End
-
-Private Sub Font_Write(Value As Font)
-
-  Super.Font = Value
-  ScrollArea_Arrange
-
-End
-
 Private Function Picture_Read() As Picture
 
   Return $hPicture
@@ -1637,6 +1623,8 @@ Public Sub ScrollArea_Font()
     hItem._Invalidate
   Next
   
+  ScrollArea_Arrange
+
 End
 
 Private Function Keys_Read() As String[]

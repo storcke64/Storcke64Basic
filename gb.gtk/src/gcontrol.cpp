@@ -409,6 +409,8 @@ gControl::~gControl()
 	CLEAN_POINTER(gApplication::_enter_after_button_grab);
 	CLEAN_POINTER(gApplication::_control_grab);
 	CLEAN_POINTER(gApplication::_ignore_until_next_enter);
+	CLEAN_POINTER(gDrag::_destination);
+	CLEAN_POINTER(gDrag::_source);
 }
 
 void gControl::destroy()
@@ -1213,7 +1215,7 @@ void gControl::lower()
 
 	g_ptr_array_add(pr->_children, NULL);
 	p = pr->_children->pdata;
-	g_memmove(&p[1], &p[0], (pr->_children->len - 1) * sizeof(gpointer));
+	memmove(&p[1], &p[0], (pr->_children->len - 1) * sizeof(gpointer));
 	p[0] = this;
 
 	//pr->ch_list = g_list_remove(pr->ch_list, this);
@@ -1285,7 +1287,7 @@ void gControl::setNext(gControl *ctrl)
 	{
 		if (g_ptr_array_index(ch, i) == ctrl)
 		{
-			g_memmove(&ch->pdata[i + 1], &ch->pdata[i], (ch->len - i - 1) * sizeof(gpointer));
+			memmove(&ch->pdata[i + 1], &ch->pdata[i], (ch->len - i - 1) * sizeof(gpointer));
 			ch->pdata[i] = this;
 			break;
 		}

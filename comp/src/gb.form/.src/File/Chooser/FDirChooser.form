@@ -16,7 +16,7 @@
       MoveScaled(2,3,82,53)
       Expand = True
       { panToolbar HBox
-        MoveScaled(1,1,74,4)
+        MoveScaled(2.25,1.875,74,4)
         AutoResize = True
         { btnParent ToolButton
           MoveScaled(1,0,4,4)
@@ -45,58 +45,62 @@
           MoveScaled(20,0,0,4)
           Visible = False
         }
-        { btnBack ToolButton
-          MoveScaled(21,0,4,4)
-          Enabled = False
-          ToolTip = ("Parent directory")
-          Picture = Picture["icon:/small/left"]
-        }
-        { btnForward ToolButton
-          MoveScaled(25,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/right"]
-        }
-        { panIconSize HBox
-          MoveScaled(29,0,23,4)
-          Visible = False
-          { btnZoomOut ToolButton
+        { panTool HBox
+          MoveScaled(23,0,46,4)
+          AutoResize = True
+          { btnBack ToolButton
             MoveScaled(0,0,4,4)
-            Picture = Picture["icon:/small/zoom-out"]
+            Enabled = False
+            ToolTip = ("Parent directory")
+            Picture = Picture["icon:/small/left"]
           }
-          { sldIconSize Slider
-            MoveScaled(4,0,14,4)
-            Expand = True
-            MaxValue = 8
-            PageStep = 1
+          { btnForward ToolButton
+            MoveScaled(4,0,4,4)
+            Enabled = False
+            Picture = Picture["icon:/small/right"]
           }
-          { btnZoomIn ToolButton
-            MoveScaled(18,0,4,4)
-            Picture = Picture["icon:/small/zoom-in"]
+          { panIconSize HBox
+            MoveScaled(8,0,23,4)
+            Visible = False
+            { btnZoomOut ToolButton
+              MoveScaled(0,0,4,4)
+              Picture = Picture["icon:/small/zoom-out"]
+            }
+            { sldIconSize Slider
+              MoveScaled(4,0,14,4)
+              Expand = True
+              MaxValue = 8
+              PageStep = 1
+            }
+            { btnZoomIn ToolButton
+              MoveScaled(18,0,4,4)
+              Picture = Picture["icon:/small/zoom-in"]
+            }
           }
-        }
-        { btnPreview ToolButton
-          MoveScaled(52,0,4,4)
-          ToolTip = ("Image preview")
-          Picture = Picture["icon:/small/image"]
-          Toggle = True
-        }
-        { btnDetail ToolButton mnuShowDetailed
-          Name = "btnDetail"
-          MoveScaled(56,0,4,4)
-          ToolTip = ("Detailed view")
-          Picture = Picture["icon:/small/view-detail"]
-          Toggle = True
-        }
-        { btnProperty ToolButton mnuProperty
-          Name = "btnProperty"
-          MoveScaled(59,0,4,4)
-          ToolTip = ("File properties")
-          Picture = Picture["icon:/small/info"]
-        }
-        { btnView ToolButton
-          MoveScaled(63,0,4,4)
-          ToolTip = ("Show files")
-          Picture = Picture["icon:/small/view-split-h"]
+          { btnPreview ToolButton
+            MoveScaled(31,0,4,4)
+            ToolTip = ("Image preview")
+            Picture = Picture["icon:/small/image"]
+            Toggle = True
+          }
+          { btnDetail ToolButton mnuShowDetailed
+            Name = "btnDetail"
+            MoveScaled(35,0,4,4)
+            ToolTip = ("Detailed view")
+            Picture = Picture["icon:/small/view-detail"]
+            Toggle = True
+          }
+          { btnProperty ToolButton mnuProperty
+            Name = "btnProperty"
+            MoveScaled(38,0,4,4)
+            ToolTip = ("File properties")
+            Picture = Picture["icon:/small/info"]
+          }
+          { btnView ToolButton
+            MoveScaled(42,0,4,4)
+            ToolTip = ("Show files")
+            Picture = Picture["icon:/small/view-split-h"]
+          }
         }
       }
       { Separator2 Separator
@@ -139,8 +143,12 @@
       }
     }
   }
+  { sepNoBorder Separator
+    MoveScaled(39,60,26,0)
+    Visible = False
+  }
   { panFilter HBox
-    MoveScaled(3,60,84,11)
+    MoveScaled(2,63,84,11)
     Spacing = True
     { panExtension VBox
       MoveScaled(1,1,62,9)

@@ -59,22 +59,21 @@ typedef
 		int max_line;                      // maximum line number
 		char *source;                      // source file contents
 		unsigned step : 3;                 // compiler step (JOB_STEP_*)
-		unsigned verbose : 1;              // verbose compilation
 		unsigned debug : 1;                // if debugging information must be generated
 		unsigned trans : 1;                // if translation files must be generated
 		unsigned is_module : 1;            // if the source file is a module
 		unsigned is_form : 1;              // if the source is a class form
+		unsigned is_test : 1;              // if the source is a test module
 		unsigned declared : 1;             // ?
 		unsigned nobreak : 1;              // no breakpoint
 		unsigned exported : 1;             // there are some exported class
-		unsigned all : 1;                  // compile everything
 		unsigned swap : 1;                 // endianness must be swapped
 		unsigned public_module : 1;        // modules symbols are public by default
 		unsigned trans_error : 1;          // display error messages in a translatable form
 		unsigned no_old_read_syntax : 1;   // do not compile the old read syntax
 		unsigned exec : 1;                 // we are compiling for an executable
 		unsigned warnings : 1;             // if warnings must be printed
-		unsigned _reserved : 14;           // reserved
+		unsigned _reserved : 15;           // reserved
 		char *output;                      // output file
 		PATTERN *pattern;                  // lexical analyze
 		int pattern_count;                 // number of patterns
@@ -96,6 +95,7 @@ typedef
 
 #ifndef __GBC_COMPILE_C
 
+EXTERN bool COMP_verbose;
 EXTERN COMPILE COMP_current;
 EXTERN char *COMP_root;
 EXTERN char *COMP_project;
@@ -118,6 +118,8 @@ void COMPILE_add_class(const char *name, int len);
 void COMPILE_end_class(void);
 void COMPILE_enum_class(char **name, int *len);
 void COMPILE_print(int type, int line, const char *msg, ...);
+void COMPILE_create_file(FILE **fw, const char *file);
+void COMPILE_add_component(const char *name);
 
 #define COMPILE_get_column(_pattern) (JOB->pattern_pos[(_pattern) - JOB->pattern])
 

@@ -66,6 +66,7 @@ typedef
 EXTERN DEBUG_INFO DEBUG_info;
 EXTERN GB_DEBUG_INTERFACE *DEBUG_interface;
 EXTERN char DEBUG_buffer[];
+EXTERN char *DEBUG_fifo;
 #endif
 
 #define DEBUG_BUFFER_MAX 255

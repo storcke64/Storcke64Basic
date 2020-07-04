@@ -5,6 +5,7 @@ Static Private $aThemeName As String[] = [("Amethyst"), ("Amber"), ("Emerald"), 
 Static Private $aBrowser As String[] = ["konqueror", "rekonq", "firefox", "iceweasel", "epiphany", "seamonkey", "opera", "chromium"]
 Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "Terminal", "lxterminal", "xterm"]
 'Static Private $aImageEditor As String[] = ["gimp", "kolourpaint", "krita"]
+Static Private $cLayoutName As Collection
 
 Private $cLast As Collection
 Private $cCurrent As Collection
@@ -13,6 +14,7 @@ Private $aConfig As Variant[][]
 Private $sStyle As String
 Private $hDraw As DrawingArea
 Private $hDownloadHelp As DownloadManager
+Private $aLayout As String[]
 
 Private Sub ReadConfig()
   
@@ -79,6 +81,8 @@ Public Sub _new()
   Dim hButton As ToolButton
   Dim aColors As Integer[]
 
+  gvwLayout.Columns.Count = 1
+
   cmbTheme.List = $aThemeName.Copy().Sort(gb.Language)
   cmbTheme.Add(("Custom"), 0)
   
@@ -100,12 +104,10 @@ Public Sub _new()
     [txtGlobalFont, "/Font", ""],
     [txtHelpDefaultFont, "/Browser/Font", ""],
     [txtHelpFixedFont, "/Browser/FixedFont", ""],
-    [cmbToolbox, "/ToolboxSize", 0],
-    [btnSortProperty, "/SortProperties", 1],
     [btnCloseWithMiddleClick, "/CloseWithMiddleClick", 0],
     [txtTabSize, "/DefaultTabSize", 2],
     [btnFoldProc, "/Editor/CollapseByDefault", 0],
-    [btnWrapText, "/Editor/WrapTextByDefault", 0],
+    [btnWrapText, "/Editor/WrapTextByDefault", 1],
     [btnTabIndent, "/Editor/TabIndentByDefault", 0],
     [btnVersionControl, "/VersionControl/Enabled", 1],
     [btnShowLimit, "/Editor/ProcedureLimit", 1],
@@ -116,8 +118,7 @@ Public Sub _new()
     [btnShowIndent, "/Editor/ShowIndent", 1],
     [btnShowPreview, "/Editor/ShowPreview", 0],
     [btnFold, "/Editor/ShowExpand", 1],
-    [btnInvertTheme, "/Editor/InvertTheme", 0],
-    [btnOutput, "/QuietExternalCommands", 0],
+    [btnInvertTheme, "/Editor/InvertTheme", 1],
     [btnShowDebug, "/ShowDebugPanelAutomatically", 1],
     [btnUtility, "/UseUtilityWindows", 1],
     [btnStartupLoad, "/RestoreFiles", 1],
@@ -127,9 +128,7 @@ Public Sub _new()
     [btnAnimation, "/Animations", 1],
     [btnShadow, "/Shadows", 1],
     [btnShowFileInTitle, "/ShowFileInTitle", 1],
-    [btnIntegratedHelp, "/PropertyHelp", 1],
     [btnHelpCompletion, "/ShowHelpInPopup", 1],
-    [btnMinimize, "/MinimizeOnRun", 0],
     [btnSeparateStatic, "/Editor/SeparateStaticMethod", 1],
     [btnUpperCaseKeywords, "/Editor/KeywordsUseUpperCase", 0],
     [btnControlStructCompletion, "/Editor/ControlStructCompletion", 1],
@@ -198,12 +197,14 @@ Public Sub _new()
   gvwSnippet.Columns.Count = 2
   gvwSnippet.Columns[0].Width = Desktop.Scale * 8
   
-  aColors = [Color.White, &HC0C0C0, &H808080]
+  aColors = [Color.White, &HC0C0C0, &H808080, &H404040, 0]
   For iInd = 0 To 359 Step 30
     aColors.Add(Color.HSV(iInd, 255, 255))
   Next
   choBackgroundColor.Colors = aColors
   choBackgroundColor.Current = Project.GetBackgroundColor()
+  
+  sldBackgroundBrightness.Value = Project.GetBackgroundBrightness()
   
   btnAutoTrans_Click
   
@@ -477,13 +478,6 @@ Public Sub btnImport_Click()
 
 End
 
-Public Sub btnSortProperty_Click()
-
-  Settings["/SortProperties"] = btnSortProperty.Value
-  FProperty.ReadConfig
-
-End
-
 Public Sub btnCloseWithMiddleClick_Click()
 
   Settings["/CloseWithMiddleClick"] = btnCloseWithMiddleClick.Value
@@ -530,41 +524,6 @@ Public Sub cmbTerminal_Click()
     Settings["/Terminal"] = ""
   Endif
   
-End
-
-' Public Sub cmbImageEditor_Click()
-' 
-'   If cmbImageEditor.Index > 0 Then 
-'     Settings["/ImageEditor"] = $aImageEditor[cmbImageEditor.Index - 1]
-'   Else   
-'     Settings["/ImageEditor"] = ""
-'   Endif
-'   
-' End
-
-' PUBLIC SUB cmbImageEditor_Click()
-' 
-'   IF cmbImageEditor.Index > 0 THEN 
-'     Settings["/ImageEditor"] = LCase(cmbImageEditor.Text)
-'   ELSE   
-'     Settings["/ImageEditor"] = ""
-'   ENDIF
-'   
-'   Project.ImageEditor = ""
-' 
-' END
-
-Public Sub cmbToolbox_Click()
-
-  Settings["/ToolboxSize"] = cmbToolbox.Index
-  FToolBox.ReadConfig
-
-End
-
-Public Sub btnOutput_Click()
-
-  Settings["/QuietExternalCommands"] = btnOutput.Value
-
 End
 
 Public Sub btnShowDebug_Click()
@@ -622,22 +581,16 @@ End
 ' 
 ' End
 
-Public Sub btnIntegratedHelp_Click()
-
-  Settings["/PropertyHelp"] = btnIntegratedHelp.Value
-  FProperty.CheckIntegratedHelpSetting
-  
-End
+' Public Sub btnIntegratedHelp_Click()
+' 
+'   Settings["/PropertyHelp"] = btnIntegratedHelp.Value
+'   FProperty.CheckIntegratedHelpSetting
+'   
+' End
 
 Public Sub btnHelpCompletion_Click()
 
   Settings["/ShowHelpInPopup"] = btnHelpCompletion.Value
-  
-End
-
-Public Sub btnMinimize_Click()
-
-  Settings["/MinimizeOnRun"] = btnMinimize.Value
   
 End
 
@@ -658,7 +611,7 @@ Public Sub dwgStyle_Draw()
   Dim XB As Integer
 
   sName = MTheme.ColorNames[MTheme.ColorKeys.Find(sKey)]
-  bInvert = Settings["/Editor/InvertTheme", 0]
+  If Application.DarkTheme Then bInvert = Settings["/Editor/InvertTheme", True]
   If bInvert Then 
     iBg = CStyle[$cCurrent["Background"]].Foreground
     If Color[iBg].Value < 128 Then bInvert = False
@@ -690,7 +643,7 @@ Public Sub dwgStyle_Draw()
   
   Paint.Background = iForeground
   If hStyle.Bold Then
-    LB = 1 + Paint.Font.H \ 6
+    LB = 1 + Paint.Font.H \ If(bInvert, 4, 6)
     XB = D
     While LB >= 2
       Paint.DrawText(sName, XB, 0, W, hDraw.H, Align.Normal) 'DrawText(sStr, SX, X + 1, Y)
@@ -1070,26 +1023,24 @@ Private Sub RefreshBackground()
   
   Inc Application.Busy
   
-  iColor = FColorChooser.FromString(Settings["/BackgroundColor", "#FFFFFF"])
+  iColor = FColorChooser.FromString(Settings["/Background/Color", "#FFFFFF"])
   
   svwBackground.Children.Clear
   
   hBg = New CBackground(svwBackground) As "Background"
   hBg.Tag = "void"
   hImage = New Image(16, 16, Color.LightForeground)
-  hBg.Image = hImage.Colorize(iColor)
+  hBg.SetImage(hImage, iColor)
   
   For Each sBackground In Split(File.Load("img/background/list"), "\n", "", True)
-    Try hImage = Image.Load("img/background" &/ sBackground & ".png").Colorize(iColor)
-    If Error Then
-      Error "gambas3: warning: unable to load background image: "; sBackground
-    Endif
+    Try hImage = Image.Load("img/background" &/ sBackground & ".png")
+    If Error Then Error "gambas3: warning: unable to load background image: "; sBackground
     hBg = New CBackground(svwBackground) As "Background"
-    hBg.Image = hImage
+    hBg.SetImage(hImage, iColor)
     hBg.Tag = sBackground
   Next
   
-  sBackground = Settings["/Background", Project.DEFAULT_BACKGROUND]
+  sBackground = Settings["/Background/Image", Project.DEFAULT_BACKGROUND]
   For Each hBg In svwBackground.Children
     If hBg.Tag = sBackground Then 
       hBg.Selected = True
@@ -1131,6 +1082,11 @@ Public Sub ipnOption_Click()
     Case ("Help & applications")
       
       UpdateOfflineHelp
+      
+    Case ("Interface")
+      
+      SetCurrentLayout
+      If Not $aLayout Then RefreshLayout
     
   End Select
   
@@ -1231,7 +1187,7 @@ Public Sub btnInstallFont_Click()
   Dim sData As String
   Dim sFont As String
 
-  If Message.Question(("Do you really want to install the Gambas font to your personal font directory?"), ("Install"), ("Cancel")) <> 1 Then Return
+  If Message.Question(("Do you really want to install the Gambas font into your personal font directory?"), ("Install"), ("Cancel")) <> 1 Then Return
   
   If Not Exist(sDir) Then Mkdir sDir
   
@@ -1646,5 +1602,234 @@ End
 Public Sub txtPrintFont_Click()
 
   Settings["/Printing/Font"] = txtPrintFont.Value
+
+End
+
+Private Sub GetLayoutDir() As String
+  
+  Return Desktop.DataDir &/ "gambas3/layout"
+  
+End
+
+
+Private Sub GetLayoutPath(sFile As String) As String
+  
+  If sFile Then
+    Return GetLayoutDir() &/ sFile & ".layout"
+  Else
+    Return Temp$("layout")
+  Endif
+  
+End
+
+Private Sub RefreshLayout()
+
+  Dim sFile As String
+  Dim sLang As String
+  Dim iPos As Integer
+  Dim sFullLang As String
+  Dim sName As String
+  Dim sDir As String
+
+  If Not $cLayoutName Then
+    $cLayoutName = New Collection
+    $cLayoutName["$default"] = ("Default")
+    $cLayoutName["$compact"] = ("Compact")
+  Endif
+  
+  sLang = System.Language
+  iPos = InStr(sLang, ".")
+  If iPos Then sLang = Left(sLang, iPos - 1)
+  iPos = InStr(sLang, "_")
+  If iPos Then
+    sFullLang = sLang
+    sLang = Left(sLang, iPos - 1)
+  Endif
+  
+  $aLayout = New String[]
+  
+  $aLayout.Add("")
+  $aLayout.Add("<i>" & ("Current") & "</i>")
+  
+  sDir = GetLayoutDir()
+
+  For Each sFile In Dir("layout", "*.layout").Sort(gb.Natural)
+    If Exist(sDir &/ sFile) Then Continue
+    sName = File.BaseName(sFile)
+    $aLayout.Add(sName)
+    If $cLayoutName.Exist(sName) Then sName = $cLayoutName[sName]
+    $aLayout.Add(Html(sName))
+  Next
+  
+  If IsDir(sDir) Then
+    For Each sFile In Dir(sDir, "*.layout").Sort(gb.Natural)
+      sName = File.BaseName(sFile)
+      $aLayout.Add(sName)
+      If $cLayoutName.Exist(sName) Then sName = $cLayoutName[sName]
+      $aLayout.Add(Html(sName))
+    Next
+  Endif
+  
+  gvwLayout.Rows.Count = $aLayout.Count \ 2
+  
+  Object.Lock(gvwLayout)
+  gvwLayout.Row = 0
+  Object.Unlock(gvwLayout)
+  
+End
+
+Public Sub gvwLayout_Data(Row As Integer, (Column) As Integer)
+  
+  gvwLayout.Data.RichText = $aLayout[Row * 2 + 1]
+  
+End
+
+Private Sub SaveLayout(Optional sFile As String)
+
+  Dim sPath As String
+  Dim hSettings As Settings
+  
+  sPath = GetLayoutPath(sFile)
+  If sFile And If Exist(sPath) Then
+    If Message.Question(("Do you really want to override the existing layout?"), ("Override"), ("Cancel")) <> 1 Then Return
+  Endif
+  
+  Shell.MkDir(File.Dir(sPath))
+  hSettings = New Settings(sPath, "Gambas IDE layout")
+  
+  hSettings["Toolbar/Main"] = ToolBar.GetLayout("main")
+  hSettings["Toolbar/Editor"] = ToolBar.GetLayout("editor")
+  hSettings["Toolbar/Text"] = ToolBar.GetLayout("text")
+  hSettings["Toolbar/Connection"] = ToolBar.GetLayout("connection")
+  hSettings["Toolbar/Form"] = ToolBar.GetLayout("form")
+  hSettings["Toolbar/Image"] = ToolBar.GetLayout("image")
+  hSettings["ShowMenus"] = Settings["/ShowMenus"]
+  hSettings["Toolbox/Size"] = Settings["/Toolbox/Size"]
+  hSettings["CloseWithMiddleClick"] = Settings["/CloseWithMiddleClick"]
+  hSettings["ProjectFontSize"] = Settings["/ProjectFontSize"]
+  hSettings["TitleFontSize"] = Settings["/TitleFontSize"]
+  hSettings["DebuggerFontSize"] = Settings["/DebuggerFontSize"]
+  hSettings["Help/Zoom"] = Settings["/Help/Zoom"]
+  hSettings["Property/Help"] = Not FProperty.IsHelpHidden()
+  hSettings["/Editor/InvertTheme"] = Settings["/Editor/InvertTheme"]
+  
+  hSettings.Save
+  
+End
+
+Private Sub LoadLayout(sName As String)
+
+  Dim sPath As String
+  Dim sKey As String
+  Dim hSettings As Settings
+  Dim sSlot As String
+  Dim vVal As Variant
+  
+  Inc Application.Busy
+  
+  sPath = GetLayoutPath(sName)
+  If Not Exist(sPath) Then sPath = "./layout" &/ sName & ".layout"
+  
+  hSettings = New Settings(sPath, "Gambas IDE layout")
+
+  ' Toolbars last
+
+  For Each sSlot In hSettings.Keys
+    For Each sKey In hSettings.Keys[sSlot]
+      vVal = hSettings[sSlot &/ sKey]
+      If sSlot = "Toolbar" Then Continue
+      If sSlot = "Property" And If sKey = "Help" Then
+        FProperty.ShowHelp(vVal)
+      Else
+        Settings[sSlot &/ sKey] = vVal
+      Endif
+    Next
+  Next
+  
+  RefreshWindow
+  
+  For Each sSlot In hSettings.Keys
+    For Each sKey In hSettings.Keys[sSlot]
+      vVal = hSettings[sSlot &/ sKey]
+      If sSlot = "Toolbar" Then
+        ToolBar.SetLayout(LCase(sKey), vVal)
+      Endif
+    Next
+  Next
+  
+Finally
+  
+  Dec Application.Busy
+  
+Catch
+  
+  Error.Propagate()
+  
+End
+
+
+Public Sub btnSaveLayout_Click()
+
+  Dim sName As String
+
+  If gvwLayout.Row > 0 Then sName = $aLayout[gvwLayout.Row * 2 + 1]
+
+  If FLayout.Run($aLayout, sName) Then Return
+  
+  SaveLayout(FLayout.LayoutName)
+  RefreshLayout
+
+End
+
+Private Sub RemoveLayout(sFile As String)
+
+  Dim sPath As String
+
+  sPath = GetLayoutPath(sFile)
+  Try Kill sPath
+  RefreshLayout
+
+End
+
+Public Sub btnDeleteLayout_Click()
+
+  If Message.Warning(("Do you really want to delete that layout?"), ("Delete"), ("Cancel")) <> 1 Then Return
+  
+  RemoveLayout($aLayout[gvwLayout.Row * 2])
+
+End
+
+Public Sub gvwLayout_Select()
+
+  Dim sName As String
+
+  If gvwLayout.Row < 0 Then
+    btnDeleteLayout.Enabled = False
+    Return
+  Endif
+
+  sName = $aLayout[gvwLayout.Row * 2]
+  btnDeleteLayout.Enabled = Exist(GetLayoutPath(sName)) 
+  LoadLayout(sName)
+
+End
+
+Private Sub SetCurrentLayout()
+
+  SaveLayout()
+
+End
+
+Public Sub sldBackgroundBrightness_Change()
+
+  Dim iVal As Integer
+  
+  iVal = sldBackgroundBrightness.Value
+  iVal = Sgn(iVal) * ((Abs(iVal) + 8) \ 16) * 16
+  Object.Lock(sldBackgroundBrightness)
+  sldBackgroundBrightness.Value = iVal
+  Object.Unlock(sldBackgroundBrightness)
+  Project.SetBackgroundBrightness(sldBackgroundBrightness.Value)
+  'RefreshBackground
 
 End

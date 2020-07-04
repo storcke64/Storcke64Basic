@@ -25,6 +25,7 @@
 #define __GMOUSE_CPP
 
 #include "widgets.h"
+#include "gapplication.h"
 #include "gmouse.h"
 
 int gMouse::_isValid = 0;
@@ -41,6 +42,10 @@ int gMouse::_start_y;
 int gMouse::_dx = 0;
 int gMouse::_dy = 0;
 GdkEvent *gMouse::_event = 0;
+int gMouse::_click_count = 0;
+int gMouse::_click_x = -1;
+int gMouse::_click_y = -1;
+double gMouse::_click_timer = 0;
 
 #ifdef GTK3
 static GdkDevice *get_pointer()
@@ -335,4 +340,22 @@ void gMouse::translate(int dx, int dy)
 {
 	_dx = dx;
 	_dy = dy;
+}
+
+
+void gMouse::handleClickCount(GdkEvent *event)
+{
+	double timer;
+	
+	GB.GetTime(&timer, TRUE);
+	if (abs((int)event->button.x_root - _click_x) < 4 && abs((int)event->button.y_root - _click_y) < 4 && ((timer - _click_timer) * 1000) < gApplication::dblClickTime())
+		_click_count++;
+	else
+	{
+		_click_x = (int)event->button.x_root;
+		_click_y = (int)event->button.y_root;
+		_click_count = 1;
+	}
+
+	_click_timer = timer;
 }

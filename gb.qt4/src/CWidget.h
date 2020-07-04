@@ -83,7 +83,7 @@ typedef
 		char *name;
 		void *font;
 		}
-	PACKED
+//	PACKED
 	CWIDGET; // BEWARE: gb.qt.h MUST be updated accordingly!
 
 typedef
@@ -216,7 +216,7 @@ void CWIDGET_finish_focus(void);
 void CWIDGET_register_proxy(void *_object, void *proxy);
 bool CWIDGET_container_for(void *_object, void *container_for);
 #ifdef QT5
-#define CWIDGET_enter_popup() (0)
+#define CWIDGET_enter_popup() ((void *)NULL)
 void CWIDGET_leave_popup(void *);
 #else
 void *CWIDGET_enter_popup();

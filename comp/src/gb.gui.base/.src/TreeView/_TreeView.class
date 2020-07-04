@@ -17,6 +17,7 @@ Property Read Renaming As Boolean
 Property Editable As Boolean
 Property Compare As Integer
 Property Selection As String[]
+Property ShowCheck As Boolean
 
 Property Read ClientWidth, ClientW As Integer
 Property Read ClientHeight, ClientH As Integer
@@ -58,10 +59,13 @@ Private $hSortTimer As Timer
 Private $bNoRoot As Boolean
 Private $iLock As Integer
 
+Private $hSelection As TreeViewSelection
 Private $iSaveSelection As Integer
-Private $aSaveSelection As String[]
+Private $vSaveSelection As Variant
+
 Private $iDepthW As Integer
 Private $bShowLines As Boolean
+Private $bShowCheck As Boolean
 
 Public Sub _new()
   
@@ -73,6 +77,10 @@ Public Sub _new()
   $hView.Name = Me.Name & ":gridview"
   $hView.Rows.H = GetDefaultItemHeight()
   $hView.Padding = Desktop.Scale \ 2
+  
+  $hSelection = New TreeViewSelection As "TreeViewSelection"
+  $hView.Rows._SetSelection($hSelection)
+  '$hView.ShowCursor = True
   
   Me.Proxy = $hView
   
@@ -133,6 +141,8 @@ End
 Public Sub _Add((Key) As String, Text As String, Optional (Picture) As Picture, Optional Parent As String, Optional After As String) As _TreeView_Item
   
   Dim hItem, hParent As _TreeView_Item
+  
+  If $hRenameBox Then Cancel()
   
   If Not Key Then Error.Raise("Null key")
   If $cItem.Exist(Key) Then Error.Raise("Key already used: " & Key)
@@ -222,6 +232,8 @@ Public Sub Remove((Key) As String)
   Dim sCurrent As String
   Dim iRow As Integer
   Dim hItem As _TreeView_Item
+  
+  If $hRenameBox Then Cancel()
   
   If Not Key Then Error.Raise("Null key")
   
@@ -349,7 +361,7 @@ Private Sub GetPreviousItem(hItem As _Treeview_Item) As _TreeView_Item
 
 End
 
-Private Sub RowToItem(iRow As Integer) As _TreeView_Item
+Public Sub _RowToItem(iRow As Integer) As _TreeView_Item
   
   Dim hParent As _TreeView_Item
   Dim hChild As _TreeView_Item
@@ -480,7 +492,7 @@ End
 
 Public Sub GridView_Data(Row As Integer, (Column) As Integer)
   
-  Dim hItem As _TreeView_Item = RowToItem(Row)
+  Dim hItem As _TreeView_Item = _RowToItem(Row)
   If Not hItem Then Return
   
   $hView.Data.Background = hItem.Background
@@ -489,7 +501,7 @@ End
 
 Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer, Row As Integer, Column As Integer)
   
-  Dim hItem As _TreeView_Item = RowToItem(Row)
+  Dim hItem As _TreeView_Item = _RowToItem(Row)
   Dim sText As String
   Dim XA As Float
   Dim YA As Float
@@ -545,11 +557,6 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         Endif
       
         If hItem.Count Then
-          ' If hItem.Expanded Then
-          '   Style.PaintArrow(X + W + 2, Y + H \ 2 - 6, 12, 12, Align.Bottom)
-          ' Else
-          '   Style.PaintArrow(X + W + 2, Y + H \ 2 - 6, 12, 12, Align.Left)
-          ' Endif
           
           XA = X + W + $iDepthW / 4
           YA = Y + $iDepthW / 4
@@ -564,11 +571,37 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         Endif
         
         Paint.Restore
+        W -= $iDepthW 
+        
+      Endif
+      
+      If $bShowCheck And If $hView.Mode Then
+        
+        ' If hItem.Selected Then
+        '   XA = X + W + $iDepthW / 4
+        '   YA = Y + $iDepthW / 4
+        '   WA = $iDepthW / 2
+        '   HA = H - $iDepthW / 2
+        '   Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
+        '   Paint.LineWidth = $iDepthW / 12
+        '   Paint.LineCap = Paint.LineCapSquare
+        '   Paint.Check(XA, YA, WA, HA)
+        '   Paint.Stroke
+        ' Endif
+        ' Paint.DrawRect(X + W, Y, H, H, Color.SetAlpha(Style.ForegroundOf($hView), 64), $iDepthW / 18)
+        
+        If $hView.Mode = Select.Single Then
+          Style.PaintOption(X + W, Y, H, H, hItem.Selected)
+        Else
+          Style.PaintCheck(X + W, Y, H, H, hItem.Selected)
+        Endif
+        
+        W -= $iDepthW + Desktop.Scale \ 2
         
       Endif
       
       If hItem.Picture Then
-        W -= hItem.Picture.W
+        'W -= hItem.Picture.W
         Paint.DrawPicture(hItem.Picture, X + W, Y + (H - hItem.Picture.H) / 2)
         W -= Desktop.Scale \ 2
       Endif
@@ -616,6 +649,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         Endif
       
         If hItem.Count Then
+          
           Paint.Background = Color.LightForeground
           XA = X + $iDepthW / 4
           YA = Y + $iDepthW / 4
@@ -626,11 +660,38 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
           Paint.LineWidth = $iDepthW / 12
           Paint.LineCap = Paint.LineCapRound
           Paint.Stroke
+          
         Endif
         
         Paint.Restore
         
         X += $iDepthW
+        
+      Endif
+      
+      If $bShowCheck And If $hView.Mode Then
+        
+        ' If hItem.Selected Then
+        '   XA = X + $iDepthW / 4
+        '   YA = Y + $iDepthW / 4
+        '   WA = H - $iDepthW / 2
+        '   HA = H - $iDepthW / 2
+        '   Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
+        '   Paint.LineWidth = $iDepthW / 12
+        '   Paint.LineCap = Paint.LineCapSquare
+        '   Paint.Check(XA, YA, WA, HA)
+        '   Paint.Stroke
+        ' Endif
+        ' Paint.DrawRect(X, Y, H, H, Color.SetAlpha(Style.ForegroundOf($hView), 64), $iDepthW / 18)
+        
+        'Paint.FillRect(X, Y, H, H, Color.Yellow)
+        If $hView.Mode = Select.Single Then
+          Style.PaintOption(X, Y, H, H, hItem.Selected)
+        Else
+          Style.PaintCheck(X, Y, H, H, hItem.Selected)
+        Endif
+        
+        X += $iDepthW + Desktop.Scale \ 2
         
       Endif
       
@@ -641,7 +702,11 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     
     Endif
     
-    If hItem.Foreground <> Color.Default Then Paint.Background = hItem.Foreground
+    If hItem.Foreground <> Color.Default Then
+      Paint.Background = hItem.Foreground
+    Else
+      Paint.Background = Style.ForegroundOf(Me)
+    Endif
     If hItem.Font Then Paint.Font = hItem.Font
     
     'Draw.Text(hItem.Text & " (" & hItem._Index & ") [" & hItem._Rows & "] {" & hItem._GrandChildren & "}", X, Y, W, H, $hView.Columns[Column].Alignment)
@@ -674,7 +739,7 @@ End
 
 Public Sub GridView_Activate()
   
-  Dim hItem As _TreeView_Item = RowToItem($hView.Row)
+  Dim hItem As _TreeView_Item = _RowToItem($hView.Row)
   Dim bCancel As Boolean
   Dim sCursor As String
   
@@ -693,30 +758,36 @@ End
 Public Sub GridView_MouseDown()
   
   Dim iRow As Integer = $hView.RowAt(Mouse.Y)
-  Dim hItem As _TreeView_Item = RowToItem(iRow)
+  Dim hItem As _TreeView_Item = _RowToItem(iRow)
   Dim X As Integer
 
   If Not hItem Then Return
+  If Mouse.Click > 1 Then Return
 
-  If Mouse.Right Then
-    $hView.Rows[iRow].Selected = True
+  If Mouse.Right And If Not $bShowCheck Then
+    _SetItemSelected(hItem, True) '.Rows[iRow].Selected = True
   Endif
 
-  If hItem.Count = 0 Then Return
-  If $bNoRoot Then Return
-  
   If System.RightToLeft Then
     With $hView.Columns[0]
       X = .X + .W - hItem._Depth * $iDepthW - $iDepthW
     End With
+    X -= $hView.Padding
   Else
     X = hItem._Depth * $iDepthW
+    X += $hView.Padding
   Endif
-  
+
   X -= $hView.ScrollX
-  
-  If Mouse.X >= X And If Mouse.X < X + $iDepthW Then
-    hItem.Expanded = Not hItem.Expanded
+
+  If Mouse.X < X + $iDepthW Then
+    If hItem.Count And If Not $bNoRoot And If Mouse.X >= X Then
+      hItem.Expanded = Not hItem.Expanded
+    Else
+      $hView.Row = iRow
+    Endif
+    Stop Event
+    Return
   Endif
   
 End
@@ -734,10 +805,12 @@ Public Sub GridView_KeyPress()
   Else If Key.Text = "-" Then
     hItem = Current_Read()
     If hItem Then hItem.Expanded = False
+  Else If Key.Code = Key.Space Or If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
+    hItem = Current_Read()
+    If hItem Then hItem.Expanded = Not hItem.Expanded
   Endif
   
 End
-
 
 Private Function Count_Read() As Integer
 
@@ -891,7 +964,7 @@ End
 
 Private Function Current_Read() As _TreeView_Item
 
-  Return RowToItem($hView.Row)
+  Return _RowToItem($hView.Row)
 
 End
 
@@ -906,7 +979,7 @@ Private Sub Key_Write(Value As String)
 
   Dim iRow As Integer
   
-  If Not Value Then 
+  If Not Value Or If Not $cItem.Exist(Value) Then 
     $hView.Row = -1
     Return
   Endif
@@ -936,10 +1009,10 @@ Public Sub GridView_Select()
   Dim sCursor As String
   
   If $iNoEvent Then Return
-  If $hView.Row < 0 Then Return
+  If $hView.Row < 0 And If $hView.Mode <> Select.Multiple Then Return
   
   sCursor = $sCursor
-  SetCursor(RowToItem($hView.Row).Key)
+  SetCursor(Key_Read()) '_RowToItem($hView.Row).Key)
   Raise Select
   $sCursor = sCursor
   
@@ -1159,7 +1232,7 @@ Private Function Available_Read() As Boolean
 End
 
 Public Sub SelectAll()
-  
+
   $hView.SelectAll
   
 End
@@ -1175,7 +1248,7 @@ Public Sub FindAt((X) As Integer, Y As Integer) As Boolean
   Dim iRow As Integer = $hView.RowAt(Y)
 
   If iRow < 0 Then Return True
-  Return SetCursor(RowToItem(iRow).Key)
+  Return SetCursor(_RowToItem(iRow).Key)
   
 End
 
@@ -1232,19 +1305,28 @@ End
 
 Public Sub _IsItemSelected(hItem As _TreeView_Item) As Boolean
   
-  Dim iRow As Integer = _ItemToRow(hItem)
-  Return $hView.Rows[iRow].Selected
+  If $hView.Mode = Select.Single Then Return $hView.Row = _ItemToRow(hItem)
+  Return $hSelection.IsItemSelected(hItem.Key)
+  
+  ' Dim iRow As Integer = _ItemToRow(hItem)
+  ' Return $hView.Rows[iRow].Selected
   
 End
 
 Public Sub _SetItemSelected(hItem As _TreeView_Item, bSelected As Boolean)
   
-  Dim iRow As Integer
+  If $hView.Mode = Select.Single Then
+    SetItemVisible(hItem)
+    'UnselectAll
+    If bSelected Then
+      $hView.Row = _ItemToRow(hItem)
+    Else
+      $hView.Row = -1
+    Endif
+    Return
+  Endif
   
-  If $hView.Mode = Select.Single Then SetItemVisible(hItem)
-  
-  iRow = _ItemToRow(hItem)
-  $hView.Rows[iRow].Selected = bSelected
+  $hSelection.SelectItem(hItem.Key, bSelected)
   
 End
 
@@ -1468,11 +1550,18 @@ End
 Private Function Selection_Read() As String[]
 
   Dim aSel As New String[]
-  Dim iRow As Integer
+  Dim cSel As Collection
+  Dim sKey As String
   
-  For Each iRow In $hView.Rows.Selection
-    aSel.Add(RowToItem(iRow).Key)
-  Next
+  If $hView.Mode = Select.Single Then
+    sKey = Key_Read()
+    If sKey Then aSel.Add(sKey)
+  Else If $hView.Mode = Select.Multiple Then
+    cSel = $hSelection.Keys
+    For Each cSel
+      aSel.Add(cSel.Key)
+    Next
+  Endif
   
   Return aSel
 
@@ -1483,14 +1572,19 @@ Private Sub Selection_Write(Value As String[])
   Dim sKey As String
   Dim hItem As _TreeView_Item
   
-  Inc $iNoEvent
-  UnselectAll
-  For Each sKey In Value
-    If Not sKey Then Continue
-    hItem = $cItem[sKey]
-    If hItem Then hItem.Selected = True
-  Next
-  Dec $iNoEvent
+  If $hView.Mode = Select.Single Then
+    Try sKey = Value[Value.Max] 
+    Key_Write(sKey)
+  Else If $hView.Mode = Select.Multiple Then
+    Inc $iNoEvent
+    UnselectAll
+    For Each sKey In Value
+      If Not sKey Then Continue
+      hItem = $cItem[sKey]
+      If hItem Then hItem.Selected = True
+    Next
+    Dec $iNoEvent
+  Endif
   
   If $iNoEvent Then Return
   Raise Select
@@ -1500,7 +1594,11 @@ End
 Public Sub _SaveSelection()
   
   If $iSaveSelection = 0 Then
-    $aSaveSelection = Selection_Read()
+    If $hView.Mode = Select.Multiple Then
+      $vSaveSelection = $hSelection.Save()
+    Else
+      $vSaveSelection = Key_Read()
+    Endif
   Endif
   
   Inc $iSaveSelection
@@ -1512,12 +1610,20 @@ Public Sub _RestoreSelection()
   Dec $iSaveSelection
   
   If $iSaveSelection = 0 Then 
+    
     Inc $iNoEvent
     Inc $iSaveSelection
-    Selection_Write($aSaveSelection)
+    
+    If $hView.Mode = Select.Multiple Then
+      $hSelection.Restore($vSaveSelection)
+    Else
+      Key_Write($vSaveSelection)
+    Endif
+    
     Dec $iSaveSelection
     Dec $iNoEvent
-    $aSaveSelection = Null
+    $vSaveSelection = Null
+    
   Endif
   
 End
@@ -1602,7 +1708,7 @@ Private Sub UpdateRowHeight(hItem As _TreeView_Item, iStart As Integer, Optional
   Endif
   
   While iStart <= iEnd
-    $hView.Rows[iStart].H = RowToItem(iStart)._GetHeight()
+    $hView.Rows[iStart].H = _RowToItem(iStart)._GetHeight()
     Inc iStart
   Wend
   
@@ -1698,4 +1804,21 @@ Public Sub _GetShowLines() As Boolean
   
   Return $bShowLines
   
+End
+
+Private Function ShowCheck_Read() As Boolean
+
+  Return $bShowCheck
+
+End
+
+Private Sub ShowCheck_Write(Value As Boolean)
+
+  If $bShowCheck = Value Then Return
+  $bShowCheck = Value
+  $hView._DoNotDrawSelection = Value
+  $hView._ToggleSelection = Value
+  '$hView._NoMouse = Value
+  $hView.Refresh
+
 End

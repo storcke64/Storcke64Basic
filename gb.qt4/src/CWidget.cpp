@@ -2525,6 +2525,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 	QPoint p;
 	void *jump;
 	bool parent_got_it;
+	double timer;
 
 	CCONTROL_last_event_type = type;
 
@@ -2724,6 +2725,20 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			}
 		}
 		
+		if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick)
+		{
+			GB.GetTime(&timer, TRUE);
+			if (abs(mevent->globalX() - MOUSE_click_x) < 4 && abs(mevent->globalY() - MOUSE_click_y) < 4 && ((timer - MOUSE_timer) * 1000) < QApplication::doubleClickInterval())
+				MOUSE_click_count++;
+			else
+			{
+				MOUSE_click_x = mevent->globalX();
+				MOUSE_click_y = mevent->globalY();
+				MOUSE_click_count = 1;
+			}
+			MOUSE_timer = timer;
+		}
+		
 		//while (control->proxy_for)
 		//	control = (CWIDGET *)control->proxy_for;
 
@@ -2745,6 +2760,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			
 			MOUSE_info.sx = p.x();
 			MOUSE_info.sy = p.y();
+			
 			//qDebug("MouseEvent: %d %d", mevent->x(), mevent->y());
 		}
 		else if (type == QEvent::MouseButtonDblClick)
@@ -3314,9 +3330,9 @@ _STANDARD:
 #if 0
 static void gray_image(QImage &img)
 {
-	register uchar *b(img.bits());
-	register uchar *g(img.bits() + 1);
-	register uchar *r(img.bits() + 2);
+	uchar *b(img.bits());
+	uchar *g(img.bits() + 1);
+	uchar *r(img.bits() + 2);
 
 	uchar * end(img.bits() + img.numBytes());
 

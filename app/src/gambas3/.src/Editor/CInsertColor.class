@@ -80,8 +80,6 @@ Catch
   
 End
 
-
-
 Public Sub _new(hModule As Object, hMenuButton As MenuButton)
   
   Dim hMenu As Menu
@@ -234,8 +232,40 @@ Public Sub MenuColor_Click()
 End
 
 Public Sub Button_Click()
+
+  Dim hEditor As TextEditor
+  Dim sColor As String
+  Dim sLine As String
+  Dim X As Integer
+  Dim XD As Integer
+  Dim sCar As String
+  Dim XF As Integer
+  Dim iLen As Integer
   
-  If FColorChooser.Insert(False, ("Insert color"), $aPattern) Then Return
+  hEditor = GetEditor()
+  sLine = hEditor[hEditor.Line].Text
+  iLen = hEditor[hEditor.Line].Length
+  X = hEditor.Column
+  
+  XD = X
+  While XD > 0
+    sCar = String.Mid$(sLine, XD, 1)
+    If Not IsHexa(sCar) Then Break
+    Dec XD
+  Wend
+  
+  XF = X
+  While XF < iLen
+    sCar = String.Mid$(sLine, XF + 1, 1)
+    If Not IsHexa(sCar) Then Break
+    Inc XF
+  Wend
+  
+  If XF - XD = 6 Then
+    sColor = "&H" & String.Mid$(sLine, XD + 1, XF - XD)
+  Endif
+  
+  If FColorChooser.Insert(False, ("Insert color"), $aPattern, sColor) Then Return
   
   With GetEditor()
     .Insert(FColorChooser.Pattern)

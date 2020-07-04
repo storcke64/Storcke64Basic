@@ -160,13 +160,13 @@ static void conv_data(const char *data, GB_VARIANT_VALUE * val, int type)
 				default:
 					sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year,
 								 &date.month, &date.day, &date.hour, &date.min, &sec);
-					date.sec = (short) sec;
-					date.msec = (short) ((sec - date.sec) * 1000 + 0.5);
+					date.sec = (short)sec;
+					date.msec = (short)((sec - date.sec) * 1000 + 0.5);
 			}
 			if (date.year < 100)
 				date.year += 1900;
 
-			GB.MakeDate(&date, (GB_DATE *) & conv);
+			GB.MakeDate(&date, (GB_DATE *)&conv);
 
 			val->type = GB_T_DATE;
 			val->value._date.date = conv._date.value.date;
@@ -803,11 +803,14 @@ static int exec_query(DB_DATABASE *db, const char *query, DB_RESULT *result, con
 static int64_t get_last_insert_id(DB_DATABASE *db)
 {
 	SQLITE_RESULT *res;
+	int64_t id;
 
 	if (do_query(db, "Unable to retrieve last insert id", &res, "select last_insert_rowid();", 0))
 		return -1;
 
-	return atoll(sqlite_query_get_string(res, 0, 0));
+	id = atoll(sqlite_query_get_string(res, 0, 0));
+	sqlite_query_free(res);
+	return id;
 }
 
 

@@ -25,7 +25,8 @@ Private $sLibraryName As String         ' Library name, with the version
 Private $sUnsafePackageName As String   ' Package name, i.e project name with prefix, but with possible forbidden characters inside
 Private $sCategories As String          ' Categories list
 Private $sHome As String                ' Home user directory
-Private $sVersion As String
+Private $sVersion As String             ' Package version
+Private $sVersionWithRelease As String  ' Package version with release number
 Private $sDescription As String
 Private $bDescription As Boolean
 
@@ -223,7 +224,7 @@ Private Sub InitMake(sSys As String)
   Endif
 
   '$sPrefix = GetPackagePrefix(Project.Vendor, Project.Prefix)
-  $sUnsafePackageName = GetPackageFullName($sVendor, $sVendorPrefix, Project.Prefix, False)
+  $sUnsafePackageName = GetPackageFullName($sVendor, $sVendorPrefix, Project.Prefix, Project.PackageNameWithMajor, False)
 
   $sHome = System.User.Home
 
@@ -231,7 +232,12 @@ Private Sub InitMake(sSys As String)
   If $sCategories Then $sCategories &= ";"
 
   $sVersion = GetVersion()
-
+  If sSys = "ubuntu" Then
+    $sVersionWithRelease = $sVersion & "-0ubuntu" & CStr(Project.PackageVersion)
+  Else
+    $sVersionWithRelease = $sVersion & "-" & CStr(Project.PackageVersion)
+  Endif
+  
   $sDescription = RemoveEmptyLines(Project.Description)
   If $sDescription Then
     $bDescription = True
@@ -341,6 +347,13 @@ Private Sub ComponentToPackageName(sComp As String) As String
 
 End
 
+Private Sub IsRuntimeComponent(sComp As String) As Boolean
+  
+  If sComp = "gb.debug" Or If sComp = "gb.eval" Or If sComp = "gb.test" Then Return True
+  If sComp = "gb.gui" Or If sComp Begins "gb.gui." Then Return True
+  
+End
+
 Private Function GetDependencies(Optional aComp As String[]) As String
   
   Dim sRes As String
@@ -348,22 +361,30 @@ Private Function GetDependencies(Optional aComp As String[]) As String
   Dim iPos As Integer
   Dim sTest As String
   
-  If Not aComp Then aComp = Project.Components
-  
-  For Each sComp In aComp
-    
-    iPos = InStr(sComp, ":")
-    If iPos Then
-      sTest = Mid$(sComp, iPos + 1)
-      If Not Project.Components.Exist(sTest) Then Continue
-      sComp = Left(sComp, iPos - 1)
+  If Not aComp Then 
+    If Project.Type = Project.TYPE_COMPONENT Then
+      aComp = Project.ReadComponentFile()["Require"]
+    Else
+      aComp = Project.Components
     Endif
-    
-    If sComp = "gb.debug" Or If sComp = "gb.eval" Then Continue 
-    If sComp = "gb.gui" Or If sComp Begins "gb.gui." Then Continue
-    sRes &= GetDependency(sComp)
-    'If sComp = "gb.form" Then sRes &= GetDependency("gb.form.stock")
-  Next
+  Endif
+  
+  If aComp Then
+    For Each sComp In aComp
+      
+      iPos = InStr(sComp, ":")
+      If iPos Then
+        sTest = Mid$(sComp, iPos + 1)
+        If Not Project.Components.Exist(sTest) Then Continue
+        sComp = Left(sComp, iPos - 1)
+      Endif
+      
+      If IsRuntimeComponent(sComp) Then Continue
+      
+      sRes &= GetDependency(sComp)
+      'If sComp = "gb.form" Then sRes &= GetDependency("gb.form.stock")
+    Next
+  Endif
   
   For Each sComp In Project.Libraries
     sRes &= GetDependency(sComp)
@@ -861,6 +882,7 @@ Private Function MakeDebPackage(sSys As String)
   Dim sPath As String
   Dim W As Integer
   Dim H As Integer
+  Dim sExec As String
       
   Inc Application.Busy
   
@@ -959,7 +981,7 @@ Private Function MakeDebPackage(sSys As String)
   
   'debian/changelog
   hFile = Open sPackagePath &/ "debian/changelog" For Create 
-  Print #hFile, ChangelogToDebChangelog(sSys, sPackageName)
+  Print #hFile, ChangelogToDebChangelog(sPackageName)
   Close #hFile
 
   'debian/compat
@@ -1045,10 +1067,8 @@ Private Function MakeDebPackage(sSys As String)
   Print #hFile, "Architecture: all"
   Print #hFile, "Depends: gambas"; System.Version; "-runtime (>= "; MIN_VERSION; "), gambas"; System.Version; "-runtime (<< "; MAX_VERSION; ")";
   
-  If Project.Type <> Project.TYPE_COMPONENT Then
-    Print #hFile, GetDependencies();
-    Print #hFile, GetExtraDependencies(sSys);
-  Endif 
+  Print #hFile, GetDependencies();
+  Print #hFile, GetExtraDependencies(sSys);
   Print #hFile
 
   Print #hFile, GetShortDesc("Description: " & $sDescription, 80)
@@ -1086,13 +1106,13 @@ Private Function MakeDebPackage(sSys As String)
   
   Select Case Project.Type
     Case Project.TYPE_COMPONENT
-      Print Shell$("src" &/ $sName &/ $sComponentName & ".gambas");
+      sExec = "src" &/ $sName &/ $sComponentName & ".gambas"
     Case Project.TYPE_LIBRARY
-      Print Shell$("src" &/ $sName &/ $sLibraryName & ".gambas");
+      sExec = "src" &/ $sName &/ $sLibraryName & ".gambas"
     Case Project.TYPE_NORMAL
-      Print Shell$("src" &/ $sName &/ $sName);
+      sExec = "src" &/ $sName &/ $sName
   End Select
-  Print " src" &/ $sName
+  Print Shell(sExec); " src" &/ $sName
   
   ' If Project.Type = Project.TYPE_COMPONENT 
   '   If $sName <> $sComponentName Then
@@ -1106,8 +1126,8 @@ Private Function MakeDebPackage(sSys As String)
   Print "clean:"
   Print "\tdh_testdir"
   Print "\tdh_testroot"
-  Print "\trm -Rf `find . -name \".gambas\"`"  
-  Print "\trm -Rf `find . -name \"*.gambas\"`"
+  Print "\trm -Rf "; Shell("src" &/ $sName &/ ".gambas")  
+  Print "\trm -f "; Shell(sExec)
   Print "\trm -f build-stamp install-stamp"
   Print "\tdh_clean"
   Print
@@ -1172,6 +1192,7 @@ Private Function MakeDebSupportPackage(sSys As String, sSupport As String, aComp
   Dim sPackagePath As String
   Dim sDesc As String
   Dim sLine As String
+  Dim sRelease As String
       
   Inc Application.Busy
   
@@ -1182,6 +1203,8 @@ Private Function MakeDebSupportPackage(sSys As String, sSupport As String, aComp
   $sFormatEqual = $sFormatMin & Replace($sFormatMax, "<<", "<=")
   
   sPackageName = FormatDebPackageName($sUnsafePackageName) & "-" & sSupport
+  
+  sRelease = CStr(Project.PackageVersion)
   
   ' Step 1. Create the build directory
 
@@ -1208,7 +1231,7 @@ Private Function MakeDebSupportPackage(sSys As String, sSupport As String, aComp
   
   'debian/changelog
   hFile = Open sPackagePath &/ "debian/changelog" For Create 
-  Print #hFile, ChangelogToDebChangelog(sSys, sPackageName)
+  Print #hFile, ChangelogToDebChangelog(sPackageName)
   Close #hFile
 
   'debian/compat
@@ -1227,7 +1250,7 @@ Private Function MakeDebSupportPackage(sSys As String, sSupport As String, aComp
   Print #hFile
   Print #hFile, "Package: "; sPackageName
   Print #hFile, "Architecture: all"
-  Print #hFile, "Depends: "; FormatDebPackageName($sUnsafePackageName);; "(>=";; $sVersion;; "), "; FormatDebPackageName($sUnsafePackageName);; "(<=";; $sVersion; ")"; GetDependencies(aComp)
+  Print #hFile, "Depends: "; FormatDebPackageName($sUnsafePackageName);; "(>=";; $sVersionWithRelease;; "), "; FormatDebPackageName($sUnsafePackageName);; "(<=";; $sVersionWithRelease; ")"; GetDependencies(aComp)
   
   sDesc = sSupport & " package for " & If(Project.Title, Project.Title, Project.Name)
   
@@ -1292,13 +1315,12 @@ Private Function MakeDebSupportPackage(sSys As String, sSupport As String, aComp
 
 End
 
-Private Sub ChangelogToDebChangelog(sSys As String, sPackageName As String) As String
+Private Sub ChangelogToDebChangelog(sPackageName As String) As String
  
   Dim aLine As String[]
   Dim sLine As String
   Dim debChangelog As String
   Dim sDate As String
-  Dim sVersion As String
   Dim sBits As String[]
   Dim previousLine As String
   Dim sWord As String
@@ -1313,7 +1335,7 @@ Private Sub ChangelogToDebChangelog(sSys As String, sPackageName As String) As S
       
       If sDate <> "" Then
         'Debian packages don't accept an empty changelog line for the release:
-        If previousLine = sPackageName & " (" & sVersion & ") unstable; urgency=low" & "\n\n" Then 
+        If previousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n" Then 
           debChangelog = debChangelog & "  * New release version\n"
         Endif   
         debChangelog = debChangelog & "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n\n"
@@ -1321,12 +1343,7 @@ Private Sub ChangelogToDebChangelog(sSys As String, sPackageName As String) As S
       sbits = Split(Trim$(sLine), " ")
       sDate = sbits[1] & ", " & sbits[3] & " " & sbits[2] & " " & sbits[4] & " 12:00:00 +0000"
       'sVersion = GetDebVersion()
-      If sSys = "ubuntu" Then
-        sVersion = $sVersion & "-0ubuntu" & CStr(Project.PackageVersion)
-      Else
-        sVersion = $sVersion & "-" & CStr(Project.PackageVersion)
-      Endif
-      previousLine = sPackageName & " (" & sVersion & ") unstable; urgency=low" & "\n\n"
+      previousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n"
       debChangelog &= previousLine
     
     Else 
@@ -1510,12 +1527,8 @@ Private Function MakeRpmPackage(sSys As String)
 
   Print #hFile, "Requires: gambas"; System.Version; "-runtime >= "; MIN_VERSION; ",gambas"; System.Version; "-runtime < "; MAX_VERSION;
 
-  If Project.Type <> Project.TYPE_COMPONENT Then 
-  
-    Print #hFile, GetDependencies();
-    Print #hFile, GetExtraDependencies(sSys);
-  
-  Endif
+  Print #hFile, GetDependencies();
+  Print #hFile, GetExtraDependencies(sSys);
 
   Print #hFile
 
@@ -1771,6 +1784,7 @@ Private Function MakeRpmSupportPackage(sSys As String, sSupport As String, aComp
   Dim sVendor As String
   Dim sRelease As String
   Dim sPackageName As String
+  Dim sDependency As String
 
   Inc Application.Busy
 
@@ -1848,7 +1862,9 @@ Private Function MakeRpmSupportPackage(sSys As String, sSupport As String, aComp
     'PRINT #hFile, "BuildRequires: gambas2-ide"
   Print #hFile, "BuildArch: noarch"
 
-  Print #hFile, "Requires: "; FormatRpmPackageName($sUnsafePackageName);; ">=";; $sVersion;; ","; FormatRpmPackageName($sUnsafePackageName);; "<=";; $sVersion; GetDependencies(aComp)
+  sDependency = $sVersion & "-" & sRelease
+
+  Print #hFile, "Requires: "; FormatRpmPackageName($sUnsafePackageName);; ">=";; sDependency;; ","; FormatRpmPackageName($sUnsafePackageName);; "<=";; sDependency; GetDependencies(aComp)
 
   Print #hFile
 
@@ -2125,12 +2141,8 @@ Private Sub MakeTgzPackage(sSys As String)
   Print #hFile, "gambas"; System.Version; " >= "; MIN_VERSION
   Print #hFile, "gambas"; System.Version; " < "; MAX_VERSION
 
-  If Project.Type <> Project.TYPE_COMPONENT Then
-
-    Print #hFile, GetDependencies();
-    Print #hFile, GetExtraDependencies(sSys);
-
-  Endif
+  Print #hFile, GetDependencies();
+  Print #hFile, GetExtraDependencies(sSys);
   
   Close #hFile
   
@@ -2403,7 +2415,7 @@ Private Function MakeArchPackage(sSys As String)
     Print #hFile, "_realname="; $sName
     Print #hFile, "pkgdesc=\"" & sPkgDesc & "\""
     Print #hFile, "pkgver=" & $sVersion
-    Print #hFile, "pkgrel=1"
+    Print #hFile, "pkgrel="; Project.PackageVersion
     Print #hFile, "arch=('any')"
     Print #hFile, "url=\"" & Project.Url & "\""
     If Me.ChangeLog Then 
@@ -2467,7 +2479,7 @@ Private Function MakeArchPackage(sSys As String)
   
         Print #hFile, "  install -d ${pkgdir}/usr/bin"
         Print #hFile, "  install -m755 " & $sName & ".gambas ${pkgdir}/usr/bin" &/ $sName
-        If $sName <> sPackageName Then Print #hFile, "  ln -s " & Shell$($sName) & " \"$(pkgdir)\"/usr/bin" &/ Shell$(sPackageName)
+        If $sName <> sPackageName Then Print #hFile, "  ln -s " & Shell$($sName) & " \"${pkgdir}\"/usr/bin" &/ Shell$(sPackageName)
         Print #hFile, "  install -D .." &/ Project.Name & ".png \\"
         Print #hFile, "    ${pkgdir}/usr/share/pixmaps" &/ Project.Name & ".png"
         Print #hFile, "  install -D .." &/ sPackageName & ".desktop \\"
@@ -2494,7 +2506,7 @@ Private Function MakeArchPackage(sSys As String)
     Endif
   Next 
 
-  RunCommand("cp " & sPackageName & "-" & $sVersion & "-1*.tar.* " & Shell$(Path) &/ "", sBuildDir)
+  RunCommand("cp " & sPackageName & "-" & $sVersion & "-" & CStr(Project.PackageVersion) & "*.tar.* " & Shell$(Path) &/ "", sBuildDir)
 
   ' Remove build dir
   Shell "rm -rf " & Shell(sBuildDir) Wait
@@ -2726,11 +2738,12 @@ Public Sub GetPackagePrefix(iProjectType As Integer, sVendor As String, sVendorP
   
 End
 
-Public Sub GetPackageFullName(sVendor As String, sVendorPrefix As String, bPrefix As Boolean, bWithVersion As Boolean) As String
+Public Sub GetPackageFullName(sVendor As String, sVendorPrefix As String, bPrefix As Boolean, bWithMajor As Boolean, bWithVersion As Boolean) As String
   
   Dim sText As String
   
   sText = GetPackagePrefix(Project.Type, sVendor, sVendorPrefix, bPrefix) & GetPackageName(Project.Name)
+  If bWithMajor Then sText &= CStr(Project.MajorVersion)
   If bWithVersion Then sText &= "-" & Project.FormatVersion()
   Return sText
   

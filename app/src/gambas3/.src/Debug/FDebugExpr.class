@@ -346,6 +346,7 @@ Private Sub Init(sInfo As String, bNew As Boolean) As Boolean
   Dim nRowAsArray As Integer = -1
   Dim bShowHidden As Boolean = btnShowAll.Value
   Dim bHasHidden As Boolean
+  Dim bShowButton As Boolean
 
   $aSym = Split(sInfo, " ", Chr$(34))
   If $aSym.Count < 3 Then
@@ -359,6 +360,8 @@ Private Sub Init(sInfo As String, bNew As Boolean) As Boolean
   
   $iRowStatic = -1
   $iRowDynamic = -1
+  
+  If sType = "C:" Or If sType = "A:" Then bShowButton = True
   
   If sType = "C:" And If Not bShowHidden Then
 
@@ -524,7 +527,7 @@ Private Sub Init(sInfo As String, bNew As Boolean) As Boolean
   
   If Not bNew Then Try gvwExpr.Columns[0].Width = -1
   
-  btnShowAll.Visible = $bArray Or $bCollection Or bHasHidden
+  btnShowAll.Visible = bShowButton Or bHasHidden
 
 End
 

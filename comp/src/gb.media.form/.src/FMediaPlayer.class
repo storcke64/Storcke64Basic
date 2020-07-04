@@ -2,6 +2,9 @@
 
 'Static Private $hLogo As Image
 
+Property Volume As Float
+Property Muted As Boolean
+
 Private $hPlayer As MediaPlayer
 Private $hImage As MediaControl
 
@@ -289,6 +292,8 @@ Public Sub btnVolume_Click()
 
 End
 
+
+
 ' Public Sub GetShowVideo() As Boolean
 '   
 '   Return Not $bNoVideo
@@ -447,5 +452,30 @@ End
 Public Sub _new()
 
   Me.Proxy = dwgVideo
+
+End
+
+Private Function Volume_Read() As Float
+
+  Return $hPlayer.Audio.Volume
+
+End
+
+Private Sub Volume_Write(Value As Float)
+
+  Try sldVolume.Value = Value * 100
+
+End
+
+Private Function Muted_Read() As Boolean
+
+  Return sldVolume.Enabled
+
+End
+
+Private Sub Muted_Write(Value As Boolean)
+
+  If sldVolume.Enabled = Value Then Return
+  btnVolume_Click
 
 End

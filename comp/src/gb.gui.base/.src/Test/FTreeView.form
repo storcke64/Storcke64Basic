@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,88,84)
+  MoveScaled(0,0,121,84)
   Arrangement = Arrange.Vertical
   Margin = True
   { mnuPopup Menu
@@ -21,7 +21,7 @@
     }
   }
   { HBox1 HBox
-    MoveScaled(1,9,84,4)
+    MoveScaled(1,9,116,4)
     { Button1 Button
       MoveScaled(0,0,16,4)
       Text = ("Delete")
@@ -42,6 +42,13 @@
       MoveScaled(68,0,16,4)
       Text = ("Rename")
     }
+    { Button6 Button
+      MoveScaled(85,0,16,4)
+      Text = ("Check")
+    }
+    { CheckBox1 CheckBox
+      MoveScaled(102,0,24,4)
+    }
   }
   { Separator1 Separator
     MoveScaled(29,19,12,0)
@@ -53,6 +60,7 @@
     Mode = Select.Multiple
     Sorted = True
     Editable = True
+    Header = False
     Resizable = True
     Border = False
     ShowLines = True

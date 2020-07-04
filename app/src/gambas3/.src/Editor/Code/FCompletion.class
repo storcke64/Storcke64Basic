@@ -1,7 +1,6 @@
 ' Gambas class file
 
 Static Private $aNativeDatatypes As String[] = ["Boolean 0", "Byte 0", "Short 0", "Integer 0", "Long 0", "Single 0", "Float 0", "Date 0", "String 0", "Object 0", "Variant 0", "Pointer 0"]
-Static Private $aSpecialMethods As String[] = ["_attach", "_call", "_compare", "_get", "_init", "_new", "_next", "_property", "_put", "_unknown", "_exit", "_ready"]
 
 Static Private $hClassPicture As Picture
 
@@ -225,6 +224,7 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
     panResizeTop.Hide
   Endif
 
+  iY += $hEditor.Y
   hCont = $hEditor.Parent
   Do
     If hCont Is Form Then Break
@@ -295,22 +295,21 @@ Private Sub AddClassesAndFill(aClass As String[], Optional sBegin As String)
 
   If $bGambas Then
 
-    Project.Documentation["gb"].Load
+    'Project.Documentation["gb"].Load
   
     For Each sClass In Project.GetClasses()
       If sClass Like sBegin & "*" Then aClass.Add(sClass & " " & MHelp.TYPE_CLASS)
       'TRY lvwComp.Add(sClass, sClass)
     Next
+
+    aLib = [CComponent.PROJECT_NAME, "gb", "gb.test"]
   
-    aLib = Project.Components.Copy()
+    aLib.Insert(Project.Components)
     
     For Each sLib In Project.Libraries
       aLib.Add(File.Name(sLib))
     Next
     
-    aLib.Add(CComponent.PROJECT_NAME, 0)
-    aLib.Add("gb", 0)
-  
     For Each sLib In aLib
       
       If sLib <> CComponent.PROJECT_NAME Then
@@ -350,11 +349,11 @@ Private Sub AddClassesAndFill(aClass As String[], Optional sBegin As String)
   
     hPic[0] = Picture["img/logo/head-16.png"]
     hPic[1] = $hClassPicture
-    hPic[2] = Picture["img/symbol/control.png"]
-    hPic[3] = Picture["img/symbol/symbol.png"]
-    hPic[4] = Picture["img/symbol/event.png"]
+    hPic[2] = Picture["$symbol:control"]
+    hPic[3] = Picture["$symbol:symbol"]
+    hPic[4] = Picture["$symbol:event"]
     hPic[5] = hPic[0]
-    hPic[6] = Picture["img/symbol/special.png"]
+    hPic[6] = Picture["$symbol:special"]
     
   ClearRows
 
@@ -528,11 +527,11 @@ Private Sub FillWithIdent(sWord As String)
   Dim iLine As Integer
   Dim aKeywords As String[]
   Dim aFind As Integer[]
-  Dim fTimer As Float
   Dim sSearchLine As String
   Dim sSearchWord As String
   Dim aSearchWord As String[]
   Dim aResultWord As String[]
+  'Dim fTimer As Float
 
   ClearRows
 
@@ -566,7 +565,7 @@ Private Sub FillWithIdent(sWord As String)
     ' Next
     
     If Left(sWord) = "_" Then 
-      For Each sCar In $aSpecialMethods
+      For Each sCar In CSymbolInfo.SpecialMethods
         If sCar Like sWord & "*" Then 
           cKey[sCar] = True
           aResult.Add(sCar & " " & MHelp.TYPE_SPECIAL)
@@ -590,14 +589,14 @@ Private Sub FillWithIdent(sWord As String)
     Next
   Endif
   
-  If Not $hEditor.IsSameFindStrings(String.Left(sWord, 3)) Then
+  'fTimer = Timer
   
-    fTimer = Timer
+  If Not $hEditor.IsSameFindStrings(String.Left(sWord, 3)) Then
   
     $cFindStrings = New Collection
     aFind = $hEditor.FindStrings(String.Left(sWord, 3))
     
-    fTimer = Timer
+    sSearchWord = LCase(String.RemoveDiacritics(sWord))
     
     For Each iLine In aFind
     
@@ -609,7 +608,6 @@ Private Sub FillWithIdent(sWord As String)
       'Endif
       
       sSearchLine = String.RemoveDiacritics(sLine)
-      sSearchWord = LCase(String.RemoveDiacritics(sWord))
       
       aSearchWord = Split(sSearchLine, $sWordSeparators, "", True)
       aResultWord = Split(sLine, $sWordSeparators, "", True)
@@ -657,6 +655,8 @@ Private Sub FillWithIdent(sWord As String)
     aResult.Add(sCar & " " & MHelp.TYPE_SYMBOL)
     cKey[sCar] = True
   Next
+  
+  'Debug Timer - fTimer
 
   If $bGambas Then
     
@@ -684,11 +684,11 @@ End
 Private Sub FillWithSpecial()
 
   Dim sName As String
-  Dim hPict As Picture = Picture["img/symbol/special.png"]
+  Dim hPict As Picture = Picture["$symbol:special"]
   
   ClearRows
   
-  For Each sName In $aSpecialMethods
+  For Each sName In CSymbolInfo.SpecialMethods
     AddRow(CStr(MHelp.TYPE_SPECIAL) & sName, sName, hPict)
   Next
   
@@ -944,7 +944,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
   Try sText = gvwComp.Current.Text
   If Not sText Then Return True
 
-  If gvwComp[gvwComp.Row, 0].Picture = Picture["img/symbol/event.png"] Then
+  If gvwComp[gvwComp.Row, 0].Picture = Picture["$symbol:event"] Then
     If $hForm.IsProc($hEditor[$hEditor.Line].Text) Then
       hClass = Project.Documentation.Classes[$sEventClass]
       sEvent = Mid$(sText, RInStr(sText, "_") + 1)
@@ -1114,12 +1114,6 @@ End
 Public Sub VisibleFrom(hEditor As TextEditor) As Boolean
   
   If $hEditor = hEditor And If Me.Visible And If Not $bHideLater Then Return True
-  
-End
-
-Static Public Sub GetSpecialMethods() As String[]
-  
-  Return $aSpecialMethods
   
 End
 

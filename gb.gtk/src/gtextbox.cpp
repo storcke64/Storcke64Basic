@@ -128,6 +128,8 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	}
 
 	g_object_ref(_style_provider);
+#else
+	_placeholder = NULL;
 #endif
 
 	if (!combo)
@@ -154,6 +156,8 @@ gTextBox::~gTextBox()
 {
 #ifdef GTK3
 	g_object_unref(_style_provider);
+#else
+	if (_placeholder) g_free(_placeholder);
 #endif
 }
 
@@ -195,6 +199,35 @@ void gTextBox::setText(const char *vl)
 	unlock();
 	emit(SIGNAL(onChange));
 }
+
+#ifdef GTK3
+char* gTextBox::placeholder()
+{
+	return (char*)gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+}
+
+void gTextBox::setPlaceholder(const char *vl)
+{
+	if (!vl) vl = "";
+	
+	if (!entry)
+		return;
+		
+	gtk_entry_set_placeholder_text(GTK_ENTRY(entry), vl);
+}
+#else
+char* gTextBox::placeholder()
+{
+	return _placeholder;
+}
+
+void gTextBox::setPlaceholder(const char *vl)
+{
+	if (_placeholder) g_free(_placeholder);
+	_placeholder = g_strdup(vl);
+}
+
+#endif
 
 bool gTextBox::password()
 {

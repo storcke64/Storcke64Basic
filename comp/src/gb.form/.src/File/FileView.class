@@ -50,6 +50,8 @@ Private $sSortDir As String
 Private $iSort As Integer
 Private $bAsc As Boolean = True
 
+Private $hVoidView As TextLabel
+
 Private $aFilter As String[]
 Private $hPict As Picture
 Private $hRefresh As Timer
@@ -69,6 +71,8 @@ Private $bInvalidate As Boolean
 
 Static Private $iIconExecSize As Integer
 Static Private $hIconExec As Picture
+
+Private picLock As PictureBox
 
 Static Public Sub _init()
   
@@ -148,6 +152,13 @@ Public Sub _new()
     .Sorted = True
     .Resizable = True
   End With
+  
+  $hVoidView = New TextLabel(Me)
+  $hVoidView.Alignment = Align.Center
+  $hVoidView.Text = ("No file in this folder.")
+  $hVoidView.Font.Grade = 2
+  $hVoidView.Foreground = Color.LightForeground
+  $hVoidView.Visible = False
   
   Me.Proxy = GetView()
   
@@ -298,6 +309,27 @@ Static Public Sub _GetHiddenColor() As Integer
   
 End
 
+Private Sub ShowLock()
+  
+  If Not picLock Then
+    picLock = New PictureBox(Me)
+    picLock.Picture = Picture["img/lock.png"]
+    picLock.Ignore = True
+    picLock.Mode = PictureBox.Cover
+    picLock.ResizeScaled(8, 8)
+    Watcher_Resize
+  Endif
+  picLock.Show
+  picLock.Raise
+  
+End
+
+Private Sub HideLock()
+  
+  If picLock Then picLock.Hide
+  
+End
+
 Private Sub RefreshView()
   
   Dim sFile As String
@@ -319,6 +351,7 @@ Private Sub RefreshView()
   Dim sKey As String
   Dim aPreview As New String[]
   Dim sExt As String
+  Dim bVoid As Boolean
 
   Inc Application.Busy
   
@@ -367,86 +400,97 @@ Private Sub RefreshView()
   
   'Try aDir = Dir(sDir, "*").Sort()
   Try aDir = hCache.GetFiles()
-  hCache.Lock
-  For Each sFile In aDir
-    If Not $bShowHidden And If Left(sFile) = "." Or Right(sFile) = "~" Then Continue
-    'With Stat(sDir &/ sFile)
-    With hCache.GetInfo(sFile)
-      If hCache.IsDir(sFile) Then
-        If Not $bShowDir Then Continue
-        sPrefix = PREFIX_DIR
-      Else
-        If $aFilter And If CheckFilter(sFile) Then Continue
-        sPrefix = PREFIX_FILE
-      Endif
-      
-      sKey = sPrefix & sFile
-      
-      hPict = GetIcon(sDir &/ sFile, iSize)
-      If Not hPict Then 
-        If hCache.IsDir(sFile) Then 
-          hPict = hPictFolder
-        Else 
-          hPict = hPictFile
-        Endif
-      Endif
-      
-      bRichText = False
-      
-      sText = sFile
-      If .Link Then
-        sText = "<i>" & sText & "</i>"
-        bRichText = True
-      Endif
-      If .Hidden Then
-        sText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
-        bRichText = True
-      Endif
-
-      If $hColumnView.Visible Then
-        If Not $hColumnView.Exist(sKey) Then
-          $hColumnView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
-          GoSub ADD_PREVIEW
+  If Error Then
+    
+    ShowLock()
+    
+  Else
+    
+    HideLock()
+  
+    hCache.Lock
+    For Each sFile In aDir
+      If Not $bShowHidden And If Left(sFile) = "." Or Right(sFile) = "~" Then Continue
+      'With Stat(sDir &/ sFile)
+      With hCache.GetInfo(sFile)
+        If hCache.IsDir(sFile) Then
+          If Not $bShowDir Then Continue
+          sPrefix = PREFIX_DIR
         Else
-          $hColumnView[sKey].Editable = Access(sDir, gb.Write)
-          If $bRefreshIcon Then 
-            $hColumnView[sKey].Picture = hPict
-            GoSub ADD_PREVIEW
+          If $aFilter And If CheckFilter(sFile) Then Continue
+          sPrefix = PREFIX_FILE
+        Endif
+        
+        sKey = sPrefix & sFile
+        
+        hPict = GetIcon(sDir &/ sFile, iSize)
+        If Not hPict Then 
+          If hCache.IsDir(sFile) Then 
+            hPict = hPictFolder
+          Else 
+            hPict = hPictFile
           Endif
         Endif
-        $hColumnView[sKey][1] = "  " & Main.GetFileSize(.Size)
-        $hColumnView[sKey][2] = "  " & Str(.Time)
-        If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
-      Else
-        If Not $hIconView.Exist(sKey) Then
-          $hIconView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
-          GoSub ADD_PREVIEW
-        Else
-          $hIconView[sKey].Editable = Access(sDir, gb.Write)
-          If $bRefreshIcon Then 
-            $hIconView[sKey].Picture = hPict
-            GoSub ADD_PREVIEW
-          Endif
+        
+        bRichText = False
+        
+        sText = sFile
+        If .Link Then
+          sText = "<i>" & sText & "</i>"
+          bRichText = True
         Endif
-        If bRichText Then $hIconView[sKey].RichText = sText
-      Endif
-      
-    End With
-  Next
+        If .Hidden Then
+          sText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
+          bRichText = True
+        Endif
   
-  hCache.Unlock
-  
-  If $hColumnView.Visible Then
-    For I = 1 To $hColumnView.Columns.Max
-      $hColumnView.Columns[I].W = -1
+        If $hColumnView.Visible Then
+          If Not $hColumnView.Exist(sKey) Then
+            $hColumnView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            GoSub ADD_PREVIEW
+          Else
+            $hColumnView[sKey].Editable = Access(sDir, gb.Write)
+            If $bRefreshIcon Then 
+              $hColumnView[sKey].Picture = hPict
+              GoSub ADD_PREVIEW
+            Endif
+          Endif
+          $hColumnView[sKey][1] = "  " & Main.GetFileSize(.Size)
+          $hColumnView[sKey][2] = "  " & Str(.Time)
+          If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
+        Else
+          If Not $hIconView.Exist(sKey) Then
+            $hIconView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            GoSub ADD_PREVIEW
+          Else
+            $hIconView[sKey].Editable = Access(sDir, gb.Write)
+            If $bRefreshIcon Then 
+              $hIconView[sKey].Picture = hPict
+              GoSub ADD_PREVIEW
+            Endif
+          Endif
+          If bRichText Then $hIconView[sKey].RichText = sText
+        Endif
+        
+      End With
     Next
+    bVoid = aDir.Count = 0
+    
+    hCache.Unlock
+    
+    If $hColumnView.Visible Then
+      For I = 1 To $hColumnView.Columns.Max
+        $hColumnView.Columns[I].W = -1
+      Next
+    Endif
+    
+    For Each sFile In aSel
+      Try GetView()[sFile].Selected = True
+    Next
+    
+    If aPreview.Count Then RunPreview(aPreview)
+  
   Endif
-  
-  For Each sFile In aSel
-    Try GetView()[sFile].Selected = True
-  Next
-  
-  If aPreview.Count Then RunPreview(aPreview)
   
 Finally
   
@@ -459,6 +503,14 @@ Finally
     $hIconView._End
   Endif
   Try GetView().Scroll(SX, SY)
+  
+  If bVoid Then
+    $hVoidView.Show
+    $hVoidView.Raise
+  Else
+    $hVoidView.Hide
+  Endif
+  
   Dec Application.Busy
   
 Catch 
@@ -1143,6 +1195,15 @@ Public Sub Watcher_Show()
   RefreshViewLater
   
 End
+
+Public Sub Watcher_Resize()
+  
+  If picLock And If picLock.Visible Then
+    picLock.Move((Me.W - picLock.W) \ 2, (Me.H - picLock.H) \ 2)
+  Endif
+  
+End
+
 
 Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, (Key) As String)
 

@@ -53,7 +53,7 @@ extern bool MAIN_display_x11;
 
 #define GB (*GB_PTR)
 
-void MAIN_do_iteration(bool do_not_block, bool do_not_sleep = false);
+void MAIN_do_iteration(bool do_not_block);
 void MAIN_do_iteration_just_events();
 void MAIN_check_quit();
 

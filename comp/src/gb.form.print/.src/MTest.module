@@ -5,7 +5,8 @@ Private $hPrinter As Printer
 Public Sub Main()
 
   $hPrinter = New Printer As "Printer"
-  
+
+  $hPrinter.MarginTop = 15  
   $hPrinter.Preview()
 
 End

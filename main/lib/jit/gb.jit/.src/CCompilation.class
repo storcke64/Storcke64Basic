@@ -3,11 +3,13 @@
 Static Public All As New Collection
 
 Static Private $sCompiler As String
+'Static Private $sCompilerVersion As String
 Static Private $aFlags As String[]
 
 Public Name As String
 Public PathSO As String
 
+'Private $sCache As String
 Private $sResult As String
 Private $fTime As Float
 Private $hProcess As Process
@@ -27,6 +29,9 @@ Static Private Sub Init()
   If Not sFlag Then sFlag = "-O3"
   
   $aFlags = Split(sFlag, " ")
+  
+  ' Exec [$sCompiler, "-V"] To $sCompilerVersion
+  ' $sCompilerVersion = Trim($sCompilerVersion)
    
 End
 
@@ -39,29 +44,58 @@ Public Sub _new(sName As String, sPathSO As String, fTime As Float)
   
 End
 
-Public Sub Run(sInput As String, Optional sOutput As String, sOption As String)
+Public Sub Run(sInput As String, Optional sOption As String)
 
   Dim aExec As String[]
+  'Dim sHash As String
+  'Dim iPos As Integer
+  
   'Dim I As Integer
   
   If Not $sCompiler Then Init
   
-  aExec = [$sCompiler]
-  If sOption Then aExec.Insert(Split(sOption, " "))
-  aExec.Insert($aFlags)
-  aExec.Add(sInput)
-  If sOutput Then 
+  ' $sCache = File.Dir(File.Dir(Temp$())) &/ "gb.jit"
+  ' Try Mkdir $sCache
+  
+  ' Exec ["md5sum", sInput] To sHash
+  ' iPos = InStr(sHash, " ")
+  ' If iPos Then
+  '   $sCache &/= File.BaseName(PathSO) & "-" & Left(sHash, iPos - 1) & "." & File.Ext(PathSO)
+  ' Else
+  '   $sCache = ""
+  ' Endif
+  
+  'If Not $sCache Or If Not Exist($sCache) Then
+    
+    aExec = [$sCompiler]
+    If sOption Then aExec.Insert(Split(sOption, " "))
+    aExec.Insert($aFlags)
+    aExec.Add(sInput)
     aExec.Add("-o")
-    aExec.Add(sOutput)
-  Endif
+    'If Not $sCache Then
+      aExec.Add(PathSO)
+    'Else
+    '  aExec.Add($sCache)
+    'Endif
+
+    If Jit.Debug Then Error "gb.jit: run: "; aExec.Join(" ")
+    
+    $hProcess = Exec aExec For Read As "Compiler"
+    
+  ' Else
+  '   
+  '   If Jit.Debug Then Error "gb.jit: using cache: "; $sCache
+  ' 
+  ' Endif  
+  
+  ' If $sCache Then 
+  '   Link $sCache To PathSO
+  ' Endif
   
   ' For I = 0 To aExec.Max
   '   aExec[I] = Shell$(aExec[I])
   ' Next
   
-  If Jit.Debug Then Error "gb.jit: run: "; aExec.Join(" ")
-  
-  $hProcess = Exec aExec For Read As "Compiler"
   '$hProcess.Ignore = True
   'System._Breakpoint
   
@@ -82,7 +116,6 @@ Public Sub Compiler_Error(({Error}) As String)
   
 End
 
-
 Public Sub Compiler_Kill()
 
   If $hProcess.Value = 0 Then
@@ -93,6 +126,8 @@ Public Sub Compiler_Kill()
     If Jit.Debug Then Error "gb.jit: compilation of '"; Name; "' returns "; $hProcess.Value
   Endif
   
+  'If Jit.Debug And If $sCache Then Error "gb.jit: writing cache: "; $sCache
+  
   $hProcess = Null
   
   ' Shell "objdump -S " & Shell(sPathSO) To sResult
@@ -102,8 +137,9 @@ End
 
 Public Sub Wait() As String
   
+  If Jit.Debug Then Error "gb.jit: waiting for compilation of '"; Name; "'..."
+  
   If $hProcess Then
-    If Jit.Debug Then Error "gb.jit: waiting for compilation of '"; Name; "'..."
     $hProcess.Wait
     If Jit.Debug Then Error "gb.jit: compilation of '"; Name; "' is available"
   Endif

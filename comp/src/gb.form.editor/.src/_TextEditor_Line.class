@@ -15,6 +15,7 @@ Property Expanded As Boolean
 Property Breakpoint As Boolean
 Property Disabled As Boolean
 Property Bookmark As Boolean
+Property Read Added As Boolean
 
 Private Sub GetView() As TextEditor
   
@@ -132,7 +133,8 @@ Public Sub Purge(Optional KeepComment As Boolean, KeepString As Boolean, Replace
       If iState = Highlight.Comment Or If iState = Highlight.Help Then
         bReplace = True
       Endif
-    Else If Not KeepString And If iState = Highlight.String Then
+    Endif
+    If Not KeepString And If iState = Highlight.String Then
       bReplace = True
     Endif
     If bReplace Then
@@ -190,3 +192,8 @@ Public Sub Paint(X As Integer, Y As Integer)
   
 End
 
+Private Function Added_Read() As Boolean
+
+  Return GetView()._IsAdded(_Line)
+
+End

@@ -49,6 +49,7 @@ enum {
 	TS_MODE_PIPE   = (1 << 7),
 	TS_MODE_MEMORY = (1 << 8),
 	TS_MODE_STRING = (1 << 9),
+	TS_MODE_NULL   = (1 << 10),
 	};
 
 enum {
@@ -102,7 +103,10 @@ enum {
 	TS_SUBR_CHGRP,
 	TS_SUBR_USE,
 	TS_SUBR_CHECK_EXEC,
-	TS_SUBR_MOVE_KILL
+	TS_SUBR_MOVE_KILL,
+	TS_SUBR_WAIT_DELAY,
+	TS_SUBR_WAIT_NEXT,
+	TS_SUBR_PEEK
 	};
 
 enum {
@@ -216,11 +220,11 @@ void TRANS_print(void);
 void TRANS_input(void);
 void TRANS_read(void);
 void TRANS_read_old(void);
+void TRANS_peek(void);
 void TRANS_write(void);
 void TRANS_open(void);
 void TRANS_pipe(void);
 void TRANS_memory(void);
-void TRANS_open_string(void);
 void TRANS_close(void);
 void TRANS_lock(void);
 void TRANS_unlock(void);

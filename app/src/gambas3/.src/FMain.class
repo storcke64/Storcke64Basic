@@ -14,9 +14,6 @@ Private $bUpdateRecentMenu As Boolean
 Private $dRecentMenu As Date
 Private $bInTreeView As Boolean
 Private $bInRename As Boolean
-' Private $bHasJustCollapsed As Boolean
-' Private $bExpandOnMouseUp As Boolean
-' Private $iTreeToolbarRow As Integer
 
 Private frmWelcome As FWelcome
 Private $hCornerNW As Image
@@ -28,7 +25,9 @@ Private $hBorderS As Image
 Private $hBorderW As Image
 Private $hBorderE As Image
 
-'Private $bInOpenExtern As Boolean
+Private $iTabBarHeight As Integer
+
+Private $bFirstShowDebug As Boolean
 
 Static Private $sCompressMessage As String
 
@@ -38,6 +37,11 @@ Public Sub _new()
   
   'Project.ProjectTree = tvwProject
   Project.Workspace = wrkProject
+  wrkProject.TabPanel.AddButton(btnWorkspaceProject, Align.Left)
+  wrkProject.TabPanel.AddButton(btnWorkspaceProperty, Align.Right)
+  
+  tabProperty.AddButton(btnPropertyToolbar, Align.Right)
+  tabProperty.AddButton(btnPropertyHelp, Align.Right)
   
   'ScrollArea(tvwProject.Proxy.Proxy).Shadow = True
   'tvwProject.Columns.Count = 2
@@ -54,6 +58,8 @@ Public Sub _new()
   tabProperty.Index = 1
   FFormStack.Load(tabProperty)
   tabProperty.Index = 0
+  
+  txtSearchProject._AddButton(btnUseInheritance)
   
   'FSearch.Load
   FOption.Load
@@ -92,6 +98,9 @@ Public Sub Form_Open()
   frmWelcome = New FWelcome(dwgWelcome)
   frmWelcome.Hide
   
+  Project.UseInheritance = Settings["/UseInheritance", True] 
+  btnUseInheritance.Value = Project.UseInheritance
+  
   UpdateGlobalLayout
   
 End
@@ -109,6 +118,9 @@ Public Sub Form_Close()
   If Project.Close() Then
     Stop Event
   Else
+    
+    Settings["/UseInheritance"] = Project.UseInheritance
+    
     Settings.Write(Me)
     Settings.Write(panProject, "panProject") 
     Settings.Write(panProperty, "panProperty") 
@@ -155,7 +167,7 @@ Public Sub tvwProject_Activate()
     tvwProject[sKey].Expanded = True
     If CanEdit(sKey) Then
       If $bCtrl Then
-        If Project.IsSourcePath(sKey) And If File.Ext(sKey) <> "module" Then
+        If Project.IsSourcePath(sKey) And If Not Project.IsModuleExt(sKey) Then
           sKeyClass = File.SetExt(sKey, "class")
           If Project.IsSourcePath(sKeyClass) Then sKey = sKeyClass
         Endif
@@ -380,10 +392,14 @@ Public Sub mnuPopup_Show()
   Dim sRoot As String
   Dim bLink As Boolean
   Dim sPath As String
+  Dim bIsDir As Boolean
+  Dim bIsSpecial As Boolean
   
   sCurrent = GetCurrent()
   bCurrent = sCurrent
   sRoot = GetRootKey($sKey)
+  bIsSpecial = $sKey Begins "$"
+  bIsDir = IsDir(sCurrent)
   
   If sCurrent Then 
     Try bLink = Stat(sCurrent).Type = gb.Link
@@ -394,7 +410,7 @@ Public Sub mnuPopup_Show()
   
   If sCurrent And If Project.IsReadOnly(sCurrent) Then
     'mnuNew.Visible = False
-    If Not IsDir(sCurrent) Or If Not bLink Then
+    If Not bIsDir Or If Not bLink Then
       mnuCut.Visible = False
       mnuCopy.Visible = False
       mnuPaste.Visible = False
@@ -413,7 +429,7 @@ Public Sub mnuPopup_Show()
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent) And Not Project.Running
     
     mnuEditFile.Visible = mnuEditFile.Visible And CanEdit(sCurrent)
-    mnuEditClass.Visible = mnuEditFile.Visible And Project.IsFormPath(sCurrent)
+    mnuEditClass.Visible = mnuEditFile.Visible And Project.IsFormExt(sCurrent)
     
     mnuStartup.Visible = mnuEditFile.Visible 
     If mnuStartup.Visible Then
@@ -423,7 +439,7 @@ Public Sub mnuPopup_Show()
     mnuRunThat.Visible = mnuStartup.Visible
     mnuRunThat.Enabled = mnuStartup.Enabled
   
-    If sCurrent And If Left(sCurrent) <> "$" Then
+    If sCurrent And If Not bIsSpecial Then
       mnuDoNotTranslate.Show
       mnuDoNotTranslate.Checked = Not Project.ShouldTranslate(sCurrent)
     Else
@@ -473,6 +489,7 @@ Public Sub mnuPopup_Show()
       Next
       mnuNewClass.Show
       mnuNewModule.Show
+      mnuNewTest.Show
       
     Endif
   
@@ -485,8 +502,8 @@ Public Sub mnuPopup_Show()
     mnuRenameFile.Visible = mnuRenameFile.Visible And bCurrent
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent)
     
-    If $sKey = Project.KEY_MISC Or If IsDir(sCurrent) And bProject Then
-      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent)) Then
+    If $sKey = Project.KEY_MISC Or If bIsDir And bProject Then
+      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent), True) Then
         mnuCompressAll.Show
         mnuUncompressAll.Show
       Endif
@@ -543,6 +560,7 @@ Public Sub mnuPopup_Show()
       Next
       mnuNewClass.Hide
       mnuNewModule.Hide
+      mnuNewTest.Hide
       
     Endif
     
@@ -550,7 +568,7 @@ Public Sub mnuPopup_Show()
   
   mnuOpenInProject.Hide
   mnuOpenWithFileManager.Show
-  If IsDir(sCurrent) Or If Left($sKey) = "$" Then
+  If bIsDir Or If bIsSpecial Then
   Else
     If bLink Then
       sPath = Project.GetAbsoluteLink(sCurrent, Stat(sCurrent).Link)
@@ -577,6 +595,12 @@ Public Sub mnuPopup_Show()
   Else
     mnuFilter.Hide
     mnuAddVersionAll.Hide
+  Endif
+  
+  If VersionControl.Enabled And If Not bIsDir And If Not bIsSpecial Then
+    mnuInfoVC.Show
+  Else
+    mnuInfoVC.Hide
   Endif
    
   UpdateRecentFile(mnuOpenRecentFile)
@@ -1139,13 +1163,32 @@ Public Sub mnuCloseAll_Click()
   
 End
 
+Public Sub GetTabBarHeight() As Integer
+  
+  Return $iTabBarHeight
+  
+End
+
 Public Sub ReadConfig()
   
+  Dim H As Integer
+  
   Project.SetNormalFont(tvwProject)
+  Project.SetNormalFont(tlbMain)
   tabProperty.TextFont = Project.GetSmallFont()
+
+  H = tabProperty.TabBarSize
+  $iTabBarHeight = H  
+  
+  panSearchProject.H = H
+
   wrkProject.Font = tabProperty.TextFont
-  Me.Menus.Visible = Settings["/ShowMenus", True]
   wrkProject.CloseWithMouse = Settings["/CloseWithMiddleClick", False]
+
+  Me.Menus.Visible = Settings["/ShowMenus", True]
+  
+  UpdateWorkspaceButtons
+  UpdatePropertyButtons
   
 End
 
@@ -1203,6 +1246,8 @@ Public Sub UpdateMenu()
   
   bVisible = False
   If Project.Components Then
+    mnuEnvDbDebug.Visible = Project.Components.Exist("gb.db")
+  
     If Project.Components.Exist("gb.gui") Or If Project.Components.Exist("gb.gui.qt") Then
       bVisible = True
     Endif
@@ -1276,9 +1321,8 @@ Public Sub OnProjectChange()
   mnuRedirectStderr.Value = Project.RedirectStderr
   mnuUseHttpServer.Value = Project.UseHttpServer
   mnuProfile.Value = Project.Profiling
-  'Action["breakerr"].Value = Project.BreakOnError
+
   OnRefreshComponents
-  UpdateRunButton
   
   'UpdateTranslate
   'RefreshInfo
@@ -1313,6 +1357,7 @@ Public Sub ShowTool(sType As String)
   panTabProperty.Visible = panTool.Visible
   panImageProperty.Visible = sType = "FImageEditor"
   UpdateProperty
+  UpdateWorkspaceButtons
   
   ' If bShow <> panProperty.Hidden Then Return
   ' 
@@ -1324,11 +1369,15 @@ End
 
 Public Sub ShowDebug(bShow As Boolean, Optional bAutomatic As Boolean)
 
-   If bAutomatic Then
+  If bAutomatic Then
     If Not Settings["/ShowDebugPanelAutomatically", True] Then Return
   Endif
   
   panDebug.Hidden = Not bShow
+  If bShow And If Me.Visible And If Not $bFirstShowDebug Then
+    Wait 0.05
+    $bFirstShowDebug = True
+  Endif
   
 End
 
@@ -1383,6 +1432,12 @@ Public Sub Action_Activate((Key) As String) As Boolean
       panProject.Hidden = Not Action[Key].Value
     Case "start"
       Project.Run(False)
+    Case "run-with"
+      If Not FArguments.Run() Then Project.Run(False)
+    Case "test"
+      Project.Test()
+    Case "test-suite"
+      FTestSuite.ShowDialog()
     Case "pause"
       Design.Pause
     Case "stop"
@@ -1410,7 +1465,6 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "project-property"
       If Not FProjectProperty.Run() Then
         Project.Refresh
-        UpdateRunButton
       Endif
     Case "translate"
       Translate
@@ -1455,6 +1509,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
         FFileProperty.Run(tvwProject.Key)
       Endif
       
+    Case "info-vc"
+      FFileInfoVC.Run(tvwProject.Key)
+      
     Case "go-back"
       CPosition.MovePrevious
     Case "go-forward"
@@ -1493,20 +1550,17 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "menu-tool"
       mnuTool.Popup(btnMnuTool.ScreenX, btnMnuTool.ScreenY + btnMnuTool.H)
     
-    Case "compress-all"
+    Case "compress-all", "uncompress-all"
       
       Inc Application.Busy
       $sCompressMessage = ""
-      CompressAll(tvwProject.Key, False)
+      CompressAll(tvwProject.Key, Key = "compress-all")
       Dec Application.Busy
       If $sCompressMessage Then 
         Message.Error($sCompressMessage)
         $sCompressMessage = ""
       Endif
       
-    Case "uncompress-all"
-      CompressAll(tvwProject.Key, True)
-    
     Case "open-file-manager"
       Desktop.Open(GetCurrentDir())
     
@@ -1549,9 +1603,12 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Endif
     Next
     
-    If Key = "_close" Then
-      Project.ActiveForm.Close
-    Endif
+    Select Case Key
+      Case "_save-as"
+        Project.SaveAsExtern()
+      Case "_close"
+        Project.ActiveForm.Close
+    End Select
     
   Endif
   
@@ -1907,7 +1964,7 @@ Public Sub Form_KeyPress()
       If FSignature.VisibleFrom(hEditor.GetEditor()) Then Return
     Endif
     
-    If FSearch.InBrowse Then
+    If FSearch.IsSearching() Then
       FSearch.Cancel
       Return
     Endif
@@ -2433,11 +2490,11 @@ Public Sub dwgWelcome_Draw()
   If Not frmWelcome.Visible Then Return
   
   If Not $hCornerNW Then
-    $hCornerNW = Image.Load("img/welcome/corner.png")
+    $hCornerNW = Image.Load("welcome/corner.png")
     $hCornerNE = $hCornerNW.Copy().RotateRight()
     $hCornerSE = $hCornerNE.Copy().RotateRight()
     $hCornerSW = $hCornerSE.Copy().RotateRight()
-    $hBorderN = Image.Load("img/welcome/border.png")
+    $hBorderN = Image.Load("welcome/border.png")
     $hBorderE = $hBorderN.Copy().RotateRight()
     $hBorderS = $hBorderE.Copy().RotateRight()
     $hBorderW = $hBorderS.Copy().RotateRight()
@@ -2462,6 +2519,7 @@ End
 
 Public Sub OnBackgroundChange()
   
+  wrkProject.Background = Project.GetBackgroundBgColor()
   wrkProject.Image = Project.GetBackground()
   
 End
@@ -2478,7 +2536,7 @@ Public Sub mnuPatchProject_Click()
 
 End
 
-Private Sub CompressAll(sPath As String, bUncompress As Boolean)
+Private Sub CompressAll(sPath As String, bCompress As Boolean)
   
   Dim sFile As String
   Dim hTextEditor As FTextEditor
@@ -2486,27 +2544,27 @@ Private Sub CompressAll(sPath As String, bUncompress As Boolean)
   
   If sPath = Project.KEY_MISC Then sPath = Project.Dir
   
-  If Not IsDir(sPath) Then
+  If IsDir(sPath) Then
+    
+    For Each sFile In Dir(sPath)
+      If Left(sFile) = "." Then Continue
+      If MCompressFile.CanCompress(sPath &/ sFile) Then CompressAll(sPath &/ sFile, bCompress)
+    Next
+    
+  Else
     
     If MCompressFile.CanCompress(sPath, True) Then
     
       Try hTextEditor = Project.LoadFile(sPath)
       If hTextEditor Then 
-        If bUncompress Then
-          hTextEditor.Uncompress()
-        Else
-          If hTextEditor.Compress() Then
-            If $sCompressMessage Then $sCompressMessage &= "<p>"
-            $sCompressMessage &= "<tt>" & Mid$(sPath, Len(Project.Dir) + 2) & "</tt><p>" & FTextEditor.CompressMessage
-          Endif
-        Endif
+        hTextEditor.SetCompression(bCompress)
       Endif
       
     Else 
     
       hForm = Project.Files[sPath]
       If hForm Then
-        hForm.Save
+        hForm.Save(True)
       Else
         Save.Begin(sPath, True)
         MCompressFile.Compress(sPath)
@@ -2518,11 +2576,6 @@ Private Sub CompressAll(sPath As String, bUncompress As Boolean)
     Return
     
   Endif
-  
-  For Each sFile In Dir(sPath)
-    If Left(sFile) = "." Then Continue
-    If MCompressFile.CanCompress(sPath &/ sFile) Then CompressAll(sPath &/ sFile, bUncompress)
-  Next
   
 End
 
@@ -2575,16 +2628,20 @@ Public Sub OnRefreshComponents()
   Dim iPos As Integer
   Dim sComp As String
   Dim hMenu As Menu
+  Dim aEnv As String[]
   
   For Each hMenu In mnuGUI.Children
     If hMenu.Text Then hMenu.Checked = False
-    If hMenu.Tag Then hMenu.Visible = Project.Documentation.Components.Exist(hMenu.Tag)
+    sComp = Mid$(hMenu.Tag, InStr(hMenu.Tag, "=") + 1)
+    If sComp Then hMenu.Visible = Project.Documentation.Components.Exist(sComp)
   Next
   
+  aEnv = Project.Environment
+  
   hMenu = Null
-  iPos = Project.Environment.Find("GB_GUI=*", gb.Like)
+  iPos = aEnv.Find("GB_GUI=*", gb.Like)
   If iPos >= 0 Then
-    sComp = Scan(Project.Environment[iPos], "*=*")[1]
+    sComp = Project.Environment[iPos]
     For Each hMenu In mnuGUI.Children
       If hMenu.Visible And If hMenu.Tag = sComp Then
         btnGUI.Text = hMenu.Text
@@ -2600,30 +2657,45 @@ Public Sub OnRefreshComponents()
     mnuSetGUICurrentDesktop.Checked = True
   Endif
   
+  For Each hMenu In [mnuEnvReverse, mnuEnvNoJit, mnuEnvDbDebug, mnuEnvJitDebug]
+    hMenu.Checked = aEnv.Exist(hMenu.Tag)
+  Next
+  
 End
 
-Public Sub mnuSetGUI_Click()
+Public Sub mnuSetEnv_Click()
   
-  Dim sComp As String
   Dim iPos As Integer
-  Dim aEnv As String[] = Project.Environment
+  Dim aEnv As String[]
   Dim sEnv As String
+  Dim sVar As String
+  Dim sValue As String
+  Dim hMenu As Menu
+
+  hMenu = Last
   
-  sComp = Last.Tag
-  iPos = aEnv.Find("GB_GUI=*", gb.Like)
+  sEnv = hMenu.Tag
+  iPos = InStr(sEnv, "=")
+  sVar = Left(sEnv, iPos - 1)
+  sValue = Mid(sEnv, iPos + 1)
   
-  If Not sComp Then
+  aEnv = Project.Environment
+  iPos = aEnv.Find(sVar & "=*", gb.Like)
+
+  If Not sValue Then
     If iPos >= 0 Then 
       aEnv.Remove(iPos)
       Goto WRITE_PROJECT
     Endif
   Else
-    sEnv = "GB_GUI=" & sComp
     If iPos < 0 Then
       aEnv.Add(sEnv, 0)
       Goto WRITE_PROJECT
     Else If aEnv[iPos] <> sEnv Then
       aEnv[iPos] = sEnv
+      Goto WRITE_PROJECT
+    Else If hMenu.Toggle
+      aEnv.Remove(iPos)
       Goto WRITE_PROJECT
     Endif
   Endif
@@ -2763,71 +2835,6 @@ Public Sub panDebug_Hide()
   FDebugInfo.OnVisibilityChange
   FDebugButton.OnVisibilityChange
 
-End
-
-Public Sub mnuRunWith_Show()
-  
-  Dim hMenu As Menu
-  Dim I As Integer
-  
-  mnuRunWith.Children.Clear
-  
-  hMenu = New Menu(mnuRunWith) As "runWithNoArg"
-  hMenu.Text = ("No argument")
-  'hMenu.Radio = True
-  If Project.CurrentArgument = 0 Then hMenu.Picture = Picture["icon:/small/ok"]
-  
-  hMenu = New Menu(mnuRunWith)
-    
-  For I = 0 To Project.Arguments.Max
-    hMenu = New Menu(mnuRunWith) As "runWithArg"
-    hMenu.Text = Project.ArgumentToString(Project.Arguments[I])
-    'hMenu.Radio = True
-    hMenu.Tag = I + 1
-    If Project.CurrentArgument = I + 1 Then hMenu.Picture = Picture["icon:/small/ok"]
-  Next
-  
-  hMenu = New Menu(mnuRunWith)
-  
-  hMenu = New Menu(mnuRunWith) As "mnuEditArgument"
-  hMenu.Text = ("Edit arguments") & "..."
-  hMenu.Picture = Picture["icon:/small/edit"]
-  
-End
-
-Public Sub runWithNoArg_Click()
-  
-  Project.CurrentArgument = 0
-  Project.WriteProject
-  
-End
-
-Public Sub runWithArg_Click()
-  
-  Project.CurrentArgument = Last.Tag
-  Project.WriteProject
-  
-End
-
-Public Sub mnuEditArgument_Click()
-  
-  FProjectProperty.ShowArguments
-  
-End
-
-
-Public Sub UpdateRunButton()
-  
-  If Project.Arguments.Count Then
-    btnGo.Arrow = True
-    btnGo.W = btnGo.H + Desktop.Scale * 2
-    btnGo.Menu = "mnuRunWith"
-  Else
-    btnGo.Arrow = False
-    btnGo.W = btnGo.H
-    btnGo.Menu = ""
-  Endif
-  
 End
 
 Public Sub mnuDoNotTranslate_Click()
@@ -3007,3 +3014,99 @@ End
 '   HideTreeToolbar
 '   
 ' End
+
+Private Sub UpdateWorkspaceButtons()
+
+  If panProject.Hidden And If panProject.Visible Then
+    wrkProject.TabPanel.ShowButton(btnWorkspaceProject, True)
+  Else
+    wrkProject.TabPanel.ShowButton(btnWorkspaceProject, False)
+  Endif
+  
+  If panProperty.Hidden And If panProperty.Visible Then
+    wrkProject.TabPanel.ShowButton(btnWorkspaceProperty, True)
+  Else
+    wrkProject.TabPanel.ShowButton(btnWorkspaceProperty, False)
+  Endif
+
+End
+
+Public Sub UpdatePropertyButtons()
+
+  tabProperty.ShowButton(btnPropertyToolbar, panTool.Hidden)
+  tabProperty.ShowButton(btnPropertyHelp, FProperty.IsHelpHidden())
+
+End
+
+Public Sub btnPropertyToolbar_Click()
+
+  panTool.Hidden = False
+
+End
+
+Public Sub btnUseInheritance_Click()
+
+  Project.UseInheritance = btnUseInheritance.Value
+  Project.Refresh
+
+End
+
+Public Sub btnPropertyHelp_Click()
+
+  FProperty.ShowHelp
+
+End
+
+Public Sub panProject_Show()
+
+  UpdateWorkspaceButtons
+
+End
+
+Public Sub panProject_Hide()
+
+  UpdateWorkspaceButtons
+
+End
+
+Public Sub panProperty_Show()
+
+  UpdateWorkspaceButtons
+
+End
+
+Public Sub panProperty_Hide()
+
+  UpdateWorkspaceButtons
+
+End
+
+Public Sub panTool_Show()
+
+  UpdatePropertyButtons
+
+End
+
+Public Sub panTool_Hide()
+
+  UpdatePropertyButtons
+
+End
+
+Public Sub btnWorkspaceProperty_Click()
+
+  panProperty.Hidden = False
+
+End
+
+Public Sub btnWorkspaceProject_Click()
+
+  panProject.Hidden = False
+
+End
+
+Public Sub OnRefreshSources()
+  
+  Action["test,test-suite"].Visible = Project.HasTest()
+  
+End

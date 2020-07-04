@@ -25,6 +25,7 @@ Property Image As Image
 Property Picture As Picture
 Property CloseWithMouse As Boolean
 Property CloseButton As Boolean ''if false the close all tabs button is not shown
+Property Read TabPanel As TabPanel
 
 Static Private $bPictureWarning As Boolean
 
@@ -159,13 +160,13 @@ End
 
 Private Function Font_Read() As Font
 
-  Return $hWorkspace.GetFont()
+  Return $hWorkspace.GetTabPanel().Font
 
 End
 
 Private Sub Font_Write(Value As Font)
 
-  $hWorkspace.SetFont(Value)
+  $hWorkspace.GetTabPanel().Font = Value
 
 End
 
@@ -272,5 +273,11 @@ End
 Private Sub CloseButton_Write(Value As Boolean)
 
   $hWorkspace.CloseButton = Value
+
+End
+
+Private Function TabPanel_Read() As TabPanel
+
+  Return $hWorkspace.GetTabPanel()
 
 End

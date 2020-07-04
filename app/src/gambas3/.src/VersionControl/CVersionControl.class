@@ -48,7 +48,7 @@ Public Sub Commit((sChange) As String, (bDoNotPush) As Boolean) As Boolean
 
 End
 
-Public Sub Update() As Boolean
+Public Sub Update() As Integer
   
 End
 
@@ -68,9 +68,18 @@ Public Sub GetVersion((sDir) As String) As String
   
 End
 
-Public Sub Diff((sPath) As String) As String
+Public Sub Diff((sPath) As String, Optional (bFull) As Boolean) As String
   
 End
+
+Public Sub History((sPath) As String, Optional (bFull) As Boolean) As String
+  
+End
+
+Public Sub HighlightHistory((sText) As String)
+  
+End
+
 
 Public Sub Info() As Collection
   
@@ -81,6 +90,10 @@ Public Sub CleanUp((sPath) As String)
 End
 
 Public Sub GetBranches(ByRef (sCurrent) As String) As String[]
+  
+End
+
+Public Sub GetCurrentBranch() As String
   
 End
 

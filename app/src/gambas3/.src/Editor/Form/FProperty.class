@@ -21,8 +21,6 @@ Private $bButton As Boolean
 Private $bIgnoreHide As Boolean
 Private $bIgnoreCancel As Boolean
 Private $bSort As Boolean
-Private $bDisableIntegratedHelp As Boolean
-Private $hWebView As WebView
 
 Private $iBgDefault As Integer
 Private $iBgSet As Integer
@@ -150,7 +148,7 @@ Public Sub RefreshAll()
   $sClass = sClass
 
   'If Not $bDisableIntegratedHelp Then
-  MHelp.InitWebViewWith($hWebView, MHelp.TYPE_CLASS, sClass,, "noimage")
+  MHelp.InitWebViewWith(GetWebView(), MHelp.TYPE_CLASS, sClass,, "noimage")
   'Endif
 
   'PRINT "Kind = "; sClass
@@ -262,9 +260,6 @@ Public Sub RefreshAll()
   'lblMessage.Hide
   'lblMessage.Ignore = TRUE
 
-  'TODO save/restore last height
-  CheckIntegratedHelpSetting
-
   grdProperty.Show
   lblName.Show
   'VSplit1.Show
@@ -295,7 +290,6 @@ Public Sub HideAll()
   HideProperty
   grdProperty.Hide
   lblName.Hide
-  spnHelp.Hide
   panProperty.Hide
   sepProperty.Hide
   'lblMessage.Show
@@ -367,7 +361,7 @@ Public Function SaveProperty() As Boolean
   Dim sOldVal As String
 
   If Not $hForm Or If Not Object.IsValid($hForm) Then Return
-  If $hForm.ReadOnly Then Return
+  If $hForm.ReadOnly Or If $hForm.DiffMode Then Return
   If IsNull($hEditor) Then Return False
 
   sVal = $hEditor.Text
@@ -607,7 +601,7 @@ Private Sub ShowProperty(Optional sFocus As String)
 
   If Project.Running Then Return
   If Not $hForm Then Return
-  If $hForm.ReadOnly Then Return
+  If $hForm.ReadOnly Or If $hForm.DiffMode Then Return
 
   If $sFocus Then sFocus = $sFocus
 
@@ -675,7 +669,7 @@ Private Sub ShowProperty(Optional sFocus As String)
       sHelp = "?"
     Else
       hSymbol = Project.Documentation.Classes[$hObject.Kind].Symbols[hProp.Name]
-      MHelp.InitWebViewWith($hWebView, MHelp.TYPE_SYMBOL, hSymbol.Name, hSymbol.Class, If($hWebView, "notitle", ""))
+      MHelp.InitWebViewWith(GetWebView(), MHelp.TYPE_SYMBOL, hSymbol.Name, hSymbol.Class, If(GetWebView(), "notitle", ""))
     Endif
 
     'Endif
@@ -695,16 +689,9 @@ Private Sub ShowProperty(Optional sFocus As String)
         sHTML = Replace(sHTML, "$(warning)", "")
       Endif
     Endif
-    If Not $hWebView Then
-      If Class.IsLoaded("FHelpBrowser") And If FHelpBrowser.Visible Then
-        sHTML = Replace(sHTML, "$(hide-title)", "")
-        FHelpBrowser.webHelp.HTML = sHTML
-      Endif
-    Else
-      'sHTML = Replace(sHTML, "$(hide-title)", "style=\"display:none;\"")
-      sHTML = Replace(sHTML, "$(hide-title)", "")
-      $hWebView.HTML = sHTML
-    Endif
+    
+    MHelp.InitWebViewWithHtml(GetWebView(), sHTML)
+    
   Endif
 
   $sLast = sProp
@@ -1209,7 +1196,10 @@ End
 
 Public Sub ReadConfig()
 
-  $bSort = Settings["/SortProperties", True]
+  Dim H As Integer
+  
+  btnSortProperties.Value = Settings["/SortProperties", True]
+  
   Project.SetNormalFont(grdProperty)
 
   webHelp.Zoom = Settings["/Help/Zoom", 80] / 100
@@ -1219,31 +1209,14 @@ Public Sub ReadConfig()
   spnProperty.Font = grdProperty.Font
   panProperty.Font = grdProperty.Font
   crdProperty.Font = grdProperty.Font
-  ' MTheme.InitControl(grdProperty)
-  ' MTheme.InitControl(cmbProperty)
-  ' MTheme.InitControl(crdProperty)
-  ' MTheme.InitControl(spnProperty)
-  ' MTheme.InitControl(txtProperty)
-  ' MTheme.InitControl(btnProperty)
-  '$iHighlightColor = MTheme.GetColor("Selection")
+  
+  Project.SetSmallFont(lblHelp)
+  H = FMain.GetTabBarHeight()
+  lblHelp.Parent.H = H
+  btnCloseHelp.Resize(H, H)
+  
   MoveProperty
   RefreshAll
-
-End
-
-Public Sub CheckIntegratedHelpSetting()
-
-  $bDisableIntegratedHelp = Not Settings["/PropertyHelp", True]
-  If $bDisableIntegratedHelp Then
-    webHelp.Stop
-    webHelp.HTML = ""
-    spnHelp.Hide
-    $hWebView = Null
-  Else
-    spnHelp.Show
-    $hWebView = webHelp
-    ShowProperty
-  Endif
 
 End
 
@@ -1297,12 +1270,12 @@ Public Sub Form_KeyPress()
 
 End
 
-Public Sub panProperty_Arrange()
-
-  lblName.Move(4, (panProperty.H - lblName.H) \ 2, panProperty.ClientW - btnLock.W, panProperty.ClientH)
-  btnLock.Move(panProperty.W - btnLock.W, (panProperty.H - btnLock.H) \ 2)
-
-End
+' Public Sub panProperty_Arrange()
+' 
+'   lblName.Move(4, (panProperty.H - lblName.H) \ 2, panProperty.ClientW - btnLock.W, panProperty.ClientH)
+'   btnLock.Move(panProperty.W - btnLock.W, (panProperty.H - btnLock.H) \ 2)
+' 
+' End
 
 Public Sub btnLock_Click()
 
@@ -1349,3 +1322,49 @@ Public Sub Form_Activate()
 
 End
 
+Public Sub IsHelpHidden() As Boolean
+  
+  Return spnHelp.Hidden
+  
+End
+
+Public Sub btnCloseHelp_Click()
+
+  spnHelp.Hidden = True
+
+End
+
+Public Sub ShowHelp(Optional bShow As Boolean = True)
+  
+  spnHelp.Hidden = Not bShow
+  
+End
+
+
+Public Sub spnHelp_Show()
+
+  ShowProperty
+  FMain.UpdatePropertyButtons
+
+End
+
+Public Sub spnHelp_Hide()
+
+  FMain.UpdatePropertyButtons
+
+End
+
+Private Sub GetWebView() As HelpView
+  
+  If spnHelp.Hidden Then Return
+  Return webHelp
+  
+End
+
+Public Sub btnSortProperties_Click()
+
+  $bSort = btnSortProperties.Value
+  Settings["/SortProperties"] = $bSort
+  RefreshAll
+
+End

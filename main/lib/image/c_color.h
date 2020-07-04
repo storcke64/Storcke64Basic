@@ -48,5 +48,6 @@ GB_COLOR COLOR_lighter(GB_COLOR color);
 GB_COLOR COLOR_darker(GB_COLOR color);
 int COLOR_get_luminance(GB_COLOR color);
 GB_COLOR COLOR_set_luminance(GB_COLOR color, int l);
+int COLOR_invert_luminance(int l);
 
 #endif

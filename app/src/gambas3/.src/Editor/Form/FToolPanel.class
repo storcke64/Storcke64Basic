@@ -17,14 +17,7 @@ Private $bNoEvent As Boolean
 
 Public Sub _new(sName As String, sType As String)
 
-  Select Case Settings["/ToolboxSize", 0]
-    Case 0
-      $iSize = 32
-    Case 1
-      $iSize = 24
-    Case 2
-      $iSize = 48
-  End Select
+  $iSize = FToolBox.GetSize()
 
   Key = sName
   $sType = sType
@@ -36,7 +29,6 @@ Public Sub _new(sName As String, sType As String)
   Container = panTool
 
 End
-
 
 Public Sub Add(sControl As String, Optional sComp As String, Optional sType As String)
 
@@ -50,10 +42,10 @@ Public Sub Add(sControl As String, Optional sComp As String, Optional sType As S
   H = $iSize + 8
 
   hCtrl = New ToolButton(panTool) As "btnControl"
-  hCtrl.Tag = [sControl, sType]
+  hCtrl.Tag = [sControl, sType, sComp]
   hCtrl.Border = False
   hCtrl.Toggle = True
-  hCtrl.ToolTip = sControl
+  'hCtrl.ToolTip = sControl
   hCtrl.Design = True
 
   hPict = CControl.GetIcon(sControl, sComp)
@@ -74,8 +66,6 @@ Public Sub Exist(sControl As String) As Boolean
   Return $cButton.Exist(sControl)
   
 End
-
-
 
 ' PUBLIC SUB Form_Resize()
 ' 
@@ -140,13 +130,21 @@ End
 
 Public Procedure btnControl_Enter()
   
-  Last.Border = True
+  Dim hCtrl As ToolButton = Last
+  
+  hCtrl.Border = True
+  If IsNull(hCtrl.Tag[2]) Then
+    FToolBox.SetTooltip()
+  Else
+    FToolBox.SetTooltip(hCtrl.Tag[0], hCtrl.Tag[2])
+  Endif
   
 End
 
 Public Procedure btnControl_Leave()
   
   Last.Border = False
+  FToolBox.SetTooltip()
   
 End
 

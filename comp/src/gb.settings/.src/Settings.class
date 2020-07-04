@@ -15,6 +15,7 @@ Static Private $iPos As Integer
 
 Property Read Keys As _Settings_Keys
 Property Read Path As String
+Property Read Count As Integer
 
 Private $sPath As String
 Private $sTitle As String
@@ -136,6 +137,11 @@ Public Sub Save()
 
   If Not $bModify Then Return
 
+  If Not IsDir(File.Dir($sPath)) Then 
+    Error "gb.settings: warning: unable to save settings: directory does not exist: "; File.Dir($sPath)
+    Return
+  Endif
+
   'Debug $sPath
 
   $bModify = False
@@ -238,6 +244,20 @@ Public Function _get(Key As String, Optional {Default} As Variant) As Variant
 
 End
 
+Public Sub Exist(Key As String) As Boolean
+  
+  Dim hSlot As Collection
+  Dim sSlot As String
+  'Dim dDate As Date
+
+  sSlot = GetSlot(Key)
+  Key = File.Name(Key)
+  
+  hSlot = $cSlot[sSlot]
+  If hSlot And If hSlot.Exist(Key) Then Return True
+  
+End
+
 Private Sub SameSetting(vOld As Variant, vNew As Variant) As Boolean
   
   Dim I As Integer
@@ -288,11 +308,12 @@ Public Sub _put(Value As Variant, Key As String)
 End
 
 
-Public Sub Clear(Optional ParentKey As String)
+Public Sub Clear(Optional ParentKey As String, Recursive As Boolean)
 
   Dim sSlot As String
   Dim hSlot As Collection
   Dim vVal As Variant
+  Dim sRemove As String
 
   If Not ParentKey Then
     If $cSlot.Count Then
@@ -300,19 +321,37 @@ Public Sub Clear(Optional ParentKey As String)
       $bModify = True
       $bModifyAll = True
     Endif
-  Else
-    sSlot = GetSlot(ParentKey &/ "g")
+    Return
+  Endif
+  
+  sSlot = GetSlot(ParentKey &/ "g")
+  
+  If Not Recursive Then
     hSlot = $cSlot[sSlot]
     If hSlot Then 
-      For Each vVal In hSlot
-        $cModify[sSlot &/ hSlot.Key] = True
-      Next
-      $cSlot.Remove(sSlot)
-      $bModify = True
+      sRemove = sSlot
+      GoSub REMOVE_SLOT
     Endif
+  Else
+    
+    For Each hSlot In $cSlot
+      sRemove = $cSlot.Key
+      If sRemove = sSlot Or If sRemove Begins sSlot & "/" Then
+        GoSub REMOVE_SLOT
+      Endif
+    Next
   Endif
+  
+  Return
+  
+REMOVE_SLOT:
 
-  'Save()
+  For Each vVal In hSlot
+    $cModify[sRemove &/ hSlot.Key] = True
+  Next
+  $cSlot.Remove(sRemove)
+  $bModify = True
+  Return
 
 End
 
@@ -830,5 +869,18 @@ Static Public Sub FromString(Value As String) As Variant
   vVal = ReadValue(True)
   $sStr = ""
   Return vVal
+  
+End
+
+Private Function Count_Read() As Integer
+
+  Dim cCol As Collection
+  Dim iCount As Integer
+
+  For Each cCol In $cSlot
+    iCount += cCol.Count
+  Next
+
+  Return iCount
   
 End

@@ -56,7 +56,7 @@ static bool _no_trim = FALSE;
 
 void FORM_print_len(const char *buffer, int len)
 {
-	if (JOB->verbose)
+	if (COMP_verbose)
 		printf("%.*s", len, buffer);
 
 	BUFFER_add(&JOB->source, buffer, len);
@@ -65,7 +65,7 @@ void FORM_print_len(const char *buffer, int len)
 
 void FORM_print(const char *buffer)
 {
-	if (JOB->verbose)
+	if (COMP_verbose)
 		printf("%s", buffer);
 
 	BUFFER_add(&JOB->source, buffer, strlen(buffer));
@@ -74,7 +74,7 @@ void FORM_print(const char *buffer)
 
 void FORM_print_char(char c)
 {
-	if (JOB->verbose)
+	if (COMP_verbose)
 		putchar(c);
 
 	BUFFER_add_char(&JOB->source, c);
@@ -252,7 +252,7 @@ static void save_action(bool delete)
 	{
 		if (FILE_exist(path))
 		{
-			if (JOB->verbose)
+			if (COMP_verbose)
 				printf("Deleting action file %s\n", path);
 
 			FILE_unlink(path);
@@ -260,7 +260,7 @@ static void save_action(bool delete)
 	}
 	else
 	{
-		if (JOB->verbose)
+		if (COMP_verbose)
 			printf("Writing action file %s\n", path);
 
 		file = fopen(path, "w");

@@ -977,18 +977,11 @@ Public Sub SetImage(hImage As Image)
   
 End
 
-Public Sub SetFont(hFont As Font)
+Public Sub GetTabPanel() As TabPanel
   
-  tabWorkspace.TextFont = hFont
-  
-End
-
-Public Sub GetFont() As Font
-  
-  Return tabWorkspace.TextFont
+  Return tabWorkspace
   
 End
-
 
 Public Sub tabWorkspace_Move(Source As Integer, Target As Integer)
 

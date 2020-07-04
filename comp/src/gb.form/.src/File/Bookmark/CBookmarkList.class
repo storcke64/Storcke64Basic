@@ -5,6 +5,7 @@ Inherits CBookmark[]
 Property Private As Collection[]
 
 Private $aPrivate As Collection[]
+Private $iBookmarkAge As Integer
 
 Public Sub _new()
   
@@ -41,6 +42,9 @@ Public Sub Load()
   Dim aBookmark As String[]
   Dim cPrivate As Collection
   Dim hBookmark As Bookmark
+
+  If $iBookmarkAge = Bookmarks._Age Then Return
+  $iBookmarkAge = Bookmarks._Age
   
   Me.Clear()
   

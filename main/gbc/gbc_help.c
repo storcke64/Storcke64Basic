@@ -110,6 +110,9 @@ void HELP_search_and_print(FILE *file, int line)
 	fprintf(stderr, "HELP_search_and_print: %s: %d\n", FILE_get_name(JOB->name), line);
 	#endif
 	
+	if (line >= FORM_FIRST_LINE)
+		return;
+	
 	i = line - JOB->help_first_line;
 	
 	if (i < 0)

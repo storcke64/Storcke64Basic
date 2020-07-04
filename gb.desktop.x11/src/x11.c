@@ -782,7 +782,7 @@ void X11_enable_event_filter(bool enable)
 		(*set_event_filter)(count ? X11_event_filter : NULL);
 }
 
-void X11_event_filter(XEvent *e)
+int X11_event_filter(XEvent *e)
 {
 	static bool init = FALSE;
 
@@ -811,7 +811,7 @@ void X11_event_filter(XEvent *e)
 	}
 
 	WATCHER_event_filter(e);
-	SYSTRAY_event_filter(e);
+	return SYSTRAY_event_filter(e);
 }
 
 void X11_get_window_geometry(Window win, int *wx, int *wy, int *ww, int *wh)

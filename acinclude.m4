@@ -1226,6 +1226,52 @@ gb_in_component_search=no
 
 
 ## ---------------------------------------------------------------------------
+## GB_COMPONENT_SEARCH_BOTH
+## Component detection macro that uses GB_COMPONENT_PKG_CONFIG and
+## GB_COMPONENT. both having to succeed
+##
+##   $1  = Component key in lower case (ex: postgresql)
+##   $2  = Component key in upper case (ex: POSTGRESQL)
+##   $3  = Component name (ex: gb.db.postgresql)
+##   $4  = Sub-directory name
+##   $5  = pkg-config module name (optional)
+##   $6  = How to get include path (must return it in gb_val)
+##   $7  = How to get library path (must return it in gb_val)
+##   $8  = Libraries
+##   $9  = Compiler flags (optional)
+##   $10 = Warning message (optional)
+##
+##   => defines HAVE_*_COMPONENT (to know if you can compile the component)
+##      *_INC (for the compiler) and *_LIB (for the linker)
+## ---------------------------------------------------------------------------
+
+AC_DEFUN([GB_COMPONENT_SEARCH_BOTH],
+[
+  GB_COMPONENT_PKG_CONFIG(
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $10
+  )
+  if test ! -e DISABLED.$3; then
+    GB_COMPONENT(
+      $1,
+      $2,
+      $3,
+      $4,
+      $6,
+      $7,
+      $8,
+      $9,
+      $10
+    )
+  fi
+])
+
+
+## ---------------------------------------------------------------------------
 ## GB_FIND_QT_MOC
 ## Find QT moc compiler
 ##

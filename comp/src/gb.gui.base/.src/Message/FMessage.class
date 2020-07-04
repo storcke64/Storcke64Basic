@@ -32,6 +32,10 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[]) As Integer
   If Not hPict Then hPict = Picture["./gb.gui.base/message/info.png"]
   picMessage.Picture = hPict
   
+  hPict = Picture["icon:/small/copy"]
+  If Not hPict Then hPict = Picture["./gb.gui.base/message/copy.png"]
+  btnCopy.Picture = hPict
+  
   sText = Replace(sText, "\n", "<br>")
   
   txtMessage.Ignore = True
@@ -79,7 +83,6 @@ Public Sub Button_Click()
   
 End
 
-
 Public Sub Form_KeyPress()
 
   Dim hButton As Button
@@ -91,5 +94,12 @@ Public Sub Form_KeyPress()
       Stop Event
     Endif
   Endif
+
+End
+
+Public Sub btnCopy_Click()
+
+  Component.Load("gb.util")
+  Clipboard.Copy(String.FromHTML(txtMessage.Text))
 
 End

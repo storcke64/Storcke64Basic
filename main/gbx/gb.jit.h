@@ -109,6 +109,8 @@ typedef
 		void *(*static_struct)(void *ref, GB_CLASS type, char *addr);
 		void *(*static_array)(void *cp, void *ref, GB_CLASS type, char *addr);
 		void *(*get_array_class)(void *cp, JIT_CTYPE ctype);
+		void (*add_string_local)(GB_STRING *str, GB_STRING val);
+		void (*add_string_global)(char **str, GB_STRING val);
 	}
 	JIT_INTERFACE;
 

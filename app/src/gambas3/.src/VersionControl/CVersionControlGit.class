@@ -17,6 +17,7 @@ Private $sRoot As String
 Private $bCanControl As Boolean
 Private $bCanInit As Boolean
 Private $bHasRemote As Boolean
+Private $iPadHistory As Integer
 
 Private Sub Init()
 
@@ -71,27 +72,55 @@ Public Sub GetBranches(ByRef sCurrent As String) As String[]
   Dim sResult As String
   Dim sBranch As String
   Dim aBranches As New String[]
+  Dim bCurrent As Boolean
   
-  sResult = RunShell("git branch") 'VersionControl.Shell("cd " & Shell$(Project.Dir) & " && git branch")
+  sResult = RunShell("git branch -a", True) 
   
   For Each sBranch In Split(Trim(sResult), "\n")
+    
     sBranch = Trim(sBranch)
     If sBranch Begins "*" Then
+    
       sBranch = Trim(Mid$(sBranch, 2))
-      sCurrent = sBranch
+      bCurrent = True
+    Else
+      bCurrent = False      
     Endif
-    aBranches.Add(sBranch)
+    
+    If sBranch Begins "remotes/origin/" Then
+      sBranch = Mid$(sBranch, 16)
+      If InStr(sBranch, " -> ") Then Continue
+    Endif
+    
+    If bCurrent Then sCurrent = sBranch 
+    
+    If Not aBranches.Exist(sBranch) Then aBranches.Add(sBranch)
+    
   Next
+  
+  aBranches.Sort(gb.Natural)
   
   Return aBranches
   
 End
 
-Public Sub Diff(sPath As String) As String
+Public Sub GetCurrentBranch() As String
+  
+  Dim sCurrent As String
+  
+  GetBranches(ByRef sCurrent)
+  If sCurrent = "master" Then sCurrent = ""
+  Return sCurrent
+  
+End
+
+Public Sub Diff(sPath As String, Optional bFull As Boolean) As String
   
   Dim sDiff As String
   Dim sCmd As String
   Dim sHead As String
+  Dim sFull As String
+  Dim iPos As Integer
 
   'If VersionControl.Shell("cd " & Shell(Project.Dir) & " && git log -1", True) Then
   If RunShell("git log -1", True) Then
@@ -100,14 +129,40 @@ Public Sub Diff(sPath As String) As String
     sHead = "--staged"
   Endif
 
+  If bFull Then sFull = " -U100000"
+
   If IsDir(sPath) Then
-    sCmd = "cd " & Shell(sPath) & " && git diff " & sHead & " ."
+    sCmd = "cd " & Shell(sPath) & " && git diff" & sFull & " " & sHead & " ."
   Else
-    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git diff " & sHead & " " & Shell(File.Name(sPath))
+    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git diff" & sFull & " " & sHead & " " & Shell(File.Name(sPath))
   Endif
   
   sDiff = VersionControl.Shell(sCmd)
+  
+  If bFull Then
+    iPos = InStr(sDiff, "@@\n")
+    If iPos Then
+      sDiff = Mid$(sDiff, iPos + 3)
+    Else
+      sDiff = ""
+    Endif
+  Endif
+  
   Return sDiff
+
+End
+
+Public Sub History(sPath As String, Optional (bFull) As Boolean) As String
+  
+  Dim sCmd As String
+  
+  If IsDir(sPath) Then
+    sCmd = "cd " & Shell(sPath) & " && git log --date=rfc2822 ."
+  Else
+    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git log --date=rfc2822 " & Shell(File.Name(sPath))
+  Endif
+  
+  Return VersionControl.Shell(sCmd)
 
 End
 
@@ -135,28 +190,16 @@ Public Sub GetDefaultJournal() As String
   
 End
 
-Public Sub Update() As Boolean
+Public Sub Update() As Integer
 
-  Dim bResult As Integer
   Dim aEnv As String[]
-  
-  ' Dim sFile As String
-  ' Dim sPath As String
   
   aEnv = VersionControl.LANG_ENV.Copy()
   aEnv.Add("PWD=" & Project.Dir)
 
-  bResult = VersionControl.Run(["git", "pull", "-q"], True, True, aEnv)
-  
-  ' For Each sFile In [".project", ".startup", ".component", ".info"]
-  '   sPath = $sRealDir &/ sFile
-  '   If Exist(sPath) And If InConflict(sPath) Then Resolve(sPath, "theirs-full")
-  ' Next
-  ' For Each sFile In [".settings"]
-  '   sPath = $sRealDir &/ sFile
-  '   If Exist(sPath) And If InConflict(sPath) Then Resolve(sPath, "mine-full")
-  ' Next
-  Return bResult
+  VersionControl.Run(["git", "remote", "update", "origin", "--prune"], True, True, aEnv)
+
+  Return VersionControl.Run(["git", "pull", "-q"], True, True, aEnv)
 
 End
 
@@ -409,5 +452,45 @@ Public Sub SolveConflict(sPath As String, Optional iAccept As Integer) As Boolea
   
   'FVersionControl.Run(True)
   RunShell("git commit -m " & Shell$(("Solve conflict."))) ', Project.Dir)
+  
+End
+
+Private Sub FormatDate(sDate As String) As String
+
+  Dim dDate As Date
+
+  Try dDate = Date.FromRFC822(sDate)
+  If Not dDate Then Return "?"
+  Return Format(dDate, gb.LongDate)
+
+End
+
+Public Sub HighlightHistory(Text As String)
+  
+  Dim iState As Integer
+  Dim iLen As Integer
+
+  iState = TextHighlighter.State
+  iLen = String.Len(Text)
+
+  TextHighlighter.Limit = False
+  
+  If $iPadHistory = 0 Then
+    $iPadHistory = Max(Max(String.Len(("Date")), String.Len(("Author"))), String.Len("Commit"))
+  Endif
+  
+  If Text Begins "commit " Then 
+    TextHighlighter.TextAfter = String.PadRight("Commit", $iPadHistory) & " : " & Mid$(Text, 8)
+    TextHighlighter.Add(Highlight.DataType, String.Len(TextHighlighter.TextAfter))
+    TextHighlighter.Limit = True
+  Else If Text Begins "Author: " Then
+    TextHighlighter.TextAfter = String.PadRight(("Author"), $iPadHistory) & " : " & Mid$(Text, 9)
+    TextHighlighter.Add(Highlight.Function, String.Len(TextHighlighter.TextAfter))
+  Else If Text Begins "Date: " Then
+    TextHighlighter.TextAfter = String.PadRight(("Date"), $iPadHistory) & " : " & FormatDate(Mid$(Text, 7))
+    TextHighlighter.Add(Highlight.Preprocessor, String.Len(TextHighlighter.TextAfter))
+  Else 
+    TextHighlighter.Add(Highlight.Normal, iLen)
+  Endif
   
 End

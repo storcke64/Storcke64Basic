@@ -199,6 +199,8 @@ BEGIN_PROPERTY(Application_Busy)
 	else
 	{
 		busy = VPROP(GB_INTEGER);
+		if (busy < 0)
+			busy = 0;
 
 		if (_busy == 0 && busy != 0)
 			gApplication::setBusy(true);
@@ -299,6 +301,33 @@ BEGIN_PROPERTY(Application_Theme)
 
 	if (READ_PROPERTY) { GB.ReturnString(CAPPLICATION_Theme); return; }
 	GB.StoreString(PROP(GB_STRING), &CAPPLICATION_Theme);
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Application_DarkTheme)
+
+	static bool _init = FALSE;
+	static bool _dark = FALSE;
+	
+	uint bg;
+	char *env;
+	
+	if (!_init)
+	{
+		_init = TRUE;
+		bg = gDesktop::bgColor();
+		if (IMAGE.GetLuminance(bg) >= 128)
+		{
+			env = getenv("GB_GUI_DARK_THEME");
+			if (env && atoi(env))
+				_dark = TRUE;
+		}
+		else
+			_dark = TRUE;
+	}
+
+	GB.ReturnBoolean(_dark);
 
 END_PROPERTY
 
@@ -471,6 +500,7 @@ GB_DESC ApplicationDesc[] =
 	GB_STATIC_PROPERTY("Shadows", "b", Application_Shadows),
 	GB_STATIC_PROPERTY("Embedder", "i", Application_Embedder),
 	GB_STATIC_PROPERTY("Theme", "s", Application_Theme),
+	GB_STATIC_PROPERTY_READ("DarkTheme", "s", Application_DarkTheme),
 	GB_STATIC_PROPERTY("Restart", "String[]", Application_Restart),
 	GB_STATIC_PROPERTY_READ("DblClickTime", "i", Application_DblClickTime),
 	

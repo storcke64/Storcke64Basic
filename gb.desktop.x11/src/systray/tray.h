@@ -79,6 +79,7 @@ struct TrayData {
 	Window tray;							/* ID of tray window */
 	Window hint_win;						/* ID of icon window */
 	Display *dpy;							/* Display pointer */
+	unsigned long bg; // background color
 	XSizeHints xsh;							/* Size & position of the tray window */
 	XSizeHints root_wnd;					/* Size & position :) of the root window */
 	Window old_selection_owner;				/* Old owner of tray selection */

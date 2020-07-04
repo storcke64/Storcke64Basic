@@ -107,6 +107,7 @@ public:
 	static bool _busy;
 	static bool _must_quit;
 	static char *_title;
+	static char *_theme;
 	static int _loopLevel;
 	static int _in_popup;
 	static GtkWidget *_popup_grab;

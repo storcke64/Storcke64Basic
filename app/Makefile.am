@@ -1,4 +1,5 @@
 EXTRA_DIST = reconf src spec mime desktop template
+SUBDIRS = . man
 
 install-exec-local:
 	@if test "x$(ROOT)" != "x"; then \

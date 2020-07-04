@@ -8,8 +8,6 @@ Class SvgImage
 Static Private $cSynonymous As New Collection
 
 Static Private $bDebug As Boolean
-Static Private $bDarkTheme As Boolean
-Static Private $bInit As Boolean
 
 Static Public Sub _init()
 
@@ -80,11 +78,6 @@ Static Public Sub LoadImage(sKey As String, iSize As Integer, Optional sStock As
 
   Dim hImage As Image
 
-  If Not $bInit Then
-    If Color[Color.Background].Luminance < 128 Or If Env["GB_GUI_DARK_THEME"] = "1" Then $bDarkTheme = True
-    $bInit = True
-  Endif
-
   If $cSynonymous.Exist(sKey) Then sKey = $cSynonymous[sKey]
   If Not sStock Or If Not IsDir(sStock) Then sStock = "gambas"
   
@@ -100,7 +93,7 @@ Static Public Sub LoadImage(sKey As String, iSize As Integer, Optional sStock As
 RETURN_IMAGE:
 
   hImage = Stretch(hImage, iSize)
-  If $bDarkTheme And If hImage Then hImage = hImage.Invert(True) 'Color.Background, Color.Foreground)
+  If Application.DarkTheme And If hImage Then hImage = hImage.Invert(True) 'Color.Background, Color.Foreground)
   Return hImage
   
 End

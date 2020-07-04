@@ -54,6 +54,8 @@
 
 /*#define DEBUG*/
 
+bool COMP_verbose = FALSE;
+
 char *COMP_root = NULL;
 char *COMP_project;
 char *COMP_project_name;
@@ -193,11 +195,14 @@ static void add_library_list_file(const char *path, bool ref)
 }
 
 
-static void add_component_list_file(char *name)
+void COMPILE_add_component(const char *name)
 {
 	char *path;
 	FILE *fi;
 
+	if (COMP_verbose)
+		fprintf(stderr, "Loading information from component '%s'\n", name);
+	
 	path = (char *)FILE_cat(COMP_info_path, name, NULL);
 	strcat(path, ".list");
 	fi = fopen(path, "r");
@@ -469,7 +474,7 @@ void COMPILE_init(void)
 
 	BUFFER_create(&COMP_classes);
 
-	add_component_list_file("gb");
+	COMPILE_add_component("gb");
 
 	fp = open_project_file();
 
@@ -481,7 +486,7 @@ void COMPILE_init(void)
 		/*printf("%s\n", line);*/
 
 		if (strncmp(line, "Component=", 10) == 0)
-			add_component_list_file(&line[10]);
+			COMPILE_add_component(&line[10]);
 		else if (strncmp(line, "Library=", 8) == 0)
 			add_library_list_file(&line[8], FALSE);
 		else if (strncmp(line, "Reference=", 10) == 0)
@@ -710,5 +715,16 @@ void COMPILE_print(int type, int line, const char *msg, ...)
 	}
 
 	va_end(args);
+}
+
+
+void COMPILE_create_file(FILE **fw, const char *file)
+{
+	if (!*fw)
+	{
+		*fw = fopen(file, "w");
+		if (!*fw)
+			THROW("Cannot create file: &1", FILE_cat(FILE_get_dir(COMP_project), file, NULL));
+	}
 }
 

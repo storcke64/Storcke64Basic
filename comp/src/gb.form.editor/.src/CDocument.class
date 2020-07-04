@@ -16,6 +16,9 @@ Property Bookmarks As Integer[]
 Property EndOfLine As Integer
 Property CloseBraces As Boolean
 Property CloseStrings As Boolean
+Property Read DiffMode As Boolean
+
+Public Const ROW_NOT_FOUND As Integer = -2
 
 Public Lines As String[]
 Public LinesInfo As CLineInfo[]
@@ -23,6 +26,9 @@ Public LineLength As Integer[]
 
 Public XAfter As Integer
 Public YAfter As Integer
+
+Public DiffAdded As Integer[]
+Public DiffRemoved As Collection
 
 Private $aUndo As New CCommand[]
 Private $aRedo As New CCommand[]
@@ -1062,6 +1068,7 @@ Public Sub HighlightFrom(Y As Integer)
   Dim bRefresh As Boolean
   Dim bBegin As Boolean
   Dim bEndOfLine As Boolean
+  Dim PY As Integer
   
   If $bHighlighting Then Return
   
@@ -1088,15 +1095,21 @@ Public Sub HighlightFrom(Y As Integer)
     bRefresh = True
   
     If Y = 0 Then
+      
       TextHighlighter.State = Highlight.Normal
       TextHighlighter.Tag = 0
       TextHighlighter.Alternate = False
+      
     Else
-      With Info(Y - 1)
+      
+      PY = Y - 1
+      With Info(PY)
         TextHighlighter.State = .State
         TextHighlighter.Tag = .Tag
       End With
+      
     Endif
+    
     TextHighlighter.Limit = False
     
     With SetInfo(Y)
@@ -1724,4 +1737,146 @@ Private Sub CloseStrings_Write(Value As Boolean)
   $bCloseStrings = Value
   _Mode.CloseStrings = Value
  
+End
+
+Public Sub IsDiffAdded(iRow As Integer) As Boolean
+
+  Dim iMin As Integer
+  Dim iMax As Integer
+  Dim I As Integer
+  Dim R As Integer
+  Dim L As Integer
+  
+  If Not DiffAdded Then Return
+  
+  iMin = 0
+  iMax = DiffAdded.Count \ 2
+  
+  While iMax > iMin
+    
+    I = (iMin + iMax) \ 2
+    
+    R = DiffAdded[I * 2]
+    L = DiffAdded[I * 2 + 1]
+    
+    If iRow < R Then
+      iMax = I
+    Else If iRow >= (R + L) Then
+      iMin = I + 1
+    Else
+      Return True
+    Endif
+    
+  Wend
+  
+End
+
+Public Sub IsDiffRemoved(iRow As Integer) As Boolean
+  
+  If Not DiffRemoved Then Return
+  Return DiffRemoved.Exist(iRow)
+  
+End
+
+Public Sub EnterDiffMode(Added As Integer[], Removed As Collection)
+  
+  Dim aText As String[]
+  Dim hView As TextEditor
+  
+  If DiffRemoved Then LeaveDiffMode
+  
+  If Added Then DiffAdded = Added.Copy()
+  DiffRemoved = New Collection
+  If Removed Then
+    For Each aText In Removed
+      DiffRemoved[CInt(Removed.Key) - 1] = aText
+    Next
+  Endif
+  
+  For Each hView In GetAllViews()
+    hView._EnterDiffMode()
+  Next
+  
+End
+
+Public Sub LeaveDiffMode()
+  
+  Dim hView As TextEditor
+  
+  DiffAdded = Null
+  DiffRemoved = Null
+
+  For Each hView In GetAllViews()
+    hView._LeaveDiffMode()
+  Next
+  
+End
+
+Public Sub FindPreviousDiff(Y As Integer) As Integer
+  
+  If Me.DiffMode Then
+  
+    If IsDiffAdded(Y) Then
+      While Y > 0
+        Dec Y
+        If DiffRemoved[Y] Then Return Y
+        If Not IsDiffAdded(Y) Then Break
+      Wend
+    Endif
+  
+    While Y > 0
+      Dec Y
+      If DiffRemoved[Y] Then Return Y
+      If IsDiffAdded(Y) Then 
+        While Y > 0
+          Dec Y
+          If Not IsDiffAdded(Y) Then Return Y + 1
+        Wend
+        Return Y
+      Endif
+      
+    Wend
+    
+    If DiffRemoved[-1] Then Return 0
+    
+  Endif
+    
+  Return -1
+  
+End
+
+Public Sub FindNextDiff(Y As Integer) As Integer
+  
+  If Me.DiffMode Then
+    
+    If IsDiffAdded(Y) Then
+      While Y < Lines.Max
+        Inc Y
+        If DiffRemoved[Y] Then Return Y
+        If Not IsDiffAdded(Y) Then Break
+      Wend
+    Endif
+  
+    While Y < Lines.Max
+      Inc Y
+      If DiffRemoved[Y] Then Return Y
+      If IsDiffAdded(Y) Then 
+        While Y < Lines.Max
+          Inc Y
+          If Not IsDiffAdded(Y) Then Return Y - 1
+        Wend
+        Return Y
+      Endif
+    Wend
+    
+  Endif
+    
+  Return -1
+  
+End
+
+Private Function DiffMode_Read() As Boolean
+
+  Return DiffRemoved
+
 End

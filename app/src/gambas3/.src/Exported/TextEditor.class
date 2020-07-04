@@ -12,12 +12,14 @@ Private $iEndColumn As Integer
 Private $hLabel As TextLabel
 Private $hLabelTimer As Timer
 Private $hObserver As Observer
-Private $iLastLine As Integer = -1
 
 Private $bLabelBottom As Boolean
 
-Static Private $sFindPrefix As String
-Static Private $aFind As Integer[]
+Private $sFindPrefix As String
+Private $aFind As Integer[]
+
+Private $iLastLine As Integer
+Private $iLastLineOffset As Integer
 
 Public Sub _new()
   
@@ -77,67 +79,56 @@ Public Sub GetPosition() As Integer
   
 End
 
-Fast Private Sub CalcPos(iPos As Integer) As Integer[]
+Fast Private Sub GetLineOffset(iLine As Integer) As Integer
+
+  Dim I As Integer
+  Dim iOffset As Integer
   
-  Dim iLine As Integer
-  Dim iLen As Integer
+  If $iLastLine >= 0 And If iLine >= $iLastLine Then
+    I = $iLastLine
+    iOffset = $iLastLineOffset
+  Endif
   
-  While iLine < Me.Count
-  
-    iLen = Len(Me[iLine].Text)
-    If iPos <= iLen Then Break
-    iPos -= iLen + 1
-    Inc iLine
-    
+  While I < iLine
+    iOffset += Len(Me[I].Text) + 1
+    Inc I
   Wend
   
-  Return [iLine, iPos]
-
+  $iLastLine = iLine
+  $iLastLineOffset = iOffset
+  
+  Return iOffset
+  
 End
 
-
-Public Sub SetPosition(hFindResult As CFindResult, bJustCheck As Boolean) As Boolean
+Public Sub SetPosition(hResult As CSearchResult, bJustCheck As Boolean) As Boolean
   
   Dim iLine, iColumn As Integer
   Dim sLine As String
-  Dim iPos As Integer
-  Dim aPos As Integer[]
+  Dim iOffset As Integer
   
-  ' If hFindResult.Line Or If hFindResult.Column Then
-  ' 
-  '   iLine = hFindResult.Line
-  '   iColumn = hFindResult.Column
-  '   sLine = Me.Lines[iLine].Text
-  ' 
-  ' Else
-  
-  aPos = CalcPos(hFindResult.Pos)
-  iLine = aPos[0]
-  iPos = aPos[1]
-  
-  sLine = Me[iLine].Text
-  iColumn = String.Len(Left$(sLine, iPos))
-    
-  If Me.Highlight Then
-    If InStr(String.Mid$(Me[iLine].Purge(Not FSearch.IgnoreComments, Not FSearch.IgnoreStrings, Chr$(1)), iColumn + 1, hFindResult.Length), Chr$(1)) Then Return True
-  Endif
-  
-  hFindResult.Line = iLine
-  hFindResult.Column = iColumn
+  iLine = hResult.Line - 1
   
   If bJustCheck Then 
-    'If iColumn >= 40 And If Me[iLine].Length > 80 Then
-    '  sLine = "…" & Html(String.Mid$(sLine, iColumn - 31, 32)) & "<u>" & Html(String.Mid$(sLine, iColumn + 1, hFindResult.Length)) & "</u>" & Html(String.Mid$(sLine, iColumn + hFindResult.Length + 1, 160))
-    'Else
-    '  sLine = Html(String.Left(sLine, iColumn)) & "<u>" & Html(String.Mid$(sLine, iColumn + 1, hFindResult.Length)) & "</u>" & Html(String.Mid$(sLine, iColumn + hFindResult.Length + 1, 160))
-    'Endif
-    'sLine = Replace(sLine, " ", "&nbsp;")
-    hFindResult.Text = sLine
+
+    iOffset = GetLineOffset(iLine)
+    'If iLine >= Me.Count Then Return True
+    
+    sLine = Me[iLine].Text
+    iColumn = String.Len(Left$(sLine, hResult.Pos - iOffset))
+  
+    If Me.Highlight Then
+      If InStr(String.Mid$(Me[iLine].Purge(Not FSearch.IgnoreComments, Not FSearch.IgnoreStrings, Chr$(1)), iColumn + 1, hResult.Length), Chr$(1)) Then Return True
+    Endif
+    
+    hResult.Column = iColumn
+    hResult.Text = sLine
 
   Else
     ' TODO Me[iLine].Expanded = True
-    Me.GotoCenter(iColumn, iLine)
-    Me.Goto(iColumn + hFindResult.Length, iLine, True)
+    Me.GotoCenter(hResult.Column, iLine)
+    Me.Goto(hResult.Column + hResult.Length, iLine, True)
+    
   Endif
   
 End
@@ -266,9 +257,10 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     
   Endif
   
-  $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
-  'If IsMissing(iStyle) Then iStyle = Highlight.Highlight
-  $hLabel.Background = Color.Merge(Me.Styles[iStyle].Color, Me.Styles[Highlight.Background].Color, 0.3)
+  ' $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
+  ' $hLabel.Background = Color.Merge(Me.Styles[iStyle].Color, Me.Styles[Highlight.Background].Color, 0.3)
+  $hLabel.Foreground = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
+  $hLabel.Background = Me.Styles[Highlight.Background].Color
   $hLabel.Text = "&nbsp;&nbsp;" & Replace(Replace(sStr, "<p>", " "), "<br>", " ") & "&nbsp;&nbsp;"
 
   $bLabelBottom = bBottom
@@ -284,7 +276,6 @@ End
 
 Public Sub Editor_GotFocus()
   
-  $iLastLine = -1
   $aFind = Null
   $sFindPrefix = ""
   
@@ -294,12 +285,12 @@ Public Sub Editor_Cursor()
   
   HideMessageLabel
   
-  If Me.Line <> $iLastLine Then
-    $iLastLine = Me.Line
-    '$aFind = Null
-    '$sFindPrefix = ""
-    'Raise LineChange
-  Endif
+  ' If Me.Line <> $iLastLine Then
+  '   $iLastLine = Me.Line
+  '   '$aFind = Null
+  '   '$sFindPrefix = ""
+  '   'Raise LineChange
+  ' Endif
   
 End
 
@@ -318,9 +309,9 @@ Public Sub HideMessageLabel()
   
 End
 
-Public Sub IsSameFindStrings(sPrefix As String) As String
+Public Sub IsSameFindStrings((sPrefix) As String) As Boolean
   
-  Return sPrefix = $sFindPrefix
+  'Return sPrefix = $sFindPrefix
   
 End
 
@@ -329,7 +320,7 @@ Public Sub FindStrings(sPrefix As String) As Integer[]
   
   Dim iLine As Integer
   
-  If sPrefix = $sFindPrefix Then Return $aFind
+  'If sPrefix = $sFindPrefix Then Return $aFind
   
   $sFindPrefix = sPrefix
   $aFind = New Integer[]
@@ -375,13 +366,107 @@ Static Public Sub GetModeFromPath(sPath As String) As String
       sMode = "c++"
     Case "gbs"
       sMode = "gambas"
-    Case "html", "htm", "xml", "kml"
+    Case "html", "htm", "xml", "kml", "rss"
       sMode = "html"
-    Case "module", "class"
+    Case "module", "test", "class"
       If Project.IsSourcePath(sPath) Then sMode = "gambas"
       If Project.IsHiddenPath(sPath) Then sMode = "gambas"
   End Select
   
   Return sMode
+  
+End
+
+Public Sub EnterDiffModeWith(Path As String)
+
+  Dim sLine As String
+  Dim iLine As Integer
+  Dim aAdded As New Integer[]
+  Dim cRemoved As New Collection
+  Dim aRemoved As String[]
+  Dim iLineRemoved As Integer
+  Dim aDiff As String[]
+  Dim bStart As Boolean
+
+  aDiff = Split(VersionControl.Diff(Path), "\n")
+  
+  For Each sLine In aDiff
+    
+    If sLine Begins "@@ " Then
+      GoSub HANDLE_REMOVED
+      iLine = CInt(Scan(sLine, "*+*,*")[1]) - 1
+      bStart = True
+      Continue
+    Endif
+    
+    If Not bStart Then Continue
+    
+    If sLine Begins "-" Then
+      
+      If Not aRemoved Then
+        iLineRemoved = iLine
+        aRemoved = New String[]
+      Endif
+      
+      aRemoved.Add(Mid$(sLine, 2))
+      
+      Continue
+      
+    Endif
+    
+    If sLine Begins "+" Then
+      
+      GoSub HANDLE_REMOVED
+      
+      If aAdded.Count And If aAdded[aAdded.Max - 1] + aAdded[aAdded.Max] = iLine Then
+        Inc aAdded[aAdded.Max]
+      Else
+        aAdded.Add(iLine)
+        aAdded.Add(1)
+      Endif
+      
+      Inc iLine
+      Continue
+      
+    Endif
+    
+    If sLine Begins " " Then
+      GoSub HANDLE_REMOVED
+      Inc iLine
+    Endif
+    
+  Next
+  
+  GoSub HANDLE_REMOVED
+  
+  Me.EnterDiffMode(aAdded, cRemoved)
+  Me.Goto(0, Me.Line)
+  Me.SetFocus
+  
+HANDLE_REMOVED:
+
+  If aRemoved Then
+    cRemoved[iLineRemoved] = aRemoved
+    aRemoved = Null
+    iLineRemoved = 0
+  Endif
+  Return
+
+End
+
+Public Sub FillWithHistory(sPath As String)
+  
+  Inc Application.Busy
+  Me.Clear
+  Me.Text = VersionControl.History(sPath)
+  Me.SetFocus
+  Me.Reset
+  Dec Application.Busy
+  
+End
+
+Public Sub Editor_Change()
+  
+  $iLastLine = -1
   
 End

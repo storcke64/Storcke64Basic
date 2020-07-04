@@ -70,6 +70,7 @@ FILE *log_file;
 static bool _welcome = FALSE;
 static bool _quit_after_main = FALSE;
 static bool _eval = FALSE;
+static const char *_tests = NULL;
 
 static void NORETURN my_exit(int ret)
 {
@@ -176,26 +177,7 @@ static bool is_option(const char *arg, char option)
 	return (arg[0] == '-' && arg[1] == option && arg[2] == 0);
 }
 
-static bool is_option_arg(char **argv, int argc, int *i, char option, const char **param)
-{
-	if (is_option(argv[*i], option))
-	{
-		if (*i < (argc - 1) && *argv[*i + 1] && *argv[*i + 1] != '-')
-		{
-			*param = argv[*i + 1];
-			(*i)++;
-		}
-		else
-			*param = NULL;
-
-		return TRUE;
-	}
-	else
-		return FALSE;
-}
-
-
-static bool is_long_option(const char *arg, char option, char *long_option)
+static bool is_long_option(const char *arg, char option, const char *long_option)
 {
 	if (is_option(arg, option))
 		return TRUE;
@@ -203,6 +185,42 @@ static bool is_long_option(const char *arg, char option, char *long_option)
 		return (arg[0] == '-' && arg[1] == '-' && !strcmp(&arg[2], long_option));
 }
 
+static bool is_option_arg(char **argv, int argc, int *i, char option, const char *long_option, const char **param)
+{
+	if (long_option)
+	{
+		if (!is_long_option(argv[*i], option, long_option))
+			return FALSE;
+	}
+	else
+	{
+		if (!is_option(argv[*i], option))
+			return FALSE;
+	}
+	
+	if (*i < (argc - 1) && *argv[*i + 1] != '-')
+	{
+		*param = argv[*i + 1];
+		(*i)++;
+	}
+	else
+		*param = NULL;
+
+	return TRUE;
+}
+
+static void print_version()
+{
+#ifdef TRUNK_VERSION
+#ifdef TRUNK_VERSION_GIT
+	printf(VERSION " " TRUNK_VERSION "\n");
+#else /* from svn */
+	printf(VERSION " r" TRUNK_VERSION "\n");
+#endif
+#else /* no TRUNK_VERSION */
+	printf(VERSION "\n");
+#endif
+}
 
 int main(int argc, char *argv[])
 {
@@ -242,28 +260,30 @@ int main(int argc, char *argv[])
 			{
 				printf(
 					"\nExecute a Gambas project or evaluate a Gambas expression (-e option).\n"
-					"\nUsage: gbx" GAMBAS_VERSION_STRING " [options] [<project file>] [-- <arguments>]\n"
+					"\nUsage: gbx" GAMBAS_VERSION_STRING " [options] [<project directory>] [-- <arguments>]\n"
 					"       gbx" GAMBAS_VERSION_STRING " -e <expression>\n\n"
 					);
 			}
-			printf(
-				"Options:\n"
-				"  -g               enter debugging mode\n"
-				"  -s <class>       override startup class\n"
-				"  -p <path>        activate profiling and debugging mode\n"
-				"  -k               do not unload shared libraries\n"
-				"  -H --httpd       run through an embedded http server\n"
-				"  -j               disable just-in-time compiler\n"
-				"  -t --trace       dump the position of each executed line of code\n"
-				);
 
+			printf("Options:\n");
+			
 			if (!EXEC_arch)
-				printf("  -e               evaluate an expression\n");
+				printf("  -e              evaluate an expression\n");
 
 			printf(
-				"  -V --version     display version\n"
-				"  -L --license     display license\n"
-				"  -h --help        display this help\n"
+				"  -g              enter debugging mode\n"
+				"  -h --help       display this help\n"
+				"  -H --httpd      run through an embedded http server\n"
+				"  -j              disable just-in-time compiler\n"
+				"  -k              do not unload shared libraries\n"
+				"  -L --license    display license\n"
+				"  -p <path>       activate profiling and debugging mode\n"
+				"  -r <path>       redirect standard error output\n"
+				"  -s <class>      override startup class\n"
+				"  -t --trace      dump the position of each executed line of code\n"
+				"  -T              list all test modules\n"
+				"  -T <tests>      run the specified test modules\n"
+				"  -V --version    display version\n"
 				"\n"
 				);
 
@@ -271,23 +291,14 @@ int main(int argc, char *argv[])
 		}
 		else if (is_long_option(argv[1], 'V', "version"))
 		{
-#ifdef TRUNK_VERSION
-#ifdef TRUNK_VERSION_GIT
-			printf(VERSION " " TRUNK_VERSION "\n");
-#else /* from svn */
-			printf(VERSION " r" TRUNK_VERSION "\n");
-#endif
-#else /* no TRUNK_VERSION */
-			printf(VERSION "\n");
-#endif
+			print_version();
 			my_exit(0);
 		}
 		else if (is_long_option(argv[1], 'L', "license"))
 		{
-			printf(
-				"\nGambas interpreter version " VERSION "\n"
-				COPYRIGHT
-				);
+			printf("\nGambas interpreter version ");
+			print_version();
+			printf(COPYRIGHT);
 			my_exit(0);
 		}
 	}
@@ -321,7 +332,7 @@ int main(int argc, char *argv[])
 		{
 			EXEC_debug = TRUE;
 		}
-		else if (is_option_arg(argv, argc, &i, 'p', &EXEC_profile_path))
+		else if (is_option_arg(argv, argc, &i, 'p', NULL, &EXEC_profile_path))
 		{
 			EXEC_debug = TRUE;
 			EXEC_profile = TRUE;
@@ -330,15 +341,15 @@ int main(int argc, char *argv[])
 		{
 			EXEC_trace = TRUE;
 		}
-		else if (is_option_arg(argv, argc, &i, 'f', &EXEC_fifo_name))
+		else if (is_option_arg(argv, argc, &i, 'f', NULL, &EXEC_fifo_name))
 		{
 			EXEC_fifo = TRUE;
 		}
-		else if (is_option_arg(argv, argc, &i, 's', &PROJECT_startup))
+		else if (is_option_arg(argv, argc, &i, 's', NULL, &PROJECT_startup))
 		{
 			continue;
 		}
-		else if (is_option_arg(argv, argc, &i, 't', &redirect_stderr))
+		else if (is_option_arg(argv, argc, &i, 'r', NULL, &redirect_stderr))
 		{
 			int fd = open(redirect_stderr, O_WRONLY | O_CLOEXEC);
 			if (fd < 0)
@@ -361,6 +372,10 @@ int main(int argc, char *argv[])
 		{
 			JIT_disabled = TRUE;
 		}
+		else if (is_option_arg(argv, argc, &i, 'T', "test", &_tests))
+		{
+			PROJECT_run_tests = TRUE;
+		}
 		else if (is_option(argv[i], '-'))
 		{
 			i++;
@@ -380,7 +395,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
+	
 	n = i;
 	if (!file)
 		file = ".";
@@ -404,8 +419,9 @@ int main(int argc, char *argv[])
 		EXEC_main_hook_done = TRUE;
 
 		/* Startup class */
+		
 		CLASS_load(PROJECT_class);
-		startup = (CLASS_DESC_METHOD *)CLASS_get_symbol_desc_kind(PROJECT_class, "main", CD_STATIC_METHOD, 0);
+		startup = (CLASS_DESC_METHOD *)CLASS_get_symbol_desc_kind(PROJECT_class, "main", CD_STATIC_METHOD, 0, T_ANY);
 		if (startup == NULL)
 			THROW(E_MAIN);
 
@@ -437,7 +453,15 @@ int main(int argc, char *argv[])
 
 	TRY
 	{
-		EXEC_public_desc(PROJECT_class, NULL, startup, 0);
+		if (PROJECT_run_tests)
+		{
+			GB_Push(1, T_STRING, _tests, -1);
+			EXEC_public_desc(PROJECT_class, NULL, startup, 1);
+		}
+		else
+		{
+			EXEC_public_desc(PROJECT_class, NULL, startup, 0);
+		}
 
 		if (TYPE_is_boolean(startup->type))
 			ret = RP->_boolean.value ? 1 : 0;

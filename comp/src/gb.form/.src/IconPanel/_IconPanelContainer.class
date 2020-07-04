@@ -9,6 +9,9 @@ Property Picture As Picture
 Property Read Container As Container
 Property Visible As Boolean
 
+Private $sText As String
+Private $hPict As Picture
+
 Private Sub GetIconPanel() As IconPanel
   
   Return Me.Parent.Parent.Parent
@@ -35,27 +38,30 @@ End
 
 Private Function Text_Read() As String
 
-  Try Return GetView()[GetIndex(), 0].Text
+  Return $sText
+  'Try Return GetView()[GetIndex(), 0].Text
 
 End
 
 Private Sub Text_Write(sText As String)
 
-  Try GetView()[GetIndex(), 0].Text = sText
+  $sText = sText
   GetIconPanel()._UpdateIconViewWidth
+  GetView()[GetIndex(), 0].Refresh
 
 End
 
 Private Function Picture_Read() As Picture
 
-  Try Return GetView()[GetIndex(), 0].Picture
+  Return $hPict
 
 End
 
 Private Sub Picture_Write(hPict As Picture)
 
-  Try GetView()[GetIndex(), 0].Picture = hPict
+  $hPict = hPict
   GetIconPanel()._UpdateIconViewWidth
+  GetView()[GetIndex(), 0].Refresh
 
 End
 

@@ -380,6 +380,7 @@ void SIGNAL_exit(void)
 	
 	if (_handlers)
 	{
+		_raising_callback = 0;
 		for (i = 0; i < ARRAY_count(_handlers); i++)
 		{
 			handler = &_handlers[i];

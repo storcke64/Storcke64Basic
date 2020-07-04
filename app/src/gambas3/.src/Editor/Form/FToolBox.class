@@ -13,16 +13,17 @@ Private $iSize As Integer
 
 Private $aOrder As New String[]
 
-' Public Sub _new()
-'   
-'   Settings.Read(Me)
-'   
-' End
+Public Sub _new()
+  
+  tabTool.AddButton(btnZoom, Align.Right)
+  tabTool.ShowButton(btnZoom, True)
+  
+End
 
 
 Public Sub Form_Open()
 
-  $aOrder = ["Form", "View", "Report", "WebForm", "TermForm", "Dialog", "Chooser", "Container", "Data", "Network", "Special"]
+  $aOrder = ["Form", "WebForm", "TermForm", "View", "Report", "Dialog", "Chooser", "Container", "Data", "Network", "Special"]
 
   ReadConfig
   SetTool
@@ -249,15 +250,12 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
 
 End
 
-
 Private Sub ClearToolBar()
 
   $sLastLib = ""
   RefreshToolBar
 
 End
-
-
 
 ' Public Sub Form_Close()
 ' 
@@ -284,7 +282,6 @@ Public Function GetTool() As String
 
 End
 
-
 Public Sub SetTool()
 
   If Not $sToolBar Then Return
@@ -292,35 +289,38 @@ Public Sub SetTool()
 
 End
 
-
 ' PUBLIC SUB ToolBar_Change()
 '
 '   PRINT "ToolBar_Change: "; LAST.Name
 '
 ' END
 
+Public Sub GetSize() As Integer
+  
+  Return 24 + Settings["/Toolbox/Size", 0] * 8
+  
+End
 
-Public Sub ReadConfig()
-
-  Dim iSize As Integer
-
-  tabTool.TextFont = Project.GetSmallFont()
-
-  Select Case Settings["/ToolboxSize", 0]
-    Case 0
-      iSize = 32
-    Case 1
-      iSize = 24
-    Case 2
-      iSize = 48
-  End Select
+Private Sub UpdateSize()
+  
+  Dim iSize As Integer = GetSize()
   
   If iSize <> $iSize Then
     $iSize = iSize
     ClearToolBar
   Endif
+  
+End
 
-  '$bAnimate = Settings["/Toolbar/Animate", TRUE]
+Public Sub ReadConfig()
+
+  Dim hFont As Font
+
+  hFont = Project.GetSmallFont()
+  tabTool.TextFont = hFont
+  panTooltip.Font = hFont
+  panTooltip.Height = hFont.H + 4
+  UpdateSize
 
 End
 
@@ -371,5 +371,31 @@ Public Sub OnProjectActivate()
   Next
   
   tabTool.Index = iIndex
+  
+End
+
+Public Sub tabTool_CloseAll()
+
+  Dim hPanel As SidePanel = Me.Parent
+  hPanel.Hidden = True
+
+End
+
+Public Sub btnZoom_Click()
+
+  Dim iSize As Integer
+
+  iSize = Settings["/Toolbox/Size", 0]
+  iSize = (iSize + 1) Mod 4
+  Settings["/Toolbox/Size"] = iSize
+  UpdateSize
+
+End
+
+Public Sub SetTooltip(Optional sControl As String, sComp As String)
+  
+  If sComp = "$" Then sComp = "<i>" & ("Current project") & "</i>"
+  lblControl.Text = sControl
+  lblComp.Text = sComp
   
 End

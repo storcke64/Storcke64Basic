@@ -1,5 +1,7 @@
 ' Gambas class file
 
+Private $bUnique As Boolean
+
 Private Sub GetParent() As ListEditor
 
   Return Me.Parent
@@ -37,13 +39,23 @@ Public Sub SetList(aList As String[])
   UnSelect
   txtData.Clear
   lstData.List = aList
+  CheckUnique
   GetParent()._RaiseChange
   
 End
 
-Public Sub Add(sText As String)
+Public Sub Add(sText As String) As Boolean
+  
+  Dim iPos As Integer
   
   If Not sText Then Return
+  If $bUnique Then
+    iPos = lstData.Find(sText)
+    If iPos >= 0 Then
+      lstData.Index = iPos
+      Return True
+    Endif
+  Endif
   lstData.Add(sText)
   GetParent()._RaiseChange
   lstData.Index = -1
@@ -57,7 +69,7 @@ Public Sub btnAdd_Click()
   If txtData.ReadOnly Then Return
   
   If lstData.Index < 0 Then
-    Add(txtData.Text)
+    If Add(txtData.Text) Then Return
   Endif
   
   UnSelect
@@ -164,18 +176,14 @@ End
 ' 
 Public Sub GetText() As String
   
-  If lstData.Index >= 0 Then Return lstData.Text
+  Return txtData.Text
   
 End
 
 Public Sub SetText(sText As String)
   
-  If Not sText Then Return
-  If lstData.Index >= 0 Then 
-    lstData.Current.Text = sText
-    GetParent()._RaiseChange
-  Endif
-
+  txtData.Text = sText
+  
 End
 
 Public Sub GetMoveable() As Boolean
@@ -197,7 +205,7 @@ Public Sub GetEditor() As TextBox
   
 End
 
-Public Sub Form_Open()
+Public Sub _new()
 
   Me.Parent.Proxy = txtData
 
@@ -251,7 +259,7 @@ Public Sub SetReadOnly(bReadOnly As Boolean)
   txtData.Visible = Not bReadOnly
   
   If bReadOnly Then
-    btnAdd.Text = ("Insert") & "..."
+    btnAdd.Text = ("Add") & "..."
     btnRemove.Text = ("Remove")
   Else
     btnAdd.Text = ""
@@ -260,8 +268,74 @@ Public Sub SetReadOnly(bReadOnly As Boolean)
   
 End
 
-Public Sub Exist(Text As String) As Boolean
+Public Sub lstData_Activate()
+
+  GetParent()._RaiseActivate
+
+End
+
+Public Sub Clear()
   
-  Return lstData.Find(Text) >= 0
+  lstData.Clear
+  txtData.Clear
+  
+End
+
+Public Sub IsUnique() As Boolean
+  
+  Return $bUnique
+  
+End
+
+Private Sub CheckUnique()
+
+  Dim I As Integer
+  Dim iPos As Integer
+  
+  If Not $bUnique Then Return
+
+  I = 1
+  While I < lstData.Count
+    iPos = lstData.Find(lstData[I])
+    If iPos <> I Then
+      lstData.Remove(I)
+    Else
+      Inc I
+    Endif
+  Wend
+
+End
+
+Public Sub SetUnique(bUnique As Boolean)
+  
+  If $bUnique = bUnique Then Return
+  $bUnique = bUnique
+  CheckUnique
+
+End
+
+Public Sub GetIndex() As Integer
+  
+  Return lstData.Index
+  
+End
+
+Public Sub SetIndex(Value As Integer)
+  
+  lstData.Index = Value
+  
+End
+
+Public Sub Find(Text As String, Mode As Integer) As Integer
+  
+  Return lstData.Find(Text, Mode)
+  
+End
+
+Public Sub Remove(Index As Integer, Length As Integer)
+  
+  lstData.Remove(Index, Length)
+  lstData.Index = -1
+  txtData.Clear
   
 End

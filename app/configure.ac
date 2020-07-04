@@ -14,6 +14,7 @@ dnl ---- Create makefiles
 
 AC_OUTPUT( \
 Makefile \
+man/Makefile \
 )
 
 GB_PRINT_MESSAGES

@@ -1,0 +1,156 @@
+' Gambas class file
+
+Static Public Sub Run() As Boolean
+  
+  Return Not FArguments.ShowDialog()
+  
+End
+
+Private Sub FromArgs(aArg As String[]) As String
+
+  Dim I As Integer
+  Dim sArg As String
+  
+  If Not aArg Then Return
+  
+  aArg = aArg.Copy()
+  For I = 0 To aArg.Max
+    sArg = aArg[I]
+    If InStr(sArg, " ") Or If InStr(sArg, "\"") Or If Not sArg Then aArg[I] = Quote(sArg)
+  Next
+  
+  Return aArg.Join(" ")
+  
+End
+
+
+Public Sub Form_Open()
+
+  Project.SetEditorFont(lstArg)
+  FillList
+  lstArg.Index = lstArg.Find(FromArgs(Project.CurrentArgument))
+  
+End
+
+Private Sub FillList()
+
+  Dim aArg As String[]
+
+  lstArg.Clear
+  For Each aArg In Project.Arguments
+    lstArg.Add(FromArgs(aArg))
+  Next
+  
+  lstArg.SetFocus()
+
+End
+
+Private Sub ToArgs(sStr As String) As String[]
+
+  Dim aArg As String[]
+  Dim I As Integer
+  Dim sCar As String
+  Dim sCurrent As String
+  Dim bEscape As Boolean
+  Dim bQuote As Boolean
+
+  aArg = New String[]
+  sStr &= " "
+  
+  For I = 1 To Len(sStr)
+    
+    sCar = Mid$(sStr, I, 1)
+    sCurrent &= sCar
+    
+    If bEscape Then
+      bEscape = False
+      Continue
+    Endif
+    
+    If sCar = "\\" Then
+      bEscape = True
+      Continue
+    Endif
+    
+    If bQuote Then
+      If sCar = Chr$(34) Then
+        bQuote = False
+        GoSub ADD_ARGUMENT
+      Endif
+      Continue
+    Endif
+    
+    If sCar = Chr$(34) Then
+      bQuote = True
+      Continue
+    Endif
+    
+    If sCar = " " Then
+      GoSub ADD_ARGUMENT
+    Endif
+    
+  Next
+  
+  Return aArg
+  
+ADD_ARGUMENT:
+
+  sCurrent = Trim(sCurrent)
+  If Not sCurrent Then Return
+  If sCurrent Begins Chr$(34) Then sCurrent = UnQuote(sCurrent)
+  aArg.Add(sCurrent)
+  sCurrent = ""
+  Return
+
+End
+
+Private Sub SaveArgs()
+
+  Dim aArgs As New String[][]
+  Dim aList As String[]
+  Dim I As Integer
+
+  aList = lstArg.List
+  
+  For I = 0 To aList.Max
+    aArgs.Add(ToArgs(aList[I]))
+  Next
+  
+  Project.Arguments = aArgs
+  Project.CurrentArgument = ToArgs(lstArg.Text)
+  Project.WriteProject(True)
+
+End
+
+Public Sub btnRun_Click()
+
+  'Dim hTextBox As TextBox = lstArg.Editor
+  'Design.Arguments = ToArgs(hTextBox.Text)
+  Me.Close(True)
+
+End
+
+Public Sub btnCancel_Click()
+
+  Me.Close()
+
+End
+
+Public Sub Form_Close()
+  
+  SaveArgs()
+  
+End
+
+
+Public Sub lstArg_Activate()
+
+  btnRun.Value = True
+
+End
+
+Public Sub btnUndo_Click()
+
+  FillList
+
+End

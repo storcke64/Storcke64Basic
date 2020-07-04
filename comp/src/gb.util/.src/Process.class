@@ -1,0 +1,22 @@
+' Gambas class file
+
+Export
+
+Event Prompt(Prompt As String, Answer As String)
+
+Private $hExpect As ProcessExpect
+
+Public Sub Expect(Prompt As String, Optional Answer As String)
+  
+  If Not Prompt Then Return
+    
+  If Not $hExpect Then $hExpect = New ProcessExpect(Me)
+  $hExpect.Expect(Prompt, Answer)
+  
+End
+
+Public Sub Expect_Kill()
+  
+  $hExpect = Null
+  
+End

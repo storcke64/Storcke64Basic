@@ -156,6 +156,8 @@ typedef
 		GB_COLOR (*DarkerColor)(GB_COLOR col);
 		// Return the image format as a string
 		const char *(*FormatToString)(int format);
+		// Return the luminance of a color
+		int (*GetLuminance)(GB_COLOR col);
 		}
 	IMAGE_INTERFACE;
 

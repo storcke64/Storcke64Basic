@@ -687,6 +687,16 @@ BEGIN_METHOD(Drag_call, GB_OBJECT source; GB_VARIANT data; GB_STRING format)
 
 END_METHOD
 
+BEGIN_PROPERTY(Drag_Target)
+
+	if (READ_PROPERTY)
+		GB.ReturnObject(CDRAG_destination);
+	else
+		GB.StoreObject(PROP(GB_OBJECT), POINTER(&CDRAG_destination));
+
+END_PROPERTY
+
+
 BEGIN_METHOD_VOID(Drag_exit)
 
 	hide_frame(NULL);
@@ -773,7 +783,7 @@ BEGIN_PROPERTY(Drag_Data)
 END_PROPERTY
 
 
-BEGIN_METHOD(CDRAG_paste, GB_STRING format)
+BEGIN_METHOD(Drag_Paste, GB_STRING format)
 
 	if (!CDRAG_info.valid)
 	{
@@ -897,12 +907,13 @@ GB_DESC CDragDesc[] =
 	GB_STATIC_PROPERTY("X", "i", Drag_X),
 	GB_STATIC_PROPERTY("Y", "i", Drag_Y),
 	GB_STATIC_PROPERTY_READ("Pending", "b", Drag_Pending),
+	GB_STATIC_PROPERTY("_Target", "Control", Drag_Target),
 
 	GB_STATIC_METHOD("_call", "Control", Drag_call, "(Source)Control;(Data)v[(Format)s]"),
 	GB_STATIC_METHOD("_exit", NULL, Drag_exit, NULL),
 	GB_STATIC_METHOD("Show", NULL, Drag_Show, "(Control)Control;[(X)i(Y)i(Width)i(Height)i]"),
 	GB_STATIC_METHOD("Hide", NULL, Drag_Hide, NULL),
-	GB_STATIC_METHOD("Paste", "v", CDRAG_paste, "[(Format)s]"),
+	GB_STATIC_METHOD("Paste", "v", Drag_Paste, "[(Format)s]"),
 
 	GB_END_DECLARE
 };

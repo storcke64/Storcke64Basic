@@ -188,7 +188,7 @@ static bool TRANS_local(void)
 				sym->local_assigned = TRUE;
 			}
 
-			if (JOB->verbose)
+			if (COMP_verbose)
 				printf("LOCAL %s AS %s\n", TABLE_get_symbol_name(JOB->class->table, sym_index), TYPE_get_desc(decl.type));
 
 			if (!PATTERN_is(*pattern, RS_COMMA))
@@ -601,7 +601,7 @@ void TRANS_code(void)
 		
 		CODE_begin_function(_func);
 
-		if (JOB->verbose)
+		if (COMP_verbose)
 		{
 			printf("Compiling %s()...\n", TABLE_get_symbol_name(JOB->class->table, _func->name));
 			if (_func->fast)
@@ -630,7 +630,7 @@ void TRANS_code(void)
 
 			FUNCTION_add_last_pos_line();
 			CODE_op(C_RETURN, 0, 0, TRUE);
-			if (JOB->verbose)
+			if (COMP_verbose)
 				CODE_dump(_func->code, _func->ncode);
 
 			continue;
@@ -647,7 +647,7 @@ void TRANS_code(void)
 
 		_func->stack = _func->nlocal + _func->nctrl + CODE_stack_usage;
 
-		if (JOB->verbose)
+		if (COMP_verbose)
 		{
 			CODE_dump(_func->code, _func->ncode);
 			printf("%d local(s) %d control(s) ", _func->nlocal, _func->nctrl);

@@ -47,57 +47,70 @@ void SUBR_cat(ushort code)
 {
 	SUBR_ENTER();
 
-	if (NPARAM == 2)
+	if (NPARAM <= 2)
 	{
 		int len, len2;
 		char *str;
 
-		VALUE_conv_string(&PARAM[0]);
-		len = PARAM[0]._string.len ;
-		VALUE_conv_string(&PARAM[1]);
-		len2 = PARAM[1]._string.len;
-
-		#if 0
-		if (EXEC_string_add)
+		if (NPARAM == 1)
 		{
-			EXEC_string_add = FALSE;
-
-			str = PARAM[0]._string.addr;
-
-			if (0 && PARAM[0].type == T_STRING && PARAM[0]._string.start == 0 && STRING_length(str) == len)
+			PARAM--;
+			
+			VALUE_conv_string(&PARAM[1]);
+			len2 = PARAM[1]._string.len;
+			
+			if (PARAM[0].type == T_STRING)
 			{
-				if (str && !STRING_extend_will_realloc(str, len + len2))
+				len = PARAM[0]._string.len ;
+				
+				str = PARAM[0]._string.addr;
+				if (len && PARAM[0]._string.start == 0 && len == STRING_length(str) && STRING_from_ptr(str)->ref == 2)
 				{
-					//_count++;
-					//fprintf(stderr, "[%d] &= optimization: str = %p (%d) param2 = %p (%d)\n", _count, str, len, PARAM[1]._string.addr + PARAM[1]._string.start, len2);
+					STRING_from_ptr(str)->ref--;
 					str = STRING_add(str, PARAM[1]._string.addr + PARAM[1]._string.start, len2);
-					/*if (str != PARAM[0]._string.addr)
+					
+					if (PCODE_is(PC[1], C_POP_LOCAL))
 					{
-						//fprintf(stderr, "--> %p !\n", str);
-						BREAKPOINT();
-					}*/
+						VALUE *bp = &BP[(signed char)PC[1]];
+						bp->_string.addr = str;
+						bp->_string.len += len2;
+					}
+					else if (PCODE_is(PC[1], C_POP_PARAM))
+					{
+						VALUE *pp = &PP[(signed char)PC[1]];
+						pp->_string.addr = str;
+						pp->_string.len += len2;
+					}
+					else if (PCODE_is(PC[1], C_POP_STATIC))
+					{
+						CLASS_VAR *var = &CP->load->stat[PC[1] & 0x7FF];
+						*(char **)((char *)CP->stat + var->pos) = str;
+					}
+					else if (PCODE_is(PC[1], C_POP_DYNAMIC))
+					{
+						CLASS_VAR *var = &CP->load->dyn[PC[1] & 0x7FF];
+						*(char **)(OP + var->pos) = str;
+					}
+					
 					RELEASE_STRING(&PARAM[1]);
-
 					SP -= 2;
-					//SP->type = T_STRING;
-					//SP->_string.addr = str;
-					//SP->_string.start = 0;
-					SP->_string.len += len2;
-					SP++;
+					PC++;
 					return;
 				}
 			}
-			/*else
+			else
 			{
-				if (PARAM[0].type != T_STRING)
-					fprintf(stderr, "PARAM[0].type == %ld\n", PARAM[0].type);
-				else if (PARAM[0]._string.start)
-					fprintf(stderr, "PARAM[0]._string.start == %d\n", PARAM[0]._string.start);
-				else if (STRING_length(str) != len)
-					fprintf(stderr, "len == %d / %d\n", len, STRING_length(str));
-			}*/
+				VALUE_conv_string(&PARAM[0]);
+				len = PARAM[0]._string.len ;
+			}
 		}
-		#endif
+		else
+		{
+			VALUE_conv_string(&PARAM[0]);
+			len = PARAM[0]._string.len ;
+			VALUE_conv_string(&PARAM[1]);
+			len2 = PARAM[1]._string.len;
+		}
 
 		str = STRING_new(NULL, len + len2);
 
@@ -826,67 +839,32 @@ void SUBR_sconv(ushort code)
 	SUBR_LEAVE();
 }
 
-static int _is_ascii(int c)
-{
-	return (c & ~0x7F) == 0;
-}
-
-static int _is_letter(int c)
-{
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-static int _is_lower(int c)
-{
-	return (c >= 'a' && c <= 'z');
-}
-
-static int _is_upper(int c)
-{
-	return (c >= 'A' && c <= 'Z');
-}
-
-static int _is_digit(int c)
-{
-	return (c >= '0' && c <= '9');
-}
-
-static int _is_hexa(int c)
-{
-	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-}
-
-static int _is_space(int c)
-{
-	return strchr(" \n\r\t\f\v", c) != NULL;
-}
-
-static int _is_blank(int c)
-{
-	return (c == 32 || c == '\t');
-}
-
-static int _is_punct(int c)
-{
-	return ((c > 32) && (c < 128) && !(_is_letter(c) || _is_digit(c)));
-}
-
-static int _is_alnum(int c)
-{
-	return _is_letter(c) || _is_digit(c);
-}
-
 void SUBR_is_chr(ushort code)
 {
-	static void *jump[] =
-	{
-		NULL, _is_ascii, _is_letter, _is_lower, _is_upper, _is_digit, _is_hexa, _is_space, _is_blank, _is_punct, _is_alnum
+	static ushort test[256] = {
+		0x0041, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 
+		0x0001, 0x00C1, 0x0041, 0x0041, 0x0041, 0x0041, 0x0001, 0x0001, 
+		0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 
+		0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 0x0001, 
+		0x00C1, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 
+		0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 
+		0x0231, 0x0231, 0x0231, 0x0231, 0x0231, 0x0231, 0x0231, 0x0231, 
+		0x0231, 0x0231, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 
+		0x0101, 0x022B, 0x022B, 0x022B, 0x022B, 0x022B, 0x022B, 0x020B, 
+		0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 
+		0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 0x020B, 
+		0x020B, 0x020B, 0x020B, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101, 
+		0x0101, 0x0227, 0x0227, 0x0227, 0x0227, 0x0227, 0x0227, 0x0207, 
+		0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 
+		0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 0x0207, 
+		0x0207, 0x0207, 0x0207, 0x0101, 0x0101, 0x0101, 0x0101, 0x0101
 	};
-
+	
 	char *addr;
 	int len;
 	int i;
-	int (*func)(int);
+	bool ret;
+	ushort bit;
 
 	SUBR_ENTER_PARAM(1);
 
@@ -895,20 +873,29 @@ void SUBR_is_chr(ushort code)
 	//SUBR_get_string_len(PARAM, &addr, &len);
 	VALUE_get_string(PARAM, &addr, &len);
 
-	func = jump[code & 0x3F];
-
-	i = len;
-	while(i)
+	if (len == 1)
+		ret = (test[(unsigned char)*addr] & (1 << ((code & 0xF) - 1))) != 0;
+	else if (len <= 0)
+		ret = FALSE;
+	else
 	{
-		if (!(*func)(*addr++))
-			break;
-		i--;
+		bit = 1 << ((code & 0xF) - 1);
+		ret = TRUE;
+		for (i = 0; i < len; i++)
+		{
+			if ((test[(unsigned char)addr[i]] & bit) == 0)
+			{
+				ret = FALSE;
+				break;
+			}
+		}
 	}
-
+	
 	RELEASE_STRING(PARAM);
+	
 	SP--;
 	SP->type = T_BOOLEAN;
-	SP->_boolean.value = (len > 0 && i == 0) ? -1 : 0;
+	SP->_boolean.value = ret;
 	SP++;
 }
 

@@ -56,7 +56,7 @@ int EXPORT GB_INIT(void)
 	if (!globalParams)
 	{
 #if POPPLER_VERSION_0_83
-		globalParams = std::unique_ptr<GlobalParams>();
+		globalParams = std::unique_ptr<GlobalParams>(new GlobalParams());
 #else
 		globalParams = new GlobalParams();
 #endif
@@ -66,8 +66,6 @@ int EXPORT GB_INIT(void)
 	
 	return 0;
 }
-
-
 
 void EXPORT GB_EXIT()
 {

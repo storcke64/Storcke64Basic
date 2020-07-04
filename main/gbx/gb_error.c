@@ -49,7 +49,7 @@ int ERROR_depth = 0;
 static int _lock = 0;
 static char *_print_prefix = NULL;
 
-static const char *const _message[76] =
+static const char *const _message[77] =
 {
 	/*  0 E_UNKNOWN     */ "Unknown error",
 	/*  1 E_MEMORY      */ "Out of memory",
@@ -126,7 +126,8 @@ static const char *const _message[76] =
 	/* 72 E_FREEREF     */ "Free object referenced",
 	/* 73 E_ASSERT      */ "Assertion failed",
 	/* 74 E_MARRAY      */ "Multidimensional array",
-	/* 75 E_UCLASS      */ ".1Unknown class '&1'"
+	/* 75 E_UCLASS      */ ".1Unknown class '&1'",
+	/* 76 E_SPEC        */ ".2Incorrect declaration of symbol '&1' in class '&2'"
 };
 
 #if DEBUG_ERROR
@@ -745,6 +746,7 @@ void ERROR_hook(void)
 
 	ERROR_INFO save = { 0 };
 	ERROR_INFO last = { 0 };
+	STACK_BACKTRACE *save_bt = NULL;
 	CLASS_DESC_METHOD *handle_error;
 
 	if (no_rec)
@@ -752,12 +754,13 @@ void ERROR_hook(void)
 
 	if (PROJECT_class && CLASS_is_loaded(PROJECT_class))
 	{
-		handle_error = (CLASS_DESC_METHOD *)CLASS_get_symbol_desc_kind(PROJECT_class, "Application_Error", CD_STATIC_METHOD, 0);
+		handle_error = (CLASS_DESC_METHOD *)CLASS_get_symbol_desc_kind(PROJECT_class, "Application_Error", CD_STATIC_METHOD, 0, T_VOID);
 
 		if (handle_error)
 		{
 			no_rec = TRUE;
-			ERROR_save(&save, &last);
+			ERROR_copy(&save, &last);
+			if (ERROR_backtrace) save_bt = STACK_copy_backtrace(ERROR_backtrace);
 
 			TRY
 			{
@@ -765,11 +768,15 @@ void ERROR_hook(void)
 			}
 			CATCH
 			{
-				ERROR_save(&save, &last);
 			}
 			END_TRY
 
 			ERROR_restore(&save, &last);
+			
+			STACK_free_backtrace(&ERROR_backtrace);
+			if (save_bt)
+				ERROR_backtrace = save_bt;
+			
 			no_rec = FALSE;
 		}
 	}

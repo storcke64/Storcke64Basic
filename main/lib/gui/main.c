@@ -57,34 +57,7 @@ const char *get_name(int use)
 	}
 }
 
-
-static bool can_use(int use)
-{
-	static const char *ext[] = { "ext", "webkit", "opengl", NULL };
-	char test[32];
-	char *suffix;
-	const char **pext;
-	const char *name;
-	
-	name = get_name(use);
-	
-	if (!GB.Component.CanLoadLibrary(name))
-		return FALSE;
-
-	strcpy(test, name);
-	suffix = test + strlen(name);
-	*suffix++ = '.';
-	
-	for (pext = ext; *pext; pext++)
-	{
-		strcpy(suffix, *pext);
-		if (GB.Component.Exist(test) && !GB.Component.CanLoadLibrary(test))
-			return FALSE;
-	}
-	
-	return TRUE;
-}
-
+#include "gb_gui_test_temp.h"
 
 int EXPORT GB_INIT(void)
 {
@@ -109,7 +82,7 @@ int EXPORT GB_INIT(void)
 	
 	if (use == USE_NOTHING)
 	{
-		use = USE_GB_GTK;
+		use = USE_GB_GTK3;
 		
 		env = getenv("KDE_FULL_SESSION");
 		
@@ -126,12 +99,12 @@ int EXPORT GB_INIT(void)
 		}
 	}
 
-	if (!can_use(use))
+	if (!GUI_can_use(use))
 	{
 		use_other = USE_NOTHING;
 		for (i = 0; i <= 2; i++)
 		{
-			if (can_use(use_list[use - 1][i]))
+			if (GUI_can_use(use_list[use - 1][i]))
 			{
 				use_other = use_list[use - 1][i];
 				break;

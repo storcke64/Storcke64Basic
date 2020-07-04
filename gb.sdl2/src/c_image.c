@@ -70,7 +70,6 @@ static void *temp_image(GB_IMG *img)
 	
 	if (img && img->data)
 		surface = SDL_CreateRGBSurfaceFrom(img->data, img->width, img->height, 32, img->width * sizeof(int), RMASK, GMASK, BMASK, AMASK);
-
 	
 	return SDL_CreateImage(surface);
 }

@@ -12,6 +12,7 @@ Property Read Height As Integer
 Property Read Geometry As Rect
 Property Read X As Integer
 Property Read Y As Integer
+Property Read Count As Integer
 
 Property Read HasMode As Boolean
 
@@ -23,58 +24,60 @@ Public NewlineMode As Boolean
 Public WrapMode As Boolean
 Public HideCursor As Boolean
 
+Static Private $aDarkColor As Integer[] = [
+  &H404040, &HC00000, &H00C000, &HD0C000, &H005090, &H900090, &H009090, &HC0C0C0,
+  &HA0A0A0, &HFF0000, &H00FF00, &HFFFF00, &H0080FF, &HFF00FF, &H00FFFF, &HFFFFFF]
+  '&H808080, &HC00000, &H00C000, &HD0C000, &H0060C0, &H800080, &H008080, &HFFFFFF,
+  '&H000000, &HFF0000, &H00FF00, &HFFFF00, &H0080FF, &HFF00FF, &H00FFFF, &HC0C0C0]
+
 Static Private $aColor As Integer[] = [
-  &H000000, &H800000, &H008000, &H808000, &H000080, &H800080, &H008080, &Hc0c0c0,
-  &H808080, &Hff0000, &H00ff00, &HFFFF00, &H0000ff, &Hff00ff, &H00ffff, &Hffffff,
-  &H000000, &H00005f, &H000087, &H0000af, &H0000d7, &H0000ff,
-  &H005f00, &H005f5f, &H005f87, &H005faf, &H005fd7, &H005fff,
-  &H008700, &H00875f, &H008787, &H0087af, &H0087d7, &H0087ff,
-  &H00af00, &H00af5f, &H00af87, &H00afaf, &H00afd7, &H00afff,
-  &H00d700, &H00d75f, &H00d787, &H00d7af, &H00d7d7, &H00d7ff,
-  &H00ff00, &H00ff5f, &H00ff87, &H00ffaf, &H00ffd7, &H00ffff,
-  &H5f0000, &H5f005f, &H5f0087, &H5f00af, &H5f00d7, &H5f00ff,
-  &H5f5f00, &H5f5f5f, &H5f5f87, &H5f5faf, &H5f5fd7, &H5f5fff,
-  &H5f8700, &H5f875f, &H5f8787, &H5f87af, &H5f87d7, &H5f87ff,
-  &H5faf00, &H5faf5f, &H5faf87, &H5fafaf, &H5fafd7, &H5fafff,
-  &H5fd700, &H5fd75f, &H5fd787, &H5fd7af, &H5fd7d7, &H5fd7ff,
-  &H5fff00, &H5fff5f, &H5fff87, &H5fffaf, &H5fffd7, &H5fffff,
-  &H870000, &H87005f, &H870087, &H8700af, &H8700d7, &H8700ff,
-  &H875f00, &H875f5f, &H875f87, &H875faf, &H875fd7, &H875fff,
-  &H878700, &H87875f, &H878787, &H8787af, &H8787d7, &H8787ff,
-  &H87af00, &H87af5f, &H87af87, &H87afaf, &H87afd7, &H87afff,
-  &H87d700, &H87d75f, &H87d787, &H87d7af, &H87d7d7, &H87d7ff,
-  &H87ff00, &H87ff5f, &H87ff87, &H87ffaf, &H87ffd7, &H87ffff,
-  &Haf0000, &Haf005f, &Haf0087, &Haf00af, &Haf00d7, &Haf00ff,
-  &Haf5f00, &Haf5f5f, &Haf5f87, &Haf5faf, &Haf5fd7, &Haf5fff,
-  &Haf8700, &Haf875f, &Haf8787, &Haf87af, &Haf87d7, &Haf87ff,
-  &Hafaf00, &Hafaf5f, &Hafaf87, &Hafafaf, &Hafafd7, &Hafafff,
-  &Hafd700, &Hafd75f, &Hafd787, &Hafd7af, &Hafd7d7, &Hafd7ff,
-  &Hafff00, &Hafff5f, &Hafff87, &Hafffaf, &Hafffd7, &Hafffff,
-  &Hd70000, &Hd7005f, &Hd70087, &Hd700af, &Hd700d7, &Hd700ff,
-  &Hd75f00, &Hd75f5f, &Hd75f87, &Hd75faf, &Hd75fd7, &Hd75fff,
-  &Hd78700, &Hd7875f, &Hd78787, &Hd787af, &Hd787d7, &Hd787ff,
-  &Hd7af00, &Hd7af5f, &Hd7af87, &Hd7afaf, &Hd7afd7, &Hd7afff,
-  &Hd7d700, &Hd7d75f, &Hd7d787, &Hd7d7af, &Hd7d7d7, &Hd7d7ff,
-  &Hd7ff00, &Hd7ff5f, &Hd7ff87, &Hd7ffaf, &Hd7ffd7, &Hd7ffff,
-  &Hff0000, &Hff005f, &Hff0087, &Hff00af, &Hff00d7, &Hff00ff,
-  &Hff5f00, &Hff5f5f, &Hff5f87, &Hff5faf, &Hff5fd7, &Hff5fff,
-  &Hff8700, &Hff875f, &Hff8787, &Hff87af, &Hff87d7, &Hff87ff,
-  &Hffaf00, &Hffaf5f, &Hffaf87, &Hffafaf, &Hffafd7, &Hffafff,
-  &Hffd700, &Hffd75f, &Hffd787, &Hffd7af, &Hffd7d7, &Hffd7ff,
-  &Hffff00, &Hffff5f, &Hffff87, &Hffffaf, &Hffffd7, &Hffffff,
-  &H080808, &H121212, &H1c1c1c, &H262626, &H303030, &H3a3a3a,
-  &H444444, &H4e4e4e, &H585858, &H606060, &H666666, &H767676,
-  &H808080, &H8a8a8a, &H949494, &H9e9e9e, &Ha8a8a8, &Hb2b2b2,
-  &Hbcbcbc, &Hc6c6c6, &Hd0d0d0, &Hdadada, &He4e4e4, &Heeeeee]
+  &H000000, &HC00000, &H00C000, &HD0C000, &H0060C0, &H900090, &H009090, &HC0C0C0,
+  &H808080, &H800000, &H008000, &H606000, &H004080, &H600060, &H006060, &HF0F0F0,
+  &H000000, &H00005F, &H000087, &H0000AF, &H0000D7, &H0000FF,
+  &H005F00, &H005F5F, &H005F87, &H005FAF, &H005FD7, &H005FFF,
+  &H008700, &H00875F, &H008787, &H0087AF, &H0087D7, &H0087FF,
+  &H00AF00, &H00AF5F, &H00AF87, &H00AFAF, &H00AFD7, &H00AFFF,
+  &H00D700, &H00D75F, &H00D787, &H00D7AF, &H00D7D7, &H00D7FF,
+  &H00FF00, &H00FF5F, &H00FF87, &H00FFAF, &H00FFD7, &H00FFFF,
+  &H5F0000, &H5F005F, &H5F0087, &H5F00AF, &H5F00D7, &H5F00FF,
+  &H5F5F00, &H5F5F5F, &H5F5F87, &H5F5FAF, &H5F5FD7, &H5F5FFF,
+  &H5F8700, &H5F875F, &H5F8787, &H5F87AF, &H5F87D7, &H5F87FF,
+  &H5FAF00, &H5FAF5F, &H5FAF87, &H5FAFAF, &H5FAFD7, &H5FAFFF,
+  &H5FD700, &H5FD75F, &H5FD787, &H5FD7AF, &H5FD7D7, &H5FD7FF,
+  &H5FFF00, &H5FFF5F, &H5FFF87, &H5FFFAF, &H5FFFD7, &H5FFFFF,
+  &H870000, &H87005F, &H870087, &H8700AF, &H8700D7, &H8700FF,
+  &H875F00, &H875F5F, &H875F87, &H875FAF, &H875FD7, &H875FFF,
+  &H878700, &H87875F, &H878787, &H8787AF, &H8787D7, &H8787FF,
+  &H87AF00, &H87AF5F, &H87AF87, &H87AFAF, &H87AFD7, &H87AFFF,
+  &H87D700, &H87D75F, &H87D787, &H87D7AF, &H87D7D7, &H87D7FF,
+  &H87FF00, &H87FF5F, &H87FF87, &H87FFAF, &H87FFD7, &H87FFFF,
+  &HAF0000, &HAF005F, &HAF0087, &HAF00AF, &HAF00D7, &HAF00FF,
+  &HAF5F00, &HAF5F5F, &HAF5F87, &HAF5FAF, &HAF5FD7, &HAF5FFF,
+  &HAF8700, &HAF875F, &HAF8787, &HAF87AF, &HAF87D7, &HAF87FF,
+  &HAFAF00, &HAFAF5F, &HAFAF87, &HAFAFAF, &HAFAFD7, &HAFAFFF,
+  &HAFD700, &HAFD75F, &HAFD787, &HAFD7AF, &HAFD7D7, &HAFD7FF,
+  &HAFFF00, &HAFFF5F, &HAFFF87, &HAFFFAF, &HAFFFD7, &HAFFFFF,
+  &HD70000, &HD7005F, &HD70087, &HD700AF, &HD700D7, &HD700FF,
+  &HD75F00, &HD75F5F, &HD75F87, &HD75FAF, &HD75FD7, &HD75FFF,
+  &HD78700, &HD7875F, &HD78787, &HD787AF, &HD787D7, &HD787FF,
+  &HD7AF00, &HD7AF5F, &HD7AF87, &HD7AFAF, &HD7AFD7, &HD7AFFF,
+  &HD7D700, &HD7D75F, &HD7D787, &HD7D7AF, &HD7D7D7, &HD7D7FF,
+  &HD7FF00, &HD7FF5F, &HD7FF87, &HD7FFAF, &HD7FFD7, &HD7FFFF,
+  &HFF0000, &HFF005F, &HFF0087, &HFF00AF, &HFF00D7, &HFF00FF,
+  &HFF5F00, &HFF5F5F, &HFF5F87, &HFF5FAF, &HFF5FD7, &HFF5FFF,
+  &HFF8700, &HFF875F, &HFF8787, &HFF87AF, &HFF87D7, &HFF87FF,
+  &HFFAF00, &HFFAF5F, &HFFAF87, &HFFAFAF, &HFFAFD7, &HFFAFFF,
+  &HFFD700, &HFFD75F, &HFFD787, &HFFD7AF, &HFFD7D7, &HFFD7FF,
+  &HFFFF00, &HFFFF5F, &HFFFF87, &HFFFFAF, &HFFFFD7, &HFFFFFF,
+  &H080808, &H121212, &H1C1C1C, &H262626, &H303030, &H3A3A3A,
+  &H444444, &H4E4E4E, &H585858, &H606060, &H666666, &H767676,
+  &H808080, &H8A8A8A, &H949494, &H9E9E9E, &HA8A8A8, &HB2B2B2,
+  &HBCBCBC, &HC6C6C6, &HD0D0D0, &HDADADA, &HE4E4E4, &HEEEEEE]
 
-Static Private $aGraphicCharset As Integer[] = [&H0020&, &H25C6&, &H2592&, &H2409&, &H240c&, &H240d&, &H240a&, &H00b0&,
-  &H00b1&, &H2424&, &H240b&, &H2518&, &H2510&, &H250c&, &H2514&, &H253c&,
-  &HF800&, &HF801&, &H2500&, &HF803&, &HF804&, &H251c&, &H2524&, &H2534&,
-  &H252c&, &H2502&, &H2264&, &H2265&, &H03C0&, &H2260&, &H00A3&, &H00b7&]
-
-Static Private $aInvertColor As Integer[] = [
-  &H000000, &HFF0000, &H00FF00, &HFFFF00, &H0000FF, &HFF00FF, &H00FFFF, &HC0C0C0,
-  &H808080, &HC00000, &H00C000, &HC0C000, &H0000C0, &HC000C0, &H00C0C0, &HFFFFFF]
+Static Private $aGraphicCharset As Integer[] = [&H0020&, &H25C6&, &H2592&, &H2409&, &H240C&, &H240D&, &H240A&, &H00B0&,
+  &H00B1&, &H2424&, &H240B&, &H2518&, &H2510&, &H250C&, &H2514&, &H253C&,
+  &HF800&, &HF801&, &H2500&, &HF803&, &HF804&, &H251C&, &H2524&, &H2534&,
+  &H252C&, &H2502&, &H2264&, &H2265&, &H03C0&, &H2260&, &H00A3&, &H00B7&]
 
 Static Private $sControlChar As String
 
@@ -748,7 +751,7 @@ Private Function Height_Read() As Integer
   
 End
 
-Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Integer, LH As Integer, CW As Integer, (LA) As Integer, hFontCache As Image, bInvertColor As Boolean)
+Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Integer, LH As Integer, CW As Integer, (LA) As Integer, hFontCache As Image, bDarkBackground As Boolean)
   
   Dim hLine As CTerminalLine
   Dim I, J, K As Integer
@@ -793,15 +796,19 @@ Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Int
     
     iBg = hAttr.Background
     If iBg >= 0 Then
-      iBg = $aColor[iBg]
+      If iBg < 16 And If bDarkBackground Then
+        iBg = $aDarkColor[iBg]
+      Else
+        iBg = $aColor[iBg]
+      Endif
     Else
       iBg = hView.Background
     Endif
     
     iFg = hAttr.Foreground
     If iFg >= 0 Then
-      If iFg < 16 And If bInvertColor Then
-        iFg = $aInvertColor[iFg]
+      If iFg < 16 And If bDarkBackground Then
+        iFg = $aDarkColor[iFg]
       Else
         iFg = $aColor[iFg]
       Endif
@@ -1044,7 +1051,7 @@ Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As I
   
 End
 
-Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bInvertColor As Boolean)
+Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bDarkBackground As Boolean)
   
   Dim hView As TerminalView = GetView()
   Dim L, L1, L2 As Integer
@@ -1066,7 +1073,7 @@ Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHide
   
   For L = L1 To L2
     
-    If L < Lines.Count Then DrawLine(hView, L, 0, Y, LH, CW, LA, hFont, bInvertColor)
+    If L < Lines.Count Then DrawLine(hView, L, 0, Y, LH, CW, LA, hFont, bDarkBackground)
     
     ' Cursor
     
@@ -2233,5 +2240,18 @@ Public Sub SelectCurrentWord(X As Integer, Y As Integer)
 
   GotoMouse(XL, Y, True)
   GotoMouse(XR - 1, Y, False)
+
+End
+
+Public Sub SelectAll()
+  
+  GotoMouse(0, 0, True)
+  GotoMouse(0, Lines.Count, False)
+  
+End
+
+Private Function Count_Read() As Integer
+
+  Return Lines.Count
 
 End

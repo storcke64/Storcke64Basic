@@ -137,10 +137,12 @@ Private Sub SelectPrinter(Optional sName As String)
   
   'txtFile.Text = User.Home &/ "print.pdf"
   
-  txtMarginLeft.Value = 10
-  txtMarginRight.Value = 10
-  txtMarginTop.Value = 10
-  txtMarginBottom.Value = 10
+  With $hPrinter
+    txtMarginLeft.Value = .MarginLeft
+    txtMarginRight.Value = .MarginRight
+    txtMarginTop.Value = .MarginTop
+    txtMarginBottom.Value = .MarginBottom
+  End With
   
   If $bPrintToFile Then
     Object.Lock(cmbResolution)
@@ -155,7 +157,7 @@ Private Sub SelectPrinter(Optional sName As String)
     txtFile.Hide
     panResolution.Hide
     panRectoVerso.Show
-    btnPrinter.Picture = Picture["icon:/small/printer"]
+    btnPrinter.Picture = Picture["icon:/small/print"]
     btnPrinter.Text = sName
   Endif
   

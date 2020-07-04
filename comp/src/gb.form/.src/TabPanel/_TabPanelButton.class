@@ -192,7 +192,7 @@ Public Sub DrawingArea_Draw()
   
     Case Align.Top
       If $bSelected Then
-        If Not bFirst Or If bBorder Or If System.RightToLeft Then Draw.Line(0, Me.H - 1, 0, 0)
+        If Not bFirst Or If bBorder Or If System.RightToLeft Or If hTabPanel.TabBarPaddingStart Then Draw.Line(0, Me.H - 1, 0, 0)
         If Not bFirst Or If bBorder Or If Not System.RightToLeft Then Draw.Line(Me.W - 1, 0, Me.W - 1, Me.H - 1)
         If bBorder Then Draw.Line(0, 0, Me.W - 1, 0)
       Else
@@ -201,7 +201,7 @@ Public Sub DrawingArea_Draw()
       
     Case Align.Bottom
       If $bSelected Then
-        If Not bFirst Or If bBorder Or If System.RightToLeft Then Draw.Line(0, 0, 0, Me.H - 1)
+        If Not bFirst Or If bBorder Or If System.RightToLeft Or If hTabPanel.TabBarPaddingStart Then Draw.Line(0, 0, 0, Me.H - 1)
         If Not bFirst Or If bBorder Or If Not System.RightToLeft Then Draw.Line(Me.W - 1, Me.H - 1, Me.W - 1, 0)
         If bBorder Then Draw.Line(0, Me.H - 1, Me.W - 1, Me.H - 1)
       Else

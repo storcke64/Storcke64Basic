@@ -42,10 +42,38 @@
 #include "gmouse.h"
 #include "gmainwindow.h"
 
+#define CHECK_STATE(_var, _state) \
+	if (event->changed_mask & _state) \
+		data->_var = (event->new_window_state & _state) != 0;
+
+
 static gboolean cb_frame(GtkWidget *widget,GdkEventWindowState *event,gMainWindow *data)
 {
+	CHECK_STATE(_minimized, GDK_WINDOW_STATE_ICONIFIED);
+	CHECK_STATE(_maximized, GDK_WINDOW_STATE_MAXIMIZED);
+	CHECK_STATE(sticky, GDK_WINDOW_STATE_STICKY);
+	CHECK_STATE(_fullscreen, GDK_WINDOW_STATE_FULLSCREEN);
+	
+	if (event->changed_mask & GDK_WINDOW_STATE_ABOVE)
+	{
+		if (event->new_window_state & GDK_WINDOW_STATE_ABOVE)
+			data->stack = 1;
+		else if (data->stack == 1)
+			data->stack = 0;
+	}
+	if (event->changed_mask & GDK_WINDOW_STATE_BELOW)
+	{
+		if (event->new_window_state & GDK_WINDOW_STATE_BELOW)
+			data->stack = 2;
+		else if (data->stack == 2)
+			data->stack = 0;
+	}
+
 	data->performArrange();
-	data->emit(SIGNAL(data->onState));
+	
+	if (event->changed_mask & (GDK_WINDOW_STATE_ICONIFIED | GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN | GDK_WINDOW_STATE_STICKY | GDK_WINDOW_STATE_ABOVE | GDK_WINDOW_STATE_BELOW))
+		data->emit(SIGNAL(data->onState));
+	
 	return false;
 }
 
@@ -295,7 +323,7 @@ void gMainWindow::initWindow()
 		g_signal_connect(G_OBJECT(border), "delete-event", G_CALLBACK(cb_close),(gpointer)this);
 		g_signal_connect(G_OBJECT(border), "window-state-event", G_CALLBACK(cb_frame),(gpointer)this);
 		
-		gtk_widget_add_events(widget,GDK_BUTTON_MOTION_MASK);
+		gtk_widget_add_events(widget,GDK_BUTTON_MOTION_MASK | GDK_STRUCTURE_MASK);
 		ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
 	}
 	
@@ -854,6 +882,8 @@ void gMainWindow::showPopup(int x, int y)
 	
   move(x, y);
 	gtk_window_resize(GTK_WINDOW(border), bufW, bufH);
+	raise();
+	setFocus();
 	
 	//reparent(NULL, x, y, GTK_WINDOW_POPUP);
 

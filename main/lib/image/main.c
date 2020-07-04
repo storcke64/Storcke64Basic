@@ -69,6 +69,7 @@ void *GB_IMAGE_1[] EXPORT =
 	(void *)COLOR_lighter,
 	(void *)COLOR_darker,
 	(void *)IMAGE_format_to_string,
+	(void *)COLOR_get_luminance,
   NULL
 };
 

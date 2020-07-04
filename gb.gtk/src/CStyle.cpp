@@ -247,6 +247,22 @@ static STATE_T get_state(int state)
 	return (STATE_T)gstate;
 }
 
+static GtkCellRendererState get_cell_state(int state)
+{
+	int cstate = 0;
+
+	if (state & GB_DRAW_STATE_DISABLED)
+		cstate |= GTK_CELL_RENDERER_INSENSITIVE;
+	if (state & GB_DRAW_STATE_ACTIVE)
+		cstate |= GTK_CELL_RENDERER_SELECTED;
+	if (state & GB_DRAW_STATE_HOVER)
+		cstate |= GTK_CELL_RENDERER_PRELIT;
+	if (state & GB_DRAW_STATE_FOCUS)
+		cstate |= GTK_CELL_RENDERER_FOCUSED;
+
+	return (GtkCellRendererState)cstate;
+}
+
 static void set_state(GtkStyleContext *style, int state)
 {
 	gtk_style_context_set_state(style, get_state(state));
@@ -346,19 +362,40 @@ static void style_arrow(int x, int y, int w, int h, int type, int state)
 #endif
 }
 
+#ifdef GTK3
+static void render_toggle(int x, int y, int w, int h, int value, int state, bool radio)
+{
+	static GtkCellRenderer *cell = NULL;
+	GdkRectangle area;
+	
+	if (!cell)
+	{
+		cell = gtk_cell_renderer_toggle_new();
+		gtk_cell_renderer_toggle_set_radio(GTK_CELL_RENDERER_TOGGLE(cell), radio);
+	}
+	
+	g_object_set(G_OBJECT(cell), "active", value < 0, NULL);
+	g_object_set(G_OBJECT(cell), "inconsistent", value > 0, NULL);
+	
+	area.x = x;
+	area.y = y;
+	area.width = w;
+	area.height = h;
+	
+	gtk_cell_renderer_render(cell, _cr, radio ? _radio_button : _check_button, &area, &area, get_cell_state(state));
+}
+#endif
+
 static void style_check(int x, int y, int w, int h, int value, int state)
 {
-	STYLE_T *style = get_style(GTK_TYPE_CHECK_BUTTON);
-
-	if (value)
-		state |= GB_DRAW_STATE_ACTIVE;
-
 #ifdef GTK3
-	set_state(style, state);
-	gtk_render_check(style, _cr, x, y, w, h);
-	if (state & GB_DRAW_STATE_FOCUS)
-		paint_focus(style, x, y, w, h);
+	
+	get_style(GTK_TYPE_CHECK_BUTTON);
+	render_toggle(x, y, w, h, value, state, FALSE);
+	
 #else
+
+	STYLE_T *style = get_style(GTK_TYPE_CHECK_BUTTON);
 	GtkShadowType shadow;
 	GtkStateType st = get_state(state);
 	
@@ -379,23 +416,24 @@ static void style_check(int x, int y, int w, int h, int value, int state)
 		x, y, w, h);
 	if (state & GB_DRAW_STATE_FOCUS)
 		paint_focus(style, x, y, w, h, st, "checkbutton");
+	
 #endif
-
 }
 
 static void style_option(int x, int y, int w, int h, int value, int state)
 {
+#ifdef GTK3
+	
+	get_style(GTK_TYPE_RADIO_BUTTON);
+	render_toggle(x, y, w, h, value, state, true);
+	
+#else
+	
 	STYLE_T *style = get_style(GTK_TYPE_RADIO_BUTTON);
-
+	
 	if (value)
 		state |= GB_DRAW_STATE_ACTIVE;
 
-#ifdef GTK3
-	set_state(style, state);
-	gtk_render_option(style, _cr, x, y, w, h);
-	if (state & GB_DRAW_STATE_FOCUS)
-		paint_focus(style, x, y, w, h);
-#else
 	GtkShadowType shadow;
 	GtkStateType st = get_state(state | (value ? GB_DRAW_STATE_ACTIVE : 0));
 	
@@ -406,8 +444,8 @@ static void style_option(int x, int y, int w, int h, int value, int state)
 		x, y, w, h);
 	if (state & GB_DRAW_STATE_FOCUS)
 		paint_focus(style, x, y, w, h, st, "radiobutton");
+	
 #endif
-			
 }
 
 static void style_separator(int x, int y, int w, int h, int vertical, int state)

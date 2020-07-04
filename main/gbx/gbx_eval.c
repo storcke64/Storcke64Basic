@@ -140,7 +140,7 @@ bool EVAL_expression(EXPRESSION *expr, EVAL_FUNCTION func)
 	{
 		SP->type = T_OBJECT;
 		SP->_object.object = expr->parent;
-		OBJECT_REF(expr->parent);
+		OBJECT_REF_CHECK(expr->parent);
 		SP++;
 	}
 

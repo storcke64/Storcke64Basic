@@ -63,12 +63,19 @@ typedef
 	POINTER_INFO;
 
 #ifndef __CMOUSE_CPP
+	
 extern GB_DESC CMouseDesc[];
 extern GB_DESC CCursorDesc[];
 extern GB_DESC CPointerDesc[];
 
+extern int MOUSE_click_x;
+extern int MOUSE_click_y;
+extern int MOUSE_click_count;
+extern double MOUSE_timer;
+
 extern MOUSE_INFO MOUSE_info;
 extern POINTER_INFO POINTER_info;
+
 #else
 
 #define THIS ((CCURSOR *)_object)

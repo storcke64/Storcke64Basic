@@ -47,10 +47,10 @@ void SYSTRAY_raise_arrange(void)
 
 //---------------------------------------------------------------------------
 
-BEGIN_METHOD(X11Systray_Show, GB_INTEGER window)
+BEGIN_METHOD(X11Systray_Show, GB_INTEGER window; GB_INTEGER background)
 
 	X11_init();
-	SYSTRAY_init(X11_display, VARG(window));
+	SYSTRAY_init(X11_display, VARG(window), VARGOPT(background, 0));
 
 END_METHOD
 
@@ -178,7 +178,7 @@ GB_DESC X11SystrayDesc[] =
 {
 	GB_DECLARE_VIRTUAL("X11Systray"),
 
-	GB_STATIC_METHOD("Show", NULL, X11Systray_Show, "(Window)i"),
+	GB_STATIC_METHOD("Show", NULL, X11Systray_Show, "(Window)i[(Background)i]"),
 	GB_STATIC_PROPERTY_READ("Count", "i", X11Systray_Count),
 	GB_STATIC_METHOD("_get", "X11SystrayIcon", X11Systray_get, "(Index)i"),
 	GB_STATIC_METHOD("Refresh", NULL, X11Systray_Refresh, NULL),

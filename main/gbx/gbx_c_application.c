@@ -79,9 +79,16 @@ BEGIN_PROPERTY(Application_Title)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(Application_Id)
+BEGIN_PROPERTY(Application_Handle)
 
   GB_ReturnInt(getpid());
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Application_ParentHandle)
+
+  GB_ReturnInt(getppid());
 
 END_PROPERTY
 
@@ -236,6 +243,7 @@ static void init_again(int old_pid)
 	FILE_remove_temp_file();
 	snprintf(old, sizeof(old),FILE_TEMP_DIR, getuid(), old_pid);
 	rename(old, FILE_make_temp(NULL, NULL));
+	FILE_chdir(PROJECT_path);
 }
 
 BEGIN_PROPERTY(Application_Daemon)
@@ -334,8 +342,9 @@ GB_DESC NATIVE_App[] =
   GB_STATIC_PROPERTY_READ("Path", "s", Application_Path),
   GB_STATIC_PROPERTY_READ("Name", "s", Application_Name),
   GB_STATIC_PROPERTY_READ("Title", "s", Application_Title),
-  GB_STATIC_PROPERTY_READ("Id", "i", Application_Id),
-  GB_STATIC_PROPERTY_READ("Handle", "i", Application_Id),
+  GB_STATIC_PROPERTY_READ("Id", "i", Application_Handle),
+  GB_STATIC_PROPERTY_READ("Handle", "i", Application_Handle),
+  GB_STATIC_PROPERTY_READ("ParentHandle", "i", Application_ParentHandle),
   GB_STATIC_PROPERTY_READ("Version", "s", Application_Version),
   GB_STATIC_PROPERTY_READ("Dir", "s", Application_Dir),
   GB_STATIC_PROPERTY("Daemon", "b", Application_Daemon),

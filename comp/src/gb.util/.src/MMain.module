@@ -18,8 +18,11 @@
 
 Public Sub Main()
 
-  Print CStr(CDate("1/1/1970"))
-  RFC822Test()
+  'Print String.PadLeft("Gambas", 16, "×->")
+  'Print String.PadRight("Gambas", 16, "×->")
+  'Print Now;; Date.ToISO8601(Now);; Date.ToISO8601(Now, "-0200")
+  
+  Print DateAdd(Date.EasterDay(2020), gb.Day, 40)
   
 End
 

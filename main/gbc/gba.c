@@ -62,7 +62,7 @@ static struct option Long_options[] =
 static char **path_list;
 static int path_current;
 
-static const char *allowed_hidden_files[] = { ".gambas", ".info", ".list", ".lang", ".action", ".connection", ".component", ".public", NULL };
+static const char *allowed_hidden_files[] = { ".gambas", ".info", ".list", ".test", ".lang", ".action", ".connection", ".component", ".public", NULL };
 //static const char *remove_ext_root[] = { "module", "class", "form", "gambas", NULL };
 static const char *remove_ext_lang[] = { "pot", "po", NULL };
 
@@ -135,22 +135,22 @@ static void get_arguments(int argc, char **argv)
 					"Options:"
 					#if HAVE_GETOPT_LONG
 					"\n"
-					"  -o  --output=ARCHIVE       archive path [<project directory>/<project name>.gambas]\n"
-					"  -x  --extract=ARCHIVE      archive path\n"
-					"  -v  --verbose              verbose output\n"
-					"  -s  --swap                 swap endianness\n"
-					"  -V  --version              display version\n"
-					"  -L  --license              display license\n"
 					"  -h  --help                 display this help\n"
+					"  -L  --license              display license\n"
+					"  -o  --output=ARCHIVE       archive path [<project directory>/<project name>.gambas]\n"
+					"  -s  --swap                 swap endianness\n"
+					"  -v  --verbose              verbose output\n"
+					"  -V  --version              display version\n"
+					"  -x  --extract=ARCHIVE      archive path\n"
 					#else
 					" (no long options on this system)\n"
-					"  -o=ARCHIVE             archive path [<project directory>/<project name>.gambas]\n"
-					"  -x=ARCHIVE             archive path\n"
-					"  -v                     verbose output\n"
-					"  -s                     swap endianness\n"
-					"  -V                     display version\n"
-					"  -L                     display license\n"
 					"  -h                     display this help\n"
+					"  -L                     display license\n"
+					"  -o=ARCHIVE             archive path [<project directory>/<project name>.gambas]\n"
+					"  -s                     swap endianness\n"
+					"  -v                     verbose output\n"
+					"  -V                     display version\n"
+					"  -x=ARCHIVE             archive path\n"
 					#endif
 					"\n"
 					);

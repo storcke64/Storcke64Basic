@@ -1,0 +1,126 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,92,66)
+  Text = ("Test suites")
+  Arrangement = Arrange.Vertical
+  Spacing = True
+  Margin = True
+  { HBox2 Panel
+    MoveScaled(2,4,83,42)
+    Expand = True
+    Arrangement = Arrange.Horizontal
+    Border = Border.Plain
+    { Panel1 VBox
+      MoveScaled(2,2,37.875,37.875)
+      Expand = True
+      { lvwSuite ListView
+        MoveScaled(4,3,27,23)
+        Expand = True
+        Sorted = True
+        Editable = True
+        Border = False
+      }
+      { Separator4 Separator
+        MoveScaled(10,28,13,0)
+      }
+      { Panel2 HBox
+        MoveScaled(5,29,25,4)
+        { btnNew ToolButton
+          MoveScaled(0,0,4,4)
+          ToolTip = ("New test suite")
+          AutoResize = True
+          Picture = Picture["icon:/small/add"]
+        }
+        { btnCopy ToolButton
+          MoveScaled(4,0,4,4)
+          ToolTip = ("Duplicate test suite")
+          AutoResize = True
+          Picture = Picture["icon:/small/copy"]
+        }
+        { btnRename ToolButton
+          MoveScaled(8,0,4,4)
+          ToolTip = ("Rename test suite")
+          AutoResize = True
+          Picture = Picture["icon:/small/edit"]
+        }
+        { btnDelete ToolButton
+          MoveScaled(12,0,4,4)
+          ToolTip = ("Delete test suite")
+          AutoResize = True
+          Picture = Picture["icon:/small/remove"]
+        }
+      }
+    }
+    { Separator1 Separator
+      MoveScaled(41,14,0,10)
+    }
+    { Panel5 VBox
+      MoveScaled(44,2,27.875,37.875)
+      Expand = True
+      { tvwSuite TreeView
+        MoveScaled(0,0,27,20)
+        Expand = True
+        Mode = Select.Multiple
+        Sorted = True
+        Border = False
+        ShowCheck = True
+      }
+      { Separator2 Separator
+        MoveScaled(7,22,16,0)
+      }
+      { Panel6 HBox
+        MoveScaled(2,26,17,4)
+        { btnSelectAll ToolButton
+          MoveScaled(0,0,4,4)
+          ToolTip = ("Select all tests")
+          AutoResize = True
+          Picture = Picture["icon:/small/select-all"]
+        }
+        { btnUnselectAll ToolButton
+          MoveScaled(4,0,4,4)
+          ToolTip = ("Unselect all tests")
+          AutoResize = True
+          Picture = Picture["icon:/small/unselect"]
+        }
+      }
+    }
+  }
+  { HBox3 HBox
+    MoveScaled(3,57,84,4)
+    { Panel3 HBox
+      MoveScaled(1,0,31,4)
+      Expand = True
+      Spacing = True
+      { Label1 Label
+        MoveScaled(0,0,9,4)
+        AutoResize = True
+        Text = ("Test with")
+      }
+      { cmbTestWith ComboBox
+        MoveScaled(10,0,20,4)
+        Expand = True
+        ReadOnly = True
+      }
+    }
+    { Panel4 HBox
+      MoveScaled(35,0,44,4)
+      Expand = True
+      Spacing = True
+      { Spring1 Spring
+        MoveScaled(2,1,5,1)
+      }
+      { btnReset Button
+        MoveScaled(8,0,16,4)
+        Text = ("Reset")
+        Picture = Picture["icon:/small/undo"]
+      }
+      { btnClose Button
+        MoveScaled(25,0,16,4)
+        Text = ("Close")
+        Picture = Picture["icon:/small/close"]
+        Cancel = True
+      }
+    }
+  }
+}

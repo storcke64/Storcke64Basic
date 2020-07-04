@@ -1,0 +1,149 @@
+' Gambas class file
+
+Class DesktopMime
+
+Static Private $sPath As String
+
+Public Sub Run(sPath As String) As Boolean
+  
+  $sPath = sPath
+  Return Not FFileInfoVC.ShowModal()
+  
+End
+
+Public Sub Form_Open()
+
+  Dim sPath As String
+
+  sPath = $sPath
+
+  If Left(sPath) = "$" Then sPath = Project.GetSpecialDir(sPath)
+  If Not sPath Then sPath = Project.Dir
+ 
+  Me.Title = Subst(("'&1' version control"), File.Name(sPath))
+  
+  edtChange.ReadConfig
+  edtHistory.ReadConfig
+  
+  btnClose.SetFocus
+  
+  tabInfo_Click
+  
+End
+
+Public Sub btnClose_Click()
+
+  Me.Close
+
+End
+
+Private Sub LoadVersionControlInfo()
+
+  Dim sDiff As String
+  Dim bHideUndoButton As Boolean
+  
+  edtChange.SetFocus
+  
+  Inc Application.Busy
+
+  edtChange.Font = Font[Settings["/Editor/Font", Project.DEFAULT_FONT]]
+  sDiff = VersionControl.Diff($sPath)
+  If Project.IsFormPath($sPath) Then
+    sDiff &= "\n" & VersionControl.Diff(File.SetExt($sPath, "class"))
+  Endif
+  sDiff = Trim(sDiff)
+  If sDiff Then
+    edtChange.Highlight = "Diff"
+    edtChange.Text = sDiff
+    edtChange.Show
+    lblVersioning.Hide
+  Else
+    edtChange.Hide
+    If Project.IsLocked($sPath) Then
+      lblVersioning.Text = ("This file is locked, and will be deleted on the next commit.")
+    Else If Project.IsAdded($sPath) Then
+      lblVersioning.Text = ("This file is not versioned, and must be added to the repository.")
+      bHideUndoButton = True
+    Else
+      lblVersioning.Text = ("This file has not been modified since the last commit.")
+      bHideUndoButton = True
+    Endif
+    lblVersioning.Show
+  Endif
+  
+  btnRevert.Visible = Not bHideUndoButton
+  
+  Dec Application.Busy
+  
+End
+
+Public Sub btnRevert_Click()
+
+  If Message.Warning(("You are going to cancel your changes!"), ("Continue"), ("Cancel")) = 2 Then Return
+
+  Project.RevertFile($sPath)
+  LoadVersionControlInfo
+
+End
+
+
+' Public Sub panStat_Arrange()
+' 
+'   Dim hModule As CModule
+' 
+'   If $bStat Then Return
+' 
+'   Inc Application.Busy
+' 
+'   gvwStat.Columns.Count = 2
+'   
+'   AddStat(("Modules"), Project.GetCount("module"))
+'   If Project.HasTest Then AddStat(("Test modules"), Project.GetCount("test"))
+'   AddStat(("Classes"), Project.GetCount("class"))
+'   For Each hModule In CModule.All
+'     If hModule.Used Then AddStat(hModule.NamePlural, Project.GetCount(hModule.Key))
+'   Next
+'   AddStat(("Lines of code"), Format(Project.GetLinesOfCode(), ",#"))
+'   
+'   gvwStat.Rows.H = Desktop.Scale * 4
+'   gvwStat.Columns[0].Width = Desktop.Scale * 16
+' 
+'   Dec Application.Busy
+' 
+'   $bStat = True
+' 
+' End
+
+Public Sub tabInfo_Click()
+
+  Select Case tabInfo.Index
+    
+    Case 0
+      
+      LoadVersionControlInfo
+    
+    Case 1
+    
+      edtHistory.FillWithHistory($sPath)
+    
+  End Select
+  
+End
+
+Public Sub edtHistory_Highlight(Text As String)
+
+  VersionControl.HighlightHistory(Text)
+
+End
+
+Public Sub edtChange_KeyPress()
+
+  If Key.Code = Key.Escape Then Me.Close
+
+End
+
+Public Sub edtHistory_KeyPress()
+
+  If Key.Code = Key.Escape Then Me.Close
+
+End

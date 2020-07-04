@@ -61,7 +61,7 @@ enum {
 	CALL_SUBR_CODE       = 1,
 	CALL_SUBR_UNKNOWN    = 2,
 	CALL_NEW             = 3,
-	CALL_RETURN_UNKNWON  = 128
+	CALL_RETURN_UNKNOWN  = 128
 };
 
 enum {
@@ -83,6 +83,7 @@ static bool _decl_ro;
 static bool _decl_rv;
 static bool _decl_tp;
 static bool _decl_ra;
+static bool _decl_as;
 
 static ushort _pc;
 
@@ -119,6 +120,7 @@ static void enter_function(FUNCTION *func, int index)
 	_decl_rv = FALSE;
 	_decl_tp = FALSE;
 	_decl_ra = FALSE;
+	_decl_as = FALSE;
 	
 	_has_gosub = FALSE;
 	_loop_count = 0;
@@ -398,7 +400,7 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 	
 	if (src == T_VOID)
 	{
-		sprintf(buffer, "(THROW(E_NRETURN),%s)", JIT_get_default_value(TYPEID(dest)));
+		sprintf(buffer, "(THROW_PC(E_NRETURN, %d),%s)", _pc, JIT_get_default_value(TYPEID(dest)));
 		return buffer;
 	}
 			
@@ -903,11 +905,12 @@ static void push_unknown(int index)
 		{
 			desc = class->table[index].desc;
 			class = desc->method.class;
-			utype = JIT_ctype_to_type(class, desc->variable.ctype);
 			
 			switch (CLASS_DESC_get_type(desc))
 			{
 				case CD_STATIC_VARIABLE:
+					
+					utype = JIT_ctype_to_type(class, desc->variable.ctype);
 					
 					pop_stack(1);
 					
@@ -928,6 +931,8 @@ static void push_unknown(int index)
 				case CD_VARIABLE:
 					
 					// TODO: automatic class
+					
+					utype = JIT_ctype_to_type(class, desc->variable.ctype);
 					
 					expr = peek(-1, (TYPE)class);
 					
@@ -1040,11 +1045,12 @@ static void pop_unknown(int index)
 		if (index != NO_SYMBOL)
 		{
 			desc = class->table[index].desc;
-			utype = JIT_ctype_to_type(class, desc->variable.ctype);
 
 			switch (CLASS_DESC_get_type(desc))
 			{
 				case CD_STATIC_VARIABLE:
+					
+					utype = JIT_ctype_to_type(class, desc->variable.ctype);
 					
 					pop_stack(1);
 					
@@ -1060,6 +1066,8 @@ static void pop_unknown(int index)
 				case CD_VARIABLE:
 					
 					// TODO: automatic class
+					
+					utype = JIT_ctype_to_type(class, desc->variable.ctype);
 					
 					expr = peek(-1, (TYPE)class);
 					
@@ -1203,7 +1211,7 @@ static void pop_array(ushort code)
 				
 				pop_stack(3);
 				
-				goto CHECK_SWAP;
+				goto _CHECK_SWAP;
 			}
 		}
 		
@@ -1225,7 +1233,7 @@ static void pop_array(ushort code)
 	
 	STR_add(&expr, "CALL_POP_ARRAY(%d, 0x%04X);sp--;", _pc, code);
 	
-CHECK_SWAP:
+_CHECK_SWAP:
 	
 	push(T_VOID, "({%s})", expr);
 	
@@ -1279,6 +1287,11 @@ static void push_subr(char mode, ushort code)
 	{
 		narg = code & 0x3F;
 		type = get_type(-narg);
+	}
+	else if (op == (C_NEG >> 8))
+	{
+		narg = 1;
+		type = get_type(-1);
 	}
 	else if (op < CODE_FIRST_SUBR)
 	{
@@ -1365,6 +1378,14 @@ static void push_subr(char mode, ushort code)
 		STR_add(&expr, "FP=(void *)%p;PC = &pc[%d];", _func, _pc);
 		type = narg == 0 ? T_INTEGER : T_BOOLEAN;
 	}
+	else if (op == (C_CAT >> 8))
+	{
+		if (narg == 1)
+		{
+			narg = 2;
+			code = C_CAT | 2; // TODO: implement optimization of '&=' operator
+		}
+	}
 	
 	if (narg > 0)
 	{
@@ -1379,7 +1400,7 @@ static void push_subr(char mode, ushort code)
 	
 	STR_add(&expr, call, _pc, addr, code);
 	
-	if (mode & CALL_RETURN_UNKNWON)
+	if (mode & CALL_RETURN_UNKNOWN)
 		type = T_UNKNOWN;
 	
 	STR_add(&expr, ";POP_%s();", JIT_get_type(type));
@@ -1420,7 +1441,7 @@ static void push_subr_add(ushort code, const char *op, const char *opb, bool all
 				break;
 			
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1465,7 +1486,7 @@ static void push_subr_div(ushort code)
 			break;
 			
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1475,7 +1496,7 @@ static void push_subr_div(ushort code)
 	if (_unsafe)
 		expr = STR_print("({%s _a = %s; %s _b = %s; _a /= _b; _a;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2);
 	else
-		expr = STR_print("({%s _a = %s; %s _b = %s; _a /= _b; if (!isfinite(_a)) THROW(E_ZERO); _a;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2);
+		expr = STR_print("({%s _a = %s; %s _b = %s; _a /= _b; if (!isfinite(_a)) THROW_PC(E_ZERO, %d); _a;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, _pc);
 
 	pop_stack(2);
 	
@@ -1512,7 +1533,7 @@ static void push_subr_arithmetic(char op, ushort code)
 			break;
 
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1548,7 +1569,7 @@ static void push_subr_float_arithmetic(char op, ushort code)
 			break;
 
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1582,7 +1603,7 @@ static void push_subr_quo(ushort code, const char *op)
 			break;
 			
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1592,7 +1613,7 @@ static void push_subr_quo(ushort code, const char *op)
 	if (_unsafe)
 		expr = STR_print("({%s _a = %s; %s _b = %s; _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, op);
 	else
-		expr = STR_print("({%s _a = %s; %s _b = %s; if (_b == 0) THROW(E_ZERO); _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, op);
+		expr = STR_print("({%s _a = %s; %s _b = %s; if (_b == 0) THROW_PC(E_ZERO, %d); _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, _pc, op);
 	
 	pop_stack(2);
 	push(type, "(%s)", expr);
@@ -1626,7 +1647,7 @@ static void push_subr_and(ushort code, const char *op)
 			break;
 			
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1662,7 +1683,7 @@ static void push_subr_not(ushort code)
 			break;
 
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 	
@@ -1673,6 +1694,83 @@ static void push_subr_not(ushort code)
 	STR_free(expr);
 }
 
+
+static bool push_subr_cat(ushort code)
+{
+	int index;
+	ushort code_pop;
+	TYPE type;
+	
+	if ((code & 0x3F) >= 2)
+		goto _DEFAULT_SUBR;
+	
+	_pc++;
+	code_pop = _func->code[_pc];
+
+	if (PCODE_is(code_pop, C_POP_LOCAL))
+	{
+		index = (signed char)code_pop;
+		type = get_local_type(_func, index);
+	}
+	else if (PCODE_is(code_pop, C_POP_PARAM))
+	{
+		index = _func->n_param + (signed char)code_pop;
+		type = _func->param[index].type;
+	}
+	else if (PCODE_is(code_pop, C_POP_STATIC))
+	{
+		index = (code_pop & 0x7FF);
+		type = JIT_ctype_to_type(JIT_class, JIT_class->load->stat[index].type);
+	}
+	else if (PCODE_is(code_pop, C_POP_DYNAMIC))
+	{
+		index = (code_pop & 0x7FF);
+		type = JIT_ctype_to_type(JIT_class, JIT_class->load->dyn[index].type);
+	}
+	else
+		goto _DEFAULT_SUBR;
+
+	if (type != T_STRING)
+		goto _DEFAULT_SUBR;
+	
+	declare(&_decl_as, "GB_STRING as");
+	_no_release = TRUE;
+	_no_release_but_borrow = TRUE;
+	pop(T_STRING, "as = %%s");
+	_no_release_but_borrow = FALSE;
+	_no_release = FALSE;
+	pop_stack(1);
+
+	//expr = STR_print("({%s _a = %s; %s _b = %s; _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, op);
+	
+	if (PCODE_is(code_pop, C_POP_LOCAL))
+	{
+		JIT_print("  JIT.add_string_local(&l%d, as);\n", index);
+	}
+	else if (PCODE_is(code_pop, C_POP_PARAM))
+	{
+		JIT_print("  JIT.add_string_local(&p%d, as);\n", index);
+	}
+	else if (PCODE_is(code_pop, C_POP_STATIC))
+	{
+		void *addr = &JIT_class->stat[JIT_class->load->stat[index].pos];
+		JIT_print("  JIT.add_string_global(%p, as);\n", addr);
+	}
+	else if (PCODE_is(code_pop, C_POP_DYNAMIC))
+	{
+		int pos = JIT_class->load->dyn[index].pos;
+		JIT_print("  JIT.add_string_global(&OP[%d], as);\n", pos);
+	}
+	
+	return TRUE;
+	
+_DEFAULT_SUBR:
+
+	push_subr(CALL_SUBR_CODE, code);
+	return FALSE;
+
+	//JIT_print("  THROW_TYPE_PC(GB_T_STRING, %p, %d);", (void *)type, _pc);
+}
 
 static void push_subr_comp(ushort code)
 {
@@ -1712,11 +1810,11 @@ static void push_subr_comp(ushort code)
 		switch(code & 0xFF00)
 		{
 			case C_EQ: case C_NE:
-				push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+				push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 				break;
 				
 			case C_GT: case C_LT: case C_GE: case C_LE:
-				push_subr(CALL_SUBR_UNKNOWN + CALL_RETURN_UNKNWON, code);
+				push_subr(CALL_SUBR_UNKNOWN + CALL_RETURN_UNKNOWN, code);
 				break;
 		}
 		
@@ -1789,7 +1887,7 @@ static void push_subr_bit(ushort code)
 			break;
 
 		default:
-			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNWON, code);
+			push_subr(CALL_SUBR_CODE + CALL_RETURN_UNKNOWN, code);
 			return;
 	}
 			
@@ -1803,7 +1901,7 @@ static void push_subr_bit(ushort code)
 	if (_unsafe)
 		expr = STR_print("({ %s _v = %s; int _b = %s; ", ctype, expr1, expr2, nbits);
 	else
-		expr = STR_print("({ %s _v = %s; int _b = %s; if ((_b < 0) || (_b >= %d)) THROW(E_ARG); ", ctype, expr1, expr2, nbits);
+		expr = STR_print("({ %s _v = %s; int _b = %s; if ((_b < 0) || (_b >= %d)) THROW_PC(E_ARG, %d); ", ctype, expr1, expr2, nbits, _pc);
 	
 	
 	switch(code)
@@ -1943,12 +2041,12 @@ static void push_call(ushort code)
 				if (narg < func->npmin)
 				{
 					pop_stack(narg + 1);
-					push(T_UNKNOWN, "({ GB_VALUE temp; THROW(E_NEPARAM); temp; })");
+					push(T_UNKNOWN, "({ GB_VALUE temp; THROW_PC(E_NEPARAM, %d); temp; })", _pc);
 				}
 				else if (narg > func->n_param && !func->vararg)
 				{
 					pop_stack(narg + 1);
-					push(T_UNKNOWN, "({ GB_VALUE temp; THROW(E_TMPARAM); temp; })");
+					push(T_UNKNOWN, "({ GB_VALUE temp; THROW_PC(E_TMPARAM, %d); temp; })", _pc);
 				}
 				else
 				{
@@ -2081,12 +2179,12 @@ static void push_call(ushort code)
 			if (narg < ext->n_param)
 			{
 				pop_stack(narg + 1);
-				push(T_UNKNOWN, "({ GB_VALUE temp; THROW(E_NEPARAM); temp })");
+				push(T_UNKNOWN, "({ GB_VALUE temp; THROW_PC(E_NEPARAM, %d); temp })", _pc);
 			}
 			else if (narg > ext->n_param && !ext->vararg)
 			{
 				pop_stack(narg + 1);
-				push(T_UNKNOWN, "({ GB_VALUE temp; THROW(E_TMPARAM); temp })");
+				push(T_UNKNOWN, "({ GB_VALUE temp; THROW_PC(E_TMPARAM, %d); temp })", _pc);
 			}
 			else
 			{
@@ -2268,7 +2366,7 @@ static void push_subr_varptr(ushort code)
 	{
 		if ((op & 0xFF00) == C_PUSH_PARAM)
 		{
-			index = _func->n_param + (op & 0xFF);
+			index = _func->n_param + (signed char)(op & 0xFF);
 			type = _func->param[index].type;
 			sprintf(var, "p%d", index);
 		}
@@ -2297,13 +2395,18 @@ static void push_subr_varptr(ushort code)
 				expr = STR_print("&%s.value", var);
 				break;
 
-			case T_STRING:
+			/*case T_STRING:
 			case T_CSTRING:
 				expr = STR_print("(%s.value.addr + %s.value.start)", var, var);
+				break;*/
+				
+			case T_VARIANT:
+				expr = STR_print("(%s.value.type == GB_T_STRING ? %s.value.value._string : &%s.value.value.data)", var, var, var);
 				break;
 				
 			default:
-				goto _ILLEGAL;
+				push(T_POINTER, "(THROW_PC(E_UTYPE, %d),(intptr_t)0)", _pc);
+				return;
 		}
 	}
 	else if ((op & 0xF800) == C_PUSH_DYNAMIC)
@@ -2327,6 +2430,40 @@ _ILLEGAL:
 	JIT_panic("unsupported VarPtr()");
 }
 
+
+static void push_subr_ptr(ushort code)
+{
+	char *expr;
+	TYPE type;
+	
+	check_stack(1);
+	
+	if (_unsafe)
+	{
+		type = get_type(-1);
+		switch (type)
+		{
+			case T_POINTER:
+			case T_STRING:
+			case T_CSTRING:
+
+				expr = STR_copy(peek(-1, type));
+				pop_stack(1);
+				
+				code &= 0xF;
+
+				if (type == T_POINTER)
+					push(code, "*(%s *)(%s)", JIT_get_ctype(code), expr);
+				else
+					push(code, "*(%s *)GET_STRING_ADDR(%s)", JIT_get_ctype(code), expr);
+			
+				STR_free(expr);
+				return;
+		}
+	}
+
+	push_subr(CALL_SUBR_CODE, code);
+}
 
 #define GET_XXX()   (((signed short)(code << 4)) >> 4)
 #define GET_UXX()   (code & 0xFFF)
@@ -2401,7 +2538,7 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* 39 OR              */  &&_SUBR_OR,
 		/* 3A XOR             */  &&_SUBR_XOR,
 		/* 3B NOT             */  &&_SUBR_NOT,
-		/* 3C &               */  &&_SUBR_CODE,
+		/* 3C &               */  &&_SUBR_CAT,
 		/* 3D LIKE            */  &&_SUBR_CODE,
 		/* 3E &/              */  &&_SUBR_CODE,
 		/* 3F Is              */  &&_SUBR_CODE,
@@ -2500,7 +2637,7 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* 9C Quote$...       */  &&_SUBR_CODE,
 		/* 9D Unquote$...     */  &&_SUBR_CODE,
 		/* 9E MkInt$...       */  &&_SUBR_CODE,
-		/* 9F Byte@...        */  &&_SUBR_CODE,
+		/* 9F Byte@...        */  &&_SUBR_PTR,
 		/* A0 ADD QUICK       */  &&_ADD_QUICK,
 		/* A1 ADD QUICK       */  &&_ADD_QUICK,
 		/* A2 ADD QUICK       */  &&_ADD_QUICK,
@@ -2862,7 +2999,12 @@ _PUSH_MISC:
 
 		case 10:
 			EXEC_drop_vargs();
-			break;*/
+			break;
+
+		case 11:
+			EXEC_end_vargs();
+			break;
+			*/
 			
 		default:
 			goto _ILLEGAL;
@@ -3081,7 +3223,7 @@ _ENUM_FIRST:
 	type = get_type(-1);
 	if (!TYPE_is_object(type) && type != T_UNKNOWN)
 	{
-		JIT_print("  THROW(E_NOBJECT);\n");
+		JIT_print("  THROW_PC(E_NOBJECT, %d);\n", _pc);
 		pop_stack(1);
 		add_ctrl(index, T_OBJECT, NULL);
 		add_ctrl(index + 1, T_OBJECT, NULL);
@@ -3193,6 +3335,12 @@ _SUBR_NOT:
 
 	push_subr_not(code);
 	goto _MAIN;
+	
+_SUBR_CAT:
+
+	if (push_subr_cat(code))
+		p++;
+	goto _MAIN;
 
 _SUBR_ABS:
 
@@ -3257,6 +3405,11 @@ _SUBR_BIT:
 _SUBR_VARPTR:
 
 	push_subr_varptr(code);
+	goto _MAIN;
+	
+_SUBR_PTR:
+
+	push_subr_ptr(code);
 	goto _MAIN;
 	
 _BREAK:

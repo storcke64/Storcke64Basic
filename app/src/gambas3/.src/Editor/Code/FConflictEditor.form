@@ -43,13 +43,13 @@
       { mnuUpperCase Menu
         Action = ".ucase"
         Text = ("Upper case")
-        Picture = Picture["img/16/ucase.png"]
+        Picture = Picture["icon:/small/text-upper"]
         Shortcut = "Ctrl+Alt+U"
       }
       { mnuLowerCase Menu
         Action = ".lcase"
         Text = ("Lower case")
-        Picture = Picture["img/16/lcase.png"]
+        Picture = Picture["icon:/small/text-lower"]
         Shortcut = "Ctrl+Alt+L"
       }
       { Menu7 Menu
@@ -501,7 +501,7 @@
   { Action lcase
     Text = "Lower case"
     Shortcut = "Ctrl+Alt+L"
-    Picture = "img/16/lcase.png"
+    Picture = "icon:/small/text-lower"
   }
   { Action mine
     Text = "Keep my changes"
@@ -590,7 +590,7 @@
   { Action ucase
     Text = "Upper case"
     Shortcut = "Ctrl+Alt+U"
-    Picture = "img/16/ucase.png"
+    Picture = "icon:/small/text-upper"
   }
   { Action uncomment
     Text = "Uncomment"

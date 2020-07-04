@@ -58,7 +58,7 @@
           MoveScaled(0,3,25,4)
           Text = Shortcut(("Case sensitive"), "C")
         }
-        { chkWordOnly CheckBox
+        { chkWordsOnly CheckBox
           MoveScaled(0,6,25,4)
           Text = Shortcut(("Words only"), "W")
         }
@@ -90,7 +90,7 @@
         { radCurrentProcedure RadioButton radSearch
           Name = "radCurrentProcedure"
           MoveScaled(0,4,25,4)
-          Text = Shortcut(("Current procedure"), "u")
+          Text = Shortcut(("Current function"), "u")
         }
         { radCurrentFile RadioButton radSearch
           Name = "radCurrentFile"
@@ -146,17 +146,21 @@
       Picture = Picture["icon:/small/wizard"]
     }
     { Panel1 Panel
-      MoveScaled(7,22,3,3)
+      MoveScaled(7,28,3,3)
       Expand = True
     }
     { chkHighlight CheckBox
-      MoveScaled(0,29,25,4)
+      MoveScaled(0,30,25,4)
       Text = Shortcut(("Highlight search"), "H")
     }
   }
   { timRefresh #Timer
     #MoveScaled(53,2)
     Delay = 500
+  }
+  { timFillList #Timer
+    #MoveScaled(88,6)
+    Delay = 100
   }
 }
 

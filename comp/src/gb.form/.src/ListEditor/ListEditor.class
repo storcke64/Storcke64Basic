@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,List,Border=True,Moveable=True,ReadOnly"
+Public Const _Properties As String = "*,List,Border=True,Moveable=True,ReadOnly,Unique"
 Public Const _DefaultSize As String = "24,32"
 Public Const _Similar As String = "ListBox"
 Public Const _Group As String = "View"
@@ -15,10 +15,13 @@ Property Text As String
 Property Moveable As Boolean
 Property ReadOnly As Boolean
 Property Read Editor As Control
+Property Unique As Boolean
+Property Index As Integer
 
 Event Select
 Event Change
 Event Add
+Event Activate
 
 Private $hForm As FListEditor
 
@@ -118,8 +121,50 @@ Public Sub Add(Text As String)
   
 End
 
-Public Sub Exist(Text As String) As Boolean
+Public Sub Remove(Index As Integer, Optional Length As Integer = 1)
   
-  Return $hForm.Exist(Text)
+  $hForm.Remove(Index, Length)
+  
+End
+
+Public Sub _RaiseActivate()
+  
+  Raise Activate
+  
+End
+
+Public Sub Clear()
+  
+  $hForm.Clear
+  
+End
+
+Private Function Unique_Read() As Boolean
+
+  Return $hForm.IsUnique()
+
+End
+
+Private Sub Unique_Write(Value As Boolean)
+
+  $hForm.SetUnique(Value)
+
+End
+
+Private Function Index_Read() As Integer
+
+  Return $hForm.GetIndex()
+
+End
+
+Private Sub Index_Write(Value As Integer)
+
+  $hForm.SetIndex(Value)
+
+End
+
+Public Sub Find(Text As String, Optional Mode As Integer) As Integer
+  
+  Return $hForm.Find(Text, Mode)
   
 End

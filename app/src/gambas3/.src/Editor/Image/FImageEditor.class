@@ -74,6 +74,9 @@ Private $sLastColor As Integer
 Private $cInfo As New Collection
 Private $bInfoTop As Boolean
 
+Private $bFirstGrid As Boolean
+Private $vGrid As Variant
+
 Public Sub _new(sPath As String)
   
   Me.Name = File.Name(sPath)
@@ -652,7 +655,7 @@ Private Sub GetImagePos() As PointF
     
   iSnap = FImageProperty.GetGridSnap()
   
-  If $bShowGrid And If iSnap Then
+  If $bShowGrid And If iSnap And If $sTool <> "draw" And If $sTool <> "erase" Then
   
     X = (CInt(Floor(X + iSnap \ 2)) \ iSnap) * iSnap
     Y = (CInt(Floor(Y + iSnap \ 2)) \ iSnap) * iSnap
@@ -917,7 +920,7 @@ Private Sub UpdateInfo()
     $cInfo!Size = Util.GetFileSize($hImage.Width * $hImage.Height * 4)
   Endif
   
-  dwgInfo.Resize(dwgInfo.Font.TextWidth("99999") * 4 + Desktop.Scale * 4, dwgInfo.Font.Height * 2 + Desktop.Scale * 2)
+  dwgInfo.Resize(dwgInfo.Font.TextWidth("9") * Max(5, 3 + Len(CStr(Max($hImage.Width, $hImage.Height)))) * 4 + Desktop.Scale * 4, dwgInfo.Font.Height * 2 + Desktop.Scale * 2)
   MoveInfo
   dwgInfo.Refresh
   
@@ -1737,16 +1740,18 @@ Public Sub imvImage_Draw(hZoom As Image)
   '   
   ' Endif
   
-  If $bShowGrid Then
-    
-    Paint.Save
-    Paint.AntiAlias = False
-  
-    Paint.LineWidth = 1 / imvImage.Zoom
+  Paint.Save
+  Paint.AntiAlias = False
 
-    Paint.Translate(hOffset.X, hOffset.Y)
-    Paint.Scale(imvImage.Zoom, imvImage.Zoom)
-      
+  Paint.LineWidth = 1 / imvImage.Zoom
+
+  Paint.Translate(hOffset.X, hOffset.Y)
+  Paint.Scale(imvImage.Zoom, imvImage.Zoom)
+  
+  Paint.DrawRect(0, 0, $hImage.W, $hImage.H, Color.Foreground, Paint.LineWidth)
+  
+  If $bShowGrid Then  
+    
     Paint.Rectangle(0, 0, $hImage.W, $hImage.H)
     Paint.Clip()
     
@@ -1774,12 +1779,12 @@ Public Sub imvImage_Draw(hZoom As Image)
       Next
     Endif
     
-    Paint.Background = &H808080&
+    Paint.Background = Color.Foreground '&H808080&
     Paint.Stroke
     
-    Paint.Restore
-    
   Endif
+  
+  Paint.Restore
     
   If HasSelection() Then
     
@@ -2802,15 +2807,30 @@ End
 
 Public Sub btnGrid_Click()
 
+  Dim iSize As Integer
+
   $bShowGrid = Not $bShowGrid
   imvImage.Refresh
   FImageProperty.ShowGridOption($bShowGrid)
+  
+  If $bShowGrid And If Not $bFirstGrid Then 
+    $bFirstGrid = True
+    iSize = Min($hImage.Width, $hImage.Height) \ 2
+    FImageProperty.SetGridResolution(iSize)
+  Endif
 
 End
 
-Public Sub UpdateGrid()
+Public Sub UpdateGrid(vGrid As Variant)
   
+  $vGrid = vGrid
   imvImage.Refresh
+  
+End
+
+Public Sub GetGrid() As Variant
+  
+  Return $vGrid
   
 End
 

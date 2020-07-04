@@ -52,9 +52,12 @@
 #include "gbx_c_array.h"
 #include "gbx_c_collection.h"
 #include "gbx_struct.h"
+#include "gbx_c_file.h"
 #include "gbx_stream.h"
 
-static STREAM _temp_stream = { 0 };
+#define EXTRA(_stream) ((_stream)->common.extra)
+
+static CFILE *_temp_stream = NULL;
 static STREAM *_temp_save = NULL;
 static int _temp_level;
 
@@ -63,13 +66,25 @@ static unsigned char _tag = 0;
 static int _nopen = 0;
 #endif
 
+static void THROW_SERIAL(void)
+{
+	THROW(E_SERIAL);
+}
+
 void STREAM_exit(void)
 {
 #if DEBUG_STREAM
 	if (_nopen)
 		ERROR_warning("%d streams yet opened", _nopen);
 #endif
-	STREAM_close(&_temp_stream);
+	OBJECT_UNREF(_temp_stream);
+}
+
+static STREAM_EXTRA *ENSURE_EXTRA(STREAM *stream)
+{
+	if (!stream->common.extra)
+		ALLOC_ZERO(&stream->common.extra, sizeof(STREAM_EXTRA));
+	return stream->common.extra;
 }
 
 static void wait_for_fd_ready_to_read(int fd)
@@ -176,6 +191,8 @@ void STREAM_open(STREAM *stream, const char *path, int mode)
 		sclass = &STREAM_string;
 	else if (mode & STO_LOCK)
 		sclass = &STREAM_lock;
+	else if (mode & STO_NULL)
+		sclass = &STREAM_null;
 	else
 	{
 		// ".99" is used for opening a file descriptor in direct mode
@@ -222,18 +239,15 @@ __OPEN:
 	stream->common.swap = FALSE;
 	stream->common.eol = 0;
 	stream->common.eof = FALSE;
-	stream->common.buffer = NULL;
-	stream->common.buffer_pos = 0;
-	stream->common.buffer_len = 0;
+	stream->common.extra = NULL;
 	stream->common.no_fionread = FALSE;
 	stream->common.no_lseek = FALSE;
 	stream->common.standard = FALSE;
 	stream->common.blocking = TRUE;
 	stream->common.available_now = FALSE;
 	stream->common.redirected = FALSE;
-	stream->common.redirect = NULL;
 	stream->common.no_read_ahead = FALSE;
-	stream->common.memory = FALSE;
+	stream->common.null_terminated = FALSE;
 
 	if ((*(sclass->open))(stream, path, mode, NULL))
 		THROW_SYSTEM(errno, path);
@@ -252,23 +266,42 @@ __OPEN:
 	#endif
 }
 
-static void release_buffer(STREAM *stream)
+static void release_buffer(STREAM_EXTRA *extra)
 {
-	if (stream->common.buffer)
+	if (extra && extra->buffer)
 	{
 		#if DEBUG_STREAM
 		fprintf(stderr, "Stream %p [%d]: Free buffer\n", stream, stream->common.tag);
 		#endif
-		FREE(&stream->common.buffer);
-		stream->common.buffer_pos = 0;
-		stream->common.buffer_len = 0;
+		FREE(&extra->buffer);
+		extra->buffer_pos = 0;
+		extra->buffer_len = 0;
+	}
+}
+
+static void release_unread(STREAM_EXTRA *extra)
+{
+	if (extra && extra->unread)
+	{
+		FREE(&extra->unread);
+		extra->unread_pos = 0;
+		extra->unread_len = 0;
 	}
 }
 
 void STREAM_release(STREAM *stream)
 {
-	release_buffer(stream);
+	STREAM_EXTRA *extra = EXTRA(stream);
+	
 	STREAM_cancel(stream);
+	release_buffer(extra);
+	release_unread(extra);
+	
+	if (extra)
+	{
+		IFREE(extra);
+		stream->common.extra = NULL;
+	}
 }
 
 static void stop_watching(STREAM *stream, int mode)
@@ -315,15 +348,33 @@ void STREAM_flush(STREAM *stream)
 	(*(stream->type->flush))(stream);
 }
 
-static int read_buffer(STREAM *stream, void *addr, int len)
+static int read_unread(STREAM_EXTRA *extra, void *addr, int len)
 {
-	int l = stream->common.buffer_len - stream->common.buffer_pos;
+	int l = extra->unread_len - extra->unread_pos;
+	if (l > len)
+		l = len;
+	
+	if (l > 0)
+	{
+		memcpy(addr, extra->unread + extra->unread_pos, l);
+		extra->unread_pos += l;
+		if (extra->unread_pos >= extra->unread_len)
+			release_unread(extra);
+		return l;
+	}
+	else
+		return 0;
+}
+
+static int read_buffer(STREAM_EXTRA *extra, void *addr, int len)
+{
+	int l = extra->buffer_len - extra->buffer_pos;
 	if (l > len)
 		l = len;
 	if (l > 0)
 	{
-		memcpy(addr, stream->common.buffer + stream->common.buffer_pos, l);
-		stream->common.buffer_pos += l;
+		memcpy(addr, extra->buffer + extra->buffer_pos, l);
+		extra->buffer_pos += l;
 		return l;
 	}
 	else
@@ -341,11 +392,21 @@ int STREAM_read(STREAM *stream, void *addr, int len)
 	if (len <= 0)
 		return 0;
 
-	if (stream->common.buffer)
+	if (EXTRA(stream))
 	{
-		eff = read_buffer(stream, addr, len);
-		addr += eff;
-		len -= eff;
+		if (EXTRA(stream)->unread)
+		{
+			eff = read_unread(EXTRA(stream), addr, len);
+			addr += eff;
+			len -= eff;
+		}
+		
+		if (len > 0 && EXTRA(stream)->buffer)
+		{
+			eff = read_buffer(EXTRA(stream), addr, len);
+			addr += eff;
+			len -= eff;
+		}
 	}
 
 	while (len > 0)
@@ -377,6 +438,20 @@ int STREAM_read(STREAM *stream, void *addr, int len)
 	}
 	
 	return eff;
+}
+
+void STREAM_peek(STREAM *stream, void *addr, int len)
+{
+	STREAM_EXTRA *extra = ENSURE_EXTRA(stream);
+	
+	release_unread(extra);
+	
+	STREAM_read(stream, addr, len);
+	
+	ALLOC(&extra->unread, len);
+	extra->unread_len = len;
+	extra->unread_pos = 0;
+	memcpy(extra->unread, addr, len);
 }
 
 #if 0
@@ -436,9 +511,9 @@ int STREAM_read_max(STREAM *stream, void *addr, int len)
 	if (len <= 0)
 		return 0;
 
-	if (stream->common.buffer)
+	if (EXTRA(stream) && EXTRA(stream)->buffer)
 	{
-		eff += read_buffer(stream, addr, len);
+		eff += read_buffer(EXTRA(stream), addr, len);
 		addr += eff;
 		len -= eff;
 	}
@@ -512,7 +587,7 @@ void STREAM_write(STREAM *stream, void *addr, int len)
 		return;
 	
 	if (stream->common.redirected)
-		stream = stream->common.redirect;
+		stream = EXTRA(stream)->redirect;
 
 	do
 	{
@@ -598,7 +673,7 @@ void STREAM_seek(STREAM *stream, int64_t pos, int whence)
 		}
 	}
 
-	release_buffer(stream);
+	release_buffer(EXTRA(stream));
 }
 
 static int fill_buffer(STREAM *stream, char *addr, bool do_not_wait_ready)
@@ -666,20 +741,23 @@ static int fill_buffer(STREAM *stream, char *addr, bool do_not_wait_ready)
 bool STREAM_read_ahead(STREAM *stream)
 {
 	int eff;
+	STREAM_EXTRA *extra = EXTRA(stream);
 	
 	if (stream->common.no_read_ahead)
 		return FALSE;
 
-	if (stream->common.buffer && stream->common.buffer_pos < stream->common.buffer_len)
+	if (extra && extra->buffer && extra->buffer_pos < extra->buffer_len)
 		return FALSE;
 
-	if (!stream->common.buffer)
-		ALLOC(&stream->common.buffer, STREAM_BUFFER_SIZE);
+	extra = ENSURE_EXTRA(stream);
+	
+	if (!extra->buffer)
+		ALLOC(&extra->buffer, STREAM_BUFFER_SIZE);
 
-	eff = fill_buffer(stream, stream->common.buffer, TRUE);
+	eff = fill_buffer(stream, extra->buffer, TRUE);
 
-	stream->common.buffer_pos = 0;
-	stream->common.buffer_len = eff;
+	extra->buffer_pos = 0;
+	extra->buffer_len = eff;
 
 	if (eff == 0)
 	{
@@ -707,6 +785,7 @@ static char *input(STREAM *stream, bool line, char *escape)
 	char *addr;
 	char ec;
 	bool inside_escape = FALSE;
+	STREAM_EXTRA *extra;
 
 	addr = NULL;
 
@@ -730,9 +809,11 @@ static char *input(STREAM *stream, bool line, char *escape)
 	if (!STREAM_is_blocking(stream) && STREAM_eof(stream))
 		THROW(E_EOF);
 
-	buffer = stream->common.buffer;
-	buffer_len = stream->common.buffer_len;
-	buffer_pos = stream->common.buffer_pos;
+	extra = ENSURE_EXTRA(stream);
+	
+	buffer = extra->buffer;
+	buffer_len = extra->buffer_len;
+	buffer_pos = extra->buffer_pos;
 
 	if (!buffer)
 	{
@@ -856,9 +937,9 @@ static char *input(STREAM *stream, bool line, char *escape)
 			len = 0;
 		}
 
-		stream->common.buffer = buffer;
-		stream->common.buffer_pos = buffer_pos;
-		stream->common.buffer_len = buffer_len;
+		extra->buffer = buffer;
+		extra->buffer_pos = buffer_pos;
+		extra->buffer_len = buffer_len;
 
 		buffer_pos = 0;
 		buffer_len = fill_buffer(stream, buffer, FALSE);
@@ -884,9 +965,9 @@ __FINISH:
 	else if (len < 0)
 		addr = STRING_extend(addr, STRING_length(addr) + len);
 
-	stream->common.buffer = buffer;
-	stream->common.buffer_pos = buffer_pos;
-	stream->common.buffer_len = buffer_len;
+	extra->buffer = buffer;
+	extra->buffer_pos = buffer_pos;
+	extra->buffer_len = buffer_len;
 
 	return addr;
 }
@@ -951,28 +1032,32 @@ static int read_length(STREAM *stream)
 
 static STREAM *enter_temp_stream(STREAM *stream)
 {
-	if (stream != &_temp_stream)
+	if (stream != CSTREAM_TO_STREAM(_temp_stream))
 	{
 		_temp_save = stream;
 		_temp_level = 0;
-		if (_temp_stream.type)
-			STREAM_close(&_temp_stream);
-		STREAM_open(&_temp_stream, NULL, STO_STRING | STO_WRITE);
+		
+		OBJECT_UNREF(_temp_stream);
+		_temp_stream = OBJECT_new(CLASS_File, NULL, NULL);
+		STREAM_open(CSTREAM_TO_STREAM(_temp_stream), NULL, STO_STRING | STO_WRITE);
 	}
 
 	_temp_level++;
 
-	return &_temp_stream;
+	return CSTREAM_TO_STREAM(_temp_stream);
 }
 
 static STREAM *leave_temp_stream(void)
 {
+	STREAM *stream = CSTREAM_TO_STREAM(_temp_stream);
+	
 	_temp_level--;
 	if (_temp_level > 0)
-		return &_temp_stream;
+		return stream;
 
-	STREAM_write(_temp_save, _temp_stream.string.buffer, STRING_length(_temp_stream.string.buffer));
-	STREAM_close(&_temp_stream);
+	STREAM_write(_temp_save, stream->string.buffer, STRING_length(stream->string.buffer));
+	STREAM_close(stream);
+	OBJECT_UNREF(_temp_stream);
 	return _temp_save;
 }
 
@@ -1042,6 +1127,11 @@ static void read_structure(STREAM *stream, CLASS *class, char *base)
 	}
 }
 
+static void error_STREAM_read_type(void *object)
+{
+	OBJECT_UNREF(object);
+}
+
 void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 {
 	bool variant;
@@ -1073,6 +1163,16 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 			return;
 		}
+		
+			/*if (class->special[SPEC_WRITE] != NO_SYMBOL)
+			{
+				CSTREAM *ob = CSTREAM_FROM_STREAM(stream);
+				STACK_check(1);
+				PUSH_OBJECT(OBJECT_class(ob), ob);
+				EXEC_special(SPEC_WRITE, class, object, 1, FALSE);
+				break;
+			}*/
+		
 
 		STREAM_read(stream, &buffer._byte, 1);
 
@@ -1082,33 +1182,45 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			value->_variant.vtype = T_NULL;
 			return;
 		}
-
+		
 		if (buffer._byte == 'A')
 		{
 			CARRAY *array;
 			int size, i;
 			VALUE temp;
 			void *data;
+			TYPE atype;
 
 			STREAM_read(stream, &buffer._byte, 1);
-			type = (TYPE)buffer._byte;
-			if (type > T_OBJECT)
-				THROW(E_SERIAL);
+
+			if (TYPE_is_pure_object(type))
+				atype = ((CLASS *)type)->array_type;
+			else
+			{
+				atype = (TYPE)buffer._byte;
+				if (atype > T_OBJECT)
+					THROW_SERIAL();
+			}
 
 			size = read_length(stream);
 
-			GB_ArrayNew((GB_ARRAY *)&array, type, size);
+			GB_ArrayNew((GB_ARRAY *)&array, atype, size);
 			for (i = 0; i < size; i++)
 			{
 				data = CARRAY_get_data(array, i);
-				STREAM_read_type(stream, type, &temp);
-				VALUE_write(&temp, data, type);
+				STREAM_read_type(stream, atype, &temp);
+				VALUE_write(&temp, data, atype);
+				//RELEASE(&temp);
 			}
 
-			value->type = T_VARIANT;
-			value->_variant.vtype = (TYPE)OBJECT_class(array);
-			value->_variant.value._object = array;
-
+			value->type = (TYPE)OBJECT_class(array);
+			value->_object.object = array;
+			if (value->type != type)
+			{
+				OBJECT_REF(array);
+				VALUE_convert(value, type);
+				UNBORROW(value);
+			}
 			return;
 		}
 
@@ -1134,14 +1246,77 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 				STREAM_read(stream, key, len);
 				STREAM_read_type(stream, T_VARIANT, &temp);
 				GB_CollectionSet(col, key, len, (GB_VARIANT *)&temp);
+				//RELEASE(&temp);
 				if (len >= 32)
 					STRING_free_real(key);
 			}
 
-			value->type = T_VARIANT;
-			value->_variant.vtype = (TYPE)OBJECT_class(col);
-			value->_variant.value._object = col;
+			value->type = (TYPE)OBJECT_class(col);
+			value->_object.object = col;
+			if (value->type != type)
+			{
+				OBJECT_REF(col);
+				VALUE_convert(value, type);
+				UNBORROW(value);
+			}
+			return;
+		}
+		
+		if (buffer._byte == 'O' || buffer._byte == 'o')
+		{
+			CLASS *class = NULL;
+			void *object;
+			void *cstream;
+			
+			if (buffer._byte == 'o')
+			{
+				int len;
+				char *name = COMMON_buffer;
+				
+				STREAM_read(stream, &buffer._byte, 1);
+				len = buffer._byte;
+				STREAM_read(stream, name, len);
 
+				class = CLASS_look(name, len);
+				if (!class)
+					THROW_SERIAL();
+			}
+			
+			if (TYPE_is_pure_object(type))
+			{
+				if (class && (CLASS *)type != class)
+					THROW_SERIAL();
+			}
+			else
+			{
+				if (!class)
+					THROW_SERIAL();
+			}
+			
+			object = OBJECT_REF(OBJECT_create(class, NULL, NULL, 0));
+			
+			cstream = CSTREAM_FROM_STREAM(stream);
+			
+			STACK_check(1);
+			PUSH_OBJECT(OBJECT_class(cstream), cstream);
+			
+			ON_ERROR_1(error_STREAM_read_type, object)
+			{
+				if (EXEC_special(SPEC_READ, class, object, 1, TRUE))
+					THROW_SERIAL();
+			}
+			END_ERROR
+			
+			OBJECT_UNREF_KEEP(object);
+
+			value->type = (TYPE)class;
+			value->_object.object = object;
+			if (value->type != type)
+			{
+				OBJECT_REF(object);
+				VALUE_convert(value, type);
+				UNBORROW(value);
+			}
 			return;
 		}
 
@@ -1226,12 +1401,19 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 		case T_STRING:
 
-			if (stream->common.memory)
+			if (stream->common.null_terminated)
 			{
-				ssize_t slen;
-				if (CHECK_strlen(stream->memory.addr + stream->memory.pos, &slen))
-					THROW(E_READ);
-				len = (int)slen;
+				if (stream->type == &STREAM_memory)
+				{
+					ssize_t slen;
+					if (CHECK_strlen(stream->memory.addr + stream->memory.pos, &slen))
+						THROW(E_READ);
+					len = (int)slen;
+				}
+				else
+				{
+					len = -1;
+				}
 			}
 			else
 				len = read_length(stream);
@@ -1241,19 +1423,37 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 				STRING_new_temp_value(value, NULL, len);
 				STREAM_read(stream, value->_string.addr, len);
 			}
+			else if (len < 0)
+			{
+				char *str = NULL;
+				
+				for(len = 0;; len++)
+				{
+					STREAM_read(stream, &buffer._byte, 1);
+					if (buffer._byte == 0)
+						break;
+					str = STRING_add_char(str, buffer._byte);
+				}
+				STRING_free_later(str);
+				
+				value->_string.addr = str;
+				value->_string.len = len;
+				value->_string.start = 0;
+				value->type = T_STRING;
+			}
 			else
 			{
 				STRING_void_value(value);
 			}
 
-			if (stream->common.memory)
+			if (stream->common.null_terminated)
 				STREAM_seek(stream, SEEK_CUR, 1);
 				
 			break;
 
 		default:
 
-			THROW(E_TYPE, "Standard type", TYPE_get_name(type));
+			THROW_SERIAL();
 	}
 
 	if (variant)
@@ -1306,254 +1506,287 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 	}
 	buffer;
 
-	/*if (VALUE_is_null(value))
-	{
-		buffer._byte = 0;
-		STREAM_write(stream, &buffer._byte, 1);
-		return;
-	}*/
+	CLASS *class;
+	void *object;
+	void *structure;
+	bool variant;
 
 	if (type == T_VARIANT)
 	{
+		variant = TRUE;
 		VARIANT_undo(value);
 		type = value->type;
-		if (!TYPE_is_object(type))
+	}
+	else
+		variant = FALSE;
+
+	if (!TYPE_is_object(type))
+	{
+		if (variant)
 		{
 			buffer._byte = (unsigned char)type;
 			STREAM_write(stream, &buffer._byte, 1);
 		}
-	}
 
-	if (TYPE_is_object(type))
-		type = T_OBJECT;
-
-	switch (type)
-	{
-		case T_BOOLEAN:
-
-			buffer._byte = value->_integer.value ? 0xFF : 0;
-			STREAM_write(stream, &buffer._byte, 1);
-			break;
-
-		case T_BYTE:
-
-			buffer._byte = (unsigned char)value->_integer.value;
-			STREAM_write(stream, &buffer._byte, 1);
-			break;
-
-		case T_SHORT:
-
-			buffer._short = (short)value->_integer.value;
-			if (stream->common.swap)
-				SWAP_short(&buffer._short);
-			STREAM_write(stream, &buffer._short, sizeof(short));
-			break;
-
-		case T_INTEGER:
-
-			buffer._int = value->_integer.value;
-			if (stream->common.swap)
-				SWAP_int(&buffer._int);
-			STREAM_write(stream, &buffer._int, sizeof(int));
-			break;
-
-		case T_LONG:
-
-			buffer._long = value->_long.value;
-			if (stream->common.swap)
-				SWAP_int64(&buffer._long);
-			STREAM_write(stream, &buffer._long, sizeof(int64_t));
-			break;
-
-		case T_POINTER:
-
-			buffer._pointer = value->_pointer.value;
-			if (stream->common.swap)
-				SWAP_pointer(&buffer._pointer);
-			STREAM_write(stream, &buffer._pointer, sizeof(void *));
-			break;
-
-		case T_SINGLE:
-
-			buffer._single = value->_single.value;
-			if (stream->common.swap)
-				SWAP_float(&buffer._single);
-			STREAM_write(stream, &buffer._single, sizeof(float));
-			break;
-
-		case T_FLOAT:
-
-			buffer._float = value->_float.value;
-			if (stream->common.swap)
-				SWAP_double(&buffer._float);
-			STREAM_write(stream, &buffer._float, sizeof(double));
-			break;
-
-		case T_DATE:
-
-			buffer._int = value->_date.date;
-			if (stream->common.swap)
-				SWAP_int(&buffer._int);
-			STREAM_write(stream, &buffer._int, sizeof(int));
-
-			buffer._int = value->_date.time;
-			if (stream->common.swap)
-				SWAP_int(&buffer._int);
-			STREAM_write(stream, &buffer._int, sizeof(int));
-
-			break;
-
-		case T_STRING:
-		case T_CSTRING:
-
-			if (stream->common.memory)
-			{
-				STREAM_write(stream, value->_string.addr + value->_string.start, value->_string.len);
-				buffer._byte = 0;
-				STREAM_write(stream, &buffer._byte, 1);
-			}
-			else
-			{
-				write_length(stream, value->_string.len);
-				STREAM_write(stream, value->_string.addr + value->_string.start, value->_string.len);
-			}
-			break;
-
-		case T_OBJECT:
+		switch (type)
 		{
-			CLASS *class;
-			void *structure;
+			case T_BOOLEAN:
 
-			if (!value->_object.object)
-			{
-				buffer._byte = 0;
+				buffer._byte = value->_integer.value ? 0xFF : 0;
 				STREAM_write(stream, &buffer._byte, 1);
 				break;
-			}
-			
-			class = OBJECT_class(value->_object.object);
-			
-			if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
-			{
-				CARRAY *array = (CARRAY *)value->_object.object;
-				VALUE temp;
-				void *data;
-				int i;
 
-				if (OBJECT_is_locked((OBJECT *)array))
-					THROW(E_SERIAL);
-				OBJECT_lock((OBJECT *)array, TRUE);
+			case T_BYTE:
 
-				if (!array->ref)
+				buffer._byte = (unsigned char)value->_integer.value;
+				STREAM_write(stream, &buffer._byte, 1);
+				break;
+
+			case T_SHORT:
+
+				buffer._short = (short)value->_integer.value;
+				if (stream->common.swap)
+					SWAP_short(&buffer._short);
+				STREAM_write(stream, &buffer._short, sizeof(short));
+				break;
+
+			case T_INTEGER:
+
+				buffer._int = value->_integer.value;
+				if (stream->common.swap)
+					SWAP_int(&buffer._int);
+				STREAM_write(stream, &buffer._int, sizeof(int));
+				break;
+
+			case T_LONG:
+
+				buffer._long = value->_long.value;
+				if (stream->common.swap)
+					SWAP_int64(&buffer._long);
+				STREAM_write(stream, &buffer._long, sizeof(int64_t));
+				break;
+
+			case T_POINTER:
+
+				buffer._pointer = value->_pointer.value;
+				if (stream->common.swap)
+					SWAP_pointer(&buffer._pointer);
+				STREAM_write(stream, &buffer._pointer, sizeof(void *));
+				break;
+
+			case T_SINGLE:
+
+				buffer._single = value->_single.value;
+				if (stream->common.swap)
+					SWAP_float(&buffer._single);
+				STREAM_write(stream, &buffer._single, sizeof(float));
+				break;
+
+			case T_FLOAT:
+
+				buffer._float = value->_float.value;
+				if (stream->common.swap)
+					SWAP_double(&buffer._float);
+				STREAM_write(stream, &buffer._float, sizeof(double));
+				break;
+
+			case T_DATE:
+
+				buffer._int = value->_date.date;
+				if (stream->common.swap)
+					SWAP_int(&buffer._int);
+				STREAM_write(stream, &buffer._int, sizeof(int));
+
+				buffer._int = value->_date.time;
+				if (stream->common.swap)
+					SWAP_int(&buffer._int);
+				STREAM_write(stream, &buffer._int, sizeof(int));
+
+				break;
+
+			case T_STRING:
+			case T_CSTRING:
+
+				if (stream->common.null_terminated)
 				{
-					buffer._byte = 'A';
+					STREAM_write(stream, value->_string.addr + value->_string.start, value->_string.len);
+					buffer._byte = 0;
 					STREAM_write(stream, &buffer._byte, 1);
-					
-					if (TYPE_is_object(array->type))
-						buffer._byte = T_OBJECT;
-					else
-						buffer._byte = (unsigned char)array->type;
-					
-					STREAM_write(stream, &buffer._byte, 1);
-
-					write_length(stream, array->count);
-				}
-
-				if (class->is_array_of_struct)
-				{
-					for (i = 0; i < array->count; i++)
-					{
-						data = CARRAY_get_data(array, i);
-						structure = CSTRUCT_create_static(array, (CLASS *)array->type, data);
-						temp._object.class = OBJECT_class(structure);
-						temp._object.object = structure;
-						OBJECT_REF(structure);
-						STREAM_write_type(stream, T_OBJECT, &temp);
-						OBJECT_UNREF(structure);
-					}
 				}
 				else
 				{
-					for (i = 0; i < array->count; i++)
-					{
-						data = CARRAY_get_data(array, i);
-						VALUE_read(&temp, data, array->type);
-						STREAM_write_type(stream, array->type, &temp);
-					}
+					write_length(stream, value->_string.len);
+					STREAM_write(stream, value->_string.addr + value->_string.start, value->_string.len);
 				}
-
-				OBJECT_lock((OBJECT *)array, FALSE);
 				break;
-			}
-			else if (class->quick_array == CQA_COLLECTION)
-			{
-				CCOLLECTION *col = (CCOLLECTION *)value->_object.object;
-				GB_COLLECTION_ITER iter;
-				char *key = NULL;
-				int len;
-				VALUE temp;
 
-				if (OBJECT_is_locked((OBJECT *)col))
-					THROW(E_SERIAL);
-				OBJECT_lock((OBJECT *)col, TRUE);
+			default:
 
-				buffer._byte = col->mode ? 'c' : 'C';
-				STREAM_write(stream, &buffer._byte, 1);
+				THROW_SERIAL();
+		}
+		
+		return;
+	}
 
-				write_length(stream, CCOLLECTION_get_count(col));
+	object = value->_object.object;
+	
+	if (!object)
+	{
+		buffer._byte = 0;
+		STREAM_write(stream, &buffer._byte, 1);
+		return;
+	}
+	
+	class = OBJECT_class(object);
+	
+	if (class->special[SPEC_WRITE] != NO_SYMBOL)
+	{
+		CSTREAM *ob;
+		
+		if (variant || type == T_OBJECT)
+		{
+			char *name = class->name;
+			int len = strlen(name);
+			
+			buffer._byte = 'o';
+			STREAM_write(stream, &buffer._byte, 1);
+			buffer._byte = (unsigned char)len;
+			STREAM_write(stream, &buffer._byte, 1);
+			
+			STREAM_write(stream, name, len);
+		}
+		else
+		{
+			buffer._byte = 'O';
+			STREAM_write(stream, &buffer._byte, 1);
+		}
+		
+		ob = CSTREAM_FROM_STREAM(stream);
+		STACK_check(1);
+		PUSH_OBJECT(OBJECT_class(ob), ob);
+		EXEC_special(SPEC_WRITE, class, object, 1, TRUE);
+		
+		return;
+	}
+	
+	if (class->quick_array == CQA_ARRAY || class->is_array_of_struct)
+	{
+		CARRAY *array = (CARRAY *)object;
+		VALUE temp;
+		void *data;
+		int i;
 
-				GB_CollectionEnum(col, &iter, (GB_VARIANT *)&temp, NULL, NULL);
-				while (!GB_CollectionEnum(col, &iter, (GB_VARIANT *)&temp, &key, &len))
-				{
-					write_length(stream, len);
-					STREAM_write(stream, key, len);
-					STREAM_write_type(stream, T_VARIANT, &temp);
-				}
+		if (OBJECT_is_locked((OBJECT *)array))
+			THROW_SERIAL();
+		OBJECT_lock((OBJECT *)array, TRUE);
 
-				OBJECT_lock((OBJECT *)col, FALSE);
-				break;
-			}
-			else if (class->is_struct)
-			{
-				CSTRUCT *structure = (CSTRUCT *)value->_object.object;
-				int i;
-				CLASS_DESC *desc;
-				VALUE temp;
-				char *addr;
+		if (!array->ref)
+		{
+			buffer._byte = 'A';
+			STREAM_write(stream, &buffer._byte, 1);
+			
+			if (TYPE_is_object(array->type))
+				buffer._byte = T_OBJECT;
+			else
+				buffer._byte = (unsigned char)array->type;
+			
+			STREAM_write(stream, &buffer._byte, 1);
 
-				stream = enter_temp_stream(stream);
-
-				if (OBJECT_is_locked((OBJECT *)structure))
-					THROW(E_SERIAL);
-				OBJECT_lock((OBJECT *)structure, TRUE);
-
-				for (i = 0; i < class->n_desc; i++)
-				{
-					desc = class->table[i].desc;
-
-					if (structure->ref)
-						addr = (char *)((CSTATICSTRUCT *)structure)->addr + desc->variable.offset;
-					else
-						addr = (char *)structure + sizeof(CSTRUCT) + desc->variable.offset;
-
-					VALUE_class_read(desc->variable.class, &temp, (void *)addr, desc->variable.ctype, (void *)structure);
-					BORROW(&temp);
-					STREAM_write_type(stream, temp.type, &temp);
-					RELEASE(&temp);
-				}
-
-				stream = leave_temp_stream();
-
-				OBJECT_lock((OBJECT *)structure, FALSE);
-				break;
-			}
-			// continue;
+			write_length(stream, array->count);
 		}
 
-		default:
+		if (class->is_array_of_struct)
+		{
+			for (i = 0; i < array->count; i++)
+			{
+				data = CARRAY_get_data(array, i);
+				structure = CSTRUCT_create_static(array, (CLASS *)array->type, data);
+				temp._object.class = OBJECT_class(structure);
+				temp._object.object = structure;
+				OBJECT_REF(structure);
+				STREAM_write_type(stream, T_OBJECT, &temp);
+				OBJECT_UNREF(structure);
+			}
+		}
+		else
+		{
+			for (i = 0; i < array->count; i++)
+			{
+				data = CARRAY_get_data(array, i);
+				VALUE_read(&temp, data, array->type);
+				STREAM_write_type(stream, array->type, &temp);
+			}
+		}
 
-			THROW(E_TYPE, "Standard type", TYPE_get_name(type));
+		OBJECT_lock((OBJECT *)array, FALSE);
+		return;
 	}
+	
+	if (class->quick_array == CQA_COLLECTION)
+	{
+		CCOLLECTION *col = (CCOLLECTION *)object;
+		GB_COLLECTION_ITER iter;
+		char *key = NULL;
+		int len;
+		VALUE temp;
+
+		if (OBJECT_is_locked((OBJECT *)col))
+			THROW_SERIAL();
+		OBJECT_lock((OBJECT *)col, TRUE);
+
+		buffer._byte = col->mode ? 'c' : 'C';
+		STREAM_write(stream, &buffer._byte, 1);
+
+		write_length(stream, CCOLLECTION_get_count(col));
+
+		GB_CollectionEnum(col, &iter, (GB_VARIANT *)&temp, NULL, NULL);
+		while (!GB_CollectionEnum(col, &iter, (GB_VARIANT *)&temp, &key, &len))
+		{
+			write_length(stream, len);
+			STREAM_write(stream, key, len);
+			STREAM_write_type(stream, T_VARIANT, &temp);
+		}
+
+		OBJECT_lock((OBJECT *)col, FALSE);
+		return;
+	}
+	
+	if (class->is_struct)
+	{
+		CSTRUCT *structure = (CSTRUCT *)object;
+		int i;
+		CLASS_DESC *desc;
+		VALUE temp;
+		char *addr;
+
+		stream = enter_temp_stream(stream);
+
+		if (OBJECT_is_locked((OBJECT *)structure))
+			THROW_SERIAL();
+		OBJECT_lock((OBJECT *)structure, TRUE);
+
+		for (i = 0; i < class->n_desc; i++)
+		{
+			desc = class->table[i].desc;
+
+			if (structure->ref)
+				addr = (char *)((CSTATICSTRUCT *)structure)->addr + desc->variable.offset;
+			else
+				addr = (char *)structure + sizeof(CSTRUCT) + desc->variable.offset;
+
+			VALUE_class_read(desc->variable.class, &temp, (void *)addr, desc->variable.ctype, (void *)structure);
+			BORROW(&temp);
+			STREAM_write_type(stream, temp.type, &temp);
+			RELEASE(&temp);
+		}
+
+		stream = leave_temp_stream();
+
+		OBJECT_lock((OBJECT *)structure, FALSE);
+		return;
+	}
+	
+	THROW_SERIAL();
 }
 
 
@@ -1685,11 +1918,11 @@ __ERROR:
 }
 
 
-
 void STREAM_lof(STREAM *stream, int64_t *len)
 {
 	int fd;
 	int ilen;
+	STREAM_EXTRA *extra;
 
 	if (STREAM_is_closed(stream))
 		THROW(E_CLOSED);
@@ -1708,17 +1941,31 @@ void STREAM_lof(STREAM *stream, int64_t *len)
 
 ADD_BUFFER:
 
-	if (stream->common.buffer)
-		*len += stream->common.buffer_len - stream->common.buffer_pos;
+	extra = EXTRA(stream);
+	if (extra)
+	{
+		if (extra->unread)
+			*len += extra->unread_len - extra->unread_pos;
+		if (extra->buffer)
+			*len += extra->buffer_len - extra->buffer_pos;
+	}
 }
+
 
 bool STREAM_eof(STREAM *stream)
 {
+	STREAM_EXTRA *extra = EXTRA(stream);
+	
 	if (STREAM_is_closed(stream))
 		THROW(E_CLOSED);
 
-	if (stream->common.buffer && stream->common.buffer_pos < stream->common.buffer_len)
-		return FALSE;
+	if (extra)
+	{
+		if (extra->unread && extra->unread_pos < extra->unread_len)
+			return FALSE;
+		if (extra->buffer && extra->buffer_pos < extra->buffer_len)
+			return FALSE;
+	}
 
 	if (stream->type->eof)
 		return ((*(stream->type->eof))(stream));
@@ -1805,11 +2052,11 @@ void STREAM_check_blocking(STREAM *stream)
 
 void STREAM_cancel(STREAM *stream)
 {
-	if (!stream->common.redirect)
+	if (!stream->common.redirected)
 		return;
 
-	STREAM_close(stream->common.redirect);
-	FREE(&stream->common.redirect);
+	STREAM_close(EXTRA(stream)->redirect);
+	FREE(&EXTRA(stream)->redirect);
 	stream->common.redirected = FALSE;
 }
 
@@ -1817,10 +2064,11 @@ void STREAM_begin(STREAM *stream)
 {
 	STREAM_cancel(stream);
 
-	if (!stream->common.redirect)
+	if (!stream->common.redirected)
 	{
-		ALLOC_ZERO(&stream->common.redirect, sizeof(STREAM));
-		STREAM_open(stream->common.redirect, NULL, STO_STRING | STO_WRITE);
+		STREAM_EXTRA *extra = ENSURE_EXTRA(stream);
+		ALLOC_ZERO(&extra->redirect, sizeof(STREAM));
+		STREAM_open(extra->redirect, NULL, STO_STRING | STO_WRITE);
 	}
 
 	stream->common.redirected = TRUE;
@@ -1828,11 +2076,13 @@ void STREAM_begin(STREAM *stream)
 
 void STREAM_end(STREAM *stream)
 {
-	if (!stream->common.redirect)
+	STREAM_EXTRA *extra = EXTRA(stream);
+	
+	if (!stream->common.redirected)
 		return;
 
 	stream->common.redirected = FALSE;
-	STREAM_write(stream, stream->common.redirect->string.buffer, STRING_length(stream->common.redirect->string.buffer));
+	STREAM_write(stream, extra->redirect->string.buffer, STRING_length(extra->redirect->string.buffer));
 	stream->common.redirected = TRUE;
 	STREAM_cancel(stream);
 }

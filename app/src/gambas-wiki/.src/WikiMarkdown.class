@@ -113,8 +113,10 @@ Public Sub Command(sCommand As String) As String[]
       If IsDir(sDir) Then
         
         For Each sDir In Dir(sDir, "*", gb.Directory)
+          
           sPath = "/" &/ aArg[1] &/ sDir
           If Not Main.ExistPage(sPath) Then Continue
+          
           sTitle = Main.GetPageTitle(sPath)
           If aArg.Count > 2 And If Comp(Left(sTitle, Len(aArg[2])), aArg[2], gb.Language + gb.IgnoreCase) = 0 Then sTitle = LTrim(Mid$(sTitle, Len(aArg[2]) + 1))
           
@@ -127,6 +129,8 @@ Public Sub Command(sCommand As String) As String[]
           Loop
           
           If Not sTitle Then sTitle = " "
+          
+          If aDir.Exist(sTitle & "\n*", gb.Like) Then Continue
           
           aDir.Add(sTitle & "\n[" & sPath & "]")
         Next
@@ -209,6 +213,10 @@ Public Sub Command(sCommand As String) As String[]
     Endif
     
     Return MakeError(("This symbol does not exist."))
+    
+  Else If sCommand = "help" And If Main.Class Then
+    
+    Return Split(Main.GetDefaultPage(), "\n")
 
   Else If sCommand = "stat" Then
     
@@ -262,9 +270,13 @@ Public Sub Command(sCommand As String) As String[]
     Endif
     Return aResult
     
+  Else If sCommand = "class" Then
+    
+    If Main.Class Then Return [Main.GetClassTitle(Main.Path)]
+    
   Else
     
-    Return ["**COMMAND: `" & sCommand & "`**"]
+    Return [Subst("<div class=\"error\">Unknown command `@{&1}`</div>", sCommand)]
     
   Endif
   

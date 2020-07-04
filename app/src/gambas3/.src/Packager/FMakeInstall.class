@@ -98,6 +98,8 @@ Public Sub Form_Open()
   Else
     chkPrefix.Value = Settings["/Packager/UsePrefix", False]
   Endif
+  
+  chkPackageNameWithMajor.Value = Project.PackageNameWithMajor
 
   txtPackageVersion.Value = Max(1, Project.PackageVersion)
 
@@ -170,7 +172,7 @@ End
 
 Private Sub UpdatePackageName()
   
-  txtPackage.Text = Package.GetPackageFullName(txtVendor.Text, txtVendorPrefix.Text, chkPrefix.Value, True)
+  txtPackage.Text = Package.GetPackageFullName(txtVendor.Text, txtVendorPrefix.Text, chkPrefix.Value, chkPackageNameWithMajor.Value, True)
   
 End
 
@@ -351,6 +353,7 @@ Public Sub wizInstall_BeforeChange()
       Project.PackageName = txtPackage.Text
       Project.PackageVersion = txtPackageVersion.Value
       Project.PackageSignature = chkSignature.Value
+      Project.PackageNameWithMajor = chkPackageNameWithMajor.Value
 
     Case 1
       
@@ -492,7 +495,8 @@ Public Sub wizInstall_BeforeChange()
         Stop Event 
         Return 
       Endif
-      Settings["/FMakeInstall/PackagePath"] = Package.Dir
+      
+      Project.Config["/Package/Dir"] = Project.TildePath(Package.Dir)
       
     Case TAB_CREATE
       
@@ -563,8 +567,8 @@ Public Sub wizInstall_Change()
       'cmbFile_Click
       
     Case TAB_DIR
-      dchInstall.SelectedPath = Settings["/FMakeInstall/PackagePath", System.User.Home]
-      
+      dchInstall.SelectedPath = Project.UntildePath(Project.Config["/Package/Dir", Settings["/FMakeInstall/PackagePath", "~"]])
+
     Case TAB_CREATE
       chkSignature.Value = Settings["/FMakeInstall/SignPackage", False]
       panError.Hide
@@ -918,6 +922,7 @@ Public Sub cmbDep_Click()
 
   $aDep = Split(Project.ExtraDependencies[$sDepSystem], "\n")
   tvwDep.Rows.Count = $aDep.Count
+  tvwDep.Refresh
   'txtGroup.Clear
   'lstDep.List = Split(Project.ExtraDependencies[$sDepSystem], ",")
 
@@ -986,7 +991,7 @@ Public Sub tvwDep_Save(Row As Integer, Column As Integer, Value As String)
     sCar = String.Mid$(Value, iInd, 1)
     If Len(sCar) = 1 Then
       If Column = 0 And If IsLetter(sCar) Then Continue
-      If IsDigit(sCar) Or If InStr("-.", sCar) Then Continue
+      If IsDigit(sCar) Or If InStr("-._", sCar) Then Continue
     Endif
     Balloon.Warning(("Incorrect characters"), tvwDep, tvwDep.Editor.ScreenX - tvwDep.ScreenX + tvwDep.Editor.W / 2, tvwDep.Editor.ScreenY - tvwDep.ScreenY + tvwDep.Editor.H / 2)
     Stop Event
@@ -1085,10 +1090,11 @@ End
 
 Public Sub cmbFile_Click()
 
-   $sFileSystem = GetSystemFromName(cmbFile.Text)
+  $sFileSystem = GetSystemFromName(cmbFile.Text)
 
   $aFile = Split(Project.ExtraFiles[$sFileSystem], "\n")
   tvwFile.Rows.Count = $aFile.Count
+  tvwFile.Refresh
  
 End
 
@@ -1324,5 +1330,11 @@ Public Sub chkVersionMin_Click()
     spnVersionMin.Value = spnVersionMin.MaxValue
   Endif
   dwgVersionMin.Refresh
+
+End
+
+Public Sub chkPackageNameWithMajor_Click()
+
+  UpdatePackageName
 
 End

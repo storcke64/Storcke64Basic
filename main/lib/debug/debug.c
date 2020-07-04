@@ -53,6 +53,7 @@
 DEBUG_INFO DEBUG_info = { 0 };
 GB_DEBUG_INTERFACE *DEBUG_interface;
 char DEBUG_buffer[DEBUG_BUFFER_MAX + 1];
+char *DEBUG_fifo = NULL;
 
 static DEBUG_BREAK *Breakpoint;
 static bool Error;
@@ -213,6 +214,8 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 			fifo_name = name;
 		}
 		
+		DEBUG_fifo = GB.NewZeroString(fifo_name);
+		
 		snprintf(path, sizeof(path), "/tmp/gambas.%d/%s.out", getuid(), fifo_name);
 		
 		/*for (i = 0; i < 20; i++)
@@ -275,6 +278,7 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 void DEBUG_exit(void)
 {
 	GB.FreeArray(&Breakpoint);
+	GB.FreeString(&DEBUG_fifo);
 
 	/* Don't do it, it blocks!
 

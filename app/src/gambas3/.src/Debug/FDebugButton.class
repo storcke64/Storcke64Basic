@@ -1,5 +1,7 @@
 ' Gambas class file
 
+Private $bNoSelectButton As Boolean
+
 Public Sub ReadConfig()
   
   Project.SetSmallFont(Me)
@@ -61,8 +63,12 @@ End
 Public Sub SelectButton(iTab As Integer)
 
   Dim hButton As ToolButton = Me.Children[iTab]
-  If hButton.Value Then Return
-  hButton.Value = True
+  
+  If $bNoSelectButton Then Return
+
+  $bNoSelectButton = True
+  If Not hButton.Value Then hButton.Value = True
+  $bNoSelectButton = False
   
 End
 
@@ -79,3 +85,34 @@ Public Sub Form_Arrange()
   FOutput.UpdateWidth(Me.W)
 
 End
+
+Public Sub OnRefreshSources()
+  
+  btnTest.Visible = Project.HasTest()
+  
+End
+
+Public Sub OnProjectChange()
+  
+  'btnTest.Picture = Picture["icon:/small/ok"]
+  
+End
+
+Public Sub SetTestResult(bFail As Boolean)
+  
+  'btnTest.Picture = Picture["icon:/small/" & If(bFail, "error", "apply")]
+  If bFail Then Balloon.Error(("Test has failed."), btnTest)
+  'If $hTimerReset Then $hTimerReset.Stop
+  '$hTimerReset = New Timer(5000) As "TimerReset"
+  
+End
+
+' Public Sub TimerReset_Timer()
+'   
+'   OnProjectChange
+'   $hTimerReset.Stop
+'   $hTimerReset = Null
+'   
+' End
+' 
+' 

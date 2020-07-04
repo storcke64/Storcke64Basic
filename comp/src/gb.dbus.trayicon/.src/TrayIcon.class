@@ -40,7 +40,7 @@ Public Sub _new()
   $hObject = New DBusStatusIcon As "StatusIcon"
 
   '$bAppIndicator = ["unity", "cinnamon", "x-cinnamon", "lxde"].Exist(Env["XDG_CURRENT_DESKTOP"], gb.IgnoreCase)
-  $bAppIndicator = LCase(Env["XDG_CURRENT_DESKTOP"]) <> "kde"
+  $bAppIndicator = True 'LCase(Env["XDG_CURRENT_DESKTOP"]) <> "kde"
   
   Inc $iCount
   $iId = $iCount

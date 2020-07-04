@@ -27,6 +27,9 @@ Property Read Current As _TabPanelContainer
 Property Background As Integer
 Property Moveable As Boolean
 Property CloseButton As Boolean
+Property Read TabBarSize As Integer
+Property TabBarPaddingStart As Integer
+Property TabBarPaddingEnd As Integer
 
 Private $hTabBar As DrawingArea
 Private $hTabBarContainer As DrawingArea
@@ -58,6 +61,10 @@ Private $hCloseAll As ToolButton
 Private $hClosePanel As DrawingArea
 Private $hObserver As Observer
 Private $iTabBarContainerH As Integer
+
+Private $hTabBarLeft As DrawingArea
+Private $hTabBarRight As DrawingArea
+Private $bUpdateLayout As Boolean
 
 Public Sub _new()
 
@@ -236,33 +243,61 @@ Private Sub UpdateLayout()
   Dim W As Integer
   Dim H As Integer
   Dim X As Integer
+  Dim PL, PR As Integer
+  Dim Y As Integer
   
-  $hTabBar.Height = $hTabBar.Font.Height + Desktop.Scale * 2
-  
+  If $bUpdateLayout Then Return
+  $bUpdateLayout = True
+
   W = Me.W
-  H = $hTabBar.H
+  H = TabBarSize_Read()
+  $hTabBar.Height = H + 1
   
-  If Not $hClosePanel Or If W < H * 3 Then
-    H = 0
-    If $hClosePanel Then $hClosePanel.Hide
-  Else
-    X = If(System.RightToLeft, H, 0)
-    W -= H
-    $hClosePanel.Show
-    $hClosePanel.Raise
+  
+  Y = If(Align.Top, 0, $hTabBar.Y)
+  
+  If $hClosePanel Then
+    If W >= H Then
+      W -= H
+      If System.RightToLeft Then
+        $hClosePanel.Move(X, Y, H, H + 1)
+        X += H
+      Else
+        $hClosePanel.Move(X + W, Y, H, H + 1)
+      Endif
+      $hCloseAll.Move(0, 0, H, H)
+      $hClosePanel.Show
+      $hClosePanel.Raise
+    Else
+      $hClosePanel.Hide
+    Endif
   Endif
   
+  PL = TabBarPaddingStart_Read()
+  PR = TabBarPaddingEnd_Read()
+  
+  If System.RightToLeft Then 
+    If $hTabBarLeft Then $hTabBarLeft.Move(W - PL, Y, PL, H + 1)
+    If $hTabBarRight Then $hTabBarRight.Move(0, Y, PR, H + 1)
+    Swap PL, PR
+  Else
+    If $hTabBarLeft Then $hTabBarLeft.Move(0, Y, PL, H + 1)
+    If $hTabBarRight Then $hTabBarRight.Move(W - PR, Y, PR, H + 1)
+  Endif
+  
+  X += PL
+  W -= PL + PR
+  W = Max(W, 0)
+
   Me._Arrangement = Arrange.None
   
   Select Case $iOrientation
     Case Align.Top
       $hTabBar.Move(X, 0, W, $hTabBar.H)
-      If H And If $hClosePanel Then $hClosePanel.Move(If(System.RightToLeft, 0, W), 0, H, H)
       $hPanel.Move(0, $hTabBar.H, Me.W, Me.H - $hTabBar.H)
       '$hTabBar.Next = $hPanel
     Case Align.Bottom
       $hTabBar.Move(X, Me.H - $hTabBar.H, W, $hTabBar.H)
-      If H And If $hClosePanel Then $hClosePanel.Move(If(System.RightToLeft, 0, W), $hTabBar.Y, H, H)
       $hPanel.Move(0, 0, Me.W, Me.H - $hTabBar.H)
       'Me._Arrangement = Arrange.Vertical
       '$hPanel.Next = $hTabBar
@@ -282,6 +317,8 @@ Private Sub UpdateLayout()
   $hTabBarContainer.Arrangement = Arrange.Horizontal
   _EnsureCurrentVisible
   
+  $bUpdateLayout = False
+
 End
 
 Public Sub TabBar_Arrange()
@@ -940,7 +977,6 @@ Private Sub CloseButton_Write(Value As Boolean)
     Me._Container = Null
     
     $hClosePanel = New DrawingArea(Me) As "ClosePanel"
-    $hClosePanel.Arrangement = Arrange.Fill
     $hCloseAll = New ToolButton($hClosePanel) As "CloseAll"
     $hCloseAll.Picture = Picture["icon:/small/close"]
     $hCloseAll.Show
@@ -980,3 +1016,68 @@ Public Sub CloseAll_Click()
   
 End
 
+Private Function TabBarPaddingStart_Read() As Integer
+
+  If $hTabBarLeft Then Return $hTabBarLeft.W
+
+End
+
+Private Sub TabBarPaddingStart_Write(Value As Integer)
+
+  Dim hSave As Container
+  
+  If TabBarPaddingStart_Read() = Value Then Return
+  If Value > 0 Then
+    If Not $hTabBarLeft Then 
+      hSave = Me._Container
+      Me._Container = Null
+      $hTabBarLeft = New DrawingArea(Me) As "ClosePanel"
+      Me._Container = hSave
+      $hTabBarLeft.Ignore = True
+    Endif
+    $hTabBarLeft.W = Value
+  Else
+    If $hTabBarLeft Then
+      $hTabBarLeft.Delete
+      $hTabBarLeft = Null
+    Endif
+  Endif
+  UpdateLayout
+
+End
+
+Private Function TabBarPaddingEnd_Read() As Integer
+
+  If $hTabBarRight Then Return $hTabBarRight.W
+
+End
+
+Private Sub TabBarPaddingEnd_Write(Value As Integer)
+
+  Dim hSave As Container
+  
+  If TabBarPaddingEnd_Read() = Value Then Return
+  If Value > 0 Then
+    If Not $hTabBarRight Then 
+      hSave = Me._Container
+      Me._Container = Null
+      $hTabBarRight = New DrawingArea(Me) As "ClosePanel"
+      Me._Container = hSave
+      $hTabBarRight.Ignore = True
+    Endif
+    $hTabBarRight.W = Value
+  Else
+    If $hTabBarRight Then 
+      $hTabBarRight.Delete
+      $hTabBarRight = Null
+    Endif
+  Endif
+  UpdateLayout
+
+End
+
+Private Function TabBarSize_Read() As Integer
+
+  Return $hTabBar.Font.Height + Desktop.Scale * 1.75
+
+End

@@ -738,8 +738,12 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	char *name;
 	char *host;
 	char *socket;
-	my_bool reconnect = TRUE;
+	char reconnect = TRUE;
 	unsigned int timeout;
+	char *env;
+	#if HAVE_MYSQL_SSL_MODE_DISABLED
+	unsigned int mode;
+	#endif
 
 	conn = mysql_init(NULL);
 
@@ -763,8 +767,17 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	
 	timeout = db->timeout;
 	mysql_options(conn, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
-	/*timeout /= 3;
-	mysql_options(conn, MYSQL_OPT_READ_TIMEOUT, &timeout);*/
+	
+	env = getenv("GB_DB_MYSQL_NOSSL");
+	if (env && strcmp(env, "0"))
+	{
+	#if HAVE_MYSQL_SSL_MODE_DISABLED
+		mode = SSL_MODE_DISABLED;
+		mysql_options(conn, MYSQL_OPT_SSL_MODE, &mode);
+	#else
+		fprintf(stderr, "gb.db.mysql: warning: disabling SSL connection is not supported with your version of MySQL client library.\n");
+	#endif
+	}
 	
 	if (!mysql_real_connect(conn, host, desc->user, desc->password,
 			name, desc->port == NULL ? 0 : atoi(desc->port), socket,

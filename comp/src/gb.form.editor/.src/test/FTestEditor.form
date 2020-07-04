@@ -28,11 +28,15 @@
     }
     { Button5 Button
       MoveScaled(61,0,9,4)
-      Text = ("Test")
+      Text = ("Diff")
     }
     { Button6 Button
-      MoveScaled(71,0,16,4)
+      MoveScaled(71,0,12,4)
       Text = ("Bookmark")
+    }
+    { Button7 Button
+      MoveScaled(84,0,10,4)
+      Text = ("Preview")
     }
   }
   { Panel1 VSplit
@@ -43,18 +47,18 @@
       Font = Font["Gambas,10"]
       Background = Color.TextBackground
       Border = False
-      Mode = "Gambas"
+      Mode = "C"
       Wrap = True
       ShowPosition = True
       ShowLimit = True
       ShowCurrent = True
-      ShowLineNumber = True
       ShowModified = True
       ShowBraces = True
       ShowIcon = True
       ShowSpaces = True
       ShowIndent = True
       CloseBraces = True
+      CloseStrings = True
     }
   }
   { Timer1 #Timer

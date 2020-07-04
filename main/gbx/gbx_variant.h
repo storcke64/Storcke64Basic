@@ -81,7 +81,7 @@ typedef
   } \
   else if (TYPE_is_object((_var)->type)) \
   { \
-    OBJECT_REF((_var)->value._object); \
+    OBJECT_REF_CHECK((_var)->value._object); \
   } \
 })
 

@@ -283,16 +283,16 @@ End
 
 Public Function Get_Actions_Name(sAction As String) As String
 
-  If Not $cSettings.exist("[Desktop Action " & sAction & "]") Then Return ""
-  If Not $cSettings["[Desktop Action " & sAction & "]"].exist(GetKey("Name")) Then Return ""
+  If Not $cSettings.Exist("[Desktop Action " & sAction & "]") Then Return ""
+  If Not $cSettings["[Desktop Action " & sAction & "]"].Exist(GetKey("Name")) Then Return ""
   Return $cSettings["[Desktop Action " & sAction & "]"]["Name"]
 
 End
 
 Public Function Get_Actions_Exec(sAction As String) As String
 
-  If Not $cSettings.exist("[Desktop Action " & sAction & "]") Then Return ""
-  If Not $cSettings["[Desktop Action " & sAction & "]"].exist("Exec") Then Return ""
+  If Not $cSettings.Exist("[Desktop Action " & sAction & "]") Then Return ""
+  If Not $cSettings["[Desktop Action " & sAction & "]"].Exist("Exec") Then Return ""
   Return $cSettings["[Desktop Action " & sAction & "]"]["Exec"]
 
 End

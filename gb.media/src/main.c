@@ -29,6 +29,8 @@
 #include "c_media.h"
 #include "c_mediaplayer.h"
 
+bool MAIN_debug = FALSE;
+
 GB_INTERFACE GB EXPORT;
 IMAGE_INTERFACE IMAGE EXPORT;
 
@@ -70,17 +72,16 @@ int MAIN_get_x11_handle(void *control)
 	return (*get_handle)(control);
 }
 
-static void *_old_hook_main;
-
-static void hook_main(int *argc, char ***argv)
-{
-	gst_init(argc, argv);
-	CALL_HOOK_MAIN(_old_hook_main, argc, argv);
-}
-
 int EXPORT GB_INIT()
 {
-	_old_hook_main = GB.Hook(GB_HOOK_MAIN, (void *)hook_main);
+	char *env;
+	
+	gst_init(NULL, NULL);
+	
+	env = getenv("GB_MEDIA_DEBUG");
+	if (env && atoi(env))
+		MAIN_debug = TRUE;
+	
 	GB.GetInterface("gb.image", IMAGE_INTERFACE_VERSION, &IMAGE);
 	return 0;
 }

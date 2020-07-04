@@ -1,0 +1,47 @@
+' Gambas class file
+
+Public Path As String
+Public (File) As String
+Public (Line) As Integer
+Public Pos As Integer
+Public Column As Integer
+Public Text As String
+Public Bytes As Integer
+Public Length As Integer
+Public Dark As Boolean
+Public Control As String
+Public {Property} As String
+Public (Highlight) As String
+Public RichText As String
+Public Location As String
+
+'Private $sWhere As String
+
+' Public Sub GetLocation() As String
+'   
+'   Dim hFile As Object
+'   Dim sPath As String
+'   
+'   sPath = Project.Dir &/ Path
+'   
+'   If Not Project.IsSourcePath(sPath) Then Return
+'   If $sWhere Then Return $sWhere
+'   
+'   $sWhere = "-"
+'   Try hFile = Project.LoadFile(sPath)
+'   If hFile Then
+'     If hFile Is FEditor Or If hFile Is FTextEditor Then
+'       $sWhere = hFile.GetProcAt({Line})
+'       If Not $sWhere Then $sWhere = ("(Declarations)")
+'     Else If hFile Is FForm Then
+'       $sWhere = hFile.GetLocation({Line})
+'     Endif
+'   Endif
+'   Return $sWhere
+'   
+' Catch
+'   
+'   $sWhere = "?"
+'   Return $sWhere
+'   
+' End

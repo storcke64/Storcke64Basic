@@ -122,6 +122,7 @@ H1 { display: none; }
             <%Endif%>
           <% Else%>
             <input type="submit" name="create" value="<%= ("Create")%>">
+            <input type="submit" name="undo" value="<%= ("Undo")%>">
             <%--<input type="submit" name="undo" value="<%= ("Undo")%>">--%>
           <%Endif%>
           <input id="search" name="search" type="text" placeholder="<%=("Enter a word to search through the wiki...")%>" onblur="this.value='';"/>

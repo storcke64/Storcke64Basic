@@ -30,8 +30,6 @@ Static Private Sub GetColor(sName As String) As Integer
   
 End
 
-
-
 Static Public Sub FromString(sColor As String) As Integer
   
   If sColor == "None" Then Return -1
@@ -45,8 +43,6 @@ Catch
   
 End
 
-
-
 Static Public Function Run(Optional sColor As String, Optional bAlpha As Boolean, Optional sTitle As String, Optional aPrefix As String[]) As Boolean
 
   $bInsert = False
@@ -59,10 +55,10 @@ Static Public Function Run(Optional sColor As String, Optional bAlpha As Boolean
 
 End
 
-Static Public Sub Insert(bAlpha As Boolean, sTitle As String, aPrefix As String[]) As Boolean
+Static Public Sub Insert(bAlpha As Boolean, sTitle As String, aPrefix As String[], Optional sColor As String) As Boolean
   
   $bInsert = True
-  $sColor = ""
+  $sColor = sColor
   $bAlpha = bAlpha
   $sTitle = sTitle
   $aPattern = aPrefix
@@ -70,9 +66,6 @@ Static Public Sub Insert(bAlpha As Boolean, sTitle As String, aPrefix As String[
   Return Not FColorChooser.ShowModal() 
   
 End
-
-
-
 
 Public Sub btnOK_Click()
 
@@ -155,7 +148,7 @@ Public Sub Form_Open()
     tabColor[0].Visible = False
   Endif
   
-  If Not $bInsert Then tabColor.Index = iIndex
+  tabColor.Index = iIndex
   
   dlgColor.ShowAlpha = $bAlpha
   

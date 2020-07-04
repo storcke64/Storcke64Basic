@@ -28,6 +28,7 @@ Private $sLastResult As String
 Public LANG_ENV As String[] = ["LC_ALL=C.UTF-8", "LANG=C.UTF-8", "LANGUAGE=C.UTF-8"]
 Public Const DELIM_CHANGE As String = ("This line and the following will be ignored")
 Public Enum ACCEPT_OURS = 1, ACCEPT_THEIRS = 2
+Private $bCancel As Boolean
 
 Private Sub OnVersionControlChange()
 
@@ -73,7 +74,7 @@ Public Sub Insert(sText As String)
   If $hEditor Then
     $hEditor.Print(DConv(sText))
   Else
-    If Not Settings["/QuietExternalCommands", False] Then FDebugInfo.InsertVersionControl(sText)
+    FDebugInfo.InsertVersionControl(sText)
   Endif
 
 End
@@ -105,6 +106,7 @@ Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As
   $bOutput = bOutput
   $dOutput = Now
   $sLastResult = ""
+  $bCancel = False
   
   ' If bIdent Then
   '   'aCmd.Add("--non-interactive")
@@ -140,6 +142,8 @@ Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As
     Sleep 0.1
   Loop
   
+  If $bCancel Then Return -1
+  
   If Process.LastValue Then $sLastResult = $sOutput
   
   Return Process.LastValue
@@ -159,8 +163,11 @@ Public Sub Process_Read()
   Dim sData As String
   Dim iPos As Integer
   Dim sLine As String
+  Dim hProcess As Process
 
-  sData = Read #Last, -4096
+  hProcess = Last
+  
+  sData = Read #hProcess, -4096
   $sOutput &= Replace(sData, "\r", "")
   If $bOutput Then Insert(sData)
   'Insert(sData)
@@ -177,20 +184,26 @@ Public Sub Process_Read()
     If Right(RTrim(sLine)) = ":" Then
       If InStr(sLine, "username", 1, gb.IgnoreCase) Then 
         'If $bOutput Then Insert(sLine)
-        If Not $bAuth Then GetAuthentication()
+        If Not $bAuth Then
+          If GetAuthentication() Then Goto CANCEL
+        Endif
         If Not $sUser Then Goto CANCEL
         Print #Last, $sUser
         Insert($sUser & "\n")
         $sOutput = ""
       Else If InStr(sLine, "password", 1, gb.IgnoreCase) Then 
         'If $bOutput Then Insert(sLine)
-        If Not $bAuth Then GetAuthentication()
+        If Not $bAuth Then
+          If GetAuthentication() Then Goto CANCEL
+        Endif
         Print #Last, $sPassword
         Insert("********" & "\n")
         $sOutput = ""
       Else If InStr(sLine, "passphrase", 1, gb.IgnoreCase) Then 
         'If $bOutput Then Insert(sLine)
-        If Not $bAuth Then GetAuthentication(True)
+        If Not $bAuth Then 
+          If GetAuthentication(True) Then Goto CANCEL
+        Endif
         Print #Last, $sPassword
         Insert("********" & "\n")
         $sOutput = ""
@@ -206,7 +219,8 @@ Public Sub Process_Read()
   
 CANCEL:
 
-  Last.Kill
+  $bCancel = True
+  hProcess.Kill
 
 End
 
@@ -331,19 +345,21 @@ End
 
 Public Sub Update()
 
-  Dim bErr As Boolean
   Dim hFile As Object
   Dim sFile As String
   Dim sPath As String
   Dim aRemove As String[]
+  Dim iResult As Integer
 
   Inc Application.Busy
-  bErr = $hVC.Update()
+  iResult = $hVC.Update()
   CheckPaths
   Project.Refresh
   Dec Application.Busy
 
-  If bErr Then  
+  If iResult < 0 Then Return ' cancelled
+  
+  If iResult Then  
     ShowError(("Unable to update project from repository."))
   Else
     Message.Info(("Project has been updated from repository successfully."))
@@ -438,12 +454,26 @@ End
 ' 
 ' End
 
-Public Sub Diff(Optional sPath As String) As String
+Public Sub Diff(Optional sPath As String, Optional bFull As Boolean) As String
 
   If Not sPath Then sPath = Project.Dir
-  Return $hVC.Diff(sPath)
+  Return $hVC.Diff(sPath, bFull)
 
 End
+
+Public Sub History(Optional sPath As String, Optional bFull As Boolean) As String
+
+  If Not sPath Then sPath = Project.Dir
+  Return $hVC.History(sPath, bFull)
+
+End
+
+Public Sub HighlightHistory(sText As String)
+  
+  $hVC.HighlightHistory(sText)
+  
+End
+
 
 Public Sub CanControlProject() As Boolean
 
@@ -559,11 +589,11 @@ Public Sub GetDelimChange() As String
 
 End
 
-Private Sub GetAuthentication(Optional bNoUser As Boolean) 
+Private Sub GetAuthentication(Optional bNoUser As Boolean) As Boolean
 
   Dialog.NoUser = bNoUser
   Dialog.Key = Project.Name &/ "VersionControl"
-  If Dialog.AskPassword() Then Return
+  If Dialog.AskPassword() Then Return True
   $sUser = Dialog.User
   $sPassword = Dialog.Password
   $bAuth = True
@@ -589,6 +619,8 @@ Public Sub SetBranch(sBranch As String)
   If sCurrent <> sBranch Then
     ShowError(Subst(("Unable to switch to branch `&1`."), sBranch))
   Endif
+  
+  Project.UpdateTitle
   
 End
 

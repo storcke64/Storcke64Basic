@@ -12,6 +12,9 @@ Public Sub Form_Open()
   Dim hFilePict As Picture
   Dim sParent As String
   Dim bDark As Boolean
+  Dim sFirst As String
+  
+  Debug Style.Name
   
   Component.Load("gb.form")
   
@@ -34,8 +37,11 @@ Public Sub Form_Open()
       If bDark Then .Background = Color.RGB(0, 0, 0, 240)
       If InStr(sPath, "zip") Then .Foreground = Color.Red
     End With
+    If Not sFirst Then sFirst = sPath
     'ListView1.Add(sPath, File.Name(sPath), If(IsDir(sPath), hDirPict, hFilePict))
   Next
+  
+  tvwTest[sFirst].Selected = True
   
   GridView1.Rows.Count = 10
   GridView1.Columns.Count = 10
@@ -84,6 +90,7 @@ End
 Public Sub tvwTest_MouseDrag()
 
   Debug "START"
+  Drag.Icon = Picture["icon:/small/text"]
   Drag(tvwTest, "toto", "text/plain")
   Debug "END"
 
@@ -137,5 +144,17 @@ End
 Public Sub Button5_Click()
 
   tvwTest.Current.Rename
+
+End
+
+Public Sub Button6_Click()
+
+  tvwTest.ShowCheck = Not tvwTest.ShowCheck
+
+End
+
+Public Sub tvwTest_MouseDown()
+
+  Debug
 
 End

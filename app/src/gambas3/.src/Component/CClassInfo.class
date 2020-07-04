@@ -267,7 +267,7 @@ Public Sub InitControl()
 
   ' Taille par défaut
   
-  'IF Name = "Button" THEN STOP
+  'If Name = "Timer" Then Stop
   Try sStr = Symbols["_DefaultSize"].Value 
   If sStr Then 
     aCont = Split(sStr)
@@ -339,8 +339,13 @@ Public Sub InitControl()
   ' ENDIF
   
   If DefaultWidth = 0 Or If DefaultHeight = 0 Then
-    DefaultWidth = 9 * Desktop.Scale
-    DefaultHeight = 3 * Desktop.Scale
+    If VirtualControl Then
+      DefaultWidth = CControl.GetVirtualSize() * Desktop.Scale
+      DefaultHeight = DefaultWidth
+    Else
+      DefaultWidth = 9 * Desktop.Scale
+      DefaultHeight = 3 * Desktop.Scale
+    Endif
   Endif
   
 End

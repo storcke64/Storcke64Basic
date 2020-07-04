@@ -155,7 +155,7 @@ static bool _check_quit_posted = false;
 static int _prevent_quit = 0;
 
 #ifndef NO_X_WINDOW
-static void (*_x11_event_filter)(XEvent *) = 0;
+static int (*_x11_event_filter)(XEvent *) = 0;
 #endif
 
 static QHash<void *, void *> _link_map;
@@ -178,6 +178,9 @@ static void myMessageHandler(QtMsgType type, const QMessageLogContext &context, 
 	//fprintf(stderr, "---- `%s'\n", QT_ToUtf8(msg));
 	
 	if (msg == "QXcbClipboard: SelectionRequest too old")
+		return;
+	
+	if (msg.startsWith("QXcbConnection: ") && msg.contains("(TranslateCoords)"))
 		return;
 
 	_previousMessageHandler(type, context, msg);
@@ -572,7 +575,7 @@ void MyApplication::commitDataRequested(QSessionManager &session)
 
 //---------------------------------------------------------------------------
 
-static void x11_set_event_filter(void (*filter)(XEvent *))
+static void x11_set_event_filter(int (*filter)(XEvent *))
 {
 	_x11_event_filter = filter;
 }
@@ -682,6 +685,7 @@ public:
 					xev.xconfigure.override_redirect = e->override_redirect;
 					break;
 				}
+				
 				case XCB_PROPERTY_NOTIFY:
 				{
 					xcb_property_notify_event_t *e = (xcb_property_notify_event_t *)ev;
@@ -730,16 +734,20 @@ public:
 					xev.xclient.window = e->window;
 					xev.xclient.message_type = e->type;
 					xev.xclient.format = e->format;
-					memcpy(&xev.xclient.data, &e->data, 20);
+					xev.xclient.data.l[0] = e->data.data32[0];
+					xev.xclient.data.l[1] = e->data.data32[1];
+					xev.xclient.data.l[2] = e->data.data32[2];
+					xev.xclient.data.l[3] = e->data.data32[3];
+					xev.xclient.data.l[4] = e->data.data32[4];
 					break;
 				}
 
 				default:
-					//qDebug("gb.qt5: warning: unhandled xcb event: %d", type);
+					qDebug("gb.qt5: warning: unhandled xcb event: %d", type);
 					return false;
 			}
 
-			(*_x11_event_filter)(&xev);
+			return (*_x11_event_filter)(&xev) != 0;
 		}
 
 		return false;
@@ -759,7 +767,7 @@ bool MyApplication::x11EventFilter(XEvent *e)
 		MAIN_x11_last_key_code = e->xkey.keycode;
 
 	if (_x11_event_filter)
-		(*_x11_event_filter)(e);
+		return (*_x11_event_filter)(e);
 
 	return false;
 }
@@ -1037,6 +1045,7 @@ static void hook_wait(int duration)
 	}
 
 	MAIN_in_wait++;
+	
 	if (duration > 0)
 	{
 		if (CKEY_is_valid())
@@ -1044,8 +1053,11 @@ static void hook_wait(int duration)
 		else
 			qApp->processEvents(QEventLoop::AllEvents, duration);
 	}
+	else if (duration < 0)
+		qApp->processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents);
 	else
 		qApp->processEvents(QEventLoop::ExcludeUserInputEvents, duration);
+	
 	MAIN_in_wait--;
 }
 

@@ -55,7 +55,6 @@
 #include "gbc_header.h"
 #include "gbc_output.h"
 
-
 #if HAVE_GETOPT_LONG
 static struct option Long_options[] =
 {
@@ -80,7 +79,6 @@ static struct option Long_options[] =
 
 static bool main_debug = FALSE;
 static bool main_exec = FALSE;
-static bool main_verbose = FALSE;
 static bool main_compile_all = FALSE;
 static bool main_trans = FALSE;
 static bool main_warnings = FALSE;
@@ -88,9 +86,11 @@ static bool main_public = FALSE;
 static bool main_public_module = FALSE;
 static bool main_swap = FALSE;
 static bool main_no_old_read_syntax = FALSE;
+
 //static char *main_class_file = NULL;
 
 static char **_files = NULL;
+static bool make_test = FALSE;
 
 static void get_arguments(int argc, char **argv)
 {
@@ -132,7 +132,7 @@ static void get_arguments(int argc, char **argv)
 				break;
 
 			case 'v':
-				main_verbose = TRUE;
+				COMP_verbose = TRUE;
 				break;
 
 			case 'a':
@@ -194,37 +194,36 @@ static void get_arguments(int argc, char **argv)
 					"Options:"
 					#if HAVE_GETOPT_LONG
 					"\n"
-					"  -g  --debug                add debugging information\n"
-					"  -v  --verbose              verbose output\n"
 					"  -a  --all                  compile all\n"
-					"  -w  --warnings             display warnings\n"
-					"  -t  --translate            output translation files and compile them if needed\n"
-					"  -p  --public-control       form controls are public\n"
-					"  -m  --public-module        module symbols are public by default\n"
-					"  -s  --swap                 swap endianness\n"
-
-					"  -r  --root <directory>     gives the gambas installation directory\n"
 					"  -e  --translate-errors     display translatable error messages\n"
-					"  -x  --exec                 executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
-					"  -V  --version              display version\n"
-					"  -L  --license              display license\n"
+					"  -g  --debug                add debugging information\n"
 					"  -h  --help                 display this help\n"
+					"  -L  --license              display license\n"
+					"  -m  --public-module        module symbols are public by default\n"
+					"  -p  --public-control       form controls are public\n"
+					"  -r  --root <directory>     gives the gambas installation directory\n"
+					"  -s  --swap                 swap endianness\n"
+					"  -t  --translate            output translation files and compile them if needed\n"
+					"  -v  --verbose              verbose output\n"
+					"  -V  --version              display version\n"
+					"  -w  --warnings             display warnings\n"
+					"  -x  --exec                 executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
 					#else
 					" (no long options on this system)\n"
-					"  -g                         add debugging information\n"
-					"  -v                         verbose output\n"
 					"  -a                         compile all\n"
-					"  -w                         display warnings\n"
-					"  -t                         output translation files and compile them if needed\n"
-					"  -p                         form controls are public\n"
-					"  -m                         module symbols are public by default\n"
-					"  -s                         swap endianness\n"
-					"  -r <directory>             gives the gambas installation directory\n"
 					"  -e                         display translatable error messages\n"
-					"  -x                         executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
-					"  -V                         display version\n"
-					"  -L                         display license\n"
+					"  -g                         add debugging information\n"
 					"  -h                         display this help\n"
+					"  -L                         display license\n"
+					"  -m                         module symbols are public by default\n"
+					"  -p                         form controls are public\n"
+					"  -r <directory>             gives the gambas installation directory\n"
+					"  -s                         swap endianness\n"
+					"  -t                         output translation files and compile them if needed\n"
+					"  -v                         verbose output\n"
+					"  -V                         display version\n"
+					"  -w                         display warnings\n"
+					"  -x                         executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
 					#endif
 					"\n"
 					);
@@ -294,16 +293,14 @@ static void compile_file(const char *file)
 		}
 	}
 
-	JOB->all = main_compile_all;
 	JOB->exec = main_exec;
-	JOB->verbose = main_verbose;
 	JOB->warnings = main_warnings;
 	JOB->swap = main_swap;
 	JOB->public_module = main_public_module;
 	JOB->no_old_read_syntax = main_no_old_read_syntax;
 	//JOB->class_file = main_class_file;
 
-	if (JOB->verbose)
+	if (COMP_verbose)
 	{
 		putchar('\n');
 		for (i = 1; i <= 9; i++)
@@ -424,6 +421,11 @@ static void fill_files(const char *root, bool recursive)
 			{
 				*((char **)ARRAY_add(&_files)) = STR_copy(file);
 			}
+			else if (strcmp(ext, "test") == 0)
+			{
+				*((char **)ARRAY_add(&_files)) = STR_copy(file);
+				make_test = TRUE;
+			}
 		}
 	}
 
@@ -435,7 +437,9 @@ static void init_files(const char *first)
 {
 	bool recursive;
 	const char *name;
+	const char *ext;
 	int i, n;
+	bool has_test;
 
 	ARRAY_create(&_files);
 
@@ -451,8 +455,18 @@ static void init_files(const char *first)
 	qsort(_files, n, sizeof(*_files), (int (*)(const void *, const void *))compare_path);
 
 	// Add the classes to the list of classes
+	has_test = FALSE;
 	for (i = 0; i < n; i++)
 	{
+		if (!has_test)
+		{
+			ext = FILE_get_ext(_files[i]);
+			if (strcmp(ext, "test") == 0)
+			{
+				has_test = TRUE;
+				COMPILE_add_component("gb.test");
+			}
+		}
 		name = FILE_get_basename(_files[i]);
 		COMPILE_add_class(name, strlen(name));
 	}
@@ -466,6 +480,31 @@ static void exit_files(void)
 {
 	int i;
 
+	/*if (make_test)
+	{
+		FILE *f = NULL;
+		const char *file;
+		
+		if (COMP_verbose)
+			puts("creating '.test' file");
+		
+		COMPILE_create_file(&f, ".test");
+
+		for (i = 0; i < ARRAY_count(_files); i++)
+		{
+			file = _files[i];
+			if (strcmp(FILE_get_ext(file), "test") == 0)
+			{
+				fputs(FILE_get_basename(file), f);
+				fputc('\n', f);
+			}
+		}
+		
+		fclose(f);
+	}
+	else
+		unlink(".test");*/
+	
 	for (i = 0; i < ARRAY_count(_files); i++)
 		STR_free(_files[i]);
 
@@ -532,7 +571,7 @@ static void compile_lang(void)
 		
 		unlink(file_mo);
 		// Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
-		if (main_verbose)
+		if (COMP_verbose)
 		{
 			cmd = STR_print("msgfmt -o %s %s 2>&1", file_mo, file_po);
 			printf("running: %s\n", cmd);
@@ -568,7 +607,7 @@ int main(int argc, char **argv)
 
 		if (main_compile_all)
 		{
-			if (main_verbose)
+			if (COMP_verbose)
 				puts("Removing .info and .list files");
 			FILE_chdir(FILE_get_dir(COMP_project));
 			FILE_unlink(".info");

@@ -10,6 +10,9 @@ Public Const DropImageClass As String = "WebImage"
 Public Const DropImageProperty As String = "Image"
 Public Const EmbedContainer As String = "WebContainer"
 Public Const AutomaticArrangement As Boolean = True
+Public Const HasMenuEditor As Boolean = True
+Public Const MenuClass As String = "WebMenu"
+Public Const SelectImagePublic As Boolean = True
 
 Public Sub _new()
 
@@ -156,7 +159,7 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
     Case "WebImage"
       Return CFamily.PaintImage(hCCtrl, ".public")
       
-    Case "WebButton"
+    Case "WebButton", "WebFileButton"
       PaintButton(hCCtrl)
       Return
     
@@ -245,7 +248,7 @@ End
 
 Public Sub SelectImage((sPropertyType) As String, sImage As String) As String
 
-  Return FSelectIcon.Run(sImage, FSelectIcon.SELECT_IMAGE + FSelectIcon.SELECT_SVGIMAGE + FSelectIcon.SELECT_PUBLIC)
+  Return FSelectIcon.Run(sImage, FSelectIcon.SELECT_STOCK + FSelectIcon.SELECT_IMAGE + FSelectIcon.SELECT_SVGIMAGE + FSelectIcon.SELECT_PUBLIC, ["normal", "huge"])
       
 End
 
@@ -259,5 +262,11 @@ End
 Public Sub GetFonts() As String[]
   
   Return ["sans-serif", "serif", "monospace", "cursive", "fantasy"].Sort()
+  
+End
+
+Public Sub GetStockSizes() As String[]
+  
+  Return ["normal", "big"]
   
 End

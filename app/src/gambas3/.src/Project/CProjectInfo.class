@@ -220,12 +220,18 @@ Private Sub GetTranslation(sStr As String) As String
 
   Dim sLang As String
   Dim sPath As String
+  Dim sTrans As String
   
   sLang = Language.Find(System.Language)  
   sPath = $sPath &/ ".lang" &/ sLang & ".po"
   If Not Exist(sPath) Then Return sStr
   
-  Return CTranslation.FindTranslation(sPath, sStr)
+  sTrans = CTranslation.FindTranslation(sPath, sStr)
+  If sTrans Then
+    Return sTrans
+  Else
+    Return sStr
+  Endif
   
   ' aTrans = Split(File.Load(sPath), "\n")
   ' iPos = aTrans.Find("msgid " & Quote(sStr))

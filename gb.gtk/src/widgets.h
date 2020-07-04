@@ -137,6 +137,12 @@ typedef
 #define STATE_SELECTED GTK_STATE_FLAG_SELECTED
 #define STATE_FOCUSED GTK_STATE_FLAG_FOCUSED
 
+#if GTK_CHECK_VERSION(3, 14, 0)
+#else
+#define GTK_STATE_FLAG_CHECKED GTK_STATE_FLAG_ACTIVE
+#endif
+
+	
 #define gtk_hbox_new(_homogeneous, _spacing) gtk_box_new(GTK_ORIENTATION_HORIZONTAL, _spacing)
 #define gtk_vbox_new(_homogeneous, _spacing) gtk_box_new(GTK_ORIENTATION_VERTICAL, _spacing)
 

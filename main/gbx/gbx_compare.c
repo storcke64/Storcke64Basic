@@ -516,10 +516,7 @@ int COMPARE_object(void **a, void **b)
 		if (ca->special[SPEC_COMPARE] != NO_SYMBOL)
 		{
 			STACK_check(1);
-			SP->_object.class = cb;
-			SP->_object.object = *b;
-			OBJECT_REF(*b);
-			SP++;
+			PUSH_OBJECT(cb, *b);
 			EXEC_special(SPEC_COMPARE, ca, *a, 1, FALSE);
 			VALUE_conv_integer(&SP[-1]);
 			SP--;
@@ -530,10 +527,7 @@ int COMPARE_object(void **a, void **b)
 		if (cb->special[SPEC_COMPARE] != NO_SYMBOL)
 		{
 			STACK_check(1);
-			SP->_object.class = ca;
-			SP->_object.object = *a;
-			OBJECT_REF(*a);
-			SP++;
+			PUSH_OBJECT(ca, *a);
 			EXEC_special(SPEC_COMPARE, cb, *b, 1, FALSE);
 			VALUE_conv_integer(&SP[-1]);
 			SP--;

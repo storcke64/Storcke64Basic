@@ -209,7 +209,7 @@ void OBJECT_attach(OBJECT *ob, OBJECT *parent, const char *name)
 	CLASS *class = OBJECT_class(ob);
 	OBJECT_EVENT *ev;
 
-	if (!name)
+	if (!name || !*name)
 		return;
 
 	if (!class->is_observer && class->n_event == 0)
@@ -401,7 +401,7 @@ void *OBJECT_create(CLASS *class, const char *name, void *parent, int nparam)
 		if (OBJECT_set_pointer)
 		{
 			*OBJECT_set_pointer = object;
-			OBJECT_ref(object);
+			OBJECT_REF(object);
 			OBJECT_set_pointer = NULL;
 		}
 
@@ -514,4 +514,9 @@ OBJECT *OBJECT_active_parent(void *object)
 		return NULL;
 
 	return parent;
+}
+
+int OBJECT_check_valid(void *object)
+{
+	return *((char *)object + OBJECT_class(object)->special[SPEC_INVALID]);
 }

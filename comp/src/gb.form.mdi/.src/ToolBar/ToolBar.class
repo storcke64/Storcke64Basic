@@ -19,6 +19,7 @@ Property Key As String
 Property Text As String
 Property Separator As Boolean
 Property Size As String
+Property Settings As String
 
 Private $hForm As FToolBar
 
@@ -151,3 +152,54 @@ Private Sub Size_Write(Value As String)
   $hForm.SetStockIconSize(Value)
 
 End
+
+Static Private Sub LayoutToString(vLayout As Variant) As String
+  
+  Dim aSettings As New String[]
+
+  aSettings.Add(vLayout[0])
+  If vLayout[1] Then aSettings.Insert(vLayout[1])
+  Return aSettings.Join()
+  
+End
+
+Static Private Sub LayoutFromString(sLayout As String) As Variant
+  
+  Dim aSettings As String[]
+  Dim sSize As String
+
+  aSettings = Split(sLayout)
+  If aSettings.Count = 0 Then Return
+  
+  sSize = aSettings[0]
+  aSettings.Remove(0)
+  If aSettings.Count = 0 Then aSettings = Null
+  
+  Return [sSize, aSettings]
+    
+End
+
+Private Function Settings_Read() As String
+
+  Return LayoutToString($hForm.GetLayout())
+
+End
+
+Private Sub Settings_Write(Value As String)
+
+  $hForm.SetLayout(LayoutFromString(Value))
+
+End
+
+Static Public Sub GetLayout((Key) As String) As String
+
+  Return LayoutToString(FToolBar.LoadLayout(Key))
+  
+End
+
+Static Public Sub SetLayout((Key) As String, sLayout As String)
+
+  FToolBar.SaveLayout(Key, LayoutFromString(sLayout))
+  
+End
+

@@ -15,6 +15,7 @@ Public AllMenus As New CControl[]
 Public Container As Container
 
 Property Read ReadOnly As Boolean
+Property Read DiffMode As Boolean
 
 Private $bDoNotModify As Boolean
 Private $bModify As Boolean
@@ -96,6 +97,7 @@ Private $bLockArrangement As Boolean
 
 Private $cInfo As Collection
 Private $bInfoTop As Boolean
+Private $bDiffMode As Boolean
 
 Public Sub _new(sPath As String)
 
@@ -175,6 +177,8 @@ Public Sub Reload() As Boolean
   
   SetReadOnly
   Modify(True)
+  
+  UpdateDiffAction
 
 End
 
@@ -647,6 +651,8 @@ Public Function Save(Optional bForce As Boolean) As Boolean
   DrawTitle
 
   Save.End()
+  
+  UpdateDiffAction
 
 Catch
 
@@ -693,7 +699,7 @@ Public Function GetChildren(sName As String) As CControl[]
   If IsNull(hCtrl) Then Return
   If Not hCtrl.IsContainer() Then Return
 
-  If hCtrl.Kind = "Form" Then
+  If hCtrl.Kind = $hFamily.Name Then
 
     For Each hCChild In AllMenus
       aList.Add(hCChild)
@@ -719,7 +725,7 @@ Public Function GetChildren(sName As String) As CControl[]
 
     Next
 
-  Else If hCtrl.Kind = "Menu" Then
+  Else If hCtrl.Kind = $hFamily.MenuClass Then
 
     For Each hMenu In hCtrl.Control.Children
       aList.Add(Control[hMenu.Tag])
@@ -795,7 +801,7 @@ Private Sub SaveOne(hCtrl As CControl)
 
     If Not $bDoNotArrange Then ArrangeContainerByDefault(hCtrl)
 
-    If hCtrl.Kind = "Form" Then
+    If hCtrl.Kind = $hFamily.Name Then
 
       For Each hMenuCtrl In AllMenus
         SaveOne(hMenuCtrl)
@@ -839,7 +845,7 @@ Private Sub SaveOne(hCtrl As CControl)
       'AddLine("Index = " & CStr(hTab.Index))
       AddLine("Index = 0")
 
-    Else If hCtrl.Kind = "Menu" Then
+    Else If hCtrl.Kind = $hFamily.MenuClass Then
 
       For Each hMenu In hCtrl.Control.Children
         SaveOne(Control[hMenu.Tag])
@@ -1252,7 +1258,7 @@ End
 
 Public Sub Control_Menu()
 
-  CreateMenu
+  CreatePopupMenu
   mnuForm.Popup
   
   ' Must simulate the MouseUp event that is captured by the popup!
@@ -1335,7 +1341,7 @@ Public Function CreateControl(sClass As String, hParent As CControl, Optional sN
   Control[sName] = hCtrl
   'If bSetText Then Try hCtrl.SetProperty("Text", sName)
 
-  If sClass = "Menu" Then
+  If sClass = $hFamily.MenuClass Then
     If hParent = RootControl Then
       AllMenus.Add(hCtrl)
     Endif
@@ -1922,9 +1928,9 @@ Public Sub Modify(Optional bReset As Boolean)
   Inc Project.TimeStamp
   Inc Age
   
-  FSearch.OnFileChange(Me.Path)
-
   $bModify = Not bReset
+  If $bModify Then FSearch.OnFileChange(Me.Path)
+
   DrawTitle
 
 End
@@ -2291,7 +2297,7 @@ Public Sub MenuControl_Click()
 
 End
 
-Private Sub CreateMenu()
+Private Sub CreatePopupMenu()
 
   Dim hCtrl As CControl
   Dim hMenu As Menu
@@ -2306,7 +2312,7 @@ Private Sub CreateMenu()
 
   For Each hCtrl In Control
     If hCtrl = RootControl Then Continue
-    If hCtrl.Kind = "Menu" Then Continue
+    If hCtrl.Kind = $hFamily.MenuClass Then Continue
     cCtrl.Add(hCtrl.Name)
   Next
 
@@ -2419,26 +2425,29 @@ Private Sub UpdateMenu()
   Dim bOn As Boolean
   Dim hCCtrl As CControl
   Dim hCtrl As Control
+  Dim bReadOnly As Boolean
 
   If $bNoUpdateMenu Then Return
+  
+  bReadOnly = $bReadOnly Or $bDiffMode
 
-  Action[".menu", Me].Visible = Not $bReadOnly And $hFamily.HasMenuEditor
+  Action[".menu", Me].Visible = Not bReadOnly And $hFamily.HasMenuEditor
   
-  Action[".text-*,.format-*,.undo,.redo", Me].Visible = Not $bReadOnly
+  Action[".text-*,.format-*,.undo,.redo", Me].Visible = Not bReadOnly
   
-  bOn = Not IsNull(Master) And Not $bReadOnly
+  bOn = Not IsNull(Master) And Not bReadOnly
   
   Action[".cut,.copy,.copy-same,.delete,.lower,.raise", Me].Enabled = bOn
 
   Action[".paste", Me].Enabled = CanPaste()
 
-  mnuArrange.Visible = Not $bReadOnly
-  mnuChange.Visible = Not $bReadOnly
+  mnuArrange.Visible = Not bReadOnly
+  mnuChange.Visible = Not bReadOnly
   If mnuChange.Children.Count = 0 Then mnuChange.Hide
   
-  Action[".save,.cut,.paste,paste-form,.delete,.lower,.raise,.arrange*", Me].Visible = Not $bReadOnly
+  Action[".save,.cut,.paste,paste-form,.delete,.lower,.raise,.arrange*", Me].Visible = Not bReadOnly
 
-  bOn = Selection.Count >= 2 And Not $bReadOnly
+  bOn = Selection.Count >= 2 And Not bReadOnly
 
   mnuAlign.Enabled = bOn
   mnuAlign.Visible = bOn
@@ -2460,16 +2469,16 @@ Private Sub UpdateMenu()
   Endif
 
   Action[".show-tab", Me].Visible = mnuShowTab.Visible
-  Action[".move-tab*", Me].Visible = mnuShowTab.Visible And Not $bReadOnly
-  If $bReadOnly Then mnuMoveTab.Hide
+  Action[".move-tab*", Me].Visible = mnuShowTab.Visible And Not bReadOnly
+  If bReadOnly Then mnuMoveTab.Hide
 
-  If Not $bReadOnly And If Selection.Count = 1 And If Master <> RootControl And If Master.IsContainer() And If GetChildren(Master.Name).Count Then
+  If Not bReadOnly And If Selection.Count = 1 And If Master <> RootControl And If Master.IsContainer() And If GetChildren(Master.Name).Count Then
     Action[".delete-container", Me].Visible = True
   Else
     Action[".delete-container", Me].Visible = False
   Endif
 
-  If Not $bReadOnly And If Selection.Count Then
+  If Not bReadOnly And If Selection.Count Then
     
     bOn = True
     For Each hCCtrl In Selection
@@ -2987,7 +2996,7 @@ Public Sub UpdateTitle()
 
     lblTitle.Text = hCtrl.GetProperty("Text")
 
-    Try hPict = Project.GetPicture(sPict)
+    Try hPict = $hFamily.GetPicture(sPict)
     If hPict Then
       If hPict.Width <> 16 Or hPict.Height <> 16 Then hPict = hPict.Image.Stretch(16, 16).Picture
     Else
@@ -3259,6 +3268,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
 
     Case ".run-me"
       Project.Run(False, 0, Me.Name)
+      
+    Case ".diff"
+      UpdateDiffMode
 
     Default
       Return True
@@ -3740,15 +3752,15 @@ Public Sub GetPosition() As Integer
 
 End
 
-Public Sub SetPosition(hResult As CFindResult, Optional bJustCheck As Boolean) As Boolean
+Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean) As Boolean
 
-  Dim sName As String = hResult.GetLocation()
   Dim aName As String[]
   
   If bJustCheck Then
-    If Not sName Then Return True
+    FindLocation(hResult)
+    If Not hResult.Location Then Return True
   Else
-    aName = Split(sName, ".")
+    aName = Split(hResult.Location, ".")
     Try SelectControl(aName[0])
     If Not Error Then FProperty.FocusOn(aName[1])
   Endif
@@ -3968,6 +3980,7 @@ Public Sub tlbForm_Configure()
 
   'Action[".show-class"].Picture = Project.GetFileIcon(File.SetExt(Path, "class"), 16)
   UpdateMenu
+  UpdateDiffAction
 
 End
 
@@ -4124,6 +4137,7 @@ End
 Public Sub ReadConfig()
   
   Project.SetSmallFont(tlbForm)
+  edtDiff.ReadConfig
   
 End
 
@@ -4162,6 +4176,8 @@ Public Sub ArrangeContainerByDefault(hCtrl As CControl, Optional bReal As Boolea
   Dim hTab As Object
   Dim iTab As Integer
 
+  If hCtrl.Kind = $hFamily.MenuClass Then Return
+  
   Try sArr = Project.Documentation.Classes[hCtrl.Kind].Symbols["_DefaultArrangement"].Value
 
   If Not Error Then
@@ -4376,34 +4392,50 @@ Public Sub dwgInfo_Draw()
 
 End
 
-Public Sub GetLocation(iLine As Integer) As String
+Private Sub FindLocation(hResult As CSearchResult)
 
-  Dim aText As String[]
   Dim sLine As String
   Dim iPos As Integer
   Dim sProperty As String
   Dim iLevel As Integer
+  Dim sText As String
+  Dim iPos2 As Integer
   
-  aText = Split(GetText(), "\n")
-  Dec iLine
-  If iLine > aText.Max Then Return
-  sLine = Trim(aText[iLine])
-  iPos = InStr(sLine, " = ")
-  If iPos = 0 Then Return
-  sProperty = Left(sLine, iPos - 1)
+  sText = GetText()
   
-  While iLine >= 0
-    sLine = Trim(aText[iLine])
+  iPos = RInStr(sText, "\n", hResult.Pos) + 1
+
+  iPos2 = InStr(sText, "\n", iPos + 1)
+  If iPos2 = 0 Then iPos2 = Len(sText) + 1
+
+  sLine = Mid$(sText, iPos, iPos2 - iPos)
+  
+  hResult.Column = hResult.Pos - iPos + 1
+  hResult.Text = sLine
+  
+  sLine = Trim(sLine)
+  iPos2 = InStr(sLine, " = ")
+  If iPos2 = 0 Then Return
+  sProperty = Left(sLine, iPos2 - 1)
+  
+  While iPos > 1
+    iPos2 = iPos - 1
+    If iPos = 2 Then
+      iPos = 1
+    Else
+      iPos = RInStr(sText, "\n", iPos - 2) + 1
+    Endif
+    sLine = Trim(Mid$(sText, iPos, iPos2 - iPos))
     If sLine = "}" Then
       Inc iLevel
     Else If sLine Begins "{ " Then
       If iLevel Then 
         Dec iLevel
       Else
-        Return Split(sLine, " ")[1] & "." & sProperty
+        hResult.Location = Split(sLine, " ")[1] & "." & sProperty
+        Break
       Endif
     Endif
-    Dec iLine
   Wend
   
 End
@@ -4412,5 +4444,73 @@ Public Sub dwgInfo_Enter()
 
   $bInfoTop = Not $bInfoTop
   MoveInfo
+
+End
+
+Private Sub UpdateDiffAction()
+
+  Action[".diff", Me].Visible = Project.IsModified(Path, True)
+  Action[".diff-next,.diff-previous", Me].Visible = Action[".diff", Me].Visible And Action[".diff", Me].Value
+
+End
+
+Private Sub UpdateDiffMode()
+
+  If Action[".diff", Me].Value = $bDiffMode Then Return
+  
+  $bDiffMode = Action[".diff", Me].Value
+  
+  UpdateDiffAction
+  
+  If $bDiffMode Then
+    
+    Me.Save()
+    If Not Action[".diff", Me].Visible Then 
+      $bDiffMode = False
+      Action[".diff", Me].Value = False
+      Return
+    Endif
+    edtDiff.Load(Path)
+    edtDiff.EnterDiffModeWith(Path)
+    panDiff.Show
+    panDiff.Raise
+    
+  Else
+  
+    edtDiff.LeaveDiffMode()
+    edtDiff.Clear()
+    panDiff.Hide
+  
+  Endif
+  
+  SetReadOnly
+
+End
+
+Public Sub btnDiffPrevious_Click()
+
+  Dim Y As Integer
+  Y = edtDiff.FindPreviousDiff(edtDiff.Line)
+  If Y >= 0 Then edtDiff.Goto(edtDiff.Column, Y)
+
+End
+
+Public Sub btnDiffNext_Click()
+
+  Dim Y As Integer
+  Y = edtDiff.FindNextDiff(edtDiff.Line)
+  If Y >= 0 Then edtDiff.Goto(edtDiff.Column, Y)
+
+End
+
+Public Sub Form_Arrange()
+
+  panDiff.Move(0, tlbForm.H, Me.W, Me.H - tlbForm.H)
+
+End
+
+Private Function DiffMode_Read() As Boolean
+
+  Return $bDiffMode
 
 End

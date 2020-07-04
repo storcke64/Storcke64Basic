@@ -156,16 +156,13 @@ Private Sub _PrintPage()
     If Exist(sPath) Then sData = File.Load(sPath)
     If Not sData Then
       sPath = Main.Path
-      If InStr(sPath, "/comp/gb.sdl2.audio") Then
-        sPath = Replace(sPath, "/comp/gb.sdl2.audio", "/comp/gb.sdl.sound")
-      Endif
       sData = OldWiki.GetPage(sPath)
     Endif
     If Not sData Then
       If Main.Symbol Then
-        sData = "@{syntax}\n" & Main.GetDefaultPage()
+        sData = "@{syntax}\n@{help}\n" '& Main.GetDefaultPage()
       Else If Main.Class Then
-        sData = "@{symbols}\n"
+        sData = "@{help}\n@{symbols}\n"
       Endif
     Endif
     ' If Main.Path Begins "/comp/" Or If Main.Path Begins "/lang/" Or If Main.Path Begins "/cat/" Then
@@ -193,21 +190,35 @@ Private Sub _PrintPage()
       Main.Lang = Main.DEFAULT_LANG
       sPath = Main.SolvePath(Main.Path)
     Endif
-    
-    If Not Main.ExistPage(sPath) And If Main.Symbol Then
-      
-      Do
-        
-        hClass = CComponent.Get(Main.Component)[Main.Class]
-        If Not hClass.Parent Then Break
 
-        Main.Component = hClass.ParentComponent
-        Main.Class = hClass.Parent
-
+    If Main.Class Then    
+  
+      If Main.Class Ends "[]" And If Not CComponent.Get(Main.Component)[Main.Class] Then
+        Main.SubstClass = Main.Class
+        Main.Class = "*[]"
         sPath = Main.SolvePath("/comp/" & LCase(Main.Component &/ Main.Class &/ Main.Symbol))
-        If Main.ExistPage(sPath) Then Break
+      Endif
+      
+    Endif
+      
+    If Not Main.ExistPage(sPath) Then
+    
+      If Main.Symbol Then
+      
+        Do
+          
+          hClass = CComponent.Get(Main.Component)[Main.Class]
+          If Not hClass Or If Not hClass.Parent Then Break
+  
+          Main.Component = hClass.ParentComponent
+          Main.Class = hClass.Parent
+  
+          sPath = Main.SolvePath("/comp/" & LCase(Main.Component &/ Main.Class &/ Main.Symbol))
+          If Main.ExistPage(sPath) Then Break
+          
+        Loop
         
-      Loop
+      Endif
       
     Endif
     
@@ -323,6 +334,11 @@ DISPLAY_PAGE:
     Else
       sData = "# " & Main.GetClassTitle() & "\n" & sData
     Endif
+    
+    If Main.SubstClass Then
+      sData = Replace(sData, "\\*", Left(Main.SubstClass, -2)) 
+    Endif
+    
   Endif
   
   Print WikiMarkdown.ToHTML(sData)

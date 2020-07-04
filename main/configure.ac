@@ -114,6 +114,7 @@ dnl ---- Create makefiles
 AC_CONFIG_FILES([\
 Makefile \
 share/Makefile \
+man/Makefile \
 gbc/Makefile \
 gbx/Makefile \
 lib/Makefile \
@@ -140,6 +141,7 @@ lib/data/Makefile \
 lib/clipper/Makefile \
 lib/inotify/Makefile \
 lib/jit/Makefile \
+lib/test/Makefile \
 ])
 AC_OUTPUT
 

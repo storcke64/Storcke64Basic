@@ -56,9 +56,11 @@
         { Panel1 HBox
           MoveScaled(0,0,29,4)
           Spacing = True
-          { Label1 Label
-            MoveScaled(0,0,2,4)
-            Text = ("R")
+          { PictureBox1 PictureBox
+            MoveScaled(0,0,3,4)
+            Picture = Picture["icon:/small/red"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtR SpinBox txtRGB
             Name = "txtR"
@@ -66,9 +68,11 @@
             Expand = True
             MaxValue = 255
           }
-          { Label4 Label
-            MoveScaled(15,0,2,4)
-            Text = ("H")
+          { PictureBox5 PictureBox
+            MoveScaled(14,0,3,4)
+            Picture = Picture["icon:/small/hue"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtH SpinBox txtHSV
             Name = "txtH"
@@ -80,9 +84,11 @@
         { Panel3 HBox
           MoveScaled(0,5,29,4)
           Spacing = True
-          { Label2 Label
-            MoveScaled(0,0,2,4)
-            Text = ("G")
+          { PictureBox2 PictureBox
+            MoveScaled(0,0,3,4)
+            Picture = Picture["icon:/small/green"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtG SpinBox txtRGB
             Name = "txtG"
@@ -90,9 +96,11 @@
             Expand = True
             MaxValue = 255
           }
-          { Label5 Label
-            MoveScaled(15,0,2,4)
-            Text = ("S")
+          { PictureBox6 PictureBox
+            MoveScaled(14,0,3,4)
+            Picture = Picture["icon:/small/saturation"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtS SpinBox txtHSV
             Name = "txtS"
@@ -104,9 +112,11 @@
         { Panel4 HBox
           MoveScaled(0,10,29,4)
           Spacing = True
-          { Label3 Label
-            MoveScaled(0,0,2,4)
-            Text = ("B")
+          { PictureBox3 PictureBox
+            MoveScaled(0,0,3,4)
+            Picture = Picture["icon:/small/blue"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtB SpinBox txtRGB
             Name = "txtB"
@@ -114,9 +124,11 @@
             Expand = True
             MaxValue = 255
           }
-          { Label6 Label
-            MoveScaled(15,0,2,4)
-            Text = ("V")
+          { PictureBox7 PictureBox
+            MoveScaled(14,0,3,4)
+            Picture = Picture["icon:/small/lightness"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtV SpinBox txtHSV
             Name = "txtV"
@@ -129,9 +141,11 @@
           MoveScaled(0,15,29,4)
           Visible = False
           Spacing = True
-          { Label7 Label
-            MoveScaled(0,0,2,4)
-            Text = ("A")
+          { PictureBox4 PictureBox
+            MoveScaled(0,0,3,4)
+            Picture = Picture["icon:/small/transparency"]
+            Alignment = Align.Center
+            Mode = PictureBox.Contain
           }
           { txtA SpinBox txtRGB
             Name = "txtA"

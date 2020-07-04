@@ -2,7 +2,7 @@
 
 Public Shown As Boolean
 
-Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_BREAK, TAB_COMPILATION, TAB_TASK, TAB_SEARCH, TAB_VERSION_CONTROL
+Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_BREAK, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH
 
 Private $cRefreshBreakpoint As New Collection
 
@@ -42,20 +42,6 @@ Public Sub _new()
     .AddColumn(("Function"))
   End With
   
-  ' With gvwFind
-  '   .Columns.Count = 5
-  '   .Columns[0].Width = DS * 16
-  '   .Columns[0].Text = ("File")
-  '   .Columns[1].Width = DS * 16
-  '   .Columns[1].Text = ("Location")
-  '   .Columns[2].Width = DS * 6
-  '   .Columns[2].Text = ("Line")
-  '   .Columns[3].Width = DS * 6
-  '   .Columns[3].Text = ("Col.")
-  '   .Columns[4].Width = 32
-  '   .Columns[4].Text = ("Text")
-  ' End With
-  
   With gvwFind
     .AddColumn(("File"))
     .AddColumn(("Location"))
@@ -80,6 +66,8 @@ Public Sub _new()
   
   HideTab(TAB_COMPILATION)
   'wizDebug[TAB_SEARCH].Closable = True
+  
+  splDebug.MinSize = Desktop.Scale * 24
   
   ReadConfig
   'UpdateLocal
@@ -328,8 +316,10 @@ Public Sub ReadConfig()
   
   Project.SetConsoleFont(trmVersionControl)
   MTheme.InitControl(trmVersionControl)
+  Project.SetConsoleFont(trmTest)
+  MTheme.InitControl(trmTest)
 
-  For Each hCtrl In [panBreakpoint, panSearch, panVersionControl]
+  For Each hCtrl In [panBreakpoint, panSearch, panVersionControl, panTest]
     Project.SetSmallFont(hCtrl)
   Next
   
@@ -626,6 +616,20 @@ Public Sub SetSearchListInfo(Optional sText As String)
   
 End
 
+Public Sub StartSearch()
+  
+  spnSearch.Start
+  spnSearch.Show
+  
+End
+
+Public Sub StopSearch()
+  
+  spnSearch.Stop
+  spnSearch.Hide
+  
+End
+
 Public Sub btnShowSearch_Click()
   
   FSearch.WakeUp(False, True)
@@ -898,6 +902,7 @@ Public Sub OnProjectChange()
   SetCompilation
   CloseSearch
   trmVersionControl.Clear
+  trmTest.Clear
   
 End
 
@@ -1245,7 +1250,7 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
       If Right(sVar) = ":" Then
         sVar = Left(sVar)
         bBold = sVar = UCase(sVar)
-        hPict = Picture["img/symbol/" & If(sVar == "S", "s-", "") & "variable.png"]
+        hPict = Picture["$symbol:" & If(sVar == "S", "s-", "") & "variable.png"]
       Else
         sVar = Mid$(sVar, 3)
         aObject[I] = sVar
@@ -1274,9 +1279,11 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
     End With
     
     For Each sVar In aLocal
-      cvwVariable.Add("~" & sVar, sVar, Picture["img/symbol/symbol.png"], "~")
+      cvwVariable.Add("~" & sVar, sVar, Picture["$symbol:symbol"], "~")
     Next
     
+    If cvwVariable["~"].Children = 0 Then cvwVariable.Remove("~")
+
   Endif
   
   If vLayout Then cvwVariable.Layout = vLayout
@@ -1408,6 +1415,12 @@ Public Sub ShowDebugging()
   
 End
 
+Public Sub ShowTest()
+  
+  FDebugButton.SelectButton(TAB_TEST)
+  
+End
+
 Public Sub cvwVariable_Rename()
   
   Dim sVar As String
@@ -1432,6 +1445,7 @@ End
 
 Public Sub InsertVersionControl(sText As String)
   
+  If FMain.IsDebugVisible() Then FDebugButton.SelectButton(TAB_VERSION_CONTROL)
   trmVersionControl.Print(Replace(sText, "\n", "\r\n"))
   
 End
@@ -1499,3 +1513,33 @@ Public Sub mnuVcBranchSet_Click()
   
 End
 
+
+Public Sub btnVcClear_Click()
+
+  trmVersionControl.Clear
+
+End
+
+Public Sub cvwVariable_Select()
+
+  Balloon.Hide(cvwVariable)
+
+End
+
+Public Sub GetTestTerminal() As TerminalView
+
+  Return trmTest
+
+End
+
+Public Sub btnTestClear_Click()
+
+  trmTest.Clear
+
+End
+
+Public Sub btnTest_Click()
+
+  Design.Test()
+
+End

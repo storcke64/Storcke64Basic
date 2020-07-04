@@ -232,14 +232,14 @@
         MoveScaled(16,0,4,4)
         Tag = "desaturate"
         ToolTip = ("Desaturate")
-        Picture = Picture["img/draw/desaturate.png"]
+        Picture = Picture["icon:/small/saturation"]
       }
       { btnTransparent ToolButton btnAction
         Name = "btnTransparent"
         MoveScaled(20,0,4,4)
         Tag = "transparent"
         ToolTip = ("Make transparent")
-        Picture = Picture["img/draw/transparent.png"]
+        Picture = Picture["icon:/small/transparency"]
       }
       { Separator5 Separator
         MoveScaled(25,0,1,4)
@@ -341,7 +341,6 @@
         Hidden = True
         { HPanel4 HBox
           MoveScaled(0,0,59,4)
-          Spacing = True
           { Label5 Label
             MoveScaled(0,0,15,4)
             Text = ("Brightness")
@@ -350,6 +349,7 @@
             Name = "slbBrightness"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/brightness"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -357,7 +357,6 @@
         }
         { HPanel5 HBox
           MoveScaled(0,4,59,4)
-          Spacing = True
           { Label6 Label
             MoveScaled(0,0,15,4)
             Text = ("Contrast")
@@ -366,6 +365,7 @@
             Name = "slbContrast"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/contrast"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -373,7 +373,6 @@
         }
         { HPanel8 HBox
           MoveScaled(0,8,59,4)
-          Spacing = True
           { Label9 Label
             MoveScaled(0,0,15,4)
             Text = ("Gamma")
@@ -382,6 +381,7 @@
             Name = "slbGamma"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/gamma"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -389,7 +389,6 @@
         }
         { HPanel9 HBox
           MoveScaled(0,12,59,4)
-          Spacing = True
           { Label10 Label
             MoveScaled(0,0,15,4)
             Text = ("Lightness")
@@ -398,6 +397,7 @@
             Name = "slbLightness"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/lightness"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -405,7 +405,6 @@
         }
         { HPanel6 HBox
           MoveScaled(0,16,59,4)
-          Spacing = True
           { Label7 Label
             MoveScaled(0,0,15,4)
             Text = ("Hue")
@@ -414,6 +413,7 @@
             Name = "slbHue"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/hue"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -421,7 +421,6 @@
         }
         { HPanel7 HBox
           MoveScaled(0,20,59,4)
-          Spacing = True
           { Label8 Label
             MoveScaled(0,0,15,4)
             Text = ("Saturation")
@@ -430,6 +429,7 @@
             Name = "slbSaturation"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/saturation"]
             MinValue = -255
             MaxValue = 255
             Step = 16
@@ -437,7 +437,6 @@
         }
         { HPanel10 HBox
           MoveScaled(0,24,59,4)
-          Spacing = True
           { Label11 Label
             MoveScaled(0,0,15,4)
             Text = ("Blur")
@@ -446,12 +445,12 @@
             Name = "slbBlur"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/blur"]
             MaxValue = 127
           }
         }
         { HPanel3 HBox
           MoveScaled(0,28,59,4)
-          Spacing = True
           { Label15 Label
             MoveScaled(0,0,15,4)
             Text = ("Transparency")
@@ -460,6 +459,7 @@
             Name = "slbTransparency"
             MoveScaled(19,0,40,4)
             Expand = True
+            Picture = Picture["icon:/large/transparency"]
             MaxValue = 255
             Step = 16
           }
@@ -597,22 +597,22 @@
         }
         { txtGridRes SpinBox
           MoveScaled(17,0,9,4)
-          MinValue = 8
+          MinValue = 4
           MaxValue = 512
-          Step = 8
+          Step = 4
           Value = 64
         }
       }
       { Panel5 HBox
         MoveScaled(1,5,40,4)
-        { Label13 Label
-          MoveScaled(0,0,14,4)
+        { chkGridSnap CheckBox
+          MoveScaled(0,0,15,4)
           Expand = True
-          AutoResize = True
           Text = ("Grid snap")
         }
         { txtGridSnap SpinBox
           MoveScaled(29,0,9,4)
+          MinValue = 1
           MaxValue = 512
           Step = 8
           Value = 8

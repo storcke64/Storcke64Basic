@@ -6,16 +6,21 @@
     MoveScaled(3,2,28,60)
     Foreground = Color.DarkGreen
     Expand = True
-    List = [("Élément 1"), ("Élément 2"), ("Élément 3")]
+    List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6"), ("Élément 7")]
     Border = False
-    Mode = Select.Multiple
   }
   { Button1 Button
     MoveScaled(36,4,16,4)
-    Text = ("Button1")
+    Text = ("Add")
   }
   { Button2 Button
     MoveScaled(35,10,16,4)
     Text = ("Border")
+  }
+  { Button3 Button
+    MoveScaled(36,17,16,4)
+  }
+  { Clear Button
+    MoveScaled(35,24,16,4)
   }
 }

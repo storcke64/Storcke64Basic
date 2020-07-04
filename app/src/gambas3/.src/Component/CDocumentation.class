@@ -117,6 +117,7 @@ Static Private Sub InitComponentNames()
   $cName["gb.openssl"] = ("OpenSSL library routines")
   $cName["gb.option"] = ("GNU command option parser")
   $cName["gb.pcre"] = ("Perl-compatible Regular Expression Matching")
+  $cName["gb.poppler"] = ("PDF renderer based on Poppler library")
   $cName["gb.pdf"] = ("PDF renderer based on Poppler library")
   $cName["gb.qt4"] = ("QT4 toolkit")
   $cName["gb.qt4.ext"] = ("QT4 toolkit extension")
@@ -137,6 +138,7 @@ Static Private Sub InitComponentNames()
   $cName["gb.signal"] = ("Signals management")
   $cName["gb.term"] = ("Terminal management")
   $cName["gb.term.form"] = ("Graphical terminal applications development")
+  $cName["gb.test"] = ("Unit tests component")
   $cName["gb.util"] = ("Utility component")
   $cName["gb.util.web"] = ("Web applications utility component")
   $cName["gb.v4l"] = ("Video capture")
@@ -148,6 +150,7 @@ Static Private Sub InitComponentNames()
   $cName["gb.web"] = ("Web applications tools")
   $cName["gb.web.feed"] = ("Web feed parser and generator")
   $cName["gb.web.form"] = ("Web application development")
+  $cName["gb.web.gui"] = ("Web application development using processes as session")
   
   ' For Each $cName
   '   Print "gambas3-"; Replace($cName.Key, ".", "-")
@@ -291,7 +294,8 @@ Private Sub InitComponent(sFile As String, Optional sKey As String)
   
 Catch 
   
-  Debug "Unable to read component file:";; sFile
+  Error "gambas"; System.Version; ": Unable to read component file:";; sFile
+  Error Error.Where; ":";; Error.Text
   
 End
 
@@ -906,6 +910,8 @@ Private Sub GetModule(sClass As String) As Object
   
   sPath = Project.FindPath(sClass & ".module")
   If sPath Then Return Project.LoadFile(sPath)
+  sPath = Project.FindPath(sClass & ".test")
+  If sPath Then Return Project.LoadFile(sPath)
   For Each sFamily In CFamily.List
     sPath = Project.FindPath(sClass & "." & sFamily)
     If sPath Then Return Project.LoadFile(sPath)
@@ -973,7 +979,7 @@ Public Sub ScanSingleClass(hPModule As FEditor) As Collection
 
   cSymbol = New Collection(gb.IgnoreCase)
   hPModule.Scan = cSymbol
-  ScanClass(hPModule, cSymbol, File.Ext(hPModule.Path) = "module", False)
+  ScanClass(hPModule, cSymbol, Project.IsModuleExt(hPModule.Path), False)
   Return cSymbol
   
 End
@@ -1031,16 +1037,20 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
   Endif
   
   sPath = Project.FindPath(sClass & ".module")
-  If Exist(sPath) Then hPModule = Project.LoadFile(sPath)
-  For Each sFamily In CFamily.List
-    sPath = Project.FindPath(sClass & "." & sFamily)
-    If Exist(sPath) Then 
-      Try hPForm = Project.LoadFile(sPath)
-      Break
-    Endif
-  Next
-  sPath = Project.FindPath(sClass & ".class")
-  If Exist(sPath) Then hPClass = Project.LoadFile(sPath)
+  If Not Exist(sPath) Then sPath = Project.FindPath(sClass & ".test")
+  If Exist(sPath) Then
+    hPModule = Project.LoadFile(sPath)
+  Else
+    For Each sFamily In CFamily.List
+      sPath = Project.FindPath(sClass & "." & sFamily)
+      If Exist(sPath) Then 
+        Try hPForm = Project.LoadFile(sPath)
+        Break
+      Endif
+    Next
+    sPath = Project.FindPath(sClass & ".class")
+    If Exist(sPath) Then hPClass = Project.LoadFile(sPath)
+  Endif
   
   cSymbol = New Collection
   
@@ -1110,6 +1120,7 @@ Public Sub Reset()
   $cImplement.Clear
   
   Components["gb"].Load
+  Components["gb.test"].Load()
   
 End
 

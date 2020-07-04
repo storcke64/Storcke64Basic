@@ -128,7 +128,7 @@ static iconv_t _conv_utf8_unicode = (iconv_t)-1;
 
 #define SIZE_INC 16
 #define SIZE_INC2 256
-#define REAL_SIZE(_len) ((_len) >= 256 ? (((_len) + (SIZE_INC2 - 1)) & ~(SIZE_INC2 - 1)) : (((_len) + (SIZE_INC - 1)) & ~(SIZE_INC - 1)))
+#define SIZE_INC3 4096
 
 #define POOL_SIZE  16
 #define POOL_MAX   64
@@ -137,6 +137,18 @@ static iconv_t _conv_utf8_unicode = (iconv_t)-1;
 
 static STRING *_pool[POOL_SIZE] = { 0 };
 static char _pool_count[POOL_SIZE] = { 0 };
+
+static int real_size(int len)
+{
+	if (len < 256)
+		return (len + (SIZE_INC - 1)) & ~(SIZE_INC - 1);
+	else if (len < 4096)
+		return (len + (SIZE_INC2 - 1)) & ~(SIZE_INC2 - 1);
+	else
+		return (len + (SIZE_INC3 - 1)) & ~(SIZE_INC3 - 1);
+}
+
+#define REAL_SIZE(_len) real_size(_len)
 
 #ifdef DEBUG_ME
 
@@ -381,7 +393,7 @@ int STRING_get_free_index(void)
 }
 
 
-void STRING_clear_cache(void)
+static void clear_cache(void)
 {
 	int i;
 
@@ -403,7 +415,7 @@ void STRING_clear_cache(void)
 
 void STRING_exit(void)
 {
-	STRING_clear_cache();
+	clear_cache();
 
 	#ifdef DEBUG_ME
 	fprintf(stderr, "STRING_exit\n");

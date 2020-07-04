@@ -13,12 +13,17 @@ Private Sub Reload()
 
   'TextEditor1.Mode = "gambas"
   'TextEditor1.Load("~/gambas/3.0/test/test-git/CHANGELOG", True)
-  TextEditor1.Load("~/gambas/git/master/comp/src/gb.form.editor/.src/TextEditor.class", True)
+  'Dim I As Integer
+  
+  'TextEditor1.Load("~/gambas/git/master/comp/src/gb.form.editor/.src/TextEditor.class", True)
+  
   'TextEditor1.Load("~/Fichier texte")
   'TextEditor1.Mode = "C"
-  'TextEditor1.Load("~/gambas/git/master/main/lib/jit/gb.jit/gambas.h")
+  TextEditor1.Load("~/gambas/git/master/main/lib/jit/gb.jit/gambas.h")
   'TextEditor1.Styles[Highlight.Custom].Background = Color.SetAlpha(Color.Red, 224)
   'TextEditor1.Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Green, 224)
+  
+  'Button5_Click
   
 End
 
@@ -194,9 +199,24 @@ End
 
 Public Sub Button5_Click()
 
-  TextEditor1.Goto(0, TextEditor1.Count)
-  TextEditor1.Insert("\nPublic Sub Toto()\n  \n  \n  \nEnd")
-  TextEditor1.GotoCenter(-1, TextEditor1.Count - 3)
-  TextEditor1.SetFocus
+  Dim aText As String[]
+  Dim I As Integer
+  
+  If TextEditor1.DiffMode Then
+    TextEditor1.LeaveDiffMode()
+  Else
+    aText = New String[]
+    For I = 1 To 100
+      aText.Add(String$(80, CStr(I) & "."))
+    Next
+    TextEditor1.EnterDiffMode([3, 4, 12, 2, 20, 6], ["0": aText, "3": ["Différence", "sur plusieurs lignes", "c'est possible ?"]])
+  Endif
+
+End
+
+Public Sub Button7_Click()
+
+  TextEditor1.ShowPreview = Not TextEditor1.ShowPreview
+  Dec Me.W
 
 End

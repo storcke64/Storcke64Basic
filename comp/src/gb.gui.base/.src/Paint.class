@@ -466,3 +466,18 @@ Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float,
   
 End
 
+Static Public Sub Check(X As Float, Y As Float, Width As Float, Height As Float)
+  
+  Dim D As Float
+  
+  D = Min(Width / 3, Height / 2)
+  
+  X += (Width - D * 3) / 2
+  Y += (Height - D * 2) / 2
+  
+  Paint.MoveTo(X, Y + D)
+  Paint.RelLineTo(D, D)
+  Paint.RelLineTo(D * 2, -D * 2)
+  
+End
+

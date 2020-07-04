@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,143,56)
+  MoveScaled(0,0,149,56)
   Persistent = True
   Arrangement = Arrange.Vertical
   { mnuForm Menu
@@ -69,7 +69,7 @@
     }
     { mnuSelect Menu
       Text = ("Select")
-      Picture = Picture["img/16/select.png"]
+      Picture = Picture["icon:/small/select"]
     }
     { mnuSelectAll Menu
       Action = ".select-all"
@@ -271,7 +271,7 @@
     }
   }
   { tlbForm ToolBar
-    MoveScaled(0,0,140,8)
+    MoveScaled(0,0,148,8)
     Key = "form"
     Text = ("Form")
     Separator = True
@@ -282,50 +282,73 @@
       Action = ".show-class"
       Picture = Picture["icon:/small/right"]
     }
+    { btnDiff ToolButton
+      MoveScaled(4,0,4,4)
+      ToolTip = ("Show modifications")
+      Action = ".diff"
+      AutoResize = True
+      Picture = Picture["img/32/modified.png"]
+      Toggle = True
+    }
+    { btnDiffPrevious ToolButton
+      MoveScaled(7,0,4,4)
+      ToolTip = ("Previous modification")
+      Action = ".diff-previous"
+      Picture = Picture["icon:/small/rewind"]
+    }
+    { btnDiffNext ToolButton
+      MoveScaled(11,0,4,4)
+      ToolTip = ("Next modification")
+      Action = ".diff-next"
+      Picture = Picture["icon:/small/forward"]
+    }
+    { Separator6 Separator
+      MoveScaled(15,0,1,4)
+    }
     { ToolButton9 ToolButton mnuSave
       Name = "ToolButton9"
-      MoveScaled(5,0,4,4)
+      MoveScaled(16,0,4,4)
       ToolTip = ("Save")
       Action = ".save"
       Picture = Picture["icon:/small/save"]
     }
     { ToolButton11 ToolButton mnuReload
       Name = "ToolButton11"
-      MoveScaled(8,0,4,4)
+      MoveScaled(19,0,4,4)
       ToolTip = ("Reload")
       Action = ".reload"
       Picture = Picture["icon:/small/refresh"]
     }
     { ToolButton39 ToolButton
-      MoveScaled(12,0,4,4)
+      MoveScaled(23,0,4,4)
       Visible = False
       ToolTip = ("Run this form")
       Action = ".run-me"
       Picture = Picture["icon:/small/play"]
     }
     { Separator1 Separator
-      MoveScaled(16,0,1,4)
+      MoveScaled(27,0,1,4)
     }
     { ToolButton17 ToolButton mnuUndo
       Name = "ToolButton17"
-      MoveScaled(17,0,4,4)
+      MoveScaled(28,0,4,4)
       ToolTip = ("Undo")
       Action = ".undo"
       Picture = Picture["icon:/small/undo"]
     }
     { ToolButton18 ToolButton mnuRedo
       Name = "ToolButton18"
-      MoveScaled(21,0,4,4)
+      MoveScaled(32,0,4,4)
       ToolTip = ("Redo")
       Action = ".redo"
       Picture = Picture["icon:/small/redo"]
     }
     { Separator5 Separator
-      MoveScaled(26,0,1,4)
+      MoveScaled(37,0,1,4)
     }
     { ToolButton14 ToolButton mnuCut
       Name = "ToolButton14"
-      MoveScaled(28,0,4,4)
+      MoveScaled(39,0,4,4)
       Visible = False
       ToolTip = ("Cut")
       Action = ".cut"
@@ -333,7 +356,7 @@
     }
     { ToolButton15 ToolButton mnuCopy
       Name = "ToolButton15"
-      MoveScaled(31,0,4,4)
+      MoveScaled(42,0,4,4)
       Visible = False
       ToolTip = ("Copy")
       Action = ".copy"
@@ -341,7 +364,7 @@
     }
     { ToolButton16 ToolButton mnuPaste
       Name = "ToolButton16"
-      MoveScaled(34,0,4,4)
+      MoveScaled(45,0,4,4)
       Visible = False
       ToolTip = ("Paste")
       Action = ".paste"
@@ -349,14 +372,14 @@
     }
     { ToolButton1 ToolButton mnuDelete
       Name = "ToolButton1"
-      MoveScaled(37,0,4,4)
+      MoveScaled(48,0,4,4)
       Visible = False
       ToolTip = ("Delete")
       Action = ".delete"
       Picture = Picture["icon:/small/delete"]
     }
     { ToolButton31 ToolButton
-      MoveScaled(43,0,5,4)
+      MoveScaled(54,0,5,4)
       ToolTip = ("Menu editor")
       Action = ".menu"
       AutoResize = True
@@ -364,7 +387,7 @@
       Picture = Picture["icon:/small/menu"]
     }
     { ToolButton2 ToolButton
-      MoveScaled(48,0,4,4)
+      MoveScaled(59,0,4,4)
       ToolTip = ("Toggle grid")
       Action = ".grid"
       Picture = Picture["icon:/small/grid"]
@@ -372,7 +395,7 @@
       Value = True
     }
     { ToolButton40 ToolButton
-      MoveScaled(52,0,4,4)
+      MoveScaled(63,0,4,4)
       ToolTip = ("Toggle information tooltip")
       Action = ".tooltip"
       Picture = Picture["icon:/small/info"]
@@ -380,131 +403,131 @@
       Value = True
     }
     { Separator2 Separator
-      MoveScaled(57,0,1,4)
+      MoveScaled(68,0,1,4)
     }
     { ToolButton19 ToolButton
-      MoveScaled(57,0,4,4)
+      MoveScaled(68,0,4,4)
       ToolTip = ("Bring to foreground")
       Action = ".raise"
       Picture = Picture["icon:/16/raise"]
     }
     { ToolButton20 ToolButton
-      MoveScaled(61,0,4,4)
+      MoveScaled(72,0,4,4)
       ToolTip = ("Send to background")
       Action = ".lower"
       Picture = Picture["icon:/16/lower"]
     }
     { ToolButton21 ToolButton
-      MoveScaled(65,0,4,4)
+      MoveScaled(76,0,4,4)
       ToolTip = ("Align to top")
       Action = ".align-top"
       Picture = Picture["icon:/16/align-top"]
     }
     { ToolButton22 ToolButton
-      MoveScaled(69,0,4,4)
+      MoveScaled(80,0,4,4)
       ToolTip = ("Align to bottom")
       Action = ".align-bottom"
       Picture = Picture["icon:/16/align-bottom"]
     }
     { ToolButton23 ToolButton
-      MoveScaled(73,0,4,4)
+      MoveScaled(84,0,4,4)
       ToolTip = ("Align to left")
       Action = ".align-left"
       Picture = Picture["icon:/16/align-left"]
     }
     { ToolButton24 ToolButton
-      MoveScaled(77,0,4,4)
+      MoveScaled(88,0,4,4)
       ToolTip = ("Align to right")
       Action = ".align-right"
       Picture = Picture["icon:/16/align-right"]
     }
     { ToolButton29 ToolButton
-      MoveScaled(81,0,4,4)
+      MoveScaled(92,0,4,4)
       ToolTip = ("Same width")
       Action = ".same-width"
       Picture = Picture["icon:/16/align-width"]
     }
     { ToolButton30 ToolButton
-      MoveScaled(85,0,4,4)
+      MoveScaled(96,0,4,4)
       ToolTip = ("Same height")
       Action = ".same-height"
       Picture = Picture["icon:/16/align-height"]
     }
     { ToolButton25 ToolButton
-      MoveScaled(89,0,4,4)
+      MoveScaled(100,0,4,4)
       Visible = False
       ToolTip = ("Vertical")
       Action = ".arrange-vertical"
       Picture = Picture["img/16/arrange-v.png"]
     }
     { ToolButton26 ToolButton
-      MoveScaled(93,0,4,4)
+      MoveScaled(104,0,4,4)
       Visible = False
       ToolTip = ("Horizontal")
       Action = ".arrange-horizontal"
       Picture = Picture["img/16/arrange-h.png"]
     }
     { ToolButton27 ToolButton
-      MoveScaled(97,0,4,4)
+      MoveScaled(108,0,4,4)
       Visible = False
       ToolTip = ("Columns")
       Action = ".arrange-column"
       Picture = Picture["img/16/arrange-tb.png"]
     }
     { ToolButton28 ToolButton
-      MoveScaled(101,0,4,4)
+      MoveScaled(112,0,4,4)
       Visible = False
       ToolTip = ("Rows")
       Action = ".arrange-row"
       Picture = Picture["img/16/arrange-lr.png"]
     }
     { ToolButton10 ToolButton
-      MoveScaled(105,0,4,4)
+      MoveScaled(116,0,4,4)
       ToolTip = ("Center horizontally")
       Action = ".arrange-hcenter"
       Picture = Picture["img/16/arrange-hcenter.png"]
     }
     { ToolButton8 ToolButton
-      MoveScaled(109,0,4,4)
+      MoveScaled(120,0,4,4)
       ToolTip = ("Center vertically")
       Action = ".arrange-vcenter"
       Picture = Picture["img/16/arrange-vcenter.png"]
     }
     { Separator3 Separator
-      MoveScaled(113,0,1,4)
+      MoveScaled(124,0,1,4)
     }
     { ToolButton3 ToolButton
-      MoveScaled(114,0,4,4)
+      MoveScaled(125,0,4,4)
       ToolTip = ("Move tab first")
       Action = ".move-tab-first"
       Picture = Picture["icon:/small/first"]
     }
     { ToolButton4 ToolButton
-      MoveScaled(118,0,4,4)
+      MoveScaled(129,0,4,4)
       ToolTip = ("Move tab left")
       Action = ".move-tab-previous"
       Picture = Picture["icon:/small/left"]
     }
     { ToolButton5 ToolButton
-      MoveScaled(122,0,4,4)
+      MoveScaled(133,0,4,4)
       ToolTip = ("Move tab right")
       Action = ".move-tab-next"
       Picture = Picture["icon:/small/right"]
     }
     { ToolButton6 ToolButton
-      MoveScaled(126,0,4,4)
+      MoveScaled(137,0,4,4)
       ToolTip = ("Move tab last")
       Action = ".move-tab-last"
       Picture = Picture["icon:/small/last"]
     }
     { btnTabMenu ToolButton
-      MoveScaled(130,0,4,4)
+      MoveScaled(141,0,4,4)
       ToolTip = ("Show tab")
       Action = ".show-tab"
       Picture = Picture["img/16/tabstrip.png"]
     }
     { Separator4 Separator
-      MoveScaled(135,0,1,4)
+      MoveScaled(146,0,1,4)
     }
     { btnFont MenuButton
       MoveScaled(0,4,7,4)
@@ -687,13 +710,24 @@
       Background = Color.Background
     }
   }
-  { dwgBackground DrawingArea
-    MoveScaled(76,26,12,9)
-    Background = Color.LightForeground
+  { panDiff Panel
+    MoveScaled(100,27,27,25)
+    Visible = False
+    Background = Color.Background
     Ignore = True
+    Arrangement = Arrange.Fill
+    { edtDiff TextEditor
+      MoveScaled(0,0,24,23)
+      Wrap = True
+    }
   }
   { dwgInfo DrawingArea
     MoveScaled(65,45,20,6)
+    Ignore = True
+  }
+  { dwgBackground DrawingArea
+    MoveScaled(76,26,12,9)
+    Background = Color.LightForeground
     Ignore = True
   }
   { timMoveInfo #Timer
@@ -787,6 +821,18 @@
     Text = "Delete container only"
     Shortcut = ""
     Picture = "img/16/delete-container.png"
+  }
+  { Action diff
+    Text = "Show modifications"
+    Picture = "img/32/modified.png"
+  }
+  { Action diff-next
+    Text = "Next modification"
+    Picture = "icon:/small/forward"
+  }
+  { Action diff-previous
+    Text = "Previous modification"
+    Picture = "icon:/small/rewind"
   }
   { Action embed-container
     Text = "Embed into a container"
@@ -943,7 +989,7 @@
 { Toolbars
   { Toolbar form
     Text = "Form"
-    List = "show-class,save,reload,run-me,undo,redo,cut,copy,paste,delete,menu,grid,tooltip,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-vertical,arrange-horizontal,arrange-column,arrange-row,arrange-hcenter,arrange-vcenter,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,locked"
-    Default = "show-class,save,reload,|,undo,redo,|,menu,grid,tooltip,|,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-hcenter,arrange-vcenter,|,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,|,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,~,locked"
+    List = "show-class,diff,diff-previous,diff-next,save,reload,run-me,undo,redo,cut,copy,paste,delete,menu,grid,tooltip,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-vertical,arrange-horizontal,arrange-column,arrange-row,arrange-hcenter,arrange-vcenter,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,locked"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,|,undo,redo,|,menu,grid,tooltip,|,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-hcenter,arrange-vcenter,|,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,|,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,~,locked"
   }
 }

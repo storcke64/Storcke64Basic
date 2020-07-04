@@ -243,15 +243,21 @@ static void header_module_type(void)
 
 	ext = FILE_get_ext(JOB->name);
 
+	JOB->is_test = FALSE;
+	JOB->is_form = FALSE;
+	
 	if (strcasecmp(ext, "module") == 0)
 	{
 		JOB->is_module = TRUE;
-		JOB->is_form = FALSE;
+	}
+	else if (strcasecmp(ext, "test") == 0)
+	{
+		JOB->is_module = TRUE;
+		JOB->is_test = TRUE;
 	}
 	else if (strcasecmp(ext, "class") == 0)
 	{
 		JOB->is_module = FALSE;
-		JOB->is_form = FALSE;
 	}
 	else
 	{
@@ -383,6 +389,8 @@ static bool header_property(TRANS_PROPERTY *prop)
 		TYPE_set_flag(&prop->type, TF_STATIC);
 	TYPE_set_flag(&prop->type, TF_PUBLIC);
 
+	// property with variable
+	
 	if (TRANS_is(RS_USE))
 	{
 		TRANS_DECL decl = ptype;
@@ -398,6 +406,10 @@ static bool header_property(TRANS_PROPERTY *prop)
 		JOB->current++;
 		
 		decl.index = prop->use;
+		
+		if (TRANS_is(RS_EQUAL))
+			decl.init = JOB->current;
+		
 		CLASS_add_declaration(JOB->class, &decl);
 	}
 	
@@ -1177,6 +1189,6 @@ void HEADER_do(void)
 
 	CLASS_sort_declaration(JOB->class);
 
-	if (JOB->verbose)
+	if (COMP_verbose)
 		CLASS_dump();
 }

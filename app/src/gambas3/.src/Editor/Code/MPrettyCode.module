@@ -75,10 +75,12 @@ Public Sub Run(hModule As Object)
   Dim aTypes As Integer[]
   Dim iStart, iEnd As Integer
   Dim hEditor As TextEditor
+  Dim sPath As String
   
   Inc Application.Busy
   
   hEditor = hModule.GetEditor()
+  sPath = hModule.Path
   
   If hEditor.Selected Then
     iStart = Min(hEditor.Line, hEditor.SelectionLine)
@@ -94,6 +96,8 @@ Public Sub Run(hModule As Object)
   $bIndentDim = Settings["/FormatCode/IndentLocal", 1]
   $bRemoveSpace = Settings["/FormatCode/RemoveSpaces", 0]
   $bKeepVoidLine = Settings["/FormatCode/KeepVoidLines", 0]
+  
+  If LCase(File.Ext(sPath)) = "md" Then $bRemoveSpace = False
   
   $iLevel = 0
   If hEditor.TabIndent Then

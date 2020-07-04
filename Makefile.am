@@ -26,6 +26,7 @@ SUBDIRS = \
  @x11_dir@ \
  @keyring_dir@ \
  @pdf_dir@ \
+ @poppler_dir@ \
  @cairo_dir@ \
  @imageio_dir@ \
  @imageimlib_dir@ \

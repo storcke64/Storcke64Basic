@@ -10,6 +10,14 @@ Public _Time As Float
 
 Private $bDebug As Integer
 
+Private Sub GetArchiveName(sArch As String) As String
+  
+  If Not sArch Then Return "gb"
+  Return Replace(sArch, "/", ".")
+  
+End
+
+
 Public Sub _Compile(sArch As String) As Boolean
 
   Dim sFile As String
@@ -26,10 +34,9 @@ Public Sub _Compile(sArch As String) As Boolean
   
   Try $bDebug = CInt(Env["GB_JIT_DEBUG"])
   
-  If $bDebug Then Error "gb.jit: translating "; If(sArch, sArch, "project")
+  If $bDebug Then Error "gb.jit: translating "; If(sArch, "'" & sArch & "'", "project"); "..."
   
-  sName = sArch
-  If Not sName Then sName = "gb"
+  sName = GetArchiveName(sArch)
   
   sDir = File.Dir(Temp$()) &/ "jit"
   Try Mkdir sDir
@@ -89,7 +96,7 @@ Public Sub _Compile(sArch As String) As Boolean
   Print #hFile
 
   If sArch Then
-    sDir = "." &/ sArch
+    sDir = "." &/ sName
   Else
     sDir = "..."
   Endif
@@ -120,7 +127,7 @@ Public Sub _Compile(sArch As String) As Boolean
   
   hComp = New CCompilation(sName, sPathSO, fTime)
   
-  hComp.Run(sPath, sPathSO, "-w -fPIC -shared -lm")
+  hComp.Run(sPath, "-w -fPIC -shared -lm")
 
   ' If $bDebug Then Error "gb.jit: linking to "; sPathSO
   ' 
@@ -141,8 +148,7 @@ Public Sub _Wait(sArch As String) As String
   Dim hComp As CCompilation
   Dim sResult As String
   
-  If Not sArch Then sArch = "gb"
-  hComp = CCompilation.All[sArch]
+  hComp = CCompilation.All[GetArchiveName(sArch)]
   If Not hComp Then Return
   
   sResult = hComp.Wait()
@@ -154,6 +160,8 @@ Public Sub _Abort()
 
   Dim hComp As CCompilation
   
+  If CCompilation.All.Count = 0 Then Return
+  
   For Each hComp In CCompilation.All
     hComp.Kill
   Next
@@ -161,8 +169,6 @@ Public Sub _Abort()
   CCompilation.All.Clear
   
 End
-
-
 
 Private Function Time_Read() As Float
 

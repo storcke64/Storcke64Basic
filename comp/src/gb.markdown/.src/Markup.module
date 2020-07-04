@@ -154,7 +154,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
       sLine = Mid$(sLine, iPos + 4)
     Endif
   
-    ' Special command
+    ' Special command alone on its line
     
     If Left(sLine, 2) = "@{" And If Right(sLine) = "}" Then
       If sLine = "@{index}" Then 
@@ -481,7 +481,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     
     If Left(sLine) = "#" Then
       I = InStr(sLine, " ")
-      If I <= 7 Then
+      If I > 0 And If I <= 7 Then
         Dec I
         If Left(sLine, I) = String$(I, "#") Then
           sLine = Mid$(sLine, I + 2)
@@ -625,6 +625,9 @@ Private Sub ConvertLine(sLine As String) As String
   Dim bUnderline As Boolean
   Dim bLimitBefore, bLimitAfter As Boolean
   Dim iLen As Integer
+  Dim sCommand As String
+  Dim aCommand As String[]
+  Dim iPos As Integer
   
   iLen = String.Len(sLine)
   
@@ -654,13 +657,11 @@ MAIN_LOOP:
   
   If sCar = "<" Then Goto ENTER_MARKUP
   
-  'If $aMarkup.Count = 0 Then
+  If sCar = "&" Then Goto ENTER_AMPERSAND
+    
+  If sCar = "[" And If String.Mid$(sLine, I + 1, 1) <> " " Then Goto ENTER_LINK
   
-    If sCar = "&" Then Goto ENTER_AMPERSAND
-    
-    If sCar = "[" And If String.Mid$(sLine, I + 1, 1) <> " " Then Goto ENTER_LINK
-    
-  'Endif
+  If sCar = "@" And If String.Mid$(sLine, I + 1, 1) = "{" Then Goto ENTER_COMMAND
   
   If I = 1 Or If IsWordLimit(String.Mid$(sLine, I - 1, 1)) Then
     bLimitBefore = True
@@ -756,6 +757,8 @@ ENTER_MARKUP:
       Endif
     Endif
   Endif
+  
+  ' TODO: remove all attribute beginning with "on"
   
   'sPattern = LCase(sPattern)
   
@@ -979,13 +982,21 @@ ENTER_LINK:
   
   sLink = $hLink.Link
   sText = $hLink.Text
+  If sText Then sText = ConvertLine(sText)
   sTitle = $hLink.Title
   
   If Not sText Then sText = sLink
   
   If sLink Then
     
-    If $hLink.Query Then sLink &= "?" & $hLink.Query
+    If $hLink.Query Then 
+      iPos = RInStr(sLink, "#")
+      If iPos Then
+        sLink = Left(sLink, iPos - 1) & "?" & $hLink.Query & Mid$(sLink, iPos)
+      Else
+        sLink &= "?" & $hLink.Query
+      Endif
+    Endif
     
     bBlank = $hLink.Blank
     'If sLink Begins "http://" Or If sLink Begins "https://" Then bBlank = True
@@ -997,6 +1008,35 @@ ENTER_LINK:
     
   Endif
     
+  Goto MAIN_LOOP
+  
+ENTER_COMMAND:
+
+  GoSub NEXT_CAR
+
+  sCommand = ""  
+  Do
+    GoSub NEXT_CAR
+    If Not sCar Then
+      sResult &= "<div class=\"error\">Missing closing '}'</div>"
+      Return sResult
+    Endif
+    If sCar = "}" Then Break
+    sCommand &= sCar
+  Loop
+
+  If sCommand Then
+    
+    aCommand = $hMarkdown.Command(sCommand)
+    
+    If aCommand And If aCommand.Count Then
+      sResult &= ConvertLine(aCommand[0])
+    Endif
+        
+    $hMarkdown.Reinterpret = True
+        
+  Endif
+     
   Goto MAIN_LOOP
   
 Catch

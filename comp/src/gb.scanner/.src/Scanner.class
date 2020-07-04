@@ -15,14 +15,14 @@ Private $sDeviceName As String
 Private $bASync As Boolean
 'Property _Name As String
 Private $sName As String
-'Private $Options As _Options
+'Private $Options As ScannerOptions
 
 Property Read Progress As Float
 Private bHaveInfo As Boolean
 
 Private $aOptionsNames As String[]
-Private $aOptions As _Option[]
-Private $sImageStack As New String[]
+Private $aOptions As ScannerOption[]
+Private $aImgStack As New String[]
 Private $sCurImagePath As String
 
 Public Struct ScannerInfo
@@ -32,9 +32,15 @@ Public Struct ScannerInfo
 End Struct
 
 Private $fProgress As Float
-Event Finished
+Private $stmpPath As String = File.Dir(Temp())
 Event Begin
+Event PageBegin
+Event PageEnd
+Event Finished
+Event End
 Event Progress
+Event Error(ErrorText As String)
+
 
 Public Sub _New(sDevice As String)
 
@@ -90,7 +96,7 @@ Private Sub GetOptions()
   Dim sRet As String
   Dim s, sCurGroup As String
   Dim aLine As String[]
-  Dim hOption As _Option
+  Dim hOption As ScannerOption
   Dim a As String[]
   Dim iTiret As Integer
   Dim sName As String
@@ -102,7 +108,7 @@ Private Sub GetOptions()
   If Not IsAvailable() Then Error.Raise("Unknown device or device not available")
 
   $aOptionsNames = New String[]
-  $aOptions = New _Option[]
+  $aOptions = New ScannerOption[]
   Shell "scanimage " & $sDeviceName & " -A" To sRet
 
   For Each s In Split(sRet, "\n")
@@ -131,7 +137,7 @@ Private Sub GetOptions()
       sValues = Trim(Mid(s, iStartOptions + 1, iEndOptions - iStartOptions - 1))
       sDefault = Mid(s, iEndOptions + 1)
       'aLine = Split(Mid(s, iStartOptions), " ", "()")
-      hOption = New _Option
+      hOption = New ScannerOption
       'Store the option group
       hOption._Group = sCurGroup
       'Manage the option cutting
@@ -249,11 +255,12 @@ Public Function Scan() As Image
   Dim sCommand As String
   'Dim sTemp As String = Temp
   Dim hImage As Image
-  Dim hOption As _Option
-
+  Dim hOption As ScannerOption
+  Dim sCount As String
+  
   If Not $aOptionsNames Then GetOptions
-  $sImageStack.Clear
-  $sCurImagePath = Temp
+  $aImgStack.Clear
+
   For Each hOption In $aOptions
 
     If hOption.Modified Then
@@ -267,9 +274,10 @@ Public Function Scan() As Image
     Endif
 
   Next
-  sCommand = "scanimage " & $sDeviceName & " " & sOptions & "--format=jpeg > " & $sCurImagePath
-  If $bDebug Then Debug sCommand
   If Not $bASync Then
+    $sCurImagePath = Temp
+    sCommand = "scanimage " & $sDeviceName & " " & sOptions & "--format=jpeg > " & $sCurImagePath
+    If $bDebug Then Debug sCommand
     Shell sCommand Wait
     'Print ss
     Try hImage = Image.Load($sCurImagePath)
@@ -279,6 +287,13 @@ Public Function Scan() As Image
     Endif
     Return hImage
   Else
+    If Me.Exist("Source") Then
+      If InStr(LCase(Me["Source"].Value), "flatbed") Then 
+        sCount = "--batch-count=1"
+      Endif
+    Endif
+    sCommand = Subst("scanimage &1 &2 --batch='&3' &4 --batch-print -p --format=jpeg", $sDeviceName, sOptions, $stmpPath &/ "out%d.jpg", sCount)
+    If $bDebug Then Print sCommand
     Shell sCommand For Read As "Process"
 
     $fProgress = 0
@@ -298,23 +313,48 @@ Public Sub Process_Error(sError As String)
       $fProgress = fRet
       Raise Progress
     Endif
+    Return
+  Endif
+  If InStr(sError, "Scanning page") Then
+    Raise PageBegin
+    Return
+  Endif
+  
+  If InStr(sError, "scanimage: sane_start:") Then
+    Raise Error(("Scanner error : ") & Mid(sError, RInStr(sError, ":")))
+    Return
   Endif
 
 End
 
 Public Sub Process_Kill()
 
-  $sImageStack.Push($sCurImagePath)
+  '$aImgStack.Push($sCurImagePath)
   $fProgress = 1
   Raise Finished
+  Raise End
 
 End
+
+Public Sub Process_Read()
+
+  Dim s As String
+
+
+  s = Read #Last, Lof(Last)
+  $aImgStack.Add(Trim(s))
+  Raise PageEnd
+
+End
+
 
 Private Function Progress_Read() As Float
 
   Return $fProgress
 
 End
+
+
 
 ''Return recurssively all the options available
 Public Function _next() As String
@@ -338,7 +378,7 @@ Public Function _next() As String
 End
 
 ''Find an option from it's name (same as hScan[key])
-Public Sub Find(Key As String) As _Option
+Public Sub Find(Key As String) As ScannerOption
 
   If Not $aOptionsNames Then GetOptions
   Try Return $aOptions[$aOptionsNames.Find(Key)]
@@ -354,7 +394,7 @@ Public Sub Exist(Key As String) As Boolean
 End
 
 ''Return an Option from it's name
-Public Function _get(Name As String) As _Option
+Public Function _get(Name As String) As ScannerOption
 
   If Not $aOptionsNames Then GetOptions
   If Not $aOptionsNames.Exist(Name) Then
@@ -371,10 +411,11 @@ End
 Public Function Peek() As Image
 
   Dim hImg As Image
-
-  If $sImageStack.Count > 0 Then
-    Try hImg = Image.Load($sImageStack.Pop())
-    If Error Then Return Null
+  Dim sFile As String
+  If $aImgStack.Count > 0 Then
+    sFile = $aImgStack.Pop()
+    Try hImg = Image.Load(sFile)
+    Try Kill sFile
     Return hImg
   Endif
 

@@ -4,34 +4,70 @@ Inherits UserControl
 
 Export
 
-Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,ShowScrollBar"
+Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,ShowScrollBar,ReadOnly"
 Public Const _DrawWith As String = "-"
 Public Const _Group As String = "View"
 
+'' This event is raised when the process running in the terminal terminates.
 Event Kill
+'' This event is raised when the terminal wants to change its title.
 Event Title(Title As String)
+'' This event is raised when the terminal size has changed.
 Event Resize(W As Integer, H As Integer)
 
+'' Return or set if the terminal view has a border.
 Property Border As Boolean
+'' Return the current terminal screen attributes.
 Property Read Attr As TerminalAttr
 'Property Foreground As Integer
+'' Return the column position of the terminal cursor.
 Property Read Column As Integer
+'' Return the line position of the terminal cursor.
 Property Read Line As Integer
+'' Return or set the maximum size of the terminal screen buffer.
+''
+'' [[ warning
+'' The actual buffer size will not be lower than the screen lines count.
+'' ]]
 Property Limit As Integer
+'' Return or set the terminal type.
+''
+'' `"VT100"` is then only type that is supported at the moment.
 Property Type As String
+'' Return or set if the terminal displays its main screen or its alternate screen.
 Property AlternateScreen As Boolean
+'' Return or set if the terminal cursor blinks.
 Property Blink As Boolean
+'' Return the contents of the terminal.
 Property Read Text As String
+'' Return or set if the terminal view shows its scrollbar.
 Property ShowScrollBar As Boolean
+'' Return or set the terminal view background color.
 Property Background As Integer
+'' Return or set the terminal view foreground color.
 Property Foreground As Integer
+'' Return the terminal view lines count.
 Property Read Count As Integer
+'' Return or set the terminal title.
 Property Title As String
+'' Return of set if the terminal output is suspended.
 Property Suspended As Boolean
+'' Return or set if the terminal width automatically fits the terminal view.
 Property AutoResize As Boolean
+'' Return or set the terminal screen width in characters.
+''
+'' [[ warning
+'' If the [../autoresize] property is set, then the return value is the effective width, which may be different of what you have set.
+'' ]]
 Property ScreenWidth As Integer
+'' Return the terminal character width in pixels.
 Property Read CharWidth As Integer
+'' Return the terminal line height in pixels.
 Property Read LineHeight As Integer
+'' Return or set if the terminal is read-only.
+Property ReadOnly As Boolean
+
+Static Private $cShortcut As Collection
 
 Private $hPanel As Panel
 Private $hView As DrawingArea
@@ -94,11 +130,23 @@ Private $iScrollY As Integer
 Private $iTargetY As Integer
 Private $hTimerScroll As Timer
 Private $bIgnoreNextAnimation As Boolean
+Private $bReadOnly As Boolean
+
+Private Const PADDING As Integer = 2
 
 'Private $bDoubleFont As Boolean = True
 
+'' Create a new TerminalView control
+
 Public Sub _new()
   
+  If Not $cShortcut Then
+    $cShortcut = [
+      "CTRL+SHIFT+A": "SelectAll",
+      "CTRL+SHIFT+C": "Copy",
+      "CTRL+SHIFT+V": "Paste"]
+  Endif
+
   Me.Font = Font["monospace"]
   
   $hPanel = New Panel(Me) As "Panel"
@@ -145,6 +193,14 @@ Public Sub _new()
   
 End
 
+'' Reset the terminal.
+''
+'' - The terminal output is resumed if it was suspended.
+'' - The mouse mode is disabled.
+'' - All terminal modes are reset to their defaults.
+'' - The cursor position is reset, unless the ~KeepCursor~ argument is TRUE.
+'' - The terminal attributes are reset to their defaults.
+
 Public Sub Reset(Optional KeepCursor As Boolean)
   
   Dim X As Integer
@@ -169,12 +225,16 @@ Public Sub Reset(Optional KeepCursor As Boolean)
   
 End
 
+'' Clear the terminal screen contents, and reset the terminal.
+
 Public Sub Clear()
   
   $hScreen.Clear
   Reset()
   
 End
+
+'' Refresh the terminal contents.
 
 Public Sub Refresh()
   
@@ -257,7 +317,7 @@ Private Sub UpdateFont()
     sText = String$(8, "mM0_@$#W")
     $CW = CInt(.TextWidth(sText) / Len(sText) + 0.5)
     
-    W = $CW \ 8 + 1
+    W = $CW \ 8
     $CW += W \ 2
     
     $hCacheFont = New Image($CW * 416, $LH * 2, Color.Transparent)
@@ -360,12 +420,12 @@ Public Sub Panel_Arrange()
   
   If $bShowScrollBar Then
     If System.RightToLeft Then
-      $hView.Move($hScroll.W, 0, $hPanel.ClientW - $hScroll.W, $hPanel.ClientH)
+      $hView.Move($hScroll.W + PADDING, PADDING, $hPanel.ClientW - $hScroll.W - PADDING * 2, $hPanel.ClientH - PADDING * 2)
     Else
-      $hView.Move(0, 0, $hPanel.ClientW - $hScroll.W, $hPanel.ClientH)
+      $hView.Move(PADDING, PADDING, $hPanel.ClientW - $hScroll.W - PADDING * 2, $hPanel.ClientH - PADDING * 2)
     Endif
   Else
-    $hView.Move(0, 0, $hPanel.ClientW, $hPanel.ClientH)
+    $hView.Move(PADDING, PADDING, $hPanel.ClientW - PADDING * 2, $hPanel.ClientH - PADDING * 2)
   Endif
   
   UpdateScreen
@@ -387,12 +447,15 @@ End
 
 Public Sub View_Draw()
   
-  Dim bInvertColor As Boolean
+  Dim bDarkBackground As Boolean
+  
+  If $sBuffer Then OutputTimer_Timer
   
   ApplyLimit
   
-  bInvertColor = Color[Style.BackgroundOf($hView)].Value > Color[Style.ForegroundOf($hView)].Value 
-  $hScreen.Paint(GetScrollY(), $LH, $CW, $iAscent, $bHideCursor, $hCacheFont, bInvertColor)
+  bDarkBackground = Color[Style.BackgroundOf($hView)].Luminance < Color[Style.ForegroundOf($hView)].Luminance 
+  'Debug bInvertColor
+  $hScreen.Paint(GetScrollY(), $LH, $CW, $iAscent, $bHideCursor, $hCacheFont, bDarkBackground)
   
   If $bTermUseMouse Then
     Paint.FillRect($iMouseX * $CW, $iMouseY * $LH, $CW, $LH, Color.SetAlpha(Color.SelectedBackground, 64))
@@ -407,6 +470,8 @@ Public Sub View_Draw()
   If $bSuspend Then Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha($hView.Background, 128))
   
 End
+
+'' Move the cursor to the specified position.
 
 Public Sub Goto(X As Integer, Y As Integer)
   
@@ -446,6 +511,8 @@ Public Sub _EnsureVisibleAt((X) As Integer, Y As Integer)
   Endif
   
 End
+
+'' Ensure that the cursor position is visible, by scrolling the screen if necessary.
 
 Public Sub EnsureVisible()
   
@@ -703,25 +770,27 @@ Private Sub GetOutputStream() As Stream
   
 End
 
-
 Public Sub View_KeyPress()
   
   Dim hOutput As Stream
+  Dim sAction As String
   
-  If Key.Control And If Key.Shift Then
-    
-    If Key.Code = Key["C"] Then
-      Copy()
-      Stop Event
-      Return
-    Else If Key.Code = Key["V"] Then
-      Paste()
-      Stop Event
-      Return
-    Endif
-    
+  Try sAction = $cShortcut[String.UCase(Shortcut.FromKey())]
+  If sAction Then 
+    Select Case sAction
+      Case "Copy"
+        Copy()
+      Case "Paste"
+        If $bReadOnly Then Goto STOP_EVENT
+        Paste()
+      Case "SelectAll"
+        SelectAll
+    End Select
+    Goto STOP_EVENT
   Endif
   
+  If $bReadOnly Then Goto STOP_EVENT
+    
   hOutput = GetOutputStream()
   If Not hOutput Then Return
   
@@ -734,6 +803,12 @@ Public Sub View_KeyPress()
     $fStart = 0
     Stop Event
   Endif
+  
+  Return
+  
+STOP_EVENT:
+
+  Stop Event
     
 End
 
@@ -774,25 +849,37 @@ Private Sub Limit_Write(Value As Integer)
   
 End
 
+Private Sub UpdateCursorTimer()
+
+  If $hView.HasFocus And If $bBlink And If Not $bReadOnly Then
+    $bHideCursor = False
+    If Not $hCursorTimer Then $hCursorTimer = New Timer(500) As "CursorTimer"
+  Else
+    If $hCursorTimer Then
+      $hCursorTimer.Stop
+      $hCursorTimer = Null
+    Endif
+    $bHideCursor = $bReadOnly
+  Endif
+  $hView.Refresh
+  
+End
+
 Public Sub View_GotFocus()
   
-  If $bBlink Then $hCursorTimer = New Timer(500) As "CursorTimer"
+  UpdateCursorTimer
   
 End
 
 Public Sub View_LostFocus()
   
-  If $bBlink Then
-    $hCursorTimer.Stop
-    $hCursorTimer = Null
-  Endif
-  
-  $bHideCursor = False
+  UpdateCursorTimer
   
 End
 
 Public Sub _ShowCursor()
   
+  If $bReadOnly Then Return
   $bHideCursor = False
   
 End
@@ -831,7 +918,12 @@ Private Sub InitProcess()
   
 End
 
-' Running a command
+'' Execute a command inside the terminal view using the [/lang/exec] instruction and a virtual terminal.
+''
+'' - ~Command~ is the command string array passed to the EXEC instruction.
+'' - ~Environment~ is the command optional environment.
+''
+'' The [/comp/gb/process] object is returned.
 
 Public Sub Exec(Command As String[], Optional Environment As String[]) As Process
   
@@ -849,6 +941,13 @@ Public Sub Exec(Command As String[], Optional Environment As String[]) As Proces
   Return $hProcess
   
 End
+
+'' Execute a command inside the terminal view using the [/lang/shell] instruction and a virtual terminal.
+''
+'' - ~Command~ is the command string passed to the SHELL instruction.
+'' - ~Environment~ is the command optional environment.
+''
+'' The [/comp/gb/process] object is returned.
 
 Public Sub Shell(Command As String, Optional Environment As String[]) As Process
   
@@ -945,11 +1044,19 @@ Public Sub Process_Read()
   
 End
 
+'' Print something in the terminal output.
+''
+'' ## See also
+'' [../input]
+
 Public Sub Print(Text As String)
   
   UpdateScreen
-  $hFilter.OutputTo(Me, $hScreen, File.Out, Text)
-  EnsureVisible
+  $sBuffer &= Text
+  
+  OutputTimer_Timer
+  '$hFilter.OutputTo(Me, $hScreen, File.Out, Text)
+  'EnsureVisible
   
 End
 
@@ -957,17 +1064,28 @@ Public Sub OutputTimer_Timer()
   
   Dim hOutput As Stream
   Dim sBuffer As String
+  Dim bEnsureVisible As Boolean
   
   $fStart = Timer
   
   $hOutputTimer.Stop
   
+  If Not Me.Visible Then Return
+  
   hOutput = GetOutputStream()
   sBuffer = $sBuffer
   $sBuffer = ""
-  If hOutput Then $hFilter.OutputTo(Me, $hScreen, hOutput, sBuffer)
   
-  EnsureVisible
+  If (($iTargetY + $hView.H) \ $LH) >= $hScreen.Count Then 
+    bEnsureVisible = True
+  Endif
+  
+  $hFilter.OutputTo(Me, $hScreen, hOutput, sBuffer)
+  
+  If bEnsureVisible Then 
+    $bIgnoreNextAnimation = True
+    EnsureVisible
+  Endif
   
 End
 
@@ -1032,6 +1150,9 @@ Public Sub TimerScroll_Timer()
   
 End
 
+'' Kill the current process running inside the terminal.
+''
+'' It's the process run by the [../exec] or [../shell] command.
 
 Public Sub Kill()
   
@@ -1074,6 +1195,8 @@ Private Sub Blink_Write(Value As Boolean)
   
 End
 
+'' Copy the selected text of the terminal into the clipboard.
+
 Public Sub Copy()
   
   Dim sText As String
@@ -1082,6 +1205,8 @@ Public Sub Copy()
   If sText Then Clipboard.Copy(sText)
   
 End
+
+'' Paste the clipboard contents into the terminal, as if it has been entered through the keyboard.
 
 Public Sub Paste()
   
@@ -1094,6 +1219,11 @@ Public Sub Paste()
   Input(sText)
   
 End
+
+'' Send text to the terminal input.
+''
+'' ## See also
+'' [../print]
 
 Public Sub Input(Text As String)
 
@@ -1300,6 +1430,11 @@ Public Sub View_Menu()
     
     hMenu = New Menu(mnuPopup)
     
+    hMenu = New Menu(mnuPopup) As "mnuSelectAll"
+    hMenu.Text = ("Select all")
+    hMenu.Picture = Picture["icon:/small/select-all"]
+    hMenu.Shortcut = "CTRL+SHIFT+A"
+    
     hMenu = New Menu(mnuPopup) As "mnuClear"
     hMenu.Text = ("Clear")
     hMenu.Picture = Picture["icon:/small/clear"]
@@ -1326,5 +1461,31 @@ End
 Public Sub mnuClear_Click()
   
   Clear()
+  
+End
+
+Public Sub mnuSelectAll_Click()
+  
+  SelectAll()
+  
+End
+
+Private Function ReadOnly_Read() As Boolean
+
+  Return $bReadOnly
+
+End
+
+Private Sub ReadOnly_Write(Value As Boolean)
+
+  If $bReadOnly = Value Then Return
+  $bReadOnly = Value
+  UpdateCursorTimer
+
+End
+
+Private Sub SelectAll()
+  
+  $hScreen.SelectAll()
   
 End

@@ -18,7 +18,7 @@ Private $aLibraries As String[]
 Private Const COMPONENT_PROPERTIES_TAB As Integer = 1
 Private Const LIBRARY_TAB As Integer = 3
 Private Const ARGUMENT_TAB As Integer = 5
-Private Const VERSION_CONTROL_TAB As Integer = 8
+'Private Const VERSION_CONTROL_TAB As Integer = 8
 
 Private $bInitInfo As Boolean
 Private $aNeed As String[]
@@ -54,7 +54,9 @@ Public Sub Form_Open()
 
   Me.Title = ("Project properties") & " - " & Project.Name
 
-  txtName.Text = "<font size=\"+2\"><b>" & Project.Name & "</b></font><br>" & File.Dir(Project.Dir)
+  lblName.Text = Project.Name
+  txtPath.Text = File.Dir(Project.Dir)
+  'txtName.Text = "<font size=\"+2\"><b>" & Project.Name & "</b></font><br>" & File.Dir(Project.Dir)
 
   cmbDefaultLanguage.Clear
   For Each sLang In Language.GetAll()
@@ -118,7 +120,16 @@ Public Sub Form_Open()
   'chkShowUsed.Value = $bShowUsed
   $bCanInitComponents = True
   
-  ipnProject[VERSION_CONTROL_TAB].Visible = VersionControl.Enabled
+  'ipnProject[VERSION_CONTROL_TAB].Visible = VersionControl.Enabled
+  gvwVcInfo.Visible = VersionControl.Enabled
+  'sepVcInfo.Visible = gvwVcInfo.Visible
+  If VersionControl.Name = "Git" Then
+    btnVersionAddBranch.Enabled = True
+    btnVersionAddBranch.Value = Project.VersionAddBranch
+  Else
+    btnVersionAddBranch.Enabled = False
+    btnVersionAddBranch.Value = False
+  Endif
 
   ipnProject.Index = 0
 
@@ -146,18 +157,8 @@ End
 
 Private Sub InitEnvironment()
 
-  Dim aArg As String[]
-  Dim hArgListEditor As ArgListEditor
-
-  svwArgList.Children.Clear
-  For Each aArg In Project.Arguments
-    hArgListEditor = New ArgListEditor(svwArgList) As "ArgListEditor"
-    hArgListEditor.Set(aArg)
-  Next
-  
   tvwEnv.Columns.Count = 2
   tvwEnv.Columns[0].Text = ("Variable")
-  tvwEnv.Columns[0].Width = Max(tvwEnv.Columns[0].Width, Desktop.Scale * 20)
   tvwEnv.Columns[1].Text = ("Value")
   
   $aEnv = Project.Environment.Copy()
@@ -171,9 +172,6 @@ End
 Private Sub SaveEnvironment()
   
   Dim iInd As Integer
-  Dim aArgList As String[][]
-  Dim hArgListEditor As ArgListEditor
-  Dim aArg As String[]
   
   tvwEnv.Save
   
@@ -185,15 +183,6 @@ Private Sub SaveEnvironment()
     Endif
   Wend
 
-  aArgList = New String[][]
-  For Each hArgListEditor In svwArgList.Children
-    aArg = hArgListEditor.Get()
-    If aArg.Count = 0 Then Continue
-    aArgList.Add(aArg)
-  Next
-
-  Project.Arguments = aArgList
-  
   Project.Environment = $aEnv
   
 End
@@ -267,6 +256,8 @@ Private Function DoApply() As Boolean
     .Libraries = $aLibraries
     
     .ExtraReferences = lstReferences.List
+    
+    If VersionControl.Enabled Then .VersionAddBranch = btnVersionAddBranch.Value
 
   End With
 
@@ -898,10 +889,9 @@ Public Sub ipnProject_Click()
       'panHttpServer.Enabled = choComponent.IsChecked("gb.web") 'Project.Components.Exist("gb.web")
     Case ("Statistics") 
       UpdateStat
+      UpdateVcInfo
     Case ("Information") 
       UpdateInfo
-    Case ("Version control")
-      UpdateVcInfo
   End Select
 
 End
@@ -913,8 +903,13 @@ Private Sub AddStat(sName As String, sValue As String)
   N = gvwStat.Rows.Count
   Inc gvwStat.Rows.Count
   gvwStat[N, 0].Text = sName
-  gvwStat[N, 0].Foreground = Color.Merge(Color.TextBackground, Color.TextForeground)
+  'gvwStat[N, 0].Foreground = Color.Merge(Color.TextBackground, Color.TextForeground, 0.7)
   gvwStat[N, 1].Text = sValue
+  gvwStat[N, 1].Font.Bold = True
+  If Even(n) Then
+    gvwStat[N, 0].Background = Color.SetAlpha(Color.TextForeground, 250)
+    gvwStat[N, 1].Background = gvwStat[N, 0].Background
+  Endif
   
 End
 
@@ -923,11 +918,15 @@ Private Sub UpdateStat()
 
   Dim hModule As CModule
   Dim iSize As Long
+  Dim nFunc As Integer
+  Dim nLine As Integer
   
   gvwStat.Columns.Count = 2
   gvwStat.Rows.Count = 0
+  gvwStat.Columns[1].Alignment = Align.Right
   
   AddStat(("Modules"), CStr(Project.GetCount("module")))
+  If Project.HasTest() Then AddStat(("Test modules"), CStr(Project.GetCount("test")))
   AddStat(("Classes"), CStr(Project.GetCount("class")))
 
   For Each hModule In CModule.All
@@ -935,7 +934,11 @@ Private Sub UpdateStat()
     AddStat(hModule.NamePlural, CStr(Project.GetCount(hModule.Key)))
   Next
 
-  AddStat(("Lines of code"), Format(Project.GetLinesOfCode(), ",0"))
+  nLine = Project.GetLinesOfCode(ByRef nFunc)
+  
+  AddStat(("Functions"), Format(nFunc, ",0"))
+  AddStat(("Lines of code"), Format(nLine, ",0"))
+  AddStat(("Average number of lines by function"), Format(nLine / nFunc, ",0.0"))
   
   Try iSize = Stat(Project.GetExecPath()).Size
   If iSize Then AddStat(("Executable size"), Format(iSize, ",0") & " " & ("bytes"))
@@ -1282,120 +1285,6 @@ End
 ' 
 ' End
 
-Private Sub UpdateArgButtons()
-
-  Dim iCurrent As Integer
-
-  iCurrent = GetCurrentArgListEditor()
-
-  btnMoveDownArg.Enabled = iCurrent >= 0 And iCurrent < svwArgList.Children.Count - 1
-  btnMoveUpArg.Enabled = iCurrent > 0
-  btnRemoveArgument.Enabled = iCurrent >= 0
-
-End
-
-Private Sub SelectArgListEditor(hArgListEditor As ArgListEditor)
-
-  Dim hChild As ArgListEditor
-  
-  If hArgListEditor And If hArgListEditor.Selected Then Return
-  
-  For Each hChild In svwArgList.Children
-    hChild.Selected = hChild = hArgListEditor
-  Next
-
-End
-
-Public Sub ArgListEditor_Click()
-
-  SelectArgListEditor(Last)
-  UpdateArgButtons
-  
-End
-
-Private Sub GetCurrentArgListEditor() As Integer
-  
-  Dim I As Integer
-  Dim hChild As ArgListEditor
-  
-  For I = 0 To svwArgList.Children.Count - 1
-    hChild = svwArgList.Children[I]
-    If hChild.Selected Then Return I
-  Next
-  
-  Return -1
-  
-End
-
-
-Public Sub btnNewArgument_Click()
-
-  Dim hArgListEditor As ArgListEditor
-
-  hArgListEditor = New ArgListEditor(svwArgList) As "ArgListEditor"
-  hArgListEditor.SetFocus
-
-End
-
-Public Sub btnRemoveArgument_Click()
-
-  Dim iCurrent As Integer
-
-  iCurrent = GetCurrentArgListEditor()
-  If iCurrent < 0 Then Return
-  
-  svwArgList.Children[iCurrent].Delete
-
-End
-
-Public Sub svwArgList_GotFocus()
-
-  SelectArgListEditor(Null)
-
-End
-
-Public Sub btnMoveUpArg_Click()
-
-  Dim iCurrent As Integer
-  Dim hArgListEditor As ArgListEditor
-
-  iCurrent = GetCurrentArgListEditor()
-  If iCurrent <= 0 Then Return
-  
-  hArgListEditor = svwArgList.Children[iCurrent]
-  hArgListEditor.Next = svwArgList.Children[iCurrent - 1]
-  hArgListEditor.SetFocus
-  
-  If iCurrent = (Project.CurrentArgument - 1) Then
-    Dec Project.CurrentArgument
-    Project.WriteProject
-  Endif
-
-  UpdateArgButtons
-
-End
-
-Public Sub btnMoveDownArg_Click()
-
-  Dim iCurrent As Integer
-  Dim hArgListEditor As ArgListEditor
-
-  iCurrent = GetCurrentArgListEditor()
-  If iCurrent < 0 Or If iCurrent >= svwArgList.Children.Count - 1 Then Return
-  
-  hArgListEditor = svwArgList.Children[iCurrent]
-  hArgListEditor.Next = svwArgList.Children[iCurrent + 1].Next
-  hArgListEditor.SetFocus
-
-  If iCurrent = (Project.CurrentArgument - 1) Then
-    Inc Project.CurrentArgument
-    Project.WriteProject
-  Endif
-
-  UpdateArgButtons
-
-End
-
 Public Sub btnShowDeprecated_Click()
 
   choComponent.ShowDeprecated = btnShowDeprecated.Value
@@ -1409,6 +1298,7 @@ Private Sub UpdateVcInfo()
   Dim iRow As Integer
   Dim I As Integer
   
+  If Not VersionControl.Enabled Then Return
   If gvwVcInfo.Rows.Count Then Return
   
   Inc Application.Busy
@@ -1420,7 +1310,8 @@ Private Sub UpdateVcInfo()
   
   For Each sValue In cInfo
     gvwVcInfo[iRow, 0].Text = cInfo.Key
-    gvwVcInfo[iRow, 0].Foreground = Color.Merge(Color.TextBackground, Color.TextForeground)
+    gvwVcInfo[iRow, 0].Alignment = Align.TopNormal
+    'gvwVcInfo[iRow, 0].Foreground = Color.Merge(Color.TextBackground, Color.TextForeground, 0.7)
     gvwVcInfo[iRow, 1].Text = sValue
     Inc iRow
   Next
@@ -1443,6 +1334,7 @@ Private Sub UpdateEnv()
 
   tvwEnv.Rows.Count = $aEnv.Count
   tvwEnv.Columns[0].Width = -1
+  tvwEnv.Columns[0].Width = Max(tvwEnv.Columns[0].Width, Desktop.Scale * 24)
   tvwEnv.Refresh
 
 End

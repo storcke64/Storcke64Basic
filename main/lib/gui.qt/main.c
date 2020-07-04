@@ -48,34 +48,7 @@ const char *get_name(int use)
 	}
 }
 
-
-static bool can_use(int use)
-{
-	static const char *ext[] = { "ext", "webkit", "opengl", NULL };
-	char test[32];
-	char *suffix;
-	const char **pext;
-	const char *name;
-	
-	name = get_name(use);
-	
-	if (!GB.Component.CanLoadLibrary(name))
-		return FALSE;
-
-	strcpy(test, name);
-	suffix = test + strlen(name);
-	*suffix++ = '.';
-	
-	for (pext = ext; *pext; pext++)
-	{
-		strcpy(suffix, *pext);
-		if (GB.Component.Exist(test) && !GB.Component.CanLoadLibrary(test))
-			return FALSE;
-	}
-	
-	return TRUE;
-}
-
+#include "gb_gui_test_temp.h"
 
 int EXPORT GB_INIT(void)
 {
@@ -114,14 +87,14 @@ int EXPORT GB_INIT(void)
 		}
 	}
 
-	if (!can_use(use))
+	if (!GUI_can_use(use))
 	{
 		if (use == USE_GB_QT4)
 			use_other = USE_GB_QT5;
 		else
 			use_other = USE_GB_QT4;
 		
-		if (can_use(use_other))
+		if (GUI_can_use(use_other))
 		{
 			fprintf(stderr, "gb.gui.qt: warning: '%s' component not found, using '%s' instead\n", get_name(use), get_name(use_other));
 			use = use_other;

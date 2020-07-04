@@ -1,0 +1,51 @@
+' Gambas test file
+
+'Plan is one more because Test in _TeardownEach is counted twice!
+
+Private $Done As New String[]
+
+
+Public Sub _Setup()
+
+    $Done.Add("Setup")
+
+End
+
+Public Sub _SetupEach()
+
+    $Done.Add("SetupEach")
+
+End
+
+Public Sub _TeardownEach()
+
+    $Done.Add("TeardownEach")
+    
+End
+
+Public Sub A()
+
+    $Done.Add("A")
+    Test.Plan(1)
+    
+    Assert.Equals($Done.Join(), "Setup,SetupEach,A")
+
+End
+
+Public Sub B()
+
+    Test.Plan(1)
+    $Done.Add("B")
+
+    Assert.Equals($Done.Join(), "Setup,SetupEach,A,TeardownEach,SetupEach,B")
+
+End
+
+Public Sub _Teardown()
+
+    $Done.Add("Teardown")
+    If $Done.Join() <> "Setup,SetupEach,A,TeardownEach,SetupEach,B,TeardownEach,Teardown" Then
+        Test.BailOut("_Teardown failed")
+    Endif
+    
+End

@@ -182,6 +182,7 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
   Dim iMode As Integer
   Dim N As Integer
   Dim I As Integer
+  Dim sOutput As String
   
   sStr = Mid$(sData, iPos, iLen)
   
@@ -221,14 +222,16 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
               Select Case iArg
                 Case 0
                   hScreen.Attr.Reset()
-                Case 30
-                  hScreen.Attr.Foreground = 0
-                Case 31 To 37
-                  hScreen.Attr.Foreground = iArg - 30 + 8
+                Case 30 To 37
+                  hScreen.Attr.Foreground = iArg - 30
+                Case 90 To 97
+                  hScreen.Attr.Foreground = iArg - 90 + 8
                 Case 39
                   hScreen.Attr.Foreground = -1
                 Case 40 To 47
                   hScreen.Attr.Background = iArg - 40
+                Case 100 To 107
+                  hScreen.Attr.Background = iArg - 40 + 8
                 Case 49
                   hScreen.Attr.Background = -1
                 Case 1
@@ -349,7 +352,7 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
           
         Case "c"  'Report terminal type
           
-          Print #hOutput, "\e[?1;2c"
+          If hOutput Then Print #hOutput, "\e[?1;2c"
           
         Case "d" 'Set Cursor Y
           
@@ -559,20 +562,22 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
           
           Select Case Mid(sStr, 2, -1)
             Case "5"
-              Print #hOutput, "\e[0n";  'Report Status OK
+              sOutput = "\e[0n"  'Report Status OK
             Case "6"
-              Print #hOutput, Subst("\e[&1;&2R", hScreen.Line, hScreen.Column);  'Report Cursor Position
+              sOutput = Subst("\e[&1;&2R", hScreen.Line, hScreen.Column) 'Report Cursor Position
             Case "?6"
-              Print #hOutput, Subst("\e[?&1;&2R", hScreen.Line, hScreen.Column); 'Report Cursor Position
+              sOutput = Subst("\e[?&1;&2R", hScreen.Line, hScreen.Column) 'Report Cursor Position
             Case "?15"
-              Print #hOutput, "\0[?11n" 'Printer not ready (10 for ready)"
+              sOutput = "\0[?11n" 'Printer not ready (10 for ready)"
             Case "?25" 'Report UDK statu
-              Print #hOutput, "\0[?20n"  'UDK status as CSI ? 2 0 n (unlocked) or CSI ? 2 1 n (locked)
+              sOutput = "\0[?20n" 'UDK status as CSI ? 2 0 n (unlocked) or CSI ? 2 1 n (locked)
             Case "?26" 'Report Keyboard status as
-              Print #hOutput, "\0[?50n"  'No Locator, if not.
+              sOutput = "\0[?50n" 'No Locator, if not.
             Default
               Goto NOT_IMPLEMENTED
           End Select
+          
+          If hOutput Then Print #hOutput, sOutput;
         
         Case "r" ' Scroll screen
           

@@ -68,13 +68,8 @@ End
 
 Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As Integer) As Picture
   
-  Dim hPict As Picture
   Dim hImage As Image
   Dim sPath As String
-  'Dim sText As String
-  'Dim X, Y As Float
-  'Dim iInd As Integer
-  'Dim I As Integer
   Dim hClass As CClassInfo
   Dim W As Integer
   Dim F As Integer
@@ -88,16 +83,16 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
     Else
       sPath = File.Dir(File.Dir(Component.Path)) &/ "share/gambas" & System.Version &/ "control" &/ sComp &/ LCase(sClass) & ".png"
     Endif
-    Try hPict = Picture.Load(sPath)
-    If hPict Then Break
+    Try hImage = Image.Load(sPath)
+    If hImage Then Break
     If hClass.Parent <> sClass Then Break
     sComp = hClass.ParentComponent
     If Not sComp Then Break
   Loop
 
-  If Not hPict Then Try hPict = Picture["img/control" &/ LCase(sClass) & ".png"]
+  If Not hImage Then Try hImage = Image.Load("img/control" &/ LCase(sClass) & ".png")
   
-  If Not hPict Then
+  If Not hImage Then
     
     hImage = New Image(1, 1)
     
@@ -130,15 +125,15 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
     
     Paint.End
     
-    hPict = hImage.Picture
-    
   Endif
 
   If iSize Then
-    If hPict.Width <> iSize Then hPict = hPict.Image.Stretch(iSize, iSize).Picture
+    If hImage.Width <> iSize Then hImage = hImage.Stretch(iSize, iSize)
   Endif
 
-  Return hPict
+  If Application.DarkTheme Then hImage = hImage.Invert(True)
+
+  Return hImage.Picture
   
 End
 
@@ -310,7 +305,10 @@ End
 
 Public Sub SetDesign()
   
-  If Not IsContainer() Then Control.Design = True
+  If Not IsContainer() Then 
+    Try Control.Design = True
+    If Error Then Stop
+  Endif
   
 End
 
@@ -332,6 +330,11 @@ Private Sub InitControl()
 
 End
 
+Static Public Sub GetVirtualSize() As Integer
+  
+  Return 2 + (32 + Desktop.Scale - 1) \ Desktop.Scale '(40 + Desktop.Scale - 1) Div Desktop.Scale  
+  
+End
 
 Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As FForm, hFamily As CFamily)
 
@@ -348,7 +351,7 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
   
   If hClass.Form Then
   
-    If hFamily.Name = "Form" Then
+    If hFamily.HasMenuEditor Then
       hCtrl = New Form(hForm.Container)
     Else
       If hClass.MultiContainer Then
@@ -363,10 +366,10 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
     'hCtrl.Background = CFamily.Get(hForm.Family).Background
     'hCtrl.Tracking = True
     
-  Else If Kind = "Menu" Then
+  Else If Kind = hFamily.MenuClass Then
   
-    If Parent.Kind <> "Menu" Then
-      hCtrl = New Menu(hForm.Control[hForm.Name].Control)
+    If Parent.Kind <> hFamily.MenuClass Then
+      hCtrl = New Menu(hForm.RootControl.Control)
     Else
       hCtrl = New Menu(Parent.Control)
     Endif
@@ -380,7 +383,7 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
       'PRINT sName; " is virtual"
       hCtrl = CreateControl(sName, sClass, Parent.Control)
       'hCtrl.Resize(5 * Desktop.Scale, 5 * Desktop.Scale)
-      iDim = 2 + (32 + Desktop.Scale - 1) \ Desktop.Scale '(40 + Desktop.Scale - 1) Div Desktop.Scale
+      iDim = GetVirtualSize()
       hCtrl.MoveScaled(0, 0, iDim, iDim)
       hCtrl.Ignore = True
       '$cValue["Ignore"] = True
@@ -402,7 +405,7 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
   Control = hCtrl
   Control.Tag = sName
 
-  If Kind = "Menu" Then
+  If Kind = hFamily.MenuClass Then
     Object.Attach(hCtrl, hForm, "MenuControl")
   Else
     Try Object.Attach(hCtrl, hForm, "Control")
@@ -1049,7 +1052,7 @@ Public Sub Select(hForm As FForm, Optional bMaster As Boolean)
   Dim hPanel As Panel
 
   If IsNull(Parent) Then Return
-  If Kind = "Menu" Then Return
+  If Kind = hForm.GetFamily().MenuClass Then Return
 
   If hForm.Selection.Count = 0 Then EnsureVisible
 
@@ -2070,7 +2073,7 @@ Public Sub AddAction(cActionSet As Collection)
   Else
     sPicture = GetPropertyString("Picture")
   Endif
-  If Not sPicture And If Kind <> "Menu" Then
+  If Not sPicture And If Kind <> $hFamily.MenuClass Then
     sPicture = "$" & Kind
     If cAction["Picture"] Then sPicture = ""
   Endif
@@ -2078,7 +2081,7 @@ Public Sub AddAction(cActionSet As Collection)
   If sPicture Then cAction["Picture"] = sPicture
 
   SetAction(cAction, "Shortcut")
-  If Kind = "Menu" Then cAction["Menu"] = True
+  If Kind = $hFamily.MenuClass Then cAction["Menu"] = True
   
 End
 

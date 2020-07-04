@@ -51,7 +51,7 @@
 
 #include "gbx_c_file.h"
 
-#define STREAM_FD STREAM_handle(CSTREAM_stream(THIS_STREAM))
+#define STREAM_FD STREAM_handle(THE_STREAM)
 
 CFILE *CFILE_in, *CFILE_out, *CFILE_err;
 
@@ -72,7 +72,7 @@ static GB_FUNCTION _term_resize_func;
 
 static void callback_read(int fd, int type, CSTREAM *stream)
 {
-	if (!STREAM_read_ahead(CSTREAM_stream(stream)))
+	if (!STREAM_read_ahead(CSTREAM_TO_STREAM(stream)))
 		GB_Raise(stream, EVENT_Read, 0);
 	else
 		WATCH_little_sleep();
@@ -109,7 +109,7 @@ CFILE *CFILE_create(STREAM *stream, int mode)
 
 	if (stream)
 	{
-		*CSTREAM_stream(file) = *stream;
+		*CSTREAM_TO_STREAM(file) = *stream;
 		//file->watch_fd = -1;
 
 		if (mode & STO_WATCH)
@@ -124,7 +124,6 @@ CFILE *CFILE_create(STREAM *stream, int mode)
 
 static CFILE *create_default_stream(FILE *file, int mode)
 {
-	CFILE *ob;
 	STREAM stream;
 	bool tty = isatty(fileno(file));
 	
@@ -135,9 +134,7 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	stream.common.standard = TRUE;
 	stream.buffer.file = file;
 	STREAM_check_blocking(&stream);
-	ob = CFILE_create(&stream, mode);
-	OBJECT_REF(ob);
-	return ob;
+	return (CFILE *)OBJECT_REF(CFILE_create(&stream, mode));
 }
 
 void CFILE_init(void)
@@ -761,7 +758,7 @@ BEGIN_PROPERTY(Stream_ByteOrder)
 
 	if (READ_PROPERTY)
 	{
-		if (CSTREAM_stream(THIS_STREAM)->common.swap)
+		if (THE_STREAM->common.swap)
 			endian = !endian;
 
 		GB_ReturnInteger(endian ? 1 : 0);
@@ -769,7 +766,7 @@ BEGIN_PROPERTY(Stream_ByteOrder)
 	else
 	{
 		bool val = VPROP(GB_INTEGER);
-		CSTREAM_stream(THIS_STREAM)->common.swap = endian ^ val;
+		THE_STREAM->common.swap = endian ^ val;
 	}
 
 END_PROPERTY
@@ -777,35 +774,35 @@ END_PROPERTY
 BEGIN_PROPERTY(Stream_EndOfLine)
 
 	if (READ_PROPERTY)
-		GB_ReturnInteger(CSTREAM_stream(THIS_STREAM)->common.eol);
+		GB_ReturnInteger(THE_STREAM->common.eol);
 	else
 	{
 		int eol = VPROP(GB_INTEGER);
 
 		if (eol >= 0 && eol <= 2)
-			CSTREAM_stream(THIS_STREAM)->common.eol = eol;
+			THE_STREAM->common.eol = eol;
 	}
 
 END_PROPERTY
 
 BEGIN_METHOD_VOID(Stream_Close)
 
-	STREAM_close(CSTREAM_stream(THIS_STREAM));
+	STREAM_close(THE_STREAM);
 
 END_METHOD
 
 BEGIN_PROPERTY(Stream_EndOfFile)
 
-	GB_ReturnBoolean(CSTREAM_stream(THIS_STREAM)->common.eof);
+	GB_ReturnBoolean(THE_STREAM->common.eof);
 	
 END_PROPERTY
 
 BEGIN_PROPERTY(Stream_Blocking)
 
 	if (READ_PROPERTY)
-		GB_ReturnBoolean(STREAM_is_blocking(CSTREAM_stream(THIS_STREAM)));
+		GB_ReturnBoolean(STREAM_is_blocking(THE_STREAM));
 	else
-		STREAM_blocking(CSTREAM_stream(THIS_STREAM), VPROP(GB_BOOLEAN));
+		STREAM_blocking(THE_STREAM, VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -820,14 +817,23 @@ END_METHOD
 
 BEGIN_METHOD_VOID(Stream_free)
 
-	STREAM_close(CSTREAM_stream(THIS_STREAM));
+	STREAM_close(THE_STREAM);
 	GB_StoreVariant(NULL, POINTER(&(THIS_STREAM->tag)));
 
 END_METHOD
 
 BEGIN_PROPERTY(Stream_Eof)
 
-	GB_ReturnBoolean(STREAM_eof(CSTREAM_stream(THIS_STREAM)));
+	GB_ReturnBoolean(STREAM_eof(THE_STREAM));
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Stream_NullTerminatedString)
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(THE_STREAM->common.null_terminated);
+	else
+		THE_STREAM->common.null_terminated = VPROP(GB_BOOLEAN);
 
 END_PROPERTY
 
@@ -845,7 +851,7 @@ BEGIN_METHOD(Stream_ReadLine, GB_STRING escape)
 			escape = NULL;
 	}
 
-	str = STREAM_line_input(CSTREAM_stream(THIS_STREAM), escape);
+	str = STREAM_line_input(THE_STREAM, escape);
 	STRING_free_later(str);
 	GB_ReturnString(str);
 
@@ -853,19 +859,19 @@ END_METHOD
 
 BEGIN_METHOD_VOID(Stream_Begin)
 
-	STREAM_begin(CSTREAM_stream(THIS_STREAM));
+	STREAM_begin(THE_STREAM);
 
 END_METHOD
 
 BEGIN_METHOD_VOID(Stream_End)
 
-	STREAM_end(CSTREAM_stream(THIS_STREAM));
+	STREAM_end(THE_STREAM);
 
 END_METHOD
 
 BEGIN_METHOD_VOID(Stream_Cancel)
 
-	STREAM_cancel(CSTREAM_stream(THIS_STREAM));
+	STREAM_cancel(THE_STREAM);
 
 END_METHOD
 
@@ -897,11 +903,11 @@ BEGIN_METHOD_VOID(StreamLines_next)
 
 	char *str;
 
-	if (STREAM_eof(CSTREAM_stream(THIS_STREAM)))
+	if (STREAM_eof(THE_STREAM))
 		GB_StopEnum();
 	else
 	{
-		str = STREAM_line_input(CSTREAM_stream(THIS_STREAM), NULL);
+		str = STREAM_line_input(THE_STREAM, NULL);
 		STRING_free_later(str);
 		GB_ReturnString(str);
 	}
@@ -1046,6 +1052,7 @@ GB_DESC StreamDesc[] =
 	GB_PROPERTY("EndOfLine", "i", Stream_EndOfLine),
 	GB_METHOD("Close", NULL, Stream_Close, NULL),
 	GB_PROPERTY_READ("EndOfFile", "b", Stream_EndOfFile),
+	GB_PROPERTY("NullTerminatedString", "b", Stream_NullTerminatedString),
 	GB_PROPERTY("Blocking", "b", Stream_Blocking),
 	GB_PROPERTY("Tag", "v", Stream_Tag),
 	GB_METHOD("ReadLine", "s", Stream_ReadLine, "[(Escape)s]"),

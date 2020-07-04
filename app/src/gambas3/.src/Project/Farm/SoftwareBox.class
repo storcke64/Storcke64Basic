@@ -169,9 +169,9 @@ Public Sub DrawingArea_Draw()
   If Not $hSoft Then Return
   
   If $hSoft.CanUpgrade() Then
-    iCol = &HDF6B00&
+    iCol = Project.COLOR_ORANGE
   Else If $hSoft.IsReallyInstalled() Then
-    iCol = &H3398C3&
+    iCol = Project.COLOR_BLUE
   Else
     iCol = 0
   Endif

@@ -58,8 +58,10 @@ End
 
 Public Sub Clear()
 
+  'Object.Lock(Me)
   $aText.Clear
   $hView.Rows.Count = 0
+  'Object.Unlock(Me)
   
 End
 
@@ -193,7 +195,7 @@ Public Sub GridView_Select()
   
 End
 
-Public Sub GridView_Click()
+Public Sub GridView_Change()
   
   Raise Click
   

@@ -604,7 +604,7 @@ CLASS_DESC *CLASS_get_symbol_desc(CLASS *class, const char *name)
 }
 
 
-short CLASS_get_symbol_index_kind(CLASS *class, const char *name, int kind, int kind2)
+static short CLASS_get_symbol_index_kind(CLASS *class, const char *name, int kind, int kind2, TYPE type, bool error)
 {
 	CLASS_DESC *desc;
 	int index;
@@ -615,18 +615,24 @@ short CLASS_get_symbol_index_kind(CLASS *class, const char *name, int kind, int 
 		desc = CLASS_get_desc(class, index);
 		if (desc)
 			if ((CLASS_DESC_get_type(desc) == kind) || (CLASS_DESC_get_type(desc) == kind2))
-				return (short)index;
+			{
+				if (type == T_ANY || desc->method.type == type)
+					return (short)index;
+				
+				if (error)
+					THROW(E_SPEC, name, class->name);
+			}
 	}
 
 	return (short)NO_SYMBOL;
 }
 
 
-CLASS_DESC *CLASS_get_symbol_desc_kind(CLASS *class, const char *name, int kind, int kind2)
+CLASS_DESC *CLASS_get_symbol_desc_kind(CLASS *class, const char *name, int kind, int kind2, TYPE type)
 {
 	short index;
 
-	index = CLASS_get_symbol_index_kind(class, name, kind, kind2);
+	index = CLASS_get_symbol_index_kind(class, name, kind, kind2, type, TRUE);
 	if (index == NO_SYMBOL)
 		return NULL;
 	else
@@ -1327,28 +1333,32 @@ void CLASS_search_special(CLASS *class)
 {
 	static int _operator_strength = 0;
 	int sym;
+	int offset;
 
-	class->special[SPEC_NEW] = CLASS_get_symbol_index_kind(class, "_new", CD_METHOD, 0);
-	class->special[SPEC_FREE] = CLASS_get_symbol_index_kind(class, "_free", CD_METHOD, 0);
-	class->special[SPEC_GET] = CLASS_get_symbol_index_kind(class, "_get", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_PUT] = CLASS_get_symbol_index_kind(class, "_put", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_FIRST] = CLASS_get_symbol_index_kind(class, "_first", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_NEXT] = CLASS_get_symbol_index_kind(class, "_next", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_CALL] = CLASS_get_symbol_index_kind(class, "_call", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_UNKNOWN] = CLASS_get_symbol_index_kind(class, "_unknown", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_PROPERTY] = CLASS_get_symbol_index_kind(class, "_property", CD_METHOD, CD_STATIC_METHOD);
-	class->special[SPEC_COMPARE] = CLASS_get_symbol_index_kind(class, "_compare", CD_METHOD, 0);
-	class->special[SPEC_ATTACH] = CLASS_get_symbol_index_kind(class, "_attach", CD_METHOD, 0);
-	class->special[SPEC_READY] = CLASS_get_symbol_index_kind(class, "_ready", CD_METHOD, 0);
+	class->special[SPEC_NEW] = CLASS_get_symbol_index_kind(class, "_new", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_FREE] = CLASS_get_symbol_index_kind(class, "_free", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_GET] = CLASS_get_symbol_index_kind(class, "_get", CD_METHOD, CD_STATIC_METHOD, T_ANY, TRUE);
+	class->special[SPEC_PUT] = CLASS_get_symbol_index_kind(class, "_put", CD_METHOD, CD_STATIC_METHOD, T_VOID, TRUE);
+	class->special[SPEC_FIRST] = CLASS_get_symbol_index_kind(class, "_first", CD_METHOD, CD_STATIC_METHOD, T_VOID, TRUE);
+	class->special[SPEC_NEXT] = CLASS_get_symbol_index_kind(class, "_next", CD_METHOD, CD_STATIC_METHOD, T_ANY, TRUE);
+	class->special[SPEC_CALL] = CLASS_get_symbol_index_kind(class, "_call", CD_METHOD, CD_STATIC_METHOD, T_ANY, TRUE);
+	class->special[SPEC_UNKNOWN] = CLASS_get_symbol_index_kind(class, "_unknown", CD_METHOD, CD_STATIC_METHOD, T_ANY, TRUE);
+	class->special[SPEC_PROPERTY] = CLASS_get_symbol_index_kind(class, "_property", CD_METHOD, CD_STATIC_METHOD, T_BOOLEAN, TRUE);
+	class->special[SPEC_COMPARE] = CLASS_get_symbol_index_kind(class, "_compare", CD_METHOD, 0, T_INTEGER, TRUE);
+	class->special[SPEC_ATTACH] = CLASS_get_symbol_index_kind(class, "_attach", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_READY] = CLASS_get_symbol_index_kind(class, "_ready", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_READ] = CLASS_get_symbol_index_kind(class, "_read", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_WRITE] = CLASS_get_symbol_index_kind(class, "_write", CD_METHOD, 0, T_VOID, TRUE);
+	class->special[SPEC_INVALID] = CLASS_get_symbol_index_kind(class, "_invalid", CD_VARIABLE, 0, T_BOOLEAN, TRUE);
 
-	sym = CLASS_get_symbol_index_kind(class, "_@_convert", CD_CONSTANT, 0);
+	sym = CLASS_get_symbol_index_kind(class, "_@_convert", CD_CONSTANT, 0, T_ANY, FALSE);
 	if (sym != NO_SYMBOL)
 	{
 		class->has_convert = TRUE;
 		class->convert = CLASS_get_desc(class, sym)->constant.value._pointer;
 	}
 
-	sym = CLASS_get_symbol_index_kind(class, "_@_operator", CD_CONSTANT, 0);
+	sym = CLASS_get_symbol_index_kind(class, "_@_operator", CD_CONSTANT, 0, T_ANY, FALSE);
 	if (sym != NO_SYMBOL)
 	{
 		class->has_operators = TRUE;
@@ -1365,6 +1375,18 @@ void CLASS_search_special(CLASS *class)
 		class->property_static = CLASS_DESC_get_type(CLASS_get_desc(class, class->special[SPEC_PROPERTY])) == CD_STATIC_METHOD;
 	if (class->special[SPEC_FREE] != NO_SYMBOL)
 		class->has_free = TRUE;
+	
+	if (class->special[SPEC_INVALID] != NO_SYMBOL)
+	{
+		if (class->must_check && class->check != OBJECT_check_valid)
+			THROW_CLASS(class, "Validation method already implemented", "");
+		class->must_check = TRUE;
+		class->check = OBJECT_check_valid;
+		offset = CLASS_get_desc(class, class->special[SPEC_INVALID])->variable.offset;
+		if (offset > 32767)
+			THROW_CLASS(class, "Validation variable must be declared first", "");
+		class->special[SPEC_INVALID] = (short)offset;
+	}
 }
 
 

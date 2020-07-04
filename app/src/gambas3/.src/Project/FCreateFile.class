@@ -20,7 +20,7 @@ Public Sub btnCancel_Click()
 
 End
 
-Public Sub UpdateLayout()
+Private Sub UpdateLayout()
 
   Dim sPrefix As String
   Dim hChild As Control
@@ -32,6 +32,13 @@ Public Sub UpdateLayout()
     hChild.Visible = Split(hChild.Tag, ",").Exist(sPrefix)
     bOpt = bOpt Or hChild.Visible
   Next
+  
+  Select Case $sType
+    Case "image"
+      txtWidth.Value = Settings["/FCreateFile/ImageWidth", 8]
+      txtHeight.Value = Settings["/FCreateFile/ImageHeight", 8]
+      cmbImageType.Text = Settings["/FCreateFile/ImageType", "PNG"]
+  End Select
   
   lblOption.Visible = bOpt
   
@@ -120,6 +127,15 @@ Private Sub CreateFile() As Boolean
   Dim hImage As Image
 
   Select Case sType
+    
+    Case "image"
+      Settings["/FCreateFile/ImageWidth"] = txtWidth.Value
+      Settings["/FCreateFile/ImageHeight"] = txtHeight.Value
+      Settings["/FCreateFile/ImageType"] = cmbImageType.Text
+    
+  End Select
+
+  Select Case sType
   
     Case "text", "image", "html", "css", "js"
     
@@ -154,6 +170,12 @@ Private Sub CreateFile() As Boolean
     Case "module"
     
       sTemp = "' Gambas module file\n\n"
+      
+      Project.InsertSource(sName, sType, $sDir, sTemp)
+  
+    Case "test"
+    
+      sTemp = "' Gambas test file\n\n"
       
       Project.InsertSource(sName, sType, $sDir, sTemp)
   

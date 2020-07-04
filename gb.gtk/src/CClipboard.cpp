@@ -326,6 +326,19 @@ BEGIN_METHOD(Drag_call, GB_OBJECT source; GB_VARIANT data; GB_STRING format)
 END_METHOD
 
 
+BEGIN_PROPERTY(Drag_Target)
+
+	if (READ_PROPERTY)
+		GB.ReturnObject(GetObject(gDrag::getDestination()));
+	else
+	{
+		CWIDGET *dest = (CWIDGET *)VPROP(GB_OBJECT);
+		gDrag::setDestination(dest ? dest->widget : NULL);
+	}
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(Drag_Icon)
 
 	if (READ_PROPERTY)
@@ -583,6 +596,7 @@ GB_DESC CDragDesc[] =
   GB_STATIC_PROPERTY("X", "i", Drag_X),
   GB_STATIC_PROPERTY("Y", "i", Drag_Y),
   GB_STATIC_PROPERTY_READ("Pending", "b", Drag_Pending),
+	GB_STATIC_PROPERTY("_Target", "Control", Drag_Target),
 
   GB_STATIC_METHOD("_call", "Control", Drag_call, "(Source)Control;(Data)v[(Format)s]"),
   GB_STATIC_METHOD("_exit", 0, Drag_exit, 0),

@@ -88,6 +88,7 @@ typedef
 		unsigned noTakeFocus : 1;
 		unsigned moved : 1;
 		unsigned popup : 1;
+		unsigned modal : 1;
 		}
 	CWINDOW;
 
@@ -161,8 +162,10 @@ class MyMainWindow;
 typedef
 	struct {
 		QPointer<MyMainWindow> that;
+		Qt::WindowFlags flags;
 		QEventLoop *old;
 		CWINDOW *save;
+		void *save_popup;
 	}
 	MODAL_INFO;
 
@@ -185,6 +188,8 @@ private:
 	int _type;
 	Qt::WindowStates _state;
 	int _screen;
+	
+	void doShowModal(bool popup, const QPoint *pos = NULL);
 
 protected:
 
@@ -216,8 +221,8 @@ public:
 	void present(QWidget *parent = 0);
 	void showActivate(QWidget *parent = 0);
 	//void activateLater() { _activate = true; }
-	void showModal();
-	void showPopup(QPoint &pos);
+	void showModal() { doShowModal(false); }
+	void showPopup(QPoint &pos) { doShowModal(true, &pos); }
 	void setEventLoop();
 	//bool isModal() { return testWFlags(WShowModal); }
 	void doReparent(QWidget *w, const QPoint &p);

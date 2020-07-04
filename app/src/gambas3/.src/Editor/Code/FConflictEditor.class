@@ -750,7 +750,7 @@ Public Sub GetPosition() As Integer
 
 End
 
-Public Sub SetPosition(hResult As CFindResult, Optional bJustCheck As Boolean) As Boolean
+Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean) As Boolean
   
   Return $hEditor.SetPosition(hResult, bJustCheck)
   
@@ -1012,7 +1012,7 @@ Public Sub Form_Open()
 
   ReadConfig
   SetReadOnly
-  Action[".wrap", Me].Value = Settings["/Editor/WrapTextByDefault", False]
+  Action[".wrap", Me].Value = Settings["/Editor/WrapTextByDefault", True]
   Action[".tab-indent", Me].Value = Settings["/Editor/TabIndentByDefault", False]
 
 End

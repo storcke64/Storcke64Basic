@@ -23,6 +23,8 @@
 
 #define __CWINDOW_CPP
 
+#include <QScreen>
+
 #include <qnamespace.h>
 #include <qapplication.h>
 #include <qmenubar.h>
@@ -103,6 +105,7 @@ DECLARE_EVENT(EVENT_Hide);
 DECLARE_EVENT(EVENT_Title);
 DECLARE_EVENT(EVENT_Icon);
 DECLARE_EVENT(EVENT_Font);
+DECLARE_EVENT(EVENT_State);
 
 DECLARE_METHOD(Window_Show);
 
@@ -666,7 +669,7 @@ static bool check_opened(CWINDOW *_object, bool modal)
 {
 	if (THIS->toplevel && THIS->opened)
 	{
-		if (modal || WINDOW->isModal())
+		if (modal || THIS->modal)
 		{
 			GB.Error("Window is already opened");
 			return TRUE;
@@ -708,7 +711,7 @@ BEGIN_METHOD_VOID(Window_Hide)
 
 	THIS->hidden = true;
 
-	if (THIS->toplevel && WINDOW->isModal())
+	if (THIS->toplevel && THIS->modal)
 	{
 		do_close(THIS, 0);
 		//THIS->widget.flag.visible = false;
@@ -723,19 +726,21 @@ BEGIN_METHOD_VOID(Window_ShowModal)
 
 	if (check_opened(THIS, TRUE))
 		return;
-
-	THIS->ret = 0;
-
-	if (!emit_open_event(THIS))
+	
+	if (!THIS->toplevel)
 	{
-		if (THIS->toplevel)
-		{
-			//THIS->widget.flag.visible = true;
-			WINDOW->showModal();
-			//THIS->widget.flag.visible = false;
-		}
+		GB.Error("The window is not top-level");
+		return;
 	}
 
+	THIS->ret = 0;
+	THIS->modal = TRUE;
+
+	if (!emit_open_event(THIS))
+		WINDOW->showModal();
+
+	THIS->modal = FALSE;
+	
 	GB.ReturnInteger(THIS->ret);
 
 END_METHOD
@@ -757,8 +762,10 @@ BEGIN_METHOD(Window_ShowPopup, GB_INTEGER x; GB_INTEGER y)
 
 	if (THIS->toplevel)
 	{
+		THIS->modal = THIS->popup = TRUE;
 		if (!emit_open_event(THIS))
 			WINDOW->showPopup(pos);
+		THIS->modal = THIS->popup = FALSE;
 	}
 
 	GB.ReturnInteger(THIS->ret);
@@ -769,7 +776,7 @@ END_METHOD
 BEGIN_PROPERTY(Window_Modal)
 
 	if (THIS->toplevel)
-		GB.ReturnBoolean(WINDOW->isModal());
+		GB.ReturnBoolean(THIS->modal);
 	else
 		GB.ReturnBoolean(false);
 
@@ -1470,6 +1477,7 @@ GB_DESC CWindowDesc[] =
 	GB_EVENT("Title", NULL, NULL, &EVENT_Title),
 	GB_EVENT("Icon", NULL, NULL, &EVENT_Icon),
 	GB_EVENT("Font", NULL, NULL, &EVENT_Font),
+	GB_EVENT("State", NULL, NULL, &EVENT_State),
 
 	//GB_INTERFACE("Draw", &DRAW_Interface),
 
@@ -1812,9 +1820,108 @@ void on_error_show_modal(MODAL_INFO *info)
 	{
 		info->that->setSizeGrip(false);
 		info->that->setWindowModality(Qt::NonModal);
+		info->that->setWindowFlags(Qt::Window | info->flags);
 	}
+	
+	CWIDGET_leave_popup(info->save_popup);
 }
 
+void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
+{
+	CWIDGET *_object = CWidget::get(this);
+	CWINDOW *parent;
+	bool persistent = CWIDGET_test_flag(THIS, WF_PERSISTENT);
+	//QPoint p = pos();
+	QEventLoop eventLoop;
+	GB_ERROR_HANDLER handler;
+	MODAL_INFO info;
+
+	CWIDGET_finish_focus();
+
+	info.that = this;
+	info.old = MyApplication::eventLoop;
+	info.save = CWINDOW_Current;
+	info.save_popup = popup ? CWIDGET_enter_popup() : NULL;
+	info.flags = windowFlags() & ~Qt::WindowType_Mask;
+
+	if (popup)
+		setWindowFlags(Qt::Popup | info.flags);
+	
+	setWindowModality(Qt::ApplicationModal);
+
+	if (!popup && _resizable && _border)
+	{
+		setMinimumSize(THIS->minw, THIS->minh);
+		setSizeGrip(true);
+	}
+
+	_enterLoop = false; // Do not call exitLoop() if we do not entered the loop yet!
+
+	if (popup)
+	{
+		move(0, 0);
+		move(*pos);
+		setFocus();
+		show();
+		raise();
+	}
+	else
+	{
+		parent = CWINDOW_Current;
+		if (!parent)
+		{
+			parent = CWINDOW_Main;
+			if (!parent)
+				parent = CWINDOW_Active;
+		}
+
+		present(parent ? CWidget::getTopLevel((CWIDGET *)parent)->widget.widget : 0);
+	}
+	
+	//fprintf(stderr, "set event loop to %p\n", &eventLoop);
+	MyApplication::eventLoop = &eventLoop;
+
+	setEventLoop();
+
+	THIS->loopLevel++;
+	CWINDOW_Current = THIS;
+
+	_enterLoop = true;
+
+	GB.Debug.EnterEventLoop();
+
+	handler.handler = (GB_CALLBACK)on_error_show_modal;
+	handler.arg1 = (intptr_t)&info;
+
+	GB.OnErrorBegin(&handler);
+
+	//fprintf(stderr, "eventLoop.exec <---- %p\n",CWINDOW_Current);
+	eventLoop.exec();
+	//fprintf(stderr, "eventLoop.exec ---->%p\n", info.save);
+
+	GB.OnErrorEnd(&handler);
+
+	GB.Debug.LeaveEventLoop();
+	
+	//eventLoop.processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::DeferredDeletion, 0);
+
+	MyApplication::eventLoop = info.old;
+	CWINDOW_Current = info.save;
+
+	if (persistent)
+	{
+		setSizeGrip(false);
+		setWindowModality(Qt::NonModal);
+		setWindowFlags(Qt::Window | info.flags);
+	}
+
+	if (popup)
+		CWIDGET_leave_popup(info.save_popup);
+	
+	CWINDOW_ensure_active_window();
+}
+
+#if 0
 void MyMainWindow::showModal(void)
 {
 	//Qt::WindowFlags flags = windowFlags() & ~Qt::WindowType_Mask;
@@ -1826,7 +1933,7 @@ void MyMainWindow::showModal(void)
 	GB_ERROR_HANDLER handler;
 	MODAL_INFO info;
 
-	if (isModal())
+	if (THIS->modal)
 		return;
 
 	CWIDGET_finish_focus();
@@ -1897,9 +2004,13 @@ void MyMainWindow::showPopup(QPoint &pos)
 	bool persistent = CWIDGET_test_flag(THIS, WF_PERSISTENT);
 	CWINDOW *save = CWINDOW_Current;
 	void *save_popup;
+	QEventLoop eventLoop;
+	QEventLoop *old;
 
-	if (isModal())
+	if (THIS->modal)
 		return;
+
+	CWIDGET_finish_focus();
 
 	setWindowFlags(Qt::Popup | flags);
 	setWindowModality(Qt::ApplicationModal);
@@ -1931,9 +2042,6 @@ void MyMainWindow::showPopup(QPoint &pos)
 
 	_enterLoop = true;
 
-	QEventLoop eventLoop;
-	QEventLoop *old;
-
 	old = MyApplication::eventLoop;
 	MyApplication::eventLoop = &eventLoop;
 	GB.Debug.EnterEventLoop();
@@ -1956,6 +2064,7 @@ void MyMainWindow::showPopup(QPoint &pos)
 
 	//CWIDGET_check_hovered();
 }
+#endif
 
 #if 0
 void MyMainWindow::setTool(bool t)
@@ -2291,6 +2400,8 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 	bool cancel = false;
 	//bool modal;
 
+	//fprintf(stderr, "closeEvent(): THIS = %p loopLevel = %d CWINDOW_Current = %p\n", THIS, THIS->loopLevel, CWINDOW_Current);
+	
 	e->ignore();
 
 	#if DEBUG_WINDOW
@@ -2357,7 +2468,7 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 
 	e->accept();
 
-	if (isModal() && _enterLoop)
+	if (THIS->modal && _enterLoop)
 	{
 		_enterLoop = false;
 		MyApplication::eventLoop->exit();
@@ -2482,6 +2593,11 @@ void MyMainWindow::doReparent(QWidget *parent, const QPoint &pos)
 
 int MyMainWindow::currentScreen() const
 {
+#ifdef QT5
+	QList<QScreen*> screenList;
+	QScreen* primaryScreen;
+#endif
+
 	if (_screen >= 0)
 		return _screen;
 
@@ -2490,7 +2606,15 @@ int MyMainWindow::currentScreen() const
 	else if (CWINDOW_Main)
 		return QApplication::desktop()->screenNumber(CWINDOW_Main->widget.widget);
 	else
+#ifndef QT5
 		return QApplication::desktop()->primaryScreen();
+#else
+	{
+		primaryScreen = QGuiApplication::primaryScreen();
+		screenList = QGuiApplication::screens();
+		return screenList.indexOf(primaryScreen);
+	}
+#endif
 }
 
 void MyMainWindow::center()
@@ -2499,7 +2623,11 @@ void MyMainWindow::center()
 	QPoint p;
 	QRect r;
 
+#ifdef QT5
+	r = QGuiApplication::screens().at(currentScreen())->availableGeometry();
+#else
 	r = QApplication::desktop()->availableGeometry(currentScreen());
+#endif
 
 	CWIDGET_move(THIS, r.x() + (r.width() - width()) / 2, r.y() + (r.height() - height()) / 2);
 }
@@ -2608,12 +2736,10 @@ void MyMainWindow::changeEvent(QEvent *e)
 		void *_object = CWidget::get(this);
 		GB.Raise(THIS, EVENT_Font, 0);
 	}
-	/*else if (e->type() == QEvent::WindowStateChange)
+	else if (e->type() == QEvent::WindowStateChange)
 	{
-		qDebug("WindowStateChange");
-		CWINDOW *_object = (CWINDOW *)CWidget::get(this);
-		GB.Raise(THIS, EVENT_State, 0);
-	}*/
+		GB.Raise(CWidget::get(this), EVENT_State, 0);
+	}
 }
 
 Qt::WindowStates MyMainWindow::getState() const

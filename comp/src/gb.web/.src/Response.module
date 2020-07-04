@@ -75,11 +75,12 @@ Public Sub RemoveCookie(Cookie As String, Value As String, Optional Domain As St
   
 End
 
-Public Sub Begin()
+Public Sub Begin(Optional ContentType As String)
 
   Inc $iBegin
   If $iBegin <> 1 Then Return 
   
+  If ContentType Then $sContentType = ContentType
   If $sStatus Then AddHeader("Status", $sStatus)
   AddHeader("Content-type", $sContentType)
   'AddHeader("Cache-control", "private")
@@ -108,6 +109,17 @@ Private Sub CloseTempFile()
   
 End
 
+Public Sub Reset()
+  
+  Try CloseTempFile
+  Try Kill Temp$("response")
+  $sHeader = ""
+  $sStatus = ""
+  $sContentType = "text/html;charset=utf-8"
+  
+End
+
+
 Public Sub Cancel()
   
   If Not $bBuffered Then
@@ -119,11 +131,7 @@ Public Sub Cancel()
   
   If $iBegin Then
     $iBegin = 0
-    Try CloseTempFile
-    Try Kill Temp$("response")
-    $sHeader = ""
-    $sStatus = ""
-    $sContentType = "text/html;charset=utf-8"
+    Reset
   Endif
   
 End
@@ -169,7 +177,7 @@ Public Sub End()
     If ShouldCompress() Then
       If Split(CGI["HTTP_ACCEPT_ENCODING"], ",").Exist("gzip*", gb.Like) Then
         iSize = Stat(sFile).Size
-        If iSize >= 128 Then
+        If iSize >= 512 Then
           If CanUseCompression() Then
             AddHeader("Content-Encoding", "gzip")
             AddHeader("Vary", "Accept-Encoding")
@@ -199,6 +207,7 @@ Public Sub End()
   Endif
   
   $bDone = True
+  Reset()
   
 'Catch
   
@@ -270,7 +279,14 @@ Public Sub SendFile(Path As String, Optional ContentType As String)
 
   $bDone = True
 
-  If Left(Path) <> "/" Then Path = ".." &/ Path
+  If Left(Path) <> "/" Then
+    If Path Begins "./gb." Then
+    Else If Path Begins "./" Then
+      Path = "." & Path
+    Else
+      Path = ".." &/ Path
+    Endif
+  Endif
 
   If Not Exist(Path) Then
     Print "Status: 404 Not Found"

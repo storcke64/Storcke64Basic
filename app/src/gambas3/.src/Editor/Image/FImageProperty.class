@@ -36,6 +36,8 @@ Private $iLineJoin As Integer
 Private $iFillRule As Integer
 
 Private $iNoUpdateBalance As Integer
+Private $bChangingTab As Boolean
+Private $bDoNotUpdateGrid As Boolean
 
 'Static Public Value As String  '"radialgradient(0.5,0.5,1,0.5,0.5,[&hFFFFFF,&h000000,&h00FF00],[0,0.5,1])" '"lineargradient(0,0.5,1,0.5,[&hFFFFFF,&h000000,&h00FF00],[0,0.5,1])"
 
@@ -919,7 +921,11 @@ Public Sub GetClipboard() As Image
 
   Dim hImage As Image
   
-  If tabBrush.Index <> 2 Then tabBrush.Index = 2
+  If Not $bChangingTab Then
+    $bChangingTab = True
+    If tabBrush.Index <> 2 Then tabBrush.Index = 2
+    $bChangingTab = False
+  Endif
   
   Try hImage = $aClipboard[gvwClipboard.Row].Image
   If Not hImage Then Return
@@ -1019,6 +1025,7 @@ End
 Public Sub OnProjectActivate()
   
   Dim hCurrent As FImageEditor
+  Dim vGrid As Variant
   
   UpdateBalance
   'UpdateInfo
@@ -1026,6 +1033,15 @@ Public Sub OnProjectActivate()
   hCurrent = GetCurrent()
   If hCurrent Then
     ShowGridOption(hCurrent.HasGrid())
+    vGrid = hCurrent.GetGrid()
+    If vGrid Then
+      $bDoNotUpdateGrid = True
+      txtGridRes.Value = vGrid[0]
+      txtGridSnap.Value = vGrid[1]
+      chkGridSnap.Value = vGrid[2]
+      chkGridDiag.Value = vGrid[3]
+      $bDoNotUpdateGrid = False
+    Endif
     ShowTextOption(hCurrent.GetTool() = "text")
     Me.Enabled = Not hCurrent.ReadOnly
   Endif
@@ -1260,17 +1276,27 @@ Private Sub InitShapes()
 
 End
 
+Private Sub UpdateGrid()
+
+  Dim vGrid As Variant
+  
+  If $bDoNotUpdateGrid Then Return
+  vGrid = [txtGridRes.Value, txtGridSnap.Value, chkGridSnap.Value, chkGridDiag.Value]
+  Try GetCurrent().UpdateGrid(vGrid)
+
+End
+
 Public Sub txtGridRes_Change()
 
   txtGridSnap.MaxValue = txtGridRes.Value
   txtGridSnap.Step = Lsl(1, Max(0, CInt(Log2(txtGridRes.Value)) - 3))
-  Try GetCurrent().UpdateGrid
+  UpdateGrid
 
 End
 
 Public Sub txtGridSnap_Change()
 
-  'Try GetCurrent().UpdateGrid
+  UpdateGrid
 
 End
 
@@ -1286,9 +1312,16 @@ Public Sub GetGridResolution() As Integer
   
 End
 
+Public Sub SetGridResolution(iSize As Integer) As Integer
+  
+  txtGridRes.Value = iSize
+  
+End
+
+
 Public Sub GetGridSnap() As Integer
   
-  Return txtGridSnap.Value
+  If chkGridSnap.Value Then Return txtGridSnap.Value
   
 End
 
@@ -1318,10 +1351,8 @@ Public Sub ShowGridOption(bShow As Boolean)
   
   panGrid.Visible = bShow
   sepGrid.Visible = bShow
-  
+
 End
-
-
 
 Public Sub RefreshTextOption()
   
@@ -1501,12 +1532,18 @@ End
 
 Public Sub chkGridDiag_Click()
 
-  Try GetCurrent().UpdateGrid
+  UpdateGrid
 
 End
 
 Public Sub cchColor_Change()
 
   palColor.Current = cchColor.Value
+
+End
+
+Public Sub chkGridSnap_Click()
+
+  UpdateGrid
 
 End

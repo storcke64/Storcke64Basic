@@ -56,4 +56,7 @@ bool JIT_can_compile(ARCHIVE *arch);
 void JIT_load_class(CLASS *class);
 void JIT_load_class_without_init(CLASS *class);
 
+void JIT_add_string_local(GB_STRING *src, GB_STRING val);
+void JIT_add_string_global(char **pstr, GB_STRING val);
+
 #endif

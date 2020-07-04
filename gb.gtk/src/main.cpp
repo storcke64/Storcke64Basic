@@ -513,7 +513,7 @@ static void hook_wait(int duration)
 		return;
 	}
 
-	if (duration > 0 && gKey::valid())
+	if (duration && gKey::valid())
 	{
 #ifdef GTK3
 		fprintf(stderr, "gb.gtk3: warning: calling the event loop during a keyboard event handler is ignored\n");
@@ -523,7 +523,7 @@ static void hook_wait(int duration)
 		return;
 	}
 
-	MAIN_do_iteration(true, true);
+	MAIN_do_iteration(duration >= 0);
 }
 
 static void hook_watch(int fd, int type, void *callback, intptr_t param)
@@ -578,7 +578,7 @@ void MAIN_do_iteration_just_events()
 		gtk_main_iteration_do(false);
 }
 
-void MAIN_do_iteration(bool do_not_block, bool do_not_sleep)
+void MAIN_do_iteration(bool do_not_block)
 {
 	gApplication::_loopLevel++;
 

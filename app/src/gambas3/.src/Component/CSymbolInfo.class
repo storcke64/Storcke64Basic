@@ -1,5 +1,8 @@
 ' Gambas class file
 
+Static Public SpecialMethods As String[] = ["_attach", "_call", "_compare", "_get", "_init", "_new", "_next", "_property", "_put", "_unknown", "_exit", "_ready", "_read", "_write"]
+
+
 Static Private $cTypeName As New Collection
 Static Private $cNameType As New Collection(gb.IgnoreCase)
 
@@ -29,6 +32,9 @@ Private $iShowArg As Integer
 Static Public Sub _init()
 
   Dim sType As String
+  Dim sIcon As String
+  Dim hImage As Image
+  Dim iSize As Integer
 
   $cTypeName["b"] = "Boolean"
   $cTypeName["c"] = "Byte"
@@ -45,6 +51,14 @@ Static Public Sub _init()
 
   For Each sType In $cTypeName
     $cNameType[sType] = $cTypeName.Key
+  Next
+  
+  iSize = Stock.GetSize("tiny")
+  For Each sIcon In Dir("img/symbol", "*.png")
+    hImage = Image.Load("img/symbol" &/ sIcon)
+    If Application.DarkTheme Then hImage.Invert(True)
+    hImage = hImage.Stretch(iSize, iSize)
+    Picture["$symbol:" & File.BaseName(sIcon)] = hImage.Picture
   Next
 
 End
@@ -133,30 +147,36 @@ Public Function GetIcon() As String
   Dim bStatic As Boolean
   Dim sIcon As String
 
+  If Name = "_new" Then Stop
+
   bStatic = UCase(Kind) = Kind
 
   Select Case LCase(Kind)
 
     Case "r"
-      sIcon = If(bStatic, "s-property-ro.png", "property-ro.png")
+      sIcon = If(bStatic, "s-property-ro", "property-ro")
     Case "p"
-      sIcon = If(bStatic, "s-property.png", "property.png")
+      sIcon = If(bStatic, "s-property", "property")
     Case "v"
-      sIcon = If(bStatic, "s-variable.png", "variable.png")
+      sIcon = If(bStatic, "s-variable", "variable")
     Case "c"
-      sIcon = "constant.png"
+      sIcon = "constant"
     Case ":"
-      sIcon = "event.png"
+      sIcon = "event"
     Case "t"
-      sIcon = "control.png"
+      sIcon = "control"
     Case "m", "x"
-      sIcon = If(bStatic, "s-method.png", "method.png")
+      If Name Begins "_" And If SpecialMethods.Exist(Name) Then
+        sIcon = If(bStatic, "s-special", "special")
+      Else
+        sIcon = If(bStatic, "s-method", "method")
+      Endif
     Default
-      sIcon = "unknown.png"
+      sIcon = "unknown"
 
   End Select
 
-  Return "img/symbol" &/ sIcon
+  Return "$symbol:" & sIcon
 
 End
 

@@ -106,7 +106,7 @@ char *X11_get_property(Window wid, Atom prop, Atom *type, int *format, int *coun
 Atom X11_get_property_type(Window wid, Atom prop, int *format);
 void X11_set_property(Window wid, Atom prop, Atom type, int format, void *data, int count);
 void X11_send_client_message(Window dest, Window window, Atom message, char *data, int format, int count);
-void X11_event_filter(XEvent *e);
+int X11_event_filter(XEvent *e);
 void X11_enable_event_filter(bool enable);
 
 #ifdef __cplusplus

@@ -833,7 +833,7 @@ void CWebView::loadProgress(int progress)
 		return;
 
 	THIS->progress = v;
-	GB.Raise(THIS, EVENT_PROGRESS, 0);
+	GB.RaiseLater(THIS, EVENT_PROGRESS);
 }
 
 void CWebView::loadStarted()
@@ -844,7 +844,7 @@ void CWebView::loadStarted()
 
 	THIS->progress = 0;
 	_network_access_manager_view = THIS;
-	GB.Raise(THIS, EVENT_PROGRESS, 0);
+	GB.RaiseLater(THIS, EVENT_PROGRESS);
 }
 
 void CWebView::selectionChanged()

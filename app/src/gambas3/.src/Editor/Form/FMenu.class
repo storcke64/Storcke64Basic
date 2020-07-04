@@ -4,12 +4,14 @@ Static Public OpenEventHandlerFor As String
 Static Private $hForm As FForm
 Static Private $aMenu As New CMenu[]
 
+Private $hFamily As CFamily
 Private $iLevel As Integer
 Private $cName As New Collection
 Private $iCurrent As Integer
 Private $bFreeze As Boolean
 Private $bModified As Boolean
 Private $iIconSize As Integer
+Private $sImageProp As String
 
 Static Public Sub Run(hForm As FForm)
 
@@ -47,8 +49,18 @@ Public Sub Form_Open()
   Settings.Read(Me)
 
   Me.Title = $hForm.Name & " - " & ("Menu editor")
+  
+  $hFamily = $hForm.GetFamily()
 
   $iIconSize = Stock.GetSize("small")
+  
+  If Project.Documentation.Classes[$hFamily.MenuClass].Properties.Exist("Image") Then
+    $sImageProp = "Image"
+  Else
+    $sImageProp = "Picture"
+  Endif
+  
+  lblPicture.Text = $sImageProp
   
   $bFreeze = True
   gvwMenu.UnSelectAll
@@ -130,7 +142,7 @@ Private Sub CreateMenu(hCCtrl As CControl)
     .Toggle = hCCtrl.GetPropertyDefault("Toggle")
     .Radio = hCCtrl.GetPropertyDefault("Radio")
     .SetShortcut(hCCtrl.GetPropertyDefault("Shortcut"))
-    .Picture = hCCtrl.GetPropertyDefault("Picture")
+    .Picture = hCCtrl.GetPropertyDefault($sImageProp)
     .Tag = hCCtrl.GetPropertyDefault("Tag")
     .Group = hCCtrl.GetPropertyDefault(CPropertyInfo.EVENT_NAME)
     .Translate = hCCtrl.GetPropertyDefault(CPropertyInfo.TRANSLATE_NAME)
@@ -249,7 +261,7 @@ Private Sub SaveAllMenu()
       
       Endif
       
-      hCtrl = $hForm.CreateControl("Menu", hParent, .Name)
+      hCtrl = $hForm.CreateControl($hFamily.MenuClass, hParent, .Name)
       
       hCtrl.SetProperty("Text", .Caption)
       hCtrl.SetProperty("Action", .Action)
@@ -259,7 +271,7 @@ Private Sub SaveAllMenu()
       hCtrl.SetProperty("Toggle", .Toggle)
       hCtrl.SetProperty("Radio", .Radio)
       hCtrl.SetProperty("Shortcut", .GetShortcut())
-      hCtrl.SetProperty("Picture", .Picture)
+      hCtrl.SetProperty($sImageProp, .Picture)
       hCtrl.SetProperty("Tag", .Tag)
       hCtrl.SetProperty(CPropertyInfo.EVENT_NAME, .Group)
       hCtrl.SetProperty(CPropertyInfo.TRANSLATE_NAME, .Translate)
@@ -519,7 +531,7 @@ Private Function GetName() As String
   Do
 
     Inc iCpt
-    sName = "Menu" & CStr(iCpt)
+    sName = $hFamily.MenuClass & CStr(iCpt)
     If Not $cName.Exist(sName) Then Return sName
 
   Loop
@@ -765,7 +777,7 @@ Public Sub btnPicture_Click()
 
   Dim sPict As String
 
-  sPict = FSelectIcon.Run(txtPicture.Text)
+  sPict = $hFamily.SelectImage("Image", txtPicture.Text)
   If sPict Then SetPicture(sPict)
   
 End
@@ -988,9 +1000,9 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
     Width -= D
   
     If .Picture Then
-      Try hPict = Project.GetPicture(.Picture)
+      Try hPict = $hFamily.GetPicture(.Picture)
       If hPict Then hPict = hPict.Image.Stretch($iIconSize, $iIconSize).Picture
-      Paint.DrawPicture(hPict, X - $iIconSize - Desktop.Scale / 2, Y + (Height - $iIconSize) / 2)
+      If hPict Then Paint.DrawPicture(hPict, X - $iIconSize - Desktop.Scale / 2, Y + (Height - $iIconSize) / 2)
     Endif
       
     If .Level = 0 Then

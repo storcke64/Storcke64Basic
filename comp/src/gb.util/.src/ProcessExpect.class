@@ -1,0 +1,53 @@
+' Gambas class file
+
+Private $aExpect As String[]
+Private $sBuffer As String
+Private $hObs As Observer
+Private $hObsAfter As Observer
+
+Public Sub _new(hProcess As Process)
+  
+  $aExpect = New String[]
+  $hObs = New Observer(hProcess) As "Expect"
+  $hObsAfter = New Observer(hProcess, True) As "ExpectAfter"
+  
+End
+
+Public Sub Expect(Prompt As String, Optional Answer As String)
+  
+  If Prompt Not Begins "*" Then Prompt = "*" & Prompt
+  $aExpect.Add(Prompt)
+  $aExpect.Add(Answer)
+  
+End
+
+Public Sub Expect_Read()
+
+  Dim sData As String
+  Dim hProcess As Process = $hObs.Object
+  
+  sData = Peek #hProcess, Lof(hProcess)
+  
+  If Len(sData) >= 1024 Then
+    $sBuffer = Right(sData, 1024)
+  Else
+    $sBuffer = Right($sBuffer & sData, 1024)
+  Endif
+  
+End
+
+Public Sub ExpectAfter_Read()
+  
+  Dim hProcess As Process = $hObsAfter.Object
+  Dim I As Integer
+  
+  For I = 0 To $aExpect.Max Step 2
+    If RTrim($sBuffer) Like $aExpect[I] Then
+      If $aExpect[I + 1] Then Print #hProcess, $aExpect[I + 1]
+      Object.Raise(hProcess, "Prompt", [$aExpect[I], $aExpect[I + 1]])
+      $sBuffer = ""
+    Endif
+  Next
+  
+End
+

@@ -10,7 +10,9 @@
     #Translate = False
     Foreground = Color.Orange
     Expand = True
+    Border = False
     Closable = True
+    CloseButton = True
     Moveable = True
     Index = 0
     Text = "Yop"
@@ -40,6 +42,10 @@
     { Button2 Button
       MoveScaled(17,0,16,4)
       Text = ("Orientation")
+    }
+    { Button3 Button
+      MoveScaled(34,0,16,4)
+      Text = ("Padding")
     }
   }
   { Timer1 #Timer

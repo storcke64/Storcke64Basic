@@ -119,7 +119,7 @@ BEGIN_PROPERTY(__name##_Left)                                                   
     __return(__this->x);                                                                                                      \
   else                                                                                                                        \
   {                                                                                                                           \
-    __ctype dx = VPROP(__gtype) - __this->x;                                                                                      \
+    __ctype dx = VPROP(__gtype) - __this->x;                                                                                  \
     if (dx > __this->w)                                                                                                       \
       dx = __this->w;                                                                                                         \
                                                                                                                               \
@@ -135,7 +135,7 @@ BEGIN_PROPERTY(__name##_Top)                                                    
     __return(__this->y);                                                                                                      \
   else                                                                                                                        \
   {                                                                                                                           \
-    __ctype dy = VPROP(__gtype) - __this->y;                                                                                      \
+    __ctype dy = VPROP(__gtype) - __this->y;                                                                                  \
     if (dy > __this->h)                                                                                                       \
       dy = __this->h;                                                                                                         \
                                                                                                                               \

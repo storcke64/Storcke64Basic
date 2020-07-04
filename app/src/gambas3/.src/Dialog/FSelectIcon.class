@@ -10,12 +10,14 @@ Public Const SELECT_PUBLIC As Integer = 8
 Private $sIcon As String
 Private $sSize As String
 Private $iOption As Integer
+Private $aSizes As String[]
 
-Public Sub Run(sIcon As String, Optional iOption As Integer = SELECT_IMAGE + SELECT_STOCK) As String
+Public Sub Run(sIcon As String, Optional iOption As Integer = SELECT_IMAGE + SELECT_STOCK, aSizes As String[]) As String
   
   $sIcon = sIcon
-  If Not Project.IsStockAllowed() Then iOption = iOption And Not SELECT_STOCK
+  'If Not Project.IsStockAllowed() Then iOption = iOption And Not SELECT_STOCK
   $iOption = iOption
+  $aSizes = aSizes
   If Not Me.ShowModal() Then Return
   Return $sIcon
   
@@ -43,9 +45,12 @@ Public Sub Form_Open()
   
   fchIcon.Filter = aFilter
   
-  cmbSize.List = Stock.Sizes.Insert(["16", "22", "32", "48", "64", "96", "128"])
-  
-  tabIcon[1].Visible = $iOption And SELECT_STOCK
+  If $aSizes And If $iOption And SELECT_STOCK Then
+    cmbSize.List = $aSizes
+    tabIcon[1].Visible = True
+  Else
+    tabIcon[1].Visible = False
+  Endif
   
   If $sIcon Begins "icon:/" Then 
     $sIcon = Mid$($sIcon, 7)

@@ -664,6 +664,10 @@ void WATCH_wait(int wait)
 		timeout.tv_usec = 0;
 		do_loop(&timeout);
 	}
+	else if (wait < 0)
+	{
+		do_loop(NULL);
+	}
 	else
 	{
 		now = time_now();

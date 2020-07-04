@@ -175,7 +175,7 @@ static void callback_write(int fd, int type, CPROCESS *process)
 
 	if (GB_CanRaise(process, EVENT_Read))
 	{
-		if (!STREAM_read_ahead(CSTREAM_stream(process)))
+		if (!STREAM_read_ahead(CSTREAM_TO_STREAM(process)))
 		{
 			GB_Raise(process, EVENT_Read, 0);
 			return;
@@ -344,7 +344,7 @@ static void stop_process_after(CPROCESS *_object)
 	/* Vidage du tampon de sortie */
 	if (THIS->out >= 0)
 	{
-		stream = CSTREAM_stream(THIS);
+		stream = CSTREAM_TO_STREAM(THIS);
 		while (THIS->out >= 0 && !STREAM_is_closed(stream))
 			callback_write(THIS->out, 0, THIS);
 
@@ -961,7 +961,7 @@ CPROCESS *CPROCESS_create(int mode, void *cmd, char *name, CARRAY *env)
 	OBJECT_UNREF_KEEP(process);
 
 	if (!name || !*name)
-		STREAM_blocking(CSTREAM_stream(process), TRUE);
+		STREAM_blocking(CSTREAM_TO_STREAM(process), TRUE);
 
 	return process;
 }

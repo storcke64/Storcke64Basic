@@ -33,6 +33,7 @@
 #include "main.h"
 #include "gb_limit.h"
 #include "gb.debug.h"
+#include "debug.h"
 #include "CDebug.h"
 
 /*#define DEBUG*/
@@ -236,6 +237,23 @@ BEGIN_METHOD_VOID(CDEBUG_end)
 
 END_METHOD
 
+#if 0
+static bool write_nointr(int fd, const char *data, int len)
+{
+	int n;
+	
+	while (len > 0)
+	{
+		n = write(fd, data, len);
+		if (n <= 0 && errno != EINTR)
+			return TRUE;
+		data += n;
+		len -= n;
+	}
+	
+	return FALSE;
+}
+#endif
 
 BEGIN_METHOD(CDEBUG_write, GB_STRING data)
 
@@ -269,6 +287,13 @@ BEGIN_METHOD(Debug_GetSignal, GB_INTEGER signal)
 END_METHOD
 
 
+BEGIN_PROPERTY(Debug_Fifo)
+
+	GB.ReturnString(DEBUG_fifo);
+
+END_PROPERTY
+
+
 GB_DESC CDebugDesc[] =
 {
 	GB_DECLARE("Debug", sizeof(CDEBUG)),
@@ -284,6 +309,8 @@ GB_DESC CDebugDesc[] =
 	GB_STATIC_METHOD("GetSignal", "s", Debug_GetSignal, "(Signal)i"),
 
 	GB_STATIC_METHOD("Write", NULL, CDEBUG_write, "(Data)s"),
+	
+	GB_STATIC_PROPERTY_READ("Fifo", "s", Debug_Fifo),
 	
 	GB_EVENT("Read", NULL, "(Data)s", &EVENT_Read),
 

@@ -4,13 +4,14 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,Border,Label"
+Public Const _Properties As String = "*,Border,Label,Padding{Range:0;63}"
 Public Const _DefaultSize As String = "8,8"
 
 Property Border As Boolean
 Property Label As Boolean
 Property Value As Float
 Property Enabled As Boolean
+Property Padding As Integer
 
 Private $hDrawingArea As DrawingArea
 Private $fStartTime As Float
@@ -19,6 +20,7 @@ Private $bBorder As Boolean
 Private $bLabel As Boolean
 Private $fValue As Float
 Private $fLastWait As Float
+Private $iPadding As Integer
 
 Public Sub _new()
   
@@ -88,7 +90,7 @@ Public Sub DrawingArea_Draw()
   
     X = W / 2
     Y = H / 2
-    R = Min(W, H) / 2 * 7 / 8
+    R = Min(W, H) / 2 * 7 / 8 - $iPadding
     
     Paint.LineWidth = R / 8
     Paint.LineCap = Paint.LineCapRound
@@ -179,6 +181,20 @@ Private Sub Enabled_Write(Value As Boolean)
 
   If Value = Me.Enabled Then Return
   Super.Enabled = Value
+  $hDrawingArea.Refresh
+
+End
+
+Private Function Padding_Read() As Integer
+
+  Return $iPadding
+
+End
+
+Private Sub Padding_Write(Value As Integer)
+
+  If $iPadding = Value Then Return
+  $iPadding = Value
   $hDrawingArea.Refresh
 
 End

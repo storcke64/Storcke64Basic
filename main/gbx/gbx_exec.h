@@ -253,6 +253,7 @@ void RELEASE_many(VALUE *val, int n);
 void EXEC_push_complex(void);
 
 void EXEC_push_vargs(void);
+void EXEC_end_vargs(void);
 void EXEC_drop_vargs(void);
 
 #define BORROW(_value) \
@@ -261,7 +262,7 @@ do { \
 	TYPE type = _v->type; \
 	if (TYPE_is_object(type)) \
 	{ \
-		OBJECT_REF(_v->_object.object); \
+		OBJECT_REF_CHECK(_v->_object.object); \
 	} \
 	else if (EXEC_should_borrow[type]) \
 	{ \
@@ -302,19 +303,19 @@ do { \
 
 #define RELEASE_MANY(_val, _n) \
 do { \
-if (_n) \
-{ \
-	if ((_n) == 1) \
+	if (_n) \
 	{ \
-		_val--; \
-		RELEASE((_val)); \
+		if ((_n) == 1) \
+		{ \
+			_val--; \
+			RELEASE((_val)); \
+		} \
+		else \
+		{ \
+			RELEASE_many((_val), (_n)); \
+			_val -= (_n); \
+		} \
 	} \
-	else \
-	{ \
-		RELEASE_many((_val), (_n)); \
-		_val -= (_n); \
-	} \
-} \
 } while (0)
 
 #define PUSH() \
@@ -328,6 +329,14 @@ do { \
 	SP--; \
 	RELEASE(SP); \
 } while (0)
+
+#define PUSH_OBJECT(__class, __object) \
+({ \
+	SP->_object.class = (__class); \
+	SP->_object.object = OBJECT_REF(__object); \
+	SP++; \
+})
+
 
 #define COPY_VALUE(_dst, _src) VALUE_copy(_dst, _src)
 

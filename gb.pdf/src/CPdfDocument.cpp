@@ -104,12 +104,14 @@ END_PROPERTY
 
 static void return_unicode_string(const Unicode *unicode, int len)
 {
-	static UnicodeMap *uMap = NULL;
-	
 	GooString gstr;
 	char buf[8]; /* 8 is enough for mapping an unicode char to a string */
 	int i, n;
 
+#if POPPLER_VERSION_0_85
+	const UnicodeMap *uMap = globalParams->getUtf8Map();
+#else
+	static UnicodeMap *uMap = NULL;
 	if (uMap == NULL) 
 	{
 		GooString *enc = new GooString("UTF-8");
@@ -117,6 +119,7 @@ static void return_unicode_string(const Unicode *unicode, int len)
 		uMap->incRefCnt();
 		delete enc;
 	}
+#endif
 		
 	for (i = 0; i < len; ++i) {
 		n = uMap->mapUnicode(unicode[i], buf, sizeof(buf));
@@ -252,7 +255,9 @@ static uint32_t aux_get_page_from_action(void *_object, const_LinkAction *act)
 		{
 			name = ((LinkGoTo*)act)->getNamedDest();
 			if (name) {
-			#if POPPLER_VERSION_0_64
+			#if POPPLER_VERSION_0_86
+				dest = THIS->doc->findDest(name).get();
+			#elif POPPLER_VERSION_0_64
 				dest = THIS->doc->findDest(name);
 			#else
 				dest = THIS->doc->findDest((GooString *) name);
@@ -301,9 +306,12 @@ static double aux_get_zoom_from_action(const_LinkAction *act)
 
 static char* aux_get_target_from_action(const_LinkAction *act)
 {
-	char *vl=NULL;
-	char *uni=NULL;	
-	const_GooString *tmp=NULL;
+	char *vl = NULL;
+	char *uni = NULL;	
+	const_GooString *tmp = NULL;
+#if POPPLER_VERSION_0_86
+	GooString gstr;
+#endif
 
 	switch (act->getKind())
 	{
@@ -314,13 +322,31 @@ static char* aux_get_target_from_action(const_LinkAction *act)
 			tmp=((LinkLaunch*)act)->getFileName(); break;
 
 		case actionURI:
-			tmp=((LinkURI*)act)->getURI(); break;
+#if POPPLER_VERSION_0_86
+			gstr = GooString(((LinkURI*)act)->getURI());
+			tmp = &gstr;
+#else
+			tmp = ((LinkURI*)act)->getURI(); 
+#endif
+			break;
 			
 		case actionNamed:
-			tmp=((LinkNamed*)act)->getName(); break;
+#if POPPLER_VERSION_0_86
+			gstr = GooString(((LinkNamed*)act)->getName());
+			tmp = &gstr;
+#else
+			tmp = ((LinkNamed*)act)->getName(); 
+#endif
+			break;
 
 		case actionMovie:
-			tmp=((LinkMovie*)act)->getAnnotTitle(); break;
+#if POPPLER_VERSION_0_86
+			gstr = GooString(((LinkMovie*)act)->getAnnotTitle());
+			tmp = &gstr;
+#else
+			tmp = ((LinkMovie*)act)->getAnnotTitle();
+#endif
+			break;
 
 		default:
 			break;

@@ -22,12 +22,6 @@ Property Text As String
 Private $sText As String
 Private $bChecked As Boolean
 
-'' Create a new WebCheckBox control.
-
-Public Sub _new()
-  
-End
-
 Private Function Text_Read() As String
 
   Return $sText

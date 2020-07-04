@@ -28,7 +28,14 @@ Private $cTextAlign As Collection
 
 Private $hSel As New GridViewSelection
 
-Public Sub _GetSel() As GridViewSelection
+Public Sub _SetSelection(hSel As GridViewSelection)
+  
+  $hSel = hSel
+  
+End
+
+
+Public Sub _GetSelection() As GridViewSelection
   
   Return $hSel
   
@@ -355,9 +362,7 @@ Public Sub SelectAll()
 
   If hView.Mode <> Select.Multiple Then Return
   
-  $hSel.UnSelectAll
-  $hSel.Select(0, $nRows)
-  hView.Refresh
+  $hSel.SelectAll($nRows)
   hView._RaiseSelect
   
 End
@@ -387,15 +392,15 @@ Public Sub _IsSelected(iRow As Integer) As Boolean
   
 End
 
-Public Sub _SaveSelection() As GridViewSelection
+Public Sub _SaveSelection() As Variant
   
-  Return $hSel.Copy()
+  Return $hSel.Save()
   
 End
 
-Public Sub _RestoreSelection(hSel As GridViewSelection)
+Public Sub _RestoreSelection(vSel As Variant)
   
-  $hSel = hSel.Copy()
+  $hSel.Restore(vSel)
   
 End
 

@@ -210,17 +210,16 @@ void SUBR_varptr(ushort code)
 					ptr = &val->_date.date;
 					break;
 
-				case T_STRING:
-				case T_CSTRING:
-					ptr = val->_string.addr + val->_string.start;
-					break;
-
 				case T_POINTER:
 					ptr = &val->_pointer.value;
 					break;
+					
+				case T_VARIANT:
+					ptr = &val->_variant.value.data;
+					break;
 
 				default:
-					THROW(E_TYPE, "Number", TYPE_get_name(val->type));
+					THROW(E_UTYPE);
 			}
 		}
 		else if ((op & 0xF800) == C_PUSH_DYNAMIC)
@@ -231,11 +230,15 @@ void SUBR_varptr(ushort code)
 				THROW_ILLEGAL();
 
 			ptr = &OP[var->pos];
+			if (var->type.id == T_VARIANT)
+				ptr = &((VARIANT *)ptr)->value.data;
 		}
 		else if ((op & 0xF800) == C_PUSH_STATIC)
 		{
 			var = &CP->load->stat[op & 0x7FF];
 			ptr = (char *)CP->stat + var->pos;
+			if (var->type.id == T_VARIANT)
+				ptr = &((VARIANT *)ptr)->value.data;
 		}
 		else
 			THROW_ILLEGAL();

@@ -1277,3 +1277,22 @@ Public Sub ButtonBox_DblClick()
   ButtonBox_Click
   
 End
+
+Public Sub SelectAll()
+
+  Dim N As Integer
+
+  N = $hCtrl.Rows.Count
+  If HasNewRecord() Then
+    Dec N
+    SetCreate(False)
+  Endif
+  If N >= 1 Then $hCtrl.Select(0, N)
+  
+End
+
+Public Sub UnselectAll()
+  
+  $hCtrl.UnSelectAll
+  
+End

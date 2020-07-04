@@ -48,11 +48,11 @@ Public Sub DecodeURL(sUrl As String, aField As String[], cVal As Collection)
   
     aElt = Split(sElt, "=")
     If aElt.Count = 2 Then
-      sKey = CGI.Decode(aElt[0])
+      sKey = URL.Unquote(aElt[0], True)
       If Not sKey Then Continue
-      sVal = CGI.Decode(aElt[1])
+      sVal = URL.Unquote(aElt[1], True)
     Else 
-      sKey = CGI.Decode(aElt[0])
+      sKey = URL.Unquote(aElt[0], True)
       If Not sKey Then Continue
       sVal = ""
     Endif

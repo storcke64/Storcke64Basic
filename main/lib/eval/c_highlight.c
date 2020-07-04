@@ -294,6 +294,8 @@ GB_DESC CHighlightDesc[] =
 	GB_CONSTANT("Label", "i", HIGHLIGHT_LABEL),
 	GB_CONSTANT("Constant", "i", HIGHLIGHT_CONSTANT),
 	GB_CONSTANT("Alternate", "i", HIGHLIGHT_ALTERNATE),
+	GB_CONSTANT("Added", "i", HIGHLIGHT_ADDED),
+	GB_CONSTANT("Removed", "i", HIGHLIGHT_REMOVED),
 	GB_CONSTANT("Custom", "i", HIGHLIGHT_NUM_COLOR),
 	
 	GB_STATIC_METHOD("_exit", NULL, Highlight_exit, NULL),

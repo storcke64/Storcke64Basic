@@ -143,7 +143,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
 
             If Not bIgnore Then
               'IF sFile = "ReportContainer.class" THEN STOP
-              sParent = FindKey(Project.GetParentClass(sPath))
+              If Project.UseInheritance Then sParent = FindKey(Project.GetParentClass(sPath))
               If sParent Then
                 If File.Ext(sParent) <> "class" Then 
                   sParent = ""
@@ -165,10 +165,10 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           '   'sParent = hModule.TreeKey
           '   'If Not hModule.Used Then bIgnore = True
           '   sParent = sDir
-          Else If sExt <> "module" Then
-            'If Not HasModule(sExt) Then
-            '  bIgnore = True
-            'Endif
+          ' Else If sExt <> "module" Then
+          '   'If Not HasModule(sExt) Then
+          '   '  bIgnore = True
+          '   'Endif
           Endif
 
           If Not sParent Then sParent = sDir
@@ -210,6 +210,8 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
         bIgnore = True
       Endif
     Endif
+    
+    If Not $hTree.Exist(sParent) Then bIgnore = True
 
     If Not bIgnore Then
 
@@ -416,6 +418,9 @@ Public Function FindPath(sClass As String) As String
   sPath = Sources[sClass & ".module"]
   If sPath Then Return sPath
 
+  sPath = Sources[sClass & ".test"]
+  If sPath Then Return sPath
+
 End
 
 Public Sub FindKey(sClass As String) As String
@@ -438,16 +443,46 @@ End
 Public Sub RefreshSources()
 
   Dim sPath As String
+  Dim sName As String
   
   Sources = New Collection(gb.IgnoreCase)
   
   For Each sPath In RDir($sSourceDir, "*", gb.File + gb.Directory, True)
     If CModule.Ext.Exist(File.Ext(sPath)) Then
-      Sources[File.Name(sPath)] = $sSourceDir &/ sPath
+      sName = File.Name(sPath)
+      Sources[sName] = $sSourceDir &/ sPath
     Endif
   Next
   
 End
+
+Public Sub CheckDuplicates() As String[]
+
+  Dim sPath As String
+  Dim cName As New Collection
+  Dim aList As New String[]
+  Dim sName As String
+  Dim sDup As String
+  
+  For Each sPath In RDir($sSourceDir, "*", gb.File, True)
+    sName = File.Name(sPath)
+    If sName Ends "~" Then Continue
+    sDup = cName[sName]
+    If Not sDup Then
+      cName[sName] = sPath
+    Else
+      If sDup <> "*" Then
+        aList.Add(sDup)
+        cName[sName] = "*"
+      Endif
+      aList.Add(sPath)
+    Endif
+  Next
+  
+  If aList.Count Then Return aList
+  
+End
+
 
 Private Sub IsConnectionPath(sPath As String) As Boolean
   
@@ -568,7 +603,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
       sExt = File.Ext(sPath)
       Select Case sExt
 
-        Case "form", "class", "module", "webpage", "report", "webform", "termform"
+        Case "form", "class", "module", "test", "webpage", "report", "webform", "termform"
           If IsSourcePath(sPath) Then
             sModule = sExt
             sIcon = sExt
@@ -879,6 +914,31 @@ Public Function ExistForm(sClass As String) As Boolean
 
 End
 
+Public Sub HasTest() As Boolean
+
+  Dim sPath As String
+  
+  For Each sPath In Sources
+    If File.Ext(sPath) = "test" Then Return True
+  Next
+  
+End
+
+Public Sub GetTestModules() As String[]
+  
+  Dim sPath As String
+  Dim aResult As New String[]
+  
+  For Each sPath In Sources
+    If File.Ext(sPath) = "test" Then aResult.Add(sPath)
+  Next
+  
+  aResult.Sort(gb.Natural)
+  Return aResult
+  
+End
+
+
 Private Sub RefreshInheritance()
 
   Dim sKey As String
@@ -980,6 +1040,7 @@ Public Sub ExistClass(sClass As String) As Boolean
 
   If Sources.Exist(sClass & ".class") Then Return True
   If Sources.Exist(sClass & ".module") Then Return True
+  If Sources.Exist(sClass & ".test") Then Return True
 
 End
 

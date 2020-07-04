@@ -109,6 +109,8 @@ Private Sub Decode()
   'sType = Scan(sType, "*boundary=*")[1]
   
   $sContents = ""
+  $sBuffer = ""
+  $bEof = False
   
   sType = ReadLine()
   'IF sLine <> sType THEN RETURN
@@ -244,4 +246,12 @@ Private Function Contents_Read() As String
   Decode
   Return $sContents
 
+End
+
+Public Sub _Reset()
+  
+  $cVal = Null
+  $cFiles = Null
+  $aField.Clear
+  
 End

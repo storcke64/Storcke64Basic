@@ -56,7 +56,6 @@ Public Sub Form_Open()
 
   Dim hCtrl As RadioButton
 
-  '$sLast = ""
   Settings.Read(Me)
   Settings.Read(pchProject)
   ' Settings.Read(dchProject)

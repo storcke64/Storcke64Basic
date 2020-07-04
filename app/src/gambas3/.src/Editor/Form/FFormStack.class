@@ -122,7 +122,7 @@ Public Sub RefreshReadOnly()
   
   If GetForm() Then Return
 
-  panControl.Visible = Not $hForm.ReadOnly  
+  panControl.Visible = Not $hForm.ReadOnly And Not $hForm.DiffMode
   
 End
 

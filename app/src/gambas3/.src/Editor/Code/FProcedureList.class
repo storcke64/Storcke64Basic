@@ -208,7 +208,7 @@ Public Sub gvwProc_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
   Endif
     
   If Left(sName) = "_" Then 
-    If FCompletion.GetSpecialMethods().Exist(sName, gb.IgnoreCase) Then 
+    If CSymbolInfo.SpecialMethods.Exist(sName, gb.IgnoreCase) Then 
       Paint.Background = Color.SelectedBackground
     Endif
   Else If InStr(sName, "_") Then

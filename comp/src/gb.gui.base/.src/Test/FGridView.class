@@ -182,3 +182,25 @@ Public Sub gvwInfo_Drop()
   Debug Drag.Paste()
 
 End
+
+Public Sub gvwInfo_Click()
+
+  Debug gvwInfo.Row;; gvwInfo.Column
+
+End
+
+Public Sub Button3_Click()
+
+  Dim aSel As String[]
+
+  aSel = gvwInfo.Rows.Selection
+  Debug aSel.Join()
+  
+
+End
+
+Public Sub gvwInfo_MouseDown()
+
+  Debug
+
+End

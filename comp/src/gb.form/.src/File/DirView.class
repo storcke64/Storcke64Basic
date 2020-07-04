@@ -201,6 +201,7 @@ Public Sub TreeView_Expand()
   Dim sDir As String
   Dim sDelete As String
   Dim hCache As DirCache
+  Dim aDir As String[]
 
   If Not $hTreeView.Item Then Stop
 
@@ -226,10 +227,13 @@ Public Sub TreeView_Expand()
 
   hCache = DirCache[sDir]
   hCache.Lock
-  For Each sFile In hCache.GetFiles().Sort(gb.Natural + gb.IgnoreCase)
-    If Not hCache.IsDir(sFile) Then Continue
-    AddDir(sDir, sFile)
-  Next
+  Try aDir = hCache.GetFiles().Sort(gb.Natural + gb.IgnoreCase)
+  If Not Error Then
+    For Each sFile In aDir
+      If Not hCache.IsDir(sFile) Then Continue
+      AddDir(sDir, sFile)
+    Next
+  Endif
   hCache.Unlock
 
   If $hTreeView[sDir].Children = 0 Then

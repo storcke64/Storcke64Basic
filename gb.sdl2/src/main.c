@@ -100,15 +100,17 @@ static void exit_sdl()
 		SDL_Quit();
 }
 
-static void event_loop()
+static bool event_loop()
 {
 	SDL_Event event;
+	bool ret = FALSE;
 	
 	while (SDL_PollEvent(&event))
 	{
 		switch(event.type)
 		{
 			case SDL_QUIT:
+				ret = TRUE;
 				break;
 			case SDL_WINDOWEVENT:
 			case SDL_MOUSEBUTTONDOWN:
@@ -119,9 +121,12 @@ static void event_loop()
 			case SDL_KEYUP:
 			case SDL_TEXTINPUT:
 				WINDOW_handle_event(&event);
+				ret = TRUE;
 				break;
 		}
 	}
+	
+	return ret;
 }
 
 static void my_main(int *argc, char **argv)
@@ -148,10 +153,18 @@ static int my_loop()
 
 static void my_wait(int duration)
 {
-	GB.Loop(10);
-	if (duration > 0)
-		event_loop();
-	WINDOW_update();
+	if (duration < 0)
+	{
+		while (!GB.Loop(10) && !event_loop())
+			WINDOW_update();
+	}
+	else
+	{
+		GB.Loop(10);
+		if (duration > 0)
+			event_loop();
+		WINDOW_update();
+	}
 }
 
 //-------------------------------------------------------------------------

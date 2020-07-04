@@ -26,8 +26,12 @@
   { panButton HBox
     MoveScaled(1,13,62,4)
     Spacing = True
-    { Panel1 Panel
+    { btnCopy ToolButton
       MoveScaled(2,0,4,4)
+      ToolTip = ("Copy message")
+    }
+    { Panel1 Panel
+      MoveScaled(9,0,4,4)
       Expand = True
     }
   }

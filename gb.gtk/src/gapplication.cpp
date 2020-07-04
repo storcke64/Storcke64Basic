@@ -556,6 +556,8 @@ __FOUND_WIDGET:
 					gApplication::setButtonGrab(control);
 			}
 
+		if (event->type == GDK_BUTTON_PRESS)
+			gMouse::handleClickCount(event);
 
 		__BUTTON_TRY_PROXY:
 		
@@ -875,6 +877,7 @@ int appEvents;
 bool gApplication::_init = false;
 bool gApplication::_busy = false;
 char *gApplication::_title = NULL;
+char *gApplication::_theme = NULL;
 int gApplication::_in_popup = 0;
 GtkWidget *gApplication::_popup_grab = NULL;
 int gApplication::_loopLevel = 0;
@@ -1044,6 +1047,8 @@ void gApplication::exit()
 
 	if (_title)
 		g_free(_title);
+	if (_theme)
+		g_free(_theme);
 
 	gKey::exit();
 	gTrayIcon::exit();
@@ -1507,12 +1512,18 @@ void gApplication::getBoxFrame(int *pw, int *ph)
 
 char *gApplication::getStyleName()
 {
-	static char *_theme = NULL;
-
 	if (!_theme)
 	{
+		char *p;
 		GtkSettings *settings = gtk_settings_get_default();
 		g_object_get(settings, "gtk-theme-name", &_theme, (char *)NULL);
+		
+		p = _theme = g_strdup(_theme);
+		while (*p)
+		{
+			*p = tolower(*p);
+			p++;
+		}
 	}
 
 	return _theme;

@@ -68,7 +68,7 @@ static void txt_raise_activate(gTextBox *sender)
 		return; \
 	}
 
-BEGIN_METHOD(CTEXTBOX_new, GB_OBJECT parent)
+BEGIN_METHOD(TextBox_new, GB_OBJECT parent)
 
 	InitControl(new gTextBox(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	TEXTBOX->onChange = txt_raise_change;
@@ -77,14 +77,14 @@ BEGIN_METHOD(CTEXTBOX_new, GB_OBJECT parent)
 END_METHOD
 
 
-BEGIN_METHOD_VOID(CTEXTBOX_clear)
+BEGIN_METHOD_VOID(TextBox_Clear)
 
 	TEXTBOX->clear();
 
 END_METHOD
 
 
-BEGIN_METHOD(CTEXTBOX_insert, GB_STRING text)
+BEGIN_METHOD(TextBox_Insert, GB_STRING text)
 
 	CHECK_COMBOBOX();
 	TEXTBOX->insert(STRING(text),LENGTH(text));
@@ -92,7 +92,7 @@ BEGIN_METHOD(CTEXTBOX_insert, GB_STRING text)
 END_METHOD
 
 
-BEGIN_PROPERTY(CTEXTBOX_text)
+BEGIN_PROPERTY(TextBox_Text)
 
 	if (READ_PROPERTY)
 		GB.ReturnNewZeroString(TEXTBOX->text());
@@ -102,14 +102,24 @@ BEGIN_PROPERTY(CTEXTBOX_text)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_length)
+BEGIN_PROPERTY(TextBox_Placeholder)
+
+	if (READ_PROPERTY)
+		GB.ReturnNewZeroString(TEXTBOX->placeholder());
+	else
+		TEXTBOX->setPlaceholder(GB.ToZeroString(PROP(GB_STRING)));
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(TextBox_Length)
 
 	GB.ReturnInteger(TEXTBOX->length());
 
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_alignment)
+BEGIN_PROPERTY(TextBox_Alignment)
 
 	if (READ_PROPERTY) { GB.ReturnInteger(TEXTBOX->alignment()); return; }
 	TEXTBOX->setAlignment(VPROP(GB_INTEGER));
@@ -117,7 +127,7 @@ BEGIN_PROPERTY(CTEXTBOX_alignment)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_pos)
+BEGIN_PROPERTY(TextBox_Pos)
 
 	CHECK_COMBOBOX();
 	if (READ_PROPERTY) { GB.ReturnInteger(TEXTBOX->position()); return; }
@@ -126,7 +136,7 @@ BEGIN_PROPERTY(CTEXTBOX_pos)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_read_only)
+BEGIN_PROPERTY(TextBox_ReadOnly)
 
 	if (READ_PROPERTY) { GB.ReturnBoolean(TEXTBOX->isReadOnly()); return; }
 	TEXTBOX->setReadOnly(VPROP(GB_BOOLEAN));
@@ -134,7 +144,7 @@ BEGIN_PROPERTY(CTEXTBOX_read_only)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_border)
+BEGIN_PROPERTY(TextBox_Border)
 
 	if (READ_PROPERTY) { GB.ReturnBoolean(TEXTBOX->hasBorder()); return; }
 	TEXTBOX->setBorder(VPROP(GB_BOOLEAN));
@@ -142,7 +152,7 @@ BEGIN_PROPERTY(CTEXTBOX_border)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_password)
+BEGIN_PROPERTY(TextBox_Password)
 
 	CHECK_COMBOBOX();
 	if (READ_PROPERTY) { GB.ReturnBoolean(TEXTBOX->password()); return; }
@@ -151,7 +161,7 @@ BEGIN_PROPERTY(CTEXTBOX_password)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_max_length)
+BEGIN_PROPERTY(TextBox_MaxLength)
 
 	CHECK_COMBOBOX();
 	if (READ_PROPERTY) { GB.ReturnInteger(TEXTBOX->maxLength()); return; }
@@ -160,7 +170,7 @@ BEGIN_PROPERTY(CTEXTBOX_max_length)
 END_PROPERTY
 
 
-BEGIN_METHOD_VOID(CTEXTBOX_selected)
+BEGIN_METHOD_VOID(TextBox_Selected)
 
 	CHECK_COMBOBOX();
 	GB.ReturnBoolean(TEXTBOX->isSelected());
@@ -184,7 +194,7 @@ END_PROPERTY
 
 ***************************************************************************/
 
-BEGIN_PROPERTY(CTEXTBOX_sel_text)
+BEGIN_PROPERTY(TextBox_Selection_Text)
 
 	char *buf;
 	
@@ -204,7 +214,7 @@ BEGIN_PROPERTY(CTEXTBOX_sel_text)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_sel_length)
+BEGIN_PROPERTY(TextBox_Selection_Length)
 
 	CHECK_COMBOBOX();
 	GB.ReturnInteger(TEXTBOX->selLength());
@@ -212,7 +222,7 @@ BEGIN_PROPERTY(CTEXTBOX_sel_length)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTEXTBOX_sel_start)
+BEGIN_PROPERTY(TextBox_Selection_Start)
 
 	CHECK_COMBOBOX();
 	GB.ReturnInteger(TEXTBOX->selStart());
@@ -220,21 +230,21 @@ BEGIN_PROPERTY(CTEXTBOX_sel_start)
 END_PROPERTY
 
 
-BEGIN_METHOD_VOID(CTEXTBOX_sel_clear)
+BEGIN_METHOD_VOID(TextBox_Unselect)
 
 	CHECK_COMBOBOX();
 	TEXTBOX->selClear();
 
 END_METHOD
 
-BEGIN_METHOD_VOID(CTEXTBOX_sel_all)
+BEGIN_METHOD_VOID(TextBox_SelectAll)
 
 	CHECK_COMBOBOX();
 	TEXTBOX->selectAll();
 
 END_METHOD
 
-BEGIN_METHOD(CTEXTBOX_sel_select, GB_INTEGER start; GB_INTEGER length)
+BEGIN_METHOD(TextBox_Select, GB_INTEGER start; GB_INTEGER length)
 
 	CHECK_COMBOBOX();
 	TEXTBOX->select(VARG(start),VARG(length));
@@ -263,7 +273,7 @@ static void cmb_raise_click(gComboBox *sender)
 }
 
 
-BEGIN_METHOD(CCOMBOBOX_new, GB_OBJECT parent)
+BEGIN_METHOD(ComboBox_new, GB_OBJECT parent)
 
 	InitControl(new gComboBox(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	
@@ -274,7 +284,7 @@ BEGIN_METHOD(CCOMBOBOX_new, GB_OBJECT parent)
 END_METHOD
 
 
-BEGIN_PROPERTY(CCOMBOBOX_text)
+BEGIN_PROPERTY(ComboBox_Text)
 
 	if (READ_PROPERTY)
 		GB.ReturnNewZeroString(COMBOBOX->text());
@@ -284,14 +294,14 @@ BEGIN_PROPERTY(CCOMBOBOX_text)
 END_PROPERTY
 
 
-BEGIN_METHOD_VOID(CCOMBOBOX_popup)
+BEGIN_METHOD_VOID(ComboBox_Popup)
 
 	COMBOBOX->popup();
 
 END_METHOD
 
 
-BEGIN_METHOD(CCOMBOBOX_get, GB_INTEGER index)
+BEGIN_METHOD(ComboBox_get, GB_INTEGER index)
 
 	int index = VARG(index);
 
@@ -307,7 +317,7 @@ BEGIN_METHOD(CCOMBOBOX_get, GB_INTEGER index)
 END_METHOD
 
 
-BEGIN_PROPERTY(CCOMBOBOX_item_text)
+BEGIN_PROPERTY(ComboBox_Item_Text)
 
 	if (READ_PROPERTY)
 		GB.ReturnNewZeroString(COMBOBOX->itemText(THIS->index));
@@ -318,7 +328,7 @@ BEGIN_PROPERTY(CCOMBOBOX_item_text)
 END_PROPERTY
 
 
-BEGIN_METHOD(CCOMBOBOX_add, GB_STRING item; GB_INTEGER pos)
+BEGIN_METHOD(ComboBox_Add, GB_STRING item; GB_INTEGER pos)
 
 	int Pos;
 	char *Item=GB.ToZeroString(ARG(item));
@@ -331,14 +341,14 @@ BEGIN_METHOD(CCOMBOBOX_add, GB_STRING item; GB_INTEGER pos)
 END_METHOD
 
 
-BEGIN_METHOD(CCOMBOBOX_remove, GB_INTEGER pos)
+BEGIN_METHOD(ComboBox_Remove, GB_INTEGER pos)
 
 	COMBOBOX->remove(VARG(pos));
 
 END_METHOD
 
 
-BEGIN_PROPERTY(CCOMBOBOX_sorted)
+BEGIN_PROPERTY(ComboBox_Sorted)
 
 	if (READ_PROPERTY) { GB.ReturnBoolean(COMBOBOX->isSorted()); return; }
 	COMBOBOX->setSorted(VPROP(GB_BOOLEAN));
@@ -346,14 +356,14 @@ BEGIN_PROPERTY(CCOMBOBOX_sorted)
 END_METHOD
 
 
-BEGIN_PROPERTY(CCOMBOBOX_count)
+BEGIN_PROPERTY(ComboBox_Count)
 
 	GB.ReturnInteger(COMBOBOX->count());
 
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CCOMBOBOX_index)
+BEGIN_PROPERTY(ComboBox_Index)
 
 	if (READ_PROPERTY) { GB.ReturnInteger(COMBOBOX->index()); return; }
 	COMBOBOX->setIndex(VPROP(GB_INTEGER));
@@ -361,7 +371,7 @@ BEGIN_PROPERTY(CCOMBOBOX_index)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CCOMBOBOX_current)
+BEGIN_PROPERTY(ComboBox_Current)
 
 	if (!COMBOBOX->count()) { GB.ReturnNull(); return; }
 	THIS->index = COMBOBOX->index();
@@ -369,14 +379,14 @@ BEGIN_PROPERTY(CCOMBOBOX_current)
 
 END_PROPERTY
 
-BEGIN_METHOD(CCOMBOBOX_find, GB_STRING item)
+BEGIN_METHOD(ComboBox_Find, GB_STRING item)
 
 	GB.ReturnInteger(COMBOBOX->find(GB.ToZeroString(ARG(item))));
 
 END_METHOD
 
 
-BEGIN_PROPERTY(CCOMBOBOX_list)
+BEGIN_PROPERTY(ComboBox_List)
 
 	GB_ARRAY array;
 	int i;
@@ -436,12 +446,12 @@ GB_DESC CTextBoxSelectionDesc[] =
 {
 	GB_DECLARE(".TextBox.Selection", 0), GB_VIRTUAL_CLASS(),
 
-	GB_PROPERTY("Text", "s", CTEXTBOX_sel_text),
-	GB_PROPERTY_READ("Length", "i", CTEXTBOX_sel_length),
-	GB_PROPERTY_READ("Start", "i", CTEXTBOX_sel_start),
-	GB_PROPERTY_READ("Pos", "i", CTEXTBOX_sel_start),
+	GB_PROPERTY("Text", "s", TextBox_Selection_Text),
+	GB_PROPERTY_READ("Length", "i", TextBox_Selection_Length),
+	GB_PROPERTY_READ("Start", "i", TextBox_Selection_Start),
+	GB_PROPERTY_READ("Pos", "i", TextBox_Selection_Start),
 
-	GB_METHOD("Hide", 0, CTEXTBOX_sel_clear, 0),
+	GB_METHOD("Hide", 0, TextBox_Unselect, 0),
 
 	GB_END_DECLARE
 };
@@ -450,25 +460,26 @@ GB_DESC CTextBoxDesc[] =
 {
 	GB_DECLARE("TextBox", sizeof(CTEXTBOX)), GB_INHERITS("Control"),
 
-	GB_METHOD("_new", 0, CTEXTBOX_new, "(Parent)Container;"),
+	GB_METHOD("_new", 0, TextBox_new, "(Parent)Container;"),
 
-	GB_PROPERTY("Text", "s", CTEXTBOX_text),
-	GB_PROPERTY("Alignment", "i", CTEXTBOX_alignment),
-	GB_PROPERTY_READ("Length", "i", CTEXTBOX_length),
-	GB_PROPERTY("Pos", "i", CTEXTBOX_pos),
-	GB_PROPERTY("ReadOnly", "b", CTEXTBOX_read_only),
-	GB_PROPERTY("Border", "b", CTEXTBOX_border),
-	GB_PROPERTY("Password", "b", CTEXTBOX_password),
-	GB_PROPERTY("MaxLength", "i", CTEXTBOX_max_length),
+	GB_PROPERTY("Text", "s", TextBox_Text),
+	GB_PROPERTY("Alignment", "i", TextBox_Alignment),
+	GB_PROPERTY_READ("Length", "i", TextBox_Length),
+	GB_PROPERTY("Pos", "i", TextBox_Pos),
+	GB_PROPERTY("ReadOnly", "b", TextBox_ReadOnly),
+	GB_PROPERTY("Border", "b", TextBox_Border),
+	GB_PROPERTY("Password", "b", TextBox_Password),
+	GB_PROPERTY("MaxLength", "i", TextBox_MaxLength),
+	GB_PROPERTY("Placeholder", "s", TextBox_Placeholder),
 
 	GB_PROPERTY_SELF("Selection", ".TextBox.Selection"),
-	GB_METHOD("Select", 0, CTEXTBOX_sel_select, "[(Start)i(Length)i]"),
-	GB_METHOD("SelectAll", 0, CTEXTBOX_sel_all, 0),
-	GB_METHOD("Unselect", 0, CTEXTBOX_sel_clear, 0),
-	GB_PROPERTY_READ("Selected", "b", CTEXTBOX_selected),
+	GB_METHOD("Select", 0, TextBox_Select, "[(Start)i(Length)i]"),
+	GB_METHOD("SelectAll", 0, TextBox_SelectAll, 0),
+	GB_METHOD("Unselect", 0, TextBox_Unselect, 0),
+	GB_PROPERTY_READ("Selected", "b", TextBox_Selected),
 
-	GB_METHOD("Clear", 0, CTEXTBOX_clear, 0),
-	GB_METHOD("Insert", 0, CTEXTBOX_insert, "(Text)s"),
+	GB_METHOD("Clear", 0, TextBox_Clear, 0),
+	GB_METHOD("Insert", 0, TextBox_Insert, "(Text)s"),
 
 	GB_METHOD("CursorAt", "Point", TextBox_CursorAt, "[(Pos)i]"),
 
@@ -486,7 +497,7 @@ GB_DESC CComboBoxItemDesc[] =
 {
 	GB_DECLARE(".ComboBox.Item", 0), GB_VIRTUAL_CLASS(),
 
-	GB_PROPERTY("Text", "s", CCOMBOBOX_item_text),
+	GB_PROPERTY("Text", "s", ComboBox_Item_Text),
 
 	GB_END_DECLARE
 };
@@ -496,34 +507,35 @@ GB_DESC CComboBoxDesc[] =
 {
 	GB_DECLARE("ComboBox", sizeof(CCOMBOBOX)), GB_INHERITS("Control"),
 
-	GB_METHOD("_new", 0, CCOMBOBOX_new, "(Parent)Container;"),
-	GB_METHOD("_get", ".ComboBox.Item", CCOMBOBOX_get, "(Index)i"),
-	GB_METHOD("Popup", 0, CCOMBOBOX_popup, 0),
-	GB_METHOD("Clear", 0, CTEXTBOX_clear, 0),
-	GB_METHOD("Insert", 0, CTEXTBOX_insert, "(Text)s"),
-	GB_METHOD("Add", 0, CCOMBOBOX_add, "(Item)s[(Index)i]"),
-	GB_METHOD("Remove", 0, CCOMBOBOX_remove, "(Index)i"),
-	GB_METHOD("Find", "i", CCOMBOBOX_find, "(Item)s"),
+	GB_METHOD("_new", 0, ComboBox_new, "(Parent)Container;"),
+	GB_METHOD("_get", ".ComboBox.Item", ComboBox_get, "(Index)i"),
+	GB_METHOD("Popup", 0, ComboBox_Popup, 0),
+	GB_METHOD("Clear", 0, TextBox_Clear, 0),
+	GB_METHOD("Insert", 0, TextBox_Insert, "(Text)s"),
+	GB_METHOD("Add", 0, ComboBox_Add, "(Item)s[(Index)i]"),
+	GB_METHOD("Remove", 0, ComboBox_Remove, "(Index)i"),
+	GB_METHOD("Find", "i", ComboBox_Find, "(Item)s"),
 
-	GB_PROPERTY("Text", "s", CCOMBOBOX_text),
-	GB_PROPERTY_READ("Length", "i", CTEXTBOX_length),
-	GB_PROPERTY("Pos", "i", CTEXTBOX_pos),
-	GB_PROPERTY("ReadOnly", "b", CTEXTBOX_read_only),
-	GB_PROPERTY("Password", "b", CTEXTBOX_password),
-	GB_PROPERTY("MaxLength", "i", CTEXTBOX_max_length),
+	GB_PROPERTY("Text", "s", ComboBox_Text),
+	GB_PROPERTY_READ("Length", "i", TextBox_Length),
+	GB_PROPERTY("Pos", "i", TextBox_Pos),
+	GB_PROPERTY("ReadOnly", "b", TextBox_ReadOnly),
+	GB_PROPERTY("Password", "b", TextBox_Password),
+	GB_PROPERTY("MaxLength", "i", TextBox_MaxLength),
 	GB_PROPERTY("Border", "b", ComboBox_Border),
+	GB_PROPERTY("Placeholder", "s", TextBox_Placeholder),
 	
 	GB_PROPERTY_SELF("Selection", ".TextBox.Selection"),
-	GB_METHOD("Select", 0, CTEXTBOX_sel_select, "[(Start)i(Length)i]"),
-	GB_METHOD("SelectAll", 0, CTEXTBOX_sel_all, 0),
-	GB_METHOD("Unselect", 0, CTEXTBOX_sel_clear, 0),
-	GB_PROPERTY_READ("Selected", "b", CTEXTBOX_selected),
+	GB_METHOD("Select", 0, TextBox_Select, "[(Start)i(Length)i]"),
+	GB_METHOD("SelectAll", 0, TextBox_SelectAll, 0),
+	GB_METHOD("Unselect", 0, TextBox_Unselect, 0),
+	GB_PROPERTY_READ("Selected", "b", TextBox_Selected),
 
-	GB_PROPERTY("Sorted", "b", CCOMBOBOX_sorted),
-	GB_PROPERTY("List", "String[]", CCOMBOBOX_list),
-	GB_PROPERTY_READ("Count", "i", CCOMBOBOX_count),
-	GB_PROPERTY_READ("Current", ".ComboBox.Item", CCOMBOBOX_current),
-	GB_PROPERTY("Index", "i", CCOMBOBOX_index),
+	GB_PROPERTY("Sorted", "b", ComboBox_Sorted),
+	GB_PROPERTY("List", "String[]", ComboBox_List),
+	GB_PROPERTY_READ("Count", "i", ComboBox_Count),
+	GB_PROPERTY_READ("Current", ".ComboBox.Item", ComboBox_Current),
+	GB_PROPERTY("Index", "i", ComboBox_Index),
 
 	GB_METHOD("CursorAt", "Point", TextBox_CursorAt, "[(Pos)i]"),
 	

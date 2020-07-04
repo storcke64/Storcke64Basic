@@ -107,7 +107,7 @@ Private Sub GetFileType() As Integer
   
   Select Case LCase(File.Ext($sPath))
   
-    Case "class", "module", "form", "text", "txt", "html", "css", "svg", "desktop", "inf"
+    Case "class", "module", "test", "form", "text", "txt", "html", "css", "svg", "desktop", "inf"
       Return TYPE_TEXT
       
     Case "jpg", "jpeg", "png", "gif", "xpm", "bmp"

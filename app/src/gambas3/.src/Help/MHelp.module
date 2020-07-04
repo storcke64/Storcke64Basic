@@ -478,6 +478,27 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
   
 End
 
+Public Sub InitWebViewWithHtml(hWebView As WebView, sHtml As String)
+  
+  Dim sTemp As String
+  
+  If Not hWebView Then 
+    If Not Class.IsLoaded("FHelpBrowser") Or If Not FHelpBrowser.Visible Then Return
+    hWebView = FHelpBrowser.GetBrowser()
+  Endif
+  
+  hWebView.Stop
+  'hWebView.History.Clear
+  
+  sTemp = File.Dir(Temp$()) &/ "help"
+  Try Mkdir sTemp
+  sTemp &/= "_custom.html"
+  File.Save(sTemp, sHtml)
+  hWebView.Url = "file://" & sTemp
+    
+End
+
+
 Public Sub LoadHelpBrowser()
   
   If Not Class.IsLoaded("FHelpBrowser") Then
@@ -994,7 +1015,5 @@ Public Sub LoadCustom(sPage As String) As String
   sHtml = Replace(sHtml, "$(style)", File.Load("help/wiki/style.css") & File.Load("help/wiki/style-custom.css"))
   
   Return sHtml
-
-  
 
 End

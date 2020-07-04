@@ -124,7 +124,7 @@ typedef
 	
 void MEDIA_raise_event(void *_object, int event);
 CMEDIACONTROL *MEDIA_get_control_from_element(void *element, bool create);
-bool MEDIA_set_state(void *_object, int state, bool error);
+bool MEDIA_set_state(void *_object, int state, bool error, bool async);
 
 bool MEDIA_get_flag(void *element, char *property, int flag);
 void MEDIA_set_flag(void *element, char *property, int flag, bool value);

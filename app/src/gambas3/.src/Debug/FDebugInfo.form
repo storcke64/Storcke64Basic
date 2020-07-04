@@ -15,7 +15,7 @@
   { wizDebug Wizard
     MoveScaled(2,5,122,41)
     Arrangement = Arrange.Vertical
-    Count = 7
+    Count = 8
     ShowTitle = False
     ShowButton = False
     Border = False
@@ -24,62 +24,62 @@
     { panDebug HBox
       MoveScaled(2,1,112,36)
       Expand = True
-      { lvwStack ListView
-        MoveScaled(5,2,16,33)
-        Mouse = Mouse.Pointing
-        Border = False
-      }
-      { Separator2 Separator
-        MoveScaled(27,2,0,23)
-      }
-      { Panel7 VBox
-        MoveScaled(32,2,74,32)
+      { splDebug HSplit
+        MoveScaled(6,1,94,34)
         Expand = True
-        { panWatch HBox
-          MoveScaled(1,1,71,3)
-          Drop = True
-          { Panel5 HBox
-            MoveScaled(1,0,41,3)
-            Background = Color.TextBackground
-            Expand = True
-            { btnKillWatch ToolButton
-              MoveScaled(0,0,3,3)
-              ToolTip = ("Remove current expression")
-              Picture = Picture["icon:/tiny/remove"]
-            }
-            { btnAddWatch ToolButton
-              MoveScaled(3,0,3,3)
-              ToolTip = ("Add expression")
-              Picture = Picture["icon:/tiny/watch"]
-            }
-            { cmbWatch ComboBox
-              MoveScaled(6,0,27,3)
-              Expand = True
-              Border = False
-            }
-          }
-          { Separator6 Separator
-            MoveScaled(52,0,0,3)
-          }
-          { btnShowMe ToolButton
-            MoveScaled(56,0,4,3)
-            #Translate = False
-            Font = Font["-1"]
-            ToolTip = "Display ME"
-            Text = "ME"
-          }
-          { Separator3 Separator
-            MoveScaled(63,0,0,3)
-          }
-        }
-        { Separator4 Separator
-          MoveScaled(4,11,30,0)
-        }
-        { cvwVariable ColumnView
-          MoveScaled(2,13,42,18)
-          Expand = True
-          Header = False
+        { lvwStack ListView
+          MoveScaled(0,0,14,33)
+          Mouse = Mouse.Pointing
           Border = False
+        }
+        { Panel7 VBox
+          MoveScaled(16,1,74,32)
+          { panWatch HBox
+            MoveScaled(1,1,71,3)
+            Drop = True
+            { Panel5 HBox
+              MoveScaled(1,0,41,3)
+              Background = Color.TextBackground
+              Expand = True
+              { btnKillWatch ToolButton
+                MoveScaled(0,0,3,3)
+                ToolTip = ("Remove current expression")
+                Picture = Picture["icon:/tiny/remove"]
+              }
+              { btnAddWatch ToolButton
+                MoveScaled(3,0,3,3)
+                ToolTip = ("Add expression")
+                Picture = Picture["icon:/tiny/watch"]
+              }
+              { cmbWatch ComboBox
+                MoveScaled(6,0,27,3)
+                Expand = True
+                Border = False
+              }
+            }
+            { Separator6 Separator
+              MoveScaled(52,0,0,3)
+            }
+            { btnShowMe ToolButton
+              MoveScaled(56,0,4,3)
+              #Translate = False
+              Font = Font["-1"]
+              ToolTip = "Display ME"
+              Text = "ME"
+            }
+            { Separator3 Separator
+              MoveScaled(63,0,0,3)
+            }
+          }
+          { Separator4 Separator
+            MoveScaled(4,11,30,0)
+          }
+          { cvwVariable ColumnView
+            MoveScaled(2,13,42,18)
+            Expand = True
+            Header = False
+            Border = False
+          }
         }
       }
       { Panel4 Panel
@@ -89,7 +89,7 @@
     Index = 1
     Text = ("Console")
     { panConsole Panel
-      MoveScaled(5,4,24,24)
+      MoveScaled(1,1,113,24)
       Expand = True
       Arrangement = Arrange.Fill
     }
@@ -182,95 +182,62 @@
       #MoveScaled(73,17)
     }
     Index = 5
-    Text = ("Search result")
-    { panSearch HBox
-      MoveScaled(1,0,83,4)
-      { btnCancelSearch ToolButton
-        MoveScaled(0,0,10,4)
-        Visible = False
-        ToolTip = ("Cancel current search")
+    Text = ("Unit tests")
+    { panTest HBox
+      MoveScaled(0,0,119,4)
+      { btnTestClear ToolButton
+        MoveScaled(0,0,4,4)
+        ToolTip = ("Clear console")
+        Picture = Picture["icon:/small/clear"]
+      }
+      { btnTest ToolButton
+        MoveScaled(5,0,14,4)
         AutoResize = True
-        Text = ("Cancel")
-        Picture = Picture["icon:/small/halt"]
-      }
-      { btnCloseSearch ToolButton
-        MoveScaled(11,0,10,4)
-        AutoResize = True
-        Text = ("Close")
-        Picture = Picture["icon:/small/close"]
-      }
-      { btnRefreshSearch ToolButton
-        MoveScaled(22,0,18,4)
-        AutoResize = True
-        Text = ("Search again")
-        Picture = Picture["icon:/small/refresh"]
-      }
-      { btnShowSearch ToolButton
-        MoveScaled(41,0,19,4)
-        AutoResize = True
-        Text = ("Show search window")
-        Picture = Picture["icon:/small/find"]
-      }
-      { Panel1 Panel
-        MoveScaled(62,0,2,4)
-        Expand = True
-      }
-      { lblBrowse Label
-        MoveScaled(66,0,11,4)
-        Font = Font["Italic"]
-        Padding = 4
-        AutoResize = True
-      }
-      { panButtonSearch Panel
-        MoveScaled(78,0,4,4)
+        Text = ("Run test")
+        Picture = Picture["icon:/small/ok"]
       }
     }
-    { Separator5 Separator
-      MoveScaled(35,5,8,0)
+    { Separator2 Separator
+      MoveScaled(19,6,34,0)
     }
-    { panBrowse Panel
-      MoveScaled(1,9,79,22)
+    { trmTest TerminalView
+      MoveScaled(1,8,69,27)
       Expand = True
-      Arrangement = Arrange.Fill
-      { gvwFind GridView
-        MoveScaled(23,4,47,16)
-        Visible = False
-        Border = False
-        Mode = Select.Single
-        Header = GridView.Horizontal
-      }
-      { lblNotFound TextLabel
-        MoveScaled(1,1,26,12)
-        Visible = False
-        Font = Font["Bold,+2"]
-        Padding = 8
-        Text = ("Search string cannot be found.")
-      }
+      Border = False
+      Limit = 65536
+      Blink = True
+      ShowScrollBar = True
+      ReadOnly = True
     }
     Index = 6
     Text = ("Version control")
     { panVersionControl HBox
       MoveScaled(0,0,119,4)
+      { btnVcClear ToolButton
+        MoveScaled(0,0,4,4)
+        ToolTip = ("Clear console")
+        Picture = Picture["icon:/small/clear"]
+      }
       { btnVcCommit ToolButton
-        MoveScaled(0,0,12,4)
+        MoveScaled(9,0,12,4)
         AutoResize = True
         Text = ("Commit") & "..."
         Picture = Picture["icon:/small/upload"]
       }
       { btnVcUpdate ToolButton
-        MoveScaled(13,0,15,4)
+        MoveScaled(20,0,15,4)
         AutoResize = True
         Text = ("Synchronize")
-        Picture = Picture["icon:/small/refresh"]
+        Picture = Picture["icon:/small/download"]
       }
       { btnVcRevert ToolButton
-        MoveScaled(29,0,20,4)
+        MoveScaled(34,0,20,4)
         AutoResize = True
         Text = ("Revert all changes")
         Picture = Picture["icon:/small/undo"]
       }
       { btnVcAddAll ToolButton
-        MoveScaled(50,0,27,4)
+        MoveScaled(54,0,27,4)
         AutoResize = True
         Text = ("Add everything to repository")
         Picture = Picture["icon:/small/add"]
@@ -307,6 +274,78 @@
       Border = False
       Limit = 65536
       Blink = True
+      ReadOnly = True
+    }
+    Index = 7
+    Text = ("Search result")
+    { panSearch HBox
+      MoveScaled(1,0,97,4)
+      { btnCancelSearch ToolButton
+        MoveScaled(0,0,10,4)
+        Visible = False
+        ToolTip = ("Cancel current search")
+        AutoResize = True
+        Text = ("Cancel")
+        Picture = Picture["icon:/small/halt"]
+      }
+      { btnCloseSearch ToolButton
+        MoveScaled(11,0,10,4)
+        AutoResize = True
+        Text = ("Close")
+        Picture = Picture["icon:/small/close"]
+      }
+      { btnShowSearch ToolButton
+        MoveScaled(21,0,21,4)
+        AutoResize = True
+        Text = ("Show search window")
+        Picture = Picture["icon:/small/find"]
+      }
+      { btnRefreshSearch ToolButton
+        MoveScaled(43,0,18,4)
+        AutoResize = True
+        Text = ("Search again")
+        Picture = Picture["icon:/small/refresh"]
+      }
+      { Panel1 Panel
+        MoveScaled(62,0,2,4)
+        Expand = True
+      }
+      { lblBrowse Label
+        MoveScaled(73,0,11,4)
+        Font = Font["Italic"]
+        Padding = 4
+        AutoResize = True
+      }
+      { spnSearch Spinner
+        MoveScaled(86,0,4,4)
+        Visible = False
+        Padding = 4
+      }
+      { panButtonSearch Panel
+        MoveScaled(90,0,4,4)
+      }
+    }
+    { Separator5 Separator
+      MoveScaled(35,5,8,0)
+    }
+    { panBrowse Panel
+      MoveScaled(1,9,79,22)
+      Expand = True
+      Arrangement = Arrange.Fill
+      { gvwFind GridView
+        MoveScaled(23,4,47,16)
+        Visible = False
+        Border = False
+        Mode = Select.Single
+        Header = GridView.Horizontal
+      }
+      { lblNotFound TextLabel
+        MoveScaled(1,1,26,12)
+        Visible = False
+        Font = Font["Bold,+2"]
+        Padding = 8
+        Text = ("Search string cannot be found.")
+      }
     }
     Index = 0
   }

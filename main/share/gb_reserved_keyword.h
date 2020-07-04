@@ -116,6 +116,7 @@ COMP_INFO COMP_res_info[] =
 	{ "Print"                                                     },
 	{ "Input"                                                     },
 	{ "Read",         RSF_PREV,                 0,          7     },
+	{ "Peek",                                                     },
 	{ "Write"                                                     },
 	{ "Open"                                                      },
 	{ "Close"                                                     },
@@ -437,7 +438,9 @@ SUBR_INFO COMP_subr_info[] =
 	{ ".Error",            53,  0, T_BOOLEAN,      0     },
 	{ ".Debug",            54,  0, T_VOID,         0,  1 },  // CODE_DEBUG
 
-	{ ".Wait",             55,  0, T_VOID,         0,  1 },
+	{ ".Wait",             55,  0, T_VOID,         0     },
+	{ ".WaitDelay",        55,  1, T_VOID,         1     },
+	{ ".WaitNext",         55,  2, T_VOID,         0     },
 
 	{ ".Open",             56,  0, T_OBJECT,       2     },
 	{ ".OpenMemory",       56,  1, T_OBJECT,       2     },
@@ -447,6 +450,7 @@ SUBR_INFO COMP_subr_info[] =
 	{ ".Print",            60,  0, T_VOID,         1, 63 },
 	{ ".Read",             61,  0, RST_READ,       2,    },
 	{ ".ReadBytes",        61,  1, T_STRING,       2,    },
+	{ ".Peek",             61,  2, T_STRING,       2,    },
 	{ ".Write",            62,  0, T_VOID,         3,    },
 	{ ".WriteBytes",       62,  1, T_VOID,         3,    },
 	{ ".Flush",            63,  0, T_VOID,         1     },

@@ -378,6 +378,8 @@ Public Sub txtEnter_KeyPress()
   Else If Key.Code = Key.End And If Key.Control Then
     trmOutput.Goto(0, trmOutput.Count - 1)
     Stop Event
+  Else If Key.Code = Key.Escape Then
+    Action["console"].Value = False
   Endif
 
 End

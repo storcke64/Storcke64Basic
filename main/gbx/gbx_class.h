@@ -298,7 +298,7 @@ typedef
 		unsigned has_operators : 1;       //          If the _operators interface is implemented
 		unsigned is_simple : 1;           //          Class has no parent, no child, is not virtual, and has no 'check' function.
 		unsigned has_free : 1;            //          The class has a free function
-		unsigned _reserved : 1;           //  24  36
+		unsigned is_test : 1;             //  24  36  The class is a test module
 
 		short n_desc;                     //  26  38  number of descriptions
 		short n_event;                    //  28  40  number of events
@@ -327,19 +327,19 @@ typedef
 		uint _reserved2;                  //     128
 		#endif
 
-		short special[12];                // 100 152  special functions index (_new, _free, ...)
+		short special[16];                // 108 160  special functions index (_new, _free, ...)
 
-		TYPE array_type;                  // 104 160  datatype of the contents if this class is an array class of objects
-		struct _CLASS *array_class;       // 108 168  array of class
-		struct _CLASS *astruct_class;     // 112 176  array of struct class
+		TYPE array_type;                  // 112 168  datatype of the contents if this class is an array class of objects
+		struct _CLASS *array_class;       // 116 176  array of class
+		struct _CLASS *astruct_class;     // 120 184  array of struct class
 
-		void *instance;                   // 116 184  automatically created instance
-		void **operators;                 // 120 192  arithmetic interface
-		bool (*convert)();                // 124 200  convert method
+		void *instance;                   // 124 192  automatically created instance
+		void **operators;                 // 128 200  arithmetic interface
+		bool (*convert)();                // 132 208  convert method
 
-		COMPONENT *component;             // 128 208  The component the class belongs to
+		COMPONENT *component;             // 136 216  The component the class belongs to
 
-		struct _CLASS *next;              // 132 216  next class
+		struct _CLASS *next;              // 140 224  next class
 		}
 	CLASS;
 
@@ -365,7 +365,9 @@ typedef
 		SPEC_COMPARE,
 		SPEC_ATTACH,
 		SPEC_READY,
-		MAX_SPEC = 11
+		SPEC_READ,
+		SPEC_WRITE,
+		SPEC_INVALID
 		}
 	CLASS_SPECIAL;
 
@@ -389,9 +391,11 @@ typedef
 	enum
 	{
 		CI_EXPORTED = 1,
-		CI_AUTOCREATE = 2,
+		CI_AUTO_CREATE = 2,
 		CI_OPTIONAL = 4,
-		CI_NOCREATE = 8
+		CI_NO_CREATE = 8,
+		CI_HAS_FAST = 16,
+		CI_TEST = 32
 	}
 	CLASS_INFO_FLAG;
 
@@ -458,8 +462,8 @@ char *CLASS_get_name(CLASS *class);
 CLASS_DESC_SYMBOL *CLASS_get_symbol(CLASS *class, const char *name);
 CLASS_DESC *CLASS_get_symbol_desc(CLASS *class, const char *name);
 
-short CLASS_get_symbol_index_kind(CLASS *class, const char *name, int kind, int kind2);
-CLASS_DESC *CLASS_get_symbol_desc_kind(CLASS *class, const char *name, int kind, int kind2);
+//short CLASS_get_symbol_index_kind(CLASS *class, const char *name, int kind, int kind2);
+CLASS_DESC *CLASS_get_symbol_desc_kind(CLASS *class, const char *name, int kind, int kind2, TYPE type);
 CLASS_DESC_METHOD *CLASS_get_special_desc(CLASS *class, int spec);
 
 #define CLASS_get_desc(_class, _index) (((_class)->table[_index].desc))

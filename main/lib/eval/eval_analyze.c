@@ -651,8 +651,12 @@ static void analyze(EVAL_ANALYZE *result)
 			}
 			else if (type == RT_RESERVED)
 			{
-				if (PATTERN_is(*pattern, RS_NULL)
-						|| PATTERN_is(*pattern, RS_TRUE)
+				if (PATTERN_is(*pattern, RS_NULL))
+				{
+					if (!(old_type == RT_RESERVED && PATTERN_is(pattern[-1], RS_OPEN)))
+						type = RT_CONSTANT;
+				}
+				else if (PATTERN_is(*pattern, RS_TRUE)
 						|| PATTERN_is(*pattern, RS_FALSE)
 						|| PATTERN_is(*pattern, RS_PINF)
 						|| PATTERN_is(*pattern, RS_MINF))

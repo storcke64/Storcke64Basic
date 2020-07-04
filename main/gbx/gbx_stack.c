@@ -159,3 +159,26 @@ STACK_BACKTRACE *STACK_get_backtrace(void)
 	 
 	return bt;
 }
+
+STACK_BACKTRACE *STACK_copy_backtrace(STACK_BACKTRACE *bt)
+{
+	STACK_BACKTRACE *copy;
+	int i, n;
+	
+	for (i = 0;; i++)
+	{
+		if (STACK_backtrace_is_end(&bt[i]))
+		{
+			n = i + 1;
+			break;
+		}
+	}
+	
+	ALLOC(&copy, sizeof(STACK_BACKTRACE) * n);
+	
+	for (i = 0; i <n; i++)
+		copy[i] = bt[i];
+	
+	return copy;
+}
+

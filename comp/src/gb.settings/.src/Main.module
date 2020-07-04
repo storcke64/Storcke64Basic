@@ -2,6 +2,18 @@
 
 Public Sub Main()
 
+  Dim hSettings As Settings
+
+  hSettings = New Settings("~/test.conf")
+  'hSettings["/TestSuites/Count"] = 10
+  ' For I = 1 To 10
+  '   hSettings["/TestSuites/" & CStr(I) &/ "Name"] = "Name" & CStr(I)
+  '   hSettings["/TestSuites/" & CStr(I) &/ "Tests"] = Rnd
+  ' Next
+  ' hSettings.Save
+  hSettings.Clear("/TestSuites", True)
+  hSettings.Save
+
 End
 
 ' Private Sub Dump(hSettings As Settings)

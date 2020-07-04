@@ -795,7 +795,7 @@ _PUSH_MISC:
 	{
 		static const void *_jump[] =
 			{ &&__PUSH_NULL, &&__PUSH_VOID, &&__PUSH_FALSE, &&__PUSH_TRUE, &&__PUSH_LAST, &&__PUSH_STRING, &&__PUSH_PINF, &&__PUSH_MINF, &&__PUSH_COMPLEX,
-				&&__PUSH_VARGS, &&__PUSH_DROP_VARGS, &&__JIT_RETURN };
+				&&__PUSH_VARGS, &&__PUSH_DROP_VARGS, &&__JIT_RETURN, &&__PUSH_END_VARGS };
 			//, &&__POP_LAST };
 
 		goto *_jump[GET_UX()];
@@ -830,7 +830,7 @@ _PUSH_MISC:
 
 		SP->type = T_OBJECT;
 		SP->_object.object = EVENT_Last;
-		OBJECT_REF(EVENT_Last);
+		OBJECT_REF_CHECK(EVENT_Last);
 		SP++;
 		goto _NEXT;
 
@@ -873,6 +873,11 @@ _PUSH_MISC:
 		
 	__JIT_RETURN:
 		return;
+		
+	__PUSH_END_VARGS:
+	
+		EXEC_end_vargs();
+		goto _NEXT;
 
 	/*__POP_LAST:
 
@@ -1636,7 +1641,7 @@ _PUSH_FUNCTION:
 	SP->_function.index = GET_7XX();
 	SP->_function.defined = TRUE;
 
-	OBJECT_REF(OP);
+	OBJECT_REF_CHECK(OP);
 	SP++;
 
 	goto _NEXT;
@@ -3967,20 +3972,20 @@ void EXEC_quit(ushort code)
 {
 	switch(code & 3)
 	{
-		case 0:
+		case 0: // QUIT
 			EXEC_do_quit();
 			break;
 
-		case 1:
+		case 1: // STOP
 			if (EXEC_debug && CP) // && CP->component == COMPONENT_main)
 				DEBUG.Breakpoint(0);
 			break;
 
-		case 2:
+		case 2: // STOP EVENT
 			GAMBAS_StopEvent = TRUE;
 			break;
 
-		case 3:
+		case 3: // QUIT <return value>
 			VALUE_conv(&SP[-1], T_BYTE);
 			SP--;
 			EXEC_quit_value = (uchar)SP->_integer.value;

@@ -175,7 +175,7 @@ static void READ_exit(void)
 		}
 	}
 
-	if (JOB->verbose)
+	if (COMP_verbose)
 		printf("\n");
 }
 

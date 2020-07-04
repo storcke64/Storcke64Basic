@@ -1,5 +1,7 @@
 ' Gambas class file
 
+' TODO: Vérifier si la variable d'environnement EDITOR est bien disponible
+
 Inherits CVersionControl
 Create Static
 
@@ -188,7 +190,7 @@ Public Sub Commit(sChange As String, (bDoNotPush) As Boolean) As Boolean
 
 End
 
-Public Sub Update() As Boolean
+Public Sub Update() As Integer
 
   Return VersionControl.Run(["svn", "update", SvnPath$($sRealDir), "--accept", "postpone"], True)
 
@@ -204,8 +206,6 @@ Public Sub Revert(Optional sPath As String) As Boolean
   Return Process.LastValue
 
 End
-
-
 
 Public Sub InConflict(sPath As String) As Boolean
 
@@ -257,12 +257,18 @@ Public Sub GetVersion(sDir As String) As String
 
 End
 
-Public Sub Diff(sPath As String) As String
+Public Sub Diff(sPath As String, Optional (bFull) As Boolean) As String
 
   Dim sDiff As String
 
   sDiff = VersionControl.Shell("svn diff " & Shell$(SvnPath$(sPath)))
   Return sDiff
+
+End
+
+Public Sub History(sPath As String, Optional (bFull) As Boolean) As String
+
+  Return VersionControl.Shell("svn log " & Shell$(SvnPath$(sPath)))
 
 End
 

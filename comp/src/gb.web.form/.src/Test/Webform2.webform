@@ -6,10 +6,10 @@
   Arrangement = Arrange.Vertical
   Title = ("This is webform2")
   { WebMenuBar1 WebMenuBar
-    #MoveScaled(1,1,136,48)
+    #MoveScaled(1,1,136,51)
     Spacing = True
     { WebMenu3 WebMenu
-      #MoveScaled(1,1,32,46)
+      #MoveScaled(1,1,32,49)
       Text = ("File")
       { WebMenuItem7 WebMenuItem
         #MoveScaled(1,1,30,4)
@@ -56,13 +56,13 @@
       { WebSeparator5 WebSeparator
         #MoveScaled(1,35,30,2)
       }
-      { WebMenuItem12 WebMenuItem
+      { WebMenuItem6 WebMenuItem
         #MoveScaled(1,37,30,4)
         Text = ("Quit")
       }
     }
     { WebMenu1 WebMenu
-      #MoveScaled(34,1,30,46)
+      #MoveScaled(34,1,30,49)
       Text = ("Project")
       { WebMenuItem2 WebMenuItem
         #MoveScaled(1,1,28,4)
@@ -93,41 +93,42 @@
     }
   }
   { WebContainer1 WebHBox
-    #MoveScaled(1,49,136,6)
+    #MoveScaled(1,52,136,6)
+    Spacing = True
     { WebButton1 WebButton
       #MoveScaled(1,1,13,4)
       Text = ("A button")
     }
     { WebButton2 WebButton
-      #MoveScaled(14,1,13,4)
+      #MoveScaled(15,1,13,4)
       Border = False
       Text = ("Add window")
     }
     { WebButton7 WebButton
-      #MoveScaled(27,1,13,4)
+      #MoveScaled(29,1,13,4)
       Border = False
       Text = ("Warning")
     }
     { WebButton6 WebButton
-      #MoveScaled(40,1,13,4)
+      #MoveScaled(43,1,13,4)
       Border = False
       Text = ("Toggle timer")
     }
     { WebButton8 WebButton
-      #MoveScaled(53,1,13,4)
+      #MoveScaled(57,1,13,4)
       Visible = False
       Text = ("Hidden")
     }
     { WebContainer6 WebContainer
-      #MoveScaled(66,1,42,4)
+      #MoveScaled(71,1,42,4)
       Expand = True
     }
     { WebLabel1 WebLabel
-      #MoveScaled(108,1,15,4)
+      #MoveScaled(114,1,15,4)
     }
   }
   { WebContainer9 WebContainer
-    #MoveScaled(1,55,136,88)
+    #MoveScaled(1,58,136,88)
     Expand = True
     Arrangement = Arrange.Vertical
     Margin = True

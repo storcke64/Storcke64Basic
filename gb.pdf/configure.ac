@@ -7,13 +7,9 @@ AC_CONFIG_MACRO_DIR([m4])
 GB_INIT(gb.pdf)
 AC_PROG_LIBTOOL
 
-GB_COMPONENT_SEARCH(
+GB_COMPONENT_PKG_CONFIG(
   poppler, POPPLER, gb.pdf, [src],
-  'poppler >= 0.20',
-  [GB_FIND(PDFDoc.h, `pkg-config --variable=includedir poppler`, poppler)],
-  [],
-  [],
-  []
+  'poppler >= 0.20'
 )
 
 if test "$have_poppler" = "yes"; then
@@ -29,6 +25,10 @@ if test "$have_poppler" = "yes"; then
   AC_DEFINE_UNQUOTED(POPPLER_VERSION_0_76, $((1-$?)), Poppler version >= 0.76)
   pkg-config --atleast-version=0.83.0 poppler
   AC_DEFINE_UNQUOTED(POPPLER_VERSION_0_83, $((1-$?)), Poppler version >= 0.83)
+  pkg-config --atleast-version=0.85.0 poppler
+  AC_DEFINE_UNQUOTED(POPPLER_VERSION_0_85, $((1-$?)), Poppler version >= 0.85)
+  pkg-config --atleast-version=0.85.0 poppler
+  AC_DEFINE_UNQUOTED(POPPLER_VERSION_0_86, $((1-$?)), Poppler version >= 0.86)
 fi
 
 AC_OUTPUT( \

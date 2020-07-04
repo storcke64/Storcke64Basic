@@ -60,6 +60,7 @@ char **PROJECT_argv = NULL;
 char *PROJECT_oldcwd = NULL;
 
 bool PROJECT_run_httpd = FALSE;
+bool PROJECT_run_tests = FALSE;
 
 static char *project_buffer;
 
@@ -390,7 +391,7 @@ void PROJECT_load_finish(void)
 	ARCHIVE_load_main();
 
 	// Startup class
-	PROJECT_class = CLASS_find(PROJECT_startup);
+	PROJECT_class = CLASS_find(PROJECT_run_tests ? "Test" : PROJECT_startup);
 }
 
 void PROJECT_exit(void)

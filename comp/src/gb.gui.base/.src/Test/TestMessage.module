@@ -1,7 +1,10 @@
 ' Gambas module file
 
+Use "gb.form"
+Use "gb.form.stock"
+
 Public Sub Main()
 
-  Print Message.Question("Ceci est un message d'avertissement dont le texte est tout spécialement long afin de tester la boite de dialogue. Toutes les modifications non enregistrées seront perdues !", "Sauvegarder", "Envoyer", "Annuler")
+  Print Message.Question("Ceci est un <i>message d'avertissement</i> dont le texte est <b>tout spécialement long</b> afin de tester la boite de dialogue. Toutes les modifications non enregistrées seront perdues !", "Sauvegarder", "Envoyer", "Annuler")
 
 End

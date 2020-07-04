@@ -362,8 +362,8 @@ void VALUE_convert(VALUE *value, TYPE type)
 	/* g      */ { &&__N,     &&__g2b,   &&__g2c,   &&__g2h,   &&__g2i,   &&__g2l,   &&__OK,    &&__g2f,   &&__g2d,   &&__g2s,   &&__g2s,   &&__N,     &&__2v,    &&__N,     &&__N,     &&__N,     },
 	/* f      */ { &&__N,     &&__f2b,   &&__f2c,   &&__f2h,   &&__f2i,   &&__f2l,   &&__f2g,   &&__OK,    &&__f2d,   &&__f2s,   &&__f2s,   &&__N,     &&__2v,    &&__N,     &&__N,     &&__N,     },
 	/* d      */ { &&__N,     &&__d2b,   &&__d2c,   &&__d2h,   &&__d2i,   &&__d2l,   &&__d2g,   &&__d2f,   &&__OK,    &&__d2s,   &&__d2s,   &&__N,     &&__2v,    &&__N,     &&__N,     &&__N,     },
-	/* cs     */ { &&__N,     &&__s2b,   &&__s2c,   &&__s2h,   &&__s2i,   &&__s2l,   &&__s2g,   &&__s2f,   &&__s2d,   &&__OK,    &&__OK,    &&__N,     &&__s2v,   &&__N,     &&__N,     &&__N,     },
-	/* s      */ { &&__N,     &&__s2b,   &&__s2c,   &&__s2h,   &&__s2i,   &&__s2l,   &&__s2g,   &&__s2f,   &&__s2d,   &&__OK,    &&__OK,    &&__N,     &&__s2v,   &&__N,     &&__N,     &&__N,     },
+	/* cs     */ { &&__N,     &&__s2b,   &&__s2c,   &&__s2h,   &&__s2i,   &&__s2l,   &&__s2g,   &&__s2f,   &&__s2d,   &&__OK,    &&__OK,    &&__s2p,   &&__s2v,   &&__N,     &&__N,     &&__N,     },
+	/* s      */ { &&__N,     &&__s2b,   &&__s2c,   &&__s2h,   &&__s2i,   &&__s2l,   &&__s2g,   &&__s2f,   &&__s2d,   &&__OK,    &&__OK,    &&__s2p,   &&__s2v,   &&__N,     &&__N,     &&__N,     },
 	/* p      */ { &&__N,     &&__p2b,   &&__N,     &&__N,     &&__p2i,   &&__p2l,   &&__N,     &&__N,     &&__N,     &&__p2s,   &&__p2s,   &&__OK,    &&__2v,    &&__N,     &&__N,     &&__N,     },
 	/* v      */ { &&__N,     &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__v2,    &&__OK,    &&__N,     &&__v2,    &&__v2,    },
 	/* func   */ { &&__N,     &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__func,  &&__F2p,   &&__func,  &&__OK,    &&__N,     &&__func,  },
@@ -756,6 +756,12 @@ __s2d:
 
 	STRING_unref(&addr);
 	return;
+	
+__s2p:
+
+	value->_pointer.value = value->_string.addr + value->_string.start;
+	value->type = T_POINTER;
+	return;
 
 __n2b:
 
@@ -928,7 +934,7 @@ __OBJECT:
 				{
 					if (!((*class->convert)(NULL, value->type, value)))
 					{
-						OBJECT_REF(value->_object.object);
+						OBJECT_REF_CHECK(value->_object.object);
 						goto __TYPE;
 					}
 				}
@@ -970,7 +976,7 @@ __RETRY:
 		if (!((*class->convert)(value->_object.object, type, value)))
 		{
 			OBJECT_UNREF(unref);
-			OBJECT_REF(value->_object.object);
+			OBJECT_REF_CHECK(value->_object.object);
 			goto __TYPE;
 		}
 	}
@@ -982,7 +988,7 @@ __RETRY:
 		if (!((*class2->convert)(NULL, OBJECT_class(unref), value)))
 		{
 			OBJECT_UNREF(unref);
-			OBJECT_REF(value->_object.object);
+			OBJECT_REF_CHECK(value->_object.object);
 			goto __TYPE;
 		}
 	}
@@ -1052,7 +1058,7 @@ __OBJECT:
 __CLASS:
 {
 	void *object = value->_variant.value._object;
-	OBJECT_REF(object);
+	OBJECT_REF_CHECK(object);
 	VARIANT_free((VARIANT *)addr);
 	((VARIANT *)addr)->type = type;
 	((VARIANT *)addr)->value._object = object;
@@ -1143,7 +1149,7 @@ __OBJECT:
 
 	VALUE_conv(value, type);
 
-	OBJECT_REF(value->_object.object);
+	OBJECT_REF_CHECK(value->_object.object);
 	OBJECT_UNREF(*((void **)addr));
 	*((void **)addr) = value->_object.object;
 	return;
@@ -1517,7 +1523,7 @@ void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)
 
 		VALUE_conv(value, type);
 
-		OBJECT_REF(value->_object.object);
+		OBJECT_REF_CHECK(value->_object.object);
 		OBJECT_UNREF(*((void **)addr));
 		*((void **)addr) = value->_object.object;
 		//VALUE_write(value, addr, (ctype.value >= 0) ? (TYPE)class->load->class_ref[ctype.value] : T_OBJECT);

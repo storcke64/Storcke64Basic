@@ -2,7 +2,6 @@
 
 { Form Form
   MoveScaled(0,0,95,89)
-  Text = ("Commit")
   Icon = Picture["icon:/small/save"]
   Arrangement = Arrange.Vertical
   Spacing = True
@@ -11,7 +10,7 @@
     MoveScaled(1,1,59,54)
     Expand = True
     Arrangement = Arrange.Fill
-    Count = 3
+    Count = 4
     Index = 0
     Text = ("Journal")
     { edtJournal TextEditor
@@ -21,13 +20,30 @@
     Index = 1
     Text = ("Changes")
     { edtDiff TextEditor
-      MoveScaled(11.875,12.75,16,16)
+      MoveScaled(12,23,16,16)
       Border = False
       Highlight = "Diff"
       ReadOnly = True
       Wrap = True
     }
+    { txtDiffNothing TextLabel
+      MoveScaled(4,3,43,13)
+      Visible = False
+      Font = Font["Italic,+4"]
+      Padding = 16
+      Text = ("There is nothing to commit.")
+      Alignment = Align.TopLeft
+    }
     Index = 2
+    Text = ("History")
+    { edtHistory TextEditor
+      MoveScaled(12,10,16,16)
+      Border = False
+      Highlight = "Custom"
+      ReadOnly = True
+      Wrap = True
+    }
+    Index = 3
     Text = ("Terminal")
     { trmShell TerminalView
       MoveScaled(11.25,13.75,16,16)
