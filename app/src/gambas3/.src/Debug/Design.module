@@ -429,6 +429,12 @@ Public Sub Process_Kill()
   Dim bTest As Boolean
 
   bTest = $bTest
+  
+  If bTest Then
+    FDebugInfo.GetTestTerminal().EnsureVisible()
+  Else
+    FOutput.GetTerminal().EnsureVisible()
+  Endif
     
   If Not Project.AboutToQuit Then AfterStop
   
@@ -848,11 +854,9 @@ Private Sub GetTestSuite() As String
 
   hSettings = New Settings(Project.Dir &/ ".test")
   iSuite = hSettings["/TestSuites/TestWith", 0]
-  If iSuite = 0 Then
-    sSuite = hSettings["/TestSuites/Default"]
-  Else
-    sSuite = hSettings["/TestSuites/" & CStr(iSuite) &/ "Tests"]
-  Endif
+  If iSuite > 0 Then Return "@" & hSettings["/TestSuites/" & CStr(iSuite) &/ "Name"]
+
+  sSuite = hSettings["/TestSuites/Default"]
   
   If Not sSuite Then
     aTest = Project.Tree.GetTestModules()
