@@ -257,10 +257,7 @@ Public Sub OnKeyPress(hEditor As TextEditor) As Boolean
       If Not InsideString(hEditor) Then
         
         If IsSpacePunctCar(hEditor.Current.Text, hEditor.Column) And If IsSpacePunctCar(hEditor.Current.Text, hEditor.Column + 1) Then
-          hEditor.SaveCursor()
-          hEditor.Insert(sText & sText)
-          hEditor.RestoreCursor()
-          hEditor.Goto(hEditor.Column + 1, hEditor.Line)
+          GoSub INSERT_STRING
           Return True
         Endif
         
@@ -273,12 +270,11 @@ Public Sub OnKeyPress(hEditor As TextEditor) As Boolean
             Return True
           Endif
         
-          hEditor.SaveCursor()
-          hEditor.Insert(sText & sText)
-          hEditor.RestoreCursor()
-          hEditor.Goto(hEditor.Column + 1, hEditor.Line)
-          Return True
-          
+          If IsSpacePunctCar(hEditor.Current.Text, hEditor.Column) And If IsSpacePunctCar(hEditor.Current.Text, hEditor.Column + 1) Then
+            GoSub INSERT_STRING
+            Return True
+          Endif
+            
         Endif
         
       Endif
@@ -286,6 +282,17 @@ Public Sub OnKeyPress(hEditor As TextEditor) As Boolean
     Endif
     
   Endif
+  
+  Return
+  
+INSERT_STRING:
+
+  hEditor.SaveCursor()
+  hEditor.Insert(sText & sText)
+  hEditor.RestoreCursor()
+  hEditor.Goto(hEditor.Column + 1, hEditor.Line)
+  Return
+
   
   '$bCanCloseBracesComputed = False
     
