@@ -48,7 +48,7 @@ Public Const _TRIGGER_GET_ALLTESTS As String = "#GetAllTests"
 '' 
 '' A test suite stored like that can be called by it's name with a preceeding "@", for example:
 '' 
-'' gbx3 -T "$My production testsuite1" /path/to/project
+'' gbx3 -T "@My production testsuite1" /path/to/project
 ''
 '' Public methods called "_Setup", "_Teardown", "_SetupEach" or "_TeardownEach" inside a testmodule 
 '' can be used to create a testfixture, which defines a special environment for the tests.
