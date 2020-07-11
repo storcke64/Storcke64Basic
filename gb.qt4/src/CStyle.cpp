@@ -36,11 +36,6 @@
 #include "CFont.h"
 #include "CScreen.h"
 
-#ifndef NO_X_WINDOW
-#include <QX11Info>
-#include "x11.h"
-#endif
-
 bool CSTYLE_fix_breeze = false;
 bool CSTYLE_fix_oxygen = false;
 

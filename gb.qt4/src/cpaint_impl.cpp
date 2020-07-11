@@ -37,10 +37,6 @@
 #include <QVector>
 #include <QTextDocument>
 
-#ifndef NO_X_WINDOW
-#include <QX11Info>
-#endif
-
 #include "gambas.h"
 
 #include "CConst.h"
