@@ -65,6 +65,10 @@
 	#undef Min
 #endif
 
+#ifdef pg_snprintf
+	#undef pg_snprintf
+#endif
+
 #include "gb.db.proto.h"
 #include "main.h"
 
