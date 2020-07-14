@@ -39,14 +39,20 @@
 
 #define __MAIN_C
 
+#include <libpq-fe.h>
+#include <postgres.h>
+#include <pg_type.h>
+
+#ifdef fprintf
+	#undef fprintf
+	#undef snprintf
+	#undef sprintf
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
-#include <libpq-fe.h>
-#include <postgres.h>
-#include <pg_type.h>
 
 #ifdef PACKAGE_NAME
 	#undef PACKAGE_NAME
