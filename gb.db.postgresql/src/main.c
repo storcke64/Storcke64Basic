@@ -65,6 +65,10 @@
 	#undef Min
 #endif
 
+#ifdef snprintf
+	#undef snprintf
+#endif
+
 #ifdef pg_snprintf
 	#undef pg_snprintf
 #endif
