@@ -413,7 +413,7 @@ Private Sub Tooltip_Write(Value As String)
   Dim hCtrl As Object
   
   For Each hCtrl In GetControls()
-    hCtrl.Tooltip = Value
+    Try hCtrl.Tooltip = Value
   Next
 
 End
