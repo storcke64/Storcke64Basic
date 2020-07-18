@@ -37,6 +37,28 @@ Private Sub OnVersionControlChange()
 
 End
 
+Private Sub GetTextEditor() As String
+
+  Dim sProg As String
+  
+  If Desktop.Is("kde4") Or If Desktop.Is("kde5") Then
+    sProg = "kwrite"
+  Else If Desktop.Is("xfce") Then
+    sProg = "mousepad"
+  Else If Desktop.Is("lxde") Then
+    sProg = "leafpad"
+  Else If Desktop.Is("mate") Then
+    sProg = "pluma"
+  Else
+    sProg = "gedit"
+  Endif
+  
+  For Each sProg In [sProg, "kwrite", "gedit", "emacs"]
+    If System.Exist(sProg) Then Return sProg
+  Next
+
+End
+
 Public Sub Refresh()
 
   $hVC = CVersionControl
@@ -55,6 +77,15 @@ Public Sub Refresh()
   $bAuth = False
   CheckPaths
   OnVersionControlChange
+  
+  If $bEnabled Then
+    If Not Env["EDITOR"] Then
+      Env["EDITOR"] = GetTextEditor()
+      If Not Env["EDITOR"] Then
+        Message.Warning(("Please set the $EDITOR environment variable with your favorite graphical text editor. Some version control commands need it."))
+      Endif
+    Endif
+  Endif
   
 End
 
