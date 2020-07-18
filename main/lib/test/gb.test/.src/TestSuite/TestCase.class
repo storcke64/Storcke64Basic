@@ -39,7 +39,7 @@ Public Sub Run()
     Assert $MyTestModule
 
     '$MyTestModule._SetupEach
-    If $MyTestModule.Symbols.Exist("_SetupEach") Then
+    If $MyTestModule.Symbols.Exist("_SetupEach", gb.IgnoreCase) Then
         Test._InSetup = True
         Object.Call($MyTestModule, "_SetupEach")
         Test._InSetup = False
@@ -50,7 +50,7 @@ Public Sub Run()
         Assert.Fail(Subst$("&1:&2 crashed with error '&3'", $MyTestModule.Name, Me.Name, Error.Text))
     Endif
 
-    If $MyTestModule.Symbols.Exist("_TeardownEach") Then
+    If $MyTestModule.Symbols.Exist("_TeardownEach", gb.IgnoreCase) Then
         Test._InSetup = True
         Object.Call($MyTestModule, "_TeardownEach")
         Test._InSetup = False

@@ -5,19 +5,19 @@
 Private $Done As New String[]
 
 
-Public Sub _Setup()
+Public Sub _SeTuP()
 
     $Done.Add("Setup")
 
 End
 
-Public Sub _SetupEach()
+Public Sub _SeTuPeAcH()
 
     $Done.Add("SetupEach")
 
 End
 
-Public Sub _TeardownEach()
+Public Sub _TeArDoWneAcH()
 
     $Done.Add("TeardownEach")
     
@@ -41,11 +41,12 @@ Public Sub B()
 
 End
 
-Public Sub _Teardown()
+Public Sub _TeArDoWn()
 
     $Done.Add("Teardown")
     If $Done.Join() <> "Setup,SetupEach,A,TeardownEach,SetupEach,B,TeardownEach,Teardown" Then
-        Test.BailOut("_Teardown failed")
+        'Assertion forbidden inside _Setup or _Teardown, so we can just bail out to report the failure
+        Test.BailOut("_Teardown failed. Expected '" & "Setup,SetupEach,A,TeardownEach,SetupEach,B,TeardownEach,Teardown'" & " but got '" & $Done.Join() & "'")
     Endif
     
 End

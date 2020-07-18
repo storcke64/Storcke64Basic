@@ -52,7 +52,7 @@ End Sub
 
 Private Sub StartTestModule(TestModule As Class)
 
-    If TestModule.Symbols.Exist("_Setup") Then
+    If TestModule.Symbols.Exist("_Setup", gb.IgnoreCase) Then
         Test._InSetup = True
         Object.Call(TestModule, "_Setup")
         Test._InSetup = False
@@ -62,7 +62,7 @@ End
 
 Private Sub StopTestModule(TestModule As Class)
 
-    If TestModule.Symbols.Exist("_Teardown") Then
+    If TestModule.Symbols.Exist("_Teardown", gb.IgnoreCase) Then
         Test._InSetup = True
         Object.Call(TestModule, "_Teardown")
         Test._InSetup = False
