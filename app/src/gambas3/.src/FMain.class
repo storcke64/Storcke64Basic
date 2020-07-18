@@ -1215,6 +1215,7 @@ Public Sub UpdateMenu()
   Dim bVisible As Boolean
   Dim bEnabled As Boolean
   Dim sAction As String
+  Dim sText As String
   
   bVisible = Not Project.ReadOnly
   bEnabled = Not Project.Running
@@ -1225,6 +1226,12 @@ Public Sub UpdateMenu()
     Action[sAction].Visible = bVisible
     Action[sAction].Enabled = bEnabled
   Next
+  
+  Action["run-with"].Enabled = bEnabled
+  
+  sText = If(Project.Running, ("Continue"), ("Run"))
+  mnuRun.Text = sText
+  Action["start"].Tooltip = sText
   
   UpdateProperty
   

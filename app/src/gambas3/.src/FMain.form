@@ -248,7 +248,7 @@
     Visible = False
     { mnuRun Menu
       Action = "start"
-      Text = Shortcut(("Run"), "R")
+      Text = ("Run")
       Picture = Picture["icon:/small/play"]
       Shortcut = "F5"
     }
@@ -1325,19 +1325,19 @@
               MoveScaled(86,8,0,9)
               Visible = False
             }
-            { btnWorkspaceProject ToolButton
-              MoveScaled(22,1,4,4)
-              Visible = False
-              ToolTip = ("Show project tree")
-              Ignore = True
-              Picture = Picture["icon:/small/view-tree"]
-            }
             { btnWorkspaceProperty ToolButton
               MoveScaled(27,1,4,4)
               Visible = False
               ToolTip = ("Show properties sheet")
               Ignore = True
               Picture = Picture["icon:/small/properties"]
+            }
+            { btnWorkspaceProject ToolButton
+              MoveScaled(22,1,4,4)
+              Visible = False
+              ToolTip = ("Show project tree")
+              Ignore = True
+              Picture = Picture["icon:/small/view-tree"]
             }
           }
           { panDebug SidePanel
@@ -1393,19 +1393,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyToolbar ToolButton
-              MoveScaled(0,0,4,4)
-              Visible = False
-              ToolTip = ("Show controls")
-              Ignore = True
-              Picture = Picture["img/16/control.png"]
-            }
             { btnPropertyHelp ToolButton
               MoveScaled(4,0,4,4)
               Visible = False
               ToolTip = ("Show property help")
               Ignore = True
               Picture = Picture["icon:/small/help"]
+            }
+            { btnPropertyToolbar ToolButton
+              MoveScaled(0,0,4,4)
+              Visible = False
+              ToolTip = ("Show controls")
+              Ignore = True
+              Picture = Picture["img/16/control.png"]
             }
           }
           { panTool SidePanel
