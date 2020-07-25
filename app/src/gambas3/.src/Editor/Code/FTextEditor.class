@@ -1538,7 +1538,10 @@ Public Sub Action_Activate((Key) As String) As Boolean
       UpdateDiffMode
       
     Case ".compress"
-      If Not $bIgnoreCompress Then Save(True)
+      If Not $bIgnoreCompress Then 
+        Modify()
+        Save(True)
+      Endif
     
     Case Else
       Return True
@@ -1877,6 +1880,8 @@ End
 Private Sub UpdateCompressAction()
 
   Dim sPath As String
+  Dim iSize As Long
+  Dim sComp As String
   
   If Not $bShowCompress Then Return
   
@@ -1885,7 +1890,13 @@ Private Sub UpdateCompressAction()
   Action[".compress", Me].Value = Exist(sPath)
   $bIgnoreCompress = False
   If Exist(sPath) Then
-    btnCompress.Tooltip = Subst(("Compressed at &1"), Format(Stat(Path).Size / Stat(sPath).Size, "0%"))
+    iSize = Stat(sPath).Size
+    If iSize Then
+      sComp = Format(Stat(Path).Size / Stat(sPath).Size, "0%")
+    Else
+      sComp = "100%"
+    Endif
+    btnCompress.Tooltip = Subst(("Compressed at &1"), sComp)
   Else
     btnCompress.Tooltip = ""
   Endif
