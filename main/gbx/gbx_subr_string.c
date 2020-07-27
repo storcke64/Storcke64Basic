@@ -70,7 +70,8 @@ void SUBR_cat(ushort code)
 					return;
 				}
 			
-				len = PARAM[0]._string.len ;
+				str = PARAM[0]._string.addr;
+				len = PARAM[0]._string.len;
 				
 				if (len && PARAM[0]._string.start == 0 && len == STRING_length(str) && STRING_from_ptr(str)->ref == 2)
 				{
