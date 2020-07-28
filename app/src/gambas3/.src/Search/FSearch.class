@@ -1453,6 +1453,12 @@ Public Sub timFillList_Timer()
   
   UpdateSearchList
   
+  If bUndo Then 
+    $bIgnoreFileChange = True
+    Try hFile.GetEditor().End
+    $bIgnoreFileChange = False
+  Endif
+
   If $sTaskBuffer Then Return
   If $hTask Then Return
   If $iReplaceFrom > 0 Then Return
@@ -1464,12 +1470,6 @@ Public Sub timFillList_Timer()
     Endif
   Endif
   
-  If bUndo Then 
-    $bIgnoreFileChange = True
-    Try hFile.GetEditor().End
-    $bIgnoreFileChange = False
-  Endif
-
   gvwFind.Columns[0].Width = -1
   gvwFind.Columns[1].Width = -1
   gvwFind.Columns[4].W = -1
