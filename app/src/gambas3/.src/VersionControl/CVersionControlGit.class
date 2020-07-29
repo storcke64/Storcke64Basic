@@ -84,7 +84,8 @@ Public Sub GetBranches(ByRef sCurrent As String) As String[]
       sBranch = Trim(Mid$(sBranch, 2))
       bCurrent = True
     Else
-      bCurrent = False      
+      bCurrent = False
+      If sBranch Begins "+ " Then sBranch = Mid$(sBranch, 3)
     Endif
     
     If sBranch Begins "remotes/origin/" Then
