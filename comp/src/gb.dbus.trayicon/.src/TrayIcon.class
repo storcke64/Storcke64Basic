@@ -219,9 +219,9 @@ Private Function PopupMenu_Read() As String
 
 End
 
-Private Sub UpdateMenu()
+Private Sub UpdateMenu() As Boolean
 
-  $hMenu._UpdateMenu(GetMenu())
+  Return $hMenu._UpdateMenu(GetMenu())
 
 End
 
@@ -299,8 +299,7 @@ End
 Public Sub _AboutToShow(hMenu As Menu) As Boolean
   
   Object.Raise(hMenu, "Show")
-  UpdateMenu
-  Return True
+  Return Not UpdateMenu()
   
 End
 

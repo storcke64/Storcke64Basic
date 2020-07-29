@@ -13,7 +13,9 @@ Property Read com_canonical_dbusmenu_IconThemePath As String[]
 Static Private ALL_PROPS As String[] = ["type", "label", "enabled", "visible", "toggle-type", "toggle-state", "icon-data", "shortcut", "children-display"]
 
 Private $aProp As New Collection[]
+Private $sProp As String
 Private $iRevision As Integer
+Private $hProp As File
 
 Private Function com_canonical_dbusmenu_Version_Read() As _DBusUInt
 
@@ -129,10 +131,13 @@ Private Sub UpdateMenuRec(hMenu As Menu, Optional bChild As Boolean) As Integer
   Dim aChild As Integer[]
   Dim aShortcut As String[]
   Dim sShortcut As String
+  Dim sPicture As String
   
   iId = $aProp.Count
   cProp["id"] = iId
+  Write #$hProp, iId As Integer
   cProp["menu"] = hMenu
+  Write #$hProp, Object.Address(hMenu) As Pointer
 
   'If iId > 0 Then
 
@@ -149,14 +154,20 @@ Private Sub UpdateMenuRec(hMenu As Menu, Optional bChild As Boolean) As Integer
     Endif
     sText = Replace(sText, "&&", "&")
     cProp["label"] = sText
+    Write #$hProp, hMenu.Text As String
     
     If Not hMenu.Enabled Then cProp["enabled"] = False
+    Write #$hProp, hMenu.Enabled As Boolean
+
     If bChild And If Not hMenu.Visible Then cProp["visible"] = False
+    Write #$hProp, hMenu.Visible As Boolean
     
     If hMenu.Picture Then
       sTemp = File.SetExt(Temp$("icon"), "png")
       hMenu.Picture.Save(sTemp)
-      cProp["icon-data"] = Byte[].FromString(File.Load(sTemp))
+      sPicture = File.Load(sTemp)
+      cProp["icon-data"] = Byte[].FromString(sPicture)
+      Write #$hProp, sPicture As String
       Kill sTemp
     Endif
     
@@ -167,20 +178,23 @@ Private Sub UpdateMenuRec(hMenu As Menu, Optional bChild As Boolean) As Integer
       cProp["toggle-type"] = "checkmark"
       cProp["toggle-state"] = If(hMenu.Value, 1, 0)
     Endif
+    Write #$hProp, hMenu.Radio As Boolean
+    Write #$hProp, hMenu.Toggle Or hMenu.Checked As Boolean
     
     ' shortcut
     
     sShortcut = hMenu.Shortcut
     If sShortcut Then
-      
       sShortcut = Replace(sShortcut, "Ctrl+", "Control+")
       aShortcut = Split(sShortcut, "+")
       cProp["shortcut"] = [aShortcut]
     Endif
+    Write #$hProp, hMenu.Shortcut As String
     
   'Endif
   
   If hMenu.Children.Count Then cProp["children-display"] = "submenu"
+  Write #$hProp, hMenu.Children.Count As Integer
     
   $aProp.Add(cProp)
   
@@ -198,12 +212,25 @@ Private Sub UpdateMenuRec(hMenu As Menu, Optional bChild As Boolean) As Integer
   
 End
 
-Public Sub _UpdateMenu(hMenu As Menu)
+Public Sub _UpdateMenu(hMenu As Menu) As Boolean
 
-  Inc $iRevision
-  $aProp.Clear
+  Dim sProp As String
+  Dim aProp As Collection[]
+
+  aProp = $aProp
+  $aProp = New Collection[]
+  $hProp = Open String For Write
   UpdateMenuRec(hMenu)
+  sProp = Close #$hProp
+  $hProp = Null
   
+  If sProp = $sProp Then 
+    $aProp = aProp
+    Return True
+  Endif
+  
+  $sProp = sProp
+  Inc $iRevision
   If DBus.IsRegistered(Me) Then DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), 0])
   
 End
