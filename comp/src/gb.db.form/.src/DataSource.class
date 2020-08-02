@@ -674,8 +674,6 @@ Public Function _GetDB() As Connection
   
 End
 
-
-
 Private Function ReadOnly_Read() As Boolean
   
   Return $bReadOnly Or $bRequest

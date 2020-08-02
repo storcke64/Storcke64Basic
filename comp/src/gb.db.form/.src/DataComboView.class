@@ -4,7 +4,7 @@ Inherits UserControl
 Export 
 
 Public Const _Properties As String = "*,Table{Table},Field{Field},Filter,Header,Grid,Highlight=True,Columns{Field[]:Table}"
-Public Const _DefaultEvent As String = "Change"
+'Public Const _DefaultEvent As String = "Change"
 Public Const _DefaultSize As String = "24,4"
 Public Const _DrawWith As String = "MenuButton"
 Public Const _Group As String = "Data"
@@ -60,6 +60,7 @@ Public Sub _new()
   $hPopup = New Window As "Popup"
   $hPopup.Arrangement = Arrange.Fill
   $hPopup.Persistent = True
+  $hPopup.SkipTaskbar = True
   
   $hSrc = New DataSource($hPopup)
   $hSrc.Arrangement = Arrange.Fill
@@ -71,6 +72,7 @@ Public Sub _new()
   $hView.Header = TableView.None
   $hView.View.ScrollBar = Scroll.Vertical
   $hView.View.Tracking = True
+  $hView.View._NoMouse = True
   
   $hObserver = New Observer($hView.View) As "TableView"
 
