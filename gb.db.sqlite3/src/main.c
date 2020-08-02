@@ -371,25 +371,25 @@ static char *find_database(const char *name, const char *hostName)
 {
 	char *dbhome = NULL;
 	char *fullpath = NULL;
+	char *path;
 
 	/* Does Name includes fullpath */
 	if (*name == '/')
 	{
 		if (is_database_file(name))
-			fullpath = GB.NewZeroString(name);
-
-		return fullpath;
+			return (char *)name;
 	}
 
 	/* Hostname contains home area */
 	fullpath = GB.NewZeroString(hostName);
 	fullpath = GB.AddChar(fullpath, '/');
 	fullpath = GB.AddString(fullpath, name, 0);
-	if (is_database_file(fullpath))
-	{
-		return fullpath;
-	}
+	
+	path = GB.FileName(fullpath, GB.StringLength(fullpath));
 	GB.FreeString(&fullpath);
+	
+	if (is_database_file(path))
+		return path;
 
 	/* Check the GAMBAS_SQLITE_DBHOME setting */
 	dbhome = getenv("GAMBAS_SQLITE_DBHOME");
@@ -400,20 +400,21 @@ static char *find_database(const char *name, const char *hostName)
 		fullpath = GB.AddChar(fullpath, '/');
 		fullpath = GB.AddString(fullpath, name, 0);
 
-		if (is_database_file(fullpath))
-			return fullpath;
-
+		path = GB.FileName(fullpath, GB.StringLength(fullpath));
 		GB.FreeString(&fullpath);
+
+		if (is_database_file(path))
+			return path;
 	}
 
 	fullpath = GB.NewZeroString(GB.TempDir());
 	fullpath = GB.AddString(fullpath, "/sqlite/", 0);
 	fullpath = GB.AddString(fullpath, name, 0);
+	GB.FreeStringLater(fullpath);
 
 	if (is_database_file(fullpath))
 		return fullpath;
 
-	GB.FreeString(&fullpath);
 	return NULL;
 }
 
@@ -582,13 +583,11 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 		if (is_sqlite2_database(path))
 		{
 			DB.TryAnother("sqlite2");
-			GB.FreeString(&path);
 			return TRUE;
 		}
 	}
 
 	conn = sqlite_open_database(path, host);
-	GB.FreeString(&path);
 
 	if (!conn)
 	{
@@ -2175,7 +2174,6 @@ static int database_exist(DB_DATABASE *db, const char *name)
 
 	fullpath = find_database(name, conn->host);
 	exist = fullpath != NULL;
-	GB.FreeString(&fullpath);
 	return exist;
 }
 
@@ -2292,7 +2290,6 @@ static int database_delete(DB_DATABASE * db, const char *name)
 		err = FALSE;
 	}
 
-	GB.FreeString(&fullpath);
 	return err;
 }
 

@@ -324,7 +324,7 @@ static int do_query(DB_DATABASE *db, const char *error, Dataset **pres,
 }
 
 /* Internal function to check whether a file is a sqlite database file */
-static bool IsDatabaseFile (const char *filename)
+static bool is_database_file(const char *filename)
 {
 	/*                   SQLite databases start with the string:
 	*                  ** This file contains an SQLite 2.1 database **
@@ -353,57 +353,54 @@ static bool IsDatabaseFile (const char *filename)
 
 /* Internal function to locate database and return full qualified */
 /* path. */
-static char *FindDatabase (const char *name, const char *hostName)
+static char *find_database(const char *name, const char *hostName)
 {
 	char *dbhome = NULL;
 	char *fullpath = NULL;
+	char *path;
 
 	/* Does Name includes fullpath */
 	if (*name == '/')
 	{
-		if (IsDatabaseFile(name))
-			fullpath = GB.NewZeroString(name);
-
-		return fullpath;
+		if (is_database_file(name))
+			return (char *)name;
 	}
 
 	/* Hostname contains home area */
 	fullpath = GB.NewZeroString(hostName);
 	fullpath = GB.AddChar(fullpath, '/');
 	fullpath = GB.AddString(fullpath, name, 0);
-	if (IsDatabaseFile(fullpath))
-		return fullpath;
 	
+	path = GB.FileName(fullpath, GB.StringLength(fullpath));
 	GB.FreeString(&fullpath);
+	
+	if (is_database_file(path))
+		return path;
 
 	/* Check the GAMBAS_SQLITE_DBHOME setting */
 	dbhome = getenv("GAMBAS_SQLITE_DBHOME");
-	if (dbhome)
+
+	if (dbhome != NULL)
 	{
 		fullpath = GB.NewZeroString(dbhome);
 		fullpath = GB.AddChar(fullpath, '/');
 		fullpath = GB.AddString(fullpath, name, 0);
 
-		if (IsDatabaseFile(fullpath))
-				return fullpath;
-	}
+		path = GB.FileName(fullpath, GB.StringLength(fullpath));
+		GB.FreeString(&fullpath);
 
-	#if 0
-	/* Now check for database in current working directory */
-	if (getcwd(cwd, MAX_PATH) == NULL){
-			GB.Error("Unable to get databases: &1", "Can't find current directory");
-			return NULL;
+		if (is_database_file(path))
+			return path;
 	}
-	#endif
 
 	fullpath = GB.NewZeroString(GB.TempDir());
 	fullpath = GB.AddString(fullpath, "/sqlite/", 0);
 	fullpath = GB.AddString(fullpath, name, 0);
+	GB.FreeStringLater(fullpath);
 
-	if (IsDatabaseFile(fullpath))
+	if (is_database_file(fullpath))
 		return fullpath;
 
-	GB.FreeString(&fullpath);
 	return NULL;
 }
 
@@ -473,7 +470,7 @@ static int WalkDirectory(const char *dir, char ***databases)
 
 		if (S_ISREG(statbuf.st_mode)) 
 		{
-			if (IsDatabaseFile(entry->d_name))
+			if (is_database_file(entry->d_name))
 				*(char **)GB.Add(databases) = GB.NewZeroString(entry->d_name);
 		}
 	}
@@ -554,7 +551,7 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	{
 		conn->setDatabase(name);
 	}
-	else if ((db_fullpath = FindDatabase(name, conn->getHostName())) != NULL)
+	else if ((db_fullpath = find_database(name, conn->getHostName())) != NULL)
 	{
 		conn->setDatabase(db_fullpath);
 	}
@@ -567,7 +564,6 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	}
 
 	GB.FreeString(&name);
-	GB.FreeString(&db_fullpath);
 
 	if ( conn->connect() != DB_CONNECTION_OK)
 	{
@@ -1969,13 +1965,10 @@ static int database_exist(DB_DATABASE *db, const char *name)
 	if (strcmp(name,":memory:") == 0)
 		return TRUE; //Database is loaded in memory only
 
-	if((fullpath = FindDatabase(name, conn->getHostName())) != NULL){
-		GB.FreeString(&fullpath);
+	if ((fullpath = find_database(name, conn->getHostName())) != NULL)
 		return TRUE;
-	}
-
-	GB.FreeString(&fullpath);
-	return FALSE;
+	else
+		return FALSE;
 }
 
 /*****************************************************************************
@@ -2065,19 +2058,16 @@ static int database_delete(DB_DATABASE *db, const char *name)
 	char *fullpath = NULL;
 	SqliteDatabase *conn = (SqliteDatabase *)db->handle;
 
-	if((fullpath = FindDatabase(name, conn->getHostName())) == NULL){
-		GB.FreeString(&fullpath);
+	if((fullpath = find_database(name, conn->getHostName())) == NULL){
 		GB.Error("Cannot Find  database: &1", name);
 		return TRUE;
 	}
 
 	if( remove(fullpath) != 0){
 			GB.Error("Unable to delete database  &1", fullpath);
-			GB.FreeString(&fullpath);
 			return TRUE;
 	}
 
-	GB.FreeString(&fullpath);
 	return FALSE;
 }
 
