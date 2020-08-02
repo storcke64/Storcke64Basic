@@ -202,6 +202,7 @@ public:
 	unsigned _resizable : 1;
 	unsigned _unmap : 1;
 	unsigned _initMenuBar : 1;
+	unsigned _grab_on_show : 1;
 };
 
 #endif

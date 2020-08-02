@@ -2254,7 +2254,15 @@ bool gt_grab(GtkWidget *widget, bool owner_event, guint32 time)
 	GdkWindow *win = gtk_widget_get_window(widget);
 	int ret;
 
-#ifdef GTK3
+#if GDK_MAJOR_VERSION > 3 || (GDK_MAJOR_VERSION == 3 && GDK_MINOR_VERSION >= 20)
+
+	GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+
+	ret = gdk_seat_grab(seat, win, GDK_SEAT_CAPABILITY_ALL, owner_event, gdk_window_get_cursor(win), NULL, NULL, NULL);
+	if (ret == GDK_GRAB_SUCCESS)
+		return FALSE;
+
+#elif defined(GTK3)
 
 	GdkDevice *pointer = gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default()));
 	GdkDevice *keyboard = gdk_device_get_associated_device(pointer);
@@ -2306,15 +2314,24 @@ bool gt_grab(GtkWidget *widget, bool owner_event, guint32 time)
 
 void gt_ungrab(void)
 {
-#ifdef GTK3
+#if GDK_MAJOR_VERSION > 3 || (GDK_MAJOR_VERSION == 3 && GDK_MINOR_VERSION >= 20)
+
+	GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+	gdk_seat_ungrab(seat);
+
+#elif defined(GTK3)
+	
 	GdkDevice *pointer = gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default()));
 	GdkDevice *keyboard = gdk_device_get_associated_device(pointer);
 
 	gdk_device_ungrab(pointer, GDK_CURRENT_TIME);
 	gdk_device_ungrab(keyboard, GDK_CURRENT_TIME);
+	
 #else
+	
 	gdk_pointer_ungrab(GDK_CURRENT_TIME);
 	gdk_keyboard_ungrab(GDK_CURRENT_TIME);
+	
 #endif
 }
 

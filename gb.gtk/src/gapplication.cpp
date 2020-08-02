@@ -909,7 +909,7 @@ void gApplication::grabPopup()
 	if (!_popup_grab)
 		return;
 
-	gt_grab(_popup_grab, TRUE, GDK_CURRENT_TIME);
+	gt_grab(_popup_grab, TRUE, _event_time); //GDK_CURRENT_TIME);
 }
 
 void gApplication::ungrabPopup()
@@ -1241,7 +1241,8 @@ void gApplication::enterPopup(gMainWindow *owner)
 		_popup_grab = owner->border;
 
 		if (_in_popup == 1)
-			gApplication::grabPopup();
+			owner->_grab_on_show = TRUE;
+			//gApplication::grabPopup();
 
 		l = _loopLevel;
 		old_owner = _loop_owner;
@@ -1257,7 +1258,14 @@ void gApplication::enterPopup(gMainWindow *owner)
 		while (_loopLevel > l);
 		(*onLeaveEventLoop)();
 
-		gApplication::ungrabPopup();
+		if (_in_popup == 1)
+		{
+			if (owner->_grab_on_show)
+				owner->_grab_on_show = FALSE;
+			else
+				gApplication::ungrabPopup();
+		}
+		
 		_popup_grab = old_popup_grab;
 
 		_loop_owner = old_owner;

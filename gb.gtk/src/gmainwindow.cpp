@@ -79,6 +79,12 @@ static gboolean cb_frame(GtkWidget *widget,GdkEventWindowState *event,gMainWindo
 
 static gboolean cb_show(GtkWidget *widget, gMainWindow *data)
 {
+	if (data->_grab_on_show)
+	{
+		data->_grab_on_show = FALSE;
+		gApplication::grabPopup();
+	}
+	
 	data->emitOpen();
 	
 	if (data->opened)
