@@ -295,6 +295,7 @@ Private Sub SetValue(vVal As Variant)
 
   Dim I As Integer
   Dim hView As TableView
+  Dim iAlign As Integer
 
   LoadPopup
   If IsNull(vVal) Then
@@ -318,7 +319,17 @@ Private Sub SetValue(vVal As Variant)
   For I = 0 To $aText.Max
     $aText[I] = hView[hView.Row, I].Text
     $aWidth[I] = hView.Columns[I].Width
-    $aAlign[I] = hView[hView.Row, I].Alignment
+    
+    iAlign = hView[hView.Row, I].Alignment
+    
+    If Align.IsLeft(iAlign) Then
+      $aAlign[I] = Align.Left
+    Else If Align.IsRight(iAlign) Then
+      $aAlign[I] = Align.Right
+    Else
+      $aAlign[I] = Align.Center
+    Endif
+      
   Next
   
   $hDrawingArea.Refresh
@@ -405,33 +416,6 @@ Public Sub DrawingArea_MouseDown()
   
 End
 
-' Public Sub DrawingArea_MouseMove()
-'   
-'   Dim bPressed As Boolean
-'   
-'   bPressed = $hDrawingArea.Hovered
-'   
-'   If $bPressed <> bPressed Then
-'     $bPressed = bPressed
-'     $hDrawingArea.Refresh
-'   Endif
-'   
-' End
-' 
-' 
-' Public Sub DrawingArea_MouseUp()
-'   
-'   If Not Mouse.Left Then Return
-'   If Not Me.Enabled Then Return
-'   If Not $bPressed Then Return
-' 
-'   $bPressed = False
-'   $hDrawingArea.Refresh
-'   
-'   'If Not $bInsideArrow Then Button_Click
-' 
-' End
-
 Public Sub DrawingArea_Draw()
   
   Dim X As Integer
@@ -454,8 +438,9 @@ Public Sub DrawingArea_Draw()
   
     Paint.ClipRect = Rect(0, 0, Me.W - Desktop.Scale * 3, Me.H)
     For I = 0 To $aText.Max
+      If I > 0 And If $hView.Grid Then Paint.FillRect(X, 0, 1, Me.H, Color.LightForeground)
       X2 = X + $aWidth[I]
-      Paint.DrawText($aText[I], X + 4, 0, X2 - X - 5, Me.H, $aAlign[I])
+      Paint.DrawText($aText[I], X + 4, 0, X2 - X - 6, Me.H, $aAlign[I])
       X = X2
     Next
     
