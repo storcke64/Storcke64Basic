@@ -125,25 +125,50 @@ Public Sub Greater(Got As Variant, Bound As Variant, Optional Description As Str
 
 End
 
-'' Asserts that _Got_ has an absolute error to _Expected_ of at most _Precision_.
+'' Asserts that _Got_ has an [absolute error](https://en.wikipedia.org/wiki/Approximation_error) to _Expected_ of at most _Precision_.
 Public Sub Approximate(Got As Float, Expected As Float, Precision As Float, Optional Description As String) As Boolean
 
-    Return LessEqual(Abs(Got - Expected), Precision, Description)
+    Dim bRes As Boolean
+    Dim fAbsError As Float
+
+    fAbsError = Abs(Got - Expected)
+    bRes = Ok(fAbsError <= Precision, Description)
+    If Not bRes Then
+        Test.Note(Null)
+        Test.Note(Subst$(("------------- Expected -------------" & gb.lf & "AbsError(&1, &2) <= &3"), Got, Expected, Precision))
+        Test.Note(Null)
+        Test.Note(Subst$(("---------------- Got ---------------" & gb.lf & "Got = &1" & gb.lf & "Expected = &2" & gb.lf & "|Got - Expected| = &3"), Got, Expected, fAbsError))
+        Test.Note("------------------------------------")
+        Test.Note(Null)
+    Endif
+    Return bRes
 
 End
 
-'' Asserts that _Got_ has a relative error to _Expected_ of at most _RelPrecision_.
+'' Asserts that _Got_ has a [relative error](https://en.wikipedia.org/wiki/Approximation_error) to _Expected_ of at most _RelPrecision_.
 '' _Expected_ may not be zero, unless _Got_ is also zero in which case the test succeeds.
 Public Sub RelativeApproximate(Got As Float, Expected As Float, RelPrecision As Float, Optional Description As String) As Boolean
 
     Dim bRes As Boolean
+    Dim fRelError As Float
 
     If Abs(Expected) = 0.0 Then
         bRes = Ok(Abs(Got) = 0.0, Description)
-        Test.Note(("Expected value in RelativeApproximate is 0.0"))
+        Test.Note(("Expected value in RelativeApproximate is 0.0. Comparing value with 0.0 exactly..."))
         Return bRes
     Endif
-    Return LessEqual(Abs((Got - Expected) / Expected), RelPrecision, Description)
+
+    fRelError = Abs((Got - Expected) / Expected)
+    bRes = Ok(fRelError <= RelPrecision)
+    If Not bRes Then
+        Test.Note(Null)
+        Test.Note(Subst$(("------------- Expected -------------" & gb.lf & "RelError(&1, &2) <= &3"), Got, Expected, RelPrecision))
+        Test.Note(Null)
+        Test.Note(Subst$(("---------------- Got ---------------" & gb.lf & "Got = &1" & gb.lf & "Expected = &2" & gb.lf & "|Got - Expected|/|Expected| = &3"), Got, Expected, fRelError))
+        Test.Note("------------------------------------")
+        Test.Note(Null)
+    Endif
+    Return bRes
 
 End
 
