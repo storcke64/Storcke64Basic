@@ -19,24 +19,27 @@ Private $cImplement As New Collection
 
 Private Sub SortComponents()
   
-  Dim iMax As Integer
-  Dim hComponent As CComponent
   Dim cNewAll As New Collection
-  Dim iInd As Integer
+  Dim aComp As CComponent[]
+  Dim hComp As CComponent
+  Dim aSort As Integer[]
   
-  For Each hComponent In Components
-    hComponent.CalcSortKey
-    iMax = Max(iMax, hComponent.SortKey)
-    'PRINT hComponent.Key;; hComponent.SortKey
+  aComp = New CComponent[]
+  
+  For Each hComp In Components
+    hComp.CalcSortKey()
+    aComp.Add(hComp)
   Next
   
-  For iInd = 1 To iMax
-    For Each hComponent In Components
-      If hComponent.SortKey = iInd Then
-        cNewAll.Add(hComponent, hComponent.Key)
-        'DEBUG hComponent.Key;; hComponent.SortKey
-      Endif
-    Next
+  aSort = New Integer[]
+  For Each hComp In aComp
+    aSort.Add(hComp.SortKey)
+  Next
+  
+  aComp.SortUsing(aSort)
+  
+  For Each hComp In aComp
+    cNewAll.Add(hComp, hComp.Key)
   Next
   
   Components = cNewAll
@@ -204,7 +207,8 @@ Private Sub InitComponent(sFile As String, Optional sKey As String)
   Dim iPos As Integer
   Dim sGroup As String
   
-  sPath = Component.Path &/ sFile 
+  sFile &= ".component"
+  sPath = Component.Path &/ sFile
   
   Try hFic = Open sPath
   If Error Then
@@ -327,12 +331,17 @@ Public Sub _new(Optional sName As String)
   Dim hComp As CComponent
   Dim sComp As String
   Dim sCompSubst As String
+  Dim I As Integer
   
   Name = sName
   
   $cImplement.Clear
   
-  aComp = Dir(Component.Path, "*.component").Sort()
+  aComp = Dir(Component.Path, "*.component")
+  For I = 0 To aComp.Max
+    aComp[I] = File.BaseName(aComp[I])
+  Next
+  aComp.Sort()
   For Each sFile In aComp
     'If Not $cName.Exist(File.BaseName(sFile)) Then Continue
     InitComponent(sFile)
@@ -346,7 +355,7 @@ Public Sub _new(Optional sName As String)
   If sCompSubst Then
     For Each sComp In ["gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
       If Not Components.Exist(sComp) Then 
-        InitComponent(sCompSubst & ".component", sComp)
+        InitComponent(sCompSubst, sComp)
       Endif
     Next
   Endif

@@ -154,7 +154,7 @@ Static Public Sub GetInfo() As String[]
       aSearchPath = ["/usr/lib"]
     Endif
     
-    cSearch = ["QT4": "libQtCore.so.*.*.*", "QT5": "libQt5Core.so.*.*.*", "GTK+2": "libgtk-x11-2*.so.*.*.*", "GTK+3": "libgtk-3*.so.*.*.*", "SDL": "libSDL-1.*.so.*.*.*", "GStreamer": "libgstreamer-*.so.*.*.*", "Poppler": "libpoppler.so.*.*.*", "Curl": "libcurl.so.*.*.*", 
+    cSearch = ["QT4": "libQtCore.so.*.*.*", "QT5": "libQt5Core.so.*.*.*", "GDK2": "libgdk-x11-2*.so.*.*.*", "GTK+2": "libgtk-x11-2*.so.*.*.*", "GDK3": "libgdk-3*.so.*.*.*", "GTK+3": "libgtk-3*.so.*.*.*", "SDL": "libSDL-1.*.so.*.*.*", "GStreamer": "libgstreamer-*.so.*.*.*", "Poppler": "libpoppler.so.*.*.*", "Curl": "libcurl.so.*.*.*", 
     "OpenGL": "libGL.so.*.*.*", "Cairo": "libcairo.so.*.*.*", "DBus": "libdbus-[0-9].so.*.*.*", "SQLite": "libsqlite3.so.*.*.*"]
     
   Endif
@@ -215,9 +215,18 @@ Public Sub Form_Open()
   
   Project.SetEditorFont(gvwInfo)
   
-  gvwInfo.Rows.Count = aText.Count
+  gvwInfo.Rows.Count = aText.Count + 1
   gvwInfo.Columns.Count = 3
-  I = 0
+  
+  With gvwInfo[0, 0]
+    .Text = ("Please copy these informations in all your bug reports.")
+    .ColumnSpan = 3
+    .Font = Font["Italic,-1"]
+    .Foreground = Color.LightForeground
+  End With
+  gvwInfo.Rows[0].Height = Desktop.Scale * 4
+  
+  I = 1
   For Each sText In aText
     If Left(sText) = "[" Then
       With gvwInfo[I, 0]
