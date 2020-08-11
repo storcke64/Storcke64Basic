@@ -1061,6 +1061,13 @@ Private Sub Highlight_Write(Value As String)
 
 End
 
+Public Sub HasHighlight() As Boolean
+  
+  If $hHighlight Then Return True
+  If Object.CanRaise(Me.Current, "Highlight") Then Return True
+  
+End
+
 Public Sub HighlightFrom(Y As Integer)
 
   Dim aHighlight As Byte[]

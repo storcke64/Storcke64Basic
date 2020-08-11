@@ -462,7 +462,7 @@ Private Sub UpdateMargin()
     $iWidthLineNumber = (CInt(Log10($hDoc.Count + $iLineNumberOffset)) + 1) * Me.Parent.Font.TextWidth("9") * $LH / Me.Parent.Font.Height + 8
     MW += $iWidthLineNumber
   Endif
-  If $bShowIcon Or If $bShowExpand And Len($hDoc.Highlight) > 0 Then
+  If $bShowIcon Or If $bShowExpand And $hDoc.HasHighlight() Then
     $iPosIcon = MW
     MW += $LH
   Endif
