@@ -73,7 +73,7 @@ Static Public Sub SendMail({To} As String[], Optional Cc As String[], Optional B
     aArg.Insert({To})
   Endif
 
-  Main.RunXdgUtil("xdg-email", aArg)
+  Main.RunXdgUtil("xdg-email", aArg, True)
 
 End
 
