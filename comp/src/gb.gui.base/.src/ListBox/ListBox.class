@@ -35,6 +35,7 @@ Private $hView As GridView
 Private $aText As New String[]
 Private $bSorted As Boolean
 Private $hSortTimer As Timer
+Private $hTimerClick As Timer
 
 Public Sub _new()
   
@@ -195,9 +196,18 @@ Public Sub GridView_Select()
   
 End
 
-Public Sub GridView_Change()
+Public Sub TimerClick_Timer()
   
   Raise Click
+  $hTimerClick = Null
+  
+End
+
+
+Public Sub GridView_Change()
+  
+  $hTimerClick = New Timer As "TimerClick"
+  $hTimerClick.Trigger
   
 End
 

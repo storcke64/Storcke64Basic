@@ -1148,8 +1148,8 @@ End
 
 Public Sub TimerScroll_Timer()
   
-  Dim X As Integer = $SX - If(System.RightToLeft, 0, $hRows.W) + $hView.ScrollX
-  Dim Y As Integer = $SY - $hColumns.Height + $hView.ScrollY
+  Dim X As Integer
+  Dim Y As Integer
   Dim iCol As Integer
   Dim iRow As Integer 
   
@@ -1158,6 +1158,9 @@ Public Sub TimerScroll_Timer()
     Return
   Endif
   
+  X = $SX - If(System.RightToLeft, 0, $hRows.W) + $hView.ScrollX
+  Y = $SY - $hColumns.Height + $hView.ScrollY
+
   If InRowHeader($SX) Then
     iCol = -1
   Else
