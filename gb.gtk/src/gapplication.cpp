@@ -119,8 +119,12 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 {
 	gContainer *cont;
 	gControl *child;
+	gMainWindow *window;
 	int x, y;
 	int cx, cy, cw, ch;
+	#ifdef GTK3
+	GtkAllocation a;
+	#endif
 
 	if (gApplication::_control_grab)
 		return gApplication::_control_grab;
@@ -136,13 +140,31 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 	if (button_grab)
 		return button_grab;
 
-	//fprintf(stderr, "find_child: %s\n", control->name());
+	window = control->topLevel();
+	control = window;
+	
+	#ifdef GTK3
+	gtk_widget_get_allocation(window->layout ? GTK_WIDGET(window->layout) : window->widget, &a);
+	//fprintf(stderr, "find_child: %d %d window: %d %d %d %d\n", rx, ry, a.x, a.y, a.width, a.height);
+	rx -= a.x;
+	ry -= a.y;
+	#endif
 
-	control = control->topLevel();
+	//fprintf(stderr, "find_child: %s (%d %d)\n", control->name(), rx, ry);
 
 	while (control->isContainer())
 	{
 		control->getScreenPos(&x, &y);
+		#ifdef GTK3
+		if (!control->isTopLevel())
+		{
+			x -= a.x;
+			y -= a.y;
+		}
+		#endif
+
+		//fprintf(stderr, "  screen pos %s = %d %d\n", control->name(), x ,y);
+		
 		cont = (gContainer *)control;
 
 		cx = cont->clientX();
@@ -150,16 +172,17 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 		cw = cont->clientWidth();
 		ch = cont->clientHeight();
 
-		//fprintf(stderr, "client area of %s: %d %d %d %d\n", control->name(), cx, cy, cw, ch);
+		//fprintf(stderr, "  client area of %s: %d %d %d %d\n", control->name(), cx, cy, cw, ch);
 
 		x = rx - x;
 		y = ry - y;
 		if (x < cx || y < cy || x >= (cx + cw) || y >= (cy + ch))
 		{
-			//fprintf(stderr, "outside of client area of %s\n", control->name());
+			//fprintf(stderr, "  outside of client area of %s\n", control->name());
 			return NULL;
 		}
 
+		//fprintf(stderr, "  find coord %d %d\n", x, y);
 		child = cont->find(x, y);
 		if (!child)
 			break;
@@ -167,7 +190,7 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 		control = child;
 	}
 
-	//fprintf(stderr, "-> %s\n", control->name());
+	//fprintf(stderr, "find_child -> %s\n", control->name());
 
 	return control;
 }

@@ -151,9 +151,13 @@ public:
 	void configure();
 	void embedMenuBar(GtkWidget *border);
 	void emitResize();
+	void emitResizeLater();
 	void setGeometryHints();
 	virtual void updateFont();
 	void present();
+	void setTransientFor();
+	void setType(GtkWindowType type);
+	void calcCsdSize();
 	
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;
@@ -175,6 +179,9 @@ public:
 
 	int _min_w;
 	int _min_h;
+	
+	int _csd_w;
+	int _csd_h;
 	
 	unsigned _mask : 1;
 	unsigned top_only : 1;

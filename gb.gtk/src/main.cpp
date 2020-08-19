@@ -219,10 +219,10 @@ int EXPORT GB_INIT(void)
 	GB.Component.Load("gb.draw");
 	GB.Component.Load("gb.image");
 	GB.Component.Load("gb.gui.base");
-	
+
 	GB.GetInterface("gb.image", IMAGE_INTERFACE_VERSION, &IMAGE);
 	GB.GetInterface("gb.geom", GEOM_INTERFACE_VERSION, &GEOM);
-	
+
 	IMAGE.SetDefaultFormat(GB_IMAGE_RGBA);
 	DRAW_init();
 
@@ -270,7 +270,7 @@ int EXPORT GB_INFO(const char *key, void **value)
 			return TRUE;
 		}
 	}
-	
+
 	if (!strcasecmp(key, "GET_HANDLE"))
 	{
 		*value = (void *)CWIDGET_get_handle;
@@ -407,7 +407,7 @@ static void hook_main(int *argc, char ***argv)
 	}
 
 	init = true;
-
+	
 	CALL_HOOK_MAIN(_old_hook_main, argc, argv);
 }
 
@@ -608,4 +608,3 @@ static GtkWidget *GTK_CreateGLArea(void *_object, void *parent, void (*init)(Gtk
 	//WIDGET->onExpose = Darea_Expose;
 	return ctrl->widget;
 }
-
