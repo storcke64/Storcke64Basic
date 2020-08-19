@@ -181,6 +181,17 @@ Public Sub TableView_MouseUp()
 
 End
 
+Public Sub TableView_KeyPress()
+  
+  If Key.Code = Key.Space Or If Key.Code = Key.Enter Or If Key.Code = Key.Return Then
+    TableView_MouseUp
+  Else If Key.Code = Key.Escape Then
+    $hPopup.Close
+  Endif
+  
+End
+
+
 Private Function Filter_Read() As String
 
   Return $hSrc.Filter
@@ -445,25 +456,21 @@ End
 
 Public Sub DrawingArea_KeyPress()
   
-  If Key.Code = Key.Space Then 
+  If Key.Code = Key.Space Or If Key.Code = Key.Down Then 
     $bPressed = True
     $hDrawingArea.Refresh
-  ' Else If Key.Code = Key.Tab Then
-  '   If $hButton Then
-  '     Try Me.Next.SetFocus
-  '     Stop Event
-  '   Endif
   Endif
   
 End
 
 Public Sub DrawingArea_KeyRelease()
   
-  If Key.Code = Key.Space Then 
-    $bPressed = False
-    $hDrawingArea.Refresh
-    Wait
-    'Button_Click
+  If Key.Code = Key.Space Or If Key.Code = Key.Down Then 
+    If $bPressed Then
+      $bPressed = False
+      $hDrawingArea.Refresh
+      OpenPopup
+    Endif
   Endif
   
 End
