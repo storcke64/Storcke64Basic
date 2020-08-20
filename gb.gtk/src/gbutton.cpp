@@ -24,6 +24,7 @@
 #include "widgets.h"
 #include "gapplication.h"
 #include "gmainwindow.h"
+#include "gdesktop.h"
 #include "gbutton.h"
 
 #include <unistd.h>
@@ -777,7 +778,7 @@ void gButton::updateSize()
 				"focus-line-width", &focus_width,
         "focus-padding", &focus_pad,
 				(char *)NULL);
-			m = (indicator_size + indicator_spacing * 2 + 2 * (focus_width + focus_pad)) + indicator_spacing + font()->width(bufText, strlen(bufText));
+			m = (indicator_spacing + indicator_size + indicator_spacing + 2 * (focus_width + focus_pad)) + font()->width(bufText, strlen(bufText));
 #else
 			GtkRequisition req;
 			g_signal_emit_by_name(border, "size-request",	&req);
@@ -785,16 +786,18 @@ void gButton::updateSize()
 #endif
 		}
 		else
-			m = font()->width(bufText, strlen(bufText)) + 16;
+			m = font()->width(bufText, strlen(bufText));
 		
 		mw += m;
 	}
 	
 	if (pic)
 	{
-		if (mw) mw += 8;
+		if (mw) mw += gDesktop::scale();
 		mw += pic->width();
 	}
+	
+	mw += gDesktop::scale();
 	
 	if (mh < height())
 		mh = height();

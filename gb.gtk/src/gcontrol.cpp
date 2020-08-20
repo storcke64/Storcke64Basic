@@ -1783,6 +1783,21 @@ PATCH_DECLARE_BASELINE(GTK_TYPE_BUTTON)
 	return m;
 }*/
 
+/*int gControl::getPreferredWidth() const
+{
+	GtkWidgetClass *klass = (GtkWidgetClass*)g_type_class_peek(G_OBJECT_TYPE(border));
+	int size = -1;
+	
+	if (OLD_FUNC)
+	{
+		int nat;
+		(*OLD_FUNC->get_preferred_width)(border, &size, &nat);
+		fprintf(stderr, "getPreferredWidth: %d %d\n", size, nat);
+	}
+	
+	return size;
+}*/
+
 #endif
 
 void gControl::realize(bool make_frame)
