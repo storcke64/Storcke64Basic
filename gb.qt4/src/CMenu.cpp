@@ -27,6 +27,7 @@
 #include <QMenu>
 #include <QKeyEvent>
 #include <QActionGroup>
+#include <QWindow>
 
 #include "gambas.h"
 #include "gb_common.h"
@@ -391,11 +392,12 @@ BEGIN_METHOD(Menu_new, GB_OBJECT parent; GB_BOOLEAN hidden)
 
 		if (!menu->menu)
 		{
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0) && QT_VERSION < QT_VERSION_CHECK(5,5,0)
-			menu->menu = new MyMenu();
-#else
-			menu->menu = new QMenu();
-#endif
+			#if QT_VERSION >= QT_VERSION_CHECK(5,0,0) && QT_VERSION < QT_VERSION_CHECK(5,5,0)
+				menu->menu = new MyMenu();
+			#else
+				menu->menu = new QMenu();
+			#endif
+			
 			menu->menu->setSeparatorsCollapsible(true);
 			((QAction *)(menu->widget.widget))->setMenu(menu->menu);
 
@@ -422,6 +424,7 @@ BEGIN_METHOD(Menu_new, GB_OBJECT parent; GB_BOOLEAN hidden)
 		if (!menuBar)
 		{
 			menuBar = new QMenuBar(topLevel);
+			menuBar->setNativeMenuBar(false);
 			//menuBar->setAutoFillBackground(true);
 			window->menuBar = menuBar;
 		}
@@ -1030,6 +1033,11 @@ void CMenu::slotShown(void)
 	GET_MENU_SENDER(menu);
 	HANDLE_PROXY(menu);
 	
+	#ifdef QT5
+		if (menu->menu->windowHandle())
+			menu->menu->windowHandle()->setTransientParent(menu->toplevel->windowHandle());
+	#endif
+
 	GB.Ref(menu);
 	
 	menu->opened = TRUE;
