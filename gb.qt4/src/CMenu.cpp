@@ -27,7 +27,6 @@
 #include <QMenu>
 #include <QKeyEvent>
 #include <QActionGroup>
-#include <QWindow>
 
 #include "gambas.h"
 #include "gb_common.h"
@@ -36,6 +35,9 @@
 #include "CWindow.h"
 #include "CMenu.h"
 
+#ifdef QT5
+#include <QWindow>
+#endif
 //#define DEBUG_MENU 1
 
 DECLARE_EVENT(EVENT_Click);
