@@ -48,7 +48,7 @@ void FixBreezeStyle::fixFontMetrics(QStyleOption *option)
 
 QRect FixBreezeStyle::subControlRect(ComplexControl element, const QStyleOptionComplex* option, SubControl subControl, const QWidget* widget) const
 {
-	if (element == CC_SpinBox)
+	/*if (element == CC_SpinBox)
 	{
 		const QStyleOptionSpinBox *spinBoxOption(qstyleoption_cast<const QStyleOptionSpinBox*>(option));
 		const bool flat( !spinBoxOption->frame );
@@ -83,20 +83,21 @@ QRect FixBreezeStyle::subControlRect(ComplexControl element, const QStyleOptionC
 
 			QRect arrowRect;
 			arrowRect = QRect(
-					rect.right() - 20 /*Metrics::SpinBox_ArrowButtonWidth*/ + 1,
+					rect.right() - 20 + 1 //Metrics::SpinBox_ArrowButtonWidth,
 					rect.top(),
 					20, //Metrics::SpinBox_ArrowButtonWidth,
 					rect.height() );
 
 			const int arrowHeight( qMin( rect.height(), 20)); //int(Metrics::SpinBox_ArrowButtonWidth) ) );
-			arrowRect = centerRect( arrowRect, 20 /*Metrics::SpinBox_ArrowButtonWidth*/, arrowHeight );
+			arrowRect = centerRect( arrowRect, 20, arrowHeight );  // Metrics::SpinBox_ArrowButtonWidth
 			arrowRect.setHeight( arrowHeight/2 );
 			if( subControl == SC_SpinBoxDown ) arrowRect.translate( 0, arrowHeight/2 );
 
 			return visualRect( option, arrowRect );
 		}
 	}
-	else if (element == CC_ComboBox)
+	else */
+	if (element == CC_ComboBox)
 	{
 		if (subControl == SC_ComboBoxEditField)
 		{
@@ -165,14 +166,13 @@ QRect FixBreezeStyle::subElementRect(SubElement element, const QStyleOption* opt
 
 void FixBreezeStyle::drawPrimitive( PrimitiveElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget ) const
 {
-	QStyleOption newOption;
-	
 	if (element == PE_FrameLineEdit)
 	{
-		newOption = *option;
+		QStyleOption newOption = *option;
 		fixFontMetrics(&newOption);
-		option = &newOption;
 		//qDebug("PE_FrameLineEdit: %d / %d", option->fontMetrics.height(), option->rect.height());
+		QProxyStyle::drawPrimitive(element, &newOption, painter, widget);
+		return;
 	}
 		
 	QProxyStyle::drawPrimitive(element, option, painter, widget);
@@ -180,7 +180,7 @@ void FixBreezeStyle::drawPrimitive( PrimitiveElement element, const QStyleOption
 
 void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOptionComplex* option, QPainter* painter, const QWidget* widget) const
 {
-	if (element == CC_SpinBox)
+	/*if (element == CC_SpinBox)
 	{
 		QStyleOptionSpinBox newOption;	
 		const QStyleOptionSpinBox *spinBoxOption( qstyleoption_cast<const QStyleOptionSpinBox*>( option ) );
@@ -200,7 +200,8 @@ void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOpti
 			}
 		}
 	}
-	else if (element == CC_ComboBox)
+	else */
+	if (element == CC_ComboBox)
 	{
 		QStyleOptionComboBox newOption;	
 		const QStyleOptionComboBox* comboBoxOption( qstyleoption_cast<const QStyleOptionComboBox*>( option ) );
@@ -213,9 +214,10 @@ void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOpti
 				{
 					newOption = *comboBoxOption;
 					newOption.subControls &= ~SC_ComboBoxFrame;
-					option = &newOption;
 					
-					drawPrimitive(PE_FrameLineEdit, option, painter, widget );
+					drawPrimitive(PE_FrameLineEdit, &newOption, painter, widget );
+					QProxyStyle::drawComplexControl(element, &newOption, painter, widget);
+					return;
 				}
 			}
 		}
@@ -261,3 +263,4 @@ void FixBreezeStyle::drawControl(ControlElement element, const QStyleOption * op
 	
 	QProxyStyle::drawControl(element, option, painter, widget);
 }
+
