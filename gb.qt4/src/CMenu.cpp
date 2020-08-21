@@ -1029,9 +1029,12 @@ void CMenu::slotShown(void)
 {
 	static bool init = FALSE;
 
-	//qDebug("slotShown: sender = %p  menuAction = %p", sender(), ((QMenu *)sender())->menuAction());
 	GET_MENU_SENDER(menu);
+	if (!menu)
+		return;
 	HANDLE_PROXY(menu);
+
+	//fprintf(stderr, "slotShown: %s: menuAction = %s\n", menu->widget.name, TO_UTF8(((QMenu *)sender())->menuAction()->text()));
 	
 	#ifdef QT5
 		if (menu->menu->windowHandle())
@@ -1060,6 +1063,8 @@ void CMenu::slotHidden(void)
 {
 	//qDebug("slotHidden: sender = %p  menuAction = %p", sender(), ((QMenu *)sender())->menuAction());
 	GET_MENU_SENDER(menu);
+	if (!menu)
+		return;
 	HANDLE_PROXY(menu);
 
 	menu->opened = FALSE;

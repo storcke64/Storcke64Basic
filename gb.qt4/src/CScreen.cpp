@@ -283,12 +283,21 @@ BEGIN_PROPERTY(Application_MainWindow)
 		GB.ReturnObject(CWINDOW_Main);
 	else
 	{
+		if (CWINDOW_Main && CWINDOW_Main->menuBar)
+			CWINDOW_Main->menuBar->setNativeMenuBar(false);
+		
 		CWINDOW_Main = (CWINDOW *)VPROP(GB_OBJECT);
-		if (CWINDOW_Main && CWINDOW_MainDesktop >= 0)
+		if (CWINDOW_Main)
 		{
-			MyMainWindow *win = (MyMainWindow *)CWINDOW_Main->widget.widget;
-			X11_window_set_desktop(win->winId(), win->isVisible(), CWINDOW_MainDesktop);
-			CWINDOW_MainDesktop = -1;
+			if (CWINDOW_MainDesktop >= 0)
+			{
+				MyMainWindow *win = (MyMainWindow *)CWINDOW_Main->widget.widget;
+				X11_window_set_desktop(win->winId(), win->isVisible(), CWINDOW_MainDesktop);
+				CWINDOW_MainDesktop = -1;
+			}
+			
+			if (CWINDOW_Main->menuBar)
+				CWINDOW_Main->menuBar->setNativeMenuBar(true);
 		}
 	}
 
