@@ -40,6 +40,9 @@
 
 #include "CUdpSocket.h"
 
+DECLARE_EVENT (EVENT_Read);
+DECLARE_EVENT (EVENT_SocketError);
+
 GB_STREAM_DESC UdpSocketStream = {
 	.open = CUdpSocket_stream_open,
 	.close = CUdpSocket_stream_close,
@@ -53,9 +56,18 @@ GB_STREAM_DESC UdpSocketStream = {
 	.handle = CUdpSocket_stream_handle
 };
 
-
-DECLARE_EVENT (EVENT_Read);
-DECLARE_EVENT (EVENT_SocketError);
+static bool fill_in_addr(struct in_addr *addr, const char *str)
+{
+	if (!str || !*str)
+		addr->s_addr = htonl(INADDR_ANY);
+	else if (inet_aton(str, addr) == 0)
+	{
+		GB.Error("Incorrect address");
+		return TRUE;
+	}
+	
+	return FALSE;
+}
 
 void CUdpSocket_post_data(intptr_t Param)
 {
@@ -234,7 +246,7 @@ int CUdpSocket_stream_write(GB_STREAM *stream, char *buffer, int len)
 {
 	void *_object = stream->tag;
 	int retval;
-	struct in_addr dest_ip;
+	//struct in_addr dest_ip;
 	NET_ADDRESS dest;
 	size_t size;
 	struct sockaddr *addr;
@@ -252,18 +264,9 @@ int CUdpSocket_stream_write(GB_STREAM *stream, char *buffer, int len)
 	}
 	else
 	{
-		/*if (THIS->broadcast)
-		{
-			fprintf(stderr, "broadcast\n");
-			dest.in.sin_addr.s_addr = INADDR_BROADCAST;
-		}
-		else*/
-		{
-			if (!inet_aton((const char*)THIS->thost, &dest_ip))
-				return -1;
-			dest.in.sin_addr.s_addr = dest_ip.s_addr;
-		}
-			
+		if (fill_in_addr(&dest.in.sin_addr, THIS->thost))
+			return -1;
+		//dest.in.sin_addr.s_addr = dest_ip.s_addr;
 		dest.in.sin_family = PF_INET;
 		dest.in.sin_port = htons(THIS->tport);
 		size = sizeof(struct sockaddr);
