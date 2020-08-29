@@ -655,7 +655,7 @@ GB_DESC CUdpSocketDesc[] =
 	GB_PROPERTY_READ("Status", "i", UdpSocket_Status),
 	GB_PROPERTY_READ("SourceHost", "s", UdpSocket_SourceHost),
 	GB_PROPERTY_READ("SourcePort", "i", UdpSocket_SourcePort),
-	GB_PROPERTY_READ("SourcePath", "i", UdpSocket_SourcePath),
+	GB_PROPERTY_READ("SourcePath", "s", UdpSocket_SourcePath),
 	GB_PROPERTY("TargetHost", "s", UdpSocket_TargetHost),
 	GB_PROPERTY("TargetPort", "i", UdpSocket_TargetPort),
 	GB_PROPERTY("TargetPath", "s", UdpSocket_TargetPath),
