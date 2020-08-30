@@ -5,6 +5,14 @@ Use "gb.form.stock"
 
 Public Sub Main()
 
-  Print Message.Question("Ceci est un <i>message d'avertissement</i> dont le texte est <b>tout spécialement long</b> afin de tester la boite de dialogue. Toutes les modifications non enregistrées seront perdues !", "Sauvegarder", "Envoyer", "Annuler")
+  ' Print Message.Question("Ceci est un <i>message d'avertissement</i> dont le texte est <b>tout spécialement long</b> afin de tester la boite de dialogue. Toutes les modifications non enregistrées seront perdues !", "Sauvegarder", "Envoyer", "Annuler")
 
+  Dim p As String
+  p = "<h2>Desktop Properties</h2><hr>"
+  p &= "<br>Size: <b>" & Desktop.Width & " x " & Desktop.Height & "</b>"
+  p &= "<br>Resolution DPI: <b>" & Desktop.Resolution & "</b>"
+  p &= "<br>Font pixels: <b>" & Desktop.Scale & "</b>"
+  p &= "<br>Charset: <b>" & Desktop.Charset & "</b>"
+  Message.Info(p)
+  
 End
