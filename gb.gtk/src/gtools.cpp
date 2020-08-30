@@ -947,6 +947,9 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	p_end = &html[len_html < 0 ? strlen(html) : len_html];
 	p_markup = NULL;
 	
+	if (len_html == 0)
+		goto RETURN_STRING;
+	
 	for (p = html;; p++)
 	{
 		c = *p;
@@ -1236,6 +1239,8 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	// Sometimes the first markup is not taken into account.
 	// This is a workaround for this bug:
 	g_string_prepend_unichar(pango, 0xFEFF);
+	
+RETURN_STRING:
 	
 	p = g_string_free(pango, false);
 	//fprintf(stderr, "pango: '%s'\n", p);
