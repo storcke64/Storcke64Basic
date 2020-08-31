@@ -1137,7 +1137,7 @@ Public Sub gvwFind_Data(Row As Integer, Column As Integer)
         .Text = hResult.Location
         .Alignment = Align.Normal
       Case 2
-        .Text = CStr(hResult.Line + 1) & " "
+        .Text = CStr(hResult.Line) & " "
         .Alignment = Align.Right
       Case 3
         .Text = CStr(hResult.Column + 1) & " "

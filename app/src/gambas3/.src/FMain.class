@@ -2034,6 +2034,8 @@ Public Sub mnuEditWith_Show()
   Dim hMenu As Menu
   
   mnuEditWith.Children.Clear
+  If Not mnuEditWith.Tag Then Return
+  
   For Each hProg In mnuEditWith.Tag
     hMenu = New Menu(mnuEditWith) As "mnuEditWithProg"
     hMenu.Caption = hProg.Name & " (" & hProg.ProgramName & ")"
