@@ -249,7 +249,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     $hLabel = New TextLabel(hParent) As "Label"
     $hLabel.Ignore = True
     $hLabel.AutoResize = True
-    $hLabel.Border = If(bBottom, Border.None, Border.Plain)
+    $hLabel.Border = Border.None 'If(bBottom, Border.None, Border.Plain)
     $hLabel.Padding = 2
     $hLabel.Wrap = False
     $hLabelTimer = New Timer As "LabelTimer"
@@ -259,8 +259,15 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
   
   ' $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
   ' $hLabel.Background = Color.Merge(Me.Styles[iStyle].Color, Me.Styles[Highlight.Background].Color, 0.3)
-  $hLabel.Foreground = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
-  $hLabel.Background = Me.Styles[Highlight.Background].Color
+  If iStyle = Highlight.Normal Then
+    $hLabel.Background = Me.Styles[Highlight.Background].Color
+    $hLabel.Foreground = Me.Styles[iStyle].Color
+    $hLabel.Border = Border.Plain
+  Else
+    $hLabel.Background = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
+    $hLabel.Foreground = Me.Styles[Highlight.Background].Color
+    $hLabel.Border = Border.None
+  Endif
   $hLabel.Text = "&nbsp;&nbsp;" & Replace(Replace(sStr, "<p>", " "), "<br>", " ") & "&nbsp;&nbsp;"
 
   $bLabelBottom = bBottom
