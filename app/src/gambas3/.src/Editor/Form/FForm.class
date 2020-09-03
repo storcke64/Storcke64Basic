@@ -761,6 +761,7 @@ Private Sub SaveOne(hCtrl As CControl)
   Dim bTranslate As Boolean
   Dim hCChild As CControl
   Dim sClass As String
+  Dim hSymbol As CSymbolInfo
 
   If IsNull(hCtrl) Then Return
 
@@ -790,7 +791,8 @@ Private Sub SaveOne(hCtrl As CControl)
   Inc $iSaveLevel
 
   If sGroup Then
-    AddLine("Name = \"" & sName & "\"")
+    hSymbol = Project.Documentation.Classes[hCtrl.Kind].Symbols["Name"]
+    If hSymbol And If hSymbol.IsProperty Then AddLine("Name = \"" & sName & "\"")
   Endif
 
   For Each sLine In cProp
