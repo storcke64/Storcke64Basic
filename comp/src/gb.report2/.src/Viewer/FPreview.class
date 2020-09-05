@@ -69,14 +69,11 @@ End
 Private Sub GetValuesFromReport()
   
   cmbPaper.Index = View.Report.Paper
-  $hPrinter.Orientation = View.Report.Orientation
+  
+  CPrint.InitPrinterFromReport($hPrinter, View.Report)
   
   If View.Report.Paper = Printer.Custom Then
     pnlCustom.Enabled = True
-    $hPrinter.PaperWidth = TSizeParse[View.Report.Width].ToInch() * 10
-    $hPrinter.PaperHeight = TSizeParse[View.Report.Height].ToInch() * 10
-  Else
-    $hPrinter.Paper = View.Report.Paper
   Endif 
   
   cmbOrientation.Index = $hPrinter.Orientation
@@ -150,6 +147,7 @@ Public Sub tgbGrayScale_Click()
   'Last.Background = IIf(Last.Value, Color.Gray, Color.Default)
   $hPrinter.GrayScale = Last.Value
   View._GrayScale = Last.Value
+  View.Refresh()
   
 End
 
@@ -360,6 +358,8 @@ Public Sub Printer_Paginate()
 End
 
 Public Sub Printer_Draw()
+
+  'Debug Paint.W;; $hPrinter.PaperWidth;; $hPrinter.Resolution;; Paint.FontScale
 
   If View.RangePages.Count = 0 Then 
     View.Report.Paint($hPrinter.Page)
