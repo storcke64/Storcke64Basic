@@ -101,7 +101,7 @@ End
 
 Private Function Key_Read() As String
 
-  Return $hForm.ToolbarKey
+  Return $hForm.GetKey()
 
 End
 

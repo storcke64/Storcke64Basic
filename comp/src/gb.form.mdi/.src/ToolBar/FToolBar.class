@@ -651,7 +651,7 @@ Private Sub FindToolbar() As CToolbar
   hToolbar = MAction.Toolbars[ToolbarKey]
   
   If Not hToolbar Then
-    hToolbar = New CToolbar(ToolBarKey, Null)
+    hToolbar = New CToolbar(ToolbarKey, Null)
     hToolbar.DefaultConfig = GetCurrentConfig()
     MAction.Toolbars[ToolbarKey] = hToolbar
   Endif
@@ -676,7 +676,11 @@ Private Sub GetCurrentConfig() As String[]
     Else If hCtrl Is ToolBarExpander Then
       aConfig.Add("~")
     Else If hCtrl Is Panel And If Panel(hCtrl).Children.Count = 0 Then
-      aConfig.Add("-")
+      If hCtrl.Expand Then
+        aConfig.Add("~")
+      Else
+        aConfig.Add("-")
+      Endif
     Else If hCtrl.Visible Then
       aConfig.Add("$" & hCtrl.Name)
     Endif
@@ -1263,7 +1267,8 @@ Public Sub SetKey(sKey As String)
   If ToolbarKey = sKey Then Return
   
   If $bOpened Then UnregisterToolbar
-  ToolbarKey = sKey
+  ToolbarKey = Object.Type(GetToolBar().Window) & "." & sKey
+  
   If $bOpened Then 
     InitToolbar
     RegisterToolbar
@@ -1272,6 +1277,17 @@ Public Sub SetKey(sKey As String)
   Update
   
 End
+
+Public Sub GetKey() As String
+  
+  Dim iPos As Integer
+  
+  If Not ToolBarKey Then Return
+  iPos = InStr(ToolBarKey, ".")
+  Return Mid$(ToolBarKey, iPos + 1)
+  
+End
+
 
 
 Public Sub Form_Close()
@@ -1543,9 +1559,15 @@ End
 
 Public Sub LoadConfig(Optional bInit As Boolean)
   
+  Dim vLayout As Variant
+  
   If Not ToolbarKey Then Return
   If $bDesign Then Return
-  SetLayout(LoadLayout(ToolbarKey), bInit)
+  
+  vLayout = LoadLayout(ToolbarKey)
+  If Not vLayout[0] And If Not vLayout[1] Then vLayout = LoadLayout(GetKey())
+  
+  SetLayout(vLayout, bInit)
   
 End
 
@@ -1554,6 +1576,12 @@ Static Public Sub SaveLayout(sKey As String, vLayout As Variant, Optional hIgnor
   Dim hForm As FToolBar
   Dim sSize As String
   Dim aConfig As String[]
+  
+  If Not vLayout Then
+    Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Size"] = Null
+    Settings["/gb.form.mdi/Toolbars/" &/ sKey &/ "Layout"] = Null
+    Return
+  Endif
   
   sSize = vLayout[0]
   aConfig = vLayout[1]
@@ -1625,7 +1653,8 @@ Public Sub SaveConfig(Optional bReset As Boolean)
   
   If Not bChange Then Return
   
-  SaveLayout(ToolBarKey, aLayout, If(bReset, Null, Me))
+  SaveLayout(GetKey(), Null)
+  SaveLayout(ToolbarKey, aLayout, If(bReset, Null, Me))
   
 End
 
