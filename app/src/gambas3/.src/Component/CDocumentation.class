@@ -347,17 +347,21 @@ Public Sub _new(Optional sName As String)
     InitComponent(sFile)
   Next
   
-  For Each sCompSubst In ["gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
-    If Components.Exist(sCompSubst) Then Break
-    sCompSubst = ""
-  Next
+  If Name Then
   
-  If sCompSubst Then
-    For Each sComp In ["gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
-      If Not Components.Exist(sComp) Then 
-        InitComponent(sCompSubst, sComp)
-      Endif
+    For Each sCompSubst In ["gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
+      If Components.Exist(sCompSubst) Then Break
+      sCompSubst = ""
     Next
+    
+    If sCompSubst Then
+      For Each sComp In ["gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
+        If Not Components.Exist(sComp) Then 
+          InitComponent(sCompSubst, sComp)
+        Endif
+      Next
+    Endif
+    
   Endif
   
   hComp = New CComponent(Me)
