@@ -601,6 +601,8 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
           GoSub GET_COUNT
           If $sLastChar Then hScreen.Print(String$(N, $sLastChar))
           
+        Case "t" ' window manipulations, ignore.
+          
         Default
           
           Goto NOT_IMPLEMENTED
