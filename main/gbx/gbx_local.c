@@ -108,9 +108,9 @@ static bool _translation_loaded = FALSE;
 
 static LOCAL_INFO *local_current;
 
-static char env_LC_ALL[MAX_LANG + sizeof "LC_ALL" + 1];
-static char env_LANGUAGE[MAX_LANG + sizeof "LANGUAGE" + 1];
-static char env_LANG[MAX_LANG + sizeof "LANG" + 1];
+static char env_LC_ALL[MAX_LANG + sizeof "LC_ALL" + 2];
+static char env_LANGUAGE[MAX_LANG + sizeof "LANGUAGE" + 2];
+static char env_LANG[MAX_LANG + sizeof "LANG" + 2];
 
 static bool _currency;
 
@@ -152,7 +152,7 @@ static bool is_currency_space(bool negative, bool intl)
 
 static void my_setenv(const char *name, const char *value, char *ptr)
 {
-	snprintf(ptr, MAX_LANG + strlen(name) + 1, "%s=%s", name, value);
+	snprintf(ptr, MAX_LANG + strlen(name) + 2, "%s=%s", name, value);
 	putenv(ptr);
 }
 
@@ -590,7 +590,7 @@ const char *LOCAL_get_lang(void)
 	if (!_lang)
 	{
 		lang = getenv("LC_ALL");
-		if (!lang)
+		if (!lang || !*lang)
 			lang = getenv("LANG");
 		if (!lang || !*lang)
 			lang = "en_US";
@@ -621,6 +621,9 @@ void LOCAL_set_lang(const char *lang)
 	
 	STRING_free(&_lang);
 	lang = LOCAL_get_lang();
+
+	my_setenv("LANG", lang, env_LANG);
+	my_setenv("LC_ALL", lang, env_LC_ALL);
 
 	if (getenv("LANGUAGE"))
 		my_setenv("LANGUAGE", lang, env_LANGUAGE);
@@ -1635,7 +1638,7 @@ static void LOCAL_load_translation(ARCHIVE *arch)
 	dir = FILE_cat(FILE_make_temp(NULL, NULL), "tr", NULL);
 	mkdir(dir, S_IRWXU);
 
-	dir = FILE_cat(FILE_make_temp(NULL, NULL), "tr", setlocale(LC_ALL, NULL), NULL);
+	dir = FILE_cat(FILE_make_temp(NULL, NULL), "tr", LOCAL_get_lang(), NULL);
 	mkdir(dir, S_IRWXU);
 
 	dir = FILE_cat(dir, "LC_MESSAGES", NULL);
