@@ -14,10 +14,12 @@ Private $sResult As String
 Private $fTime As Float
 Private $hProcess As Process
 
-Static Private Sub Init()
+Static Public Sub Init()
 
   Dim sFlag As String
   Dim sCompiler As String
+  
+  If $sCompiler Then Return
   
   sCompiler = Env["GB_JIT_CC"]
   If Not sCompiler Then sCompiler = "gcc"
@@ -51,8 +53,6 @@ Public Sub Run(sInput As String, Optional sOption As String)
   'Dim iPos As Integer
   
   'Dim I As Integer
-  
-  If Not $sCompiler Then Init
   
   ' $sCache = File.Dir(File.Dir(Temp$())) &/ "gb.jit"
   ' Try Mkdir $sCache

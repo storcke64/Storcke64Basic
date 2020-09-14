@@ -17,6 +17,12 @@ Private Sub GetArchiveName(sArch As String) As String
   
 End
 
+Public Sub _Search() As Boolean
+  
+  Try CCompilation.Init()
+  If Error Then Return True
+  
+End
 
 Public Sub _Compile(sArch As String) As Boolean
 
