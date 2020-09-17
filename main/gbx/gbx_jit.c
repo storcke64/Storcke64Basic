@@ -52,17 +52,21 @@ static JIT_FUNCTION *_jit_func = NULL;
 
 static bool _debug = FALSE;
 
+static void find_method(GB_FUNCTION *func, const char *method, const char *sign, const char *type)
+{
+	if (GB_GetFunction(func, CLASS_find_global("Jit"), method, sign, type))
+		ERROR_panic("Unable to find JIT.&1() method", method);
+}
+
 void JIT_abort(void)
 {
-	static GB_FUNCTION _func;
+	GB_FUNCTION func;
 	
 	if (!_component_loaded || JIT_disabled)
 		return;
 	
-	if (GB_GetFunction(&_func, CLASS_find_global("Jit"), "_Abort", NULL, NULL))
-		ERROR_panic("Unable to find JIT._Abort() method");
-	
-	GB_Call(&_func, 0, FALSE);
+	find_method(&func, "_Abort", NULL, NULL);
+	GB_Call(&func, 0, FALSE);
 	GB_Wait(0);
 }
 
@@ -79,12 +83,6 @@ static int get_state(ARCHIVE *arch)
 bool JIT_can_compile(ARCHIVE *arch)
 {
 	return get_state(arch) == JIT_NOT_COMPILED;
-}
-
-static void find_method(GB_FUNCTION *func, const char *method, const char *sign, const char *type)
-{
-	if (GB_GetFunction(func, CLASS_find_global("Jit"), method, sign, type))
-		ERROR_panic("Cannot found method 'Jit.&1' in 'gb.jit' component");
 }
 
 void JIT_compile(ARCHIVE *arch)
