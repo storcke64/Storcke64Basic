@@ -2439,9 +2439,11 @@ Private Sub FindDefinition() As Boolean
           If aSym.Count = 2 And If aSym[1] = ":" And If aSym[0] == sKeyWord Then
             CPosition.SaveCurrent(Me)
             GotoCenter(iLine)
-            Return
+            Break
           Endif
         Wend
+        
+        Return
         
       Endif
     Endif
