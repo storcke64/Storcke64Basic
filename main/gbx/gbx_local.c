@@ -593,7 +593,7 @@ const char *LOCAL_get_lang(void)
 		if (!lang || !*lang)
 			lang = getenv("LANG");
 		if (!lang || !*lang)
-			lang = "en_US";
+			lang = "C";
 		_lang = STRING_new_zero(lang);
 	}
 
@@ -610,7 +610,7 @@ void LOCAL_set_lang(const char *lang)
 		THROW(E_ARG);
 	
 	#ifdef DEBUG_LANG
-	fprintf(stderr, "******** LOCAL_set_lang: %s ********\n", lang);
+	fprintf(stderr, "******** LOCAL_set_lang: %s\n", lang ? lang : "(null)");
 	#endif
 
 	if (lang && *lang)
@@ -621,6 +621,10 @@ void LOCAL_set_lang(const char *lang)
 	
 	STRING_free(&_lang);
 	lang = LOCAL_get_lang();
+
+	#ifdef DEBUG_LANG
+	fprintf(stderr, "lang = %s\n", lang);
+	#endif
 
 	my_setenv("LANG", lang, env_LANG);
 	my_setenv("LC_ALL", lang, env_LC_ALL);

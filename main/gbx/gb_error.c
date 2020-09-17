@@ -721,7 +721,7 @@ void ERROR_warning(const char *warning, ...)
 
 	fflush(NULL);
 
-	fprintf(stderr, "gbx" GAMBAS_VERSION_STRING ": warning: ");
+	fprintf(stderr, "gbx" GAMBAS_VERSION_STRING " [%d]: warning: ", getpid());
 	vfprintf(stderr, warning, args);
 
 	va_end(args);
