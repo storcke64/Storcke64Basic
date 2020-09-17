@@ -395,11 +395,6 @@ gw = {
     }
   },
   
-  resizeComboBox: function(id)
-  {
-    $(id + '-select').onmouseover = function() { $(id + '-select').style.width = $(id).offsetWidth + 'px'; }
-  },
-  
   highlightMandatory: function(id)
   {
     var elt = $(id);
@@ -1473,6 +1468,22 @@ gw = {
     setText: function(id, text)
     {
       $(id).lastElementChild.innerHTML = text;
+    }
+  },
+  
+  combobox:
+  {
+    resize: function(id)
+    {
+      $(id + ':select').onmouseover = function() { $(id + ':select').style.width = $(id).offsetWidth + 'px'; }
+    },
+    
+    update: function(id, index, text)
+    {
+      if (text != undefined)
+        $(id + ':entry').value = text;
+        
+      $(id + ':select').selectedIndex = index;
     }
   },
   
