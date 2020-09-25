@@ -16,7 +16,7 @@ Private Sub FromArgs(aArg As String[]) As String
   aArg = aArg.Copy()
   For I = 0 To aArg.Max
     sArg = aArg[I]
-    If InStr(sArg, " ") Or If InStr(sArg, "\"") Or If Not sArg Then aArg[I] = Quote(sArg)
+    If Split(sArg, " ", "\"").Count > 1 Then aArg[I] = Quote(sArg)
   Next
   
   Return aArg.Join(" ")
