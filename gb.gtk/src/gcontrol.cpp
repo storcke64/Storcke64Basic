@@ -740,7 +740,7 @@ void gControl::setTooltip(char *vl)
 
 	if (_tooltip)
 	{
-		pango = gt_html_to_pango_string(_tooltip, -1, false);
+		pango = gt_html_to_pango_string(_tooltip, -1, true);
 		gtk_widget_set_tooltip_markup(border, pango);
 		g_free(pango);
 	}

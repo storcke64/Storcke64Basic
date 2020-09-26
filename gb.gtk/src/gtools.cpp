@@ -1152,6 +1152,12 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			continue;
 		}
 		
+		if (c == '\r')
+		{
+			add_space(pango);
+			continue;
+		}
+		
 		if (c == '&')
 		{
 			const char *entity_start = ++p;
