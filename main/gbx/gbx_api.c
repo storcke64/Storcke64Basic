@@ -808,7 +808,7 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 	}
 	CATCH 
 	{
-		if (ERROR->info.code && ERROR->info.code != E_ABORT)
+		if (ERROR->info.code && ERROR->info.code != E_ABORT && !STACK_has_error_handler())
 		{
 			ERROR_hook();
 
@@ -1632,7 +1632,10 @@ void GB_ReturnPtr(GB_TYPE type, void *value)
 void GB_ReturnSelf(void *object)
 {
 	if (object)
-		GB_ReturnObject(object);
+	{
+		TEMP.type = T_OBJECT;
+		TEMP._object.object = object;
+	}
 	else
 	{
 		TEMP.type = T_CLASS;
