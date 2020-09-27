@@ -936,9 +936,17 @@ End
 
 Public Sub UpdateName()
   
-  If Virtual Then Return
+  Dim sClass As String
   
-  Select Case Object.Type(Control)
+  If Virtual Then Return
+
+  If Kind = "WebView" Then
+    sClass = Kind
+  Else
+    sClass = Object.Type(Control)
+  Endif
+  
+  Select Case sClass
 
     Case "ListBox"
       Control[0].Text = Name
@@ -1001,6 +1009,8 @@ Public Sub UpdateName()
       Endif
 
   End Select
+  
+Catch
   
 End
 
