@@ -159,9 +159,9 @@ END_PROPERTY
 BEGIN_PROPERTY(Container_Indent)
 
 	if (READ_PROPERTY)
-		GB.ReturnInteger(WIDGET->indent());
+		GB.ReturnBoolean(WIDGET->indent());
 	else
-		WIDGET->setMargin(VPROP(GB_INTEGER));
+		WIDGET->setIndent(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -536,10 +536,10 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Indent)
 	
 	if (READ_PROPERTY)
-		GB.ReturnInteger(WIDGET_CONT->indent());
+		GB.ReturnBoolean(WIDGET_CONT->indent());
 	else
 	{
-		WIDGET_CONT->setIndent(VPROP(GB_INTEGER));
+		WIDGET_CONT->setIndent(VPROP(GB_BOOLEAN));
 		THIS_UC->save = WIDGET_CONT->fullArrangement();
 	}
 	

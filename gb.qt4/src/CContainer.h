@@ -44,11 +44,11 @@ typedef
 		unsigned margin : 1;
 		unsigned spacing : 1;
 		unsigned padding : 8;
-		unsigned indent : 4;
+		unsigned indent : 1;
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
-		unsigned _reserved: 8;
+		unsigned _reserved: 12;
 		}
 	CARRANGEMENT;
 

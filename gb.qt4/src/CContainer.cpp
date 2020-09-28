@@ -1074,12 +1074,11 @@ END_PROPERTY
 BEGIN_PROPERTY(Container_Indent)
 
   if (READ_PROPERTY)
-    GB.ReturnInteger(THIS_ARRANGEMENT->indent);
+    GB.ReturnBoolean(THIS_ARRANGEMENT->indent);
   else
   {
-  	int val = VPROP(GB_INTEGER);
-		if (val < 0) val = 1;
-  	if (val != THIS_ARRANGEMENT->indent && val >= 0 && val <= 7)
+  	bool val = VPROP(GB_BOOLEAN);
+  	if (val != THIS_ARRANGEMENT->indent)
   	{
     	THIS_ARRANGEMENT->indent = val;
 			arrange_now(CONTAINER);
