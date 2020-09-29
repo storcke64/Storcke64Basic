@@ -124,6 +124,7 @@ public:
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	void updateStyleSheet();
+	void setStyleSheetChild(const char *child) { _style_sheet_child = child; }
 	virtual void updateColor();
 	void setColorNames(const char *bg_names[], const char *fg_names[]);
 	void setColorBase();
@@ -225,6 +226,7 @@ public:
 	const char *_fg_name;
 	const char **_fg_name_list;
 	GdkRGBA _fg_default;
+	const char *_style_sheet_child;
 #endif
 	
 	unsigned dsg : 1;

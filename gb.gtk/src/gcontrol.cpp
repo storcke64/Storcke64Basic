@@ -336,6 +336,7 @@ void gControl::initAll(gContainer *parent)
 #ifdef GTK3
 	_css = NULL;
 	_fg_name = _bg_name = NULL;
+	_style_sheet_child = NULL;
 #endif
 
 	controls = g_list_append(controls,this);
@@ -2096,7 +2097,7 @@ void gControl::updateStyleSheet()
 			gtk_style_context_remove_provider(context, _css);
 
 		name = gtk_widget_get_name(wid);
-		sprintf(buffer, "#%s {\ntransition:none;\n", name);
+		sprintf(buffer, "#%s %s {\ntransition:none;\n", name, _style_sheet_child ? _style_sheet_child : "");
 		g_stradd(&css, buffer);
 
 		if (_bg != COLOR_DEFAULT)
