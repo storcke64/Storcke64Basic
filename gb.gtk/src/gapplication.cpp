@@ -41,6 +41,7 @@
 #include "gmainwindow.h"
 
 //#define DEBUG_ENTER_LEAVE 1
+//#define DEBUG_FIND_CONTROL 1
 
 static bool _debug_keypress = false;
 
@@ -129,16 +130,13 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 	if (gApplication::_control_grab)
 		return gApplication::_control_grab;
 
-	/*grab = gtk_grab_get_current();
-	if (grab)
-	{
-		child = gt_get_control(grab);
-		if (child)
-			return child;
-	}*/
-
 	if (button_grab)
+	{
+		#if DEBUG_FIND_CONTROL
+		fprintf(stderr, "find_child -> %s (button grab)\n", button_grab->name());
+		#endif
 		return button_grab;
+	}
 
 	window = control->topLevel();
 	control = window;
@@ -150,7 +148,9 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 	ry -= a.y;
 	#endif
 
-	//fprintf(stderr, "find_child: %s (%d %d)\n", control->name(), rx, ry);
+	#if DEBUG_FIND_CONTROL
+	fprintf(stderr, "find_child: [%s %p] %s (%d %d)\n", window->name(), window, control->name(), rx, ry);
+	#endif
 
 	while (control->isContainer())
 	{
@@ -163,7 +163,9 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 		}
 		#endif
 
-		//fprintf(stderr, "  screen pos %s = %d %d\n", control->name(), x ,y);
+		#if DEBUG_FIND_CONTROL
+		fprintf(stderr, "  screen pos %s = %d %d\n", control->name(), x ,y);
+		#endif
 		
 		cont = (gContainer *)control;
 
@@ -172,17 +174,24 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 		cw = cont->clientWidth();
 		ch = cont->clientHeight();
 
-		//fprintf(stderr, "  client area of %s: %d %d %d %d\n", control->name(), cx, cy, cw, ch);
+		#if DEBUG_FIND_CONTROL
+		fprintf(stderr, "  client area of %s: %d %d %d %d\n", control->name(), cx, cy, cw, ch);
+		#endif
 
 		x = rx - x;
 		y = ry - y;
 		if (x < cx || y < cy || x >= (cx + cw) || y >= (cy + ch))
 		{
-			//fprintf(stderr, "  outside of client area of %s\n", control->name());
-			return NULL;
+			#if DEBUG_FIND_CONTROL
+			fprintf(stderr, "  outside of client area of %s\n", control->name());
+			#endif
+			control = NULL;
+			break;
 		}
 
-		//fprintf(stderr, "  find coord %d %d\n", x, y);
+		#if DEBUG_FIND_CONTROL
+		fprintf(stderr, "  find coord %d %d\n", x, y);
+		#endif
 		child = cont->find(x, y);
 		if (!child)
 			break;
@@ -190,7 +199,9 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 		control = child;
 	}
 
-	//fprintf(stderr, "find_child -> %s\n", control->name());
+	#if DEBUG_FIND_CONTROL
+	fprintf(stderr, "find_child -> %s\n", control ? control->name() : "NULL");
+	#endif
 
 	return control;
 }
@@ -1224,6 +1235,7 @@ void gApplication::enterLoop(void *owner, bool showIt, GtkWindow *modal)
 
 	_loopLevel++;
 	_loop_owner = owner;
+	setButtonGrab(NULL);
 
 	(*onEnterEventLoop)();
 	do
