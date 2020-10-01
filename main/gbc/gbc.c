@@ -374,6 +374,31 @@ static int compare_path(char **a, char **b)
 	return strcmp(*a, *b);
 }
 
+/*static bool check_cvs_directory(const char *dir)
+{
+	int len;
+	char *buffer;
+	struct stat info;
+	
+	len = strlen(dir);
+	buffer = alloca(len + 32);
+	strcpy(buffer, dir);
+	
+	strcpy(&buffer[len], "Root");
+	if (stat(buffer, &info))
+		return FALSE;
+	
+	strcpy(&buffer[len], "Entries");
+	if (stat(buffer, &info))
+		return FALSE;
+
+	strcpy(&buffer[len], "Repository");
+	if (stat(buffer, &info))
+		return FALSE;
+
+	return TRUE;
+}*/
+
 static void fill_files(const char *root, bool recursive)
 {
 	DIR *dir;
@@ -410,7 +435,16 @@ static void fill_files(const char *root, bool recursive)
 		if (S_ISDIR(info.st_mode))
 		{
 			if (recursive)
+			{
+				if (*file_name == 'C')
+				{
+					if (strcmp(file_name, "CVS") == 0) // && check_cvs_directory(file))
+						continue;
+					if (strcmp(file_name, "CVSROOT") == 0)
+						continue;
+				}
 				fill_files(file, TRUE);
+			}
 		}
 		else
 		{
