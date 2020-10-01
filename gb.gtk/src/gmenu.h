@@ -78,7 +78,7 @@ public:
 	void setFont();
 	void setColor();
 	
-	void setProxy(gMenu *menu);
+	bool setProxy(gMenu *menu);
 	gMenu *proxy() const { return _proxy; }
 
 //"Methods"

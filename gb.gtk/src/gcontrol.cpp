@@ -1048,10 +1048,10 @@ void gControl::refresh()
 
 void gControl::refresh(int x, int y, int w, int h)
 {
-	GdkRectangle r;
-	GtkAllocation a;
+	/*GdkRectangle r;
+	GtkAllocation a;*/
 
-	gtk_widget_get_allocation(border, &a);
+	//gtk_widget_get_allocation(border, &a);
 
 	if (x < 0 || y < 0 || w <= 0 || h <= 0)
 	{
@@ -1059,12 +1059,42 @@ void gControl::refresh(int x, int y, int w, int h)
 		w = width();
 		h = height();
 	}
+
+	if (widget != border)
+	{
+		GtkAllocation ab, aw;
+		
+		gtk_widget_get_allocation(border, &ab);
+		gtk_widget_get_allocation(widget, &aw);
+		x += ab.x - aw.x;
+		y += ab.y - aw.y;
+	}
+	
+	int fw = getFrameWidth();
+	x -= fw;
+	y -= fw;
+	
+	if (x < 0)
+	{
+		w += x;
+		x = 0;
+	}
+	if (y < 0)
+	{
+		h += y;
+		y = 0;
+	}
+	
+	if (w > 0 && h > 0)
+		gtk_widget_queue_draw_area(widget, x, y, w, h);
+
+	/*
 	r.x = a.x + x;
 	r.y = a.y + y;
 	r.width = w;
 	r.height = h;
 
-	gdk_window_invalidate_rect(gtk_widget_get_window(border), &r, TRUE);
+	gdk_window_invalidate_rect(gtk_widget_get_window(border), &r, TRUE);*/
 
 	afterRefresh();
 }
@@ -1812,12 +1842,12 @@ void gControl::realize(bool make_frame)
 		else if (!frame)
 		{
 #if GTK3
-			border = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+			frame = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 			gtk_widget_set_hexpand(widget, TRUE);
 #else
-			border = gtk_alignment_new(0, 0, 1, 1);
+			frame = gtk_alignment_new(0, 0, 1, 1);
 #endif
-			gtk_widget_set_redraw_on_allocate(frame, TRUE);
+			//gtk_widget_set_redraw_on_allocate(frame, TRUE);
 		}
 
 		if (!border)

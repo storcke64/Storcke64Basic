@@ -408,6 +408,7 @@ void gMenu::update()
 				if (!parent->child)
 				{
 					parent->child = (GtkMenu*)gtk_menu_new();
+					g_object_ref_sink(parent->child);
 					
 					//g_debug("%p: creates a new child menu container in parent %p", this, parent->child);
 					
@@ -594,8 +595,6 @@ gMenu::~gMenu()
 	if (_destroyed)
 		return;
 		
-	//fprintf(stderr, "gMenu::~gMenu: %p (%p) '%s'\n", this, pr, _text);
-	
 	_destroyed = true;
   
 	setProxy(NULL);
@@ -635,7 +634,8 @@ gMenu::~gMenu()
 	_style = NOTHING;
 	
 	if (child)
-		gtk_widget_destroy(GTK_WIDGET(child));
+		g_object_unref(child);
+		//gtk_widget_destroy(GTK_WIDGET(child));
 	
 	stop_signal = true;
 	
@@ -1140,9 +1140,20 @@ void gMenu::setRadio()
 	}
 }
 
-void gMenu::setProxy(gMenu *menu)
+bool gMenu::setProxy(gMenu *proxy)
 {
-	_proxy = menu;
+	gMenu *check = proxy;
+
+	while (check)
+	{
+		if (check == this)
+			return true;
+
+		check = check->_proxy;
+	}
+
+	_proxy = proxy;
+	return false;
 }
 
 GtkMenu *gMenu::getSubMenu()
@@ -1155,19 +1166,20 @@ GtkMenu *gMenu::getSubMenu()
 
 void gMenu::ensureChildMenu()
 {
-	GtkWidget *child = GTK_WIDGET(getSubMenu());
+	GtkMenu *sub_menu = getSubMenu();
 	
-	if (child)
+	// TODO: create parent menu?
+	if (sub_menu && gtk_menu_item_get_submenu(menu) != (GtkWidget *)sub_menu)
 	{
-		// TODO: create parent menu?
-		if (gtk_menu_item_get_submenu(menu) != child)
-		{
-			//fprintf(stderr, "ensureChildMenu: %s\n", name());
-			g_object_ref(child);
-			gtk_menu_item_set_submenu(GTK_MENU_ITEM(gtk_menu_get_attach_widget(GTK_MENU(child))), NULL);
-			gtk_menu_item_set_submenu(menu, child);
-			g_object_unref(child);
-		}
+		//fprintf(stderr, "ensureChildMenu: %p\n", sub_menu);
+		g_object_ref(sub_menu);
+		/*attach = gtk_menu_get_attach_widget(sub_menu);
+		if (attach)
+			gtk_menu_item_set_submenu(GTK_MENU_ITEM(attach), NULL);*/
+		if (gtk_menu_get_attach_widget(sub_menu))
+			gtk_menu_detach(sub_menu);
+		gtk_menu_item_set_submenu(menu, GTK_WIDGET(sub_menu));
+		g_object_unref(sub_menu);
 	}
 }
 

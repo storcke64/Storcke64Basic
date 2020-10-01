@@ -379,7 +379,8 @@ void gMainWindow::initialize()
 	_moved = false;
 	_resizable = true;
 	_unmap = false;
-
+	_grab_on_show	= false;
+	
 	onOpen = NULL;
 	onShow = NULL;
 	onHide = NULL;

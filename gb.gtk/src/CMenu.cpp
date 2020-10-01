@@ -39,10 +39,10 @@ static CMENU *_popup_menu_clicked = NULL;
 static GB_FUNCTION _init_shortcut_func;
 
 #define HANDLE_PROXY(_ob) \
-	while (((CMENU *)(_ob))->proxy) \
-		_ob = (__typeof__ _ob)(((CMENU *)(_ob))->proxy);
+	while (((CMENU *)(_ob))->widget->proxy()) \
+		_ob = (__typeof__ _ob)(((CMENU *)(_ob))->widget->proxy()->hFree);
 
-static void register_proxy(void *_object, CMENU *proxy)
+/*static void register_proxy(void *_object, CMENU *proxy)
 {
 	CMENU *check = proxy;
 
@@ -75,7 +75,7 @@ static void register_proxy(void *_object, CMENU *proxy)
 	else
 		MENU->setProxy(NULL);
 	
-}
+}*/
 
 static void send_click_event(void *_object)
 {
@@ -247,7 +247,6 @@ END_METHOD
 BEGIN_METHOD_VOID(Menu_free)
 
 	GB.FreeString(&THIS->save_text);
-	register_proxy(THIS, NULL);
 	if (MENU) MENU->destroy();
 
 END_METHOD
@@ -512,7 +511,10 @@ END_PROPERTY
 BEGIN_PROPERTY(Menu_Proxy)
 
 	if (READ_PROPERTY)
-		GB.ReturnObject(THIS->proxy);
+	{
+		gMenu *proxy = MENU->proxy();
+		GB.ReturnObject(proxy ? proxy->hFree : NULL);
+	}
 	else
 	{
 		CMENU *menu = (CMENU *)VPROP(GB_OBJECT);
@@ -520,7 +522,8 @@ BEGIN_PROPERTY(Menu_Proxy)
 		if (menu && GB.CheckObject(menu))
 			return;
 		
-		register_proxy(THIS, menu);
+		if (MENU->setProxy(menu ? menu->widget : NULL))
+			GB.Error("Circular proxy chain");	
 	}
 
 END_PROPERTY
