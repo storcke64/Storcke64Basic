@@ -97,6 +97,7 @@ public:
   virtual void updateCursor(GdkCursor *cursor);
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
+	virtual const char *getStyleSheetColorNode();
 	virtual int minimumWidth() const;
 	virtual int minimumHeight() const;
 #endif

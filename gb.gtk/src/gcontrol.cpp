@@ -336,7 +336,6 @@ void gControl::initAll(gContainer *parent)
 #ifdef GTK3
 	_css = NULL;
 	_fg_name = _bg_name = NULL;
-	_style_sheet_child = NULL;
 #endif
 
 	controls = g_list_append(controls,this);
@@ -2094,15 +2093,29 @@ GtkWidget *gControl::getStyleSheetWidget()
 	return border;
 }
 
+const char *gControl::getStyleSheetColorNode()
+{
+	return "";
+}
+
+const char *gControl::getStyleSheetFontNode()
+{
+	return "";
+}
+
+void gControl::customStyleSheet(GString *css)
+{
+}
+
 void gControl::updateStyleSheet()
 {
 	static int count = 0;
 
 	GtkWidget *wid;
 	GtkStyleContext *context;
-	char *css = NULL;
-	const char *name;
-	char buffer[128];
+	GString *css;
+	char *css_str;
+	char buffer[16];
 	int s;
 
 	wid = getStyleSheetWidget();
@@ -2126,75 +2139,85 @@ void gControl::updateStyleSheet()
 		else
 			gtk_style_context_remove_provider(context, _css);
 
-		name = gtk_widget_get_name(wid);
-		sprintf(buffer, "#%s %s {\ntransition:none;\n", name, _style_sheet_child ? _style_sheet_child : "");
-		g_stradd(&css, buffer);
-
-		if (_bg != COLOR_DEFAULT)
+		css = g_string_new(NULL);
+		
+		if (_bg != COLOR_DEFAULT || _fg != COLOR_DEFAULT)
 		{
-			g_stradd(&css, "background-color:");
-			gt_to_css_color(buffer, _bg);
-			g_stradd(&css, buffer);
-			g_stradd(&css, ";\nbackground-image:none;\n");
-		}
+			g_string_append_printf(css, "#%s %s {\ntransition:none;\n", gtk_widget_get_name(wid), getStyleSheetColorNode());
 
-		if (_fg != COLOR_DEFAULT)
-		{
-			g_stradd(&css, "color:");
-			gt_to_css_color(buffer, _fg);
-			g_stradd(&css, buffer);
-			g_stradd(&css, ";\n");
-		}
+			if (_bg != COLOR_DEFAULT)
+			{
+				gt_to_css_color(buffer, _bg);
+				g_string_append(css, "background-color:");
+				g_string_append(css, buffer);
+				g_string_append(css, ";\nbackground-image:none;\n");
+			}
 
+			if (_fg != COLOR_DEFAULT)
+			{
+				gt_to_css_color(buffer, _fg);
+				g_string_append(css, "color:");
+				g_string_append(css, buffer);
+				g_string_append(css, ";\n");
+			}
+			
+			g_string_append(css, "}\n");
+		}
+		
 		if (_font)
 		{
+			g_string_append_printf(css, "#%s %s {\ntransition:none;\n", gtk_widget_get_name(wid), getStyleSheetFontNode());
+
 			if (_font->_name_set)
 			{
-				g_stradd(&css, "font-family:\"");
-				g_stradd(&css, _font->name());
-				g_stradd(&css, "\";\n");
+				g_string_append(css, "font-family:\"");
+				g_string_append(css, _font->name());
+				g_string_append(css, "\";\n");
 			}
 
 			if (_font->_size_set)
 			{
-				g_stradd(&css, "font-size:");
 				s = (int)(_font->size() * 10 + 0.5);
 				sprintf(buffer, "%dpt;\n", s / 10); //, s % 10);
-				g_stradd(&css, buffer);
+				g_string_append(css, "font-size:");
+				g_string_append(css, buffer);
 			}
 
 			if (_font->_bold_set)
 			{
-				g_stradd(&css, "font-weight:");
-				g_stradd(&css, _font->bold() ? "bold" : "normal");
-				g_stradd(&css, ";\n");
+				g_string_append(css, "font-weight:");
+				g_string_append(css, _font->bold() ? "bold" : "normal");
+				g_string_append(css, ";\n");
 			}
 
 			if (_font->_italic_set)
 			{
-				g_stradd(&css, "font-style:");
-				g_stradd(&css, _font->italic() ? "italic" : "normal");
-				g_stradd(&css, ";\n");
+				g_string_append(css, "font-style:");
+				g_string_append(css, _font->italic() ? "italic" : "normal");
+				g_string_append(css, ";\n");
 			}
 
 			if (_font->_underline_set || _font->_strikeout_set)
 			{
-				g_stradd(&css, "text-decoration-line:");
+				g_string_append(css, "text-decoration-line:");
 				if (_font->strikeout())
-					g_stradd(&css, "line-through");
+					g_string_append(css, "line-through");
 				else if (_font->underline())
-					g_stradd(&css, "underline");
+					g_string_append(css, "underline");
 				else
-					g_stradd(&css, "none");
-				g_stradd(&css, ";\n");
+					g_string_append(css, "none");
+				g_string_append(css, ";\n");
 			}
+			
+			g_string_append(css, "}\n");
 		}
 
-		g_stradd(&css, "}\n");
+		customStyleSheet(css);
 
 		//fprintf(stderr, "---- %s\n%s", _name, css);
-
-		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css, -1, NULL);
+		css_str = g_string_free(css, FALSE);
+		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css_str, -1, NULL);
+		g_free(css_str);
 		gtk_style_context_add_provider(context, _css, GTK_STYLE_PROVIDER_PRIORITY_USER + 10);
 	}
 }

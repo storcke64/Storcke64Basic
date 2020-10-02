@@ -123,8 +123,10 @@ public:
 	virtual void updateSize();
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
+	virtual const char *getStyleSheetColorNode();
+	virtual const char *getStyleSheetFontNode();
 	void updateStyleSheet();
-	void setStyleSheetChild(const char *child) { _style_sheet_child = child; }
+	virtual void customStyleSheet(GString *css);
 	virtual void updateColor();
 	void setColorNames(const char *bg_names[], const char *fg_names[]);
 	void setColorBase();
