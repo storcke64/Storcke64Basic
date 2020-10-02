@@ -3344,8 +3344,18 @@ Public Sub ReadProject(Optional bConvert As Boolean)
           Arguments = [Split(UnQuote(sVal), "\n")]
         Endif
         
+      Case "argumentlist"
+        Arguments = Settings.FromString(sVal)
+        
       Case "currentargument"
-        If Left(sVal) = "[" Then CurrentArgument = Settings.FromString(sVal)
+        If Left(sVal) = "[" Then
+          CurrentArgument = Settings.FromString(sVal)
+        Else
+          Try CurrentArgument = Arguments[CInt(sVal)]
+        Endif
+
+      Case "currentargumentlist"
+        CurrentArgument = Settings.FromString(sVal)
 
       Case "environment"
         Environment = Split(UnQuote(sVal), "\n")
@@ -3712,8 +3722,8 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If Authors Then Print #hFile, "Authors="; Quote(Authors)
 
   If Arguments.Count Then 
-    Print #hFile, "Arguments="; Settings.ToString(Arguments)
-    If CurrentArgument And If CurrentArgument.Count Then Print #hFile, "CurrentArgument="; Settings.ToString(CurrentArgument)
+    Print #hFile, "ArgumentList="; Settings.ToString(Arguments)
+    If CurrentArgument And If CurrentArgument.Count Then Print #hFile, "CurrentArgumentList="; Settings.ToString(CurrentArgument)
   Endif
   If Environment.Count Then Print #hFile, "Environment="; Quote(Environment.Join("\n"))
 

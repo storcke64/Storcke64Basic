@@ -26,6 +26,7 @@ End
 
 Public Sub Form_Open()
 
+  Settings.Read(Me)
   Project.SetEditorFont(lstArg)
   FillList
   lstArg.Index = lstArg.Find(FromArgs(Project.CurrentArgument))
@@ -139,6 +140,7 @@ End
 Public Sub Form_Close()
   
   SaveArgs()
+  Settings.Write(Me)
   
 End
 
