@@ -587,7 +587,7 @@ void gControl::move(int x, int y)
 
 	//g_debug("move: %p: %d %d", this, x, y);
 	_dirty_pos = true;
-	if (pr)
+	if (pr && !ignore())
 	{
 		// TODO: check the following optimization to see if it can be enabled again
 		//if (gtk_widget_get_parent(border) == pr->getContainer())
@@ -649,7 +649,7 @@ void gControl::resize(int w, int h)
 		#endif
 	}
 
-	if (pr)
+	if (pr && !ignore())
 		pr->performArrange();
 
 	send_configure(this); // needed for Watcher and Form Resize events
@@ -715,7 +715,7 @@ void gControl::setExpand (bool vl)
 	if (vl == expa)
 		return;
 
-	expa=vl;
+	expa = vl;
 
 	if (pr) pr->performArrange();
 }
@@ -726,7 +726,7 @@ void gControl::setIgnore (bool vl)
 	if (vl == igno)
 		return;
 
-	igno=vl;
+	igno = vl;
 	if (pr) pr->performArrange();
 }
 
@@ -736,7 +736,7 @@ void gControl::setTooltip(char *vl)
 
 	if (_tooltip) g_free(_tooltip);
 	_tooltip = NULL;
-	if (vl) _tooltip = g_strdup(vl);
+	if (vl && *vl) _tooltip = g_strdup(vl);
 
 	if (_tooltip)
 	{
