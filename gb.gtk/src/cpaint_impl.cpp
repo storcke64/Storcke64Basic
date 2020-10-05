@@ -127,6 +127,32 @@ static gFont *get_default_font(GB_PAINT *d)
 	}
 }
 
+//static void _Font(GB_PAINT *d, int set, GB_FONT *font);
+
+static void update_layout(GB_PAINT *d)
+{
+	GB_PAINT_EXTRA *dx = EXTRA(d);
+
+	if (dx->layout)
+	{
+		gt_add_layout_from_font(dx->layout, dx->font, d->resolutionY);
+		dx->ascent = dx->font->ascentF();
+
+		pango_cairo_context_set_font_options(pango_layout_get_context(dx->layout), gdk_screen_get_font_options (gdk_screen_get_default()));
+
+		/*cairo_font_options_t *options = cairo_font_options_create(); //cairo_font_options_copy(pango_cairo_context_get_font_options(pango_layout_get_context(dx->layout)));
+		cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_GRAY);
+		cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_MEDIUM);
+		cairo_font_options_set_hint_metrics(options, CAIRO_HINT_METRICS_ON);
+		cairo_font_options_set_subpixel_order(options, CAIRO_SUBPIXEL_ORDER_RGB);
+		pango_cairo_context_set_font_options(pango_layout_get_context(dx->layout), options);
+		cairo_font_options_destroy(options);*/
+
+		pango_layout_context_changed(dx->layout);
+	}
+}
+
+
 static bool init_painting(GB_PAINT *d, cairo_surface_t *target, double w, double h, int rx, int ry)
 {
 	GB_PAINT_EXTRA *dx = EXTRA(d);
@@ -435,6 +461,7 @@ static void Restore(GB_PAINT *d)
 		delete dx->font;
 		dx->font = dx->font_stack[GB.Count(dx->font_stack) - 1];
 		GB.Remove(POINTER(&dx->font_stack), GB.Count(dx->font_stack) - 1, 1);
+		update_layout(d);
 	}
 }
 
@@ -444,31 +471,6 @@ static void Antialias(GB_PAINT *d, int set, int *antialias)
 		cairo_set_antialias(CONTEXT(d), *antialias ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
 	else
 		*antialias = (cairo_get_antialias(CONTEXT(d)) == CAIRO_ANTIALIAS_NONE) ? 0 : 1;
-}
-
-static void _Font(GB_PAINT *d, int set, GB_FONT *font);
-
-static void update_layout(GB_PAINT *d)
-{
-	GB_PAINT_EXTRA *dx = EXTRA(d);
-
-	if (dx->layout)
-	{
-		gt_add_layout_from_font(dx->layout, dx->font, d->resolutionY);
-		dx->ascent = dx->font->ascentF();
-
-		pango_cairo_context_set_font_options(pango_layout_get_context(dx->layout), gdk_screen_get_font_options (gdk_screen_get_default()));
-
-		/*cairo_font_options_t *options = cairo_font_options_create(); //cairo_font_options_copy(pango_cairo_context_get_font_options(pango_layout_get_context(dx->layout)));
-		cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_GRAY);
-		cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_MEDIUM);
-		cairo_font_options_set_hint_metrics(options, CAIRO_HINT_METRICS_ON);
-		cairo_font_options_set_subpixel_order(options, CAIRO_SUBPIXEL_ORDER_RGB);
-		pango_cairo_context_set_font_options(pango_layout_get_context(dx->layout), options);
-		cairo_font_options_destroy(options);*/
-
-		pango_layout_context_changed(dx->layout);
-	}
 }
 
 static void apply_font(gFont *font, void *object = 0)
@@ -986,16 +988,8 @@ static PangoLayout *create_pango_layout(GB_PAINT *d)
 {
 	GB_PAINT_EXTRA *dx = EXTRA(d);
 
-	/*if (dx->print_context)
-		return gtk_print_context_create_pango_layout(dx->print_context);
-	else*/
-
 	if (!dx->layout)
-	{
 		dx->layout = pango_cairo_create_layout(dx->context);
-
-		update_layout(d);
-	}
 
 	return dx->layout;
 }
@@ -1023,6 +1017,8 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 		pango_layout_set_text(layout, text, len);
 		pango_layout_set_width(layout, -1);
 	}
+	
+	update_layout(d);
 
 	if (align == GB_DRAW_ALIGN_DEFAULT)
 		align = ALIGN_TOP_NORMAL;
@@ -1078,7 +1074,8 @@ static void get_text_extents(GB_PAINT *d, bool rich, const char *text, int len, 
 	else
 		pango_layout_set_text(layout, text, len);
 
-	gt_add_layout_from_font(layout, dx->font, d->resolutionY);
+	update_layout(d);
+	//gt_add_layout_from_font(layout, dx->font, d->resolutionY);
 
 	if (width > 0)
 		pango_layout_set_width(layout, width * PANGO_SCALE);
