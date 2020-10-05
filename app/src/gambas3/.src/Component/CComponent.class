@@ -6,6 +6,7 @@
 
 Static Private $iKey As Integer
 Static Private $hUnknown As CComponent
+Static Private $aGuiComp As String[] = ["gb.gui", "gb.qt4", "gb.qt5", "gb.gtk", "gb.gtk3"]
 
 Public Const PROJECT_NAME As String = "$"
 
@@ -91,6 +92,32 @@ Static Public Sub GetInfoDir() As String
   
 End
 
+Private Sub FindInfo(sKey As String) As String
+
+  Dim sComp As String
+  Dim aComp As String[]
+  Dim sPath As String
+  Dim aKey As String[]
+  
+  sPath = GetInfoDir() &/ sKey & ".info"
+  If Exist(sPath) Then Return sPath
+  
+  aKey = Split(sKey, ".")
+  If $aGuiComp.Exist(aKey[0] & "." & aKey[1]) Then
+    
+    For Each sComp In $aGuiComp
+      aComp = Split(sComp, ".")
+      aKey[1] = aComp[1]
+      sPath = GetInfoDir() &/ aKey.Join(".") & ".info" 
+      If Exist(sPath) Then Return sPath
+    Next
+    
+  Endif
+  
+  Error "gambas3: warning: cannot find information file for "; sKey
+
+End
+
 Public Sub Load()
   
   Dim aLine As String[]
@@ -160,11 +187,8 @@ Public Sub Load()
       sPath = Project.Dir &/ ".info"
       If Not Exist(sPath) Then Return
     Else
-      sPath = GetInfoDir() &/ Key & ".info"
-      If Not Exist(sPath) Then
-        Error "gambas3: warning: cannot find "; sPath
-        Return
-      Endif
+      sPath = FindInfo(Key)
+      If Not sPath Then Return
     Endif
     
     ' List of exported classes

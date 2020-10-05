@@ -3068,7 +3068,7 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
     Return True
   Endif
 
-  bDoNotIncVersion = bDoNotIncVersion Or Project.Config["/Executable/DoNotIncrementVersion", False]
+  bDoNotIncVersion = bDoNotIncVersion Or Project.Config["/Executable/DoNotIncrementVersion", False] Or Project.VersionFile
 
   If Not bDoNotIncVersion And If Project.TimeStamp = Project.ExecTimeStamp Then
     If Message.Warning(("No change has been detected.") & "\n\n" & ("Do you really want to increment the project version and make the executable again?"), ("Make executable"), ("Cancel")) = 2 Then 
