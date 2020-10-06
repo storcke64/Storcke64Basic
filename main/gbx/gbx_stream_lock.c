@@ -48,7 +48,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 	
 	stream->direct.watch = FALSE;
 		
-	fd = open(path, O_CREAT | O_WRONLY, 0666);
+	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
 	if (fd < 0)
 		return TRUE;
 

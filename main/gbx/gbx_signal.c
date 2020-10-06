@@ -111,6 +111,16 @@ static void handle_signal(int signum, siginfo_t *info, void *context)
 	int save_errno;
 
 	save_errno = errno;
+
+	#if DEBUG_ME	
+	char digit;
+	write(2, "[SIGNAL:", 8);
+	digit = '0' + (signum / 10);
+	write(2, &digit, 1);
+	digit = '0' + (signum % 10);
+	write(2, &digit, 1);
+	write(2, "]\n", 2);
+	#endif
 	
 	if (_count)
 	{
@@ -287,6 +297,10 @@ SIGNAL_CALLBACK *SIGNAL_register(int signum, void (*callback)(int, intptr_t), in
 	_count++;
 	
 	handler = find_handler(signum);
+	#if DEBUG_ME
+	fprintf(stderr, "SIGNAL_register: find_handler(%d) -> %p\n", signum, handler);
+	#endif
+	
 	if (!handler)
 	{
 		handler = add_handler();
@@ -405,4 +419,24 @@ void SIGNAL_has_forked(void)
 	close(_pipe[0]);
 	close(_pipe[1]);
 	create_pipe();
+}
+
+void SIGNAL_check(int signum)
+{
+	struct sigaction action;
+	SIGNAL_HANDLER *handler = find_handler(signum);
+	
+	if (!handler)
+		return;
+	
+	sigaction(signum, NULL, &action);
+	
+	#if DEBUG_ME
+	fprintf(stderr, "SIGNAL_check: %d -> %d\n", signum, action.sa_sigaction == handle_signal);
+	#endif
+	
+	if (action.sa_sigaction == handle_signal)
+		return;
+	
+	SIGNAL_install(handler, signum, handle_signal);
 }

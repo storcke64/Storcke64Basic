@@ -47,6 +47,7 @@ typedef
 void SIGNAL_install(SIGNAL_HANDLER *handler, int signum, void (*callback)(int, siginfo_t *, void *));
 void SIGNAL_uninstall(SIGNAL_HANDLER *handler, int signum);
 void SIGNAL_previous(SIGNAL_HANDLER *handler, int signum, siginfo_t *info, void *context);
+void SIGNAL_check(int signum);
 
 SIGNAL_CALLBACK *SIGNAL_register(int signum, void (*callback)(int, intptr_t), intptr_t data);
 void SIGNAL_unregister(int signum, SIGNAL_CALLBACK *cb);

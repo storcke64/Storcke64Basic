@@ -912,16 +912,18 @@ static void callback_child(int signum, intptr_t data)
 
 static void init_child(void)
 {
-	if (_init)
-		return;
+	if (!_init)
+	{
+		#ifdef DEBUG_ME
+		fprintf(stderr, "init_child()\n");
+		#endif
 
-	#ifdef DEBUG_ME
-	fprintf(stderr, "init_child()\n");
-	#endif
+		_SIGCHLD_callback = SIGNAL_register(SIGCHLD, callback_child, 0);
 
-	_SIGCHLD_callback = SIGNAL_register(SIGCHLD, callback_child, 0);
-
-	_init = TRUE;
+		_init = TRUE;
+	}
+	
+	SIGNAL_check(SIGCHLD);
 }
 
 static void exit_child(void)
@@ -983,14 +985,13 @@ void CPROCESS_wait_for(CPROCESS *process, int timeout)
 
 	OBJECT_REF(process);
 
-	sigfd = SIGNAL_get_fd();
-
 	ON_ERROR_1(error_CPROCESS_create, process)
 	{
 		while (process->running)
 		{
+			sigfd = SIGNAL_get_fd();
 			#ifdef DEBUG_ME
-			fprintf(stderr, "Watch process %d\n", process->pid);
+			fprintf(stderr, "Watch process %d (end = %d)\n", process->pid, sigfd);
 			#endif
 			ret = WATCH_process(sigfd, process->out, process->err, timeout);
 			#ifdef DEBUG_ME
