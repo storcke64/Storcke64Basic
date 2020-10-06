@@ -15,6 +15,8 @@ Property Animated As Boolean
 Property Separator As Boolean
 Property Border As Boolean
 
+Private Const ANIM_SPEED As Integer = 20
+
 Private $sText As String
 Private $hIcon As Picture
 Private $hView As DrawingArea
@@ -76,7 +78,7 @@ Private Sub DoOpen()
     fTime = Timer
     
     While Me.H < $H
-      Me.H = $H * Min(1, (Timer - fTime) * 8)
+      Me.H = $H * Min(1, (Timer - fTime) * ANIM_SPEED)
       Try Wait
     Wend
     
@@ -123,7 +125,7 @@ Public Sub Close()
     H = Me.H
     fTime = Timer
     While Me.H > 1
-      Me.H = H * (1 - Min(1, (Timer - fTime) * 8))
+      Me.H = H * (1 - Min(1, (Timer - fTime) * ANIM_SPEED))
       Wait
     Wend
     
