@@ -123,6 +123,64 @@ static const char *_cursor_bdiag[] =
 // Geometry optimization hack - Sometimes fails, so it is disabled...
 #define GEOMETRY_OPTIMIZATION 0
 
+// Private structures that allow to implement raise() and lower() methods
+
+#ifdef GTK3
+
+struct _GtkLayoutPrivate
+{
+  /* Properties */
+  guint width;
+  guint height;
+
+  GtkAdjustment *hadjustment;
+  GtkAdjustment *vadjustment;
+
+  /* GtkScrollablePolicy needs to be checked when
+   * driving the scrollable adjustment values */
+  guint hscroll_policy : 1;
+  guint vscroll_policy : 1;
+
+  /* Properties */
+
+  GdkVisibilityState visibility;
+  GdkWindow *bin_window;
+
+  GList *children;
+
+  gint scroll_x;
+  gint scroll_y;
+
+  guint freeze_count;
+};
+
+struct _GtkFixedPrivate
+{
+  GList *children;
+};
+
+typedef struct _GtkLayoutChild GtkLayoutChild;
+
+struct _GtkLayoutChild {
+  GtkWidget *widget;
+  gint x;
+  gint y;
+};
+
+#define GET_CHILDREN_LIST(_widget) 
+
+#else
+
+typedef struct _GtkLayoutChild   GtkLayoutChild;
+
+struct _GtkLayoutChild {
+  GtkWidget *widget;
+  gint x;
+  gint y;
+};
+
+#endif
+
 
 #ifdef GTK3
 static gboolean cb_frame_draw(GtkWidget *wid, cairo_t *cr, gControl *control)
@@ -1047,6 +1105,7 @@ void gControl::refresh()
 
 void gControl::refresh(int x, int y, int w, int h)
 {
+	GtkAllocation a;
 	/*GdkRectangle r;
 	GtkAllocation a;*/
 
@@ -1058,43 +1117,14 @@ void gControl::refresh(int x, int y, int w, int h)
 		w = width();
 		h = height();
 	}
-
-	if (widget != border)
-	{
-		GtkAllocation ab, aw;
-		
-		gtk_widget_get_allocation(border, &ab);
-		gtk_widget_get_allocation(widget, &aw);
-		x += ab.x - aw.x;
-		y += ab.y - aw.y;
-	}
 	
-	int fw = getFrameWidth();
-	x -= fw;
-	y -= fw;
+	if (w <= 0 || h <= 0)
+		return;
+
+	gtk_widget_get_allocation(widget, &a);
 	
-	if (x < 0)
-	{
-		w += x;
-		x = 0;
-	}
-	if (y < 0)
-	{
-		h += y;
-		y = 0;
-	}
+	gtk_widget_queue_draw_area(widget, x + a.x, y + a.y, w, h);
 	
-	if (w > 0 && h > 0)
-		gtk_widget_queue_draw_area(widget, x, y, w, h);
-
-	/*
-	r.x = a.x + x;
-	r.y = a.y + y;
-	r.width = w;
-	r.height = h;
-
-	gdk_window_invalidate_rect(gtk_widget_get_window(border), &r, TRUE);*/
-
 	afterRefresh();
 }
 
@@ -1188,99 +1218,84 @@ gControl* gControl::previous()
 		return pr->child(index - 1);
 }
 
-
-void gControl::lower()
+static int find_child_fixed(GtkFixedChild *data, GtkWidget *widget)
 {
-	gpointer *p;
-	GList *chd;
-	GtkWidget *child;
-	gControl *br;
-	int x,y;
-	GtkContainer *parent;
-
-	if (!pr) return;
-
-	/*if (gtk_widget_get_has_window(border))
-	{
-		gdk_window_lower(gtk_widget_get_window(border));
-		if (gtk_widget_get_window(widget))
-			gdk_window_lower(gtk_widget_get_window(widget));
-	}
-	else*/
-	{
-		//fprintf(stderr, "gb.gtk: warning: gControl::lower(): no window\n");
-
-		if (!(chd=gtk_container_get_children(GTK_CONTAINER(pr->getContainer())))) return;
-
-		chd = g_list_first(chd);
-
-		while(chd)
-		{
-			child = (GtkWidget*)chd->data;
-
-			br = gt_get_control(child);
-
-			if (br && br != this)
-			{
-				x = br->x();
-				y = br->y();
-				parent = GTK_CONTAINER(gtk_widget_get_parent(br->border));
-				g_object_ref(G_OBJECT(br->border));
-				gtk_container_remove(parent, br->border);
-				gtk_container_add(parent, br->border);
-
-				if (GTK_IS_LAYOUT(parent))
-					gtk_layout_move(GTK_LAYOUT(parent), br->border, x, y);
-				else
-					gtk_fixed_move(GTK_FIXED(parent), br->border, x, y);
-
-				g_object_unref(G_OBJECT(br->border));
-			}
-
-			chd = g_list_next(chd);
-		}
-	}
-
-	g_ptr_array_remove(pr->_children, this);
-
-	g_ptr_array_add(pr->_children, NULL);
-	p = pr->_children->pdata;
-	memmove(&p[1], &p[0], (pr->_children->len - 1) * sizeof(gpointer));
-	p[0] = this;
-
-	//pr->ch_list = g_list_remove(pr->ch_list, this);
-	//pr->ch_list = g_list_prepend(pr->ch_list, this);
-	pr->updateFocusChain();
-	pr->performArrange();
+	return !(data->widget == widget);
+}
+	
+static int find_child_layout(GtkLayoutChild *data, GtkWidget *widget)
+{
+	return !(data->widget == widget);
 }
 
-void gControl::raise()
+static GList **get_children_list(GtkContainer *parent)
 {
-	int x, y;
+#ifdef GTK3
+	if (GTK_IS_LAYOUT(parent))
+		return &((GtkLayout *)parent)->priv->children;
+	else
+		return &((GtkFixed *)parent)->priv->children;
+#else
+	if (GTK_IS_LAYOUT(parent))
+		return &((GtkLayout *)parent)->children;
+	else
+		return &((GtkFixed *)parent)->children;
+#endif
+}
+
+void gControl::restack(bool raise)
+{
 	GtkContainer *parent;
+	GList **children;
+	GList *find;
+	gpointer *p;
 
 	if (!pr) return;
 
-	x = left();
-	y = top();
 	parent = GTK_CONTAINER(gtk_widget_get_parent(border));
-	g_object_ref(G_OBJECT(border));
-	gtk_container_remove(parent, border);
-	gtk_container_add(parent, border);
-
-	//pr->moveChild(this, x, y);
+	
+	//fprintf(stderr, "%s: %s -> %s (%s)\n", raise ? "raise" : "lower", name(), pr->name(), GTK_IS_LAYOUT(parent) ? "L" : "F");
+	
+	children = get_children_list(parent);
+	
 	if (GTK_IS_LAYOUT(parent))
-		gtk_layout_move(GTK_LAYOUT(parent), border, x, y);
+		find = g_list_find_custom(*children, border, (GCompareFunc)find_child_layout);
+	else if (GTK_IS_FIXED(parent))
+		find = g_list_find_custom(*children, border, (GCompareFunc)find_child_fixed);
 	else
-		gtk_fixed_move(GTK_FIXED(parent), border, x, y);
-
-	g_object_unref(G_OBJECT(border));
-
+		return;
+	
+	*children = g_list_remove_link(*children, find);
+	if (raise)
+		*children = g_list_concat(*children, find);
+	else
+		*children = g_list_concat(find, *children);
+	
+	if (gtk_widget_get_has_window(border))
+	{
+		if (raise)
+			gdk_window_raise(gtk_widget_get_window(border));
+		else
+			gdk_window_lower(gtk_widget_get_window(border));
+	}
+	
 	g_ptr_array_remove(pr->_children, this);
-	g_ptr_array_add(pr->_children, this);
+	
+	if (raise)
+	{
+		g_ptr_array_add(pr->_children, this);
+	}
+	else
+	{
+		g_ptr_array_add(pr->_children, NULL);
+		p = pr->_children->pdata;
+		memmove(&p[1], &p[0], (pr->_children->len - 1) * sizeof(gpointer));
+		p[0] = this;
+	}
 
 	pr->updateFocusChain();
 	pr->performArrange();
+	pr->refresh();
 }
 
 void gControl::setNext(gControl *ctrl)
