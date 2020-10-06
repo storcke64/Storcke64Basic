@@ -264,7 +264,7 @@ Private Sub UpdateScreen()
   
   Dim W, H As Integer
   
-  H = Me.H
+  H = Me.H - PADDING * 2
   If Me.Border Then H -= 2
   H = Max(2, H \ $LH)
   
