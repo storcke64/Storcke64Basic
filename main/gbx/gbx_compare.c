@@ -41,7 +41,7 @@
 
 
 static bool _descent = FALSE;
-
+static int _mode = 0;
 
 int compare_nothing(void *a, void *b)
 {
@@ -567,7 +567,7 @@ int COMPARE_variant(VARIANT *a, VARIANT *b)
 		return -1;
 
 	if (a->type == b->type)
-		return (*COMPARE_get_func(a->type, 0))(&a->value, &b->value);
+		return (*COMPARE_get_func(a->type, -1))(&a->value, &b->value);
 
 	type = Max(a->type, b->type);
 
@@ -588,7 +588,7 @@ int COMPARE_variant(VARIANT *a, VARIANT *b)
 	BORROW(&value);
 	VALUE_conv(&value, type);
 	VALUE_conv_variant(&value);
-	comp = (*COMPARE_get_func(type, 0))(&a->value, &value._variant.value);
+	comp = (*COMPARE_get_func(type, -1))(&a->value, &value._variant.value);
 	RELEASE(&value);
 
 	return comp;
@@ -616,8 +616,12 @@ static COMPARE_FUNC _string_func[] = {
 
 COMPARE_FUNC COMPARE_get_func(TYPE type, int mode)
 {
-	_descent = (mode & GB_COMP_DESCENT) != 0;
-	mode &= GB_COMP_TYPE_MASK;
+	if (mode >= 0)
+	{
+		_descent = (mode & GB_COMP_DESCENT) != 0;
+		mode &= GB_COMP_TYPE_MASK;
+		_mode = mode;
+	}
 	
 	if (type >= T_OBJECT)
 		return (COMPARE_FUNC)COMPARE_object;
@@ -647,7 +651,7 @@ COMPARE_FUNC COMPARE_get_func(TYPE type, int mode)
 			return (COMPARE_FUNC)compare_date;
 
 		case T_STRING:
-			return _string_func[mode];
+			return _string_func[_mode];
 
 		case T_POINTER:
 			#ifdef OS_64BITS
