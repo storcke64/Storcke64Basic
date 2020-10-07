@@ -89,6 +89,7 @@ public:
 	void setFullArrangement(gContainerArrangement *arr);
 	
 	virtual void performArrange();
+	void decide(gControl *control, bool *width, bool *height);
 	void getMaxSize(int xc, int yc, int wc, int hc, int *w, int *h);
 
 #ifndef GTK3
@@ -102,7 +103,7 @@ public:
 	bool hasBackground() const;
 	bool hasForeground() const;
 
-	virtual void resize(int w, int h);
+	virtual bool resize(int w, int h);
 
 	virtual void setVisible(bool vl);
 
@@ -113,6 +114,7 @@ public:
 	
 	void disableArrangement();
 	void enableArrangement();
+	bool isArrangementEnabled() const { return _no_arrangement == 0; }
 
 //"Signals"
 	void (*onArrange)(gContainer *sender);
@@ -141,7 +143,8 @@ private:
   gContainer *_proxyContainer;
   gContainer *_proxyContainerFor;
 	unsigned _did_arrangement : 1;
-	unsigned _no_arrangement : 7;
+	unsigned _cb_map : 1;
+	unsigned _no_arrangement : 6;
 };
 
 #endif

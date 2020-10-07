@@ -349,12 +349,13 @@ void gLabel::setAlignment(int al)
 }
 
 
-void gLabel::resize(int w, int h)
+bool gLabel::resize(int w, int h)
 {
-	bool update = markup && width() != w;
-	gControl::resize(w, h);
-	if (update)
-		updateSize(false);
+	if (gControl::resize(w, h))
+		return true;
+	
+	updateSize(false);
+	return false;
 }
 
 void gLabel::setWrap(bool v)

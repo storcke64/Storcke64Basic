@@ -76,10 +76,10 @@ public:
 	char *tooltip() const { return _tooltip; }
 	bool isVisible() const { return visible; }
 	bool isReallyVisible();
-	bool acceptDrops() { return _accept_drops; }
-	char *name() { return _name; }
+	bool acceptDrops() const { return _accept_drops; }
+	const char *name() const { return _name; }
 	void setName(char *name);
-	bool action() { return _action; }
+	bool action() const { return _action; }
 	void setAction(bool v) { _action = v; }
 
 	void setCursor(gCursor *vl);
@@ -138,6 +138,7 @@ public:
 #endif
 
 	bool canFocus() const;
+	bool canFocusOnClick() const;
 	void setCanFocus(bool vl);
 
 	gControl *proxy() const { return _proxy; }
@@ -164,7 +165,7 @@ public:
 	void raise() { restack(true); }
 	void restack(bool raise);
 	virtual void move(int x, int y);
-	virtual void resize(int w, int h);
+	virtual bool resize(int w, int h);
 	virtual void moveResize(int x, int y, int w, int h);
 	virtual void setFocus();
 	bool hasFocus() const;

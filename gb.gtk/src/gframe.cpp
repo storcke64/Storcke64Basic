@@ -248,8 +248,11 @@ int gFrame::containerHeight()
 	return clientHeight() - containerY() - gApplication::getFrameWidth();
 }
 
-void gFrame::resize(int w, int h)
+bool gFrame::resize(int w, int h)
 {
-	gContainer::resize(w, h);
-	gtk_widget_set_size_request(fr, w, h);
+	if (gContainer::resize(w, h))
+		return true;
+	
+	gtk_widget_set_size_request(fr, width(), height());
+	return false;
 }

@@ -52,6 +52,11 @@ static gControl* get_next_child_widget (gContainer *gtk_control, int *gtk_list, 
 	return NULL; 
 }
 
+static void cb_map(GtkWidget *widget, gContainer *sender)
+{
+	sender->performArrange();
+}
+
 static void cb_arrange(gContainer *sender)
 {
 	if (sender->onArrange)
@@ -83,7 +88,8 @@ static void resize_container(gControl *cont, int w, int h)
 #define IS_DESIGN(_object) (((gControl*)_object)->design())
 #define IS_WIDGET_VISIBLE(_widget)  (((gControl*)_widget)->isVisible())
 
-#define CAN_ARRANGE(_object) (IS_WIDGET_VISIBLE(GET_WIDGET(_object)) || (((gControl *)_object)->isTopLevel() && ((gMainWindow *)_object)->opened))
+#define CAN_ARRANGE(_object) (gtk_widget_get_mapped(((gControl *)_object)->border))
+//|| (((gControl *)_object)->isTopLevel() && ((gMainWindow *)_object)->opened))
 
 // BM: ClientX() & ClientY() are relative to the border.
 // We need X & Y relative to the container widget.
@@ -222,6 +228,23 @@ void gContainer::getMaxSize(int xc, int yc, int wc, int hc, int *w, int *h)
 	arr->locked = locked;
 }
 
+void gContainer::decide(gControl *child, bool *width, bool *height)
+{
+	*width = *height = FALSE;
+	
+	if (child->ignore() || autoResize())
+		return;
+	
+	if ((arrange() == ARRANGE_VERTICAL)
+	    || (arrange() == ARRANGE_HORIZONTAL && child->expand())
+	    || (arrange() == ARRANGE_ROW && child->expand()))
+		*width = TRUE;
+	
+	if ((arrange() == ARRANGE_HORIZONTAL)
+	    || (arrange() == ARRANGE_VERTICAL && child->expand())
+	    || (arrange() == ARRANGE_COLUMN && child->expand()))
+		*height = TRUE;
+}
 
 void gContainer::initialize()
 {
@@ -237,6 +260,8 @@ void gContainer::initialize()
 	_client_w = 0;
 	_client_h = 0;
 	_no_arrangement = 0;
+	_did_arrangement = false;
+	_cb_map = false;
 	//onInsert = NULL;
 	
 	arrangement.mode = 0;
@@ -699,31 +724,35 @@ gControl *gContainer::findFirstFocus()
 	return NULL;
 }
 
-void gContainer::resize(int w, int h)
+bool gContainer::resize(int w, int h)
 {
-	if (w == bufW && h == bufH)
-		return;
-		
+	if (!_cb_map)
+	{
+		_cb_map = true;
+		g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
+	}
+	
+	if (gControl::resize(w, h))
+		return true;
+
 	_client_w = 0;
 	_client_h = 0;
 	
-	gControl::resize(w, h);
 	performArrange();
+	return false;
 }
 
 void gContainer::setVisible(bool vl)
 {
-	bool arr;
+	//bool arr;
 	
 	if (vl == isVisible())
 		return;
 	
-	arr = vl && !isVisible();
-	
 	gControl::setVisible(vl);
 	
-	if (arr)
-		performArrange();
+	/*if (arr)
+		performArrange();*/
 }
 
 void gContainer::updateFocusChain()

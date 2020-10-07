@@ -112,8 +112,7 @@ public:
 	void activate();
 	void raise();
 	virtual void move(int x, int y);
-	virtual void resize(int w, int h);
-	virtual void moveResize(int x, int y, int w, int h);
+	virtual bool resize(int w, int h);
 	bool close();
 	virtual void reparent(gContainer *newpr, int x, int y);
 

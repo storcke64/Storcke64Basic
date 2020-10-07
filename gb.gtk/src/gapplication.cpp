@@ -584,7 +584,7 @@ __FOUND_WIDGET:
 
 			if (event->type != GDK_BUTTON_RELEASE)
 			{
-				if (control->canFocus() && !control->hasFocus())
+				if (control->canFocus() && control->canFocusOnClick() && !control->hasFocus())
 					control->setFocus();
 				if (!control->_no_auto_grab)
 					gApplication::setButtonGrab(control);

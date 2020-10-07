@@ -242,12 +242,12 @@ gDrawingArea::~gDrawingArea()
 		UNREF_BUFFER();
 }
 
-void gDrawingArea::resize(int w, int h)
+/*void gDrawingArea::resize(int w, int h)
 {
 	// TODO Do not resize cache if the DrawingArea is being painted
 	gContainer::resize(w,h);
 	//updateCache();
-}
+}*/
 
 void gDrawingArea::updateEventMask()
 {

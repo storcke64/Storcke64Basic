@@ -45,7 +45,6 @@ public:
 
 //"Methods"
 	void clear();
-	virtual void resize(int w, int h);
 	virtual void setEnabled(bool vl);
 	virtual void setRealBackground(gColor color);
 	virtual void updateFont();

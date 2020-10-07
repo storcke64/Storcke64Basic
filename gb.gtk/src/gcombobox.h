@@ -59,7 +59,6 @@ public:
 	int find(const char *ptr);
 	void remove(int pos);
 	
-	virtual void resize(int w, int h);
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 #else

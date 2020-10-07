@@ -581,9 +581,10 @@ BEGIN_METHOD(CWIDGET_moveScaled, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 	if (w == 0) w = 1;
 	if (h == 0) h = 1;
 
-	CONTROL->move(x, y);
 	if (w > 0 && h > 0)
-		CONTROL->resize(w, h);
+		CONTROL->moveResize(x, y, w, h);
+	else
+		CONTROL->move(x, y);
 
 END_METHOD
 

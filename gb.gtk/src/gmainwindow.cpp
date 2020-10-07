@@ -184,7 +184,8 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 		
 		#ifdef GTK3
 		//data->_csd_w = data->_csd_h = -1;
-		return false;
+		if (data->isTopLevel())
+			return false;
 		#endif
 
 		w = event->width;
@@ -605,15 +606,18 @@ void gMainWindow::move(int x, int y)
 }
 
 
-void gMainWindow::resize(int w, int h)
+bool gMainWindow::resize(int w, int h)
 {
-	if (w == bufW && h == bufH)
-		return;
-
-	_resized = true;
-
-	if (isTopLevel())
+	if (!isTopLevel())
 	{
+		if (gContainer::resize(w, h))
+			return true;
+	}
+	else
+	{
+		if (w == bufW && h == bufH)
+			return true;
+
 		//fprintf(stderr, "gMainWindow::resize: %d %d %s\n", w, h, name());
 		//gdk_window_enable_synchronized_configure (border->window);
 
@@ -638,20 +642,18 @@ void gMainWindow::resize(int w, int h)
 				gtk_widget_show(border);
 		}
 	}
-	else
-	{
-		//fprintf(stderr, "resize %p -> (%d %d) (%d %d)\n", this, bufW, bufH, w, h);
-		gContainer::resize(w, h);
-	}
+
+	_resized = true;
+	return false;
 }
 
-void gMainWindow::moveResize(int x, int y, int w, int h)
+/*void gMainWindow::moveResize(int x, int y, int w, int h)
 {
 	//if (isTopLevel())
 	//	gdk_window_move_resize(border->window, x, y, w, h);
 	//else
 		gContainer::moveResize(x, y, w, h);
-}
+}*/
 
 void gMainWindow::emitOpen()
 {

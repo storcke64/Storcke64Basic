@@ -620,7 +620,7 @@ static void send_configure (gControl *control)
 // 	if (control->isWindow())
 // 	 g_debug("send configure to window: %s", control->name());
 
-	event = gdk_event_new (GDK_CONFIGURE);
+	event = gdk_event_new(GDK_CONFIGURE);
 
 	event->configure.window = NULL; //(GdkWindow *)g_object_ref(widget->window);
 	event->configure.send_event = TRUE;
@@ -629,8 +629,8 @@ static void send_configure (gControl *control)
 	event->configure.width = control->width();
 	event->configure.height = control->height();
 
-	gtk_widget_event (widget, event);
-	gdk_event_free (event);
+	gtk_widget_event(widget, event);
+	gdk_event_free(event);
 }
 
 void gControl::move(int x, int y)
@@ -661,30 +661,43 @@ void gControl::move(int x, int y)
 	send_configure(this); // needed for Watcher and Form Move events
 }
 
-void gControl::resize(int w, int h)
+bool gControl::resize(int w, int h)
 {
+	bool decide_w, decide_h;
+	
+	if (w < 0 && h < 0)
+		return true;
+	
+	if (pr && pr->isArrangementEnabled())
+	{
+		pr->decide(this, &decide_w, &decide_h);
+
+		if (w < 0 || decide_w)
+			w = width();
+
+		if (h < 0 || decide_h)
+			h = height();
+	}
+
 	if (w < minimumWidth())
 		w = minimumWidth();
 
 	if (h < minimumHeight())
 		h = minimumHeight();
 
-	if (bufW == w && bufH == h)
-		return;
+	if (width() == w && height() == h)
+		return true;
+
+	bufW = w;
+	bufH = h;
 
 	if (w < 1 || h < 1)
 	{
-		bufW = w;
-		bufH = h;
-
 		if (visible)
 			gtk_widget_hide(border);
 	}
 	else
 	{
-		bufW = w;
-		bufH = h;
-
 		if (frame && widget != border)
 		{
 			int fw = getFrameWidth() * 2;
@@ -711,6 +724,7 @@ void gControl::resize(int w, int h)
 		pr->performArrange();
 
 	send_configure(this); // needed for Watcher and Form Resize events
+	return false;
 }
 
 void gControl::moveResize(int x, int y, int w, int h)
@@ -2816,6 +2830,11 @@ bool gControl::canFocus() const
 #else
 	return GTK_WIDGET_CAN_FOCUS(widget);
 #endif
+}
+
+bool gControl::canFocusOnClick() const
+{
+	return gt_get_focus_on_click(widget);
 }
 
 void gControl::setCanFocus(bool vl)

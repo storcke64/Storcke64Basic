@@ -51,7 +51,7 @@ public:
 //"Methods"
 	void enableMarkup(bool vl);
 	void adjust();
-	virtual void resize(int w, int h);
+	virtual bool resize(int w, int h);
 	virtual void afterRefresh();
 
 //"Private"

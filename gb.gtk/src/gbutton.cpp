@@ -82,137 +82,50 @@ static void cb_click_check(GtkButton *object, gButton *data)
 
 #ifdef GTK3
 static gboolean button_draw(GtkWidget *wid, cairo_t *cr, gButton *data)
+#else
+static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
+#endif
 {
 	GdkPixbuf *img;
-	GdkRectangle rpix={0,0,0,0};
 	GdkRectangle rect;
 	GtkCellRendererState state;
-	gint py, px;
-	bool rtl, bcenter=false;
-	gint dx, dy;
-	GtkStateFlags f;
-
+	bool rtl;
+	int x, w, wt, wp, hp;
+	int d = gDesktop::scale() / 2;
+	
 	rtl = gtk_widget_get_default_direction() == GTK_TEXT_DIR_RTL;
+	
+	#ifdef GTK3
+		GtkStateFlags f = gtk_widget_get_state_flags(data->widget);
+		rect.x = rect.y = 0;
+		rect.width = data->width();
+		rect.height = data->height();
+	#else
+		GtkStateType f = (GtkStateType)GTK_WIDGET_STATE(data->widget);
+		rect = wid->allocation;
+	#endif
 
-	rect.x = rect.y = 0;
-	rect.width = data->width();
-	rect.height = data->height();
-
-	px = rect.width;
-
-	if (gtk_widget_get_state_flags(data->widget) & GTK_STATE_FLAG_ACTIVE)
-	{
-	  gtk_widget_style_get (wid,
-				"child-displacement-x", &dx,
-				"child-displacement-y", &dy,
-				(void *)NULL);
-		rect.x += dx;
-		rect.y += dy;
-	}
-
-	//g_debug("button_expose: %d %d %d %d", e->area.x, e->area.y, e->area.width, e->area.height);
-	//g_debug("rect: %d %d %d %d", rect.x, rect.y, rect.width, rect.height);
-
-	if (data->rendpix)
-	{
-		if (gtk_widget_get_state_flags(data->widget) & GTK_STATE_FLAG_INSENSITIVE)
-		{
-		  if (!data->rendinc)
-		    data->rendinc = gt_pixbuf_create_disabled(data->rendpix);
-		  img = data->rendinc;
-    }
-		else
-		  img = data->rendpix;
-
-		rpix.width = gdk_pixbuf_get_width(img);
-		rpix.height = gdk_pixbuf_get_height(img);
-
-		py = (rect.height - rpix.height)/2;
-
-		bcenter = !(data->text()) || !(*data->text());
-
-		if (bcenter)
-		{
-			//fprintf(stderr, "draw pixbuf: %d %d\n", rect.x + (px-rpix.width)/2, rect.y + py);
-			//gdk_draw_pixbuf(GDK_DRAWABLE(win),gc,img,0,0,rect.x + (px-rpix.width)/2, rect.y + py,
-      //                                  -1,-1,GDK_RGB_DITHER_MAX,0,0);
-
-			gt_cairo_draw_pixbuf(cr, img, rect.x + (px - rpix.width) / 2, rect.y + py, -1, -1, 1.0, NULL);
-			return false;
-		}
-
-		if (rtl)
-			gt_cairo_draw_pixbuf(cr, img, rect.x + rect.width - 6, rect.y + py, -1, -1, 1.0, NULL);
-		else
-			gt_cairo_draw_pixbuf(cr, img, rect.x + 6, rect.y + py, -1, -1, 1.0, NULL);
-
-		rect.width -= rpix.width;
-		rect.x += rpix.width;
-	}
-
-	gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
-	g_object_set(G_OBJECT(data->rendtxt), "sensitive", true, (void *)NULL);
-
-
-	f = gtk_widget_get_state_flags(data->widget);
-
-	if (f & GTK_STATE_INSENSITIVE)
-	{
-		state = GTK_CELL_RENDERER_INSENSITIVE;
-		g_object_set(G_OBJECT(data->rendtxt), "sensitive", false, (void *)NULL);
-	}
-	/*else if (f & GTK_STATE_SELECTED)
-	{
-		state = GTK_CELL_RENDERER_SELECTED;
-	}*/
-	else
-		state = (GtkCellRendererState)0;
-
-	if (rect.width >= 1 && rect.height >= 1 && data->bufText && *data->bufText)
-	{
-		gtk_cell_renderer_set_fixed_size(data->rendtxt, rect.width, rect.height);
-		gtk_cell_renderer_render(data->rendtxt, cr, wid, &rect, &rect, state);
-	}
-
-	return FALSE;
-}
+#ifdef GTK3
+	if (data->getBorder() && (f & GTK_STATE_FLAG_ACTIVE))
 #else
-static gboolean button_expose(GtkWidget *wid,GdkEventExpose *e,gButton *data)
-{
-	cairo_t *cr;
-	GdkPixbuf    *img;
-	GdkRectangle rpix={0,0,0,0};
-	GdkRectangle rect;
-	GtkCellRendererState state;
-	gint         py,px;
-	bool         rtl,bcenter=false;
-	gint dx, dy;
-	GdkWindow *win;
-
-		
-	rtl = gtk_widget_get_default_direction() == GTK_TEXT_DIR_RTL;
-
-	rect = wid->allocation;
-	win = wid->window;
-	
-	px = rect.width;
-
-	if (GTK_WIDGET_STATE(data->widget) == GTK_STATE_ACTIVE)
+	if (data->getBorder() && (f == GTK_STATE_ACTIVE))
+#endif
 	{
-	  gtk_widget_style_get (wid,
-				"child-displacement-x", &dx,
-				"child-displacement-y", &dy,
-				(void *)NULL);
-		rect.x += dx;
-		rect.y += dy;
+		int d = 1 + gDesktop::scale() / 16;
+		rect.x += d;
+		rect.y += d;
 	}
 
-	//g_debug("button_expose: %d %d %d %d", e->area.x, e->area.y, e->area.width, e->area.height);
-	//g_debug("rect: %d %d %d %d", rect.x, rect.y, rect.width, rect.height);
-
+	wt = data->hasText() ? data->font()->width(data->text(), strlen(data->text())) : 0;
+	wp = 0;
+	
 	if (data->rendpix)
 	{
-		if (GTK_WIDGET_STATE(data->widget)==GTK_STATE_INSENSITIVE) 
+		#ifdef GTK3
+		if (f & GTK_STATE_FLAG_INSENSITIVE)
+		#else
+		if (f == GTK_STATE_INSENSITIVE)
+		#endif
 		{
 		  if (!data->rendinc)
 		    data->rendinc = gt_pixbuf_create_disabled(data->rendpix);
@@ -221,80 +134,99 @@ static gboolean button_expose(GtkWidget *wid,GdkEventExpose *e,gButton *data)
 		else
 		  img = data->rendpix;
 
-		rpix.width = gdk_pixbuf_get_width(img);
-		rpix.height = gdk_pixbuf_get_height(img);
-		
-		py = (rect.height - rpix.height)/2;
-		
-		cr = gdk_cairo_create(win);
-		gdk_cairo_region(cr, e->region);
-		cairo_clip(cr);
+		wp = gdk_pixbuf_get_width(img);
+		hp = gdk_pixbuf_get_height(img);
+	}
 
-		bcenter = !(data->text()) || !(*data->text());
+	w = wt + wp;
+	if (wt && wp)
+		w += d;
+	
+	if (wp)
+	{
+		x = rect.x + (rect.width - w) / 2;
+		if (rtl && wt)
+			x += wt + d;
+
+		#ifndef GTK3
+			cairo_t *cr = gdk_cairo_create(wid->window);
+			gdk_cairo_region(cr, e->region);
+			cairo_clip(cr);
+		#endif
 		
-		if (bcenter) 
-		{	
-			//fprintf(stderr, "draw pixbuf: %d %d\n", rect.x + (px-rpix.width)/2, rect.y + py);
-			//gdk_draw_pixbuf(GDK_DRAWABLE(win),gc,img,0,0,rect.x + (px-rpix.width)/2, rect.y + py,
-      //                                  -1,-1,GDK_RGB_DITHER_MAX,0,0);
-			
-			gt_cairo_draw_pixbuf(cr, img, rect.x + (px - rpix.width) / 2, rect.y + py, -1, -1, 1.0, NULL);
-			
+		gt_cairo_draw_pixbuf(cr, img, x, rect.y + (rect.height - hp) / 2, -1, -1, 1.0, NULL);
+		
+		#ifndef GTK3
 			cairo_destroy(cr);
-			return false;
-		}
-
-		if (rtl)
-			gt_cairo_draw_pixbuf(cr, img, rect.x + rect.width - 6, rect.y + py, -1, -1, 1.0, NULL);
-		else
-			gt_cairo_draw_pixbuf(cr, img, rect.x + 6, rect.y + py, -1, -1, 1.0, NULL);
-
-		cairo_destroy(cr);
-		
-		rect.width -= rpix.width;
-		rect.x += rpix.width;
+		#endif
 	}
 	
-	gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
-	g_object_set(G_OBJECT(data->rendtxt), "sensitive", true, (void *)NULL);
-	
-	switch (GTK_WIDGET_STATE(data->widget))
+	if (wt)
 	{
-		//case GTK_STATE_NORMAL:
-		//case GTK_STATE_ACTIVE: state=GTK_CELL_RENDERER_PRELIT; break;
-		//case GTK_STATE_PRELIGHT: state=GTK_CELL_RENDERER_PRELIT; break;
-		case GTK_STATE_SELECTED: 
-			state = GTK_CELL_RENDERER_SELECTED; 
-			break;
+		x = rect.x + (rect.width - w) / 2;
+		if (!rtl && wp)
+			x += wp + d;
 		
-		case GTK_STATE_INSENSITIVE: 
-			state = GTK_CELL_RENDERER_INSENSITIVE; 
-			g_object_set(G_OBJECT(data->rendtxt), "sensitive", false, (void *)NULL); 
-			break;
+		gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
+
+		#ifdef GTK3
+		
+			g_object_set(G_OBJECT(data->rendtxt), "sensitive", !(f & GTK_STATE_INSENSITIVE), (void *)NULL);
 			
-		default:
-			state = (GtkCellRendererState)0; 
-			break;
-	}
-	
-	
-	/*rect.width-=12;
-	rect.x+=6;
-	if (rtl)
-	{
-		rect.width=px-rect.x-6;
-		rect.x=6;
-	}*/
-	
-	if (rect.width >= 1 && rect.height >= 1)
-	{
+			if (f & GTK_STATE_SELECTED)
+				state = GTK_CELL_RENDERER_SELECTED;
+			else if (f & GTK_STATE_INSENSITIVE)
+				state = GTK_CELL_RENDERER_INSENSITIVE;
+			else
+				state = (GtkCellRendererState)0;
+			
+		#else
+			
+			g_object_set(G_OBJECT(data->rendtxt), "sensitive", true, (void *)NULL);
+			
+			switch (f)
+			{
+				//case GTK_STATE_NORMAL:
+				//case GTK_STATE_ACTIVE: state=GTK_CELL_RENDERER_PRELIT; break;
+				//case GTK_STATE_PRELIGHT: state=GTK_CELL_RENDERER_PRELIT; break;
+				case GTK_STATE_SELECTED: 
+					state = GTK_CELL_RENDERER_SELECTED; 
+					break;
+				
+				case GTK_STATE_INSENSITIVE: 
+					state = GTK_CELL_RENDERER_INSENSITIVE; 
+					g_object_set(G_OBJECT(data->rendtxt), "sensitive", false, (void *)NULL); 
+					break;
+					
+				default:
+					state = (GtkCellRendererState)0; 
+					break;
+			}
+			
+		#endif
+
+		rect.x = x;
+		rect.width = wt;
 		gtk_cell_renderer_set_fixed_size(data->rendtxt, rect.width, rect.height);
-		gtk_cell_renderer_render(data->rendtxt, win, wid, &rect, &rect, &e->area, state);
+		#ifdef GTK3
+			gtk_cell_renderer_render(data->rendtxt, cr, wid, &rect, &rect, state);
+		#else
+			gtk_cell_renderer_render(data->rendtxt, wid->window, wid, &rect, &rect, &e->area, state);
+		#endif
 	}
-	
+
 	return FALSE;
 }
+
+#ifdef GTK3
+static void cb_state(GtkWidget *widget, GtkStateFlags state, gButton *data)
+#else
+static void cb_state(GtkWidget *widget, GtkStateType state, gButton *data)
 #endif
+{
+	data->refresh();
+}
+
 
 gButton::gButton(gContainer *par, Type typ) : gControl(par)
 {
@@ -386,6 +318,12 @@ gButton::gButton(gContainer *par, Type typ) : gControl(par)
 		setColorButton();
 	}
 	
+	#ifdef GTK3
+		g_signal_connect(G_OBJECT(widget), "state-flags-changed", G_CALLBACK(cb_state), (gpointer)this);	
+	#else
+		g_signal_connect(G_OBJECT(widget), "state-changed", G_CALLBACK(cb_state), (gpointer)this);	
+	#endif
+	
 	setText(NULL);
 
 	if (type == Tool) 
@@ -416,12 +354,6 @@ bool gButton::inconsistent()
 	return vl;	
 }
 
-const char* gButton::text()
-{
-	//if (type == Tool) return this->toolTip();
-	return bufText;
-}
-
 void gButton::setText(const char *st)
 {
 	GtkAccelGroup *accel;
@@ -440,7 +372,7 @@ void gButton::setText(const char *st)
 
 	if (rendtxt)
 	{
-		if (bufText && *bufText)
+		if (hasText())
 		{
 			shortcut = (int)gMnemonic_correctMarkup(bufText, &buf);
 
@@ -461,7 +393,7 @@ void gButton::setText(const char *st)
 	}
 	else
 	{
-		if (bufText && *bufText)
+		if (hasText())
 		{
 			gMnemonic_correctText((char*)st, &buf);
 			gtk_button_set_use_underline(GTK_BUTTON(widget), TRUE);
@@ -641,10 +573,10 @@ int gButton::minimumHeight()
 {
 	int mh = 0;
 	
-	if (bufText && *bufText)
+	if (hasText())
 	{
 		if (type == Button || type == Toggle || type == Tool)
-			mh = font()->height() + 8;
+			mh = font()->height() + gDesktop::scale();
 		else
 			mh = font()->height() + 2;
 	}
@@ -764,7 +696,7 @@ void gButton::updateSize()
 	mh = minimumHeight();
 	mw = 0;
 	
-	if (bufText && *bufText)
+	if (hasText())
 	{
 		gint m;
 	
@@ -793,11 +725,11 @@ void gButton::updateSize()
 	
 	if (pic)
 	{
-		if (mw) mw += gDesktop::scale();
+		if (mw) mw += gDesktop::scale() / 2;
 		mw += pic->width();
 	}
 	
-	mw += gDesktop::scale();
+	mw += gDesktop::scale() * 2;
 	
 	if (mh < height())
 		mh = height();

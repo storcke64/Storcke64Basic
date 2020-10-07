@@ -39,8 +39,9 @@ public:
 	bool getBorder();
 	bool isCancel();
 	bool isDefault();
-	const char* text();
-	gPicture* picture();
+	const char *text() const { return bufText; }
+	bool hasText() const { return bufText && *bufText; }
+	gPicture *picture();
 	bool value();
 	bool isToggle();
 	bool isRadio();

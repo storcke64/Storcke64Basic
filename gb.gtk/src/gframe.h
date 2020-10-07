@@ -65,7 +65,7 @@ public:
 	virtual void setRealForeground(gColor color);
 #endif
 
-	virtual void resize(int w, int h);
+	virtual bool resize(int w, int h);
 	
 //"Private"
 	GtkWidget *fr;

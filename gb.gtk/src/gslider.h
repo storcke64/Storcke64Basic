@@ -53,7 +53,7 @@ public:
 	int getDefaultSize();
 	bool isVertical() const;
 	
-	virtual void resize(int w, int h);
+	virtual bool resize(int w, int h);
 
 //"Signals"
 	void (*onChange)(gSlider *sender);

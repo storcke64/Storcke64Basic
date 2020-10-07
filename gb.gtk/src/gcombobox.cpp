@@ -552,10 +552,10 @@ void gComboBox::remove(int pos)
 	updateSort();
 }
 
-void gComboBox::resize(int w, int h)
+/*void gComboBox::resize(int w, int h)
 {
 	gControl::resize(w,h);
-}
+}*/
 
 void gComboBox::updateFont()
 {
