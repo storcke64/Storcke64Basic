@@ -2839,14 +2839,12 @@ Public Function InsertDirectory(sDir As String, Optional bNoVerCtrl As Boolean) 
       Try Mkdir sPath
       If Error Then
         Message.Error(Error.Text)
-        Return False
+        Return True
       Endif
       If Not bNoVerCtrl Then VersionControl.AddDir(sPath)
       RefreshKey(sPath)
     Endif
   Next
-
-  Return True
 
 End
 

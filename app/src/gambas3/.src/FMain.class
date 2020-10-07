@@ -962,7 +962,7 @@ Public Sub mnuAddDirectory_Click()
     sPath = GetCurrentDir() &/ ("New folder") & " (" & iInd & ")"
   Wend
   
-  If Not Project.InsertDirectory(sPath, True) Then Return
+  If Project.InsertDirectory(sPath, True) Then Return
   $sDeleteKey = sPath
   
   Rename(sPath)  
