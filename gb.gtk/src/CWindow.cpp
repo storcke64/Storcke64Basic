@@ -167,7 +167,7 @@ bool CWINDOW_must_quit()
 	return true;
 }
 
-static bool gb_raise_window_Close(gMainWindow *sender)
+static bool cb_close(gMainWindow *sender)
 {
 	CWINDOW *_object = (CWINDOW*)GetObject(sender);
 
@@ -181,6 +181,7 @@ static bool gb_raise_window_Close(gMainWindow *sender)
 	{
 		if (gMainWindow::closeAll())
 			return true;
+
 		if (!sender->isPersistent())
 		{
 			CWINDOW_delete_all();
@@ -298,7 +299,7 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent;)
 	WINDOW->onHide = cb_hide;
 	WINDOW->onMove = cb_move;
 	WINDOW->onResize = cb_resize;
-	WINDOW->onClose = gb_raise_window_Close;
+	WINDOW->onClose = cb_close;
 	WINDOW->onActivate = cb_activate;
 	WINDOW->onDeactivate = cb_deactivate;
 	WINDOW->onFontChange = cb_font_change;
@@ -508,16 +509,20 @@ END_PROPERTY
 
 BEGIN_PROPERTY(CWINDOW_top_only)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(WINDOW->topOnly()); return; }
-	WINDOW->setTopOnly(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(WINDOW->isTopOnly());
+	else
+		WINDOW->setTopOnly(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
 
 BEGIN_PROPERTY(CWINDOW_skip_taskbar)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(WINDOW->skipTaskBar()); return; }
-	WINDOW->setSkipTaskBar(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(WINDOW->isSkipTaskBar());
+	else
+		WINDOW->setSkipTaskBar(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -572,7 +577,6 @@ BEGIN_METHOD_VOID(CWINDOW_center)
 
 END_METHOD
 
-
 BEGIN_PROPERTY(CWINDOW_menu_count)
 
 	GB.ReturnInteger(WINDOW->menuCount());
@@ -591,7 +595,7 @@ END_PROPERTY
 BEGIN_PROPERTY(CWINDOW_sticky)
 
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WINDOW->getSticky());
+		GB.ReturnBoolean(WINDOW->isSticky());
 	else
 		WINDOW->setSticky(VPROP(GB_BOOLEAN));
 
@@ -674,7 +678,7 @@ END_METHOD
 
 BEGIN_PROPERTY(CWINDOW_closed)
 
-	GB.ReturnBoolean(WINDOW->isClosed());
+	GB.ReturnBoolean(!WINDOW->isOpened());
 
 END_PROPERTY
 
@@ -786,11 +790,11 @@ END_METHOD
 
 BEGIN_METHOD(CFORM_load, GB_OBJECT parent)
 
-	if (!MISSING(parent))
-		GB.Push(1, GB_T_OBJECT, VARG(parent));
+	gMainWindow *window = (gMainWindow *)((CWIDGET *)GB.AutoCreate(GB.GetClass(NULL), 0))->widget;
+	CCONTAINER *parent = (CCONTAINER *)VARGOPT(parent, 0);
 
-	GB.AutoCreate(GB.GetClass(NULL), MISSING(parent) ? 0 : 1);
-
+	window->reparent(parent ? CONTAINER(parent) : NULL, window->x(), window->y());
+	
 END_METHOD
 
 /***************************************************************************
@@ -951,7 +955,7 @@ GB_DESC CFormDesc[] =
 	GB_AUTO_CREATABLE(),
 
 	GB_STATIC_METHOD("Main", 0, CFORM_main, 0),
-	GB_STATIC_METHOD("Load", 0, CFORM_load, "[(Parent)Control;]"),
+	GB_STATIC_METHOD("Load", 0, CFORM_load, "[(Parent)Container;]"),
 	GB_METHOD("_new", 0, CFORM_new, 0),
 	
 	FORM_DESCRIPTION,

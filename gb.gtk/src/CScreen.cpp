@@ -274,6 +274,7 @@ END_PROPERTY
 BEGIN_METHOD_VOID(Application_exit)
 
 	GB.FreeString(&CAPPLICATION_Theme);
+	GB.StoreObject(NULL, POINTER(&CAPPLICATION_Restart));
 	free_screens();
 
 END_METHOD

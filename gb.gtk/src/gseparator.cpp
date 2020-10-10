@@ -35,21 +35,29 @@ static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gSeparator *data)
 	w = data->width();
 	h = data->height();
 
+	color = data->foreground();
+	if (color == COLOR_DEFAULT)
+		color = gDesktop::lightfgColor();
+
+	gt_cairo_set_source_color(cr, color);
+	
 	if (w == 1 || h == 1)
-	{
-		color = data->foreground();
-		if (color == COLOR_DEFAULT)
-			color = gDesktop::lightfgColor();
-
-		gt_cairo_set_source_color(cr, color);
-
-		cairo_rectangle(cr, x, y, w, h);
-		cairo_fill(cr);
-	}
-	else if (w>=h)
-		gtk_render_line(gtk_widget_get_style_context(wid), cr, x, y + (h / 2), x + w - 1, y + (h / 2));
+		cairo_paint(cr);
 	else
-		gtk_render_line(gtk_widget_get_style_context(wid), cr, x + (w / 2), y, x + (w / 2), y + h - 1);
+	{
+		int d = 2 + gDesktop::scale() / 2;
+		
+		if (h >= w && h > d)
+		{
+			cairo_rectangle(cr, x + w / 2, y + d / 2, 1, h - d);
+			cairo_fill(cr);
+		}
+		else if (w > h && w > d)
+		{
+			cairo_rectangle(cr, x + d / 2, y + h / 2, w - d, 1);
+			cairo_fill(cr);
+		}
+	}
 
 	return false;
 }

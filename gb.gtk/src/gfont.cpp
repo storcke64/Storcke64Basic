@@ -541,18 +541,18 @@ const char *gFont::toFullString()
 void gFont::textSize(const char *text, int len, float *w, float *h)
 {
 	PangoLayout *ly;
-	int tw = 0, th = 0;
+	PangoRectangle rect = { 0 };
 	
 	if (text && len)
 	{
 		ly = pango_layout_new(ct);
 		pango_layout_set_text(ly, text, len);	
-		pango_layout_get_size(ly, &tw, &th);
+		pango_layout_get_extents(ly, NULL, &rect);
 		g_object_unref(ly);
 	}
 	
-	if (w) *w = (float)tw / PANGO_SCALE;
-	if (h) *h = (float)th / PANGO_SCALE;
+	if (w) *w = (float)rect.width / PANGO_SCALE;
+	if (h) *h = (float)rect.height / PANGO_SCALE;
 }
 
 int gFont::width(const char *text, int len)

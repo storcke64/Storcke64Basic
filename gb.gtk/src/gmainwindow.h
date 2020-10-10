@@ -43,16 +43,16 @@ public:
 	int menuCount();
 	bool isModal() const;
 	const char* text();
-	bool topOnly();
-	bool skipTaskBar();
+	bool isTopOnly() const { return isTopLevel() && _top_only; }
+	bool isSkipTaskBar() const { return isTopLevel() && _skip_taskbar; }
 	bool minimized() const { return _minimized; }
 	bool maximized() const { return _maximized; }
 	bool fullscreen() const { return _fullscreen; }
-	bool getSticky();
+	bool isSticky() const { return isTopLevel() && _sticky; };
 	int  getStacking();
-	bool isPersistent() const { return persistent; }
-	bool isOpened() const { return opened; }
-	bool isClosed() const { return !opened; }
+	bool isPersistent() const { return _persistent; }
+	bool isOpened() const { return _opened; }
+	bool isClosed() const { return _closed; }
 	bool isHidden() const { return _hidden; }
 	bool isPopup() const { return _popup; }
 	bool isTransparent() const { return _transparent; }
@@ -141,7 +141,7 @@ public:
   void initialize();
 	void drawMask();
 	void initWindow();
-	void emitOpen();
+	bool emitOpen();
 	void remap();
 	bool doClose();
 	void afterShow();
@@ -183,11 +183,12 @@ public:
 	int _csd_h;
 	
 	unsigned _mask : 1;
-	unsigned top_only : 1;
+	unsigned _top_only : 1;
 	unsigned _resized : 1;
-	unsigned persistent : 1;
-	unsigned sticky : 1;
-	unsigned opened : 1;
+	unsigned _persistent : 1;
+	unsigned _sticky : 1;
+	unsigned _opened : 1;
+	unsigned _closed : 1;
 	unsigned _closing : 1;
 	unsigned _not_spontaneous : 1;
 	unsigned _skip_taskbar : 1;

@@ -116,8 +116,14 @@ static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
 		rect.y += d;
 	}
 
-	wt = data->hasText() ? data->font()->width(data->text(), strlen(data->text())) : 0;
 	wp = 0;
+	wt = 0;
+	
+	if (data->hasText())
+	{
+		gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
+		wt = data->font()->width(data->text(), strlen(data->text()));
+	}
 	
 	if (data->rendpix)
 	{
@@ -167,8 +173,6 @@ static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
 		if (!rtl && wp)
 			x += wp + d;
 		
-		gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
-
 		#ifdef GTK3
 		
 			g_object_set(G_OBJECT(data->rendtxt), "sensitive", !(f & GTK_STATE_INSENSITIVE), (void *)NULL);
@@ -297,9 +301,7 @@ gButton::gButton(gContainer *par, Type typ) : gControl(par)
 
 	if (rendtxt) 
 	{
-		g_object_set(G_OBJECT(rendtxt),"xalign",0.5,(void *)NULL);
-		g_object_set(G_OBJECT(rendtxt),"yalign",0.5,(void *)NULL);
-
+		g_object_set(G_OBJECT(rendtxt), "xalign", 0.5, "yalign", 0.5, "xpad", 0, "ypad", 0, NULL);
 		ON_DRAW(widget, this, button_expose, button_draw);
 	}
 	

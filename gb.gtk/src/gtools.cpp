@@ -787,8 +787,8 @@ GdkPixbuf *gt_pixbuf_create_disabled(GdkPixbuf *img)
   
 	while (r != end) 
 	{
-    *r = *g = *b = 0x80 | (((*r + *b) >> 1) + *g) >> 2; // (r + b + g) / 3
-
+    //*r = *g = *b = 0x80 | (((*r + *b) >> 1) + *g) >> 2; // (r + b + g) / 3
+		*r = *g = *b = (*r * 11 + *g * 16 + *b * 5) / 32;
     r += 4;
     g += 4;
     b += 4;
