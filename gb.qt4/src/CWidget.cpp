@@ -1166,7 +1166,7 @@ void CWIDGET_set_visible(CWIDGET *_object, bool v)
 		QWIDGET(_object)->hide();
 	}
 	
-	if (arrange)
+	if (arrange && !THIS->flag.ignore)
 		arrange_parent(THIS);
 }
 

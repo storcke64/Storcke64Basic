@@ -416,21 +416,19 @@ MySeparator::MySeparator(QWidget *parent)
 
 void MySeparator::paintEvent( QPaintEvent * )
 {
+	void *_object = CWidget::getReal(this);
 	QPainter p(this);
+	
+	uint color = CWIDGET_get_foreground(&THIS->widget);
+	QColor pen = (color == COLOR_DEFAULT) ? CCOLOR_light_foreground() : TO_QCOLOR(color);
 	
 	if (width() == 1 || height() == 1)
 	{
-		void *_object = CWidget::getReal(this);
-		uint color = CWIDGET_get_foreground(&THIS->widget);
-		p.setPen(color == COLOR_DEFAULT ? CCOLOR_light_foreground() : TO_QCOLOR(color));
-		if (width() >= height())
-			p.drawLine(0, height() / 2, width() - 1, height() / 2);
-		else
-			p.drawLine(width() / 2, 0, width() / 2, height() - 1);
+		p.fillRect(0, 0, width(), height(), pen);
 	}
 	else
 	{
-		QStyleOption opt;
+		/*QStyleOption opt;
 		
 		opt.rect = rect();
 		opt.palette = palette();
@@ -439,7 +437,19 @@ void MySeparator::paintEvent( QPaintEvent * )
 		if (width() < height())
 			opt.state |= QStyle::State_Horizontal;
 
-		style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p);
+		style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p);*/
+		
+		int d = 2 + MAIN_scale / 2;
+		
+		if (height() >= width())
+		{
+			if (height() > d)
+				p.fillRect(width() / 2, d / 2, 1, height() - d, pen);
+		}
+		else if (width() > d)
+		{
+			p.fillRect(d / 2, height() / 2, width() - d, 1, pen);
+		}
 	}
 }
 
