@@ -1748,13 +1748,9 @@ Private Sub LoadLayout(sName As String)
   
   RefreshWindow
   
-  For Each sSlot In hSettings.Keys
-    For Each sKey In hSettings.Keys[sSlot]
-      vVal = hSettings[sSlot &/ sKey]
-      If sSlot = "Toolbar" Then
-        ToolBar.SetLayout(LCase(sKey), vVal)
-      Endif
-    Next
+  For Each sKey In hSettings.Keys["Toolbar"]
+    vVal = hSettings[sSlot &/ sKey]
+    ToolBar.SetLayout(sKey, vVal)
   Next
   
 Finally
