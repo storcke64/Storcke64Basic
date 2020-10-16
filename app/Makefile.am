@@ -26,6 +26,11 @@ install-exec-local:
 	  done)
 	##@if test "$(bindir)" != "$(ROOT)/usr/bin" && test "$(bindir)" != "$(ROOT)/usr/bin/"; then
 	@$(LN_S) -f gambas$(GAMBAS_VERSION).gambas $(DESTDIR)$(bindir)/gambas$(GAMBAS_VERSION) || true
+	@if test x"$(XDG_UTILS)" != x; then \
+	  echo "Registering Gambas IDE application icon..."; \
+	  cp -f $(srcdir)/desktop/gambas3.png $(DESTDIR)$(gbdatadir)/icons; \
+	  xdg-icon-resource install --novendor --context apps --size 256 $(DESTDIR)$(gbdatadir)/icons/gambas3.png gambas3; \
+	fi
 	
 	@echo "Installing the scripter..."
 	@$(LN_S) -f gbs$(GAMBAS_VERSION).gambas $(DESTDIR)$(bindir)/gbs$(GAMBAS_VERSION) || true
@@ -56,6 +61,12 @@ uninstall-local:
 	@rm -f $(DESTDIR)$(bindir)/gbs$(GAMBAS_VERSION)
 	@rm -f $(DESTDIR)$(bindir)/gbw$(GAMBAS_VERSION)
 	@(cd $(srcdir)/src; for p in `cat INSTALL`; do rm -f $(DESTDIR)$(bindir)/$$p.gambas; done)
+	@if test x"$(XDG_UTILS)" != x; then \
+		xdg-mime uninstall $(srcdir)/mime/application-x-gambasscript.xml; \
+		xdg-mime uninstall $(srcdir)/mime/application-x-gambasserverpage.xml; \
+		xdg-icon-resource uninstall --context mimetypes --size 256 application-x-gambasscript; \
+		xdg-icon-resource uninstall --context mimetypes --size 256 application-x-gambasserverpage; \
+	fi
 	@rm -rf $(DESTDIR)$(datarootdir)/metainfo/gambas3.appdata.xml
 	@rm -rf $(DESTDIR)$(datarootdir)/appdata/gambas3.appdata.xml
 	@rm -rf $(DESTDIR)$(gbdatadir)/template

@@ -42,7 +42,7 @@ install-exec-local:
 		echo "Registering Gambas executable mimetype"; \
 		$(INSTALL) -d $(DESTDIR)$(gbdatadir)/icons; \
 		cp -f $(srcdir)/mime/application-x-gambas3.png $(DESTDIR)$(gbdatadir)/icons; \
-		xdg-icon-resource install --context mimetypes --size 256 $(DESTDIR)$(gbdatadir)/icons/application-x-gambas3.png application-x-gambas3; \
+		xdg-icon-resource install --novendor --context mimetypes --size 256 $(DESTDIR)$(gbdatadir)/icons/application-x-gambas3.png application-x-gambas3; \
 		xdg-mime install $(srcdir)/mime/application-x-gambas3.xml; \
 	fi
 
