@@ -30,7 +30,9 @@ install-exec-local:
 	  echo "Installing IDE application icon..."; \
 	  xdg-icon-resource install --novendor --context apps --size 256 $(srcdir)/desktop/gambas3.png gambas3; \
 	  echo "Installing IDE application menu..."; \
+	  $(INSTALL) -d $(DESTDIR)$(datarootdir)/desktop-directories; \
 	  xdg-desktop-menu install --novendor $(srcdir)/desktop/gambas3.desktop; \
+	  rmdir --ignore-fail-on-non-empty $(DESTDIR)$(datarootdir)/desktop-directories; \
 	fi
 	
 	@echo "Installing the scripter..."
