@@ -31,29 +31,27 @@ install-exec-local:
 	 echo "[Installing with ROOT=$(ROOT)]"; \
 	fi
 	@if test "x$(DESTDIR)" != "x"; then \
-	 echo "[Installing with DESTDIR=$(DESTDIR)]"; \
-	 ROOT=$DESTDIR; \
+	  echo "[Installing with DESTDIR=$(DESTDIR)]"; \
+	  ROOT=$DESTDIR; \
 	fi
 	
-	@echo "Making runtime symbolic link"
+	@echo "Installing runtime symbolic link"
 	@$(LN_S) -f gbx$(GAMBAS_VERSION) $(DESTDIR)$(bindir)/gbr$(GAMBAS_VERSION) || true
 	
 	@if test x"$(XDG_UTILS)" != x; then \
-		echo "Registering Gambas executable mimetype"; \
-		$(INSTALL) -d $(DESTDIR)$(gbdatadir)/icons; \
-		cp -f $(srcdir)/mime/application-x-gambas3.png $(DESTDIR)$(gbdatadir)/icons; \
-		xdg-icon-resource install --novendor --context mimetypes --size 256 $(DESTDIR)$(gbdatadir)/icons/application-x-gambas3.png application-x-gambas3; \
-		xdg-mime install $(srcdir)/mime/application-x-gambas3.xml; \
+	  echo "Registering Gambas executable mimetype"; \
+	  xdg-icon-resource install --novendor --context mimetypes --size 256 $(srcdir)/mime/application-x-gambas3.png application-x-gambas3; \
+	  xdg-mime install $(srcdir)/mime/application-x-gambas3.xml; \
 	fi
 
-	@echo "Creating the information files for gb component..."
+	@echo "Installing 'gb' component..."
 	@$(INSTALL) -d $(DESTDIR)$(gbdatadir)/info
 	@$(DESTDIR)$(bindir)/gbi$(GAMBAS_VERSION) -r $(DESTDIR)$(prefix) gb
 	@rm -f $(DESTDIR)$(gblibdir)/lib.gb.la
 	@rm -f $(DESTDIR)$(gblibdir)/lib.gb.so*
 	@$(INSTALL) lib/gb.component $(DESTDIR)$(gblibdir)
 
-	@echo "Installing the compiler tools..."
+	@echo "Installing compiler tools..."
 	@(cd $(srcdir)/tools; d=`pwd`; \
 	  for p in gb*; do \
 	    echo "Compiling $$p..."; cd $$d/$$p; \
@@ -70,16 +68,24 @@ install-exec-local:
 	  done)
 
 uninstall-local:
-	@rm -f $(DESTDIR)$(bindir)/gbr$(GAMBAS_VERSION)
-	@rm -rf $(DESTDIR)$(gblibdir)/info
-	@if test x"$(XDG_UTILS)" != x; then \
-		xdg-mime uninstall $(srcdir)/mime/application-x-gambas3.xml; \
-		xdg-icon-resource uninstall --context mimetypes --size 64 application-x-gambas3; \
-	fi
+	@echo "Uninstalling compiler tools..."
 	@(cd $(srcdir)/tools; for p in gb*; do rm -f $(DESTDIR)$(bindir)/$$p.gambas $(DESTDIR)$(bindir)/$$p; done)
-	@rm -f $(DESTDIR)$(gblibdir)gb.component
+
+	@echo "Uninstalling 'gb' component..."
+	@rm -f $(DESTDIR)$(gblibdir)/gb.component
 	@rm -rf $(DESTDIR)$(gbdatadir)/info/gb.info
 	@rm -rf $(DESTDIR)$(gbdatadir)/info/gb.list
+
+	@if test x"$(XDG_UTILS)" != x; then \
+	  echo "Unregistering Gambas executable mimetype"; \
+	  xdg-mime uninstall $(srcdir)/mime/application-x-gambas3.xml; \
+	  xdg-icon-resource uninstall --context mimetypes --size 64 application-x-gambas3; \
+	fi
+	
+	@echo "Uninstalling runtime symbolic link"
+	@rm -f $(DESTDIR)$(bindir)/gbr$(GAMBAS_VERSION)
+
+	@rmdir --ignore-fail-on-non-empty $(DESTDIR)$(gbdatadir)/info $(DESTDIR)$(gbdatadir)/control $(DESTDIR)$(gbdatadir)
 
 dist-hook:
 	@rm -f $(distdir)/trunk_version.h
