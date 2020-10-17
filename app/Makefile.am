@@ -27,9 +27,10 @@ install-exec-local:
 	##@if test "$(bindir)" != "$(ROOT)/usr/bin" && test "$(bindir)" != "$(ROOT)/usr/bin/"; then
 	@$(LN_S) -f gambas$(GAMBAS_VERSION).gambas $(DESTDIR)$(bindir)/gambas$(GAMBAS_VERSION) || true
 	@if test x"$(XDG_UTILS)" != x; then \
-	  echo "Registering Gambas IDE application icon..."; \
-	  cp -f $(srcdir)/desktop/gambas3.png $(DESTDIR)$(gbdatadir)/icons; \
-	  xdg-icon-resource install --novendor --context apps --size 256 $(DESTDIR)$(gbdatadir)/icons/gambas3.png gambas3; \
+	  echo "Installing Gambas IDE application icon..."; \
+	  xdg-icon-resource install --novendor --context apps --size 256 $(srcdir)/desktop/gambas3.png gambas3; \
+	  echo "Installing Gambas IDE application menu..."; \
+	  xdg-desktop-menu install --novendor $(srcdir)/desktop/gambas3.desktop; \
 	fi
 	
 	@echo "Installing the scripter..."
@@ -37,12 +38,11 @@ install-exec-local:
 	@$(LN_S) -f gbs$(GAMBAS_VERSION).gambas $(DESTDIR)$(bindir)/gbw$(GAMBAS_VERSION) || true
 	@if test x"$(XDG_UTILS)" != x; then \
 	  $(INSTALL) -d $(DESTDIR)$(gbdatadir)/icons; \
-	  cp -f $(srcdir)/mime/application-x-gambas*.png $(DESTDIR)$(gbdatadir)/icons; \
 	  echo "Registering Gambas script mimetype..."; \
-	  xdg-icon-resource install --context mimetypes --size 256 $(DESTDIR)$(gbdatadir)/icons/application-x-gambasscript.png application-x-gambasscript; \
+	  xdg-icon-resource install --context mimetypes --size 256 $(srcdir)/mime/application-x-gambasscript.png application-x-gambasscript; \
 	  xdg-mime install $(srcdir)/mime/application-x-gambasscript.xml; \
 	  echo "Registering Gambas server page mimetype..."; \
-	  xdg-icon-resource install --context mimetypes --size 256 $(DESTDIR)$(gbdatadir)/icons/application-x-gambasserverpage.png application-x-gambasserverpage; \
+	  xdg-icon-resource install --context mimetypes --size 256 $(srcdir)/mime/application-x-gambasserverpage.png application-x-gambasserverpage; \
 	  xdg-mime install $(srcdir)/mime/application-x-gambasserverpage.xml; \
 	fi
 
