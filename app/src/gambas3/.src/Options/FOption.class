@@ -1697,12 +1697,12 @@ Private Sub SaveLayout(Optional sFile As String)
   Shell.MkDir(File.Dir(sPath))
   hSettings = New Settings(sPath, "Gambas IDE layout")
   
-  hSettings["Toolbar/Main"] = ToolBar.GetLayout("main")
-  hSettings["Toolbar/Editor"] = ToolBar.GetLayout("editor")
-  hSettings["Toolbar/Text"] = ToolBar.GetLayout("text")
-  hSettings["Toolbar/Connection"] = ToolBar.GetLayout("connection")
-  hSettings["Toolbar/Form"] = ToolBar.GetLayout("form")
-  hSettings["Toolbar/Image"] = ToolBar.GetLayout("image")
+  hSettings["Toolbar/Main"] = ToolBar.GetLayout("FMain.main")
+  hSettings["Toolbar/Editor"] = ToolBar.GetLayout("FEditor.editor")
+  hSettings["Toolbar/Text"] = ToolBar.GetLayout("FTextEditor.text")
+  hSettings["Toolbar/Connection"] = ToolBar.GetLayout("FConnectionEditor.connection")
+  hSettings["Toolbar/Form"] = ToolBar.GetLayout("FForm.form")
+  hSettings["Toolbar/Image"] = ToolBar.GetLayout("FImageEditor.image")
   hSettings["ShowMenus"] = Settings["/ShowMenus"]
   hSettings["Toolbox/Size"] = Settings["/Toolbox/Size"]
   hSettings["CloseWithMiddleClick"] = Settings["/CloseWithMiddleClick"]

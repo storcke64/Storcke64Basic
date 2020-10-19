@@ -1302,7 +1302,7 @@ Private Sub UpdateGlobalLayout()
 
   For Each hCtrl In [panDebug, panButton, panProject, tlbMain]
     hCtrl.Visible = Not bWelcome And Not bFake
-    hMenu.Enabled = hMenu.Visible
+    'hCtrl.Enabled = hCtrl.Visible
   Next
   
   'sepMenu.Visible = bWelcome Or Not bFake
