@@ -23,6 +23,7 @@
 
 #include "widgets.h"
 #include "gdesktop.h"
+#include "gapplication.h"
 #include "gscrollbar.h"
 #include "gslider.h"
 
@@ -335,4 +336,14 @@ bool gSlider::isVertical() const
 void gSlider::checkInverted()
 {
 	gtk_range_set_inverted(GTK_RANGE(widget), !isVertical() && gDesktop::rightToLeft());
+}
+
+int gScrollBar::minimumWidth() const
+{
+	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
+}
+
+int gScrollBar::minimumHeight() const
+{
+	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
 }

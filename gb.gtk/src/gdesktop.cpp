@@ -120,21 +120,28 @@ static gColor get_color(GType type, gColor default_color, GtkStateFlags state, b
 {
 	static const char *bg_names[] = { "bg_color", "theme_bg_color", NULL };
 	static const char *fg_names[] = { "fg_color", "theme_fg_color", NULL };
+	static const char *btn_bg_names[] = { "theme_button_background_normal", "bg_color", "theme_bg_color", NULL };
+	static const char *btn_fg_names[] = { "theme_button_foreground_normal", "fg_color", "theme_fg_color", NULL };
 	static const char *base_bg_names[] = { "base_color", "theme_base_color", NULL };
 	static const char *base_fg_names[] = { "text_color", "theme_text_color", NULL };
 	static const char *sel_bg_names[] = { "selected_bg_color", "theme_selected_bg_color", NULL };
 	static const char *sel_fg_names[] = { "selected_fg_color", "theme_selected_fg_color", NULL };
-	static const char *tt_bg_names[] = { "tooltip_bg_color", "theme_tooltip_bg_color", NULL };
-	static const char *tt_fg_names[] = { "tooltip_fg_color", "link_fg_color", "theme_tooltip_fg_color", NULL };
-	static const char *link_fg_names[] = { "link_color", "theme_link_color", NULL };
-	static const char *visited_fg_names[] = { "visited_link_color", "theme_visited_link_color", NULL };
+	static const char *tt_bg_names[] = { "tooltip_bg_color", "theme_tooltip_bg_color", "tooltip_background", NULL };
+	static const char *tt_fg_names[] = { "tooltip_fg_color", "theme_tooltip_fg_color", "tooltip_text", NULL };
+	static const char *link_fg_names[] = { "link_color", "link_fg_color", "theme_link_color", NULL };
+	static const char *visited_fg_names[] = { "link_visited_color", "visited_link_color", "theme_link_visited_color", "theme_visited_link_color", NULL };
 
 	GtkStyleContext *st = gt_get_style(type);
 	GdkRGBA rgba;
 
-	if (type == GTK_TYPE_WINDOW || type == GTK_TYPE_BUTTON)
+	if (type == GTK_TYPE_WINDOW)
 	{
 		if (!gt_style_lookup_color(st, fg ? fg_names : bg_names, NULL, &rgba))
+			goto __OK;
+	}
+	else if (type == GTK_TYPE_BUTTON)
+	{
+		if (!gt_style_lookup_color(st, fg ? btn_fg_names : btn_bg_names, NULL, &rgba))
 			goto __OK;
 	}
 	else if (type == GTK_TYPE_ENTRY)

@@ -398,9 +398,13 @@ gControl *gDrag::drag(gControl *source, GtkTargetList *list)
 			g_object_unref(G_OBJECT(icon));
 	}
 	
+	source->_dragging = true;
+	
 	_end = false;
 	while (!_end)
 		MAIN_do_iteration(true);
+	
+	source->_dragging = false;
 	
 	gtk_target_list_unref(list);	
 	

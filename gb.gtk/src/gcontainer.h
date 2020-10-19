@@ -115,6 +115,8 @@ public:
 	void disableArrangement();
 	void enableArrangement();
 	bool isArrangementEnabled() const { return _no_arrangement == 0; }
+	
+	virtual void setDesign(bool vl);
 
 //"Signals"
 	void (*onArrange)(gContainer *sender);
@@ -138,7 +140,10 @@ public:
 	static int _arrangement_level;
 
 private:
-  void initialize();
+
+	void initialize();
+	void setDesignRecursive();
+
 	gContainerArrangement arrangement;
   gContainer *_proxyContainer;
   gContainer *_proxyContainerFor;

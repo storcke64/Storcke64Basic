@@ -223,7 +223,7 @@ void gt_widget_reparent(GtkWidget *widget, GtkWidget *new_parent);
 #define gt_get_focus_on_click(_widget) gtk_widget_get_focus_on_click(GTK_WIDGET(_widget))
 #else
 #define gt_set_focus_on_click(_widget, _flag) (gtk_button_set_focus_on_click(GTK_BUTTON(_widget), (_flag)))
-#define gt_get_focus_on_click(_widget) (GTK_IS_BUTTON(_widget) && gtk_button_get_focus_on_click(GTK_BUTTON(_widget)))
+#define gt_get_focus_on_click(_widget) (gtk_button_get_focus_on_click(GTK_BUTTON(_widget)))
 #endif
 
 #endif

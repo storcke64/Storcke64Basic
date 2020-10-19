@@ -477,7 +477,7 @@ gMainWindow::gMainWindow(int plug) : gContainer(NULL)
 	gtk_widget_show(widget);
 	gtk_widget_set_size_request(border, 1, 1);
 
-	setCanFocus(false);
+	setCanFocus(true);
 }
 
 gMainWindow::gMainWindow(gContainer *par) : gContainer(par)
@@ -496,7 +496,7 @@ gMainWindow::gMainWindow(gContainer *par) : gContainer(par)
 	realize(false);
 	initWindow();
 
-	setCanFocus(false);
+	setCanFocus(true);
 }
 
 gMainWindow::~gMainWindow()
@@ -624,7 +624,7 @@ bool gMainWindow::resize(int w, int h)
 
 		if (w < 1 || h < 1)
 		{
-			if (visible)
+			if (isVisible())
 				gtk_widget_hide(border);
 		}
 		else
@@ -636,7 +636,7 @@ bool gMainWindow::resize(int w, int h)
 				gtk_widget_set_size_request(border, w, h);
 			}
 
-			if (visible)
+			if (isVisible())
 				gtk_widget_show(border);
 		}
 	}
@@ -753,8 +753,8 @@ void gMainWindow::setVisible(bool vl)
 		if (!_opened)
 			return;
 
-		_not_spontaneous = !visible;
-		visible = true;
+		_not_spontaneous = !isVisible();
+		_visible = true;
 		_hidden = false;
 
 		setTransparent(_transparent); // must not call gtk_window_present!
@@ -841,7 +841,7 @@ void gMainWindow::setVisible(bool vl)
 		if (this == _active)
 			focus = gApplication::activeControl();
 
-		_not_spontaneous = visible;
+		_not_spontaneous = isVisible();
 		gContainer::setVisible(false);
 
 		if (_popup)
@@ -1247,6 +1247,7 @@ bool gMainWindow::doClose()
 			_closing = true;
 			_closed = !onClose(this);
 			_closing = false;
+			_opened = !_closed;
 		}
 		else
 			_closed = true;
@@ -1341,7 +1342,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 
 		border = new_border;
 		registerControl();
-		setCanFocus(false);
+		setCanFocus(true);
 
 		setParent(newpr);
 		connectParent();

@@ -78,7 +78,7 @@ static GB_COLOR get_color(GB_PAINT *d, GB_COLOR col)
 {
 	if (col == GB_COLOR_DEFAULT)
 	{
-		if (GB.Is(d->device, CLASS_DrawingArea))
+		if (GB.Is(d->device, CLASS_Control))
 			col = (((CWIDGET *)d->device)->widget)->realBackground(true);
 		else
 			col = 0xFFFFFF;
@@ -156,6 +156,8 @@ static void update_layout(GB_PAINT *d)
 static bool init_painting(GB_PAINT *d, cairo_surface_t *target, double w, double h, int rx, int ry)
 {
 	GB_PAINT_EXTRA *dx = EXTRA(d);
+	gColor col;
+	int r, g, b, a;
 
 	d->area.width = w;
 	d->area.height = h;
@@ -174,7 +176,14 @@ static bool init_painting(GB_PAINT *d, cairo_surface_t *target, double w, double
 		cairo_surface_destroy(target);
 	}
 
-	cairo_set_source_rgba(CONTEXT(d), 0, 0, 0, 1);
+	if (GB.Is(d->device, CLASS_Control))
+		col = (((CWIDGET *)d->device)->widget)->realForeground(true);
+	else
+		col = 0;
+	
+	GB_COLOR_SPLIT(col, r, g, b, a);
+	cairo_set_source_rgba(CONTEXT(d), r / 255.0, g / 255.0, b / 255.0, a / 255.0);
+
 	cairo_set_line_width(CONTEXT(d), 1.0);
 	/*cairo_set_line_join(CONTEXT(d), CAIRO_LINE_JOIN_MITER);
 	cairo_set_miter_limit(CONTEXT(d), 10.0);

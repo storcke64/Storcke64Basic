@@ -266,7 +266,7 @@ BEGIN_PROPERTY(Menu_Text)
 	{
 		MENU->setText(GB.ToZeroString(PROP(GB_STRING)));
 
-		if (!MENU->topLevel())
+		if (!MENU->isTopLevel())
 			((CMENU *)GetObject((gMenu *)MENU->parent()))->init_shortcut = FALSE;
 
 		GB.FreeString(&THIS->save_text);
@@ -293,8 +293,10 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Menu_Enabled)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(MENU->enabled()); return; }
-	MENU->setEnabled(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(MENU->isEnabled());
+	else
+		MENU->setEnabled(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -321,7 +323,7 @@ BEGIN_PROPERTY(Menu_Value)
 	{
 		GB.ReturnBoolean(0);
 	}
-	else if (!MENU->topLevel())
+	else if (!MENU->isTopLevel())
 	{
 		GB.Ref(THIS);
 		send_click_event(THIS);

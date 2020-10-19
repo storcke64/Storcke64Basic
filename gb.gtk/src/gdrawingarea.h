@@ -28,7 +28,7 @@ class gDrawingArea : public gContainer
 {
 public:
 	gDrawingArea(gContainer *parent);
-	~gDrawingArea();
+	virtual ~gDrawingArea();
 
 	int getBorder() const { return getFrameBorder(); }
 	bool cached() const { return _cached; }

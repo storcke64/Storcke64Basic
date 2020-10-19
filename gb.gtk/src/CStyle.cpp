@@ -48,6 +48,8 @@ static GtkWidget *_widget = NULL;
 
 static STYLE_T *_stl = NULL;
 
+static bool _internal = false;
+
 #ifdef GTK3
 static GtkStyleContext *get_style(GType type = G_TYPE_NONE)
 {
@@ -118,6 +120,9 @@ static GtkStyle *get_style(GType type = G_TYPE_NONE)
 #ifdef GTK3
 static bool begin_draw(int *x, int *y)
 {
+	if (_internal)
+		return FALSE;
+	
 	void *device = PAINT_get_current_device();
 	if (!device)
 		return TRUE;
@@ -208,7 +213,8 @@ static bool begin_draw(int *x, int *y)
 static void end_draw()
 {
 #ifdef GTK3
-	cairo_restore(_cr);
+	if (!_internal)
+		cairo_restore(_cr);
 	_cr = NULL;
 	if (_stl)
 	{
@@ -227,9 +233,12 @@ static void end_draw()
 #endif
 
 #ifndef GTK3
-	cairo_t *context = PAINT_get_current_context();
-	cairo_restore(context);
-	cairo_surface_mark_dirty(cairo_get_target(context));
+	if (!_internal)
+	{
+		cairo_t *context = PAINT_get_current_context();
+		cairo_restore(context);
+		cairo_surface_mark_dirty(cairo_get_target(context));
+	}
 #endif
 }
 
@@ -732,6 +741,43 @@ static void style_box(int x, int y, int w, int h, int state, GB_COLOR color)
 #endif
 }
 
+//-------------------------------------------------------------------------
+
+#ifdef GTK3
+void CSTYLE_paint_check(cairo_t *cr, int x, int y, int w, int h, int value, int state)
+{
+	_cr =cr;
+#else
+void CSTYLE_paint_check(GdkDrawable *dr, int x, int y, int w, int h, int value, int state)
+{
+	_dr = dr;
+#endif
+	_internal = true;
+	begin_draw(&x, &y);
+	style_check(x, y, w, h, value, state);
+	end_draw();
+	_internal = false;
+}
+
+#ifdef GTK3
+void CSTYLE_paint_option(cairo_t *cr, int x, int y, int w, int h, int value, int state)
+{
+	_cr =cr;
+#else
+void CSTYLE_paint_option(GdkDrawable *dr, int x, int y, int w, int h, int value, int state)
+{
+	_dr = dr;
+#endif
+	_internal = true;
+	begin_draw(&x, &y);
+	style_option(x, y, w, h, value, state);
+	end_draw();
+	_internal = false;
+}
+
+//-------------------------------------------------------------------------
+
+
 BEGIN_PROPERTY(Style_ScrollbarSize)
 
 	GB.ReturnInteger(gApplication::getScrollbarSize());
@@ -864,7 +910,7 @@ BEGIN_METHOD(Style_StateOf, GB_OBJECT control)
 
 	widget = control->widget;
 	state = GB_DRAW_STATE_NORMAL;
-	design = widget->design();
+	design = widget->isDesign();
 
 	if (!widget->isEnabled())
 		state |= GB_DRAW_STATE_DISABLED;

@@ -83,9 +83,9 @@ static void resize_container(gControl *cont, int w, int h)
 #define GET_WIDGET(_object) _object
 #define GET_CONTAINER(_object) _object
 #define GET_ARRANGEMENT(_object) (((gContainer*)_object)->getArrangement())
-#define IS_EXPAND(_object) (((gControl*)_object)->expand())
-#define IS_IGNORE(_object) (((gControl*)_object)->ignore())
-#define IS_DESIGN(_object) (((gControl*)_object)->design())
+#define IS_EXPAND(_object) (((gControl*)_object)->isExpand())
+#define IS_IGNORE(_object) (((gControl*)_object)->isIgnore())
+#define IS_DESIGN(_object) (((gControl*)_object)->isDesign())
 #define IS_WIDGET_VISIBLE(_widget)  (((gControl*)_widget)->isVisible())
 
 #define CAN_ARRANGE(_object) (gtk_widget_get_mapped(((gControl *)_object)->border))
@@ -232,17 +232,17 @@ void gContainer::decide(gControl *child, bool *width, bool *height)
 {
 	*width = *height = FALSE;
 	
-	if (child->ignore() || autoResize())
+	if (child->isIgnore() || autoResize())
 		return;
 	
 	if ((arrange() == ARRANGE_VERTICAL)
-	    || (arrange() == ARRANGE_HORIZONTAL && child->expand())
-	    || (arrange() == ARRANGE_ROW && child->expand()))
+	    || (arrange() == ARRANGE_HORIZONTAL && child->isExpand())
+	    || (arrange() == ARRANGE_ROW && child->isExpand()))
 		*width = TRUE;
 	
 	if ((arrange() == ARRANGE_HORIZONTAL)
-	    || (arrange() == ARRANGE_VERTICAL && child->expand())
-	    || (arrange() == ARRANGE_COLUMN && child->expand()))
+	    || (arrange() == ARRANGE_VERTICAL && child->isExpand())
+	    || (arrange() == ARRANGE_COLUMN && child->isExpand()))
 		*height = TRUE;
 }
 
@@ -588,7 +588,7 @@ void gContainer::insert(gControl *child, bool realize)
 	g_ptr_array_add(_children, child);
 	
 	if (realize)
-		child->visible = true;
+		child->_visible = true;
     
 	//g_debug("gContainer::insert: visible = %d", isReallyVisible());
 	performArrange();
@@ -866,4 +866,30 @@ void gContainer::clear()
 			break;
 		ch->destroy();
 	}
+}
+
+void gContainer::setDesignRecursive()
+{
+	int i;
+	gControl *child;
+	gContainer *proxy = proxyContainer();
+
+	for (i = 0;; i++)
+	{
+		child = proxy->child(i);
+		if (!child)
+			break;
+		child->setDesignIgnore();
+		if (child->isContainer())
+			((gContainer *)child)->setDesignRecursive();
+	}
+}
+
+void gContainer::setDesign(bool vl)
+{
+	if (!vl || !isUser())
+		return;
+	
+	gControl::setDesign(true);
+	setDesignRecursive();
 }

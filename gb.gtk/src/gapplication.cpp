@@ -42,6 +42,7 @@
 
 //#define DEBUG_ENTER_LEAVE 1
 //#define DEBUG_FIND_CONTROL 1
+//#define DEBUG_FOCUS 1
 
 static bool _debug_keypress = false;
 
@@ -248,7 +249,7 @@ static void gambas_handle_event(GdkEvent *event)
 #ifdef GTK3
 	GdkDevice *device;
 #endif
-	gControl *control, *save_control;
+	gControl *control = NULL, *save_control;
 	gControl *button_grab;
 	int x, y, xs, ys, xc, yc;
 	bool cancel;
@@ -375,6 +376,9 @@ static void gambas_handle_event(GdkEvent *event)
 		control = NULL;
 		//if (GTK_IS_WINDOW(widget))
 		control = gt_get_control(widget);
+		
+		if (!control || control->isDesign())
+			goto __HANDLE_EVENT;
 		//fprintf(stderr, "GDK_FOCUS_CHANGE: widget = %p %d : %s %d\n", widget, GTK_IS_WINDOW(widget), control ? control->name() : NULL, event->focus_change.in);
 
 		//if (GTK_IS_WINDOW(widget))
@@ -578,13 +582,18 @@ __FOUND_WIDGET:
 				goto __HANDLE_EVENT;
 			}
 			
+			while (save_control->isDesignIgnore())
+				save_control = save_control->parent();
 			control = save_control;
 
 			bool menu = false;
 
 			if (event->type != GDK_BUTTON_RELEASE)
 			{
-				if (control->canFocus() && control->canFocusOnClick() && !control->hasFocus())
+				#if DEBUG_FOCUS
+				fprintf(stderr, "GDK_BUTTON_PRESS: %s canFocus = %d design = %d\n", control->name(), control->canFocus(), control->isDesign());
+				#endif
+				if (control->canFocusOnClick())
 					control->setFocus();
 				if (!control->_no_auto_grab)
 					gApplication::setButtonGrab(control);
@@ -595,7 +604,7 @@ __FOUND_WIDGET:
 
 		__BUTTON_TRY_PROXY:
 		
-			if (!control->design() && !control->isEnabled())
+			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;
 
 			cancel = false;
@@ -676,6 +685,7 @@ __FOUND_WIDGET:
 				control = save_control;
 				while (control)
 				{
+					//fprintf(stderr, "menu %s D = %d DI = %d\n", control->name(), control->isDesign(), control->isDesignIgnore());
 					if (control->onMouseEvent(control, gEvent_MouseMenu))
 					{
 						cancel = true;
@@ -709,13 +719,15 @@ __FOUND_WIDGET:
 			if (!control)
 				goto __HANDLE_EVENT;
 
+			while (control->isDesignIgnore())
+				control = control->parent();
 			//fprintf(stderr, "GDK_MOTION_NOTIFY: (%p %s) grab = %p\n", control, control->name(), button_grab);
 
 			gApplication::checkHoveredControl(control);
 
 		__MOTION_TRY_PROXY:
 
-			if (!control->design() && !control->isEnabled())
+			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;
 
 			if (control->onMouseEvent && (control->canRaise(control, gEvent_MouseMove) || control->canRaise(control, gEvent_MouseDrag))
@@ -768,14 +780,19 @@ __FOUND_WIDGET:
 			if (!control)
 				goto __HANDLE_EVENT;
 
+			while (control->isDesignIgnore())
+				control = control->parent();
+			
 		__SCROLL_TRY_PROXY:
 
-			if (!control->design() && !control->isEnabled())
+			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;
 
 			if (control->onMouseEvent && control->canRaise(control, gEvent_MouseWheel))
 			{
 				int dir, dt, ort;
+				
+				control->setFocus();
 
 				control->getScreenPos(&xc, &yc);
 				xs = (int)event->scroll.x_root;
@@ -854,11 +871,16 @@ __FOUND_WIDGET:
 				gKey::_last_key_release = event->key.keyval;
 			send_to_window = control->isWindow();
 			goto __HANDLE_EVENT;
+			
+		default:
+			
+			handle_event = true;
+			goto __RETURN;
 	}
 
 __HANDLE_EVENT:
 
-	handle_event = true;
+	handle_event = !control || !control->isDesign();
 
 __RETURN:
 
@@ -1353,14 +1375,15 @@ static void post_focus_change(void *)
 	if (!_focus_change || _doing_focus_change)
 		return;
 
-	//fprintf(stderr, "post_focus_change\n");
+	#if DEBUG_FOCUS
+	fprintf(stderr, "post_focus_change: %s -> %s\n", gApplication::_old_active_control ? gApplication::_old_active_control->name() : "nil", gApplication::_active_control ? gApplication::_active_control->name() : "nil");
+	#endif
 	
 	_doing_focus_change = true;
 
 	for(;;)
 	{
 		current = gApplication::activeControl();
-		//fprintf(stderr, "activeControl = %s\n", current ? current->name() : NULL);
 		if (current == gApplication::_old_active_control)
 			break;
 
@@ -1368,6 +1391,9 @@ static void post_focus_change(void *)
 		while (control)
 		{
 			next = control->_proxy_for;
+			#if DEBUG_FOCUS
+			fprintf(stderr, "focus out %s\n", control->name());
+			#endif
 			if (control->onFocusEvent)
 				control->onFocusEvent(control, gEvent_FocusOut);
 			control = next;
@@ -1378,13 +1404,15 @@ static void post_focus_change(void *)
 			break;
 
 		gApplication::_old_active_control = current;
-		//fprintf(stderr, "_old_active_control = %s\n", current ? current->name() : NULL);
 		gMainWindow::setActiveWindow(current);
 
 		control = gApplication::activeControl();
 		while (control)
 		{
 			next = control->_proxy_for;
+			#if DEBUG_FOCUS
+			fprintf(stderr, "focus in %s / %p\n", control->name(), control->onFocusEvent);
+			#endif
 			if (control->onFocusEvent)
 				control->onFocusEvent(control, gEvent_FocusIn);
 			control = next;
@@ -1411,12 +1439,21 @@ static void handle_focus_change()
 
 void gApplication::setActiveControl(gControl *control, bool on)
 {
+	while (!control->canFocus())
+	{
+		control = control->parent();
+		if (!control)
+			return;
+	}
+	
 	if (on == (_active_control == control))
 		return;
 
-	//fprintf(stderr, "setActiveControl: %s %d\n", control->name(), on);
-
-	if (_active_control)
+	#if DEBUG_FOCUS
+	fprintf(stderr, "setActiveControl: %s %d\n", control->name(), on);
+	#endif
+	
+	if (_active_control && !_focus_change)
 		_previous_control = _active_control;
 
 	_active_control = on ? control : NULL;

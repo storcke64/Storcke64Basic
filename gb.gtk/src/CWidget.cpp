@@ -499,8 +499,10 @@ END_PROPERTY
 
 BEGIN_PROPERTY(CWIDGET_design)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(CONTROL->design()); return; }
-	CONTROL->setDesign(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(CONTROL->isDesign());
+	else
+		CONTROL->setDesign(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -531,24 +533,30 @@ BEGIN_PROPERTY(Control_HasFocus)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(Control_Hovered)
 
 	GB.ReturnBoolean(CONTROL->hovered());
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(CWIDGET_expand)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(CONTROL->expand()); return; }
-	CONTROL->setExpand(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(CONTROL->isExpand());
+	else
+		CONTROL->setExpand(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
 
 BEGIN_PROPERTY(CWIDGET_ignore)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(CONTROL->ignore()); return; }
-	CONTROL->setIgnore(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(CONTROL->isIgnore());
+	else
+		CONTROL->setIgnore(VPROP(GB_BOOLEAN));
 
 END_PROPERTY
 
@@ -607,7 +615,12 @@ END_METHOD
 BEGIN_METHOD_VOID(CWIDGET_delete)
 
 	if (CONTROL)
-		CONTROL->destroy();
+	{
+		if (CONTROL->isDragging())
+			GB.Error("Control is being dragged");
+		else
+			CONTROL->destroy();
+	}
 
 END_METHOD
 

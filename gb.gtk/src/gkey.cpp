@@ -486,7 +486,7 @@ gboolean gcb_key_event(GtkWidget *widget, GdkEvent *event, gControl *control)
 	bool cancel;
 
 #if DEBUG_IM
-	fprintf(stderr, "gcb_key_event %s for %p %s / active = %p\n", event->type == GDK_KEY_PRESS ? "GDK_KEY_PRESS" : "GDK_KEY_RELEASE", control, control->name(), gApplication::activeControl());
+	fprintf(stderr, "gcb_key_event %s for %p %s / active = %p %s\n", event->type == GDK_KEY_PRESS ? "GDK_KEY_PRESS" : "GDK_KEY_RELEASE", control, control->name(), gApplication::activeControl(), gApplication::activeControl() ? gApplication::activeControl()->name() : "-");
 #endif
 
 	/*if (!control->_grab && gApplication::activeControl())

@@ -32,4 +32,12 @@
 extern GB_DESC StyleDesc[];
 #endif
 
+#ifdef GTK3
+void CSTYLE_paint_check(cairo_t *cr, int x, int y, int w, int h, int value, int state);
+void CSTYLE_paint_option(cairo_t *cr, int x, int y, int w, int h, int value, int state);
+#else
+void CSTYLE_paint_check(GdkDrawable *dr, int x, int y, int w, int h, int value, int state);
+void CSTYLE_paint_option(GdkDrawable *dr, int x, int y, int w, int h, int value, int state);
+#endif
+
 #endif

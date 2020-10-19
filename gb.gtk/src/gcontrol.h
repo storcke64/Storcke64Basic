@@ -53,10 +53,11 @@ public:
 	gContainer *parent() const { return pr; }
 	bool isAncestorOf(gControl *child);
 	gCursor* cursor();
-	bool design();
+	bool isDesign() const { return _design; }
+	bool isDesignIgnore() const { return _design_ignore; }
 	virtual bool isEnabled() const;
-	bool expand() const { return expa; }
-	bool ignore() const { return igno; }
+	bool isExpand() const { return _expand; }
+	bool isIgnore() const { return _ignore; }
 	bool hovered();
 	virtual int handle();
 	
@@ -74,7 +75,7 @@ public:
 	int screenY();
 	virtual bool getScreenPos(int *x, int *y);
 	char *tooltip() const { return _tooltip; }
-	bool isVisible() const { return visible; }
+	bool isVisible() const { return _visible; }
 	bool isReallyVisible();
 	bool acceptDrops() const { return _accept_drops; }
 	const char *name() const { return _name; }
@@ -84,7 +85,8 @@ public:
 
 	void setCursor(gCursor *vl);
 	void setAcceptDrops(bool vl);
-	void setDesign(bool vl);
+	virtual void setDesign(bool vl);
+	void setDesignIgnore();
 	virtual void setEnabled(bool vl);
 	void setExpand (bool vl);
 	void setIgnore (bool vl);
@@ -154,7 +156,9 @@ public:
 	int scrollBar() const { return _scrollbar; }
 	void setScrollBar(int vl);
 	virtual void updateScrollBar();
-
+	
+	bool isDragging() const { return _dragging; }
+	
 // "Methods"
 	void dragText(char *txt, char *format = NULL) { gDrag::dragText(this, txt, format); }
 	void dragImage(gPicture *pic) { gDrag::dragImage(this, pic); }
@@ -233,11 +237,13 @@ public:
 	const char *_style_sheet_child;
 #endif
 	
-	unsigned dsg : 1;
-	unsigned expa : 1;
-	unsigned igno : 1;
+	unsigned _design : 1;
+	unsigned _design_ignore : 1;
+	unsigned _expand : 1;
+	unsigned _ignore : 1;
 	unsigned _action : 1;                  // *reserved*
 	unsigned _accept_drops : 1;            // If the control accepts drops
+	unsigned _dragging : 1;                // if the control is being dragged
 	unsigned _drag_get_data : 1;           // If we got information on the dragged data
 	unsigned _drag_enter : 1;              // If we have entered the control for drag & drop
 	unsigned _tracking : 1;                // If we are tracking mouse move even if no mouse button is pressed
@@ -247,7 +253,7 @@ public:
 	unsigned _fg_set : 1;                  // Have a private foreground
 	unsigned have_cursor : 1;              // If gApplication::setBusy() must update the cursor
 	unsigned use_base : 1;                 // Use base and text color for foreground and background
-	unsigned visible : 1;                  // A control can be hidden if its width or height is zero
+	unsigned _visible : 1;                 // A control can be hidden if its width or height is zero
 	unsigned _destroyed : 1;               // If the control has already been added to the destroy list
 	
 	unsigned _locked : 4;                  // For locking events
@@ -267,6 +273,7 @@ public:
 	unsigned _no_auto_grab : 1;            // do not automatically grab widget on button press event
 	unsigned _no_background : 1;           // Don't draw the background automatically
 	unsigned _use_wheel : 1;               // Do not propagate the mouse wheel event
+	unsigned _user_control : 1;            // If the control is a UserControl
 	
   void removeParent() { pr = NULL; }
 	void initSignals();
