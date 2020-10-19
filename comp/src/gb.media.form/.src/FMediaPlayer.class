@@ -113,6 +113,7 @@ Public Sub btnPlay_Click()
     'timTime.Start
     dwgTime.Refresh
     sldVolume_Change
+    dwgVideo.Cached = True ' Force the drawing area to have its own window on gb.gtk(3)
     $hImage.SetWindow(dwgVideo)
     '$hPlayer.Rate = -1
     $hPlayer.Play
@@ -140,6 +141,7 @@ Public Sub btnStop_Click()
   'timTime.Stop
   $bPlaying = False
   'HidePause
+  dwgVideo.Cached = False
   dwgVideo.Refresh
   dwgTime.Refresh
   btnPlay.Picture = Picture["icon:/small/play"]
