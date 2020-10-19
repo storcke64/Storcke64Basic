@@ -1,0 +1,30 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,64,64)
+  Persistent = True
+  Utility = True
+  Arrangement = Arrange.Vertical
+  { HBox1 HBox
+    MoveScaled(6,3,47,4)
+  }
+  { Panel1 Panel
+    MoveScaled(5,10,51,46)
+    Expand = True
+    Arrangement = Arrange.Fill
+    Border = Border.Plain
+    { HSplit1 HSplit
+      MoveScaled(2,2,46,41)
+      { TreeView1 TreeView
+        MoveScaled(1,11,13,22)
+        Visible = False
+        Expand = True
+        Border = False
+      }
+      { Panel2 Panel
+        MoveScaled(16,10,27,20)
+        Background = Color.Yellow
+      }
+    }
+  }
+}

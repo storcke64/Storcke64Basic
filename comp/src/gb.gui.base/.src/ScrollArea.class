@@ -340,19 +340,13 @@ Private Sub LayoutShadows()
   If Not bShadow Then 
     
     If $hShadowN Then 
-      $hShadowN.Delete
+      Try $hShadowN.Delete
       $hShadowN = Null
-    Endif
-    If $hShadowS Then
-      $hShadowS.Delete
+      Try $hShadowS.Delete
       $hShadowS = Null
-    Endif
-    If $hShadowW Then
-      $hShadowW.Delete
+      Try $hShadowW.Delete
       $hShadowW = Null
-    Endif
-    If $hShadowE Then
-      $hShadowE.Delete
+      Try $hShadowE.Delete
       $hShadowE = Null
     Endif
     Return

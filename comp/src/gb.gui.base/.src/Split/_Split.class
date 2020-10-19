@@ -329,6 +329,8 @@ Public Sub Resize_MouseDown()
   Dim I As Integer = Last.Tag
   Dim SW As Integer = GetSepWidth()
   
+  If Me.Design Then Return
+  
   If $bVertical Then
     $XMin = aChildren[I].ScreenY
     $XMax = aChildren[I + 1].ScreenY + aChildren[I + 1].H + SW
@@ -353,6 +355,7 @@ Public Sub Resize_MouseMove()
   Dim X As Integer
   Dim SW As Integer = GetSepWidth()
   
+  If Me.Design Then Return
   If Not Mouse.Left Then Return
   
   Inc $iNoArrange
@@ -398,6 +401,7 @@ End
 
 Public Sub Resize_MouseUp()
   
+  If Me.Design Then Return
   $cWeight.Clear
   Layout_Write(Layout_Read())
   

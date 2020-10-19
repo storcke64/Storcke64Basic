@@ -1,0 +1,16 @@
+' Gambas class file
+
+
+Public Sub Form_Open()
+
+  Settings.Read(Me)
+  Settings.Read(HSplit1)
+
+End
+
+Public Sub Form_Close()
+
+  Settings.Write(Me)
+  Settings.Write(HSplit1)
+
+End

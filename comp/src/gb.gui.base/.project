@@ -1,11 +1,12 @@
 # Gambas Project File 3.0
 Title=Common controls and classes for GUI components
-Startup=TestMessage
+Startup=FPaint
 Version=3.15.90
 VersionFile=1
 Component=gb.image
 Component=gb.gui
-Arguments=[["-style=oxygen"],["-style=qtcurve"]]
+Component=gb.settings
+ArgumentList=[["-style=oxygen"],["-style=qtcurve"]]
 Environment="GB_JIT_DEBUG=1\nGB_GUI=gb.gtk3\nLIBOVERLAY_SCROLLBAR=0"
 TabSize=2
 Translate=1
