@@ -566,7 +566,7 @@ BEGIN_METHOD(DrawingArea_new, GB_OBJECT parent)
 	THIS->widget.flag.noBackground = true;
 
 	CWIDGET_new(wid, (void *)_object);
-
+	
 END_METHOD
 
 

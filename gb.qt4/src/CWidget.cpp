@@ -1533,7 +1533,7 @@ void CWIDGET_reset_color(CWIDGET *_object)
 
 			w->setPalette(palette);
 		}
-		else if (qobject_cast<QSpinBox *>(w))
+		/*else if (qobject_cast<QSpinBox *>(w))
 		{
 			palette = QPalette();
 
@@ -1544,19 +1544,36 @@ void CWIDGET_reset_color(CWIDGET *_object)
 				palette.setColor(QPalette::Text, TO_QCOLOR(fg));
 
 			w->setPalette(palette);
-		}
+		}*/
 		else
 		{
 			palette = QPalette();
 		
 			if (bg != COLOR_DEFAULT)
-				palette.setColor(w->backgroundRole(), TO_QCOLOR(bg));
+			{
+				/*if (GB.Is(THIS, CLASS_Container))
+				{
+					palette.setColor(QPalette::Base, TO_QCOLOR(bg));
+					palette.setColor(QPalette::Window, TO_QCOLOR(bg));
+					palette.setColor(QPalette::Button, TO_QCOLOR(bg));
+				}
+				else*/
+					palette.setColor(w->backgroundRole(), TO_QCOLOR(bg));
+			}
 			
 			if (fg != COLOR_DEFAULT)
-				palette.setColor(w->foregroundRole(), TO_QCOLOR(fg));
+			{
+				if (GB.Is(THIS, CLASS_Container))
+				{
+					palette.setColor(QPalette::Text, TO_QCOLOR(fg));
+					palette.setColor(QPalette::WindowText, TO_QCOLOR(fg));
+					palette.setColor(QPalette::ButtonText, TO_QCOLOR(fg));
+				}
+				else
+					palette.setColor(w->foregroundRole(), TO_QCOLOR(fg));
+			}
 		
 			w->setAutoFillBackground(!THIS->flag.noBackground && (THIS->flag.fillBackground || ((THIS_EXT && THIS_EXT->bg != COLOR_DEFAULT) && w->backgroundRole() == QPalette::Window)));
-			//qDebug("%s: %d bg role = %d", THIS->name, w->autoFillBackground(), w->backgroundRole());
 			w->setPalette(palette);
 		}
 
@@ -2452,6 +2469,7 @@ static void post_focus_change(void *)
 		control = _old_active_control;
 		while (control)
 		{
+			//fprintf(stderr, "post_focus_change: %s lost focus\n", control->name);
 			GB.Raise(control, EVENT_LostFocus, 0);
 			control = (CWIDGET *)(EXT(control) ? EXT(control)->proxy_for : NULL);
 		}
@@ -2462,6 +2480,7 @@ static void post_focus_change(void *)
 		control = current;
 		while (control)
 		{
+			//fprintf(stderr, "post_focus_change: %s got focus\n", control->name);
 			GB.Raise(control, EVENT_GotFocus, 0);
 			control = (CWIDGET *)(EXT(control) ? EXT(control)->proxy_for : NULL);
 		}
@@ -2490,7 +2509,7 @@ void CWIDGET_handle_focus(CWIDGET *control, bool on)
 	if (on == (CWIDGET_active_control == control))
 		return;
 	
-	//qDebug("CWIDGET_handle_focus: %s %d", control->name, on);
+	//fprintf(stderr, "CWIDGET_handle_focus: %s %d\n", control->name, on);
 	
 	if (CWIDGET_active_control && !_focus_change)
 		CWIDGET_previous_control = CWIDGET_active_control;

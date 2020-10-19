@@ -92,6 +92,7 @@ static inline qreal to_deg(float angle)
 static bool init_painting(GB_PAINT *d, QPaintDevice *device)
 {
 	QPen pen;
+	GB_COLOR col;
 
 	d->area.width = device->width();
 	d->area.height = device->height();
@@ -133,8 +134,14 @@ static bool init_painting(GB_PAINT *d, QPaintDevice *device)
 	pen.setMiterLimit(10.0);
 	pen.setWidthF(1.0);
 	PAINTER(d)->setPen(pen);
-	PAINTER(d)->setBrush(Qt::black);
-
+	
+	if (GB.Is(d->device, CLASS_Control))
+		col = CWIDGET_get_real_foreground((CWIDGET *)d->device);
+	else
+		col = 0;
+	
+	PAINTER(d)->setBrush(CCOLOR_make(col));
+	
 	return FALSE;
 }
 
@@ -143,7 +150,7 @@ static QColor get_color(GB_PAINT *d, GB_COLOR col)
 	if (col == GB_COLOR_DEFAULT)
 	{
 		if (GB.Is(d->device, CLASS_Control))
-			col = CWIDGET_get_real_background((CWIDGET *)d->device);
+			col = CWIDGET_get_real_foreground((CWIDGET *)d->device);
 		else
 			col = 0xFFFFFF;
 	}
