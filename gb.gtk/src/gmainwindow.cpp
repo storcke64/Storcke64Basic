@@ -364,6 +364,7 @@ void gMainWindow::initialize()
 	_resized = false;
 	_top_only = false;
 	_closing = false;
+	_closed = false;
 	_not_spontaneous = false;
 	_skip_taskbar = false;
 	_xembed = false;

@@ -741,8 +741,8 @@ void gControl::moveResize(int x, int y, int w, int h)
 	if (pr)
 		pr->disableArrangement();
 
-	resize(w, h);
 	move(x, y);
+	resize(w, h);
 
 	if (pr)
 		pr->enableArrangement();
