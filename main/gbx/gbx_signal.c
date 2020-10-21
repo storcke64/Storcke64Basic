@@ -36,6 +36,30 @@ static int _pipe[2] = { -1, -1 };
 static volatile int _count = 0;
 static int _raising_callback = 0;
 
+enum { CB_NONE = 0, CB_HANDLER = 1, CB_ACTION = 2 };
+
+static int get_callback(struct sigaction *action, void (**callback)())
+{
+	if (action->sa_handler != SIG_DFL && action->sa_handler != SIG_IGN)
+	{
+		if (action->sa_flags & SA_SIGINFO)
+		{
+			*callback = (void *)action->sa_sigaction;
+			return CB_ACTION;
+		}
+		else
+		{
+			*callback = (void *)action->sa_handler;
+			return CB_HANDLER;
+		}
+	}
+	else
+	{
+		*callback = NULL;
+		return CB_NONE;
+	}
+}
+
 void SIGNAL_install(SIGNAL_HANDLER *handler, int signum, void (*callback)(int, siginfo_t *, void *))
 {
 	struct sigaction action;
@@ -47,6 +71,7 @@ void SIGNAL_install(SIGNAL_HANDLER *handler, int signum, void (*callback)(int, s
 	handler->signum = signum;
 	
 	action.sa_flags = SA_SIGINFO;
+	// According to manpage, the emitting signal is blocked by default.
 	sigemptyset(&action.sa_mask);
 	action.sa_sigaction = callback;
 
@@ -69,18 +94,20 @@ void SIGNAL_uninstall(SIGNAL_HANDLER *handler, int signum)
 
 void SIGNAL_previous(SIGNAL_HANDLER *handler, int signum, siginfo_t *info, void *context)
 {
-	if (handler->old_action.sa_handler != SIG_DFL && handler->old_action.sa_handler != SIG_IGN)
+	void (*cb)();
+	
+	switch (get_callback(&handler->old_action, &cb))
 	{
-		if (handler->old_action.sa_flags & SA_SIGINFO)
-		{
-			//fprintf(stderr, "Calling old action %p\n", _old_SIGCHLD_action.sa_sigaction);
-			(*handler->old_action.sa_sigaction)(signum, info, context);
-		}
-		else
-		{
-			//fprintf(stderr, "Calling old handler %p\n", _old_SIGCHLD_action.sa_handler);
-			(*handler->old_action.sa_handler)(signum);
-		}
+		case CB_ACTION:
+			(*cb)(signum, info, context);
+			break;
+		
+		case CB_HANDLER:
+			(*cb)(signum);
+			break;
+		
+		default:
+			; /* do nothing */
 	}
 }
 
@@ -109,8 +136,13 @@ static void handle_signal(int signum, siginfo_t *info, void *context)
 {
 	char buffer;
 	int save_errno;
+	static int64_t lock = 0;
+
+	if (lock & (1 << signum))
+		return;
 
 	save_errno = errno;
+	lock |= 1 << signum;
 
 	#if DEBUG_ME	
 	char digit;
@@ -141,6 +173,7 @@ static void handle_signal(int signum, siginfo_t *info, void *context)
 	SIGNAL_previous(find_handler(signum), signum, info, context);
 	
 	errno = save_errno;
+	lock &= ~(1 << signum);
 }
 
 static bool _must_purge_callbacks = FALSE;
@@ -425,17 +458,21 @@ void SIGNAL_check(int signum)
 {
 	struct sigaction action;
 	SIGNAL_HANDLER *handler = find_handler(signum);
+	void (*cb)();
 	
 	if (!handler)
 		return;
 	
 	sigaction(signum, NULL, &action);
+	get_callback(&action, &cb);
 	
 	#if DEBUG_ME
-	fprintf(stderr, "SIGNAL_check: %d -> %d\n", signum, action.sa_sigaction == handle_signal);
+	fprintf(stderr, "SIGNAL_check: %d -> %d (action.sa_sigaction = %p)\n", signum, cb == handle_signal, cb);
+	if (cb != handle_signal)
+		BREAKPOINT();
 	#endif
 	
-	if (action.sa_sigaction == handle_signal)
+	if (cb == handle_signal)
 		return;
 	
 	SIGNAL_install(handler, signum, handle_signal);
