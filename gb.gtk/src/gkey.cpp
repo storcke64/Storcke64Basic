@@ -133,7 +133,7 @@ bool gKey::shift()
 	return state() & GDK_SHIFT_MASK; // || _event.keyval == GDK_Shift_L || _event.keyval == GDK_Shift_R;
 }
 
-int gKey::fromString(char *str)
+int gKey::fromString(const char *str)
 {
 	char *lstr;
 	int key;

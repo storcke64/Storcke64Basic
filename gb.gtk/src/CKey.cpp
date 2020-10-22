@@ -27,16 +27,17 @@
 #include <gdk/gdkkeysyms.h>
 #include "gkey.h"
 
+//-------------------------------------------------------------------------
 
 BEGIN_METHOD(Key_get, GB_STRING key)
 
 	char *key = GB.ToZeroString(ARG(key));
-
-	if (!GB.GetProperty((void *)GB.FindClass("Key"), key))
-	{
-		GB.Error(NULL);
-		GB.ReturnInteger(gKey::fromString(GB.ToZeroString(ARG(key))));
-	}
+	int val = KEY_get_keyval_from_name(key);
+	
+	if (!val)
+		val = gKey::fromString(key);
+	
+	GB.ReturnInteger(val);
 
 END_METHOD
 
@@ -102,7 +103,6 @@ BEGIN_PROPERTY(Key_Normal)
   GB.ReturnBoolean(gKey::normal());
 
 END_PROPERTY
-
 
 
 GB_DESC CKeyDesc[] =
@@ -181,4 +181,29 @@ GB_DESC CKeyDesc[] =
 
   GB_END_DECLARE
 };
+
+
+//-------------------------------------------------------------------------
+
+int KEY_get_keyval_from_name(const char *name)
+{
+	const GB_DESC *p;
+	const char *pname;
+
+	if (!name || !*name)
+		return 0;
+	
+	if (!name[1])
+		return gKey::fromString(name);
+	
+	for(p = &CKeyDesc[3]; (pname = p->name); p++)
+	{
+		if (*pname != GB_CONSTANT_ID)
+			continue;
+		if (strcasecmp(name, &pname[1]) == 0)
+			return (int)p->val2;
+	}
+	
+	return gKey::fromString(name);
+}
 

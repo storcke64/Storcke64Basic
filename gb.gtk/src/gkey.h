@@ -38,7 +38,7 @@ public:
 	static bool normal();
 	static bool shift();
 
-	static int fromString(char* str);
+	static int fromString(const char *str);
 
 //"Private"
 	static void disable();

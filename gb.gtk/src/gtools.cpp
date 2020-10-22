@@ -31,6 +31,8 @@
 // HTML character entities
 #include "kentities.h"
 
+#include "CKey.h"
+
 void stub(const char *function)
 {
 	printf("gb.gtk: warning: %s not yet implemented\n", function);
@@ -799,47 +801,47 @@ GdkPixbuf *gt_pixbuf_create_disabled(GdkPixbuf *img)
 
 void gt_shortcut_parse(char *shortcut, guint *key, GdkModifierType *mods)
 {
-	gchar **cads;
-	gchar *res;
-	int bucle;
+	char **tokens;
+	char *token;
+	int i;
+	int m;
 	
-	res = NULL;
+	*key = 0;
+	*mods = (GdkModifierType)0;
+	
+	m = 0;
 	
 	if (!shortcut || !*shortcut)
-	{
-		*key = 0;
 		return;
+	
+	tokens = g_strsplit(shortcut, "+", 0);
+	
+	i = 0;
+	while (tokens[i])
+	{
+		g_strstrip(tokens[i]);
+		i++;
 	}
 	
-	cads = g_strsplit(shortcut, "+", 0);
-	
-	bucle = 0;
-	while (cads[bucle])
+	for (i = 0; (token = tokens[i]); i++)
 	{
-		g_strstrip(cads[bucle]);
-		bucle++;
-	}
-	
-  bucle = 0;
-	while (cads[bucle])
-	{
-		if (!strcasecmp(cads[bucle],"ctrl"))
-		  g_stradd(&res, "<Ctrl>");
-		else if (!strcasecmp(cads[bucle],"shift"))
-		  g_stradd(&res, "<Shift>");
-		else if (!strcasecmp(cads[bucle],"alt"))
-		  g_stradd(&res, "<Alt>");
+		if (!strcasecmp(token, "ctrl") || !strcasecmp(token, "control"))
+			m |= GDK_CONTROL_MASK;
+		else if (!strcasecmp(token, "shift"))
+			m |= GDK_SHIFT_MASK;
+		else if (!strcasecmp(token, "alt"))
+			m |= GDK_MOD1_MASK;
 		else
-		  g_stradd(&res, cads[bucle]);
-		
-		bucle++;
+		{
+		  *key = KEY_get_keyval_from_name(token);
+			*mods = (GdkModifierType)m;
+			break;
+		}
 	}
 	
-	g_strfreev(cads);
-	gtk_accelerator_parse(res, key, mods);
+	g_strfreev(tokens);
 	
-	if (res)
-	 g_free(res);
+	//fprintf(stderr, "gt_shortcut_parse: %s -> %d / %d\n", shortcut, *key, m);
 }
 
 #define MAX_FREE_LATER 16
