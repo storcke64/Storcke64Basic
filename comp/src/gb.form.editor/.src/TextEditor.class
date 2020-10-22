@@ -475,7 +475,7 @@ Private Sub UpdateMargin()
   
   If MW <> $MW Then
     $MW = MW
-    '$hView._SetShadowOffset(0, 0, $MW - $iWidthModified, 0)
+    $hView._SetShadowOffset(0, 0, $MW - $iWidthModified, 0)
     If $cLineLayout Then
       _UpdateAllHeight
       UpdateWidth
@@ -1334,7 +1334,7 @@ Private Sub DrawMargin(X As Integer, Y As Integer, Width As Integer, Height As I
   
   ' Margin
   
-  'Paint.FillRect(X, Y, $MW, Height, $iBackground)
+  Paint.FillRect(X, Y, $MW, Height, $iBackground)
   
   If $bShowIcon Or If $bShowExpand Then
     
