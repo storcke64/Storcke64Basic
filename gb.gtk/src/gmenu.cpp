@@ -115,18 +115,48 @@ static void mnu_activate(GtkMenuItem *menuitem, gMenu *data)
 	}
 }
 
+static void cb_size_allocate(GtkWidget *menu, GdkRectangle *allocation, gMenu *data)
+{
+	//fprintf(stderr, "cb_size_allocate: %s %d x %d (%d)\n", data->name(), allocation->width, allocation->height, gtk_widget_get_mapped(menu));
+	
+	if (!data->_opened)
+	{
+		data->_opened = true;
+		if (data->onShow) (*data->onShow)(data);
+		data->hideSeparators();
+	}
+}
+
 static gboolean cb_map(GtkWidget *menu, gMenu *data)
 {
-	data->_opened = true;
-	data->hideSeparators();
-	if (data->onShow) (*data->onShow)(data);
+	//fprintf(stderr, "cb_map: >>> %s %d\n", data->name(), data->_mapping);
+
+	if (data->_mapping)
+		return false;
+
+	data->_mapping = true;
+	
+	gtk_widget_hide(gtk_widget_get_parent(menu));
+	gtk_widget_show(gtk_widget_get_parent(menu));
+	//gtk_menu_reposition(GTK_MENU(menu));
+	
+	data->_mapping = false;
+
+	//fprintf(stderr, "cb_map: <<<\n");
 	return false;
 }
 
 static gboolean cb_unmap(GtkWidget *menu, gMenu *data)
 {
+	//fprintf(stderr, "cb_unmap: >>> %s %d\n", data->name(), data->_mapping);
+	
+	if (data->_mapping)
+		return false;
+
 	data->_opened = false;
 	if (data->onHide) (*data->onHide)(data);
+
+	//fprintf(stderr, "cb_unmap: <<<\n");
 	return false;
 }
 
@@ -330,7 +360,7 @@ void gMenu::update()
 					
 					check = gtk_image_new();
 					g_object_ref(check);
-					size = MAX(ds * 2 + 2, window()->font()->height());
+					size = MAX(ds * 3 / 2, window()->font()->height());
 					gtk_widget_set_size_request(check, size, size);
 					ON_DRAW(check, this, cb_check_expose, cb_check_draw);
 					//g_signal_connect_after(G_OBJECT(check), "expose-event", G_CALLBACK(cb_check_expose), (gpointer)this);
@@ -374,11 +404,12 @@ void gMenu::update()
 				
 				if (!parent->child)
 				{
-					parent->child = (GtkMenu*)gtk_menu_new();
+					parent->child = (GtkMenu *)gtk_menu_new();
 					g_object_ref_sink(parent->child);
 					
-					//g_debug("%p: creates a new child menu container in parent %p", this, parent->child);
+					//fprintf(stderr, "creates a new child menu container in parent %s\n", parent->name());
 					
+					g_signal_connect(G_OBJECT(parent->child), "size-allocate", G_CALLBACK(cb_size_allocate), (gpointer)parent);
 					g_signal_connect(G_OBJECT(parent->child), "map", G_CALLBACK(cb_map), (gpointer)parent);
 					g_signal_connect(G_OBJECT(parent->child), "unmap", G_CALLBACK(cb_unmap), (gpointer)parent);
 					gtk_widget_show_all(GTK_WIDGET(parent->child));
@@ -504,6 +535,7 @@ void gMenu::initialize()
 	_opened = false;
 	_exec = false;
 	_disabled = false;
+	_mapping = false;
 	
 	_proxy = NULL;
 	
@@ -658,9 +690,6 @@ bool gMenu::isFullyEnabled() const
 
 void gMenu::updateShortcut()
 {
-	guint key;
-	GdkModifierType mods;
-
 	if (_no_update)
 		return;
 	

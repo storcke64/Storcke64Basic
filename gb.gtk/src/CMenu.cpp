@@ -89,7 +89,7 @@ static int CMENU_check(void *_object)
 	return (MENU == NULL);
 }
 
-#ifdef GTK3
+#ifdef GTK4
 
 static void delete_menu(gMenu *menu)
 {

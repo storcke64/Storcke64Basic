@@ -115,6 +115,7 @@ public:
 	unsigned _opened : 1;
 	unsigned _exec: 1;
 	unsigned _disabled : 1;
+	unsigned _mapping : 1;
 
 	void initialize();
 	gMenuStyle style() const { return _style; }

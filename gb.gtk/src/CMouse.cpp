@@ -176,35 +176,35 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Shift)
 
-	CHECK_VALID();
+	//CHECK_VALID();
 	GB.ReturnBoolean(gMouse::shift());
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Control)
 
-	CHECK_VALID();
+	//CHECK_VALID();
 	GB.ReturnBoolean(gMouse::control());
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Alt)
 
-	CHECK_VALID();
+	//CHECK_VALID();
 	GB.ReturnBoolean(gMouse::alt());
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Meta)
 
-	CHECK_VALID();
+	//CHECK_VALID();
 	GB.ReturnBoolean(gMouse::meta());
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Normal)
 
-	CHECK_VALID();
+	//CHECK_VALID();
 	GB.ReturnBoolean(gMouse::normal());
 
 END_PROPERTY
