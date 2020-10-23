@@ -373,7 +373,7 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
           Else If aArg[0] = "2" Then
             hScreen.EraseScreen
           Else
-            Goto NOT_IMPLEMENTED
+            hScreen.Clear
           Endif
           
         Case "L" ' Insert lines

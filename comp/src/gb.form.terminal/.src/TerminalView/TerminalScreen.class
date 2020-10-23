@@ -145,6 +145,7 @@ Public Sub Clear()
   
   Lines.Clear
   GetView()._UpdateSize
+  Goto(0, 0)
   
 End
 
