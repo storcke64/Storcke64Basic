@@ -1655,7 +1655,7 @@ void gMainWindow::configure()
 	h = menuBarHeight();
 
 	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "configure: %s: %d %d - %d %d\n", name(), isMenuBarVisible(), h, width(), height());
+	fprintf(stderr, "configure: %s: menu = %d h = %d / %d x %d\n", name(), isMenuBarVisible(), h, width(), height());
 	#endif
 
 	if (isMenuBarVisible())
