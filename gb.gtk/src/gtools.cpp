@@ -913,6 +913,19 @@ static void add_space(GString *str)
 		g_string_append_c(str, ' ');
 }
 
+
+static void add_attr(GString *pango, const char *attr, const char *value)
+{
+	bool add_quote = *value != '"' && *value !='\'';
+	
+	g_string_append_c(pango, ' ');
+	g_string_append(pango, attr);
+	g_string_append_c(pango, '=');
+	if (add_quote) g_string_append_c(pango, '"');
+	g_string_append(pango, value);
+	if (add_quote) g_string_append_c(pango, '"');
+}
+
 char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_break)
 {
 	static const char *title[] =
@@ -951,6 +964,10 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	
 	if (len_html == 0)
 		goto RETURN_STRING;
+	
+	// Sometimes the first markup is not taken into account.
+	// This is a workaround for this bug:
+	g_string_append_unichar(pango, 0xFEFF);
 	
 	for (p = html;; p++)
 	{
@@ -996,7 +1013,7 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			if (len <= 0)
 			{
 				g_string_append(pango, "&lt;");
-				if (end_token) g_string_append(pango, "/");
+				if (end_token) g_string_append_c(pango, '/');
 				g_string_append(pango, "&gt;");
 				p_markup = NULL;
 				continue;
@@ -1036,7 +1053,7 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			{
 				if (start_token)
 				{
-					g_string_append(pango, "\n");
+					g_string_append_c(pango, '\n');
 					newline = true;
 				}
 				goto __FOUND_TOKEN;
@@ -1076,13 +1093,11 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 					{
 						if (!strncasecmp(*pt, "color=", 6))
 						{
-							g_string_append(pango, " foreground=");
-							g_string_append(pango, *pt + 6);
+							add_attr(pango, "foreground", *pt + 6);
 						}
 						else if (!strncasecmp(*pt, "face=", 5))
 						{
-							g_string_append(pango, " face=");
-							g_string_append(pango, *pt + 5);
+							add_attr(pango, "face", *pt + 5);
 						}
 						else if (!strncasecmp(*pt, "size=", 5))
 						{
@@ -1111,12 +1126,12 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 							else if (size > 6)
 								size = 6;
 							
-							g_string_append(pango, "\"");
+							g_string_append_c(pango, '"');
 							g_string_append(pango, size_name[size]);
-							g_string_append(pango, "\"");
+							g_string_append_c(pango, '"');
 						}
 					}
-					g_string_append(pango, ">");
+					g_string_append_c(pango, '>');
 				}
 				goto __FOUND_TOKEN;
 			}
@@ -1243,10 +1258,6 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			newline = false;
 		}
 	}
-	
-	// Sometimes the first markup is not taken into account.
-	// This is a workaround for this bug:
-	g_string_prepend_unichar(pango, 0xFEFF);
 	
 RETURN_STRING:
 	
