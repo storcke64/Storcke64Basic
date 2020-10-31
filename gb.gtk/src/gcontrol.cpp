@@ -2527,7 +2527,10 @@ void gControl::reparent(gContainer *newpr, int x, int y)
 		return;
 
 	if (pr == newpr && pr->getContainer() == newpr->getContainer())
+	{
+		move(x, y);
 		return;
+	}
 
 	if (was_visible) hide();
 	//gtk_widget_unrealize(border);
