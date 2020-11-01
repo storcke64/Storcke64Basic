@@ -246,7 +246,7 @@ End
 Public Sub btnHelp_Draw()
 
   If btnHelp.Hovered Then Draw.Foreground = Color.Blue
-  Draw.Style.Arrow(0, 0, btnHelp.W, btnHelp.H, $iArrow)
+  Draw.Style.Arrow(Desktop.Scale \ 2, 0, btnHelp.W - Desktop.Scale, btnHelp.H, $iArrow)
 
 End
 

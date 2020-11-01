@@ -518,7 +518,7 @@ Private Sub ScanStruct(hModule As Object, iLine As Integer) As Integer
   Loop
   
   hClass = Classes[sClass]
-  If hClass And If Not hClass.Structure Then Return
+  If hClass And If Not hClass.Structure Then Return iLine
   
   hClass = CreateClass(sClass, "", CComponent.PROJECT_NAME)
   hClass.Structure = True
