@@ -185,7 +185,8 @@ Private Sub GetOptions()
       Else
         'If hOption.Name = "Mode" Then Stop
         'Manage the list style option
-        hOption._List = Split(sValues, "|")
+        'remove also empty list entry
+        hOption._List = Split(Replace(sValues, "||", "|"), "|")
         'If the option list have a unit then use it and remove it from the list
         s = GetUnit(hOption._List[hOption._List.Max])
         If s Then
@@ -276,7 +277,7 @@ Public Function Scan() As Image
   Next
   If Not $bASync Then
     $sCurImagePath = Temp
-    sCommand = "scanimage " & $sDeviceName & " " & sOptions & "--format=jpeg > " & $sCurImagePath
+    sCommand = "scanimage " & $sDeviceName & " " & sOptions & "--format=pnm > " & $sCurImagePath
     If $bDebug Then Debug sCommand
     Shell sCommand Wait
     'Print ss
@@ -288,11 +289,11 @@ Public Function Scan() As Image
     Return hImage
   Else
     If Me.Exist("Source") Then
-      If InStr(LCase(Me["Source"].Value), "flatbed") Then 
+      If (Me["Source"].Value = Me["Source"].List[0]) Or Me["Source"].Value = "" Then 
         sCount = "--batch-count=1"
       Endif
     Endif
-    sCommand = Subst("scanimage &1 &2 --batch='&3' &4 --batch-print -p --format=jpeg", $sDeviceName, sOptions, $stmpPath &/ "out%d.jpg", sCount)
+    sCommand = Subst("scanimage &1 &2 --batch='&3' &4 --batch-print -p --format=pnm", $sDeviceName, sOptions, $stmpPath &/ "out%d.pnm", sCount)
     If $bDebug Then Print sCommand
     Shell sCommand For Read As "Process"
 
@@ -306,8 +307,12 @@ End
 Public Sub Process_Error(sError As String)
 
   Dim fRet As Float
-
-  If sError Begins "Progress:" Then
+  
+  If $bDebug Then 
+    Debug "Error : " & sError
+  Endif
+  
+  If sError Begins "Progress:" Or If sError Ends "%" Then
     fRet = Round(CFloat(Left(RTrim(Scan(Split(sError, "\r")[0], "* *")[1]), -1)) / 100, -2)
     If fRet > $fProgress Then
       $fProgress = fRet
@@ -340,9 +345,14 @@ Public Sub Process_Read()
 
   Dim s As String
 
-
   s = Read #Last, Lof(Last)
+
+  If $bDebug Then 
+    Debug "Read : " & s
+  Endif
+
   $aImgStack.Add(Trim(s))
+  Wait 0.2
   Raise PageEnd
 
 End
