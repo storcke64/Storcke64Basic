@@ -315,7 +315,7 @@ const void *const GAMBAS_DebugApi[] =
 {
 	(void *)GB_DebugGetExec,
 	(void *)STACK_get_frame,
-	(void *)ERROR_print_at,
+	(void *)ERROR_get_message,
 	(void *)ERROR_save,
 	(void *)ERROR_restore,
 	(void *)VALUE_to_string,

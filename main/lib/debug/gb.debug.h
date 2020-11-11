@@ -67,7 +67,7 @@ typedef
 	struct {
 		void *(*GetExec)(void);
 		void *(*GetStack)(int frame);
-		void (*PrintError)(FILE *where, bool msgonly, bool newline);
+		const char *(*GetErrorMessage)(void);
 		void (*SaveError)(void *, void *);
 		void (*RestoreError)(void *, void *);
 		void (*ToString)(GB_VALUE *value, char **addr, int *len);

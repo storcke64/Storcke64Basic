@@ -173,6 +173,7 @@ void ERROR_warning(const char *warning, ...);
 bool ERROR_print(bool);
 void ERROR_print_at(FILE *where, bool msgonly, bool newline);
 void ERROR_hook(void);
+const char *ERROR_get_message(void);
 
 void ERROR_save(ERROR_INFO *save, ERROR_INFO *last);
 void ERROR_restore(ERROR_INFO *save, ERROR_INFO *last);

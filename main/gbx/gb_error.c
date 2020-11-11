@@ -597,27 +597,29 @@ static void print_prefix(FILE *where)
 
 void ERROR_print_at(FILE *where, bool msgonly, bool newline)
 {
-	if (!ERROR_current->info.code)
+	ERROR_INFO *info = &ERROR_current->info;
+	
+	if (!info->code)
 		return;
 
 	print_prefix(where);
 	
 	if (!msgonly)
 	{
-		if (ERROR_current->info.cp && ERROR_current->info.fp && ERROR_current->info.pc)
-			fprintf(where, "%s: ", DEBUG_get_position(ERROR_current->info.cp, ERROR_current->info.fp, ERROR_current->info.pc));
+		if (info->cp && info->fp && info->pc)
+			fprintf(where, "%s: ", DEBUG_get_position(info->cp, info->fp, info->pc));
 		else
 			fprintf(where, "ERROR: ");
 		/*if (ERROR_current->info.code > 0 && ERROR_current->info.code < 256)
 			fprintf(where, "%ld:", ERROR_current->info.code);*/
-		if (ERROR_current->info.code > 0)
-			fprintf(where, "#%d: ", ERROR_current->info.code);
-		if (ERROR_current->info.msg)
-			fprintf(where, "%s", ERROR_current->info.msg);
+		if (info->code > 0)
+			fprintf(where, "#%d: ", info->code);
+		if (info->msg)
+			fputs(info->msg, where);
 	}
 	else
 	{
-		char *p = ERROR_current->info.msg;
+		char *p = info->msg;
 		unsigned char c;
 
 		if (p)
@@ -782,3 +784,7 @@ void ERROR_hook(void)
 	}
 }
 
+const char *ERROR_get_message(void)
+{
+	return ERROR_current->info.msg;
+}

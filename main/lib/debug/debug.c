@@ -55,8 +55,8 @@ GB_DEBUG_INTERFACE *DEBUG_interface;
 char DEBUG_buffer[DEBUG_BUFFER_MAX + 1];
 char *DEBUG_fifo = NULL;
 
-static DEBUG_BREAK *Breakpoint;
-static bool Error;
+static DEBUG_BREAK *_breakpoints;
+static char *_error = NULL;
 
 static EVAL_INTERFACE EVAL;
 
@@ -265,8 +265,8 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 		_out = stdout;
 	}
 
-	//ARRAY_create(&Breakpoint);
-	GB.NewArray(&Breakpoint, sizeof(DEBUG_BREAK), 16);
+	//ARRAY_create(&_breakpoints);
+	GB.NewArray(&_breakpoints, sizeof(DEBUG_BREAK), 16);
 	signal(SIGUSR1, signal_user);
 	signal(SIGPIPE, SIG_IGN);
 
@@ -277,8 +277,9 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 
 void DEBUG_exit(void)
 {
-	GB.FreeArray(&Breakpoint);
+	GB.FreeArray(&_breakpoints);
 	GB.FreeString(&DEBUG_fifo);
+	GB.FreeString(&_error);
 
 	/* Don't do it, it blocks!
 
@@ -299,8 +300,8 @@ static int find_free_breakpoint(void)
 
 	memset(used, FALSE, MAX_BREAKPOINT);
 
-	for (i = 0; i < ARRAY_count(Breakpoint); i++)
-		used[Breakpoint[i].id - 1] = TRUE;
+	for (i = 0; i < ARRAY_count(_breakpoints); i++)
+		used[_breakpoints[i].id - 1] = TRUE;
 
 	for (i = 0; i < MAX_BREAKPOINT; i++)
 		if (!used[i])
@@ -318,7 +319,7 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 
 	if (brk->addr || !CLASS_is_loaded(brk->class))
 	{
-		WARNING("Breakpoint is pending");
+		WARNING("_breakpoints is pending");
 		return TRUE;
 	}
 
@@ -345,8 +346,8 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 
 	if (*addr & 0xFF)
 	{
-		WARNING("Breakpoint already set");
-		//fprintf(_out, "Breakpoint already set\n");
+		WARNING("_breakpoints already set");
+		//fprintf(_out, "_breakpoints already set\n");
 		return FALSE;
 	}
 
@@ -359,7 +360,7 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 	fprintf(stderr, "init_breakpoint: %s.%d\n", brk->class->name, brk->line);
 	#endif
 
-	INFO("Breakpoint set: %s.%d", brk->class->name, brk->line);
+	INFO("_breakpoints set: %s.%d", brk->class->name, brk->line);
 	return FALSE;
 }
 
@@ -369,7 +370,7 @@ static bool set_breakpoint(CLASS *class, ushort line)
 	DEBUG_BREAK *brk;
 	int id;
 
-	if (GB.Count(Breakpoint) >= MAX_BREAKPOINT)
+	if (GB.Count(_breakpoints) >= MAX_BREAKPOINT)
 	{
 		WARNING("Too many breakpoints");
 		return TRUE;
@@ -382,7 +383,7 @@ static bool set_breakpoint(CLASS *class, ushort line)
 		return TRUE;
 	}
 
-	brk = (DEBUG_BREAK *)GB.Add(&Breakpoint);
+	brk = (DEBUG_BREAK *)GB.Add(&_breakpoints);
 
 	brk->id = id;
 	brk->addr = NULL;
@@ -404,20 +405,20 @@ static bool unset_breakpoint(CLASS *class, ushort line)
 	int i;
 	DEBUG_BREAK *brk;
 
-	for (i = 0; i < GB.Count(Breakpoint); i++)
+	for (i = 0; i < GB.Count(_breakpoints); i++)
 	{
-		brk = &Breakpoint[i];
+		brk = &_breakpoints[i];
 		if (brk->class == class && brk->line == line)
 		{
 			if (brk->addr)
 				*(brk->addr) = PCODE_BREAKPOINT(0);
-			GB.Remove(&Breakpoint, i, 1);
+			GB.Remove(&_breakpoints, i, 1);
 
 			#ifdef DEBUG_ME
 			fprintf(stderr, "unset_breakpoint: %s.%d\n", class->name, line);
 			#endif
 
-			INFO("Breakpoint removed");
+			INFO("_breakpoints removed");
 			return FALSE;
 		}
 	}
@@ -436,9 +437,9 @@ void DEBUG_init_breakpoints(CLASS *class)
 	fprintf(stderr, "DEBUG_init_breakpoints: %p %s\n", class, class->name);
 	#endif
 	
-	for (i = 0; i < GB.Count(Breakpoint); i++)
+	for (i = 0; i < GB.Count(_breakpoints); i++)
 	{
-		brk = &Breakpoint[i];
+		brk = &_breakpoints[i];
 		if (brk->class == class)
 		{
 			//fprintf(stderr, "DEBUG_init_breakpoints: %s\n", class->name);
@@ -684,8 +685,8 @@ static void debug_info()
 {
 	fprintf(_out, "*[%d]\t", getpid());
 	
-	if (Error)
-		GB_DEBUG.PrintError(_out, TRUE, FALSE);
+	if (_error)
+		fputs(_error, _out);
 	
 	fprintf(_out, "\t");
 	
@@ -833,7 +834,7 @@ __ERROR:
 
 	if (*cmd != '!')
 		fprintf(out, "!");
-	GB_DEBUG.PrintError(out, TRUE, FALSE);
+	fputs(GB_DEBUG.GetErrorMessage(), out);
 
 __END:
 
@@ -849,7 +850,12 @@ __END:
 static void command_symbol(const char *cmd)
 {
 	int start, len;
-	DEBUG_INFO save_debug = DEBUG_info;
+	ERROR_INFO save_error = { 0 };
+	ERROR_INFO save_last = { 0 };
+	DEBUG_INFO save_debug;
+
+	GB_DEBUG.SaveError(&save_error, &save_last);
+	save_debug = DEBUG_info;
 
 	len = strlen(cmd);
 	for (start = 0; start < len; start++)
@@ -876,6 +882,7 @@ static void command_symbol(const char *cmd)
 	fflush(_out);
 	
 	DEBUG_info = save_debug;
+	GB_DEBUG.RestoreError(&save_error, &save_last);
 }
 
 
@@ -915,7 +922,9 @@ void DEBUG_main(bool error)
 	DEBUG_COMMAND *tc = NULL;
 	/*static int cpt = 0;*/
 
-	Error = error;
+	GB.FreeString(&_error);
+	if (error)
+		_error = GB.NewZeroString(GB_DEBUG.GetErrorMessage());
 
 	fflush(_out);
 
@@ -936,7 +945,7 @@ void DEBUG_main(bool error)
 		/*if (CP == NULL)
 			printf("[]:");
 		else
-			printf("[%s%s]:", DEBUG_get_current_position(), Error ? "*" : "");*/
+			printf("[%s%s]:", DEBUG_get_current_position(), _error ? "*" : "");*/
 
 		GB.Component.Signal(GB_SIGNAL_DEBUG_BREAK, 0);
 
