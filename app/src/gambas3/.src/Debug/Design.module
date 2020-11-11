@@ -262,7 +262,7 @@ Public Sub Debug_Read(Data As String)
     Return
   Endif
   
-  Debug Data
+  'Debug Data
   aData = Split(Data, "\t")
   
   Select Left$(aData[0])
@@ -684,7 +684,7 @@ End
 
 Private Sub WriteCommand(sCmd As String)
   
-  Debug sCmd 'Error "---> "; sCmd
+  'Debug sCmd 'Error "---> "; sCmd
   Debug.Write(sCmd)
   
 End
