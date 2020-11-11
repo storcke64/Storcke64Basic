@@ -120,6 +120,9 @@ static void init_option(QStyleOption &opt, int x, int y, int w, int h, int state
 		palette.setColor(role, TO_QCOLOR(color));
 		opt.palette = palette;
 	}
+	
+	if (state & GB_DRAW_STATE_DISABLED)
+		opt.palette.setCurrentColorGroup(QPalette::Disabled);
 }
 
 static void paint_focus(QPainter *p, int x, int y, int w, int h, int state)
