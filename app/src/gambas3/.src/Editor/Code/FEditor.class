@@ -986,9 +986,8 @@ Static Public Function IsCurrentProc() As Boolean
 
   For iPos = 0 To aLine.Count - 1
 
-    If aLine[iPos] = "FAST" Then
-      Continue
-    Endif
+    If aLine[iPos] = "FAST" Then Continue
+    If aLine[iPos] = "UNSAFE" Then Continue
 
     If aLine[iPos] = "PUBLIC" Then
       $bPublic = True

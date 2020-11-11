@@ -670,7 +670,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         Case "STRUCT"
           sKind = "S"
           Break
-        Case "FAST"
+        Case "FAST", "UNSAFE"
           ' continue
         Case Else
           Break
