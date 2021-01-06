@@ -563,10 +563,11 @@ void gButton::animateClick(bool on)
 	{
 		_animated = false;
 #ifdef GTK3
-		gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_NORMAL, FALSE);
+		gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_ACTIVE);
 #else
 		gtk_widget_set_state(widget, GTK_STATE_NORMAL);
 #endif
+		refresh();
 		gtk_button_clicked(GTK_BUTTON(widget));
 	}
 }
