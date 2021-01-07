@@ -555,7 +555,7 @@ BEGIN_METHOD(BigInt_FromString, GB_STRING str; GB_INTEGER base)
 	n = BIGINT_from_string(GB.ToZeroString(ARG(str)), base);
 	if (!n)
 	{
-		GB.Error(GB_ERR_TYPE);
+		GB.Error(GB_ERR_ARG);
 		return;
 	}
 
