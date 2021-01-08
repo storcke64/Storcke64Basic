@@ -1750,7 +1750,7 @@ void MyMainWindow::present(QWidget *parent)
 		}
 	}
 
-	if (!THIS->noTakeFocus) // && (parent || hasBorder()))
+	if (!THIS->noTakeFocus && !MAIN_platform_is_wayland) // && (parent || hasBorder()))
 		activateWindow();
 
 	if (parent)
