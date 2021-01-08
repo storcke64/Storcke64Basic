@@ -1750,7 +1750,11 @@ void MyMainWindow::present(QWidget *parent)
 		}
 	}
 
-	if (!THIS->noTakeFocus && !MAIN_platform_is_wayland) // && (parent || hasBorder()))
+	#ifdef QT5
+	if (!THIS->noTakeFocus && !MAIN_platform_is_wayland)
+	#else
+	if (!THIS->noTakeFocus) // && (parent || hasBorder()))
+	#endif
 		activateWindow();
 
 	if (parent)
