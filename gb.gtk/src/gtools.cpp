@@ -47,10 +47,7 @@ Conversion between GDK and long type colors
 #define SCALE(i) ((int)(i * 255.0 / 65535.0 + 0.5))
 #define UNSCALE(d) ((int)(d / 255.0 * 65535.0 + 0.5))
 
-#ifdef GTK3
-static GtkStateFlags _color_style_bg[] = { GTK_STATE_FLAG_NORMAL, GTK_STATE_FLAG_INSENSITIVE, (GtkStateFlags)-1 };
-static GtkStateFlags _color_style_fg[] = { GTK_STATE_FLAG_NORMAL, GTK_STATE_FLAG_ACTIVE, GTK_STATE_FLAG_PRELIGHT, (GtkStateFlags)-1 };
-#else
+#ifndef GTK3
 static GtkStateType _color_style_bg[] = { GTK_STATE_INSENSITIVE, GTK_STATE_ACTIVE, GTK_STATE_PRELIGHT, GTK_STATE_NORMAL };
 static GtkStateType _color_style_fg[] = { GTK_STATE_ACTIVE, GTK_STATE_PRELIGHT, GTK_STATE_NORMAL };
 #endif
@@ -89,45 +86,7 @@ gColor gt_gdkcolor_to_color(GdkColor *gcol)
 	return gt_rgb_to_color(SCALE(gcol->red), SCALE(gcol->green), SCALE(gcol->blue));
 }
 
-#ifdef GTK3
-
-static void set_color(GtkWidget *wid, gColor color, void (*func)(GtkWidget *, GtkStateFlags, const GdkRGBA *), bool fg)
-{
-	GdkRGBA gcol;
-	GdkRGBA *pcol;
-	int i;
-	//GtkStyleContext *style;
-	GtkStateFlags st;
-
-	if (color == COLOR_DEFAULT)
-	{
-		pcol = NULL;
-	}
-	else
-	{
-		gt_from_color(color, &gcol);
-		pcol = &gcol;
-
-		/*style = gtk_widget_get_style_context(wid);
-		if (fg)
-			gtk_style_context_get_color(style, GTK_STATE_FLAG_SELECTED, &scol);
-		else
-			gtk_style_context_get_background_color(style, GTK_STATE_FLAG_SELECTED, &scol);*/
-	}
-
-	for (i = 0;; i++)
-	{
-		st = fg ? _color_style_fg[i] : _color_style_bg[i];
-		if (st < 0)
-			break;
-		(*func)(wid, st, pcol);
-	}
-
-	/*if (color != COLOR_DEFAULT)
-		(*func)(wid, GTK_STATE_FLAG_SELECTED, &scol);*/
-}
-
-#else
+#ifndef GTK3
 
 static void set_color(GtkWidget *wid, gColor color, void (*func)(GtkWidget *, GtkStateType, const GdkColor *), bool fg)
 {
@@ -155,9 +114,6 @@ static void set_color(GtkWidget *wid, gColor color, void (*func)(GtkWidget *, Gt
 	}
 }
 
-#endif
-
-#ifndef GTK3
 gColor get_gdk_fg_color(GtkWidget *wid, bool enabled)
 {
 	GtkStyle* st;
@@ -165,18 +121,12 @@ gColor get_gdk_fg_color(GtkWidget *wid, bool enabled)
 	st=gtk_widget_get_style(wid);
 	return gt_gdkcolor_to_color(&st->fg[enabled ? GTK_STATE_NORMAL : GTK_STATE_INSENSITIVE]);
 }
-#endif
 
 void set_gdk_fg_color(GtkWidget *wid, gColor color)
 {
-#ifdef GTK3
-	set_color(wid, color, gtk_widget_override_color, true);
-#else
 	set_color(wid, color, gtk_widget_modify_fg, true);
-#endif
 }
 
-#ifndef GTK3
 gColor get_gdk_bg_color(GtkWidget *wid, bool enabled)
 {
 	GtkStyle* st;
@@ -184,18 +134,12 @@ gColor get_gdk_bg_color(GtkWidget *wid, bool enabled)
 	st=gtk_widget_get_style(wid);	
 	return gt_gdkcolor_to_color(&st->bg[enabled ? GTK_STATE_NORMAL : GTK_STATE_INSENSITIVE]);
 }
-#endif
 
 void set_gdk_bg_color(GtkWidget *wid,gColor color)
 {
-#ifdef GTK3
-	set_color(wid, color, gtk_widget_override_background_color, false);
-#else
 	set_color(wid, color, gtk_widget_modify_bg, false);
-#endif
 }
 
-#ifndef GTK3
 gColor get_gdk_text_color(GtkWidget *wid, bool enabled)
 {
 	GtkStyle* st;
@@ -203,18 +147,12 @@ gColor get_gdk_text_color(GtkWidget *wid, bool enabled)
 	st=gtk_widget_get_style(wid);	
 	return gt_gdkcolor_to_color(&st->text[enabled ? GTK_STATE_NORMAL : GTK_STATE_INSENSITIVE]);
 }
-#endif
 
 void set_gdk_text_color(GtkWidget *wid,gColor color)
 {
-#ifdef GTK3
-	set_color(wid, color, gtk_widget_override_color, true);
-#else
 	set_color(wid, color, gtk_widget_modify_text, true);
-#endif
 }
 
-#ifndef GTK3
 gColor get_gdk_base_color(GtkWidget *wid, bool enabled)
 {
 	GtkStyle* st;
@@ -222,16 +160,12 @@ gColor get_gdk_base_color(GtkWidget *wid, bool enabled)
 	st=gtk_widget_get_style(wid);
 	return gt_gdkcolor_to_color(&st->base[enabled ? GTK_STATE_NORMAL : GTK_STATE_INSENSITIVE]);
 }
-#endif
 
 void set_gdk_base_color(GtkWidget *wid,gColor color)
 {
-#ifdef GTK3
-	set_color(wid, color, gtk_widget_override_background_color, false);
-#else
 	set_color(wid, color, gtk_widget_modify_base, false);
-#endif
 }
+#endif
 
 void gt_color_to_rgb(gColor color, int *r, int *g, int *b)
 {
@@ -2266,58 +2200,6 @@ void gt_draw_border(cairo_t *cr, GtkStyleContext *st, GtkStateFlags state, int b
 }
 #endif
 
-#ifdef GTK3
-
-void gt_widget_set_color(GtkWidget *widget, bool fg, gColor color, const char *name, const GdkRGBA *def_color)
-{
-	if (color == COLOR_DEFAULT)
-	{
-		if (name)
-			gtk_widget_override_symbolic_color(widget, name, def_color);
-		
-		if (fg)
-			gtk_widget_override_color(widget, GTK_STATE_FLAG_NORMAL, NULL);
-		else
-			gtk_widget_override_background_color(widget, GTK_STATE_FLAG_NORMAL, NULL);
-	}
-	else
-	{
-		GdkRGBA rgba;
-		gt_from_color(color, &rgba);
-		
-		if (name)
-			gtk_widget_override_symbolic_color(widget, name, &rgba);
-		
-		if (fg)
-			gtk_widget_override_color(widget, GTK_STATE_FLAG_NORMAL, &rgba);
-		else
-			gtk_widget_override_background_color(widget, GTK_STATE_FLAG_NORMAL, &rgba);
-	}
-}
-
-bool gt_style_lookup_color(GtkStyleContext *style, const char **names, const char **pname, GdkRGBA *rgba)
-{
-	const char **p = names;
-	const char *name;
-
-	while((name = *p++))
-	{
-		if (gtk_style_context_lookup_color(style, name, rgba))
-			break;
-	}
-
-	if (name)
-	{
-		if (pname)
-			*pname = name;
-		return FALSE;
-	}
-	else
-		return TRUE;
-}
-
-#endif
-
 bool gt_grab(GtkWidget *widget, bool owner_event, guint32 time)
 {
 	GdkWindow *win = gtk_widget_get_window(widget);
@@ -2444,4 +2326,145 @@ int gt_find_monitor(GdkMonitor *monitor)
 	
 	return -1;
 }
+#endif
+
+#ifdef GTK3
+const char *gt_widget_set_name(GtkWidget *widget)
+{
+	static int count = 0;
+	
+	char buffer[16];
+	const char *name;
+	
+	name = gtk_widget_get_name(widget);
+	if (name && name[0] == 'g')
+		return name;
+	
+	count++;
+	sprintf(buffer, "g%d", count);
+	gtk_widget_set_name(widget, buffer);
+	return gtk_widget_get_name(widget);
+}
+
+void gt_css_add_color(GString *css, gColor bg, gColor fg)
+{
+	char buffer[32];
+
+	if (bg != COLOR_DEFAULT)
+	{
+		gt_to_css_color(buffer, bg);
+		g_string_append(css, "background-color:");
+		g_string_append(css, buffer);
+		g_string_append(css, ";\nbackground-image:none;\n");
+	}
+
+	if (fg != COLOR_DEFAULT)
+	{
+		gt_to_css_color(buffer, fg);
+		g_string_append(css, "color:");
+		g_string_append(css, buffer);
+		g_string_append(css, ";\n");
+	}
+}
+
+void gt_css_add_font(GString *css, gFont *font)
+{
+	int s;
+	char buffer[32];
+	
+	if (!font)
+		return;
+	
+	if (font->_name_set)
+	{
+		g_string_append(css, "font-family:\"");
+		g_string_append(css, font->name());
+		g_string_append(css, "\";\n");
+	}
+
+	if (font->_size_set)
+	{
+		s = (int)(font->size() * 10 + 0.5);
+		sprintf(buffer, "%dpt;\n", s / 10); //, s % 10);
+		g_string_append(css, "font-size:");
+		g_string_append(css, buffer);
+	}
+
+	if (font->_bold_set)
+	{
+		g_string_append(css, "font-weight:");
+		g_string_append(css, font->bold() ? "bold" : "normal");
+		g_string_append(css, ";\n");
+	}
+
+	if (font->_italic_set)
+	{
+		g_string_append(css, "font-style:");
+		g_string_append(css, font->italic() ? "italic" : "normal");
+		g_string_append(css, ";\n");
+	}
+
+	if (font->_underline_set || font->_strikeout_set)
+	{
+		g_string_append(css, "text-decoration-line:");
+		if (font->strikeout())
+			g_string_append(css, "line-through");
+		else if (font->underline())
+			g_string_append(css, "underline");
+		else
+			g_string_append(css, "none");
+		g_string_append(css, ";\n");
+	}
+	
+	if (font->mustFixSpacing())
+	{
+		g_string_append(css, "letter-spacing:1px;\n");
+	}
+}
+
+void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg)
+{
+	GtkStyleContext *context;
+	GtkStyleProvider *css_provider;
+	const char *name;
+	GString *css;
+	char *css_str;
+	
+	context = gtk_widget_get_style_context(widget);
+	name = gt_widget_set_name(widget);
+	
+	css = g_string_new(NULL);
+	
+	if (font || bg != COLOR_DEFAULT || fg != COLOR_DEFAULT)
+	{
+		g_string_append_printf(css, "#%s {\ntransition:none;\n", name);
+		gt_css_add_color(css, bg, fg);
+		gt_css_add_font(css, font);
+		g_string_append(css, "}\n");
+	}
+	
+	css_provider = (GtkStyleProvider *)g_object_get_data(G_OBJECT(widget), "gambas-css");
+	
+	if (css->len)
+	{
+		if (!css_provider)
+		{
+			css_provider = GTK_STYLE_PROVIDER(gtk_css_provider_new());
+			g_object_set_data_full(G_OBJECT(widget), "gambas-css", (gpointer)css_provider, g_object_unref);
+		}
+		css_str = g_string_free(css, FALSE);
+		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider), css_str, -1, NULL);
+		g_free(css_str);
+		gtk_style_context_add_provider(context, css_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	}
+	else
+	{
+		if (css_provider)
+		{
+			gtk_style_context_remove_provider(context, css_provider);
+			g_object_set_data(G_OBJECT(widget), "gambas-css", NULL);
+		}
+	}
+}
+
 #endif

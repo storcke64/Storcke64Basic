@@ -70,8 +70,8 @@ static void cb_before_arrange(gContainer *sender)
 
 static void resize_container(gContainer *cont, int w, int h)
 {
-	w += cont->width() - cont->containerWidth();
-	h += cont->height() - cont->containerHeight();
+	/*w += cont->width() - cont->containerWidth();
+	h += cont->height() - cont->containerHeight();*/
 	
 	if (w >= 0 && h >= 0)
 		cont->resize(w, h);
@@ -108,7 +108,7 @@ static void resize_container(gContainer *cont, int w, int h)
 #define MOVE_WIDGET(_object, _widget, _x, _y)  (((gControl*)_widget)->move( _x, _y))
 #define RESIZE_WIDGET(_object, _widget, _w, _h)  (((gControl*)_widget)->resize( _w, _h))
 #define MOVE_RESIZE_WIDGET(_object, _widget, _x, _y, _w, _h) (((gControl*)_widget)->moveResize( _x, _y, _w, _h))
-#define RESIZE_CONTAINER(_widget, _cont, _w, _h)  resize_container((gContainer *)(_cont), _w, _h) 
+#define RESIZE_CONTAINER(_object, _cont, _w, _h)  resize_container((gContainer *)(_cont), _w, _h) 
 
 #define INIT_CHECK_CHILDREN_LIST(_widget) \
 	gContainer *gtk_control=(gContainer*)_widget; \

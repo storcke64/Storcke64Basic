@@ -159,14 +159,11 @@ public:
 	virtual void customStyleSheet(GString *css);
 	void setStyleSheetNode(GString *css, const char *node);
 	virtual void updateColor();
-	void setColorNames(const char *bg_names[], const char *fg_names[]);
-	void setColorBase();
-	void setColorButton();
 #else
 	void setColorNames(const char **, const char **) {}
+#endif
 	void setColorBase() { use_base = TRUE; }
 	void setColorButton() { use_base = FALSE; }
-#endif
 
 	virtual bool canFocus() const;
 	bool canFocusOnClick() const;

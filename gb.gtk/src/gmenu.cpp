@@ -299,7 +299,11 @@ void gMenu::update()
 					label = gtk_label_new_with_mnemonic("");
 					shlabel = gtk_label_new("");
 					
+					#if GTK_CHECK_VERSION(3, 16, 0)
+					gtk_label_set_xalign(GTK_LABEL(shlabel), 0);
+					#else
 					gtk_misc_set_alignment(GTK_MISC(shlabel), 0, 0.5);
+					#endif
 					gtk_size_group_add_widget(parentMenu()->getSizeGroup(), shlabel);
 					
 					size = window()->font()->height();
@@ -1126,8 +1130,8 @@ void gMenu::setFont()
 {
 	gMainWindow *win = window();
 #ifdef GTK3
-	if (label) gtk_widget_override_font(GTK_WIDGET(label), win->font()->desc());
-	if (shlabel) gtk_widget_override_font(GTK_WIDGET(shlabel), win->font()->desc());
+	if (label) gt_widget_update_css(GTK_WIDGET(label), win->font(), COLOR_DEFAULT, COLOR_DEFAULT);
+	if (shlabel) gt_widget_update_css(GTK_WIDGET(shlabel), win->font(), COLOR_DEFAULT, COLOR_DEFAULT);
 #else
 	if (label) gtk_widget_modify_font(GTK_WIDGET(label), win->font()->desc());
 	if (shlabel) gtk_widget_modify_font(GTK_WIDGET(shlabel), win->font()->desc());
@@ -1153,8 +1157,12 @@ void gMenu::updateColor(gMainWindow *win)
 	if (!win->menuBar)
 		return;
 	
+	#ifdef GTK3
+	gt_widget_update_css(GTK_WIDGET(win->menuBar), NULL, win->background(), win->foreground());
+	#else
 	set_gdk_bg_color(GTK_WIDGET(win->menuBar), win->background());
 	set_gdk_fg_color(GTK_WIDGET(win->menuBar), win->foreground());
+	#endif
 
 	/*if (!menus) 
 		return;
@@ -1178,7 +1186,7 @@ void gMenu::updateFont(gMainWindow *win)
 	{
 		//fprintf(stderr, "set menu bar font\n");
 #ifdef GTK3
-		gtk_widget_override_font(GTK_WIDGET(win->menuBar), win->ownFont() ? win->font()->desc() : NULL);
+		gt_widget_update_css(GTK_WIDGET(win->menuBar), win->ownFont() ? win->font() : NULL, COLOR_DEFAULT, COLOR_DEFAULT);
 #else
 		gtk_widget_modify_font(GTK_WIDGET(win->menuBar), win->ownFont() ? win->font()->desc() : NULL);
 #endif

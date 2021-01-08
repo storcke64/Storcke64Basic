@@ -288,7 +288,9 @@ void gDrawingArea::setCached(bool vl)
 	if (!_cached)
 	{
 		UNREF_BUFFER();
+		#ifndef GTK3
 		set_gdk_bg_color(border, background());
+		#endif
 	}
 
 	create();

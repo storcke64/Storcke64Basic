@@ -153,7 +153,6 @@ gColor gt_gdkcolor_to_color(GdkColor *gcol);
 void fill_gdk_color(GdkColor *gcol, gColor color);
 #else
 void fill_gdk_color(GdkColor *gcol, gColor color, GdkColormap *cmap = NULL);
-#endif
 gColor get_gdk_text_color(GtkWidget *wid, bool enabled);
 void set_gdk_text_color(GtkWidget *wid,gColor color);
 gColor get_gdk_base_color(GtkWidget *wid, bool enabled);
@@ -162,6 +161,7 @@ gColor get_gdk_fg_color(GtkWidget *wid, bool enabled);
 void set_gdk_fg_color(GtkWidget *wid,gColor color);
 gColor get_gdk_bg_color(GtkWidget *wid, bool enabled);
 void set_gdk_bg_color(GtkWidget *wid,gColor color);
+#endif
 
 void gt_color_to_rgb(gColor color, int *r, int *g, int *b);
 gColor gt_rgb_to_color(int r, int g, int b);
@@ -177,10 +177,6 @@ gColor gt_frgba_to_color(double r, double g, double b, double a);
 void gt_from_color(gColor color, GdkRGBA *rgba);
 gColor gt_to_color(GdkRGBA *rgba);
 void gt_to_css_color(char *css, gColor color);
-
-void gt_widget_set_color(GtkWidget *widget, bool fg, gColor color, const char *name = NULL, const GdkRGBA *def_color = NULL);
-bool gt_style_lookup_color(GtkStyleContext *style, const char **names, const char **pname, GdkRGBA *rgba);
-
 #endif
 
 // Draw a control border
@@ -231,6 +227,13 @@ void gt_widget_reparent(GtkWidget *widget, GtkWidget *new_parent);
 
 #if GTK_CHECK_VERSION(3, 22, 0)
 int gt_find_monitor(GdkMonitor *monitor);
+#endif
+
+#ifdef GTK3
+void gt_css_add_font(GString *css, gFont *font);
+void gt_css_add_color(GString *css, gColor bg, gColor fg);
+const char *gt_widget_set_name(GtkWidget *widget);
+void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
 #endif
 
 #endif

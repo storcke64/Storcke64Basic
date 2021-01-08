@@ -2068,9 +2068,7 @@ void gControl::updateStyleSheet()
 	GtkStyleContext *context;
 	GString *css;
 	char *css_str;
-	int s;
 	gColor fg;
-	char buffer[32];
 
 	wid = getStyleSheetWidget();
 	context = gtk_widget_get_style_context(wid);
@@ -2083,73 +2081,13 @@ void gControl::updateStyleSheet()
 	if (_bg != COLOR_DEFAULT || fg != COLOR_DEFAULT)
 	{
 		setStyleSheetNode(css, getStyleSheetColorNode());
-
-		if (_bg != COLOR_DEFAULT)
-		{
-			gt_to_css_color(buffer, _bg);
-			g_string_append(css, "background-color:");
-			g_string_append(css, buffer);
-			g_string_append(css, ";\nbackground-image:none;\n");
-		}
-
-		if (fg != COLOR_DEFAULT)
-		{
-			gt_to_css_color(buffer, fg);
-			g_string_append(css, "color:");
-			g_string_append(css, buffer);
-			g_string_append(css, ";\n");
-		}
+		gt_css_add_color(css, _bg, _fg);
 	}
 	
 	if (_font)
 	{
 		setStyleSheetNode(css, getStyleSheetFontNode());
-
-		if (_font->_name_set)
-		{
-			g_string_append(css, "font-family:\"");
-			g_string_append(css, _font->name());
-			g_string_append(css, "\";\n");
-		}
-
-		if (_font->_size_set)
-		{
-			s = (int)(_font->size() * 10 + 0.5);
-			sprintf(buffer, "%dpt;\n", s / 10); //, s % 10);
-			g_string_append(css, "font-size:");
-			g_string_append(css, buffer);
-		}
-
-		if (_font->_bold_set)
-		{
-			g_string_append(css, "font-weight:");
-			g_string_append(css, _font->bold() ? "bold" : "normal");
-			g_string_append(css, ";\n");
-		}
-
-		if (_font->_italic_set)
-		{
-			g_string_append(css, "font-style:");
-			g_string_append(css, _font->italic() ? "italic" : "normal");
-			g_string_append(css, ";\n");
-		}
-
-		if (_font->_underline_set || _font->_strikeout_set)
-		{
-			g_string_append(css, "text-decoration-line:");
-			if (_font->strikeout())
-				g_string_append(css, "line-through");
-			else if (_font->underline())
-				g_string_append(css, "underline");
-			else
-				g_string_append(css, "none");
-			g_string_append(css, ";\n");
-		}
-		
-		if (_font->mustFixSpacing())
-		{
-			g_string_append(css, "letter-spacing:1px;\n");
-		}
+		gt_css_add_font(css, _font);
 	}
 
 	customStyleSheet(css);
@@ -2759,7 +2697,7 @@ void gControl::updateColor()
 {
 }
 
-void gControl::setColorNames(const char *bg_names[], const char *fg_names[])
+/*void gControl::setColorNames(const char *bg_names[], const char *fg_names[])
 {
 	_bg_name_list = bg_names;
 	_fg_name_list = fg_names;
@@ -2790,7 +2728,7 @@ void gControl::setColorButton()
 	const char *fg_names[] = { "button_fg_color", "theme_button_fg_color", "theme_fg_color", NULL };
 	setColorNames(bg_names, fg_names);
 	use_base = FALSE;
-}
+}*/
 #endif
 
 GtkIMContext *gControl::getInputMethod()
@@ -2871,12 +2809,6 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 #ifdef GTK3
 void gControl::setWidgetName()
 {
-	static int count = 0;
-	
-	char buffer[16];
-	
-	count++;
-	sprintf(buffer, "g%d", count);
-	gtk_widget_set_name(getStyleSheetWidget(), buffer);
+	gt_widget_set_name(getStyleSheetWidget());
 }
 #endif

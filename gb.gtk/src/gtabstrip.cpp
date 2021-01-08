@@ -83,10 +83,13 @@ static void cb_size_allocate(GtkWidget *wid, GtkAllocation *alloc, gTabStrip *da
 {
 	if (wid == data->getContainer() && (alloc->width != data->_client_w || alloc->height != data->_client_h))
 	{
-		int tx, ty, px, py;
-		GdkWindow *win;
+		GtkAllocation alloc_parent;
+		/*int tx, ty, px, py;
+		GdkWindow *win;*/
 
-		if (data->getScreenPos(&tx, &ty))
+		gtk_widget_get_allocation(data->widget, &alloc_parent);
+		
+		/*if (data->getScreenPos(&tx, &ty))
 			return;
 
 		win = gtk_widget_get_window(wid);
@@ -95,13 +98,13 @@ static void cb_size_allocate(GtkWidget *wid, GtkAllocation *alloc, gTabStrip *da
 		
 		gdk_window_get_origin(win, &px, &py);
 		//fprintf(stderr, "alloc: tab = %d %d page = %d %d alloc = %d %d\n", tx, ty, px, py, alloc->x, alloc->y);
-
-		data->_client_x = px - tx + alloc->x;
-		data->_client_y = py - ty + alloc->y;
+		*/
+		
+		data->_client_x = alloc->x - alloc_parent.x;
+		data->_client_y = alloc->y - alloc_parent.y;
 		data->_client_w = alloc->width;
 		data->_client_h = alloc->height;
-		//fprintf(stderr, "alloc: %s: %d %d %d %d\n", data->name(), data->_client_x, data->_client_y, alloc->width, alloc->height);
-		data->performArrange();
+		//data->performArrange();
 	}
 }
 
@@ -232,8 +235,14 @@ public:
 	void setEnabled(bool v);
 	/*int count() const;
 	gControl *child(int n) const;*/
+#ifdef GTK3
+	void updateStyleSheet();
+	void updateColors() { updateStyleSheet(); }
+	void updateFont() { updateStyleSheet(); }
+#else
 	void updateColors();
 	void updateFont();
+#endif
 	void updateButton();
 
 	GtkWidget *fix;
@@ -272,8 +281,12 @@ gTabStripPage::gTabStripPage(gTabStrip *tab)
 	//gtk_container_add(GTK_CONTAINER(hbox), label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	
+#ifdef GTK3
+	updateStyleSheet();
+#else
 	updateColors();
 	updateFont();
+#endif
 	
 	g_signal_connect_after(G_OBJECT(widget), "size-allocate", G_CALLBACK(cb_size_allocate), (gpointer)parent);
 	
@@ -312,36 +325,38 @@ gTabStripPage::~gTabStripPage()
 	g_object_unref(widget);
 }
 
+#ifdef GTK3
+
+void gTabStripPage::updateStyleSheet()
+{
+	gt_widget_update_css(widget, NULL, parent->background(), COLOR_DEFAULT);
+	gt_widget_update_css(label, parent->textFont(), COLOR_DEFAULT, COLOR_DEFAULT);
+}
+
+#else
+
 void gTabStripPage::updateColors()
 {
-#ifdef GTK3
-	gt_widget_set_color(widget, FALSE, parent->realBackground());
-#else
 	set_gdk_bg_color(widget, parent->realBackground());
 	set_gdk_fg_color(label, parent->realForeground());
-#endif
 }
 
 void gTabStripPage::updateFont()
 {
 	PangoFontDescription *desc = NULL;
-	gFont *fnt;
-	
-	fnt = parent->textFont();
+	gFont *fnt = parent->textFont();
+
 	if (!fnt)
 		fnt = parent->font();
 	
 	if (fnt)
 		desc = fnt->desc();
 
-#ifdef GTK3
-	gtk_widget_override_font(widget, desc);
-	gtk_widget_override_font(label, desc);
-#else
 	gtk_widget_modify_font(widget, desc);
 	gtk_widget_modify_font(label, desc);
-#endif
 }
+
+#endif
 
 void gTabStripPage::setText(char *text)
 {
@@ -758,12 +773,21 @@ GtkWidget *gTabStrip::getContainer()
 }
 
 #ifdef GTK3
+
+void gTabStrip::customStyleSheet(GString *css)
+{
+	gColor bg = background();
+	if (bg == COLOR_DEFAULT)
+		return;
+	
+	setStyleSheetNode(css, " > header");
+	gt_css_add_color(css, bg, COLOR_DEFAULT);
+	setStyleSheetNode(css, " > header tab:checked");
+	gt_css_add_color(css, bg, COLOR_DEFAULT);
+}
+
 void gTabStrip::updateColor()
 {
-	//fprintf(stderr, "%s: updateColors\n", name());
-	gt_widget_set_color(border, false, realBackground());
-	gt_widget_set_color(widget, false, realBackground());
-
 	for (int i = 0; i < count(); i++)
 		get(i)->updateColors();
 }

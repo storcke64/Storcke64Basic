@@ -406,7 +406,9 @@ void gButton::setText(const char *st)
 			gtk_button_set_label(GTK_BUTTON(widget), "");
 
 		_label = gtk_bin_get_child(GTK_BIN(widget));
+		#ifndef GTK3
 		set_gdk_fg_color(_label, foreground());
+		#endif
 	}
 
 	updateFont();
