@@ -23,7 +23,9 @@ Private $bTear As Boolean
 Private $hTear As Image
 Private $iTearAge As Integer
 
-Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean)
+Private $bWithPlatform As Boolean
+
+Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean, bWithPlatform As Boolean)
   
   Dim I As Integer
   Dim dNow As Date
@@ -31,6 +33,8 @@ Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean)
   hDrawingArea.Background = BACKGROUND_COLOR
   
   $hObs = New Observer(hDrawingArea) As "dwgWelcome"
+  $bWithPlatform = bWithPlatform
+  $bTear = bHasTear
   
   dNow = Now
   If dNow >= Date(Year(dNow), 12, 25) Then
@@ -51,8 +55,6 @@ Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean)
     
   Endif
   
-  $bTear = bHasTear
-
   If $bSnow Or If $bTear Then  
     $hTimer = New Timer As "SnowTimer"
     $hTimer.Delay = 50
@@ -114,7 +116,11 @@ Public Sub dwgWelcome_Draw()
   Dim bDraw As Boolean
   Dim DYT As Float
   Dim iLum As Integer
-   
+  Dim hRect As RectF
+  Dim DS As Integer
+  
+  DS = Desktop.Scale
+  
   If Not $hLogo Then 
     
     'hSvgLogo = SvgImage.Load("img/logo/gambas.svg")
@@ -128,7 +134,7 @@ Public Sub dwgWelcome_Draw()
     $hText = New Image(hDrawingArea.Width, hDrawingArea.Height, Color.Transparent)
     Paint.Begin($hText)
     
-    Paint.Translate(Desktop.Scale, Desktop.Scale * 2)
+    Paint.Translate(DS, DS * 2)
     
     Paint.Font = Font["+10,Bold"]
     Y = Paint.Font.Ascent
@@ -136,7 +142,7 @@ Public Sub dwgWelcome_Draw()
     If sVersion Begins "3.14." And If sVersion Not Ends ".90" Then
       If sVersion Ends ".0" Then sVersion = Left(sVersion, -2)
       X = PaintText("Gambas " & sVersion, 8, Y, Color.White) 'TEXT_COLOR)
-      X += Desktop.Scale * 17
+      X += DS * 17
       For I = -6 To 14
         Paint.Font = Font[Format(I, "+0") & ",Italic,Bold"]
         PaintText("π", X, Y, Color.White)
@@ -161,14 +167,33 @@ Public Sub dwgWelcome_Draw()
     Paint.Background = Color.SelectedForeground
     Paint.DrawRichText(sText, 12, Y, Paint.W - 24, Paint.H - Y - 6, Align.TopNormal)
     
+    If $bWithPlatform Then
+    
+      Paint.Font = Font["Bold,-3"]
+  
+      sText = UCase(Desktop.Platform)
+      hRect = Paint.TextSize(sText)
+      hRect.Adjust(-DS / 2, -DS / 4)
+      hRect.Move(DS, Paint.H - hRect.H - DS * 3)
+      GoSub DRAW_TEXT
+  
+      X = hRect.X + hRect.W
+      sText = Mid$(UCase(Env["GB_GUI"]), 4)
+      hRect = Paint.TextSize(sText)
+      hRect.Adjust(-DS / 2, -DS / 4)
+      hRect.Move(DS + X, Paint.H - hRect.H - DS * 3)
+      GoSub DRAW_TEXT
+      
+    Endif
+    
     Paint.End
     
     '$hLogo.Brightness(-0.1)
     
   Endif
 
-  'Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width, -10 - Desktop.Scale)
-  Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width - Desktop.Scale, 0)
+  'Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width, -10 - DS)
+  Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width - DS, 0)
   
   If $hTimer Then
   
@@ -234,7 +259,7 @@ Public Sub dwgWelcome_Draw()
       
       Paint.End
       
-      Paint.DrawImage($hTear, hDrawingArea.W - $hLogo.Width - Desktop.Scale, 0)
+      Paint.DrawImage($hTear, hDrawingArea.W - $hLogo.Width - DS, 0)
       
     Endif
     
@@ -272,6 +297,15 @@ Public Sub dwgWelcome_Draw()
   Endif
 
   Paint.DrawImage($hText, 0, 0)
+  
+  Return
+  
+DRAW_TEXT:
+
+  Paint.FillRect(hRect.X, hRect.Y, hRect.W, hRect.H, TEXT_COLOR)
+  Paint.Background = Color.White
+  Paint.DrawText(sText, hRect.X, hRect.Y, hRect.W, hRect.H, Align.Center)
+  Return
   
 End
 

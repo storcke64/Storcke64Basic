@@ -45,7 +45,7 @@ End
 
 Public Sub Form_Open()
 
-  $hWelcome = New CWelcome(dwgWelcome)
+  $hWelcome = New CWelcome(dwgWelcome, False, True)
 
 End
 
