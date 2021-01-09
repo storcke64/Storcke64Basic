@@ -18,10 +18,12 @@ Property Border As Integer
 Property Stretch As Boolean
 Property Mode As Integer
 Property Playing As Boolean
+Property Path As String
 
 Public Enum Normal, Fill, Cover, Contain, {Repeat}
 
 Static Private $hDefault As Image
+Static Private $bDeprecated As Boolean
 
 Private $hObs As Observer
 Private $iAlign As Integer = Align.TopLeft
@@ -362,4 +364,24 @@ Public Sub Animation_Change()
   UpdateSize
   Me.Refresh
   
+End
+
+Private Function Path_Read() As String
+
+  If Not $bDeprecated Then
+    $bDeprecated = True
+    Error "gb.gui.base: MovieBox.Path is deprecated. Do not use it anymore."
+  Endif
+
+End
+
+Private Sub Path_Write(Value As String)
+
+  If Not $bDeprecated Then
+    $bDeprecated = True
+    Error "gb.gui.base: MovieBox.Path is deprecated. Do not use it anymore."
+  Endif
+  
+  Animation_Write(Animation.Load(Value))
+
 End
