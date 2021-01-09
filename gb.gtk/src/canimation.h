@@ -1,8 +1,8 @@
 /***************************************************************************
 
-  CMovieBox.h
+  canimation.h
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+  (c) Benoît Minisini <g4mba5@gmail.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,37 +21,29 @@
 
 ***************************************************************************/
 
-#ifndef __CMOVIEBOX_H
-#define __CMOVIEBOX_H
+#ifndef __CANIMATION_H
+#define __CANIMATION_H
 
-#include "gambas.h"
-#include "gb.qt.h"
+#include "main.h"
 
-#include <QLabel>
-#include <QMovie>
-#include <QBuffer>
-
-#include "CWidget.h"
-
-#ifndef __CMOVIEBOX_CPP
-extern GB_DESC CMovieBoxDesc[];
+#ifndef __CANIMATION_CPP
+extern GB_DESC AnimationDesc[];
 #else
 
-#define THIS    ((CMOVIEBOX *)_object)
-#define WIDGET  ((QLabel *)((QT_WIDGET *)_object)->widget)
+#define THIS ((CANIMATION *)_object)
 
 #endif
 
 typedef
-  struct {
-    QT_WIDGET widget;
-    char *path;
-    QByteArray *data;
-		QBuffer *buffer;
-    QMovie *movie;
-    char *addr;
-    int len;
-    }
-  CMOVIEBOX;
+	struct {
+		GB_BASE ob;
+		GdkPixbufAnimation *animation;
+		GdkPixbufAnimationIter *iter;
+		guint timeout;
+		char *addr;
+		int len;
+		unsigned playing : 1;
+		}
+	CANIMATION;
 
 #endif

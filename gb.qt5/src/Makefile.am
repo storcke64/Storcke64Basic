@@ -37,6 +37,7 @@ gb_qt5_la_SOURCES = \
  CDialog.h CDialog_moc.cpp CDialog.cpp \
  CPicture.h CPicture_moc.cpp CPicture.cpp \
  CImage.h CImage_moc.cpp CImage.cpp \
+ canimation.h canimation_moc.cpp canimation.cpp \
  CClipboard.h CClipboard_moc.cpp CClipboard.cpp \
  CDraw.h CDraw.cpp \
  cpaint_impl.h cpaint_impl.cpp \
@@ -44,7 +45,6 @@ gb_qt5_la_SOURCES = \
  CDrawingArea.h CDrawingArea_moc.cpp CDrawingArea.cpp \
  CSlider.h CSlider_moc.cpp CSlider.cpp \
  CScrollBar.h CScrollBar_moc.cpp CScrollBar.cpp \
- CMovieBox.h CMovieBox_moc.cpp CMovieBox.cpp \
  ctrayicon.h ctrayicon_moc.cpp ctrayicon.cpp \
  CWatcher.h CWatcher_moc.cpp CWatcher.cpp \
  cprinter.h cprinter_moc.cpp cprinter.cpp \

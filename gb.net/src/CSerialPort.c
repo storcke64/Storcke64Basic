@@ -683,7 +683,6 @@ BEGIN_METHOD(SerialPort_Clear, GB_INTEGER buffer)
 
 	int buffer = VARGOPT(buffer, GB_ST_READ + GB_ST_WRITE);
 	
-	
 	if (THIS->status)
 	{
 		if (buffer & GB_ST_READ)

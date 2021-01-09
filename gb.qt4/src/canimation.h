@@ -1,8 +1,8 @@
 /***************************************************************************
 
-  gmoviebox.h
+  canimation.h
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+  (c) Benoît Minisini <g4mba5@gmail.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,33 +21,46 @@
 
 ***************************************************************************/
 
-#ifndef __GMOVIEBOX_H
-#define __GMOVIEBOX_H
+#ifndef __CANIMATION_H
+#define __CANIMATION_H
 
-class gMovieBox : public gControl
+#include "gambas.h"
+#include "gb.qt.h"
+
+#include <QMovie>
+#include <QBuffer>
+
+#ifndef __CANIMATION_CPP
+extern GB_DESC AnimationDesc[];
+#else
+
+#define THIS ((CANIMATION *)_object)
+#define MOVIE (((CANIMATION *)_object)->movie)
+
+#endif
+
+typedef
+  struct {
+    GB_BASE ob;
+    QByteArray *data;
+		QBuffer *buffer;
+    QMovie *movie;
+    char *addr;
+    int len;
+    }
+  CANIMATION;
+
+class CAnimationManager : public QObject
 {
+	Q_OBJECT
+
 public:
-	gMovieBox(gContainer *parent);
-	~gMovieBox();
 
-//"Properties"
-	int getBorder() { return getFrameBorder(); }
-	bool playing();
-	int alignment();
+	static CAnimationManager manager;
 
-	void setBorder(int vl) { setFrameBorder(vl); }
-	void setPlaying(bool vl);
-	void setAlignment(int vl);
+public slots:
 
-//"Methods"
-	bool loadMovie(char *buf, int len);
-
-//"Private"
-	virtual gColor getFrameColor();
-	bool pl;
-	guint timeout;
-	GdkPixbufAnimation *animation;
-	GdkPixbufAnimationIter *iter;
+	void change(void);
 };
 
 #endif

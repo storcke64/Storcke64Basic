@@ -1888,8 +1888,8 @@ Public Sub View_KeyPress()
       Goto STOP_EVENT
       
     Case Key.Tab
+      If $bReadOnly Then Goto STOP_EVENT
       If Key.Control Then
-        If $bReadOnly Then Goto STOP_EVENT
         Insert("\t")
       Else
         DoIndent(Key.Shift)
@@ -1897,6 +1897,7 @@ Public Sub View_KeyPress()
       Goto STOP_EVENT
       
     Case Key.BackTab
+      If $bReadOnly Then Goto STOP_EVENT
       DoIndent(True)
       Goto STOP_EVENT
       

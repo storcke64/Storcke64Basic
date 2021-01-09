@@ -8,7 +8,7 @@ Static Public WasDefaultValue As Boolean
 
 Static Public LastError As String
 
-Static Public COMPLEX_STRING_PROPERTIES As String[] = ["Font[", "Picture[", "Image.Load(", "SvgImage.Load(", "Connections[", "ReportPadding[", "ReportMargin[", "ReportBoxShadow[", "ReportBorder[", "ReportBrush["]
+Static Public COMPLEX_STRING_PROPERTIES As String[] = ["Font[", "Picture[", "Image.Load(", "SvgImage.Load(", "Connections[", "ReportPadding[", "ReportMargin[", "ReportBoxShadow[", "ReportBorder[", "ReportBrush[", "Animation.Load("]
 
 Public Name As String
 Public Parent As CControl
@@ -184,6 +184,9 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
 
     Case "picturebox"
       hCtrl = New PictureBox(hParent)
+    
+    Case "moviebox"
+      hCtrl = New MovieBox(hParent)
       'hCtrl.Picture = Picture["img/control/picturebox.png"]
 
     Case "treeview"
@@ -495,6 +498,10 @@ Private Function GetRealValue(hProp As CPropertyInfo, vVal As Variant) As Varian
         vRealVal = Picture.Load(File.Dir(Project.Path) &/ vRealVal)
       Endif
 
+    Case "Animation"
+
+      vRealVal = Animation.Load(File.Dir(Project.Path) &/ vRealVal)
+
     Case "Constant"
 
       'IF IsNumber(vRealVal) THEN
@@ -758,7 +765,7 @@ Private Function ConvertToString(vVal As Variant, hProp As CPropertyInfo) As Str
 
       Return CStr(vVal)
 
-    Case "List", "Path", "Picture", "Font", "Table", "Menu", "Image", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "WebCoord", "WebFont"
+    Case "List", "Path", "Picture", "Font", "Table", "Menu", "Image", "Animation", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "WebCoord", "WebFont"
 
       Return CStr(vVal)
       
@@ -1823,6 +1830,9 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
         
       Case "Image"
         sLine &= "Image.Load(" & Quote$(vVal) & ")"
+        
+      Case "Animation"
+        sLine &= "Animation.Load(" & Quote$(vVal) & ")"
         
       Case "SvgImage"
         sLine &= "SvgImage.Load(" & Quote$(vVal) & ")"

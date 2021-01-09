@@ -79,13 +79,13 @@
 #include "CDialog.h"
 #include "CPicture.h"
 #include "CImage.h"
+#include "canimation.h"
 #include "CClipboard.h"
 #include "CDraw.h"
 #include "CWatch.h"
 #include "CDrawingArea.h"
 #include "CSlider.h"
 #include "CScrollBar.h"
-#include "CMovieBox.h"
 #include "CWatcher.h"
 #include "cprinter.h"
 #include "csvgimage.h"
@@ -1090,7 +1090,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 {
 	CBorderDesc, CColorDesc,
 	CAlignDesc, CArrangeDesc, CScrollDesc, CKeyDesc, CSelectDesc,
-	CImageDesc, CPictureDesc,
+	CImageDesc, CPictureDesc, AnimationDesc,
 	CFontDesc, CFontsDesc,
 	CMouseDesc, CCursorDesc, CPointerDesc,
 	CClipboardDesc, CDragDesc,
@@ -1107,7 +1107,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CFrameDesc, CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
 	CTabStripContainerChildrenDesc, CTabStripContainerDesc, CTabStripDesc,
 	CDrawingAreaDesc,
-	CSliderDesc, CMovieBoxDesc, CScrollBarDesc,
+	CSliderDesc, CScrollBarDesc,
 	CWindowMenusDesc, CWindowControlsDesc, CWindowDesc, CWindowsDesc, CFormDesc,
 	CDialogDesc,
 	CWatcherDesc,

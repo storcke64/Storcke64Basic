@@ -3,20 +3,21 @@
 Export
 Inherits DrawingArea
 
-Public Const _Properties As String = "*,-Arrangement,-Spacing,-Margin,-Indent,-Invert,-NoBackground,-Tablet,-Cached,-Focus,Padding{Range:0;64},Picture,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
+Public Const _Properties As String = "*,-Arrangement,-Spacing,-Margin,-Indent,-Invert,-NoBackground,-Tablet,-Cached,-Focus,Padding{Range:0;64},Animation,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
 Public Const _DefaultEvent As String = "MouseDown"
 Public Const _DefaultSize As String = "16,16"
 Public Const _IsContainer As Boolean = False
 Public Const _Group As String = "Form"
 
-Property Picture As Picture
-Property Image As Image
+Property Animation As Animation
+Property Read Image As Image
 Property Alignment As Integer
 Property AutoResize As Boolean
 Property Padding As Integer
 Property Border As Integer
 Property Stretch As Boolean
 Property Mode As Integer
+Property Playing As Boolean
 
 Public Enum Normal, Fill, Cover, Contain, {Repeat}
 
@@ -27,17 +28,16 @@ Private $iAlign As Integer = Align.TopLeft
 Private $iPadding As Integer
 Private $iBorder As Integer
 Private $iMode As Integer
-Private $hPicture As Picture
-Private $hImage As Image
 Private $bAutoResize As Boolean
 Private $bStretch As Boolean
+Private $hAnimation As Animation
+Private $hImage As Image
 
 Public Sub _new()
   
   $hObs = New Observer(Me) As "DrawingArea"
   
 End
-
 
 Private Function Alignment_Read() As Integer
 
@@ -83,13 +83,12 @@ Private Sub UpdateSize()
   
   If Me.Design Then Return
   If Not $bAutoResize Then Return
+  
   If $hImage Then
     W = $hImage.W
     H = $hImage.H
-  Else If $hPicture Then
-    W = $hPicture.W
-    H = $hPicture.H
   Endif
+  
   If W And If H Then 
     P = GetPadding() * 2
     Me.Resize(W + P, H + P)
@@ -162,15 +161,25 @@ Private Sub Mode_Write(Value As Integer)
 
 End
 
-Private Function Picture_Read() As Picture
+Private Function Animation_Read() As Animation
 
-  Return $hPicture
+  Return $hAnimation
 
 End
 
-Private Sub Picture_Write(Value As Picture)
+Private Sub Animation_Write(Value As Animation)
 
-  $hPicture = Value
+  If $hAnimation = Value Then Return
+  
+  $hAnimation = Value
+  
+  If $hAnimation Then
+    $hObs = New Observer($hAnimation) As "Animation"
+    If Not Me.Design Then $hAnimation.Play()
+  Else
+    $hObs = Null
+  Endif
+  
   UpdateSize
   Me.Refresh
 
@@ -179,14 +188,6 @@ End
 Private Function Image_Read() As Image
 
   Return $hImage
-
-End
-
-Private Sub Image_Write(Value As Image)
-
-  $hImage = Value
-  UpdateSize
-  Me.Refresh
 
 End
 
@@ -210,9 +211,6 @@ Public Sub DrawingArea_Draw()
   If $hImage Then
     W = $hImage.W
     H = $hImage.H
-  Else If $hPicture Then
-    W = $hPicture.W
-    H = $hPicture.H
   Endif
   
   If $iBorder Then
@@ -228,7 +226,7 @@ Public Sub DrawingArea_Draw()
   
   If W = 0 Or If H = 0 Then 
     If Me.Design Then
-      If Not $hDefault Then $hDefault = Image.Load("picturebox.png")
+      If Not $hDefault Then $hDefault = Image.Load("moviebox.png")
       Paint.DrawImage($hDefault, Desktop.Scale, Desktop.Scale)
     Endif
     Stop Event
@@ -311,11 +309,57 @@ Public Sub DrawingArea_Draw()
   
 PAINT_IMAGE:
 
-  If $hImage Then
-    Paint.DrawImage($hImage, X + P, Y + P, W, H)
-  Else
-    Paint.DrawPicture($hPicture, X + P, Y + P, W, H)
-  Endif
+  If $hImage Then Paint.DrawImage($hImage, X + P, Y + P, W, H)
   Return
+  
+End
+
+Public Sub Play()
+  
+  If $hAnimation Then $hAnimation.Play
+  
+End
+
+Public Sub Stop()
+  
+  If $hAnimation Then $hAnimation.Stop
+  
+End
+
+Public Sub Pause()
+  
+  If $hAnimation Then $hAnimation.Pause
+  
+End
+
+Public Sub Rewind()
+  
+  Stop()
+  Play()
+  
+End
+
+Private Function Playing_Read() As Boolean
+
+  If $hAnimation Then Return $hAnimation.Playing
+
+End
+
+Private Sub Playing_Write(Value As Boolean)
+
+  If Not $hAnimation Then Return
+  If Value Then
+    Play()
+  Else
+    Pause()
+  Endif
+
+End
+
+Public Sub Animation_Change()
+
+  $hImage = $hAnimation.Image
+  UpdateSize
+  Me.Refresh
   
 End

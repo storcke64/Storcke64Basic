@@ -70,7 +70,7 @@ For I = 1 To Args.Max
 
 Next
 
-For Each sBenchmark In Dir(Application.Dir, "*.gbs")
+For Each sBenchmark In Dir(Application.Dir, "*.gbs").Sort()
 
   sBenchmark = File.BaseName(sBenchmark)
   If sBenchmark = "benchmark" Then Continue
