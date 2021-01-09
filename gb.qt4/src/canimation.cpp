@@ -23,10 +23,7 @@
 
 #define __CANIMATION_CPP
 
-#include "gambas.h"
 #include "main.h"
-
-#include <QMovie>
 
 #include "CImage.h"
 #include "canimation.h"

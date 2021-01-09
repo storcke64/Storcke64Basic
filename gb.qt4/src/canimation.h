@@ -25,7 +25,6 @@
 #define __CANIMATION_H
 
 #include "gambas.h"
-#include "gb.qt.h"
 
 #include <QMovie>
 #include <QBuffer>
