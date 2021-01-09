@@ -28,7 +28,6 @@
 #include "gbutton.h"
 #include "gdrawingarea.h"
 #include "gmainwindow.h"
-#include "gmoviebox.h"
 #include "gscrollbar.h"
 #include "gslider.h"
 #include "gdesktop.h"
