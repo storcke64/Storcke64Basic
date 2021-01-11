@@ -37,10 +37,17 @@ End
 Private Sub FindRoot() As String
 
   Dim sDir As String
+  Dim sPath As String
+  Dim sData As String
 
   sDir = Project.Dir
   While Len(sDir) > 1
-    If Exist(sDir &/ ".git/HEAD") Then Return sDir
+    sPath = sDir &/ ".git"
+    If Exist(sPath) Then
+      If Exist(sPath &/ "HEAD") Then Return sDir
+      Try sData = File.Load(sPath)
+      If sData Begins "gitdir:" Then Return sDir
+    Endif
     sDir = File.Dir(sDir)
   Wend
 
