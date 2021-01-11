@@ -6,8 +6,10 @@
   Arrangement = Arrange.Fill
   { Spinner1 Spinner
     MoveScaled(17,19,18.25,18.25)
-    Foreground = Color.Red
+    Font = Font["+4"]
+    Border = True
     Label = True
+    Type = Spinner.Circle
   }
   { Timer1 #Timer
     #MoveScaled(46,8)
