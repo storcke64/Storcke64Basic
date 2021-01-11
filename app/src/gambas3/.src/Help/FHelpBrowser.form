@@ -106,10 +106,10 @@
     }
   }
   { movWaiting MovieBox
-    MoveScaled(31,5,9,8)
+    MoveScaled(58,6,9,8)
     Visible = False
     Ignore = True
-    Path = "img/waiting.gif"
+    Animation = Animation.Load("img/waiting.gif")
     Alignment = Align.Center
   }
   { Printer1 #Printer

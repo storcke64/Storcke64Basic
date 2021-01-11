@@ -51,24 +51,29 @@ static void free_movie(void *_object)
   GB.ReleaseFile(THIS->addr, THIS->len);
 }
 
-static bool load_movie(void *_object, char *path, int len)
+static void *load_movie(char *path, int len_path)
 {
-  free_movie(THIS);
-  
-	if (len > 0)
-	{
-		if (GB.LoadFile(path, len, &THIS->addr, &THIS->len))
-			return true;
+	void *_object;
+	char *addr;
+	int len;
 
-		THIS->data = new QByteArray();    
-		*THIS->data = QByteArray::fromRawData((const char *)THIS->addr, THIS->len);
-		THIS->buffer = new QBuffer(THIS->data);
-		THIS->buffer->open(QIODevice::ReadOnly);
-		THIS->movie = new QMovie(THIS->buffer);
-		dict.insert(MOVIE, THIS);
-	}
+	if (GB.LoadFile(path, len_path, &addr, &len))
+		return NULL;
+
+	_object = GB.Create(GB.FindClass("Animation"), NULL, NULL);
+	
+	THIS->addr = addr;
+	THIS->len = len;
+	THIS->data = new QByteArray();    
+	*THIS->data = QByteArray::fromRawData((const char *)THIS->addr, THIS->len);
+	THIS->buffer = new QBuffer(THIS->data);
+	THIS->buffer->open(QIODevice::ReadOnly);
+	THIS->movie = new QMovie(THIS->buffer);
+	dict.insert(MOVIE, THIS);
   
-  return false;
+	QObject::connect(THIS->movie, SIGNAL(frameChanged(int)), &CAnimationManager::manager, SLOT(change()));
+	
+  return THIS;
 }
 
 
@@ -89,17 +94,7 @@ END_METHOD
 
 BEGIN_METHOD(Animation_Load, GB_STRING path)
 
-	void *anim = GB.Create(GB.FindClass("Animation"), NULL, NULL);
-
-	if (load_movie(anim, STRING(path), LENGTH(path)))
-	{
-		GB.Unref(&anim);
-		return;
-	}
-
-	QObject::connect(((CANIMATION *)anim)->movie, SIGNAL(frameChanged(int)), &CAnimationManager::manager, SLOT(change()));
-	
-	GB.ReturnObject(anim);
+	GB.ReturnObject(load_movie(STRING(path), LENGTH(path)));
 	
 END_METHOD
 

@@ -108,34 +108,37 @@ static void free_movie(void *_object)
   GB.ReleaseFile(THIS->addr, THIS->len);
 }
 
-static bool load_movie(void *_object, char *path, int len)
+static void *load_movie(char *path, int len_path)
 {
+	void *_object;
+	char *addr;
+	int len;
 	GdkPixbufLoader *loader;
 
-	free_movie(THIS);
-  
-	if (len <= 0)
-		return false;
-	
-	if (GB.LoadFile(path, len, &THIS->addr, &THIS->len))
-		return true;
+	if (GB.LoadFile(path, len_path, &addr, &len))
+		return NULL;
 
 	loader = gdk_pixbuf_loader_new();
-	if (!gdk_pixbuf_loader_write(loader, (guchar*)THIS->addr, (gsize)THIS->len, NULL))
+	if (!gdk_pixbuf_loader_write(loader, (guchar*)addr, (gsize)len, NULL))
 	{
 		g_object_unref(G_OBJECT(loader));
 		GB.Error("Unable to load animation");
-		return true;
+		return NULL;
 	}
 	
 	gdk_pixbuf_loader_close(loader, NULL);
 	
+	_object = GB.Create(GB.FindClass("Animation"), NULL, NULL);
+	
+	THIS->addr = addr;
+	THIS->len = len;
+
 	THIS->animation = gdk_pixbuf_loader_get_animation(loader);
 	g_object_ref(G_OBJECT(THIS->animation));
 	
 	g_object_unref(G_OBJECT(loader));
 	
-	return false;
+	return THIS;
 }
 
 
@@ -156,15 +159,7 @@ END_METHOD
 
 BEGIN_METHOD(Animation_Load, GB_STRING path)
 
-	void *anim = GB.Create(GB.FindClass("Animation"), NULL, NULL);
-
-	if (load_movie(anim, STRING(path), LENGTH(path)))
-	{
-		GB.Unref(&anim);
-		return;
-	}
-
-	GB.ReturnObject(anim);
+	GB.ReturnObject(load_movie(STRING(path), LENGTH(path)));
 	
 END_METHOD
 
