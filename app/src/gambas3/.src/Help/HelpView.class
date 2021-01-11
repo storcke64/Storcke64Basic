@@ -25,6 +25,7 @@ Public Sub _new()
   $hSpinner.Hide
   $hSpinner.Ignore = True
   $hSpinner.ResizeScaled(8, 8)
+  $hSpinner.Type = Spinner.Circle
   
   $hNotExist = New Label(Me.Window) As "lblNotExist"
   $hNotExist.Hide
@@ -205,7 +206,12 @@ Public Sub WebView_Start()
   ' Endif
       
 End
-     
+  
+Public Sub WebView_Error()   
+  
+  ShowWaiting(False)
+  
+End
   
 Public Sub WebView_Finish()
   

@@ -196,7 +196,42 @@ Public Sub Command(sCommand As String) As String[]
 
   Else If sCommand = "todo" Or If sCommand = "changes" Then
     
-    Return ["Unavailable in offline help."]
+    Goto NOT_AVAILABLE
+
+  Else If sCommand = "package-table" Then
+
+    Goto NOT_AVAILABLE
+
+  Else If sCommand = "developer-table" Then
+    
+    Goto NOT_AVAILABLE
+
+  Else If sCommand = "translator-table" Then
+
+    Goto NOT_AVAILABLE
+    'Return Main.GetTranslatorTable()
+    
+  Else If sCommand = "project-dependencies" Then
+    
+    Goto NOT_AVAILABLE
+    'Return Main.GetProjectDependencies(aArg[1])
+
+  Else If sCommand = "search-query" Then
+    
+    Goto NOT_AVAILABLE
+
+  Else If sCommand = "search-result" Then
+
+    Goto NOT_AVAILABLE
+    
+  Else If sCommand = "class" Then
+    
+    If Wiki.Class Then Return [Wiki.GetClassTitle(Wiki.Path)]
+    
+  Else If sCommand = "how-to-install" Then
+    
+    Goto NOT_AVAILABLE
+    'Return Main.GetHowToInstall(aArg[1])
 
   Else
     
@@ -228,6 +263,10 @@ MAKE_INDEX_LETTER:
   aResult.Add("</tr>")
   
   Return
+  
+NOT_AVAILABLE:
+    
+    Return ["<span color=\"gray\"><i>Unavailable in offline help.</i></span>"]
   
 End
 
