@@ -572,8 +572,12 @@ void CWebView::titleChanged(const QString &title)
 void CWebView::linkHovered(const QString &link, const QString &title, const QString &textContent)
 {
 	void *_object = QT.GetObject(((QWebPage*)sender())->view());
-	set_link(THIS, link);
-	GB.Raise(THIS, EVENT_LINK, 0);
+	
+	if (THIS)
+	{
+		set_link(THIS, link);
+		GB.Raise(THIS, EVENT_LINK, 0);
+	}
 }
 
 /*void CWebView::frameCreated(QWebFrame *frame)

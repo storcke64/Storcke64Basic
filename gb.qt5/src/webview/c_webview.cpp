@@ -406,7 +406,7 @@ END_PROPERTY
 
 BEGIN_METHOD_VOID(WebView_Clear)
 
-	delete WIDGET->page();
+	//delete WIDGET->page();
 	WIDGET->setPage(new MyWebPage(WIDGET));
 	QObject::connect(WIDGET->page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
 
@@ -962,8 +962,11 @@ void WebViewSignalManager::linkHovered(const QString &link)
 {
 	void *_object = QT.GetObject(((QWebEnginePage*)sender())->view());
 	
-	set_link(THIS, link);
-	GB.Raise(THIS, EVENT_LINK, 0);
+	if (THIS)
+	{
+		set_link(THIS, link);
+		GB.Raise(THIS, EVENT_LINK, 0);
+	}
 }
 
 void WebViewSignalManager::loadStarted()
