@@ -3784,6 +3784,10 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
     If ExtraDependencies[sSys] Then Print #hFile, "ExtraDependencies="; sSys; ":"; Quote(ExtraDependencies[sSys])
     If ExtraFiles[sSys] Then Print #hFile, "ExtraFiles="; sSys; ":"; Quote(ExtraFiles[sSys])
   Next
+  
+  sSys = Package.ALL_TARGETS
+  If ExtraDependencies[sSys] Then Print #hFile, "ExtraDependencies="; sSys; ":"; Quote(ExtraDependencies[sSys])
+  If ExtraFiles[sSys] Then Print #hFile, "ExtraFiles="; sSys; ":"; Quote(ExtraFiles[sSys])
 
   If PublishTags And If PublishTags.Count Then Print #hFile, "Tags="; PublishTags.Join(",")
   If PublishDependencies And If PublishDependencies.Count Then Print #hFile, "Dependencies="; PublishDependencies.Join(",")
