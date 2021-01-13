@@ -2303,31 +2303,72 @@ Private Sub CreatePopupMenu()
 
   Dim hCtrl As CControl
   Dim hMenu As Menu
-  Dim cCtrl As New String[]
+  Dim aCtrl As New String[]
   Dim sName As String
   Dim cSymbol As Collection
   Dim hClass As CClassInfo
   Dim hSymbol As CSymbolInfo
   Dim sGroup As String
+  Dim hParent As Menu
+  Dim sStart As String
+  Dim sEnd As String
+  Dim I, N As Integer
 
   mnuSelect.Children.Clear
 
   For Each hCtrl In Control
     If hCtrl = RootControl Then Continue
     If hCtrl.Kind = $hFamily.MenuClass Then Continue
-    cCtrl.Add(hCtrl.Name)
+    aCtrl.Add(hCtrl.Name)
   Next
 
-  mnuSelect.Enabled = cCtrl.Count
+  mnuSelect.Enabled = aCtrl.Count
 
-  cCtrl.Sort(gb.IgnoreCase + gb.Natural)
+  aCtrl.Sort(gb.IgnoreCase + gb.Natural)
 
-  For Each sName In cCtrl
+  If aCtrl.Count > 20 Then
+    
+    N = Max(8, Sqr(aCtrl.Count))
+    
+    For I = 0 To aCtrl.Max
+      
+      sName = aCtrl[I]
+      
+      If (I Mod N) = 0 Then
+        If I = aCtrl.Max Then
+          hParent = mnuSelect
+        Else
+          hParent = New Menu(mnuSelect)
+          hParent.Text = "-"
+        Endif
+      Endif
+      
+      hMenu = New Menu(hParent) As "mnuControl"
+      hMenu.Text = sName
+  
+    Next
+    
+    For Each hMenu In mnuSelect.Children
+      
+      If hMenu.Children.Count = 0 Then Continue
+      
+      sStart = hMenu.Children[0].Text
+      sEnd = hMenu.Children[hMenu.Children.Count - 1].Text
+      
+      hMenu.Text = sStart & " → " & sEnd
+      
+    Next
+    
+  Else
+    
+    For Each sName In aCtrl
+  
+      hMenu = New Menu(mnuSelect) As "mnuControl"
+      hMenu.Text = sName
+  
+    Next
 
-    hMenu = New Menu(mnuSelect) As "mnuControl"
-    hMenu.Text = sName
-
-  Next
+  Endif
 
   mnuEvent.Visible = False
   mnuChange.Visible = False
@@ -2335,21 +2376,21 @@ Private Sub CreatePopupMenu()
   'If Not $bReadOnly Then
 
     If Master Then
-      cCtrl = Project.Documentation.Classes[Master.Kind].Events
+      aCtrl = Project.Documentation.Classes[Master.Kind].Events
       sGroup = Master.GetGroup()
     Else
-      cCtrl = Project.Documentation.Classes[Family].Events
+      aCtrl = Project.Documentation.Classes[Family].Events
       sGroup = Family
     Endif
     
-    If cCtrl Then
+    If aCtrl Then
 
       mnuEvent.Children.Clear
       cSymbol = Project.Documentation.GetClassSymbols(Me.Name)
 
       If cSymbol Then
 
-        For Each sName In cCtrl
+        For Each sName In aCtrl
 
           hSymbol = cSymbol[sGroup & "_" & sName]
           
