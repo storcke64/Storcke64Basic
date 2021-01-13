@@ -411,7 +411,7 @@ Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float,
 
   Dim SX, SY As Float
 
-  SX = Min(Width / 2, Height / 2) / 2
+  SX = Min(Width, Height) / 4
   If SX <= 0 Then Return
   SY = SX * 2
   

@@ -16,6 +16,7 @@ Property Padding As Integer
 Property RowSpan As Integer
 Property ColumnSpan As Integer
 Property Border As Border
+Property Tag As Variant
 
 Property Read X, {Left} As Integer
 Property Read Y, {Top} As Integer
@@ -240,5 +241,17 @@ End
 Private Sub Border_Write(Value As Border)
 
   GetData(True).Border = Value
+
+End
+
+Private Function Tag_Read() As Variant
+
+  Return GetData(False).Tag
+
+End
+
+Private Sub Tag_Write(Value As Variant)
+
+  GetData(True).Tag = Value
 
 End

@@ -18,6 +18,7 @@ Property Selected As Boolean
 Property Background As Integer
 Property Foreground As Integer
 Property Font As Font
+Property Tag As Variant
 
 Private $sKey As String
 Private $sParent As String
@@ -29,6 +30,7 @@ Private $bEditable As Boolean
 Private $iBg As Integer = Color.Default
 Private $iFg As Integer = Color.Default
 Private $hFont As Font
+Private $vTag As Variant
 
 Private $aChildren As String[]
 Private $aText As String[]
@@ -41,6 +43,7 @@ Public _Index As Integer
 Public _GrandChildren As Integer
 
 Event _Refresh
+
 Private $iLock As Integer
 
 Private Sub GetTree() As _TreeView
@@ -586,4 +589,16 @@ Public Sub _Unlock()
     hTree._RefreshView
   Endif
   
+End
+
+Private Function Tag_Read() As Variant
+
+  Return $vTag
+
+End
+
+Private Sub Tag_Write(Value As Variant)
+
+  $vTag = Value
+
 End

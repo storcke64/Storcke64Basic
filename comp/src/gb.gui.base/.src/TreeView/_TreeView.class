@@ -558,10 +558,12 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
       
         If hItem.Count Then
           
-          XA = X + W + $iDepthW / 4
-          YA = Y + $iDepthW / 4
-          WA = $iDepthW / 2
-          HA = H - $iDepthW / 2
+          HA = H / 2
+          If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
+          WA = HA
+          XA = X + W + ($iDepthW + WA) / 4
+          YA = Y + CInt(H - HA) \ 2
+          
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Left))
           Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
           Paint.LineWidth = $iDepthW / 12
@@ -651,10 +653,11 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         If hItem.Count Then
           
           Paint.Background = Color.LightForeground
-          XA = X + $iDepthW / 4
-          YA = Y + $iDepthW / 4
-          WA = $iDepthW / 2
-          HA = H - $iDepthW / 2
+          HA = H / 2
+          If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
+          WA = HA
+          XA = X + ($iDepthW - WA) / 2
+          YA = Y + (H - HA) / 2
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
           Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
           Paint.LineWidth = $iDepthW / 12
