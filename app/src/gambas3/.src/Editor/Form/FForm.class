@@ -3689,6 +3689,7 @@ Public Sub mnuChange_Click()
   Dim sClass As String
   Dim sFind As String
   Dim iPos As Integer
+  Dim sPrefix As String
 
   If Selection.Count <> 1 Then Return
 
@@ -3701,11 +3702,15 @@ Public Sub mnuChange_Click()
   sClass = Master.Kind
   If Master.Virtual Then sClass = "#" & sClass
 
-  sFind = "{ " & Master.Name & " " & sClass
+  sPrefix = "{ "
+  If Master.Public Then sPrefix &= "!"
+  sPrefix &= Master.Name & " "
+  
+  sFind = sPrefix & sClass
   iPos = InStr(sStr, sFind)
   If iPos = 0 Then Return
 
-  sStr = Left$(sStr, iPos - 1) & "{ " & Master.Name & " " & sNewClass & Mid$(sStr, iPos + Len(sFind))
+  sStr = Left$(sStr, iPos - 1) & sPrefix & sNewClass & Mid$(sStr, iPos + Len(sFind))
 
   hParent = Master.Parent
 
