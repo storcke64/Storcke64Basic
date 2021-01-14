@@ -948,12 +948,12 @@ void FILE_rmdir(const char *path)
 }
 
 
-void FILE_mkdir(const char *path)
+void FILE_mkdir_mode(const char *path, mode_t mode)
 {
 	if (FILE_is_relative(path))
 		THROW(E_ACCESS);
 
-	if (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
+	if (mkdir(path, mode) != 0)
 		THROW_SYSTEM(errno, path);
 }
 

@@ -778,7 +778,7 @@ void SUBR_kill(ushort code)
 			break;
 			
 		case 1:
-			FILE_mkdir(get_path(PARAM));
+			FILE_mkdir_mode(get_path(PARAM), CFILE_default_dir_auth);
 			break;
 			
 		case 2:

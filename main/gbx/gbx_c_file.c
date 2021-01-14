@@ -56,6 +56,7 @@
 #define STREAM_FD STREAM_handle(THE_STREAM)
 
 CFILE *CFILE_in, *CFILE_out, *CFILE_err;
+mode_t CFILE_default_dir_auth = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
 DECLARE_EVENT(EVENT_Read);
 DECLARE_EVENT(EVENT_Write);
@@ -734,6 +735,21 @@ BEGIN_METHOD(File_RealPath, GB_STRING path)
 
 END_METHOD
 
+BEGIN_PROPERTY(File_DefaultDirAuth)
+
+	if (READ_PROPERTY)
+	{
+		char *auth = FILE_mode_to_string(CFILE_default_dir_auth);
+		GB_ReturnNewString(auth, FILE_buffer_length());
+	}
+	else
+	{
+		CFILE_default_dir_auth = FILE_mode_from_string((mode_t)0, GB_ToZeroString(PROP(GB_STRING)));
+	}
+
+END_PROPERTY
+
+
 //--------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Stream_Handle)
@@ -1134,7 +1150,9 @@ GB_DESC FileDesc[] =
 	GB_STATIC_METHOD("Save", NULL, File_Save, "(FileName)s(Data)s"),
 
 	GB_STATIC_METHOD("RealPath", "s", File_RealPath, "(Path)s"),
-	
+
+	GB_STATIC_PROPERTY("DefaultDirAuth", "s", File_DefaultDirAuth),
+
 	GB_EVENT("Read", NULL, NULL, &EVENT_Read),
 	GB_EVENT("Write", NULL, NULL, &EVENT_Write),
 	GB_EVENT("Resize", NULL, NULL, &EVENT_Resize),

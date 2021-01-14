@@ -401,7 +401,7 @@ GB_DESC NATIVE_System[] =
 	GB_STATIC_METHOD("Find", "s", System_Find, "(Program)s"),
 
 	GB_STATIC_METHOD("GetFormat", "s", System_GetFormat, "(Format)i"),
-
+	
 	GB_END_DECLARE
 };
 
