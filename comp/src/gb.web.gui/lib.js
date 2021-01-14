@@ -686,6 +686,8 @@ gw = {
       }
       
       gw.window.refresh();
+      
+      $(id).scrollIntoView({behavior:"auto", block:"nearest"});      
     },
 
     close: function(id)
