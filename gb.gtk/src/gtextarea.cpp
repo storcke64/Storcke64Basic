@@ -154,6 +154,8 @@ struct _GtkTextViewPrivate
   guint in_scroll : 1;
 };
 
+#define TEXT_AREA(_textview) (gtk_text_view_get_window(GTK_TEXT_VIEW(_textview), GTK_TEXT_WINDOW_TEXT))
+
 #else
 
 // Private structure took from GTK+ 2.10 code. Used for setting the text area cursor.
@@ -178,6 +180,9 @@ void gtk_text_layout_get_size(struct _GtkTextLayout  *layout, gint *width, gint 
 void gtk_text_layout_invalidate (struct _GtkTextLayout *layout, const GtkTextIter *start, const GtkTextIter *end);
 void gtk_text_layout_validate (struct _GtkTextLayout *layout, gint max_pixels);
 }
+
+#define TEXT_AREA(_textview) (((PrivateGtkTextWindow *)GTK_TEXT_VIEW(_textview)->text_window)->bin_window)
+
 #endif
 
 #if !GLIB_CHECK_VERSION(2, 32, 0)
@@ -481,6 +486,7 @@ gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 	_fix_spacing_tag = NULL;
 	_has_native_popup = true;
 	_eat_return_key = true;
+	_text_area_visible = false;
 	
 	onChange = 0;
 	onCursor = 0;
@@ -855,14 +861,8 @@ void gTextArea::selSelect(int pos, int length)
 
 void gTextArea::updateCursor(GdkCursor *cursor)
 {
-  GdkWindow *win;
+  GdkWindow *win = TEXT_AREA(textview);
 
-#ifdef GTK3
-	win = gtk_text_view_get_window(GTK_TEXT_VIEW(textview), GTK_TEXT_WINDOW_TEXT);
-#else
-	win = ((PrivateGtkTextWindow *)GTK_TEXT_VIEW(textview)->text_window)->bin_window;
-#endif
-  
   gControl::updateCursor(cursor);
   
   if (!win)
@@ -1127,3 +1127,18 @@ void gTextArea::emitCursor()
 	_last_pos = pos;
 	emit(SIGNAL(onCursor));
 }
+
+#ifdef GTK3
+void gTextArea::onEnterEvent()
+{
+	if (_text_area_visible)
+		gdk_window_show(TEXT_AREA(textview));
+}
+
+void gTextArea::onLeaveEvent()
+{
+	_text_area_visible = gdk_window_is_visible(TEXT_AREA(textview));
+	if (_text_area_visible)
+		gdk_window_hide(TEXT_AREA(textview));
+}
+#endif

@@ -60,6 +60,12 @@ struct _GtkEntryPrivate
 
 #endif
 
+#define TEXT_AREA(_entry) (GTK_ENTRY(_entry)->priv->text_area)
+
+#else
+
+#define TEXT_AREA(_entry) (GTK_ENTRY(_entry)->text_area)
+
 #endif
 
 
@@ -115,6 +121,7 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	_changed = false;
 	_has_border = true;
 	_has_native_popup = true;
+	_text_area_visible = true;
 
 	if (!combo)
 	{
@@ -422,12 +429,7 @@ void gTextBox::updateCursor(GdkCursor *cursor)
 	if (!entry)
 		return;
 
-#ifdef GTK3
-	win = GTK_ENTRY(entry)->priv->text_area;
-#else
-	win = GTK_ENTRY(entry)->text_area;
-#endif
-
+	win = TEXT_AREA(entry);
 	if (!win)
 		return;
 		
@@ -513,5 +515,26 @@ void gTextBox::customStyleSheet(GString *css)
 		if (background() == COLOR_DEFAULT)
 			g_string_append_printf(css, "background:none;");
 	}
+}
+#endif
+
+#ifdef GTK3
+void gTextBox::onEnterEvent()
+{
+	if (!entry)
+		return;
+	
+	if (_text_area_visible)
+		gdk_window_show(TEXT_AREA(entry));
+}
+
+void gTextBox::onLeaveEvent()
+{
+	if (!entry)
+		return;
+	
+	_text_area_visible = gdk_window_is_visible(TEXT_AREA(entry));
+	if (_text_area_visible)
+		gdk_window_hide(TEXT_AREA(entry));
 }
 #endif

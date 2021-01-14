@@ -35,14 +35,14 @@
 #include "gmouse.h"
 #include "gmenu.h"
 
-#ifdef GTK3
-#else
+#ifndef GTK3
 #include "gplugin.h"
 #endif
 
 #include "gcontrol.h"
 
 //#define DEBUG_FOCUS 1
+//#define DEBUG_ENTER_LEAVE 1
 
 static GList *controls = NULL;
 static GList *controls_destroyed = NULL;
@@ -944,11 +944,18 @@ void gControl::updateCursor(GdkCursor *cursor)
 {
 	if (GDK_IS_WINDOW(gtk_widget_get_window(border)) && _inside)
 	{
-		//fprintf(stderr, "updateCursor: %s %p\n", name(), cursor);
+		#if DEBUG_ENTER_LEAVE
+		fprintf(stderr, "updateCursor: %s %p\n", name(), cursor);
+		#endif
 		if (!cursor && parent() && gtk_widget_get_window(parent()->border) == gtk_widget_get_window(border))
 			parent()->updateCursor(parent()->getGdkCursor());
 		else
+		{
+			#if DEBUG_ENTER_LEAVE
+			fprintf(stderr, "updateCursor: gdk_window_set_cursor: window = %p\n", gtk_widget_get_window(border));
+			#endif
 			gdk_window_set_cursor(gtk_widget_get_window(border), cursor);
+		}
 	}
 }
 
@@ -2561,11 +2568,23 @@ void gControl::setNoTabFocus(bool v)
 	_no_tab_focus = v;
 }
 
+#ifdef GTK3
+void gControl::onEnterEvent()
+{
+}
+
+void gControl::onLeaveEvent()
+{
+}
+#endif
+
 void gControl::emitEnterEvent(bool no_leave)
 {
 	gContainer *cont;
-
-	//fprintf(stderr, "start enter %s\n", name());
+	
+	#if DEBUG_ENTER_LEAVE
+	fprintf(stderr, "start enter %s\n", name());
+	#endif
 
 	if (parent())
 		parent()->emitEnterEvent(true);
@@ -2589,9 +2608,16 @@ void gControl::emitEnterEvent(bool no_leave)
 
 	if (_inside)
 		return;
+	
 	_inside = true;
+	
+	#ifdef GTK3
+	onEnterEvent();
+	#endif
 
-	//fprintf(stderr, "end enter %s\n", name());
+	#if DEBUG_ENTER_LEAVE
+	fprintf(stderr, "end enter %s\n", name());
+	#endif
 
 	setMouse(mouse());
 
@@ -2615,7 +2641,9 @@ void gControl::emitLeaveEvent()
 	if (!_inside)
 		return;
 
-	//fprintf(stderr, "start leave %s\n", name());
+	#if DEBUG_ENTER_LEAVE
+	fprintf(stderr, "start leave %s\n", name());
+	#endif
 
 	if (isContainer())
 	{
@@ -2627,14 +2655,22 @@ void gControl::emitLeaveEvent()
 	}
 
 	_inside = false;
+	
+	#ifdef GTK3
+	onLeaveEvent();
+	#endif
 
-	//fprintf(stderr, "end leave %s\n", name());
+	#if DEBUG_ENTER_LEAVE
+	fprintf(stderr, "end leave %s\n", name());
+	#endif
 
 	if (parent()) parent()->setMouse(parent()->mouse());
 
 	if (gApplication::_ignore_until_next_enter)
 	{
-		//fprintf(stderr, "ignore next leave for %s\n", name());
+		#if DEBUG_ENTER_LEAVE
+		fprintf(stderr, "ignore next leave for %s\n", name());
+		#endif
 		return;
 	}
 

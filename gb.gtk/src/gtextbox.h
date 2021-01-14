@@ -79,11 +79,16 @@ public:
   void initEntry();
 	virtual int minimumHeight();
 	virtual GtkIMContext *getInputMethod();
+#ifdef GTK3
+	virtual void onEnterEvent();
+	virtual void onLeaveEvent();
+#endif
 
 	GtkWidget *entry;
 
 	unsigned _changed : 1;
 	unsigned _has_border : 1;
+	unsigned _text_area_visible : 1;
 
 #ifndef GTK3
 	char *_placeholder;

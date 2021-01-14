@@ -346,6 +346,10 @@ public:
 
 	void emitEnterEvent(bool no_leave = false);
 	void emitLeaveEvent();
+#ifdef GTK3
+	virtual void onEnterEvent();
+	virtual void onLeaveEvent();
+#endif
 	
 /*	static gControl* dragWidget();
 	static void setDragWidget(gControl *ct);
