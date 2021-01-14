@@ -768,15 +768,20 @@ TH.gw-table-sortable:hover {
   min-height: 2em;
 }
 
-.gw-datebox INPUT {
+.gw-datebox > INPUT {
   width: 100%;
+  width: 8em;
   min-height: 2em;
   box-sizing: border-box;
   padding: 0 2.25em 0 0.25em;
   vertical-align: middle;
 }
 
-.gw-datebox.gw-noborder INPUT {
+.gw-datebox > INPUT.gw-datebox-time {
+  width: 12em;
+}
+
+.gw-datebox.gw-noborder > INPUT {
   border: none;
 }
 

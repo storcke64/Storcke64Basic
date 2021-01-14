@@ -107,24 +107,25 @@
         List = [("Élément 1"), ("Élément 2"), ("Élément 3")]
       }
       { WebDateBox1 WebDateBox
-        #MoveScaled(32,1,24,4)
+        #MoveScaled(32,1,16,4)
+        DateTime = True
       }
       { WebButton4 WebButton
-        #MoveScaled(57,1,16,4)
+        #MoveScaled(49,1,16,4)
         Text = ("Reload")
         ShowArrow = True
       }
       { WebFileButton1 WebFileButton
-        #MoveScaled(74,1,16,4)
+        #MoveScaled(66,1,16,4)
         Text = ("Select file") & "..."
         Image = "icon:/small/directory"
       }
       { WebProgressBar1 WebProgressBar
-        #MoveScaled(91,1,24,4)
+        #MoveScaled(83,1,24,4)
         Width = "12em"
       }
       { WebButton7 WebButton
-        #MoveScaled(116,1,4,4)
+        #MoveScaled(108,1,4,4)
         Image = "icon:/small/cancel"
       }
     }

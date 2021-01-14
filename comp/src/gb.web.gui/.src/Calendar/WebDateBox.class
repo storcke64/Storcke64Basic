@@ -31,7 +31,9 @@ End
 
 Public Sub _Render()
   
-  Print "<input id=\""; Me.Name; ":entry\" class=\"gw-combobox-text\" type=\"text\" value=\""; Html(Text_Read()); "\""; Me._GetUpdateJS("onchange", "text", "this.value"); ">";
+  Print "<input id=\""; Me.Name; ":entry\" class=\"gw-combobox-text";
+  If $bDateTime Then Print " gw-datebox-time";
+  Print "\" type=\"text\" value=\""; Html(Text_Read()); "\""; Me._GetUpdateJS("onchange", "text", "this.value"); ">";
   Print "<div class=\"gw-combobox-arrow\""; Me._GetUpdateJS("onmousedown", "#popup"); "></div>"
   'Print "displayCalendar($("; JS(Me.Name & ":entry"); "),'dd/mm/yyyy'"; '"; If(bTime And Not bChooseDate, "dd/mm/yyyy hh:nn", "dd/mm/yyyy"); 
   'Print ",$("; JS(Me.Name); "),false,false);"; '; If(bTime And Not bChooseDate, "true", "false"); ","; If(bSubmit, "true", "false"); ")\""; 
@@ -96,10 +98,12 @@ End
 
 Private Function Text_Read() As String
 
+  If Not $dDate Then Return
+
   If $bDateTime Then
-    Return Format($dDate, gb.GeneralDate)
+    Return Format($dDate, gb.Standard)
   Else
-    Return Format($dDate, gb.ShortDate)
+    Return Format($dDate, gb.MediumDate)
   Endif
 
 End
