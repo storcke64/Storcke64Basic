@@ -1,9 +1,14 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,69,31)
+  MoveScaled(0,0,72,38)
+  Foreground = Color.TextForeground
   Resizable = False
+  Border = False
+  SkipTaskbar = True
+  Transparent = True
   Arrangement = Arrange.Vertical
+  Spacing = True
   Margin = True
   { mnuPopup Menu
     #Translate = False
@@ -14,39 +19,50 @@
       Shortcut = "Ctrl+C"
     }
   }
-  { panMessage HBox
-    MoveScaled(1,1,65,20)
+  { lblTitle Label
+    MoveScaled(2,0,67,3)
+    Font = Font["Bold,-2"]
+  }
+  { Panel6 Panel
+    MoveScaled(1,4,70,30)
+    Background = Color.TextBackground
     Expand = True
+    Arrangement = Arrange.Vertical
     Margin = True
-    { Panel3 Panel
-      MoveScaled(1,1,8,17)
-      { picMessage PictureBox
-        MoveScaled(0,0,8,8)
-        Mode = PictureBox.Fill
+    { panMessage HBox
+      MoveScaled(0,0,65,20)
+      Expand = True
+      Margin = True
+      { Panel3 Panel
+        MoveScaled(1,1,8,17)
+        { picMessage PictureBox
+          MoveScaled(0,0,8,8)
+          Mode = PictureBox.Fill
+        }
+      }
+      { Panel2 Panel
+        MoveScaled(10,2,2,4)
+      }
+      { Panel4 VBox
+        MoveScaled(14,1,43,18)
+        Expand = True
+        PopupMenu = "mnuPopup"
+        { txtMessage TextLabel
+          MoveScaled(1,1,41,9)
+          Expand = True
+        }
       }
     }
-    { Panel2 Panel
-      MoveScaled(10,2,2,4)
+    { Panel5 Panel
+      MoveScaled(29,21,7,3)
     }
-    { Panel4 VBox
-      MoveScaled(14,1,43,18)
-      Expand = True
-      PopupMenu = "mnuPopup"
-      { txtMessage TextLabel
-        MoveScaled(1,1,41,4)
+    { panButton HBox
+      MoveScaled(10,24,37,4)
+      Spacing = True
+      { Panel1 Panel
+        MoveScaled(2,0,4,4)
         Expand = True
       }
-    }
-  }
-  { Panel5 Panel
-    MoveScaled(30,22,7,3)
-  }
-  { panButton HBox
-    MoveScaled(11,25,37,4)
-    Spacing = True
-    { Panel1 Panel
-      MoveScaled(2,0,4,4)
-      Expand = True
     }
   }
 }
