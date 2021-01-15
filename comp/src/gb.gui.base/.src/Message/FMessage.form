@@ -17,6 +17,7 @@
   { panMessage HBox
     MoveScaled(1,1,65,20)
     Expand = True
+    Margin = True
     { Panel3 Panel
       MoveScaled(1,1,8,17)
       { picMessage PictureBox
@@ -25,7 +26,7 @@
       }
     }
     { Panel2 Panel
-      MoveScaled(10,2,1,4)
+      MoveScaled(10,2,2,4)
     }
     { Panel4 VBox
       MoveScaled(14,1,43,18)
@@ -38,7 +39,7 @@
     }
   }
   { Panel5 Panel
-    MoveScaled(30,22,7,2)
+    MoveScaled(30,22,7,3)
   }
   { panButton HBox
     MoveScaled(11,25,37,4)

@@ -34,8 +34,8 @@
 Public Sub Main()
 
   Component.Load("gb.form")
-  'Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
-  Print Message.Question("Ceci est un message.") ', "Oui", "Non")
+  Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
+  'Message.Warning("Ceci est un message.") ', "Oui", "Non")
 
 End
 

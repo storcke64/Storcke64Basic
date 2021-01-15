@@ -29,8 +29,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
     Endif
   Wend
   
-  If aButton.Count < aDefault.Count Then aButton = aDefault
-  
+  If aButton.Count = 0 Then aButton = aDefault
   If aButton.Count = 0 Then aButton = [("OK")]
   
   hPict = Picture["icon:/64/" & sIcon]
@@ -64,8 +63,8 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   hSpace = New Spring(panButton)
   panButton.H = Max(H, DS * 4)
   
-  W = Max(DS * 32, Max(txtMessage.W + 1, WB) + picMessage.W + DS * 4)
-  H = Max(DS * 8, HT) + panButton.H + DS * 5
+  W = Max(DS * 32, Max(txtMessage.W + 1, WB) + picMessage.W + DS * 7)
+  H = Max(DS * 8, HT) + panButton.H + DS * 7
   
   Me.Resize(W, H)
   
