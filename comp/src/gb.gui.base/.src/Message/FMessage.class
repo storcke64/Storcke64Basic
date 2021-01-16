@@ -16,10 +16,10 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   Dim HT As Integer
   Dim hSpace As Spring
 
-  Me.Background = Color.SetAlpha(Color.Foreground, 192)
+  'Me.Background = Color.SetAlpha(Color.Background, 128)
 
   sTitle = Message.Title
-  'If Not sTitle Then sTitle = Application.Title
+  If Not sTitle Then sTitle = Application.Title
   Message.Title = ""
   'Me.Title = sTitle
   'If sTitle Then sText = "<b>" & sTitle & "</b>\n\n" & sText
@@ -71,7 +71,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
         If Application.DarkTheme Then
           hButton.Background = Color.DarkRed
         Else
-          hButton.Background = Color.Red
+          hButton.Background = Color.SetHSV(Color.Red,, 128)
         Endif
         'hButton.Foreground = Color.TextBackground
       Endif
@@ -82,7 +82,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
         If Application.DarkTheme Then
           hButton.Background = Color.DarkGreen
         Else
-          hButton.Background = Color.Green
+          hButton.Background = Color.SetHSV(Color.Green,, 128)
         Endif
         'hButton.Foreground = Color.TextBackground
       Endif
@@ -143,3 +143,17 @@ Public Sub Form_Close()
   If $iButton < 0 Then Stop Event
 
 End
+
+
+Public Sub lblTitle_MouseMove()
+
+  panFrame_MouseMove
+
+End
+
+Public Sub panFrame_MouseMove()
+
+  If Mouse.Left Then Me.Move(Me.X + Mouse.X - Mouse.StartX, Me.Y + Mouse.Y - Mouse.StartY)
+  
+End
+
