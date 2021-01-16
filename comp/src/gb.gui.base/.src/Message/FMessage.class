@@ -15,12 +15,15 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   Dim WB As Integer
   Dim HT As Integer
   Dim hSpace As Spring
+  Dim sStyle As String
 
   sTitle = Message.Title
   If Not sTitle Then sTitle = Application.Title
   Message.Title = ""
+  
+  sStyle = Message.Style
 
-  Select Case LCase(Message.Style)
+  Select Case sStyle
     
     Case "flat"
       
@@ -37,7 +40,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
       Else
         lblTitle.Hide
       Endif
-  
+      
     Default
       
       lblTitle.Hide
@@ -119,7 +122,9 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   
   iBusy = Application.Busy
   Application.Busy = 0
+  
   Me.ShowModal()
+  
   Application.Busy = iBusy
 
   Return $iButton + 1

@@ -2,6 +2,15 @@
 
 { Form Form
   MoveScaled(0,0,97,87)
+  { Menu1 Menu
+    Text = ("Menu1")
+  }
+  { Menu2 Menu
+    Text = ("Menu2")
+  }
+  { Menu3 Menu
+    Text = ("Menu3")
+  }
   { Button1 Button
     MoveScaled(14,3,16,4)
     Background = Color.Orange
@@ -81,5 +90,9 @@
   { Button3 Button
     MoveScaled(34,11,16,4)
     Text = ("Index")
+  }
+  { Button4 Button
+    MoveScaled(67,6,16,4)
+    Text = ("Message")
   }
 }

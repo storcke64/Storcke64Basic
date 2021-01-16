@@ -3,8 +3,10 @@
 Export
 
 Static Property Title As String Use $sTitle
-Static Property Style As String Use $sStyle
+Static Property Style As String
 Static Property ColoredButtons As Boolean Use $bUseColor
+
+Static Private $sStyle As String
 
 'Export
 ' GB_DESC CMessageDesc[] =
@@ -60,4 +62,23 @@ Static Public Sub Delete((Message) As String, Optional Button1 As String, Button
   
   Return FMessage.Run("delete", Message, [Button1, Button2, Button3], [("Delete"), ("Cancel")])
   
+End
+
+Static Private Function Style_Read() As String
+
+  If Not $sStyle Then Return "default"
+  Return $sStyle
+
+End
+
+Static Private Sub Style_Write(Value As String)
+
+  Value = LCase(Value)
+  Select Case Value
+    Case "flat"
+      $sStyle = Value
+    Case Else
+      $sStyle = ""
+  End Select
+
 End

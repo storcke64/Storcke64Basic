@@ -35,7 +35,7 @@ Public Sub Main()
 
   Component.Load("gb.form")
   
-  'Message.Style = "flat"
+  Message.Style = "integrated"
   'Message.ColoredButtons = True
   
   Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
