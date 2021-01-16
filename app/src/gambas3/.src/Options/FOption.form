@@ -421,7 +421,6 @@
     }
     { Panel4 HBox
       MoveScaled(1,38,66,4)
-      Visible = False
       Indent = True
       { btnClearCache Button
         MoveScaled(0,0,31,4)
@@ -922,20 +921,35 @@
         Animated = True
       }
     }
+    { HBox7 HBox
+      MoveScaled(1,40,66,4)
+      Spacing = True
+      Indent = True
+      { Label2 Label
+        MoveScaled(0,0,21,4)
+        Expand = True
+        Text = ("Message style")
+      }
+      { cmbMessageBoxStyle ComboBox
+        MoveScaled(44,0,16,4)
+        #Translate = False
+        ReadOnly = True
+      }
+    }
     { Panel7 Panel
-      MoveScaled(23,40,4,1)
+      MoveScaled(23,46,4,1)
     }
     { Label1 Label
-      MoveScaled(1,40,63,3)
+      MoveScaled(1,47,63,3)
       Font = Font["Bold"]
       Text = ("Layout")
     }
     { Panel6 HBox
-      MoveScaled(1,45,63,16)
+      MoveScaled(1,50,63,13)
       Expand = True
       Spacing = True
       { gvwLayout GridView
-        MoveScaled(0,0,39,15)
+        MoveScaled(0,0,39,12)
         Expand = True
         Mode = Select.Single
         Grid = False

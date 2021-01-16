@@ -5,6 +5,8 @@ Static Private $aThemeName As String[] = [("Amethyst"), ("Amber"), ("Emerald"), 
 Static Private $aBrowser As String[] = ["konqueror", "rekonq", "firefox", "iceweasel", "epiphany", "seamonkey", "opera", "chromium"]
 Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "Terminal", "lxterminal", "xterm"]
 'Static Private $aImageEditor As String[] = ["gimp", "kolourpaint", "krita"]
+Static Private $aMessageBoxStyle As String[] = ["default", "flat"]
+Static Private $aMessageBoxStyleName As String[] = [("Default"), ("Flat")]
 Static Private $cLayoutName As Collection
 
 Private $cLast As Collection
@@ -94,6 +96,8 @@ Public Sub _new()
   txtPrintFont.Default = Project.DEFAULT_FONT
   txtHelpFixedFont.Default = Project.DEFAULT_FONT
   
+  cmbMessageBoxStyle.List = $aMessageBoxStyleName.Copy().Sort(gb.Language)
+  
   $cLast = MTheme.ReadSettings(Settings, "/Highlight", True)
   $cCurrent = MTheme.Copy($cLast)
   
@@ -171,6 +175,13 @@ Public Sub _new()
     cmbTheme.Index = 0
   Endif
   
+  iInd = $aMessageBoxStyle.Find(Settings["/MessageBoxStyle"])
+  If iInd >= 0 Then
+    cmbMessageBoxStyle.Text = $aMessageBoxStyleName[iInd]
+  Else
+    cmbMessageBoxStyle.Text = ("Default")
+  Endif
+  
   UpdateFont(txtGlobalFont.Value)
   
   $bNoChange = False
@@ -233,6 +244,21 @@ Public Sub cmbTheme_Click()
   $cCurrent = MTheme.ReadFile($aTheme[iTheme])
   RefreshEditor
   
+End
+
+Public Sub cmbMessageBoxStyle_Click()
+
+  Dim iStyle As Integer
+
+  iStyle = $aMessageBoxStyleName.Find(cmbMessageBoxStyle.Text)
+  If iStyle <= 0 Then
+    Settings["/MessageBoxStyle"] = ""
+  Else
+    Settings["/MessageBoxStyle"] = $aMessageBoxStyle[iStyle]
+  Endif
+  
+  Project.UpdateMessageBoxStyle
+
 End
 
 Public Sub btnExport_Click()

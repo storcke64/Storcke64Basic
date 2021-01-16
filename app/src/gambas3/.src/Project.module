@@ -352,6 +352,7 @@ Public Sub Main()
   Application.ShowTooltips = Settings["/ShowTooltip", True]
   Application.Animations = Settings["/Animations", True]
   Application.Shadows = Settings["/Shadows", True]
+  UpdateMessageBoxStyle()
 
   RefreshBreakpointPicture
 
@@ -588,7 +589,7 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
   Try hLock = Lock sDir &/ ".lock"
 
   If Not ReadOnly And ((bConvert And Exist(sDir &/ ".lock")) Or Not hLock) Then
-    If Message.Warning(("This project seems to be already opened.\n\nOpening the same project twice can lead to data loss."),
+    If Message.Warning("<b>" & File.Name(sDir) & "</b>\n\n" & ("This project seems to be already opened.\n\nOpening the same project twice can lead to data loss."),
         ("Open after all"), ("Do not open")) = 2 Then
       Return True
     Endif
@@ -6774,5 +6775,12 @@ Public Sub Browse(sRoot As String, Optional bWithDir As Boolean) As String[]
   Wend
   
   Return aResult
+  
+End
+
+Public Sub UpdateMessageBoxStyle()
+
+  Message.Style = Settings["/MessageBoxStyle"]
+  Message.ColoredButtons = Message.Style = "flat"
   
 End

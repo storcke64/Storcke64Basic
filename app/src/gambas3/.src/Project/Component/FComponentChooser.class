@@ -69,7 +69,7 @@ Private Sub RefreshList()
     If hComp.Hidden Then Continue
     If hComp.Library Then Continue
     If hComp.Key = CComponent.PROJECT_NAME Then Continue
-    If hComp.Key = Project.Name Then Continue 
+    'If hComp.Key = Project.Name Then Continue 
     If $aHidden And If $aHidden.Exist(sComp) Then Continue
     If sFilter And If Not hComp.Match(sFilter) Then Continue
     
