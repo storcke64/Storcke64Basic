@@ -123,10 +123,12 @@ END_PROPERTY
 
 BEGIN_PROPERTY(TextBox_Placeholder)
 
+	GET_TEXT_BOX();
+
 	if (READ_PROPERTY)
-		RETURN_NEW_STRING(TEXTBOX->placeholderText());
+		RETURN_NEW_STRING(textbox->placeholderText());
 	else
-		TEXTBOX->setPlaceholderText(QSTRING_PROP());
+		textbox->setPlaceholderText(QSTRING_PROP());
 
 END_PROPERTY
 
