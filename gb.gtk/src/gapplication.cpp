@@ -574,7 +574,7 @@ __FOUND_WIDGET:
 
 			if (control->onMouseEvent)
 			{
-				if (control->canRaise(control, type))
+				if (event->type == GDK_BUTTON_PRESS || control->canRaise(control, type))
 				{
 					control->getScreenPos(&xc, &yc);
 					xs = (int)event->button.x_root;

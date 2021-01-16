@@ -209,7 +209,8 @@ void gLabel::updateLayout()
 			pango_layout_set_text(layout, textdata, -1);
 	}
 	
-	gt_add_layout_from_font(layout, font());
+	if (_resolved_font)
+		gt_set_layout_from_font(layout, _resolved_font);
 }
 
 void gLabel::updateSize(bool adjust, bool noresize_width)
