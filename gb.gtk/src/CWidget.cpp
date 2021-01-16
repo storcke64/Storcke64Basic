@@ -371,7 +371,11 @@ void InitControl(gControl *control, CWIDGET *widget)
 
 CWIDGET *GetContainer(CWIDGET *control)
 {
-	if (!control) return NULL;
+	if (!control)
+	{
+		GB.Error("Null container");
+		GB.Propagate();
+	}
 
 	if (!CLASS_UserContainer) CLASS_UserContainer=GB.FindClass("UserContainer");
 	if (!CLASS_UserControl) CLASS_UserControl=GB.FindClass("UserControl");
