@@ -16,22 +16,34 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   Dim HT As Integer
   Dim hSpace As Spring
 
-  'Me.Background = Color.SetAlpha(Color.Background, 128)
-
   sTitle = Message.Title
   If Not sTitle Then sTitle = Application.Title
   Message.Title = ""
-  'Me.Title = sTitle
-  'If sTitle Then sText = "<b>" & sTitle & "</b>\n\n" & sText
+
+  Select Case LCase(Message.Style)
+    
+    Case "flat"
+      
+      Me.Border = False
+      lblTitle.Show
+      panFrame.Border = Border.Plain
+      panColor.Background = Color.TextBackground
+      panColor.Margin = True
+      
+      If sTitle Then
+        lblTitle.Text = sTitle
+        lblTitle.H = lblTitle.Font.H
+        lblTitle.Show
+      Else
+        lblTitle.Hide
+      Endif
   
-  If sTitle Then
-    lblTitle.Text = sTitle
-    lblTitle.H = lblTitle.Font.H
-    lblTitle.Show
-  Else
-    lblTitle.Hide
-  Endif
-  
+    Default
+      
+      lblTitle.Hide
+      
+  End Select
+
   While I < aButton.Count
     If Not Trim(aButton[I]) Then
       aButton.Remove(I)
@@ -67,7 +79,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
     WB += hButton.W + DS
     'If I = 0 Then hButton.SetFocus()
     If I = aButton.Max Then 
-      If aButton.Count >= 2 Then
+      If Message.ColoredButtons And If aButton.Count >= 2 Then
         If Application.DarkTheme Then
           hButton.Background = Color.DarkRed
         Else
@@ -78,7 +90,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
       hButton.Cancel = True
       hButton.SetFocus
     Else If I = 0 Then
-      If aButton.Count >= 2 Then
+      If Message.ColoredButtons And If aButton.Count >= 2 Then
         If Application.DarkTheme Then
           hButton.Background = Color.DarkGreen
         Else
@@ -91,8 +103,12 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
   hSpace = New Spring(panButton)
   panButton.H = Max(H, DS * 4)
   
-  W = Max(DS * 32, Max(txtMessage.W + 1, WB) + picMessage.W + DS * 7 + DS * 2)
-  H = Max(DS * 8, HT) + panButton.H + DS * 7 + DS * 2
+  W = Max(DS * 32, Max(txtMessage.W + 1, WB) + picMessage.W + DS * 7)
+  H = Max(DS * 8, HT) + panButton.H + DS * 7
+  If panColor.Margin Then
+    W += DS * 2
+    H += DS * 2
+  Endif
   If lblTitle.Visible Then H += lblTitle.H + DS
   
   Me.Resize(W, H)

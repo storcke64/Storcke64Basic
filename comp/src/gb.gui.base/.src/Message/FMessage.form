@@ -5,7 +5,6 @@
   Background = Color.Background
   Foreground = Color.TextForeground
   Resizable = False
-  Border = False
   SkipTaskbar = True
   Transparent = True
   Arrangement = Arrange.Fill
@@ -24,17 +23,15 @@
     Arrangement = Arrange.Vertical
     Spacing = True
     Margin = True
-    Border = Border.Plain
     { lblTitle Label
       MoveScaled(1,0,67,3)
+      Visible = False
       Font = Font["Bold,-2"]
     }
-    { Panel6 Panel
+    { panColor Panel
       MoveScaled(0,4,70,30)
-      Background = Color.TextBackground
       Expand = True
       Arrangement = Arrange.Vertical
-      Margin = True
       { panMessage HBox
         MoveScaled(0,0,65,20)
         Expand = True

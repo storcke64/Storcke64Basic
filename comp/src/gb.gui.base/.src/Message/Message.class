@@ -2,9 +2,9 @@
 
 Export
 
-Static Property Title As String
-
-Static Private $sTitle As String
+Static Property Title As String Use $sTitle
+Static Property Style As String Use $sStyle
+Static Property ColoredButtons As Boolean Use $bUseColor
 
 'Export
 ' GB_DESC CMessageDesc[] =
@@ -60,16 +60,4 @@ Static Public Sub Delete((Message) As String, Optional Button1 As String, Button
   
   Return FMessage.Run("delete", Message, [Button1, Button2, Button3], [("Delete"), ("Cancel")])
   
-End
-
-Static Private Function Title_Read() As String
-
-  Return $sTitle
-
-End
-
-Static Private Sub Title_Write(Value As String)
-
-  $sTitle = Value
-
 End
