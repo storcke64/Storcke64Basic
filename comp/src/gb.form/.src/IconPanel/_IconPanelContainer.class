@@ -5,12 +5,14 @@ Export
 Inherits UserControl
 
 Property Text As String
+Property RichText As String
 Property Picture As Picture
 Property Read Container As Container
 Property Visible As Boolean
 
 Private $sText As String
 Private $hPict As Picture
+Private $bRichText As Boolean
 
 Private Sub GetIconPanel() As IconPanel
   
@@ -38,7 +40,7 @@ End
 
 Private Function Text_Read() As String
 
-  Return $sText
+  If Not $bRichText Then Return $sText
   'Try Return GetView()[GetIndex(), 0].Text
 
 End
@@ -46,6 +48,23 @@ End
 Private Sub Text_Write(sText As String)
 
   $sText = sText
+  $bRichText = False
+  GetIconPanel()._UpdateIconViewWidth
+  GetView()[GetIndex(), 0].Refresh
+
+End
+
+Private Function RichText_Read() As String
+
+  If $bRichText Then Return $sText
+  'Try Return GetView()[GetIndex(), 0].Text
+
+End
+
+Private Sub RichText_Write(sText As String)
+
+  $sText = sText
+  $bRichText = True
   GetIconPanel()._UpdateIconViewWidth
   GetView()[GetIndex(), 0].Refresh
 

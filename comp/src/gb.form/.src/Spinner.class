@@ -101,17 +101,14 @@ Public Sub DrawingArea_Draw()
         Paint.LineCap = Paint.LineCapButt
         Paint.LineWidth = R / 4
         
-        For I = 0 To 31
-          
-          A = Pi(2) * I / 32
-          C = Frac(1 + (D - A) / Pi(2))
-          
-          Paint.Background = Color.SetAlpha(iFg, 255 * (1 - C / 2))
-          Paint.Arc(W / 2, H / 2, R, A, Pi(2) / 32)
-          Paint.Stroke
-            
-        Next
-        
+        Paint.Background = Color.SetAlpha(iFg, &HD0)
+        Paint.Arc(W / 2, H / 2, R)
+        Paint.Stroke
+
+        Paint.Background = Color.SetAlpha(iFg, &H80)
+        Paint.Arc(W / 2, H / 2, R, D, Pi(2) / 3)
+        Paint.Stroke
+
       Case Dot
         
         X = W / 2

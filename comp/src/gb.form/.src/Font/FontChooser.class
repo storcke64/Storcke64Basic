@@ -78,7 +78,7 @@ End
 Private Sub FixedOnly_Write(bFixedOnly As Boolean)
 
   frmChooser.ShowFixed = bFixedOnly
-  frmChooser.RefreshFamily
+  frmChooser.RefreshFamily(True)
 
 End
 

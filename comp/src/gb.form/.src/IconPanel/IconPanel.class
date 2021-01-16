@@ -78,6 +78,7 @@ Public Sub _UpdateIconViewWidth()
   Dim W, H, WC As Integer
   Dim hPict As Picture
   Dim hCont As _IconPanelContainer
+  Dim sRichText As String
   
   $iIconSize = ((($hView.Font.Height * 3) \ 2 + 7) \ 8) * 8
 
@@ -87,7 +88,12 @@ Public Sub _UpdateIconViewWidth()
     
     hCont = $aCont[iInd]
     
-    WC = $hView.Font.TextWidth(hCont.Text) + Desktop.Scale * 4
+    sRichText = hCont.RichText
+    If sRichText Then
+      WC = $hView.Font.RichTextWidth(sRichText) + Desktop.Scale * 4
+    Else
+      WC = $hView.Font.TextWidth(hCont.Text) + Desktop.Scale * 4
+    Endif
     hPict = hCont.Picture
 
     If hPict Then WC += $iIconSize * Max(1, hPict.Width / hPict.Height) + Desktop.Scale
@@ -366,6 +372,7 @@ End
 Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Row As Integer, (Column) As Integer)
 
   Dim hCont As _IconPanelContainer
+  Dim sRichText As String
   
   hCont = $aCont[Row]
   
@@ -378,6 +385,11 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
     Width -= $iIconSize + Desktop.Scale
   Endif
   
-  Paint.DrawText(hCont.Text, X, Y, Width, Height, Align.Normal)
+  sRichText = hCont.RichText
+  If sRichText Then
+    Paint.DrawRichText(sRichText, X, Y, Width, Height, Align.Normal)
+  Else
+    Paint.DrawText(hCont.Text, X, Y, Width, Height, Align.Normal)
+  Endif
   
 End
