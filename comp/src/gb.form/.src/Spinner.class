@@ -106,7 +106,12 @@ Public Sub DrawingArea_Draw()
         Paint.Stroke
 
         Paint.Background = Color.SetAlpha(iFg, &H80)
-        Paint.Arc(W / 2, H / 2, R, D, Pi(2) / 3)
+        If $fValue = 0 Or If $fValue = 1 Then
+          Paint.Arc(W / 2, H / 2, R, D, Pi(2) / 3)
+        Else
+          D = Frac((Timer - $fStartTime) / 4) * Pi(2)
+          Paint.Arc(W / 2, H / 2, R, D, Pi(2 * $fValue))
+        Endif
         Paint.Stroke
 
       Case Dot
