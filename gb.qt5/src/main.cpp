@@ -1212,9 +1212,11 @@ int EXPORT GB_INIT(void)
 
 void EXPORT GB_EXIT()
 {
-	PLATFORM.Exit();
-	//qApp->setStyle("windows");
-	delete qApp;
+	if (qApp)
+	{
+		PLATFORM.Exit();
+		delete qApp;
+	}
 }
 
 #ifndef NO_X_WINDOW
