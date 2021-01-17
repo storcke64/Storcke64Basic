@@ -137,7 +137,8 @@ int gClipboard::getCurrent()
 
 void gClipboard::clear()
 {
-	gtk_clipboard_clear(get_clipboard());
+	if (gApplication::isInit())
+		gtk_clipboard_clear(get_clipboard());
 }
 
 char *gClipboard::getFormat(int n)
