@@ -2535,7 +2535,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
       'CompileTranslation(bAll)
     Endif
 
-    'SetMessage(("OK"))
+    SetMessage(("OK"), True)
     'FMain.ShowAnimate("Happy")
 
   Endif
@@ -4024,13 +4024,9 @@ Public Function GetPreviousEditor(sKey As String) As String
 
 End
 
-Public Sub SetMessage((sMsg) As String)
+Public Sub SetMessage(sMsg As String, Optional bAdd As Boolean)
 
-  ' ' If FMain.ShowVisible And If sMsg <> ("OK") Then
-  ' '   FMain.ShowInfo(sMsg)
-  ' ' Endif
-  ' If $bTesting Then Return
-  ' FMain.SetMessage(sMsg)
+  FDebugButton.SetMessage(sMsg, bAdd)
 
 End
 

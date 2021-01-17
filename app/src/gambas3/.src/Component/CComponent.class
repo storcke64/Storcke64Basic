@@ -145,7 +145,7 @@ Public Sub Load()
   Loaded = True
   
   'Debug "Loading: "; Key;; "("; Documentation.Name; ")"
-  Project.SetMessage(Subst(("Loading information on component &1..."), Key))
+  If Key <> CComponent.PROJECT_NAME Then Project.SetMessage(Subst(("Loading information on component &1..."), Key))
   
   'If Key = Project.Name Then Goto HAS_BEEN_LOADED
   

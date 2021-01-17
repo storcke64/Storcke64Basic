@@ -424,8 +424,9 @@
       Indent = True
       { btnClearCache Button
         MoveScaled(0,0,31,4)
+        Enabled = False
         AutoResize = True
-        Text = ("Clear documentation cache")
+        Text = ("Clear documentation cache") & "..."
         Picture = Picture["icon:/small/trash"]
       }
     }

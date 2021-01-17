@@ -23,7 +23,7 @@ Public Sub OnVisibilityChange()
   If FMain.IsDebugVisible() Then
     SelectButton(FDebugInfo.GetCurrentTab())
   Else
-    For Each hButton In Me.Children
+    For Each hButton In panButton.Children
       hButton.Value = False
     Next
   Endif
@@ -40,8 +40,8 @@ Public Sub btnDebug_Click()
     
     FMain.ShowDebug(True)
     
-    For I = 0 To Me.Children.Count - 1
-      hButton = Me.Children[I]
+    For I = 0 To panButton.Children.Count - 1
+      Try hButton = panButton.Children[I]
       If hButton <> hLast Then
         Object.Lock(hButton)
         hButton.Value = False
@@ -62,7 +62,7 @@ End
 
 Public Sub SelectButton(iTab As Integer)
 
-  Dim hButton As ToolButton = Me.Children[iTab]
+  Dim hButton As ToolButton = panButton.Children[iTab]
   
   If $bNoSelectButton Then Return
 
@@ -74,7 +74,7 @@ End
 
 Public Sub ShowButton(iTab As Integer, bShow As Boolean)
   
-  Dim hButton As ToolButton = Me.Children[iTab]
+  Dim hButton As ToolButton = panButton.Children[iTab]
   If hButton.Value And If Not bShow Then FMain.ShowDebug(False)
   hButton.Visible = bShow
   
@@ -116,3 +116,23 @@ End
 ' End
 ' 
 ' 
+
+Public Sub SetMessage(sText As String, Optional bAdd As Boolean)
+  
+  If bAdd Then sText = Trim(lblMessage.Text) & " " & sText
+  lblMessage.Text = sText
+  Wait
+  If Not sText Then
+    timMessage.Stop
+  Else
+    timMessage.Restart
+  Endif
+  
+End
+
+Public Sub timMessage_Timer()
+  
+  SetMessage("")
+  
+End
+
