@@ -958,7 +958,19 @@ void gMainWindow::center()
 {
 	if (!isTopLevel()) return;
 
-	PLATFORM.Window.Center(GTK_WINDOW(border));
+	#ifdef GTK3
+		PLATFORM.Window.Center(GTK_WINDOW(border));
+	#else
+		GdkRectangle rect;
+		int x, y;
+
+		gDesktop::availableGeometry(screen(), &rect);
+
+		x = rect.x + (rect.width - width()) / 2;
+		y = rect.y + (rect.height - height()) / 2;
+
+		move(x, y);
+	#endif
 }
 
 bool gMainWindow::isModal() const
