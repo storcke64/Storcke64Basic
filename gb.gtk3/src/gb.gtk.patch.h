@@ -171,7 +171,8 @@ if (G_OBJECT_TYPE(widget) == type) \
 		klass->get_preferred_height_for_width = type##_get_preferred_height_for_width; \
 		klass->get_preferred_width_for_height = type##_get_preferred_width_for_height; \
 		klass->size_allocate = type##_size_allocate; \
-		klass->get_preferred_height_and_baseline_for_width = type##_get_preferred_height_and_baseline_for_width; \
+		if (klass->get_preferred_height_and_baseline_for_width) \
+			klass->get_preferred_height_and_baseline_for_width = type##_get_preferred_height_and_baseline_for_width; \
 	} \
 }
 
