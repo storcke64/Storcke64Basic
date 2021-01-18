@@ -453,13 +453,14 @@ void gTextBox::clear()
 }
 
 
-int gTextBox::minimumHeight()
+int gTextBox::minimumHeight() const
 {
-	/*GtkRequisition req;
-	
-	gtk_widget_size_request(widget, &req);
-	return req.height - 4;*/
 	return font()->height() + hasBorder() ? 4 : 2;
+}
+
+int gTextBox::minimumWidth() const
+{
+	return hasBorder() ? 12 : 8;
 }
 
 GtkIMContext *gTextBox::getInputMethod()

@@ -110,8 +110,6 @@ static gboolean cb_show(GtkWidget *widget, gMainWindow *data)
 
 	if (data->_opened)
 	{
-		data->setGeometryHints();
-
 		data->performArrange();
 		#ifdef DEBUG_RESIZE
 		fprintf(stderr, "cb_show\n");
@@ -246,10 +244,10 @@ static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 	if (!data->isTopLevel())
 		return;
 	
-	data->calcCsdSize();
-	
 	w = a->width;
 	h = a->height;
+	
+	data->calcCsdSize();
 	
 	if (w != data->bufW || h != data->bufH || data->_resized)
 	{
@@ -270,7 +268,7 @@ static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gMainWindow *data)
 	if (data->isTransparent())
 	{
 		if (data->background() == COLOR_DEFAULT)
-			gt_cairo_set_source_color(cr, 0xFF000000);
+			gt_cairo_set_source_color(cr, 0XFF000000);
 		else
 			gt_cairo_set_source_color(cr, data->background());
 		cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
@@ -338,22 +336,35 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
   GtkWindow *window = GTK_WINDOW(widget);
   gboolean handled = FALSE;
+	gboolean propagated = FALSE;
+	GtkWidget *focus;
 
-  /* handle focus widget key events */
-  if (!handled)
-    handled = gtk_window_propagate_key_event (window, event);
+	focus = gtk_window_get_focus(window);
+	if (focus)
+	{
+		if (GTK_IS_ENTRY(focus) || GTK_IS_TEXT_VIEW(focus))
+		{
+			propagated = TRUE;
+			handled = gtk_window_propagate_key_event(window, event);
+			if (handled)
+				return TRUE;
+		}
+	}
+	
+  /* handle mnemonics and accelerators */
+  handled = gtk_window_activate_key(window, event);
+	if (handled)
+		return TRUE;
 
   /* Chain up, invokes binding set */
-  if (!handled)
-	{
-		GtkWidgetClass *parent_klass = (GtkWidgetClass*)g_type_class_peek(g_type_parent(GTK_TYPE_WINDOW));
-    handled = parent_klass->key_press_event(widget, event);
-	}
+	GtkWidgetClass *parent_klass = (GtkWidgetClass*)g_type_class_peek(g_type_parent(GTK_TYPE_WINDOW));
+  handled = parent_klass->key_press_event(widget, event);
+	if (handled)
+		return TRUE;
 
-  /* handle mnemonics and accelerators */
-  if (!handled)
-    handled = gtk_window_activate_key(window, event);
-
+	if (!propagated)
+		handled = gtk_window_propagate_key_event(window, event);
+	
   return handled;
 }
 
@@ -448,7 +459,7 @@ void gMainWindow::initWindow()
 		g_signal_connect(G_OBJECT(border), "window-state-event", G_CALLBACK(cb_frame),(gpointer)this);
 
 		gtk_widget_add_events(widget,GDK_BUTTON_MOTION_MASK | GDK_STRUCTURE_MASK);
-		ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
+		ON_DRAW_BEFORE(widget, this, cb_expose, cb_draw);
 
 		g_signal_connect(G_OBJECT(border), "configure-event", G_CALLBACK(cb_configure), (gpointer)this);
 		#ifdef GTK3
@@ -504,9 +515,10 @@ gMainWindow::gMainWindow(int plug) : gContainer(NULL)
 	realize(false);
 	initWindow();
 
-	gtk_widget_realize(border);
+	//gtk_widget_realize(border);
 	gtk_widget_show(widget);
-	gtk_widget_set_size_request(border, 1, 1);
+	gtk_window_resize(GTK_WINDOW(border), 1, 1);
+	//gtk_widget_set_size_request(border, 1, 1);
 
 	setCanFocus(true);
 }
@@ -637,6 +649,36 @@ void gMainWindow::move(int x, int y)
 }
 
 
+void gMainWindow::updateSize()
+{
+	if (!isTopLevel() || !isOpened())
+		return;
+	
+	#ifdef DEBUG_RESIZE
+	fprintf(stderr, "resize: %s: %d %d / %d / %d %d\n", name(), width(), height(), isResizable(), _csd_w, _csd_h);
+	#endif
+	
+	if (width() < 1 || height() < 1)
+	{
+		if (isVisible())
+			gtk_widget_hide(border);
+	}
+	else
+	{
+		setGeometryHints();
+		if (isResizable())
+			gtk_window_resize(GTK_WINDOW(border), width(), height());
+		else
+		{
+			//fprintf(stderr, "gMainWindow::updateSize: %s: %d %d\n", name(), width() + Max(_csd_w, 0), height() + Max(_csd_h, 0));
+			gtk_widget_set_size_request(border, width() + Max(_csd_w, 0), height() + Max(_csd_h, 0));
+		}
+
+		if (isVisible())
+			gtk_widget_show(border);
+	}
+}
+
 bool gMainWindow::resize(int w, int h)
 {
 	if (!isTopLevel())
@@ -649,30 +691,10 @@ bool gMainWindow::resize(int w, int h)
 		if (w == bufW && h == bufH)
 			return true;
 
-		//fprintf(stderr, "gMainWindow::resize: %d %d %s\n", w, h, name());
-		//gdk_window_enable_synchronized_configure (border->window);
-
 		bufW = w < 0 ? 0 : w;
 		bufH = h < 0 ? 0 : h;
-
-		if (w < 1 || h < 1)
-		{
-			if (isVisible())
-				gtk_widget_hide(border);
-		}
-		else
-		{
-			if (isResizable())
-				gtk_window_resize(GTK_WINDOW(border), w, h);
-			else
-			{
-				setGeometryHints();
-				gtk_widget_set_size_request(border, w, h);
-			}
-
-			if (isVisible())
-				gtk_widget_show(border);
-		}
+		
+		updateSize();
 	}
 
 	_resized = true;
@@ -703,6 +725,8 @@ bool gMainWindow::emitOpen()
 		_min_w = width();
 		_min_h = height();
 	}
+
+	updateSize();
 
 	gtk_widget_realize(border);
 
@@ -932,17 +956,9 @@ void gMainWindow::setFullscreen(bool vl)
 
 void gMainWindow::center()
 {
-	GdkRectangle rect;
-	int x, y;
-
 	if (!isTopLevel()) return;
 
-	gDesktop::availableGeometry(screen(), &rect);
-
-	x = rect.x + (rect.width - width()) / 2;
-	y = rect.y + (rect.height - height()) / 2;
-
-	move(x, y);
+	PLATFORM.Window.Center(GTK_WINDOW(border));
 }
 
 bool gMainWindow::isModal() const
@@ -964,15 +980,14 @@ void gMainWindow::showModal()
 
 	gtk_window_set_modal(GTK_WINDOW(border), true);
   center();
-	//show();
-	gtk_grab_add(border);
-
 	setTransientFor();
 
 	save = _current;
 	_current = this;
 
-	gApplication::enterLoop(this, true);
+	show();
+	gtk_grab_add(border);
+	gApplication::enterLoop(this);
 
 	_current = save;
 
@@ -1129,9 +1144,8 @@ void gMainWindow::setResizable(bool b)
 		return;
 
 	_resizable = b;
-	setGeometryHints();
+	updateSize();
 }
-
 
 void gMainWindow::setSkipTaskBar(bool b)
 {
@@ -1889,10 +1903,8 @@ void gMainWindow::setGeometryHints()
 		}
 		else
 		{
-			geometry.min_width = width();
-			geometry.min_height = height();
-			geometry.max_width = width();
-			geometry.max_height = height();
+			geometry.max_width = geometry.min_width = width() + Max(_csd_w, 0);
+			geometry.max_height = geometry.min_height = height() + Max(_csd_h, 0);
 		}
 
 		gtk_window_set_geometry_hints(GTK_WINDOW(border), NULL, &geometry, (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_POS));
@@ -1913,6 +1925,11 @@ void gMainWindow::setTransparent(bool vl)
 		return;
 
 	_transparent = TRUE;
+	
+	/*#ifdef GTK3
+	if (MAIN_platform_is_wayland)
+		return;
+	#endif*/
 
 	if (!isVisible())
 		return;
@@ -1947,13 +1964,14 @@ void gMainWindow::setTransparent(bool vl)
 
 	gtk_widget_realize(border);
 
-	int w = width();
+	/*int w = width();
 	int h = height();
 
 	bufW = w - 1;
-	resize(w, h);
+	resize(w, h);*/
 
 	//gtk_window_present(GTK_WINDOW(border));
+	//updateSize();
 }
 
 bool gMainWindow::closeAll()
@@ -2004,6 +2022,8 @@ void gMainWindow::calcCsdSize()
 	if (wa.width == 1 && wa.height == 1)
 		return;
 
+	//fprintf(stderr, "border: %d %d layout: %d %d\n", ba.width, ba.height, wa.width, wa.height);
+	
 	_csd_w = ba.width - wa.width;
 	_csd_h = ba.height - wa.height;
 	if (!layout)
@@ -2011,6 +2031,9 @@ void gMainWindow::calcCsdSize()
 	#ifdef DEBUG_RESIZE
 	fprintf(stderr, "calcCsdSize: %s: csd = %d %d\n", name(), _csd_w, _csd_h);
 	#endif
+	
+	if (!isResizable())
+		updateSize();
 }
 
 void gMainWindow::destroy()

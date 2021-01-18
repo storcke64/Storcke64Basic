@@ -66,7 +66,7 @@ void CWatcher::Clear()
 
 void CWatcher::Remove(int fd)
 {
-	CWatcher::Add(fd,GB_WATCH_NONE,NULL,0);
+	CWatcher::Add(fd, GB_WATCH_NONE, NULL, 0);
 }
 
 void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
@@ -90,6 +90,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			return;
 		
 		pwatch = (WATCH **)GB.Add(&watch);
+
 		GB.Alloc(POINTER(pwatch), sizeof(WATCH));
 		data = *pwatch;
 		data->fd = fd;

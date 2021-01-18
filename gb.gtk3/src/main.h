@@ -52,6 +52,7 @@ extern GB_CLASS CLASS_SvgImage;
 extern bool MAIN_debug_busy;
 extern bool MAIN_rtl;
 extern const char *MAIN_platform;
+extern bool MAIN_platform_is_wayland;
 #endif
 
 #define GB (*GB_PTR)

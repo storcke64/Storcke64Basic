@@ -42,6 +42,7 @@ typedef
 		
 		struct {
 			long (*GetId)(GdkWindow *);
+			void (*Center)(GtkWindow *);
 		} Window;
 		
 		struct {

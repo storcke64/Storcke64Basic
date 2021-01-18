@@ -313,3 +313,13 @@ int gScrollBar::minimumHeight() const
 {
 	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
 }
+
+int gSlider::minimumWidth() const
+{
+	return 28;
+}
+
+int gSlider::minimumHeight() const
+{
+	return 28;
+}

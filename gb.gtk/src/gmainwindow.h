@@ -160,6 +160,7 @@ public:
 	void setType(GtkWindowType type);
 	void calcCsdSize();
 	void createWindow(GtkWidget *new_border);
+	void updateSize();
 	
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;

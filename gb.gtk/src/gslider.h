@@ -55,6 +55,8 @@ public:
 	bool isVertical() const;
 	
 	virtual bool resize(int w, int h);
+	virtual int minimumWidth() const;
+	virtual int minimumHeight() const;
 
 //"Signals"
 	void (*onChange)(gSlider *sender);

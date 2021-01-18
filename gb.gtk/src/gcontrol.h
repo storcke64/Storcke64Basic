@@ -50,8 +50,8 @@ public:
 	bool isTopLevel() const { return pr == NULL; }
 	bool isDestroyed() const { return _destroyed; }
 	
-	gMainWindow *window();
-	gMainWindow *topLevel();
+	gMainWindow *window() const;
+	gMainWindow *topLevel() const;
 	
 	gContainer *parent() const { return pr; }
 	bool isAncestorOf(gControl *child);
@@ -141,7 +141,7 @@ public:
 	virtual void setRealBackground(gColor color);
 	virtual void setRealForeground(gColor color);
 
-	virtual gFont *font();
+	virtual gFont *font() const;
 	void actualFontTo(gFont *ft);
 	virtual void setFont(gFont *ft);
 	bool ownFont() { return _font != NULL; }
@@ -340,8 +340,9 @@ public:
 	virtual void createBorder(GtkWidget *new_border, bool keep_widget = false);
 	void createWidget();
 	
-	virtual int minimumHeight() const;
 	virtual int minimumWidth() const;
+	virtual int minimumHeight() const;
+
 	void resolveFont();
 
 	void emitEnterEvent(bool no_leave = false);

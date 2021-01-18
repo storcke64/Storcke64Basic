@@ -312,10 +312,11 @@ static bool always_can_raise(gControl *sender, int type)
 
 void gControl::initAll(gContainer *parent)
 {
-	bufW = 8;
-	bufH = 8;
+	bufW = 1;
+	bufH = 1;
 	bufX = -16;
 	bufY = -16;
+	
 	curs = NULL;
 	_font = NULL;
 	_resolved_font = NULL;
@@ -812,7 +813,7 @@ void gControl::setTooltip(char *vl)
 		gtk_widget_set_tooltip_markup(border, NULL);
 }
 
-gFont* gControl::font()
+gFont* gControl::font() const
 {
 	if (_resolved_font)
 	{
@@ -1056,7 +1057,7 @@ HANDLES
 
 ******************************************************************/
 
-gMainWindow* gControl::window()
+gMainWindow* gControl::window() const
 {
 	if (isWindow())
 		return (gMainWindow *)this;
@@ -1067,9 +1068,9 @@ gMainWindow* gControl::window()
 		return pr->window();
 }
 
-gMainWindow* gControl::topLevel()
+gMainWindow* gControl::topLevel() const
 {
-	gControl *child = this;
+	const gControl *child = this;
 
 	while (!child->isTopLevel())
 		child = child->parent();
@@ -1834,8 +1835,8 @@ void gControl::realize(bool make_frame)
 #endif
 
 	connectParent();
-	updateGeometry(true);
-
+	resize(8, 8);
+	//updateGeometry(true);
 	initSignals();
 
 //#ifndef GTK3

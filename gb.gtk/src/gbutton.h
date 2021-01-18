@@ -36,17 +36,16 @@ public:
 	gButton(gContainer *parent, Type type);
   ~gButton();
   
-	bool getBorder();
-	bool isCancel();
-	bool isDefault();
+	bool getBorder() const;
+	bool isCancel() const;
+	bool isDefault() const;
 	const char *text() const { return bufText; }
 	bool hasText() const { return bufText && *bufText; }
-	gPicture *picture();
-	bool value();
-	bool isToggle();
-	bool isRadio();
-	//bool isEnabled() const;
-	bool inconsistent();
+	gPicture *picture() const;
+	bool value() const;
+	bool isToggle() const;
+	bool isRadio() const;
+	bool inconsistent() const;
 	bool isStretch() { return _stretch; }
 	bool isTristate() const { return _tristate; }
 	bool isAutoResize() const { return _autoresize; }
@@ -90,9 +89,10 @@ public:
 	unsigned _tristate : 1;
 	unsigned _autoresize : 1;
 	
-	bool hasShortcut();
+	bool hasShortcut() const;
 	void unsetOtherRadioButtons();
-	virtual int minimumHeight();
+	virtual int minimumWidth() const;
+	virtual int minimumHeight() const;
 	virtual void updateSize();
 };
 

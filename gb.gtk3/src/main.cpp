@@ -110,6 +110,7 @@ int MAIN_scale = 0;
 bool MAIN_debug_busy = false;
 bool MAIN_rtl = false;
 const char *MAIN_platform = NULL;
+bool MAIN_platform_is_wayland = false;
 
 //-------------------------------------------------------------------------
 
@@ -397,6 +398,7 @@ static void load_platform(void)
 	  if (GDK_IS_WAYLAND_DISPLAY(display))
 	    {
 				MAIN_platform = "wayland";
+				MAIN_platform_is_wayland = true;
 				comp = "gb.gtk3.wayland";
 	    }
 	  else

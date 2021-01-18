@@ -347,7 +347,7 @@ void gButton::setInconsistent(bool vl)
 	gtk_toggle_button_set_inconsistent (GTK_TOGGLE_BUTTON(widget),vl);
 }
 
-bool gButton::inconsistent()
+bool gButton::inconsistent() const
 {
 	gboolean vl=false;
 
@@ -415,7 +415,7 @@ void gButton::setText(const char *st)
 }
 
 
-gPicture* gButton::picture()
+gPicture* gButton::picture() const
 {
 	if ( (type == Check) || (type == Radio) ) 
     return NULL;
@@ -447,7 +447,7 @@ void gButton::setPicture(gPicture *npic)
 	refresh();
 }
 
-bool gButton::getBorder()
+bool gButton::getBorder() const
 {
 	switch(gtk_button_get_relief(GTK_BUTTON(widget)))
 	{
@@ -464,7 +464,7 @@ void gButton::setBorder(bool vl)
 	gtk_button_set_relief (GTK_BUTTON(widget), vl ? GTK_RELIEF_NORMAL : GTK_RELIEF_NONE);
 }
 
-bool gButton::isDefault()
+bool gButton::isDefault() const
 {
 	gMainWindow *win = window();	
 	return win ? win->_default == this : false;
@@ -499,7 +499,7 @@ void gButton::setDefault(bool vl)
 	}
 }
 
-bool gButton::isCancel()
+bool gButton::isCancel() const
 {
 	gMainWindow *win = window();	
 	return win ? win->_cancel == this : false;
@@ -518,7 +518,7 @@ void gButton::setCancel(bool vl)
 		win->_cancel = NULL;
 }
 
-bool gButton::value()
+bool gButton::value() const
 {
   if (type == Button)
     return false;
@@ -542,7 +542,7 @@ void gButton::setToggle(bool vl)
 	_toggle = vl;
 }
 
-bool gButton::isToggle()
+bool gButton::isToggle() const
 {
 	return type == Toggle || type == Check || type == Radio || _toggle;
 }
@@ -574,7 +574,7 @@ void gButton::animateClick(bool on)
 	}
 }
 
-int gButton::minimumHeight()
+int gButton::minimumHeight() const
 {
 	int mh = 0;
 	
@@ -589,7 +589,12 @@ int gButton::minimumHeight()
 	if (pic && (pic->height() > mh))
 		mh = pic->height();
 	
-	return mh;
+	return mh < 16 ? 16 : mh;
+}
+
+int gButton::minimumWidth() const
+{
+	return 20;
 }
 
 void gButton::setRadio(bool vl)
@@ -599,7 +604,7 @@ void gButton::setRadio(bool vl)
 		unsetOtherRadioButtons();
 }
 
-bool gButton::isRadio()
+bool gButton::isRadio() const
 {
 	return type == Radio || _radio;
 }
@@ -638,7 +643,7 @@ void gButton::unsetOtherRadioButtons()
 	}
 }
 
-bool gButton::hasShortcut()
+bool gButton::hasShortcut() const
 {
 	return isDefault() || isCancel() || shortcut;
 }
