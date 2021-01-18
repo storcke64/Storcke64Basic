@@ -72,6 +72,7 @@ Public Sub DrawingArea_Draw()
   Dim DS As Integer
 
   iCol = Color.Merge(Color.Merge(Color.TextForeground, Color.SelectedBackground, $fValue), Color.Background)
+  iCol = Color.SetHSV(iCol, Color[Color.SelectedBackground].Hue)
   If iFlag And Style.Disabled Then iCol = Color.Merge(iCol, Color.Background, 0.75)
   
   DS = Desktop.Scale
@@ -98,8 +99,6 @@ Public Sub DrawingArea_Draw()
     Paint.Background = Color.SetAlpha(Color.SelectedBackground, 200)
     Paint.Fill
   Endif
-  
-  
   
 End
 
@@ -193,7 +192,7 @@ Public Sub Timer_Timer()
   Dim fInc As Float
   
   fInc = ($fTargetValue - $fValue) / 2
-  If Abs(fInc) < 0.01 Then fInc = 0.05 * Sgn(fInc)
+  If Abs(fInc) < 0.01 Then fInc = 0.01 * Sgn(fInc)
   $fValue += fInc
   
   If $fValue < 0 Then
