@@ -58,26 +58,6 @@ static long window_get_id(GdkWindow *window)
 	return window ? GDK_WINDOW_XID(window) : 0;
 }
 
-static void window_center(GtkWindow *window)
-{
-	GdkRectangle rect;
-	int x, y;
-	int screen;
-	
-	screen = gdk_screen_get_number(gtk_window_get_screen(window));
-
-#if GTK_CHECK_VERSION(3, 22, 0)
-	gdk_monitor_get_workarea(gdk_display_get_monitor(gdk_display_get_default(), screen), &rect);
-#else
-	gdk_screen_get_monitor_workarea(gdk_screen_get_default(), screen, &rect);
-#endif
-
-	x = rect.x + (rect.width - width()) / 2;
-	y = rect.y + (rect.height - height()) / 2;
-
-	gtk_window_move(window, x, y);
-}
-
 //-------------------------------------------------------------------------
 
 static bool desktop_has_system_tray()
@@ -134,7 +114,6 @@ void *GB_GTK3_X11_1[] EXPORT = {
   (void *)platform_create_plug,
 
   (void *)window_get_id,
-  (void *)window_center,
   
   (void *)desktop_has_system_tray,
   (void *)desktop_show_tray_icon,

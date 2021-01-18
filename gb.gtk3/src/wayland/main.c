@@ -47,12 +47,6 @@ static long window_get_id(GdkWindow *window)
 	return 0;
 }
 
-static void window_center(GtkWindow *window)
-{
-	fprintf(stderr, "window_center\n");
-	gtk_window_set_position(window, GTK_WIN_POS_CENTER_ON_PARENT);
-}
-
 //-------------------------------------------------------------------------
 
 bool desktop_has_system_tray()

@@ -393,9 +393,15 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						{
 							if (IS_EXPAND(ob)) // && !autoresize)
 							{
-								h = sexp / nexp;
-								sexp -= h;
-								nexp--;
+								if (nexp == 0) // the list of expanded widget may change
+									h = 0;
+								else
+								{
+									h = sexp / nexp;
+									sexp -= h;
+									nexp--;
+								}
+								
 								if (h <= 0)
 									MOVE_WIDGET(ob, wid, -GET_WIDGET_W(wid), GET_WIDGET_Y(wid));
 							}
@@ -426,9 +432,17 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						{
 							if (IS_EXPAND(ob)) // && !autoresize)
 							{
-								w = sexp / nexp;
-								sexp -= w;
-								nexp--;
+								if (nexp == 0) // the list of expanded widget may change
+								{
+									w = 0;
+								}
+								else
+								{
+									w = sexp / nexp;
+									sexp -= w;
+									nexp--;
+								}
+								
 								if (w <= 0)
 									MOVE_WIDGET(ob, wid, GET_WIDGET_X(wid), -GET_WIDGET_H(wid));
 							}
