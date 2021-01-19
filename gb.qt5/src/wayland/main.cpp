@@ -27,6 +27,7 @@
 
 #include <QAbstractNativeEventFilter>
 #include <QPointer>
+#include <QWindow>
 #include <QApplication>
 
 static QPointer<QWidget> _mouseGrabber = 0;
@@ -180,7 +181,6 @@ static void window_set_user_time(QWidget *window, int timestamp)
 
 static void window_set_transient_for(QWidget *window, QWidget *parent)
 {
-	//X11_set_transient_for(window->effectiveWinId(), parent->effectiveWinId());
 }
 
 //-------------------------------------------------------------------------

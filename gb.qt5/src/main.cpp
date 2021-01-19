@@ -916,6 +916,8 @@ static void QT_Init(void)
 
 	/*fcntl(ConnectionNumber(qt_xdisplay()), F_SETFD, FD_CLOEXEC);*/
 
+	qApp->setDesktopFileName(TO_QSTRING(GB.Application.Name()));
+	
 	if (::strcmp(qApp->style()->metaObject()->className(), "Breeze::Style") == 0)
 	{
 		env = getenv("GB_QT_NO_BREEZE_FIX");

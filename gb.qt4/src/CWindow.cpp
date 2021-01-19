@@ -1616,55 +1616,52 @@ void MyMainWindow::showEvent(QShowEvent *e)
 
 void MyMainWindow::initProperties(int which)
 {
-	#ifndef NO_X_WINDOW
 	CWIDGET *_object = CWidget::get(this);
 
-	if (!THIS->toplevel || effectiveWinId() == 0)
+	if (!THIS->toplevel) // || effectiveWinId() == 0)
 		return;
 
 	if (!THIS->title && _border)
 		setWindowTitle(TO_QSTRING(GB.Application.Title()));
 
-	//qDebug("initProperties: %d", which);
-		#ifdef QT5
-			QT_WINDOW_PROP prop;
-			
-			prop.stacking = THIS->stacking;
-			prop.skipTaskbar = THIS->skipTaskbar;
-			prop.border = _border;
-			prop.sticky = THIS->sticky;
-			
-			PLATFORM.Window.SetProperties(this, which, &prop);
-		#else
-			X11_flush();
+	#ifdef QT5
+		QT_WINDOW_PROP prop;
+		
+		prop.stacking = THIS->stacking;
+		prop.skipTaskbar = THIS->skipTaskbar;
+		prop.border = _border;
+		prop.sticky = THIS->sticky;
+		
+		PLATFORM.Window.SetProperties(this, which, &prop);
+	#else
+		X11_flush();
 
-			if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
+		if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
+		{
+			X11_window_change_begin(effectiveWinId(), isVisible());
+
+			if (which & PROP_STACKING)
 			{
-				X11_window_change_begin(effectiveWinId(), isVisible());
-
-				if (which & PROP_STACKING)
-				{
-					X11_window_change_property(X11_atom_net_wm_state_above, THIS->stacking == 1);
-					X11_window_change_property(X11_atom_net_wm_state_stays_on_top, THIS->stacking == 1);
-					X11_window_change_property(X11_atom_net_wm_state_below, THIS->stacking == 2);
-				}
-				if (which & PROP_SKIP_TASKBAR)
-					X11_window_change_property(X11_atom_net_wm_state_skip_taskbar, THIS->skipTaskbar);
-
-				X11_window_change_end();
+				X11_window_change_property(X11_atom_net_wm_state_above, THIS->stacking == 1);
+				X11_window_change_property(X11_atom_net_wm_state_stays_on_top, THIS->stacking == 1);
+				X11_window_change_property(X11_atom_net_wm_state_below, THIS->stacking == 2);
 			}
+			if (which & PROP_SKIP_TASKBAR)
+				X11_window_change_property(X11_atom_net_wm_state_skip_taskbar, THIS->skipTaskbar);
 
-			//if (which == PROP_ALL)
-			//	X11_set_window_type(effectiveWinId(), _type);
+			X11_window_change_end();
+		}
 
-			if (which & PROP_BORDER)
-				X11_set_window_decorated(effectiveWinId(), _border);
+		//if (which == PROP_ALL)
+		//	X11_set_window_type(effectiveWinId(), _type);
 
-			if (which & PROP_STICKY)
-				X11_window_set_desktop(effectiveWinId(), isVisible(), THIS->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
+		if (which & PROP_BORDER)
+			X11_set_window_decorated(effectiveWinId(), _border);
 
-			X11_flush();
-		#endif
+		if (which & PROP_STICKY)
+			X11_window_set_desktop(effectiveWinId(), isVisible(), THIS->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
+
+		X11_flush();
 	#endif
 }
 
@@ -1761,8 +1758,6 @@ void MyMainWindow::present(QWidget *parent)
 	{
 		#ifdef QT5
 			PLATFORM.Window.SetTransientFor(this, parent);
-			if (windowHandle())
-				windowHandle()->setTransientParent(parent->windowHandle());
 		#else
 			X11_set_transient_for(effectiveWinId(), parent->effectiveWinId());
 		#endif
@@ -1852,21 +1847,14 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	info.save_popup = popup ? CWIDGET_enter_popup() : NULL;
 	info.flags = windowFlags() & ~Qt::WindowType_Mask;
 
-	if (popup)
-		setWindowFlags(Qt::Popup | info.flags);
-	
 	setWindowModality(Qt::ApplicationModal);
-
-	if (!popup && _resizable && _border)
-	{
-		setMinimumSize(THIS->minw, THIS->minh);
-		setSizeGrip(true);
-	}
 
 	_enterLoop = false; // Do not call exitLoop() if we do not entered the loop yet!
 
 	if (popup)
 	{
+		setWindowFlags(Qt::Popup | info.flags);
+		
 		move(0, 0);
 		move(*pos);
 		setFocus();
@@ -1875,6 +1863,12 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	}
 	else
 	{
+		if (_resizable && _border)
+		{
+			setMinimumSize(THIS->minw, THIS->minh);
+			setSizeGrip(true);
+		}
+
 		parent = CWINDOW_Current;
 		if (!parent)
 		{
@@ -1883,6 +1877,9 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 				parent = CWINDOW_Active;
 		}
 
+		if (parent)
+			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Dialog | info.flags);
+		
 		present(parent ? CWidget::getTopLevel((CWIDGET *)parent)->widget.widget : 0);
 	}
 	
@@ -2133,22 +2130,22 @@ void MyMainWindow::setBorder(bool b)
 		return;
 
 	_border = b;
+	
 	if (!isWindow())
 		return;
 
+	//qDebug("effectiveWinId");
+	initProperties(PROP_BORDER);
+	#ifdef QT5
+		PLATFORM.Window.Remap(WINDOW);
+	#else
 	if (effectiveWinId())
-	{
-		//qDebug("effectiveWinId");
-		initProperties(PROP_BORDER);
-		#ifdef QT5
-			PLATFORM.Window.Remap(WINDOW);
-		#else
-			X11_window_remap(effectiveWinId());
-		#endif
-	}
-#ifndef QT5
+		X11_window_remap(effectiveWinId());
+	#endif
+
+	#ifndef QT5
 	doReparent(parentWidget(), pos());
-#endif
+	#endif
 }
 
 void MyMainWindow::setResizable(bool b)
