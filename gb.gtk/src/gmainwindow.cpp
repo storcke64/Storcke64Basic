@@ -356,15 +356,17 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	if (handled)
 		return TRUE;
 
+	if (!propagated)
+	{
+		handled = gtk_window_propagate_key_event(window, event);
+		if (handled)
+			return TRUE;
+	}
+	
   /* Chain up, invokes binding set */
 	GtkWidgetClass *parent_klass = (GtkWidgetClass*)g_type_class_peek(g_type_parent(GTK_TYPE_WINDOW));
   handled = parent_klass->key_press_event(widget, event);
-	if (handled)
-		return TRUE;
 
-	if (!propagated)
-		handled = gtk_window_propagate_key_event(window, event);
-	
   return handled;
 }
 
