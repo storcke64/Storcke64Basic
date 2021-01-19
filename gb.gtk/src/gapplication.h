@@ -84,6 +84,7 @@ public:
 	static bool (*onKeyEvent)(int type);
 
 	static int getScrollbarSize();
+	static int getScrollbarBigSize();
 	static int getScrollbarSpacing();
 	static int getFrameWidth();
 	static int getInnerWidth();
@@ -109,6 +110,7 @@ public:
 	static bool _fix_breeze;
 	static bool _fix_oxygen;
 	static int _scrollbar_size;
+	static int _scrollbar_big_size;
 
 	//"Private"
 	static bool _init;

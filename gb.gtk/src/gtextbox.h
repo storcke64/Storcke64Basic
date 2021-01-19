@@ -77,9 +77,11 @@ public:
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
   void initEntry();
-	virtual int minimumHeight() const;
-	virtual int minimumWidth() const;
 	virtual GtkIMContext *getInputMethod();
+	
+	virtual void setMinimumSize();
+	virtual void setFont(gFont *ft);
+
 #ifdef GTK3
 	virtual void onEnterEvent();
 	virtual void onLeaveEvent();

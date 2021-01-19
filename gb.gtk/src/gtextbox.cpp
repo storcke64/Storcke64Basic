@@ -453,14 +453,18 @@ void gTextBox::clear()
 }
 
 
-int gTextBox::minimumHeight() const
+void gTextBox::setMinimumSize()
 {
-	return font()->height() + hasBorder() ? 4 : 2;
+	_min_h = font()->height() + (hasBorder() ? 4 : 0);
+	_min_w = _min_h;
+	//fprintf(stderr, "setMinimumSize: TextBox: %d %d / %d\n", _min_w, _min_h, font()->height());
 }
 
-int gTextBox::minimumWidth() const
+
+void gTextBox::setFont(gFont *ft)
 {
-	return hasBorder() ? 12 : 8;
+	gControl::setFont(ft);
+	setMinimumSize();
 }
 
 GtkIMContext *gTextBox::getInputMethod()
