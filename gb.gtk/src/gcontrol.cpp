@@ -579,16 +579,28 @@ bool gControl::getScreenPos(int *x, int *y)
 
 int gControl::screenX()
 {
-	int x,y;
-	getScreenPos(&x, &y);
-	return x;
+	if (isTopLevel())
+	{
+		int x = 0;
+		GdkWindow *win = gtk_widget_get_window(border);
+		if (win) gdk_window_get_origin(win , &x, NULL);
+		return x;
+	}
+	
+	return pr->screenX() + x() - pr->clientX() - pr->scrollX();
 }
 
 int gControl::screenY()
 {
-	int x,y;
-	getScreenPos(&x, &y);
-	return y;
+	if (isTopLevel())
+	{
+		int y;
+		GdkWindow *win = gtk_widget_get_window(border);
+		if (win) gdk_window_get_origin(win, NULL, &y);
+		return y;
+	}
+	
+	return pr->screenY() + y() - pr->clientY() - pr->scrollY();
 }
 
 static void send_configure (gControl *control)
