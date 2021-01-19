@@ -91,8 +91,7 @@ public:
 	
 	bool hasShortcut() const;
 	void unsetOtherRadioButtons();
-	virtual int minimumWidth() const;
-	virtual int minimumHeight() const;
+	int autoHeight() const;
 	virtual void updateSize();
 };
 

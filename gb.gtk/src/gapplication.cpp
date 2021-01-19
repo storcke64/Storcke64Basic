@@ -930,6 +930,7 @@ GdkEvent *gApplication::_event = NULL;
 bool gApplication::_fix_breeze = false;
 bool gApplication::_fix_oxygen = false;
 int gApplication::_scrollbar_size = 0;
+int gApplication::_scrollbar_big_size = 0;
 
 void gApplication::grabPopup()
 {
@@ -1464,6 +1465,7 @@ int gApplication::getScrollbarSize()
 		#endif
 		gtk_widget_show(widget);
 		gtk_widget_get_preferred_width(widget, NULL, &_scrollbar_size); //, &minimum_size, &natural_size);
+		gtk_widget_get_preferred_height(widget, NULL, &_scrollbar_big_size); //, &minimum_size, &natural_size);
 		gtk_widget_destroy(widget);
 		
 		if (_fix_breeze)
@@ -1483,6 +1485,16 @@ int gApplication::getScrollbarSize()
 
 	return (trough_border) * 2 + slider_width;
 	
+#endif
+}
+
+int gApplication::getScrollbarBigSize()
+{
+#ifdef GTK3
+	getScrollbarSize();
+	return _scrollbar_big_size;
+#else
+	return getScrollbarSize();
 #endif
 }
 

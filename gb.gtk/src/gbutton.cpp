@@ -574,7 +574,7 @@ void gButton::animateClick(bool on)
 	}
 }
 
-int gButton::minimumHeight() const
+int gButton::autoHeight() const
 {
 	int mh = 0;
 	
@@ -589,12 +589,7 @@ int gButton::minimumHeight() const
 	if (pic && (pic->height() > mh))
 		mh = pic->height();
 	
-	return mh < 16 ? 16 : mh;
-}
-
-int gButton::minimumWidth() const
-{
-	return 20;
+	return mh;
 }
 
 void gButton::setRadio(bool vl)
@@ -703,7 +698,7 @@ void gButton::updateSize()
 	if (!_autoresize)
 		return;
 	
-	mh = minimumHeight();
+	mh = autoHeight();
 	mw = 0;
 	
 	if (hasText())

@@ -1088,21 +1088,6 @@ void gTextArea::customStyleSheet(GString *)
 	updateFixSpacing();
 }
 
-int gTextArea::minimumWidth() const
-{
-	if (scrollBar())
-		return gDesktop::scale() * 4;
-	else
-		return 0;
-}
-
-int gTextArea::minimumHeight() const
-{
-	if (scrollBar())
-		return gDesktop::scale() * 4;
-	else
-		return 0;
-}
 #endif
 
 void gTextArea::getCursorPos(int *x, int *y, int pos)
@@ -1142,3 +1127,9 @@ void gTextArea::onLeaveEvent()
 		gdk_window_hide(TEXT_AREA(textview));
 }
 #endif
+
+void gTextArea::setMinimumSize()
+{
+	_min_h = gApplication::getScrollbarBigSize(); // + font()->height() + (hasBorder() ? 4 : 0);
+	_min_w = _min_h;
+}

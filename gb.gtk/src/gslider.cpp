@@ -271,11 +271,22 @@ bool gSlider::resize(int w, int h)
 
 bool gScrollBar::resize(int w, int h)
 {
-	if (gControl::resize(w, h))
-		return true;
+	GtkOrientation orientation, new_orientation;
+	int swap;
 	
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(widget),  (width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-	return false;
+	orientation = gtk_orientable_get_orientation(GTK_ORIENTABLE(widget));
+	new_orientation = (w < h) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL;
+
+	if (orientation != new_orientation)
+	{
+		gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), new_orientation);
+		
+		swap = _min_w;
+		_min_w = _min_h;
+		_min_h = swap;
+	}
+	
+	return gControl::resize(w, h);
 }
 
 int gSlider::getDefaultSize()
@@ -302,24 +313,4 @@ bool gSlider::isVertical() const
 void gSlider::checkInverted()
 {
 	gtk_range_set_inverted(GTK_RANGE(widget), !isVertical() && gDesktop::rightToLeft());
-}
-
-int gScrollBar::minimumWidth() const
-{
-	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
-}
-
-int gScrollBar::minimumHeight() const
-{
-	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
-}
-
-int gSlider::minimumWidth() const
-{
-	return 28;
-}
-
-int gSlider::minimumHeight() const
-{
-	return 28;
 }

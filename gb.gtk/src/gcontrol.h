@@ -236,6 +236,7 @@ public:
 
 // "Private"
 	gint bufW,bufH,bufX,bufY;
+	int _min_w, _min_h;
 	gCursor *curs;
 	gFont *_font;
 	gFont *_resolved_font;
@@ -340,8 +341,9 @@ public:
 	virtual void createBorder(GtkWidget *new_border, bool keep_widget = false);
 	void createWidget();
 	
-	virtual int minimumWidth() const;
-	virtual int minimumHeight() const;
+	int minimumWidth() const { return _min_w; }
+	int minimumHeight() const { return _min_h; }
+	virtual void setMinimumSize();
 
 	void resolveFont();
 

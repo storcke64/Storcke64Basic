@@ -317,6 +317,8 @@ void gControl::initAll(gContainer *parent)
 	bufX = -16;
 	bufY = -16;
 	
+	_min_w = 1;
+	_min_h = 1;
 	curs = NULL;
 	_font = NULL;
 	_resolved_font = NULL;
@@ -1696,13 +1698,15 @@ static gboolean cb_clip_by_parent(GtkWidget *wid, GdkEventExpose *e, gControl *d
 
 //#define must_patch(_widget) (gt_get_control(_widget) != NULL)
 
+static bool _do_not_patch = false;
+
 static bool must_patch(GtkWidget *widget)
 {
 	GtkWidget *parent;
 	gControl *parent_control;
 
-	/*if (GTK_IS_ENTRY(widget)) // || GTK_IS_FIXED(widget))
-		return true;*/
+	if (_do_not_patch)
+		return false;
 
 	if (gt_get_control(widget))
 	{
@@ -1789,6 +1793,29 @@ void gt_patch_control(GtkWidget *border, GtkWidget *widget)
 
 #endif
 
+void gControl::setMinimumSize()
+{
+	#ifdef GTK3
+
+		GtkRequisition minimum_size, natural_size;
+		
+		_do_not_patch = true;
+		gtk_widget_get_preferred_size(widget, &minimum_size, &natural_size);
+		_do_not_patch = false;
+		
+		/*fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);*/
+
+		_min_w = minimum_size.width;
+		_min_h = minimum_size.height;
+		
+	#else
+	
+		_min_w = _min_h = 1;
+		
+	#endif
+}
+
+
 void gControl::realize(bool make_frame)
 {
 	if (!_scroll)
@@ -1835,8 +1862,10 @@ void gControl::realize(bool make_frame)
 #endif
 
 	connectParent();
+
+	setMinimumSize();
+	
 	resize(8, 8);
-	//updateGeometry(true);
 	initSignals();
 
 //#ifndef GTK3
@@ -2436,16 +2465,6 @@ void gControl::updateScrollBar()
 			gtk_scrolled_window_set_policy(_scroll, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 			break;
 	}
-}
-
-int gControl::minimumHeight() const
-{
-	return 1;
-}
-
-int gControl::minimumWidth() const
-{
-	return 1;
 }
 
 bool gControl::isTracking() const

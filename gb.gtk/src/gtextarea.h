@@ -95,12 +95,11 @@ public:
 
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
+	virtual void setMinimumSize();
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();
 	virtual void customStyleSheet(GString *css);
-	virtual int minimumWidth() const;
-	virtual int minimumHeight() const;
 	virtual void onEnterEvent();
 	virtual void onLeaveEvent();
 #endif
