@@ -96,12 +96,12 @@ static int get_last_key_code(void)
 
 static int desktop_get_resolution_x(void)
 {
-	return 72;
+	return 96;
 }
 
 static int desktop_get_resolution_y(void)
 {
-	return 72;
+	return 96;
 }
 
 static void desktop_screenshot(QPixmap *pixmap, int x, int y, int w, int h)

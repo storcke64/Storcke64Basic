@@ -1878,7 +1878,7 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 		}
 
 		if (parent)
-			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Dialog | info.flags);
+			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Window | info.flags);
 		
 		present(parent ? CWidget::getTopLevel((CWIDGET *)parent)->widget.widget : 0);
 	}
