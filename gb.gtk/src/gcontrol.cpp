@@ -602,7 +602,7 @@ int gControl::screenY()
 		return y;
 	}
 	
-	return pr->screenY() + y() - pr->clientY() - pr->scrollY();
+	return pr->screenY() + y() + pr->clientY() - pr->scrollY();
 }
 
 static void send_configure (gControl *control)
@@ -1387,6 +1387,9 @@ void gControl::restack(bool raise)
 	else
 		return;
 	
+	if (_visible)
+		gtk_widget_hide(border);
+	
 	*children = g_list_remove_link(*children, find);
 	if (raise)
 		*children = g_list_concat(*children, find);
@@ -1416,10 +1419,9 @@ void gControl::restack(bool raise)
 	}
 	
 	if (_visible)
-	{
-		gtk_widget_hide(border);
 		gtk_widget_show(border);
-	}
+	
+	//gtk_widget_reset_style(GTK_WIDGET(parent));
 
 	pr->performArrange();
 	pr->refresh();
@@ -2157,10 +2159,13 @@ void gControl::updateStyleSheet()
 			_css = NULL;
 		}
 	}
-		
-	/*css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
-	fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(wid), css_str);
-	g_free(css_str);*/
+
+	/*if (_css)
+	{
+		css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
+		fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(wid), css_str);
+		g_free(css_str);
+	}*/
 }
 
 gColor gControl::realBackground(bool no_default)

@@ -2453,8 +2453,10 @@ void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg)
 			g_object_set_data_full(G_OBJECT(widget), "gambas-css", (gpointer)css_provider, g_object_unref);
 		}
 		css_str = g_string_free(css, FALSE);
+		//fprintf(stderr, "==== %s\n%s", name, css_str);
 		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(css_provider), css_str, -1, NULL);
 		g_free(css_str);
+
 		gtk_style_context_add_provider(context, css_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	}
 	else
