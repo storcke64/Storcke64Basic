@@ -1200,6 +1200,7 @@ typedef
 			void (*Start)(int length);
 			char *(*End)(void);
 			void (*Add)(const char *src, int len);
+			GB_ARRAY (*Split)(const char *str, int lstr, const char *sep, int lsep, const char *esc, int lesc, bool no_void, bool keep_esc);
 			}
 		String;
 		
