@@ -72,6 +72,8 @@ public:
 	static void geometry(GdkRectangle *rect) { geometry(0, rect); }
 	static void availableGeometry(GdkRectangle *rect) { availableGeometry(0, rect); }
 	
+	static void screenResolution(int screen, double *x, double *y);
+	
 	static gColor getColor(int color);
 	
 	static void onThemeChange();

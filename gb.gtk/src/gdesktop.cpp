@@ -281,3 +281,26 @@ gColor gDesktop::getColor(int color)
 	
 	return _colors[color];
 }
+
+void gDesktop::screenResolution(int screen, double *x, double *y)
+{
+	GdkRectangle rect;
+	
+	if (screen < 0 || screen >= count())
+	{
+		if (*x) *x = 0;
+		if (*y) *y = 0;
+		return;
+	}
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+	GdkMonitor *monitor = gdk_display_get_monitor(gdk_display_get_default(), screen);
+	gdk_monitor_get_geometry(monitor, &rect);
+	if (x) *x = rect.width / (gdk_monitor_get_width_mm(monitor) / 25.4);
+	if (y) *y = rect.height / (gdk_monitor_get_height_mm(monitor) / 25.4);
+#else
+	gdk_screen_get_monitor_geometry(gdk_screen_get_default(), screen, &rect);
+	if (x) *x = rect.width / (gdk_screen_get_monitor_width_mm(gdk_screen_get_default(), screen) / 25.4);
+	if (y) *y = rect.height / (gdk_screen_get_monitor_height_mm(gdk_screen_get_default(), screen) / 25.4);
+#endif
+}
