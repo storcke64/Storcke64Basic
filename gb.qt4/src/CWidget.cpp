@@ -1098,11 +1098,12 @@ END_METHOD
 BEGIN_METHOD(Control_MoveScaled, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 
 	int x, y, w, h;
-
-	x = (int)(VARG(x) * MAIN_scale + 0.5);
-	y = (int)(VARG(y) * MAIN_scale + 0.5);
-	w = (MISSING(w) ? -1 : (VARG(w) * MAIN_scale + 0.5));
-	h = (MISSING(h) ? -1 : (VARG(h) * MAIN_scale + 0.5));
+	int scale = MAIN_scale;
+	
+	x = (int)(VARG(x) * scale + 0.5);
+	y = (int)(VARG(y) * scale + 0.5);
+	w = (MISSING(w) ? -1 : (VARG(w) * scale + 0.5));
+	h = (MISSING(h) ? -1 : (VARG(h) * scale + 0.5));
 	
 	if (w == 0) w = 1;
 	if (h == 0) h = 1;
@@ -1115,9 +1116,10 @@ END_METHOD
 BEGIN_METHOD(Control_ResizeScaled, GB_FLOAT w; GB_FLOAT h)
 
 	int w, h;
+	int scale = MAIN_scale;
 
-	w = (int)(VARG(w) * MAIN_scale + 0.5);
-	h = (int)(VARG(h) * MAIN_scale + 0.5);
+	w = (int)(VARG(w) * scale + 0.5);
+	h = (int)(VARG(h) * scale + 0.5);
 	
 	if (w == 0) w = 1;
 	if (h == 0) h = 1;

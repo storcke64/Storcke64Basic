@@ -12,7 +12,7 @@ Property Expanded As Boolean
 Property Read X As Integer
 Property Read Y As Integer
 Property Read Width, W As Integer
-Property Read Height, H As Integer
+Property Height, H As Integer
 Property Editable As Boolean
 Property Selected As Boolean
 Property Background As Integer
@@ -34,6 +34,8 @@ Private $vTag As Variant
 
 Private $aChildren As String[]
 Private $aText As String[]
+
+Private $H As Integer
 
 Static Public _Tree As _TreeView
 
@@ -343,6 +345,8 @@ Public Sub _GetHeight() As Integer
   Dim PH As Integer
   Dim hFont As Font
 
+  If $H > 0 Then Return $H
+
   hFont = $hFont
   If Not hFont Then hFont = GetTree().Font
   PH = hFont.Height + (Desktop.Scale \ 4) * 2 + 2
@@ -600,5 +604,18 @@ End
 Private Sub Tag_Write(Value As Variant)
 
   $vTag = Value
+
+End
+
+Private Sub Height_Write(Value As Integer)
+
+  Dim hTree As _TreeView
+  
+  If $H = Value Then Return
+  $H = Value
+
+  hTree = GetTree()
+  hTree._UpdateItemHeight(Me)
+  hTree._RefreshView
 
 End

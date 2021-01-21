@@ -31,6 +31,8 @@
 
 //#define DEBUG_ME 1
 
+uint64_t SIGNAL_check_mask = 0;
+
 static SIGNAL_HANDLER *_handlers = NULL;
 static int _pipe[2] = { -1, -1 };
 static volatile int _count = 0;
@@ -454,7 +456,7 @@ void SIGNAL_has_forked(void)
 	create_pipe();
 }
 
-void SIGNAL_check(int signum)
+void SIGNAL_do_check(int signum)
 {
 	struct sigaction action;
 	SIGNAL_HANDLER *handler = find_handler(signum);
@@ -476,4 +478,9 @@ void SIGNAL_check(int signum)
 		return;
 	
 	SIGNAL_install(handler, signum, handle_signal);
+}
+
+void SIGNAL_must_check(int signum)
+{
+	SIGNAL_check_mask |= (1 << signum);
 }

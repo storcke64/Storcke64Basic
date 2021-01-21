@@ -79,7 +79,6 @@ typedef
 		unsigned opened : 1;
 		unsigned hidden : 1;
 		unsigned toolbar : 1;
-		unsigned scale : 1;
 		unsigned minsize : 1;
 		unsigned title : 1;
 		unsigned stateChange : 1;

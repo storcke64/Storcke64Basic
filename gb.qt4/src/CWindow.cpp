@@ -480,7 +480,7 @@ BEGIN_METHOD(Window_new, GB_OBJECT parent)
 	#endif
 
 	THIS->showMenuBar = true;
-
+	
 END_METHOD
 
 
@@ -2743,8 +2743,8 @@ void MyMainWindow::changeEvent(QEvent *e)
 
 	if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange)
 	{
-		configure();
 		void *_object = CWidget::get(this);
+		configure();
 		GB.Raise(THIS, EVENT_Font, 0);
 	}
 	else if (e->type() == QEvent::WindowStateChange)

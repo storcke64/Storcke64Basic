@@ -2418,7 +2418,7 @@ void *GB_ArrayAdd(GB_ARRAY array)
 
 void *GB_ArrayGet(GB_ARRAY array, int index)
 {
-	return get_data((CARRAY *)array, index);
+	return CARRAY_get_data_unsafe((CARRAY *)array, index);
 }
 
 TYPE GB_ArrayType(GB_ARRAY array)

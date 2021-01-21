@@ -50,19 +50,19 @@
 #include "desktop.h"
 
 #ifdef QT5
-#define DESKTOP_INFO() (QGuiApplication::screens().front()->availableGeometry())
-#define SCREEN_INFO(_id) (QGuiApplication::screens().at(_id)->geometry())
-#define SCREEN_AVAILABLE_SIZE(_id) (QGuiApplication::screens().at(_id)->availableGeometry())
-#define NUM_SCREENS() (QGuiApplication::screens().count())
+	#define DESKTOP_INFO() (QGuiApplication::screens().front()->availableGeometry())
+	#define SCREEN_INFO(_id) (QGuiApplication::screens().at(_id)->geometry())
+	#define SCREEN_AVAILABLE_SIZE(_id) (QGuiApplication::screens().at(_id)->availableGeometry())
+	#define NUM_SCREENS() (QGuiApplication::screens().count())
 #else
-#define DESKTOP_INFO() (QApplication::desktop()->availableGeometry())
-#define SCREEN_INFO(_id) (QApplication::desktop()->screenGeometry(_id))
-#define SCREEN_AVAILABLE_SIZE(_id) (QApplication::desktop()->availableGeometry(_id))
-#if QT_VERSION >= 0x040600
-#define NUM_SCREENS() (QApplication::desktop()->screenCount())
-#else
-#define NUM_SCREENS() (QApplication::desktop()->numScreens())
-#endif
+	#define DESKTOP_INFO() (QApplication::desktop()->availableGeometry())
+	#define SCREEN_INFO(_id) (QApplication::desktop()->screenGeometry(_id))
+	#define SCREEN_AVAILABLE_SIZE(_id) (QApplication::desktop()->availableGeometry(_id))
+	#if QT_VERSION >= 0x040600
+		#define NUM_SCREENS() (QApplication::desktop()->screenCount())
+	#else
+		#define NUM_SCREENS() (QApplication::desktop()->numScreens())
+	#endif
 #endif
 
 #define MAX_SCREEN 16
@@ -483,6 +483,26 @@ BEGIN_PROPERTY(Screen_AvailableHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Screen_ResolutionX)
+
+#ifdef QT5
+	GB.ReturnFloat(QGuiApplication::screens().at(SCREEN->index)->physicalDotsPerInchX());
+#else
+	GB.ReturnFloat(QX11Info::appDpiX());
+#endif
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Screen_ResolutionY)
+
+#ifdef QT5
+	GB.ReturnFloat(QGuiApplication::screens().at(SCREEN->index)->physicalDotsPerInchY());
+#else
+	GB.ReturnFloat(QX11Info::appDpiY());
+#endif
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 GB_DESC ScreenDesc[] =
@@ -501,6 +521,9 @@ GB_DESC ScreenDesc[] =
 	GB_PROPERTY_READ("AvailableWidth", "i", Screen_AvailableWidth),
 	GB_PROPERTY_READ("AvailableHeight", "i", Screen_AvailableHeight),
 
+	GB_PROPERTY_READ("ResolutionX", "f", Screen_ResolutionX),
+	GB_PROPERTY_READ("ResolutionY", "f", Screen_ResolutionY),
+	
 	GB_END_DECLARE
 };
 

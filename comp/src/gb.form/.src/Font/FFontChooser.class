@@ -42,8 +42,7 @@ End
 
 Public Sub Form_Open()
 
-  $bNoRefresh = False
-  RefreshFamily
+  'RefreshFamily
   UpdateRelative
   txtSize_Change
   Dec $iNoChange
@@ -81,6 +80,15 @@ End
 ' 
 ' End
 
+Private Sub IsSeparator(sCar As String) As Boolean
+  
+  If Not IsPunct(sCar) Then Return
+  If InStr("()[]{}", sCar) Then Return
+  Return True
+  
+End
+
+
 Private Sub SplitFont(sFont As String, N As Integer) As String
   
   Dim I As Integer
@@ -94,10 +102,10 @@ Private Sub SplitFont(sFont As String, N As Integer) As String
     While Len(sFont) > 1
       For I = 2 To Len(sFont)
         sCar = Mid$(sFont, I, 1)
-        If IsPunct(sCar) Or If IsSpace(sCar) Then Goto SPLIT_FONT
+        If IsSeparator(sCar) Or If IsSpace(sCar) Then Goto SPLIT_FONT
         If IsUCase(sCar) Then
           sCar = Mid$(sFont, I - 1, 1)
-          If IsPunct(sCar) Or If IsSpace(sCar) Or IsUCase(sCar) Then Continue
+          If IsSeparator(sCar) Or If IsSpace(sCar) Or IsUCase(sCar) Then Continue
           If Not IsLetter(Mid(sFont, I + 1, 1)) Then Continue
           Goto SPLIT_FONT
         Endif
@@ -130,6 +138,20 @@ Private Sub SplitFont(sFont As String, N As Integer) As String
   
 End
 
+Private Sub GetFontName(sFont As String) As String
+
+  Dim sText As String
+
+  If $bShowFont Then
+    sText = "<font size=\"+2\" face=\"" & Html(sFont) & "\">" & Html(sFont) & "</font>"
+  Else
+    sText = Html(sFont)
+  Endif
+  
+  Return sText
+  
+End
+
 Private Sub FillFamily()
   
   Dim sFont As String
@@ -141,12 +163,17 @@ Private Sub FillFamily()
   Dim iCount As Integer
   Dim cParent As New Collection
   Dim sFilter As String
+  Dim H As Integer
   
   sFilter = Trim(txtFilter.Text)
   If tvwFamily.Count And If sFilter = $sLastFilter Then Return
   $sLastFilter = sFilter
   
+  Inc Application.Busy
+  
   tvwFamily.Clear
+  
+  H = tvwFamily.Font.H * 2
   
   cFont = New Collection
   aFont = New String[]
@@ -181,6 +208,8 @@ Private Sub FillFamily()
   '   Print cFont[sFont];; sFont
   ' Next
   
+  tvwFamily._Begin()
+  
   For Each sFont In aFont
     
     iCount = cFont[sFont]
@@ -200,19 +229,32 @@ Private Sub FillFamily()
         .Background = Color.Merge(Color.LightForeground, Color.TextBackground, 0.8)
         .Expanded = True
         .Font = Font["-2"]
+        .RichText = ""
+        .Text = sParentFont
+        .H = 0
       End With
       If cFont[sParentFont] >= 1000 Then
-        tvwFamily.Add("." & sParentFont, sParentFont,, sParentFont)
+        With tvwFamily.Add("." & sParentFont, "",, sParentFont)
+          .H = H
+          .RichText = GetFontName(sParentFont)
+        End With
       Endif
     Endif
     
-    tvwFamily.Add(sFont, sFont,, sParentFont)
+    With tvwFamily.Add(sFont, "",, sParentFont)
+      .H = H
+      .RichText = GetFontName(sFont)
+    End With
     cParent[sFont] = True
     
   Next
   
-  UpdateShowFont
+  'UpdateShowFont
   
+  tvwFamily._End()
+  
+  Dec Application.Busy
+
 End
 
 Private Sub UpdateShowFont()
@@ -573,11 +615,13 @@ Public Sub panBorder_BeforeArrange()
     Endif
     
     If panBorder.H < (Desktop.Scale * 18) Then
+      sepToolbar.Hide
       panExample.Hide
       sepExample.Hide
     Else
       panExample.Show
       sepExample.Show
+      sepToolbar.Show
     Endif
     
   Else
@@ -670,4 +714,12 @@ Public Sub tvwFamily_GotFocus()
   
   txtFilter.SetFocus
   
+End
+
+Public Sub Form_Show()
+
+  $bNoRefresh = False
+  panBorder_BeforeArrange
+  RefreshFamily
+
 End

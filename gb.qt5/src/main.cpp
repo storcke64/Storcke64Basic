@@ -915,8 +915,9 @@ static void QT_Init(void)
 	QX11Info::setAppDpiY(0, 92);*/
 
 	/*fcntl(ConnectionNumber(qt_xdisplay()), F_SETFD, FD_CLOEXEC);*/
-
+	#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
 	qApp->setDesktopFileName(TO_QSTRING(GB.Application.Name()));
+	#endif
 	
 	if (::strcmp(qApp->style()->metaObject()->className(), "Breeze::Style") == 0)
 	{

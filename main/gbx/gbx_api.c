@@ -63,6 +63,7 @@
 #include "gbx_struct.h"
 #include "gbx_signal.h"
 #include "gbx_jit.h"
+#include "gbx_split.h"
 #include "gbx.h"
 #include "gambas.h"
 #include "gbx_api.h"
@@ -299,6 +300,7 @@ const void *const GAMBAS_Api[] =
 	(void *)STRING_start_len,
 	(void *)STRING_end,
 	(void *)STRING_make,
+	(void *)STRING_split,
 
 	(void *)DEBUG_get_current_position,
 	(void *)DEBUG_enter_event_loop,
@@ -306,6 +308,7 @@ const void *const GAMBAS_Api[] =
 
 	(void *)SIGNAL_register,
 	(void *)SIGNAL_unregister,
+	(void *)SIGNAL_must_check,
 
 	(void *)LIST_insert,
 	(void *)LIST_remove,

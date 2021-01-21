@@ -439,6 +439,22 @@ BEGIN_PROPERTY(Screen_AvailableHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Screen_ResolutionX)
+
+	double r;
+	gDesktop::screenResolution(SCREEN->index, &r, NULL);
+	GB.ReturnFloat(r);
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Screen_ResolutionY)
+
+	double r;
+	gDesktop::screenResolution(SCREEN->index, NULL, &r);
+	GB.ReturnFloat(r);
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 GB_DESC ScreenDesc[] =
@@ -457,6 +473,9 @@ GB_DESC ScreenDesc[] =
 	GB_PROPERTY_READ("AvailableWidth", "i", Screen_AvailableWidth),
 	GB_PROPERTY_READ("AvailableHeight", "i", Screen_AvailableHeight),
 
+	GB_PROPERTY_READ("ResolutionX", "f", Screen_ResolutionX),
+	GB_PROPERTY_READ("ResolutionY", "f", Screen_ResolutionY),
+	
 	GB_END_DECLARE
 };
 

@@ -1200,6 +1200,7 @@ typedef
 			void (*Start)(int length);
 			char *(*End)(void);
 			void (*Add)(const char *src, int len);
+			GB_ARRAY (*Split)(const char *str, int lstr, const char *sep, int lsep, const char *esc, int lesc, bool no_void, bool keep_esc);
 			}
 		String;
 		
@@ -1213,6 +1214,7 @@ typedef
 		struct {
 			GB_SIGNAL_CALLBACK *(*Register)(int signum, void (*func)(int, intptr_t), intptr_t data);
 			void (*Unregister)(int signum, GB_SIGNAL_CALLBACK *cb);
+			void (*MustCheck)(int signum);
 		}
 		Signal;
 		
