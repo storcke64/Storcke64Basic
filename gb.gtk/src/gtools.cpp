@@ -857,7 +857,9 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	char c;
 	const char *token;
 	const char *markup;
+	GB_ARRAY attr_array;
 	char **attr;
+	int attr_count;
 	const char *pp;
 	gsize len;
 	bool start_token = false;
@@ -868,6 +870,7 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	int size_stack_ptr = 0;
 	bool newline = true;
 	bool inside_par = false;
+	int i;
 	
 	//fprintf(stderr, "gt_html_to_pango_string: %.*s\n", len_html, html);
 	
@@ -932,14 +935,17 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			}
 			
 			markup = g_strndup(p_markup, len);
-			attr = g_strsplit(markup, " ", -1);
+			
+			attr_array = GB.String.Split(markup, len, " ", 1, "\"", 1, FALSE, TRUE);
+			attr_count = GB.Array.Count(attr_array);
+			attr = (char **)GB.Array.Get(attr_array, 0);
 			token = NULL;
 			
-			for (pt = (const char **)attr; *pt; pt++)
+			for (i = 0; i < attr_count; i++)
 			{
-				if ((*pt)[0])
+				if (attr[i][0])
 				{
-					token = *pt;
+					token = attr[i];
 					break;
 				}
 			}
@@ -1013,20 +1019,20 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 					size_stack_ptr++;
 
 					g_string_append(pango, "<span");
-					for (pt = (const char **)attr; *pt; pt++)
+					for (i = 0; i < attr_count; i++)
 					{
-						if (!strncasecmp(*pt, "color=", 6))
+						if (!strncasecmp(attr[i], "color=", 6))
 						{
-							add_attr(pango, "foreground", *pt + 6);
+							add_attr(pango, "foreground", attr[i] + 6);
 						}
-						else if (!strncasecmp(*pt, "face=", 5))
+						else if (!strncasecmp(attr[i], "face=", 5))
 						{
-							add_attr(pango, "face", *pt + 5);
+							add_attr(pango, "face", attr[i] + 5);
 						}
-						else if (!strncasecmp(*pt, "size=", 5))
+						else if (!strncasecmp(attr[i], "size=", 5))
 						{
 							g_string_append(pango, " size=");
-							pp = *pt + 6;
+							pp = attr[i] + 6;
 							if (*pp == '"')
 								pp++;
 							if (isdigit(*pp))
@@ -1090,7 +1096,7 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 
 		__FOUND_TOKEN:
 		
-			g_strfreev(attr);
+			GB.Unref(POINTER(&attr_array));
 			p_markup = NULL;
 			continue;	
 		}
