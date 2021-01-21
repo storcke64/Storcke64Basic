@@ -867,85 +867,130 @@ void SUBR_is(ushort code)
 void SUBR_min_max(ushort code)
 {
   static void *jump[] = {
-    &&__VARIANT, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__FLOAT, &&__FLOAT, &&__DATE
+    &&__VARIANT, &&__MIN_BOOLEAN, &&__MIN_BYTE, &&__MIN_SHORT, &&__MIN_INTEGER, &&__MIN_LONG, &&__MIN_SINGLE, &&__MIN_FLOAT, 
+		&&__MIN_DATE, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    &&__VARIANT, &&__MAX_BOOLEAN, &&__MAX_BYTE, &&__MAX_SHORT, &&__MAX_INTEGER, &&__MAX_LONG, &&__MAX_SINGLE, &&__MAX_FLOAT, 
+		&&__MAX_DATE, NULL, NULL, NULL, NULL, NULL, NULL, NULL
     };
 
   TYPE type;
   VALUE *P1, *P2;
   void *jump_end;
-  bool is_max;
 
   P1 = SP - 2;
   P2 = P1 + 1;
 
   jump_end = &&__END;
   type = code & 0x0F;
-  is_max = ((code >> 8) == CODE_MAX);
-  goto *jump[type];
+  goto *jump[code & 0x1F];
 
-__BOOLEAN:
-__BYTE:
-__SHORT:
-__INTEGER:
+__MIN_BOOLEAN:
+__MIN_BYTE:
+__MIN_SHORT:
+__MIN_INTEGER:
 
 	P1->type = type;
 
-	if (is_max)
-	{
-		if (P2->_integer.value > P1->_integer.value)
-			P1->_integer.value = P2->_integer.value;
-	}
-	else
-	{
-		if (P2->_integer.value < P1->_integer.value)
-			P1->_integer.value = P2->_integer.value;
-	}
+	if (P2->_integer.value < P1->_integer.value)
+		P1->_integer.value = P2->_integer.value;
+
+	goto *jump_end;
+
+__MAX_BOOLEAN:
+__MAX_BYTE:
+__MAX_SHORT:
+__MAX_INTEGER:
+
+	P1->type = type;
+
+	if (P2->_integer.value > P1->_integer.value)
+		P1->_integer.value = P2->_integer.value;
 	
 	goto *jump_end;
 
-__LONG:
+__MIN_LONG:
 
   VALUE_conv(P1, T_LONG);
   VALUE_conv(P2, T_LONG);
 
-	if (is_max)
-	{
-		if (P2->_long.value > P1->_long.value)
-			P1->_long.value = P2->_long.value;
-	}
-	else
-	{
-		if (P2->_long.value < P1->_long.value)
-			P1->_long.value = P2->_long.value;
-	}
+	if (P2->_long.value < P1->_long.value)
+		P1->_long.value = P2->_long.value;
 	
 	goto *jump_end;
 
-__FLOAT:
+__MAX_LONG:
+
+  VALUE_conv(P1, T_LONG);
+  VALUE_conv(P2, T_LONG);
+
+	if (P2->_long.value > P1->_long.value)
+		P1->_long.value = P2->_long.value;
+	
+	goto *jump_end;
+
+__MIN_SINGLE:
+
+  VALUE_conv(P1, T_SINGLE);
+  VALUE_conv(P2, T_SINGLE);
+
+	if (P2->_single.value < P1->_single.value)
+		P1->_single.value = P2->_single.value;
+	
+	goto *jump_end;
+
+__MAX_SINGLE:
+
+  VALUE_conv(P1, T_SINGLE);
+  VALUE_conv(P2, T_SINGLE);
+
+	if (P2->_single.value > P1->_single.value)
+		P1->_single.value = P2->_single.value;
+	
+	goto *jump_end;
+
+__MIN_FLOAT:
 
   VALUE_conv_float(P1);
   VALUE_conv_float(P2);
 
-	if (is_max)
-	{
-		if (P2->_float.value > P1->_float.value)
-			P1->_float.value = P2->_float.value;
-	}
-	else
-	{
-		if (P2->_float.value < P1->_float.value)
-			P1->_float.value = P2->_float.value;
-	}
+	if (P2->_float.value < P1->_float.value)
+		P1->_float.value = P2->_float.value;
 	
 	goto *jump_end;
 
-__DATE:
+__MAX_FLOAT:
+
+  VALUE_conv_float(P1);
+  VALUE_conv_float(P2);
+
+	if (P2->_float.value > P1->_float.value)
+		P1->_float.value = P2->_float.value;
+	
+	goto *jump_end;
+
+__MIN_DATE:
 
   VALUE_conv(P1, T_DATE);
   VALUE_conv(P2, T_DATE);
 
-	if (DATE_comp_value(P1, P2) == (is_max ? -1 : 1))
-		*P1 = *P2;
+	if (DATE_comp_value(P1, P2) == 1)
+	{
+		P1->_date.date = P2->_date.date;
+		P1->_date.time = P2->_date.time;
+	}
+
+	goto *jump_end;
+
+__MAX_DATE:
+
+  VALUE_conv(P1, T_DATE);
+  VALUE_conv(P2, T_DATE);
+
+	if (DATE_comp_value(P1, P2) == -1)
+	{
+		P1->_date.date = P2->_date.date;
+		P1->_date.time = P2->_date.time;
+	}
 
 	goto *jump_end;
 
@@ -955,8 +1000,9 @@ __VARIANT:
 
   if (TYPE_is_number_date(type))
   {
-    *PC |= type;
-    goto *jump[type];
+		code = type + ((code >> 8) == CODE_MAX) * 16;
+    *PC |= code;
+    goto *jump[code];
   }
 
   if (TYPE_is_variant(P1->type))
@@ -970,7 +1016,8 @@ __VARIANT:
   if (TYPE_is_number_date(type))
   {
     jump_end = &&__VARIANT_END;
-    goto *jump[type];
+		code = type + ((code >> 8) == CODE_MAX) * 16;
+    goto *jump[code];
   }
 
   goto __ERROR;
