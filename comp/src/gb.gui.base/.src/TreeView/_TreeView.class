@@ -715,7 +715,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     'Draw.Text(hItem.Text & " (" & hItem._Index & ") [" & hItem._Rows & "] {" & hItem._GrandChildren & "}", X, Y, W, H, $hView.Columns[Column].Alignment)
     sText = hItem.RichText
     If sText Then
-      Paint.DrawRichText(sText, X, Y, W, H, Align.Normal)
+      Paint.DrawRichText(sText, X, Y, 65536, H, Align.Normal)
     Else
       Paint.DrawText(hItem.Text, X, Y, W, H, Align.Normal)
     Endif
