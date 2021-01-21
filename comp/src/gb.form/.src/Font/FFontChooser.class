@@ -163,7 +163,6 @@ Private Sub FillFamily()
   Dim iCount As Integer
   Dim cParent As New Collection
   Dim sFilter As String
-  Dim sText As String
   Dim H As Integer
   
   sFilter = Trim(txtFilter.Text)
@@ -603,8 +602,6 @@ End
 
 Public Sub panBorder_BeforeArrange()
   
-  If Not Me.Visible Then Return
-  
   If panBorder.H < (Desktop.Scale * 32) Then
     
     If tvwFamily.Visible Then
@@ -723,5 +720,6 @@ Public Sub Form_Show()
 
   $bNoRefresh = False
   panBorder_BeforeArrange
+  RefreshFamily
 
 End
