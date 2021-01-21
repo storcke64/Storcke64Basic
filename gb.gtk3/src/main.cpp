@@ -292,6 +292,8 @@ int EXPORT GB_INIT(void)
 	GB.GetInterface("gb.image", IMAGE_INTERFACE_VERSION, &IMAGE);
 	GB.GetInterface("gb.geom", GEOM_INTERFACE_VERSION, &GEOM);
 
+	GB.Signal.MustCheck(SIGCHLD);
+
 	IMAGE.SetDefaultFormat(GB_IMAGE_RGBA);
 	DRAW_init();
 

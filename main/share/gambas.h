@@ -1213,6 +1213,7 @@ typedef
 		struct {
 			GB_SIGNAL_CALLBACK *(*Register)(int signum, void (*func)(int, intptr_t), intptr_t data);
 			void (*Unregister)(int signum, GB_SIGNAL_CALLBACK *cb);
+			void (*MustCheck)(int signum);
 		}
 		Signal;
 		

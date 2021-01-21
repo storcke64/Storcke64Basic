@@ -306,6 +306,7 @@ const void *const GAMBAS_Api[] =
 
 	(void *)SIGNAL_register,
 	(void *)SIGNAL_unregister,
+	(void *)SIGNAL_must_check,
 
 	(void *)LIST_insert,
 	(void *)LIST_remove,
