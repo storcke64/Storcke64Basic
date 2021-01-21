@@ -280,7 +280,7 @@ void gTextBox::setBorder(bool vl)
 	
 	gtk_entry_set_has_frame(GTK_ENTRY(entry), vl);
 #ifdef GTK3
-	updateStyleSheet();
+	updateStyleSheet(true);
 #endif
 }	
 

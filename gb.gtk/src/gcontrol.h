@@ -155,7 +155,7 @@ public:
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();
 	virtual const char *getStyleSheetFontNode();
-	void updateStyleSheet();
+	void updateStyleSheet(bool dirty);
 	virtual void customStyleSheet(GString *css);
 	void setStyleSheetNode(GString *css, const char *node);
 	virtual void updateColor();
@@ -303,6 +303,7 @@ public:
 	unsigned _is_drawingarea : 1;          // I am a drawing area
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
+	unsigned _style_dirty : 1;             // If the style must be refreshed
 	
   void removeParent() { pr = NULL; }
 	void initSignals();

@@ -757,6 +757,9 @@ void gComboBox::updateFocusHandler()
 
 void gComboBox::setBorder(bool v)
 {
+	if (_has_border == v)
+		return;
+	
 	_has_border = v;
 	updateBorder();
 }
@@ -764,7 +767,7 @@ void gComboBox::setBorder(bool v)
 void gComboBox::updateBorder()
 {
 #ifdef GTK3
-	updateStyleSheet();
+	updateStyleSheet(true);
 #else
 	g_object_set(G_OBJECT(widget), "has-frame", _has_border, NULL);
 #endif

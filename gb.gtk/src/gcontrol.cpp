@@ -364,6 +364,7 @@ void gControl::initAll(gContainer *parent)
 	_is_drawingarea = false;
 	_has_native_popup = false;
 	_eat_return_key = false;
+	_style_dirty = false;
 
 	onFinish = NULL;
 	onFocusEvent = NULL;
@@ -520,12 +521,13 @@ void gControl::setVisible(bool vl)
 
 	if (vl)
 	{
-		if (bufW <= 0 || bufH <= 0)
+		if (bufW < minimumWidth() || bufH < minimumHeight())
 			return;
 
 		gtk_widget_show(border);
 		_dirty_size = true;
 		updateGeometry();
+		updateStyleSheet(false);
 	}
 	else
 	{
@@ -714,7 +716,10 @@ bool gControl::resize(int w, int h)
 		}
 
 		if (isVisible())
+		{
 			gtk_widget_show(border);
+			updateStyleSheet(false);
+		}
 
 		//g_debug("resize: %p %s: %d %d", this, name(), w, h);
 		_dirty_size = true;
@@ -892,7 +897,7 @@ void gControl::setFont(gFont *ft)
 void gControl::updateFont()
 {
 	resolveFont();
-	updateStyleSheet();
+	updateStyleSheet(true);
 	updateSize();
 }
 
@@ -1387,6 +1392,8 @@ void gControl::restack(bool raise)
 	else
 		return;
 	
+	gtk_widget_reset_style(GTK_WIDGET(parent));
+
 	if (_visible)
 		gtk_widget_hide(border);
 	
@@ -1418,11 +1425,11 @@ void gControl::restack(bool raise)
 		p[0] = this;
 	}
 	
+	//gtk_widget_reset_style(GTK_WIDGET(parent));
+
 	if (_visible)
 		gtk_widget_show(border);
 	
-	//gtk_widget_reset_style(GTK_WIDGET(parent));
-
 	pr->performArrange();
 	pr->refresh();
 }
@@ -2112,13 +2119,19 @@ void gControl::setStyleSheetNode(GString *css, const char *node)
 	}
 }
 
-void gControl::updateStyleSheet()
+void gControl::updateStyleSheet(bool dirty)
 {
 	GtkWidget *wid;
 	GtkStyleContext *context;
 	GString *css;
 	char *css_str;
 	gColor fg;
+	
+	if (dirty)
+		_style_dirty = true;
+	
+	if (!isReallyVisible() || !_style_dirty)
+		return;
 
 	wid = getStyleSheetWidget();
 	context = gtk_widget_get_style_context(wid);
@@ -2160,12 +2173,14 @@ void gControl::updateStyleSheet()
 		}
 	}
 
-	/*if (_css)
+	if (_css)
 	{
 		css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
 		fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(wid), css_str);
 		g_free(css_str);
-	}*/
+	}
+	
+	_style_dirty = false;
 }
 
 gColor gControl::realBackground(bool no_default)
@@ -2189,8 +2204,11 @@ void gControl::setRealBackground(gColor color)
 
 void gControl::setBackground(gColor color)
 {
+	if (_bg == color)
+		return;
+	
 	_bg = color;
-	updateStyleSheet();
+	updateStyleSheet(true);
 	//gt_widget_set_color(border, FALSE, _bg, _bg_name, &_bg_default);
 	updateColor();
 }
@@ -2216,9 +2234,12 @@ void gControl::setRealForeground(gColor color)
 
 void gControl::setForeground(gColor color)
 {
+	if (_fg == color)
+		return;
+	
 	_fg = color;
 	_fg_set = color != COLOR_DEFAULT;
-	updateStyleSheet();
+	updateStyleSheet(true);
 	//gt_widget_set_color(border, TRUE, _fg, _fg_name, &_fg_default);
 	updateColor();
 	/*if (::strcmp(name(), "dwgInfo") == 0)
