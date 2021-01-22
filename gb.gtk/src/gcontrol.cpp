@@ -594,9 +594,8 @@ int gControl::screenX()
 			gdk_window_get_origin(window, &x, NULL);
 		
 		gtk_widget_get_allocation(widget, &a);
-		x += a.x;
 		
-		return x;
+		return x + a.x - ((gContainer *)this)->clientX();
 	}
 	
 	return pr->screenX() + x() - pr->clientX() - pr->scrollX();
@@ -614,9 +613,8 @@ int gControl::screenY()
 			gdk_window_get_origin(window, NULL, &y);
 		
 		gtk_widget_get_allocation(widget, &a);
-		y += a.y;
 		
-		return y;
+		return y + a.y - ((gContainer *)this)->clientY();
 	}
 	
 	return pr->screenY() + y() + pr->clientY() - pr->scrollY();
