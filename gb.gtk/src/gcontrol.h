@@ -297,6 +297,7 @@ public:
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
 	unsigned _style_dirty : 1;             // If the style must be refreshed
+	unsigned _minimum_size_set : 1;        // If minimum size has been computed
 	
   void removeParent() { pr = NULL; }
 	void initSignals();

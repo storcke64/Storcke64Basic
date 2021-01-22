@@ -15,7 +15,7 @@ gb_gtk3_la_SOURCES = \
 	gtools.cpp gcolor.h \
 	gfont.cpp gpicture.cpp \
 	gdesktop.cpp gdialog.cpp \
-	gcontrol.cpp gcontainer.cpp gseparator.cpp \
+	gcontrol.cpp gcontainer.cpp \
 	gbutton.cpp gslider.cpp glabel.cpp gsignals.cpp \
 	gcombobox.cpp gtextbox.cpp gtextarea.cpp \
 	gframe.cpp gtabstrip.cpp \
@@ -37,7 +37,6 @@ gb_gtk3_la_SOURCES = \
 	CMouse.h CMouse.cpp \
 	CWatcher.h CWatcher.cpp \
 	CWidget.h CWidget.cpp CContainer.h  CContainer.cpp \
-	CSeparator.h CSeparator.cpp \
 	CDrawingArea.h CDrawingArea.cpp \
 	CLabel.h CLabel.cpp \
 	CSlider.h CSlider.cpp \

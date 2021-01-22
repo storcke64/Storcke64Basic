@@ -317,8 +317,8 @@ void gControl::initAll(gContainer *parent)
 	bufX = -16;
 	bufY = -16;
 	
-	_min_w = 1;
-	_min_h = 1;
+	_min_w = _min_h = 1;
+	_minimum_size_set = FALSE;
 	curs = NULL;
 	_font = NULL;
 	_resolved_font = NULL;
@@ -685,6 +685,12 @@ bool gControl::resize(int w, int h)
 	
 	if (w < 0 && h < 0)
 		return true;
+	
+	if (!_minimum_size_set)
+	{
+		setMinimumSize();
+		_minimum_size_set = true;
+	}
 	
 	if (pr && pr->isArrangementEnabled())
 	{
@@ -1828,20 +1834,27 @@ void gControl::setMinimumSize()
 {
 	#ifdef GTK3
 
+	if (isContainer())
+	{
+		_min_w = _min_h = 1;
+	}
+	else
+	{
 		GtkRequisition minimum_size, natural_size;
 		
 		_do_not_patch = true;
 		gtk_widget_get_preferred_size(widget, &minimum_size, &natural_size);
 		_do_not_patch = false;
 		
-		/*fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);*/
+		fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);
 
 		_min_w = minimum_size.width;
 		_min_h = minimum_size.height;
-		
+	}
+	
 	#else
 	
-		_min_w = _min_h = 1;
+	_min_w = _min_h = 1;
 		
 	#endif
 }
@@ -1893,8 +1906,6 @@ void gControl::realize(bool make_frame)
 #endif
 
 	connectParent();
-
-	setMinimumSize();
 	
 	resize(8, 8);
 	initSignals();

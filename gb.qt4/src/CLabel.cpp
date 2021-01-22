@@ -207,28 +207,6 @@ GB_DESC CTextLabelDesc[] =
 };
 
 
-/***************************************************************************/
-
-BEGIN_METHOD(CSEPARATOR_new, GB_OBJECT parent)
-
-  MySeparator *wid = new MySeparator(QCONTAINER(VARG(parent)));
-
-  CWIDGET_new(wid, (void *)_object);
-
-END_METHOD
-
-GB_DESC CSeparatorDesc[] =
-{
-  GB_DECLARE("Separator", sizeof(CSEPARATOR)), GB_INHERITS("Control"),
-
-  GB_METHOD("_new", NULL, CSEPARATOR_new, "(Parent)Container;"),
-
-	SEPARATOR_DESCRIPTION,
-
-  GB_END_DECLARE
-};
-
-
 /** MyLabel *****************************************************************/
 
 MyLabel::MyLabel(QWidget *parent) : QLabel(parent)
@@ -404,52 +382,5 @@ void MyLabel::paintEvent(QPaintEvent *e)
 	QPainter p(this);
 	CCONTAINER_draw_border(&p, _border, this);
 	QLabel::paintEvent(e);
-}
-
-/** class MySeparator ******************************************************/
-
-
-MySeparator::MySeparator(QWidget *parent)
-: QWidget(parent)
-{
-}
-
-void MySeparator::paintEvent( QPaintEvent * )
-{
-	void *_object = CWidget::getReal(this);
-	QPainter p(this);
-	
-	uint color = CWIDGET_get_foreground(&THIS->widget);
-	QColor pen = (color == COLOR_DEFAULT) ? CCOLOR_light_foreground() : TO_QCOLOR(color);
-	
-	if (width() == 1 || height() == 1)
-	{
-		p.fillRect(0, 0, width(), height(), pen);
-	}
-	else
-	{
-		/*QStyleOption opt;
-		
-		opt.rect = rect();
-		opt.palette = palette();
-		opt.state |= QStyle::State_Enabled;
-		
-		if (width() < height())
-			opt.state |= QStyle::State_Horizontal;
-
-		style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p);*/
-		
-		int d = 2 + MAIN_scale / 2;
-		
-		if (height() >= width())
-		{
-			if (height() > d)
-				p.fillRect(width() / 2, d / 2, 1, height() - d, pen);
-		}
-		else if (width() > d)
-		{
-			p.fillRect(d / 2, height() / 2, width() - d, 1, pen);
-		}
-	}
 }
 

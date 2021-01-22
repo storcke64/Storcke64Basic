@@ -90,17 +90,4 @@ private:
 	char _border;
 };
 
-class MySeparator : public QWidget
-{
-	Q_OBJECT
-
-public:
-
-	MySeparator(QWidget *);
-
-protected:
-
-	void paintEvent(QPaintEvent *);
-};
-
 #endif
