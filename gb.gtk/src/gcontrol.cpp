@@ -2183,12 +2183,12 @@ void gControl::updateStyleSheet(bool dirty)
 		}
 	}
 
-	if (_css)
+	/*if (_css)
 	{
 		css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
 		fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(wid), css_str);
 		g_free(css_str);
-	}
+	}*/
 	
 	_style_dirty = false;
 }
