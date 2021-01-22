@@ -35,9 +35,9 @@ typedef
 		GTK_PICTURE icon;
 		void *new_view;
 		char *link;
-		double progress;
 		unsigned error : 1;
 		unsigned accept_next : 1;
+		unsigned got_load_event : 1;
    }
   CWEBVIEW;
 

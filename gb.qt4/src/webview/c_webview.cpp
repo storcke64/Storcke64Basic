@@ -114,6 +114,7 @@ static void stop_view(void *_object)
 	THIS->stopping = TRUE;
 	WIDGET->stop();
 	THIS->stopping = FALSE;
+	THIS->cancel = FALSE;
 }
 
 static void set_link(void *_object, const QString &link)
@@ -533,7 +534,7 @@ void CWebView::loadProgress(int progress)
 {
 	GET_SENDER();
 
-	if (THIS->progress == progress)
+	if (THIS->cancel || THIS->progress == progress)
 		return;
 
 	THIS->progress = progress;
@@ -546,7 +547,11 @@ void CWebView::loadStarted()
 
 	THIS->progress = 0;
 	_network_access_manager_view = THIS;
-	GB.Raise(THIS, EVENT_PROGRESS, 0);
+	THIS->cancel = GB.Raise(THIS, EVENT_START, 0);
+	if (THIS->cancel)
+		stop_view(THIS);
+	else
+		GB.Raise(THIS, EVENT_PROGRESS, 0);
 }
 
 /*void CWebView::selectionChanged()

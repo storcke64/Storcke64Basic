@@ -975,6 +975,8 @@ void WebViewSignalManager::loadStarted()
 
 	THIS->progress = 0;
 	THIS->cancel = GB.Raise(THIS, EVENT_START, 0);
+	if (!THIS->cancel)
+		GB.Raise(THIS, EVENT_PROGRESS, 0);
 }
 
 void WebViewSignalManager::loadProgress(int progress)
@@ -986,16 +988,23 @@ void WebViewSignalManager::loadProgress(int progress)
 
 	THIS->progress = progress;
 	GB.Raise(THIS, EVENT_PROGRESS, 0);
+	
+	if (progress == 100)
+		GB.Raise(THIS, EVENT_FINISH, 0);
 }
 
 void WebViewSignalManager::loadFinished(bool ok)
 {
 	GET_SENDER();
 
-	THIS->progress = 100;
-
 	if (ok)
-		GB.Raise(THIS, EVENT_FINISH, 0);
+	{
+		if (THIS->progress < 100)
+		{
+			THIS->progress = 100;
+			GB.Raise(THIS, EVENT_FINISH, 0);
+		}
+	}
 	else //if (!THIS->stopping)
 		GB.Raise(THIS, EVENT_ERROR, 0);
 	

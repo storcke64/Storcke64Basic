@@ -60,7 +60,10 @@ static void cb_title(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object
 
 static void cb_url(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object)
 {
+	//fprintf(stderr, "cb_url: %s\n", webkit_web_view_get_uri(WIDGET));
 	GB.Raise(THIS, EVENT_URL, 0);
+	if (!THIS->got_load_event)
+		GB.Raise(THIS, EVENT_FINISH, 0);
 }
 
 static void cb_icon(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object)
@@ -72,13 +75,20 @@ static void cb_icon(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object)
 
 static void cb_load_changed(WebKitWebView *widget, WebKitLoadEvent load_event, CWEBVIEW *_object)
 {
+	//fprintf(stderr, "cb_load_changed: %d\n", load_event);
+	
 	switch (load_event)
 	{
+		case WEBKIT_LOAD_STARTED:
+			THIS->got_load_event = TRUE;
+			break;
+			
 		case WEBKIT_LOAD_FINISHED:
 			if (!THIS->error)
 				GB.Raise(THIS, EVENT_FINISH, 0);
 			GB.FreeString(&THIS->link);
 			break;
+			
 		default:
 			break;
 	}
@@ -93,8 +103,13 @@ static gboolean cb_load_failed(WebKitWebView *widget, WebKitLoadEvent load_event
 
 static void cb_progress(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object)
 {
+	//fprintf(stderr, "cb_progress: %f\n", webkit_web_view_get_estimated_load_progress(WIDGET));
 	if (!THIS->error)
+	{
 		GB.Raise(THIS, EVENT_PROGRESS, 0);
+		if (webkit_web_view_get_estimated_load_progress(WIDGET) == 1.0)
+			GB.Raise(THIS, EVENT_FINISH, 0);
+	}
 }
 
 static void cb_link(WebKitWebView *widget, WebKitHitTestResult *hit_test_result, guint modifiers, CWEBVIEW *_object)
@@ -137,6 +152,7 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 		}
 		
 		THIS->error = FALSE;
+		THIS->got_load_event = FALSE;
 		if (GB.Raise(THIS, EVENT_START, 0))
 			webkit_policy_decision_ignore(decision);
 		
@@ -341,7 +357,7 @@ END_METHOD
 
 BEGIN_METHOD_VOID(WebViewHistory_Clear)
 
-	fprintf(stderr, "gb.gtk3.webview: warning: WebView.History.Clear() does nothing yet.\n");
+	fprintf(stderr, "gb.gtk3.webview: warning: WebKitGTK does not know how to clear its history at the moment.\n");
 
 END_METHOD
 
