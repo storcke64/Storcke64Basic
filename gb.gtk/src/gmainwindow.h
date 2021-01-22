@@ -170,7 +170,6 @@ public:
 	gPicture *_icon;
 	gPicture *_picture;
 	char *_title;
-	GtkStyle *_style;
 
 	gControl *focus;
 	gButton *_default;

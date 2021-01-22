@@ -385,7 +385,6 @@ void gControl::initAll(gContainer *parent)
 	_fg = _bg = COLOR_DEFAULT;
 #ifdef GTK3
 	_css = NULL;
-	_fg_name = _bg_name = NULL;
 #endif
 
 	controls = g_list_append(controls,this);
@@ -527,7 +526,9 @@ void gControl::setVisible(bool vl)
 		gtk_widget_show(border);
 		_dirty_size = true;
 		updateGeometry();
+#ifdef GTK3
 		updateStyleSheet(false);
+#endif
 	}
 	else
 	{
@@ -585,9 +586,16 @@ int gControl::screenX()
 {
 	if (isTopLevel())
 	{
+		GdkWindow *window = gtk_widget_get_window(border);
 		int x = 0;
-		GdkWindow *win = gtk_widget_get_window(border);
-		if (win) gdk_window_get_origin(win , &x, NULL);
+		GtkAllocation a;
+		
+		if (window)
+			gdk_window_get_origin(window, &x, NULL);
+		
+		gtk_widget_get_allocation(widget, &a);
+		x += a.x;
+		
 		return x;
 	}
 	
@@ -598,9 +606,16 @@ int gControl::screenY()
 {
 	if (isTopLevel())
 	{
-		int y;
-		GdkWindow *win = gtk_widget_get_window(border);
-		if (win) gdk_window_get_origin(win, NULL, &y);
+		GdkWindow *window = gtk_widget_get_window(border);
+		int y = 0;
+		GtkAllocation a;
+		
+		if (window)
+			gdk_window_get_origin(window, NULL, &y);
+		
+		gtk_widget_get_allocation(widget, &a);
+		y += a.y;
+		
 		return y;
 	}
 	
@@ -701,25 +716,18 @@ bool gControl::resize(int w, int h)
 
 	if (w < minimumWidth() || h < minimumHeight())
 	{
-		if (isVisible())
-			gtk_widget_hide(border);
+		gtk_widget_hide(border);
 	}
 	else
 	{
-		if (frame && widget != border)
+		/*if (frame && widget != border)
 		{
 			int fw = getFrameWidth() * 2;
 			if (w < fw || h < fw)
 				gtk_widget_hide(widget);
 			else
 				gtk_widget_show(widget);
-		}
-
-		if (isVisible())
-		{
-			gtk_widget_show(border);
-			updateStyleSheet(false);
-		}
+		}*/
 
 		//g_debug("resize: %p %s: %d %d", this, name(), w, h);
 		_dirty_size = true;
@@ -729,6 +737,15 @@ bool gControl::resize(int w, int h)
 		#else
 		updateGeometry();
 		#endif
+		
+		if (isVisible() && !isReallyVisible())
+		{
+			gtk_widget_show(border);
+#ifdef GTK3
+			updateStyleSheet(false);
+#endif
+		}
+
 	}
 
 	if (pr && !isIgnore())
@@ -1121,7 +1138,6 @@ MISC
 
 void gControl::refresh()
 {
-	//refresh(0, 0, 0, 0);
 	gtk_widget_queue_draw(border);
 	if (frame != border && GTK_IS_WIDGET(frame))
 		gtk_widget_queue_draw(frame);
@@ -1392,8 +1408,6 @@ void gControl::restack(bool raise)
 	else
 		return;
 	
-	gtk_widget_reset_style(GTK_WIDGET(parent));
-
 	if (_visible)
 		gtk_widget_hide(border);
 	
@@ -1425,11 +1439,9 @@ void gControl::restack(bool raise)
 		p[0] = this;
 	}
 	
-	//gtk_widget_reset_style(GTK_WIDGET(parent));
-
 	if (_visible)
 		gtk_widget_show(border);
-	
+
 	pr->performArrange();
 	pr->refresh();
 }
@@ -1889,14 +1901,11 @@ void gControl::realize(bool make_frame)
 	resize(8, 8);
 	initSignals();
 
-//#ifndef GTK3
 	if (!_no_background && !gtk_widget_get_has_window(border))
-		//g_signal_connect(G_OBJECT(border), "expose-event", G_CALLBACK(cb_draw_background), (gpointer)this);
 		ON_DRAW_BEFORE(border, this, cb_background_expose, cb_background_draw);
 
 	if (frame)
 		ON_DRAW_BEFORE(frame, this, cb_frame_expose, cb_frame_draw);
-//#endif
 
 	/*else if (!isTopLevel())
 	{
@@ -2125,7 +2134,7 @@ void gControl::updateStyleSheet(bool dirty)
 	GtkStyleContext *context;
 	GString *css;
 	char *css_str;
-	gColor fg;
+	gColor bg, fg;
 	
 	if (dirty)
 		_style_dirty = true;
@@ -2136,15 +2145,16 @@ void gControl::updateStyleSheet(bool dirty)
 	wid = getStyleSheetWidget();
 	context = gtk_widget_get_style_context(wid);
 	
-	fg = realForeground();
+	bg = _no_background ? background() : COLOR_DEFAULT;
+	fg = foreground(); //realForeground();
 
 	css = g_string_new(NULL);
 	_css_node = NULL;
 	
-	if (_bg != COLOR_DEFAULT || fg != COLOR_DEFAULT)
+	if (bg != COLOR_DEFAULT || fg != COLOR_DEFAULT)
 	{
 		setStyleSheetNode(css, getStyleSheetColorNode());
-		gt_css_add_color(css, _bg, _fg);
+		gt_css_add_color(css, bg, fg);
 	}
 	
 	if (_font)
@@ -2208,7 +2218,9 @@ void gControl::setBackground(gColor color)
 		return;
 	
 	_bg = color;
+#ifdef GTK3
 	updateStyleSheet(true);
+#endif
 	//gt_widget_set_color(border, FALSE, _bg, _bg_name, &_bg_default);
 	updateColor();
 }
@@ -2239,7 +2251,9 @@ void gControl::setForeground(gColor color)
 	
 	_fg = color;
 	_fg_set = color != COLOR_DEFAULT;
+#ifdef GTK3
 	updateStyleSheet(true);
+#endif
 	//gt_widget_set_color(border, TRUE, _fg, _fg_name, &_fg_default);
 	updateColor();
 	/*if (::strcmp(name(), "dwgInfo") == 0)
@@ -2756,8 +2770,6 @@ void gControl::drawBackground(cairo_t *cr)
 {
 	if (background() == COLOR_DEFAULT)
 		return;
-
-	//fprintf(stderr, "gControl::drawBackground\n");
 
 	gt_cairo_set_source_color(cr, background());
 	cairo_rectangle(cr, 0, 0, width(), height());

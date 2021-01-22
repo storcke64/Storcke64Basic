@@ -251,13 +251,6 @@ public:
 #ifdef GTK3
 	GtkStyleProvider *_css;
 	const char *_css_node;
-	const char *_bg_name;
-	const char **_bg_name_list;
-	GdkRGBA _bg_default;
-	const char *_fg_name;
-	const char **_fg_name_list;
-	GdkRGBA _fg_default;
-	const char *_style_sheet_child;
 #endif
 	
 	unsigned _design : 1;

@@ -262,15 +262,6 @@ void gSlider::orientation(int w,int h)
 
 bool gSlider::resize(int w, int h)
 {
-	if (gControl::resize(w, h))
-		return true;
-	
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), (width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-	return false;
-}
-
-bool gScrollBar::resize(int w, int h)
-{
 	GtkOrientation orientation, new_orientation;
 	int swap;
 	

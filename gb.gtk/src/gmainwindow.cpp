@@ -388,7 +388,6 @@ void gMainWindow::initialize()
 	focus = 0;
 	_title = NULL;
 	_current = NULL;
-	_style = NULL;
 	_resize_last_w = _resize_last_h = -1;
 	_min_w = _min_h = 0;
 	_csd_w  = _csd_h = -1;
@@ -420,6 +419,7 @@ void gMainWindow::initialize()
 	_unmap = false;
 	_grab_on_show	= false;
 	_is_window = true;
+	_no_background = true;
 	
 	onOpen = NULL;
 	onShow = NULL;
@@ -564,7 +564,6 @@ gMainWindow::~gMainWindow()
 	gPicture::assign(&_icon);
 	if (_title) g_free(_title);
 	g_object_unref(accel);
-	if (_style) g_object_unref(_style);
 
 	if (_active == this)
 		_active = NULL;
@@ -759,6 +758,10 @@ void gMainWindow::present()
 		gtk_widget_show(GTK_WIDGET(border));
 	else
 		gtk_window_present(GTK_WINDOW(border));
+
+	#ifdef GTK3
+	updateStyleSheet(false);
+	#endif
 }
 
 void gMainWindow::afterShow()
@@ -1931,9 +1934,10 @@ void gMainWindow::setGeometryHints()
 
 void gMainWindow::setBackground(gColor vl)
 {
-	_bg = vl;
 	if (!_transparent)
 		gControl::setBackground(vl);
+	else
+		_bg = vl;
 }
 
 void gMainWindow::setTransparent(bool vl)

@@ -680,7 +680,7 @@ void gContainer::setBackground(gColor color)
 }
 #endif
 
-#ifdef GTK3
+/*#ifdef GTK3
 void gContainer::updateColor()
 {
 	int i;
@@ -688,7 +688,7 @@ void gContainer::updateColor()
 	for (i = 0; i < childCount(); i++)
 		gContainer::child(i)->updateColor();
 }
-#endif
+#endif*/
 
 void gContainer::setForeground(gColor color)
 {
