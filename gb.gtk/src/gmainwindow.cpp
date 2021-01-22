@@ -241,7 +241,7 @@ static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 {
 	int w, h;
 	
-	if (!data->isTopLevel())
+	if (!data->isTopLevel() || !data->isOpened())
 		return;
 	
 	w = a->width;
