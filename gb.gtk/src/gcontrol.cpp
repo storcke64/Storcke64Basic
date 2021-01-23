@@ -2147,6 +2147,17 @@ void gControl::updateStyleSheet(bool dirty)
 	
 	if (dirty)
 		_style_dirty = true;
+	else
+	{
+		if (isContainer())
+		{
+			gContainer *cont = (gContainer *)this;
+			int i;
+			
+			for (i = 0; i < cont->childCount(); i++)
+				cont->child(i)->updateStyleSheet(false);
+		}
+	}
 	
 	if (!isReallyVisible() || !_style_dirty)
 		return;
@@ -2212,11 +2223,6 @@ gColor gControl::realBackground(bool no_default)
 		return no_default ? gDesktop::getColor(gDesktop::BACKGROUND) : COLOR_DEFAULT;
 }
 
-gColor gControl::background()
-{
-	return _bg;
-}
-
 void gControl::setRealBackground(gColor color)
 {
 }
@@ -2227,10 +2233,7 @@ void gControl::setBackground(gColor color)
 		return;
 	
 	_bg = color;
-#ifdef GTK3
 	updateStyleSheet(true);
-#endif
-	//gt_widget_set_color(border, FALSE, _bg, _bg_name, &_bg_default);
 	updateColor();
 }
 
@@ -2242,11 +2245,6 @@ gColor gControl::realForeground(bool no_default)
 		return pr->realForeground(no_default);
 	else
 		return no_default ? gDesktop::getColor(gDesktop::FOREGROUND) : COLOR_DEFAULT;
-}
-
-gColor gControl::foreground()
-{
-	return _fg;
 }
 
 void gControl::setRealForeground(gColor color)
@@ -2279,11 +2277,6 @@ gColor gControl::realBackground(bool no_default)
 		return pr->realBackground(no_default);
 	else
 		return no_default ? gDesktop::getColor(gDesktop::BACKGROUND) : COLOR_DEFAULT;
-}
-
-gColor gControl::background()
-{
-	return _bg;
 }
 
 static void set_background(GtkWidget *widget, gColor color, bool use_base)
@@ -2325,11 +2318,6 @@ gColor gControl::realForeground(bool no_default)
 		return pr->realForeground(no_default);
 	else
 		return no_default ? gDesktop::getColor(gDesktop::FOREGROUND) : COLOR_DEFAULT;
-}
-
-gColor gControl::foreground()
-{
-	return _fg;
 }
 
 static void set_foreground(GtkWidget *widget, gColor color, bool use_base)

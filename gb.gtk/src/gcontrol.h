@@ -132,8 +132,8 @@ public:
 	bool isNoTabFocus() const { return _no_tab_focus; }
 	void setNoTabFocus(bool v);
 
-	gColor background();
-	gColor foreground();
+	gColor background() const { return _bg; }
+	gColor foreground() const { return _fg; }
 	virtual void setBackground(gColor color = COLOR_DEFAULT);
 	virtual void setForeground(gColor color = COLOR_DEFAULT);
 	gColor realBackground(bool no_default = false);
