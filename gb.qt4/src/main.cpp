@@ -74,7 +74,6 @@
 #include "CColor.h"
 #include "CConst.h"
 #include "CCheckBox.h"
-#include "CFrame.h"
 #include "CRadioButton.h"
 #include "CTabStrip.h"
 #include "CDialog.h"
@@ -1355,7 +1354,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CCheckBoxDesc, CRadioButtonDesc,
 	CTextBoxSelectionDesc, CTextBoxDesc, CComboBoxItemDesc, CComboBoxDesc,
 	CTextAreaSelectionDesc, CTextAreaDesc,
-	CFrameDesc, CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
+	CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
 	CTabStripContainerChildrenDesc, CTabStripContainerDesc, CTabStripDesc,
 	CDrawingAreaDesc,
 	CSliderDesc, CScrollBarDesc,

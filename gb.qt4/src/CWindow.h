@@ -205,10 +205,6 @@ protected:
 
 	//bool eventFilter(QObject *, QEvent *);
 
-public slots:
-	
-	void activateLater();
-	
 public:
 
 	enum { BorderNone = 0, BorderFixed = 1, BorderResizable = 2 };
@@ -236,13 +232,7 @@ public:
 	bool isResizable(void) const { return _resizable; }
 	void setResizable(bool);
 
-	#if 0
-	#ifdef NO_X_WINDOW
-	#else
-	int getType(void);
-	void setType(int type);
-	#endif
-	#endif
+	void activate(void);
 	
 	bool isUtility(void) const { return _utility; }
 	void setUtility(bool b);

@@ -25,7 +25,7 @@
 
 #include "gambas.h"
 #include "CContainer.h"
-#include "gframe.h"
+#include "gpanel.h"
 #include "gmainwindow.h"
 #include "cpaint_impl.h"
 
@@ -71,11 +71,7 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 	GB_ERROR_HANDLER handler;
 	
 #ifdef GTK3
-	cairo_t *save;
-#endif
-
-#ifdef GTK3
-	save = THIS_USERCONTROL->context;
+	cairo_t *save = THIS_USERCONTROL->context;
 	THIS_USERCONTROL->context = cr;
 #endif
 	

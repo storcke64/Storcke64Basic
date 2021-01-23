@@ -316,7 +316,7 @@ void CWINDOW_ensure_active_window()
 	void *_object = CWINDOW_Active;
 
 	if (THIS)
-		WINDOW->activateWindow();
+		WINDOW->activate();
 }
 
 
@@ -1327,7 +1327,7 @@ END_PROPERTY
 BEGIN_METHOD_VOID(Window_Activate)
 
 	if (THIS->toplevel && WINDOW->isVisible() && !WINDOW->isHidden())
-		WINDOW->activateWindow();
+		WINDOW->activate();
 
 END_METHOD
 
@@ -1606,7 +1606,7 @@ void MyMainWindow::showEvent(QShowEvent *e)
 		//qDebug("showEvent: activate: %s", THIS->widget.name);
 		raise();
 		//setFocus();
-		activateWindow();
+		activate();
 		_activate = false;
 	}
 
@@ -1669,11 +1669,6 @@ void MyMainWindow::setEventLoop()
 {
 	if (!THIS->closed)
 		THIS->loopLevel = CWINDOW_Current ? CWINDOW_Current->loopLevel : 0;
-}
-
-void MyMainWindow::activateLater()
-{
-	activateWindow();
 }
 
 void MyMainWindow::present(QWidget *parent)
@@ -1747,12 +1742,8 @@ void MyMainWindow::present(QWidget *parent)
 		}
 	}
 
-	#ifdef QT5
-	if (!THIS->noTakeFocus && !MAIN_platform_is_wayland)
-	#else
 	if (!THIS->noTakeFocus) // && (parent || hasBorder()))
-	#endif
-		activateWindow();
+		activate();
 
 	if (parent)
 	{
@@ -2573,7 +2564,7 @@ void MyMainWindow::doReparent(QWidget *parent, const QPoint &pos)
 		#ifndef NO_X_WINDOW
 			initProperties(PROP_ALL);
 			if (active && hasBorder())
-				activateWindow();
+				activate();
 		#endif
 
 		setWindowIcon(icon);
@@ -2806,6 +2797,14 @@ void MyMainWindow::setBetterMask(QPixmap &bg)
 	}
 
 	setMask(QBitmap::fromImage(mask));
+}
+
+void MyMainWindow::activate(void)
+{
+#ifdef QT5
+	if (!MAIN_platform_is_wayland)
+#endif
+		activateWindow();
 }
 
 /***************************************************************************

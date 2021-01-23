@@ -1,8 +1,9 @@
 /***************************************************************************
 
-  CFrame.h
+  CPanel.h
 
   (c) 2004-2006 - Daniel Campos Fernández <dcamposf@gmail.com>
+  (c) Benoît Minisini <g4mba5@gmail.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,16 +22,15 @@
 
 ***************************************************************************/
 
-#ifndef __CFRAME_H
-#define __CFRAME_H
+#ifndef __CPANEL_H
+#define __CPANEL_H
 
 #include "main.h"
-#include "gframe.h"
+#include "gpanel.h"
 #include "CWidget.h"
 #include "CContainer.h"
 
-#ifndef __CFRAME_CPP
-extern GB_DESC CFrameDesc[];
+#ifndef __CPANEL_CPP
 extern GB_DESC CPanelDesc[];
 extern GB_DESC CHBoxDesc[];
 extern GB_DESC CVBoxDesc[];
@@ -38,9 +38,8 @@ extern GB_DESC CHPanelDesc[];
 extern GB_DESC CVPanelDesc[];
 #else
 
-#define THIS ((CFRAME *)_object)
+#define THIS ((CPANEL *)_object)
 
-#define FRAME ((gFrame *)(THIS->widget.widget))
 #define PANEL ((gPanel *)(THIS->widget.widget))
 
 #endif
@@ -50,6 +49,6 @@ typedef
   {
     CWIDGET widget;
   }
-  CFRAME;
+  CPANEL;
 
 #endif

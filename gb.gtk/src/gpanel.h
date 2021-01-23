@@ -1,6 +1,6 @@
 /***************************************************************************
 
-  gframe.h
+  gpanel.h
 
   (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
 
@@ -21,8 +21,8 @@
 
 ***************************************************************************/
 
-#ifndef __GFRAME_H
-#define __GFRAME_H
+#ifndef __GPANEL_H
+#define __GPANEL_H
 
 #include "gcontainer.h"
 #include "gcolor.h"
@@ -41,36 +41,6 @@ public:
 private:
 
 	void create();
-};
-
-class gFrame : public gContainer
-{
-public:
-	gFrame(gContainer *parent);
-
-	const char *text();
-	void setText(const char *vl);
-
-	virtual int clientX();
-	virtual int clientY();
-	virtual int clientWidth();
-	virtual int clientHeight();
-	virtual int containerX();
-	virtual int containerY();
-	virtual int containerWidth();
-	virtual int containerHeight();
-
-	virtual void updateFont();
-#ifdef GTK3
-	virtual GtkWidget *getStyleSheetWidget();
-#else
-	virtual void setRealForeground(gColor color);
-#endif
-
-	virtual bool resize(int w, int h);
-	
-//"Private"
-	GtkWidget *fr;
 };
 
 #endif

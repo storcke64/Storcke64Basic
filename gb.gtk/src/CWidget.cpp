@@ -34,7 +34,7 @@
 #include "CPicture.h"
 #include "CContainer.h"
 #include "CClipboard.h"
-#include "CFrame.h"
+#include "CPanel.h"
 
 extern int MAIN_scale;
 

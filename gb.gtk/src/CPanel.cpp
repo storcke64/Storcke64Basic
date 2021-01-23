@@ -1,8 +1,9 @@
 /***************************************************************************
 
-  CFrame.cpp
+  CPanel.cpp
 
   (c) 2004-2006 - Daniel Campos Fernández <dcamposf@gmail.com>
+  (c) Benoît Minisini <g4mba5@gmail.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,16 +22,9 @@
 
 ***************************************************************************/
 
-#define __CFRAME_CPP
+#define __CPANEL_CPP
 
-#include "CFrame.h"
-
-
-BEGIN_METHOD(CFRAME_new, GB_OBJECT parent)
-
-	InitControl(new gFrame(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
-
-END_METHOD
+#include "CPanel.h"
 
 
 BEGIN_METHOD(CPANEL_new, GB_OBJECT parent)
@@ -82,38 +76,11 @@ BEGIN_PROPERTY(CPANEL_border)
 
 END_PROPERTY
 
-BEGIN_PROPERTY(CFRAME_text)
-
-	if (READ_PROPERTY) { GB.ReturnNewZeroString( FRAME->text()); return; }
-	FRAME->setText(GB.ToZeroString(PROP(GB_STRING)));
-
-END_PROPERTY
-
-GB_DESC CFrameDesc[] =
-{
-  GB_DECLARE("Frame", sizeof(CFRAME)), GB_INHERITS("Container"),
-
-  GB_METHOD("_new", 0, CFRAME_new, "(Parent)Container;"),
-
-  GB_PROPERTY("Caption", "s", CFRAME_text),
-  GB_PROPERTY("Text", "s", CFRAME_text),
-  GB_PROPERTY("Title", "s", CFRAME_text),
-  GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-  GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-  GB_PROPERTY("Padding", "i", Container_Padding),
-  GB_PROPERTY("Spacing", "b", Container_Spacing),
-  GB_PROPERTY("Margin", "b", Container_Margin),
-  GB_PROPERTY("Indent", "b", Container_Indent),
-  GB_PROPERTY("Invert", "b", Container_Invert),
-
-  FRAME_DESCRIPTION,
-
-  GB_END_DECLARE
-};
+//-------------------------------------------------------------------------
 
 GB_DESC CPanelDesc[] =
 {
-  GB_DECLARE("Panel", sizeof(CFRAME)), GB_INHERITS("Container"),
+  GB_DECLARE("Panel", sizeof(CPANEL)), GB_INHERITS("Container"),
 
   GB_METHOD("_new", 0, CPANEL_new, "(Parent)Container;"),
 
@@ -134,7 +101,7 @@ GB_DESC CPanelDesc[] =
 
 GB_DESC CHBoxDesc[] =
 {
-  GB_DECLARE("HBox", sizeof(CFRAME)), GB_INHERITS("Container"),
+  GB_DECLARE("HBox", sizeof(CPANEL)), GB_INHERITS("Container"),
 
   GB_METHOD("_new", 0, CHBOX_new, "(Parent)Container;"),
 
@@ -153,7 +120,7 @@ GB_DESC CHBoxDesc[] =
 
 GB_DESC CVBoxDesc[] =
 {
-  GB_DECLARE("VBox", sizeof(CFRAME)), GB_INHERITS("Container"),
+  GB_DECLARE("VBox", sizeof(CPANEL)), GB_INHERITS("Container"),
 
   GB_METHOD("_new", 0, CVBOX_new, "(Parent)Container;"),
 
@@ -172,7 +139,7 @@ GB_DESC CVBoxDesc[] =
 
 GB_DESC CHPanelDesc[] =
 {
-  GB_DECLARE("HPanel", sizeof(CFRAME)), GB_INHERITS("Container"),
+  GB_DECLARE("HPanel", sizeof(CPANEL)), GB_INHERITS("Container"),
 
   GB_METHOD("_new", 0, CHPANEL_new, "(Parent)Container;"),
 
@@ -191,7 +158,7 @@ GB_DESC CHPanelDesc[] =
 
 GB_DESC CVPanelDesc[] =
 {
-  GB_DECLARE("VPanel", sizeof(CFRAME)), GB_INHERITS("Container"),
+  GB_DECLARE("VPanel", sizeof(CPANEL)), GB_INHERITS("Container"),
 
   GB_METHOD("_new", 0, CVPANEL_new, "(Parent)Container;"),
 

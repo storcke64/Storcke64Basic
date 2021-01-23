@@ -189,6 +189,28 @@ static bool begin_draw(int *x, int *y)
 
 		_widget = wid->widget;
 	}
+	else if (GB.Is(device, CLASS_UserControl))
+	{
+		gContainer *wid;
+		GtkAllocation *a;
+		
+		if (PAINT_is_internal())
+		{
+			GB.Error("Cannot draw outside of 'Draw' event handler");
+			return TRUE;
+		}
+		
+		wid = (gContainer *)((CDRAWINGAREA *)device)->ob.widget;
+
+		_dr = wid->widget->window;
+		a = &wid->widget->allocation;
+		_dr_x = a->x;
+		_dr_y = a->y;
+		*x += _dr_x;
+		*y += _dr_y;
+
+		_widget = wid->widget;
+	}
 	else if (GB.Is(device, CLASS_Picture))
 	{
 		gPicture *pic = ((CPICTURE *)device)->picture;
@@ -625,9 +647,7 @@ static void style_panel(int x, int y, int w, int h, int border, int state)
 		GdkGCValues values;
 		uint col;
 
-		col = IMAGE.MergeColor(gDesktop::getColor(gDesktop::BACKGROUND), gDesktop::getColor(gDesktop::FOREGROUND), 0.5);
-		col = IMAGE.LighterColor(col);
-
+		col = gDesktop::getColor(gDesktop::LIGHT_FOREGROUND);
 		fill_gdk_color(&values.foreground, col, gdk_drawable_get_colormap(_dr));
 		gc = gtk_gc_get(gdk_drawable_get_depth(_dr), gdk_drawable_get_colormap(_dr), &values, GDK_GC_FOREGROUND);
 		gdk_draw_rectangle(_dr, gc, FALSE, x, y, w - 1, h - 1);

@@ -1,9 +1,9 @@
 ' Gambas class file
 
 Export
-Inherits DrawingArea
+Inherits UserControl
 
-Public Const _Properties As String = "*,-Arrangement,-Spacing,-Margin,-Indent,-Invert,-NoBackground,-Tablet,-Cached,-Focus,Padding{Range:0;64},Picture,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
+Public Const _Properties As String = "*,Padding{Range:0;64},Picture,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
 Public Const _DefaultEvent As String = "MouseDown"
 Public Const _DefaultSize As String = "16,16"
 Public Const _IsContainer As Boolean = False
@@ -22,7 +22,6 @@ Public Enum Normal, Fill, Cover, Contain, {Repeat}
 
 Static Private $hDefault As Image
 
-Private $hObs As Observer
 Private $iAlign As Integer = Align.TopLeft
 Private $iPadding As Integer
 Private $iBorder As Integer
@@ -31,13 +30,6 @@ Private $hPicture As Picture
 Private $hImage As Image
 Private $bAutoResize As Boolean
 Private $bStretch As Boolean
-
-Public Sub _new()
-  
-  $hObs = New Observer(Me) As "DrawingArea"
-  
-End
-
 
 Private Function Alignment_Read() As Integer
 
@@ -190,7 +182,7 @@ Private Sub Image_Write(Value As Image)
 
 End
 
-Public Sub DrawingArea_Draw()
+Public Sub UserControl_Draw()
   
   Dim W As Integer
   Dim H As Integer

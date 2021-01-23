@@ -50,7 +50,7 @@
 #include "CWidget.h"
 #include "CDrawingArea.h"
 #include "CContainer.h"
-#include "CFrame.h"
+#include "CPanel.h"
 #include "CMenu.h"
 #include "CWindow.h"
 #include "CLabel.h"
@@ -205,7 +205,6 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	ContainerChildrenDesc,
 	ContainerDesc,
 	CDrawingAreaDesc,
-	CFrameDesc,
 	UserControlDesc,
 	UserContainerDesc,
 	CPanelDesc,

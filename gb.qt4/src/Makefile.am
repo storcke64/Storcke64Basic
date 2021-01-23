@@ -31,7 +31,6 @@ gb_qt4_la_SOURCES = \
  CColor.h CColor_moc.cpp CColor.cpp \
  CConst.h CConst.cpp \
  CCheckBox.h CCheckBox_moc.cpp CCheckBox.cpp \
- CFrame.h CFrame_moc.cpp CFrame.cpp \
  CPanel.h CPanel_moc.cpp CPanel.cpp \
  CRadioButton.h CRadioButton_moc.cpp CRadioButton.cpp \
  CTextArea.h CTextArea_moc.cpp CTextArea.cpp \

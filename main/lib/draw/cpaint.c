@@ -300,6 +300,8 @@ GB_DESC PaintExtentsDesc[] =
 	GB_PROPERTY_READ("Y", "f", PaintExtents_Y),
 	GB_PROPERTY_READ("X2", "f", PaintExtents_X2),
 	GB_PROPERTY_READ("Y2", "f", PaintExtents_Y2),
+	GB_PROPERTY_READ("W", "f", PaintExtents_Width),
+	GB_PROPERTY_READ("H", "f", PaintExtents_Height),
 	GB_PROPERTY_READ("Width", "f", PaintExtents_Width),
 	GB_PROPERTY_READ("Height", "f", PaintExtents_Height),
 	

@@ -1,0 +1,157 @@
+' Gambas class file
+
+Export
+
+Inherits UserContainer
+
+Public Const _Properties As String = "*,Text,TextFont"
+Public Const _Similar As String = "Panel"
+
+Property Text As String
+Property RichText As String
+Property TextFont As Font
+
+Private $hContainer As Panel
+Private $hFrame As DrawingArea
+Private $sText As String
+Private $bRichText As Boolean
+Private $hTextFont As Font
+
+Public Sub _new()
+
+  $hFrame = New DrawingArea(Me) As "Frame"
+  $hFrame.Margin = True
+  
+  $hContainer = New Panel($hFrame)
+  Me._Container = $hContainer
+  
+End
+
+Public Sub Frame_Arrange()
+
+  Dim DS As Integer
+  Dim H As Integer
+  
+  DS = Desktop.Scale
+  If $hTextFont Then
+    H = Max($hTextFont.H, DS)
+  Else
+    H = Max(Me.Font.H, DS)
+  Endif
+  H += DS \ 2
+  
+  If $sText Then
+    $hContainer.Move(DS, H, $hFrame.W - DS * 2, $hFrame.H - DS - H)
+  Else
+    $hContainer.Move(DS, DS, $hFrame.W - DS * 2, $hFrame.H - DS * 2)
+  Endif
+  
+End
+
+
+Public Sub Frame_Draw()
+
+  Dim DS As Integer
+  Dim W As Integer
+  Dim sText As String
+  Dim hRect As PaintExtents
+  Dim H As Integer
+  
+  DS = Desktop.Scale
+  
+  If $sText Then
+    
+    If $hTextFont Then Paint.Font = $hTextFont
+    H = Max(Paint.Font.H, DS)
+    W = $hFrame.W - DS * 5
+    
+    If $bRichText Then
+      sText = Paint.TrimRichText($sText, W)
+      hRect = Paint.RichTextExtents(sText)
+    Else
+      sText = Paint.TrimText($sText, W)
+      hRect = Paint.TextExtents(sText)
+    Endif
+
+    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, H \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - (DS + H) \ 2 - 4, Me.Background)
+    
+    Paint.Background = Color.LightForeground
+
+    Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
+    Paint.LineTo(DS \ 2, H \ 2)
+    Paint.LineTo(DS \ 2, $hFrame.H - DS \ 2)
+    Paint.LineTo($hFrame.W - DS \ 2, $hFrame.H - DS \ 2)
+    Paint.LineTo($hFrame.W - DS \ 2, H \ 2)
+    Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
+    Paint.LineWidth = 1
+    Paint.Translate(0.5, 0.5)
+    Paint.Stroke()
+    Paint.Translate(-0.5, -0.5)
+    
+    Paint.Background = Style.ForegroundOf(Me)
+    'Paint.Restore
+    
+    'Paint.FillRect(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2, hRect.Width + DS * 2, H - (H \ 2), Style.BackgroundOf(Me))
+    If $bRichText Then
+      Paint.DrawRichText(sText, 0, 0, $hFrame.W, H, Align.Center)
+    Else
+      Paint.DrawText(sText, 0, 0, $hFrame.W, H, Align.Center)
+    Endif
+
+  Else
+    
+    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Me.Background)
+    Paint.DrawRect(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Color.LightForeground)
+    'Style.PaintPanel(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Border.Etched)
+    
+  Endif
+  
+End
+
+Private Function Text_Read() As String
+
+  If Not $bRichText Then Return $sText
+
+End
+
+Private Sub Text_Write(Value As String)
+
+  $sText = Value
+  $bRichText = False
+  Frame_Arrange
+  $hFrame.Refresh
+
+End
+
+Private Function RichText_Read() As String
+
+  If $bRichText Then Return $sText
+
+End
+
+Private Sub RichText_Write(Value As String)
+
+  $sText = Value
+  $bRichText = True
+  Frame_Arrange
+  $hFrame.Refresh
+
+End
+
+Private Function TextFont_Read() As Font
+
+  Return $hTextFont
+
+End
+
+Private Sub TextFont_Write(Value As Font)
+
+  $hTextFont = Value
+
+End
+
+Public Sub Frame_Font()
+  
+  Frame_Arrange
+  
+End

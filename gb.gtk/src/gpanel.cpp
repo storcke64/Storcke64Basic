@@ -1,6 +1,6 @@
 /***************************************************************************
 
-  gframe.cpp
+  gpanel.cpp
 
   (c) 2004-2006 - Daniel Campos Fernández <dcamposf@gmail.com>
 
@@ -23,7 +23,7 @@
 
 #include "widgets.h"
 #include "gapplication.h"
-#include "gframe.h"
+#include "gpanel.h"
 
 /****************************************************************************
 
@@ -136,121 +136,3 @@ void gPanel::setBackground(gColor color)
 }
 #endif
 
-/****************************************************************************
-
-Frame
-
-****************************************************************************/
-
-gFrame::gFrame(gContainer *parent) : gContainer(parent)
-{
-	border = widget = gtk_fixed_new();
-	
-	fr = gtk_frame_new(NULL);
-	//label = gtk_frame_get_label_widget(GTK_FRAME(fr));
-	gtk_container_set_border_width(GTK_CONTAINER(fr),0);
-	gtk_frame_set_shadow_type(GTK_FRAME(fr), GTK_SHADOW_ETCHED_IN);
-	gtk_container_add(GTK_CONTAINER(widget), fr);
-	
-  realize(false);
-
-	//g_signal_connect(G_OBJECT(border), "size-allocate", G_CALLBACK(cb_frame_resize), (gpointer)this);
-}
-
-const char *gFrame::text()
-{
-	const char *label = gtk_frame_get_label(GTK_FRAME(fr));
-	if (!label)
-		label = "";
-	return label;
-}
-
-void gFrame::setText(const char *vl)
-{
-	if (!vl)
-		vl = "";
-
-	gtk_frame_set_label(GTK_FRAME(fr), vl);
-	gtk_frame_set_label_align(GTK_FRAME(fr), 0.5, 0.0);
-}
-
-void gFrame::updateFont()
-{
-	GtkWidget *label = gtk_frame_get_label_widget(GTK_FRAME(fr));
-	gContainer::updateFont();
-	if (label)
-	{
-#ifdef GTK3
-#else
-		gtk_widget_modify_font(label, font()->desc());
-#endif
-	}
-	performArrange();
-}
-
-#ifdef GTK3
-GtkWidget *gFrame::getStyleSheetWidget()
-{
-	return fr;
-}
-#else
-void gFrame::setRealForeground(gColor color)
-{
-	gControl::setRealForeground(color);
-	//if (label) set_gdk_fg_color(label, color);
-}
-#endif
-
-int gFrame::containerX()
-{
-	return gApplication::getFrameWidth();
-}
-
-int gFrame::clientX()
-{
-	return 0;
-}
-
-int gFrame::clientWidth()
-{
-	return width(); // - gApplication::getFrameWidth() * 2;
-}
-
-int gFrame::containerWidth()
-{
-	return clientWidth() - gApplication::getFrameWidth() * 2;
-}
-
-int gFrame::containerY()
-{
-	int y = gApplication::getFrameWidth();
-
-	if (*text())
-		y = font()->height() * 3 / 2;
-
-	return y;
-}
-
-int gFrame::clientY()
-{
-	return 0;
-}
-
-int gFrame::clientHeight()
-{
-	return height(); // - clientY() - gApplication::getFrameWidth();
-}
-
-int gFrame::containerHeight()
-{
-	return clientHeight() - containerY() - gApplication::getFrameWidth();
-}
-
-bool gFrame::resize(int w, int h)
-{
-	if (gContainer::resize(w, h))
-		return true;
-	
-	gtk_widget_set_size_request(fr, width(), height());
-	return false;
-}

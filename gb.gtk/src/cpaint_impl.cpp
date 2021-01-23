@@ -1663,6 +1663,11 @@ void PAINT_begin(void *device)
 	_internal_paint = false;
 }
 
+bool PAINT_is_internal()
+{
+	return _internal_paint;
+}
+
 void PAINT_end()
 {
 	DRAW.Paint.End();
