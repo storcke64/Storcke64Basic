@@ -35,6 +35,7 @@
 
 #include "CWindow.h"
 #include "CDrawingArea.h"
+#include "CContainer.h"
 #include "CPicture.h"
 #include "CImage.h"
 #include "cprinter.h"
@@ -115,12 +116,14 @@ typedef
 //#define DY(d) EXTRA(d)->dy
 #define DX(d) 0
 #define DY(d) 0
+	
+static bool _internal_paint = false;
 
 static gFont *get_default_font(GB_PAINT *d)
 {
-	if (GB.Is(d->device, CLASS_DrawingArea))
+	if (GB.Is(d->device, CLASS_DrawingArea) || GB.Is(d->device, CLASS_UserControl))
 	{
-		gDrawingArea *wid = (gDrawingArea *)((CWIDGET *)d->device)->widget;
+		gControl *wid = (gControl *)((CWIDGET *)d->device)->widget;
 		return wid->font()->copy();
 	}
 	else
@@ -356,6 +359,42 @@ static int Begin(GB_PAINT *d)
 
 		EXTRA(d)->context = gdk_cairo_create(dr);
 #endif
+
+		EXTRA(d)->dx = dx;
+		EXTRA(d)->dy = dy;
+
+		cairo_translate(CONTEXT(d), dx, dy);
+	}
+	else if (GB.Is(device, CLASS_UserControl))
+	{
+		gContainer *wid = (gDrawingArea *)((CWIDGET *)device)->widget;
+		double dx = 0, dy = 0;
+
+		w = wid->width();
+		h = wid->height();
+
+		if (!_internal_paint)
+		{
+			GB.Error("Cannot paint outside of Draw event handler");
+			return TRUE;
+		}
+
+#ifdef GTK3
+		EXTRA(d)->context = ((CUSERCONTROL *)device)->context;
+		cairo_reference(CONTEXT(d));
+#else
+		GdkDrawable *dr;
+
+		GtkAllocation *a = &wid->widget->allocation;
+		dx = a->x;
+		dy = a->y;
+		dr = gtk_widget_get_window(wid->widget);
+
+		EXTRA(d)->context = gdk_cairo_create(dr);
+#endif
+
+		rx = gDesktop::resolution();
+		ry = gDesktop::resolution();
 
 		EXTRA(d)->dx = dx;
 		EXTRA(d)->dy = dy;
@@ -1619,7 +1658,9 @@ GB_PAINT_MATRIX_DESC PAINT_MATRIX_Interface =
 
 void PAINT_begin(void *device)
 {
+	_internal_paint = true;
 	DRAW.Paint.Begin(device);
+	_internal_paint = false;
 }
 
 void PAINT_end()

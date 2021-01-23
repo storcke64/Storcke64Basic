@@ -62,8 +62,6 @@ DECLARE_EVENT(EVENT_Unplugged);
 DECLARE_EVENT(EVENT_PlugError);
 
 //static void *CLASS_Image = NULL;
-static GB_CLASS CLASS_UserContainer = 0;
-static GB_CLASS CLASS_UserControl = 0;
 
 /** Action *****************************************************************/
 
@@ -376,9 +374,6 @@ CWIDGET *GetContainer(CWIDGET *control)
 		GB.Error("Null container");
 		GB.Propagate();
 	}
-
-	if (!CLASS_UserContainer) CLASS_UserContainer=GB.FindClass("UserContainer");
-	if (!CLASS_UserControl) CLASS_UserControl=GB.FindClass("UserControl");
 
 	if ( GB.Is (control,CLASS_UserContainer) || GB.Is (control,CLASS_UserControl) )
 		return (CWIDGET*)((CUSERCONTROL*)control)->container;

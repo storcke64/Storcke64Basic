@@ -46,6 +46,7 @@
 #include "CPicture.h"
 #include "CImage.h"
 #include "CDrawingArea.h"
+#include "CContainer.h"
 #include "CColor.h"
 #include "CDraw.h"
 #include "cprinter.h"
@@ -83,6 +84,8 @@ typedef
 #define PAINTER(d) EXTRA(d)->painter
 #define PATH(d) EXTRA(d)->path
 //#define CLIP(d) EXTRA(d)->clip
+	
+static bool _internal_paint = false;
 
 static inline qreal to_deg(float angle)
 {
@@ -244,6 +247,27 @@ static int Begin(GB_PAINT *d)
 		d->area.height = wid->height();
 		return FALSE;
 	}
+	else if (GB.Is(device, CLASS_UserControl))
+	{
+		MyContainer *wid;
+
+		wid = (MyContainer *)(((CWIDGET *)device)->widget);
+
+		if (!_internal_paint)
+		{
+			GB.Error("Cannot paint outside of Draw event handler");
+			return TRUE;
+		}
+
+		target = wid;
+
+		if (init_painting(d, target))
+			return TRUE;
+
+		d->area.width = wid->width();
+		d->area.height = wid->height();
+		return FALSE;
+	}
 	else if (GB.Is(device, CLASS_Printer))
 	{
 		CPRINTER *printer = (CPRINTER *)device;
@@ -397,7 +421,7 @@ static void Font(GB_PAINT *d, int set, GB_FONT *font)
 	{
 		if (*font)
 			f = QFont(*((CFONT *)(*font))->font);
-		else if ((GB.Is(d->device, CLASS_DrawingArea)))
+		else if ((GB.Is(d->device, CLASS_DrawingArea) || GB.Is(d->device, CLASS_UserControl)))
 			f = (((CWIDGET *)d->device)->widget)->font();
 		
 		apply_font(f);
@@ -1450,7 +1474,9 @@ GB_PAINT_MATRIX_DESC PAINT_MATRIX_Interface =
 
 void PAINT_begin(void *device)
 {
+	_internal_paint = true;
 	DRAW.Paint.Begin(device);
+	_internal_paint = false;
 }
 
 void PAINT_end()

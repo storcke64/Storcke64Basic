@@ -77,6 +77,8 @@
 
 GB_CLASS CLASS_Control;
 GB_CLASS CLASS_ContainerChildren;
+GB_CLASS CLASS_UserControl;
+GB_CLASS CLASS_UserContainer;
 GB_CLASS CLASS_Picture;
 GB_CLASS CLASS_Image;
 GB_CLASS CLASS_DrawingArea;
@@ -299,8 +301,8 @@ int EXPORT GB_INIT(void)
 
 	CLASS_Control = GB.FindClass("Control");
 	CLASS_ContainerChildren = GB.FindClass("ContainerChildren");
-	//CLASS_UserControl = GB.FindClass("UserControl");
-	//CLASS_UserContainer = GB.FindClass("UserContainer");
+	CLASS_UserControl = GB.FindClass("UserControl");
+	CLASS_UserContainer = GB.FindClass("UserContainer");
 	CLASS_Window = GB.FindClass("Window");
 	CLASS_Menu = GB.FindClass("Menu");
 	CLASS_Picture = GB.FindClass("Picture");

@@ -41,6 +41,8 @@ extern GTK_PLATFORM_INTERFACE PLATFORM;
 
 extern GB_CLASS CLASS_Control;
 extern GB_CLASS CLASS_ContainerChildren;
+extern GB_CLASS CLASS_UserControl;
+extern GB_CLASS CLASS_UserContainer;
 extern GB_CLASS CLASS_Picture;
 extern GB_CLASS CLASS_Image;
 extern GB_CLASS CLASS_DrawingArea;

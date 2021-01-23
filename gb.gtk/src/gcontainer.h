@@ -26,6 +26,12 @@
 
 #include "gcontrol.h"
 
+#ifdef GTK3
+void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr);
+#else
+void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy);
+#endif
+
 struct gContainerArrangement
 {
 	unsigned mode : 4;
@@ -68,6 +74,7 @@ public:
 
 	void setArrange(int vl);
 	void setUser();
+	void setPaint();
 	void setAutoResize(bool vl);
 	void setPadding(int vl);
 	void setSpacing(bool vl);

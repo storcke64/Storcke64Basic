@@ -51,6 +51,20 @@ static gControl* get_next_child_widget (gContainer *gtk_control, int *gtk_list, 
 	return NULL; 
 }
 
+#ifdef GTK3
+static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gContainer *data)
+{
+	CUSERCONTROL_cb_draw(data, cr);
+	return false;
+}
+#else
+static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
+{
+	CUSERCONTROL_cb_draw(data, e->region, wid->allocation.x, wid->allocation.y);
+	return false;
+}
+#endif
+
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
 	sender->performArrange();
@@ -403,6 +417,11 @@ void gContainer::setUser()
 	arrangement.user = true;
 	performArrange();
 	updateDesignChildren();
+}
+
+void gContainer::setPaint()
+{
+	ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
 }
 
 void gContainer::setInvert(bool vl)

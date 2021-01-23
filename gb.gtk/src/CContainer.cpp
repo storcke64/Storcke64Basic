@@ -27,6 +27,7 @@
 #include "CContainer.h"
 #include "gframe.h"
 #include "gmainwindow.h"
+#include "cpaint_impl.h"
 
 /***************************************************************************
 
@@ -53,6 +54,49 @@ void CCONTAINER_cb_arrange(gContainer *sender)
 void CCONTAINER_raise_insert(CCONTAINER *_object, CWIDGET *child)
 {
 	GB.Raise(THIS, EVENT_Insert, 1, GB_T_OBJECT, child);
+}
+
+static void cleanup_drawing(intptr_t arg1, intptr_t arg2)
+{
+	PAINT_end();
+}
+
+#ifdef GTK3
+void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr)
+#else
+void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
+#endif
+{
+	CWIDGET *_object = GetObject(sender);
+	GB_ERROR_HANDLER handler;
+	
+#ifdef GTK3
+	cairo_t *save;
+#endif
+
+#ifdef GTK3
+	save = THIS_USERCONTROL->context;
+	THIS_USERCONTROL->context = cr;
+#endif
+	
+	PAINT_begin(THIS);
+	
+#ifndef GTK3
+	gdk_region_offset(region, -dx, -dy);
+	PAINT_clip_region(region);
+	gdk_region_offset(region, dx, dy);
+#endif
+	
+	handler.handler = (GB_CALLBACK)cleanup_drawing;
+	GB.OnErrorBegin(&handler);
+	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	GB.OnErrorEnd(&handler);
+	
+	PAINT_end();
+	
+#ifdef GTK3
+	THIS_USERCONTROL->context = save;
+#endif
 }
 
 
@@ -377,7 +421,12 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	
 	PANEL->setArrange(ARRANGE_FILL);
 	PANEL->setUser();
-	THIS_UC->container = THIS;
+	THIS_USERCONTAINER->container = THIS;
+
+	if (!GB.GetFunction(&THIS_USERCONTROL->paint_func, THIS, "UserControl_Draw", NULL, NULL))
+		PANEL->setPaint();
+	else
+		GB.Error(NULL);
 
 END_METHOD
 
@@ -392,7 +441,7 @@ BEGIN_PROPERTY(UserControl_Container)
 	
 	if (READ_PROPERTY)
 	{
-		GB.ReturnObject(THIS_UC->container);
+		GB.ReturnObject(THIS_USERCONTAINER->container);
 		return;
 	}
 	
@@ -402,7 +451,7 @@ BEGIN_PROPERTY(UserControl_Container)
 	{
 		if (THIS_CONT != THIS)
 			WIDGET_CONT->setProxyContainerFor(NULL);
-		THIS_UC->container = THIS;
+		THIS_USERCONTAINER->container = THIS;
 		WIDGET->setProxyContainer(NULL);
 		WIDGET->setProxy(NULL);
 		return;
@@ -439,7 +488,7 @@ BEGIN_PROPERTY(UserControl_Container)
 	if (THIS_CONT != THIS)
 		WIDGET_CONT->setProxyContainerFor(NULL);
 
-	THIS_UC->container = (CCONTAINER *)GetObject(((gContainer *)ct->ob.widget)->proxyContainer());
+	THIS_USERCONTAINER->container = (CCONTAINER *)GetObject(((gContainer *)ct->ob.widget)->proxyContainer());
 	
 	WIDGET->setProxyContainer(WIDGET_CONT->proxyContainer());
 	WIDGET->setProxy(WIDGET_CONT);
@@ -460,7 +509,7 @@ BEGIN_PROPERTY(UserContainer_Container)
 	{
 		UserControl_Container(_object, _param);
 
-		WIDGET_CONT->setFullArrangement(&THIS_UC->save);
+		WIDGET_CONT->setFullArrangement(&THIS_USERCONTAINER->save);
 	}
 
 END_PROPERTY
@@ -473,7 +522,7 @@ BEGIN_PROPERTY(UserContainer_Arrangement)
 	else
 	{
 		WIDGET_CONT->setArrange(VPROP(GB_INTEGER));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 
 END_PROPERTY
@@ -486,7 +535,7 @@ BEGIN_PROPERTY(UserContainer_AutoResize)
 	else
 	{
 		WIDGET_CONT->setAutoResize(VPROP(GB_BOOLEAN));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -499,7 +548,7 @@ BEGIN_PROPERTY(UserContainer_Padding)
 	else
 	{
 		WIDGET_CONT->setPadding(VPROP(GB_INTEGER));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -512,7 +561,7 @@ BEGIN_PROPERTY(UserContainer_Spacing)
 	else
 	{
 		WIDGET_CONT->setSpacing(VPROP(GB_BOOLEAN));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -525,7 +574,7 @@ BEGIN_PROPERTY(UserContainer_Margin)
 	else
 	{
 		WIDGET_CONT->setMargin(VPROP(GB_BOOLEAN));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -538,7 +587,7 @@ BEGIN_PROPERTY(UserContainer_Indent)
 	else
 	{
 		WIDGET_CONT->setIndent(VPROP(GB_BOOLEAN));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -551,7 +600,7 @@ BEGIN_PROPERTY(UserContainer_Invert)
 	else
 	{
 		WIDGET_CONT->setInvert(VPROP(GB_BOOLEAN));
-		THIS_UC->save = WIDGET_CONT->fullArrangement();
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -584,12 +633,14 @@ GB_DESC UserControlDesc[] =
 
 	USERCONTROL_DESCRIPTION,
 
+	GB_INTERFACE("Paint", &PAINT_Interface),
+	
 	GB_END_DECLARE
 };
 
 GB_DESC UserContainerDesc[] =
 {
-	GB_DECLARE("UserContainer", sizeof(CUSERCONTROL)), GB_INHERITS("Container"),
+	GB_DECLARE("UserContainer", sizeof(CUSERCONTAINER)), GB_INHERITS("Container"),
 	GB_NOT_CREATABLE(),
 
 	GB_METHOD("_new", NULL, UserControl_new, "(Parent)Container;"),

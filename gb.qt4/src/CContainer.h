@@ -48,7 +48,8 @@ typedef
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
-		unsigned _reserved: 12;
+		unsigned paint : 1;
+		unsigned _reserved: 11;
 		}
 	CARRANGEMENT;
 
@@ -71,14 +72,22 @@ typedef
 		unsigned margin : 1;
 		unsigned spacing : 1;
 		unsigned padding : 8;
-		unsigned indent : 4;
+		unsigned indent : 1;
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
-		unsigned _reserved: 9;
+		unsigned paint : 1;
+		unsigned _reserved: 11;
 		}
 	CCONTAINER_ARRANGEMENT;
 
+typedef
+	struct {
+		CCONTAINER parent;
+		GB_FUNCTION paint_func;
+		}
+	CUSERCONTROL;
+	
 typedef
 	struct {
 		CCONTAINER parent;
@@ -99,6 +108,7 @@ typedef
 #define THIS_CHILDREN ((CCONTAINERCHILDREN *)_object)
 #define CONTAINER (THIS->container)
 #define THIS_ARRANGEMENT (((CCONTAINER_ARRANGEMENT *)_object))
+#define THIS_USERCONTROL (((CUSERCONTROL *)_object))
 #define THIS_USERCONTAINER (((CUSERCONTAINER *)_object))
 
 //#define CCONTAINER_PROPERTIES CWIDGET_PROPERTIES ",Arrangement"
@@ -166,10 +176,13 @@ public:
 	MyContainer(QWidget *);
 	~MyContainer();
 
+	bool inDrawEvent();
+	
 protected:
 
 	virtual void showEvent(QShowEvent *);
 	virtual void hideEvent(QHideEvent *);
+	virtual void paintEvent(QPaintEvent *);
 };
 
 #endif

@@ -1846,7 +1846,7 @@ void gControl::setMinimumSize()
 		gtk_widget_get_preferred_size(widget, &minimum_size, &natural_size);
 		_do_not_patch = false;
 		
-		fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);
+		//fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);
 
 		_min_w = minimum_size.width;
 		_min_h = minimum_size.height;

@@ -41,7 +41,7 @@
 #include "CConst.h"
 #include "CTabStrip.h"
 #include "CColor.h"
-
+#include "cpaint_impl.h"
 #include "CContainer.h"
 
 #if QT5
@@ -780,6 +780,46 @@ void MyContainer::hideEvent(QHideEvent *e)
 	}*/
 }
 
+static void cleanup_drawing(intptr_t arg1, intptr_t arg2)
+{
+	PAINT_end();
+}
+
+void MyContainer::paintEvent(QPaintEvent *event)
+{
+	void *_object = CWidget::get(this);
+	//QPainter *p;
+	QRect r;
+	//GB_COLOR bg;
+	GB_ERROR_HANDLER handler;
+	
+	if (!THIS_ARRANGEMENT->paint)
+	{
+		MyFrame::paintEvent(event);
+		return;
+	}
+	
+	r = event->rect();
+	
+	PAINT_begin(THIS);
+	//p = PAINT_get_current();
+
+	/*bg = CWIDGET_get_background((CWIDGET *)THIS);
+	if (bg != COLOR_DEFAULT)
+		p->fillRect(0, 0, width(), height(), TO_QCOLOR(bg));*/
+
+	//fprintf(stderr, "paintEvent: %s: %d %d %d %d\n", THIS->widget.name, r.x(), r.y(), r.width(), r.height());
+	PAINT_clip(r.x(), r.y(), r.width(), r.height());
+
+	handler.handler = (GB_CALLBACK)cleanup_drawing;
+
+	GB.OnErrorBegin(&handler);
+	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	GB.OnErrorEnd(&handler);
+
+	PAINT_end();
+}
+
 
 
 /*void MyContainer::childEvent(QChildEvent *e)
@@ -1135,6 +1175,11 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	THIS_ARRANGEMENT->user = true;
 
 	CWIDGET_new(wid, (void *)_object);
+	
+	if (!GB.GetFunction(&THIS_USERCONTROL->paint_func, THIS, "UserControl_Draw", NULL, NULL))
+		THIS_ARRANGEMENT->paint = true;
+	else
+		GB.Error(NULL);
 
 END_METHOD
 
@@ -1473,7 +1518,7 @@ GB_DESC ContainerDesc[] =
 
 GB_DESC UserControlDesc[] =
 {
-	GB_DECLARE("UserControl", sizeof(CCONTAINER)), GB_INHERITS("Container"),
+	GB_DECLARE("UserControl", sizeof(CUSERCONTROL)), GB_INHERITS("Container"),
 	GB_NOT_CREATABLE(),
 
 	GB_METHOD("_new", NULL, UserControl_new, "(Parent)Container;"),
@@ -1488,6 +1533,8 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Invert", "b", Container_Invert),
 
 	USERCONTROL_DESCRIPTION,
+	
+	GB_INTERFACE("Paint", &PAINT_Interface),
 	
 	GB_END_DECLARE
 };

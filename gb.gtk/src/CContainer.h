@@ -41,12 +41,13 @@ extern GB_DESC UserContainerDesc[];
 
 #define THIS ((CCONTAINER *)_object)
 #define THIS_CHILDREN ((CCONTAINERCHILDREN *)_object)
-#define THIS_UC ((CUSERCONTROL *)_object)
+#define THIS_USERCONTAINER ((CUSERCONTAINER *)_object)
+#define THIS_USERCONTROL ((CUSERCONTROL *)_object)
 #define WIDGET ((gContainer*)THIS->ob.widget)
 #define PANEL ((gPanel *)(THIS->ob.widget))
 
-#define THIS_CONT (THIS_UC->container)
-#define WIDGET_CONT ((gContainer *)THIS_UC->container->ob.widget)
+#define THIS_CONT (THIS_USERCONTAINER->container)
+#define WIDGET_CONT ((gContainer *)THIS_USERCONTAINER->container->ob.widget)
 
 #endif
 
@@ -73,6 +74,18 @@ typedef
 		CWIDGET widget;
 		CCONTAINER *container;
 		gContainerArrangement save;
+	}
+	CUSERCONTAINER;
+
+typedef  
+	struct
+	{
+		CWIDGET widget;
+		CCONTAINER *container;
+		GB_FUNCTION paint_func;
+	#ifdef GTK3
+		cairo_t *context;
+	#endif
 	}
 	CUSERCONTROL;
 
