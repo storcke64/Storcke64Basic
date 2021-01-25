@@ -876,6 +876,7 @@
     MoveScaled(0,0,175,8)
     Visible = False
     Key = "main"
+    Separator = True
     { ToolButton1 ToolButton
       MoveScaled(0,0,4,4)
       ToolTip = ("New project")
@@ -1256,7 +1257,6 @@
     MoveScaled(2,17,170,77)
     Expand = True
     Arrangement = Arrange.Horizontal
-    Border = Border.Plain
     { panProject SidePanel
       MoveScaled(1,3,31,66)
       Visible = False
@@ -1327,19 +1327,19 @@
               MoveScaled(86,8,0,9)
               Visible = False
             }
-            { btnWorkspaceProperty ToolButton
-              MoveScaled(27,1,4,4)
-              Visible = False
-              ToolTip = ("Show properties sheet")
-              Ignore = True
-              Picture = Picture["icon:/small/properties"]
-            }
             { btnWorkspaceProject ToolButton
               MoveScaled(22,1,4,4)
               Visible = False
               ToolTip = ("Show project tree")
               Ignore = True
               Picture = Picture["icon:/small/view-tree"]
+            }
+            { btnWorkspaceProperty ToolButton
+              MoveScaled(27,1,4,4)
+              Visible = False
+              ToolTip = ("Show properties sheet")
+              Ignore = True
+              Picture = Picture["icon:/small/properties"]
             }
           }
           { panDebug SidePanel
@@ -1395,19 +1395,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyHelp ToolButton
-              MoveScaled(4,0,4,4)
-              Visible = False
-              ToolTip = ("Show property help")
-              Ignore = True
-              Picture = Picture["icon:/small/help"]
-            }
             { btnPropertyToolbar ToolButton
               MoveScaled(0,0,4,4)
               Visible = False
               ToolTip = ("Show controls")
               Ignore = True
               Picture = Picture["img/16/control.png"]
+            }
+            { btnPropertyHelp ToolButton
+              MoveScaled(4,0,4,4)
+              Visible = False
+              ToolTip = ("Show property help")
+              Ignore = True
+              Picture = Picture["icon:/small/help"]
             }
           }
           { panTool SidePanel

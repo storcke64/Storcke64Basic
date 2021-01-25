@@ -6049,7 +6049,7 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
       If Stat(sPath).Type = gb.Link Then Continue
   
       hForm = LoadFile(sPath)
-      hForm.Reload()
+      If hForm Then hForm.Reload()
   
     Next
     

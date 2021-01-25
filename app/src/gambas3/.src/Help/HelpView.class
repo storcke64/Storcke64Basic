@@ -7,6 +7,8 @@ Public Const _DrawWith As String = "WebView"
 
 Inherits WebView
 
+Event Ready
+
 Property NoHeader As Boolean
 
 Private $hObs As Observer
@@ -162,13 +164,12 @@ Public Sub WebView_Start()
   Dim sUrl As String
   Dim hTimer As Timer
   
-  'Debug Me.Link
-  
+  sUrl = Me.Link
+  If Not sUrl Then sUrl = Me.Url
+
   ShowWaiting(True)
   $hNotExist.Hide
 
-  sUrl = Me.Link
-  If Not sUrl Then sUrl = Me.Url
   If sUrl Begins "gambas://" Or If sUrl Begins "wiki://" Then 
 
     $sNextUrl = sUrl
@@ -216,6 +217,13 @@ End
 Public Sub WebView_Finish()
   
   ShowWaiting(False)
+  Raise Ready
+  
+End
+
+Public Sub WebView_Progress()
+  
+  $hSpinner.Value = Me.Progress
   
 End
 

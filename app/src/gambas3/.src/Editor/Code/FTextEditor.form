@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,194,76)
+  MoveScaled(0,0,217,76)
   Icon = Picture["icon:/small/text"]
   Persistent = True
   Arrangement = Arrange.Vertical
@@ -153,6 +153,8 @@
         Picture = Picture["img/32/tab.png"]
         Toggle = True
       }
+      { Menu8 Menu
+      }
       { mnuNoSplit Menu
         Action = ".view-nosplit"
         Text = ("No split")
@@ -169,6 +171,14 @@
         Text = ("Vertical split")
         Picture = Picture["icon:/small/view-split-v"]
         Shortcut = "Ctrl+J"
+      }
+      { Menu9 Menu
+      }
+      { mnuPreview Menu
+        Action = ".preview"
+        Text = ("Preview")
+        Picture = Picture["icon:/small/preview"]
+        Toggle = True
       }
     }
     { mnuEndOfLine Menu
@@ -247,7 +257,7 @@
     }
   }
   { panToolBar ToolBar
-    MoveScaled(0,0,191,4)
+    MoveScaled(0,0,215,4)
     Key = "text"
     Text = ("Text editor")
     Separator = True
@@ -467,22 +477,31 @@
       MoveScaled(160,0,6,4)
       Expand = True
     }
+    { btnPreview ToolButton
+      MoveScaled(169,0,12,4)
+      ToolTip = ("Toggle preview")
+      Action = ".preview"
+      AutoResize = True
+      Text = ("Preview")
+      Picture = Picture["icon:/small/preview"]
+      Toggle = True
+    }
     { btnWrap ToolButton
-      MoveScaled(166,0,4,4)
+      MoveScaled(194,0,4,4)
       ToolTip = ("Automatic word wrap")
       Action = ".wrap"
       Picture = Picture["img/32/wrap.png"]
       Toggle = True
     }
     { btnTabIndent ToolButton
-      MoveScaled(171,0,4,4)
+      MoveScaled(199,0,4,4)
       ToolTip = ("Indent with tab")
       Action = ".tab-indent"
       Picture = Picture["img/32/tab.png"]
       Toggle = True
     }
     { btnEndOfLine MenuButton
-      MoveScaled(176,0,7,4)
+      MoveScaled(204,0,7,4)
       Visible = False
       ToolTip = ("End of line")
       Action = ".eol"
@@ -493,34 +512,38 @@
       MenuOnly = True
     }
     { ToolButton7 ToolButton
-      MoveScaled(182,0,4,4)
+      MoveScaled(210,0,4,4)
       ToolTip = ("Lock / unlock file")
       Action = ".locked"
       Picture = Picture["icon:/small/lock"]
       Toggle = True
     }
   }
-  { Panel1 Panel
-    MoveScaled(10,6,38,63)
-    Background = Color.TextBackground
+  { splPreview HSplit
+    MoveScaled(10,6,103,64)
     Expand = True
-    Arrangement = Arrange.Fill
-    { splVertical VSplit
-      MoveScaled(2,41,22,18)
-      Visible = False
+    { Panel1 Panel
+      MoveScaled(1,1,38,61)
+      Background = Color.TextBackground
       Expand = True
-    }
-    { edtEditor TextEditor Editors
-      Name = "edtEditor"
-      MoveScaled(3,1,24,16)
-      Expand = True
-      Border = False
-      ShowPreview = True
-    }
-    { splHorizontal HSplit
-      MoveScaled(3,19,22,18)
-      Visible = False
-      Expand = True
+      Arrangement = Arrange.Fill
+      { edtEditor TextEditor Editors
+        Name = "edtEditor"
+        MoveScaled(3,1,24,16)
+        Expand = True
+        Border = False
+        ShowPreview = True
+      }
+      { splHorizontal HSplit
+        MoveScaled(3,19,22,18)
+        Visible = False
+        Expand = True
+      }
+      { splVertical VSplit
+        MoveScaled(2,41,22,18)
+        Visible = False
+        Expand = True
+      }
     }
   }
 }
@@ -641,6 +664,11 @@
     Shortcut = "Ctrl+Shift+F"
     Picture = "icon:/small/wizard"
   }
+  { Action preview
+    Text = "Preview"
+    Shortcut = ""
+    Picture = "icon:/small/preview"
+  }
   { Action print
     Text = "Print"
     Picture = "icon:/small/print"
@@ -737,7 +765,7 @@
 { Toolbars
   { Toolbar text
     Text = "Text editor"
-    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,compress,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked"
-    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,|,proc,~,wrap,tab-indent,locked"
+    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,compress,view-nosplit,view-hsplit,view-vsplit,proc,preview,wrap,tab-indent,eol,locked"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,|,proc,~,preview,wrap,tab-indent,locked"
   }
 }

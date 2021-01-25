@@ -228,7 +228,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
       hCtrl[0, 0].Text = sName
       hCtrl[0, 0].ColumnSpan = hCtrl.Columns.Count
       'hCtrl.Rows.H = -1
-
+      
     Case "menu"
       hCtrl = New Menu(hParent)
 

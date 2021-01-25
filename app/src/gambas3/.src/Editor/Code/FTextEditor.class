@@ -25,7 +25,7 @@ Public Age As Integer
 
 Property Read ReadOnly As Boolean
 
-Static Private $aExt As String[] = ["htm", "html", "xml", "kml", "svg", "css", "webpage", "js", "c", "h", "cpp", "gbs", "rss"]
+Static Private $aExt As String[] = ["htm", "html", "xml", "kml", "svg", "css", "webpage", "js", "c", "h", "cpp", "gbs", "rss", "md"]
 
 Private $hEditor As TextEditor
 Private $bNoHighlight As Boolean
@@ -58,6 +58,13 @@ Private $iLastLine As Integer
 
 Private $bDiffMode As Boolean
 Private $bIgnoreCompress As Boolean
+
+Private Enum PREVIEW_NONE, PREVIEW_HTML, PREVIEW_MARKDOWN
+Private $hPreview As WebView
+Private $iShowPreview As Integer
+Private $hTimerPreview As Timer
+Private $sTempPreview As String
+Private $bMovePreviewOnReady As Boolean
 
 Public Sub _new(sPath As String, Optional bModule As Boolean)
 
@@ -99,6 +106,7 @@ Public Sub LoadFile() As Boolean
   $bConsole = False
   $bShowComment = False
   $bShowPretty = False
+  $iShowPreview = PREVIEW_NONE
   
   If Path Then
   
@@ -119,6 +127,10 @@ Public Sub LoadFile() As Boolean
           $bShowPretty = True
         Case "gbs"
           $bShowPretty = True
+        Case "md"
+          $iShowPreview = PREVIEW_MARKDOWN
+        Case "html", "htm"
+          $iShowPreview = PREVIEW_HTML
       End Select
       
       edtEditor.Mode = TextEditor.GetModeFromPath(Path)
@@ -284,11 +296,18 @@ Public Function IsModified() As Boolean
 
 End
 
+Private Sub HasPreview() As Boolean
+  
+  If $hPreview And If $hPreview.Visible Then Return True
+  
+End
+
 
 Public Sub Editors_Change()
 
   $cProc = Null
   Modify
+  If HasPreview() Then $hTimerPreview.Restart
 
 End
 
@@ -986,6 +1005,8 @@ Private Sub RefreshLineInfo(Optional bForce As Boolean) As Boolean
 
     UpdateCurrentProc
     bNewLine = True
+    
+    RefreshPreview
 
   Endif
 
@@ -1277,6 +1298,7 @@ Private Sub UpdateMenu()
   Action[".proc", Me].Visible = Not $bNoHighlight
   Action[".comment,.uncomment", Me].Visible = $bShowComment And bVisible
   Action[".pretty", Me].Visible = $bShowPretty And bVisible
+  Action[".preview", Me].Visible = $iShowPreview <> PREVIEW_NONE
   
 End
 
@@ -1544,6 +1566,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
         Modify()
         Save(True)
       Endif
+      
+    Case ".preview"
+      UpdatePreview
     
     Case Else
       Return True
@@ -1910,4 +1935,107 @@ Public Sub SetCompression(bCompress As Boolean)
   If Not $bShowCompress Then Return
   Action[".compress", Me].Value = bCompress
   
+End
+
+Public Sub Preview_Ready()
+
+  If $bMovePreviewOnReady Then  
+    $bMovePreviewOnReady = False
+    $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
+  Endif
+  
+End
+
+Private Sub RefreshPreview(Optional bReload As Boolean)
+
+  Dim sHtml As String
+  Dim bError As Boolean
+  
+  If Not HasPreview() Then Return
+  
+  If bReload Then
+    
+    Project.SetMessage(("Preview refresh..."))
+    
+    Select Case $iShowPreview
+      
+      Case PREVIEW_HTML
+        
+        sHtml = $hEditor.Text
+      
+      Case PREVIEW_MARKDOWN
+        
+        Markdown.LinkAnchors = True
+        Try sHtml = Markdown.ToHTML($hEditor.Text)
+        Markdown.LinkAnchors = False
+        If Error Then 
+          sHtml = "<pre>" & Html(Error.Text) & "\n\n" & Error.Backtrace.Join(" ") & "</pre>"
+          bError = True
+        Else
+          sHtml &= "<script type=\"text/javascript\">" & File.Load("markdown.js") & "</script>"
+        Endif
+        sHtml = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>" & sHtml & "</body></html>"
+      
+    End Select
+  
+    Try Kill $sTempPreview
+    $sTempPreview = File.SetExt(Temp(), "html")
+    File.Save($sTempPreview, sHtml)
+    
+    'Print sHtml
+    
+    $bMovePreviewOnReady = True
+    $hPreview.Url = "file://" & $sTempPreview '& "#l" & CStr($hEditor.Line + 1)
+    
+    Project.SetMessage("")
+    
+  Else
+    
+    $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
+    
+  Endif
+  
+
+End
+
+Private Sub UpdatePreview()
+
+  If btnPreview.Value Then
+    
+    If Not $hPreview Then
+      $hPreview = New HelpView(splPreview) As "Preview"
+      $hPreview.Settings[WebSettings.Javascript] = True
+      splPreview.Layout = [1, 1]
+      $hTimerPreview = New Timer As "TimerPreview"
+      $hTimerPreview.Delay = 1000
+    Endif
+    
+    $hPreview.Show
+    RefreshPreview(True)
+    
+  Else
+    
+    $hPreview.Hide
+    
+  Endif
+
+End
+
+Public Sub TimerPreview_Timer()
+  
+  RefreshPreview(True)
+  $hTimerPreview.Stop
+  
+End
+
+Public Sub Preview_GotFocus()
+  
+  $hEditor.SetFocus
+  
+End
+
+Public Sub splPreview_Resize()
+
+  RefreshPreview
+
 End
