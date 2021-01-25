@@ -327,7 +327,7 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	QVariant result = WIDGET->page()->currentFrame()->evaluateJavaScript(QSTRING_ARG(script));
 	QByteArray json;
 	
-	JSONWRITER_valueToJson(result, QByteArray &json);
+	JSONWRITER_valueToJson(result, json);
 	
 	GB.ReturnNewString(json.constData(), json.size());
 	

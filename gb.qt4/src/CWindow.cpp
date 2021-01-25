@@ -1634,6 +1634,8 @@ void MyMainWindow::initProperties(int which)
 		
 		PLATFORM.Window.SetProperties(this, which, &prop);
 	#else
+		if (effectiveWinId() == 0)
+			return;
 		X11_flush();
 
 		if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))

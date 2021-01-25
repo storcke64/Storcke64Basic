@@ -23,12 +23,10 @@
 
 
 #include <cmath>
+#include <qglobal.h>
 #include <qlocale.h>
 
 #include "jsonwriter.h"
-
-static void objectContentToJson(const QJsonPrivate::Object *o, QByteArray &json, int indent, bool compact);
-static void arrayContentToJson(const QJsonPrivate::Array *a, QByteArray &json, int indent, bool compact);
 
 static inline uchar hexa_digit(uchar c)
 {
@@ -47,7 +45,7 @@ static QByteArray escapedString(const QString &s)
 		if (c < 0x20 || c == 0x22 || c == 0x5C)
 		{
 			ba += '\\';
-			switch (u) 
+			switch (c) 
 			{
 				case 0x22: ba += '"'; break;
 				case 0x5c: ba += '\\'; break;
@@ -112,42 +110,53 @@ static void objectContentToJson(const QVariantMap &v, QByteArray &json)
 
 void JSONWRITER_valueToJson(const QVariant &v, QByteArray &json)
 {
+	if (v.isNull())
+	{
+		json += "null";
+		return;
+	}
+
 	switch (v.type())
 	{
 		case QVariant::Bool:
-			json += v.toBoolean() ? "true" : "false";
+			json += v.toBool() ? "true" : "false";
 			break;
+    case QVariant::ULongLong:
+			json += QByteArray::number(v.value<qulonglong>());
+		case QVariant::UInt:
+			json += QByteArray::number(v.value<quint32>());
 		case QVariant::Double:
 		{
 			const double d = v.toDouble();
-			if (qIsFinite(d))
-			{ // +2 to format to ensure the expected precision
-					quint64 absInt;
-					json += QByteArray::number(d, convertDoubleTo(std::abs(d), &absInt) ? 'f' : 'g', QLocale::FloatingPointShortest);
-			} 
-			else
+			if (std::isnan(d) || std::isinf(d))
 			{
-				json += "null"; // +INF || -INF || NaN (see RFC4627#section2.4)
+				json += "null";
 			}
+			else
+			{ 
+				QString str = QByteArray::number(d, 'g', 12);
+        /*if (!str.contains( '.' ) && !str.contains('e'))
+          str += ".0";*/
+				json += str;
+			} 
 			break;
 		}
 		case QVariant::String:
-				json += '"';
-				json += escapedString(v.toString(b));
-				json += '"';
-				break;
+			json += '"';
+			json += escapedString(v.toString());
+			json += '"';
+			break;
 		case QVariant::List:
-				json += '[';
-				arrayContentToJson(v.toList(), json,);
-				json += ']';
-				break;
+			json += '[';
+			arrayContentToJson(v.toList(), json);
+			json += ']';
+			break;
 		case QVariant::Map:
-				json += '{';
-				objectContentToJson(v.toMap(), json);
-				json += '}';
-				break;
-		case QJsonValue::Null:
+			json += '{';
+			objectContentToJson(v.toMap(), json);
+			json += '}';
+			break;
 		default:
-				json += "null";
+			json += "undefined";
 	}
 }
