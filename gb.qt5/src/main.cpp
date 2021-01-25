@@ -1086,6 +1086,11 @@ static void declare_tray_icon()
 	GB.Component.Declare(TrayIconsDesc);
 }
 
+static int QT_GetDesktopScale(void)
+{
+	return MAIN_scale;
+}
+
 extern "C" {
 
 GB_DESC *GB_CLASSES[] EXPORT =
@@ -1150,6 +1155,7 @@ void *GB_QT5_1[] EXPORT =
 	(void *)CWIDGET_get_background,
 	(void *)Control_Mouse,
 	(void *)CWIDGET_after_set_color,
+	(void *)QT_GetDesktopScale,
 	NULL
 };
 

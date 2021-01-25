@@ -11,5 +11,6 @@ gb_qt4_webview_la_CPPFLAGS = @QTWEBVIEW_INC@ -I$(top_srcdir)/share -I$(top_srcdi
 gb_qt4_webview_la_SOURCES = \
  main.h main.cpp \
  c_websettings.h c_websettings.cpp \
- c_webview.h c_webview.cpp c_webview_moc.cpp
+ c_webview.h c_webview.cpp c_webview_moc.cpp \
+ jsonwriter.h jsonwriter.cpp
 

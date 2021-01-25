@@ -46,6 +46,19 @@ extern GB_DESC WebViewHistoryItemDesc[];
 
 #endif
 
+typedef
+	struct 
+	{
+		QT_WIDGET widget;
+		QT_PICTURE icon;
+		void *new_view;
+		char *link;
+		int history;
+		int progress;
+		unsigned cancel : 1;
+	}
+	CWEBVIEW;
+
 class MyWebPage : public QWebEnginePage
 {
 	Q_OBJECT
@@ -71,19 +84,6 @@ protected:
 		
 	virtual QWebEngineView *createWindow(QWebEnginePage::WebWindowType type);
 };
-
-typedef
-	struct 
-	{
-		QT_WIDGET widget;
-		QT_PICTURE icon;
-		void *new_view;
-		char *link;
-		int history;
-		int progress;
-		unsigned cancel : 1;
-	}
-	CWEBVIEW;
 
 class WebViewSignalManager : public QObject
 {

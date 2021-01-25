@@ -30,6 +30,8 @@
 #include <QWebFrame>
 #include <QWebHistory>
 
+#include "jsonwriter.h"
+
 /*#include "ccookiejar.h"
 #include "cwebelement.h"
 #include "cwebframe.h"
@@ -317,6 +319,20 @@ BEGIN_METHOD_VOID(WebView_Clear)
 
 END_METHOD
 
+BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
+
+	if (LENGTH(script) == 0)
+		return;
+	
+	QVariant result = WIDGET->page()->currentFrame()->evaluateJavaScript(QSTRING_ARG(script));
+	QByteArray json;
+	
+	JSONWRITER_valueToJson(result, QByteArray &json);
+	
+	GB.ReturnNewString(json.constData(), json.size());
+	
+END_METHOD
+
 //-------------------------------------------------------------------------
 
 static QWebHistoryItem get_item(QWebHistory *history, int index)
@@ -449,6 +465,8 @@ GB_DESC WebViewDesc[] =
 	GB_METHOD("Forward", NULL, WebView_Forward, NULL),
 	GB_METHOD("Reload", NULL, WebView_Reload, "[(BypassCache)b]"),
 	GB_METHOD("Stop", NULL, WebView_Stop, NULL),
+
+	GB_METHOD("ExecJavascript", "s", WebView_ExecJavascript, "(Javascript)s"),
 
 	GB_PROPERTY_SELF("History", ".WebView.History"),
 	GB_PROPERTY_SELF("Settings", ".WebView.Settings"),

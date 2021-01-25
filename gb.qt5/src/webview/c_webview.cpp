@@ -30,6 +30,7 @@
 #include <QWebFrame>
 #include <QWebHistory>*/
 #include <QWebEngineHistory>
+#include <QJsonDocument>
 
 /*#include "ccookiejar.h"
 #include "cwebsettings.h"
@@ -40,6 +41,10 @@
 
 #define HISTORY (WIDGET->history())
 
+static bool _js_exited = FALSE;
+static volatile bool _js_running = FALSE;
+static bool _js_error = FALSE;
+static char *_js_result = NULL;
 
 /*typedef
 	struct {
@@ -216,7 +221,30 @@ static void set_link(void *_object, const QString &link)
 	THIS->link = QT.NewString(link);
 }
 
+static void cb_javascript_finished(const QVariant &result)
+{
+	if (_js_exited)
+		return;
+	
+	QVariantList value;
+	value.append(result);
+	
+	QByteArray array = QJsonDocument::fromVariant(value).toJson(QJsonDocument::Compact);
+	
+	if (array.size() > 2)
+		_js_result = GB.NewString(array.constData() + 1, array.size() - 2);
+	
+	_js_running = FALSE;
+}
+
 //-------------------------------------------------------------------------
+
+BEGIN_METHOD_VOID(WebView_exit)
+
+	_js_exited = TRUE;
+	GB.FreeString(&_js_result);
+
+END_METHOD
 
 BEGIN_METHOD(WebView_new, GB_OBJECT parent)
 
@@ -409,6 +437,32 @@ BEGIN_METHOD_VOID(WebView_Clear)
 	//delete WIDGET->page();
 	WIDGET->setPage(new MyWebPage(WIDGET));
 	QObject::connect(WIDGET->page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
+
+END_METHOD
+
+BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
+
+	if (LENGTH(script) == 0)
+		return;
+	
+	_js_running = TRUE;
+	WIDGET->page()->runJavaScript(QSTRING_ARG(script), cb_javascript_finished);
+	
+	while(_js_running)
+		GB.Wait(0);
+
+	if (_js_error)
+	{
+		GB.Error("Javascript error");
+		GB.FreeString(&_js_result);
+	}
+	else
+	{
+		GB.ReturnString(GB.FreeStringLater(_js_result));
+		_js_result = NULL;
+	}
+	
+	_js_error = FALSE;
 
 END_METHOD
 
@@ -843,6 +897,8 @@ GB_DESC WebViewDesc[] =
 {
   GB_DECLARE("WebView", sizeof(CWEBVIEW)), GB_INHERITS("Control"),
 	
+	GB_STATIC_METHOD("_exit", NULL, WebView_exit, NULL),
+	
   GB_METHOD("_new", NULL, WebView_new, "(Parent)Container;"),
   GB_METHOD("_free", NULL, WebView_free, NULL),
 
@@ -862,6 +918,8 @@ GB_DESC WebViewDesc[] =
 	GB_METHOD("Reload", NULL, WebView_Reload, "[(BypassCache)b]"),
 	GB_METHOD("Stop", NULL, WebView_Stop, NULL),
 
+	GB_METHOD("ExecJavascript", "s", WebView_ExecJavascript, "(Javascript)s"),
+	
 	GB_PROPERTY_SELF("History", ".WebView.History"),
 	GB_PROPERTY_SELF("Settings", ".WebView.Settings"),
 	

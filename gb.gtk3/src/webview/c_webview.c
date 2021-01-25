@@ -119,7 +119,7 @@ static void cb_link(WebKitWebView *widget, WebKitHitTestResult *hit_test_result,
 	GB.Raise(THIS, EVENT_LINK, 0);
 }
 
-static GtkWidget*cb_create(WebKitWebView *widget, WebKitNavigationAction *navigation_action, CWEBVIEW *_object)
+static GtkWidget *cb_create(WebKitWebView *widget, WebKitNavigationAction *navigation_action, CWEBVIEW *_object)
 {
 	GtkWidget *new_view;
 	
@@ -171,6 +171,45 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 	}
 	
 	return FALSE;
+}
+
+static void cb_javascript_finished(WebKitWebView *widget, GAsyncResult *result, void *_object)
+{
+	WebKitJavascriptResult *js_result;
+	JSCValue *value;
+	GError *error = NULL;
+	JSCException *exception;
+	char *json;
+
+	js_result = webkit_web_view_run_javascript_finish(widget, result, &error);
+	if (!js_result)
+	{
+		THIS->js_result = GB.NewZeroString(error->message);
+		g_error_free(error);
+		THIS->js_error = TRUE;
+	}
+	else
+	{
+		value = webkit_javascript_result_get_js_value(js_result);
+		json = jsc_value_to_json(value, 0);
+		
+		exception = jsc_context_get_exception(jsc_value_get_context (value));
+		if (exception)
+		{
+			THIS->js_result = GB.NewZeroString(jsc_exception_get_message(exception));
+			THIS->js_error = TRUE;
+		}
+		else
+		{
+			THIS->js_result = GB.NewZeroString(json);
+		}
+		
+		g_free(json);
+		webkit_javascript_result_unref(js_result);
+	}
+	
+	GB.Unref(POINTER(&_object));
+	THIS->js_running = FALSE;
 }
 
 //---------------------------------------------------------------------------
@@ -335,6 +374,37 @@ BEGIN_METHOD_VOID(WebView_Clear)
 
 END_METHOD
 
+BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
+
+	char *script;
+	
+	if (LENGTH(script) == 0)
+		return;
+	
+	script = GB.ToZeroString(ARG(script));
+	
+	THIS->js_running = TRUE;
+	GB.Ref(THIS);
+	webkit_web_view_run_javascript(WIDGET, script, NULL, (GAsyncReadyCallback)cb_javascript_finished, (gpointer)THIS);
+	
+	while(THIS->js_running)
+		GB.Wait(0);
+	
+	if (THIS->js_error)
+	{
+		GB.Error("Javascript error: &1", THIS->js_result);
+		GB.FreeString(&THIS->js_result);
+	}
+	else
+	{
+		GB.ReturnString(GB.FreeStringLater(THIS->js_result));
+		THIS->js_result = NULL;
+	}
+	
+	THIS->js_error = FALSE;
+
+END_METHOD
+
 //---------------------------------------------------------------------------
 
 BEGIN_PROPERTY(WebViewHistoryItem_Title)
@@ -434,6 +504,8 @@ GB_DESC WebViewDesc[] =
 	GB_METHOD("Forward", NULL, WebView_Forward, NULL),
 	GB_METHOD("Reload", NULL, WebView_Reload, "[(BypassCache)b]"),
 	GB_METHOD("Stop", NULL, WebView_Stop, NULL),
+	
+	GB_METHOD("ExecJavascript", "s", WebView_ExecJavascript, "(Javascript)s"),
 	
 	GB_PROPERTY_SELF("History", ".WebView.History"),
 	GB_PROPERTY_SELF("Settings", ".WebView.Settings"),
