@@ -7,7 +7,6 @@ Inherits _X11
 Static Property DesktopCount As Integer
 Static Property CurrentDesktop As Integer
 Static Property ActiveWindow As Integer
-Static Property Read RootWindow As Integer
 Static Property ShowDesktop As Boolean
 
 ' Static Public Sub FindWindow(Optional Title As String, (Application) As String, Role As String) As Integer[]
@@ -128,11 +127,5 @@ End
 Static Private Sub ShowDesktop_Write(Value As Boolean)
 
   X11.SendClientMessageToRootWindow(Atom["_NET_SHOWING_DESKTOP"], [If(Value, 1, 0)])
-
-End
-
-Static Private Function RootWindow_Read() As Integer
-
-  Return X11.RootWindow
 
 End
