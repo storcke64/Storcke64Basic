@@ -29,6 +29,7 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebHistory>
+#include <QContextMenuEvent>
 
 #include "jsonwriter.h"
 
@@ -530,7 +531,7 @@ QWebView *MyWebView::createWindow(QWebPage::WebWindowType type)
 	return new_view;
 }
 
-void MyWebEngineView::contextMenuEvent(QContextMenuEvent *event)
+void MyWebView::contextMenuEvent(QContextMenuEvent *event)
 {
 	void *_object = QT.GetObject(this);
 	
