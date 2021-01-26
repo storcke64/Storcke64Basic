@@ -606,18 +606,17 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 			p->setBrush(QBrush());
 			style->drawPrimitive(QStyle::PE_Frame, &optv3, p, w);
 			p->setBrush(save_brush);
-			//style->drawControl(QStyle::CE_ShapedFrame, &optv3, p, w);
 			break;
 			
 		case BORDER_RAISED:
 			optv3.rect = opt.rect;
 			optv3.state = opt.state | QStyle::State_Raised;
 			optv3.frameShape = QFrame::StyledPanel;
+
+			save_brush = p->brush();
+			p->setBrush(QBrush());
 			style->drawPrimitive(QStyle::PE_Frame, &optv3, p, w);
-			/*opt.lineWidth = 2;
-			opt.midLineWidth = 2;
-			opt.state |= QStyle::State_Raised;
-			style->drawPrimitive(QStyle::PE_Frame, &opt, p, w);*/
+			p->setBrush(save_brush);
 			break;
 			
 		case BORDER_ETCHED:
@@ -625,7 +624,6 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 			//optv3.state = opt.state | QStyle::State_Raised;
 			optv3.frameShape = QFrame::StyledPanel;
 			style->drawPrimitive(QStyle::PE_FrameGroupBox, &optv3, p, w);
-			//qDrawShadeRect(p, opt.rect, opt.palette, true, 1, 0);
 			break;
 			
 		default:
