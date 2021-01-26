@@ -203,13 +203,8 @@ Public Sub UpdateSnap()
     If iColor = Color.Default Then iColor = Color.Background
     hGrid.Fill(iColor)
     
-    If (Color[iColor].Value > 128) Then
-      iColor = Color[iColor].Value - &H30
-      iColor = Color.RGB(iColor, iColor, iColor)
-    Else
-      iColor = Color[iColor].Value + &H70
-      iColor = Color.RGB(iColor, iColor, iColor)
-    Endif
+    iColor = Color.Merge(iColor, Color.Foreground, 0.3)
+    
     For X = 0 To iSnap * nPts - 1 Step iSnap
       For Y = 0 To iSnap * nPts - 1 Step iSnap
         hGrid[X, Y] = iColor
