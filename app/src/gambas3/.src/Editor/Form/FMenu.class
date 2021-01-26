@@ -1,8 +1,11 @@
 ' Gambas class file
 
 Static Public OpenEventHandlerFor As String
+
 Static Private $hForm As FForm
 Static Private $aMenu As New CMenu[]
+Static Private $iSaveCurrent As Integer
+Static Private $iSaveScrollY As Integer
 
 Private $hFamily As CFamily
 Private $iLevel As Integer
@@ -15,7 +18,12 @@ Private $sImageProp As String
 
 Static Public Sub Run(hForm As FForm)
 
-  $hForm = hForm
+  If hForm <> $hForm Then
+    $hForm = hForm
+    $iSaveCurrent = 0
+    $iSaveScrollY = 0
+  Endif
+  
   OpenEventHandlerFor = ""
   FMenu.ShowModal()
 
@@ -99,6 +107,8 @@ Public Sub Form_Close()
     End Select
   Endif
   
+  $iSaveCurrent = $iCurrent
+  $iSaveScrollY = gvwMenu.ScrollY
   Settings.Write(Me)
   
 End
@@ -217,7 +227,8 @@ Private Sub LoadAllMenu()
   $bFreeze = False
   $bModified = False
 
-  SetCurrent(0)
+  SetCurrent($iSaveCurrent)
+  gvwMenu.ScrollY = $iSaveScrollY
 
 End
 
