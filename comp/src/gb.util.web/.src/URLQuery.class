@@ -47,6 +47,13 @@ Public Sub Exist(Key As String) As Boolean
   
 End
 
+Public Sub Remove(Key As String)
+  
+  $cNull.Remove(Key)
+  $cVal.Remove(Key)
+  
+End
+
 
 Public Sub _get(Key As String) As String
   
@@ -56,8 +63,7 @@ End
 
 Public Sub _put(Value As String, Key As String)
   
-  $cNull.Remove(Key)
-  $cVal.Remove(Key)
+  Remove(Key)
   
   If Value Then
     $cVal[Key] = Value
