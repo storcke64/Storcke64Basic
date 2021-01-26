@@ -390,15 +390,15 @@ void gComboBox::customStyleSheet(GString *css)
 	{
 		setStyleSheetNode(css, "");
 		g_string_append_printf(css, "border:none;box-shadow:none;padding-top:0;padding-bottom:0;\n");
-		if (background() == COLOR_DEFAULT)
-			g_string_append_printf(css, "background:none;");
+		/*if (background() == COLOR_DEFAULT)
+			g_string_append_printf(css, "background:none;");*/
 		
 		if (entry)
 		{
-			setStyleSheetNode(css, " + *");
+			setStyleSheetNode(css, " + button");
 			g_string_append_printf(css, "border:none;box-shadow:none;");
-			if (background() == COLOR_DEFAULT)
-				g_string_append_printf(css, "background:none;");
+			/*if (background() == COLOR_DEFAULT)
+				g_string_append_printf(css, "background:none;");*/
 		}
 	}
 }

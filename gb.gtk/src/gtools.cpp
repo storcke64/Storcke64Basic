@@ -2004,7 +2004,7 @@ void gt_cairo_draw_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf, float x, float y, floa
 #define NUM_STYLES 12
 
 #ifdef GTK3
-static GtkStyleContext *_style[NUM_STYLES] = { 0 };
+static GtkStyleContext *_style[NUM_STYLES] = { NULL };
 #else
 static int _style_loaded = 0;
 static GtkStyle *_style[NUM_STYLES];
@@ -2313,7 +2313,8 @@ void gt_on_theme_change()
 	
 	for (i = 0; i < NUM_STYLES; i++)
 	{
-		g_object_unref(G_OBJECT(_style[i]));
+		if (_style[i])
+			g_object_unref(G_OBJECT(_style[i]));
 		_style[i] = NULL;
 	}
 }

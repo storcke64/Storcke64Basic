@@ -2140,7 +2140,8 @@ void gControl::setStyleSheetNode(GString *css, const char *node)
 void gControl::updateStyleSheet(bool dirty)
 {
 	GtkWidget *wid;
-	GtkStyleContext *context;
+	//GtkStyleContext *context;
+	GdkScreen *screen;
 	GString *css;
 	char *css_str;
 	gColor bg, fg;
@@ -2163,7 +2164,8 @@ void gControl::updateStyleSheet(bool dirty)
 		return;
 
 	wid = getStyleSheetWidget();
-	context = gtk_widget_get_style_context(wid);
+	//context = gtk_widget_get_style_context(wid);
+	screen = gdk_screen_get_default();
 	
 	bg = _no_background ? background() : COLOR_DEFAULT;
 	fg = foreground(); //realForeground();
@@ -2192,13 +2194,15 @@ void gControl::updateStyleSheet(bool dirty)
 		css_str = g_string_free(css, FALSE);
 		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css_str, -1, NULL);
 		g_free(css_str);
-		gtk_style_context_add_provider(context, _css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+		//gtk_style_context_add_provider(context, _css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+		gtk_style_context_add_provider_for_screen(screen, _css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	}
 	else
 	{
 		if (_css)
 		{
-			gtk_style_context_remove_provider(context, _css);
+			//gtk_style_context_remove_provider(context, _css);
+			gtk_style_context_remove_provider_for_screen(screen, _css);
 			_css = NULL;
 		}
 	}

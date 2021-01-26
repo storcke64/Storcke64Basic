@@ -517,8 +517,8 @@ void gTextBox::customStyleSheet(GString *css)
 	{
 		setStyleSheetNode(css, "");
 		g_string_append_printf(css, "border:none;box-shadow:none;padding-top:0;padding-bottom:0;\n");
-		if (background() == COLOR_DEFAULT)
-			g_string_append_printf(css, "background:none;");
+		/*if (background() == COLOR_DEFAULT)
+			g_string_append_printf(css, "background:none;");*/
 	}
 }
 #endif
