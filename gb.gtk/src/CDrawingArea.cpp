@@ -70,6 +70,7 @@ static void cb_expose(gDrawingArea *sender, cairo_t *cr)
 	CWIDGET *_object = GetObject(sender);
 	GB_RAISE_HANDLER handler;
 	cairo_t *save;
+	int fw;
 
 	if (GB.CanRaise(THIS, EVENT_Draw))
 	{
@@ -82,7 +83,17 @@ static void cb_expose(gDrawingArea *sender, cairo_t *cr)
 		THIS->context = cr;
 		PAINT_begin(THIS);
 
+		fw = sender->getFrameWidth();
+		if (fw)
+		{
+			cairo_save(cr);
+			PAINT_clip(fw, fw, sender->width() - fw * 2, sender->height() - fw * 2);
+		}
+		
 		GB.Raise(THIS, EVENT_Draw, 0);
+		
+		if (fw)
+			cairo_restore(cr);
 
 		PAINT_end();
 		THIS->context = save;
