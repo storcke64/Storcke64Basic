@@ -44,7 +44,7 @@ Private Sub IsWordLimit(sCar As String) As Boolean
 
 End
 
-Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) As String
+Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean) As String
   
   Dim iLine As Integer
   Dim aResult As String[]
@@ -126,12 +126,10 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     Inc iLine
     sLine = aLine[iLine]
     
-    If $hMarkdown.LinkAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
+    If $hMarkdown.LinkAnchors And If Not bNoLineAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
     
-    If Not bDoNotSetLine Then 
-      $hMarkdown.Line = iLine
-      $hMarkdown.Current = sLine
-    Endif
+    $hMarkdown.Line = iLine
+    $hMarkdown.Current = sLine
     
     'If $aMarkup.Count Then
     '  aResult.Add(ConvertLine(sLine))
@@ -550,10 +548,10 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
         $aIndex[I] = Mid$($aIndex[I], iIndent + 1)
       Next
     Endif
-    aResult[iIndexPos] = "<div class=\"index\">\n" & ConvertMarkup($aIndex) & "</div>\n"
+    aResult[iIndexPos] = "<div class=\"index\">\n" & ConvertMarkup($aIndex, True) & "</div>\n"
   Endif
   
-  If $hMarkdown.LinkAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
+  If $hMarkdown.LinkAnchors And If Not bNoLineAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
   
   $bComment = bSaveComment
   $aMarkup = aSaveMarkup
