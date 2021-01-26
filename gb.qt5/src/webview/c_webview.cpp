@@ -31,6 +31,7 @@
 #include <QWebHistory>*/
 #include <QWebEngineHistory>
 #include <QJsonDocument>
+#include <QContextMenuEvent>
 
 /*#include "ccookiejar.h"
 #include "cwebsettings.h"
@@ -65,11 +66,13 @@ DECLARE_EVENT(EVENT_ERROR);
 DECLARE_EVENT(EVENT_LINK);
 DECLARE_EVENT(EVENT_NEW_VIEW);
 
+static int EVENT_MENU = -1;
 /*DECLARE_EVENT(EVENT_CLICK);
 DECLARE_EVENT(EVENT_LINK);
 DECLARE_EVENT(EVENT_NEW_FRAME);
 DECLARE_EVENT(EVENT_AUTH);
 DECLARE_EVENT(EVENT_DOWNLOAD);*/
+
 
 
 /*
@@ -311,11 +314,6 @@ BEGIN_METHOD_VOID(WebView_free)
 
 END_METHOD
 
-/*BEGIN_METHOD_VOID(WebView_init)
-
-	_old_after_set_color = QT.AfterSetColor(after_set_color);
-
-END_METHOD*/
 
 /*BEGIN_METHOD_VOID(WebView_exit)
 
@@ -963,6 +961,20 @@ QWebEngineView *MyWebEngineView::createWindow(QWebEnginePage::WebWindowType type
 	THIS->new_view = NULL;
 	return new_view;
 }
+
+void MyWebEngineView::contextMenuEvent(QContextMenuEvent *event)
+{
+	void *_object = QT.GetObject(this);
+	
+	if (EVENT_MENU < 0)
+		EVENT_MENU = GB.GetEvent(GB.GetClass(THIS), "Menu");
+	
+	if (!GB.CanRaise(THIS, EVENT_MENU))
+		QWebEngineView::contextMenuEvent(event);
+	
+	event->accept();
+}
+
 
 //-------------------------------------------------------------------------
 

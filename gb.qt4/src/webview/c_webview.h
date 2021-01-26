@@ -72,6 +72,7 @@ public:
 protected:
 		
 	virtual QWebView *createWindow(QWebPage::WebWindowType type);
+	virtual void contextMenuEvent(QContextMenuEvent *event);
 };
 
 typedef

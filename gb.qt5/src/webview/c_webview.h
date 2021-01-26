@@ -81,7 +81,8 @@ public:
 	MyWebEngineView(QWidget *parent);
 
 protected:
-		
+	
+	virtual void contextMenuEvent(QContextMenuEvent *event);
 	virtual QWebEngineView *createWindow(QWebEnginePage::WebWindowType type);
 };
 

@@ -53,6 +53,8 @@ DECLARE_EVENT(EVENT_ERROR);
 DECLARE_EVENT(EVENT_LINK);
 DECLARE_EVENT(EVENT_NEW_VIEW);
 
+static int EVENT_MENU = -1;
+
 //static QNetworkAccessManager *_network_access_manager = 0;
 static CWEBVIEW *_network_access_manager_view = 0;
 //static QT_COLOR_FUNC _old_after_set_color;
@@ -526,6 +528,19 @@ QWebView *MyWebView::createWindow(QWebPage::WebWindowType type)
 	GB.Unref(POINTER(&THIS->new_view));
 	THIS->new_view = NULL;
 	return new_view;
+}
+
+void MyWebEngineView::contextMenuEvent(QContextMenuEvent *event)
+{
+	void *_object = QT.GetObject(this);
+	
+	if (EVENT_MENU < 0)
+		EVENT_MENU = GB.GetEvent(GB.GetClass(THIS), "Menu");
+	
+	if (!GB.CanRaise(THIS, EVENT_MENU))
+		QWebView::contextMenuEvent(event);
+	
+	event->accept();
 }
 
 /***************************************************************************/

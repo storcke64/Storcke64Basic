@@ -53,6 +53,8 @@ DECLARE_EVENT(EVENT_ERROR);
 DECLARE_EVENT(EVENT_LINK);
 DECLARE_EVENT(EVENT_NEW_VIEW);
 
+static int EVENT_MENU = -1;
+
 static void cb_title(WebKitWebView *widget, GParamSpec *pspec, CWEBVIEW *_object)
 {
 	GB.Raise(THIS, EVENT_TITLE, 0);
@@ -212,6 +214,14 @@ static void cb_javascript_finished(WebKitWebView *widget, GAsyncResult *result, 
 	THIS->js_running = FALSE;
 }
 
+static gboolean cb_context_menu(WebKitWebView *web_view, WebKitContextMenu *context_menu, GdkEvent *event, WebKitHitTestResult *hit_test_result, void *_object)
+{
+	if (EVENT_MENU < 0)
+		EVENT_MENU = GB.GetEvent(GB.GetClass(THIS), "Menu");
+	
+	return GB.CanRaise(THIS, EVENT_MENU);
+}
+
 //---------------------------------------------------------------------------
 
 #define must_patch(_widget) (true)
@@ -244,6 +254,7 @@ static void create_widget(void *_object, void *parent)
 	g_signal_connect(G_OBJECT(WIDGET), "mouse-target-changed", G_CALLBACK(cb_link), (gpointer)THIS);
 	g_signal_connect(G_OBJECT(WIDGET), "create", G_CALLBACK(cb_create), (gpointer)THIS);
 	g_signal_connect(G_OBJECT(WIDGET), "decide-policy", G_CALLBACK(cb_decide_policy), (gpointer)THIS);
+	g_signal_connect(G_OBJECT(WIDGET), "context-menu", G_CALLBACK(cb_context_menu), (gpointer)THIS);
 	
 	WEBVIEW_init_settings(THIS);
 }
