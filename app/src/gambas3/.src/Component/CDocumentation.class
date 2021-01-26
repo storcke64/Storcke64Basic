@@ -546,6 +546,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   'Dim aSymbol As CSymbolInfo[]
   Dim iStart As Integer
   Dim hClass As CClassInfo
+  Dim hParentClass As CClassInfo
   Dim sName, sName2 As String
   Dim aName As String[]
   Dim sLine As String
@@ -559,17 +560,17 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   hEditor = hModule.GetEditor()
   hModule.AutoCreatable = False
   hModule.NotCreatable = False
-  'DEBUG hModule.Name; " := "; hModule.AutoCreatable
-  
+
   If bCanInherit Then
     
     hClass = Classes[hModule.Name]
-    
-    If hClass And If hClass.Component = CComponent.PROJECT_NAME And If hClass.Parent Then
-      hClass = Classes[hClass.ParentComponent &/ hClass.Parent]
-      MakeInheritance(hModule, cSymbol, hClass.Name, hClass.Component)
-      bCanInherit = False
-    Endif 
+    If hClass Then
+      If hClass.Component = CComponent.PROJECT_NAME And If hClass.Parent Then
+        hParentClass = Classes[hClass.ParentComponent &/ hClass.Parent]
+        MakeInheritance(hModule, cSymbol, hParentClass.Name, hParentClass.Component)
+        bCanInherit = False
+      Endif 
+    Endif
     
   Endif
   
@@ -1012,7 +1013,6 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
   Dim hPClass As FEditor
   'Dim hModule As Object
   Dim cSymbol As Collection
-  Dim hSymbol As CSymbolInfo
   'Dim aClass As String[]
   Dim sFamily As String
   
@@ -1092,13 +1092,15 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
       cSymbol = New Collection(gb.IgnoreCase)
       hPClass.Scan = cSymbol
       If hPForm Then
-        For Each hSymbol In Classes[sFamily].Symbols
-          cSymbol[hSymbol.Name] = hSymbol
-        Next
-        hPClass.ParentClass = sFamily
+        ' For Each hSymbol In Classes[sFamily].Symbols
+        '   cSymbol[hSymbol.Name] = hSymbol
+        ' Next
+        'hPClass.ParentClass = sFamily
         If hPForm Is FForm Then ScanForm(hPForm, cSymbol)
+        ScanClass(hPClass, cSymbol, False, True)
+      Else
+        ScanClass(hPClass, cSymbol, False, False)
       Endif
-      ScanClass(hPClass, cSymbol, False, IsNull(hPForm))
     Endif
     $hDumbClass.Parent = hPClass.ParentClass
     $hDumbClass.ParentComponent = hPClass.ParentComponent

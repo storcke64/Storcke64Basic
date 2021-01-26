@@ -145,7 +145,11 @@ Public Sub Load()
   Loaded = True
   
   'Debug "Loading: "; Key;; "("; Documentation.Name; ")"
-  If Key <> CComponent.PROJECT_NAME Then Project.SetMessage(Subst(("Loading information on component &1..."), Key))
+  If Key <> CComponent.PROJECT_NAME Then 
+    Project.SetMessage(Subst(("Loading information on component &1..."), Key))
+  Else
+    Project.SetMessage(("Loading information on project..."))
+  Endif
   
   'If Key = Project.Name Then Goto HAS_BEEN_LOADED
   
@@ -294,8 +298,11 @@ Public Sub Load()
           sLig = aLine[iLine]
           Inc iLine
           
+          ' Creatable is not inherited
           hClass.Creatable = InStr(sLig, "C")
-          hClass.AutoCreatable = InStr(sLig, "A")
+          ' AutoCreatable is inherited
+          If InStr(sLig, "A") Then hClass.AutoCreatable = True
+          
         Else
           Inc iLine
         Endif

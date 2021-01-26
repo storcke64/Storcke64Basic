@@ -40,7 +40,7 @@ Public Sub _new(hDoc As CDocumentation, sName As String, sComp As String, Option
   Component = sComp
   Symbols = New Collection(gb.IgnoreCase)
 
-  If {Parent} Then
+  If sParent Then
     'IF Parent = "GridView" THEN STOP
     'IF ERROR THEN
     '  STOP
@@ -49,6 +49,8 @@ Public Sub _new(hDoc As CDocumentation, sName As String, sComp As String, Option
     hParent = Documentation.Classes[sComp &/ sParent]
     If Not hParent Then hParent = hDoc.Classes[sParent]
     ParentComponent = hParent.Component
+    
+    AutoCreatable = hParent.AutoCreatable
 
     For Each hSym In Documentation.GetClassSymbols(sParent, ParentComponent)
       Symbols[hSym.Name] = hSym
