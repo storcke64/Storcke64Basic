@@ -487,6 +487,7 @@ gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 	_has_native_popup = true;
 	_eat_return_key = true;
 	_text_area_visible = false;
+	_no_background = true;
 	
 	onChange = 0;
 	onCursor = 0;
