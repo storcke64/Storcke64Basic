@@ -11,9 +11,6 @@ function goto_line(line)
   var elt = $('l' + line);
   var elt_next;
   
-  if (!elt || elt == undefined)
-    return;
-  
   for (i = 0; i < sel.length; i++)
   {
     sel[i] = $('_sel' + i);
@@ -31,12 +28,18 @@ function goto_line(line)
     sel[i].style.display = 'none';
   }
   
+  if (!elt || elt == undefined)
+  {
+    document.body.scrollTop = 0;
+    return;
+  }
+  
   r1 = elt.getBoundingClientRect();
   
   r1.x += document.body.scrollLeft;
   r1.y += document.body.scrollTop;
   
-  for (n = 0;; n++)
+  for (n = 1;; n++)
   {
     elt_next = $('l' + (line + n))
     if (elt_next)

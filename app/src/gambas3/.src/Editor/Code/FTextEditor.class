@@ -1950,6 +1950,10 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
 
   Dim sHtml As String
   Dim bError As Boolean
+  Dim aHtml As String[]
+  Dim I As Integer
+  Dim bBody As Boolean
+  Dim iPos As Integer
   
   If Not HasPreview() Then Return
   
@@ -1962,7 +1966,33 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
       Case PREVIEW_HTML
         
         sHtml = $hEditor.Text
-      
+        
+        If InStr(Left(sHtml, 1024), "<body") = 0 Then sHtml = "<body>" & sHtml & "</body>"
+        If InStr(Left(sHtml, 256), "<head") = 0 Then sHtml = "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head>" & sHtml
+        If InStr(Left(sHtml, 256), "<html") = 0 Then sHtml = "<html>" & sHtml & "</html>"
+        If LTrim(sHtml) Not Like "<doctype* <html*" Then
+          sHtml = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n" & sHtml
+        Endif
+        
+        aHtml = Split(sHtml, "\n")
+        For I = 0 To aHtml.Max
+          
+          If Not bBody Then
+            iPos = InStr(aHtml[I], "<body")
+            If iPos Then 
+              bBody = True
+              aHtml[I] &= "<script type=\"text/javascript\">" & File.Load("markdown.js") & "</script>"
+            Endif
+            Continue
+          Endif
+          
+          ' FIXME: Line number must me decremented, no idea why.
+          aHtml[I] = "<a id=\"l" & CStr(I - 1) & "\"></a>" & aHtml[I]
+          
+        Next
+        
+        sHtml = aHtml.Join("\n")
+
       Case PREVIEW_MARKDOWN
         
         Markdown.LinkAnchors = True
@@ -1991,10 +2021,10 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
     
   Else
     
+    'Debug $hEditor.Line
     $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
     
   Endif
-  
 
 End
 
