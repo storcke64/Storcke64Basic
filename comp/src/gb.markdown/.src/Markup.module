@@ -126,6 +126,8 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     Inc iLine
     sLine = aLine[iLine]
     
+    If $hMarkdown.LinkAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
+    
     If Not bDoNotSetLine Then 
       $hMarkdown.Line = iLine
       $hMarkdown.Current = sLine
@@ -550,6 +552,8 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     Endif
     aResult[iIndexPos] = "<div class=\"index\">\n" & ConvertMarkup($aIndex) & "</div>\n"
   Endif
+  
+  If $hMarkdown.LinkAnchors Then aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>")
   
   $bComment = bSaveComment
   $aMarkup = aSaveMarkup
