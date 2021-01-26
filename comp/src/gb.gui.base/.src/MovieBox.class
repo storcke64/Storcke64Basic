@@ -1,7 +1,7 @@
 ' Gambas class file
 
 Export
-Inherits DrawingArea
+Inherits UserControl
 
 Public Const _Properties As String = "*,-Arrangement,-Spacing,-Margin,-Indent,-Invert,-NoBackground,-Tablet,-Cached,-Focus,Padding{Range:0;64},Animation,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
 Public Const _DefaultEvent As String = "MouseDown"
@@ -25,7 +25,6 @@ Public Enum Normal, Fill, Cover, Contain, {Repeat}
 Static Private $hDefault As Image
 Static Private $bDeprecated As Boolean
 
-Private $hObs As Observer
 Private $iAlign As Integer = Align.TopLeft
 Private $iPadding As Integer
 Private $iBorder As Integer
@@ -34,12 +33,7 @@ Private $bAutoResize As Boolean
 Private $bStretch As Boolean
 Private $hAnimation As Animation
 Private $hImage As Image
-
-Public Sub _new()
-  
-  $hObs = New Observer(Me) As "DrawingArea"
-  
-End
+Private $hObs As Observer
 
 Private Function Alignment_Read() As Integer
 
@@ -193,7 +187,7 @@ Private Function Image_Read() As Image
 
 End
 
-Public Sub DrawingArea_Draw()
+Public Sub UserControl_Draw()
   
   Dim W As Integer
   Dim H As Integer

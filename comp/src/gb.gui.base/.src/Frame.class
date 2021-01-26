@@ -84,9 +84,9 @@ Public Sub Frame_Draw()
     Paint.LineTo($hFrame.W - DS \ 2, H \ 2)
     Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
     Paint.LineWidth = 1
-    Paint.Translate(0.5, 0.5)
+    Paint.AntiAlias = False
     Paint.Stroke()
-    Paint.Translate(-0.5, -0.5)
+    Paint.AntiAlias = True
     
     Paint.Background = Style.ForegroundOf(Me)
     'Paint.Restore
@@ -100,7 +100,7 @@ Public Sub Frame_Draw()
 
   Else
     
-    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Me.Background)
+    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, DS \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - DS - 4, Me.Background)
     Paint.DrawRect(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Color.LightForeground)
     'Style.PaintPanel(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Border.Etched)
     
