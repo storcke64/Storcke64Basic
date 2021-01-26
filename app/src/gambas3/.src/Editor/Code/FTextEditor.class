@@ -65,6 +65,7 @@ Private $iShowPreview As Integer
 Private $hTimerPreview As Timer
 Private $sTempPreview As String
 Private $bMovePreviewOnReady As Boolean
+Private $bPreviewReady As Boolean
 
 Public Sub _new(sPath As String, Optional bModule As Boolean)
 
@@ -1941,8 +1942,10 @@ Public Sub Preview_Ready()
 
   If $bMovePreviewOnReady Then  
     $bMovePreviewOnReady = False
-    $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
+    Try $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
+    If Error Then Error Error.Text
   Endif
+  $bPreviewReady = True
   
 End
 
@@ -1958,6 +1961,8 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
   If Not HasPreview() Then Return
   
   If bReload Then
+    
+    $bPreviewReady = False
     
     Project.SetMessage(("Preview refresh..."))
     
@@ -2022,7 +2027,7 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
   Else
     
     'Debug $hEditor.Line
-    $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
+    If $bPreviewReady Then $hPreview.ExecJavascript("goto_line(" & CStr($hEditor.Line) & ");")
     
   Endif
 
@@ -2064,8 +2069,14 @@ Public Sub Preview_GotFocus()
   
 End
 
-Public Sub splPreview_Resize()
+Public Sub Preview_Menu()
 
+  Stop Event
+  
+End
+
+Public Sub Preview_Resize()
+  
   RefreshPreview
-
+  
 End

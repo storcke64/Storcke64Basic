@@ -1,9 +1,11 @@
+var goto_line_timer;
+
 function $(id)
 {
   return document.getElementById(id);
 }
 
-function goto_line(line)
+function do_goto_line(line)
 {
   var sel = [null, null, null];
   var r1, r2;
@@ -74,4 +76,11 @@ function goto_line(line)
   sel[2].style.display = 'block';
   
   elt.scrollIntoView({block:'center'});
+}
+
+function goto_line(line)
+{
+  if (goto_line_timer)
+    clearTimeout(goto_line_timer);
+  goto_line_timer = setTimeout(function() { do_goto_line(line); goto_line_timer = undefined;}, 100);
 }

@@ -8,20 +8,21 @@ Public Const _DrawWith As String = "WebView"
 Inherits WebView
 
 Event Ready
+Event Resize
 
-Property NoHeader As Boolean
+Property NoHeader As Boolean Use $bNoHeader
+Property NoMenu As Boolean Use $bNoMenu
 
 Private $hObs As Observer
 Private $hWatcher As Watcher
 Private $hSpinner As Spinner
-Private $bNoHeader As Boolean
 Private $sNextUrl As String
 Private $hNotExist As Label
 
 Public Sub _new()
 
   $hObs = New Observer(Me) As "WebView"
-  $hWatcher = New Watcher(Me) As "WebView"
+  $hWatcher = New Watcher(Me) As "Watcher"
   
   $hSpinner = New Spinner(Me.Window)
   $hSpinner.Hide
@@ -49,7 +50,7 @@ Private Sub ShowWaiting(bShow As Boolean)
 
   If bShow Then
     $hSpinner.Show
-    WebView_Move
+    Watcher_Move
     $hSpinner.Raise
     $hSpinner.Start
   Else
@@ -89,7 +90,7 @@ End
 '   
 ' End
 
-Public Sub WebView_Move()
+Public Sub Watcher_Move()
   
   Dim hWin As Window
   
@@ -104,9 +105,10 @@ Public Sub WebView_Move()
   
 End
 
-Public Sub WebView_Resize()
+Public Sub Watcher_Resize()
 
-  WebView_Move
+  Watcher_Move
+  Raise Resize
   
 End
 
@@ -225,18 +227,6 @@ Public Sub WebView_Progress()
   
   $hSpinner.Value = Me.Progress
   
-End
-
-Private Function NoHeader_Read() As Boolean
-
-  Return $bNoHeader
-
-End
-
-Private Sub NoHeader_Write(Value As Boolean)
-
-  $bNoHeader = Value
-
 End
 
 Public Sub Stop()
