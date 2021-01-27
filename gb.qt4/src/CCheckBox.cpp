@@ -83,7 +83,7 @@ BEGIN_METHOD(CCHECKBOX_new, GB_OBJECT parent)
 	wid->setMinimumHeight(wid->sizeHint().height());
 
   CWIDGET_new(wid, (void *)_object);
-	THIS->widget.flag.fillBackground = CSTYLE_fix_breeze;
+	THIS->widget.flag.fillBackground = true; //CSTYLE_fix_breeze;
 
 END_METHOD
 

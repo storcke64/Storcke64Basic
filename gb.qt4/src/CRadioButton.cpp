@@ -84,7 +84,7 @@ BEGIN_METHOD(RadioButton_new, GB_OBJECT parent)
   QObject::connect(wid, SIGNAL(toggled(bool)), &CRadioButton::manager, SLOT(clicked(bool)));
 
   CWIDGET_new(wid, (void *)_object);
-	THIS->widget.flag.fillBackground = CSTYLE_fix_breeze;
+	THIS->widget.flag.fillBackground = true; CSTYLE_fix_breeze;
 
 END_METHOD
 

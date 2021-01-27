@@ -138,40 +138,6 @@ static void set_mouse(QWidget *w, int mouse, void *cursor)
 	}
 }
 
-/*static void set_design_object(CWIDGET *_object)
-{
-	if (CWIDGET_test_flag(THIS, WF_DESIGN))
-		return;
-
-	//qDebug("%s %p (%p): DESIGN", GB.GetClassName(THIS), THIS, WIDGET);
-	CWIDGET_set_flag(THIS, WF_DESIGN);
-
-	CWidget::removeFocusPolicy(WIDGET);
-	set_mouse(WIDGET, CMOUSE_DEFAULT, 0);
-	//THIS->flag.fillBackground = true;
-}
-
-static void set_design_recursive(QWidget *w, bool set = false)
-{
-	QObjectList children;
-	int i;
-	QObject *child;
-	CWIDGET *ob = CWidget::getReal(w);
-
-	if (ob)
-		set_design_object(ob);
-
-	children = w->children();
-
-	for (i = 0; i < children.count(); i++)
-	{
-		child = children.at(i);
-		
-		if (child->isWidgetType())
-			set_design_recursive((QWidget *)child, true);
-	}
-}*/
-
 void CWIDGET_set_design(CWIDGET *_object, bool ignore)
 {
 	if (THIS->flag.design)
@@ -1496,7 +1462,7 @@ void CWIDGET_reset_color(CWIDGET *_object)
 	if (!THIS_EXT || (THIS_EXT->bg == COLOR_DEFAULT && THIS_EXT->fg == COLOR_DEFAULT))
 	{
 		w->setPalette(QPalette());
-		w->setAutoFillBackground(!THIS->flag.noBackground && THIS->flag.fillBackground);
+		w->setAutoFillBackground(false); //!THIS->flag.noBackground && THIS->flag.fillBackground);
 	}
 	else
 	{
@@ -1553,22 +1519,24 @@ void CWIDGET_reset_color(CWIDGET *_object)
 					palette.setColor(QPalette::Button, TO_QCOLOR(bg));
 				}
 				else*/
-					palette.setColor(w->backgroundRole(), TO_QCOLOR(bg));
+				palette.setColor(w->backgroundRole(), TO_QCOLOR(bg));
+				w->setAutoFillBackground(!THIS->flag.noBackground && (THIS->flag.fillBackground || w->backgroundRole() == QPalette::Window));
 			}
+			else
+				w->setAutoFillBackground(false);
 			
 			if (fg != COLOR_DEFAULT)
 			{
-				if (GB.Is(THIS, CLASS_Container))
+				//if (GB.Is(THIS, CLASS_Container))
 				{
 					palette.setColor(QPalette::Text, TO_QCOLOR(fg));
 					palette.setColor(QPalette::WindowText, TO_QCOLOR(fg));
 					palette.setColor(QPalette::ButtonText, TO_QCOLOR(fg));
 				}
-				else
-					palette.setColor(w->foregroundRole(), TO_QCOLOR(fg));
+				//else
+					//palette.setColor(w->foregroundRole(), TO_QCOLOR(fg));
 			}
 		
-			w->setAutoFillBackground(!THIS->flag.noBackground && (THIS->flag.fillBackground || ((THIS_EXT && THIS_EXT->bg != COLOR_DEFAULT) && w->backgroundRole() == QPalette::Window)));
 			w->setPalette(palette);
 		}
 
