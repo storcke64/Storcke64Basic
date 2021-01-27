@@ -1097,10 +1097,8 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
         ' Next
         'hPClass.ParentClass = sFamily
         If hPForm Is FForm Then ScanForm(hPForm, cSymbol)
-        ScanClass(hPClass, cSymbol, False, True)
-      Else
-        ScanClass(hPClass, cSymbol, False, False)
       Endif
+      ScanClass(hPClass, cSymbol, False)
     Endif
     $hDumbClass.Parent = hPClass.ParentClass
     $hDumbClass.ParentComponent = hPClass.ParentComponent

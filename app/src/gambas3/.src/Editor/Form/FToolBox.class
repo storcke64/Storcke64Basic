@@ -218,7 +218,7 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
             If $cToolBar[sGroup] Then 
               $cToolBar[sGroup].Add(sCtrl, hComp.Key, hClass.Family)
             Else
-              Error "gambas3: warning: unknown control group: "; sGroup
+              Error "gambas3: warning: unknown group '"; sGroup; "' for control '"; sCtrl; "'"
             Endif
           Endif
         Next
