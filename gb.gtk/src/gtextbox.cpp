@@ -281,6 +281,7 @@ void gTextBox::setBorder(bool vl)
 	gtk_entry_set_has_frame(GTK_ENTRY(entry), vl);
 #ifdef GTK3
 	updateStyleSheet(true);
+	setMinimumSize();
 #endif
 }	
 
@@ -457,7 +458,6 @@ void gTextBox::setMinimumSize()
 {
 	_min_h = font()->height() + (hasBorder() ? 4 : 0);
 	_min_w = _min_h;
-	//fprintf(stderr, "setMinimumSize: TextBox: %d %d / %d\n", _min_w, _min_h, font()->height());
 }
 
 
