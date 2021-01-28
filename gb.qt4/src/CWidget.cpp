@@ -1462,7 +1462,7 @@ void CWIDGET_reset_color(CWIDGET *_object)
 	if (!THIS_EXT || (THIS_EXT->bg == COLOR_DEFAULT && THIS_EXT->fg == COLOR_DEFAULT))
 	{
 		w->setPalette(QPalette());
-		w->setAutoFillBackground(false); //!THIS->flag.noBackground && THIS->flag.fillBackground);
+		w->setAutoFillBackground(THIS->flag.autoFillBackground); //!THIS->flag.noBackground && THIS->flag.fillBackground);
 	}
 	else
 	{
@@ -1523,7 +1523,7 @@ void CWIDGET_reset_color(CWIDGET *_object)
 				w->setAutoFillBackground(!THIS->flag.noBackground && (THIS->flag.fillBackground || w->backgroundRole() == QPalette::Window));
 			}
 			else
-				w->setAutoFillBackground(false);
+				w->setAutoFillBackground(THIS->flag.autoFillBackground);
 			
 			if (fg != COLOR_DEFAULT)
 			{

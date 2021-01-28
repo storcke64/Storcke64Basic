@@ -181,7 +181,10 @@ BEGIN_PROPERTY(Application_Font)
 	if (READ_PROPERTY)
 		GB.ReturnObject(CFONT_create(gDesktop::font()->copy(), set_font));
 	else if (VPROP(GB_OBJECT))
-		set_font(((CFONT*)VPROP(GB_OBJECT))->font);
+	{
+		CFONT *font = (CFONT*)VPROP(GB_OBJECT);
+		set_font(font ? font->font : NULL);
+	}
 
 END_PROPERTY
 

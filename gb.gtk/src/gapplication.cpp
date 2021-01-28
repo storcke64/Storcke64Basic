@@ -1069,9 +1069,8 @@ void gApplication::init(int *argc, char ***argv)
 
 #ifdef GTK3
 	// Override theme
-	
 	GtkCssProvider *css = gtk_css_provider_new();
-	gtk_css_provider_load_from_data(css, "button { min-width:0;min-height:0; }", -1, NULL);
+	gtk_css_provider_load_from_data(css, "button { min-width:0;min-height:0; } button.combo { padding-top:0;padding-bottom:0; }", -1, NULL);
 	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 #endif
 	

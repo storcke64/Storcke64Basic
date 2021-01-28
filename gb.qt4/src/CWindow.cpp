@@ -1432,13 +1432,7 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Transparent", "b", Window_Transparent),
 	GB_PROPERTY("TakeFocus", "b", Window_TakeFocus),
 
-	GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-	GB_PROPERTY("Padding", "i", Container_Padding),
-	GB_PROPERTY("Spacing", "b", Container_Spacing),
-	GB_PROPERTY("Margin", "b", Container_Margin),
-	GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-  GB_PROPERTY("Invert", "b", Container_Invert),
-  GB_PROPERTY("Indent", "b", Container_Indent),
+	ARRANGEMENT_PROPERTIES,
 
 	//GB_PROPERTY("Type", "i", CWINDOW_type),
 	GB_PROPERTY("Utility", "b", Window_Utility),

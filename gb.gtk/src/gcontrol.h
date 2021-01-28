@@ -31,7 +31,7 @@ class gContainer;
 class gMainWindow;
 
 #ifdef GTK3
-void gt_patch_control(GtkWidget *border, GtkWidget *widget);
+void gt_patch_control(GtkWidget *widget);
 #endif
 
 class gControl
@@ -298,6 +298,9 @@ public:
 	unsigned _eat_return_key : 1;          // If the control eats the return key
 	unsigned _style_dirty : 1;             // If the style must be refreshed
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
+#ifdef GTK3
+	unsigned _has_css_id : 1;              // If the widget has a css id
+#endif
 	
   void removeParent() { pr = NULL; }
 	void initSignals();

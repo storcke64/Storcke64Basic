@@ -42,6 +42,9 @@ bool gDesktop::_colors_valid = false;
 gColor gDesktop::_colors[NUM_COLORS];
 gFont *gDesktop::_desktop_font = NULL;
 int gDesktop::_desktop_scale = 0;
+#ifdef GTK3
+GtkStyleProvider *gDesktop::_css = NULL;
+#endif
 
 bool gDesktop::rightToLeft()
 {
@@ -68,11 +71,13 @@ gFont* gDesktop::font()
 
 void gDesktop::setFont(gFont *ft)
 {
+	gFont::set(&_desktop_font, ft ? ft->copy() : new gFont());
+	_desktop_scale = 0;
+
+#ifndef GTK3
+	
 	GList *iter;
 	gControl *control;
-
-	gFont::set(&_desktop_font, ft->copy());
-	_desktop_scale = 0;
 
 	iter = g_list_first(gControl::controlList());
 
@@ -82,6 +87,22 @@ void gDesktop::setFont(gFont *ft)
 		control->updateFont();
 		iter = g_list_next(iter);
 	}
+	
+#else
+
+	GString *css = NULL;
+
+	if (ft)
+	{
+		css = g_string_new(NULL);
+		g_string_append(css, "* {\n");
+		gt_css_add_font(css, _desktop_font);
+		g_string_append(css, "}");
+	}
+	
+	gt_define_style_sheet(&_css, css);
+
+#endif
 }
 
 gMainWindow* gDesktop::activeWindow()

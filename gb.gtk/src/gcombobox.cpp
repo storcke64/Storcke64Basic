@@ -256,6 +256,7 @@ void gComboBox::create(bool readOnly)
 		entry = gtk_bin_get_child(GTK_BIN(widget));
 
 #ifdef GTK3
+		//gtk_widget_set_hexpand(widget, TRUE);
 		gtk_widget_set_hexpand(entry, TRUE);
 #endif
 
@@ -271,7 +272,7 @@ void gComboBox::create(bool readOnly)
 	}
 
 #ifdef GTK3
-	gtk_combo_box_set_popup_fixed_width(GTK_COMBO_BOX(widget), true);
+	gtk_combo_box_set_popup_fixed_width(GTK_COMBO_BOX(widget), TRUE);
 #endif
 
 	if (first)
@@ -283,7 +284,16 @@ void gComboBox::create(bool readOnly)
 		gtk_container_add(GTK_CONTAINER(border), widget);
 		gtk_widget_show(widget);
 		widgetSignals();
+#ifdef GTK3
+		gt_patch_control(border);
+		gt_patch_control(widget);
+#endif
 	}
+	
+#ifdef GTK3
+	if (entry)
+		gt_patch_control(entry);
+#endif
 	
 	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(cb_click), (gpointer)this);
 

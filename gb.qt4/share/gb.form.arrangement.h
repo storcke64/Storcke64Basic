@@ -154,6 +154,7 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 	int padding;
 	int spacing;
 	int indent;
+	bool centered;
 
 	if (!CAN_ARRANGE(_object))
 		return;
@@ -231,7 +232,9 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 		
 		indent = arr->indent * DESKTOP_SCALE;
 		
-		for(i = 0; i < 3; i++)
+		centered = arr->centered;
+		
+		for (i = 0; i < 3; i++)
 		{
 			redo = false;
 
@@ -361,6 +364,21 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 					if (sexp < 0)
 						sexp = 0;
 
+					if (centered && sexp && nexp == 0)
+					{
+						if (swap)
+						{
+							y += sexp / 2;
+							hc -= sexp / 2;
+						}
+						else
+						{
+							x += sexp / 2;
+							wc -= sexp / 2;
+						}
+						sexp = 0;
+					}
+					
 					RESET_CHILDREN_LIST();
 					wid = 0;
 
@@ -608,7 +626,10 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						if (!ob || IS_IGNORE(ob))
 							continue;
 						
-						MOVE_RESIZE_WIDGET(ob, wid, xc, yc, wc, hc);
+						if (centered)
+							MOVE_WIDGET(ob, wid, xc + (wc - GET_WIDGET_W(wid)) / 2, yc + (hc - GET_WIDGET_H(wid)) / 2);
+						else
+							MOVE_RESIZE_WIDGET(ob, wid, xc, yc, wc, hc);
 						
 						/*if (GET_WIDGET_H(wid) > h)
 							h = GET_WIDGET_H(wid);

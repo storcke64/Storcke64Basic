@@ -896,13 +896,7 @@ GB_DESC CTabStripDesc[] =
 	GB_PROPERTY_READ("ClientH", "i", TabStrip_ClientHeight),
 	GB_PROPERTY_READ("ClientHeight", "i", TabStrip_ClientHeight),
 
-	GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-	GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-	GB_PROPERTY("Padding", "i", Container_Padding),
-	GB_PROPERTY("Spacing", "b", Container_Spacing),
-	GB_PROPERTY("Margin", "b", Container_Margin),
-	GB_PROPERTY("Indent", "b", Container_Indent),
-  GB_PROPERTY("Invert", "b", Container_Invert),
+	ARRANGEMENT_PROPERTIES,
 
 	GB_METHOD("_get", ".TabStripContainer", TabStrip_get, "(Index)i"),
 	GB_METHOD("FindIndex", "i", TabStrip_FindIndex, "(Child)Control;"),

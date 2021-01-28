@@ -86,6 +86,10 @@ private:
 	static gColor _colors[NUM_COLORS];
 	
 	static void calcColors();
+	
+#ifdef GTK3
+	static GtkStyleProvider *_css;
+#endif
 };
 
 #endif

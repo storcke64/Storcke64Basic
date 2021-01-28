@@ -2476,4 +2476,29 @@ void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg)
 	}
 }
 
+void gt_define_style_sheet(GtkStyleProvider **provider, GString *css)
+{
+	GdkScreen *screen = gdk_screen_get_default();
+	char *css_str;
+	
+	if (css && css->len)
+	{
+		if (!*provider)
+			*provider = GTK_STYLE_PROVIDER(gtk_css_provider_new());
+			
+		css_str = g_string_free(css, FALSE);
+		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(*provider), css_str, -1, NULL);
+		g_free(css_str);
+		gtk_style_context_add_provider_for_screen(screen, *provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	}
+	else
+	{
+		if (*provider)
+		{
+			gtk_style_context_remove_provider_for_screen(screen, *provider);
+			*provider = NULL;
+		}
+	}
+}
+
 #endif

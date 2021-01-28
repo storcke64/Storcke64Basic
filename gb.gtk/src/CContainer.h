@@ -51,6 +51,18 @@ extern GB_DESC UserContainerDesc[];
 
 #endif
 
+#define ARRANGEMENT_FLAG_PROPERTIES \
+	GB_PROPERTY("AutoResize", "b", Container_AutoResize), \
+	GB_PROPERTY("Padding", "i", Container_Padding), \
+	GB_PROPERTY("Spacing", "b", Container_Spacing), \
+	GB_PROPERTY("Margin", "b", Container_Margin), \
+	GB_PROPERTY("Indent", "b", Container_Indent), \
+	GB_PROPERTY("Invert", "b", Container_Invert), \
+	GB_PROPERTY("Centered", "b", Container_Centered)
+
+#define ARRANGEMENT_PROPERTIES \
+	GB_PROPERTY("Arrangement", "i", Container_Arrangement), \
+	ARRANGEMENT_FLAG_PROPERTIES
 
 typedef 
 	struct
@@ -100,6 +112,7 @@ DECLARE_PROPERTY(Container_Spacing);
 DECLARE_PROPERTY(Container_Margin);
 DECLARE_PROPERTY(Container_Indent);
 DECLARE_PROPERTY(Container_Invert);
+DECLARE_PROPERTY(Container_Centered);
 
 void CCONTAINER_cb_arrange(gContainer *sender);
 void CCONTAINER_cb_before_arrange(gContainer *sender);

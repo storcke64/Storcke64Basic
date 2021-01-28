@@ -1907,7 +1907,7 @@ void gMainWindow::setGeometryHints()
 	{
 		if (isResizable())
 		{
-			if (isModal())
+			if (isModal() || isUtility())
 			{
 				geometry.min_width = _min_w;
 				geometry.min_height = _min_h;

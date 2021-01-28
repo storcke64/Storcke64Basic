@@ -282,13 +282,14 @@ void gContainer::initialize()
 	_is_container = true;
 	
 	arrangement.mode = 0;
-	arrangement.spacing = 0;
+	arrangement.spacing = false;
 	arrangement.padding = 0;
 	arrangement.autoresize = false;
 	arrangement.locked = false;
 	arrangement.user = false;
 	arrangement.margin = false;
-	arrangement.indent = 0;
+	arrangement.indent = false;
+	arrangement.centered = false;
 	arrangement.invert = false;
 }
 
@@ -396,6 +397,15 @@ void gContainer::setIndent(bool vl)
 	if (vl != arrangement.indent) 
 	{
 		arrangement.indent = vl;
+		performArrange();
+	}
+}
+
+void gContainer::setCentered(bool vl)
+{
+	if (vl != arrangement.centered) 
+	{
+		arrangement.centered = vl;
 		performArrange();
 	}
 }

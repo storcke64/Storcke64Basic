@@ -45,14 +45,29 @@ typedef
 		unsigned spacing : 1;
 		unsigned padding : 8;
 		unsigned indent : 1;
+		unsigned centered : 1;
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
 		unsigned paint : 1;
-		unsigned _reserved: 11;
+		unsigned _reserved: 10;
 		}
 	CARRANGEMENT;
 
+#define ARRANGEMENT_FLAG_PROPERTIES \
+	GB_PROPERTY("AutoResize", "b", Container_AutoResize), \
+	GB_PROPERTY("Padding", "i", Container_Padding), \
+	GB_PROPERTY("Spacing", "b", Container_Spacing), \
+	GB_PROPERTY("Margin", "b", Container_Margin), \
+	GB_PROPERTY("Indent", "b", Container_Indent), \
+	GB_PROPERTY("Invert", "b", Container_Invert), \
+	GB_PROPERTY("Centered", "b", Container_Centered)
+
+#define ARRANGEMENT_PROPERTIES \
+	GB_PROPERTY("Arrangement", "i", Container_Arrangement), \
+	ARRANGEMENT_FLAG_PROPERTIES
+
+	
 #ifndef __CCONTAINER_CPP
 
 extern GB_DESC ContainerDesc[];
@@ -73,11 +88,12 @@ typedef
 		unsigned spacing : 1;
 		unsigned padding : 8;
 		unsigned indent : 1;
+		unsigned centered : 1;
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
 		unsigned paint : 1;
-		unsigned _reserved: 11;
+		unsigned _reserved: 10;
 		}
 	CCONTAINER_ARRANGEMENT;
 
@@ -127,6 +143,7 @@ DECLARE_PROPERTY(Container_Indent);
 DECLARE_PROPERTY(Container_Border);
 DECLARE_PROPERTY(Container_SimpleBorder);
 DECLARE_PROPERTY(Container_Invert);
+DECLARE_PROPERTY(Container_Centered);
 
 void CCONTAINER_arrange(void *_object);
 void CCONTAINER_get_max_size(void *_object, int xc, int yc, int wc, int hc, int *w, int *h);

@@ -61,6 +61,7 @@ typedef
 			unsigned ignore : 1;
 			unsigned notified : 1;
 			unsigned visible : 1;
+			unsigned autoFillBackground : 1;
 			unsigned fillBackground : 1;
 			unsigned noBackground : 1;
 			unsigned shown : 1;              // for containers

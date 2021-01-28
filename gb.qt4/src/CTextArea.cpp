@@ -175,7 +175,7 @@ BEGIN_METHOD(CTEXTAREA_new, GB_OBJECT parent)
 	wid->setAcceptRichText(false);
 	
 	THIS->widget.flag.wheel = true;
-	THIS->widget.flag.fillBackground = true;
+	THIS->widget.flag.autoFillBackground = true;
 	CWIDGET_new(wid, (void *)_object);
 	
 	THIS->length = -1;

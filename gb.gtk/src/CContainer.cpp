@@ -206,6 +206,16 @@ BEGIN_PROPERTY(Container_Indent)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Container_Centered)
+
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(WIDGET->centered());
+	else
+		WIDGET->setCentered(VPROP(GB_BOOLEAN));
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(Container_Invert)
 
 	if (READ_PROPERTY)
@@ -589,6 +599,19 @@ BEGIN_PROPERTY(UserContainer_Indent)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(UserContainer_Centered)
+	
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(WIDGET_CONT->centered());
+	else
+	{
+		WIDGET_CONT->setCentered(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+	}
+	
+END_PROPERTY
+
+
 BEGIN_PROPERTY(UserContainer_Invert)
 	
 	if (READ_PROPERTY)
@@ -626,6 +649,7 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Margin", "b", Container_Margin),
 	GB_PROPERTY("_Indent", "b", Container_Indent),
 	GB_PROPERTY("_Invert", "b", Container_Invert),
+	GB_PROPERTY("_Centered", "b", Container_Centered),
 
 	USERCONTROL_DESCRIPTION,
 
@@ -651,6 +675,7 @@ GB_DESC UserContainerDesc[] =
 	GB_PROPERTY("Margin", "b", UserContainer_Margin),
 	GB_PROPERTY("Indent", "b", UserContainer_Indent),
 	GB_PROPERTY("Invert", "b", UserContainer_Invert),
+	GB_PROPERTY("Centered", "b", UserContainer_Centered),
 	
 	//GB_PROPERTY("Focus", "b", UserContainer_Focus),
 

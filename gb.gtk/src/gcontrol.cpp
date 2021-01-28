@@ -385,6 +385,7 @@ void gControl::initAll(gContainer *parent)
 	_fg = _bg = COLOR_DEFAULT;
 #ifdef GTK3
 	_css = NULL;
+	_has_css_id = false;
 #endif
 
 	controls = g_list_append(controls,this);
@@ -1760,12 +1761,19 @@ static bool must_patch(GtkWidget *widget)
 	
 	if (GTK_IS_NOTEBOOK(parent) && GTK_IS_FIXED(widget))
 		return true;
-
+	
 	if (GTK_IS_SCROLLED_WINDOW(parent))
 	{
 		parent = gtk_widget_get_parent(parent);
 		if (!parent)
 			return false;
+	}
+	
+	if (GTK_IS_ENTRY(widget))
+	{
+		parent = gtk_widget_get_parent(parent);
+		if (GTK_IS_COMBO_BOX(parent))
+			return true;
 	}
 
 	parent_control = gt_get_control(parent);
@@ -1802,29 +1810,25 @@ PATCH_DECLARE_BASELINE(GTK_TYPE_SPIN_BUTTON)
 PATCH_DECLARE_BASELINE(GTK_TYPE_BUTTON)
 #endif
 
-void gt_patch_control(GtkWidget *border, GtkWidget *widget)
+void gt_patch_control(GtkWidget *widget)
 {
-	PATCH_CLASS(border, GTK_TYPE_WINDOW)
-	else PATCH_CLASS_BASELINE(border, GTK_TYPE_ENTRY)
-	else PATCH_CLASS_BASELINE(border, GTK_TYPE_SPIN_BUTTON)
-	else PATCH_CLASS_BASELINE(border, GTK_TYPE_BUTTON)
-	else PATCH_CLASS(border, GTK_TYPE_FIXED)
-	else PATCH_CLASS(border, GTK_TYPE_EVENT_BOX)
-	//else PATCH_CLASS(border, GTK_TYPE_ALIGNMENT)
-	else PATCH_CLASS(border, GTK_TYPE_BOX)
-	else PATCH_CLASS(border, GTK_TYPE_TOGGLE_BUTTON)
-	else PATCH_CLASS(border, GTK_TYPE_SCROLLED_WINDOW)
-	else PATCH_CLASS(border, GTK_TYPE_CHECK_BUTTON)
-	else PATCH_CLASS(border, GTK_TYPE_RADIO_BUTTON)
-	else PATCH_CLASS(border, GTK_TYPE_NOTEBOOK)
-	else PATCH_CLASS(border, GTK_TYPE_TEXT_VIEW)
-	else PATCH_CLASS(border, GTK_TYPE_SCROLLBAR)
-	else PATCH_CLASS(border, GTK_TYPE_SCALE)
-
-	if (!widget)
-		return;
-	
-	PATCH_CLASS_BASELINE(widget, GTK_TYPE_COMBO_BOX)
+	PATCH_CLASS(widget, GTK_TYPE_WINDOW)
+	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_ENTRY)
+	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_SPIN_BUTTON)
+	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_BUTTON)
+	else PATCH_CLASS(widget, GTK_TYPE_FIXED)
+	else PATCH_CLASS(widget, GTK_TYPE_EVENT_BOX)
+	//else PATCH_CLASS(widget, GTK_TYPE_ALIGNMENT)
+	else PATCH_CLASS(widget, GTK_TYPE_BOX)
+	else PATCH_CLASS(widget, GTK_TYPE_TOGGLE_BUTTON)
+	else PATCH_CLASS(widget, GTK_TYPE_SCROLLED_WINDOW)
+	else PATCH_CLASS(widget, GTK_TYPE_CHECK_BUTTON)
+	else PATCH_CLASS(widget, GTK_TYPE_RADIO_BUTTON)
+	else PATCH_CLASS(widget, GTK_TYPE_NOTEBOOK)
+	else PATCH_CLASS(widget, GTK_TYPE_TEXT_VIEW)
+	else PATCH_CLASS(widget, GTK_TYPE_SCROLLBAR)
+	else PATCH_CLASS(widget, GTK_TYPE_SCALE)
+	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_COMBO_BOX)
 	else PATCH_CLASS(widget, GTK_TYPE_TEXT_VIEW)
 }
 
@@ -1902,7 +1906,9 @@ void gControl::realize(bool make_frame)
 	//fprintf(stderr, "realize: %p %p\n", border, widget);
 
 #ifdef GTK3
-	gt_patch_control(border, widget);
+	gt_patch_control(border);
+	if (widget && widget != border)
+		gt_patch_control(widget);
 #endif
 
 	connectParent();
@@ -2126,24 +2132,21 @@ void gControl::setStyleSheetNode(GString *css, const char *node)
 	
 	_css_node = node;
 	
-	if (node)
+	if (!node)
+		return;
+	
+	if (!_has_css_id)
 	{
-		if (!_css)
-		{
-			setWidgetName();
-			_css = GTK_STYLE_PROVIDER(gtk_css_provider_new());
-		}
-		g_string_append_printf(css, "#%s %s {\ntransition:none;\n", gtk_widget_get_name(getStyleSheetWidget()), node);
+		gt_widget_set_name(getStyleSheetWidget());
+		_has_css_id = true;
 	}
+
+	g_string_append_printf(css, "#%s %s {\ntransition:none;\n", gtk_widget_get_name(getStyleSheetWidget()), node);
 }
 
 void gControl::updateStyleSheet(bool dirty)
 {
-	GtkWidget *wid;
-	//GtkStyleContext *context;
-	GdkScreen *screen;
 	GString *css;
-	char *css_str;
 	gColor bg, fg;
 	
 	if (dirty)
@@ -2163,10 +2166,6 @@ void gControl::updateStyleSheet(bool dirty)
 	if (!isReallyVisible() || !_style_dirty)
 		return;
 
-	wid = getStyleSheetWidget();
-	//context = gtk_widget_get_style_context(wid);
-	screen = gdk_screen_get_default();
-	
 	bg = _no_background ? background() : COLOR_DEFAULT;
 	fg = foreground(); //realForeground();
 
@@ -2189,28 +2188,12 @@ void gControl::updateStyleSheet(bool dirty)
 
 	setStyleSheetNode(css, NULL);
 	
-	if (css->len)
-	{
-		css_str = g_string_free(css, FALSE);
-		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css_str, -1, NULL);
-		g_free(css_str);
-		//gtk_style_context_add_provider(context, _css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-		gtk_style_context_add_provider_for_screen(screen, _css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-	}
-	else
-	{
-		if (_css)
-		{
-			//gtk_style_context_remove_provider(context, _css);
-			gtk_style_context_remove_provider_for_screen(screen, _css);
-			_css = NULL;
-		}
-	}
-
+	gt_define_style_sheet(&_css, css);
+	
 	/*if (_css)
 	{
-		css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
-		fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(wid), css_str);
+		char *css_str = gtk_css_provider_to_string(GTK_CSS_PROVIDER(_css));
+		fprintf(stderr, "---- %s\n%s", gtk_widget_get_name(getStyleSheetWidget()), css_str);
 		g_free(css_str);
 	}*/
 	
@@ -2912,9 +2895,3 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 	}
 }
 
-#ifdef GTK3
-void gControl::setWidgetName()
-{
-	gt_widget_set_name(getStyleSheetWidget());
-}
-#endif

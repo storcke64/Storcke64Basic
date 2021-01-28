@@ -1164,6 +1164,22 @@ BEGIN_PROPERTY(Container_Indent)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Container_Centered)
+
+  if (READ_PROPERTY)
+    GB.ReturnBoolean(THIS_ARRANGEMENT->centered);
+  else
+  {
+  	bool val = VPROP(GB_BOOLEAN);
+  	if (val != THIS_ARRANGEMENT->centered)
+  	{
+    	THIS_ARRANGEMENT->centered = val;
+			arrange_now(CONTAINER);
+		}
+  }
+
+END_PROPERTY
+
 BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
 	MyContainer *wid = new MyContainer(QCONTAINER(VARG(parent)));
@@ -1252,9 +1268,17 @@ BEGIN_PROPERTY(UserContainer_Indent)
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
 	Container_Indent(cont, _param);
 	if (!READ_PROPERTY)
-	{
 		THIS_USERCONTAINER->save = cont->arrangement;
-	}
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(UserContainer_Centered)
+
+	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
+	Container_Centered(cont, _param);
+	if (!READ_PROPERTY)
+		THIS_USERCONTAINER->save = cont->arrangement;
 
 END_PROPERTY
 
@@ -1529,6 +1553,7 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Margin", "b", Container_Margin),
 	GB_PROPERTY("_Indent", "b", Container_Indent),
 	GB_PROPERTY("_Invert", "b", Container_Invert),
+	GB_PROPERTY("_Centered", "b", Container_Centered),
 
 	USERCONTROL_DESCRIPTION,
 	
@@ -1555,7 +1580,8 @@ GB_DESC UserContainerDesc[] =
 	GB_PROPERTY("Margin", "b", UserContainer_Margin),
 	GB_PROPERTY("Indent", "b", UserContainer_Indent),
 	GB_PROPERTY("Invert", "b", UserContainer_Invert),
-	
+	GB_PROPERTY("Centered", "b", UserContainer_Centered),
+
 	GB_PROPERTY("Design", "b", UserContainer_Design),
 
 	//GB_PROPERTY("Focus", "b", UserContainer_Focus),
