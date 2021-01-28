@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.15.90\n"
-"PO-Revision-Date: 2021-01-26 22:44 UTC\n"
+"PO-Revision-Date: 2021-01-28 16:35 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -886,11 +886,11 @@ msgstr "Nombres complexes"
 msgid "XML management"
 msgstr "Gestion du XML"
 
-#: CInsertColor.class:268 FEditor.form:211 FTextEditor.form:213
+#: CInsertColor.class:268 FEditor.form:211 FTextEditor.form:224
 msgid "Insert color"
 msgstr "Insérer une couleur"
 
-#: CInsertDate.class:58 FEditor.form:561 FTextEditor.form:555
+#: CInsertDate.class:58 FEditor.form:561 FTextEditor.form:578
 msgid "Insert today's date"
 msgstr "Insérer la date du jour"
 
@@ -1290,7 +1290,7 @@ msgstr "Réinitialiser"
 msgid "Run"
 msgstr "Démarrer"
 
-#: FArguments.form:46 FConflict.form:166 FConflictEditor.form:306 FDebugInfo.form:431 FEditor.form:346 FFileInfoVC.form:81 FFileProperty.form:46 FForm.form:438 FImageEditor.form:392 FMain.form:407 FPatch.form:88 FProjectVersion.form:322 FSystemInfo.form:44 FTestSuite.form:170 FTextEditor.form:360 FTips.form:83 FTranslate.form:411
+#: FArguments.form:46 FConflict.form:166 FConflictEditor.form:306 FDebugInfo.form:431 FEditor.form:346 FFileInfoVC.form:81 FFileProperty.form:46 FForm.form:438 FImageEditor.form:392 FMain.form:407 FPatch.form:88 FProjectVersion.form:322 FSystemInfo.form:44 FTestSuite.form:170 FTextEditor.form:371 FTips.form:83 FTranslate.form:411
 msgid "Close"
 msgstr "Fermer"
 
@@ -1362,19 +1362,19 @@ msgstr "Choisissez un composant"
 msgid "Show deprecated components"
 msgstr "Afficher les composants dépréciés"
 
-#: FComponentChooser.form:103 FConflictEditor.form:293 FConnectionEditor.form:120 FEditor.form:366 FForm.form:445 FHelpBrowser.form:79 FImageEditor.form:378 FMain.form:382 FTextEditor.form:380 FTranslate.form:93 Project.module:881
+#: FComponentChooser.form:103 FConflictEditor.form:293 FConnectionEditor.form:120 FEditor.form:366 FForm.form:445 FHelpBrowser.form:79 FImageEditor.form:378 FMain.form:382 FTextEditor.form:391 FTranslate.form:93 Project.module:881
 msgid "Reload"
 msgstr "Recharger"
 
-#: FComponentChooser.form:114 FHelpBrowser.form:89 FImageEditor.form:336
+#: FComponentChooser.form:114 FHelpBrowser.form:89 FImageEditor.form:336 FTextEditor.form:781
 msgid "Zoom in"
 msgstr "Zoom avant"
 
-#: FComponentChooser.form:120 FHelpBrowser.form:95 FImageEditor.form:344
+#: FComponentChooser.form:120 FHelpBrowser.form:95 FImageEditor.form:344 FTextEditor.form:788
 msgid "Zoom out"
 msgstr "Zoom arrière"
 
-#: FComponentChooser.form:126 FHelpBrowser.form:101
+#: FComponentChooser.form:126 FHelpBrowser.form:101 FTextEditor.form:795
 msgid "No zoom"
 msgstr "Taille normale"
 
@@ -1422,31 +1422,31 @@ msgstr "Fichiers en conflits"
 msgid "Version conflict"
 msgstr "Conflit de version"
 
-#: FConflict.form:70 FConflictEditor.form:114 FConnectionEditor.form:246 FEditor.form:130 FForm.form:164 FImageEditor.form:138 FMain.form:1087 FMenu.form:120 FProjectVersion.form:234 FTextEditor.form:133
+#: FConflict.form:70 FConflictEditor.form:114 FConnectionEditor.form:246 FEditor.form:130 FForm.form:164 FImageEditor.form:138 FMain.form:1087 FMenu.form:120 FProjectVersion.form:234 FTextEditor.form:144
 msgid "Cut"
 msgstr "Couper"
 
-#: FConflict.form:76 FConflictEditor.form:121 FConnectionEditor.form:152 FEditor.form:137 FForm.form:171 FImageEditor.form:146 FList.form:99 FMain.form:1094 FMakeInstall.form:921 FMenu.form:126 FOutput.form:40 FProjectVersion.form:240 FSystemInfo.form:38 FTextEditor.form:140 FTranslate.form:114
+#: FConflict.form:76 FConflictEditor.form:121 FConnectionEditor.form:152 FEditor.form:137 FForm.form:171 FImageEditor.form:146 FList.form:99 FMain.form:1094 FMakeInstall.form:921 FMenu.form:126 FOutput.form:40 FProjectVersion.form:240 FSystemInfo.form:38 FTextEditor.form:151 FTranslate.form:114
 msgid "Copy"
 msgstr "Copier"
 
-#: FConflict.form:82 FConflictEditor.form:128 FConnectionEditor.form:161 FEditor.form:144 FForm.form:184 FImageEditor.form:153 FList.form:105 FMain.form:1101 FMenu.form:132 FOutput.form:47 FPasteTable.form:99 FProjectVersion.form:246 FTextEditor.form:147
+#: FConflict.form:82 FConflictEditor.form:128 FConnectionEditor.form:161 FEditor.form:144 FForm.form:184 FImageEditor.form:153 FList.form:105 FMain.form:1101 FMenu.form:132 FOutput.form:47 FPasteTable.form:99 FProjectVersion.form:246 FTextEditor.form:158
 msgid "Paste"
 msgstr "Coller"
 
-#: FConflict.form:88 FConflictEditor.form:97 FConnectionEditor.form:267 FEditor.form:113 FFieldChooser.form:127 FForm.form:147 FImageEditor.form:119 FList.form:111 FOption.form:1752 FProjectVersion.form:252 FTextEditor.form:116
+#: FConflict.form:88 FConflictEditor.form:97 FConnectionEditor.form:267 FEditor.form:113 FFieldChooser.form:127 FForm.form:147 FImageEditor.form:119 FList.form:111 FOption.form:1752 FProjectVersion.form:252 FTextEditor.form:127
 msgid "Undo"
 msgstr "Annuler"
 
-#: FConflict.form:94 FConflictEditor.form:104 FConnectionEditor.form:274 FEditor.form:120 FForm.form:154 FImageEditor.form:127 FProjectVersion.form:258 FTextEditor.form:123
+#: FConflict.form:94 FConflictEditor.form:104 FConnectionEditor.form:274 FEditor.form:120 FForm.form:154 FImageEditor.form:127 FProjectVersion.form:258 FTextEditor.form:134
 msgid "Redo"
 msgstr "Rétablir"
 
-#: FConflict.form:100 FConflictEditor.form:441 FEditor.form:580 FMenu.form:142 FProjectVersion.form:264 FTextEditor.form:574
+#: FConflict.form:100 FConflictEditor.form:441 FEditor.form:580 FMenu.form:142 FProjectVersion.form:264 FTextEditor.form:597
 msgid "Indent"
 msgstr "Indenter"
 
-#: FConflict.form:106 FConflictEditor.form:449 FEditor.form:588 FMenu.form:148 FProjectVersion.form:270 FTextEditor.form:582
+#: FConflict.form:106 FConflictEditor.form:449 FEditor.form:588 FMenu.form:148 FProjectVersion.form:270 FTextEditor.form:605
 msgid "Unindent"
 msgstr "Désindenter"
 
@@ -1454,7 +1454,7 @@ msgstr "Désindenter"
 msgid "Open"
 msgstr "Ouvrir"
 
-#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:372 FForm.form:451 FImageEditor.form:385 FMain.form:391 FMenu.class:96 FOption.form:1418 FSaveProjectAs.form:87 FTextEditor.form:386 FTranslate.form:234
+#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:372 FForm.form:451 FImageEditor.form:385 FMain.form:391 FMenu.class:96 FOption.form:1418 FSaveProjectAs.form:87 FTextEditor.form:397 FTranslate.form:234
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -1462,7 +1462,7 @@ msgstr "Enregistrer"
 msgid "Solve"
 msgstr "Résoudre"
 
-#: FConflictEditor.class:956 FEditor.class:2728 FTextEditor.class:1164
+#: FConflictEditor.class:956 FEditor.class:2728 FTextEditor.class:1170
 msgid "(Declarations)"
 msgstr "(Déclarations)"
 
@@ -1470,114 +1470,114 @@ msgstr "(Déclarations)"
 msgid "There are still conflicts in this file."
 msgstr "Il reste des conflits dans ce fichier."
 
-#: FConflictEditor.form:134 FEditor.form:150 FTextEditor.form:153
+#: FConflictEditor.form:134 FEditor.form:150 FTextEditor.form:164
 msgid "Advanced"
 msgstr "Avancé"
 
-#: FConflictEditor.form:138 FEditor.form:154 FTextEditor.form:157
+#: FConflictEditor.form:138 FEditor.form:154 FTextEditor.form:168
 msgid "Upper case"
 msgstr "Majuscules"
 
-#: FConflictEditor.form:145 FEditor.form:161 FTextEditor.form:164
+#: FConflictEditor.form:145 FEditor.form:161 FTextEditor.form:175
 msgid "Lower case"
 msgstr "Minuscules"
 
-#: FConflictEditor.form:155 FEditor.form:171 FTextEditor.form:189
+#: FConflictEditor.form:155 FEditor.form:171 FTextEditor.form:200
 msgid "Comment"
 msgstr "Mettre en commentaire"
 
-#: FConflictEditor.form:162 FEditor.form:178 FTextEditor.form:196
+#: FConflictEditor.form:162 FEditor.form:178 FTextEditor.form:207
 msgid "Uncomment"
 msgstr "Retirer les commentaires"
 
-#: FConflictEditor.form:172 FEditor.form:188 FPasteSpecial.form:19 FTextEditor.form:206
+#: FConflictEditor.form:172 FEditor.form:188 FPasteSpecial.form:19 FTextEditor.form:217
 msgid "Paste special"
 msgstr "Collage spécial"
 
-#: FConflictEditor.form:183 FEditor.form:221 FImageEditor.form:222 FTextEditor.form:237
+#: FConflictEditor.form:183 FEditor.form:221 FImageEditor.form:222 FTextEditor.form:248
 msgid "Select All"
 msgstr "Tout sélectionner"
 
-#: FConflictEditor.form:193 FEditor.form:236 FGotoLine.form:12 FTextEditor.form:247
+#: FConflictEditor.form:193 FEditor.form:236 FGotoLine.form:12 FTextEditor.form:258
 msgid "Go to line"
 msgstr "Aller à la ligne"
 
-#: FConflictEditor.form:198 FEditor.form:241 FTextEditor.form:252
+#: FConflictEditor.form:198 FEditor.form:241 FTextEditor.form:263
 msgid "Bookmarks"
 msgstr "Signets"
 
-#: FConflictEditor.form:206 FEditor.form:256 FTextEditor.form:260
+#: FConflictEditor.form:206 FEditor.form:256 FTextEditor.form:271
 msgid "Find next"
 msgstr "Poursuivre la recherche"
 
-#: FConflictEditor.form:213 FEditor.form:263 FTextEditor.form:267
+#: FConflictEditor.form:213 FEditor.form:263 FTextEditor.form:278
 msgid "Find previous"
 msgstr "Recherche en arrière"
 
-#: FConflictEditor.form:222 FEditor.form:272 FImageEditor.form:331 FMain.form:771 FTextEditor.form:276
+#: FConflictEditor.form:222 FEditor.form:272 FImageEditor.form:331 FMain.form:771 FTextEditor.form:287
 msgid "View"
 msgstr "Affichage"
 
-#: FConflictEditor.form:226 FEditor.form:276 FTextEditor.form:280
+#: FConflictEditor.form:226 FEditor.form:276 FTextEditor.form:291
 msgid "Automatic word wrap"
 msgstr "Retour à la ligne automatique"
 
-#: FConflictEditor.form:233 FTextEditor.form:287
+#: FConflictEditor.form:233 FTextEditor.form:298
 msgid "Indent with tab"
 msgstr "Indenter avec des tabulations"
 
-#: FConflictEditor.form:240 FEditor.form:283 FTextEditor.form:297
+#: FConflictEditor.form:240 FEditor.form:283 FTextEditor.form:308
 msgid "No split"
 msgstr "Affichage complet"
 
-#: FConflictEditor.form:246 FEditor.form:289 FTextEditor.form:303
+#: FConflictEditor.form:246 FEditor.form:289 FTextEditor.form:314
 msgid "Horizontal split"
 msgstr "Séparation horizontale"
 
-#: FConflictEditor.form:253 FEditor.form:296 FTextEditor.form:310
+#: FConflictEditor.form:253 FEditor.form:296 FTextEditor.form:321
 msgid "Vertical split"
 msgstr "Séparation verticale"
 
-#: FConflictEditor.form:260 FImportTable.form:89 FTextEditor.form:327
+#: FConflictEditor.form:260 FImportTable.form:89 FTextEditor.form:338
 msgid "End of line"
 msgstr "Fin de ligne"
 
 # gb-ignore
-#: FConflictEditor.form:263 FTextEditor.form:330
+#: FConflictEditor.form:263 FTextEditor.form:341
 msgid "Unix"
 msgstr ""
 
 # gb-ignore
-#: FConflictEditor.form:268 FTextEditor.form:335
+#: FConflictEditor.form:268 FTextEditor.form:346
 msgid "Windows"
 msgstr ""
 
 # gb-ignore
-#: FConflictEditor.form:273 FTextEditor.form:340
+#: FConflictEditor.form:273 FTextEditor.form:351
 msgid "MAC"
 msgstr ""
 
-#: FConflictEditor.form:283 FForm.form:414 FMain.form:1050 FTextEditor.form:350
+#: FConflictEditor.form:283 FForm.form:414 FMain.form:1050 FTextEditor.form:361
 msgid "Open code"
 msgstr "Ouvrir le code"
 
-#: FConflictEditor.form:316 FEditor.form:382 FPasteSpecial.form:60 FTextEditor.form:396
+#: FConflictEditor.form:316 FEditor.form:382 FPasteSpecial.form:60 FTextEditor.form:407
 msgid "Paste as string"
 msgstr "Coller comme chaîne"
 
-#: FConflictEditor.form:321 FEditor.form:387 FPasteSpecial.form:65 FTextEditor.form:401
+#: FConflictEditor.form:321 FEditor.form:387 FPasteSpecial.form:65 FTextEditor.form:412
 msgid "Paste as multi-line string"
 msgstr "Coller comme chaîne sur plusieurs lignes"
 
-#: FConflictEditor.form:326 FEditor.form:392 FPasteSpecial.form:50 FTextEditor.form:406
+#: FConflictEditor.form:326 FEditor.form:392 FPasteSpecial.form:50 FTextEditor.form:417
 msgid "Paste as comments"
 msgstr "Coller comme commentaires"
 
-#: FConflictEditor.form:342 FTextEditor.form:422
+#: FConflictEditor.form:342 FTextEditor.form:445
 msgid "Text editor"
 msgstr "Éditeur de texte"
 
-#: FConflictEditor.form:348 FForm.form:474 FTextEditor.form:428
+#: FConflictEditor.form:348 FForm.form:474 FTextEditor.form:451
 msgid "Code"
 msgstr "Code"
 
@@ -2217,7 +2217,7 @@ msgstr "Rechercher de nouveau"
 msgid "Search string cannot be found."
 msgstr "La chaîne recherchée est introuvable."
 
-#: FEditor.form:195 FTextEditor.form:219
+#: FEditor.form:195 FTextEditor.form:230
 msgid "Format code"
 msgstr "Formater le code"
 
@@ -2253,11 +2253,11 @@ msgstr "Ouvrir le formulaire"
 msgid "Run this class"
 msgstr "Exécuter cette classe"
 
-#: FEditor.form:353 FForm.form:431 FImageEditor.form:370 FTextEditor.form:367
+#: FEditor.form:353 FForm.form:431 FImageEditor.form:370 FTextEditor.form:378
 msgid "Locked"
 msgstr "Verrouillé"
 
-#: FEditor.form:359 FHelpBrowser.form:120 FTextEditor.form:373
+#: FEditor.form:359 FHelpBrowser.form:120 FTextEditor.form:384
 msgid "Print"
 msgstr "Imprimer"
 
@@ -2265,31 +2265,31 @@ msgstr "Imprimer"
 msgid "Editor"
 msgstr "Éditeur"
 
-#: FEditor.form:421 FForm.form:481 FTextEditor.form:435
+#: FEditor.form:421 FForm.form:481 FTextEditor.form:458
 msgid "Show modifications"
 msgstr "Afficher les modifications"
 
-#: FEditor.form:430 FForm.form:490 FTextEditor.form:444
+#: FEditor.form:430 FForm.form:490 FTextEditor.form:467
 msgid "Previous modification"
 msgstr "Modification précédente"
 
-#: FEditor.form:437 FForm.form:497 FTextEditor.form:451
+#: FEditor.form:437 FForm.form:497 FTextEditor.form:474
 msgid "Next modification"
 msgstr "Modification suivante"
 
-#: FEditor.form:570 FTextEditor.form:564
+#: FEditor.form:570 FTextEditor.form:587
 msgid "Insert special character"
 msgstr "Insérer un caractère spécial"
 
-#: FEditor.form:613 FTextEditor.form:607
+#: FEditor.form:613 FTextEditor.form:630
 msgid "Make code pretty"
 msgstr "Réindenter le code"
 
-#: FEditor.form:678 FTextEditor.form:662
+#: FEditor.form:678 FTextEditor.form:685
 msgid "Procedure list"
 msgstr "Liste des procédures"
 
-#: FEditor.form:700 FImageEditor.form:770 FTextEditor.form:713
+#: FEditor.form:700 FImageEditor.form:770 FTextEditor.form:726
 msgid "Lock / unlock file"
 msgstr "Vérrouiller / déverrouiller le fichier"
 
@@ -2481,15 +2481,15 @@ msgstr "Choisissez une police"
 msgid "Bad form file"
 msgstr "Fichier formulaire incorrect"
 
-#: FForm.class:268
+#: FForm.class:263
 msgid "Unknown control: &1"
 msgstr "Contrôle inconnu : &1"
 
-#: FForm.class:1335
+#: FForm.class:1330
 msgid "Component missing for control &1"
 msgstr "Composant introuvable pour le contrôle &1"
 
-#: FForm.class:1878
+#: FForm.class:1873
 msgid "Cannot paste data."
 msgstr "Impossible de coller les données."
 
@@ -3033,7 +3033,7 @@ msgstr "Flou"
 msgid "Transparency"
 msgstr "Transparence"
 
-#: FImageProperty.form:690 FImportTable.form:188 FTextEditor.form:320
+#: FImageProperty.form:690 FImportTable.form:188 FTextEditor.form:331
 msgid "Preview"
 msgstr "Aperçu"
 
@@ -3784,20 +3784,20 @@ msgid "Dispose class files according to inheritance"
 msgstr "Disposer les fichiers classes selon l'héritage"
 
 #: FMain.form:1874
-msgid "Show project tree"
-msgstr "Afficher l'arbre du projet"
-
-#: FMain.form:1882
 msgid "Show properties sheet"
 msgstr "Afficher la feuille de propriétés"
 
-#: FMain.form:1952
-msgid "Show controls"
-msgstr "Afficher les contrôles"
+#: FMain.form:1882
+msgid "Show project tree"
+msgstr "Afficher l'arbre du projet"
 
-#: FMain.form:1960
+#: FMain.form:1952
 msgid "Show property help"
 msgstr "Afficher l'aide sur les propriétés"
+
+#: FMain.form:1960
+msgid "Show controls"
+msgstr "Afficher les contrôles"
 
 #: FMakeExecutable.class:18
 msgid "Gambas applications"
@@ -5745,35 +5745,43 @@ msgstr "Éditer la propriété « &1 »"
 msgid "Use a fixed font"
 msgstr "Utiliser une police non proportionnelle"
 
-#: FTextEditor.class:268
+#: FTextEditor.class:274
 msgid "Console output #&1"
 msgstr "Sortie de console n°&1"
 
-#: FTextEditor.class:990
+#: FTextEditor.class:996
 msgid "Unable to compress file."
 msgstr "Impossible de compresser le fichier."
 
-#: FTextEditor.class:1927
+#: FTextEditor.class:1947
 msgid "Compressed at &1"
 msgstr "Compressé à &1"
 
-#: FTextEditor.class:1967
+#: FTextEditor.class:1987
 msgid "Preview refresh..."
 msgstr "Rafraîchissement de l'aperçu..."
 
-#: FTextEditor.form:174
+#: FTextEditor.class:2072
+msgid "Default style sheet"
+msgstr "Feuille de style par défaut"
+
+#: FTextEditor.class:2117
+msgid "Example"
+msgstr "Exemple"
+
+#: FTextEditor.form:185
 msgid "Sort ascent"
 msgstr "Tri ascendant"
 
-#: FTextEditor.form:180
+#: FTextEditor.form:191
 msgid "Sort descent"
 msgstr "Tri descendant"
 
-#: FTextEditor.form:226
+#: FTextEditor.form:237
 msgid "Compress file"
 msgstr "Compresser le fichier"
 
-#: FTextEditor.form:675
+#: FTextEditor.form:734
 msgid "Toggle preview"
 msgstr "Basculer l'affichage de l'aperçu"
 

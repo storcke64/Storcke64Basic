@@ -59,13 +59,18 @@ Private $iLastLine As Integer
 Private $bDiffMode As Boolean
 Private $bIgnoreCompress As Boolean
 
+Static Private $sDefaultStyleSheet As String
+
 Private Enum PREVIEW_NONE, PREVIEW_HTML, PREVIEW_MARKDOWN
-Private $hPreview As WebView
+
+Private $hPreview As HelpView
 Private $iShowPreview As Integer
 Private $hTimerPreview As Timer
 Private $sTempPreview As String
 Private $bMovePreviewOnReady As Boolean
 Private $bPreviewReady As Boolean
+Private $aStyleSheet As String[]
+Private $iCurrentStyleSheet As Integer
 
 Public Sub _new(sPath As String, Optional bModule As Boolean)
 
@@ -193,6 +198,7 @@ End
 Public Sub ReadConfig()
 
   Project.SetSmallFont(panToolbar)
+  Project.SetSmallFont(tlbPreview)
   edtEditor.ReadConfig(True)
   'edtEditor.Parent.Background = edtEditor.Styles[Highlight.Background].Color
   If $hEditor1 Then $hEditor1.ReadConfig(True)
@@ -299,7 +305,7 @@ End
 
 Private Sub HasPreview() As Boolean
   
-  If $hPreview And If $hPreview.Visible Then Return True
+  Return panPreview.Visible
   
 End
 
@@ -1277,6 +1283,8 @@ Public Sub panToolBar_Configure()
     mnuShowCode.Hide
   Endif
 
+  btnProc.Visible = edtEditor.Mode <> ""
+
 End
 
 Public Sub mnuClose_Click()
@@ -1299,7 +1307,7 @@ Private Sub UpdateMenu()
   Action[".proc", Me].Visible = Not $bNoHighlight
   Action[".comment,.uncomment", Me].Visible = $bShowComment And bVisible
   Action[".pretty", Me].Visible = $bShowPretty And bVisible
-  Action[".preview", Me].Visible = $iShowPreview <> PREVIEW_NONE
+  Action[".preview", Me].Visible = $iShowPreview <> PREVIEW_NONE And Not panPreview.Visible
   
 End
 
@@ -1570,6 +1578,18 @@ Public Sub Action_Activate((Key) As String) As Boolean
       
     Case ".preview"
       UpdatePreview
+      
+    Case ".preview-zoom-in"
+      $hPreview.ZoomIn
+      RefreshPreview
+    
+    Case ".preview-zoom-out"
+      $hPreview.ZoomOut
+      RefreshPreview
+    
+    Case ".preview-zoom-normal"
+      $hPreview.ZoomNormal
+      RefreshPreview
     
     Case Else
       Return True
@@ -1986,7 +2006,7 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
             iPos = InStr(aHtml[I], "<body")
             If iPos Then 
               bBody = True
-              aHtml[I] &= "<script type=\"text/javascript\">" & File.Load("markdown.js") & "</script>"
+              aHtml[I] &= "<script type=\"text/javascript\">" & File.Load("markdown/markdown.js") & "</script>"
             Endif
             Continue
           Endif
@@ -2007,9 +2027,9 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
           sHtml = "<pre>" & Html(Error.Text) & "\n\n" & Error.Backtrace.Join(" ") & "</pre>"
           bError = True
         Else
-          sHtml &= "<script type=\"text/javascript\">" & File.Load("markdown.js") & "</script>"
+          sHtml &= "<script type=\"text/javascript\">" & File.Load("markdown/markdown.js") & "</script>"
         Endif
-        sHtml = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>" & sHtml & "</body></html>"
+        sHtml = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" & GetStyleSheet() & "</head><body>" & sHtml & "</body></html>"
       
     End Select
   
@@ -2017,7 +2037,7 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
     $sTempPreview = File.SetExt(Temp(), "html")
     File.Save($sTempPreview, sHtml)
     
-    'Print sHtml
+    Print sHtml
     
     $bMovePreviewOnReady = True
     $hPreview.Url = "file://" & $sTempPreview '& "#l" & CStr($hEditor.Line + 1)
@@ -2033,24 +2053,101 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
 
 End
 
+Private Sub FillStyleSheet()
+
+  Dim I As Integer
+  Dim hMenu As Menu
+  
+  $iCurrentStyleSheet = -1
+  
+  $aStyleSheet = RDir(Project.Dir &/ ".hidden", "*.css")
+  If $aStyleSheet.Count = 0 Then
+    btnStyleSheet.Hide
+    Return
+  Endif
+  
+  mnuStyleSheet.Children.Clear
+  
+  hMenu = New Menu(mnuStyleSheet) As "mnuStyleSheet"
+  hMenu.Text = ("Default style sheet")
+  btnStyleSheet.Text = hMenu.Text 
+  hMenu.Checked = True
+  
+  hMenu = New Menu(mnuStyleSheet)
+  
+  For I = 0 To $aStyleSheet.Max
+    hMenu = New Menu(mnuStyleSheet) As "mnuStyleSheet"
+    hMenu.Text = File.Name($aStyleSheet[I])
+    hMenu.Tag = I
+  Next
+  
+  btnStyleSheet.Show
+
+End
+
+Public Sub mnuStyleSheet_Click()
+
+  Dim hMenu As Menu
+  
+  For Each hMenu In mnuStyleSheet.Children
+    If Not hMenu.Text Then Continue
+    hMenu.Checked = hMenu = Last
+    If hMenu.Checked Then btnStyleSheet.Text = hMenu.Text
+  Next
+  
+  If IsNull(Last.Tag) Then
+    $iCurrentStyleSheet = -1
+  Else
+    $iCurrentStyleSheet = Last.Tag
+  Endif
+  
+  RefreshPreview(True)  
+  
+End
+
+Private Sub GetStyleSheet() As String
+
+  Dim sPath As String
+  Dim sData As String
+  
+  If $iCurrentStyleSheet < 0 Then
+    If Not $sDefaultStyleSheet Then
+      $sDefaultStyleSheet = File.SetExt(Temp$(), "css")
+      sData = File.Load("markdown/markdown.css")
+      sData = Replace(sData, "$EXAMPLE", ("Example"))
+      File.Save($sDefaultStyleSheet, sData)
+    Endif
+    sPath = $sDefaultStyleSheet
+  Else
+    sPath = Project.Dir &/ ".hidden" &/ $aStyleSheet[$iCurrentStyleSheet]
+  Endif
+  
+  Return Subst("<link rel=\"stylesheet\" href=\"&1\">", sPath)
+
+End
+
 Private Sub UpdatePreview()
 
   If btnPreview.Value Then
     
     If Not $hPreview Then
-      $hPreview = New HelpView(splPreview) As "Preview"
+      $hPreview = New HelpView(panPreview) As "Preview"
       $hPreview.Settings[WebSettings.Javascript] = True
+      $hPreview.Expand = True
       splPreview.Layout = [1, 1]
       $hTimerPreview = New Timer As "TimerPreview"
-      $hTimerPreview.Delay = 1000
+      $hTimerPreview.Delay = 500
     Endif
     
-    $hPreview.Show
+    FillStyleSheet
+    panPreview.Show
     RefreshPreview(True)
+    btnPreview.Hide
     
   Else
     
-    $hPreview.Hide
+    panPreview.Hide
+    btnPreview.Show
     
   Endif
 
@@ -2079,4 +2176,11 @@ Public Sub Preview_Resize()
   
   RefreshPreview
   
+End
+
+
+Public Sub btnClosePreview_Click()
+
+  btnPreview.Value = False
+
 End

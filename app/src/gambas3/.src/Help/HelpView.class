@@ -241,3 +241,21 @@ Public Sub lblNotExist_MouseDown()
   $hNotExist.Hide
   
 End
+
+Public Sub ZoomIn()
+  
+  Me.Zoom = Round(Me.Zoom * 1.125, -3)
+  
+End
+
+Public Sub ZoomOut()
+  
+  Me.Zoom = Round(Me.Zoom / 1.125, -3)
+  
+End
+
+Public Sub ZoomNormal()
+  
+  Me.Zoom = 1
+  
+End

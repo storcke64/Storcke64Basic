@@ -45,7 +45,7 @@ function do_goto_line(line)
   
   for (n = 1;; n++)
   {
-    elt_next = $('l' + (line + n))
+    elt_next = $('l' + (line+1));
     if (elt_next)
     {
       r2 = elt_next.getBoundingClientRect();
@@ -55,23 +55,26 @@ function do_goto_line(line)
       r2.height = r2.bottom - r2.top;
     }
     else
-      r2 = {x: 0, y: document.body.offsetHeight, width: document.body.offsetWidth, height: 0};
+      return;
+    /*else
+      r2 = {x: 0, y: document.body.offsetHeight, width: document.body.offsetWidth, height: 0};*/
     
-    if (!elt_next || r2.y > r1.y)
+    /*if (!elt_next || r2.y > r1.y || r2.x != r1.x)*/
       break;
   }
   
+  //alert(line + ': ' + r1.x + ' ' + r1.y + ' / ' + (line + n) + ': ' + r2.x + ' ' + r2.y);
   
   sel[0].style.left = r1.x + 'px';
   sel[0].style.top = r1.y + 'px';
-  sel[0].style.width = (document.body.offsetWidth - r1.x) + 'px';
+  sel[0].style.right = '0';
   sel[0].style.height = r1.height + 'px';
   sel[0].style.display = 'block';
   
   sel[1].style.left = '0';
   sel[1].style.top = (r1.y + r1.height) + 'px';
-  sel[1].style.width = '100%';
-  sel[1].style.height = (r2.y - r1.y - r1.height) + 'px';
+  sel[1].style.right = '0';
+  sel[1].style.height = Math.max(0, (r2.y - r1.y - r1.height)) + 'px';
   sel[1].style.display = 'block';
   
   sel[2].style.left = '0';
