@@ -2037,8 +2037,6 @@ Private Sub RefreshPreview(Optional bReload As Boolean)
     $sTempPreview = File.SetExt(Temp(), "html")
     File.Save($sTempPreview, sHtml)
     
-    Print sHtml
-    
     $bMovePreviewOnReady = True
     $hPreview.Url = "file://" & $sTempPreview '& "#l" & CStr($hEditor.Line + 1)
     

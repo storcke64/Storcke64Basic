@@ -2230,13 +2230,6 @@ Public Sub mnuReplace_Click()
   
 End
 
-Public Sub txtSearchProject_Clear()
-  
-  txtSearchProject.FilterNow
-  txtSearchProject.SetFocus
-  
-End
-
 Public Sub txtSearchProject_Change()
   
   Project.ProjectFilter = Trim(txtSearchProject.Text)

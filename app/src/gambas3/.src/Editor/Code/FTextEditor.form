@@ -477,8 +477,6 @@
           Mouse = Mouse.Pointing
           Action = ".proc"
           Text = ("Procedure list")
-          Picture = Picture["icon:/small/bottom"]
-          Arrow = False
           Border = False
         }
         { Panel2 Panel
@@ -739,7 +737,7 @@
   }
   { Action proc
     Text = "Procedure list"
-    Picture = "icon:/small/bottom"
+    Picture = "$MenuButton"
   }
   { Action redo
     Text = "Redo"

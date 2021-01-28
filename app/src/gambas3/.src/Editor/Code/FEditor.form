@@ -487,8 +487,6 @@
       Mouse = Mouse.Pointing
       Action = ".proc"
       Text = ("Procedure list")
-      Picture = Picture["icon:/small/bottom"]
-      Arrow = False
       Border = False
       MenuOnly = True
     }
@@ -516,11 +514,6 @@
     Background = Color.TextBackground
     Expand = True
     Arrangement = Arrange.Fill
-    { splVertical VSplit
-      MoveScaled(2,41,22,18)
-      Visible = False
-      Expand = True
-    }
     { edtEditor TextEditor Editors
       Name = "edtEditor"
       MoveScaled(4,1,24,16)
@@ -529,6 +522,11 @@
     }
     { splHorizontal HSplit
       MoveScaled(3,19,22,18)
+      Visible = False
+      Expand = True
+    }
+    { splVertical VSplit
+      MoveScaled(2,41,22,18)
       Visible = False
       Expand = True
     }
@@ -665,7 +663,7 @@
   }
   { Action proc
     Text = "Procedure list"
-    Picture = "icon:/small/bottom"
+    Picture = "$MenuButton"
   }
   { Action redo
     Text = "Redo"
