@@ -1213,13 +1213,19 @@ Private Sub Blink_Write(Value As Boolean)
 End
 
 '' Copy the selected text of the terminal into the clipboard.
+''
+'' If not text is selected, the entire terminal contents is copied.
 
 Public Sub Copy()
   
   Dim sText As String
   
   sText = $hScreen.GetSelectedText()
-  If sText Then Clipboard.Copy(sText)
+  If sText Then
+    Clipboard.Copy(sText)
+  Else
+    Clipboard.Copy(Me.Text)
+  Endif
   
 End
 
@@ -1297,9 +1303,10 @@ Private Function Text_Read() As String
     Else
       aLine.Add(hLine.Text)
     Endif
+    If hLine.NewLine Then aLine[aLine.Max] &= "\n"
   Next
   
-  Return aLine.Join("\n")
+  Return aLine.Join("")
   
 End
 

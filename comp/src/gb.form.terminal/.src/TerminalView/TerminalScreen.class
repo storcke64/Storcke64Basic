@@ -1336,15 +1336,20 @@ Public Sub GetSelectedText() As String
   Dim Y2 As Integer
   Dim sText As String
   Dim Y As Integer
+  Dim hLine As CTerminalLine
   
   If Not GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2) Then Return
   
   If Y2 = Y1 Then
     sText = String.Mid$(GetLine(Y1).Text, X1 + 1, X2 - X1)
   Else
-    sText = String.Mid$(GetLine(Y1).Text, X1 + 1) & "\n"
+    hLine = GetLine(Y1)
+    sText = String.Mid$(hLine.Text, X1 + 1)
+    If hLine.NewLine Then sText &= "\n"
     For Y = Y1 + 1 To Y2 - 1
-      sText &= GetLine(Y).Text & "\n"
+      hLine = GetLine(Y)
+      sText &= hLine.Text
+      If hLine.NewLine Then sText &= "\n"
     Next
     sText &= String.Left$(GetLine(Y2).Text, X2)
   Endif
