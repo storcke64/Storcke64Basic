@@ -38,8 +38,10 @@ function do_goto_line(line)
   
   r1 = elt.getBoundingClientRect();
   
-  r1.x += document.body.scrollLeft;
-  r1.y += document.body.scrollTop;
+  r1.x = r1.left + document.body.scrollLeft;
+  r1.y = r1.top + document.body.scrollTop;
+  r1.width = r1.right - r1.left;
+  r1.height = r1.bottom - r1.top;
   
   for (n = 1;; n++)
   {
@@ -47,8 +49,10 @@ function do_goto_line(line)
     if (elt_next)
     {
       r2 = elt_next.getBoundingClientRect();
-      r2.x += document.body.scrollLeft;
-      r2.y += document.body.scrollTop;
+      r2.x = r2.left + document.body.scrollLeft;
+      r2.y = r2.top + document.body.scrollTop;
+      r2.width = r2.right - r2.left;
+      r2.height = r2.bottom - r2.top;
     }
     else
       r2 = {x: 0, y: document.body.offsetHeight, width: document.body.offsetWidth, height: 0};
@@ -56,6 +60,7 @@ function do_goto_line(line)
     if (!elt_next || r2.y > r1.y)
       break;
   }
+  
   
   sel[0].style.left = r1.x + 'px';
   sel[0].style.top = r1.y + 'px';
@@ -75,7 +80,9 @@ function do_goto_line(line)
   sel[2].style.height = r2.height + 'px';
   sel[2].style.display = 'block';
   
-  elt.scrollIntoView({block:'center'});
+  //elt.scrollIntoView({block:'center'});
+  //alert(document.body.scrollTop + ' / ' + ((r1.y + r2.y) / 2) + ' / ' + (document.body.offsetHeight/2));
+  document.body.scrollTop = (r1.y + r2.y) / 2 - window.innerHeight / 2;
 }
 
 function goto_line(line)

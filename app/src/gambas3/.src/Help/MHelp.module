@@ -997,8 +997,7 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
     
   Endif
 
-  'Desktop.Open($sOffline)  
-  hWebView.Url = "file:///" &/ URL.Encode(sPath)
+  hWebView.Url = "file://" & URL.Encode(sPath)
   
 Catch
   
