@@ -304,6 +304,7 @@ End
 Public Sub ClearButton_Click()
   
   $hTextBox.Clear
+  FilterNow
   Raise Clear
   
 End

@@ -291,12 +291,14 @@ Private Sub UpdateBookmarkButton()
     btnRoot.Picture = Picture["icon:/small/system"]
     mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
     btnBookmark.Show
+    sepBookmark.Show
     dvwChoose.HideRoot = True
   Else
     'btnBookmark.Text = File.Name(dvwChoose.Root)
     btnRoot.Picture = dvwChoose.Picture 'Picture["icon:/small/directory"]
     dvwChoose.HideRoot = False
     btnBookmark.Hide
+    sepBookmark.Hide
   Endif
   
   btnBookmark.Tooltip = dvwChoose.Root
