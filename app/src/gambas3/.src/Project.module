@@ -110,6 +110,7 @@ Public UseHttpServer As Boolean
 Public Profiling As Boolean
 Public ProfileIndex As Integer
 Public DoNotTranslate As String[]
+Public PreviewStyleSheet As String
 
 Public Running As Boolean
 
@@ -3297,6 +3298,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   PublishWebSite = ""
   PublishCreateMenu = False
   DoNotTranslate = New String[]
+  PreviewStyleSheet = ""
 
   For Each sLig In hFic.Lines
 
@@ -3602,6 +3604,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
         
       Case "reference"
         If Not ExtraReferences.Exist(sVal) Then ExtraReferences.Add(sVal)
+        
+      Case "previewstylesheet"
+        PreviewStyleSheet = sVal
 
     End Select
 
@@ -3797,6 +3802,8 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If PublishCreateMenu Then Print #hFile, "CreateMenu=1"
   
   If DoNotTranslate.Count Then Print #hFile, "DoNotTranslate="; DoNotTranslate.Join(",", Chr$(34))
+  
+  If PreviewStyleSheet Then Print #hFile, "PreviewStyleSheet="; PreviewStyleSheet
   
   If ExtraReferences Then
     For Each sVal In ExtraReferences

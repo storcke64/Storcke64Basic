@@ -555,32 +555,44 @@
         MoveScaled(2,2,55,4)
         Key = "preview"
         Separator = True
-        { btnZoomIn ToolButton
+        { btnBack ToolButton
           MoveScaled(0,0,4,4)
-          ToolTip = ("Zoom in")
-          Action = ".preview-zoom-in"
-          Picture = Picture["icon:/small/zoom-in"]
+          ToolTip = ("Go back")
+          Action = ".preview-back"
+          Picture = Picture["icon:/small/left"]
         }
-        { btnZoomOut ToolButton
+        { btnForward ToolButton
           MoveScaled(4,0,4,4)
-          ToolTip = ("Zoom out")
-          Action = ".preview-zoom-out"
-          Picture = Picture["icon:/small/zoom-out"]
-        }
-        { btnZoomNormal ToolButton
-          MoveScaled(8,0,4,4)
-          ToolTip = ("No zoom")
-          Action = ".preview-zoom-normal"
-          Picture = Picture["icon:/small/zoom-normal"]
+          ToolTip = ("Go forward")
+          Action = ".preview-forward"
+          Picture = Picture["icon:/small/right"]
         }
         { btnStyleSheet MenuButton
-          MoveScaled(13,0,9,4)
+          MoveScaled(9,0,9,4)
           Action = ".preview-css"
           AutoResize = True
           Picture = Picture["icon:/small/css"]
           Border = False
           Menu = "mnuStyleSheet"
           MenuOnly = True
+        }
+        { btnZoomIn ToolButton
+          MoveScaled(18,0,4,4)
+          ToolTip = ("Zoom in")
+          Action = ".preview-zoom-in"
+          Picture = Picture["icon:/small/zoom-in"]
+        }
+        { btnZoomOut ToolButton
+          MoveScaled(22,0,4,4)
+          ToolTip = ("Zoom out")
+          Action = ".preview-zoom-out"
+          Picture = Picture["icon:/small/zoom-out"]
+        }
+        { btnZoomNormal ToolButton
+          MoveScaled(26,0,4,4)
+          ToolTip = ("No zoom")
+          Action = ".preview-zoom-normal"
+          Picture = Picture["icon:/small/zoom-normal"]
         }
         { Spring1 Spring
           MoveScaled(47,1,4,2)
@@ -715,9 +727,17 @@
     Shortcut = ""
     Picture = "icon:/small/preview"
   }
+  { Action preview-back
+    Text = "Go back"
+    Picture = "icon:/small/left"
+  }
   { Action preview-css
     Text = ""
     Picture = "icon:/small/css"
+  }
+  { Action preview-forward
+    Text = "Go forward"
+    Picture = "icon:/small/right"
   }
   { Action preview-zoom-in
     Text = "Zoom in"
@@ -827,8 +847,8 @@
 { Toolbars
   { Toolbar preview
     Text = ""
-    List = "preview-zoom-in,preview-zoom-out,preview-zoom-normal,preview-css"
-    Default = "preview-zoom-in,preview-zoom-out,preview-zoom-normal,preview-css,~,$btnClosePreview"
+    List = "preview-back,preview-forward,preview-css,preview-zoom-in,preview-zoom-out,preview-zoom-normal"
+    Default = "preview-back,preview-forward,preview-css,preview-zoom-in,preview-zoom-out,preview-zoom-normal,~,$btnClosePreview"
   }
   { Toolbar text
     Text = "Text editor"

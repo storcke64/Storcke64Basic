@@ -2076,6 +2076,7 @@ Private Sub FillStyleSheet()
   For I = 0 To $aStyleSheet.Max
     hMenu = New Menu(mnuStyleSheet) As "mnuStyleSheet"
     hMenu.Text = File.Name($aStyleSheet[I])
+    If Project.PreviewStyleSheet = $aStyleSheet[I] Then $iCurrentStyleSheet = I
     hMenu.Tag = I
   Next
   
@@ -2095,9 +2096,13 @@ Public Sub mnuStyleSheet_Click()
   
   If IsNull(Last.Tag) Then
     $iCurrentStyleSheet = -1
+    Project.PreviewStyleSheet = ""
   Else
     $iCurrentStyleSheet = Last.Tag
+    Project.PreviewStyleSheet = $aStyleSheet[$iCurrentStyleSheet]
   Endif
+  
+  Project.WriteProject(True)
   
   RefreshPreview(True)  
   
@@ -2180,5 +2185,17 @@ End
 Public Sub btnClosePreview_Click()
 
   btnPreview.Value = False
+
+End
+
+Public Sub btnBack_Click()
+
+  $hPreview.Back
+
+End
+
+Public Sub btnForward_Click()
+
+  $hPreview.Forward
 
 End
