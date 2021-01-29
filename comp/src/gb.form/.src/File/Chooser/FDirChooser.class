@@ -988,6 +988,8 @@ Private Sub FillMenu()
     mnuEditBookmark = hMenu
     
     hMenu = New Menu(mnuBookmark)
+
+    UpdateBookmarkButton
     
   Endif
   
