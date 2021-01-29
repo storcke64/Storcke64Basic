@@ -246,11 +246,26 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
   Dim aScan As String[]
   Dim aData As String[]
   Dim DS As Integer
+  Dim aBounds As Integer[]
+  Dim DX, DY As Integer
 
   $bLockArrangement = True
 
   DS = Desktop.Scale
   aData = Split(sData, "\n")
+  
+  ' Check if we have bounds
+  
+  If aData.Count Then
+    sLine = aData[0]
+    If sLine Begins "#BOUNDS:" Then
+      aData.Remove(0)
+      Try aBounds = Split(Mid$(sLine, 9))
+      If aBounds And If aBounds.Count = 4 And If hParent Then
+        hParent.FindFreePlace(aBounds[2], aBounds[3], ByRef DX, ByRef DY)
+      Endif
+    Endif
+  Endif
   
   ' Check that controls exist first
   
@@ -276,7 +291,7 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
     sLine = Trim(sLine)
 
     If Len(sLine) = 0 Then Continue
-    If Left$(sLine, 1) = "#" Then
+    If Left$(sLine) = "#" Then
       sLine = Mid$(sLine, 2)
       If sLine = "LOCKED" Then
         $bAfterLock = True
@@ -475,6 +490,10 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
         aCoord = Split(Mid$(sLine, 6, -1))
         X = CInt(aCoord[0])
         Y = CInt(aCoord[1])
+        If iLevel = 1 Then
+          X += DX
+          Y += DY
+        Endif
         If aCoord.Count = 4 Then
           W = CInt(aCoord[2])
           H = CInt(aCoord[3])
@@ -493,6 +512,14 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
         'Try hCtrl.Move(Round(CFloat(cCoord[0]) * DS), Round(CFloat(cCoord[1]) * DS), True)
         'TRY hCtrl.SetProperty("X", Val(cCoord[0]))
         'TRY hCtrl.SetProperty("Y", Val(cCoord[1]))
+        
+        X = Round(CFloat(aCoord[0]) * DS)
+        Y = Round(CFloat(aCoord[1]) * DS)
+        If iLevel = 1 Then
+          X += DX
+          Y += DY
+        Endif
+        
         If aCoord.Count = 4 Then
           eW = CFloat(aCoord[2])
           eH = CFloat(aCoord[3])
@@ -510,9 +537,9 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
           Else
             H = Round(eH * DS)
           Endif
-          Try hCtrl.MoveAndResize(Round(CFloat(aCoord[0]) * DS), Round(CFloat(aCoord[1]) * DS), W, H)
+          Try hCtrl.MoveAndResize(X, Y, W, H)
         Else
-          Try hCtrl.Move(Round(CFloat(aCoord[0]) * DS), Round(CFloat(aCoord[1]) * DS))
+          Try hCtrl.Move(X, Y)
         Endif
 
         If Error Then
@@ -1790,6 +1817,8 @@ End
 Public Sub GetSelection(Optional bAbsolute As Boolean, Optional aSelection As CControl[]) As String
 
   Dim hCtrl As CControl
+  Dim hBounds As Rect
+  Dim hRect As Rect
 
   If aSelection Then
     If aSelection.Count = 0 Then Return
@@ -1817,10 +1846,12 @@ Public Sub GetSelection(Optional bAbsolute As Boolean, Optional aSelection As CC
   If aSelection Then
     For Each hCtrl In aSelection
       SaveOne(hCtrl)
+      GoSub ADD_BOUNDS
     Next
   Else
     For Each hCtrl In Selection
       SaveOne(hCtrl)
+      GoSub ADD_BOUNDS
     Next
   Endif
   $bDoNotArrange = False
@@ -1828,7 +1859,20 @@ Public Sub GetSelection(Optional bAbsolute As Boolean, Optional aSelection As CC
   $iSaveX = 0
   $iSaveY = 0
 
+  $sSave = "#BOUNDS:" & CStr(hBounds.X) & "," & CStr(hBounds.Y) & "," & CStr(hBounds.W) & "," & CStr(hBounds.H) & "\n" & $sSave
+
   Return $sSave
+  
+ADD_BOUNDS:
+
+  hRect = Rect(hCtrl.X, hCtrl.Y, hCtrl.W, hCtrl.H)
+
+  If Not hBounds Then
+    hBounds = hRect
+  Else
+    hBounds = hBounds.Union(hRect)
+  Endif
+  Return
 
 End
 

@@ -25,10 +25,8 @@ Public NoParent As Boolean
 
 Property Read X As Integer
 Property Read Y As Integer
-Property Read Width As Integer
-Property Read Height As Integer
-Property Read W As Integer
-Property Read H As Integer
+Property Read W, Width As Integer
+Property Read H, Height As Integer
 
 Static Private $bDoNotMoveHandle As Boolean
 
@@ -868,7 +866,6 @@ Public Sub GetChildren() As CControl[]
   Return aChildren
   
 End
-
 
 Public Sub Delete()
 
@@ -2131,18 +2128,6 @@ Private Function Y_Read() As Integer
 
 End
 
-Private Function Width_Read() As Integer
-
-  Try Return $cValue["#Width"]
-
-End
-
-Private Function Height_Read() As Integer
-
-  Try Return $cValue["#Height"]
-
-End
-
 Private Function W_Read() As Integer
 
   Try Return $cValue["#Width"]
@@ -2393,5 +2378,104 @@ Public Sub Arrange()
   Endif
 
   $bArranging = False
+  
+End
+
+Public Sub FindFreePlace(W As Integer, H As Integer, ByRef X As Integer, ByRef Y As Integer) As Boolean
+  
+  Dim hCont As Container
+  Dim aRect As Rect[]
+  Dim hChild As Control
+  Dim hRect As Rect
+  Dim hTest As Rect
+  Dim NY As Integer
+  Dim NX As Integer
+  
+  If Not IsContainer() Then Return True
+  
+  hCont = Control
+  aRect = New Rect[]
+
+  If IsMultiContainer() Then
+    
+    For Each hChild In hCont[hCont.Index].Children
+      aRect.Add(Rect(hChild.X, hChild.Y, hChild.W, hChild.H))
+    Next
+  
+  Else  
+    
+    For Each hChild In hCont.Children
+      aRect.Add(Rect(hChild.X, hChild.Y, hChild.W, hChild.H))
+    Next
+  
+  Endif
+  
+  hTest = Rect(0, 0, W, H)
+  
+  If InStr("VR", GetArrangement()) Then
+  
+    NX = Me.W
+    
+    Do
+    
+      For Each hRect In aRect
+        If hTest.Intersection(hRect) Then
+          NX = Min(NX, hRect.X + hRect.W)
+          NY = hRect.Y + hRect.H
+          Break
+        Endif
+        hRect = Null
+      Next
+      
+      If Not hRect Then
+        X = hTest.X
+        Y = hTest.Y
+        Return
+      Endif
+      
+      If (NY + H) > Me.H Then
+        If (NX + W) > Me.W Then Return True
+        hTest.X = NX
+        hTest.Y = 0
+        NX = Me.W
+      Else
+        hTest.Y = NY
+      Endif
+      
+    Loop
+
+  Else
+  
+    NY = Me.H
+    
+    Do
+    
+      For Each hRect In aRect
+        If hTest.Intersection(hRect) Then
+          NY = Min(NY, hRect.Y + hRect.H)
+          NX = hRect.X + hRect.W
+          Break
+        Endif
+        hRect = Null
+      Next
+      
+      If Not hRect Then
+        X = hTest.X
+        Y = hTest.Y
+        Return
+      Endif
+      
+      If (NX + W) > Me.W Then
+        If (NY + H) > Me.H Then Return True
+        hTest.X = 0
+        hTest.Y = NY
+        NY = Me.H
+      Else
+        hTest.X = NX
+      Endif
+      
+    Loop
+    
+  Endif
   
 End

@@ -43,8 +43,13 @@ Public Sub GetIcon(hCCtrl As CControl) As String
       
   End Select
   
+  
   If hCCtrl.GetProperty("Invert") Then
-    If Exist("img/family/" &/ sImage & "-invert.png") Then sImage &= "-invert"
+    If Exist("img/family/" &/ sImage & "-i.png") Then sImage &= "-i"
+  Endif
+  
+  If hCCtrl.GetProperty("Centered") Then
+    If Exist("img/family/" &/ sImage & "-c.png") Then sImage &= "-c"
   Endif
   
   Return sImage

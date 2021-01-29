@@ -1327,19 +1327,19 @@
               MoveScaled(86,8,0,9)
               Visible = False
             }
-            { btnWorkspaceProperty ToolButton
-              MoveScaled(27,1,4,4)
-              Visible = False
-              ToolTip = ("Show properties sheet")
-              Ignore = True
-              Picture = Picture["icon:/small/properties"]
-            }
             { btnWorkspaceProject ToolButton
               MoveScaled(22,1,4,4)
               Visible = False
               ToolTip = ("Show project tree")
               Ignore = True
               Picture = Picture["icon:/small/view-tree"]
+            }
+            { btnWorkspaceProperty ToolButton
+              MoveScaled(27,1,4,4)
+              Visible = False
+              ToolTip = ("Show properties sheet")
+              Ignore = True
+              Picture = Picture["icon:/small/properties"]
             }
           }
           { panDebug SidePanel
@@ -1374,7 +1374,7 @@
           Separator = True
           Transparent = True
           { panImageProperty Panel
-            MoveScaled(7,4,16,14)
+            MoveScaled(8,3,16,14)
             Expand = True
             Arrangement = Arrange.Fill
           }
@@ -1395,19 +1395,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyHelp ToolButton
-              MoveScaled(4,0,4,4)
-              Visible = False
-              ToolTip = ("Show property help")
-              Ignore = True
-              Picture = Picture["icon:/small/help"]
-            }
             { btnPropertyToolbar ToolButton
               MoveScaled(0,0,4,4)
               Visible = False
               ToolTip = ("Show controls")
               Ignore = True
               Picture = Picture["img/16/control.png"]
+            }
+            { btnPropertyHelp ToolButton
+              MoveScaled(4,0,4,4)
+              Visible = False
+              ToolTip = ("Show property help")
+              Ignore = True
+              Picture = Picture["icon:/small/help"]
             }
           }
           { panTool SidePanel
