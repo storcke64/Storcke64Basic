@@ -440,6 +440,7 @@ static void fill_local_info(void)
 	char *codeset;
 	const char *lang;
 	int len;
+	int last_long_date;
 
 	free_local_info();
 
@@ -495,6 +496,7 @@ static void fill_local_info(void)
 	p = fmt = get_strftime(D_T_FMT);
 	last = LAST_NONE;
 	last_elt = 0;
+	last_long_date = 0;
 	
 	for(;;)
 	{
@@ -597,7 +599,10 @@ static void fill_local_info(void)
 						last = LAST_DATE;
 						break;
 				}
-			
+				
+				if (last == LAST_DATE)
+					last_long_date = STRING_length(LOCAL_local.long_date);
+
 				continue;
 			}
 		}
@@ -614,7 +619,13 @@ static void fill_local_info(void)
 	}
 	
 	STRING_free(&fmt);
-
+	
+	// Remove final separators of long_date
+	
+	fmt = LOCAL_local.long_date;
+	LOCAL_local.long_date = STRING_new(fmt, last_long_date);
+	STRING_free(&fmt);
+	
 	// Other date formats
 	
 	p = fmt = get_strftime(D_FMT);
@@ -858,13 +869,13 @@ static void fill_local_info(void)
 	fprintf(stderr, "date_tail_sep = %d\n", LOCAL_local.date_tail_sep);
 	fprintf(stderr, "time_tail_sep = %d\n\n", LOCAL_local.time_tail_sep);
 	
-	fprintf(stderr, "general_date: %s\n", LOCAL_local.general_date);
-	fprintf(stderr, "long_date: %s\n", LOCAL_local.long_date);
-	fprintf(stderr, "medium_date: %s\n", LOCAL_local.medium_date);
-	fprintf(stderr, "short_date: %s\n", LOCAL_local.short_date);
-	fprintf(stderr, "long_time: %s\n", LOCAL_local.long_time);
-	fprintf(stderr, "medium_time: %s\n", LOCAL_local.medium_time);
-	fprintf(stderr, "short_time: %s\n", LOCAL_local.short_time);
+	fprintf(stderr, "general_date: '%s'\n", LOCAL_local.general_date);
+	fprintf(stderr, "long_date:    '%s'\n", LOCAL_local.long_date);
+	fprintf(stderr, "medium_date:  '%s'\n", LOCAL_local.medium_date);
+	fprintf(stderr, "short_date:   '%s'\n", LOCAL_local.short_date);
+	fprintf(stderr, "long_time:    '%s'\n", LOCAL_local.long_time);
+	fprintf(stderr, "medium_time:  '%s'\n", LOCAL_local.medium_time);
+	fprintf(stderr, "short_time:   '%s'\n", LOCAL_local.short_time);
 	#endif
 	
 	// Fix missing seconds
