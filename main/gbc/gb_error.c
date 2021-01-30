@@ -272,3 +272,17 @@ void ERROR_warning(const char *warning, ...)
   vfprintf(stderr, warning, args);
   putc('\n', stderr);
 }
+
+void ERROR_fail(const char *error, ...)
+{
+  va_list args;
+
+  va_start(args, error);
+
+  fflush(NULL);
+
+  fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": ");
+  vfprintf(stderr, error, args);
+  putc('\n', stderr);
+	exit(1);
+}

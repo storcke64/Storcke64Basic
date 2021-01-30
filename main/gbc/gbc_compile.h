@@ -98,6 +98,7 @@ typedef
 EXTERN bool COMP_verbose;
 EXTERN COMPILE COMP_current;
 EXTERN char *COMP_root;
+EXTERN char *COMP_dir;
 EXTERN char *COMP_project;
 EXTERN char *COMP_project_name;
 EXTERN char *COMP_info_path;
@@ -112,6 +113,8 @@ void COMPILE_init(void);
 void COMPILE_load(void);
 void COMPILE_exit(void);
 void COMPILE_begin(const char *file, bool trans, bool debug);
+void COMPILE_alloc();
+void COMPILE_free();
 void COMPILE_end(void);
 void COMPILE_export_class(char *name);
 void COMPILE_add_class(const char *name, int len);

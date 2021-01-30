@@ -57,6 +57,7 @@
 bool COMP_verbose = FALSE;
 
 char *COMP_root = NULL;
+char *COMP_dir;
 char *COMP_project;
 char *COMP_project_name;
 char *COMP_info_path;
@@ -534,9 +535,6 @@ void COMPILE_init(void)
 
 void COMPILE_begin(const char *file, bool trans, bool debug)
 {
-	struct stat info;
-	off_t size;
-
 	CLEAR(JOB);
 
 	JOB->name = STR_copy(file);
@@ -549,6 +547,13 @@ void COMPILE_begin(const char *file, bool trans, bool debug)
 		JOB->trans = TRUE;
 		JOB->tname = OUTPUT_get_trans_file(JOB->name);
 	}
+}
+
+
+void COMPILE_alloc()
+{
+	struct stat info;
+	off_t size;
 
 	BUFFER_create(&JOB->source);
 	CLASS_create(&JOB->class);
@@ -587,7 +592,7 @@ void COMPILE_load(void)
 }
 
 
-void COMPILE_end(void)
+void COMPILE_free(void)
 {
 	CLASS_delete(&JOB->class);
 	BUFFER_delete(&JOB->source);
@@ -596,7 +601,10 @@ void COMPILE_end(void)
 
 	if (JOB->help)
 		ARRAY_delete(&JOB->help);
+}
 
+void COMPILE_end(void)
+{
 	STR_free(JOB->name);
 	STR_free(JOB->form);
 	STR_free(JOB->output);
@@ -614,6 +622,7 @@ void COMPILE_exit(void)
 	STR_free(COMP_project_name);
 	STR_free(COMP_project);
 	STR_free(COMP_info_path);
+	STR_free(COMP_dir);
 	STR_free(COMP_root);
 }
 

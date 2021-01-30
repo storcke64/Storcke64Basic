@@ -532,7 +532,7 @@ static int add_class(CLASS *class, int index, bool used, bool exported)
 		sym->class = num + 1;
 
 		if (COMP_verbose)
-			printf("Adding class %.*s %s%s\n", sym->symbol.len, sym->symbol.name, used ? "" : "Unused ", exported ? "Exported" : "");
+			fprintf(stderr, "Adding class %.*s %s%s\n", sym->symbol.len, sym->symbol.name, used ? "" : "Unused ", exported ? "Exported" : "");
 		
 		JOB->class->class[num].exported = exported;
 	}
@@ -540,7 +540,7 @@ static int add_class(CLASS *class, int index, bool used, bool exported)
 	if (used != JOB->class->class[num].used)
 	{
 		if (COMP_verbose)
-			printf("Switching class %.*s to %s\n", sym->symbol.len, sym->symbol.name, used ? "Used" : "Unused");
+			fprintf(stderr, "Switching class %.*s to %s\n", sym->symbol.len, sym->symbol.name, used ? "Used" : "Unused");
 		
 		JOB->class->class[num].used = used;
 	}

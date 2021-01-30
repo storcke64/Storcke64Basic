@@ -31,14 +31,12 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <dirent.h>
-
-#include <unistd.h>
+#include <signal.h>
 
 #include "gb_common.h"
 #include "gb_error.h"
@@ -55,12 +53,16 @@
 #include "gbc_header.h"
 #include "gbc_output.h"
 
+typedef
+	void (*BACKGROUND_TASK)(const char *);
+
 #if HAVE_GETOPT_LONG
-static struct option Long_options[] =
+static struct option _long_options[] =
 {
 	{ "debug", 0, NULL, 'g' },
 	{ "version", 0, NULL, 'V' },
 	{ "help", 0, NULL, 'h' },
+	{ "jobs", 1, NULL, 'j' },
 	{ "license", 0, NULL, 'L' },
 	{ "verbose", 0, NULL, 'v' },
 	{ "translate", 0, NULL, 't' },
@@ -92,6 +94,10 @@ static bool main_no_old_read_syntax = FALSE;
 static char **_files = NULL;
 static bool make_test = FALSE;
 
+static uint _ntask_max = 0;
+static uint _ntask = 0;
+static bool _child = FALSE;
+
 static void get_arguments(int argc, char **argv)
 {
 	const char *dir;
@@ -103,9 +109,9 @@ static void get_arguments(int argc, char **argv)
 	for(;;)
 	{
 		#if HAVE_GETOPT_LONG
-			opt = getopt_long(argc, argv, "gxvaVhLwtpmser:", Long_options, &index);
+			opt = getopt_long(argc, argv, "gxvaVhj:Lwtpmser:", _long_options, &index);
 		#else
-			opt = getopt(argc, argv, "gxvaVhLwtpmser:");
+			opt = getopt(argc, argv, "gxvaVhj:Lwtpmser:");
 		#endif
 		if (opt < 0) break;
 
@@ -165,10 +171,7 @@ static void get_arguments(int argc, char **argv)
 
 			case 'r':
 				if (COMP_root)
-				{
-					fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": option '-r' already specified.\n");
-					exit(1);
-				}
+					ERROR_fail("option '-r' already specified.");
 				COMP_root = STR_copy(optarg);
 				break;
 
@@ -198,6 +201,7 @@ static void get_arguments(int argc, char **argv)
 					"  -e  --translate-errors     display translatable error messages\n"
 					"  -g  --debug                add debugging information\n"
 					"  -h  --help                 display this help\n"
+					"  -j  --jobs                 number of background jobs [1-8]\n"
 					"  -L  --license              display license\n"
 					"  -m  --public-module        module symbols are public by default\n"
 					"  -p  --public-control       form controls are public\n"
@@ -214,6 +218,7 @@ static void get_arguments(int argc, char **argv)
 					"  -e                         display translatable error messages\n"
 					"  -g                         add debugging information\n"
 					"  -h                         display this help\n"
+					"  -j                         number of background jobs [1-8]\n"
 					"  -L                         display license\n"
 					"  -m                         module symbols are public by default\n"
 					"  -p                         form controls are public\n"
@@ -229,6 +234,12 @@ static void get_arguments(int argc, char **argv)
 					);
 
 				exit(0);
+				
+			case 'j':
+				_ntask_max = atoi(optarg);
+				if (_ntask_max < 1 || _ntask_max > 8)
+					ERROR_fail("Incorrect number of jobs.");
+				break;
 
 			default:
 				exit(1);
@@ -237,10 +248,7 @@ static void get_arguments(int argc, char **argv)
 	}
 
 	if (optind < (argc - 1))
-	{
-		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": too many arguments.\n");
-		exit(1);
-	}
+		ERROR_fail("too many arguments");
 
 	/*COMP_project = STR_copy(FILE_cat(argv[optind], "Gambas", NULL));*/
 	if (optind < argc)
@@ -248,24 +256,56 @@ static void get_arguments(int argc, char **argv)
 
 	dir = FILE_get_current_dir();
 	if (!dir)
-	{
-		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": no current directory.\n");
-		exit(1);
-	}
+		ERROR_fail("no current directory");
 
-	COMP_project = STR_copy(FILE_cat(dir, ".project", NULL));
+	COMP_dir = STR_copy(dir);
+	COMP_project = STR_copy(FILE_cat(COMP_dir, ".project", NULL));
 
 	if (!FILE_exist(COMP_project))
-	{
-		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": project file not found: %s\n", COMP_project);
-		exit(1);
-	}
+		ERROR_fail("project file not found: %s", COMP_project);
+}
+
+
+static int lock_file(const char *name)
+{
+	const char *path;
+	int fd;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	
+	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
+	if (fd < 0)
+		goto __ERROR;
+	if (lockf(fd, F_LOCK, 0) < 0)
+		goto __ERROR;
+	
+	return fd;
+		
+__ERROR:
+
+	ERROR_fail("unable to lock file: %s: %s", path, strerror(errno));
+}
+
+
+static void unlock_file(int fd)
+{
+	close(fd);
+}
+
+
+static void remove_lock(const char *name)
+{
+	const char *path;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	if (FILE_exist(path))
+		FILE_unlink(path);
 }
 
 
 static void compile_file(const char *file)
 {
-	int i;
+	int i, fd;
 	time_t time_src, time_form, time_pot, time_output;
 	char *source;
 
@@ -293,6 +333,8 @@ static void compile_file(const char *file)
 		}
 	}
 
+	COMPILE_alloc();
+	
 	JOB->exec = main_exec;
 	JOB->warnings = main_warnings;
 	JOB->swap = main_swap;
@@ -302,10 +344,10 @@ static void compile_file(const char *file)
 
 	if (COMP_verbose)
 	{
-		putchar('\n');
+		fputc('\n', stderr);
 		for (i = 1; i <= 9; i++)
-			printf("--------");
-		printf("\nCompiling %s...\n", FILE_get_name(JOB->name));
+			fprintf(stderr, "--------");
+		fprintf(stderr, "\nCompiling %s...\n", FILE_get_name(JOB->name));
 	}
 
 	JOB->first_line = 1;
@@ -362,10 +404,93 @@ static void compile_file(const char *file)
 
 	JOB->step = JOB_STEP_OUTPUT;
 	OUTPUT_do(main_swap);
+	
+	fd = lock_file(".gbc.lock");
 	CLASS_export();
+	unlock_file(fd);
+	
+	COMPILE_free();
 	
 _FIN:
 	COMPILE_end();
+}
+
+
+static void wait_for_task(void)
+{
+	int status;
+	pid_t pid;
+	
+	if (COMP_verbose)
+		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": wait for tasks...\n");
+	
+	pid = wait(&status);
+	if (pid < 0)
+		THROW("wait() fails: &1", strerror(errno));
+	if (!WIFEXITED(status) || WEXITSTATUS(status))
+		THROW("A child process failed");
+	
+	if (COMP_verbose)
+		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": end task %d\n", pid);
+	_ntask--;
+}
+
+
+static void wait_for_all_task(void)
+{
+	if (_ntask_max > 1)
+	{
+		while (_ntask > 0)
+			wait_for_task();
+	}
+}
+
+
+static void kill_tasks(void)
+{
+	if (_ntask > 0)
+	{
+		if (COMP_verbose)
+			fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": kill pending tasks\n");
+		kill(-getpid(), SIGKILL);
+	}
+}
+
+static void run_task(BACKGROUND_TASK func, void *arg)
+{
+	pid_t pid;
+	
+	if (_ntask_max <= 1)
+	{
+		(*func)(arg);
+		return;
+	}
+	
+	while (_ntask >= _ntask_max)
+		wait_for_task();
+	
+	pid = fork();
+	
+	if (pid < 0)
+		THROW("Failed to run child process: &1", strerror(errno));
+	
+	if (pid == 0)
+	{
+		_child = TRUE;
+		_ntask = 0;
+		
+		if (setpgid(0, getppid()) < 0)
+			ERROR_fail("[%d] setpgid to %d failed: %s", getpid(), getppid(), strerror(errno));
+		
+		(*func)(arg);
+		exit(0);
+	}
+	else
+	{
+		if (COMP_verbose)
+			fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": start task: %d\n", pid);
+		_ntask++;
+	}
 }
 
 
@@ -413,10 +538,7 @@ static void fill_files(const char *root, bool recursive)
 
 	dir = opendir(path);
 	if (!dir)
-	{
-		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": cannot browse directory: %s\n", path);
-		exit(1);
-	}
+		ERROR_fail("cannot browse directory: %s", path);
 
 	while ((dirent = readdir(dir)) != NULL)
 	{
@@ -467,6 +589,7 @@ static void fill_files(const char *root, bool recursive)
 	STR_free(path);
 }
 
+
 static void init_files(const char *first)
 {
 	bool recursive;
@@ -514,31 +637,6 @@ static void exit_files(void)
 {
 	int i;
 
-	/*if (make_test)
-	{
-		FILE *f = NULL;
-		const char *file;
-		
-		if (COMP_verbose)
-			puts("creating '.test' file");
-		
-		COMPILE_create_file(&f, ".test");
-
-		for (i = 0; i < ARRAY_count(_files); i++)
-		{
-			file = _files[i];
-			if (strcmp(FILE_get_ext(file), "test") == 0)
-			{
-				fputs(FILE_get_basename(file), f);
-				fputc('\n', f);
-			}
-		}
-		
-		fclose(f);
-	}
-	else
-		unlink(".test");*/
-	
 	for (i = 0; i < ARRAY_count(_files); i++)
 		STR_free(_files[i]);
 
@@ -546,21 +644,57 @@ static void exit_files(void)
 }
 
 
-static void compile_lang(void)
+static void compile_lang(const char *file_po)
+{
+	const char *file_mo;
+	time_t time_po, time_mo;
+	char *cmd;
+	int ret;
+	
+	time_po = FILE_get_time(file_po);
+	
+	if (time_po == ((time_t)-1))
+		return;
+		
+	file_mo = FILE_set_ext(file_po, "mo");
+		
+	if (!main_compile_all)
+	{
+		time_mo = FILE_get_time(file_mo);
+		if (time_mo >= time_po)
+			return;
+	}
+	
+	unlink(file_mo);
+	
+	// Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
+	if (COMP_verbose)
+	{
+		cmd = STR_print("msgfmt -o %s %s 2>&1", file_mo, file_po);
+		fprintf(stderr, "running: %s\n", cmd);
+	}
+	else
+		cmd = STR_print("msgfmt -o %s %s >/dev/null 2>&1", file_mo, file_po);
+	
+	ret = system(cmd);
+	
+	if (!WIFEXITED(ret) || WEXITSTATUS(ret))
+		ERROR_warning("unable to compile translation file with 'msgfmt': %s", file_po);
+	
+	STR_free(cmd);
+}
+
+
+static void compile_all_lang(void)
 {
 	DIR *dir;
 	char *path;
 	struct dirent *dirent;
 	char *file_name;
-	char *file_po;
-	const char *file_mo;
-	time_t time_po, time_mo;
 	int i;
 	char c;
-	char *cmd;
-	int ret;
 
-	path = STR_copy(FILE_cat(FILE_get_dir(COMP_project), ".lang", NULL));
+	path = STR_copy(FILE_cat(COMP_dir, ".lang", NULL));
 	FILE_chdir(path);
 	
 	dir = opendir(".");
@@ -588,36 +722,10 @@ static void compile_lang(void)
 				continue;
 		}
 		
-		file_po = file_name;
-		time_po = FILE_get_time(file_po);
-		
-		if (time_po == ((time_t)-1))
-			continue;
-		
-		file_mo = FILE_set_ext(file_po, "mo");
-		
-		if (!main_compile_all)
-		{
-			time_mo = FILE_get_time(file_mo);
-			if (time_mo >= time_po)
-				continue;
-		}
-		
-		unlink(file_mo);
-		// Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
-		if (COMP_verbose)
-		{
-			cmd = STR_print("msgfmt -o %s %s 2>&1", file_mo, file_po);
-			printf("running: %s\n", cmd);
-		}
-		else
-			cmd = STR_print("msgfmt -o %s %s >/dev/null 2>&1", file_mo, file_po);
-		
-		ret = system(cmd);
-		if (!WIFEXITED(ret) || WEXITSTATUS(ret))
-			ERROR_warning("unable to compile translation file with 'msgfmt': %s", file_po);
-		STR_free(cmd);
+		run_task(compile_lang, file_name);
 	}
+	
+	wait_for_all_task();
 
 	closedir(dir);
 	STR_free(path);
@@ -642,31 +750,39 @@ int main(int argc, char **argv)
 		if (main_compile_all)
 		{
 			if (COMP_verbose)
-				puts("Removing .info and .list files");
-			FILE_chdir(FILE_get_dir(COMP_project));
+				fputs("Removing .info and .list files", stderr);
+			FILE_chdir(COMP_dir);
 			FILE_unlink(".info");
 			FILE_unlink(".list");
 		}
 
-		init_files(FILE_get_dir(COMP_project));
+		init_files(COMP_dir);
 
 		for (i = 0; i < ARRAY_count(_files); i++)
-			compile_file(_files[i]);
+			run_task(compile_file, _files[i]);
+
+		wait_for_all_task();
+		
+		remove_lock(".gbc.lock");
 
 		exit_files();
 		
 		if (main_trans)
-			compile_lang();
+			compile_all_lang();
 		
 		COMPILE_exit();
 		FILE_exit();
 
+		kill_tasks();
+		
 		puts("OK");
 	}
 	CATCH
 	{
+		kill_tasks();
+		
 		fflush(NULL);
-
+		
 		COMPILE_print(MSG_ERROR, -1, NULL);
 		ERROR_print();
 		exit(1);
