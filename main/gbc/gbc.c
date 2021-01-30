@@ -427,8 +427,10 @@ static void wait_for_task(void)
 	pid = wait(&status);
 	if (pid < 0)
 		THROW("wait() fails: &1", strerror(errno));
-	if (!WIFEXITED(status) || WEXITSTATUS(status))
-		THROW("A child process failed");
+	if (!WIFEXITED(status))
+		THROW("A child process has failed");
+	if (WEXITSTATUS(status))
+		exit(1);
 	
 	if (COMP_verbose)
 		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": end task %d\n", pid);
@@ -742,6 +744,12 @@ int main(int argc, char **argv)
 	TRY
 	{
 		get_arguments(argc, argv);
+		
+		if (_ntask_max >= 2)
+		{
+			if (setpgid(0, 0))
+				ERROR_fail("setpgid() fails: %s", strerror(errno));
+		}
 
 		COMPILE_init();
 
