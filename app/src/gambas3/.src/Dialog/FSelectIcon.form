@@ -15,7 +15,7 @@
     Index = 0
     Text = ("Project")
     { fchIcon FileChooser
-      MoveScaled(2,3,66,39)
+      MoveScaled(2,2,66,39)
       Expand = True
       Border = False
       Picture = Picture["icon:/small/gambas"]
@@ -66,21 +66,21 @@
   }
   { HBox1 HBox
     MoveScaled(3,52,44,4)
-    Centered = True
     Spacing = True
-    { Panel1 Panel
-      MoveScaled(7,1,4,3)
-      Visible = False
-      Expand = True
+    Invert = True
+    { btnCancel Button
+      MoveScaled(29,0,15,4)
+      Text = ("Cancel")
+      Cancel = True
     }
     { btnOK Button
       MoveScaled(13,0,15,4)
       Text = ("OK")
     }
-    { btnCancel Button
-      MoveScaled(29,0,15,4)
-      Text = ("Cancel")
-      Cancel = True
+    { Panel1 Panel
+      MoveScaled(7,1,4,3)
+      Visible = False
+      Expand = True
     }
   }
 }

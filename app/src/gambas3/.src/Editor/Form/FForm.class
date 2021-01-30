@@ -1406,14 +1406,18 @@ Public Sub AddControl(sClass As String, Optional hParent As CControl, Optional X
 
   Endif
 
-  $hUndo.Begin
-  hCtrl = CreateControl(sClass, hParent,, True)
-
   With Project.Documentation.Classes[sClass]
     W = .DefaultWidth
     H = .DefaultHeight
   End With
   
+  If IsMissing(X) And If IsMissing(Y) Then
+    hParent.FindFreePlace(W, H, ByRef X, ByRef Y)
+  Endif
+
+  $hUndo.Begin
+  hCtrl = CreateControl(sClass, hParent,, True)
+
   hCtrl.MoveAndResize(X, Y, W, H)
   
   $hUndo.End

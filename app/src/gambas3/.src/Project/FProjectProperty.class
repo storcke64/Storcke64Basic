@@ -639,6 +639,11 @@ Public Sub tvwEnv_Click()
   If tvwEnv.Column Then
     tvwEnv.Edit()
   Else
+    Try iRow = Key.Code
+    If Not Error Then
+      Stop Event
+      Return
+    Endif
     iRow = tvwEnv.Row
     If IsEnvDisabled(iRow) Then
       $aEnv[iRow] = Mid$($aEnv[iRow], 2)
@@ -1419,5 +1424,42 @@ Public Sub lstReferences_Add()
   If lstReferences.List.Exist(sPath) Then Return
 
   lstReferences.Add(sPath)
+
+End
+
+Public Sub btnMoveUpEnv_Click()
+
+  Dim iRow As Integer
+
+  iRow = tvwEnv.Row
+  If iRow < 1 Then Return
+  
+  tvwEnv.Save()
+  Swap $aEnv[iRow], $aEnv[iRow - 1]
+  tvwEnv.Refresh
+  tvwEnv.MoveTo(iRow - 1, tvwEnv.Column)
+
+End
+
+Public Sub btnMoveDownEnv_Click()
+
+  Dim iRow As Integer
+
+  iRow = tvwEnv.Row
+  If iRow < 0 Or If iRow >= $aEnv.Max Then Return
+  
+  tvwEnv.Save()
+  Swap $aEnv[iRow], $aEnv[iRow + 1]
+  tvwEnv.Refresh
+  tvwEnv.MoveTo(iRow + 1, tvwEnv.Column)
+
+End
+
+Public Sub tvwEnv_Select()
+
+  btnRemoveEnv.Enabled = tvwEnv.Row >= 0
+  btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
+  btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
+  
 
 End

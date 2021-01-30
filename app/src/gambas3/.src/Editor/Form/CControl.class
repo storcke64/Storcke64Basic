@@ -2383,7 +2383,7 @@ End
 
 Public Sub FindFreePlace(W As Integer, H As Integer, ByRef X As Integer, ByRef Y As Integer) As Boolean
   
-  Dim hCont As Container
+  Dim hCont As Object
   Dim aRect As Rect[]
   Dim hChild As Control
   Dim hRect As Rect

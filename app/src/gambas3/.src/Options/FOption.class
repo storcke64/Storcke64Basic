@@ -110,7 +110,7 @@ Public Sub _new()
     [txtHelpFixedFont, "/Browser/FixedFont", ""],
     [btnCloseWithMiddleClick, "/CloseWithMiddleClick", 0],
     [txtTabSize, "/DefaultTabSize", 2],
-    [btnFoldProc, "/Editor/CollapseByDefault", 0],
+    [txtCompilerJobs, "/CompilerJobs", 1],
     [btnWrapText, "/Editor/WrapTextByDefault", 1],
     [btnTabIndent, "/Editor/TabIndentByDefault", 0],
     [btnVersionControl, "/VersionControl/Enabled", 1],
@@ -427,6 +427,12 @@ End
 Public Sub txtTabSize_Change()
 
   Settings["/DefaultTabSize"] = txtTabSize.Value
+
+End
+
+Public Sub txtCompilerJobs_Change()
+
+  Settings["/CompilerJobs"] = txtCompilerJobs.Value
 
 End
 
@@ -814,11 +820,11 @@ Public Sub btnFold_Click()
 
 End
 
-Public Sub btnFoldProc_Click()
-
-  Settings["/Editor/CollapseByDefault"] = btnFoldProc.Value
-
-End
+' Public Sub btnFoldProc_Click()
+' 
+'   Settings["/Editor/CollapseByDefault"] = btnFoldProc.Value
+' 
+' End
 
 Public Sub btnWrapText_Click()
 

@@ -2271,9 +2271,11 @@ Private Sub CompileError(sMsg As String)
   iPos = RInStr(sMsg, "\n")
   If iPos Then sMsg = Mid$(sMsg, iPos + 1)
 
-  If LCase(sMsg) Like "gbc*: error: *" Then
+  If LCase(sMsg) Like "gbc[3-9]: *" Then
 
-    sMsg = TranslateMessage(Mid$(sMsg, Len("gbc: error: ") + 1))
+    sMsg = Mid$(sMsg, 7)
+    If sMsg Begins "error: " Then sMsg = Mid$(sMsg, 8)
+    sMsg = TranslateMessage(sMsg)
     SetMessage(sMsg)
     'Message.Error(("Cannot compile the project.") & "\n" & sMsg)
 
@@ -2424,6 +2426,7 @@ Public Function GetCompileCommand(bAll As Boolean, bNoDebug As Boolean, bMakeExe
   If ControlPublic Then sExec &= "-p "
   If ModulePublic Then sExec &= "-m "
   If bMakeExecutable Then sExec &= "-x "
+  sExec &= "-j" & CStr(Settings["/CompilerJobs", 1]) & " "
   'sExec = sExec & "-c " & Quote(CLASSES_FILE) & " " & Quote(Project.Dir) & " > " & OUTPUT_FILE & " 2>&1"
   If bIDE Then
     If Project.Warnings Then sExec &= "-w "
@@ -2461,6 +2464,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   Dim sTrans As String
   Dim sBefore, sAfter As String
   Dim bGotError As Boolean
+  Dim fTimer As Float
 
   If Project.ReadOnly Then Return
   If Project.Running Then Return 'TRUE
@@ -2491,6 +2495,8 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   sBefore = GetInfoFile()
 
   sExec = GetCompileCommand(bAll, bNoDebug, bMakeExecutable, True)
+
+  If bAll Then fTimer = Timer
 
   iPos = Environment.Find("GB_PCODE_VERSION=*", gb.Like)
   If iPos >= 0 Then
@@ -2537,6 +2543,8 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
     Endif
 
     SetMessage(("OK"), True)
+    
+    If bAll Then SetMessage(" " & Subst("(in &1 s)", Format(Timer - fTimer, "0.#")), True)
     'FMain.ShowAnimate("Happy")
 
   Endif
