@@ -1011,10 +1011,9 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
   Dim hPForm As Object
   Dim hPModule As FEditor
   Dim hPClass As FEditor
-  'Dim hModule As Object
   Dim cSymbol As Collection
-  'Dim aClass As String[]
   Dim sFamily As String
+  Dim hSymbol As CSymbolInfo
   
   If Len(sClass) <= 1 Then
     If sClass = "s" Then
@@ -1092,10 +1091,10 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
       cSymbol = New Collection(gb.IgnoreCase)
       hPClass.Scan = cSymbol
       If hPForm Then
-        ' For Each hSymbol In Classes[sFamily].Symbols
-        '   cSymbol[hSymbol.Name] = hSymbol
-        ' Next
-        'hPClass.ParentClass = sFamily
+        For Each hSymbol In Classes[sFamily].Symbols
+          cSymbol[hSymbol.Name] = hSymbol
+        Next
+        hPClass.ParentClass = sFamily
         If hPForm Is FForm Then ScanForm(hPForm, cSymbol)
       Endif
       ScanClass(hPClass, cSymbol, False)

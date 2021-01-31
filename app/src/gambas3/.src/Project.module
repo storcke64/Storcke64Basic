@@ -2544,7 +2544,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
 
     SetMessage(("OK"), True)
     
-    If bAll Then SetMessage(" " & Subst("(in &1 s)", Format(Timer - fTimer, "0.#")), True)
+    If bAll Then SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.#")), True)
     'FMain.ShowAnimate("Happy")
 
   Endif
@@ -3151,6 +3151,8 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
   EnableRefresh
   
   ExecTimeStamp = TimeStamp
+  
+  SetMessage(("Making executable...") & ("OK"))
   
   Return Not bOK
 
