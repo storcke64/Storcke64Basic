@@ -423,12 +423,15 @@ __FOUND_WIDGET:
 	{
 		case GDK_ENTER_NOTIFY:
 
+			if (event->crossing.detail == GDK_NOTIFY_INFERIOR)
+				break;
+			
 			control = find_child(control, (int)event->crossing.x_root, (int)event->crossing.y_root);
 			if (!control)
 				goto __HANDLE_EVENT;
 
 #if DEBUG_ENTER_LEAVE
-			fprintf(stderr, "GDK_ENTER_NOTIFY: %s (%s) %d %d %p %p\n", control->name(), gApplication::_enter ? gApplication::_enter->name() : "ø", (int)event->crossing.x_root, (int)event->crossing.y_root, event->crossing.window, event->crossing.subwindow);
+			fprintf(stderr, "GDK_ENTER_NOTIFY: %s (%s) %d %d %p [%d] %p\n", control->name(), gApplication::_enter ? gApplication::_enter->name() : "ø", (int)event->crossing.x_root, (int)event->crossing.y_root, event->crossing.window, gdk_window_is_input_only(event->crossing.window), event->crossing.subwindow);
 #endif
 
 			if (button_grab)
@@ -469,12 +472,15 @@ __FOUND_WIDGET:
 		case GDK_LEAVE_NOTIFY:
 
 #if DEBUG_ENTER_LEAVE
-			fprintf(stderr, "GDK_LEAVE_NOTIFY: %s %p %p\n", control->name(), event->crossing.window, event->crossing.subwindow);
+			fprintf(stderr, "GDK_LEAVE_NOTIFY: %s (%d %d) %p %p\n", control->name(), event->crossing.mode, event->crossing.detail, event->crossing.window, event->crossing.subwindow);
 #endif
 
 			if (button_grab)
 				break;
 
+			if (event->crossing.detail == GDK_NOTIFY_INFERIOR)
+				break;
+			
 			//control = find_child(control, (int)event->button.x_root, (int)event->button.y_root);
 
 			gApplication::_leave = control;

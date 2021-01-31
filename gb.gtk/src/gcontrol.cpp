@@ -2639,7 +2639,7 @@ void gControl::emitEnterEvent(bool no_leave)
 	gContainer *cont;
 	
 	#if DEBUG_ENTER_LEAVE
-	fprintf(stderr, "start enter %s\n", name());
+	fprintf(stderr, "========== START ENTER %s (%d)\n", name(), no_leave);
 	#endif
 
 	if (parent())
@@ -2671,15 +2671,18 @@ void gControl::emitEnterEvent(bool no_leave)
 	onEnterEvent();
 	#endif
 
-	#if DEBUG_ENTER_LEAVE
-	fprintf(stderr, "end enter %s\n", name());
-	#endif
+	if (!no_leave)
+		setMouse(mouse());
 
-	setMouse(mouse());
+	#if DEBUG_ENTER_LEAVE
+	fprintf(stderr, ">>>>>>>>>> END ENTER %s\n", name());
+	#endif
 
 	if (gApplication::_ignore_until_next_enter)
 	{
-		//fprintf(stderr, "ignore next enter for %s\n", name());
+		#if DEBUG_ENTER_LEAVE
+		fprintf(stderr, "ignore next enter for %s\n", name());
+		#endif
 		if (gApplication::_ignore_until_next_enter == this)
 			gApplication::_ignore_until_next_enter = NULL;
 		return;
@@ -2698,7 +2701,7 @@ void gControl::emitLeaveEvent()
 		return;
 
 	#if DEBUG_ENTER_LEAVE
-	fprintf(stderr, "start leave %s\n", name());
+	fprintf(stderr, "========== START LEAVE %s\n", name());
 	#endif
 
 	if (isContainer())
@@ -2717,7 +2720,7 @@ void gControl::emitLeaveEvent()
 	#endif
 
 	#if DEBUG_ENTER_LEAVE
-	fprintf(stderr, "end leave %s\n", name());
+	fprintf(stderr, ">>>>>>>>>> END LEAVE %s\n", name());
 	#endif
 
 	if (parent()) parent()->setMouse(parent()->mouse());
