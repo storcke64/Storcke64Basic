@@ -240,7 +240,7 @@ static void get_arguments(int argc, char **argv)
 				
 			case 'j':
 				_ntask_max = atoi(optarg);
-				if (_ntask_max < 1 || _ntask_max > 32)
+				if (_ntask_max < 0 || _ntask_max > 16)
 					ERROR_fail("Incorrect number of jobs.");
 				break;
 
@@ -746,9 +746,10 @@ int main(int argc, char **argv)
 
 	TRY
 	{
-		_ntask_max = SYSTEM_get_cpu_count();
-		
 		get_arguments(argc, argv);
+		
+		if (_ntask_max == 0)
+			_ntask_max = SYSTEM_get_cpu_count() + 1;
 		
 		if (_ntask_max >= 2)
 		{
