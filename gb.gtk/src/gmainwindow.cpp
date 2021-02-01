@@ -233,7 +233,7 @@ static void cb_resize(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 		data->_resized = false;
 		data->bufW = w;
 		data->bufH = h;
-		data->emitResizeLater();
+		data->emitResize(); // later
 	}
 }
 
@@ -258,7 +258,7 @@ static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 		data->_resized = false;
 		data->bufW = w;
 		data->bufH = h;
-		data->emitResizeLater();
+		data->emitResize(); // later
 	}
 }
 
@@ -1085,6 +1085,8 @@ void gMainWindow::showActivate()
 	if (!_moved)
 		center();
 	emitOpen();
+	if (!_opened)
+		return;
 	show();
 	if (v)
 		present();
