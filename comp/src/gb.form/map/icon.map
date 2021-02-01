@@ -23,6 +23,9 @@ c                       $(mime)/text-x-csrc
 calculator              apps/accessories-calculator
 calendar                actions/office-calendar;apps/evolution-calendar;actions/view-pim-calendar
 call                    actions/call-start
+cap-butt                actions/stroke-cap-butt
+cap-round               actions/stroke-cap-round
+cap-square              actions/stroke-cap-square
 camera                  devices/camera-photo
 cancel                  actions/dialog-cancel
 cdrom                   devices/media-optical
@@ -99,6 +102,9 @@ insert-link             actions/insert-link
 insert-text             actions/insert-text
 internet                [-breeze*]places/folder-html;categories/applications-internet
 intersection            #
+join-bevel              actions/stroke-join-bevel
+join-miter              actions/stroke-join-miter
+join-round              actions/stroke-join-round
 js                      $(mime)/application-javascript
 jump                    actions/go-jump
 key                     [breeze*]$(mime)/application-pgp-keys;apps/password-manager;apps/keyring-manager;actions/pgp-keys
@@ -237,6 +243,7 @@ watch                   [breeze*]actions/visibility;apps/strigi
 webcam                  devices/camera-web
 wifi                    devices/network-wireless
 wizard                  actions/tools-wizard
+wrap                    actions/text-wrap
 zoom-fit                actions/zoom-fit-best
 zoom-in                 actions/zoom-in
 zoom-normal             actions/zoom-original
