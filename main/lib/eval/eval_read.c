@@ -731,7 +731,7 @@ static void add_identifier()
 			break;
 
 		__CLASS:
-			can_be_reserved = canres_car[car] && _begin_line;
+			can_be_reserved = canres_car[car] && (_begin_line || PATTERN_is(last_pattern, RS_END));
 			break;
 
 		__STRUCT:
