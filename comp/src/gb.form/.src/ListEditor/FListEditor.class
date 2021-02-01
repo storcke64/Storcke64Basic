@@ -258,6 +258,8 @@ Public Sub SetReadOnly(bReadOnly As Boolean)
   txtData.ReadOnly = bReadOnly
   txtData.Visible = Not bReadOnly
   
+  If GetParent().Design Then Return
+  
   If bReadOnly Then
     btnAdd.Text = ("Add") & "..."
     btnRemove.Text = ("Remove")
