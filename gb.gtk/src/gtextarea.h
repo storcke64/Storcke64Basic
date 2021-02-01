@@ -95,7 +95,9 @@ public:
 
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
+	virtual void updateScrollBar();
 	virtual void setMinimumSize();
+	virtual void setFont(gFont *ft);
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();

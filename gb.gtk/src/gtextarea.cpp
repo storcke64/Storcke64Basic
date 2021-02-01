@@ -1131,6 +1131,22 @@ void gTextArea::onLeaveEvent()
 
 void gTextArea::setMinimumSize()
 {
-	_min_h = gApplication::getScrollbarBigSize(); // + font()->height() + (hasBorder() ? 4 : 0);
+	if (scrollBar())
+		_min_h = gApplication::getScrollbarBigSize(); // + font()->height() + (hasBorder() ? 4 : 0);
+	else
+		_min_h = font()->height() + (hasBorder() ? 4 : 0);
+	
 	_min_w = _min_h;
+}
+
+void gTextArea::updateScrollBar()
+{
+	gControl::updateScrollBar();
+	setMinimumSize();
+}
+
+void gTextArea::setFont(gFont *ft)
+{
+	gControl::setFont(ft);
+	setMinimumSize();
 }
