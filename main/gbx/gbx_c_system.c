@@ -37,6 +37,7 @@
 
 #include "gb_common.h"
 #include "gb_common_case.h"
+#include "gb_system.h"
 #include "gb_error.h"
 #include "gbx_api.h"
 #include "gbx_class.h"
@@ -50,6 +51,8 @@
 #include "gbx_object.h"
 #include "gbx_c_process.h"
 #include "gbx_c_system.h"
+
+#include "gb_system_temp.h"
 
 typedef
 	struct {
@@ -339,6 +342,13 @@ BEGIN_METHOD(System_GetFormat, GB_INTEGER format)
 END_METHOD
 
 
+BEGIN_PROPERTY(System_Cores)
+
+	GB_ReturnInteger(SYSTEM_get_cpu_count());
+
+END_PROPERTY
+
+
 //-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Jit_Time)
@@ -386,6 +396,7 @@ GB_DESC NATIVE_System[] =
 	GB_STATIC_PROPERTY_READ("ByteOrder", "i", System_ByteOrder),
 	GB_STATIC_PROPERTY_READ("Error", "i", System_Error),
 	GB_STATIC_PROPERTY_READ("TimeZone", "i", System_TimeZone),
+	GB_STATIC_PROPERTY_READ("Cores", "i", System_Cores),
 
 	GB_CONSTANT("Family", "s", SYSTEM),
 	GB_CONSTANT("Architecture", "s", ARCHITECTURE),

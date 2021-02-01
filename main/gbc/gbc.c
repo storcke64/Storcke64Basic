@@ -43,6 +43,7 @@
 #include "gb_str.h"
 #include "gb_file.h"
 #include "gb_common_buffer.h"
+#include "gb_system.h"
 
 #include "gbc_compile.h"
 
@@ -52,6 +53,8 @@
 #include "gbc_trans.h"
 #include "gbc_header.h"
 #include "gbc_output.h"
+
+#include "gb_system_temp.h"
 
 typedef
 	void (*BACKGROUND_TASK)(const char *);
@@ -201,7 +204,7 @@ static void get_arguments(int argc, char **argv)
 					"  -e  --translate-errors     display translatable error messages\n"
 					"  -g  --debug                add debugging information\n"
 					"  -h  --help                 display this help\n"
-					"  -j  --jobs                 number of background jobs [1-8]\n"
+					"  -j  --jobs                 number of background jobs (default: %d)\n"
 					"  -L  --license              display license\n"
 					"  -m  --public-module        module symbols are public by default\n"
 					"  -p  --public-control       form controls are public\n"
@@ -218,7 +221,7 @@ static void get_arguments(int argc, char **argv)
 					"  -e                         display translatable error messages\n"
 					"  -g                         add debugging information\n"
 					"  -h                         display this help\n"
-					"  -j                         number of background jobs [1-8]\n"
+					"  -j                         number of background jobs (default: %d)\n"
 					"  -L                         display license\n"
 					"  -m                         module symbols are public by default\n"
 					"  -p                         form controls are public\n"
@@ -230,14 +233,14 @@ static void get_arguments(int argc, char **argv)
 					"  -w                         display warnings\n"
 					"  -x                         executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
 					#endif
-					"\n"
-					);
+					"\n",
+					SYSTEM_get_cpu_count());
 
 				exit(0);
 				
 			case 'j':
 				_ntask_max = atoi(optarg);
-				if (_ntask_max < 1 || _ntask_max > 8)
+				if (_ntask_max < 1 || _ntask_max > 32)
 					ERROR_fail("Incorrect number of jobs.");
 				break;
 
@@ -743,6 +746,8 @@ int main(int argc, char **argv)
 
 	TRY
 	{
+		_ntask_max = SYSTEM_get_cpu_count();
+		
 		get_arguments(argc, argv);
 		
 		if (_ntask_max >= 2)
