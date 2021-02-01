@@ -142,7 +142,7 @@
       { mnuWrap Menu
         Action = ".wrap"
         Text = ("Automatic word wrap")
-        Picture = Picture["img/32/wrap.png"]
+        Picture = Picture["icon:/small/wrap"]
         Toggle = True
       }
       { mnuNoSplit Menu
@@ -479,15 +479,11 @@
       Action = ".view-vsplit"
       Picture = Picture["icon:/small/view-split-v"]
     }
-    { Separator1 Separator
-      MoveScaled(117,0,1,4)
-    }
     { btnProc MenuButton
       MoveScaled(118,0,52,4)
       Mouse = Mouse.Pointing
       Action = ".proc"
       Text = ("Procedure list")
-      Border = False
       MenuOnly = True
     }
     { Panel2 Panel
@@ -498,7 +494,7 @@
       MoveScaled(185,0,4,4)
       ToolTip = ("Automatic word wrap")
       Action = ".wrap"
-      Picture = Picture["img/32/wrap.png"]
+      Picture = Picture["icon:/small/wrap"]
       Toggle = True
     }
     { btnLocked ToolButton
@@ -737,7 +733,7 @@
   { Action wrap
     Text = "Automatic word wrap"
     Shortcut = ""
-    Picture = "img/32/wrap.png"
+    Picture = "icon:/small/wrap"
   }
 }
 
@@ -745,6 +741,6 @@
   { Toolbar editor
     Text = "Editor"
     List = "show-form,diff,diff-previous,diff-next,save,reload,print,run-me,undo,redo,cut,copy,paste,paste-special,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,break,watch,find-definition,view-nosplit,view-hsplit,view-vsplit,proc,wrap,locked"
-    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,|,proc,~,wrap,locked"
+    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,proc,~,wrap,locked"
   }
 }

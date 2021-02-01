@@ -1457,7 +1457,7 @@ Private Sub SetLineCap(iLineCap As Integer)
       sImage = "square"
   End Select
   
-  btnLineCap.Picture = Picture["img/draw/cap-" & sImage & ".png"]
+  btnLineCap.Picture = Picture["icon:/small/cap-" & sImage]
   
   $iLineCap = iLineCap
 
@@ -1476,7 +1476,7 @@ Private Sub SetLineJoin(iLineJoin As Integer)
       sImage = "round"
   End Select
   
-  btnLineJoin.Picture = Picture["img/draw/join-" & sImage & ".png"]
+  btnLineJoin.Picture = Picture["icon:/small/join-" & sImage]
   
   $iLineJoin = iLineJoin
 
@@ -1505,7 +1505,7 @@ Private Sub SetFillRule(iFillRule As Integer)
       sImage = "union"
   End Select
   
-  btnFillRule.Picture = Picture["img/draw/" & sImage & ".png"]
+  btnFillRule.Picture = Picture["icon:/small/" & sImage]
   
   $iFillRule = iFillRule
 

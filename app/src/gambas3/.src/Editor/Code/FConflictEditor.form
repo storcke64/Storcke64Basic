@@ -114,7 +114,7 @@
       { mnuWrap Menu
         Action = ".wrap"
         Text = ("Automatic word wrap")
-        Picture = Picture["img/32/wrap.png"]
+        Picture = Picture["icon:/small/wrap"]
         Toggle = True
       }
       { mnuTabIndent Menu
@@ -402,7 +402,7 @@
       MoveScaled(121,0,4,4)
       ToolTip = ("Automatic word wrap")
       Action = ".wrap"
-      Picture = Picture["img/32/wrap.png"]
+      Picture = Picture["icon:/small/wrap"]
       Toggle = True
     }
     { btnTabIndent ToolButton
@@ -429,11 +429,6 @@
     Background = Color.TextBackground
     Expand = True
     Arrangement = Arrange.Fill
-    { splVertical VSplit
-      MoveScaled(2,41,22,18)
-      Visible = False
-      Expand = True
-    }
     { edtEditor TextEditor Editors
       Name = "edtEditor"
       MoveScaled(3,1,24,16)
@@ -443,6 +438,11 @@
     }
     { splHorizontal HSplit
       MoveScaled(3,19,22,18)
+      Visible = False
+      Expand = True
+    }
+    { splVertical VSplit
+      MoveScaled(2,41,22,18)
       Visible = False
       Expand = True
     }
@@ -624,7 +624,7 @@
   { Action wrap
     Text = "Automatic word wrap"
     Shortcut = ""
-    Picture = "img/32/wrap.png"
+    Picture = "icon:/small/wrap"
   }
 }
 

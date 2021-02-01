@@ -264,6 +264,7 @@ End
 Public Sub AddFile(sPath As String, Optional bForce As Boolean)
 
   $hVC.AddFile(sPath, bForce)
+  $hVC.UpdatePath(sPath)
 
   ' If $bCVS Then
   '   'NB: For CVS file must already exist

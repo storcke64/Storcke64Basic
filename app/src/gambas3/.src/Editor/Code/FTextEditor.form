@@ -144,7 +144,7 @@
       { mnuWrap Menu
         Action = ".wrap"
         Text = ("Automatic word wrap")
-        Picture = Picture["img/32/wrap.png"]
+        Picture = Picture["icon:/small/wrap"]
         Toggle = True
       }
       { mnuTabIndent Menu
@@ -469,15 +469,11 @@
           Action = ".view-vsplit"
           Picture = Picture["icon:/small/view-split-v"]
         }
-        { Separator3 Separator
-          MoveScaled(106,0,1,4)
-        }
         { btnProc MenuButton
           MoveScaled(14,4,52,4)
           Mouse = Mouse.Pointing
           Action = ".proc"
           Text = ("Procedure list")
-          Border = False
         }
         { Panel2 Panel
           MoveScaled(66,4,6,4)
@@ -487,7 +483,7 @@
           MoveScaled(72,4,4,4)
           ToolTip = ("Automatic word wrap")
           Action = ".wrap"
-          Picture = Picture["img/32/wrap.png"]
+          Picture = Picture["icon:/small/wrap"]
           Toggle = True
         }
         { btnTabIndent ToolButton
@@ -840,7 +836,7 @@
   { Action wrap
     Text = "Automatic word wrap"
     Shortcut = ""
-    Picture = "img/32/wrap.png"
+    Picture = "icon:/small/wrap"
   }
 }
 
@@ -853,6 +849,6 @@
   { Toolbar text
     Text = "Text editor"
     List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,compress,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
-    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,|,proc,~,wrap,tab-indent,locked,preview"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,proc,~,wrap,tab-indent,locked,preview"
   }
 }

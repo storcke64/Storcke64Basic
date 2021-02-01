@@ -4935,7 +4935,7 @@ Public Sub CopyFile(sSrc As String, sDst As String)
   Copy sSrc To sDest
 
   VersionControl.AddFile(sDest)
-
+  
   Tree.RefreshKey(sDest)
   Tree.SelectKey(sDest)
 
