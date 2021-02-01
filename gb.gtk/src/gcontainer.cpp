@@ -31,24 +31,20 @@
 #include "gmainwindow.h"
 #include "gcontainer.h"
 
-static gControl* get_next_child_widget (gContainer *gtk_control, int *gtk_list, int gtk_count)
+static gControl *get_next_child_widget (gContainer *gtk_control, int *gtk_index)
 {
 	gControl *ctrl;
 	
-	while ( (*gtk_list) < gtk_count )
+	for(;;)
 	{
-		ctrl = gtk_control->child(*gtk_list);
-		//fprintf(stderr, "get_next_child_widget: %d: %p: %s\n", *gtk_list, ctrl, ctrl->name());
-		(*gtk_list)++;
+		ctrl = gtk_control->child(*gtk_index);
+		if (!ctrl)
+			return NULL;
 		
-		if (!ctrl->border || !ctrl->widget || !ctrl->isVisible())
-			continue;
-		
-		return ctrl;
+		(*gtk_index)++;
+		if (ctrl->border && ctrl->widget && ctrl->isVisible())
+			return ctrl;
 	}
-	
-	//fprintf(stderr, "get_next_child_widget: ==> NULL\n");
-	return NULL; 
 }
 
 #ifdef GTK3
@@ -125,15 +121,14 @@ static void resize_container(gContainer *cont, int w, int h)
 #define RESIZE_CONTAINER(_object, _cont, _w, _h)  resize_container((gContainer *)(_cont), _w, _h) 
 
 #define INIT_CHECK_CHILDREN_LIST(_widget) \
-	gContainer *gtk_control=(gContainer*)_widget; \
-	int gtk_list=0; \
-	int gtk_count = gtk_control->childCount();
+	gContainer *gtk_control = (gContainer*)_widget; \
+	int gtk_index = 0; \
 
-#define HAS_CHILDREN() (gtk_count != 0)
+#define HAS_CHILDREN() (gtk_control->childCount() != 0)
 
-#define RESET_CHILDREN_LIST() gtk_list=0;
+#define RESET_CHILDREN_LIST() gtk_index = 0;
 
-#define GET_NEXT_CHILD_WIDGET() get_next_child_widget (gtk_control,&gtk_list,gtk_count)
+#define GET_NEXT_CHILD_WIDGET() get_next_child_widget(gtk_control, &gtk_index)
 
 #define GET_OBJECT_FROM_WIDGET(_widget) ((void*)_widget)
 
