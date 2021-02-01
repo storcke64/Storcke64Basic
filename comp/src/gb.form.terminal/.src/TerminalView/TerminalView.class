@@ -1299,11 +1299,11 @@ Private Function Text_Read() As String
   
   For Each hLine In $hScreen.Lines
     If Not hLine Then
-      aLine.Add("")
+      aLine.Add("\n")
     Else
       aLine.Add(hLine.Text)
+      If hLine.NewLine Then aLine[aLine.Max] &= "\n"
     Endif
-    If hLine.NewLine Then aLine[aLine.Max] &= "\n"
   Next
   
   Return aLine.Join("")
