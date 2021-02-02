@@ -433,7 +433,14 @@ static void wait_for_task(void)
 	if (!WIFEXITED(status))
 		THROW("A child process has failed");
 	if (WEXITSTATUS(status))
+	{
+		while (_ntask > 0)
+		{
+			wait(&status);
+			_ntask--;
+		}
 		exit(1);
+	}
 	
 	if (COMP_verbose)
 		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": end task %d\n", pid);
