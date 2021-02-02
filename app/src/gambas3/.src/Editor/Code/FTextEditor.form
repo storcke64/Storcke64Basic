@@ -469,11 +469,18 @@
           Action = ".view-vsplit"
           Picture = Picture["icon:/small/view-split-v"]
         }
+        { Separator1 Separator
+          MoveScaled(9,4,1,4)
+        }
         { btnProc MenuButton
-          MoveScaled(14,4,52,4)
+          MoveScaled(11,4,52,4)
           Mouse = Mouse.Pointing
           Action = ".proc"
           Text = ("Procedure list")
+          Border = False
+        }
+        { Separator3 Separator
+          MoveScaled(63,4,1,4)
         }
         { Panel2 Panel
           MoveScaled(66,4,6,4)
@@ -563,32 +570,32 @@
           Action = ".preview-forward"
           Picture = Picture["icon:/small/right"]
         }
+        { btnZoomIn ToolButton
+          MoveScaled(8,0,4,4)
+          ToolTip = ("Zoom in")
+          Action = ".preview-zoom-in"
+          Picture = Picture["icon:/small/zoom-in"]
+        }
+        { btnZoomOut ToolButton
+          MoveScaled(12,0,4,4)
+          ToolTip = ("Zoom out")
+          Action = ".preview-zoom-out"
+          Picture = Picture["icon:/small/zoom-out"]
+        }
+        { btnZoomNormal ToolButton
+          MoveScaled(16,0,4,4)
+          ToolTip = ("No zoom")
+          Action = ".preview-zoom-normal"
+          Picture = Picture["icon:/small/zoom-normal"]
+        }
         { btnStyleSheet MenuButton
-          MoveScaled(9,0,9,4)
+          MoveScaled(21,0,9,4)
           Action = ".preview-css"
           AutoResize = True
           Picture = Picture["icon:/small/css"]
           Border = False
           Menu = "mnuStyleSheet"
           MenuOnly = True
-        }
-        { btnZoomIn ToolButton
-          MoveScaled(18,0,4,4)
-          ToolTip = ("Zoom in")
-          Action = ".preview-zoom-in"
-          Picture = Picture["icon:/small/zoom-in"]
-        }
-        { btnZoomOut ToolButton
-          MoveScaled(22,0,4,4)
-          ToolTip = ("Zoom out")
-          Action = ".preview-zoom-out"
-          Picture = Picture["icon:/small/zoom-out"]
-        }
-        { btnZoomNormal ToolButton
-          MoveScaled(26,0,4,4)
-          ToolTip = ("No zoom")
-          Action = ".preview-zoom-normal"
-          Picture = Picture["icon:/small/zoom-normal"]
         }
         { Spring1 Spring
           MoveScaled(47,1,4,2)
@@ -843,12 +850,12 @@
 { Toolbars
   { Toolbar preview
     Text = ""
-    List = "preview-back,preview-forward,preview-css,preview-zoom-in,preview-zoom-out,preview-zoom-normal"
-    Default = "preview-back,preview-forward,preview-css,preview-zoom-in,preview-zoom-out,preview-zoom-normal,~,$btnClosePreview"
+    List = "preview-back,preview-forward,preview-zoom-in,preview-zoom-out,preview-zoom-normal,preview-css"
+    Default = "preview-back,preview-forward,preview-zoom-in,preview-zoom-out,preview-zoom-normal,preview-css,~,$btnClosePreview"
   }
   { Toolbar text
     Text = "Text editor"
     List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,compress,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
-    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,proc,~,wrap,tab-indent,locked,preview"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,|,proc,|,~,wrap,tab-indent,locked,preview"
   }
 }

@@ -1255,6 +1255,9 @@ Private Sub ToggleProcList()
   iCurrent = $aProc.Find(btnProc.Text)
 
   iCurrent = FProcedureList.Popup(Null, "", $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, Desktop.Scale * 48, Me.ClientH - panToolbar.H - Desktop.Scale)
+  
+  $hEditor.SetFocus
+  
   If iCurrent >= 0 Then
     Try iLine = $cProc[$aProc[iCurrent]]
     GotoProc(iLine)
@@ -2076,7 +2079,10 @@ Private Sub FillStyleSheet()
   For I = 0 To $aStyleSheet.Max
     hMenu = New Menu(mnuStyleSheet) As "mnuStyleSheet"
     hMenu.Text = File.Name($aStyleSheet[I])
-    If Project.PreviewStyleSheet = $aStyleSheet[I] Then $iCurrentStyleSheet = I
+    If Project.PreviewStyleSheet = $aStyleSheet[I] Then 
+      $iCurrentStyleSheet = I
+      btnStyleSheet.Text = hMenu.Text 
+    Endif
     hMenu.Tag = I
   Next
   

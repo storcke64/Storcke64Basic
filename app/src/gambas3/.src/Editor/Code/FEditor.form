@@ -479,12 +479,19 @@
       Action = ".view-vsplit"
       Picture = Picture["icon:/small/view-split-v"]
     }
+    { Separator1 Separator
+      MoveScaled(117,0,1,4)
+    }
     { btnProc MenuButton
       MoveScaled(118,0,52,4)
       Mouse = Mouse.Pointing
       Action = ".proc"
       Text = ("Procedure list")
+      Border = False
       MenuOnly = True
+    }
+    { Separator5 Separator
+      MoveScaled(170,0,1,4)
     }
     { Panel2 Panel
       MoveScaled(172,0,5,4)
@@ -741,6 +748,6 @@
   { Toolbar editor
     Text = "Editor"
     List = "show-form,diff,diff-previous,diff-next,save,reload,print,run-me,undo,redo,cut,copy,paste,paste-special,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,break,watch,find-definition,view-nosplit,view-hsplit,view-vsplit,proc,wrap,locked"
-    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,proc,~,wrap,locked"
+    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,|,proc,|,~,wrap,locked"
   }
 }

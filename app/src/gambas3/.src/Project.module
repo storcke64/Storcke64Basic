@@ -4660,8 +4660,10 @@ Public Sub MakePackage()
 
   If Dialog.SaveFile() Then Return
 
-  If File.Dir(Dialog.Path) <> System.User.Home Then
-    SourcePath = File.Dir(Dialog.Path)
+  sDir = File.Dir(Dialog.Path)
+  If sDir = User.Home Then sDir = ""
+  If sDir <> SourcePath Then
+    SourcePath = sDir
     Project.WriteProject
   Endif
 
