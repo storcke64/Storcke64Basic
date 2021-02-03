@@ -40,20 +40,33 @@ Public Sub GetArrow(iType As Integer, iSize As Integer) As Image
   
 End
 
-Public Sub GetFileSize(iSize As Long, Optional nDigit As Integer = 1) As String
+Public Sub GetFileSize(iSize As Long) As String
 
-  Dim sFormat As String
-  
-  sFormat = "0." & String$(nDigit, "#")
+  Dim fSize As Float
   
   If iSize < 1024 Then
     Return Subst(("&1 B"), CStr(iSize))
   Else If iSize < 1048576 Then
-    Return Subst(("&1 KiB"), Format(iSize / 1024, sFormat))
+    fSize = iSize / 1024
+    If fSize < 20 Then
+      Return Subst(("&1 KiB"), Format(iSize / 1024, "0.#"))
+    Else
+      Return Subst(("&1 KiB"), Format(iSize / 1024, "0"))
+    Endif
   Else If iSize < 1073741824 Then
-    Return Subst(("&1 MiB"), Format(iSize / 1048576, sFormat))
+    fSize = iSize / 1048576
+    If fSize < 20 Then
+      Return Subst(("&1 MiB"), Format(iSize / 1048576, "0.#"))
+    Else
+      Return Subst(("&1 MiB"), Format(iSize / 1048576, "0"))
+    Endif
   Else
-    Return Subst(("&1 GiB"), Format(iSize / 1073741824, sFormat))
+    fSize = iSize / 1073741824
+    If fSize < 20 Then
+      Return Subst(("&1 GiB"), Format(iSize / 1073741824, "0.#"))
+    Else
+      Return Subst(("&1 GiB"), Format(iSize / 1073741824, "0"))
+    Endif
   Endif
   
 End
