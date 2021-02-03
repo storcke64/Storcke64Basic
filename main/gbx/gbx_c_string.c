@@ -399,7 +399,7 @@ BEGIN_METHOD(String_Index, GB_STRING str; GB_INTEGER pos)
 END_METHOD
 
 
-static void String_Mid(ushort code)
+static void String_Mid(ushort code, VALUE *sp)
 {
 	char *str;
 	char *ref;
@@ -418,7 +418,7 @@ static void String_Mid(ushort code)
 		THROW(E_ARG);
 
 	if (null)
-		goto _SUBR_MID_FIN;
+		return;
 	
 	ref = PARAM->_string.addr;
 	str = ref + PARAM->_string.start;
@@ -428,7 +428,7 @@ static void String_Mid(ushort code)
 	if (ulen >= len)
 	{
 		VOID_STRING(PARAM);
-		goto _SUBR_MID_FIN;
+		return;
 	}
 	
 	PARAM->_string.start += ulen;
@@ -466,15 +466,10 @@ static void String_Mid(ushort code)
 	}
 	else
 		PARAM->_string.len = ulen;
-
-_SUBR_MID_FIN:
-
-	SP -= NPARAM;
-	SP++;
 }
 
 
-static void String_Left(ushort code)
+static void String_Left(ushort code, VALUE *sp)
 {
 	int val;
 	char *ref;
@@ -503,13 +498,10 @@ static void String_Left(ushort code)
 		ulen = utf8_get_pos(ref, str, len, val);
 		PARAM->_string.len = ulen;
 	}
-
-	SP -= NPARAM;
-	SP++;
 }
 
 
-static void String_Right(ushort code)
+static void String_Right(ushort code, VALUE *sp)
 {
 	int val;
 	char *str;
@@ -544,9 +536,6 @@ static void String_Right(ushort code)
 		PARAM->_string.start += ulen;
 		PARAM->_string.len -= ulen;
 	}
-
-	SP -= NPARAM;
-	SP++;
 }
 
 

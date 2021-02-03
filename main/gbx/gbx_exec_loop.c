@@ -753,11 +753,18 @@ _PUSH_ME:
 	}
 	else
 	{
-		if (LIKELY(OP != NULL))
+		if (OP)
 		{
 			SP->_object.class = CP;
 			SP->_object.object = OP;
 		}
+		/*else if (CP->auto_create)
+		{
+			OP = EXEC_auto_create(CP, FALSE);
+			SP->_object.class = CP;
+			SP->_object.object = OP;
+			OP = NULL;
+		}*/
 		else
 		{
 			SP->type = T_CLASS;
@@ -768,7 +775,7 @@ _PUSH_ME:
 	if (GET_UX() & 2)
 	{
 		// The used class must be in the stack, because it is tested by exec_push && exec_pop
-		if (LIKELY(OP != NULL))
+		if (OP)
 		{
 			SP->_object.class = SP->_object.class->parent;
 			SP->_object.super = EXEC_super;
@@ -1254,9 +1261,10 @@ _CALL:
 
 		__CALL_SUBR:
 
-			((EXEC_FUNC_CODE)(EXEC.class->table[val->_function.index].desc->method.exec))(code);
-			SP[-2] = SP[-1];
-			SP--;
+			ind = GET_3X();
+			((EXEC_FUNC_CODE_SP)(EXEC.class->table[val->_function.index].desc->method.exec))(ind, SP);
+			SP -= ind;
+			SP[-1] = SP[0];
 			goto _NEXT;
 		}
 
