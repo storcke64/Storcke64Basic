@@ -649,16 +649,6 @@
       { Menu23 Menu
       }
     }
-    { mnuCompressAll Menu
-      Action = "compress-all"
-      Text = ("Compress all")
-      Picture = Picture["icon:/small/archive"]
-    }
-    { mnuUncompressAll Menu
-      Action = "uncompress-all"
-      Text = ("Uncompress all")
-      Picture = Picture["icon:/small/undo"]
-    }
     { Menu7 Menu
     }
     { mnuCut Menu
@@ -703,7 +693,7 @@
     { mnuStartup Menu
       Action = "startup-class"
       Text = Shortcut(("Startup class"), "S")
-      Picture = Picture["icon:/small/program"]
+      Picture = Picture["icon:/small/home"]
       Shortcut = "Alt+S"
     }
     { mnuRunThat Menu
@@ -751,6 +741,27 @@
       Text = ("Do not translate")
       Picture = Picture["img/32/do-not-translate.png"]
       Toggle = True
+    }
+    { mnuCompressAll Menu
+      Action = "compress-all"
+      Text = ("Compress all")
+      Picture = Picture["icon:/small/archive"]
+    }
+    { mnuUncompressAll Menu
+      Action = "uncompress-all"
+      Text = ("Uncompress all")
+      Picture = Picture["icon:/small/undo"]
+    }
+    { mnuCompressFile Menu
+      Action = "compress-file"
+      Text = ("Compress file into the executable")
+      Picture = Picture["icon:/small/archive"]
+      Toggle = True
+    }
+    { mnuCompressNow Menu
+      Action = "compress-now"
+      Text = ("Compress file")
+      Picture = Picture["icon:/small/archive"]
     }
     { Menu46 Menu
     }
@@ -1327,19 +1338,19 @@
               MoveScaled(86,8,0,9)
               Visible = False
             }
-            { btnWorkspaceProject ToolButton
-              MoveScaled(22,1,4,4)
-              Visible = False
-              ToolTip = ("Show project tree")
-              Ignore = True
-              Picture = Picture["icon:/small/view-tree"]
-            }
             { btnWorkspaceProperty ToolButton
               MoveScaled(27,1,4,4)
               Visible = False
               ToolTip = ("Show properties sheet")
               Ignore = True
               Picture = Picture["icon:/small/properties"]
+            }
+            { btnWorkspaceProject ToolButton
+              MoveScaled(22,1,4,4)
+              Visible = False
+              ToolTip = ("Show project tree")
+              Ignore = True
+              Picture = Picture["icon:/small/view-tree"]
             }
           }
           { panDebug SidePanel
@@ -1395,19 +1406,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyToolbar ToolButton
-              MoveScaled(0,0,4,4)
-              Visible = False
-              ToolTip = ("Show controls")
-              Ignore = True
-              Picture = Picture["img/16/control.png"]
-            }
             { btnPropertyHelp ToolButton
               MoveScaled(4,0,4,4)
               Visible = False
               ToolTip = ("Show property help")
               Ignore = True
               Picture = Picture["icon:/small/help"]
+            }
+            { btnPropertyToolbar ToolButton
+              MoveScaled(0,0,4,4)
+              Visible = False
+              ToolTip = ("Show controls")
+              Ignore = True
+              Picture = Picture["img/16/control.png"]
             }
           }
           { panTool SidePanel
@@ -1503,6 +1514,16 @@
   }
   { Action compress-all
     Text = "Compress all"
+    Shortcut = ""
+    Picture = "icon:/small/archive"
+  }
+  { Action compress-file
+    Text = "Compress file into the executable"
+    Shortcut = ""
+    Picture = "icon:/small/archive"
+  }
+  { Action compress-now
+    Text = "Compress file"
     Shortcut = ""
     Picture = "icon:/small/archive"
   }
@@ -1791,7 +1812,7 @@
   { Action startup-class
     Text = "Startup class"
     Shortcut = "Alt+S"
-    Picture = "icon:/small/program"
+    Picture = "icon:/small/home"
   }
   { Action step
     Text = "Step"

@@ -432,16 +432,6 @@
           Action = ".pretty"
           Picture = Picture["icon:/small/wizard"]
         }
-        { btnCompress ToolButton mnuCompress
-          Name = "btnCompress"
-          MoveScaled(79,0,16,4)
-          ToolTip = ("Compress file")
-          Action = ".compress"
-          AutoResize = True
-          Text = ("Compress file")
-          Picture = Picture["icon:/small/archive"]
-          Toggle = True
-        }
         { Separator2 Separator
           MoveScaled(95,0,1,4)
         }
@@ -855,7 +845,7 @@
   }
   { Toolbar text
     Text = "Text editor"
-    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,compress,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
-    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,compress,|,|,proc,|,~,wrap,tab-indent,locked,preview"
+    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,|,|,proc,|,~,wrap,tab-indent,locked,preview"
   }
 }

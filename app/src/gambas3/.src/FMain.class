@@ -29,8 +29,6 @@ Private $iTabBarHeight As Integer
 
 Private $bFirstShowDebug As Boolean
 
-Static Private $sCompressMessage As String
-
 Public Sub _new()
   
   'Me.ResizeScaled(86, 97)
@@ -446,6 +444,9 @@ Public Sub mnuPopup_Show()
       mnuDoNotTranslate.Hide
     Endif
     
+    mnuCompressFile.Hide
+    mnuCompressNow.Hide
+    
     If mnuCut.Visible Then
       
       mnuCut.Visible = bCurrent
@@ -503,7 +504,7 @@ Public Sub mnuPopup_Show()
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent)
     
     If $sKey = Project.KEY_MISC Or If bIsDir And bProject Then
-      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent), True) Then
+      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent)) Then
         mnuCompressAll.Show
         mnuUncompressAll.Show
       Endif
@@ -522,6 +523,15 @@ Public Sub mnuPopup_Show()
     Endif
     
     mnuDoNotTranslate.Hide
+
+    mnuCompressNow.Visible = MCompressFile.CanCompress(sCurrent, True)
+      
+    If MCompressFile.CanCompress(sCurrent, False) Then
+      mnuCompressFile.Show
+      mnuCompressFile.Checked = Project.ShouldCompress(sCurrent)
+    Else
+      mnuCompressFile.Hide
+    Endif
     
     bFile = bCurrent
     
@@ -1561,13 +1571,8 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "compress-all", "uncompress-all"
       
       Inc Application.Busy
-      $sCompressMessage = ""
       CompressAll(tvwProject.Key, Key = "compress-all")
       Dec Application.Busy
-      If $sCompressMessage Then 
-        Message.Error($sCompressMessage)
-        $sCompressMessage = ""
-      Endif
       
     Case "open-file-manager"
       Desktop.Open(GetCurrentDir())
@@ -2205,16 +2210,9 @@ End
 
 Public Sub mnuAddVersionAll_Click()
   
-  Dim sPath As String
-  
   If Message.Question(("Do you really want to add every file to the repository?"), ("Add"), ("Cancel")) = 2 Then Return
-  
-  For Each sPath In Project.AllFlags(Project.FLAG_ADDED)
-    VersionControl.AddFile(sPath)
-    If Project.IsFormPath(sPath) Then VersionControl.AddFile(File.SetExt(sPath, "class"))
-  Next
-  
-  Project.Refresh
+
+  Project.AddAllFileUnderVersionControl()
   
 End
 
@@ -2550,7 +2548,6 @@ End
 Private Sub CompressAll(sPath As String, bCompress As Boolean)
   
   Dim sFile As String
-  Dim hTextEditor As FTextEditor
   Dim hForm As Object
   
   If sPath = Project.KEY_MISC Then sPath = Project.Dir
@@ -2564,14 +2561,11 @@ Private Sub CompressAll(sPath As String, bCompress As Boolean)
     
   Else
     
-    If MCompressFile.CanCompress(sPath, True) Then
+    If MCompressFile.CanCompress(sPath, False) Then
     
-      Try hTextEditor = Project.LoadFile(sPath)
-      If hTextEditor Then 
-        hTextEditor.SetCompression(bCompress)
-      Endif
+      Project.SetShouldCompress(sPath, bCompress)
       
-    Else 
+    Else If MCompressFile.CanCompress(sPath, True) And If bCompress Then
     
       hForm = Project.Files[sPath]
       If hForm Then
@@ -2858,6 +2852,23 @@ Public Sub mnuDoNotTranslate_Click()
   If Not sPath Then Return
   Project.SetShouldTranslate(sPath, Not mnuDoNotTranslate.Value)
   Project.WriteProject(True)
+  
+End
+
+Public Sub mnuCompressFile_Click()
+
+  Dim sPath As String = GetCurrent()
+  If Not sPath Then Return
+  Project.SetShouldCompress(sPath, mnuCompressFile.Value)
+  Project.WriteProject(True)
+  
+End
+
+Public Sub mnuCompressNow_Click()
+  
+  Dim sPath As String = GetCurrent()
+  If Not sPath Then Return
+  CompressAll(sPath, True)
   
 End
 

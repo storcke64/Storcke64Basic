@@ -32,7 +32,6 @@ Private $bNoHighlight As Boolean
 Private $bModule As Boolean
 Private $bConsole As Boolean
 
-Private $bShowCompress As Boolean
 Private $bShowComment As Boolean
 Private $bShowPretty As Boolean
 
@@ -57,7 +56,6 @@ Private $bWebPage As Boolean
 Private $iLastLine As Integer
 
 Private $bDiffMode As Boolean
-Private $bIgnoreCompress As Boolean
 
 Static Private $sDefaultStyleSheet As String
 
@@ -141,7 +139,6 @@ Public Sub LoadFile() As Boolean
       
       edtEditor.Mode = TextEditor.GetModeFromPath(Path)
       
-      $bShowCompress = MCompressFile.CanCompress(Path) And Not Project.IsHiddenPath(Path)
       $bShowComment = True
       '$bShowPretty = True
       $bNoHighlight = False
@@ -212,56 +209,25 @@ Public Function Save(Optional bForce As Boolean) As Boolean
   'Project.Config.WriteString("/Window" &/ Name &/ "Pos",
   '  CStr(ME.X) & "," & CStr(ME.Y) & "," & CStr(ME.Width) & "," & CStr(ME.Height))
 
-  Dim bCompress As Boolean
   Dim sPath As String
   
   If Not $bModify And If Not bForce Then Return
   
   $hCompletion.Hide
   
-  If $bShowCompress Then
-    If Action[".compress", Me].Value Then
-      bCompress = True
-    Else
-      If Exist(GetUncompressedPath()) Then
-        Project.DeleteFile(GetUncompressedPath())
-      Endif
-    Endif
-  Endif
-
-  If bCompress Then
-    sPath = GetUncompressedPath()
-  Else
-    sPath = Path
-  Endif
+  sPath = Path
   
   Save.Begin(sPath)
   
-  If bCompress Then
-    If Not Exist(File.Dir(sPath)) Then Project.InsertDirectory(File.Dir(sPath))
-  Endif
-
   $hEditor.Save(sPath)
 
   ' TODO: Editor.Reset
   $bModify = False
   DrawTitle
   
-  If bCompress And If Save.NewFile Then
-    Project.InsertFile(File.Name(sPath), File.Dir(sPath),, True)
-  Endif
-
   Save.End()
 
-  If bCompress Then
-    Save.Begin(Path)
-    If Compress() Then Error.Raise("Unable to compress file")
-    If Exist(GetOldUncompressPath()) Then Project.DeleteFile(GetOldUncompressPath())
-    Save.End()
-  Endif
-
   UpdateDiffAction
-  UpdateCompressAction
 
 Catch
 
@@ -733,15 +699,6 @@ Public Sub Reload()
   
   sPath = Path
   
-  If $bShowCompress Then
-    If Exist(GetUncompressedPath()) Then
-      sPath = GetUncompressedPath()
-    Else If Exist(GetOldUncompressPath()) Then
-      sPath = GetOldUncompressPath()
-      If DateDiff(Stat(sPath).LastModified, Stat(Path).LastModified, gb.Minute) >= 1 Then sPath = Path
-    Endif
-  Endif
-  
   sText = File.Load(sPath)
   
   If $bNoHighlight Then
@@ -766,7 +723,6 @@ Public Sub Reload()
   If Settings["/FormatCode/FormatOnLoad"] Then MPrettyCode.Run(Me)
 
   UpdateDiffAction
-  UpdateCompressAction
 
 End
 
@@ -937,66 +893,6 @@ End
 '   'Editor.End
 '   
 ' End
-
-Private Sub GetUncompressedPath(Optional bActual As Boolean) As String
-
-  Return Project.GetUncompressedPath(Path, bActual)
-  
-End
-
-Private Sub GetOldUncompressPath() As String
-  
-  Return Project.Dir &/ ".hidden/Uncompressed" &/ Mid$(Path, Len(Project.Dir) + 1)
-  
-End
-
-Private Sub Compress() As Boolean
-  
-  Dim sText As String
-  Dim iLen As Integer
-  Dim fGain As Float
-  
-  If Project.IsHiddenPath(Path) Then Return
-  
-  Inc Application.Busy
-  
-  sText = $hEditor.Text
-  iLen = Len(sText)
-  
-  If iLen > 0 Then
-  
-    Select Case $hEditor.Highlight 
-      Case "javascript"
-        sText = MCompressFile.Javascript(sText)
-      Case "css"
-        sText = MCompressFile.Css(sText)
-      Case "html"
-        sText = MCompressFile.Html(sText)
-    End Select
-    
-    fGain = Len(sText) / iLen
-    
-  Else
-    
-    fGain = 1
-    
-  Endif
-    
-  Dec Application.Busy
-  
-  If fGain < 0.95 Then 'Or If (iLen - Len(sText)) >= 256 Then
-    File.Save(Path, sText)
-  Else
-    $hEditor.Save(Path)
-  Endif
-
-Catch 
-  
-  Dec Application.Busy
-  FMain.ShowError("<b>" & ("Unable to compress file.") & "</b><p>" & Error.Text & "\n" & Error.Backtrace.Join(" "), Path)
-  Return True
-  
-End
 
 Private Sub RefreshLineInfo(Optional bForce As Boolean) As Boolean
 
@@ -1275,7 +1171,6 @@ Public Sub panToolBar_Configure()
 
   UpdateMenu
   UpdateDiffAction
-  UpdateCompressAction
 
   If $bModule Then
     'Action[".show-class"].Picture = Project.GetFileIcon(File.SetExt(Path, "class"), 16)
@@ -1306,7 +1201,6 @@ Private Sub UpdateMenu()
   mnuAdvanced.Visible = bVisible
   mnuEndOfLine.Visible = bVisible
 
-  Action[".compress", Me].Visible = $bShowCompress And bVisible
   Action[".proc", Me].Visible = Not $bNoHighlight
   Action[".comment,.uncomment", Me].Visible = $bShowComment And bVisible
   Action[".pretty", Me].Visible = $bShowPretty And bVisible
@@ -1572,12 +1466,6 @@ Public Sub Action_Activate((Key) As String) As Boolean
     
     Case ".diff"
       UpdateDiffMode
-      
-    Case ".compress"
-      If Not $bIgnoreCompress Then 
-        Modify()
-        Save(True)
-      Endif
       
     Case ".preview"
       UpdatePreview
@@ -1900,7 +1788,7 @@ Private Sub UpdateDiffMode()
       Action[".diff", Me].Value = False
       Return
     Endif
-    $hEditor.EnterDiffModeWith(GetUncompressedPath(True))
+    $hEditor.EnterDiffModeWith(Path)
     
   Else
   
@@ -1926,39 +1814,6 @@ Public Sub btnDiffNext_Click()
   Y = $hEditor.FindNextDiff($hEditor.Line)
   If Y >= 0 Then $hEditor.Goto($hEditor.Column, Y)
 
-End
-
-Private Sub UpdateCompressAction()
-
-  Dim sPath As String
-  Dim iSize As Long
-  Dim sComp As String
-  
-  If Not $bShowCompress Then Return
-  
-  sPath = GetUncompressedPath()
-  $bIgnoreCompress = True
-  Action[".compress", Me].Value = Exist(sPath)
-  $bIgnoreCompress = False
-  If Exist(sPath) Then
-    iSize = Stat(sPath).Size
-    If iSize Then
-      sComp = Format(Stat(Path).Size / Stat(sPath).Size, "0%")
-    Else
-      sComp = "100%"
-    Endif
-    btnCompress.Tooltip = Subst(("Compressed at &1"), sComp)
-  Else
-    btnCompress.Tooltip = ""
-  Endif
-
-End
-
-Public Sub SetCompression(bCompress As Boolean)
-  
-  If Not $bShowCompress Then Return
-  Action[".compress", Me].Value = bCompress
-  
 End
 
 Public Sub Preview_Ready()

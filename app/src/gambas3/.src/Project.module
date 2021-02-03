@@ -110,6 +110,7 @@ Public UseHttpServer As Boolean
 Public Profiling As Boolean
 Public ProfileIndex As Integer
 Public DoNotTranslate As String[]
+Public CompressFile As String[]
 Public PreviewStyleSheet As String
 
 Public Running As Boolean
@@ -532,6 +533,7 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
   Dim bIsFake As Boolean
   Dim aClass As String[]
   Dim I As Integer
+  Dim bRemoveCompressedFiles As Boolean
 
   sPath = FindProjectPath(sDir)
 
@@ -599,6 +601,18 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
   If bConvert And If ReadOnly Then
     Message.Error(("This project is read-only.") & " " & ("It cannot be converted."))
     Return True
+  Endif
+  
+  ' ".uncompressed" directory is now deprecated
+  
+  If IsDir(sDir &/ ".hidden/.uncompressed") Then
+    
+    If Message.Warning(("This project includes compressed files.") & "\n\n" & ("Compressed files are now generated with the executable. Consequently they will be removed from the project."), ("Continue"), ("Cancel")) = 2 Then
+      Return True
+    Endif
+    
+    bRemoveCompressedFiles = True
+    
   Endif
 
   If Not $bTesting Then
@@ -794,6 +808,30 @@ _INIT_AGAIN:
     sStatus = VersionControl.Status(sPath)
     If sStatus And If Left(sStatus) <> "?" And If Left(sStatus) <> "D" Then VersionControl.RemoveFile(sPath)
   Endif 
+
+  If bRemoveCompressedFiles Then
+    
+    sDir = Project.Dir &/ ".hidden/.uncompressed"
+    For Each sFile In RDir(sDir, "*", gb.File)
+      
+      If sFile Ends "~" Then Continue
+      
+      sPath = Project.Dir &/ sFile
+      If Not Exist(sPath) Then Continue
+      
+      Try Kill sPath
+      MoveFile(sDir &/ sFile, sPath)
+      SetShouldCompress(sPath, True)
+      
+    Next
+    
+    WriteProject(True)
+    
+    Shell.RmDir(sDir)
+    
+    AddAllFileUnderVersionControl()
+    
+  Endif
 
   If Not IsFake() And If Settings["/RestoreFiles", 1] Then LoadLastOpenedFiles
   
@@ -3053,6 +3091,8 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
   Dim hTerminal As TerminalView
   Dim sCommand As String
   Dim sPath As String
+  Dim I As Integer
+  Dim sDir As String
 
   If CheckStartupClass() Then Return True
 
@@ -3115,9 +3155,38 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       Next
       
     Endif
+    
+    If CompressFile.Count Then
+      
+      sDir = Project.Dir &/ ".uncompressed"
+      Try Mkdir sDir
+      
+      For I = 0 To CompressFile.Max
+        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressFile[I]))
+        Try Kill sPath
+        Copy Project.Dir &/ CompressFile[I] To sPath
+        MCompressFile.Compress(Project.Dir &/ CompressFile[I])
+      Next
+      
+    Endif
 
     sExec = System.Path &/ "bin/gba" & System.Version & " -o " & Shell$(sExecPath) & " " & Shell$(Project.Dir) & " > " & OUTPUT_FILE & " 2>&1"
     Shell sExec Wait
+    
+    If CompressFile.Count Then
+      
+      sDir = Project.Dir &/ ".uncompressed"
+      
+      For I = 0 To CompressFile.Max
+        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressFile[I]))
+        Try Kill Project.Dir &/ CompressFile[I]
+        Move sPath To Project.Dir &/ CompressFile[I]
+      Next
+      
+      Shell.RmDir(sDir)
+      
+    Endif
+    
     If Process.LastValue Then Error.Raise(Trim(File.Load(OUTPUT_FILE)))
     'SetMessage(("OK"))
 
@@ -3308,6 +3377,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   PublishWebSite = ""
   PublishCreateMenu = False
   DoNotTranslate = New String[]
+  CompressFile = New String[]
   PreviewStyleSheet = ""
 
   For Each sLig In hFic.Lines
@@ -3612,6 +3682,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
       Case "donottranslate"
         DoNotTranslate = Split(sVal, ",", Chr$(34), True)
         
+      Case "compressfile"
+        CompressFile = Split(sVal, ",", Chr$(34), True)
+        
       Case "reference"
         If Not ExtraReferences.Exist(sVal) Then ExtraReferences.Add(sVal)
         
@@ -3812,6 +3885,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If PublishCreateMenu Then Print #hFile, "CreateMenu=1"
   
   If DoNotTranslate.Count Then Print #hFile, "DoNotTranslate="; DoNotTranslate.Join(",", Chr$(34))
+  If CompressFile.Count Then Print #hFile, "CompressFile="; CompressFile.Join(",", Chr$(34))
   
   If PreviewStyleSheet Then Print #hFile, "PreviewStyleSheet="; PreviewStyleSheet
   
@@ -5739,6 +5813,8 @@ SET_READONLY:
   hForm = Files[sPath]
   If hForm Then Try hForm.SetReadOnly
   
+  Project.RefreshKey(sPath)
+  
   Return
   
 End
@@ -6489,6 +6565,30 @@ Public Sub SetShouldTranslate(sPath As String, bTrans As Boolean)
   
 End
 
+Public Sub ShouldCompress(sPath As String) As Boolean
+  
+  If Not sPath Then Return
+  sPath = MakeProjectRelativePath(sPath)
+  Return CompressFile.Exist(sPath)
+  
+End
+
+Public Sub SetShouldCompress(sPath As String, bCompress As Boolean)
+  
+  Dim iPos As Integer
+  
+  sPath = MakeProjectRelativePath(sPath)
+  iPos = CompressFile.Find(sPath)
+  If Not bCompress And iPos >= 0 Then
+    CompressFile.Remove(iPos)
+    RefreshKey(Project.Dir &/ sPath)
+  Else If bCompress And iPos < 0 Then
+    CompressFile.Add(sPath)
+    RefreshKey(Project.Dir &/ sPath)
+  Endif
+  
+End
+
 Public Sub HasFlag(sPath As String, iFlag As Integer, Optional bRec As Boolean) As Boolean
   
   If Not $cPathFlag Then Return
@@ -6726,14 +6826,6 @@ Public Sub InitTooltip(hTooltip As Control)
   
 End
 
-Public Sub GetUncompressedPath(sPath As String, Optional bActual As Boolean) As String
-  
-  Dim sUncPath As String = Project.Dir &/ ".hidden/.uncompressed" &/ Mid$(sPath, Len(Project.Dir) + 1)
-  If bActual And If Not Exist(sUncPath) Then sUncPath = sPath
-  Return sUncPath
-  
-End
-
 Public Sub HasTest() As Boolean
   
   Return Tree.HasTest()
@@ -6797,5 +6889,18 @@ Public Sub UpdateMessageBoxStyle()
 
   Message.Style = Settings["/MessageBoxStyle"]
   Message.ColoredButtons = Message.Style = "flat"
+  
+End
+
+Public Sub AddAllFileUnderVersionControl()
+  
+  Dim sPath As String
+  
+  For Each sPath In Project.AllFlags(Project.FLAG_ADDED)
+    VersionControl.AddFile(sPath)
+    If Project.IsFormPath(sPath) Then VersionControl.AddFile(File.SetExt(sPath, "class"))
+  Next
+  
+  Project.Refresh
   
 End

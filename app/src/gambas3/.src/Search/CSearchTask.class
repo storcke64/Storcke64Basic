@@ -147,7 +147,7 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
   
   If sPath Then
     If Not hFile Or If Not hFile.IsModified() Then
-      sTemp = Project.GetUncompressedPath(sPath, True)
+      sTemp = sPath 'Project.GetUncompressedPath(sPath, True)
     Endif
   Endif
     
