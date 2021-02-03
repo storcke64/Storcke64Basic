@@ -268,14 +268,12 @@ static PATTERN get_last_pattern()
 static void add_newline()
 {
 	add_pattern(RT_NEWLINE, 0);
-	source_ptr++;
 }
 
 
 static void add_end()
 {
 	add_pattern(RT_END, 0);
-	source_ptr++;
 }
 
 
