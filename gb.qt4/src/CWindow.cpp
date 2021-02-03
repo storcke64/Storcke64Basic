@@ -217,11 +217,6 @@ static bool emit_open_event(void *_object)
 	THIS->closed = false;
 	THIS->opened = true;
 
-	if (!THIS->minw && !THIS->minh)
-	{
-		THIS->minw = THIS->w;
-		THIS->minh = THIS->h;
-	}
 	#if DEBUG_WINDOW
 	qDebug("emit_open_event: %s %p", GB.GetClassName(THIS), THIS);
 	#endif
@@ -1331,6 +1326,30 @@ BEGIN_METHOD_VOID(Window_Activate)
 
 END_METHOD
 
+BEGIN_PROPERTY(Window_MinWidth)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(THIS->minw);
+	else
+	{
+		THIS->minw = Max(0, VPROP(GB_INTEGER));
+		WINDOW->setGeometryHints();
+	}
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Window_MinHeight)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(THIS->minh);
+	else
+	{
+		THIS->minh = Max(0, VPROP(GB_INTEGER));
+		WINDOW->setGeometryHints();
+	}
+
+END_PROPERTY
+
 
 /***************************************************************************/
 
@@ -1431,6 +1450,11 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Opacity", "i", Window_Opacity),
 	GB_PROPERTY("Transparent", "b", Window_Transparent),
 	GB_PROPERTY("TakeFocus", "b", Window_TakeFocus),
+
+	GB_PROPERTY("MinWidth", "i", Window_MinWidth),
+	GB_PROPERTY("MinHeight", "i", Window_MinHeight),
+	GB_PROPERTY("MinW", "i", Window_MinWidth),
+	GB_PROPERTY("MinH", "i", Window_MinHeight),
 
 	ARRANGEMENT_PROPERTIES,
 
@@ -1667,6 +1691,41 @@ void MyMainWindow::setEventLoop()
 		THIS->loopLevel = CWINDOW_Current ? CWINDOW_Current->loopLevel : 0;
 }
 
+void MyMainWindow::setGeometryHints()
+{
+	CWIDGET *_object = CWidget::get(this);
+	int minw, minh;
+	
+	if (!THIS->toplevel)
+	{
+		setMinimumSize(0, 0);
+		setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+		return;
+	}
+	
+	minw = THIS->minw;
+	minh = THIS->minh;
+	
+	if (_resizable)
+	{
+		if (isModal() || isUtility())
+		{
+			if (!minw && !minh)
+			{
+				minw = width();
+				minh = height();
+			}
+		}
+		setMinimumSize(minw, minh);
+		setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+	}
+	else
+	{
+		setMinimumSize(width(), height());
+		setMaximumSize(width(), height());
+	}
+}
+
 void MyMainWindow::present(QWidget *parent)
 {
 	/*CWIDGET *_object = CWidget::get(this);
@@ -1683,8 +1742,7 @@ void MyMainWindow::present(QWidget *parent)
 	{
 		//X11_window_startup(WINDOW->effectiveWinId(), THIS->x, THIS->y, THIS->w, THIS->h);
 
-		if (isUtility() && _resizable)
-			setMinimumSize(THIS->minw, THIS->minh);
+		setGeometryHints();
 
 		setAttribute(Qt::WA_ShowWithoutActivating, THIS->noTakeFocus);
 
@@ -1851,10 +1909,7 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	else
 	{
 		if (_resizable && _border)
-		{
-			setMinimumSize(THIS->minw, THIS->minh);
 			setSizeGrip(true);
-		}
 
 		parent = CWINDOW_Current;
 		if (!parent)

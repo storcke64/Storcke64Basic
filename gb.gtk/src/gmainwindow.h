@@ -80,6 +80,9 @@ public:
   void setPersistent(bool vl);
 	void setTransparent(bool vl);
 	void setNoTakeFocus(bool vl);
+	
+	void setCustomMinimumSize(int w, int h);
+	void getCustomMinimumSize(int *w, int *h) const;
 
 	virtual void setVisible(bool vl);
 	virtual void setBackground(gColor vl);

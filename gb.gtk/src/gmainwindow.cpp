@@ -721,12 +721,6 @@ bool gMainWindow::emitOpen()
 	_closed = false;
 	//_no_resize_event = true; // If the event loop is run during emitOpen(), some spurious configure events are received.
 
-	if (!_min_w && !_min_h)
-	{
-		_min_w = width();
-		_min_h = height();
-	}
-
 	updateSize();
 
 	gtk_widget_realize(border);
@@ -1904,22 +1898,27 @@ void gMainWindow::emitResizeLater()
 void gMainWindow::setGeometryHints()
 {
 	GdkGeometry geometry;
-
+	int min_w, min_h;
+	
 	if (isTopLevel())
 	{
+		min_w = _min_w;
+		min_h = _min_h;
+
 		if (isResizable())
 		{
 			if (isModal() || isUtility())
 			{
-				geometry.min_width = _min_w;
-				geometry.min_height = _min_h;
-			}
-			else
-			{
-				geometry.min_width = 0;
-				geometry.min_height = 0;
+				if (!min_w && !min_h)
+				{
+					min_w = width();
+					min_h = height();
+				}
 			}
 
+			geometry.min_width = min_w;
+			geometry.min_height = min_h;
+			
 			geometry.max_width = 32767;
 			geometry.max_height = 32767;
 		}
@@ -2063,4 +2062,21 @@ void gMainWindow::destroy()
 {
 	doClose(true);
 	gControl::destroy();
+}
+
+void gMainWindow::setCustomMinimumSize(int w, int h)
+{
+	w = Max(0, w);
+	h = Max(0, h);
+	if (w == _min_w && h == _min_h)
+		return;
+	_min_w = w;
+	_min_h = h;
+	updateSize();
+}
+
+void gMainWindow::getCustomMinimumSize(int *w, int *h) const
+{
+	*w = _min_w;
+	*h = _min_h;
 }

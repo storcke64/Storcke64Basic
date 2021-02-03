@@ -760,6 +760,30 @@ BEGIN_METHOD_VOID(Window_Activate)
 
 END_METHOD
 
+BEGIN_PROPERTY(Window_MinWidth)
+
+	int w, h;
+	WINDOW->getCustomMinimumSize(&w, &h);
+	
+	if (READ_PROPERTY)
+		GB.ReturnInteger(w);
+	else
+		WINDOW->setCustomMinimumSize(VPROP(GB_INTEGER), h);
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Window_MinHeight)
+
+	int w, h;
+	WINDOW->getCustomMinimumSize(&w, &h);
+	
+	if (READ_PROPERTY)
+		GB.ReturnInteger(h);
+	else
+		WINDOW->setCustomMinimumSize(w, VPROP(GB_INTEGER));
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(Form_new)
@@ -867,6 +891,11 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Opacity", "i", Window_Opacity),
 	GB_PROPERTY("Transparent", "b", Window_Transparent),
 	GB_PROPERTY("TakeFocus", "b", Window_TakeFocus),
+	
+	GB_PROPERTY("MinWidth", "i", Window_MinWidth),
+	GB_PROPERTY("MinHeight", "i", Window_MinHeight),
+	GB_PROPERTY("MinW", "i", Window_MinWidth),
+	GB_PROPERTY("MinH", "i", Window_MinHeight),
 
 	ARRANGEMENT_PROPERTIES,
 

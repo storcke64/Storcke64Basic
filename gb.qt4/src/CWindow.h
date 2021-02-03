@@ -258,6 +258,8 @@ public:
 	virtual void resize(int w, int h);
 	virtual void setGeometry(int x, int y, int w, int h);
 	
+	void setGeometryHints();
+	
 	friend void on_error_show_modal(MODAL_INFO *info);
 };
 
