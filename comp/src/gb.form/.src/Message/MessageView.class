@@ -95,22 +95,23 @@ Public Sub Open(Text As String, Optional Icon As Picture)
   
   If $sText = Text Then Return
   
+  $hIcon = Icon
+  If Not Icon Then 
+    Try $hIcon = Picture["icon:/32/warning"]
+    If Error Then $hIcon = Picture["img/32/warning.png"]
+  Endif
+
   If Me.Visible Then
     
     $aText.Add(Text)
-    $aIcon.Add(Icon)
+    $aIcon.Add($hIcon)
     UpdateButton
     Return
     
   Endif
   
   $sText = Text
-  $hIcon = Icon
-  If Not Icon Then 
-    Try $hIcon = Picture["icon:/32/warning"]
-    If Error Then $hIcon = Picture["img/32/warning.png"]
-  Endif
-  
+   
   DoOpen
   
 End
