@@ -550,19 +550,19 @@ Private Sub DrawText(sText As String, SX As Integer, X As Integer, Y As Integer)
   
 End
 
-Private Sub DrawMatch(X As Integer, Y As Integer, H As Integer, XM As Integer, YM As Integer, (bOther) As Boolean)
+Private Sub DrawMatch(X As Integer, Y As Integer, H As Integer, XM As Integer, YM As Integer, bOther As Boolean)
   
   Dim XY As Point
   Dim WW As Integer
+  Dim iColor As Integer
   
-  If Not $bShowCursor And If Not bOther And If Me.HasFocus Then Return
+  'If Not $bShowCursor And If Not bOther And If Me.HasFocus Then Return
   XY = LinePos(YM, XM)
   WW = TextWidth($hDoc.Lines[YM], XM + 1, 1)
   'If bOther Then
-    Paint.FillRect(X + XY.X, Y + XY.Y, WW, H, $iMatchColor)
-  'Else
-  '  Paint.FillRect(X + XY.X, Y + XY.Y + H - 2, WW, 2, $iMatchColor)
-  'Endif
+ iColor = $iMatchColor
+  If Not bOther Then iColor = Color.SetAlpha(iColor, 128)
+  Paint.FillRect(X + XY.X, Y + XY.Y, WW, H, iColor)
   
 End
 
