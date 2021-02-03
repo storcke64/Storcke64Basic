@@ -1207,16 +1207,17 @@ void gMenu::updateFont(gMainWindow *win)
 
 void gMenu::updateRadio()
 {
-	gMenu *ch;
+	gMenu *parent, *ch;
 	int i;
 	int start = -1;
 
-	if (_toplevel)
+	parent = parentMenu();
+	if (!parent)
 		return;
-
-	for (i = 0; i < childCount(); i++)
+	
+	for (i = 0; i < parent->childCount(); i++)
 	{
-		ch = child(i);
+		ch = parent->child(i);
 		if (ch->radio())
 		{
 			if (start < 0)
@@ -1230,9 +1231,9 @@ void gMenu::updateRadio()
 
 	if (start >= 0)
 	{
-		for (i = start; i < childCount(); i++)
+		for (i = start; i < parent->childCount(); i++)
 		{
-			ch = child(i);
+			ch = parent->child(i);
 			if (!ch->radio())
 				break;
 
