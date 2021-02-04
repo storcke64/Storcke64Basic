@@ -312,7 +312,7 @@ Private Sub RefreshEditor()
   FProperty.ReadConfig
   FFormStack.ReadConfig
   FOutput.ReadConfig
-  FProfile.ReadConfig
+  FProfile.ReadAllConfig
   FDebugInfo.ReadConfig
   FDebugExpr.ReadConfig
   FCompletion.ReadConfig

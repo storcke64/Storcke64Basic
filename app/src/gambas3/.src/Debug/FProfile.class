@@ -2,7 +2,8 @@
 
 Static Private $aAll As New String[]
 
-Private $sPath As String
+Public Path As String
+
 Private $iTime As Long
 Private $iFuncTime As Long
 Private $aFunc As New CProfile[]
@@ -36,6 +37,20 @@ Static Public Sub Open(sPath As String)
   
   hProf = New FProfile
   hProf.Init(sPath)
+  
+End
+
+Public Sub GetName() As String
+
+  Dim sName As String
+  
+  sName = File.Name(Path)
+  
+  If sName Begins "." Then
+    Return Subst(("Profile #&1"), Mid$(File.BaseName(sName), 2))
+  Else
+    Return sName
+  Endif
   
 End
 
@@ -165,7 +180,7 @@ Fast Public Sub Init(sPath As String)
   
   Inc Application.Busy
   
-  $sPath = sPath
+  Path = sPath
   
   hFile = Open sPath
   
@@ -402,8 +417,7 @@ Fast Public Sub Init(sPath As String)
   hCurrent = $cFunc[".System.EventLoop"]
   If hCurrent Then hCurrent.SetEventLoop()
   
-  sTitle = File.Name(sPath)
-  If Left(sTitle) = "." Then sTitle = "#" & Mid$(File.BaseName(sTitle), 2)
+  sTitle = GetName()
   sTitle &= " (" & Subst(("&1 Mb"), (Stat(sPath).Size + 1048575) \ 1048576) & ") - " & Str(Stat(sPath).LastModified) & " - " & Subst(("Total time &1 μs"), Format($iTime, "#,##0"))
   
   hEventLoop = $cFunc[FUNC_EVENT_LOOP]
@@ -418,7 +432,7 @@ Fast Public Sub Init(sPath As String)
   Object.Unlock(gvwProfile)
   gvwProfile_Sort
   
-  $aAll.Add($sPath)
+  $aAll.Add(Path)
   
   Me.Show
 
@@ -595,18 +609,25 @@ End
 
 Public Sub Form_Close()
 
-  If Left(File.Name($sPath)) = "." Then Try Kill $sPath
-  $aAll.Remove($aAll.Find($sPath))
+  If Left(File.Name(Path)) = "." Then Try Kill Path
+  $aAll.Remove($aAll.Find(Path))
 
   Settings.Write(Me)
   Settings.Write(spnProfile)
 
+  FDebugButton.UpdateProfile
+
 End
 
-Public Sub ReadOneConfig()
+Public Sub ReadConfig()
   
   Project.SetSmallFont(gvwProfile)
   Project.SetSmallFont(tabInfo)
+  Project.SetSmallFont(panProfile)
+  Project.SetSmallFont(lblCurrent)
+  lblCurrent.Font.Bold = True
+  Project.SetSmallFont(gvwSource)
+  
   edtSource.ReadConfig
   edtSource.ShowIcon = False
   edtSource.ShowPosition = False
@@ -614,12 +635,12 @@ Public Sub ReadOneConfig()
   edtSource.ShowLineNumber = False
   edtSource.ShowExpand = False
   panSepSource.Background = edtSource.Styles[Highlight.Background].Color
-  Project.SetSmallFont(gvwSource)
+  
   UpdateSource
     
 End
 
-Static Public Sub ReadConfig()
+Static Public Sub Find(sPath As String) As FProfile
   
   Dim hWin As Window
   Dim hProf As FProfile
@@ -627,18 +648,63 @@ Static Public Sub ReadConfig()
   For Each hWin In Windows
     If hWin Is FProfile Then
       hProf = hWin
-      hProf.ReadOneConfig
+      If hProf.Path = sPath Then Return hProf
     Endif
   Next
   
 End
 
+Static Public Sub FindAll() As FProfile[]
+  
+  Dim hWin As Window
+  Dim aProf As New FProfile[]
+  Dim hProf As FProfile
+  
+  For Each hWin In Windows
+    If hWin Is FProfile Then
+      hProf = hWin
+      If $aAll.Exist(hProf.Path) Then aProf.Add(hProf)
+    Endif
+  Next
+  
+  Return aProf
+  
+End
+
+
+Static Public Sub ReadAllConfig()
+  
+  Dim hProf As FProfile
+  
+  For Each hProf In FindAll()
+    hProf.ReadConfig
+  Next
+  
+End
+
+Public Sub _new()
+
+  Dim hScrollArea As ScrollArea
+  
+  hScrollArea = edtSource.Proxy
+  hScrollArea.NoAnimation = True
+  hScrollArea = gvwSource.Proxy
+  hScrollArea.NoAnimation = True
+  
+End
+
+
 Public Sub Form_Open()
+
+  FDebugButton.UpdateProfile
+
+  Me.MinWidth = Desktop.Scale * 100
+  Me.MinHeight = Desktop.Scale * 60
 
   Settings.Read(Me)
   Settings.Read(spnProfile)
   splSource.Layout = [1, 2]
-  ReadOneConfig
+  ReadConfig
 
   With gvwProfile
     .Columns.Count = 6
@@ -704,7 +770,7 @@ Public Sub Form_Open()
   
   gvwProfile.Row = 0
   
-  btnSave.Enabled = Left(File.Name($sPath)) = "."
+  btnSave.Enabled = Left(File.Name(Path)) = "."
   
   edtSource.Highlight = "gambas"
   
@@ -1053,11 +1119,11 @@ Public Sub btnSave_Click()
 
   Dialog.Title = ("Save profile")
   Dialog.Filter = ["*.prof", ("Profile files")]
-  Dialog.Path = Settings["/FProfile/Path", User.Home] &/ Project.Name & File.Name($sPath)
+  Dialog.Path = Settings["/FProfile/Path", User.Home] &/ Project.Name & File.Name(Path)
   If Dialog.SaveFile() Then Return
 
   Settings["/FProfile/Path"] = File.Dir(Dialog.Path)
-  Try Copy $sPath To Dialog.Path
+  Try Copy Path To Dialog.Path
   If Error Then
     Message.Error(("Unable to save profile.") & "\n\n" & Error.Text)
   Endif
@@ -1067,5 +1133,11 @@ End
 Private Sub UpdateSource()
 
   gvwSource.Width = gvwSource.Font.TextWidth("999999") * (4 + If($bAverage, 2, 0))
+
+End
+
+Public Sub btnMinimize_Click()
+
+  Me.Minimized = True
 
 End
