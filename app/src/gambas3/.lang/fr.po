@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.15.90\n"
-"PO-Revision-Date: 2021-02-04 09:50 UTC\n"
+"PO-Revision-Date: 2021-02-04 12:30 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1881,7 +1881,7 @@ msgstr "Déselectionner tout"
 msgid "Gambas 3 project conversion"
 msgstr "Conversion en projet Gambas 3"
 
-#: FCrash.class:73 FTranslate.class:245 Project.module:4701
+#: FCrash.class:73 FTranslate.class:245 Project.module:4725
 msgid "The '&1' command has failed."
 msgstr "La commande '&1' a échoué."
 
@@ -2097,7 +2097,7 @@ msgstr "Aucun élément"
 msgid "Line"
 msgstr "Ligne"
 
-#: FDebugInfo.class:46 FProfile.class:695
+#: FDebugInfo.class:46 FProfile.class:711
 msgid "Function"
 msgstr "Fonction"
 
@@ -3391,7 +3391,7 @@ msgstr "Recharger le projet"
 msgid "Quit"
 msgstr "Quitter"
 
-#: FMain.form:399 Project.module:6850
+#: FMain.form:399 Project.module:6886
 msgid "Save as"
 msgstr "Enregistrer sous"
 
@@ -4136,7 +4136,7 @@ msgstr "Selectionnez l'archive source"
 msgid "*.gz;*.bz2;*.xz"
 msgstr ""
 
-#: FMakePatch.form:97 Project.module:4738
+#: FMakePatch.form:97 Project.module:4771
 msgid "Source packages"
 msgstr "Paquets sources"
 
@@ -4177,7 +4177,7 @@ msgstr "Nom de groupe incorrect !"
 msgid "This menu is too deep !"
 msgstr "Ce menu est trop profond !"
 
-#: FMenu.class:1088 Project.module:5623
+#: FMenu.class:1088 Project.module:5659
 msgid "modified"
 msgstr "modifié"
 
@@ -4857,27 +4857,27 @@ msgstr "Durée totale &1 μs"
 msgid "Unable to load profile file: &1"
 msgstr "Impossible de charger le fichier de profilage : &1"
 
-#: FProfile.class:697
+#: FProfile.class:713
 msgid "Calls"
 msgstr "Appels"
 
-#: FProfile.class:700
+#: FProfile.class:716
 msgid "Duration"
 msgstr "Durée"
 
-#: FProfile.class:703
+#: FProfile.class:719
 msgid "Average"
 msgstr "Moyenne"
 
-#: FProfile.class:706
+#: FProfile.class:722
 msgid "Self"
 msgstr "Propre"
 
-#: FProfile.class:1105
+#: FProfile.class:1121
 msgid "Profile files"
 msgstr "Fichiers de profilage"
 
-#: FProfile.class:1112
+#: FProfile.class:1128
 msgid "Unable to save profile."
 msgstr "Impossible d'enregistrer le profilage."
 
@@ -5997,7 +5997,7 @@ msgstr "Nouveau projet..."
 msgid "Recent projects"
 msgstr "Projets récents"
 
-#: FWelcome.class:73 Project.module:6469
+#: FWelcome.class:73 Project.module:6505
 msgid "Installed software"
 msgstr "Logiciels installés"
 
@@ -7581,9 +7581,9 @@ msgstr "'makepkg' a échoué."
 msgid "The directory is not a Gambas project"
 msgstr "Le répertoire n'est pas un projet Gambas"
 
-#: Patch.class:52
-msgid "Unsupported source archive format"
-msgstr "Format d'archive des sources non supporté"
+#: Patch.class:52 Project.module:4738
+msgid "Unsupported source archive format."
+msgstr "Format d'archive source non supporté."
 
 #: Patch.class:179
 msgid "Patch didn't apply:\n"
@@ -7889,71 +7889,71 @@ msgstr "Le répertoire du projet existe déjà."
 msgid "The project directory cannot be created because a file with the same name already exists."
 msgstr "Le répertoire du projet ne peut être créé car un fichier avec le même nom existe déjà."
 
-#: Project.module:4712
+#: Project.module:4744
 msgid "Unable to create source archive."
 msgstr "Impossible de créer l'archive source."
 
-#: Project.module:4737
+#: Project.module:4770
 msgid "Create source package"
 msgstr "Générer une archive des sources du projet"
 
-#: Project.module:5026
+#: Project.module:5062
 msgid "Cannot copy file &1."
 msgstr "Impossible de copier le fichier &1."
 
-#: Project.module:5074
+#: Project.module:5110
 msgid "Cannot create link &1."
 msgstr "Impossible de créer le lien &1."
 
-#: Project.module:5089
+#: Project.module:5125
 msgid "Cannot move a directory inside itself."
 msgstr "Impossible de déplacer un répertoire à l'intérieur de lui-même."
 
-#: Project.module:5153
+#: Project.module:5189
 msgid "Cannot move file &1."
 msgstr "Impossible de déplacer le fichier &1."
 
-#: Project.module:5366
+#: Project.module:5402
 msgid "The following files couldn't be removed:"
 msgstr "Les fichiers suivants n'ont pu être supprimés :"
 
-#: Project.module:5848
+#: Project.module:5884
 msgid "Project cleanup..."
 msgstr "Nettoyage du projet..."
 
-#: Project.module:5854
+#: Project.module:5890
 msgid "Project files conversion..."
 msgstr "Conversion des fichiers du projet..."
 
-#: Project.module:5884
+#: Project.module:5920
 msgid "Unable to convert &1"
 msgstr "Impossible de convertir &1"
 
-#: Project.module:6164
+#: Project.module:6200
 msgid "Unable to update forms."
 msgstr "Impossible de mettre à-jour les formulaires."
 
-#: Project.module:6254
+#: Project.module:6290
 msgid "The &1 program is not installed on your system."
 msgstr "Le programme &1 n'est pas installé sur votre système."
 
-#: Project.module:6256
+#: Project.module:6292
 msgid "The following programs are not installed on your system: &1."
 msgstr "Les programmes suivants ne sont pas installés sur votre système : &1."
 
-#: Project.module:6347
+#: Project.module:6383
 msgid "Unable to read component description file."
 msgstr "Impossible de lire le fichier de description du composant."
 
-#: Project.module:6408
+#: Project.module:6444
 msgid "Cannot write component description file."
 msgstr "Impossible d'écrire le fichier de description du composant."
 
-#: Project.module:6469
+#: Project.module:6505
 msgid "Project templates"
 msgstr "Modèles de projet"
 
-#: Project.module:6515
+#: Project.module:6551
 msgid "Unable to run terminal."
 msgstr "Impossible de démarrer le terminal."
 

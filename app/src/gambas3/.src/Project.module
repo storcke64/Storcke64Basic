@@ -4668,56 +4668,89 @@ Public Function CheckProjectName(sName As String, Optional sDir As String) As St
 
 End
 
-Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String)
+Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
 
   Dim sCmd As String
   Dim sOpt As String
   Dim sIgnore As String
   Dim sTemp As String
+  Dim aIgnore As String[]
+  Dim sCmdName As String
+  Dim sOutput As String
+
+  aIgnore = [File.Name(GetExecPath()), ".gambas/*", ".settings", ".info", ".list", "*~", "core", "core.*", "vgcore*.*", ".lock", ".lang/*.pot", ".lang/.ot", ".xvpics", ".bzr", ".bzrignore", ".hg", ".hgignore", ".hgtags", "hgrc", ".git", ".gitignore", ".svn", "CVS", "CVSROOT"]
 
   Inc Application.Busy
 
-  If Right$(sPath, 3) = ".gz" Then
-    sOpt = "z"
-  Else If Right$(sPath, 4) = ".bz2" Then
-    sOpt = "j"
-  Else If Right$(sPath, 3) = ".xz" Then
-    sOpt = "J"
-  Endif
-
   sTemp = File.SetExt(Temp$(), File.Ext(sPath))
-
-  sCmd = "cd " & Shell$(File.Dir(sFrom)) & ";"
-  sCmd &= " tar cfvh" & sOpt & " " & Shell$(sTemp)
-  For Each sIgnore In [
-    File.Name(GetExecPath()), ".gambas/*", ".settings", ".info", ".list", "*~", "core", "core.*", "vgcore*.*", ".lock", ".lang/*.pot", ".lang/.ot", ".xvpics", ".bzr", ".bzrignore", ".hg", ".hgignore", ".hgtags", "hgrc", ".git", ".gitignore", ".svn", "CVS", "CVSROOT"
-    ]
-    sCmd &= " --exclude=" & Shell$(sIgnore)
-  Next
-  sCmd &= " " & Shell$(File.Name(sFrom)) & " > /dev/null"
-
-  Shell sCmd Wait
   
-  If Not Exist(sTemp) Then Error.Raise(Subst$(("The '&1' command has failed."), "tar"))
+  sCmd = "cd " & Shell$(File.Dir(sFrom)) & " && "
+  
+  Select Case File.Ext(sPath)
+    
+    Case "zip"
+      
+      sCmdName = "zip"
+    
+      sCmd &= "zip"
+      For Each sIgnore In aIgnore
+        sCmd &= " -x " & Shell$(sIgnore)
+      Next
+      sCmd &= " -q -9 -r " & Shell$(sTemp) & " " & Shell$(File.Name(sFrom))
+
+    Case Like "tar.*"
+    
+      sCmdName = "tar"
+    
+      If sPath Ends ".gz" Then
+        sOpt = "z"
+      Else If sPath Ends ".bz2" Then
+        sOpt = "j"
+      Else If sPath Ends ".xz" Then
+        sOpt = "J"
+      Else
+        Goto UNSUPPORTED
+      Endif
+    
+      sCmd &= "tar cfvh" & sOpt & " " & Shell$(sTemp)
+      For Each sIgnore In aIgnore
+        sCmd &= " --exclude=" & Shell$(sIgnore)
+      Next
+      sCmd &= " " & Shell$(File.Name(sFrom))
+    
+  End Select
+
+  Shell sCmd To sOutput
+  
+  If Not Exist(sTemp) Then Error.Raise(Subst$(("The '&1' command has failed.") & "\n\n<tt>" & Html(Trim(sOutput)) & "</tt>", sCmdName))
 
   Try Kill sPath
   Copy sTemp To sPath
   Try Kill sTemp
+      
+  Dec Application.Busy
+      
+  Return
+  
+UNSUPPORTED:
 
   Dec Application.Busy
+  Message.Warning(("Unsupported source archive format."))
+  Return True
 
 Catch
 
   Dec Application.Busy
   Message.Error(("Unable to create source archive.") & "\n\n" & Error.Text)
+  Return True
 
 End
 
-Public Sub MakeSourcePackageTo(sPath As String)
+Public Sub MakeSourcePackageTo(sPath As String) As Boolean
 
   Save
   WriteProject(True)
-  MakeSourcePackageFromTo(Project.Dir, sPath)
+  Return MakeSourcePackageFromTo(Project.Dir, sPath)
 
 End
 
@@ -4727,15 +4760,15 @@ Public Sub GetDefaultArchiveBaseName() As String
 
 End
 
-Public Sub MakePackage()
+Public Sub MakeSourceArchive()
 
   Dim sDir As String = SourcePath
 
   If Not sDir Then sDir = System.User.Home
 
-  Dialog.Path = sDir &/ GetDefaultArchiveBaseName() & ".tar.gz"
+  Dialog.Path = sDir &/ GetDefaultArchiveBaseName()
   Dialog.Title = ("Create source package")
-  Dialog.Filter = ["*.tar.gz", ("Source packages"), "*.tar.bz2", ("Source packages"), "*.tar.xz", ("Source packages")]
+  Dialog.Filter = ["*.tar.gz", ("Source packages"), "*.tar.bz2", ("Source packages"), "*.tar.xz", ("Source packages"), "*.zip", ("Source packages")]
   Dialog.AutoExt = True
 
   If Dialog.SaveFile() Then Return
@@ -4747,7 +4780,10 @@ Public Sub MakePackage()
     Project.WriteProject
   Endif
 
-  MakeSourcePackageTo(Dialog.Path)
+  SetMessage(("Create source package") & "...")
+  If Not MakeSourcePackageTo(Dialog.Path) Then
+    SetMessage(("OK"), True)
+  Endif
 
 End
 

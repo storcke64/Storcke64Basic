@@ -1491,7 +1491,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "compile-all"
       Project.Compile(True)
     Case "archive"
-      Project.MakePackage
+      Project.MakeSourceArchive
     Case "send-mail"
       Project.SendMail
     Case "exec"
