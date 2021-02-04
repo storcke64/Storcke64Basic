@@ -11,6 +11,8 @@ Event GetIcon(Path As String)
 Event ShowHidden
 Event Cancel
 
+Property AutoExt As Boolean
+
 Private mnuBookmark As Menu
 Private mnuEditBookmark As Menu
 Private mnuShowHiddenFiles As Menu
@@ -39,6 +41,9 @@ Private $bNoSaveHistory As Boolean
 
 Static Private $aIconSize As Integer[] = [16, 22, 32, 48, 64, 96, 128, 192, 256]
 Static Private $hGradient As Image
+
+Private $bAutoExt As Boolean
+Private $sLastExt As String
 
 
 Public Sub _new(Optional bFile As Boolean)
@@ -442,6 +447,8 @@ Public Sub SetPath(sPath As String)
       txtFile.Text = File.Name(sPath)
     Endif
     
+    CheckAutomaticExtension
+    
   Endif
   
   If sMsg Then Message.Error(sMsg & "\n\n" & sPath)
@@ -568,10 +575,33 @@ Public Function GetFilter() As String[]
 
 End
 
+Private Sub CheckAutomaticExtension()
+
+  Dim aFilter As String[]
+  Dim sFilter As String
+  Dim sFile As String
+  
+  If Not $bAutoExt Or If Not txtFile.Visible Or If txtFile.ReadOnly Or If txtFile.Length = 0 Then Return
+  
+  aFilter = fvwChoose.Filter
+  If Not aFilter Or If aFilter.Count > 1 Then Return
+  sFilter = aFilter[0]
+  
+  If sFilter Not Begins "*." Then Return
+  sFilter = Mid$(sFilter, 2)
+  If InStr(sFilter, "*") Then Return
+  
+  sFile = txtFile.Text
+  If $sLastExt And If sFile Ends $sLastExt Then sFile = Left(sFile, -Len($sLastExt))
+  txtFile.Text = sFile & sFilter
+  $sLastExt = sFilter
+
+End
 
 Public Sub cmbFilter_Click()
 
   fvwChoose.Filter = Split($aFilter[cmbFilter.Index], ";", Chr$(34), True)
+  CheckAutomaticExtension
 
 End
 
@@ -1677,4 +1707,18 @@ Public Sub SetShowToolbar(bShow As Boolean)
   
   panTool.Visible = bShow
   
+End
+
+Private Function AutoExt_Read() As Boolean
+
+  Return $bAutoExt
+
+End
+
+Private Sub AutoExt_Write(Value As Boolean)
+
+  If $bAutoExt = Value Then Return
+  $bAutoExt = Value
+  CheckAutomaticExtension
+
 End
