@@ -2764,7 +2764,7 @@ Private Sub FillProcCombo()
 
   'cmbProc.Clear
 
-  bSeparateStatic = Settings["/Editor/SeparateStaticMethod", 1]
+  bSeparateStatic = True 'Settings["/Editor/SeparateStaticMethod", 1]
 
   $cProc = New Collection(gb.IgnoreCase)
   $aProc = New String[]
