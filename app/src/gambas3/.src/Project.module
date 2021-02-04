@@ -4682,13 +4682,13 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
 
   Inc Application.Busy
 
-  sTemp = File.SetExt(Temp$(), File.Ext(sPath))
+  sTemp = Temp$() 'File.SetExt(Temp$(), File.Ext(sPath))
   
   sCmd = "cd " & Shell$(File.Dir(sFrom)) & " && "
   
-  Select Case File.Ext(sPath)
+  Select Case sPath
     
-    Case "zip"
+    Case Like "*.zip"
       
       sCmdName = "zip"
     
@@ -4698,7 +4698,7 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
       Next
       sCmd &= " -q -9 -r " & Shell$(sTemp) & " " & Shell$(File.Name(sFrom))
 
-    Case Like "tar.*"
+    Case Like "*.tar.*"
     
       sCmdName = "tar"
     

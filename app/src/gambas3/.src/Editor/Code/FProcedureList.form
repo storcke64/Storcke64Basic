@@ -13,6 +13,7 @@
     { panFilter HBox
       MoveScaled(1,1,51,3)
       Font = Font["-2"]
+      Background = Color.Background
       { btnShowStatic ToolButton btnFilter
         Name = "btnShowStatic"
         MoveScaled(0,0,6,3)
@@ -71,7 +72,7 @@
       }
     }
     { sepFilter Separator
-      MoveScaled(4,6,15,0)
+      MoveScaled(9,5,20,0)
     }
     { gvwProc GridView
       MoveScaled(3,14,25,22)
