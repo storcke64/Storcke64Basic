@@ -130,3 +130,9 @@ Public Sub Form_Close()
   Dialog.Key = ""
 
 End
+
+Public Sub chkAutoExt_Click()
+
+  fchChoose.AutoExt = chkAutoExt.Value
+
+End
