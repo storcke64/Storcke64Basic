@@ -1360,7 +1360,6 @@ Public Sub timFillList_Timer()
   
   Dim sLine As String
   Dim hResult As CSearchResult
-  Dim aResult As String[]
   Dim hFile As Object
   Dim fTimer As Float
   Dim iPos As Integer
@@ -1428,13 +1427,13 @@ Public Sub timFillList_Timer()
       If Not hFile Then Continue
       
       hResult = New CSearchResult
-      aResult = Split(sLine, ":")
       hResult.Path = $sTaskPath
       hResult.File = hFile.Name
-      hResult.Line = CInt(aResult[0])
-      hResult.Pos = CInt(aResult[1])
-      hResult.Bytes = CInt(aResult[2])
-      hResult.Length = CInt(aResult[3])
+      
+      If hResult.InitFromLine(sLine) Then 
+        Error "gambas3: warning: incorrect search result: "; sLine
+        Continue
+      Endif
       
       If hFile.SetPosition(hResult, True) Then Continue
       

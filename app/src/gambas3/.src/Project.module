@@ -2543,6 +2543,12 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
     Shell sExec Wait
   Endif
 
+  If Process.LastState = Process.Crashed Or If Process.LastValue > 128 Then
+    UnlockIt()
+    Message.Error(("<h3>The compiler has crashed!</h3>\nPlease report it to the Gambas bugtracker at:\n\n<u>https://gambaswiki.org/bugtracker</u>\n\nDo not forget to provide the full project so that the crash can be reproduced."))
+    Return True
+  Endif
+
   bGotError = Process.LastValue
 
   sOutput = Trim(File.Load(OUTPUT_FILE))
