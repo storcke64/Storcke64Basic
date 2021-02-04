@@ -428,10 +428,16 @@ static void wait_for_task(void)
 		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": wait for tasks...\n");
 	
 	pid = wait(&status);
+	
 	if (pid < 0)
-		THROW("wait() fails: &1", strerror(errno));
+		ERROR_fail("wait() fails: &1", strerror(errno));
+	
 	if (!WIFEXITED(status))
-		THROW("A child process has failed");
+	{
+		fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": the background job %d has crashed with signal %d", pid, WTERMSIG(status));
+		exit(status);
+	}
+	
 	if (WEXITSTATUS(status))
 	{
 		while (_ntask > 0)
@@ -458,17 +464,17 @@ static void wait_for_all_task(void)
 }
 
 
-static void kill_tasks(void)
+/*static void kill_tasks(void)
 {
 	if (_ntask > 0)
 	{
 		if (COMP_verbose)
 			fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": kill pending tasks\n");
-		kill(-getpid(), SIGKILL);
+		kill(-getpid(), SIGTERM);
 	}
-}
+}*/
 
-static void run_task(BACKGROUND_TASK func, void *arg)
+static void run_task(BACKGROUND_TASK func, const char *arg)
 {
 	pid_t pid;
 	
@@ -500,7 +506,7 @@ static void run_task(BACKGROUND_TASK func, void *arg)
 	else
 	{
 		if (COMP_verbose)
-			fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": start task: %d\n", pid);
+			fprintf(stderr, "gbc" GAMBAS_VERSION_STRING ": start task: [%d] '%s'\n", pid, arg);
 		_ntask++;
 	}
 }
@@ -794,13 +800,11 @@ int main(int argc, char **argv)
 		COMPILE_exit();
 		FILE_exit();
 
-		kill_tasks();
-		
 		puts("OK");
 	}
 	CATCH
 	{
-		kill_tasks();
+		//wait_for_all_task();
 		
 		fflush(NULL);
 		

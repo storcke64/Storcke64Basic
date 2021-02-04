@@ -710,7 +710,8 @@ PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current)
 			value = *current++;
 			if (!PATTERN_is(value, RS_RBRA))
 				THROW("Missing right brace");
-			TYPE_set_id(&decl->type, T_CSTRING);
+			if (index != VOID_STRING_INDEX)
+				TYPE_set_id(&decl->type, T_CSTRING);
 		}
 		else
 		{
