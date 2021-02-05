@@ -1850,12 +1850,12 @@ Public Sub GetSelection(Optional bAbsolute As Boolean, Optional aSelection As CC
   If aSelection Then
     For Each hCtrl In aSelection
       SaveOne(hCtrl)
-      GoSub ADD_BOUNDS
+      If Not bAbsolute Then GoSub ADD_BOUNDS
     Next
   Else
     For Each hCtrl In Selection
       SaveOne(hCtrl)
-      GoSub ADD_BOUNDS
+      If Not bAbsolute Then GoSub ADD_BOUNDS
     Next
   Endif
   $bDoNotArrange = False
@@ -1863,7 +1863,7 @@ Public Sub GetSelection(Optional bAbsolute As Boolean, Optional aSelection As CC
   $iSaveX = 0
   $iSaveY = 0
 
-  $sSave = "#BOUNDS:" & CStr(hBounds.X) & "," & CStr(hBounds.Y) & "," & CStr(hBounds.W) & "," & CStr(hBounds.H) & "\n" & $sSave
+  If Not bAbsolute Then $sSave = "#BOUNDS:" & CStr(hBounds.X) & "," & CStr(hBounds.Y) & "," & CStr(hBounds.W) & "," & CStr(hBounds.H) & "\n" & $sSave
 
   Return $sSave
   

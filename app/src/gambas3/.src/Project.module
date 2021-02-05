@@ -2042,8 +2042,11 @@ Public Function LoadFile(sPath As String, Optional bNoErrorIfUnknown As Boolean)
 
     'Inc Application.Busy
 
-    'If VersionControl.InConflict(sPath) Then Error.Raise("File in conflict")
-    If IsConflict(sPath) Then 
+    If IsDir(sPath) Then
+      
+      hForm = New FProjectEditor(sPath)
+      
+    Else If IsConflict(sPath) Then 
       
       hForm = New FConflictEditor(sPath)
       
