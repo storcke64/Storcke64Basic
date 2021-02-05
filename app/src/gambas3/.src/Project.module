@@ -110,8 +110,10 @@ Public UseHttpServer As Boolean
 Public Profiling As Boolean
 Public ProfileIndex As Integer
 Public DoNotTranslate As String[]
-Public CompressFile As String[]
+Public CompressFiles As Boolean
+Public CompressedFiles As String[]
 Public PreviewStyleSheet As String
+Public UnknownOptions As Collection
 
 Public Running As Boolean
 
@@ -3162,16 +3164,16 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       
     Endif
     
-    If CompressFile.Count Then
+    If CompressFiles And If CompressedFiles.Count Then
       
       sDir = Project.Dir &/ ".uncompressed"
       Try Mkdir sDir
       
-      For I = 0 To CompressFile.Max
-        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressFile[I]))
+      For I = 0 To CompressedFiles.Max
+        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressedFiles[I]))
         Try Kill sPath
-        Copy Project.Dir &/ CompressFile[I] To sPath
-        MCompressFile.Compress(Project.Dir &/ CompressFile[I])
+        Copy Project.Dir &/ CompressedFiles[I] To sPath
+        MCompressFile.Compress(Project.Dir &/ CompressedFiles[I])
       Next
       
     Endif
@@ -3179,14 +3181,14 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
     sExec = System.Path &/ "bin/gba" & System.Version & " -o " & Shell$(sExecPath) & " " & Shell$(Project.Dir) & " > " & OUTPUT_FILE & " 2>&1"
     Shell sExec Wait
     
-    If CompressFile.Count Then
+    If CompressFiles And If CompressedFiles.Count Then
       
       sDir = Project.Dir &/ ".uncompressed"
       
-      For I = 0 To CompressFile.Max
-        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressFile[I]))
-        Try Kill Project.Dir &/ CompressFile[I]
-        Move sPath To Project.Dir &/ CompressFile[I]
+      For I = 0 To CompressedFiles.Max
+        sPath = sDir &/ File.SetExt(CStr(I), File.Ext(CompressedFiles[I]))
+        Try Kill Project.Dir &/ CompressedFiles[I]
+        Move sPath To Project.Dir &/ CompressedFiles[I]
       Next
       
       Shell.RmDir(sDir)
@@ -3335,6 +3337,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   ShowDeprecated = False
   Warnings = True
   KeepDebugInfo = True
+  CompressFiles = True
   Localize = False
   Description = ""
   Authors = ""
@@ -3383,8 +3386,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   PublishWebSite = ""
   PublishCreateMenu = False
   DoNotTranslate = New String[]
-  CompressFile = New String[]
+  CompressedFiles = New String[]
   PreviewStyleSheet = ""
+  UnknownOptions = New Collection
 
   For Each sLig In hFic.Lines
 
@@ -3480,6 +3484,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
       Case "keepdebuginfo"
         KeepDebugInfo = CInt(sVal) <> 0
+
+      Case "compressfiles"
+        CompressFiles = CInt(sVal) <> 0
 
       Case "createshortcut"
         CreateShortcut = CInt(sVal) <> 0
@@ -3688,14 +3695,17 @@ Public Sub ReadProject(Optional bConvert As Boolean)
       Case "donottranslate"
         DoNotTranslate = Split(sVal, ",", Chr$(34), True)
         
-      Case "compressfile"
-        CompressFile = Split(sVal, ",", Chr$(34), True)
+      Case "compressedfiles", "compressfile"
+        CompressedFiles = Split(sVal, ",", Chr$(34), True)
         
       Case "reference"
         If Not ExtraReferences.Exist(sVal) Then ExtraReferences.Add(sVal)
         
       Case "previewstylesheet"
         PreviewStyleSheet = sVal
+        
+      Case Else
+        UnknownOptions[sKey] = sVal
 
     End Select
 
@@ -3835,6 +3845,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If Localize Then Print #hFile, "Translate=1"
   If DefaultLanguage Then Print #hFile, "Language="; DefaultLanguage
   If Not KeepDebugInfo Then Print #hFile, "KeepDebugInfo=0"
+  If Not CompressFiles Then Print #hFile, "CompressFiles=0"
   If CreateShortcut Then Print #hFile, "CreateShortcut=1"
   If RunAfterMakingExec Then Print #hFile, "RunAfter="; RunAfterMakingExec
   Select Case Type
@@ -3891,7 +3902,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If PublishCreateMenu Then Print #hFile, "CreateMenu=1"
   
   If DoNotTranslate.Count Then Print #hFile, "DoNotTranslate="; DoNotTranslate.Join(",", Chr$(34))
-  If CompressFile.Count Then Print #hFile, "CompressFile="; CompressFile.Join(",", Chr$(34))
+  If CompressedFiles.Count Then Print #hFile, "CompressedFiles="; CompressedFiles.Join(",", Chr$(34))
   
   If PreviewStyleSheet Then Print #hFile, "PreviewStyleSheet="; PreviewStyleSheet
   
@@ -3900,6 +3911,10 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
       Print #hFile, "Reference="; sVal
     Next
   Endif
+  
+  For Each sVal In UnknownOptions
+    Print #hFile, UnknownOptions.Key; "="; sVal
+  Next
 
   Close #hFile
 
@@ -6611,7 +6626,7 @@ Public Sub ShouldCompress(sPath As String) As Boolean
   
   If Not sPath Then Return
   sPath = MakeProjectRelativePath(sPath)
-  Return CompressFile.Exist(sPath)
+  Return CompressedFiles.Exist(sPath)
   
 End
 
@@ -6620,12 +6635,12 @@ Public Sub SetShouldCompress(sPath As String, bCompress As Boolean)
   Dim iPos As Integer
   
   sPath = MakeProjectRelativePath(sPath)
-  iPos = CompressFile.Find(sPath)
+  iPos = CompressedFiles.Find(sPath)
   If Not bCompress And iPos >= 0 Then
-    CompressFile.Remove(iPos)
+    CompressedFiles.Remove(iPos)
     RefreshKey(Project.Dir &/ sPath)
   Else If bCompress And iPos < 0 Then
-    CompressFile.Add(sPath)
+    CompressedFiles.Add(sPath)
     RefreshKey(Project.Dir &/ sPath)
   Endif
   

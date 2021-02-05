@@ -20,6 +20,7 @@ Public Sub Form_Open()
   fchExec.SetFocus
   
   chkDebug.Value = Project.KeepDebugInfo
+  chkCompress.Value = Project.CompressFiles
 
   chkIncVersion.Value = Not Project.Config["/Executable/DoNotIncrementVersion", False]
   chkIncVersion.Visible = Not Project.VersionFile
@@ -51,6 +52,7 @@ Public Sub btnOK_Click()
 
   $sPath = fchExec.SelectedPath
   Project.KeepDebugInfo = chkDebug.Value
+  Project.CompressFiles = chkCompress.Value
   Project.CreateShortcut = chkShortcut.Value
   Project.RunAfterMakingExec = Trim(txtCommand.Text)
   Project.Config["/Executable/DoNotIncrementVersion"] = chkIncVersion.Value = CheckBox.False
