@@ -30,6 +30,7 @@ Property NoShadow As Boolean
 Property Read View As DrawingArea
 Property UseMouse As Boolean
 Property Read Scrolling As Boolean
+Property NoAnimation As Boolean Use $bNoAnimation
 
 Event Scroll
 Event Draw
@@ -503,7 +504,7 @@ End
 
 Private Sub ScrollX_Write(Value As Integer)
 
-  If Application.Animations Then
+  If Application.Animations And If Not $bNoAnimation Then
     Scroll(Value, $iTargetY)
   Else
     Scroll(Value, $iScrollY)
@@ -519,7 +520,7 @@ End
 
 Private Sub ScrollY_Write(Value As Integer)
 
-  If Application.Animations Then
+  If Application.Animations And If Not $bNoAnimation Then
     Scroll($iTargetX, Value)
   Else
     Scroll($iScrollX, Value)
@@ -569,7 +570,7 @@ Public Sub Scrollbar_Change()
   
   If $iTargetX <> $iScrollX Or If $iTargetY <> $iScrollY Then
     
-    If Application.Animations And If Not $bIgnoreNextAnimation Then
+    If Application.Animations And If Not $bIgnoreNextAnimation And If Not $bNoAnimation Then
     
       If Not $hTimerScroll Then
         $hTimerScroll = New Timer As "TimerScroll"
@@ -779,7 +780,7 @@ End
 
 Private Sub GetActualScroll(ByRef SX As Integer, ByRef SY As Integer)
   
-  If Application.Animations Then
+  If Application.Animations And If Not $bNoAnimation Then
     SX = $iScrollX
     SY = $iScrollY
   Else
@@ -858,7 +859,7 @@ Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer)
   CX = -CX
   CY = -CY
 
-  If Application.Animations Then
+  If Application.Animations And If Not $bNoAnimation Then
     If $iTargetX = CX And If $iTargetY = CY Then Return True
   Else
     If $iScrollX = CX And If $iScrollY = CY Then Return True
@@ -1046,7 +1047,7 @@ End
 
 Private Function Scrolling_Read() As Boolean
 
-  If Application.Animations Then
+  If Application.Animations And If Not $bNoAnimation Then
     If $iTargetX <> $iScrollX Or If $iTargetY <> $iScrollY Then Return True
   Endif
 
