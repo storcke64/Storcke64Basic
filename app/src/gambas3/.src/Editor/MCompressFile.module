@@ -25,7 +25,8 @@ Public Sub CanCompress(sPath As String, Optional bCompressNow As Boolean) As Boo
   
   Dim sFile As String
   Dim sExt As String
-  
+
+  If Not sPath Then Return  
   If Project.IsHiddenPath(sPath) Then Return
   
   If IsDir(sPath) Then

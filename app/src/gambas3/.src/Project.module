@@ -141,6 +141,7 @@ Public Const FILTER_ADDED As String = " A"
 Public Const FILTER_EXPORTED As String = " X"
 Public Const FILTER_CONFLICT As String = " C"
 Public Const FILTER_MODIFIED As String = " M"
+Public Const FILTER_COMPRESSED As String = " P"
 
 Public Files As New Collection
 Public ExternFiles As New Collection
@@ -1798,6 +1799,14 @@ Private Sub InitProjectFilter()
 
     For Each sPath In Tree.Sources
       If IsExported(sPath) Then AddPathToFilter(sPath)
+    Next
+
+  Else If ProjectFilter = FILTER_COMPRESSED Then
+
+    $cProjectFilter = New Collection
+
+    For Each sFile In Project.CompressedFiles
+      AddPathToFilter(Project.Dir &/ sFile)
     Next
 
   Else

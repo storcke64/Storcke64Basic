@@ -74,6 +74,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
   Dim hStat As Stat
   Dim bParentLink As Boolean
   Dim bStartup As Boolean
+  Dim bCompressed As Boolean
 
   sPath = sDir &/ sFile
   
@@ -190,6 +191,10 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
         Else
           bIgnore = True
         Endif
+        
+      Else
+        
+        bCompressed = Project.ShouldCompress(sDir &/ sFile)
 
       Endif
       
@@ -259,6 +264,12 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           .Font.Bold = True
         Else
           .Font = Null
+        Endif
+        
+        If bCompressed Then
+          .RichText = Html(.Text) & " ▾"
+        Else
+          .RichText = ""
         Endif
         
         If $bCurrentProject Then .Editable = Not Project.IsLocked(sKey)
@@ -556,7 +567,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
   Dim bDoNotTranslate As Boolean
   Dim bModified As Boolean
   Dim iEmblemSize As Integer
-  Dim bCompressFile As Boolean
+  'Dim bCompressFile As Boolean
   Dim bReadOnly As Boolean
 
   If iSize Then
@@ -576,7 +587,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
       bLocked = Project.IsLocked(sPath)
       bAdded = Project.IsAdded(sPath)
       bDoNotTranslate = Not Project.ShouldTranslate(sPath)
-      bCompressFile = Project.ShouldCompress(sPath)
+      'bCompressFile = Project.ShouldCompress(sPath)
       bModified = Project.IsModified(sPath)
       bReadOnly = Project.IsReadOnly(sPath)
       If iSize = 0 Then iEmblemSize = 16
@@ -725,7 +736,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
       If bModified Then sKey &= "m"
       If bExported Then sKey &= "x"
       If bDoNotTranslate Then sKey &= "t"
-      If bCompressFile Then sKey &= "z"
+      'If bCompressFile Then sKey &= "z"
       If bReadOnly Then sKey &= "r"
     Endif
     
@@ -767,7 +778,7 @@ ADD_EMBLEM:
   If Not bNoEmblem Then
     If bExported Then hImage = Project.AddEmblem(hImage, "img/32/exported.png", iEmblemSize)
     If bDoNotTranslate Then hImage = Project.AddEmblem(hImage, "img/32/do-not-translate.png", iEmblemSize)
-    If bCompressFile Then hImage = Project.AddEmblem(hImage, "img/32/compress.png", iEmblemSize)
+    'If bCompressFile Then hImage = Project.AddEmblem(hImage, "img/32/compress.png", iEmblemSize)
     If bAdded Then hImage = Project.AddEmblem(hImage, "img/32/added.png", iEmblemSize)
     If bModified Then hImage = Project.AddEmblem(hImage, "img/32/modified.png", iEmblemSize)
     If bConflict Then hImage = Project.AddEmblem(hImage, "img/32/conflict.png", iEmblemSize)

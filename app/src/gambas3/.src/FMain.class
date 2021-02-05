@@ -503,8 +503,8 @@ Public Sub mnuPopup_Show()
     mnuRenameFile.Visible = mnuRenameFile.Visible And bCurrent
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent)
     
-    If $sKey = Project.KEY_MISC Or If bIsDir And bProject Then
-      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent)) Then
+    If $sKey = Project.KEY_MISC Or If $sKey = Project.KEY_PUBLIC Or If bIsDir And bProject Then
+      If MCompressFile.CanCompress(GetCurrentDir()) Then
         mnuCompressAll.Show
         mnuUncompressAll.Show
       Endif
@@ -2281,6 +2281,8 @@ Public Sub DoFilter(sFilter As String)
       sText = mnuFilterExport.Text
     Case Project.FILTER_MODIFIED
       sText = mnuFilterModified.Text
+    Case Project.FILTER_COMPRESSED
+      sText = mnuFilterCompressed.Text
   End Select
   
   txtSearchProject.Font.Italic = True
@@ -2313,6 +2315,12 @@ End
 Public Sub mnuFilterConflict_Click()
 
   DoFilter(Project.FILTER_CONFLICT)
+
+End
+
+Public Sub mnuFilterCompressed_Click()
+
+  DoFilter(Project.FILTER_COMPRESSED)
 
 End
 
