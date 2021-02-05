@@ -72,6 +72,8 @@ public:
 	gFont *textFont();
 	void setTextFont(gFont *ft);
 
+	virtual void setMinimumSize();
+	
 	//"Events"
 	void (*onClick)(gTabStrip *sender);
 	void (*onClose)(gTabStrip *sender, int index);

@@ -466,7 +466,7 @@ void gTabStripPage::updateButton()
 		_button = gtk_button_new();
 		gt_set_focus_on_click(_button, false);
 		
-#if GTK3
+#ifdef GTK3
 		gtk_button_set_relief(GTK_BUTTON(_button), GTK_RELIEF_NONE);
 #else
 		g_signal_connect(G_OBJECT(_button), "expose-event", G_CALLBACK(cb_button_fix), (gpointer)this);
@@ -567,7 +567,8 @@ void gTabStrip::setIndex(int vl)
 {
 	GtkWidget *page;
 	
-	if ( (vl<0) || (vl>=count()) || !get(vl)->isVisible() ) return;
+	if ((vl < 0) || (vl >= count()) || !get(vl)->isVisible())
+		return;
 	
 	page = get(vl)->widget;
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(widget), getRealIndex(page));
@@ -612,6 +613,7 @@ bool gTabStrip::setCount(int vl)
 			g_ptr_array_add(_pages, (gpointer)new gTabStripPage(this));
 		setIndex(count() - 1);
 		unlock();
+		setMinimumSize();
 	}
 	
 	if (vl < count())
@@ -651,7 +653,9 @@ bool gTabStrip::setCount(int vl)
 
 void gTabStrip::setOrientation(int vl)
 {
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(widget),GtkPositionType(vl));
+	_client_x = -1;
+	_client_y = -1;
+	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(widget), GtkPositionType(vl));
 }
 
 gPicture* gTabStrip::tabPicture(int ind) const
@@ -892,3 +896,10 @@ int gTabStrip::findIndex(gControl *child) const
 	
 	return -1;
 }
+
+void gTabStrip::setMinimumSize()
+{
+	_min_w = gDesktop::scale() * 6;
+	_min_h = _min_w;
+}
+
