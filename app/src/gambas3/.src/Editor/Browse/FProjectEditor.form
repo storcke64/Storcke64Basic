@@ -22,19 +22,6 @@
       Action = ".up"
       Picture = Picture["icon:/small/up"]
     }
-    { btnBack ToolButton
-      MoveScaled(8,0,4,4)
-      Enabled = False
-      ToolTip = ("Parent directory")
-      Action = ".back"
-      Picture = Picture["icon:/small/left"]
-    }
-    { btnForward ToolButton
-      MoveScaled(12,0,4,4)
-      Enabled = False
-      Action = ".forward"
-      Picture = Picture["icon:/small/right"]
-    }
     { Separator3 Separator
       MoveScaled(18,0,1,4)
     }
@@ -119,10 +106,6 @@
 # Gambas Action File 3.0
 
 { Actions
-  { Action back
-    Text = "Parent directory"
-    Picture = "icon:/small/left"
-  }
   { Action copy
     Text = "Copy"
     Picture = "icon:/small/copy"
@@ -138,10 +121,6 @@
   { Action detail
     Text = "Detailed view"
     Picture = "icon:/small/view-detail"
-  }
-  { Action forward
-    Text = ""
-    Picture = "icon:/small/right"
   }
   { Action icon-size
     Text = ""
@@ -180,7 +159,7 @@
 { Toolbars
   { Toolbar project
     Text = "Project browser"
-    List = "reload,up,back,forward,zoom-out,icon-size,zoom-in,image-preview,detail,property,copy,cut,paste,delete"
-    Default = "reload,back,forward,|,zoom-out,icon-size,zoom-in,|,image-preview,detail,property,|,copy,cut,paste,delete"
+    List = "reload,up,zoom-out,icon-size,zoom-in,image-preview,detail,property,copy,cut,paste,delete"
+    Default = "reload,|,zoom-out,icon-size,zoom-in,|,image-preview,detail,property,|,copy,cut,paste,delete"
   }
 }
