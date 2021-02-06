@@ -1355,10 +1355,10 @@ PUBLIC void EVAL_read(void)
 		{
 			_begin_line = FALSE;
 			if (get_char_offset(1) == '!' && EVAL->analyze)
-			{
 				add_comment();
-				continue;
-			}
+			else
+				add_identifier();
+			continue;
 		}
 
 	__OTHER:

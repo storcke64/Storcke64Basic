@@ -157,6 +157,7 @@ COMP_INFO COMP_res_info[] =
 	{ "#Endif"                                                    },
 	{ "#Const"                                                    },
 	{ "#Line"                                                     },
+	{ "#Include"                                                  },
 
 	{ ":",            RSF_NONE,                 OP_COLON,     0,  0,    T_OBJECT                      },  // Use for the immediate collection syntax
 	{ ";"                                                                                             },

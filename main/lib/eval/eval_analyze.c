@@ -78,22 +78,33 @@ static int get_type(PATTERN *pattern)
 	return type;
 }
 
-static int is_me_last_kind(PATTERN pattern)
+static bool is_me_last_kind(PATTERN pattern)
 {
 	return PATTERN_is(pattern, RS_ME)
-				|| PATTERN_is(pattern, RS_SUPER)
-				|| PATTERN_is(pattern, RS_LAST)
-				|| PATTERN_is(pattern, RS_TRUE)
-				|| PATTERN_is(pattern, RS_FALSE)
-				|| PATTERN_is(pattern, RS_PINF)
-				|| PATTERN_is(pattern, RS_MINF)
-				|| PATTERN_is(pattern, RS_NULL);
+		|| PATTERN_is(pattern, RS_SUPER)
+		|| PATTERN_is(pattern, RS_LAST)
+		|| PATTERN_is(pattern, RS_TRUE)
+		|| PATTERN_is(pattern, RS_FALSE)
+		|| PATTERN_is(pattern, RS_PINF)
+		|| PATTERN_is(pattern, RS_MINF)
+		|| PATTERN_is(pattern, RS_NULL);
 }
 
-static int is_optional_kind(PATTERN pattern)
+static bool is_optional_kind(PATTERN pattern)
 {
 	return PATTERN_is(pattern, RS_OPTIONAL)
-				|| PATTERN_is(pattern, RS_BYREF);
+		|| PATTERN_is(pattern, RS_BYREF);
+}
+
+static bool is_preprocessor(PATTERN pattern)
+{
+	return PATTERN_is(pattern, RS_P_IF)
+		|| PATTERN_is(pattern, RS_P_IF)
+		|| PATTERN_is(pattern, RS_P_ELSE)
+		|| PATTERN_is(pattern, RS_P_ENDIF)
+		|| PATTERN_is(pattern, RS_P_CONST)
+		|| PATTERN_is(pattern, RS_P_LINE)
+		|| PATTERN_is(pattern, RS_P_INCLUDE);
 }
 
 static void get_symbol(PATTERN pattern, const char **symbol, int *len)
@@ -403,32 +414,14 @@ static void analyze(EVAL_ANALYZE *result)
 					if (old_type != RT_OPERATOR)
 						space_before = TRUE;
 				}
-				else
-					space_before = TRUE;
-				
-				/*if (!is_me_last_kind(*pattern))
-					space_before = TRUE;
-				else
+				else if (is_preprocessor(*pattern))
 				{
-					if (*pattern != RS_OPTIONAL)
-					if (old_type != RT_OPERATOR)
-						space_before = TRUE;
-				}*/
-				
-				if (preprocessor && PATTERN_is(pattern[-1], RS_SHARP))
+					preprocessor = TRUE;
 					space_before = FALSE;
-
-				/*if (PATTERN_index(*pattern) >= RS_COLON)
-				{
-					int i;
-
-					for (i = 0; i < len; i++)
-						usym[i] = GB.toupper(symbol[i]);
-					usym[len] = 0;
-
-					symbol = usym;
-				}*/
-
+				}
+				else
+					space_before = TRUE;
+				
 				break;
 
 			case RT_DATATYPE:
@@ -508,8 +501,8 @@ static void analyze(EVAL_ANALYZE *result)
 					space_after = FALSE;
 					//in_quote = *symbol == '{';
 					
-					if (!preprocessor && *symbol == '#' && old_type == RT_END)
-						preprocessor = TRUE;
+					/*if (!preprocessor && *symbol == '#' && old_type == RT_END)
+						preprocessor = TRUE;*/
 				}
 				else if (index("}", *symbol))
 				{

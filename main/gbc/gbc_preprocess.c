@@ -314,10 +314,7 @@ int PREP_analyze(PATTERN *line)
 		PREP_next_line = result.ival - 1;
 		return PREP_LINE;
 	}
-	else if (PATTERN_is(*line, RS_P_CONST))
-	{
-		// TODO
-	}
+	// else if (PATTERN_is(*line, RS_P_CONST)) TODO
 	else
 		THROW(E_SYNTAX);
 	
