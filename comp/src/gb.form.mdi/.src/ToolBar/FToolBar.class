@@ -1402,8 +1402,8 @@ Private Sub CheckSeparators()
       If hChild Is Separator Then
         hChild.Hide
         Continue
-      Else If hLast And If hChild.Expand Then
-        hLast.Hide
+      'Else If hLast And If hChild.Expand Then
+      '  hLast.Hide
       Endif
     Endif
     hLast = hChild

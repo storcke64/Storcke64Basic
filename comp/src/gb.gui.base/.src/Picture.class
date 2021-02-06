@@ -5,6 +5,7 @@ Export
 Class Stock
 
 Static Private $cCache As New Collection
+Static Private $cPictToKey As Collection
 
 Static Private Sub GetKey(sPath As String) As String
   
@@ -133,6 +134,97 @@ End
 Static Public Sub _exit()
   
   $cCache.Clear
+  
+End
+
+Static Public Sub _Refresh(ByRef hPict As Picture)
+
+  Dim sKey As String
+  Dim sPict As String
+
+  If Not hPict Then Return  
+  sPict = CStr(Object.Address(hPict))
+  Try sKey = $cPictToKey[sPict]
+  If Not sKey Then Return
+  hPict = Picture[sKey]
+  $cPictToKey.Remove(sPict)
+  
+End
+
+Static Private Sub RefreshMenu(hMenu As Menu)
+  
+  _Refresh(ByRef hMenu.Picture)
+  For Each hMenu In hMenu.Children
+    RefreshMenu(hMenu)
+  Next
+  
+End
+
+Static Public Sub Refresh()
+
+  Dim hPict As Picture
+  Dim hWindow As Window
+  Dim hCtrl As Object
+  Dim sKey As String
+  Dim hTabStrip As TabStrip
+  Dim I As Integer
+  Dim hMenu As Menu
+  Dim hWin As Window
+  
+  Inc Application.Busy
+  
+  $cPictToKey = New Collection
+  For Each hPict In $cCache
+    sKey = $cCache.Key
+    If sKey Not Begins "icon:/" Then Continue
+    $cPictToKey[CStr(Object.Address(hPict))] = sKey
+    'Debug sKey
+  Next
+  
+  $cCache.Clear
+  
+  For Each hWindow In Windows
+    
+    For Each hCtrl In hWindow.Controls
+      
+      _Refresh(ByRef hWindow.Icon)
+      
+      hWin = hWindow
+      GoSub REFRESH_MENU
+      
+      If hCtrl Is TabStrip Then
+        
+        hTabStrip = hCtrl
+        For I = 0 To hTabStrip.Count - 1
+          _Refresh(ByRef hTabStrip[I].Picture)
+        Next
+        
+      Else If hCtrl Is Window Then
+        
+        hWin = hCtrl
+        GoSub REFRESH_MENU
+        
+      Else
+        
+        Try hCtrl._RefreshPicture()
+        If Error Then Try _Refresh(ByRef hCtrl.Picture)
+        
+      Endif
+      
+    Next
+    
+  Next
+  
+  Dec Application.Busy
+  Return
+  
+REFRESH_MENU:
+
+  For Each hMenu In hWin.Menus
+    RefreshMenu(hMenu)
+  Next
+    
+  Return
   
 End
 

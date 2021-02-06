@@ -33,10 +33,10 @@ Static Public Sub FromKey() As String
   Dim hClass As Class
   Dim sName As String
   
-  If Key.Control Then sShortcut &= "Ctrl+"
-  If Key.Shift Then sShortcut &= "Shift+"
-  If Key.Alt Then sShortcut &= "Alt+"
-  If Key.Meta Then sShortcut &= "Meta+"
+  If Key.Control And If Key.Code <> Key.ControlKey Then sShortcut &= "Ctrl+"
+  If Key.Shift And If Key.Code <> Key.ShiftKey Then sShortcut &= "Shift+"
+  If Key.Alt And If Key.Code <> Key.AltKey Then sShortcut &= "Alt+"
+  If Key.Meta And If Key.Code <> Key.MetaKey Then sShortcut &= "Meta+"
   
   If Not $cNameFromKey Then
   

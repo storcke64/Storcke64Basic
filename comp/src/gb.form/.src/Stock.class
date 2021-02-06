@@ -20,6 +20,7 @@ Static Private $bDebug As Boolean
 Static Private $aRoots As String[] = ["~/.icons", "~/.local/share/icons", "/usr/share/icons"]
 
 Class _DefaultStock
+Class DesktopMime
 
 ' Static Private Sub GetDesktop() As String
 '
@@ -778,7 +779,8 @@ End
 Static Public Sub Refresh()
 
   InitTheme
-  Picture.Flush
+  Picture.Refresh
+  Try DesktopMime.Refresh
 
 End
 

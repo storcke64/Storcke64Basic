@@ -1408,7 +1408,6 @@ Public Sub _CheckCurrent()
   
 End
 
-
 Public Sub _GetCellData(iRow As Integer, iColumn As Integer, Optional bCreate As Boolean) As _GridView_Data
 
   Dim hData As _GridView_Data
@@ -1434,7 +1433,6 @@ Public Sub _GetCellData(iRow As Integer, iColumn As Integer, Optional bCreate As
   Return hData
   
 End
-
 
 Public Sub _get(Row As Integer, Column As Integer) As _GridView_Cell
   
@@ -2451,3 +2449,14 @@ Public Sub AddColumn(Text As String, Optional Width As Integer, Alignment As Int
   
 End
 
+Public Sub _RefreshPicture()
+
+  Dim hData As _GridView_Data
+  
+  For Each hData In $cCells
+    Picture._Refresh(ByRef hData.Picture)
+  Next
+  
+  $hView.Refresh
+  
+End

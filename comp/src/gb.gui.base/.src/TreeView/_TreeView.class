@@ -1839,3 +1839,13 @@ Private Sub ShowCheck_Write(Value As Boolean)
   $hView.Refresh
 
 End
+
+Public Sub _RefreshPicture()
+
+  Dim hItem As _TreeView_Item
+  
+  For Each hItem In $cItem
+    Picture._Refresh(ByRef hItem.Picture)
+  Next
+  
+End
