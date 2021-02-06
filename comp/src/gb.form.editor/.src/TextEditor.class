@@ -235,11 +235,11 @@ Public Sub _new()
     $cShortcut = [
       "CTRL+A": "SelectAll",
       "CTRL+C": "Copy",
-      "CTRL+INS": "Copy",
+      "CTRL+INSERT": "Copy",
       "CTRL+V": "Paste",
-      "SHIFT+INS": "Paste",
+      "SHIFT+INSERT": "Paste",
       "CTRL+X": "Cut",
-      "SHIFT+DEL": "Cut",
+      "SHIFT+DELETE": "Cut",
       "CTRL+Y": "Redo",
       "CTRL+Z": "Undo",
       "CTRL+F": "Find"]
@@ -583,7 +583,7 @@ End
 ' End
 '
 
-Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As Byte[], X As Integer, Y As Integer, H As Integer, aLayout As Integer[], iNextState As Integer)
+Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As Byte[], X As Integer, Y As Integer, H As Integer, aLayout As Integer[], iNextState As Integer)
   
   Dim I As Integer
   Dim hStyle As TextEditorStyle
@@ -1443,6 +1443,8 @@ Fast Private Sub TextWidth(sText As String, iStart As Integer, iLength As Intege
   Dim fCharWidth As Float
   
   fCharWidth = $fCharWidth
+  
+  sText = String.Mid$(sText, iStart, iLength)
   If Not IsAscii(sText) Then fCharWidth = 0
   
   I = InStr(sText, "\t", iStart) - iStart
@@ -1451,12 +1453,12 @@ Fast Private Sub TextWidth(sText As String, iStart As Integer, iLength As Intege
     If fCharWidth Then
       Return fCharWidth * iLength
     Else
-      Return $hFont.TextWidth(String.Mid$(sText, iStart, iLength))
+      Return $hFont.TextWidth(sText)
     Endif
   Endif
   
   If iLength <= 0 Then Return 0
-  aText = Split(String.Mid$(sText, iStart, iLength), "\t")
+  aText = Split(sText, "\t")
   
   If fCharWidth Then
     
@@ -1480,7 +1482,7 @@ Fast Private Sub TextWidth(sText As String, iStart As Integer, iLength As Intege
   
 End
 
-Private Sub LinePos(Y As Integer, Optional X As Integer = -1) As Point
+Fast Private Sub LinePos(Y As Integer, Optional X As Integer = -1) As Point
   
   Dim aLayout As Integer[]
   Dim I As Integer
@@ -1648,7 +1650,7 @@ Public Sub View_KeyPress()
   
   bCancel = Raise KeyPress
   If bCancel Then Goto STOP_EVENT
-  
+
   Try sAction = $cShortcut[String.UCase(Shortcut.FromKey())]
   If sAction Then 
     Select Case sAction
