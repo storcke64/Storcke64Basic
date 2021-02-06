@@ -12,7 +12,7 @@ zůstává na <i>vaší</i> plné odpovědnosti...</p>
 <p>Užijte si to !</p>
 
 <p align=right>Beno&icirc;t Minisini<br>
-<u>gambas@users.sourceforge.net</u></p>
+<u>g4mba5@gmail.com</u></p>
 
 
 [STARTUP]
@@ -541,7 +541,7 @@ nyní odborníkem na <b>Gambas</b> ! :-)</p>
 <p>Pokud chcete přidat nové tipy z vaší vlastní zkušenosti,
 neváhejte a pošlete je na adresu:</p>
 
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>
 
 <p>Díky předem !</p>
 

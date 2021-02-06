@@ -12,7 +12,7 @@ Jednak to, czy programy będą ładne, funcjonalne i przejrzyste zależy tylko o
 <p>Miłej pracy !</p>
 
 <p align=right>Beno&icirc;t Minisini<br>
-<u>gambas@users.sourceforge.net</u></p>
+<u>g4mba5@gmail.com</u></p>
 
 
 [STARTUP]
@@ -272,7 +272,7 @@ ekspertem programowania w <b>Gambasie</b> ! :-)</p>
 
 <p>Jesli chcesz dodać nowe porady, prześlij je na adres
 &nbsp;:</p>
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>
 
 <p>Z góry dziękuję !</p>
 

@@ -531,7 +531,10 @@ Public Sub cmbIconTheme_Click()
     Settings["/Theme"] = ""
   Endif
   
-  NeedRestart(cmbIcontheme)
+  Application.Theme = Settings["/Theme"]
+  Stock.Refresh
+  Project.Refresh
+  'NeedRestart(cmbIcontheme)
   
 End
 

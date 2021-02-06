@@ -12,7 +12,7 @@ programmacode blijft je <i>eigen</i> verantwoordelijkheid...</p>
 <p>Veel plezier ermee !</p>
 
 <p align=right>Beno&icirc;t Minisini<br>
-<u>gambas@users.sourceforge.net</u></p>
+<u>g4mba5@gmail.com</u></p>
 
 
 [STARTUP]
@@ -266,7 +266,7 @@ expert geworden bent ! :-)</p>
 
 <p>Als je tips toe te voegen hebt, zend je nieuwe tips dan naar het volgende 
 adres&nbsp;:</p>
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>
 
 <p>Alvast bedankt !</p>
 

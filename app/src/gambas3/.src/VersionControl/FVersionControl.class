@@ -135,10 +135,30 @@ End
 Private Sub LoadDiff()
 
   Dim sDiff As String
+  Dim aDiff As String[]
+  Dim sLine As String
+  Dim bHide As Boolean
   
   If edtDiff.IsVoid() Then
     Inc Application.Busy
+    
     sDiff = VersionControl.Diff()
+    
+    If chkHideTrans.Value Then
+      
+      aDiff = New String[]
+      For Each sLine In Split(sDiff, "\n")
+        If sLine Begins "diff " Then
+          bHide = InStr(sLine, "/.lang/") > 0
+          aDiff.Add(sLine)
+        Else If Not bHide Then
+          aDiff.Add(sLine)
+        Endif
+      Next
+      sDiff = aDiff.Join("\n")
+      
+    Endif
+    
     If sDiff Then
       edtDiff.Text = sDiff
     Else
@@ -146,7 +166,9 @@ Private Sub LoadDiff()
       edtDiff.Hide
       txtDiffNothing.Show
     Endif
+    
     Dec Application.Busy
+    
   Endif
 
 End
@@ -168,6 +190,8 @@ Public Sub tabVersionControl_Click()
       trmShell.SetFocus
       
   End Select
+  
+  chkHideTrans.Visible = tabVersionControl.Index = 1 And edtDiff.Visible
 
 End
 
@@ -189,3 +213,10 @@ Public Sub btnCommitPush_Click()
 
 End
 
+
+Public Sub chkHideTrans_Click()
+
+  edtDiff.Clear
+  LoadDiff
+
+End

@@ -919,12 +919,6 @@ Private Sub NewProject()
   
 End
 
-Public Sub mnuTip_Click()
-  
-  FTips.Run
-  
-End
-
 ' PUBLIC SUB mnuAddIcon_Click()
 ' 
 '   IF FNewIcon.Run(GetCurrentDir()) THEN RETURN
@@ -3145,4 +3139,16 @@ Public Sub OnRefreshSources()
   
   Action["test,test-suite"].Visible = Project.HasTest()
   
+End
+
+Public Sub mnuTip_Click()
+
+  FTips.Load
+
+End
+
+Public Sub mnuHelpShortcuts_Click()
+
+  FHelpShortcut.Load
+
 End

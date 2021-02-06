@@ -8,7 +8,7 @@
 
 <p>¡Disfrútelo!</p>
 
-<p align=right>Beno&icirc;t Minisini<br><u>gambas@users.sourceforge.net</u></p>
+<p align=right>Beno&icirc;t Minisini<br><u>g4mba5@gmail.com</u></p>
 
 [STARTUP]
 
@@ -299,4 +299,4 @@ END</pre>
 
 <p>Si quiere contribuir, envíe nuevos consejos a la siguiente dirección:</p>
 
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>

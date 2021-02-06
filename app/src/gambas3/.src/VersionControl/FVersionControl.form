@@ -54,6 +54,11 @@
   { HBox1 HBox
     MoveScaled(1,59,110,4)
     Spacing = True
+    { chkHideTrans CheckBox
+      MoveScaled(0,0,24,4)
+      AutoResize = True
+      Text = ("Hide translation changes")
+    }
     { Panel1 Panel
       MoveScaled(30,0,2,4)
       Expand = True

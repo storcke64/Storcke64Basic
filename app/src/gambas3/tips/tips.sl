@@ -12,7 +12,7 @@ ostaja <i>tvoja</i> odgovornost...</p>
 <p>Uživaj!</p>
 
 <p align=right>Beno&icirc;t Minisini<br>
-<u>gambas@users.sourceforge.net</u></p>
+<u>g4mba5@gmail.com</u></p>
 
 
 [STARTUP]
@@ -228,7 +228,7 @@ in <b>Mid$</b> imajo v <b><i>Gambas</i></b>u dodatno uporabnost.</p>
 <p>Tukaj se Nasveti dneva končajo. Upam, da si po njihovem branju izvedenec za <b>Gambas</b>! :-)</p>
 
 <p>Če želiš prispevati, pošlji nove nasvete na naslov:&nbsp;</p>
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>
 
 <p>Hvala v naprej!</p>
 

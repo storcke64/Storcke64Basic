@@ -409,7 +409,7 @@ Public Sub Main()
   Inc Application.Busy
 
   'FHelpBrowser.Load
-  FHelpShortcut.Load
+  'FHelpShortcut.Load
 
   ' QT5: If the main form is shown after the MDI windows have been embeddded, then 
   ' the window drawing becomes buggy
@@ -442,7 +442,7 @@ Public Sub Main()
   Dec Application.Busy
 
   If Settings["/ShowTipOnStartup", True] Then
-    FTips.Run
+    FTips.Show
   Endif
 
 End

@@ -860,6 +860,7 @@
       Action = "tips"
       Text = Shortcut(("Tips of the day"), "T") & "..."
       Picture = Picture["icon:/small/lamp"]
+      Toggle = True
     }
     { mnuHelpShortcuts Menu
       Action = "help-shortcut"
@@ -1342,19 +1343,19 @@
               MoveScaled(86,8,0,9)
               Visible = False
             }
-            { btnWorkspaceProperty ToolButton
-              MoveScaled(27,1,4,4)
-              Visible = False
-              ToolTip = ("Show properties sheet")
-              Ignore = True
-              Picture = Picture["icon:/small/properties"]
-            }
             { btnWorkspaceProject ToolButton
               MoveScaled(22,1,4,4)
               Visible = False
               ToolTip = ("Show project tree")
               Ignore = True
               Picture = Picture["icon:/small/view-tree"]
+            }
+            { btnWorkspaceProperty ToolButton
+              MoveScaled(27,1,4,4)
+              Visible = False
+              ToolTip = ("Show properties sheet")
+              Ignore = True
+              Picture = Picture["icon:/small/properties"]
             }
           }
           { panDebug SidePanel
@@ -1410,19 +1411,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyHelp ToolButton
-              MoveScaled(4,0,4,4)
-              Visible = False
-              ToolTip = ("Show property help")
-              Ignore = True
-              Picture = Picture["icon:/small/help"]
-            }
             { btnPropertyToolbar ToolButton
               MoveScaled(0,0,4,4)
               Visible = False
               ToolTip = ("Show controls")
               Ignore = True
               Picture = Picture["img/16/control.png"]
+            }
+            { btnPropertyHelp ToolButton
+              MoveScaled(4,0,4,4)
+              Visible = False
+              ToolTip = ("Show property help")
+              Ignore = True
+              Picture = Picture["icon:/small/help"]
             }
           }
           { panTool SidePanel
