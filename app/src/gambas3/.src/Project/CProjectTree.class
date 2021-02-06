@@ -194,7 +194,9 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
         
       Else
         
-        bCompressed = Project.ShouldCompress(sDir &/ sFile)
+        If $bCurrentProject Then
+          bCompressed = Project.ShouldCompress(sDir &/ sFile)
+        Endif
 
       Endif
       
