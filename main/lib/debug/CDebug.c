@@ -61,19 +61,21 @@ static void callback_read(int fd, int type, intptr_t param)
 		if (_buffer_left)
 		{
 			n = read(_fdr,  &_buffer[_buffer_left], BUFFER_SIZE - _buffer_left);
-			if (n < 0)
-				n = 0;
-
-			n += _buffer_left;
-			_buffer_left = 0;
+			if (n > 0)
+			{
+				n += _buffer_left;
+				_buffer_left = 0;
+			}
 		}
 		else
 			n = read(_fdr, _buffer, BUFFER_SIZE);
 
 		if (n <= 0)
 		{
-			//usleep(10000); // the callback is called again and again even if there is nothing to read, why?
-			break;
+			if (n == 0 || (errno != EINTR && errno != EAGAIN))
+				GB.Watch(fd, GB_WATCH_NONE, (void *)callback_read, 0);
+
+			break; // try again
 		}
 
 		p = 0;
