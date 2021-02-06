@@ -393,7 +393,10 @@ BEGIN_METHOD_VOID(Connection_Commit)
 	CHECK_OPEN();
 
 	if (THIS->trans == 0)
+	{
+		//GB.Error("Not in a transaction");
 		return;
+	}
 
 	THIS->trans--;
 	if (!THIS->db.flags.no_nest || THIS->trans == 0)
@@ -408,7 +411,10 @@ BEGIN_METHOD_VOID(Connection_Rollback)
 	CHECK_OPEN();
 
 	if (THIS->trans == 0)
+	{
+		//GB.Error("Not in a transaction");
 		return;
+	}
 
 	THIS->trans--;
 	if (!THIS->db.flags.no_nest || THIS->trans == 0)
