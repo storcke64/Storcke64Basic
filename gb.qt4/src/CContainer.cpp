@@ -523,6 +523,9 @@ void CCONTAINER_update_design(void *_object)
 				CWIDGET_set_design(child, true);
 		}
 	}
+
+	if (GB.Is(THIS, CLASS_UserContainer) && CONTAINER == WIDGET)
+		return;
 	
 	list = CONTAINER->children();
 	

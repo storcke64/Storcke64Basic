@@ -427,6 +427,10 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	
 	PANEL->setArrange(ARRANGE_FILL);
 	PANEL->setUser();
+	
+	if (GB.Is(THIS, CLASS_UserContainer))
+		PANEL->setUserContainer();
+	
 	THIS_USERCONTAINER->container = THIS;
 
 	if (!GB.GetFunction(&THIS_USERCONTROL->paint_func, THIS, "UserControl_Draw", NULL, NULL))
@@ -677,8 +681,6 @@ GB_DESC UserContainerDesc[] =
 	GB_PROPERTY("Invert", "b", UserContainer_Invert),
 	GB_PROPERTY("Centered", "b", UserContainer_Centered),
 	
-	//GB_PROPERTY("Focus", "b", UserContainer_Focus),
-
 	USERCONTAINER_DESCRIPTION,
 
 	GB_END_DECLARE

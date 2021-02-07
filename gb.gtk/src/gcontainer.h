@@ -85,6 +85,9 @@ public:
 	void setInvert(bool vl);
 	void setCentered(bool vl);
 
+	void setUserContainer() { _user_container = true; }
+	bool isUserContainer() const { return _user_container; }
+	
 	virtual int childCount() const;
 	virtual gControl *child(int index) const;
 	gControl *firstChild() const { return child(0); };
@@ -160,6 +163,7 @@ private:
 	unsigned _did_arrangement : 1;
 	unsigned _cb_map : 1;
 	unsigned _no_arrangement : 6;
+	unsigned _user_container : 1;
 };
 
 #endif

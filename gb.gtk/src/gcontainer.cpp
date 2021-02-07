@@ -275,6 +275,7 @@ void gContainer::initialize()
 	_did_arrangement = false;
 	_cb_map = false;
 	_is_container = true;
+	_user_container = false;
 	
 	arrangement.mode = 0;
 	arrangement.spacing = false;
@@ -887,6 +888,9 @@ void gContainer::updateDesignChildren()
 		return;
 	
 	if (!isUser() && !isDesignIgnore())
+		return;
+	
+	if (isUserContainer() && !_proxyContainer)
 		return;
 	
 	cont = isDesignIgnore() ? this : proxyContainer();

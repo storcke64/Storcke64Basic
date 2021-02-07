@@ -2175,24 +2175,6 @@ CWIDGET *CWidget::getDesign(QObject *o)
 
 	real = true;
 
-	/*while (o)
-	{
-		ob = dict[o];
-		if (ob)
-			break;
-		if (((QWidget *)o)->isWindow())
-			return NULL;
-
-		o = o->parent();
-		real = false;
-	}
-
-	if (!o)
-		return NULL;
-	
-	if (!ob->flag.design_ignore)
-		return ob;*/
-
 	while (o)
 	{
 		ob = dict[o];
@@ -2207,53 +2189,6 @@ CWIDGET *CWidget::getDesign(QObject *o)
 
 	return NULL;
 }
-
-/*
-static void debugObject(void *ob)
-{
-	if (!ob)
-		return;
-	qDebug("  (%s %p) %s%s", ob ? GB.GetClassName(ob) : "", ob, CWIDGET_test_flag(ob, WF_DESIGN) ? "D" : "", CWIDGET_test_flag(ob, WF_DESIGN_LEADER) ? "L" : "");
-}
-*/
-
-#if 0
-static CWIDGET *getDesignDebug(QObject *o)
-{
-	CWIDGET *ob;
-
-	if (!o->isWidgetType())
-		return NULL;
-
-	while (o)
-	{
-		ob = CWidget::getReal(o);
-		debugObject(ob);
-		if (ob)
-			break;
-
-		o = o->parent();
-	}
-
-	if (!o)
-		return NULL;
-
-	if (!CWIDGET_test_flag(ob, WF_DESIGN))
-		return ob;
-
-	while (o)
-	{
-		ob = CWidget::getReal(o);
-		debugObject(ob);
-		if (ob && CWIDGET_test_flag(ob, WF_DESIGN_LEADER))
-			return ob;
-
-		o = o->parent();
-	}
-
-	return NULL;
-}
-#endif
 
 QWidget *CWidget::getContainerWidget(CCONTAINER *object)
 {
