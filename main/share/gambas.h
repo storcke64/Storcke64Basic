@@ -701,12 +701,16 @@ typedef
 
 typedef
 	struct {
-		int size;
+		unsigned size : 24;
+		unsigned read_only : 1;
+		unsigned sorted : 1;
+		unsigned n_dim : 3;
 		int count;
 		GB_TYPE type;
 		void *data;
 		int *dim;
 		void *ref;
+		
 		}
 	GB_ARRAY_BASE;
 

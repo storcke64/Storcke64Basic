@@ -71,14 +71,8 @@ static void THROW_multidimensional_array()
 }
 
 #define check_not_static(_object) ((((CARRAY *)_object)->ref) ? CARRAY_static_array(), TRUE : FALSE)
-
-#define check_not_read_only(_object) \
-({ \
-	CARRAY *__object = (CARRAY *)(_object); \
-	(__object->ref == __object) ? CARRAY_static_array(), TRUE : FALSE; \
-})
-
-#define check_not_multi(_object) ((((CARRAY *)_object)->dim) ? THROW_multidimensional_array(), TRUE : FALSE)
+#define check_not_read_only(_object) ((((CARRAY *)_object)->read_only) ? CARRAY_static_array(), TRUE : FALSE)
+#define check_not_multi(_object) ((((CARRAY *)_object)->n_dim) ? THROW_multidimensional_array(), TRUE : FALSE)
 
 
 static bool check_start_length(int count, int *start, int *length)
@@ -104,35 +98,31 @@ static bool check_start_length(int count, int *start, int *length)
 	return FALSE;
 }
 
-static int get_dim(CARRAY *_object)
+
+#define get_dim(_array) (_array->n_dim + 1)
+
+static int calc_dim(int *dim)
 {
 	int d;
 
-	if (THIS->dim == NULL)
+	if (dim == NULL)
 		return 1;
 	else
 	{
 		for(d = 0;; d++)
 		{
-			if (THIS->dim[d] < 0)
+			if (dim[d] < 0)
 				return (d + 1);
 		}
 	}
 }
 
-
 static int get_bound(CARRAY *_object, int d)
 {
-	if (THIS->dim == NULL)
-		return THIS->count;
+	if (THIS->n_dim)
+		return abs(THIS->dim[d]);
 	else
-	{
-		d = THIS->dim[d];
-		if (d < 0)
-			d = (-d);
-
-		return d;
-	}
+		return THIS->count;
 }
 
 
@@ -189,28 +179,21 @@ void *CARRAY_get_data_multi(CARRAY *_object, GB_INTEGER *arg, int nparam)
 
 	//fprintf(stderr, "get_data_multi: nparam = %d\n", nparam);
 
-	if (UNLIKELY(THIS->dim != NULL))
+	if (THIS->n_dim)
 	{
 		int max;
 		int i;
 		int d;
-		bool stop = FALSE;
 
 		index = 0;
 		nparam--;
 
-		for (i = 0;; i++)
+		for (i = 0; i <= THIS->n_dim; i++)
 		{
 			if (i > nparam)
 				break;
 
-			max = THIS->dim[i];
-			if (max < 0)
-			{
-				max = (-max);
-				stop = TRUE;
-			}
-
+			max = abs(THIS->dim[i]);
 			VALUE_conv_integer((VALUE *)&arg[i]);
 			d = arg[i].value;
 
@@ -219,9 +202,6 @@ void *CARRAY_get_data_multi(CARRAY *_object, GB_INTEGER *arg, int nparam)
 
 			index *= max;
 			index += d;
-
-			if (stop)
-				break;
 		}
 
 		if (i != nparam)
@@ -342,7 +322,7 @@ static void clear(CARRAY *_object)
 	
 	release(THIS, 0, -1);
 	
-	if (THIS->dim)
+	if (THIS->n_dim)
 	{
 		memset(THIS->data, 0, THIS->size * THIS->count);
 	}
@@ -395,7 +375,10 @@ CARRAY *CARRAY_create_static(CLASS *class, void *ref, CLASS_ARRAY *desc, void *d
 	if (desc->dim[0] < 0)
 		array->dim = NULL;
 	else
+	{
 		array->dim = desc->dim;
+		array->n_dim = calc_dim(desc->dim);
+	}
 
 	array->size = CLASS_sizeof_ctype(class, desc->ctype);
 	
@@ -504,7 +487,7 @@ BEGIN_METHOD(Array_new, GB_INTEGER size)
 	{
 		if (nsize > MAX_ARRAY_DIM)
 		{
-			GB_Error((char *)E_NDIM); //"Too many dimensions");
+			GB_Error((char *)E_NDIM);
 			return;
 		}
 
@@ -523,9 +506,11 @@ BEGIN_METHOD(Array_new, GB_INTEGER size)
 
 		ALLOC_ZERO(&THIS->dim, nsize * sizeof(int));
 
+		nsize--;
+		THIS->n_dim = nsize;
 		for (i = 0; i < nsize; i++)
 			THIS->dim[i] = sizes[i].value;
-		THIS->dim[nsize - 1] = (-THIS->dim[nsize - 1]);
+		THIS->dim[1] = (- sizes[i].value);
 
 		ARRAY_create_with_size(&THIS->data, THIS->size, 8);
 		ARRAY_add_many_void(&THIS->data, (int)size);
@@ -546,11 +531,8 @@ END_PROPERTY
 
 BEGIN_METHOD_VOID(Array_free)
 
-	if (THIS->ref && THIS->ref != THIS)
-	{
+	if (THIS->ref)
 		OBJECT_UNREF(THIS->ref);
-		return;
-	}
 	
 	release(THIS, 0, -1);
 	
@@ -564,16 +546,17 @@ END_METHOD
 BEGIN_PROPERTY(Array_ReadOnly)
 
 	if (READ_PROPERTY)
-		GB_ReturnBoolean(THIS->ref != THIS);
+		GB_ReturnBoolean(THIS->read_only);
 	else
 	{
-		if (THIS->ref && THIS->ref != THIS)
-		{
-			CARRAY_static_array();
+		bool read_only = VPROP(GB_BOOLEAN);
+		if (THIS->read_only == read_only)
 			return;
-		}
 		
-		THIS->ref = THIS;
+		if (THIS->read_only)
+			CARRAY_static_array();
+		else
+			THIS->read_only = TRUE;
 	}
 
 END_PROPERTY
@@ -638,7 +621,7 @@ static bool copy_remove(CARRAY *_object, int start, int length, bool copy, bool 
 			borrow(array, 0, -1);
 		}
 		
-		if (THIS->dim)
+		if (THIS->n_dim)
 		{
 			nsize = get_dim(THIS);
 			ALLOC_ZERO(&array->dim, nsize * sizeof(int));
