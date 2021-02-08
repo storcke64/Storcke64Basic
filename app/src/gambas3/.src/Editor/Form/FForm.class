@@ -93,7 +93,7 @@ Private $hUndo As New CUndo
 
 Private $hCtrlFrame As Control
 Private $hDropTarget As CControl
-Private $bLockArrangement As Boolean
+Private $iLockArrangement As Integer
 
 Private $cInfo As Collection
 Private $bInfoTop As Boolean
@@ -156,7 +156,11 @@ Public Sub Reload() As Boolean
   $bAfterLock = False
 
   sData = Mid$(sData, Len(Project.FORM_MAGIC) + 1)
+  
+  Inc $iLockArrangement
   sErr = FromString(sData)
+  Dec $iLockArrangement
+  
   If sErr Then Error.Raise(sErr)
 
   $bConvert = False
@@ -168,8 +172,6 @@ Public Sub Reload() As Boolean
   'If $bAfterLock Then Stop
   Action[".lock", Me].Value = $bAfterLock
 
-  FFormStack.RefreshAll
-
   $bDoNotModify = False
   $bNoUpdateMenu = False
   
@@ -178,6 +180,9 @@ Public Sub Reload() As Boolean
   SetReadOnly
   Modify(True)
   
+  ArrangeContainerByDefault(RootControl, True, True)
+  FFormStack.RefreshAll
+
   UpdateDiffAction
 
 End
@@ -249,7 +254,7 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
   Dim aBounds As Integer[]
   Dim DX, DY As Integer
 
-  $bLockArrangement = True
+  Inc $iLockArrangement
 
   DS = Desktop.Scale
   aData = Split(sData, "\n")
@@ -558,7 +563,10 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
   
   $hUndo.End
   
-  $bLockArrangement = False
+  Dec $iLockArrangement
+  
+  If Not hParent Then hParent = RootControl
+  ArrangeContainerByDefault(hParent, True, True)
 
 End
 
@@ -2063,6 +2071,8 @@ Private Sub ArrangeContainer(hParent As Container, sArr As String, Optional bInv
   Dim hTab As Object
   Dim sKey As String
   Dim cSortKey As New Collection
+  Dim sLastKey As String
+  Dim bModify As Boolean
 
   If hParent Then
     If iIndex < 0 Then
@@ -2104,6 +2114,10 @@ Private Sub ArrangeContainer(hParent As Container, sArr As String, Optional bInv
     sKey = GetSortKey(hCtrl, sArr, bInvert)
     cSortKey[hCtrl.Name] = sKey
     aPos.Add(sKey)
+    If sLastKey And If sKey >= sLastKey Then
+      bModify = True
+    Endif
+    sLastKey = sKey
   Next
 
   If aPos.Count Then 
@@ -2121,7 +2135,7 @@ Private Sub ArrangeContainer(hParent As Container, sArr As String, Optional bInv
   
     FFormStack.RefreshAll
   
-    'Modify
+    If bModify Then Modify
     
   Endif
   
@@ -4260,13 +4274,15 @@ End
 ' 
 ' End
 
-Public Sub ArrangeContainerByDefault(hCtrl As CControl, Optional bReal As Boolean)
+Public Sub ArrangeContainerByDefault(hCtrl As CControl, Optional bReal As Boolean, bRec As Boolean)
 
   Dim sArr As String
   Dim bInvert As Boolean
   Dim hTab As Object
   Dim iTab As Integer
+  Dim hChild As CControl
 
+  If $iLockArrangement Then Return
   If hCtrl.Kind = $hFamily.MenuClass Then Return
   
   Try sArr = Project.Documentation.Classes[hCtrl.Kind].Symbols["_DefaultArrangement"].Value
@@ -4293,7 +4309,7 @@ Public Sub ArrangeContainerByDefault(hCtrl As CControl, Optional bReal As Boolea
 
       Endif
         
-      If bReal And If $hFamily.AutomaticArrangement And If Not $bLockArrangement Then
+      If bReal And If $hFamily.AutomaticArrangement Then
       
         hCtrl.Arrange()
       
@@ -4302,6 +4318,12 @@ Public Sub ArrangeContainerByDefault(hCtrl As CControl, Optional bReal As Boolea
     Endif
 
   Endif
+  
+  If Not bRec Then Return
+  
+  For Each hChild In hCtrl.GetChildren()
+    If hChild.IsContainer() Then ArrangeContainerByDefault(hChild, bReal, True)
+  Next
 
 End
 
