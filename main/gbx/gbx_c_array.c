@@ -344,9 +344,13 @@ static void *insert(CARRAY *_object, int index)
 
 size_t CARRAY_get_static_size(CLASS *class, CLASS_ARRAY *desc)
 {
-  return (size_t)get_count(desc->dim) * CLASS_sizeof_ctype(class, desc->ctype);
+	uint64_t size = (uint64_t)get_count(desc->dim) * CLASS_sizeof_ctype(class, desc->ctype);
+	
+	if (size > INT_MAX)
+		THROW(E_MEMORY);
+	
+  return (size_t)size;
 }
-
 
 int CARRAY_get_static_count(CLASS_ARRAY *desc)
 {
@@ -359,6 +363,7 @@ CARRAY *CARRAY_create_static(CLASS *class, void *ref, CLASS_ARRAY *desc, void *d
 	CARRAY *array;
 	TYPE type;
 	CLASS *aclass;
+	size_t size;
 	
 	type = CLASS_ctype_to_type(class, desc->ctype);
 	_create_static_array = TRUE;
@@ -380,7 +385,10 @@ CARRAY *CARRAY_create_static(CLASS *class, void *ref, CLASS_ARRAY *desc, void *d
 		array->n_dim = calc_dim(desc->dim);
 	}
 
-	array->size = CLASS_sizeof_ctype(class, desc->ctype);
+	size = CLASS_sizeof_ctype(class, desc->ctype);
+	if (size >= (1 << 24))
+		THROW(E_MEMORY);
+	array->size = size;
 	
 	return array;
 }
@@ -510,7 +518,7 @@ BEGIN_METHOD(Array_new, GB_INTEGER size)
 		THIS->n_dim = nsize;
 		for (i = 0; i < nsize; i++)
 			THIS->dim[i] = sizes[i].value;
-		THIS->dim[1] = (- sizes[i].value);
+		THIS->dim[i] = (- sizes[i].value);
 
 		ARRAY_create_with_size(&THIS->data, THIS->size, 8);
 		ARRAY_add_many_void(&THIS->data, (int)size);
