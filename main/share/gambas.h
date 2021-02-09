@@ -703,7 +703,6 @@ typedef
 	struct {
 		unsigned size : 24;
 		unsigned read_only : 1;
-		unsigned sorted : 1;
 		unsigned n_dim : 3;
 		int count;
 		GB_TYPE type;
