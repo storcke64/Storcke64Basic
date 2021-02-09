@@ -2114,7 +2114,7 @@ Private Sub ArrangeContainer(hParent As Container, sArr As String, Optional bInv
     sKey = GetSortKey(hCtrl, sArr, bInvert)
     cSortKey[hCtrl.Name] = sKey
     aPos.Add(sKey)
-    If sLastKey And If sKey >= sLastKey Then
+    If sLastKey And If sKey < sLastKey Then
       bModify = True
     Endif
     sLastKey = sKey
