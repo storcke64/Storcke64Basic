@@ -60,19 +60,17 @@ void *CARRAY_out_of_bounds()
 void CARRAY_static_array()
 {
 	GB_Error((char *)E_SARRAY);
-	return;
 }
 
 
-static void THROW_multidimensional_array()
+static void error_multidimensional_array()
 {
 	GB_Error((char *)E_MARRAY);
-	return;
 }
 
 #define check_not_static(_object) ((((CARRAY *)_object)->ref) ? CARRAY_static_array(), TRUE : FALSE)
 #define check_not_read_only(_object) ((((CARRAY *)_object)->read_only) ? CARRAY_static_array(), TRUE : FALSE)
-#define check_not_multi(_object) ((((CARRAY *)_object)->n_dim) ? THROW_multidimensional_array(), TRUE : FALSE)
+#define check_not_multi(_object) ((((CARRAY *)_object)->n_dim) ? error_multidimensional_array(), TRUE : FALSE)
 
 
 static bool check_start_length(int count, int *start, int *length)
@@ -172,6 +170,7 @@ CLASS *CARRAY_get_array_class(CLASS *class, CTYPE ctype)
 
 #define get_data_multi CARRAY_get_data_multi
 #define get_data CARRAY_get_data
+#define get_data_unsafe CARRAY_get_data_unsafe
 
 void *CARRAY_get_data_multi(CARRAY *_object, GB_INTEGER *arg, int nparam)
 {
@@ -568,6 +567,16 @@ BEGIN_PROPERTY(Array_ReadOnly)
 		else
 			THIS->read_only = TRUE;
 	}
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Array_Sorted)
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(THIS->sorted);
+	else
+		THIS->sorted = VPROP(GB_BOOLEAN);
 
 END_PROPERTY
 
@@ -1216,24 +1225,42 @@ END_METHOD
 static int find(CARRAY *_object, int mode, void *value, int start)
 {
 	COMPARE_FUNC compare = COMPARE_get_func(THIS->type, mode);
-	int i;
+	int i, c;
+	int count = THIS->count;
 
 	if (start < 0)
 		start = 0;
-	else if (start >= THIS->count)
+	if (start >= count)
 		return (-1);
 	
-	for (i = start; i < THIS->count; i++)
+	if (THIS->sorted)
 	{
-		if ((*compare)(get_data(THIS, i), value) == 0)
-			return i;
+		while (start < count)
+		{
+			i = (start + count) / 2;
+			c = (*compare)(value, get_data_unsafe(THIS, i));
+			if (c < 0)
+				count = i;
+			else if (c > 0)
+				start = i + 1;
+			else
+				return i;
+		}
+	}
+	else
+	{
+		for (i = start; i < count; i++)
+		{
+			if ((*compare)(value, get_data_unsafe(THIS, i)) == 0)
+				return i;
+		}
 	}
 
 	return (-1);
 }
 
 #define IMPLEMENT_find_fast(_type, _gtype, _ctype) \
-static int find_##_ctype(CARRAY *_object, _ctype value, int start) \
+static int find_##_type(CARRAY *_object, _ctype value, int start) \
 { \
 	int count = THIS->count; \
 	_ctype *data; \
@@ -1241,28 +1268,44 @@ static int find_##_ctype(CARRAY *_object, _ctype value, int start) \
 	\
 	if (start < 0) \
 		start = 0; \
-	else if (start > count) \
+	if (start > count) \
 		return (-1); \
 	\
 	data = (_ctype *)THIS->data; \
 	\
-	for (i = start; i < count; i++) \
+	if (THIS->sorted) \
 	{ \
-		if (data[i] == value) \
-			return i; \
+		while (start < count) \
+		{ \
+			i = (start + count) / 2; \
+			if (value < data[i]) \
+				count = i; \
+			else if (value > data[i]) \
+				start = i + 1; \
+			else \
+				return i; \
+		} \
+		return (-1 - start); \
 	} \
-	\
-	return (-1); \
+	else \
+	{ \
+		for (i = start; i < count; i++) \
+		{ \
+			if (data[i] == value) \
+				return i; \
+		} \
+		return (-1); \
+	} \
 } \
 \
 BEGIN_METHOD(Array_##_type##_Find, _gtype value; GB_INTEGER start) \
 \
-	GB_ReturnInteger(find_##_ctype(THIS, VARG(value), VARGOPT(start, 0))); \
+	GB_ReturnInteger(find_##_type(THIS, VARG(value), VARGOPT(start, 0))); \
 \
 END_METHOD \
 BEGIN_METHOD(Array_##_type##_Exist, _gtype value) \
 \
-	GB_ReturnBoolean(find_##_ctype(THIS, VARG(value), 0) >= 0); \
+	GB_ReturnBoolean(find_##_type(THIS, VARG(value), 0) >= 0); \
 \
 END_METHOD
 
@@ -1288,60 +1331,74 @@ IMPLEMENT_find_fast(Single, GB_SINGLE, float)
 IMPLEMENT_find(Date, GB_DATE)
 IMPLEMENT_find(Variant, GB_VARIANT)
 
-static int find_object(CARRAY *_object, void *value, int start, bool byref)
+static int find_object(CARRAY *_object, void *value, int start)
 {
-	int i;
+	int i, c;
 	void **data;
+	int count = THIS->count;
 
 	if (start < 0)
 		start = 0;
-	else if (start >= THIS->count)
+	if (start >= count)
 		return (-1);
 
-	data = get_data(THIS, 0);
-	
-	if (byref)
+	data = (void **)THIS->data;
+
+	if (THIS->sorted)
 	{
-		for (i = 0; i < THIS->count; i++)
+		while (start < count)
 		{
-			if (data[i] == value)
+			i = (start + count) / 2;
+			c = COMPARE_object(&value, &data[i]);
+			if (c < 0)
+				count = i;
+			else if (c > 0)
+				start = i + 1;
+			else
 				return i;
 		}
+		return (-1 - start);
 	}
 	else
 	{
-		for (i = 0; i < THIS->count; i++)
+		for (i = start; i < count; i++)
 		{
-			//if (*((void **)get_data(THIS, i)) == value)
-			if (!COMPARE_object(&data[i], &value))
+			if (!COMPARE_object(&value, &data[i]))
 				return i;
 		}
+		return (-1);
 	}
-
-	return (-1);
 }
 
 BEGIN_METHOD(Array_Object_Find, GB_OBJECT value; GB_INTEGER start)
 
-	GB_ReturnInt(find_object(THIS, VARG(value), VARGOPT(start, 0), FALSE));
+	GB_ReturnInt(find_object(THIS, VARG(value), VARGOPT(start, 0)));
 
 END_METHOD
 
 BEGIN_METHOD(Array_Object_FindByRef, GB_OBJECT value; GB_INTEGER start)
 
-	GB_ReturnInt(find_object(THIS, VARG(value), VARGOPT(start, 0), TRUE));
+	#ifdef OS_64BITS
+		GB_ReturnInt(find_Long(THIS, (int64_t)VARG(value), VARGOPT(start, 0)));
+	#else
+		GB_ReturnInt(find_Int(THIS, (int)VARG(value), VARGOPT(start, 0)));
+	#endif
 
 END_METHOD
 
 BEGIN_METHOD(Array_Object_Exist, GB_OBJECT value)
 
-	GB_ReturnBoolean(find_object(THIS, VARG(value), 0, FALSE) >= 0);
+	GB_ReturnBoolean(find_object(THIS, VARG(value), 0) >= 0);
 
 END_METHOD
 
 BEGIN_METHOD(Array_Object_ExistByRef, GB_OBJECT value)
 
-	GB_ReturnBoolean(find_object(THIS, VARG(value), 0, TRUE) >= 0);
+	#ifdef OS_64BITS
+		GB_ReturnBoolean(find_Long(THIS, (int64_t)VARG(value), 0) >= 0);
+	#else
+		GB_ReturnBoolean(find_Int(THIS, (int)VARG(value), 0) >= 0);
+	#endif
 
 END_METHOD
 
@@ -1350,36 +1407,77 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 {
 	char **data;
 	char *str;
-	int i;
+	int i, c;
 	int len;
+	int count = THIS->count;
 	
 	//fprintf(stderr, "find_string: %p %d: %.*s | %s\n", THIS, THIS->count, len_value, value, DEBUG_get_current_position());
 	
 	if (start < 0)
 		start = 0;
-	else if (start >= THIS->count)
+	if (start >= count)
 		return (-1);
 	
-	data = ((char **)THIS->data);
+	data = (char **)THIS->data;
 	
 	if (mode == GB_COMP_BINARY)
 	{
-		for (i = start; i < THIS->count; i++)
+		if (THIS->sorted)
 		{
-			str = data[i];
-			len = STRING_length(str);
-			if (STRING_equal(str, len, value, len_value))
-				return i;
+			while (start < count)
+			{
+				i = (start + count) / 2;
+				str = data[i];
+				len = STRING_length(str);
+				c = STRING_compare(value, len_value, str, len);
+				if (c < 0)
+					count = i;
+				else if (c > 0)
+					start = i + 1;
+				else
+					return i;
+			}
+			return (-1 - start);
+		}
+		else
+		{
+			for (i = start; i < count; i++)
+			{
+				str = data[i];
+				len = STRING_length(str);
+				if (STRING_equal(value, len_value, str, len))
+					return i;
+			}
 		}
 	}
 	else if (mode == GB_COMP_NOCASE)
 	{
-		for (i = start; i < THIS->count; i++)
+		if (THIS->sorted)
 		{
-			str = data[i];
-			len = STRING_length(str);
-			if (STRING_equal_ignore_case(str, len, value, len_value))
-				return i;
+			while (start < count)
+			{
+				i = (start + count) / 2;
+				str = data[i];
+				len = STRING_length(str);
+				c = STRING_compare_ignore_case(value, len_value, str, len);
+				if (c < 0)
+					count = i;
+				else if (c > 0)
+					start = i + 1;
+				else
+					return i;
+			}
+			return (-1 - start);
+		}
+		else
+		{
+			for (i = start; i < count; i++)
+			{
+				str = data[i];
+				len = STRING_length(str);
+				if (STRING_equal_ignore_case(value, len_value, str, len))
+					return i;
+			}
 		}
 	}
 	else
@@ -1387,10 +1485,32 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 		COMPARE_STRING_FUNC compare = COMPARE_get_string_func(mode);
 		bool nocase = mode & GB_COMP_NOCASE;
 		
-		for (i = start; i < THIS->count; i++)
+		if (THIS->sorted)
 		{
-			if ((*compare)(data[i], STRING_length(data[i]), value, len_value, nocase, FALSE) == 0)
-				return i;
+			while (start < count)
+			{
+				i = (start + count) / 2;
+				str = data[i];
+				len = STRING_length(str);
+				c = (*compare)(value, len_value, str, len, nocase, FALSE);
+				if (c < 0)
+					count = i;
+				else if (c > 0)
+					start = i + 1;
+				else
+					return i;
+			}
+			return (-1 - start);
+		}
+		else
+		{
+			for (i = start; i < count; i++)
+			{
+				str = data[i];
+				len = STRING_length(str);
+				if ((*compare)(value, len_value, str, len, nocase, FALSE) == 0)
+					return i;
+			}
 		}
 	}
 
@@ -1868,6 +1988,7 @@ GB_DESC NATIVE_Array[] =
 	GB_METHOD("Shuffle", NULL, Array_Shuffle, NULL),
 	
 	GB_PROPERTY("ReadOnly", "b", Array_ReadOnly),
+	GB_PROPERTY("Sorted", "b", Array_Sorted),
 
 	GB_INTERFACE("_convert", _convert),
 
