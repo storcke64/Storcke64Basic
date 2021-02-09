@@ -179,6 +179,8 @@ void *CARRAY_get_data_multi(CARRAY *_object, GB_INTEGER *arg, int nparam)
 
 	//fprintf(stderr, "get_data_multi: nparam = %d\n", nparam);
 
+	nparam++;
+	
 	if (THIS->n_dim)
 	{
 		int max;
@@ -186,7 +188,6 @@ void *CARRAY_get_data_multi(CARRAY *_object, GB_INTEGER *arg, int nparam)
 		int d;
 
 		index = 0;
-		nparam--;
 
 		for (i = 0; i <= THIS->n_dim; i++)
 		{
@@ -334,13 +335,11 @@ static void clear(CARRAY *_object)
 	}
 }
 
-
 static void *insert(CARRAY *_object, int index)
 {
 	THIS->count++;
 	return ARRAY_insert(&THIS->data, index);
 }
-
 
 size_t CARRAY_get_static_size(CLASS *class, CLASS_ARRAY *desc)
 {
@@ -382,7 +381,7 @@ CARRAY *CARRAY_create_static(CLASS *class, void *ref, CLASS_ARRAY *desc, void *d
 	else
 	{
 		array->dim = desc->dim;
-		array->n_dim = calc_dim(desc->dim);
+		array->n_dim = calc_dim(desc->dim) - 1;
 	}
 
 	size = CLASS_sizeof_ctype(class, desc->ctype);
@@ -540,7 +539,10 @@ END_PROPERTY
 BEGIN_METHOD_VOID(Array_free)
 
 	if (THIS->ref)
+	{
 		OBJECT_UNREF(THIS->ref);
+		return;
+	}
 	
 	release(THIS, 0, -1);
 	
@@ -882,7 +884,6 @@ static void add(CARRAY *_object, GB_VALUE *value, int index)
 		return;
 
 	data = insert(THIS, index);
-	/*GB_Conv(value, THIS->type);*/
 	GB_Store(THIS->type, value, data);
 }
 
@@ -931,7 +932,7 @@ BEGIN_METHOD(Array_##_type##_put, GB_##_gtype value; GB_INTEGER index) \
 	\
 	if (check_not_read_only(THIS)) \
 		return; \
-	void *data = get_data_multi(THIS, ARG(index), GB_NParam() + 1); \
+	void *data = get_data_multi(THIS, ARG(index), GB_NParam()); \
 	if (!data) return; \
 	GB_Store(GB_T_##_gtype, (GB_VALUE *)(void *)ARG(value), data); \
 	\
@@ -942,7 +943,7 @@ BEGIN_METHOD(Array_##_type##_put, GB_##_gtype value; GB_INTEGER index) \
 \
 	if (check_not_read_only(THIS)) \
 		return; \
-	void *data = get_data_multi(THIS, ARG(index), GB_NParam() + 1); \
+	void *data = get_data_multi(THIS, ARG(index), GB_NParam()); \
 	if (!data) return; \
 	GB_Store(GB_T_##_gstore, (GB_VALUE *)(void *)ARG(value), data); \
 	\
@@ -956,7 +957,7 @@ BEGIN_METHOD(Array_put, GB_VARIANT value; GB_INTEGER index)
 	if (check_not_read_only(THIS))
 		return;
 	
-	data = get_data_multi(THIS, ARG(index), GB_NParam() + 1);
+	data = get_data_multi(THIS, ARG(index), GB_NParam());
 	if (!data) return;
 	
 	value = (GB_VALUE *)(void *)ARG(value);
@@ -1065,7 +1066,7 @@ END_METHOD
 
 BEGIN_METHOD(Array_get, GB_INTEGER index)
 
-	void *data = get_data_multi(THIS, ARG(index), GB_NParam() + 1);
+	void *data = get_data_multi(THIS, ARG(index), GB_NParam());
 
 	if (data)
 		GB_ReturnPtr(THIS->type, data);
@@ -1670,7 +1671,7 @@ END_METHOD
 
 BEGIN_METHOD(ArrayOfStruct_get, GB_INTEGER index)
 
-	void *data = get_data_multi(THIS, ARG(index), GB_NParam() + 1);
+	void *data = get_data_multi(THIS, ARG(index), GB_NParam());
 
 	if (data)
 		GB_ReturnObject(CSTRUCT_create_static(THIS, (CLASS *)THIS->type, data));
@@ -1709,7 +1710,7 @@ BEGIN_METHOD(ArrayOfStruct_put, GB_OBJECT value; GB_INTEGER index)
 	if (GB_CheckObject(object))
 		return;
 	
-	data = get_data_multi(THIS, ARG(index), GB_NParam() + 1);
+	data = get_data_multi(THIS, ARG(index), GB_NParam());
 	if (!data)
 		return;
 	

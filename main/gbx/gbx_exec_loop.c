@@ -3668,7 +3668,7 @@ __PUSH_NATIVE_ARRAY:
 	for (i = 1; i <= np; i++)
 		VALUE_conv_integer(&val[i]);
 
-	data = CARRAY_get_data_multi((CARRAY *)object, (GB_INTEGER *)&val[1], np);
+	data = CARRAY_get_data_multi((CARRAY *)object, (GB_INTEGER *)&val[1], np - 1);
 	if (!data)
 		PROPAGATE();
 
@@ -3867,7 +3867,7 @@ __POP_NATIVE_ARRAY:
 	for (i = 1; i < np; i++)
 		VALUE_conv_integer(&val[i]);
 
-	data = CARRAY_get_data_multi((CARRAY *)object, (GB_INTEGER *)&val[1], np - 1);
+	data = CARRAY_get_data_multi((CARRAY *)object, (GB_INTEGER *)&val[1], np - 2);
 	if (data == NULL)
 		PROPAGATE();
 
