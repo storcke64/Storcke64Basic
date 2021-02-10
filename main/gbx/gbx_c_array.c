@@ -1393,7 +1393,7 @@ BEGIN_METHOD(Array_Object_ExistByRef, GB_OBJECT value)
 	#ifdef OS_64BITS
 		GB_ReturnBoolean(find_Long(THIS, (int64_t)VARG(value), 0, IS_EXIST_BYREF_SORTED()) >= 0);
 	#else
-		GB_ReturnBoolean(find_Int(THIS, (int)VARG(value), 0, IS_EXIST_BYREF_SORTED()) >= 0);
+		GB_ReturnBoolean(find_Integer(THIS, (int)VARG(value), 0, IS_EXIST_BYREF_SORTED()) >= 0);
 	#endif
 
 END_METHOD
