@@ -80,19 +80,47 @@ Public Sub _GetRowY(iRow As Integer) As Integer
     
     If $iLastRow < iRow Then
       
-      I = $iLastRow
-      While I < iRow
-        If hView._IsRowVisible(I) Then Y += CInt($cHeight[I]) - 1
-        Inc I
-      Wend
+      If Not hView._HasFolding() Then
+      
+        For I = $iLastRow To iRow - 1
+          Y += CInt($cHeight[I]) - 1
+        Next
+
+      Else
+        
+        For I = $iLastRow To iRow - 1
+          If hView._IsRowVisible(I) Then Y += CInt($cHeight[I]) - 1
+        Next
+      
+      Endif
+      
+      ' I = $iLastRow
+      ' While I < iRow
+      '   If hView._IsRowVisible(I) Then Y += CInt($cHeight[I]) - 1
+      '   Inc I
+      ' Wend
       
     Else
       
-      I = $iLastRow
-      While I > iRow
-        Dec I
-        If hView._IsRowVisible(I) Then Y -= CInt($cHeight[I]) - 1
-      Wend
+      If Not hView._HasFolding() Then
+        
+        For I = $iLastRow - 1 DownTo iRow
+          Y -= CInt($cHeight[I]) - 1
+        Next
+
+      Else
+      
+        For I = $iLastRow - 1 DownTo iRow
+          If hView._IsRowVisible(I) Then Y -= CInt($cHeight[I]) - 1
+        Next
+        
+      Endif
+      
+      ' I = $iLastRow
+      ' While I > iRow
+      '   Dec I
+      '   If hView._IsRowVisible(I) Then Y -= CInt($cHeight[I]) - 1
+      ' Wend
 
     Endif
     
@@ -104,12 +132,23 @@ Public Sub _GetRowY(iRow As Integer) As Integer
   
     Y = iViewRow
   
-    For Each I In $aHeight
-      If I >= iRow Then Break
-      If hView._IsRowVisible(I) Then 
+    If Not hView._HasFolding() Then
+  
+      For Each I In $aHeight
+        If I >= iRow Then Break
         Y += CInt($cHeight[I]) - 1
-      Endif
-    Next
+      Next
+
+    Else
+  
+      For Each I In $aHeight
+        If I >= iRow Then Break
+        If hView._IsRowVisible(I) Then 
+          Y += CInt($cHeight[I]) - 1
+        Endif
+      Next
+      
+    Endif
     
     If hView._TopHeight Then Inc Y
     'Y += hView._TopHeight
@@ -137,6 +176,7 @@ End
 Private Sub AddSorted(iRow As Integer)
   
   Dim I, J As Integer
+  Dim F As Integer
   
   'If iRow >= GetView().Count Then Stop
   
@@ -148,9 +188,13 @@ Private Sub AddSorted(iRow As Integer)
     Return
   Endif
   
-  '' TODO: Binary search
-  $aHeight.Add(iRow)
-  $aHeight.Sort
+  F = $aHeight.FindSorted(iRow)
+  If F < 0 Then F = -1 - F
+  $aHeight.Add(iRow, F)
+  
+  ' '' TODO: Binary search
+  ' $aHeight.Add(iRow)
+  ' $aHeight.Sort
   
 End
 

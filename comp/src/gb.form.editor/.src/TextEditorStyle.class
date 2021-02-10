@@ -8,18 +8,18 @@ Property Bold As Boolean
 Property Underline As Boolean
 Property Dotted As Boolean
 
-Private $iColor As Integer
-Private $iBg As Integer = Color.Default
-Private $bBold As Boolean
-Private $bUnderline As Boolean
-Private $bDotted As Boolean
+Public _Color As Integer
+Public _Background As Integer = Color.Default
+Public _Bold As Boolean
+Public _Underline As Boolean
+Public _Dotted As Boolean
 
 Public Sub _new(Optional (Color) As Integer, Optional Bold As Boolean, Underline As Boolean, Dotted As Boolean)
 
-  $iColor = Color
-  $bBold = Bold
-  $bUnderline = Underline
-  $bDotted = Dotted
+  _Color = Color
+  _Bold = Bold
+  _Underline = Underline
+  _Dotted = Dotted
   
 End
 
@@ -29,11 +29,11 @@ Public Sub Copy() As TextEditorStyle
   
   hStyle = New TextEditorStyle
   With hStyle
-    .Background = $iBg
-    .Bold = $bBold
-    .Color = $iColor
-    .Underline = $bUnderline
-    .Dotted = $bDotted
+    .Background = _Background
+    .Bold = _Bold
+    .Color = _Color
+    .Underline = _Underline
+    .Dotted = _Dotted
   End With
   
 End
@@ -41,70 +41,70 @@ End
 
 Private Function Color_Read() As Integer
 
-  Return $iColor
+  Return _Color
 
 End
 
 Private Sub Color_Write(Value As Integer)
 
-  If $iColor = Value Then Return
-  $iColor = Value
+  If _Color = Value Then Return
+  _Color = Value
   Raise Change
 
 End
 
 Private Function Bold_Read() As Boolean
 
-  Return $bBold
+  Return _Bold
 
 End
 
 Private Sub Bold_Write(Value As Boolean)
 
-  If $bBold = Value Then Return
-  $bBold = Value
+  If _Bold = Value Then Return
+  _Bold = Value
   Raise Change
 
 End
 
 Private Function Underline_Read() As Boolean
 
-  Return $bUnderline
+  Return _Underline
 
 End
 
 Private Sub Underline_Write(Value As Boolean)
 
-  If $bUnderline = Value Then Return
-  $bUnderline = Value
+  If _Underline = Value Then Return
+  _Underline = Value
   Raise Change
 
 End
 
 Private Function Background_Read() As Integer
 
-  Return $iBg
+  Return _Background
 
 End
 
 Private Sub Background_Write(Value As Integer)
 
-  If $iBg = Value Then Return
-  $iBg = Value
+  If _Background = Value Then Return
+  _Background = Value
   Raise Change
 
 End
 
 Private Function Dotted_Read() As Boolean
 
-  Return $bDotted
+  Return _Dotted
 
 End
 
 Private Sub Dotted_Write(Value As Boolean)
 
-  If $bDotted = Value Then Return
-  $bDotted = Value
+  If _Dotted = Value Then Return
+  _Dotted = Value
   Raise Change
 
 End
