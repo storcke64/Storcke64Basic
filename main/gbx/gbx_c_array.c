@@ -1932,12 +1932,13 @@ static bool _convert(CARRAY *src, CLASS *class, VALUE *conv)
 		END_ERROR
 	}
 	
-	dim = get_dim(src);
-	if (dim > 1)
+	if (src->n_dim)
 	{
+		dim = get_dim(src);
 		ALLOC(&array->dim, dim * sizeof(int));
 		for (i = 0; i < dim; i++)
 			array->dim[i] = src->dim[i];
+		array->n_dim = src->n_dim;
 	}
 	
 	conv->_object.object = array;
