@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,115,89)
+  MoveScaled(0,0,147,89)
   Icon = Picture["icon:/small/save"]
   Arrangement = Arrange.Vertical
   Spacing = True
@@ -26,14 +26,6 @@
       ReadOnly = True
       Wrap = True
     }
-    { txtDiffNothing TextLabel
-      MoveScaled(4,3,43,13)
-      Visible = False
-      Font = Font["Italic,+4"]
-      Padding = 16
-      Text = ("There is nothing to commit.")
-      Alignment = Align.TopLeft
-    }
     Index = 2
     Text = ("History")
     { edtHistory TextEditor
@@ -52,36 +44,52 @@
     Index = 0
   }
   { HBox1 HBox
-    MoveScaled(1,59,110,4)
+    MoveScaled(1,59,144,4)
     Spacing = True
     { chkHideTrans CheckBox
       MoveScaled(0,0,24,4)
       AutoResize = True
       Text = ("Hide translation changes")
     }
+    { panNothing Panel
+      MoveScaled(28,0,31,4)
+      Arrangement = Arrange.Horizontal
+      AutoResize = True
+      Spacing = True
+      { PictureBox1 PictureBox
+        MoveScaled(1,0,4,4)
+        Picture = Picture["icon:/medium/warning"]
+        Alignment = Align.Center
+      }
+      { lblNothingToCommit Label
+        MoveScaled(6,0,24,4)
+        Font = Font["Bold"]
+        Text = ("There is nothing to commit.")
+      }
+    }
     { Panel1 Panel
-      MoveScaled(30,0,2,4)
+      MoveScaled(64,0,2,4)
       Expand = True
     }
     { btnCommit Button
-      MoveScaled(32,0,16,4)
+      MoveScaled(68,0,16,4)
       Text = ("Commit") & "..."
       Picture = Picture["icon:/small/apply"]
     }
     { btnCommitPush Button
-      MoveScaled(49,0,24,4)
+      MoveScaled(85,0,24,4)
       AutoResize = True
       Text = ("Commit and push") & "..."
       Picture = Picture["icon:/small/upload"]
       Default = True
     }
     { btnPush Button
-      MoveScaled(74,0,16,4)
+      MoveScaled(110,0,16,4)
       Text = ("Push") & "..."
       Picture = Picture["icon:/small/upload"]
     }
     { btnCancel Button
-      MoveScaled(92,0,16,4)
+      MoveScaled(127,0,16,4)
       Text = ("Cancel")
       Cancel = True
     }

@@ -104,8 +104,6 @@ Public Sub Form_Open()
   
   LoadDiff
   
-  tabVersionControl[0].Visible = edtDiff.Visible
-  
   tabVersionControl_Click
   
   btnCommit.Visible = edtDiff.Visible
@@ -161,12 +159,17 @@ Private Sub LoadDiff()
     
     If sDiff Then
       edtDiff.Text = sDiff
+      edtDiff.Show
+      panNothing.Hide
     Else
       edtDiff.Text = "-"
       edtDiff.Hide
-      txtDiffNothing.Show
+      panNothing.Show
     Endif
     
+    tabVersionControl[0].Visible = edtDiff.Visible
+    tabVersionControl[1].Visible = edtDiff.Visible
+  
     Dec Application.Busy
     
   Endif

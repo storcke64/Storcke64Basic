@@ -838,14 +838,10 @@ Private Sub SaveOne(hCtrl As CControl)
       For Each hMenuCtrl In AllMenus
         SaveOne(hMenuCtrl)
       Next
+      
+    Endif
 
-      For Each hChild In hCtrl.Control.Children
-        hCChild = GetControl(hChild)
-        If hCChild Then SaveOne(hCChild)
-      Next
-
-      'ELSE IF hCtrl.Kind = "TabStrip" THEN
-    Else If hCtrl.IsMultiContainer() Then
+    If hCtrl.IsMultiContainer() Then
 
       hTab = hCtrl.Control
       bTranslate = hCtrl.GetPropertyDefault("Translate")
@@ -890,7 +886,7 @@ Private Sub SaveOne(hCtrl As CControl)
         If hCChild Then SaveOne(hCChild)
       Next
 
-      If hCtrl.Kind = "ToolBar" Then
+      If hCtrl.Kind = $hFamily.ToolBarClass Then
         hCtrl.AddToolbar($cToolbar, Control)
       Endif
 

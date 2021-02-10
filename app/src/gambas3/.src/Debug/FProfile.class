@@ -1135,9 +1135,3 @@ Private Sub UpdateSource()
   gvwSource.Width = gvwSource.Font.TextWidth("999999") * (4 + If($bAverage, 2, 0))
 
 End
-
-Public Sub btnMinimize_Click()
-
-  Me.Minimized = True
-
-End
