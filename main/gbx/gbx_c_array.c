@@ -1377,7 +1377,7 @@ BEGIN_METHOD(Array_Object_FindByRef, GB_OBJECT value; GB_INTEGER start)
 	#ifdef OS_64BITS
 		GB_ReturnInt(find_Long(THIS, (int64_t)VARG(value), VARGOPT(start, 0), IS_FIND_BYREF_SORTED()));
 	#else
-		GB_ReturnInt(find_Int(THIS, (int)VARG(value), VARGOPT(start, 0), IS_FIND_BYREF_SORTED()));
+		GB_ReturnInt(find_Integer(THIS, (int)VARG(value), VARGOPT(start, 0), IS_FIND_BYREF_SORTED()));
 	#endif
 
 END_METHOD
