@@ -2,7 +2,7 @@
 
 Create Static
 Export
-Inherits ReportSection
+Inherits ReportVBox
 
 ' For Stretch properties
 Public Enum None, Proportional, Fill
@@ -10,7 +10,7 @@ Public Enum None, Proportional, Fill
 Public Const _Properties As String = "*,-Left,-Top,-Width,-Height,Count{Range:1;256}=1,Index,Text,"
 "Paper{Printer.A3;A4;A5;B5;Letter;Executive;Legal;Custom}=A4,"
 "Orientation{Printer.Portrait;Landscape}=Portrait"
-Public Const _HiddenControls As String = "Report,ReportControl,ReportContainer,ReportFrame,ReportSection"
+Public Const _HiddenControls As String = "Report,ReportControl,ReportContainer,ReportFrame,_ReportSection"
 Public Const _IsForm As Boolean = True
 Public Const _IsContainer As Boolean = True
 Public Const _IsMultiContainer As Boolean = True
@@ -20,7 +20,7 @@ Static Public AllowedUnits As String[] = ["m", "cm", "mm", "in", "pt", "px"]
 
 Public _LayoutNotFinished As Boolean
 
-Public _Container As ReportSection
+Public _Container As _ReportSection
 
 Public {Debug} As Boolean = False
 Public _bInExec As Boolean
@@ -106,14 +106,14 @@ End
 
 Public Sub _New()
   
-  Dim hSection As New ReportSection
+  Dim hSection As New _ReportSection
   Dim TSection As New TControl
   
   object.Attach(Me, Me, "Report")
   
   '$hReportTControl.RelPage = 0
   ReportControl._ObjectFromId[Me.id] = Me
-  hSection = New ReportSection
+  hSection = New _ReportSection
   hSection._ReportId = Me.Id
   
   ReportControl._ObjectFromId[hSection.Id] = hSection
@@ -347,7 +347,7 @@ End
 Private Sub Count_Write(Value As Integer)
   
   Dim i As Integer
-  Dim hSection As ReportSection
+  Dim hSection As _ReportSection
   Dim TSection As TControl
   
   If Value < 0 Then Return
@@ -357,7 +357,7 @@ Private Sub Count_Write(Value As Integer)
     For i = $aSections.Count To Value - 1
       
       TSection = New TControl
-      hSection = New ReportSection
+      hSection = New _ReportSection
       hSection.Text = "Section " & CStr(i)
       hSection._ReportId = Me.Id
       ReportControl._ObjectFromId[hSection.Id] = hSection
@@ -366,7 +366,7 @@ Private Sub Count_Write(Value As Integer)
       hSection.Height = Me.Height
       hSection.Width = Me.Width
       $aSections.Add(TSection)
-      hSection.Text = ("Section ") & $aSections.Max
+      'hSection.Text = ("Section ") & $aSections.Max
     Next
   Endif
   
@@ -385,7 +385,7 @@ Private Sub Index_Write(Value As Integer)
   
 End
 
-Public Sub _get(Index As Integer) As ReportSection
+Public Sub _get(Index As Integer) As _ReportSection
   
   Return $aSections[Index].Ctrl
   
