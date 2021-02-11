@@ -3990,7 +3990,10 @@ Public Sub MakeShortcut(Optional bForce As Boolean)
   Endif
   sShortcut = Replace(sShortcut, "$(ICON)", sPath)
 
+  sShortcut = Replace(sShortcut, "$(TERMINAL)", If(CModule["form"].Used, "false", "true"))
+
   File.Save(sDesktopPath, sShortcut)
+  Chmod sDesktopPath To "rwxr-xr-x"
 
 Catch
 
