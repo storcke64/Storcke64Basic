@@ -856,11 +856,9 @@ Private Sub SaveOne(hCtrl As CControl)
           AddLine("Text = " & sVal)
         Endif
 
-        If hCtrl.Tag Then
-          sVal = hCtrl.Tag[iTab]
-          If sVal Then
-            AddLine("Picture = Picture[" & Quote(sVal) & "]")
-          Endif
+        sVal = hCtrl.Tabs[iTab]
+        If sVal Then
+          AddLine("Picture = Picture[" & Quote(sVal) & "]")
         Endif
 
         For Each hChild In hTab[iTab].Children
@@ -1301,13 +1299,14 @@ End
 Private Sub UpdateMultiContainer(hCtrl As CControl, Optional iIndex As Integer = -1)
 
   With hCtrl
-    
     If iIndex < 0 Then iIndex = hCtrl.Control.Index
     
     $bDoNotModify = True
     $hUndo.Disable
-    .SetProperty("Picture", .Tag[iIndex])
-    .SetProperty("Text", hCtrl.Control[iIndex].Text)
+    
+    .SetProperty("Picture", .Tabs[iIndex])
+    .SetProperty("Text", .Control[iIndex].Text)
+    
     $hUndo.Enable
     $bDoNotModify = False
     

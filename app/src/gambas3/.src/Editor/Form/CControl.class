@@ -14,7 +14,6 @@ Public Name As String
 Public Parent As CControl
 Public Control As Object
 Public Kind As String
-Public Tag As Variant
 Public DrawWith As String
 Public Selected As Boolean
 Public Virtual As Boolean
@@ -22,6 +21,7 @@ Public Unknown As Boolean
 Public {Public} As Boolean
 Public VirtualCoord As Boolean
 Public NoParent As Boolean
+Public Tabs As Collection
 
 Property Read X As Integer
 Property Read Y As Integer
@@ -338,6 +338,18 @@ Static Public Sub GetVirtualSize() As Integer
   
 End
 
+Private Sub GetDefaultTabText(iIndex As Integer) As String
+
+  Dim hClass As CClassInfo
+  Dim sText As String
+
+  hClass = Project.Documentation.Classes[Kind]
+  sText = hClass.DefaultText
+  If Not sText Then sText = "Tab &1"
+  Return Subst(sText, CStr(iIndex + 1))
+
+End
+
 Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As FForm, hFamily As CFamily)
 
   Dim hCtrl As Object
@@ -423,7 +435,10 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
 
   InitControl()
 
-  If $bIsMultiContainer Then Tag = New Collection
+  If $bIsMultiContainer Then
+    Tabs = New Collection
+    Control[0].Text = GetDefaultTabText(0)
+  Endif
 
   UpdateName
 
@@ -546,6 +561,7 @@ Public Function SetProperty(sProp As String, vVal As Variant, Optional bDoNotApp
   Dim hProp As CPropertyInfo
   Dim vRealVal As Variant
   Dim hClass As Class
+  Dim I, C As Integer
 
   With Project.Documentation.Classes[Kind]
     Try hProp = .Properties[sProp]
@@ -601,14 +617,17 @@ Public Function SetProperty(sProp As String, vVal As Variant, Optional bDoNotApp
     End With
   Endif
 
-  If IsMultiContainer() Then
+  If $bIsMultiContainer Then
     If sProp = "Picture" Then
-      If IsNull(vVal) Then
-        vRealVal = vDefault
-      Else
-        vRealVal = vVal
-      Endif
-      Tag[Control.Index] = vRealVal
+      Tabs[Control.Index] = If(IsNull(vVal), vDefault, vVal)
+    Else If sProp = "Count" Then
+      C = Control.Count
+      If IsNull(vVal) Then vVal = 1
+      Control.Count = vVal
+      For I = C To Control.Count - 1
+        Control[I].Text = GetDefaultTabText(I)
+      Next
+      Goto _DO_NOT_APPLY
     Endif
   Endif
 
