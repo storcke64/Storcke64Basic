@@ -1334,7 +1334,6 @@ PUBLIC void EVAL_read(void)
 		else
 			source_ptr++;
 		
-		_begin_line = FALSE;
 		continue;
 		
 	__NEWLINE:
