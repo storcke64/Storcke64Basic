@@ -29,6 +29,18 @@
 
 #include <math.h>
 
+static int count_newlines(const char *str, int len)
+{
+	int i, n;
+	
+	for (i = 0, n = 0; i < len; i++)
+	{
+		if (str[i] == '\n')
+			n++;
+	}
+	return n;
+}
+
 static void set_font_from_string(gFont *font, const char *str)
 {
 	gchar **tokens, **p;
@@ -590,15 +602,14 @@ int gFont::width(const char *text, int len)
 
 int gFont::height(const char *text, int len)
 {
-	float fh;
-	textSize(text, len, NULL, &fh);
-	return gt_pango_to_pixel(fh * PANGO_SCALE);
+	int n = count_newlines(text, len);
+	return height() * (n + 1);
 }
 
 int gFont::height()
 {
 	if (!_height)
-		_height = height(" ", 1);
+		_height = gt_pango_to_pixel(pango_font_metrics_get_height(metrics()));
 	return _height;
 }
 

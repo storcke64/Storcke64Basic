@@ -538,7 +538,7 @@ void gTextBox::onLeaveEvent()
 	if (!entry)
 		return;
 	
-	_text_area_visible = gdk_window_is_visible(TEXT_AREA(entry));
+	_text_area_visible = !hasFocus() && gdk_window_is_visible(TEXT_AREA(entry));
 	if (_text_area_visible)
 		gdk_window_hide(TEXT_AREA(entry));
 }

@@ -1123,7 +1123,7 @@ void gTextArea::onEnterEvent()
 
 void gTextArea::onLeaveEvent()
 {
-	_text_area_visible = gdk_window_is_visible(TEXT_AREA(textview));
+	_text_area_visible = !hasFocus() && gdk_window_is_visible(TEXT_AREA(textview));
 	if (_text_area_visible)
 		gdk_window_hide(TEXT_AREA(textview));
 }
