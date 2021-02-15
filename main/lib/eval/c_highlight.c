@@ -162,11 +162,10 @@ static void analyze(const char *src, int len_src, bool rewrite, int state)
 
 	EVAL_analyze(src, len_src, state == HIGHLIGHT_COMMENT ? RT_COMMENT : RT_END, &result, rewrite);
 	
-	n = 0;
-	for (i = 0; i < result.len; i++)
+	for (n = 0; n < result.len; n++)
 	{
-		if (result.color[i].state != RT_END)
-			n++;
+		if (result.color[n].state == RT_END)
+			break;
 	}
 
 	GB.Array.New(&garray, GB_T_STRING, n);
@@ -176,23 +175,27 @@ static void analyze(const char *src, int len_src, bool rewrite, int state)
 	pos = 0;
 	upos = 0;
 	i = 0;
-	for (p = 0; p < result.len; p++)
+	for (p = 0; p < n; p++)
 	{
 		len = result.color[p].len;
 
-		ulen = 0;
-		for (l = 0; l < len; l++)
-			ulen += get_char_length(result.str[upos + ulen]);
-		
-		if (result.color[p].state != RT_END)
+		if (result.color[p].state == RT_SPACE)
 		{
-			str = GB.NewString(&result.str[upos], ulen);
-			*((char **)GB.Array.Get(garray, i)) = str;
-			*((int *)GB.Array.Get(tarray, i)) = convState(result.color[p].state);
-			*((int *)GB.Array.Get(parray, i)) = pos;
-			i++;
+			ulen = len;
+		}
+		else
+		{
+			ulen = 0;
+			for (l = 0; l < len; l++)
+				ulen += get_char_length(result.str[upos + ulen]);
 		}
 
+		str = GB.NewString(&result.str[upos], ulen);
+		*((char **)GB.Array.Get(garray, i)) = str;
+		*((int *)GB.Array.Get(tarray, i)) = convState(result.color[p].state);
+		*((int *)GB.Array.Get(parray, i)) = pos;
+		i++;
+		
 		pos += len;
 		upos += ulen;
 	}

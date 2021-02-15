@@ -53,6 +53,26 @@ static EVAL_COLOR *_color_buffer = NULL;
 
 #define NEXT_UTF8_CHAR(_p) (_p += _utf8_char_length[(uchar)*(_p)])
 
+static PATTERN get_last_pattern(PATTERN *pattern)
+{
+	for(;;)
+	{
+		pattern--;
+		if (PATTERN_type(*pattern) != RT_SPACE)
+			return *pattern;
+	}
+}
+
+static PATTERN get_next_pattern(PATTERN *pattern)
+{
+	for(;;)
+	{
+		pattern++;
+		if (PATTERN_type(*pattern) != RT_SPACE)
+			return *pattern;
+	}
+}
+
 static int get_type(PATTERN *pattern)
 {
 	int type = PATTERN_type(*pattern);
@@ -62,14 +82,14 @@ static int get_type(PATTERN *pattern)
 	{
 		if (index >= RS_COLON)
 		{
-			if (!((index == RS_AND || index == RS_OR) && PATTERN_is(pattern[1], RS_IF)))
+			if (!((index == RS_AND || index == RS_OR) && PATTERN_is(get_next_pattern(pattern), RS_IF)))
 				type = RT_OPERATOR;
 		}
 		else if (RES_is_type(index))
 			type = RT_DATATYPE;
 		else if (index == RS_WITH && pattern > EVAL->pattern)
 		{
-			index = PATTERN_index(pattern[-1]);
+			index = PATTERN_index(get_last_pattern(pattern));
 			if (index == RS_BEGINS || index == RS_ENDS)
 				type = RT_OPERATOR;
 		}
@@ -234,34 +254,14 @@ static int is_proc(void)
 	for (i = 0;; i++)
 	{
 		pattern = EVAL->pattern[i];
-		if (PATTERN_is_end(pattern))
+		if (PATTERN_is_end(pattern) || PATTERN_is_newline(pattern))
 			return FALSE;
 
-		if (PATTERN_is(pattern, RS_PRIVATE) || PATTERN_is(pattern, RS_PUBLIC) || PATTERN_is(pattern, RS_STATIC) || PATTERN_is(pattern, RS_FAST))
+		if (PATTERN_is(pattern, RS_PRIVATE) || PATTERN_is(pattern, RS_PUBLIC) || PATTERN_is(pattern, RS_STATIC) || PATTERN_is(pattern, RS_FAST) || PATTERN_is_space(pattern))
 			continue;
 
 		return (PATTERN_is(pattern, RS_SUB) || PATTERN_is(pattern, RS_PROCEDURE) || PATTERN_is(pattern, RS_FUNCTION));
 	}
-}
-
-static int get_indent(bool *empty)
-{
-	int i;
-	unsigned char c;
-
-	*empty = TRUE;
-
-	for (i = 0; i < (int)EVAL->len; i++)
-	{
-		c = EVAL->source[i];
-		if (c > ' ')
-		{
-			*empty = FALSE;
-			break;
-		}
-	}
-
-	return i;
 }
 
 static int get_symbol_indent(const char *symbol, int len)
@@ -336,11 +336,18 @@ static void add_result_char(EVAL_ANALYZE *result, char c)
 	_analyze_buffer[_analyze_buffer_pos++] = c;
 }
 
+static void add_result_spaces(EVAL_ANALYZE *result, int nspace)
+{
+	while (nspace > 0)
+	{
+		add_result_char(result, ' ');
+		nspace--;
+	}
+}
+
 static void analyze(EVAL_ANALYZE *result)
 {
 	PATTERN *pattern;
-	int nspace;
-	bool empty = FALSE;
 	int type, old_type, next_type;
 	const char *symbol;
 	const char *p;
@@ -352,19 +359,9 @@ static void analyze(EVAL_ANALYZE *result)
 	EVAL_analyze_exit();
 	
 	pattern = EVAL->pattern;
-	nspace = 0;
 	preprocessor = FALSE;
 
 	if (EVAL->len <= 0)
-		return;
-
-	if (!EVAL->comment)
-	{
-		nspace = get_indent(&empty);
-		add_data(RT_END, nspace);
-	}
-
-	if (empty)
 		return;
 
 	if (!pattern)
@@ -372,9 +369,6 @@ static void analyze(EVAL_ANALYZE *result)
 
 	init_result();
 	
-	if (nspace)
-		add_result(result, EVAL->source, nspace);
-
 	type = EVAL->comment ? RT_COMMENT : RT_END;
 	next_type = RT_END;
 	old_type = RT_END;
@@ -382,16 +376,29 @@ static void analyze(EVAL_ANALYZE *result)
 
 	for(;;)
 	{
-		old_type = next_type;
 		type = get_type(pattern);
+		
+		if (type == RT_END)
+			break;
+		
+		if (type == RT_SPACE)
+		{
+			if (!EVAL->rewrite || _colors_len == 0 || PATTERN_is_end(pattern[1]))
+			{
+				len = PATTERN_index(*pattern);
+				add_data(RT_SPACE, len);
+				add_result_spaces(result, len);
+			}
+			goto __NEXT_PATTERN;
+		}
+
+		old_type = next_type;
 		next_type = type;
+		
 		get_symbol(*pattern, &symbol, &len);
 
 		space_before = space_after;
 		space_after = FALSE;
-
-		if (type == RT_END)
-			break;
 
 		//if (in_quote && (type == RT_RESERVED || type == RT_DATATYPE || type == RT_SUBR))
 		//	type = RT_IDENTIFIER;
@@ -426,7 +433,7 @@ static void analyze(EVAL_ANALYZE *result)
 
 			case RT_DATATYPE:
 				//state = Datatype;
-				if (PATTERN_is(pattern[-1], RS_OPEN))
+				if (PATTERN_is(get_last_pattern(pattern), RS_OPEN))
 					type = RT_RESERVED;
 
 				if (old_type != RT_OPERATOR)
@@ -517,7 +524,7 @@ static void analyze(EVAL_ANALYZE *result)
 				}
 				else if (*symbol == '-' && len == 1)
 				{
-					if (old_type == RT_OPERATOR && (PATTERN_is(pattern[-1], RS_LBRA) || PATTERN_is(pattern[-1],RS_LSQR)))
+					if (old_type == RT_OPERATOR && (PATTERN_is(get_last_pattern(pattern), RS_LBRA) || PATTERN_is(get_last_pattern(pattern),RS_LSQR)))
 						space_before = FALSE;
 					else
 						space_before = TRUE;
@@ -526,7 +533,7 @@ static void analyze(EVAL_ANALYZE *result)
 						space_after = FALSE;
 					else if (old_type == RT_OPERATOR)
 					{
-						get_symbol(pattern[-1], &symbol, &len);
+						get_symbol(get_last_pattern(pattern), &symbol, &len);
 						if (index(")]}", *symbol))
 							space_after = TRUE;
 						else
@@ -538,7 +545,7 @@ static void analyze(EVAL_ANALYZE *result)
 				}
 				else if (PATTERN_is(*pattern, RS_NOT))
 				{
-					if (old_type == RT_OPERATOR && (PATTERN_is(pattern[-1], RS_LBRA) || PATTERN_is(pattern[-1],RS_LSQR)))
+					if (old_type == RT_OPERATOR && (PATTERN_is(get_last_pattern(pattern), RS_LBRA) || PATTERN_is(get_last_pattern(pattern),RS_LSQR)))
 						space_before = FALSE;
 					else
 						space_before = TRUE;
@@ -561,10 +568,10 @@ static void analyze(EVAL_ANALYZE *result)
 				break;
 		}
 
-		if (space_before && old_type != RT_END)
+		if (space_before && old_type != RT_END && EVAL->rewrite)
 		{
 			add_result_char(result, ' ');
-			add_data(preprocessor ? RT_PREPROCESSOR : RT_END, 1);
+			add_data(preprocessor ? RT_PREPROCESSOR : RT_SPACE, 1);
 		}
 
 		if (type == RT_STRING)
@@ -629,7 +636,7 @@ static void analyze(EVAL_ANALYZE *result)
 			}
 			else if (type == RT_IDENTIFIER)
 			{
-				if (PATTERN_is(pattern[1], RS_COLON))
+				if (PATTERN_is(get_next_pattern(pattern), RS_COLON))
 				{
 					add_result_char(result, ':');
 					add_data(RT_LABEL, len + 1);
@@ -637,7 +644,7 @@ static void analyze(EVAL_ANALYZE *result)
 					pattern ++;
 					goto __NEXT_PATTERN;
 				}
-				else if (old_type == RT_RESERVED && (PATTERN_is(pattern[-1], RS_GOTO) || PATTERN_is(pattern[-1], RS_GOSUB)))
+				else if (old_type == RT_RESERVED && (PATTERN_is(get_last_pattern(pattern), RS_GOTO) || PATTERN_is(get_last_pattern(pattern), RS_GOSUB)))
 				{
 					type = RT_LABEL;
 				}
@@ -646,7 +653,7 @@ static void analyze(EVAL_ANALYZE *result)
 			{
 				if (PATTERN_is(*pattern, RS_NULL))
 				{
-					if (!(old_type == RT_RESERVED && PATTERN_is(pattern[-1], RS_OPEN)))
+					if (!(old_type == RT_RESERVED && PATTERN_is(get_last_pattern(pattern), RS_OPEN)))
 						type = RT_CONSTANT;
 				}
 				else if (PATTERN_is(*pattern, RS_TRUE)
@@ -697,7 +704,7 @@ static void add_end_pattern(void)
 
 PUBLIC void EVAL_analyze(const char *src, int len, int state, EVAL_ANALYZE *result, bool rewrite)
 {
-	int nspace = 0;
+	//int nspace = 0;
 
 	#ifdef DEBUG
 	printf("EVAL: %*.s\n", expr->len, expr->source);
@@ -705,11 +712,11 @@ PUBLIC void EVAL_analyze(const char *src, int len, int state, EVAL_ANALYZE *resu
 
 	CLEAR(result);
 
-	while (len > 0 && src[len - 1] == ' ')
+	/*while (len > 0 && src[len - 1] == ' ')
 	{
 		len--;
 		nspace++;
-	}
+	}*/
 
 	result->len = 0;
 	result->str = NULL;
@@ -753,12 +760,6 @@ PUBLIC void EVAL_analyze(const char *src, int len, int state, EVAL_ANALYZE *resu
 	else
 	{
 		result->proc = FALSE;
-	}
-
-	while (nspace > 0)
-	{
-		result->str = GB.AddString(result->str, "        ", nspace > 8 ? 8 : nspace);
-		nspace -= 8;
 	}
 }
 

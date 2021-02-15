@@ -32,7 +32,6 @@
 #include "eval.h"
 #include "eval_read.h"
 
-
 //#define DEBUG 1
 //#define ENABLE_BIG_COMMENT
 
@@ -57,6 +56,7 @@ enum
 {
 	GOTO_BREAK,
 	GOTO_SPACE,
+	GOTO_NEWLINE,
 	GOTO_COMMENT,
 	GOTO_STRING,
 	GOTO_IDENT,
@@ -82,6 +82,8 @@ static void READ_init(void)
 
 			if (i == 0)
 				first_car[i] = GOTO_BREAK;
+			else if (i == '\n')
+				first_car[i] = GOTO_NEWLINE;
 			else if (i <= ' ')
 				first_car[i] = GOTO_SPACE;
 			else if (i == '\'')
@@ -157,6 +159,10 @@ PUBLIC char *READ_get_pattern(PATTERN *pattern)
 			strncpy(_buffer, TABLE_get_symbol_name(EVAL->string, index), BUF_MAX);
 			_buffer[BUF_MAX] = 0;
 			break;
+			
+		case RT_SPACE:
+			snprintf(_buffer, BUF_MAX, "[%d]", index);
+			break;
 
 		default:
 			sprintf(_buffer, "%s?%08X?%s", before, *pattern, after);
@@ -219,6 +225,8 @@ PUBLIC void READ_dump_pattern(PATTERN *pattern)
 		printf("SUBR         %s\n", READ_get_pattern(pattern));
 	else if (type == RT_COMMENT)
 		printf("COMMENT      %s\n", READ_get_pattern(pattern));
+	else if (type == RT_SPACE)
+		printf("SPACE        %s\n", READ_get_pattern(pattern));
 	else
 		printf("?            %d\n", index);
 
@@ -249,21 +257,27 @@ static void add_pattern(int type, int index)
 
 #endif
 
-static PATTERN get_last_last_pattern()
+static PATTERN get_previous_pattern(int n)
 {
-	if (EVAL->pattern_count > 1)
-		return EVAL->pattern[EVAL->pattern_count - 2];
-	else
-		return NULL_PATTERN;
+	int i;
+	PATTERN pattern;
+	
+	for (i = EVAL->pattern_count - 1; i >= 0; i--)
+	{
+		pattern = EVAL->pattern[i];
+		if (!PATTERN_is_space(pattern))
+		{
+			n--;
+			if (n == 0)
+				return pattern;
+		}
+	}
+
+	return NULL_PATTERN;
 }
 
-static PATTERN get_last_pattern()
-{
-	if (EVAL->pattern_count > 0)
-		return EVAL->pattern[EVAL->pattern_count - 1];
-	else
-		return NULL_PATTERN;
-}
+#define get_last_pattern() get_previous_pattern(1)
+#define get_last_last_pattern() get_previous_pattern(2)
 
 static void add_newline()
 {
@@ -918,7 +932,6 @@ static void add_quoted_identifier(void)
 }
 
 
-
 static void add_operator()
 {
 	unsigned char car;
@@ -1256,12 +1269,33 @@ static void add_string_for_analyze()
 }
 
 
+static void add_spaces()
+{
+	unsigned char car;
+	int len;
+
+	len = 1;
+
+	for(;;)
+	{
+		source_ptr++;
+		car = get_char();
+		if (car > ' ' || car == '\n' || car == 0)
+			break;
+		len++;
+	}
+
+	add_pattern(RT_SPACE, len);
+}
+
+
 PUBLIC void EVAL_read(void)
 {
-	static void *jump_char[10] =
+	static void *jump_char[11] =
 	{
 		&&__BREAK,
 		&&__SPACE,
+		&&__NEWLINE,
 		&&__COMMENT,
 		&&__STRING,
 		&&__IDENT,
@@ -1294,13 +1328,20 @@ PUBLIC void EVAL_read(void)
 		THROW(E_SYNTAX);
 
 	__SPACE:
+	
+		if (EVAL->analyze)
+			add_spaces();
+		else
+			source_ptr++;
+		
+		_begin_line = FALSE;
+		continue;
+		
+	__NEWLINE:
 
 		source_ptr++;
-		if (car == '\n')
-		{
-			add_newline();
-			_begin_line = TRUE;
-		}
+		add_newline();
+		_begin_line = TRUE;
 		continue;
 
 	__COMMENT:

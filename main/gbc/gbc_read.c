@@ -246,9 +246,9 @@ char *READ_get_pattern(PATTERN *pattern)
 				strcpy(COMMON_buffer, "string");
 			break;
 
-		case RT_COMMAND:
+		/*case RT_COMMAND:
 			snprintf(COMMON_buffer, COMMON_BUF_MAX, "#%d", index);
-			break;
+			break;*/
 
 		case RT_NEWLINE:
 			strcpy(COMMON_buffer, "end of line");
@@ -333,8 +333,8 @@ void READ_dump_pattern(PATTERN *pattern)
 		printf("PARAM        %d\n", index);
 	else if (type == RT_SUBR)
 		printf("SUBR         %s\n", READ_get_pattern(pattern));
-	else if (type == RT_COMMAND)
-		printf("COMMAND      %d\n", index);
+	/*else if (type == RT_COMMAND)
+		printf("COMMAND      %d\n", index);*/
 	else
 		printf("?            %d\n", index);
 
