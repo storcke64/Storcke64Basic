@@ -609,7 +609,12 @@ int gFont::height(const char *text, int len)
 int gFont::height()
 {
 	if (!_height)
-		_height = gt_pango_to_pixel(pango_font_metrics_get_height(metrics()));
+	{
+		float h1, h2;
+		textSize("A\nA", 3, NULL, &h1);
+		textSize("A\nA\nA", 5, NULL, &h2);
+		_height = gt_pango_to_pixel((h2 - h1) * PANGO_SCALE);
+	}
 	return _height;
 }
 
