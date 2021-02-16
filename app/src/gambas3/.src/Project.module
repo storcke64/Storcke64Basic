@@ -3223,6 +3223,10 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       FDebugInfo.ShowConsole()
       hTerminal = FOutput.GetTerminal() 
       sCommand = Replace(RunAfterMakingExec, "$(FILE)", Shell$(sExecPath))
+      sCommand = Replace(sCommand, "$(FOLDER)", Shell$(Project.Dir))
+      sCommand = Replace(sCommand, "$(VERSION)", Shell$(Project.Version))
+      sCommand = Replace(sCommand, "$(TITLE)", Shell$(Project.Title))
+      sCommand = Replace(sCommand, "$(NAME)", Shell$(Project.Name))
       hTerminal.Print(sCommand & "\r\n")
       hProcess = hTerminal.Shell(sCommand)
       hProcess.Wait
