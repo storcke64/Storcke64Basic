@@ -23,8 +23,7 @@
     Index = 1
     Text = ("Options")
     { VBox1 VBox
-      MoveScaled(1,1,87,43)
-      Spacing = True
+      MoveScaled(1,1,87,49)
       Margin = True
       { chkIncVersion CheckBox
         MoveScaled(1,1,19,4)
@@ -46,18 +45,30 @@
         MoveScaled(1,17,34,4)
         Text = ("Exclude test modules")
       }
-      { HBox2 HBox
-        MoveScaled(3,28,68,4)
+      { Panel1 Panel
+        MoveScaled(20,21,7,1)
+      }
+      { Panel2 VBox
+        MoveScaled(0,24,85.875,24.875)
+        Expand = True
         Spacing = True
         { Label1 Label
-          MoveScaled(0,0,24,4)
+          MoveScaled(0,0,30,3)
+          Font = Font["Bold"]
           AutoResize = True
-          Text = ("Run this command after")
+          Text = ("Run this shell command after")
         }
         { txtCommand TextBox
-          MoveScaled(26,0,24,4)
-          ToolTip = ("<b>$(FILE)</b> will be replaced by the path of the executable\n<b>$(FOLDER)</b> for the projects directory.\n<b>$(VERSION)</b> for the projects version\n<b>$(NAME)</b> for the project name\n<b>$(TITLE)</b> for the project title.\n\n(Text will be 'quoted')")
-          Expand = True
+          MoveScaled(0,4,24,4)
+        }
+        { TextLabel1 TextLabel
+          MoveScaled(2,9,83,15)
+          Background = Color.TooltipBackground
+          Foreground = Color.TooltipForeground
+          Padding = 8
+          AutoResize = True
+          Text = ("The following patterns will be substituted in the command&nbsp;:<br>\n&bull;&nbsp;<b><tt>$(FILE)</tt></b> will be replaced by the executable path.<br>\n&bull;&nbsp;<b><tt>$(DIR)</tt></b> by the project directory.<br>\n&bull;&nbsp;<b><tt>$(NAME)</tt></b> by the project name.<br>\n&bull;&nbsp;<b><tt>$(TITLE)</tt></b> by the project title.<br>\n&bull;&nbsp;<b><tt>$(VERSION)</tt></b> by the project version.<br>\n<br>\n<i>Note&nbsp;: all substitutions will be quoted.</i>")
+          Border = Border.Plain
         }
       }
     }
