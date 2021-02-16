@@ -56,7 +56,7 @@
         }
         { txtCommand TextBox
           MoveScaled(26,0,24,4)
-          ToolTip = ("<b>$(FILE)</b> will be replaced by the path of the executable")
+          ToolTip = ("<b>$(FILE)</b> will be replaced by the path of the executable\n<b>$(FOLDER)</b> for the projects directory.\n<b>$(VERSION)</b> for the projects version\n<b>$(NAME)</b> for the project name\n<b>$(TITLE)</b> for the project title.\n\n(Text will be 'quoted')")
           Expand = True
         }
       }
