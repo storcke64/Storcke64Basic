@@ -1,9 +1,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.form 3.14.90\n"
-"POT-Creation-Date: 2020-12-19 01:25 UTC\n"
-"PO-Revision-Date: 2020-06-06 18:02 UTC\n"
+"Project-Id-Version: gb.form 3.15.90\n"
+"POT-Creation-Date: 2021-02-17 15:39 UTC\n"
+"PO-Revision-Date: 2021-02-17 15:40 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -84,111 +84,125 @@ msgstr "Anwenden"
 msgid "Follow color grid"
 msgstr "Farb-Raster folgen"
 
-#: FDirChooser.class:428
+#: FDirChooser.class:438
 msgid "Directory not found."
 msgstr "Verzeichnis nicht gefunden."
 
-#: FDirChooser.class:534
+#: FDirChooser.class:547
 msgid "All files (*)"
 msgstr "Alle Dateien (*)"
 
-#: FDirChooser.class:976
+#: FDirChooser.class:886
+msgid "&Overwrite"
+msgstr "&Überschreiben"
+
+#: FDirChooser.class:886
+msgid ""
+"This file already exists.\n"
+"\n"
+"Do you want to overwrite it?"
+msgstr ""
+"Diese Datei existiert bereits.\n"
+"\n"
+"Wollen Sie sie überschreiben?"
+
+#: FDirChooser.class:1004
 msgid "&Bookmark current directory"
 msgstr "Lesezeichen für aktuelles Verzeichnis er&stellen"
 
-#: FDirChooser.class:984
+#: FDirChooser.class:1012
 msgid "&Edit bookmarks..."
 msgstr "&Lesezeichen bearbeiten..."
 
-#: FDirChooser.class:993
+#: FDirChooser.class:1023
 msgid "Show &details"
 msgstr "Details an&zeigen"
 
-#: FDirChooser.class:999
+#: FDirChooser.class:1029
 msgid "Show &hidden files"
 msgstr "&Versteckte Dateien anzeigen"
 
-#: FDirChooser.class:1005
+#: FDirChooser.class:1035
 msgid "Show &image preview"
 msgstr "&Bildvorschau anzeigen"
 
-#: FDirChooser.class:1013
+#: FDirChooser.class:1043
 msgid "&Rename"
 msgstr "&Umbenennen"
 
-#: FDirChooser.class:1018
+#: FDirChooser.class:1048
 msgid "Copy"
 msgstr "Kopieren"
 
-#: FDirChooser.class:1023
+#: FDirChooser.class:1053
 msgid "&Delete"
 msgstr "&Löschen"
 
-#: FDirChooser.class:1035
+#: FDirChooser.class:1065
 msgid "&Uncompress file"
 msgstr "Datei ent&komprimieren"
 
-#: FDirChooser.class:1040
+#: FDirChooser.class:1070
 msgid "&Create directory"
 msgstr "&Verzeichnis erstellen"
 
-#: FDirChooser.class:1045
+#: FDirChooser.class:1075
 msgid "Open in &file manager..."
 msgstr "Im &Dateimanager öffnen..."
 
-#: FDirChooser.class:1050
+#: FDirChooser.class:1080
 msgid "&Refresh"
 msgstr "&Aktualisieren"
 
-#: FDirChooser.class:1058
+#: FDirChooser.class:1088
 msgid "&Properties"
 msgstr "&Eigenschaften"
 
-#: FDirChooser.class:1274
+#: FDirChooser.class:1302
 msgid "Overwrite"
 msgstr "Überschreiben"
 
-#: FDirChooser.class:1274
+#: FDirChooser.class:1302
 msgid "Overwrite all"
 msgstr "Alle überschreiben"
 
-#: FDirChooser.class:1274
+#: FDirChooser.class:1302
 msgid "This file or directory already exists."
 msgstr "Datei oder Verzeichnis existiert bereits."
 
-#: FDirChooser.class:1293
+#: FDirChooser.class:1323
 msgid "Cannot list archive contents"
 msgstr "Archivinhalt kann nicht aufgelistet werden"
 
-#: FDirChooser.class:1327
+#: FDirChooser.class:1363
 msgid "Cannot uncompress file."
 msgstr "Datei kann nicht entkomprimiert werden."
 
-#: FDirChooser.class:1327
+#: FDirChooser.class:1363
 msgid "Unknown archive."
 msgstr "Unbekanntes Archiv."
 
-#: FDirChooser.class:1388
+#: FDirChooser.class:1431
 msgid "Delete file"
 msgstr "Datei löschen"
 
-#: FDirChooser.class:1389
+#: FDirChooser.class:1432
 msgid "Do you really want to delete that file?"
 msgstr "Wollen Sie diese Datei wirklich löschen?"
 
-#: FDirChooser.class:1396
+#: FDirChooser.class:1439
 msgid "Unable to delete file."
 msgstr "Datei konnte nicht gelöscht werden."
 
-#: FDirChooser.class:1406
+#: FDirChooser.class:1449
 msgid "Delete directory"
 msgstr "Verzeichnis löschen"
 
-#: FDirChooser.class:1407
+#: FDirChooser.class:1450
 msgid "Do you really want to delete that directory?"
 msgstr "Wollen Sie dieses Verzeichnis wirklich löschen?"
 
-#: FDirChooser.class:1414
+#: FDirChooser.class:1457
 msgid "Unable to delete directory."
 msgstr "Nicht in der Lage, Verzeichnis zu löschen."
 
@@ -278,7 +292,6 @@ msgstr ""
 msgid "Vertical"
 msgstr ""
 
-# gb-ignore
 #: FDocumentView.form:96 FMain.form:69
 msgid "ComboBox1"
 msgstr ""
@@ -322,7 +335,7 @@ msgstr "Herauf"
 msgid "Down"
 msgstr "Herunter"
 
-#: FEditBookmark.form:46 FListEditor.class:263
+#: FEditBookmark.form:46 FListEditor.class:265
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -347,7 +360,7 @@ msgid "&1 properties"
 msgstr "&1 Eigenschaften"
 
 # gb-ignore
-#: FFileProperties.class:216 Main.module:50
+#: FFileProperties.class:216 Main.module:48
 msgid "&1 B"
 msgstr ""
 
@@ -419,27 +432,27 @@ msgstr "Vorschau"
 msgid "Errors"
 msgstr "Fehler"
 
-#: FFontChooser.class:334
+#: FFontChooser.class:387
 msgid "How quickly daft jumping zebras vex"
 msgstr "Franz jagt im verwahrlosten Taxi quer durch Bayern"
 
-#: FFontChooser.form:96
+#: FFontChooser.form:95
 msgid "Bold"
 msgstr "Fett"
 
-#: FFontChooser.form:103
+#: FFontChooser.form:102
 msgid "Italic"
 msgstr "Kursiv"
 
-#: FFontChooser.form:110
+#: FFontChooser.form:109
 msgid "Underline"
 msgstr "Unterstrichen"
 
-#: FFontChooser.form:117
+#: FFontChooser.form:116
 msgid "Strikeout"
 msgstr "Durchgestrichen"
 
-#: FFontChooser.form:126
+#: FFontChooser.form:125
 msgid "Relative"
 msgstr "Relativ"
 
@@ -467,7 +480,7 @@ msgstr ""
 msgid "12:34"
 msgstr ""
 
-#: FListEditor.class:262
+#: FListEditor.class:264
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -486,6 +499,15 @@ msgstr "Element herauf bewegen"
 #: FListEditor.form:66
 msgid "Move item down"
 msgstr "Element herunter bewegen"
+
+#: FMain.class:26
+#, fuzzy
+msgid "PDF files"
+msgstr "Dateien"
+
+#: FMain.class:26
+msgid "Postscript files"
+msgstr ""
 
 #: FMain.form:29 FTestFileChooser.form:31 FTestMenuButton.form:40 FWiki.form:20
 msgid "Menu2"
@@ -515,8 +537,8 @@ msgstr ""
 msgid "ComboBox2"
 msgstr ""
 
-#: FMain.form:80 FSwitchButton.form:35 FTestBalloon.form:12
-#: FTestFileChooser.form:86
+#: FMain.form:80 FTestBalloon.form:12 FTestFileChooser.form:86
+#: FTestSwitchButton.form:22
 msgid "TextBox1"
 msgstr ""
 
@@ -539,14 +561,6 @@ msgstr ""
 
 #: FSpinBar.form:24
 msgid "Test"
-msgstr ""
-
-#: FSwitchButton.form:51 FTestFileChooser.form:81
-msgid "Label1"
-msgstr ""
-
-#: FSwitchButton.form:58
-msgid "Label2"
 msgstr ""
 
 #: FTestBalloon.form:17
@@ -589,6 +603,10 @@ msgstr ""
 msgid "Balloon"
 msgstr ""
 
+#: FTestFileChooser.form:81 FTestSwitchButton.form:38
+msgid "Label1"
+msgstr ""
+
 #: FTestMenuButton.form:32
 msgid "Project"
 msgstr ""
@@ -625,6 +643,10 @@ msgstr ""
 msgid "Menu button"
 msgstr ""
 
+#: FTestSwitchButton.form:45
+msgid "Label2"
+msgstr ""
+
 #: FTestTabPanel.form:41
 msgid "Text"
 msgstr ""
@@ -637,16 +659,20 @@ msgstr ""
 msgid "Orientation"
 msgstr ""
 
-#: FTestToolPanel.form:13
-msgid "Toolbar &0"
-msgstr ""
-
-#: FTestToolPanel.form:15
-msgid "Toolbar &1"
-msgstr ""
-
 #: FTestToolPanel.form:17
-msgid "Toolbar &2"
+msgid "Toolbar 1"
+msgstr ""
+
+#: FTestToolPanel.form:19
+msgid "Toolbar 2"
+msgstr ""
+
+#: FTestToolPanel.form:21
+msgid "Toolbar 3"
+msgstr ""
+
+#: FTestToolPanel.form:23
+msgid "Toolbar 4"
 msgstr ""
 
 #: FTestValueBox.form:15
@@ -681,16 +707,20 @@ msgstr "Weiter"
 msgid "Previous"
 msgstr "Zurück"
 
-#: FileView.class:159
+#: FileView.class:156
 msgid "No file in this folder."
 msgstr ""
 
-#: FileView.class:1134
+#: FileView.class:1139
 msgid "Cannot rename file."
 msgstr "Datei kann nicht umbenannt werden."
 
 #: Form2.form:126
 msgid "ButtonBox2"
+msgstr ""
+
+#: Form3.form:25
+msgid "Raise"
 msgstr ""
 
 #: Help.module:71
@@ -707,12 +737,12 @@ msgid "&1 KiB"
 msgstr ""
 
 # gb-ignore
-#: Main.module:54
+#: Main.module:59
 msgid "&1 MiB"
 msgstr ""
 
 # gb-ignore
-#: Main.module:56
+#: Main.module:66
 msgid "&1 GiB"
 msgstr ""
 

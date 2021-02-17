@@ -518,6 +518,7 @@ Public Sub fvwChoose_Activate()
   If IsDir(dvwChoose.Current &/ fvwChoose.Current) Then
     dvwChoose.Current &/= fvwChoose.Current
   Else
+    If CheckFile() Then Return
     Raise {Select}
   Endif
 
@@ -864,35 +865,29 @@ Public Sub IsDialogButtonVisible() As Boolean
   
 End
 
-
-' Public Sub ShowAutomaticExtension(bShow As Boolean)
-'   
-'   chkExt.Visible = bShow
-'   
-' End
-' 
-' Public Sub SetAutomaticExtension(bVal As Boolean)
-'   
-'   chkExt.Value = bVal
-'   
-' End
-
  Private Sub CheckFile() As Boolean ' FIXME: If 'As Boolean' is forgotten, and 'Return True' is removed, we can get an interpreter crash
   
   Dim sPath As String
+  Dim sFile As String
   
   If Not txtFile.Visible Then Return
   If txtFile.ReadOnly Then Return
+  If GetMulti() Then Return
   
-  sPath = txtFile.Text
-  If InStr(sPath, "/") = 0 Then Return
+  sFile = txtFile.Text
+  If Not sFile Then Return True
   
-  txtFile.Text = File.Name(sPath)
-  SetDir(File.Dir(sPath))
-  Return True
+  If InStr(sPath, "/") Then 
+    txtFile.Text = File.Name(sPath)
+    SetDir(File.Dir(sPath))
+    Return True
+  Endif
+
+  If Exist(dvwChoose.Current &/ sFile) Then 
+    If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("&Overwrite"), ("Cancel")) = 2 Then Return True
+  Endif 
   
 End
-
 
 Public Sub btnOK_Click()
 
