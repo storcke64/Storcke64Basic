@@ -25,10 +25,12 @@ Property Settings As Variant[]
 Property Read DirView As DirView
 Property Read FileView As FileView
 Property Border As Boolean
+Property UncompressFilter As String[]
 
 Event Change
 Event Activate
 Event Icon(Path As String)
+Event Uncompress(Path As String)
 'EVENT ShowHidden
 
 Private frmChooser As FDirChooser
@@ -62,6 +64,12 @@ End
 Public Sub frmChooser_GetIcon(Path As String)
   
   Raise Icon(Path)
+  
+End
+
+Public Sub frmChooser_Uncompress(Path As String)
+  
+  Raise Uncompress(Path)
   
 End
 
@@ -268,5 +276,17 @@ End
 Private Sub ShowToolbar_Write(Value As Boolean)
 
   frmChooser.SetShowToolbar(Value)
+
+End
+
+Private Function UncompressFilter_Read() As String[]
+
+  Return frmChooser.UncompressFilter
+
+End
+
+Private Sub UncompressFilter_Write(Value As String[])
+
+  frmChooser.UncompressFilter = Value
 
 End

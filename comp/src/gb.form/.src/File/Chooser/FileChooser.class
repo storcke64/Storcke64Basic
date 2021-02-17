@@ -36,11 +36,13 @@ Property ReadOnly As Boolean
 Property Filter As String[]
 Property FilterIndex As Integer
 Property Icon As Picture
+Property UncompressFilter As String[]
 
 Event Change
 Event Activate
 Event Icon(Path As String)
 Event Cancel
+Event Uncompress(Path As String)
 
 'EVENT ShowHidden
 
@@ -76,6 +78,12 @@ End
 Public Sub frmChooser_GetIcon(Path As String)
   
   Raise Icon(Path)
+  
+End
+
+Public Sub frmChooser_Uncompress(Path As String)
+  
+  Raise Uncompress(Path)
   
 End
 
@@ -423,5 +431,17 @@ End
 Private Sub AutoExt_Write(Value As Boolean)
 
   frmChooser.AutoExt = Value
+
+End
+
+Private Function UncompressFilter_Read() As String[]
+
+  Return frmChooser.UncompressFilter
+
+End
+
+Private Sub UncompressFilter_Write(Value As String[])
+
+  frmChooser.UncompressFilter = Value
 
 End

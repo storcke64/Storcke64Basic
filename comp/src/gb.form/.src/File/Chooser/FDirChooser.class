@@ -10,8 +10,10 @@ Event {Select}
 Event GetIcon(Path As String)
 Event ShowHidden
 Event Cancel
+Event Uncompress(Path As String)
 
 Property AutoExt As Boolean
+Property UncompressFilter As String[]
 
 Private mnuBookmark As Menu
 Private mnuEditBookmark As Menu
@@ -44,6 +46,7 @@ Static Private $hGradient As Image
 
 Private $bAutoExt As Boolean
 Private $sLastExt As String
+Private $aUncompressFilter As String[]
 
 
 Public Sub _new(Optional bFile As Boolean)
@@ -613,7 +616,7 @@ End
 
 Public Sub fvwChoose_Icon(Path As String)
 
-  Raise GetIcon(Path)    
+  Raise GetIcon(Path)
 
 End
 
@@ -622,7 +625,6 @@ Public Sub dvwChoose_Icon(Path As String)
   Raise GetIcon(Path)    
 
 End
-
 
 Public Sub SetReadOnly(bReadOnly As Boolean)
   
@@ -1173,12 +1175,7 @@ Public Sub fvwChoose_Menu()
 
   Dim sFile As String = fvwChoose.Current
   
-  If sFile Like "*.tar.gz" Or If sFile Like "*.tar.bz2" Or If sFile Like "*.tgz" Or If sFile Like "*.tar" Or If sFile Like "*.zip" Then
-    mnuUncompress.Show
-  Else
-    mnuUncompress.Hide
-  Endif
-  
+  mnuUncompress.Visible = IsCompressedFile(sFile)
   mnuShowDetailed.Show
   mnuShowPreview.Show
   mnuRename.Visible = sFile
@@ -1284,6 +1281,8 @@ Public Sub mnuUncompress_Click()
   Dim hTreeView As TreeView
   Dim aOutput As String[]
   Dim iPos As Integer
+  Dim bCancel As Boolean
+  Dim sCmd As String
   
   Inc Application.Busy
   
@@ -1292,6 +1291,7 @@ Public Sub mnuUncompress_Click()
     Case Like "*.tar.gz", "*.tar.bz2", "*.tgz", "*.tar"
       
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar tf " & Shell$(fvwChoose.Current) To sOutput
+      If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
   
       For Each sOutput In Split(Trim(sOutput), "\n")
         
@@ -1311,6 +1311,7 @@ Public Sub mnuUncompress_Click()
           Endif
           
           Shell "rm -rf " & Shell$(fvwChoose.Dir &/ sOutput) Wait
+          If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
           
         Endif
         
@@ -1319,6 +1320,7 @@ Public Sub mnuUncompress_Click()
     Case Like "*.zip"
       
       Shell "cd " & Shell(fvwChoose.Dir) & ";unzip -l " & Shell$(fvwChoose.Current) To sOutput
+      If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
       
       aOutput = Split(sOutput, "\n")
       If aOutput.Count > 2 Then iPos = InStr(aOutput[1], "Name")
@@ -1351,39 +1353,52 @@ Public Sub mnuUncompress_Click()
           Endif
           
           Shell "rm -rf " & Shell$(fvwChoose.Dir &/ sOutput) Wait
+          If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
           
         Endif
         
       Next
       
     Case Else
-      Application.Busy = 0
-      Message.Error(("Cannot uncompress file.") & "\n\n" & ("Unknown archive."))
-      Return
+      
+      If $aUncompressFilter Then
+        bCancel = Raise Uncompress(fvwChoose.Dir &/ fvwChoose.Current)
+        If bCancel Then Goto _CANNOT_UNCOMPRESS
+      Else
+        Application.Busy = 0
+        Message.Error(("Cannot uncompress file.") & "\n\n" & ("Unknown archive."))
+        Return
+      Endif
       
   End Select
 
-  If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
-  
   Select Case File.Name(fvwChoose.Current)
     
     Case Like "*.tar.gz", "*.tgz"
-      Shell "cd " & Shell(fvwChoose.Dir) & ";tar xfz " & Shell$(fvwChoose.Current) Wait
-      'Exec ["/bin/tar", "xfz", "-C", fvwChoose.Dir, sPath] To sResult
+      sCmd = "tar xfz " & Shell$(fvwChoose.Current)
       
     Case Like "*.tar.bz2"
+      sCmd = "tar xfj " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar xfj " & Shell$(fvwChoose.Current) Wait
       'Exec ["/bin/tar", "xfj", "-C", fvwChoose.Dir, sPath] To sResult
       '
     Case Like "*.tar"
+      sCmd = "tar xf " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar xf " & Shell$(fvwChoose.Current) Wait
       
     Case Like "*.zip"
+      sCmd = "unzip -q " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";unzip -q " & Shell$(fvwChoose.Current) Wait
-      
-  End Select
+    
+    Case Else
+      sCmd = ""
   
-  If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
+  End Select
+
+  If sCmd Then  
+    Shell "cd " & Shell(fvwChoose.Dir) & ";" & sCmd Wait
+    If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
+  Endif
   
   Wait ' Let watch events proceed
   
@@ -1721,4 +1736,37 @@ Private Sub AutoExt_Write(Value As Boolean)
   $bAutoExt = Value
   CheckAutomaticExtension
 
+End
+
+Private Function UncompressFilter_Read() As String[]
+
+  Return $aUncompressFilter
+
+End
+
+Private Sub UncompressFilter_Write(Value As String[])
+
+  If Value Then
+    $aUncompressFilter = Value.Copy()
+    $aUncompressFilter.ReadOnly = True
+  Else
+    $aUncompressFilter = Null
+  Endif
+  
+End
+
+Private Sub IsCompressedFile(sFile As String, Optional bCustom As Boolean) As Boolean
+
+  Dim I As Integer
+  
+  If Not bCustom Then
+    If sFile Like "*.tar.gz" Or If sFile Like "*.tar.bz2" Or If sFile Like "*.tgz" Or If sFile Like "*.tar" Or If sFile Like "*.zip" Then Return True
+  Endif
+
+  If $aUncompressFilter Then
+    For I = 0 To $aUncompressFilter.Max
+      If sFile Like $aUncompressFilter[I] Then Return True
+    Next
+  Endif
+  
 End
