@@ -534,12 +534,12 @@ Public Sub Match(sFilter As String) As Boolean
   
   For Each sFilter In Split(sFilter, " ", Chr$(34), True)
   
-    sFilter = Util.RemoveAccents(sFilter)
+    sFilter = String.RemoveDiacritics(sFilter)
     
-    If InStr(Util.RemoveAccents(Key), sFilter, 1, gb.IgnoreCase) Then Return True
-    If InStr(Util.RemoveAccents(Name), sFilter, 1, gb.IgnoreCase) Then Return True
-    If InStr(Util.RemoveAccents(Authors.Join("\n")), sFilter, 1, gb.IgnoreCase) Then Return True
-    If InStr(Util.RemoveAccents(Implement.Join("\n")), sFilter, 1, gb.IgnoreCase) Then Return True
+    If InStr(String.RemoveDiacritics(Key), sFilter, 1, gb.IgnoreCase) Then Return True
+    If InStr(String.RemoveDiacritics(Name), sFilter, 1, gb.IgnoreCase) Then Return True
+    If InStr(String.RemoveDiacritics(Authors.Join("\n")), sFilter, 1, gb.IgnoreCase) Then Return True
+    If InStr(String.RemoveDiacritics(Implement.Join("\n")), sFilter, 1, gb.IgnoreCase) Then Return True
     
   Next
   

@@ -4736,7 +4736,7 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
     
       sCmdName = "tar"
     
-      If sPath Ends ".gz" Then
+      If sPath Ends ".gz" Or If sPath Ends ".gz.gmail.txt" Then
         sOpt = "z"
       Else If sPath Ends ".bz2" Then
         sOpt = "j"
@@ -4755,8 +4755,11 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
   End Select
 
   Shell sCmd To sOutput
-  
   If Not Exist(sTemp) Then Error.Raise(Subst$(("The '&1' command has failed.") & "\n\n<tt>" & Html(Trim(sOutput)) & "</tt>", sCmdName))
+
+  If sPath Ends ".gz.gmail.txt" Then
+    sTemp = Util.CompressForGmail(sTemp)
+  Endif
 
   Try Kill sPath
   Copy sTemp To sPath
@@ -4802,7 +4805,7 @@ Public Sub MakeSourceArchive()
 
   Dialog.Path = sDir &/ GetDefaultArchiveBaseName()
   Dialog.Title = ("Create source package")
-  Dialog.Filter = ["*.tar.gz", ("Source packages"), "*.tar.bz2", ("Source packages"), "*.tar.xz", ("Source packages"), "*.zip", ("Source packages")]
+  Dialog.Filter = ["*.tar.gz", ("Source packages"), "*.tar.gz.gmail.txt", ("Source packages that fool GMail"), "*.tar.bz2", ("Source packages"), "*.tar.xz", ("Source packages"), "*.zip", ("Source packages")]
   Dialog.AutoExt = True
 
   If Dialog.SaveFile() Then Return
