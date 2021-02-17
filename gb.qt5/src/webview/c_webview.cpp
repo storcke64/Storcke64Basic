@@ -283,12 +283,13 @@ BEGIN_METHOD(WebView_new, GB_OBJECT parent)
   QObject::connect(wid, SIGNAL(iconChanged(const QIcon &)), &WebViewSignalManager::manager, SLOT(iconChanged()));
   QObject::connect(wid, SIGNAL(titleChanged(const QString &)), &WebViewSignalManager::manager, SLOT(titleChanged()));
   QObject::connect(wid, SIGNAL(urlChanged(const QUrl &)), &WebViewSignalManager::manager, SLOT(urlChanged()));
-	QObject::connect(wid->page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
   QObject::connect(wid, SIGNAL(loadStarted()), &WebViewSignalManager::manager, SLOT(loadStarted()));
   QObject::connect(wid, SIGNAL(loadProgress(int)), &WebViewSignalManager::manager, SLOT(loadProgress(int)));
   QObject::connect(wid, SIGNAL(loadFinished(bool)), &WebViewSignalManager::manager, SLOT(loadFinished(bool)));
 
-  //QObject::connect(wid, SIGNAL(linkClicked(const QUrl &)), &CWebView::manager, SLOT(linkClicked(const QUrl &)));
+	wid->clearPage(false);
+
+	//QObject::connect(wid, SIGNAL(linkClicked(const QUrl &)), &CWebView::manager, SLOT(linkClicked(const QUrl &)));
 #if 0
   QObject::connect(wid, SIGNAL(selectionChanged()), &CWebView::manager, SLOT(selectionChanged()));
   QObject::connect(wid, SIGNAL(statusBarMessage(const QString &)), &CWebView::manager, SLOT(statusBarMessage(const QString &)));
@@ -432,9 +433,7 @@ END_PROPERTY
 
 BEGIN_METHOD_VOID(WebView_Clear)
 
-	//delete WIDGET->page();
-	WIDGET->setPage(new MyWebPage(WIDGET));
-	QObject::connect(WIDGET->page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
+	WIDGET->clearPage(true);
 
 END_METHOD
 
@@ -943,6 +942,19 @@ MyWebEngineView::MyWebEngineView(QWidget *parent) : QWebEngineView(parent)
 {
 	//settings()->setFontFamily(QWebSettings::FixedFont, "monospace");
 	setPage(new MyWebPage(this));
+}
+
+void MyWebEngineView::clearPage(bool destroy)
+{
+	QWebEnginePage *p;
+	if (destroy)
+		p = page();
+	
+	setPage(new MyWebPage(this));
+	QObject::connect(page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
+	
+	if (destroy)
+		delete p;
 }
 
 QWebEngineView *MyWebEngineView::createWindow(QWebEnginePage::WebWindowType type)
