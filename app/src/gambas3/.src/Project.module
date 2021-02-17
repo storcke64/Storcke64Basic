@@ -4702,7 +4702,7 @@ Public Function CheckProjectName(sName As String, Optional sDir As String) As St
 
 End
 
-Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
+Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String, Optional bFoolGMail As Boolean) As Boolean
 
   Dim sCmd As String
   Dim sOpt As String
@@ -4736,7 +4736,7 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
     
       sCmdName = "tar"
     
-      If sPath Ends ".gz" Or If sPath Ends ".gz.gmail.txt" Then
+      If sPath Ends ".gz" Then
         sOpt = "z"
       Else If sPath Ends ".bz2" Then
         sOpt = "j"
@@ -4757,8 +4757,9 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String) As Boolean
   Shell sCmd To sOutput
   If Not Exist(sTemp) Then Error.Raise(Subst$(("The '&1' command has failed.") & "\n\n<tt>" & Html(Trim(sOutput)) & "</tt>", sCmdName))
 
-  If sPath Ends ".gz.gmail.txt" Then
+  If bFoolGMail Then 
     sTemp = Util.CompressForGmail(sTemp)
+    sPath &= ".gmail.txt"
   Endif
 
   Try Kill sPath
@@ -4783,11 +4784,11 @@ Catch
 
 End
 
-Public Sub MakeSourcePackageTo(sPath As String) As Boolean
+Public Sub MakeSourcePackageTo(sPath As String, Optional bFoolGMail As Boolean) As Boolean
 
   Save
   WriteProject(True)
-  Return MakeSourcePackageFromTo(Project.Dir, sPath)
+  Return MakeSourcePackageFromTo(Project.Dir, sPath, bFoolGMail)
 
 End
 
@@ -4800,17 +4801,15 @@ End
 Public Sub MakeSourceArchive()
 
   Dim sDir As String = SourcePath
+  Dim sPath As String
 
   If Not sDir Then sDir = System.User.Home
 
-  Dialog.Path = sDir &/ GetDefaultArchiveBaseName()
-  Dialog.Title = ("Create source package")
-  Dialog.Filter = ["*.tar.gz", ("Source packages"), "*.tar.gz.gmail.txt", ("Source packages that fool GMail"), "*.tar.bz2", ("Source packages"), "*.tar.xz", ("Source packages"), "*.zip", ("Source packages")]
-  Dialog.AutoExt = True
+  FMakeSourceArchive.Path = sDir &/ GetDefaultArchiveBaseName()
+  If FMakeSourceArchive.Run() Then Return
 
-  If Dialog.SaveFile() Then Return
-
-  sDir = File.Dir(Dialog.Path)
+  sPath = FMakeSourceArchive.Path
+  sDir = File.Dir(sPath)
   If sDir = User.Home Then sDir = ""
   If sDir <> SourcePath Then
     SourcePath = sDir
@@ -4818,7 +4817,7 @@ Public Sub MakeSourceArchive()
   Endif
 
   SetMessage(("Create source package") & "...")
-  If Not MakeSourcePackageTo(Dialog.Path) Then
+  If Not MakeSourcePackageTo(sPath, FMakeSourceArchive.FoolGMail) Then
     SetMessage(("OK"), True)
   Endif
 

@@ -47,10 +47,25 @@ Static Public Function ShowArguments() As Boolean
 
 End
 
+Public Sub _new()
+  
+  Dim hBorder As Border
+
+  tvwEnv.AddColumn("")
+  tvwEnv.AddColumn(("Variable"), Desktop.Scale * 16)
+  tvwEnv.AddColumn(("Value"))
+
+  tvwEnv.Rows.Resizable = False
+  
+  hBorder = Border("style:none;bottom-style:solid;padding:" & CStr(Desktop.Scale \ 2) & ";")
+  hBorder.Color = Color.LightForeground
+  gvwLibrary.Rows.Border = hBorder
+  
+End
+
 Public Sub Form_Open()
 
   Dim sLang As String
-  Dim hBorder As Border
 
   Me.Title = ("Project properties") & " - " & Project.Name
 
@@ -108,10 +123,6 @@ Public Sub Form_Open()
 
   End With
   
-  hBorder = Border("style:none;bottom-style:solid;padding:" & CStr(Desktop.Scale \ 2) & ";")
-  hBorder.Color = Color.LightForeground
-  gvwLibrary.Rows.Border = hBorder
-  
   choComponent.Checkable = True
   choComponent.CheckedComponents = Project.Components
   choComponent.Libraries = $aLibraries
@@ -159,14 +170,7 @@ End
 
 Private Sub InitEnvironment()
 
-  tvwEnv.Columns.Count = 3
-  tvwEnv.Columns[1].Text = ("Variable")
-  tvwEnv.Columns[2].Text = ("Value")
-  
   $aEnv = Project.Environment.Copy()
-    
-  tvwEnv.Rows.Resizable = False
-  
   UpdateEnv
   
 End
@@ -174,18 +178,20 @@ End
 Private Sub SaveEnvironment()
   
   Dim iInd As Integer
+  Dim aEnv As String[]
   
   tvwEnv.Save
+  aEnv = $aEnv.Copy()
   
   While iInd < $aEnv.Count
     If Not Trim(Scan($aEnv[iInd], "*=*")[0]) Then 
-      $aEnv.Remove(iInd)
+      aEnv.Remove(iInd)
     Else 
       Inc iInd
     Endif
   Wend
 
-  Project.Environment = $aEnv
+  Project.Environment = aEnv
   
 End
 
@@ -623,7 +629,6 @@ Public Sub btnReset_Click()
   
   End Select
 
-
 End
 
 Private Sub IsEnvDisabled(Row As Integer) As Boolean
@@ -637,7 +642,7 @@ Public Sub tvwEnv_Click()
   Dim iRow As Integer
   
   If tvwEnv.Column Then
-    tvwEnv.Edit()
+    tvwEnv.Edit
   Else
     Try iRow = Key.Code
     If Not Error Then
@@ -735,7 +740,8 @@ Public Sub btnInsertEnv_Click()
   $aEnv.Add("=")
   UpdateEnv
   tvwEnv.MoveTo($aEnv.Max, 1)
-  tvwEnv.Edit      
+  tvwEnv.Columns[1].Width = Max(tvwEnv.Columns[1].Width, Desktop.Scale * 24)
+  tvwEnv.Edit
 
 End
 
@@ -1402,7 +1408,6 @@ Private Sub UpdateEnv()
   tvwEnv.Columns[0].Width = Desktop.Scale * 4
   tvwEnv.Columns[0].Resizable = False
   tvwEnv.Columns[1].Width = -1
-  'tvwEnv.Columns[1].Width = Max(tvwEnv.Columns[0].Width, (tvwEnv.W * 3) \ 4)
   tvwEnv.Refresh
 
 End
@@ -1460,6 +1465,11 @@ Public Sub tvwEnv_Select()
   btnRemoveEnv.Enabled = tvwEnv.Row >= 0
   btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
   btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
-  
+
+End
+
+Public Sub tvwEnv_Hide()
+
+  UpdateEnv
 
 End
