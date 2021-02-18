@@ -760,13 +760,23 @@ End
 
 Public Sub GridView_MouseDown()
   
-  Dim iRow As Integer = $hView.RowAt(Mouse.Y)
-  Dim hItem As _TreeView_Item = _RowToItem(iRow)
+  Dim iRow As Integer
+  Dim hItem As _TreeView_Item
   Dim X As Integer
+  Dim bCancel As Boolean
 
-  If Not hItem Then Return
   If Mouse.Click > 1 Then Return
 
+  bCancel = Raise MouseDown
+  If bCancel Then 
+    Stop Event
+    Return
+  Endif
+
+  iRow = $hView.RowAt(Mouse.Y)
+  hItem = _RowToItem(iRow)
+  If Not hItem Then Return
+  
   If Mouse.Right And If Not $bShowCheck Then
     _SetItemSelected(hItem, True) '.Rows[iRow].Selected = True
   Endif
