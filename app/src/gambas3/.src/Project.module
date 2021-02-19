@@ -1145,6 +1145,23 @@ Public Sub AddLinkEmblem(hSource As Image) As Image
 
 End
 
+Public Sub AddCompressedEmblem(hSource As Image) As Image
+
+  Dim hImage As Image
+  Dim iCol As Integer
+
+  If Application.DarkTheme Then
+    iCol = Color.SetAlpha(Color.TextForeground, 128)
+  Else
+    iCol = Color.SetAlpha(Color.TextForeground, 220)
+  Endif
+
+  hImage = hSource.Copy()
+  hImage.PaintRect(0, 0, hImage.W, hImage.H, iCol)
+  Return hImage
+
+End
+
 ' Private Sub MakeExportedIcon(hImage As Image)
 '
 '   Dim X, Y As Integer
@@ -1187,8 +1204,7 @@ Public Sub MakeModuleIcon(sModule As String, iSize As Integer, Optional bStartup
   hImage = $cImageCache[sKey]
   If Not hImage Then
     
-    hImage = Picture["img/module" &/ sModule & ".png"].Image
-    hImage = hImage.Stretch(iSize, iSize)
+    hImage = Image.Load("img/module" &/ sModule & ".png").Stretch(iSize, iSize)
 
     'If bExported Then MakeExportedIcon(hImage)
 

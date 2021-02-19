@@ -373,7 +373,7 @@ Static Public Sub GetModeFromPath(sPath As String) As String
       sMode = "cplusplus"
     Case "gbs"
       sMode = "gambas"
-    Case "html", "htm", "xml", "kml", "rss"
+    Case "html", "htm", "xml", "kml", "rss", "svg"
       sMode = "html"
     Case "module", "test", "class"
       If Project.IsSourcePath(sPath) Then sMode = "gambas"
