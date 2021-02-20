@@ -712,7 +712,9 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
           iSize += 4
           hImage = New Image(hThumb.W + 4, hThumb.H + 4, Color.Transparent)
           hImage.DrawImage(hThumb, 2, 2)
-          hImage.DrawRect(0, 0, hImage.W, hImage.H, Color.Merge(Color.TextBackground, Color.LightForeground))
+          Paint.Begin(hImage)
+          Paint.DrawRect(0, 0, hImage.W, hImage.H, Color.Merge(Color.TextBackground, Color.LightForeground))
+          Paint.End
           
         Else
           

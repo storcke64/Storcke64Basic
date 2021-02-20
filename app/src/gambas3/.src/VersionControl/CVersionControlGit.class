@@ -17,7 +17,9 @@ Private $sRoot As String
 Private $bCanControl As Boolean
 Private $bCanInit As Boolean
 Private $bHasRemote As Boolean
+
 Private $iPadHistory As Integer
+Private $hHighlightDiff As TextHighlighter
 
 Private Sub Init()
 
@@ -512,16 +514,25 @@ Public Sub HighlightHistory(Text As String)
   If Text Begins "commit " Then 
     TextHighlighter.TextAfter = String.PadRight("Commit", $iPadHistory) & " : " & Mid$(Text, 8)
     TextHighlighter.Add(Highlight.DataType, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.DataType, String.Len(Text))
+    TextHighlighter.Limit = True
+  Else If Text Begins "Merge: " Then 
+    TextHighlighter.TextAfter = String.PadRight("Merge", $iPadHistory) & " : " & Mid$(Text, 8)
+    TextHighlighter.Add(Highlight.Number, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.DataType, String.Len(Text))
     TextHighlighter.Limit = True
   Else If Text Begins "Author: " Then
     TextHighlighter.TextAfter = String.PadRight(("Author"), $iPadHistory) & " : " & Mid$(Text, 9)
     TextHighlighter.Add(Highlight.Function, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.Function, String.Len(Text))
   Else If Text Begins "Date: " Then
     TextHighlighter.TextAfter = String.PadRight(("Date"), $iPadHistory) & " : " & FormatDate(Mid$(Text, 7))
     TextHighlighter.Add(Highlight.Preprocessor, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.Preprocessor, String.Len(Text))
   Else
     TextHighlighter.Alternate = False
-    TextHighlighter["diff"].Run(Text)
+    If Not $hHighlightDiff Then $hHighlightDiff = TextHighlighter["diff"]
+    $hHighlightDiff.Run(Text)
     'TextHighlighter.Add(Highlight.Normal, iLen)
   Endif
   
