@@ -79,7 +79,7 @@ class MyWebEngineView : public QWebEngineView
 public:
 	
 	MyWebEngineView(QWidget *parent);
-	void clearPage(bool del);
+	void clearPage(bool destroy);
 
 protected:
 	
