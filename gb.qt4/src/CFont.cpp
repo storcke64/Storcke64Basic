@@ -414,12 +414,9 @@ END_PROPERTY
 BEGIN_METHOD(Font_TextHeight, GB_STRING text)
 
 	QFontMetrics fm(*(THIS->font));
-	QString s;
 	int nl;
 
-	if (!MISSING(text))
-		s = QSTRING_ARG(text);
-	nl = s.count('\n');
+	nl = QSTRING_ARG(text).count('\n');
 
 	GB.ReturnInteger(fm.height() * (1 + nl) + fm.leading() * nl);
 
