@@ -60,7 +60,7 @@ Private Sub StripCache(cCol As Collection)
 
 End
 
-Public Sub _GetRowY(iRow As Integer) As Integer
+Fast Public Sub _GetRowY(iRow As Integer) As Integer
   
   Dim hView As TextEditor = GetView()
   Dim Y As Integer

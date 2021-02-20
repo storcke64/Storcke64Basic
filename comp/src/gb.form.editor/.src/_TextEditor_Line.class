@@ -61,7 +61,7 @@ Public Sub Refresh()
   
   With GetDoc()
     .Info(_Line).ClearHighlight
-    .HighlightFrom(_Line)
+    '.HighlightFrom(_Line)
     .Refresh(_Line)
   End With
   

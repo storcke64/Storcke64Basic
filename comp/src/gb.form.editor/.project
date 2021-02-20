@@ -1,7 +1,6 @@
 # Gambas Project File 3.0
 Title=Text editor with syntax highlighting
 Startup=FTestEditor
-Profiling=1
 Icon=.hidden/control/texteditor.png
 Version=3.15.90
 VersionFile=1
@@ -11,7 +10,7 @@ Component=gb.form
 Component=gb.eval
 Component=gb.eval.highlight
 Component=gb.util
-Environment="GB_GUI=gb.qt5"
+Environment="GB_GUI=gb.qt5\n GB_NO_JIT=1"
 TabSize=2
 Language=en_US
 Type=Component

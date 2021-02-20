@@ -287,6 +287,7 @@ End
 
 Private Function Text_Read() As String
   
+  $hDoc.HighlightAll()
   Return $hDoc.Text
   
 End
@@ -424,7 +425,7 @@ End
 Public Sub Save(Path As String)
   
   'Inc Application.Busy
-  $hDoc.HighlightFrom($Y)
+  $hDoc.HighlightAll()
   $hDoc.Save(Path)
   $hTimerChange = Null
   'Dec Application.Busy
@@ -554,15 +555,15 @@ Private Sub DrawMatch(X As Integer, Y As Integer, H As Integer, XM As Integer, Y
   
   Dim XY As Point
   Dim WW As Integer
-  Dim iColor As Integer
   
-  'If Not $bShowCursor And If Not bOther And If Me.HasFocus Then Return
   XY = LinePos(YM, XM)
   WW = TextWidth($hDoc.Lines[YM], XM + 1, 1)
-  'If bOther Then
- iColor = $iMatchColor
-  If Not bOther Then iColor = Color.SetAlpha(iColor, 128)
-  Paint.FillRect(X + XY.X, Y + XY.Y, WW, H, iColor)
+  
+  If Not bOther Then
+    Paint.FillRect(X + XY.X, Y + XY.Y + H - 2, WW, 2, $iMatchColor)
+  Else
+    Paint.FillRect(X + XY.X, Y + XY.Y, WW, H, $iMatchColor)
+  Endif
   
 End
 
@@ -876,6 +877,7 @@ Private Sub PaintMultiLine(X As Integer, Y As Integer, Width As Integer, Height 
 
   If Not bEnd Then
     X += Width - Height \ 2
+    Paint.FillRect(X, Y, Height \ 2, Height, $iBackground)
     Paint.Arrow(X, Y, Height \ 3, Height, Align.Right)
     Paint.Background = $iForeground
     Paint.LineWidth = $LH / 24
@@ -1962,7 +1964,7 @@ Public Sub Goto(NX As Integer, NY As Integer, Optional Mark As Boolean)
     SX = $SX
     SY = $SY
     SXY = $SXY
-    $hDoc.HighlightFrom($Y)
+    $hDoc.HighlightUntil($Y) ' As Goto is used for selecting text, it ensures that the selecting text has been rewritten if needed.
     If Mark Then
       If $SX <> SX Or If $SY <> SY Then
         $SX = SX
@@ -3138,6 +3140,7 @@ Public Sub View_Draw()
   Dim iCount As Integer
   Dim YR As Integer
   Dim HR As Integer
+  'Dim bHighlight As Boolean
   
   If Not $bUpdateHeightAllowed Then
     $bUpdateHeightAllowed = True
@@ -3198,10 +3201,17 @@ Public Sub View_Draw()
     aRow[I] = _ViewToReal(iRow + I)
   Next
   
+  'bHighlight = $hDoc.StartHighlight()
+  $hDoc.HighlightUntil(aRow[aRow.Max])
+  
   Y = YY
   For I = 0 To iMaxRow
     iRow = aRow[I]
     If iRow >= iCount Then Break
+    
+    ' If bHighlight Then
+    '   If iRow <> $Y Or If Not $hDoc.Info(iRow).Modified Then $hDoc.HighlightLine(iRow)
+    ' Endif
     
     H = $hRows._GetRowHeight(iRow)
     
@@ -3241,6 +3251,8 @@ Public Sub View_Draw()
     Endif
     Y += H
   Next
+  
+  'If bHighlight Then $hDoc.EndHighlight()
   
   W = $MW
   W -= $iWidthModified
@@ -3679,7 +3691,7 @@ End
 Public Sub View_LostFocus()
   
   $hTimerCursor.Stop
-  $hDoc.HighlightFrom($Y)
+  $hDoc.HighlightUntil($Y)
   $hTimerCacheLine.Trigger
   
 End
@@ -5026,7 +5038,7 @@ Private Sub MoveSelection(bUp As Boolean)
     Endif
   Endif
   
-  $hDoc.HighlightFrom($Y)
+  '$hDoc.HighlightFrom($Y)
   
   $hDoc.End
   
@@ -6061,7 +6073,7 @@ Public Sub GetHighlight(Y As Integer, ByRef Symbols As String[], ByRef Types As 
   Dim I As Integer
   Dim P As Integer
   
-  $hDoc.HighlightFrom(Y)
+  $hDoc.HighlightUntil(Y)
   Try aColors = $hDoc.LinesInfo[Y].Colors
   If Not aColors Then Return
   
