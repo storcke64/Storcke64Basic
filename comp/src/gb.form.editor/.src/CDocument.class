@@ -193,10 +193,11 @@ Private Function Max_Read() As Integer
 
 End
 
-Public Sub Begin()
+Public Sub Begin(Optional bMerge As Boolean)
 
   If $iNoUndo Then Return
   Inc $iBegin
+  If bMerge Then AddUndo(CCommand(Me, CCommand.LINK))
   AddUndo(CCommand(Me, CCommand.BEGIN,, Me.Current.Column, Me.Current.Line))
   DisableHighlight
   
@@ -659,63 +660,73 @@ Public Sub Undo()
   Dim hCommandBefore As CCommandBefore
   
   If $aUndo.Count = 0 Then Return
-  
+
   DisableUndo
   DisableHighlight
   
   bOverwrite = Me.Current.Overwrite
   Me.Current.Overwrite = False
 
-  Repeat
-  
-    hCmd = $aUndo.Pop()
+  Do
+
+    Repeat
     
-    'Print "Undo: ";
-    'hCmd.Print
-    
-    With hCmd
+      hCmd = $aUndo.Pop()
       
-      Select Case .Type
+      'Print "Undo: ";
+      'hCmd.Print
+      
+      With hCmd
         
-        Case CCommand.BEGIN
-          .MoveCursor(Me)
-          Dec L
-        
-        Case CCommand.END
-          Inc L
-        
-        Case CCommand.INSERT
-          Me.Current.Remove(.X, .Y, .XA, .YA)
+        Select Case .Type
           
-        Case CCommand.DELETE
-          Me.Current.Goto(.X, .Y)
-          Me.Current.Insert(.Text)
-          If .SX <> .X Or If .SY <> .Y Then 
-            Me.Current.Goto(.SX, .SY)
-            Me.Current.Goto(.XA, .YA, True)
-          Else If .Right Then
+          Case CCommand.BEGIN
+            .MoveCursor(Me)
+            Dec L
+          
+          Case CCommand.END
+            Inc L
+          
+          Case CCommand.INSERT
+            Me.Current.Remove(.X, .Y, .XA, .YA)
+            
+          Case CCommand.DELETE
             Me.Current.Goto(.X, .Y)
-          Endif
+            Me.Current.Insert(.Text)
+            If .SX <> .X Or If .SY <> .Y Then 
+              Me.Current.Goto(.SX, .SY)
+              Me.Current.Goto(.XA, .YA, True)
+            Else If .Right Then
+              Me.Current.Goto(.X, .Y)
+            Endif
+          
+        End Select
         
-      End Select
+        hCommandBefore = .State
+        If hCommandBefore Then 
+          With hCommandBefore
+            If .BreakpointBefore Then $cBreakpoint = .BreakpointBefore.Copy()
+            If .BookmarkBefore Then $cBookmark = .BookmarkBefore.Copy()
+            If .BookmarkBefore Or If .BreakpointBefore Then
+              Refresh
+              RaiseChange
+            Endif
+          End With
+        Endif
+    
+      End With
       
-      hCommandBefore = .State
-      If hCommandBefore Then 
-        With hCommandBefore
-          If .BreakpointBefore Then $cBreakpoint = .BreakpointBefore.Copy()
-          If .BookmarkBefore Then $cBookmark = .BookmarkBefore.Copy()
-          If .BookmarkBefore Or If .BreakpointBefore Then
-            Refresh
-            RaiseChange
-          Endif
-        End With
-      Endif
-  
-    End With
+      $aRedo.Add(hCmd)
+      
+    Until L = 0
     
-    $aRedo.Add(hCmd)
+    If $aUndo.Count And If $aUndo.Last.Type = CCommand.LINK Then 
+      $aRedo.Add($aUndo.Pop())
+    Else
+      Break
+    Endif
     
-  Until L = 0
+  Loop
     
   Me.Current.Overwrite = bOverwrite
   
@@ -739,56 +750,66 @@ Public Sub Redo()
   bOverwrite = Me.Current.Overwrite
   Me.Current.Overwrite = False
   
-  Repeat
+  Do
   
-    hCmd = $aRedo.Pop()
+    Repeat
     
-    'Print "Redo: ";
-    'hCmd.Print
-    
-    With hCmd
+      hCmd = $aRedo.Pop()
       
-      Select Case .Type
+      'Print "Redo: ";
+      'hCmd.Print
+      
+      With hCmd
         
-        Case CCommand.BEGIN
-          Inc L
+        Select Case .Type
           
-        Case CCommand.END
-          .MoveCursor(Me)
-          Dec L
-        
-        Case CCommand.DELETE
-          ' If .SX <> .X Or If .SY <> .Y Then 
-          '   Me.Current.Goto(.SX, .SY)
-          '   Me.Current.Goto(.X, .Y, True)
-          ' Else
-          '   Me.Current.Goto(.X, .Y)
-          ' Endif
-          Me.Current.Remove(.X, .Y, .XA, .YA)
+          Case CCommand.BEGIN
+            Inc L
+            
+          Case CCommand.END
+            .MoveCursor(Me)
+            Dec L
           
-        Case CCommand.INSERT
-          .MoveCursor(Me)
-          Me.Current.Insert(.Text)
-        
-      End Select
-  
-      hCommandBefore = .State
-      If hCommandBefore Then 
-        With hCommandBefore
-          If .BreakpointAfter Then $cBreakpoint = .BreakpointAfter.Copy()
-          If .BookmarkAfter Then $cBookmark = .BookmarkAfter.Copy()
-          If .BookmarkAfter Or If .BreakpointAfter Then
-            Refresh
-            RaiseChange
-          Endif
-        End With
-      Endif
-  
-    End With
+          Case CCommand.DELETE
+            ' If .SX <> .X Or If .SY <> .Y Then 
+            '   Me.Current.Goto(.SX, .SY)
+            '   Me.Current.Goto(.X, .Y, True)
+            ' Else
+            '   Me.Current.Goto(.X, .Y)
+            ' Endif
+            Me.Current.Remove(.X, .Y, .XA, .YA)
+            
+          Case CCommand.INSERT
+            .MoveCursor(Me)
+            Me.Current.Insert(.Text)
+          
+        End Select
     
-    $aUndo.Add(hCmd)
+        hCommandBefore = .State
+        If hCommandBefore Then 
+          With hCommandBefore
+            If .BreakpointAfter Then $cBreakpoint = .BreakpointAfter.Copy()
+            If .BookmarkAfter Then $cBookmark = .BookmarkAfter.Copy()
+            If .BookmarkAfter Or If .BreakpointAfter Then
+              Refresh
+              RaiseChange
+            Endif
+          End With
+        Endif
     
-  Until L = 0
+      End With
+      
+      $aUndo.Add(hCmd)
+      
+    Until L = 0
+    
+    If $aRedo.Count And If $aRedo.Last.Type = CCommand.LINK Then 
+      $aUndo.Add($aRedo.Pop())
+    Else
+      Break
+    Endif
+
+  Loop
   
   Me.Current.Overwrite = bOverwrite
   
@@ -883,7 +904,7 @@ Private Sub HighlightLine(Y As Integer) As Boolean
         $bRewrite = True
         $bEndOfLine = Me.Current.Column >= LineLength[Me.Current.Line]
         Me.Current.SaveCursor
-        Begin()
+        Begin(True)
       Endif
       Me.Current.Goto(0, Y)
       Me.Current.Remove(0, Y, LineLength[Y], Y)
@@ -907,7 +928,7 @@ Private Sub HighlightLine(Y As Integer) As Boolean
   
 End
 
-Public Sub StartHighlight() As Boolean
+Private Sub StartHighlight() As Boolean
   
   Dim hView As TextEditor
   
@@ -937,7 +958,7 @@ Public Sub StartHighlight() As Boolean
 
 End
 
-Public Sub EndHighlight()
+Private Sub EndHighlight()
   
   If $bRewrite Then
     Me.Current.RestoreCursor
@@ -948,39 +969,6 @@ Public Sub EndHighlight()
   $bHighlighting = False
   
 End
-
-
-
-' Public Sub HighlightFrom(Y As Integer)
-' 
-'   Dim bRefresh As Boolean
-'   
-'   If $bHighlighting Then Return
-'   
-'   If $iNoHighlight Then 
-'     $cHighlightLater[Y] = True
-'     Return
-'   Endif
-'   
-'   If Not StartHighlight() Then Return
-' 
-'   Do
-' 
-'     If Y < 0 Or If Y > Lines.Max Then Break
-'     If Info(Y).Colors Then Break
-'   
-'     bRefresh = True
-'   
-'     HighlightLine(Y)
-'     Inc Y
-'     
-'   Loop
-' 
-'   EndHighlight()
-' 
-'   If bRefresh Then Refresh
-'     
-' End
 
 Public Sub HighlightUntil(Y As Integer)
 
@@ -1384,7 +1372,7 @@ Public Sub EnableHighlight()
   If $iNoHighlight = 0 Then 
     cHighlightLater = $cHighlightLater
     For Each cHighlightLater
-      HighlightUntil(cHighlightLater.Key)
+      'HighlightUntil(cHighlightLater.Key)
     Next
     $cHighlightLater = Null
   Endif
