@@ -28,6 +28,7 @@
 #include <QAbstractNativeEventFilter>
 #include <QPointer>
 #include <QApplication>
+#include <QScreen>
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
@@ -297,7 +298,7 @@ static int desktop_get_resolution_y(void)
 
 static void desktop_screenshot(QPixmap *pixmap, int x, int y, int w, int h)
 {
-	*pixmap = QPixmap::grabWindow(QX11Info::appRootWindow(), x, y, w, h);
+	*pixmap = qApp->primaryScreen()->grabWindow(QX11Info::appRootWindow(), x, y, w, h);
 }
 
 //-------------------------------------------------------------------------
