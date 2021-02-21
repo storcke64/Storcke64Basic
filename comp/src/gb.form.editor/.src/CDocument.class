@@ -949,10 +949,12 @@ Private Sub StartHighlight() As Boolean
   
   TextHighlighter.CanRewrite = _Mode.Name
   
-  $aViewCurrentLine = New Integer[]
-  For Each hView In GetAllViews()
-    $aViewCurrentLine.Add(hView.Line)
-  Next
+  If TextHighlighter.CanRewrite Then
+    $aViewCurrentLine = New Integer[]
+    For Each hView In GetAllViews()
+      $aViewCurrentLine.Add(hView.Line)
+    Next
+  Endif
   
   Return True
 
@@ -987,7 +989,7 @@ Public Sub HighlightUntil(Y As Integer)
 
   iNextFirst = -1
   For L = $iFirstInvalidHighlight To Y
-    If $aViewCurrentLine.Exist(L) And If Info(L).Modified Then 
+    If $aViewCurrentLine And If $aViewCurrentLine.Exist(L) And If Info(L).Modified Then 
       If iNextFirst < 0 Then iNextFirst = L
       Continue
     Endif
