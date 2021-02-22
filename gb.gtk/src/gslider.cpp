@@ -21,6 +21,7 @@
 
 ***************************************************************************/
 
+#include "gb.form.const.h"
 #include "widgets.h"
 #include "gdesktop.h"
 #include "gapplication.h"
@@ -260,23 +261,26 @@ void gSlider::orientation(int w,int h)
 }
 #endif
 
-bool gSlider::resize(int w, int h)
+void gSlider::applyOrientation(GtkOrientation orientation)
 {
-	GtkOrientation orientation, new_orientation;
+	GtkOrientation old_orientation = gtk_orientable_get_orientation(GTK_ORIENTABLE(widget));
 	int swap;
-	
-	orientation = gtk_orientable_get_orientation(GTK_ORIENTABLE(widget));
-	new_orientation = (w < h) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL;
 
-	if (orientation != new_orientation)
+	if (orientation != old_orientation)
 	{
-		gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), new_orientation);
+		gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), orientation);
 		
 		swap = _min_w;
 		_min_w = _min_h;
 		_min_h = swap;
 	}
-	
+}
+
+bool gSlider::resize(int w, int h)
+{
+	if (!_orientation)
+		applyOrientation((w < h) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+
 	return gControl::resize(w, h);
 }
 
@@ -304,4 +308,24 @@ bool gSlider::isVertical() const
 void gSlider::checkInverted()
 {
 	gtk_range_set_inverted(GTK_RANGE(widget), !isVertical() && gDesktop::rightToLeft());
+}
+
+void gSlider::setOrientation(int vl)
+{
+	if (vl == _orientation)
+		return;
+	
+	_orientation = vl;
+	
+	switch(_orientation)
+	{
+		case ORIENTATION_HORIZONTAL:
+		case ORIENTATION_VERTICAL:
+			applyOrientation(_orientation == ORIENTATION_HORIZONTAL ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL);
+			break;
+			
+		default:
+			_orientation = ORIENTATION_AUTO;
+			applyOrientation((width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+	}
 }

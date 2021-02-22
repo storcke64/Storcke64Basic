@@ -1095,8 +1095,8 @@ extern "C" {
 
 GB_DESC *GB_CLASSES[] EXPORT =
 {
-	CBorderDesc, CColorDesc,
-	CAlignDesc, CArrangeDesc, CScrollDesc, CKeyDesc, CSelectDesc,
+	BorderDesc, CColorDesc,
+	AlignDesc, ArrangeDesc, ScrollDesc, CKeyDesc, SelectDesc,
 	CImageDesc, CPictureDesc, AnimationDesc,
 	CFontDesc, CFontsDesc,
 	CMouseDesc, CCursorDesc, CPointerDesc,
@@ -1114,7 +1114,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
 	CTabStripContainerChildrenDesc, CTabStripContainerDesc, CTabStripDesc,
 	CDrawingAreaDesc,
-	CSliderDesc, CScrollBarDesc,
+	SliderDesc, ScrollBarDesc,
 	CWindowMenusDesc, CWindowControlsDesc, CWindowDesc, CWindowsDesc, CFormDesc,
 	CDialogDesc,
 	CWatcherDesc,

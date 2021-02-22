@@ -40,6 +40,7 @@ public:
 	bool mark() const { return _mark; }
 	int step() const { return _step; }
 	int pageStep() const { return _page_step; }
+	int orientation() const { return _orientation; }
 
 	//void setForeground(int vl);
 	//void setBackground(int vl);
@@ -50,11 +51,13 @@ public:
 	void setMark(bool vl);
 	void setStep(int vl);
 	void setPageStep(int vl);
+	void setOrientation(int vl);
 	
 	int getDefaultSize();
 	bool isVertical() const;
 	
 	virtual bool resize(int w, int h);
+	void applyOrientation(GtkOrientation orientation);
 
 //"Signals"
 	void (*onChange)(gSlider *sender);
@@ -68,6 +71,7 @@ public:
 	unsigned _mark : 1;
 	unsigned _tracking : 1;
 	unsigned _is_scrollbar : 1;
+	unsigned _orientation : 2;
 	
 	int _step;
 	int _page_step;

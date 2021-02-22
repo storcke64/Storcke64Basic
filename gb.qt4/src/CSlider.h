@@ -33,12 +33,12 @@
 
 #ifndef __CSLIDER_CPP
 
-extern GB_DESC CSliderDesc[];
+extern GB_DESC SliderDesc[];
 
 #else
 
 #define THIS    ((CSLIDER *)_object)
-#define WIDGET  ((QSlider *)((QT_WIDGET *)_object)->widget)
+#define WIDGET  ((MySlider *)((QT_WIDGET *)_object)->widget)
 
 #endif
 
@@ -55,6 +55,7 @@ class MySlider : public QSlider
 public:
 
   MySlider(QWidget *);
+	void updateOrientation();
 
 protected:
 

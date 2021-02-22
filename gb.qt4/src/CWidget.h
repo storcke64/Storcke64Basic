@@ -56,21 +56,23 @@ typedef
 		void *ext;
 		struct {
 			unsigned deleted : 1;
-			unsigned scrollview : 1;         // inherits QScrollView
+			unsigned scrollview : 1;           // inherits QScrollView
 			unsigned expand : 1;
 			unsigned ignore : 1;
 			unsigned notified : 1;
 			unsigned visible : 1;
 			unsigned autoFillBackground : 1;
 			unsigned fillBackground : 1;
+
 			unsigned noBackground : 1;
-			unsigned shown : 1;              // for containers
+			unsigned shown : 1;                // for containers
 			unsigned tracking : 1;
 			unsigned old_tracking : 1;
 			unsigned grab : 1;
 			unsigned dragging: 1;
 			unsigned noTabFocus : 1;
 			unsigned inside : 1;
+
 			unsigned inside_later : 1;
 			unsigned use_tablet : 1;
 			unsigned no_keyboard : 1;
@@ -78,10 +80,12 @@ typedef
 			unsigned has_action : 1;
 			unsigned drop : 1;
 			unsigned resized : 1;
-			unsigned wheel : 1;              // eat wheel events
+			unsigned wheel : 1;                // eat wheel events
+
 			unsigned design : 1;
 			unsigned design_ignore : 1;
 			unsigned no_design : 1;
+			unsigned orientation : 1;          // for scrollbars & similar widgets
 			} flag;
 		char *name;
 		void *font;

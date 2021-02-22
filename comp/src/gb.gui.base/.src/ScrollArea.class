@@ -125,8 +125,10 @@ Public Sub _new()
   
   $hHBar = New ScrollBar(Me) As "Scrollbar"
   $hHBar.Step = Desktop.Scale
+  $hHBar.Orientation = ScrollBar.Horizontal
   $hVBar = New ScrollBar(Me) As "Scrollbar"
   $hVBar.Step = Desktop.Scale
+  $hVBar.Orientation = ScrollBar.Vertical
 
   $hCorner = New DrawingArea(Me)
   $hCorner.Hide

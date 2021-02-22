@@ -24,8 +24,7 @@
 #ifndef __CSCROLLBAR_H
 #define __CSCROLLBAR_H
 
-#include <qscrollbar.h>
-//Added by qt3to4:
+#include <QScrollBar>
 #include <QResizeEvent>
 #include "gb.qt.h"
 #include "gambas.h"
@@ -33,12 +32,12 @@
 
 #ifndef __CSCROLLBAR_CPP
 
-extern GB_DESC CScrollBarDesc[];
+extern GB_DESC ScrollBarDesc[];
 
 #else
 
 #define THIS    ((CSCROLLBAR *)_object)
-#define WIDGET  ((QScrollBar *)((QT_WIDGET *)_object)->widget)
+#define WIDGET  ((MyScrollBar *)((QT_WIDGET *)_object)->widget)
 
 #endif
 
@@ -57,6 +56,7 @@ class MyScrollBar : public QScrollBar
 public:
 
   MyScrollBar(QWidget *);
+	void updateOrientation();
 
 protected:
 
