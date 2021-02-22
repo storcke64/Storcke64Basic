@@ -2695,8 +2695,8 @@ Public Sub Control_Draw(...)
       hPict = Picture[".control" &/ LCase(hCCtrl.Kind)]
       'Draw.ForeColor = Control[Name].Control.Foreground
       If hPict Then
-        Paint.DrawPicture(hPict, DS, DS)
-        Paint.DrawText(hCtrl.Tag, DS * 2 + hPict.Width, DS, Paint.W, Paint.H, Align.TopLeft)
+        Paint.DrawPicture(hPict, DS, DS, DS * 4, DS * 4)
+        Paint.DrawText(hCtrl.Tag, DS * 6, DS, Paint.W, Paint.H, Align.TopLeft)
       Else
         Paint.DrawText(hCtrl.Tag, DS, DS, Paint.W, Paint.H, Align.TopLeft)
       Endif

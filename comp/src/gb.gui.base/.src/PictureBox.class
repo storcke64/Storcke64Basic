@@ -221,7 +221,7 @@ Public Sub UserControl_Draw()
   If W = 0 Or If H = 0 Then 
     If Me.Design Then
       If Not $hDefault Then $hDefault = Image.Load("picturebox.png")
-      Paint.DrawImage($hDefault, Desktop.Scale, Desktop.Scale)
+      Paint.DrawImage($hDefault, Desktop.Scale, Desktop.Scale, Desktop.Scale * 4, Desktop.Scale * 4)
     Endif
     Stop Event
     Return

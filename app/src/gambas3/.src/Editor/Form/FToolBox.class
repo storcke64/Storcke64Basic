@@ -384,11 +384,14 @@ End
 Public Sub btnZoom_Click()
 
   Dim iSize As Integer
+  Dim iTab As Integer
 
   iSize = Settings["/Toolbox/Size", 0]
   iSize = (iSize + 1) Mod 4
   Settings["/Toolbox/Size"] = iSize
+  iTab = tabTool.Index
   UpdateSize
+  tabTool.Index = iTab
 
 End
 

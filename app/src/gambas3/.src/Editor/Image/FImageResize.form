@@ -27,44 +27,46 @@
   }
   { optResize RadioButton radResize
     Name = "optResize"
-    MoveScaled(1,17,28,4)
+    MoveScaled(1,21,28,3)
     AutoResize = True
     Text = ("Resize image")
-    Value = True
   }
   { optResizeCenter RadioButton radResize
     Name = "optResizeCenter"
-    MoveScaled(1,25,28,4)
+    MoveScaled(1,29,28,3)
     AutoResize = True
     Text = ("Resize and center")
   }
   { optResizeCenterH RadioButton radResize
     Name = "optResizeCenterH"
-    MoveScaled(1,29,28,4)
+    MoveScaled(1,33,28,3)
     AutoResize = True
     Text = ("Resize and center horizontally")
   }
   { optResizeCenterV RadioButton radResize
     Name = "optResizeCenterV"
-    MoveScaled(1,33,28,4)
+    MoveScaled(1,37,28,3)
     AutoResize = True
     Text = ("Resize and center vertically")
   }
   { optStretch RadioButton radResize
     Name = "optStretch"
-    MoveScaled(1,37,28,4)
+    MoveScaled(1,17,28,3)
     AutoResize = True
     Text = ("Stretch image")
+    Value = True
   }
   { txtWidth SpinBox
     MoveScaled(16,1,11,4)
     MinValue = 1
     MaxValue = 65536
+    Value = 1
   }
   { txtHeight SpinBox
     MoveScaled(16,6,11,4)
     MinValue = 1
     MaxValue = 65536
+    Value = 1
   }
   { btnOK Button
     MoveScaled(41,1,16,4)
@@ -73,7 +75,7 @@
   }
   { optBorder RadioButton radResize
     Name = "optBorder"
-    MoveScaled(1,21,28,4)
+    MoveScaled(1,25,28,3)
     AutoResize = True
     Text = ("Add a border")
   }

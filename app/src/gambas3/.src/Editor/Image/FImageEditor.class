@@ -411,6 +411,7 @@ Public Sub btnResize_Click()
 
   Dim X, Y, W, H As Integer
   Dim hImage As Image
+  Dim F As Float
 
   FImageResize.ImageWidth = $hImage.Width
   FImageResize.ImageHeight = $hImage.Height
@@ -423,7 +424,16 @@ Public Sub btnResize_Click()
   If W = $hImage.W And If H = $hImage.H Then Return
   
   If FImageResize.Stretch Then
-    SetImage($hImage.Stretch(W, H))
+    F = W / $hImage.W
+    If F > 1 And If Frac(F) = 0 And If F = H / $hImage.H Then
+      hImage = New Image(W, H, Color.Transparent)
+      Paint.Begin(hImage)
+      Paint.ZoomImage($hImage, F, 0, 0)
+      Paint.End
+      SetImage(hImage)
+    Else
+      SetImage($hImage.Stretch(W, H))
+    Endif
   Else
     hImage = New Image(W, H, Color.Transparent)
     If FImageResize.CenterH Then X = (W - $hImage.W) \ 2
@@ -431,6 +441,8 @@ Public Sub btnResize_Click()
     hImage.DrawImage($hImage, X, Y)
     SetImage(hImage)
   Endif
+  
+  btnZoomFit_Click
 
 End
 
