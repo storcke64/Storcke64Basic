@@ -67,6 +67,28 @@ Public Sub Exist(sControl As String) As Boolean
   
 End
 
+Public Sub Sort()
+
+  Dim hCtrl As Control
+  Dim aCtrl As New Control[]
+  Dim aSort As New String[]
+  
+  For Each hCtrl In panTool.Children
+    aCtrl.Add(hCtrl)
+    aSort.Add(hCtrl.Tag[0])
+  Next
+  
+  aCtrl.SortUsing(aSort)
+  
+  For Each hCtrl In aCtrl
+    hCtrl.Raise
+  Next
+  
+  $cButton[SELECT_TOOL].Lower
+  
+End
+
+
 ' PUBLIC SUB Form_Resize()
 ' 
 '   DIM hCtrl AS ToolButton

@@ -226,6 +226,10 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
       End With
 
     Next
+    
+    For Each hToolBar In $cToolBar
+      hToolBar.Sort()
+    Next
 
     'Try SelectToolbar($sToolBar)
     'tabTool.Index = 0
