@@ -951,30 +951,30 @@ Private Sub Start(sCmd As String)
   FDebugInfo.UpdateView
   FDebugInfo.OnProjectDebug
 
+  aEnv = Project.Environment.Copy()
+  I = 0
+  While I < aEnv.Count
+    If aEnv[I] Begins " " Then
+      aEnv.Remove(I)
+    Else
+      Inc I
+    Endif
+  Wend
+  
+  If Not aEnv.Exist("GB_GUI=*", gb.Like) Then 
+    aEnv.Add("GB_GUI=")
+  Endif
+  
   If $bTest Then
     
     aExec = [System.Path &/ "bin/gbx" & System.Version, "-g", "-f", $sFifo, "-T", GetTestSuite(), File.Dir(SConv(Project.Path))]
     
-    $hProcess = FDebugInfo.GetTestTerminal().Exec(aExec)
+    $hProcess = FDebugInfo.GetTestTerminal().Exec(aExec, aEnv)
     $hProcess.Term.Echo = True
     $hObserver = New Observer($hProcess, True) As "Process"
 
   Else
 
-    aEnv = Project.Environment.Copy()
-    I = 0
-    While I < aEnv.Count
-      If aEnv[I] Begins " " Then
-        aEnv.Remove(I)
-      Else
-        Inc I
-      Endif
-    Wend
-    
-    If Not aEnv.Exist("GB_GUI=*", gb.Like) Then 
-      aEnv.Add("GB_GUI=")
-    Endif
-  
     If Project.Profiling Then FProfile.CleanProfileFiles
   
     ' If Project.Environment And If Project.Environment.Count Then 
