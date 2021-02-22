@@ -332,7 +332,7 @@ End
 '   
 ' End
 ' 
-Private Sub AddCacheHeaders(Optional dLast As Date)
+Public Sub AddCacheHeaders(Optional dLast As Date)
 
   'If InternetExplorer Then Return
 
@@ -340,9 +340,8 @@ Private Sub AddCacheHeaders(Optional dLast As Date)
     Try dLast = Stat(Args[0]).LastModified
     If Error Then dLast = Now
   Endif
-  Response.AddHeader("Expires", CGI.FormatDate(DateAdd(Now, gb.Month, 2)))
-  Response.AddHeader("Cache-Control", "public")
-  'Response.AddHeader("Cache-Control", "max-age=5184000")
+  'Response.AddHeader("Expires", CGI.FormatDate(DateAdd(Now, gb.Month, 2)))
+  Response.AddHeader("Cache-Control", "public,max-age=3600,must-revalidate")
   Response.AddHeader("Last-Modified", CGI.FormatDate(dLast))
 
 End
@@ -423,12 +422,15 @@ Public Sub Main()
   Dim sSearch As String
   Dim sReplace As String
   
+  ' Print "data:image/png;base64,"; URL.Encode(Base64$(File.Load(".public/critical.png")));
+  ' Quit
+  
   ' If Application.Host = "gambasfarm.org" Then
   '   Response.Redirect("http://gambasfarm.org/farm")
   '   Return
   ' Endif
   
-  CGI["SCRIPT_NAME"] = "/wiki" ' Fix web server bug
+  'CGI["SCRIPT_NAME"] = "/wiki" ' Fix web server bug
   Root = User.Home &/ "wiki/gambas"
   InfoDir = User.Home &/ "wiki/info"
   If Not Exist(InfoDir) Then InfoDir = ""
@@ -590,8 +592,9 @@ Public Sub Main()
   
   If Request.Exist("logout") Then
     
+    Session.CookiePath = "/"
     Session.Abandon
-    Redirect()
+    Response.Redirect("/wiki" &/ Request.Path & LinkSuffix)
     Return
     
   ' Else If Request.Exist("register") Then
@@ -605,6 +608,7 @@ Public Sub Main()
     
     cUser = LoadUser(Request["login"])
     If cUser And If cUser["password"] = Request["password"] And If cUser["activé"] Then
+      Session.CookiePath = "/"
       Session["login"] = LCase(Request["login"])
       Session["full-name"] = Trim(cUser["prénom"] & " " & cUser["nom"])
     Endif
@@ -633,6 +637,11 @@ Public Sub Main()
   Endif
 
   If Session.Id Then
+  
+    If Application.Root <> "/edit" Then
+      Response.Redirect("/edit" &/ Request.Path & LinkSuffix)
+      Return
+    Endif
   
     If Request.Exist("save") Then
     

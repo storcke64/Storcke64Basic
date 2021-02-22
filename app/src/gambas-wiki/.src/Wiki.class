@@ -1,5 +1,12 @@
 ' Gambas class file
 
+Public Sub _new()
+  
+  Me.Buffered = True
+  
+End
+
+
 Private Sub _PrintTitle()
 
   If Main.Path Then
@@ -316,7 +323,9 @@ Private Sub _PrintPage()
       Endif
     Endif
     
-    sData = LTrim(File.Load(Main.GetPagePathFrom(sPath)))
+    sPath = Main.GetPagePathFrom(sPath)
+    If Session.Id Then Main.AddCacheHeaders(Stat(sPath).LastModified)
+    sData = LTrim(File.Load(sPath))
     
   Endif
   
