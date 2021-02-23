@@ -50,6 +50,7 @@ End
 Public Sub _new()
   
   gvwComp.Columns.Count = 1
+  ScrollArea(gvwComp.Children[0]).NoAnimation = True
 
 End
 
@@ -79,7 +80,7 @@ Public Sub Position(hEditor As TextEditor)
 
   hPos = $hEditor.ToPos($hEditor.Line, $iCol)
   
-  iX = $hEditor.X + hPos.X
+  iX = $hEditor.X + hPos.X - Stock.GetSize("tiny") - 6
 
   iX = Max(0, Min(iX, $hEditor.Window.ClientW - Me.Width))
 
@@ -120,11 +121,14 @@ Public Sub Position(hEditor As TextEditor)
 End
 
 
-Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Optional bStatic As Boolean, Optional bHidden As Boolean)
+Public Sub Open(hCompletion As CCompletion, sMode As String, Optional sClass As String, Optional bStatic As Boolean, Optional bHidden As Boolean)
 
   Dim iPos As Integer
   Dim sText As String
   Dim W, H As Integer
+  Dim hForm As Object
+
+  hForm = hCompletion.GetModule()
 
   If hForm.GetEditor() <> $hEditor Then HideFrom($hEditor)
   $bHideLater = False
@@ -140,7 +144,7 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
   $sMode = Left(sMode)
   $iLen = 0
   $iMaxLen = 16
-  $iCol = $hEditor.Column + 1
+  $iCol = $hEditor.Column
   $sClass = ""
   $sEventClass = ""
   
@@ -190,11 +194,6 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
       iPos = String.RInStr(sClass, "/")
       $sText = String.Mid$(sClass, iPos + 1)
       $iLen = String.Len($sText)
-      If Key.Code = Key.BackSpace Then
-        $iCol -= String.Len($sText) + 2
-        'sMode = "<"
-      Endif
-      'Debug "$iLen = "; $iLen;; "$iCol = "; $iCol;; ":";; $sText
       FillWithFiles(String.Left(sClass, iPos))
   End Select
 
@@ -209,7 +208,7 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
   'H = lvwComp.Item.H
   H = gvwComp.Rows.H
   
-  If sMode = "<" Or If sMode = "A" Then 
+  If hCompletion.Backspace Or If sMode = "A" Then 
     If FindItem(True) Then 
       Dec Application.Busy
       Return
@@ -247,9 +246,9 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
 
   sText = String.Left($hEditor[$hEditor.Line].Text, $iCol)
   
-  If InStr(" ./", sMode) And If Key.Code <> Key.Backspace Then 
-    sText &= Key.Text
-  Endif
+  ' If InStr(" ./", sMode) Then 'And If Key.Code <> Key.Backspace Then 
+  '   sText &= hCompletion.Text
+  ' Endif
 
   Position($hEditor)
   
@@ -773,6 +772,13 @@ Private Sub FillWithFiles(sWord As String)
   
 End
 
+Private Sub HideMe()
+
+  Me.Hide
+  'Debug System.Backtrace.Join(" ")
+
+End
+
 Public Function ManageKey() As Boolean
 
   Dim iRow As Integer
@@ -796,7 +802,7 @@ Public Function ManageKey() As Boolean
     Case Key.Home
 
       If gvwComp.Row = 0 Then
-        Me.Hide
+        HideMe
         Return
       Endif
 
@@ -806,7 +812,7 @@ Public Function ManageKey() As Boolean
     Case Key.End
 
       If gvwComp.Row = gvwComp.Rows.Count - 1 Then
-        Me.Hide
+        HideMe
         Return
       Endif
 
@@ -814,10 +820,10 @@ Public Function ManageKey() As Boolean
       $bUserChoice = True
 
     Case Key.Escape
-      Me.Hide
+      HideMe
 
     Case Key.Left, Key.Right
-      Me.Hide
+      HideMe
       Return
 
     Case Key.Enter, Key.Return
@@ -829,7 +835,7 @@ Public Function ManageKey() As Boolean
         If UCase($sText) = "NEW" Then Return
         InsertItem(True)
       Else
-        Me.Hide
+        HideMe
       Endif
       Return False 
 
@@ -838,8 +844,8 @@ Public Function ManageKey() As Boolean
       If String.Len($sText) > $iLen Then
         SetText(String.Left$($sText, -1))
       Else
-        $bHideLater = True
-        timHideLater.Trigger
+        '$bHideLater = True
+        'timHideLater.Trigger
       Endif
       Return False
       
@@ -864,7 +870,7 @@ Public Function ManageKey() As Boolean
           
           If Key.Text = "_" Then 
             If GetEvents($sText) Then 
-              Me.Hide
+              HideMe
               Return 
             Endif
           Endif
@@ -873,7 +879,7 @@ Public Function ManageKey() As Boolean
           
         Else If Key.Text = "[" And If Not $sText Then
           
-          Me.Hide
+          HideMe
           
         Else If $bGambas And If InStr("([.!", Key.Text) > 0 And If InStr(". A<", $sMode) Then
           
@@ -881,7 +887,7 @@ Public Function ManageKey() As Boolean
           
         Else
           
-          Me.Hide
+          HideMe
           
         Endif
         
@@ -912,7 +918,7 @@ Private Function FindItem(Optional bNoInsert As Boolean) As Boolean
   Next
 
   If I >= gvwComp.Rows.Count Then
-    Me.Hide
+    HideMe
     Return 
   Endif 
   
@@ -975,7 +981,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
     .SetFocus
   End With
 
-  Me.Hide
+  HideMe
 
 End
 
@@ -1119,7 +1125,7 @@ Public Sub HideFrom(hEditor As TextEditor)
   If $hEditor <> hEditor Then Return
   $hEditor = Null
   If Not Me.Visible Then Return
-  Me.Hide
+  HideMe
   
 End
 
@@ -1134,16 +1140,10 @@ Public Sub timHideLater_Timer()
   'Debug $bHideLater
   If Not $bHideLater Then Return
   $bHideLater = False
-  Me.Hide
+  HideMe
   
 End
  
-Static Public Sub IsPath(sWord As String) As Boolean
-  
-   If Left(sWord) = "/" Or If Left(sWord) = "~" Or If Left(sWord, 2) = "./" Or If sWord Begins "icon:/" Then Return True
-  
-End
-
 Public Sub panComp_Arrange()
 
   panResizeTop.Move(panComp.W - panResizeTop.W, 0)

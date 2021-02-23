@@ -25,14 +25,14 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
   Dim iX, iY As Integer
   Dim hCont As Container
 
-  panSignature.H = lblNewSignature.H + 4
+  panSignature.H = lblNewSignature.H
   If $bShowHelp And $bUseHelp Then
     MHelp.InitWebViewWith(webHelp, MHelp.TYPE_SYMBOL, $hSymbol.Name, $hSymbol.Class, "noimage")
     sepHelp.Show
     panHelp.Show
     panResizeTop.Show
     panResizeBottom.Show
-    $iMinW = Max(128, lblNewSignature.W + 2 + panResizeTop.W + btnHelp.W)
+    $iMinW = Max(128, lblNewSignature.W + 2 + btnHelp.W)
     $iMinH = Desktop.Scale * 24
     Me.Resize(Max(Me.W, $iMinW), Max(Me.H, $iMinH))
   Else
@@ -41,9 +41,9 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
     panResizeTop.Hide
     panResizeBottom.Hide
     If hForm Then
-      Me.Resize(lblNewSignature.W + 4 + If($bUseHelp, btnHelp.W + panResizeTop.W, 0), lblNewSignature.H + 6)
+      Me.Resize(lblNewSignature.W + 4 + If($bUseHelp, btnHelp.W, 0), lblNewSignature.H + 2)
     Else
-      Me.H = lblNewSignature.H + 6
+      Me.H = lblNewSignature.H + 2
     Endif
   Endif
   
@@ -79,6 +79,7 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
     hCont = hCont.Parent
   Loop
   
+  iX -= 3
   iX = Max(0, Min(iX, $hEditor.W - Me.Width))
   
   If Not hForm Then 

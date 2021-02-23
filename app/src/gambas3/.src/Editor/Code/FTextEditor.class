@@ -1269,109 +1269,55 @@ Public Sub IsWordChar(sCar As String) As Boolean
   
   If Len(sCar) = 1 And If Asc(sCar) <= 32 Then Return False
   If IsDigit(sCar) Then Return True
-  If InStr("_-", sCar) Then Return True
+  If InStr("_-$", sCar) Then Return True
   If IsLetter(String.RemoveDiacritics(sCar)) Then Return True
-  'Return InStr("&~\"#'{([|`\\^@)]°=+}€$£%*!§:/;.,?<>¢«»¥·©®¬¿×·÷¡ø", sCar) = 0
   
 End
 
-Public Sub CheckCompletion(sMode As String)
+Public Sub CheckCompletion()
 
   Dim sLine As String
   Dim sWord As String
   
   sLine = String.Left$($hEditor.Current.Text, $hEditor.Column)
-  '"If Right$(RTrim(sLine)) = "'" Then Return
-
-  ' If sMode = " " Then
-  '   
-  '   If GetRightString(sLine) Then Return
-  '   
-  '   If UCase(Right$(sLine, 3)) = " AS" Or If UCase(Right$(sLine, 4)) = " NEW" Or If UCase(Right$(sLine, 3)) = " IS" Or If UCase(sLine) = "INHERITS" Then
-  '     $hCompletion.Hide
-  '     FCompletion.Open(Me, sMode)
-  '   Endif
-  '   
-  ' Else If sMode = "." Then
-  '   
-  '   If GetRightString(sLine) Then Return
-  '   
-  '   Highlight.Analyze(sLine & ".")
-  '   aSymbols = Highlight.Symbols
-  '   aTypes = Highlight.Types
-  '   aSymbols.Remove(aSymbols.Count - 1)
-  '   aTypes.Remove(aTypes.Count - 1)
-  '   sType = GetExpressionType(aSymbols, aTypes, True)
-  '   If sType Then
-  '     'PRINT "Type: "; sType
-  '     FCompletion.Open(Me, sMode, sType, $bLastStatic, False) 'LCase(sType) = LCase(ME.Name))
-  '   Endif
-  '   
-  If sMode = "A" Then
+  
+  Select Case $hCompletion.Mode
+  
+    Case "A"
     
-    If Not FCompletion.VisibleFrom($hEditor) Then
-      
-      ' Select Case $hEditor.Highlight 
-      '   
-      '   Case "css"
-      '     
-      ' End Select
-      
-      sWord = $hCompletion.GetWord(sLine & Key.Text, $hEditor.Column + 1)
-      If String.Len(sWord) >= 3 Then FCompletion.Open(Me, "I", sWord)
-      'IF Len(sWord) >= 3 THEN DEBUG FindCompletion(sWord).Join(" ")
-      
-    Endif
+      If Not FCompletion.VisibleFrom($hEditor) Then
+        
+        sWord = $hCompletion.GetWord(sLine, $hEditor.Column)
+        If String.Len(sWord) >= 3 Then $hCompletion.OpenMode("I", sWord)
+        
+      Endif
     
-  Else If sMode = "<" Then
+    Case "<"
     
-    If Not $hEditor.Selected And If $hEditor.Column >= 1 And If Not FCompletion.VisibleFrom($hEditor) Then
-      
-      sLine = String.Left(sLine, -1)
-      sWord = GetRightString(sLine)
-      
-      If sWord Then
+      If Not $hEditor.Selected Then
         
-        If FCompletion.IsPath(sWord) Then
-          FCompletion.Open(Me, "/", sWord)
-          Return
-        Endif
-        
-      Else
-        
-        '$bCheckSignature = True
-        
+        $hCompletion.Hide
+          
         sWord = $hCompletion.GetWord(sLine, $hEditor.Column - 1)
-        ' If Right(sLine) <> "." And If Len(sLine) > Len(sWord) And If Mid$(sLine, Len(sLine) - Len(sWord), 1) = "." Then
-        '   iPos = Editor.Column
-        '   Editor.Goto(Editor.Line, Editor.Column - String.Len(sWord) - 2)
-        '   CheckCompletion(".")
-        '   FCompletion.SetText(sWord)
-        '   Editor.Goto(Editor.Line, iPos)
-        '   Return
-        ' Endif
         
         If Len(sWord) >= 3 Then 
-          FCompletion.Open(Me, sMode, sWord)
+          $hCompletion.Mode = "A"
+          CheckCompletion()
           Return
         Endif
         
       Endif
-      
+    
+    Case "/"
+    
+      sWord = GetRightString(sLine)
+      If sWord Then $hCompletion.Open(sWord)
+    
+    Case Else
+    
       $hCompletion.Hide
-        
-    Endif
     
-  Else If sMode = "/" Then
-    
-    sWord = GetRightString(sLine & "/")
-    If sWord Then FCompletion.Open(Me, "/", sWord)
-    
-  Else
-    
-    $hCompletion.Hide
-    
-  Endif
+  End Select
 
 End
 

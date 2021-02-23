@@ -511,3 +511,20 @@ End
 '   Endif
 '   
 ' End
+
+Public Sub trmOutput_Link()
+
+  If trmOutput.Link.Line Match "^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*\\.[0-9]+:.*" Then
+    trmOutput.Link.Select(0, String.InStr(trmOutput.Link.Line, ":") - 1, "goto")
+  Endif
+
+End
+
+Public Sub trmOutput_Click()
+  
+  If trmOutput.Link.Type = "goto" Then
+    Project.Goto(trmOutput.Link.Text)
+  Endif
+  
+End
+

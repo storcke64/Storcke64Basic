@@ -77,6 +77,7 @@ Private $hCompletion As CCompletion
 Private $hInsertDate As CInsertDate
 
 Private $bDiffMode As Boolean
+Private $hTimerSignature As Timer
 
 'Static Private $cLastClassCount As New Collection
 
@@ -120,6 +121,9 @@ Public Sub _new(sPath As String)
   $hBookmark = New CBookmark(Me, btnBookmark, mnuBookmark)
   $hCompletion = New CCompletion(Me)
   $hInsertDate = New CInsertDate(Me, btnInsertDate)
+  
+  $hTimerSignature = New Timer As "CheckSignature"
+  $hTimerSignature.Delay = 50
 
   ReadConfig
   Refresh
@@ -1906,7 +1910,7 @@ Private Sub GetRightString(sLine As String) As String
 End
 
 
-Public Sub CheckCompletion(sMode As String)
+Public Sub CheckCompletion()
 
   'DIM sMode AS String
   Dim sLine As String
@@ -1917,115 +1921,100 @@ Public Sub CheckCompletion(sMode As String)
   Dim iPos As Integer
   Dim bHidden As Boolean
 
-  'IF Key.Code = Key.Backspace THEN
-  '  IF FCompletion.IsMine(edtEditor) THEN
-  '    sMode = Mid$(sLig, edtEditor.Column - 1, 1)
-  '  ENDIF
-  'ELSE
-  '  sMode = Key.Text
-  'ENDIF
-
-  'IF NOT sMode THEN RETURN
-
   sLine = String.Left$(Highlight.Purge($hEditor.Current.Text, False, True), $hEditor.Column)
   If Right$(RTrim(sLine)) = "'" Then Return
 
-  If sMode = " " Then
+  Select Case $hCompletion.Mode
+
+    Case " "
     
-    If GetRightString(sLine) Then Return
-    
-    If UCase(Right$(sLine, 3)) = " AS" Or If UCase(Right$(sLine, 4)) = " NEW" Or If UCase(Right$(sLine, 3)) = " IS" Or If UCase(sLine) = "INHERITS" Then
-      $hCompletion.Hide
-      FCompletion.Open(Me, sMode)
-    Endif
-    
-  Else If sMode = "." Then
-    
-    If GetRightString(sLine) Then Return
-    
-    Highlight.Analyze(sLine & ".")
-    aSymbols = Highlight.Symbols
-    aTypes = Highlight.Types
-    aSymbols.Remove(aSymbols.Count - 1)
-    aTypes.Remove(aTypes.Count - 1)
-    sType = GetExpressionType(aSymbols, aTypes, True)
-    If sType Then
-      If aSymbols[aSymbols.Max] = "SUPER" Or If aSymbols[aSymbols.Max] = "ME" Then
-        bHidden = True
-      Endif
-      'PRINT "Type: "; sType
-      FCompletion.Open(Me, sMode, sType, $bLastStatic, bHidden) 'LCase(sType) = LCase(ME.Name))
-    Endif
-    
-  Else If sMode = "A" Then
-    
-    If GetRightString(sLine) Then sMode = "I"
-    
-    If Not FCompletion.VisibleFrom($hEditor) Then
-      sWord = $hCompletion.GetWord(sLine & Key.Text, $hEditor.Column + 1)
-      If String.Len(sWord) >= 3 Then FCompletion.Open(Me, sMode, sWord)
-      'IF Len(sWord) >= 3 THEN DEBUG FindCompletion(sWord).Join(" ")
-    Endif
-    
-  Else If sMode = "_" Then
-    
-    If Not FCompletion.VisibleFrom($hEditor) Then
-      sWord = $hCompletion.GetWord(sLine, $hEditor.Column)
-      If Len(sWord) >= 3 Then
-        FCompletion.Open(Me, "A", sWord & "_")
-      Endif
-      'IF Len(sWord) >= 3 THEN DEBUG FindCompletion(sWord).Join(" ")
-    Endif
-    
-  Else If sMode = "<" Then
-    
-    If Not $hEditor.Selected And If $hEditor.Column >= 1 And If Not FCompletion.VisibleFrom($hEditor) Then
+      If GetRightString(sLine) Then Return
       
-      sLine = String.Left(sLine, -1)
-      sWord = GetRightString(sLine)
+      If UCase(Right$(sLine, 4)) = " AS " Or If UCase(Right$(sLine, 5)) = " NEW " Or If UCase(Right$(sLine, 4)) = " IS " Or If UCase(sLine) = "INHERITS " Then
+        $hCompletion.Hide
+        $hCompletion.Open
+      Endif
+    
+    Case "."
+    
+      If GetRightString(sLine) Then Return
       
-      If sWord Then
-        
-        If FCompletion.IsPath(sWord) Then
-          FCompletion.Open(Me, "/", sWord)
-          Return
+      Highlight.Analyze(sLine)
+      aSymbols = Highlight.Symbols
+      aTypes = Highlight.Types
+      aSymbols.Remove(aSymbols.Count - 1)
+      aTypes.Remove(aTypes.Count - 1)
+      sType = GetExpressionType(aSymbols, aTypes, True)
+      If sType Then
+        If aSymbols[aSymbols.Max] = "SUPER" Or If aSymbols[aSymbols.Max] = "ME" Then
+          bHidden = True
         Endif
-        
-      Else
+        'PRINT "Type: "; sType
+        $hCompletion.Open(sType, $bLastStatic, bHidden) 'LCase(sType) = LCase(ME.Name))
+      Endif
+    
+    Case "A"
+    
+      If Not FCompletion.VisibleFrom($hEditor) Then
+        sWord = $hCompletion.GetWord(sLine, $hEditor.Column)
+        If String.Len(sWord) >= 3 Then
+          If GetRightString(sLine) Then 
+            $hCompletion.OpenMode("I", sWord)
+          Else
+            $hCompletion.Open(sWord)
+          Endif
+        Endif
+        'IF Len(sWord) >= 3 THEN DEBUG FindCompletion(sWord).Join(" ")
+      Endif
+    
+    Case "_"
+    
+      If Not FCompletion.VisibleFrom($hEditor) Then
+        sWord = $hCompletion.GetWord(sLine, $hEditor.Column)
+        If Len(sWord) >= 3 Then
+          $hCompletion.OpenMode("A", sWord & "_")
+        Endif
+        'IF Len(sWord) >= 3 THEN DEBUG FindCompletion(sWord).Join(" ")
+      Endif
+    
+    Case "<"
+    
+      If Not $hEditor.Selected Then
         
         $bCheckSignature = True
         
+        $hCompletion.Hide
+          
         sWord = $hCompletion.GetWord(sLine, $hEditor.Column - 1)
         If Right(sLine) <> "." And If Len(sLine) > Len(sWord) And If Mid$(sLine, Len(sLine) - Len(sWord), 1) = "." Then
           iPos = $hEditor.Column
-          $hEditor.Goto($hEditor.Column - String.Len(sWord) - 2, $hEditor.Line)
-          CheckCompletion(".")
+          $hEditor.Goto($hEditor.Column - String.Len(sWord), $hEditor.Line)
+          $hCompletion.Mode = "."
+          CheckCompletion()
           FCompletion.SetText(sWord)
           $hEditor.Goto(iPos, $hEditor.Line)
           Return
         Endif
         
         If Len(sWord) >= 3 Then 
-          FCompletion.Open(Me, sMode, sWord)
+          $hCompletion.Mode = "A"
+          CheckCompletion()
+          'FCompletion.SetText(sWord)
           Return
         Endif
         
       Endif
-      
+    
+    Case "/"
+    
+      sWord = GetRightString(sLine)
+      If sWord Then $hCompletion.Open(sWord)
+    
+    Case Else
+    
       $hCompletion.Hide
-        
-    Endif
     
-  Else If sMode = "/" Then
-    
-    sWord = GetRightString(sLine & "/")
-    If sWord Then FCompletion.Open(Me, "/", sWord)
-    
-  Else
-    
-    $hCompletion.Hide
-    
-  Endif
+  End Select
 
 End
 
@@ -2165,16 +2154,25 @@ Private Function GetExpressionSymbol(aExpr As String[], aType As Integer[]) As C
 
 End
 
-Private Sub CheckSignature(Optional sText As String)
+Private Sub CheckSignature()
+  
+  If Not $hCompletion.Enabled Then Return
+  CheckSignature_Timer
+
+  '$hTimerSignature.Restart
+  
+End
+
+Public Sub CheckSignature_Timer()
 
   Dim sLig As String
   Dim hSymbol As CSymbolInfo
   Dim sKind As String
 
-  If Not $hCompletion.Enabled Then Return
+  $hTimerSignature.Stop
 
   'sLig = Left$(edtEditor.GetPurgedLine(edtEditor.Line), edtEditor.Column) & sText
-  sLig = String.Left$(Highlight.Purge($hEditor.Current.Text), $hEditor.Column) & sText
+  sLig = String.Left$(Highlight.Purge($hEditor.Current.Text), $hEditor.Column)
   Highlight.Analyze(sLig)
 
   If Not IsCurrentProc() Then

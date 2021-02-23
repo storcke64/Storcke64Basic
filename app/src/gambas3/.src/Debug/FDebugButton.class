@@ -142,6 +142,7 @@ Public Sub UpdateProfile()
   Dim hProf As FProfile
   Dim hSeparator As Separator
   Dim hButton As ToolButton
+  Dim W As Integer
   
   aProf = FProfile.FindAll()
   
@@ -159,15 +160,17 @@ Public Sub UpdateProfile()
   ' hButton.Picture = Picture["icon:/small/close"]
   ' hButton.AutoResize = True
   
+  W = 1
   For Each hProf In aProf
     hButton = New ToolButton(panProfile) As "btnShowProfile"
     hButton.Tag = hProf.Path
     hButton.Text = hProf.GetName()
     hButton.Picture = Picture["icon:/small/clock"]
     hButton.AutoResize = True
+    W += hButton.W
   Next
   
-  panProfile.W = hButton.X + hButton.W
+  panProfile.W = W
   panProfile.Show
   
 End
