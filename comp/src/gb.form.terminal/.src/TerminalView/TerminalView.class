@@ -4,7 +4,7 @@ Inherits UserControl
 
 Export
 
-Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,ShowScrollBar,ReadOnly,WindowCommands"
+Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,ShowScrollBar,ShowLink,ReadOnly,WindowCommands"
 Public Const _DrawWith As String = "-"
 Public Const _Group As String = "View"
 
@@ -14,6 +14,15 @@ Event Kill
 Event Title(Title As String)
 '' This event is raised when the terminal size has changed.
 Event Resize(W As Integer, H As Integer)
+'' This event is raised to check if the text under the mouse is a link.
+''
+'' The [./link] property will return an object that gives you the current line contents, and the position of the cursor in that line.
+'' Then call the [../selectlink] method to define which part of the current line is a link. Otherwise do nothing.
+Event Link
+'' This event is raised when a link has been clicked.
+''
+'' The [./link] property will return an object that gives you the text of the link.
+Event Click
 
 '' Return or set if the terminal view has a border.
 Property Border As Boolean
@@ -32,7 +41,7 @@ Property Read Line As Integer
 Property Limit As Integer
 '' Return or set the terminal type.
 ''
-'' `"VT100"` is then only type that is supported at the moment.
+'' `"VT100"` is the only type that is supported at the moment.
 Property Type As String
 '' Return or set if the terminal displays its main screen or its alternate screen.
 Property AlternateScreen As Boolean
@@ -68,6 +77,10 @@ Property Read LineHeight As Integer
 Property ReadOnly As Boolean
 '' Return or set if terminal can be effected by XTerm 't' escape sequences.
 Property WindowCommands As Boolean Use $bWindowCommands
+'' Return or set if the terminal detects URLs and makes them clickable.
+Property ShowLink As Boolean Use $bShowLink
+'' Return an object that represents the information about the link under the mouse cursor.
+Property Read Link As TerminalLink
 
 Static Private $cShortcut As Collection
 
@@ -137,6 +150,13 @@ Private $bReadOnly As Boolean
 Private Const PADDING As Integer = 2
 Private $iDisableUpdateSize As Integer
 
+Private $iLinkLastX As Integer = -1
+Private $iLinkLastY As Integer = -1
+Private $hTerminalLink As TerminalLink
+Private $bSetLink As Boolean
+Private $iLinkY As Integer
+Private $iLinkLength As Integer
+
 'Private $bDoubleFont As Boolean = True
 
 '' Create a new TerminalView control
@@ -172,6 +192,8 @@ Public Sub _new()
   $hScroll.Hide
   
   Me.Proxy = $hView
+  
+  $hTerminalLink = New TerminalLink As "TerminalLink"
   
   Me.Type = "VT100"
   
@@ -562,6 +584,177 @@ Private Sub GotoMouse(bStart As Boolean)
   
 End
 
+Public Sub _SelectLink(Start As Integer, Length As Integer, Type As String)
+  
+  Dim Y1 As Integer
+  Dim X1 As Integer
+  Dim Y2 As Integer
+  Dim iEnd As Integer
+  Dim X2 As Integer
+  Dim L As Integer
+  
+  If Not $bSetLink Then Return
+  If Start < 0 Or If Start >= $iLinkLength Then Return
+  
+  iEnd = Min(Start + Length, $iLinkLength) - 1
+  
+  Y1 = $iLinkY
+  Do
+    L = $hScreen.GetLineLength(Y1)
+    If Start < L Then Break
+    Inc Y1
+    Start -= L
+    iEnd -= L
+  Loop
+  X1 = Start
+  
+  Y2 = Y1
+  Do
+    L = $hScreen.GetLineLength(Y2)
+    If iEnd < L Then Break
+    Inc Y2
+    iEnd -= L
+  Loop
+  X2 = iEnd + 1
+  
+  If Y2 > Y1 Or If X2 > X1 Then 
+    If Not $hScreen.SetLink(X1, Y1, X2, Y2) Then 
+      $hTerminalLink._Type = Type
+      Refresh
+    Endif
+  Endif
+  
+End
+
+Private Sub CheckUrl() As Boolean
+  
+  Dim sLine As String
+  Dim X As Integer
+  Dim sCar As String
+  Dim X2 As Integer
+  Dim L As Integer
+  
+  sLine = $hTerminalLink._Line
+  X = $hTerminalLink._Pos  
+  
+  X2 = X
+  L = String.Len(sLine)
+  
+  While X > 0
+    sCar = String.Mid$(sLine, X, 1)
+    If IsSpace(sCar) Or If InStr("'\"", sCar) Then Break
+    Dec X
+  Wend
+  
+  Inc X2
+  While X2 <= L
+    sCar = String.Mid$(sLine, X2, 1)
+    If IsSpace(sCar) Or If InStr("'\"", sCar) Then Break
+    Inc X2
+  Wend
+  
+  L = X2 - X - 1
+  sLine = String.Mid$(sLine, X + 1, L)
+  If sLine Begins "http://" Or If sLine Begins "https://" Then
+    _SelectLink(X, L, "url")
+    Return True
+  Endif
+  
+End
+
+Private Sub ResetLink()
+
+  If Not $hScreen.SetLink() Then Refresh
+  $hTerminalLink._Text = ""
+  $hTerminalLink._Type = ""
+  $hTerminalLink._Line = ""
+  $hTerminalLink._Pos = 0
+
+End
+
+Private Sub CheckLink()
+  
+  Dim X As Integer
+  Dim Y As Integer
+  Dim sLine As String
+  Dim I As Integer
+  Dim Y1 As Integer
+  Dim Y2 As Integer
+  Dim L As Integer
+  Dim bStop As Boolean
+  Dim bHasLink As Boolean
+  Dim hLine As CTerminalLine
+  
+  If Not $bShowLink Then Return
+  
+  bHasLink = $hScreen.HasLink()
+  
+  X = CInt((Mouse.ScreenX - $hView.ScreenX) / $CW + 0.4)
+  Y = (GetScrollY() + Mouse.ScreenY - $hView.ScreenY) \ $LH
+
+  If X = $iLinkLastX And If Y = $iLinkLastY Then Return
+  
+  $iLinkLastX = X
+  $iLinkLastY = Y
+
+  ResetLink()
+
+  If Y < 0 Or If Y >= $hScreen.Lines.Count Then Goto _RETURN
+  If X < 0 Or If X >= $hScreen.GetLineLength(Y) Then Goto _RETURN
+  
+  Y1 = Y
+  
+  While Y1 > 0
+    hLine = $hScreen.Lines[Y1 - 1]
+    If Not hLine Or If hLine.NewLine Then Break
+    Dec Y1
+  Wend
+  
+  Y2 = Y
+  
+  While Y2 < $hScreen.Lines.Max
+    hLine = $hScreen.Lines[Y2]
+    If Not hLine Or If hLine.NewLine Then Break
+    Inc Y2
+  Wend
+  
+  For I = Y1 To Y2
+    hLine = $hScreen.Lines[I]
+    If hLine Then
+      With hLine
+        sLine &= .Text
+        If I < Y Then X += .Length
+        L += .Length
+      End With
+    Endif
+  Next
+  
+  If Not sLine Then Goto _RETURN
+  
+  $bSetLink = True
+  $iLinkY = Y1
+  $iLinkLength = L
+  
+  $hTerminalLink._Line = sLine
+  $hTerminalLink._Pos = X
+  
+  bStop = Raise Link
+  If Not bStop Then CheckUrl()
+  
+  $bSetLink = False
+
+_RETURN:
+  
+  If $hScreen.HasLink() <> bHasLink Then
+    If bHasLink Then
+      $hView.Mouse = Mouse.Text
+    Else
+      $hView.Mouse = Mouse.Pointing
+    Endif
+  Endif
+  
+End
+
 Private Sub SelectCurrentLine()
   
   Dim Y As Integer
@@ -584,7 +777,6 @@ Private Sub SelectCurrentWord()
   $hScreen.SelectCurrentWord(X, Y)
   
 End
-
 
 Private Sub UpdateMouse() As Boolean
   
@@ -615,6 +807,27 @@ Private Sub SendMouseEvent(iType As Integer, Optional bIfMove As Boolean)
   If bIfMove And If Not bHasMoved Then Return
   If $hProcess Then $hFilter.SendMouseEvent($hProcess, $iMouseX, $iMouseY, iType)
   $fStart = 0
+  
+End
+
+Private Sub OpenLink() As Boolean
+
+  Dim bStop As Boolean
+  Dim sLink As String
+  
+  If Not $hScreen.HasLink() Then Return True
+  
+  sLink = $hScreen.GetSelectedText(True)
+  $hTerminalLink._Text = sLink
+  bStop = Raise Click()
+  If Not bStop Then
+    If sLink Begins "http://" Or If sLink Begins "https://" Then
+      If Component.IsLoaded("gb.desktop") Then
+        Try Desktop.Open(sLink)
+        If Error Then Message.Error(("Unable to open selected URL.") & "\n\n" & Error.Text)
+      Endif
+    Endif
+  Endif
   
 End
 
@@ -651,9 +864,11 @@ Public Sub View_MouseDown()
   Else
     
     If Mouse.Left Then
-      $bMouseDown = True
-      GotoMouse(True)
-      GotoMouse(False)
+      If OpenLink() Then
+        $bMouseDown = True
+        GotoMouse(True)
+        GotoMouse(False)
+      Endif
     Else If Mouse.Middle Then
       Clipboard.Current = Clipboard.Selection
       Paste()
@@ -693,6 +908,8 @@ Public Sub View_MouseMove()
         Endif
       Endif
     Endif
+    
+    CheckLink
     
   Endif
   
@@ -1104,6 +1321,8 @@ Public Sub OutputTimer_Timer()
     EnsureVisible
   Endif
   
+  $iLinkLastY = -1
+  
 End
 
 Public Sub _GetCurrentScreen() As TerminalScreen
@@ -1154,6 +1373,8 @@ Public Sub ScrollBar_Change()
       $iScrollY = $iTargetY
       $hView.Refresh
     Endif
+    $iLinkLastY = -1
+    CheckLink
   Endif
   
 End
@@ -1442,6 +1663,16 @@ Public Sub View_Menu()
     
     mnuPopup = New Menu(Me.Window, True)
     
+    If $hScreen.HasLink() Then
+      
+      hMenu = New Menu(mnuPopup) As "mnuOpen"
+      hMenu.Text = ("Open link") & "..."
+      hMenu.Picture = Picture["icon:/small/open"]
+      
+      hMenu = New Menu(mnuPopup) As "mnuOpen"
+      
+    Endif
+    
     hMenu = New Menu(mnuPopup) As "mnuCopy"
     hMenu.Text = ("Copy")
     hMenu.Picture = Picture["icon:/small/copy"]
@@ -1512,4 +1743,22 @@ Private Sub SelectAll()
   
   $hScreen.SelectAll()
   
+End
+
+Public Sub mnuOpen_Click()
+  
+  OpenLink
+  
+End
+
+Public Sub View_Leave()
+  
+  ResetLink
+  
+End
+
+Private Function Link_Read() As TerminalLink
+
+  Return $hTerminalLink
+
 End

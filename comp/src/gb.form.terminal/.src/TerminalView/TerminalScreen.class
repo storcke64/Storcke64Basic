@@ -111,6 +111,12 @@ Private $Y1 As Integer
 Private $X2 As Integer
 Private $Y2 As Integer
 
+' Link
+Private $LX1 As Integer
+Private $LY1 As Integer
+Private $LX2 As Integer
+Private $LY2 As Integer
+
 ' Scroll area
 Private $iScrollStart As Integer = -1
 Private $iScrollEnd As Integer = -1
@@ -308,6 +314,15 @@ Fast Public Sub GetLine(Y As Integer) As CTerminalLine
   Endif
   
   Return hLine
+  
+End
+
+Fast Public Sub GetLineLength(Y As Integer) As Integer
+
+  Dim hLine As CTerminalLine
+  
+  hLine = Lines[Y]
+  If hLine Then Return hLine.Length
   
 End
 
@@ -1150,12 +1165,19 @@ DRAW_BOLD_CHAR:
   
 End
 
-Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As Integer, ByRef Y2 As Integer) As Boolean
+Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As Integer, ByRef Y2 As Integer, Optional bLink As Boolean) As Boolean
   
-  Y1 = $Y1
-  Y2 = $Y2
-  X1 = $X1
-  X2 = $X2
+  If bLink Then
+    Y1 = $LY1
+    Y2 = $LY2
+    X1 = $LX1
+    X2 = $LX2
+  Else
+    Y1 = $Y1
+    Y2 = $Y2
+    X1 = $X1
+    X2 = $X2
+  Endif
   
   If Y1 > Y2 Then
     Swap Y1, Y2
@@ -1178,15 +1200,20 @@ Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As I
   
 End
 
+Public Sub HasLink() As Boolean
+  
+  Dim X1, X2, Y1, Y2 As Integer
+
+  Return GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, True)
+  
+End
+
 Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bDarkBackground As Boolean)
   
   Dim hView As TerminalView = GetView()
   Dim L, L1, L2 As Integer
   Dim Y As Integer
-  Dim X1 As Integer
-  Dim X2 As Integer
-  Dim Y1 As Integer
-  Dim Y2 As Integer
+  Dim X1, X2, Y1, Y2 As Integer
   
   If Not $hLineCache Then $hLineCache = New Image($W * CW, LH)
   $cCharCache.Clear
@@ -1224,6 +1251,28 @@ Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHide
           X2 = Paint.W
         Endif
         If X2 > X1 Then Paint.FillRect(X1, Y, X2 - X1, LH, Color.SetAlpha(Color.SelectedBackground, 128))
+      Endif
+      
+    Endif
+    
+    ' Link
+    
+    If GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, True) Then
+      
+      If L >= Y1 And If L <= Y2 Then
+        If L = Y1 Then
+          X1 *= CW
+        Else
+          X1 = 0
+        Endif
+        If L = Y2 Then
+          X2 *= CW
+        Else
+          X2 = Paint.W
+        Endif
+        If X2 > X1 Then
+          Paint.FillRect(X1, Y + LH, X2 - X1, -((LH + 15) \ 16), Color.SetAlpha(Color.SelectedBackground, 64))
+        Endif
       Endif
       
     Endif
@@ -1328,7 +1377,7 @@ Private Function HasMode_Read() As Boolean
   
 End
 
-Public Sub GetSelectedText() As String
+Public Sub GetSelectedText(Optional bLink As Boolean) As String
   
   Dim X1 As Integer
   Dim X2 As Integer
@@ -1338,7 +1387,7 @@ Public Sub GetSelectedText() As String
   Dim Y As Integer
   Dim hLine As CTerminalLine
   
-  If Not GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2) Then Return
+  If Not GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, bLink) Then Return
   
   If Y2 = Y1 Then
     sText = String.Mid$(GetLine(Y1).Text, X1 + 1, X2 - X1)
@@ -2386,4 +2435,15 @@ Private Function Count_Read() As Integer
 
   Return Lines.Count
 
+End
+
+Public Sub SetLink(Optional X1 As Integer, Y1 As Integer, X2 As Integer, Y2 As Integer) As Boolean
+  
+  If $LX1 = X1 And If $LY1 = Y1 And If $LX2 = X2 And If $LY2 = Y2 Then Return True
+  
+  $LX1 = X1
+  $LY1 = Y1
+  $LX2 = X2
+  $LY2 = Y2
+  
 End
