@@ -1729,7 +1729,7 @@ void GB_ReturnNewString(const char *src, int len)
 {
 	if (len <= 0)
 	{
-		if (*src)
+		if (src && *src)
 		{
 			ERROR_warning("please use GB.ReturnNewZeroString() instead of GB.ReturnNewString()");
 			len = strlen(src);
