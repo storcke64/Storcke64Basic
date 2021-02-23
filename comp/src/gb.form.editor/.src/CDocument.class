@@ -59,7 +59,7 @@ Private $bRewrite As Boolean
 Private $bEndOfLine As Boolean
 Private $bCustomHighlight As Boolean
 Private $iFirstInvalidHighlight As Integer
-Private $aViewCurrentLine As Integer[]
+Private $iDoNotHighlightLine As Integer
 
 Public Sub _new()
   
@@ -935,7 +935,7 @@ Private Sub StartHighlight() As Boolean
   $bRewrite = False
   $bEndOfLine = False
   $bCustomHighlight = False
-  $aViewCurrentLine = Null
+  $iDoNotHighlightLine = -1
 
   $bHighlighting = True
 
@@ -950,9 +950,8 @@ Private Sub StartHighlight() As Boolean
   TextHighlighter.CanRewrite = _Mode.Name
   
   If TextHighlighter.CanRewrite Then
-    $aViewCurrentLine = New Integer[]
     For Each hView In GetAllViews()
-      $aViewCurrentLine.Add(hView.Line)
+      If Not hView.ReadOnly And If hView.HasFocus Then $iDoNotHighlightLine = hView.Line
     Next
   Endif
   
@@ -967,7 +966,6 @@ Private Sub EndHighlight()
     If $bEndOfLine Then Me.Current.Goto(-1, Me.Current.Line)
     End()
   Endif
-  $aViewCurrentLine = Null
   $bHighlighting = False
   
 End
@@ -989,7 +987,7 @@ Public Sub HighlightUntil(Y As Integer)
 
   iNextFirst = -1
   For L = $iFirstInvalidHighlight To Y
-    If $aViewCurrentLine And If $aViewCurrentLine.Exist(L) And If Info(L).Modified Then 
+    If L = $iDoNotHighlightLine And If Info(L).Modified Then 
       If iNextFirst < 0 Then iNextFirst = L
       Continue
     Endif
