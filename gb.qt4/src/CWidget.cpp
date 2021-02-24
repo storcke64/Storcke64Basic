@@ -534,36 +534,7 @@ void CWIDGET_destroy(CWIDGET *_object)
 //#define WIDGET_SIZE(_c) ((WIDGET->isA("MyMainWindow")) ? ((CWINDOW *)_object)->_c : WIDGET->pos()._c())
 //#endif
 
-#if 0
-static QWidget *get_widget(void *_object)
-{
-	QWidget *w = THIS->widget;
-	//if (w->isVisible() && CWIDGET_test_flag(THIS, WF_PARENT_GEOMETRY))
-	//  w = w->parentWidget();
-
-	if (WIDGET->isA("MyMainWindow"))
-	{
-		CWINDOW *win = (CWINDOW *)THIS;
-		if (win->toplevel && win->embedded)
-		{
-			QWidget *p = w->parentWidget();
-			if (p && p->isA("QWorkspaceChild"))
-				w = p;
-		}
-	}
-
-	return w;
-}
-
-static QWidget *get_widget_resize(void *_object)
-{
-	QWidget *w = THIS->widget;
-	return w;
-}
-#endif
-
 #define get_widget(_object) QWIDGET(_object)
-#define get_widget_resize(_object) QWIDGET(_object)
 
 static void arrange_parent(CWIDGET *_object)
 {
@@ -599,178 +570,46 @@ static void CWIDGET_after_geometry_change(void *_object, bool arrange)
 		arrange_parent(THIS);
 }
 
-void CWIDGET_move(void *_object, int x, int y)
-{
-	QWidget *wid = get_widget(THIS);
-
-	if (GB.Is(THIS, CLASS_Window))
-	{
-		CWINDOW *win = (CWINDOW *)_object;
-		win->x = x;
-		win->y = y;
-		if (!win->moved && (x || y))
-			win->moved = true;
-	}
-	
-	if (wid)
-	{
-		if (x == wid->x() && y == wid->y())
-			return;
-
-		wid->move(x, y);
-	}
-
-	CWIDGET_after_geometry_change(THIS, false);
-}
-
-/*
-void CWIDGET_move_cached(void *_object, int x, int y)
-{
-	if (GB.Is(THIS, CLASS_Window))
-	{
-		((CWINDOW *)_object)->x = x;
-		((CWINDOW *)_object)->y = y;
-	}
-	
-	CWIDGET_after_geometry_change(THIS, false);
-}
-*/
-
-void CWIDGET_resize(void *_object, int w, int h)
-{
-	QWidget *wid = get_widget_resize(THIS);
-	bool window, toplevel;
-	bool resizable = true;
-	bool decide_w, decide_h;
-
-	if (!wid)
-		return;
-	
-	window = GB.Is(THIS, CLASS_Window);
-	toplevel = wid->isTopLevel();
-	
-	if (w < 0 && h < 0)
-		return;
-
-	CWIDGET_check_visibility(THIS);
-
-	CCONTAINER_decide(THIS, &decide_w, &decide_h);
-
-	if (w < 0 || decide_w)
-		w = wid->width();
-
-	if (h < 0 || decide_h)
-		h = wid->height();
-
-	if (w == wid->width() && h == wid->height())
-		return;
-
-	if (window)
-	{
-		MyMainWindow *win = (MyMainWindow *)wid;
-		
-		if (toplevel)
-		{
-			resizable = win->isResizable();
-			if (!resizable)
-				win->setResizable(true);
-		}
-	
-		wid->resize(qMax(0, w), qMax(0, h));
-
-		((CWINDOW *)_object)->w = w;
-		((CWINDOW *)_object)->h = h;
-		win->configure();
-		
-		if (toplevel)
-			((MyMainWindow *)wid)->setResizable(resizable);
-	}
-	else
-		wid->resize(qMax(0, w), qMax(0, h));
-
-	CWIDGET_after_geometry_change(THIS, true);
-}
-
-
 void CWIDGET_move_resize(void *_object, int x, int y, int w, int h)
 {
-	QWidget *wid = get_widget(THIS);
-	bool window, toplevel;
+	QWidget *wid = WIDGET;
 
-	if (wid)
+	if (GB.Is(THIS, CLASS_Window))
+	{
+		CWINDOW_move_resize(THIS, x, y, w, h);
+	}
+	else
 	{
 		if (w < 0)
 			w = wid->width();
 
 		if (h < 0)
 			h = wid->height();
-	}
-
-	window = GB.Is(THIS, CLASS_Window);
-	toplevel = wid->isTopLevel();
-	
-	if (window)
-	{
-		CWINDOW *win = (CWINDOW *)_object;
-		win->x = x;
-		win->y = y;
-		win->w = w;
-		win->h = h;
-		
-		if (!win->moved && (x || y))
-			win->moved = true;
-	}
-
-	CWIDGET_check_visibility(THIS);
-
-	if (wid)
-	{
-		if (w < 0) // || decide_w)
-			w = wid->width();
-
-		if (h < 0) // || decide_h)
-			h = wid->height();
 
 		if (x == wid->x() && y == wid->y() && w == wid->width() && h == wid->height())
 			return;
-		
-		if (window)
-		{
-			MyMainWindow *win = (MyMainWindow *)wid;
-			bool resize = w != wid->width() || h != wid->height();
-			bool resizable = true;
 			
-			if (x != wid->x() || y != wid->y())
-				wid->move(x, y);
-			
-			if (resize)
-			{
-				if (toplevel)
-				{
-					resizable = win->isResizable();
-					if (!resizable)
-						win->setResizable(true);
-				}
-				
-				wid->resize(qMax(0, w), qMax(0, h));
-
-				if (toplevel)
-					win->setResizable(resizable);
-				
-				win->configure();
-			}
-		}
-		else
-			wid->setGeometry(x, y, qMax(0, w), qMax(0, h));
+		wid->setGeometry(x, y, w, h);
 	}
 
+	CWIDGET_check_visibility(THIS);
 	CWIDGET_after_geometry_change(THIS, true);
+}
+
+void CWIDGET_move(void *_object, int x, int y)
+{
+	CWIDGET_move_resize(THIS, x, y, -1, -1);
+}
+
+void CWIDGET_resize(void *_object, int w, int h)
+{
+	CWIDGET_move_resize(THIS, COORD(x), COORD(y), w, h);
 }
 
 #if 0
 void CWIDGET_move_resize(void *_object, int x, int y, int w, int h)
 {
-	QWidget *wid = get_widget(THIS);
+	QWidget *wid = WIDGET;
 
 	if (wid)
 	{
@@ -915,7 +754,7 @@ END_PROPERTY
 BEGIN_PROPERTY(Control_Width)
 
 	if (READ_PROPERTY)
-		GB.ReturnInteger(get_widget_resize(THIS)->width());
+		GB.ReturnInteger(WIDGET->width());
 	else
 		CWIDGET_resize(_object, VPROP(GB_INTEGER), -1);
 
@@ -925,7 +764,7 @@ END_PROPERTY
 BEGIN_PROPERTY(Control_Height)
 
 	if (READ_PROPERTY)
-		GB.ReturnInteger(get_widget_resize(THIS)->height());
+		GB.ReturnInteger(WIDGET->height());
 	else
 		CWIDGET_resize(_object, -1, VPROP(GB_INTEGER));
 

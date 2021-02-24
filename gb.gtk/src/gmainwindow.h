@@ -183,13 +183,14 @@ public:
 
 	int _min_w;
 	int _min_h;
+	int _default_min_w;
+	int _default_min_h;
 	
 	int _csd_w;
 	int _csd_h;
 	
 	unsigned _mask : 1;
 	unsigned _top_only : 1;
-	unsigned _resized : 1;
 	unsigned _persistent : 1;
 	unsigned _sticky : 1;
 	unsigned _opened : 1;
@@ -211,6 +212,8 @@ public:
 	unsigned _transparent : 1;
 	unsigned _no_take_focus : 1;
 	unsigned _moved : 1;
+	unsigned _resized : 1;
+	unsigned _event_resized : 1;
 	unsigned _resizable : 1;
 	unsigned _unmap : 1;
 	unsigned _initMenuBar : 1;

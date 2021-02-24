@@ -52,21 +52,25 @@ typedef
 		MyContainer *container;
 		CARRANGEMENT arrangement;
 		QMenuBar *menuBar;
-		int ret;
 		CPICTURE *icon;
 		CPICTURE *picture;
 		CWIDGET *focus;
 		QPushButton *defaultButton;
 		QPushButton *cancelButton;
+		int ret;
 		int loopLevel;
+
 		int x;
 		int y;
 		int w;
 		int h;
 		int minw;
 		int minh;
+		int default_minw;
+		int default_minh;
 		int last_resize_w;
 		int last_resize_h;
+		
 		unsigned toplevel : 1;
 		unsigned persistent : 1;
 		unsigned closed : 1;
@@ -74,6 +78,7 @@ typedef
 		unsigned xembed : 1;
 		unsigned stacking : 2;
 		unsigned skipTaskbar : 1;
+		
 		unsigned masked : 1;
 		unsigned reallyMasked : 1;
 		unsigned opened : 1;
@@ -82,13 +87,16 @@ typedef
 		unsigned minsize : 1;
 		unsigned title : 1;
 		unsigned stateChange : 1;
+		
 		unsigned closing : 1;
 		unsigned hideMenuBar : 1;
 		unsigned showMenuBar : 1;
 		unsigned sticky : 1;
 		unsigned noTakeFocus : 1;
 		unsigned moved : 1;
+		unsigned resized : 1;
 		unsigned popup : 1;
+		
 		unsigned modal : 1;
 		}
 	CWINDOW;
@@ -273,6 +281,6 @@ void CWINDOW_ensure_active_window();
 bool CWINDOW_must_quit();
 bool CWINDOW_close_all(bool main);
 void CWINDOW_delete_all(bool main);
-//void CWINDOW_fix_menubar(CWINDOW *window);
+void CWINDOW_move_resize(void *_object, int x, int y, int w, int h);
 
 #endif

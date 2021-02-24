@@ -315,8 +315,6 @@ void CWINDOW_ensure_active_window()
 }
 
 
-//-- Window ---------------------------------------------------------------
-
 static void show_later(CWINDOW *_object)
 {
 	/* If the user has explicitely hidden the window since the posting of this routines
@@ -331,6 +329,63 @@ static void show_later(CWINDOW *_object)
 	}
 	GB.Unref(POINTER(&_object));
 }
+
+
+void CWINDOW_move_resize(void *_object, int x, int y, int w, int h)
+{
+	bool move, resize;
+
+	move = x != THIS->x || y != THIS->y || !THIS->moved;
+	
+	if (w < 0)
+		w = THIS->w;
+
+	if (h < 0)
+		h = THIS->h;
+	
+	resize = w != THIS->w || h != THIS->h || !THIS->resized;
+	
+	if (!move && !resize)
+		return;
+	
+	THIS->x = x;
+	THIS->y = y;
+	THIS->w = w;
+	THIS->h = h;
+	
+	if (!THIS->moved && (x || y))
+		THIS->moved = TRUE;
+
+	if (move)
+		WINDOW->move(x, y);
+	
+	if (resize)
+	{
+		bool resizable = false;
+	
+		if (WINDOW->isTopLevel() && !WINDOW->isResizable())
+		{
+			resizable = true;
+			WINDOW->setResizable(true);
+		}
+
+		WINDOW->resize(w, h);
+
+		THIS->resized = TRUE;
+		if (THIS->default_minw <= 0 && THIS->default_minh <= 0)
+		{
+			THIS->default_minw = w;
+			THIS->default_minh = h;
+		}
+	
+		if (resizable)
+			WINDOW->setResizable(false);
+		
+		WINDOW->configure();
+	}
+}
+
+//-- Window ---------------------------------------------------------------
 
 BEGIN_METHOD(Window_new, GB_OBJECT parent)
 
@@ -1712,8 +1767,8 @@ void MyMainWindow::setGeometryHints()
 		{
 			if (!minw && !minh)
 			{
-				minw = width();
-				minh = height();
+				minw = THIS->default_minw;
+				minh = THIS->default_minh;
 			}
 		}
 		setMinimumSize(minw, minh);

@@ -172,7 +172,7 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 		}
 
 		#ifdef DEBUG_RESIZE
-		fprintf(stderr, "cb_configure: %s: (%d %d %d %d) -> (%d/%d %d/%d %d %d) window = %p resized = %d send_event = %d\n", data->name(), data->bufX, data->bufY, data->bufW, data->bufH, x, event->x, y, event->y, event->width, event->height, event->window, data->_resized, event->send_event);
+		fprintf(stderr, "cb_configure: %s: (%d %d %d %d) -> (%d/%d %d/%d %d %d) window = %p resized = %d send_event = %d\n", data->name(), data->bufX, data->bufY, data->bufW, data->bufH, x, event->x, y, event->y, event->width, event->height, event->window, data->_event_resized, event->send_event);
 		#endif
 
 		if (x != data->bufX || y != data->bufY)
@@ -191,9 +191,9 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 		w = event->width;
 		h = event->height;
 		
-		if ((w != data->bufW) || (h != data->bufH) || (data->_resized) || !event->window)
+		if ((w != data->bufW) || (h != data->bufH) || (data->_event_resized) || !event->window)
 		{
-			data->_resized = false;
+			data->_event_resized = false;
 			data->bufW = w;
 			data->bufH = h;
 			#ifdef DEBUG_RESIZE
@@ -224,13 +224,13 @@ static void cb_resize(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 	w -= data->_csd_w;
 	h -= data->_csd_h;
 	
-	if (w != data->bufW || h != data->bufH || data->_resized)
+	if (w != data->bufW || h != data->bufH || data->_event_resized)
 	{
 		#ifdef DEBUG_RESIZE
 		fprintf(stderr, "cb_resize: %s: %d %d\n", data->name(), w, h);
 		#endif
 	
-		data->_resized = false;
+		data->_event_resized = false;
 		data->bufW = w;
 		data->bufH = h;
 		data->emitResize(); // later
@@ -249,13 +249,13 @@ static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 	
 	data->calcCsdSize();
 	
-	if (w != data->bufW || h != data->bufH || data->_resized)
+	if (w != data->bufW || h != data->bufH || data->_event_resized)
 	{
 		#ifdef DEBUG_RESIZE
-		fprintf(stderr, "cb_resize_layout: %s: %d x %d / resize = %d\n", data->name(), w, h, data->_resized);
+		fprintf(stderr, "cb_resize_layout: %s: %d x %d / resize = %d\n", data->name(), w, h, data->_event_resized);
 		#endif
 
-		data->_resized = false;
+		data->_event_resized = false;
 		data->bufW = w;
 		data->bufH = h;
 		data->emitResize(); // later
@@ -389,7 +389,7 @@ void gMainWindow::initialize()
 	_title = NULL;
 	_current = NULL;
 	_resize_last_w = _resize_last_h = -1;
-	_min_w = _min_h = 0;
+	_min_w = _min_h = _default_min_w = _default_min_h = 0;
 	_csd_w  = _csd_h = -1;
 
 	_opened = false;
@@ -398,6 +398,7 @@ void gMainWindow::initialize()
 	_mask = false;
 	_masked = false;
 	_resized = false;
+	_event_resized = false;
 	_top_only = false;
 	_closing = false;
 	_closed = false;
@@ -695,10 +696,18 @@ bool gMainWindow::resize(int w, int h)
 		bufW = w < 0 ? 0 : w;
 		bufH = h < 0 ? 0 : h;
 		
+		// we check for _resized to ignore the first resize()
+		if (_resized && _default_min_w <= 0 && _default_min_h <= 0)
+		{
+			_default_min_w = w;
+			_default_min_h = h;
+		}
+		
 		updateSize();
 	}
 
 	_resized = true;
+	_event_resized = true;
 	return false;
 }
 
@@ -1911,8 +1920,8 @@ void gMainWindow::setGeometryHints()
 			{
 				if (!min_w && !min_h)
 				{
-					min_w = width();
-					min_h = height();
+					min_w = _default_min_w;
+					min_h = _default_min_h;
 				}
 			}
 
