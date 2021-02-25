@@ -120,7 +120,7 @@ Private Sub PrintSummary()
             ShowTestCollection(("&1 test plans failed:"), FindBadPlans(.Summary.Subtests, ""))
             ShowTestCollection(("&1 tests failed:"), FindFailures(.Summary.Subtests, ""))
         Endif
-        Test.Note(IIf(.Summary.Success, "PASSED", "FAILED"))
+        Test.Note(IIf(.Summary.Success, ("PASSED"), ("FAILED")))
     End With
 
 End
@@ -144,11 +144,11 @@ Private Sub ShowTestCollection(Description As String, TestCollection As Collecti
             Dim sName, sNote As String
             sName = hTest.Description
             If cTest["Note"] Then
-                sNote = Subst$((": &1"), cTest["Note"])
+                sNote = Subst$(": &1", cTest["Note"])
             Else If hTest.Comment Then
-                sNote = Subst$(("# &1"), hTest.Comment)
+                sNote = Subst$("# &1", hTest.Comment)
             Endif
-            Test.Note(Subst$(("&2: &1 -- &3&4"), cTest["Path"], hTest.Id, sName, IIf(sNote, " " & sNote, "")))
+            Test.Note(Subst$("&2: &1 -- &3&4", cTest["Path"], hTest.Id, sName, IIf(sNote, " " & sNote, "")))
         Next
         Test.Note(gb.Lf)
     Endif
