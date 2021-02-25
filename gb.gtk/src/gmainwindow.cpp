@@ -182,11 +182,11 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 			if (data->onMove) data->onMove(data);
 		}
 		
-		#ifdef GTK3
+		/*#ifdef GTK3
 		//data->_csd_w = data->_csd_h = -1;
 		if (data->isTopLevel())
 			return false;
-		#endif
+		#endif*/
 
 		w = event->width;
 		h = event->height;
@@ -209,18 +209,19 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 #ifdef GTK3
 static void cb_resize(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 {
-	int w, h;
+	//int w, h;
 	
 	if (data->layout)
 		return;
 	
-	w = a->width;
-	h = a->height;
+	/*w = a->width;
+	h = a->height;*/
 	
 	data->calcCsdSize();
 	if (data->_csd_w < 0)
 		return;
 	
+#if 0
 	w -= data->_csd_w;
 	h -= data->_csd_h;
 	
@@ -235,20 +236,22 @@ static void cb_resize(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 		data->bufH = h;
 		data->emitResize(); // later
 	}
+#endif
 }
 
 static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 {
-	int w, h;
+	//int w, h;
 	
 	if (!data->isTopLevel() || !data->isOpened())
 		return;
 	
-	w = a->width;
-	h = a->height;
+	/*w = a->width;
+	h = a->height;*/
 	
 	data->calcCsdSize();
 	
+#if 0
 	if (w != data->bufW || h != data->bufH || data->_event_resized)
 	{
 		#ifdef DEBUG_RESIZE
@@ -260,6 +263,7 @@ static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
 		data->bufH = h;
 		data->emitResize(); // later
 	}
+#endif
 }
 
 
@@ -531,7 +535,6 @@ gMainWindow::gMainWindow(gContainer *par) : gContainer(par)
 	initialize();
 
 #ifdef GTK3
-	//border = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	border = gtk_fixed_new();
 #else
 	border = gtk_alignment_new(0, 0, 1, 1);
