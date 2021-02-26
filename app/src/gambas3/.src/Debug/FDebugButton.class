@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Private $bNoSelectButton As Boolean
+Private $sMessage As String
 
 Public Sub ReadConfig()
   
@@ -116,13 +117,18 @@ End
 ' End
 ' 
 ' 
-
 Public Sub SetMessage(sText As String, Optional bAdd As Boolean)
   
-  If bAdd Then sText = Trim(lblMessage.Text) & " " & sText
-  lblMessage.Text = sText
+  If bAdd Then 
+    $sMessage = Trim($sMessage) & " " & sText
+  Else
+    $sMessage = sText
+  Endif
+  
+  lblMessage.Text = $sMessage
   Wait
-  If Not sText Then
+  
+  If Not $sMessage Then
     timMessage.Stop
   Else
     timMessage.Restart

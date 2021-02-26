@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.15.90\n"
-"PO-Revision-Date: 2021-02-23 15:42 UTC\n"
+"PO-Revision-Date: 2021-02-26 10:47 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1186,7 +1186,7 @@ msgstr "URL du référentiel distant"
 msgid "A new Git repository will be created for this project."
 msgstr "Un nouveau référentiel Git sera créé pour ce projet."
 
-#: CVersionControlGit.class:447 FColorChooser.form:62 FConnectionEditor.class:707 FCrash.form:91 FCreateFile.form:210 FFarmConfig.form:33 FFarmLogin.form:121 FFieldChooser.form:138 FFontChooser.form:34 FGotoLine.form:17 FImageOffsetSelection.form:27 FImageQuality.form:24 FImageResize.form:105 FImageRotate.form:26 FLayout.form:44 FList.form:122 FMakeExecutable.form:120 FMenu.form:417 FNewConnection.form:312 FNewTable.form:80 FNewTranslation.form:15 FPasteSpecial.form:80 FProjectProperty.form:1009 FProxy.form:63 FReportBorderChooser.form:54 FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42 FReportCoordChooser.form:32 FReportPaddingChooser.form:69 FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:105 FSelectLibrary.form:60 FSnippet.form:51 FTableChooser.form:62 FText.form:34 FVersionError.form:53 FWebFontChooser.form:123 Project.module:2619
+#: CVersionControlGit.class:447 FColorChooser.form:62 FConnectionEditor.class:720 FCrash.form:91 FCreateFile.form:210 FFarmConfig.form:33 FFarmLogin.form:121 FFieldChooser.form:138 FFontChooser.form:34 FGotoLine.form:17 FImageOffsetSelection.form:27 FImageQuality.form:24 FImageResize.form:105 FImageRotate.form:26 FLayout.form:44 FList.form:122 FMakeExecutable.form:120 FMenu.form:417 FNewConnection.form:312 FNewTable.form:80 FNewTranslation.form:15 FPasteSpecial.form:80 FProjectProperty.form:1009 FProxy.form:63 FReportBorderChooser.form:54 FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42 FReportCoordChooser.form:32 FReportPaddingChooser.form:69 FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:105 FSelectLibrary.form:60 FSnippet.form:51 FTableChooser.form:62 FText.form:34 FVersionError.form:53 FWebFontChooser.form:123 Project.module:2619
 msgid "OK"
 msgstr "OK"
 
@@ -1194,7 +1194,7 @@ msgstr "OK"
 msgid "Solve conflict."
 msgstr "Résolution du conflit."
 
-#: CVersionControlGit.class:510 FConnectionEditor.class:837 FProjectVersion.class:290 MConnection.module:141
+#: CVersionControlGit.class:510 FConnectionEditor.class:841 FProjectVersion.class:290 MConnection.module:141
 msgid "Date"
 msgstr "Date"
 
@@ -1673,91 +1673,95 @@ msgstr "&1 enregistrements"
 msgid "Unable to load table '&1'."
 msgstr "Impossible de charger la table « &1 »."
 
-#: FConnectionEditor.class:715
+#: FConnectionEditor.class:700
+msgid "Running request"
+msgstr "Exécution de la requête"
+
+#: FConnectionEditor.class:718
 msgid "Unable to run query."
 msgstr "Impossible d'exécuter la requête."
 
-#: FConnectionEditor.class:717
-msgid "&1 s"
-msgstr "&1 s"
+#: FConnectionEditor.class:721 Project.module:2621
+msgid "(in &1 s)"
+msgstr "(en &1 s)"
 
-#: FConnectionEditor.class:750
+#: FConnectionEditor.class:754
 msgid "unlimited"
 msgstr "illimité"
 
-#: FConnectionEditor.class:837 MConnection.module:149
+#: FConnectionEditor.class:841 MConnection.module:149
 msgid "Blob"
 msgstr "Blob"
 
-#: FConnectionEditor.class:837 MConnection.module:143
+#: FConnectionEditor.class:841 MConnection.module:143
 msgid "Boolean"
 msgstr "Booléen"
 
-#: FConnectionEditor.class:837 MConnection.module:139
+#: FConnectionEditor.class:841 MConnection.module:139
 msgid "Float"
 msgstr "Décimal"
 
-#: FConnectionEditor.class:837 MConnection.module:135
+#: FConnectionEditor.class:841 MConnection.module:135
 msgid "Integer"
 msgstr "Entier"
 
-#: FConnectionEditor.class:837 MConnection.module:137
+#: FConnectionEditor.class:841 MConnection.module:137
 msgid "Long"
 msgstr "Entier long"
 
-#: FConnectionEditor.class:837 MConnection.module:147
+#: FConnectionEditor.class:841 MConnection.module:147
 msgid "Serial"
 msgstr "Série"
 
-#: FConnectionEditor.class:837 MConnection.module:145
+#: FConnectionEditor.class:841 MConnection.module:145
 msgid "String"
 msgstr "Chaîne"
 
-#: FConnectionEditor.class:926
+#: FConnectionEditor.class:930
 msgid "This name is already in used."
 msgstr "Ce nom est déjà utilisé."
 
-#: FConnectionEditor.class:951
+#: FConnectionEditor.class:955
 msgid "Please enter a number."
 msgstr "Veuillez saisir un nombre."
 
-#: FConnectionEditor.class:956
+#: FConnectionEditor.class:960
 msgid "The length must be greater than 1 and lower than 255."
 msgstr "La longueur doit être comprise entre 1 et 255."
 
-#: FConnectionEditor.class:980
+#: FConnectionEditor.class:984
 msgid "Type mismatch."
 msgstr "Type de données incorrect."
 
-#: FConnectionEditor.class:1032
+#: FConnectionEditor.class:1036
 msgid "This name already exists."
 msgstr "Ce nom existe déjà."
 
-#: FConnectionEditor.class:1120
+#: FConnectionEditor.class:1124
 msgid "This field is used in an index."
 msgstr "Le champ est utilisé dans un index."
 
-#: FConnectionEditor.class:1474
+#: FConnectionEditor.class:1478
 msgid "The table '&1' has no primary key."
 msgstr "La table « &1 » n'a pas de clef primaire."
 
-#: FConnectionEditor.class:1610
+#: FConnectionEditor.class:1614
 msgid "Cannot write table '&1'."
 msgstr "Impossible d'écrire la table « &1 »."
 
-#: FConnectionEditor.class:1708
+#: FConnectionEditor.class:1712
 msgid "Do you really want to delete table '&1'?"
 msgstr "Voulez-vous vraiment supprimer la table « &1 » ?"
 
-#: FConnectionEditor.class:1721
+#: FConnectionEditor.class:1725
 msgid "Cannot delete table '&1'."
 msgstr "Impossible de supprimer la table « &1 »."
 
-#: FConnectionEditor.class:1777
+#: FConnectionEditor.class:1781
 msgid "Do you really want to remove the selected rows?"
 msgstr "Voulez-vous vraiment supprimer les lignes sélectionnées ?"
 
-#: FConnectionEditor.class:1941
+#: FConnectionEditor.class:1945
 msgid "Do you really want to remove this query?"
 msgstr "Voulez-vous vraiment supprimer cette requête ?"
 
@@ -2025,7 +2029,7 @@ msgstr "Référentiel"
 msgid "The project repository is directly sent to the 'svn checkout' command."
 msgstr "Le référentiel du projet est directement envoyé à la commande 'svn checkout'."
 
-#: FDebugButton.class:104
+#: FDebugButton.class:105
 msgid "Test has failed."
 msgstr "Le test a échoué."
 
@@ -7780,10 +7784,6 @@ msgstr "Compilation du projet"
 #: Project.module:2578
 msgid "<h3>The compiler has crashed!</h3>\nPlease report it to the Gambas bugtracker at:\n\n<u>https://gambaswiki.org/bugtracker</u>\n\nDo not forget to provide the full project so that the crash can be reproduced."
 msgstr "<h3>Le compilateur a planté !</h3>\nVeuillez le signaler sur le bugtracker de Gambas à l'adresse:\n\n<u>https://gambaswiki.org/bugtracker</u>\n\nN'oubliez-pas de fournir la projet complet afin de pouvoir reproduire le plantage."
-
-#: Project.module:2621
-msgid "(in &1 s)"
-msgstr "(en &1 s)"
 
 #: Project.module:2821
 msgid "File already exists."
