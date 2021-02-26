@@ -34,7 +34,6 @@ typedef
 	{
 		CWIDGET ob;
 		int ret;
-		unsigned embed : 1;
 	}  
 	CWINDOW;
 

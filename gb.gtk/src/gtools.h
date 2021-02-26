@@ -232,7 +232,7 @@ int gt_find_monitor(GdkMonitor *monitor);
 #ifdef GTK3
 void gt_css_add_font(GString *css, gFont *font);
 void gt_css_add_color(GString *css, gColor bg, gColor fg);
-const char *gt_widget_set_name(GtkWidget *widget);
+const char *gt_widget_set_name(GtkWidget *widget, const char *name);
 void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
 void gt_define_style_sheet(GtkStyleProvider **provider, GString *css);
 #endif

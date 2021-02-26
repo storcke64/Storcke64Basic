@@ -101,7 +101,7 @@ static gControl *find_child(gControl *control, int rx, int ry, gControl *button_
 	control = window;
 	
 	#ifdef GTK3
-	gtk_widget_get_allocation(window->layout ? GTK_WIDGET(window->layout) : window->widget, &a);
+	gtk_widget_get_allocation(window->frame, &a);
 	//fprintf(stderr, "find_child: %d %d window: %d %d %d %d\n", rx, ry, a.x, a.y, a.width, a.height);
 	rx -= a.x;
 	ry -= a.y;

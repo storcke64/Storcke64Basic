@@ -2336,11 +2336,11 @@ int gt_find_monitor(GdkMonitor *monitor)
 #endif
 
 #ifdef GTK3
-const char *gt_widget_set_name(GtkWidget *widget)
+const char *gt_widget_set_name(GtkWidget *widget, const char *suffix)
 {
 	static int count = 0;
 	
-	char buffer[16];
+	char buffer[256];
 	const char *name;
 	
 	name = gtk_widget_get_name(widget);
@@ -2348,7 +2348,7 @@ const char *gt_widget_set_name(GtkWidget *widget)
 		return name;
 	
 	count++;
-	sprintf(buffer, "g%d", count);
+	sprintf(buffer, "g%d_%s", count, suffix ? suffix : "");
 	gtk_widget_set_name(widget, buffer);
 	return gtk_widget_get_name(widget);
 }
@@ -2438,7 +2438,7 @@ void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg)
 	char *css_str;
 	
 	context = gtk_widget_get_style_context(widget);
-	name = gt_widget_set_name(widget);
+	name = gt_widget_set_name(widget, NULL);
 	
 	css = g_string_new(NULL);
 	

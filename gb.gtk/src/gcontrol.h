@@ -309,7 +309,7 @@ public:
 	void connectParent();
 	void setParent(gContainer *parent) { pr = parent; }
 	void initAll(gContainer *pr);
-	void realize(bool make_frame = false);
+	void realize(bool draw_frame = false);
 	void realizeScrolledWindow(GtkWidget *wid, bool doNotRealize = false);
 	void registerControl();
 	void updateGeometry(bool force = false);

@@ -187,7 +187,7 @@ void gDrawingArea::create(void)
 		box = NULL;
 	}
 
-	realize(false);
+	realize();
 
 	if (_cached)
 		g_signal_connect(G_OBJECT(border), "size-allocate", G_CALLBACK(cb_size), (gpointer)this);

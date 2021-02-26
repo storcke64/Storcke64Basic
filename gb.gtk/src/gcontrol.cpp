@@ -162,20 +162,6 @@ struct _GtkLayoutChild {
 
 
 #ifdef GTK3
-static gboolean cb_frame_draw(GtkWidget *wid, cairo_t *cr, gControl *control)
-{
-	control->drawBorder(cr);
-	return false;
-}
-#else
-static gboolean cb_frame_expose(GtkWidget *wid, GdkEventExpose *e, gControl *control)
-{
-	control->drawBorder(e);
-	return false;
-}
-#endif
-
-#ifdef GTK3
 static gboolean cb_background_draw(GtkWidget *wid, cairo_t *cr, gControl *control)
 {
 	control->drawBackground(cr);
@@ -185,6 +171,20 @@ static gboolean cb_background_draw(GtkWidget *wid, cairo_t *cr, gControl *contro
 static gboolean cb_background_expose(GtkWidget *wid, GdkEventExpose *e, gControl *control)
 {
 	control->drawBackground(e);
+	return false;
+}
+#endif
+
+#ifdef GTK3
+static gboolean cb_frame_draw(GtkWidget *wid, cairo_t *cr, gControl *control)
+{
+	control->drawBorder(cr);
+	return false;
+}
+#else
+static gboolean cb_frame_expose(GtkWidget *wid, GdkEventExpose *e, gControl *control)
+{
+	control->drawBorder(e);
 	return false;
 }
 #endif
@@ -213,7 +213,7 @@ gPlugin::gPlugin(gContainer *parent) : gControl(parent)
 {
 	border = gtk_socket_new();
 	widget = border;
-	realize(false);
+	realize();
 
 	onPlug = NULL;
 	onUnplug = NULL;
@@ -1635,8 +1635,8 @@ void gControl::drawBorder(GdkEventExpose *e)
 
 	border     frame      widget
 		0          0          W
-		0          F          W
 		B          0          W
+		0          F          W
 		B          F          W
 */
 
@@ -1864,46 +1864,23 @@ void gControl::setMinimumSize()
 }
 
 
-void gControl::realize(bool make_frame)
+void gControl::realize(bool draw_frame)
 {
 	if (!_scroll)
 	{
-		if (!make_frame)
-		{
-			frame = widget;
-		}
-		else if (!frame)
-		{
-#if GTK3
-			frame = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-			gtk_widget_set_hexpand(widget, TRUE);
-#else
-			frame = gtk_alignment_new(0, 0, 1, 1);
-#endif
-			//gtk_widget_set_redraw_on_allocate(frame, TRUE);
-		}
-
 		if (!border)
 			border = widget;
 
-		//printf("border = %p / frame = %p / widget =%p\n", border, frame, widget);
-
-		if (border != frame)
+		if (frame)
 		{
-			//printf("frame -> border\n");
-			add_container(border, frame);
+			if (border != frame && border != widget)
+				add_container(border, frame);
+			if (frame != widget)
+				add_container(frame, widget);
 		}
-		if (frame != widget && border != widget)
-		{
-			//printf("widget -> frame\n");
-			add_container(frame, widget);
-		}
-
-		if (!make_frame)
-			frame = 0;
+		else if (border != widget)
+			add_container(border, widget);
 	}
-
-	//fprintf(stderr, "realize: %p %p\n", border, widget);
 
 #ifdef GTK3
 	gt_patch_control(border);
@@ -1919,15 +1896,9 @@ void gControl::realize(bool make_frame)
 	if (!_no_background && !gtk_widget_get_has_window(border))
 		ON_DRAW_BEFORE(border, this, cb_background_expose, cb_background_draw);
 
-	if (frame)
+	if (draw_frame && frame)
 		ON_DRAW_BEFORE(frame, this, cb_frame_expose, cb_frame_draw);
-
-	/*else if (!isTopLevel())
-	{
-		fprintf(stderr, "clip by parent\n");
-		g_signal_connect(G_OBJECT(border), "expose-event", G_CALLBACK(cb_clip_by_parent), (gpointer)this);
-	}*/
-
+	
 #ifndef GTK3
 	if (isContainer() && !gtk_widget_get_has_window(widget))
 		g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(cb_clip_children), (gpointer)this);
@@ -1978,7 +1949,7 @@ void gControl::realizeScrolledWindow(GtkWidget *wid, bool doNotRealize)
 	gtk_container_add(GTK_CONTAINER(_scroll), widget);
 
 	if (!doNotRealize)
-		realize(false);
+		realize(true);
 	else
 		registerControl();
 
@@ -2137,7 +2108,7 @@ void gControl::setStyleSheetNode(GString *css, const char *node)
 	
 	if (!_has_css_id)
 	{
-		gt_widget_set_name(getStyleSheetWidget());
+		gt_widget_set_name(getStyleSheetWidget(), name());
 		_has_css_id = true;
 	}
 

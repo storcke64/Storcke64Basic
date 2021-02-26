@@ -29,20 +29,22 @@
 class gMainWindow : public gContainer
 {
 public:
-	gMainWindow(int plug = 0);
+	gMainWindow();
 	gMainWindow(gContainer *parent);
+	gMainWindow(int plug);
 	~gMainWindow();
 
 //"Properties"
 	bool hasBorder();
 	bool isResizable();
 	bool isUtility() const;
+	bool isEmbedded() const { return _xembed; }
 	gPicture *icon() { return _icon; }
 	gPicture *picture() { return _picture; }
 	bool mask() { return _mask; }
 	int menuCount();
 	bool isModal() const;
-	const char* text();
+	const char *text();
 	bool isTopOnly() const { return isTopLevel() && _top_only; }
 	bool isSkipTaskBar() const { return isTopLevel() && _skip_taskbar; }
 	bool minimized() const { return _minimized; }
@@ -168,7 +170,6 @@ public:
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;
 	GtkMenuBar *menuBar;
-	GtkWidget *layout;
 	int stack;
 	gPicture *_icon;
 	gPicture *_picture;
@@ -218,6 +219,7 @@ public:
 	unsigned _unmap : 1;
 	unsigned _initMenuBar : 1;
 	unsigned _grab_on_show : 1;
+	unsigned _frame_init : 1;
 };
 
 #endif
