@@ -132,6 +132,7 @@ GB_CLASS CLASS_Printer;
 GB_CLASS CLASS_Image;
 GB_CLASS CLASS_SvgImage;
 GB_CLASS CLASS_TextArea;
+GB_CLASS CLASS_ComboBox;
 
 static bool in_event_loop = false;
 static int _no_destroy = 0;
@@ -1208,6 +1209,7 @@ int EXPORT GB_INIT(void)
 	CLASS_Image = GB.FindClass("Image");
 	CLASS_SvgImage = GB.FindClass("SvgImage");
 	CLASS_TextArea = GB.FindClass("TextArea");
+	CLASS_ComboBox = GB.FindClass("ComboBox");
 
 	QT_InitEventLoop();
 
