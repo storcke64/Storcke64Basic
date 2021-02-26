@@ -1308,7 +1308,7 @@ void CWIDGET_reset_color(CWIDGET *_object)
 		bg = THIS_EXT->bg;
 		fg = THIS_EXT->fg;
 		
-		if (qobject_cast<QComboBox *>(w))
+		if (GB.Is(THIS, CLASS_ComboBox))
 		{
 			//QComboBox *cb = (QComboBox *)w;
 			palette = QPalette();
@@ -1333,18 +1333,28 @@ void CWIDGET_reset_color(CWIDGET *_object)
 
 			w->setPalette(palette);
 		}
-		/*else if (qobject_cast<QSpinBox *>(w))
+		else if (GB.Is(THIS, CLASS_TextArea))
 		{
 			palette = QPalette();
 
 			if (bg != COLOR_DEFAULT)
+			{
 				palette.setColor(QPalette::Base, TO_QCOLOR(bg));
+				palette.setColor(QPalette::Window, TO_QCOLOR(bg));
+				palette.setColor(QPalette::Button, TO_QCOLOR(bg));
+			}
 
 			if (fg != COLOR_DEFAULT)
+			{
 				palette.setColor(QPalette::Text, TO_QCOLOR(fg));
+				palette.setColor(QPalette::WindowText, TO_QCOLOR(fg));
+				palette.setColor(QPalette::ButtonText, TO_QCOLOR(fg));
+			}
 
 			w->setPalette(palette);
-		}*/
+
+			CTEXTAREA_set_foreground(THIS);
+		}
 		else
 		{
 			palette = QPalette();
@@ -1383,8 +1393,6 @@ void CWIDGET_reset_color(CWIDGET *_object)
 	
 	//w->setAutoFillBackground(THIS->bg != COLOR_DEFAULT);
 	
-	if (GB.Is(THIS, CLASS_TextArea))
-		CTEXTAREA_set_foreground(THIS);
 	
 	if (_after_set_color)
 		(*_after_set_color)(THIS);

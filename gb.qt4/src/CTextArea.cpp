@@ -23,9 +23,8 @@
 
 #define __CTEXTAREA_CPP
 
-#include <qapplication.h>
-#include <qpalette.h>
-#include <QPlainTextEdit>
+#include <QPalette>
+#include <QTextEdit>
 #include <QTextBlock>
 #include <QTextDocumentFragment>
 
@@ -57,6 +56,12 @@ static int get_length(void *_object)
 	}
 	
 	return THIS->length;
+}
+
+static bool is_empty(void *_object)
+{
+	QTextBlock block = WIDGET->document()->begin();
+	return !block.isValid();
 }
 
 static void to_pos(QTextEdit *wid, int par, int car, int *pos)
@@ -147,16 +152,27 @@ void CTEXTAREA_set_foreground(void *_object)
 {
 	THIS->no_change = TRUE;
 	
-	QTextCursor oldCursor = WIDGET->textCursor();
-	
-	WIDGET->selectAll();
-	
-	WIDGET->setTextColor(Qt::black);
-	set_text_color(THIS);
-	
-	WIDGET->setTextCursor(oldCursor);
-	
-	set_text_color(THIS);
+	if (is_empty(THIS))
+	{
+		WIDGET->setPlainText(" ");
+		WIDGET->selectAll();
+		WIDGET->setTextColor(Qt::black);
+		set_text_color(THIS);
+		WIDGET->textCursor().insertText("");
+	}
+	else
+	{
+		QTextCursor oldCursor = WIDGET->textCursor();
+		
+		WIDGET->selectAll();
+		
+		WIDGET->setTextColor(Qt::black);
+		set_text_color(THIS);
+		
+		WIDGET->setTextCursor(oldCursor);
+		
+		set_text_color(THIS);
+	}
 	
 	THIS->no_change = FALSE;
 }
