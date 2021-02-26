@@ -57,6 +57,7 @@ extern bool MAIN_key_debug;
 extern bool MAIN_right_to_left;
 extern const char *MAIN_platform;
 extern bool MAIN_platform_is_wayland;
+
 extern GB_CLASS CLASS_Control;
 extern GB_CLASS CLASS_Container;
 extern GB_CLASS CLASS_ContainerChildren;
@@ -73,6 +74,7 @@ extern GB_CLASS CLASS_Printer;
 extern GB_CLASS CLASS_Image;
 extern GB_CLASS CLASS_SvgImage;
 extern GB_CLASS CLASS_TextArea;
+extern GB_CLASS CLASS_ComboBox;
 
 #endif
 
