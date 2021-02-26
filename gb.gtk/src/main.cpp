@@ -125,7 +125,7 @@ static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget)
 	
 	ctrl->widget = ctrl->border;
 	InitControl(ctrl, ob);
-	ctrl->realize(false);
+	ctrl->realize();
 	ctrl->_has_input_method = TRUE;
 	
 	if (recreate)

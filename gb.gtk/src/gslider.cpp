@@ -92,6 +92,7 @@ gSlider::gSlider(gContainer *par, bool scrollbar) : gControl(par)
 	_max = 100;
 	_tracking = true;
 	_is_scrollbar = scrollbar;
+	_orientation = ORIENTATION_AUTO;
 
 /*#ifdef GTK3
 	border = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -112,7 +113,7 @@ gSlider::gSlider(gContainer *par, bool scrollbar) : gControl(par)
 		
 	init();
 	update();
-	realize(false);
+	realize();
 	//g_signal_connect_after(G_OBJECT(border),"expose-event",G_CALLBACK(slider_Expose),(gpointer)this);
 }
 
@@ -126,7 +127,7 @@ gScrollBar::gScrollBar(gContainer *par) : gSlider(par, true)
 	
 	init();
 	update();
-	realize(false);
+	realize();
 	
 #ifndef GTK3
 	gtk_range_set_update_policy(GTK_RANGE(widget),GTK_UPDATE_CONTINUOUS);

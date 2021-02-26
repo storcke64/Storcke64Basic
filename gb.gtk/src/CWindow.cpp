@@ -188,7 +188,7 @@ static bool cb_close(gMainWindow *sender)
 		}
 	}
 
-	if (THIS->embed)
+	if (sender->isEmbedded())
 	{
 		CWINDOW_Embedder = 0;
 		CWINDOW_Embedded = false;
@@ -258,7 +258,7 @@ static void cb_deactivate(gMainWindow *sender)
 
 ***************************************************************************/
 
-BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent;)
+BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent)
 
 	gMainWindow *win;
 	GB_CLASS CLASS_container;
@@ -277,28 +277,27 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent;)
 		if (GB.Conv((GB_VALUE *)(void *)ARG(parent), (GB_TYPE)CLASS_container))
 			return;
 
-		parent=(CWIDGET*)VARG(parent);
-		parent=GetContainer ((CWIDGET*)parent);
+		parent = (CWIDGET*)VARG(parent);
+		parent = GetContainer ((CWIDGET*)parent);
 	}
 
-	if ( CWINDOW_Embedder && (!CWINDOW_Embedded) && (!parent) )
-	{
-		plug=CWINDOW_Embedder;
-		THIS->embed=true;
-	}
+	if (CWINDOW_Embedder && (!CWINDOW_Embedded) && (!parent))
+		plug = CWINDOW_Embedder;
 
-	if (!parent)
+	if (parent)
+		win = new gMainWindow((gContainer *)parent->widget);
+	else if (!plug)
+		win = new gMainWindow();
+	else
 	{
 		win = new gMainWindow(plug);
-		if (plug && !win->border)
+		if (!win->border)
 		{
 			delete win;
 			GB.Error("Embedder control is not supported on this platform");
 			return;
 		}
 	}
-	else
-		win = new gMainWindow((gContainer *)parent->widget);
 
 	THIS->ob.widget	= win;
 	InitControl(THIS->ob.widget, (CWIDGET*)THIS);

@@ -277,7 +277,7 @@ void gComboBox::create(bool readOnly)
 
 	if (first)
 	{
-		realize(false);
+		realize();
 	}
 	else
 	{

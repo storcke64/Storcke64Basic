@@ -172,7 +172,7 @@ gLabel::gLabel(gContainer *parent) : gControl(parent)
 	border = widget = gtk_fixed_new();
 	layout = gtk_widget_create_pango_layout(border, "");
 
-	realize(false);
+	realize();
 
 	ON_DRAW(widget, this, cb_expose, cb_draw);
 
