@@ -14,16 +14,16 @@
       Picture = Picture["icon:/small/server"]
     }
     { btnShowSystem ToolButton
-      MoveScaled(4,0,4,4)
+      MoveScaled(4,0,12,4)
       ToolTip = ("Show system tables")
       Action = ".show-system"
       Toggle = True
     }
     { Separator3 Separator
-      MoveScaled(8,0,0,4)
+      MoveScaled(18,0,0,4)
     }
     { btnNewTable ToolButton
-      MoveScaled(9,0,8,4)
+      MoveScaled(17,0,16,4)
       ToolTip = ("New table")
       Action = ".new-table"
       AutoResize = True
@@ -32,23 +32,23 @@
     }
     { btnSave ToolButton mnuSave
       Name = "btnSave"
-      MoveScaled(17,0,4,4)
+      MoveScaled(33,0,4,4)
       ToolTip = ("Save")
       Action = ".save"
       Picture = Picture["icon:/small/save"]
     }
     { btnReload ToolButton mnuReload
       Name = "btnReload"
-      MoveScaled(21,0,4,4)
+      MoveScaled(37,0,4,4)
       ToolTip = ("Reload")
       Action = ".reload"
       Picture = Picture["icon:/small/refresh"]
     }
     { Separator4 Separator
-      MoveScaled(26,0,0,4)
+      MoveScaled(42,0,0,4)
     }
     { btnKill ToolButton
-      MoveScaled(27,0,11,4)
+      MoveScaled(45,0,11,4)
       ToolTip = ("Delete table")
       Action = ".remove-table"
       AutoResize = True
@@ -56,7 +56,7 @@
       Picture = Picture["icon:/small/delete"]
     }
     { btnRename ToolButton
-      MoveScaled(39,0,11,4)
+      MoveScaled(56,0,11,4)
       ToolTip = ("Rename table")
       Action = ".rename-table"
       AutoResize = True
@@ -64,7 +64,7 @@
       Picture = Picture["icon:/small/edit"]
     }
     { btnCopyTable ToolButton
-      MoveScaled(51,0,6,4)
+      MoveScaled(69,0,8,4)
       ToolTip = ("Copy table")
       Action = ".copy-table"
       AutoResize = True
@@ -72,7 +72,7 @@
       Picture = Picture["icon:/small/copy"]
     }
     { btnPasteTable ToolButton
-      MoveScaled(58,0,4,4)
+      MoveScaled(79,0,10,4)
       ToolTip = ("Paste table")
       Action = ".paste-table"
       AutoResize = True
@@ -80,7 +80,7 @@
       Picture = Picture["icon:/small/paste"]
     }
     { btnImport ToolButton
-      MoveScaled(64,0,12,4)
+      MoveScaled(89,0,12,4)
       ToolTip = ("Import text file")
       Action = ".import-table"
       AutoResize = True
@@ -113,7 +113,7 @@
           Arrangement = Arrange.Fill
           Spacing = True
           { panRequest VBox
-            MoveScaled(3,14,80,24)
+            MoveScaled(16,2,80,24)
             Visible = False
             Background = Color.Background
             { tlbData2 ToolBar
