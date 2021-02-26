@@ -39,7 +39,7 @@
 #include "gmouse.h"
 #include "gmainwindow.h"
 
-#define DEBUG_RESIZE 1
+//#define DEBUG_RESIZE 1
 
 GList *gMainWindow::windows = NULL;
 gMainWindow *gMainWindow::_active = NULL;
@@ -681,7 +681,7 @@ void gMainWindow::updateSize()
 		return;
 	
 	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "resize: %s: %d %d / %d / %d %d\n", name(), width(), height(), isResizable(), _csd_w, _csd_h);
+	fprintf(stderr, "updateSize: %s: %d %d / %d / %d %d\n", name(), width(), height(), isResizable(), _csd_w, _csd_h);
 	#endif
 	
 	if (width() < 1 || height() < 1)
@@ -1917,8 +1917,8 @@ void gMainWindow::setGeometryHints()
 				}
 			}
 
-			geometry.min_width = min_w;
-			geometry.min_height = min_h;
+			geometry.min_width = min_w + Max(_csd_w, 0);
+			geometry.min_height = min_h + Max(_csd_h, 0);
 			
 			geometry.max_width = 32767;
 			geometry.max_height = 32767;
@@ -1929,7 +1929,10 @@ void gMainWindow::setGeometryHints()
 			geometry.max_height = geometry.min_height = height() + Max(_csd_h, 0);
 		}
 
-		gtk_window_set_geometry_hints(GTK_WINDOW(border), NULL, &geometry, (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_POS));
+		#if DEBUG_RESIZE
+		fprintf(stderr, "setGeometryHints: %s: min size: %d %d (%d x %d)\n", name(), geometry.min_width, geometry.min_height, width(), height());
+		#endif
+		gtk_window_set_geometry_hints(GTK_WINDOW(border), NULL, &geometry, (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 		//gdk_window_set_geometry_hints(gtk_widget_get_window(border), &geometry, (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_POS));
 	}
 }
@@ -2053,8 +2056,10 @@ void gMainWindow::calcCsdSize()
 	fprintf(stderr, "calcCsdSize: %s: csd = %d %d\n", name(), _csd_w, _csd_h);
 	#endif
 	
-	/*if (!isResizable())
-		updateSize();*/
+	if (!isResizable())
+		updateSize();
+	else
+		setGeometryHints();
 }
 
 void gMainWindow::destroy()
