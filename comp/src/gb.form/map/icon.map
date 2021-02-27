@@ -150,7 +150,10 @@ new-tab                 actions/tab-new
 new-tag                 actions/tag-new
 new-window              actions/window-new
 next                    actions/go-next;actions/go-next-view
-office                  [elementary]categories/applications-other;categories/applications-office
+office                  $(mime)/x-office-document
+office-calc             $(mime)/x-office-spreadsheet
+office-draw             $(mime)/x-office-drawing
+office-presentation     [elementary]$(mime)/application-vns.ms-powerpoint;$(mime)/x-office-presentation
 ok                      actions/dialog-ok
 opacity                 [breeze]actions/edit-opacity
 open                    actions/document-open
