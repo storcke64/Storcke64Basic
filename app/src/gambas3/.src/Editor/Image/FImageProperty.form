@@ -241,19 +241,26 @@
         ToolTip = ("Make transparent")
         Picture = Picture["icon:/small/transparency"]
       }
+      { btnDarkTheme ToolButton btnAction
+        Name = "btnDarkTheme"
+        MoveScaled(24,0,4,4)
+        Tag = "invert"
+        ToolTip = ("Invert colors for dark themes")
+        Picture = Picture["icon:/small/invert"]
+      }
       { Separator5 Separator
-        MoveScaled(25,0,1,4)
+        MoveScaled(35,0,1,4)
       }
       { btnLineCap ToolButton
-        MoveScaled(27,0,4,4)
+        MoveScaled(37,0,4,4)
         ToolTip = ("Line cap")
       }
       { btnLineJoin ToolButton
-        MoveScaled(33,0,4,4)
+        MoveScaled(43,0,4,4)
         ToolTip = ("Line join")
       }
       { btnFillRule ToolButton
-        MoveScaled(39,0,4,4)
+        MoveScaled(49,0,4,4)
         ToolTip = ("Fill rule")
       }
     }
@@ -596,9 +603,9 @@
           Text = ("Grid resolution")
         }
         { txtGridRes SliderBox
-          MoveScaled(29,0,26,4)
+          MoveScaled(38,0,17,4)
           MinValue = 4
-          MaxValue = 512
+          MaxValue = 128
           Step = 4
           Value = 64
         }
@@ -611,7 +618,7 @@
           Text = ("Grid snap")
         }
         { txtGridSnap SliderBox
-          MoveScaled(29,0,26,4)
+          MoveScaled(38,0,17,4)
           MinValue = 1
           MaxValue = 512
           Step = 8

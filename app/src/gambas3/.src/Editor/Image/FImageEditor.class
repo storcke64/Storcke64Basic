@@ -3,7 +3,7 @@
 Public Path As String
 Public RichText As String
 
-Public Enum EFFECT_BALANCE, EFFECT_COLORIZE, EFFECT_DESATURATE, EFFECT_TRANSPARENT
+Public Enum EFFECT_BALANCE, EFFECT_COLORIZE, EFFECT_DESATURATE, EFFECT_TRANSPARENT, EFFECT_INVERT
 Private Enum TRANS_FLIP_H, TRANS_FLIP_V, TRANS_ROTATE_L, TRANS_ROTATE_R
 
 Property Read ReadOnly As Boolean
@@ -2645,6 +2645,10 @@ Public Sub ApplyEffect(iEffect As Integer)
     
       hEffect = $hImage.Copy().Erase()
       
+    Case EFFECT_INVERT
+    
+      hEffect = $hImage.Copy().Invert(True)
+      
   End Select
   
   If $hSelect Then
@@ -3211,6 +3215,9 @@ Public Sub ExecAction(sAction As String)
     
     Case "transparent"
       ApplyEffect(EFFECT_TRANSPARENT)
+      
+    Case "invert"
+      ApplyEffect(EFFECT_INVERT)
     
   End Select
   
