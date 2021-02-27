@@ -1104,23 +1104,6 @@ void gApplication::exit()
   gt_exit();
 }
 
-int gApplication::controlCount()
-{
-	GList *iter;
-	int ct=1;
-
-	if (!gControl::controlList()) return 0;
-
-	iter=g_list_first(gControl::controlList());
-	while (iter->next)
-	{
-		ct++;
-		iter=iter->next;
-	}
-
-	return ct;
-}
-
 gControl* gApplication::controlItem(GtkWidget *wid)
 {
 	gControl *control;
@@ -1136,41 +1119,25 @@ gControl* gApplication::controlItem(GtkWidget *wid)
 	return NULL;
 }
 
-gControl* gApplication::controlItem(int index)
+static void cb_update_busy(gControl *control)
 {
-	GList *iter;
-
-	if (!gControl::controlList()) return NULL;
-	iter=g_list_nth(gControl::controlList(),index);
-	if (!iter) return NULL;
-	return (gControl*)iter->data;
+	if (control->mustUpdateCursor())
+		control->setMouse(control->mouse());
 }
 
 void gApplication::setBusy(bool b)
 {
-	GList *iter;
-	gControl *control;
-
 	if (b == _busy)
 		return;
 
 	_busy = b;
 
-	iter = g_list_first(gControl::controlList());
-
-	while (iter)
-	{
-		control = (gControl *)iter->data;
-
-		if (control->mustUpdateCursor())
-			control->setMouse(control->mouse());
-
-		iter = g_list_next(iter);
-	}
-
+	forEachControl(cb_update_busy);
+	
 	gdk_display_flush(gdk_display_get_default());
 }
 
+#if 0
 static bool _dirty = false;
 
 static gboolean update_geometry(void *data)
@@ -1203,6 +1170,7 @@ void gApplication::setDirty()
 	_dirty = true;
 	g_timeout_add(0, (GSourceFunc)update_geometry, NULL);
 }
+#endif
 
 void gApplication::setDefaultTitle(const char *title)
 {
@@ -1693,4 +1661,34 @@ void gApplication::onThemeChange()
 	
 	getStyleName();
 	_scrollbar_size = 0;
+}
+
+static void for_each_control(gContainer *cont, void (*cb)(gControl *))
+{
+	int i;
+	gControl *control;
+	
+	for (i = 0; i < cont->childCount(); i++)
+	{
+		control = cont->child(i);
+		if (control->isContainer())
+			for_each_control((gContainer *)control, cb);
+		else
+			(*cb)(control);
+	}
+	(*cb)(cont);
+}
+
+void gApplication::forEachControl(void (*cb)(gControl *))
+{
+	GList *iter_win;
+	gMainWindow *win;
+	
+	iter_win = g_list_first(gMainWindow::windows);
+	while (iter_win)
+	{
+		win = (gMainWindow *)iter_win->data;
+		for_each_control(win, cb);
+		iter_win = g_list_next(iter_win);
+	}
 }

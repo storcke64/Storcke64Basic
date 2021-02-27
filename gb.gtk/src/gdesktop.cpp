@@ -69,6 +69,13 @@ gFont* gDesktop::font()
 	return _desktop_font;
 }
 
+#ifndef GTK3
+static void cb_update_font(gControl *control)
+{
+	control->updateFont();
+}
+#endif
+
 void gDesktop::setFont(gFont *ft)
 {
 	gFont::set(&_desktop_font, ft ? ft->copy() : new gFont());
@@ -76,17 +83,7 @@ void gDesktop::setFont(gFont *ft)
 
 #ifndef GTK3
 	
-	GList *iter;
-	gControl *control;
-
-	iter = g_list_first(gControl::controlList());
-
-	while (iter)
-	{
-		control = (gControl *)iter->data;
-		control->updateFont();
-		iter = g_list_next(iter);
-	}
+	gApplication::forEachControl(cb_update_font);
 	
 #else
 

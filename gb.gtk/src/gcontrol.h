@@ -352,12 +352,6 @@ public:
 	virtual void onLeaveEvent();
 #endif
 	
-/*	static gControl* dragWidget();
-	static void setDragWidget(gControl *ct);
-	static char *dragTextBuffer();
-	static GdkPixbuf *dragPictureBuffer();
-	static void freeDragBuffer();*/
-	static GList* controlList();
 	static void cleanRemovedControls();
 
 private:

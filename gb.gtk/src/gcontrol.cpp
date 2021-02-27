@@ -44,7 +44,6 @@
 //#define DEBUG_FOCUS 1
 //#define DEBUG_ENTER_LEAVE 1
 
-static GList *controls = NULL;
 static GList *controls_destroyed = NULL;
 
 #if 0
@@ -388,8 +387,6 @@ void gControl::initAll(gContainer *parent)
 	_has_css_id = false;
 #endif
 
-	controls = g_list_append(controls,this);
-	
 	/*if (pr && pr->isDesign())
 		setDesignIgnore();*/
 }
@@ -457,7 +454,6 @@ gControl::~gControl()
 	if (_tooltip)
 		g_free(_tooltip);
 
-	controls = g_list_remove(controls, this);
 	controls_destroyed = g_list_remove(controls_destroyed, this);
 
 	#define CLEAN_POINTER(_p) if (_p == this) _p = NULL
@@ -1542,11 +1538,6 @@ void gControl::connectParent()
 	// BM: Widget has been created, so we can set its cursor if application is busy
 	if (gApplication::isBusy() && mustUpdateCursor())
 		setMouse(mouse());
-}
-
-GList* gControl::controlList()
-{
-	return controls;
 }
 
 gColor gControl::getFrameColor()

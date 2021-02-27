@@ -95,6 +95,9 @@ public:
 	
 	int childIndex(gControl *ch) const;
 	
+	int childRec(int index) const;
+	int childCountRec(int index) const;
+	
 	void clear();
 	
 	virtual gControl *find(int x, int y);

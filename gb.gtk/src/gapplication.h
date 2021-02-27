@@ -42,9 +42,6 @@ public:
 	static void exit();
 	static bool mustQuit() { return _must_quit; }
 
-	static int controlCount();
-
-	static gControl* controlItem(int index);
 	static gControl* controlItem(GtkWidget *wid);
 
   static void setBusy(bool b);
@@ -68,7 +65,7 @@ public:
 	static void setDefaultTitle(const char *title);
 	static char *defaultTitle() { return _title; }
 
-	static void setDirty();
+	//static void setDirty();
 	static int loopLevel() { return _loopLevel; }
 	static void enterLoop(void *owner, bool showIt = false, GtkWindow *modal = NULL);
 	static void enterPopup(gMainWindow *owner);
@@ -106,6 +103,8 @@ public:
 	static void setButtonGrab(gControl *grab) { _button_grab = grab; }
 	
 	static void onThemeChange();
+	
+	static void forEachControl(void (*cb)(gControl *));
 	
 	static bool _fix_breeze;
 	static bool _fix_oxygen;
