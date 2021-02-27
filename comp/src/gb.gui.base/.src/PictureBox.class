@@ -17,10 +17,12 @@ Property Padding As Integer
 Property Border As Integer
 Property Stretch As Boolean
 Property Mode As Integer
+Property Cached As Boolean
 
 Public Enum Normal, Fill, Cover, Contain, {Repeat}
 
 Static Private $hDefault As Image
+Static Private $bWarningCached As Boolean
 
 Private $iAlign As Integer = Align.TopLeft
 Private $iPadding As Integer
@@ -30,6 +32,7 @@ Private $hPicture As Picture
 Private $hImage As Image
 Private $bAutoResize As Boolean
 Private $bStretch As Boolean
+Private $bCached As Boolean
 
 Private Function Alignment_Read() As Integer
 
@@ -310,4 +313,20 @@ PAINT_IMAGE:
   Endif
   Return
   
+End
+
+Private Function Cached_Read() As Boolean
+
+  Return $bCached
+
+End
+
+Private Sub Cached_Write(Value As Boolean)
+
+  If Not $bWarningCached Then
+    Error "gb.gui: warning; PictureBox.Cached is deprecated"
+    $bWarningCached = True
+  Endif
+  $bCached = Value
+
 End
