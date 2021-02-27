@@ -1794,6 +1794,12 @@ Public Sub View_Drop()
   Dim aText As String[]
   Dim I As Integer
   
+  If Object.CanRaise(Me, "Drop") Then
+    Raise Drop
+    Stop Event
+    Return
+  Endif
+  
   If Drag.Formats.Exist("text/uri-list") Then
     sText = Trim(Drag.Paste("text/uri-list"))
     If sText Then
