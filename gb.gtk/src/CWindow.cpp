@@ -32,6 +32,13 @@
 #include "CDraw.h"
 #include "gapplication.h"
 
+typedef
+	struct {
+		uint index;
+		GPtrArray *list;
+	}
+	WINDOW_ENUM;
+
 int CWINDOW_Embedder = 0;
 bool CWINDOW_Embedded = false;
 
@@ -633,27 +640,41 @@ END_METHOD
 
 BEGIN_PROPERTY(CWINDOW_control_count)
 
-	GB.ReturnInteger(WINDOW->controlCount());
+	GPtrArray *list = WINDOW->getControlList();
+	GB.ReturnInteger(list->len);
+	g_object_unref(list);
 
 END_PROPERTY
 
 
+static void cb_free_enum(WINDOW_ENUM *iter)
+{
+	g_ptr_array_unref(iter->list);
+	iter->list = NULL;
+}
+
 BEGIN_METHOD_VOID(CWINDOW_control_next)
 
-	int index;
+	WINDOW_ENUM *iter;
 	gControl *control;
 
-	index = ENUM(int);
+	iter = (WINDOW_ENUM *)GB.GetEnum();
+	
+	if (!iter->list)
+	{
+		iter->index = 0;
+		iter->list = WINDOW->getControlList();
+		GB.OnFreeEnum((GB_CALLBACK)cb_free_enum);
+	}
 
-	control = WINDOW->getControl(index);
-
-	if (!control)
+	if (iter->index >= iter->list->len)
 	{
 		GB.StopEnum();
 		return;
 	}
-
-	ENUM(int) = index + 1;
+	
+	control = (gControl *)g_ptr_array_index(iter->list, iter->index);
+	iter->index = iter->index + 1;
 	GB.ReturnObject(GetObject(control));
 
 END_PROPERTY

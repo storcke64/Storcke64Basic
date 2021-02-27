@@ -304,7 +304,7 @@ gContainer::gContainer(gContainer *parent) : gControl(parent)
 gContainer::~gContainer()
 {
 	int i;
-	
+
 	for (i = 0; i < childCount(); i++)
 		child(i)->removeParent();
 	

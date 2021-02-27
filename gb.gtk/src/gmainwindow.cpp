@@ -241,38 +241,6 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 	return false;
 }
 
-static void cb_resize_frame(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
-{
-	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "---- cb_resize_frame: %s: %d x %d\n", data->name(), a->width, a->height);
-	#endif
-
-	/*w = a->width;
-	h = a->height;*/
-	
-	data->calcCsdSize();
-	
-	data->bufW = a->width;
-	data->bufH = a->height;
-	
-	data->emitResize();
-	
-#if 0
-	if (w != data->bufW || h != data->bufH || data->_event_resized)
-	{
-		#ifdef DEBUG_RESIZE
-		fprintf(stderr, "cb_resize_layout: %s: %d x %d / resize = %d\n", data->name(), w, h, data->_event_resized);
-		#endif
-
-		data->_event_resized = false;
-		data->bufW = w;
-		data->bufH = h;
-		data->emitResize(); // later
-	}
-#endif
-}
-
-
 #ifdef GTK3
 static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gMainWindow *data)
 {
@@ -1296,8 +1264,9 @@ void gMainWindow::drawMask()
 		gtk_widget_set_app_paintable(border, TRUE);
 		gtk_widget_realize(border);
 		gtk_widget_realize(widget);
-		for (int i = 0; i < controlCount(); i++)
-			getControl(i)->refresh();
+		// What for??
+		/*for (int i = 0; i < controlCount(); i++)
+			getControl(i)->refresh();*/
 	}
 	else if (!_transparent)
 	{
@@ -1528,61 +1497,44 @@ void gMainWindow::setType(GtkWindowType type)
 	hideHiddenChildren();
 }
 
-
-int gMainWindow::controlCount()
+static void fill_children_list(gContainer *cont, GPtrArray *list)
 {
-	GList *list = gControl::controlList();
-	gControl *ctrl;
-	int n = 0;
-
-	while (list)
+	int i;
+	gControl *control;
+	
+	for (i = 0; i < cont->childCount(); i++)
 	{
-		ctrl = (gControl *)list->data;
-		if (ctrl->window() == this && !ctrl->isDestroyed())
-			n++;
-		list = g_list_next(list);
+		control = cont->child(i);
+		if (control->isContainer()) // && !control->isWindow())
+			fill_children_list((gContainer *)control, list);
+		g_ptr_array_add(list, control);
 	}
-
-	return n;
 }
 
-gControl *gMainWindow::getControl(char *name)
+GPtrArray *gMainWindow::getControlList()
 {
-	GList *list = gControl::controlList();
-	gControl *ctrl;
-
-	while (list)
-	{
-		ctrl = (gControl *)list->data;
-		if (ctrl->window() == this && !strcasecmp(ctrl->name(), name) && !ctrl->isDestroyed())
-			return ctrl;
-		list = g_list_next(list);
-	}
-
-	return NULL;
+	GPtrArray *list = g_ptr_array_new();
+	fill_children_list(this, list);
+	return list;
 }
 
-gControl *gMainWindow::getControl(int index)
+gControl *gMainWindow::getControl(const char *name)
 {
-	GList *list = gControl::controlList();
+	GPtrArray *list = getControlList();
+	uint i;
 	gControl *ctrl;
-	int i = 0;
 
-	while (list)
+	for (i = 0; i < list->len; i++)
 	{
-		ctrl = (gControl *)list->data;
-		if (ctrl->window() == this && !ctrl->isDestroyed())
-		{
-			if (i == index)
-				return ctrl;
-			i++;
-		}
-		list = g_list_next(list);
+		ctrl = (gControl *)g_ptr_array_index(list, i);
+		if (!ctrl->isDestroyed() && !strcasecmp(ctrl->name(), name))
+			break;
+		ctrl = NULL;
 	}
 
-	return NULL;
+	g_ptr_array_unref(list);
+	return ctrl;
 }
-
 
 int gMainWindow::clientX()
 {
@@ -2084,3 +2036,4 @@ void gMainWindow::getCustomMinimumSize(int *w, int *h) const
 	*w = _min_w;
 	*h = _min_h;
 }
+

@@ -28,6 +28,7 @@
 #include "main.h"
 #include "gambas.h"
 #include "widgets.h"
+#include "gapplication.h"
 #include "CDraw.h"
 #include "cpaint_impl.h"
 #include "CDrawingArea.h"
@@ -45,18 +46,15 @@ DECLARE_EVENT(EVENT_Change);
 
 ***************************************************************************/
 
+static void cb_change(gControl *control)
+{
+	if (control->isDrawingArea())
+		GB.Raise(control->hFree, EVENT_Change, 0);
+}
+
 void CDRAWINGAREA_send_change_event(void)
 {
-	GList *iter = g_list_first(gControl::controlList());
-	gControl *control;
-
-	while (iter)
-	{
-		control = (gControl *)iter->data;
-		if (control->isDrawingArea())
-			GB.Raise(control->hFree, EVENT_Change, 0);
-		iter = g_list_next(iter);
-	}
+	gApplication::forEachControl(cb_change);
 }
 
 static void cleanup_drawing(intptr_t _unused)

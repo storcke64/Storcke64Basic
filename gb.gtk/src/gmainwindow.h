@@ -61,9 +61,8 @@ public:
 	bool isNoTakeFocus() const { return _no_take_focus; }
 	int screen();
 
-	int controlCount();
-	gControl *getControl(char *name);
-	gControl *getControl(int i);
+	GPtrArray *getControlList();
+	gControl *getControl(const char *name);
 
 	void setBorder(bool b);
 	void setResizable(bool b);
@@ -121,7 +120,7 @@ public:
 	virtual void reparent(gContainer *newpr, int x, int y);
 	virtual void destroy();
 	virtual void restack(bool raise);
-
+	
 //"Signals"
 	void (*onOpen)(gMainWindow *sender);
 	void (*onShow)(gMainWindow *sender);
@@ -142,7 +141,7 @@ public:
 	static void setActiveWindow(gControl *control);
 	static gMainWindow *_current;
 	static bool closeAll();
-
+	
 //"Private"
   void initialize();
 	void drawMask();

@@ -649,25 +649,22 @@ static bool hook_error(int code, char *error, char *where, bool can_ignore)
 	return (res == 2);
 }
 
+static void cb_update_lang(gControl *control)
+{
+	if (control->isVisible() && control->isContainer())
+		((gContainer*)control)->performArrange();
+}
+
 static void hook_lang(char *lang, int rtl)
 {
-	int i, n;
-	gControl *iter;
-
 	MAIN_rtl = rtl;
 
 	if (rtl)
 		gtk_widget_set_default_direction(GTK_TEXT_DIR_RTL);
 	else
 		gtk_widget_set_default_direction(GTK_TEXT_DIR_LTR);
-
-	n = gApplication::controlCount();
-	for (i = 0; i < n; i++)
-	{
-		iter = gApplication::controlItem(i);
-		if (iter->isVisible() && iter->isContainer())
-			((gContainer*)iter)->performArrange();
-	}
+	
+	gApplication::forEachControl(cb_update_lang);
 }
 
 void MAIN_do_iteration_just_events()
