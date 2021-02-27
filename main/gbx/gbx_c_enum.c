@@ -75,6 +75,9 @@ BEGIN_METHOD_VOID(CENUM_free)
   #ifdef DEBUG_ME
   fprintf(stderr, "CENUM_free: %p <%p>\n", THIS, THIS->enum_object);
   #endif
+	
+	if (THIS->free)
+		(*THIS->free)(&THIS->data);
 
   LIST_remove(&_enum_list, THIS, &THIS->list);
   OBJECT_UNREF(THIS->enum_object);
