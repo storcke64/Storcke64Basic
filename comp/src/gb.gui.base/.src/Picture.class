@@ -147,7 +147,7 @@ Static Public Sub _Refresh(ByRef hPict As Picture)
   Try sKey = $cPictToKey[sPict]
   If Not sKey Then Return
   hPict = Picture[sKey]
-  $cPictToKey.Remove(sPict)
+  '$cPictToKey.Remove(sPict)
   
 End
 
@@ -170,6 +170,8 @@ Static Public Sub Refresh()
   Dim I As Integer
   Dim hMenu As Menu
   Dim hWin As Window
+  Dim cKeepCache As Collection
+  'Dim N As Integer
   
   Inc Application.Busy
   
@@ -181,16 +183,19 @@ Static Public Sub Refresh()
     'Debug sKey
   Next
   
+  cKeepCache = $cCache.Copy()
   $cCache.Clear
   
   For Each hWindow In Windows
     
+    hWin = hWindow
+    _Refresh(ByRef hWin.Icon)
+    GoSub REFRESH_MENU
+      
     For Each hCtrl In hWindow.Controls
       
-      _Refresh(ByRef hWindow.Icon)
-      
-      hWin = hWindow
-      GoSub REFRESH_MENU
+      'Debug Object.Type(hWindow);; hCtrl.Name
+      'Inc N
       
       If hCtrl Is TabStrip Then
         
@@ -202,6 +207,7 @@ Static Public Sub Refresh()
       Else If hCtrl Is Window Then
         
         hWin = hCtrl
+        _Refresh(ByRef hWin.Icon)
         GoSub REFRESH_MENU
         
       Else
@@ -214,6 +220,10 @@ Static Public Sub Refresh()
     Next
     
   Next
+  
+  $cPictToKey = Null
+
+  'Debug N
   
   Dec Application.Busy
   Return
