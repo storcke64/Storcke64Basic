@@ -1040,6 +1040,7 @@ typedef
 		void (*EndEnum)(void *);
 		bool (*NextEnum)(void);
 		void (*StopAllEnum)(void *);
+		void (*OnFreeEnum)(GB_CALLBACK);
 
 		GB_VALUE *(*GetReturnValue)(void);
 		void (*Return)(GB_TYPE, ...);

@@ -33,7 +33,8 @@ typedef
     GB_BASE object;
     LIST list;
     void *enum_object;
-    void *data[4];
+    void *data[3];
+		void (*free)(void *);
     unsigned stop : 1;
     unsigned variant : 1;
     }

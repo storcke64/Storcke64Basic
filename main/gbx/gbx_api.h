@@ -71,6 +71,7 @@ void *GB_BeginEnum(void *);
 void GB_EndEnum(void *);
 bool GB_NextEnum(void);
 void GB_StopAllEnum(void *);
+void GB_OnFreeEnum(void (*cb)(void *));
 
 GB_VALUE *GB_GetReturnValue(void);
 void GB_Return(GB_TYPE type, ...);

@@ -156,6 +156,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_EndEnum,
 	(void *)GB_NextEnum,
 	(void *)GB_StopAllEnum,
+	(void *)GB_OnFreeEnum,
 
 	(void *)GB_GetReturnValue,
 	(void *)GB_Return,
@@ -1407,6 +1408,11 @@ void GB_StopEnum(void)
 	//VALUE_default(&TEMP, *GAMBAS_ReturnType);
 	TEMP.type = T_VOID;
 	EXEC_enum->stop = TRUE;
+}
+
+void GB_OnFreeEnum(void (*cb)(void *))
+{
+	EXEC_enum->free = cb;
 }
 
 
