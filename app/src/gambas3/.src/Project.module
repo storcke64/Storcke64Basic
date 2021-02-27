@@ -1205,6 +1205,7 @@ Public Sub MakeModuleIcon(sModule As String, iSize As Integer, Optional bStartup
   If Not hImage Then
     
     hImage = Image.Load("img/module" &/ sModule & ".png").Stretch(iSize, iSize)
+    If Application.DarkTheme Then hImage = hImage.Invert(True)
 
     'If bExported Then MakeExportedIcon(hImage)
 
