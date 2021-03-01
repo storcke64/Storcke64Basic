@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Static Public OpenEventHandlerFor As String
+Static Public EventName As String
 
 Static Private $hForm As FForm
 Static Private $aMenu As New CMenu[]
@@ -25,6 +26,7 @@ Static Public Sub Run(hForm As FForm)
   Endif
   
   OpenEventHandlerFor = ""
+  EventName = ""
   FMenu.ShowModal()
 
 End
@@ -51,11 +53,10 @@ End
 '   
 ' End
 
-
 Public Sub Form_Open()
 
   Settings.Read(Me)
-  Project.SetSmallFont(panToolbar)
+  Project.SetSmallFont(tlbMenu)
 
   Me.Title = $hForm.Name & " - " & ("Menu editor")
   
@@ -772,6 +773,53 @@ Public Sub btnDown_Click()
 
 End
 
+Private Sub UpdateEvent()
+
+  Dim cSymbol As Collection
+  Dim sName As String
+  Dim hCMenu As CMenu
+  Dim sGroup As String
+  Dim hSymbol As CSymbolInfo
+  Dim hButton As Button
+  Dim hPict As PictureBox
+
+  panEvent.Children.Clear
+  
+  If $iCurrent < 0 Then Return
+  hCMenu = $aMenu[$iCurrent]
+  
+  If Not hCMenu.Caption Then Return
+
+  cSymbol = Project.Documentation.GetClassSymbols($hForm.Name)
+  If Not cSymbol Then Return
+  
+  sGroup = hCMenu.Group
+  If Not sGroup Then sGroup = hCMenu.Name
+
+  hPict = New PictureBox(panEvent)
+  hPict.Resize(panEvent.H, panEvent.H)
+  hPict.Image = Image.Load("img/symbol/event.png")
+  hPict.Stretch = True
+  
+  For Each sName In Project.Documentation.Classes[$hFamily.MenuClass].Events
+
+    hSymbol = cSymbol[sGroup & "_" & sName]
+    
+    'If $bReadOnly Then
+    '  If Not hSymbol Or If hSymbol.Kind <> "m" Then Continue
+    'Endif
+    
+    hButton = New Button(panEvent) As "btnEvent"
+    hButton.Text = sName
+    hButton.AutoResize = True
+
+    If hSymbol And If hSymbol.Kind = "m" Then hButton.Picture = Picture["icon:/small/ok"]
+
+  Next
+
+  If panEvent.Children.Count = 0 Then Return
+
+End
 
 Private Sub SetCurrent(iCurrent As Integer)
 
@@ -791,6 +839,7 @@ Private Sub SetCurrent(iCurrent As Integer)
   Endif
   
   ReadMenu
+  UpdateEvent
 
 End
 
@@ -1155,7 +1204,14 @@ Public Sub btnInsertSeparator_Click()
 End
 
 Public Sub gvwMenu_Activate()
+  
+  btnEvent_Click
+  
+End
 
+Public Sub btnEvent_Click()
+  
+  EventName = Last.Text
   Try OpenEventHandlerFor = $aMenu[$iCurrent].Name
   If Not Error Then
     Me.Close()
