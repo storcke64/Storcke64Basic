@@ -61,7 +61,7 @@
 #define CTEXTLABEL_PROPERTIES "*,Padding{Range:0;63},AutoResize,Text,Alignment{Align.*}=TopNormal,Wrap=True,Border{Border.None;Plain;Sunken;Raised;Etched},Transparent"
 #define CTOGGLEBUTTON_PROPERTIES "*,Action,AutoResize,Text,Picture,Border=True,Radio,Value"
 #define CTOOLBUTTON_PROPERTIES "*,Action,AutoResize,Text,Picture,Border,Radio,Toggle,Value"
-#define CTRAYICON_PROPERTIES "Visible=False,Tag,Tooltip,Picture,PopupMenu{Menu}"
+#define CTRAYICON_PROPERTIES "Visible=False,Tag,Tooltip,Picture{Picture:NoCache},PopupMenu{Menu}"
 #define CVBOX_PROPERTIES "*,AutoResize," CPADDING_PROPERTIES ",Invert"
 #define CWINDOW_PROPERTIES "*,Action,Text,Icon,Picture,Mask,Persistent,Resizable=True,Border=True,Utility,TakeFocus=True,Stacking{Window.Normal;Above;Below}=Normal,Minimized,Maximized,FullScreen,Sticky,SkipTaskbar,Opacity{Range:0;100}=100,Transparent," CWINDOW_ARRANGEMENT_PROPERTIES
 
