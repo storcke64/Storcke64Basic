@@ -3266,7 +3266,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
       FMenu.Run(Me)
       If FMenu.OpenEventHandlerFor Then
         hCurrent = Control[FMenu.OpenEventHandlerFor]
-        If hCurrent Then GotoEventMethod(hCurrent, "Click")
+        If hCurrent Then GotoEventMethod(hCurrent, FMenu.EventName)
       Endif
 
     Case ".delete"
