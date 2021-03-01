@@ -2265,19 +2265,6 @@ Private Function GetCurrentProcLine(iLine As Integer) As Integer
 
   $sName = ""
 
-  ' If $cProc.Count Then
-  '
-  '   iRes = -1
-  '   For Each iProc In $cProc
-  '     If iRes < iProc And If iProc <= iLine Then
-  '       iRes = iProc
-  '       $sName = $cProc.Key
-  '     Endif
-  '   Next
-  '   Return iRes
-  '
-  ' Else
-
   Do
     If $hEditor[iLine].Limit Then
       If IsProc($hEditor[iLine].Text) Then Return iLine
@@ -2285,8 +2272,6 @@ Private Function GetCurrentProcLine(iLine As Integer) As Integer
     Dec iLine
     If iLine < 0 Then Return -1
   Loop
-
-  'Endif
 
 End
 

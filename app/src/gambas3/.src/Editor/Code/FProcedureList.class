@@ -35,10 +35,10 @@ Public Sub Init(hModule As FEditor, sClass As String, aProc As String[], iCurren
   
   FilterProc
   
+  Me.Resize(W, Min(H, $aProc.Count * gvwProc.Rows.H + panFilter.H + 3))
+
   Try gvwProc[$iCurrent, 0].EnsureVisible
   
-  Try Me.Resize(W, Min(H, gvwProc.Rows.H * $aProc.Count + gvwProc.Y + 2))
-
   $sFind = ""
   $dFind = Timer
   
