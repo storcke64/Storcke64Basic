@@ -936,7 +936,7 @@ End
 
 Private Sub Rename(sKey As String)
   
-  Dim hEditor As TextArea
+  Dim hEditor As Object
   Dim sText As String
   Dim iLen As Integer
   Dim sExt As String
@@ -946,9 +946,10 @@ Private Sub Rename(sKey As String)
   tvwProject[sKey].Rename
   
   Try hEditor = Application.ActiveControl
-  If Error Then Return
+  If Not hEditor Then Return
+  Try sText = hEditor.Text
+  If Not sText Then Return
   
-  sText = hEditor.Text
   iLen = String.Len(sText) 
   If sText Not Begins "." Then
     sExt = File.Ext(sText)
@@ -2151,7 +2152,7 @@ Public Sub ShowMessage(sMsg As String, sIcon As String, Optional sKey As String)
   
   If NoMessage Then Return
   
-  If sKey Then sMsg = "<b>" & GetKeyTitle(sKey) & "</b><p>" & sMsg
+  If sKey Then sMsg = "<b>" & GetKeyTitle(sKey) & "</b>\n\n" & sMsg
   
   sMsg = Replace(sMsg, "\n", "<br>")
     
