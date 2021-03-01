@@ -4374,7 +4374,9 @@ VOID_NAME:
 
 BAD_CHAR:
 
-  Return ("This name contains a forbidden character:") & " [ " & String.Mid$(sName, iInd, 1) & " ]" & "\n\n" &
+  sCar = String.Mid$(sName, iInd, 1)
+  If sCar = " " Then sCar = ("Space")
+  Return ("This name contains a forbidden character:") & " [ " & sCar & " ]" & "\n\n" &
     ("A class name must begin with a letter or an underscore, followed by any letter or digit.")
 
 ALREADY_EXIST:
