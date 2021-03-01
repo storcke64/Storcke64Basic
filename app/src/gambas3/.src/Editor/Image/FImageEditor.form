@@ -387,7 +387,7 @@
       Tag = "move"
       ToolTip = ("Move")
       Action = ".tool-move"
-      Picture = Picture["img/draw/scroll.png"]
+      Picture = Picture["icon:/small/move"]
       Toggle = True
       Value = True
     }
@@ -508,7 +508,7 @@
       MoveScaled(111,0,4,4)
       ToolTip = ("Duplicate selection")
       Action = ".duplicate"
-      Picture = Picture["img/draw/duplicate.png"]
+      Picture = Picture["icon:/small/clone"]
     }
     { btnOffset ToolButton
       MoveScaled(115,0,4,4)
@@ -638,7 +638,7 @@
   { Action duplicate
     Text = "Duplicate selection"
     Shortcut = "Ctrl+D"
-    Picture = "img/draw/duplicate.png"
+    Picture = "icon:/small/clone"
   }
   { Action exclusive
     Text = "Exclusive or"
@@ -765,7 +765,7 @@
   }
   { Action tool-move
     Text = "Move"
-    Picture = "img/draw/scroll.png"
+    Picture = "icon:/small/move"
   }
   { Action tool-paste
     Text = "Paste"

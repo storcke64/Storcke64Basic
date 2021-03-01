@@ -454,6 +454,7 @@ Public Sub mnuPopup_Show()
       mnuCut.Visible = bCurrent
       mnuCopy.Hide
       mnuPaste.Visible = True
+      mnuClone.Hide
       
       sParent = tvwProject[$sKey].ParentKey
       
@@ -542,6 +543,7 @@ Public Sub mnuPopup_Show()
       mnuCopy.Visible = bFile And Not IsDir($sKey)
       mnuPaste.Visible = bFile Or bCanStoreFile
       mnuPaste.Enabled = Clipboard.Format = MMime.FILE
+      mnuClone.Visible = mnuCopy.Visible And mnuPaste.Visible
     Endif
     
     mnuEditWith.Visible = False
@@ -1158,6 +1160,14 @@ Public Sub mnuPaste_Click()
   
 End
 
+Public Sub mnuClone_Click()
+  
+  mnuCopy_Click()
+  mnuPaste_Click()
+  
+End
+
+
 Public Sub tvwProject_Select()
   
   RefreshMenu
@@ -1250,6 +1260,7 @@ Public Sub UpdateMenu()
   mnuCut.Visible = bVisible
   mnuCopy.Visible = bVisible
   mnuPaste.Visible = bVisible
+  mnuClone.Visible = bVisible
   mnuDeleteFile.Visible = bVisible
   mnuClean.Visible = bVisible
   mnuNew.Visible = bVisible
