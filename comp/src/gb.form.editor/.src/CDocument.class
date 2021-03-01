@@ -986,7 +986,7 @@ Public Sub HighlightUntil(Y As Integer)
   If Not StartHighlight() Then Return
 
   iNextFirst = -1
-  For L = $iFirstInvalidHighlight To Y
+  For L = $iFirstInvalidHighlight To Min(Y, Lines.Max)
     If L = $iDoNotHighlightLine And If Info(L).Modified Then 
       If iNextFirst < 0 Then iNextFirst = L
       Continue
