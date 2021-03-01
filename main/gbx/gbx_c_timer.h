@@ -29,13 +29,20 @@
 #include "gb_list.h"
 
 typedef
-	GB_TIMER CTIMER;
+	struct {
+		GB_TIMER_CALLBACK callback;
+		intptr_t tag;
+	}
+	CTIMER_EXT;
 
+typedef GB_TIMER CTIMER;
+	
 #ifndef __GBX_C_TIMER_C
 extern GB_DESC NATIVE_Timer[];
 #else
 
 #define THIS ((CTIMER *)_object)
+#define THIS_EXT ((CTIMER_EXT *)THIS->ext)
 
 #endif
 

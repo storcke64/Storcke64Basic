@@ -846,13 +846,13 @@ typedef
 	struct {
 		GB_BASE object;
 		intptr_t id;
-		intptr_t tag;
-		unsigned delay : 31;
+		unsigned delay : 30;
 		unsigned triggered : 1;
+		unsigned task : 1;
 		#if __WORDSIZE == 64
 		int _pad;
 		#endif
-		GB_TIMER_CALLBACK callback;
+		void *ext;
 		}
 	GB_TIMER;
 
