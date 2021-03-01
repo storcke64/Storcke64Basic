@@ -1150,7 +1150,7 @@ Private Sub ToggleProcList()
   FillProc
   iCurrent = $aProc.Find(btnProc.Text)
 
-  iCurrent = FProcedureList.Popup(Null, "", $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, Desktop.Scale * 48, Me.ClientH - panToolbar.H - Desktop.Scale)
+  iCurrent = FProcedureList.Popup(Null, "", $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, btnProc.W, Me.ClientH - panToolbar.H - Desktop.Scale)
   
   $hEditor.SetFocus
   

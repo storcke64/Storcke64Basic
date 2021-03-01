@@ -304,7 +304,7 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
       Endif
     Endif
 
-    If Left$(sLine, 1) = "{" Then
+    If Left$(sLine) = "{" Then
 
       aVal = Split(Trim(Mid$(sLine, 2)), " ")
       sName = aVal[0]
@@ -414,13 +414,13 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
             iPos = iPos2 + 1
           Loop
           vValue = aVal '.Join("\n")
-        Else If UCase(sValue) = "TRUE" Then
+        Else If sValue == "TRUE" Then
           vValue = True
-        Else If UCase(sValue) = "FALSE" Then
+        Else If sValue == "FALSE" Then
           vValue = False
         Else If sValue Begins "CDate(" Then
           vValue = CDate(Mid$(sValue, 8, -2))
-        Else If UCase(sValue) = "NULL" Then
+        Else If sValue == "NULL" Then
           vValue = Null
         Else If sValue Begins "Shortcut(" Then
           
@@ -2202,10 +2202,10 @@ Private Sub CenterContainer(hCCont As CControl, bVertical As Boolean)
       Return
     Endif
 
-    If Selection.Count = 1 And If Master.IsContainer() Then
-      CenterContainer(Master, bVertical)
-      Return
-    Endif
+    ' If Selection.Count = 1 And If Master.IsContainer() And If Master.HasChildren() Then
+    '   CenterContainer(Master, bVertical)
+    '   Return
+    ' Endif
 
     aCCtrl = New CControl[]
     For Each hCCtrl In Selection
