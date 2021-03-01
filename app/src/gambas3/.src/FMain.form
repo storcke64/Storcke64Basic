@@ -610,7 +610,6 @@
       }
       { mnuNewFile Menu mnuNewFile
         Name = "mnuNewFile"
-        Action = "new-other"
         Text = Shortcut(("Other"), "O") & "..."
         Picture = Picture["icon:/small/new"]
         Tag = "text"
@@ -668,6 +667,11 @@
       Text = Shortcut(("Paste"), "P")
       Picture = Picture["icon:/small/paste"]
       Shortcut = "Ctrl+V"
+    }
+    { mnuClone Menu
+      Action = "duplicate-file"
+      Text = ("Duplicate")
+      Picture = Picture["icon:/small/clone"]
     }
     { mnuRenameFile Menu
       Action = "rename"
@@ -1565,6 +1569,11 @@
     Shortcut = ""
     Picture = "img/32/do-not-translate.png"
   }
+  { Action duplicate-file
+    Text = "Duplicate"
+    Shortcut = ""
+    Picture = "icon:/small/clone"
+  }
   { Action edit-class
     Text = "Open code"
     Shortcut = ""
@@ -1675,11 +1684,6 @@
     Text = "View"
     Shortcut = ""
     Picture = "$MenuButton"
-  }
-  { Action new-other
-    Text = "Other"
-    Shortcut = ""
-    Picture = "icon:/small/new"
   }
   { Action new-project
     Text = "New project"
