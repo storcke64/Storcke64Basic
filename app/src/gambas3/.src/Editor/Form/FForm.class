@@ -3631,7 +3631,7 @@ Private Sub MoveTab(hCtrl As CControl, iWhere As Integer)
 
   If iIndex < 0 Or If iIndex >= hTabStrip.Count Or If iIndex = hTabStrip.Index Then Return
 
-  Swap hCtrl.Tag[iIndex], hCtrl.Tag[hTabStrip.Index]
+  Swap hCtrl.Tabs[iIndex], hCtrl.Tabs[hTabStrip.Index]
   Swap hTabStrip.Text, hTabStrip[iIndex].Text
   Swap hTabStrip.Picture, hTabStrip[iIndex].Picture
 
