@@ -124,6 +124,10 @@ gPicture *gt_grab_window(GdkWindow *win, int x = 0, int y = 0, int w = 0, int h 
 
 void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float *th, int align, float *offX, float *offY);
 
+// Compute the extents of a layout
+
+void gt_layout_get_extents(PangoLayout *layout, int *w, int *h);
+
 #if GTK_CHECK_VERSION(2, 18, 0)
 #else
 void gtk_widget_set_can_focus(GtkWidget *widget, gboolean can_focus);

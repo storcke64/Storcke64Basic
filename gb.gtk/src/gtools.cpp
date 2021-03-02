@@ -2502,3 +2502,11 @@ void gt_define_style_sheet(GtkStyleProvider **provider, GString *css)
 }
 
 #endif
+
+void gt_layout_get_extents(PangoLayout *layout, int *w, int *h)
+{
+	PangoRectangle ink_rect, log_rect;
+	pango_layout_get_pixel_extents(layout, &ink_rect, &log_rect);
+	*w = Max(ink_rect.width, log_rect.width);
+	*h = Max(ink_rect.height, log_rect.height);
+}

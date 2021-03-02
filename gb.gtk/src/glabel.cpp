@@ -56,7 +56,7 @@ static gboolean cb_draw(GtkWidget *draw, cairo_t *cr, gLabel *d)
 	vw = d->width();
 	vh = d->height();
 
-	pango_layout_get_pixel_size(d->layout, &lw, &lh);
+	gt_layout_get_extents(d->layout, &lw, &lh);
 
 	if (!d->markup() || !d->wrap())
 	{
@@ -115,7 +115,7 @@ static gboolean cb_expose(GtkWidget *draw, GdkEventExpose *e, gLabel *d)
 	vh = d->height();
 
 	pango_layout_set_alignment(d->layout, PANGO_ALIGN_LEFT);
-	pango_layout_get_pixel_size(d->layout, &lw, &lh);
+	gt_layout_get_extents(d->layout, &lw, &lh);
 
 	switch (xa)
 	{
@@ -217,6 +217,7 @@ void gLabel::updateSize(bool adjust, bool noresize_width)
 {
 	gint w, h;
 	int fw;
+	PangoRectangle ink_rect, log_rect;
 	
 	updateLayout();
 
@@ -237,16 +238,14 @@ void gLabel::updateSize(bool adjust, bool noresize_width)
 	
 	pango_layout_set_width(layout, w);
 	
-	pango_layout_get_pixel_size(layout, &w, &h);
-
-	/*if (!adjust && _wrap)
-		w = width();
-	else*/
-		w += fw * 2;
-
+	if (!_autoresize && !adjust)
+		return;
+	
+	gt_layout_get_extents(layout, &w, &h);
+	w += fw * 2;
 	h += fw * 2;
 
-	if ((!_autoresize && !adjust) || (noresize_width && w != width()))
+	if (noresize_width && w != width())
 		return;
 		
 	if ((align == ALIGN_CENTER || align == ALIGN_LEFT || align == ALIGN_NORMAL || align == ALIGN_RIGHT) && h < height())
