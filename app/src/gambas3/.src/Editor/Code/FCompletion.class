@@ -108,11 +108,11 @@ Public Sub Position(hEditor As TextEditor)
     hCont = hCont.Parent
   Loop
   
-  FixPosition($hEditor, ByRef iX, ByRef iY)
+  FCompletion.FixPosition($hEditor, ByRef iX, ByRef iY)
   
   Dec Application.Busy
 
-  If Me.Parent = $hForm And If iX = Me.X And iY = Me.Y And Me.Visible Then Return
+  If Me.Parent = $hForm And If iX = Me.X And If iY = Me.Y And If Me.Visible Then Return
   
   Me.Reparent($hForm, iX, iY)
   If Not Me.Visible Then
@@ -144,7 +144,9 @@ Static Public Sub FixPosition(hEditor As TextEditor, Optional ByRef X As Integer
     
     'Debug Y;; "/";; FSignature.Y;; FSignature.H
     
-    If X >= FSignature.X And If X + Me.W <= FSignature.X + FSignature.W Then
+    'FIXME: Had a crash with Me.W inside that static function
+    
+    If X < FSignature.X + FSignature.W And If X + FCompletion.W > FSignature.X Then
     
       If Y = FSignature.Y Then
         Y += FSignature.H - 1
