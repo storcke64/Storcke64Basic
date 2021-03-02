@@ -1494,6 +1494,7 @@ Private Sub Search(iMode As Integer, Optional aPath As String[])
   
   If InitSearch() Then Return
   
+  Me.Hide
   FDebugInfo.ShowSearchList
   FDebugInfo.StartSearch
   
