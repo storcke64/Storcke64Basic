@@ -77,7 +77,7 @@ Private $hCompletion As CCompletion
 Private $hInsertDate As CInsertDate
 
 Private $bDiffMode As Boolean
-Private $hTimerSignature As Timer
+'Private $hTimerSignature As Timer
 
 'Static Private $cLastClassCount As New Collection
 
@@ -122,8 +122,8 @@ Public Sub _new(sPath As String)
   $hCompletion = New CCompletion(Me)
   $hInsertDate = New CInsertDate(Me, btnInsertDate)
   
-  $hTimerSignature = New Timer As "CheckSignature"
-  $hTimerSignature.Delay = 50
+  ' $hTimerSignature = New Timer As "CheckSignature"
+  ' $hTimerSignature.Delay = 50
 
   ReadConfig
   Refresh
@@ -381,7 +381,6 @@ Private Sub RefreshLineInfo(Optional bForce As Boolean) As Boolean
 
   Else If $bCheckSignature Or If FSignature.VisibleFrom($hEditor) Then
     
-    $bCheckSignature = False
     CheckSignature
     
   Endif
@@ -2154,23 +2153,16 @@ Private Function GetExpressionSymbol(aExpr As String[], aType As Integer[]) As C
 
 End
 
-Private Sub CheckSignature()
+Public Sub CheckSignature()
   
-  If Not $hCompletion.Enabled Then Return
-  CheckSignature_Timer
-
-  '$hTimerSignature.Restart
-  
-End
-
-Public Sub CheckSignature_Timer()
-
   Dim sLig As String
   Dim hSymbol As CSymbolInfo
   Dim sKind As String
 
-  $hTimerSignature.Stop
+  If Not $hCompletion.Enabled Then Return
 
+  $bCheckSignature = False
+  
   'sLig = Left$(edtEditor.GetPurgedLine(edtEditor.Line), edtEditor.Column) & sText
   sLig = String.Left$(Highlight.Purge($hEditor.Current.Text), $hEditor.Column)
   Highlight.Analyze(sLig)

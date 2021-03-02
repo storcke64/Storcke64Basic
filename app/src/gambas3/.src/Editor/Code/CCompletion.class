@@ -98,7 +98,7 @@ Public Sub CheckCompletion_Timer()
           hEditor.Goto(iSave, hEditor.Line)
         Endif
         
-        Return
+        Goto CHECK_SIGNATURE
       
       Endif
       
@@ -107,6 +107,10 @@ Public Sub CheckCompletion_Timer()
   Endif
   
   $hModule.CheckCompletion()
+  
+CHECK_SIGNATURE:
+
+  Try $hModule.CheckSignature()
   
 End
 
@@ -275,3 +279,4 @@ Public Sub GetRightString(sLine As String) As String
   If bInside Then Return Mid$(sLine, iPos + 1)
   
 End
+
