@@ -108,6 +108,8 @@ Public Sub Position(hEditor As TextEditor)
     hCont = hCont.Parent
   Loop
   
+  FixPosition($hEditor, ByRef iX, ByRef iY)
+  
   Dec Application.Busy
 
   If Me.Parent = $hForm And If iX = Me.X And iY = Me.Y And Me.Visible Then Return
@@ -116,6 +118,46 @@ Public Sub Position(hEditor As TextEditor)
   If Not Me.Visible Then
     Me.Show
     Me.Raise
+  Endif
+  
+End
+
+Static Public Sub FixPosition(hEditor As TextEditor, Optional ByRef X As Integer, ByRef Y As Integer)
+
+  Dim bCompletion As Boolean
+  Dim bSignature As Boolean
+  
+  If IsMissing(X) And If IsMissing(Y) Then
+    bCompletion = FCompletion.VisibleFrom(hEditor)
+    bSignature = True
+  Else
+    bCompletion = True
+    bSignature = FSignature.VisibleFrom(hEditor)
+  Endif
+  
+  If bCompletion And If bSignature Then
+    
+    If IsMissing(X) And If IsMissing(Y) Then
+      X = FCompletion.X
+      Y = FCompletion.Y
+    Endif
+    
+    'Debug Y;; "/";; FSignature.Y;; FSignature.H
+    
+    If X >= FSignature.X And If X + Me.W <= FSignature.X + FSignature.W Then
+    
+      If Y = FSignature.Y Then
+        Y += FSignature.H - 1
+      Else If Y + FCompletion.H = FSignature.Y + FSignature.H Then
+        Y -= FSignature.H - 1
+      Endif
+      
+      If IsMissing(X) And If IsMissing(Y) Then
+        FCompletion.Move(X, Y)
+      Endif
+      
+    Endif
+    
   Endif
   
 End
@@ -787,59 +829,61 @@ Public Function ManageKey() As Boolean
 
     Case Key.Up, Key.PageUp
 
-      iRow = gvwComp.Row - If(Key.Code = Key.Up, 1, 8)
-      If iRow < 0 Then iRow = gvwComp.Rows.Count - 1
+      iRow = gvwComp.Row - If(Key.Code = Key.Up, 1, gvwComp.ClientH \ gvwComp.Rows.Height)
+      If Key.Code = Key.Up Then
+        If iRow < 0 Then iRow = gvwComp.Rows.Count - 1
+      Else
+        If iRow < 0 Then iRow = 0
+      Endif
       gvwComp.Row = iRow
       $bUserChoice = True
 
     Case Key.Down, Key.PageDown
 
-      iRow = gvwComp.Row + If(Key.Code = Key.Down, 1, 8)
-      If iRow >= gvwComp.Rows.Count Then iRow = 0
+      iRow = gvwComp.Row + If(Key.Code = Key.Down, 1, gvwComp.ClientH \ gvwComp.Rows.Height)
+      If Key.Code = Key.Down Then
+        If iRow >= gvwComp.Rows.Count Then iRow = 0
+      Else
+        If iRow >= gvwComp.Rows.Count Then iRow = gvwComp.Rows.Max
+      Endif
       gvwComp.Row = iRow
       $bUserChoice = True
 
     Case Key.Home
 
-      If gvwComp.Row = 0 Then
-        HideMe
-        Return
-      Endif
+      If gvwComp.Row = 0 Then Goto HIDE_ME
 
       gvwComp.Row = 0
       $bUserChoice = True
 
     Case Key.End
 
-      If gvwComp.Row = gvwComp.Rows.Count - 1 Then
-        HideMe
-        Return
-      Endif
+      If gvwComp.Row = gvwComp.Rows.Count - 1 Then Goto HIDE_ME
 
       gvwComp.Row = gvwComp.Rows.Count - 1
       $bUserChoice = True
 
-    Case Key.Escape
-      HideMe
-
-    Case Key.Left, Key.Right
-      HideMe
-      Return
+    Case Key.Escape, Key.Left, Key.Right
+      
+      Goto HIDE_ME
 
     Case Key.Enter, Key.Return
+      
       InsertItem
       'IF Key.Code <> Key.Tab THEN RETURN
 
     Case Key.Space
+      
       If Key.Control Then
         If UCase($sText) = "NEW" Then Return
         InsertItem(True)
+        Return False 
       Else
-        HideMe
+        Goto HIDE_ME
       Endif
-      Return False 
 
     Case Key.Backspace
+      
       'Debug $iLen;; $sText
       If String.Len($sText) > $iLen Then
         SetText(String.Left$($sText, -1))
@@ -866,38 +910,49 @@ Public Function ManageKey() As Boolean
           $sText &= Key.Text
           Return FindItem()
           
-        Else If InStr(FEditor.IDENT_CAR, Key.Text) Then
+        Else If Key.Text = "[" And If Not $sText Then
+          
+        Else If InStr(FEditor.IDENT_CAR, Key.Text) And If Key.Text <> "$" Then
           
           If Key.Text = "_" Then 
-            If GetEvents($sText) Then 
-              HideMe
-              Return 
-            Endif
+            If GetEvents($sText) Then Goto HIDE_ME
           Endif
         
           Return SetText($sText & Key.Text, True)
           
-        Else If Key.Text = "[" And If Not $sText Then
+        Else If $bGambas And If InStr(". A<", $sMode) Then
           
-          HideMe
+          If InStr("([.!$", Key.Text) > 0 Then
           
-        Else If $bGambas And If InStr("([.!", Key.Text) > 0 And If InStr(". A<", $sMode) Then
-          
-          InsertItem
-          
-        Else
-          
-          HideMe
+            InsertItem
+            Return
+            
+          Else If InStr("=+-*/^", Key.Text) Then
+            
+            InsertItem(False, " " & Key.Text & " ")
+            Return True
+            
+          Else If InStr(":", Key.Text) Then
+            
+            InsertItem(False, ": ")
+            Return True
+            
+          Endif
           
         Endif
-        
-        Return False
+          
+        Goto HIDE_ME
         
       Endif
 
   End Select
 
   Return True
+  
+HIDE_ME:
+
+  HideMe
+  Return
 
 End
 
@@ -952,7 +1007,7 @@ Private Function FindItem(Optional bNoInsert As Boolean) As Boolean
   
 End
 
-Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
+Private Function InsertItem(Optional bNoSpace As Boolean, sMore As String) As Boolean
 
   Dim sText As String
   Dim hClass As CClassInfo
@@ -961,7 +1016,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
 
   Try sText = gvwComp.Current.Text
   If Not sText Then Return True
-
+  
   If gvwComp[gvwComp.Row, 0].Picture = Picture["$symbol:event"] Then
     If $hForm.IsProc($hEditor[$hEditor.Line].Text) Then
       hClass = Project.Documentation.Classes[$sEventClass]
@@ -973,6 +1028,9 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
 
   If bNoSpace Then
     If Right(sText) = " " Then sText = Left$(sText, -1)
+  Else If sMore Then
+    If sMore Begins " " Then sText = RTrim(sText)
+    sText &= sMore
   Endif
 
   With $hEditor

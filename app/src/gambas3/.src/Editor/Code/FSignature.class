@@ -81,19 +81,20 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
   
   iX -= 3
   iX = Max(0, Min(iX, $hEditor.W - Me.Width))
-  
+
   If Not hForm Then 
     Me.Move(iX, iY)
-    Return
+  Else
+    If Me.Parent <> hForm Or If iX <> Me.X Or If iY <> Me.Y Or If Me.Visible Then 
+      Me.Reparent(hForm, iX, iY)
+      Me.Show
+      Me.Raise
+      $hEditor.SetFocus
+    Endif
   Endif
   
-  If Me.Parent = hForm And If iX = Me.X And iY = Me.Y And Me.Visible Then Return
+  FCompletion.FixPosition($hEditor)
 
-  Me.Reparent(hForm, iX, iY)
-  Me.Show
-  Me.Raise
-  $hEditor.SetFocus
-  
 End
 
 Public Sub Position(hForm As FEditor)
