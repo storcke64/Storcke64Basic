@@ -23,6 +23,8 @@ Event Link
 ''
 '' The [./link] property will return an object that gives you the text of the link.
 Event Click
+'' This event is raised when the terminal wants to emit a bell
+Event Bell
 
 '' Return or set if the terminal view has a border.
 Property Border As Boolean
@@ -156,6 +158,9 @@ Private $hTerminalLink As TerminalLink
 Private $bSetLink As Boolean
 Private $iLinkY As Integer
 Private $iLinkLength As Integer
+
+Private $bBell As Boolean
+Private $hTimerBell As Timer
 
 'Private $bDoubleFont As Boolean = True
 
@@ -508,6 +513,7 @@ Public Sub View_Draw()
   Endif
   
   If $bSuspend Then Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha($hView.Background, 128))
+  If $bBell Then Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha($hView.Foreground, 128))
   
 End
 
@@ -1812,5 +1818,32 @@ Public Sub View_Drop()
       PasteText(aText.Join(" ") & " ")
     Endif
   Endif
+  
+End
+
+Public Sub TimerBell_Timer()
+  
+  $bBell = False
+  $hView.Refresh
+  Stop Event
+  
+End
+
+Public Sub _Bell()
+  
+  If Object.CanRaise(Me, "Bell") Then
+    Raise Bell
+    Stop Event
+    Return
+  Endif
+
+  $bBell = True
+  $hView.Refresh
+  
+  If Not $hTimerBell Then
+    $hTimerBell = New Timer As "TimerBell"
+    $hTimerBell.Delay = 100
+  Endif
+  $hTimerBell.Start
   
 End
