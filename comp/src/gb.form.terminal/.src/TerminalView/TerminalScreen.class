@@ -433,6 +433,7 @@ Public Sub Print(sText As String)
     
     Select Case iCode
       Case 7
+        Bell
       Case 8
         CursorLeft
       Case 9
@@ -2445,5 +2446,11 @@ Public Sub SetLink(Optional X1 As Integer, Y1 As Integer, X2 As Integer, Y2 As I
   $LY1 = Y1
   $LX2 = X2
   $LY2 = Y2
+  
+End
+
+Private Sub Bell()
+  
+  GetView()._Bell()
   
 End

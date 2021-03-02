@@ -30,7 +30,7 @@ End
 
 Public Sub Select(Start As Integer, Length As Integer, Optional (Type) As String)
   
-  GetView()._SelectLink(Start, Length, Type)
+  If _Pos >= Start And If _Pos < (Start + Length) Then GetView()._SelectLink(Start, Length, Type)
   
 End
 
