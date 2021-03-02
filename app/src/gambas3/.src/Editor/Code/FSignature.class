@@ -85,14 +85,14 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
   If Not hForm Then 
     Me.Move(iX, iY)
   Else
-    If Me.Parent <> hForm Or If iX <> Me.X Or If iY <> Me.Y Or If Me.Visible Then 
+    If Me.Parent <> hForm Or If iX <> Me.X Or If iY <> Me.Y Or If Not Me.Visible Then 
       Me.Reparent(hForm, iX, iY)
       Me.Show
-      Me.Raise
       $hEditor.SetFocus
     Endif
   Endif
   
+  Me.Raise
   FCompletion.FixPosition($hEditor)
 
 End
@@ -229,6 +229,7 @@ Public Sub HideFrom(hEditor As TextEditor)
   If $hEditor <> hEditor Then Return
   $hEditor = Null
   Me.Hide
+  If FCompletion.VisibleFrom(hEditor) Then FCompletion.Position(hEditor)
   
 End
 
