@@ -60,6 +60,7 @@ Private $bEndOfLine As Boolean
 Private $bCustomHighlight As Boolean
 Private $iFirstInvalidHighlight As Integer
 Private $iDoNotHighlightLine As Integer
+Private $bHighlightAll As Boolean
 
 Public Sub _new()
   
@@ -949,9 +950,12 @@ Private Sub StartHighlight() As Boolean
   
   TextHighlighter.CanRewrite = _Mode.Name
   
-  If TextHighlighter.CanRewrite Then
+  If Not $bHighlightAll And If TextHighlighter.CanRewrite Then
     For Each hView In GetAllViews()
-      If Not hView.ReadOnly And If hView.HasFocus Then $iDoNotHighlightLine = hView.Line
+      If Not hView.ReadOnly And If hView.HasFocus Then
+        $iDoNotHighlightLine = hView.Line
+        Break
+      Endif
     Next
   Endif
   
@@ -1012,7 +1016,9 @@ End
 
 Public Sub HighlightAll()
   
+  $bHighlightAll = True
   HighlightUntil(Lines.Max)
+  $bHighlightAll = False
   
 End
 

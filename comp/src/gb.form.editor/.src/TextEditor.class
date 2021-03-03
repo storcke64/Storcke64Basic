@@ -150,6 +150,7 @@ Private $iSelectedBackground As Integer
 Private $iLimitColor As Integer
 Private $iIndentColor As Integer
 Private $iMatchColor As Integer
+Private $iCurrentColor As Integer
 
 Private $iLineNumberOffset As Integer
 Private $hTabImage As Image
@@ -3156,6 +3157,7 @@ Public Sub View_Draw()
     $iMatchColor = $hStyles[Highlight.Highlight]._Color
     '$iIndentColor = Color.Gradient($iBackground, $iForeground)
     $iMarginColor = Color.SetAlpha($iForeground, 192)
+    $iCurrentColor = Color.SetAlpha($iForeground, 248)
     CalcBoldWidth
     $bStyleChanged = False
   Endif
@@ -3291,6 +3293,7 @@ Public Sub View_Draw()
     XX += $MW - $iWidthModified
     Paint.FillRect(XX, YR, $iWidth, 1, $iMarginColor)
     Paint.FillRect(XX, YR + HR - 1, $iWidth, 1, $iMarginColor)
+    Paint.FillRect(XX, YR + 1, $iWidth, HR - 2, $iCurrentColor)
   Endif
   
   $hTimerCacheLine.Stop
