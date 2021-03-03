@@ -200,6 +200,7 @@ protected:
 	virtual void showEvent(QShowEvent *);
 	virtual void hideEvent(QHideEvent *);
 	virtual void paintEvent(QPaintEvent *);
+	virtual void changeEvent(QEvent *);
 };
 
 #endif

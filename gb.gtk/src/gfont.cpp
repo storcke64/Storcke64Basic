@@ -573,15 +573,17 @@ const char *gFont::toFullString()
 void gFont::textSize(const char *text, int len, float *w, float *h)
 {
 	PangoLayout *ly;
-	PangoRectangle rect = { 0 };
+	PangoRectangle ink_rect, rect = { 0 };
 	
 	if (text && len)
 	{
 		ly = pango_layout_new(ct);
 		pango_layout_set_text(ly, text, len);	
 		gt_set_layout_from_font(ly, this);
-		pango_layout_get_extents(ly, NULL, &rect);
+		pango_layout_get_extents(ly, &ink_rect, &rect);
 		g_object_unref(ly);
+		rect.width = Max(rect.width, ink_rect.width);
+		rect.height = Max(rect.height, ink_rect.height);
 	}
 	
 	if (w) *w = (float)rect.width / PANGO_SCALE;

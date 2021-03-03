@@ -21,7 +21,6 @@ gb_qt5_la_SOURCES = \
  CWindow.h CWindow_moc.cpp CWindow.cpp \
  CButton.h CButton_moc.cpp CButton.cpp \
  CContainer.h CContainer_moc.cpp CContainer.cpp \
- CLabel.h CLabel_moc.cpp CLabel.cpp \
  CTextBox.h CTextBox_moc.cpp CTextBox.cpp \
  CMenu.h CMenu_moc.cpp CMenu.cpp \
  CMouse.h CMouse_moc.cpp CMouse.cpp \

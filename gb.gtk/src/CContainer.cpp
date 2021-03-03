@@ -95,6 +95,16 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 #endif
 }
 
+void CUSERCONTROL_cb_font(gContainer *sender)
+{
+	CWIDGET *_object = GetObject(sender);
+	GB_FUNCTION func;
+	
+	if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
+		GB.Call(&func, 0, TRUE);
+	else
+		GB.Error(NULL);
+}
 
 static void get_client_area(gContainer *cont, int *x, int *y, int *w, int *h)
 {

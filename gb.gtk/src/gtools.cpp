@@ -1657,7 +1657,7 @@ void gt_add_layout_from_font(PangoLayout *layout, gFont *font, int dpi)
 void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float *th, int align, float *offX, float *offY)
 {
 	int ptw, pth;
-	pango_layout_get_size(layout, &ptw, &pth);
+	gt_layout_get_extents(layout, &ptw, &pth, FALSE);
 	*tw = (float)ptw / PANGO_SCALE;
 	*th = (float)pth / PANGO_SCALE;
 	
@@ -2503,10 +2503,18 @@ void gt_define_style_sheet(GtkStyleProvider **provider, GString *css)
 
 #endif
 
-void gt_layout_get_extents(PangoLayout *layout, int *w, int *h)
+void gt_layout_get_extents(PangoLayout *layout, int *w, int *h, bool pixels)
 {
 	PangoRectangle ink_rect, log_rect;
-	pango_layout_get_pixel_extents(layout, &ink_rect, &log_rect);
+	pango_layout_get_extents(layout, &ink_rect, &log_rect);
+	
 	*w = Max(ink_rect.width, log_rect.width);
 	*h = Max(ink_rect.height, log_rect.height);
+	
+	if (pixels)
+	{
+		*w = gt_pango_to_pixel(*w); 
+		*h = gt_pango_to_pixel(*h); 
+	}
+	
 }
