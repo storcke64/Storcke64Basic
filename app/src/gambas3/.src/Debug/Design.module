@@ -323,7 +323,7 @@ Public Sub Debug_Read(Data As String)
       If FDebugInfo.FillStack(aPos) Then
         If aData[1] Then 
           $sError = MakeMessage(aData[1])
-          If sClass Then $sError &= " " & Subst(("in &1:&2."), $sPosClass, $iPosLine)
+          If sClass Then $sError &= " — " & Subst(("in &1:&2."), $sPosClass, $iPosLine)
           If sClass Then
             Try CheckErrorMessage(Project.ActiveForm)
           Else

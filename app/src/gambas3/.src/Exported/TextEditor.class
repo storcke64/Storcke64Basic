@@ -250,7 +250,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     $hLabel.Ignore = True
     $hLabel.AutoResize = True
     $hLabel.Border = Border.None 'If(bBottom, Border.None, Border.Plain)
-    $hLabel.Padding = 2
+    $hLabel.Padding = Desktop.Scale \ 4
     $hLabel.Wrap = False
     $hLabelTimer = New Timer As "LabelTimer"
     $hLabelTimer.Delay = 10000
@@ -265,7 +265,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     $hLabel.Border = Border.Plain
   Else
     $hLabel.Background = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
-    $hLabel.Foreground = Me.Styles[Highlight.Background].Color
+    $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
     $hLabel.Border = Border.None
   Endif
   $hLabel.Text = "&nbsp;&nbsp;" & Replace(Replace(sStr, "<p>", " "), "<br>", " ") & "&nbsp;&nbsp;"
