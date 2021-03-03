@@ -1,0 +1,235 @@
+' Gambas class file
+
+Export
+Inherits UserControl
+
+Public Const _Properties As String = "*,Padding{Range:0;64},AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Text"
+Public Const _DefaultEvent As String = "MouseDown"
+Public Const _DefaultSize As String = "8,3"
+Public Const _IsContainer As Boolean = False
+Public Const _Group As String = "Form"
+Public Const _Similar As String = "Label"
+
+Property Alignment As Integer
+Property Border As Integer Use $iBorder
+Property Text As String Use $sText
+Property Padding As Integer Use $iPadding
+Property AutoResize As Boolean Use $bAutoResize
+Property Transparent As Boolean Use $bTransparent
+
+Private $iAlign As Integer = Align.Normal
+Private $hExt As RectF
+Private $bWarningTransparent As Boolean
+Private $bRichText As Boolean
+
+Public _Wrap As Boolean
+Private $bLocked As Boolean
+
+Public Sub _new()
+  
+  $bRichText = Me Is TextLabel
+  If $bRichText Then 
+    _Wrap = True
+    $iAlign = Align.TopNormal
+  Endif
+  
+End
+
+Private Sub Alignment_Write(Value As Integer)
+
+  If $iAlign = Value Then Return
+  $iAlign = Value
+  Me.Refresh
+
+End
+
+Private Sub Border_Write(Value As Integer)
+  
+  If $iBorder = Value Then Return
+  $iBorder = Value
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub Text_Write(Value As String)
+  
+  If $sText = Value Then Return
+  $sText = Value
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub Padding_Write(Value As Integer)
+
+  If $iPadding = Value Then Return
+  $iPadding = Value
+  _UpdateSize
+  Me.Refresh
+
+End
+
+Private Sub GetPadding() As Integer
+
+  Dim P As Integer
+
+  P = $iPadding
+  Select Case $iBorder
+    Case Border.Plain
+      Inc P
+    Case Border.Raised, Border.Sunken
+      P += Style.FrameWidth
+  End Select
+    
+  Return P  
+
+End
+
+Public Sub _UpdateSize()
+  
+  Dim W As Integer
+  Dim H As Integer
+  Dim P As Integer
+  
+  $hExt = Null
+  If Me.Design Then Return
+  If Not $bAutoResize Then Return
+  If Not $sText Then Return
+  If $bLocked Then Return
+
+  $bLocked = True
+
+  P = GetPadding()
+
+  If $bRichText Then
+    If _Wrap Then
+      W = Me.W
+      H = P * 2 + Me.Font.RichTextHeight($sText, W - P * 2)
+    Else
+      W = P * 2 + Me.Font.RichTextWidth($sText)
+      H = P * 2 + Me.Font.RichTextHeight($sText)
+    Endif
+  Else
+    W = P * 2 + Me.Font.TextWidth($sText)
+    H = P * 2 + Me.Font.TextHeight($sText)
+  Endif
+  
+  If Align.IsMiddle($iAlign) Then
+    If H < Me.H Then H = Me.H
+  Endif
+  
+  Me.Resize(W, H)
+  
+  $bLocked = False
+  
+End
+
+Private Sub AutoResize_Write(Value As Boolean)
+
+  If $bAutoResize = Value Then Return
+  $bAutoResize = Value
+  _UpdateSize
+
+End
+
+Public Sub UserControl_Font()
+  
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub GetExtents() As RectF
+
+  If Not $hExt Then
+    If $bRichText Then
+      If _Wrap Then
+        $hExt = Paint.RichTextSize($sText, Me.W - GetPadding() * 2)
+      Else
+        $hExt = Paint.RichTextSize($sText)
+      Endif
+    Else
+      $hExt = Paint.TextSize($sText)
+    Endif
+  Endif
+  Return $hExt
+
+End
+
+Public Sub UserControl_Draw()
+  
+  Dim P As Integer
+  Dim F As Integer
+  Dim X As Integer
+  Dim iAlign As Integer
+  Dim hExt As RectF
+  
+  If $iBorder Then
+    Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
+    If $iBorder = Border.Plain Then
+      F = 1
+    Else
+      F = Style.FrameWidth + 1
+    Endif
+    Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
+    Paint.Clip()
+  Endif
+  
+  If Not $sText Then Return
+  
+  P = GetPadding()
+
+  hExt = GetExtents()
+  'Debug hExt.W
+  If Align.IsLeft($iAlign) Then
+    X = P '- hExt.X
+  Else If Align.IsRight($iAlign) Then
+    X = Me.W - P - Ceil(hExt.W)
+  Else If Align.IsCenter($iAlign) Then
+    X = (Me.W - hExt.W) / 2
+  Endif
+
+  If Align.IsTop($iAlign) Then
+    iAlign = Align.TopLeft
+  Else If Align.IsBottom($iAlign) Then
+    iAlign = Align.BottomLeft
+  Else 
+    iAlign = Align.Left
+  Endif
+
+  If $bRichText Then
+    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, iAlign)
+  Else
+    Paint.DrawText($sText, X, P, Me.W, Me.H - P * 2, iAlign)
+  Endif
+  
+End
+
+Private Function Alignment_Read() As Integer
+
+  Return $iAlign
+
+End
+
+Private Sub Transparent_Write(Value As Boolean)
+
+  If Not $bWarningTransparent Then
+    Error "gb.gui: warning; Label.Transparent and TextLabel.Transparent are deprecated"
+    $bWarningTransparent = True
+  Endif
+  
+  $bTransparent = Value
+
+End
+
+Public Sub Adjust()
+
+  Dim bSave As Boolean
+
+  bSave = $bAutoResize
+  $bAutoResize = True  
+  _UpdateSize
+  $bAutoResize = bSave
+  
+End

@@ -110,6 +110,7 @@ Private Sub Padding_Write(Value As Integer)
 
   If $iPadding = Value Then Return
   $iPadding = Value
+  UpdateSize
   Me.Refresh
 
 End
