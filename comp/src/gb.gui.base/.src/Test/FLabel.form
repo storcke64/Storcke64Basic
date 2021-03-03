@@ -1,0 +1,67 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,96,110)
+  Font = Font["Times New Roman,+10"]
+  Arrangement = Arrange.Vertical
+  Spacing = True
+  { Label6 Label
+    MoveScaled(6,3,72,9)
+    Background = Color.Yellow
+    AutoResize = True
+    Alignment = Align.Left
+    Text = ("     This is a Label test line")
+  }
+  { Label4 Label
+    MoveScaled(6,13,72,9)
+    Font = Font["Italic"]
+    Background = Color.Yellow
+    AutoResize = True
+    Alignment = Align.Left
+    Text = ("This is a Label test line")
+  }
+  { Label5 Label
+    MoveScaled(6,23,72,9)
+    Background = Color.Yellow
+    AutoResize = True
+    Alignment = Align.Right
+    Text = ("This is a Label test line")
+  }
+  { Label1 Label
+    MoveScaled(6,33,72,9)
+    Font = Font["Italic"]
+    Background = Color.Yellow
+    AutoResize = True
+    Alignment = Align.Right
+    Text = ("This is a Label test line")
+  }
+  { Label2 TextLabel
+    MoveScaled(1,44,85,6)
+    Background = Color.Yellow
+    AutoResize = True
+    Text = ("This is a TextLabel test line")
+    Alignment = Align.Left
+  }
+  { Label3 TextLabel
+    MoveScaled(1,59,75,13)
+    Font = Font["Italic"]
+    Background = Color.Yellow
+    AutoResize = True
+    Text = ("This is a TextLabel test line")
+  }
+  { Label7 TextLabel
+    MoveScaled(1,74,58,14)
+    Background = Color.Yellow
+    AutoResize = True
+    Text = ("This is a TextLabel test line")
+    Alignment = Align.Right
+  }
+  { Label8 TextLabel
+    MoveScaled(2,89,58,14)
+    Font = Font["Italic"]
+    Background = Color.Yellow
+    AutoResize = True
+    Text = ("This is a TextLabel test line")
+    Alignment = Align.Right
+  }
+}
