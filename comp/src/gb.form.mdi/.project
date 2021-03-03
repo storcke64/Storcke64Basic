@@ -1,6 +1,6 @@
 # Gambas Project File 3.0
 Title=Multiple document interface management
-Startup=Form3
+Startup=FTestBackground
 Icon=.hidden/control/workspace.png
 Version=3.15.90
 VersionFile=1
@@ -9,7 +9,7 @@ Component=gb.gui
 Component=gb.form
 Component=gb.settings
 Authors="Benoît Minisini"
-Environment="GB_GUI=gb.gtk3"
+Environment="GB_GUI=gb.gtk3\nGTK_DEBUG=interactive"
 TabSize=2
 Translate=1
 Language=en
