@@ -1299,7 +1299,7 @@
           MoveScaled(5,1,22,3)
           Foreground = Color.LightForeground
           Expand = True
-          Picture = Picture["icon:/small/close"]
+          Picture = Picture["icon:/tiny/close"]
           Border = False
           ClearButton = True
           Filter = True
@@ -1373,7 +1373,7 @@
             { btnClosePanel ToolButton
               MoveScaled(73,3,4,4)
               Ignore = True
-              Picture = Picture["icon:/small/close"]
+              Picture = Picture["icon:/tiny/close"]
             }
           }
           { Separator1 Separator
@@ -1415,19 +1415,19 @@
               Text = ("Hierarchy")
               Index = 0
             }
-            { btnPropertyToolbar ToolButton
-              MoveScaled(0,0,4,4)
-              Visible = False
-              ToolTip = ("Show controls")
-              Ignore = True
-              Picture = Picture["img/16/control.png"]
-            }
             { btnPropertyHelp ToolButton
               MoveScaled(4,0,4,4)
               Visible = False
               ToolTip = ("Show property help")
               Ignore = True
-              Picture = Picture["icon:/small/help"]
+              Picture = Picture["icon:/tiny/help"]
+            }
+            { btnPropertyToolbar ToolButton
+              MoveScaled(0,0,4,4)
+              Visible = False
+              ToolTip = ("Show controls")
+              Ignore = True
+              Picture = Picture["icon:/tiny/development"]
             }
           }
           { panTool SidePanel
