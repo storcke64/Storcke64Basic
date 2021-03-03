@@ -183,6 +183,7 @@ Public Sub AddResultWatch(sCmd As String, Optional sRes As String, Optional bIns
   sVal = sRes
   
   If bInstant Then 
+    
     If Right(sCmd) = ":" Then
       
       If FDebugExpr.Exist(Left(sCmd, Len(sCmd) - 1)) Then Return 
@@ -198,6 +199,7 @@ Public Sub AddResultWatch(sCmd As String, Optional sRes As String, Optional bIns
     Else 
       Design.Command("#X" & sCmd & "\t" & sCmd)  
     Endif 
+    
   Else
     
     AddVariableHeader(cvwVariable, "@", ("Watch expressions"))

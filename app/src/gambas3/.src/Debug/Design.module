@@ -73,13 +73,13 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
   If Not $sError Then Return
   If hEditor Then
     If hEditor.Name == $sPosClass And If hEditor.GetEditor().Line = ($iPosLine - 1) Then
-      hEditor.ShowErrorMessage(Html($sError), "error")
+      hEditor.ShowErrorMessage($sError, "error")
     Else If $iPosLine > hEditor.GetEditor().Count Then
       sPath = Project.FindForm(hEditor.Name)
-      FMain.ShowError(Html($sError), sPath)
+      FMain.ShowError($sError, sPath)
     Endif
   Else
-    FDebugInfo.ShowError(Html($sError))
+    FDebugInfo.ShowError($sError)
   Endif
   
 End
@@ -250,6 +250,8 @@ Public Sub Debug_Read(Data As String)
   Dim sClass As String
   Dim iLine As Integer
   Dim sVar As String
+  Dim sError As String
+  Dim sWhere As String
 
   If Not Data Then Return 
   
@@ -322,8 +324,17 @@ Public Sub Debug_Read(Data As String)
 
       If FDebugInfo.FillStack(aPos) Then
         If aData[1] Then 
-          $sError = MakeMessage(aData[1])
-          If sClass Then $sError &= " — " & Subst(("in &1:&2."), $sPosClass, $iPosLine)
+          
+          sError = MakeMessage(aData[1])
+          
+          If sClass Then
+            sWhere = $sPosClass & ":" & CStr($iPosLine)
+          Else
+            sWhere = ""
+          Endif
+          
+          $sError = Project.FormatError(sError, sWhere)
+          
           If sClass Then
             Try CheckErrorMessage(Project.ActiveForm)
           Else
