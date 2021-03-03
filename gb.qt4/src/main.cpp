@@ -64,7 +64,6 @@
 #include "CWindow.h"
 #include "CButton.h"
 #include "CContainer.h"
-#include "CLabel.h"
 #include "CTextBox.h"
 #include "CTextArea.h"
 #include "CMenu.h"
@@ -1350,7 +1349,6 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CControlDesc, ContainerChildrenDesc, ContainerDesc,
 	UserControlDesc, UserContainerDesc,
 	CMenuChildrenDesc, CMenuDesc,
-	CLabelDesc, CTextLabelDesc, 
 	CButtonDesc, CToggleButtonDesc, CToolButtonDesc,
 	CCheckBoxDesc, CRadioButtonDesc,
 	CTextBoxSelectionDesc, CTextBoxDesc, CComboBoxItemDesc, CComboBoxDesc,

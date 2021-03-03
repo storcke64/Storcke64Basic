@@ -31,6 +31,7 @@ void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr);
 #else
 void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy);
 #endif
+void CUSERCONTROL_cb_font(gContainer *sender);
 
 struct gContainerArrangement
 {
@@ -45,7 +46,8 @@ struct gContainerArrangement
 	unsigned dirty : 1;
 	unsigned autoresize : 1;
 	unsigned invert : 1;
-	unsigned _reserved: 11;
+	unsigned paint : 1;
+	unsigned _reserved: 10;
 }; 
 
 class gContainer : public gControl

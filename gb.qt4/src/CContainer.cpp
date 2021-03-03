@@ -585,6 +585,8 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 	else
 		style = QApplication::style();
 
+	p->save();
+	
 	switch (frame)
 	{
 		case BORDER_PLAIN:
@@ -628,10 +630,9 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 			optv3.frameShape = QFrame::StyledPanel;
 			style->drawPrimitive(QStyle::PE_FrameGroupBox, &optv3, p, w);
 			break;
-			
-		default:
-			return;
 	}
+	
+	p->restore();
 }
 
 void CCONTAINER_draw_border(QPainter *p, char frame, QWidget *wid)
@@ -821,6 +822,25 @@ void MyContainer::paintEvent(QPaintEvent *event)
 	PAINT_end();
 }
 
+void MyContainer::changeEvent(QEvent *e)
+{
+	void *_object = CWidget::get(this);
+
+	if (!THIS_ARRANGEMENT->paint)
+	{
+		MyFrame::changeEvent(e);
+		return;
+	}
+	
+	if (e->type() == QEvent::FontChange)
+	{
+		GB_FUNCTION func;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
+			GB.Call(&func, 0, TRUE);
+		else
+			GB.Error(NULL);
+	}
+}
 
 
 /*void MyContainer::childEvent(QChildEvent *e)

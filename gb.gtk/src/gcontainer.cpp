@@ -427,6 +427,7 @@ void gContainer::setUser()
 
 void gContainer::setPaint()
 {
+	arrangement.paint = true;
 	ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
 }
 
@@ -795,6 +796,9 @@ void gContainer::updateFont()
 
 	for (i = 0; i < childCount(); i++)
 		child(i)->updateFont();
+
+	if (arrangement.paint)
+		CUSERCONTROL_cb_font(this);
 }
 
 void gContainer::moveChild(gControl *child, int x, int y)

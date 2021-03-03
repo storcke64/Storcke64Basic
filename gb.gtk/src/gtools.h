@@ -126,7 +126,7 @@ void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float
 
 // Compute the extents of a layout
 
-void gt_layout_get_extents(PangoLayout *layout, int *w, int *h);
+void gt_layout_get_extents(PangoLayout *layout, int *w, int *h, bool pixels);
 
 #if GTK_CHECK_VERSION(2, 18, 0)
 #else

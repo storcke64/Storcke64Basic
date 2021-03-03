@@ -53,7 +53,6 @@
 #include "CPanel.h"
 #include "CMenu.h"
 #include "CWindow.h"
-#include "CLabel.h"
 #include "CButton.h"
 #include "CTextBox.h"
 #include "CTextArea.h"
@@ -231,8 +230,6 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CWindowDesc,
 	CWindowsDesc,
 	CFormDesc,
-	CLabelDesc,
-	CTextLabelDesc,
 	SliderDesc,
 	ScrollBarDesc,
 	CButtonDesc,

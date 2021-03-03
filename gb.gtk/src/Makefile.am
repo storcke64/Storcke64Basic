@@ -16,7 +16,7 @@ gb_gtk_la_SOURCES = \
 	gfont.cpp gpicture.cpp \
 	gdesktop.cpp gdialog.cpp \
 	gcontrol.cpp gcontainer.cpp \
-	gbutton.cpp gslider.cpp glabel.cpp gsignals.cpp \
+	gbutton.cpp gslider.cpp gsignals.cpp \
 	gcombobox.cpp gtextbox.cpp gtextarea.cpp \
 	gpanel.cpp gtabstrip.cpp \
 	gmenu.cpp gtrayicon.cpp gmainwindow.cpp \
@@ -38,7 +38,6 @@ gb_gtk_la_SOURCES = \
 	CWatcher.h CWatcher.cpp \
 	CWidget.h CWidget.cpp CContainer.h  CContainer.cpp \
 	CDrawingArea.h CDrawingArea.cpp \
-	CLabel.h CLabel.cpp \
 	CSlider.h CSlider.cpp \
 	CButton.h CButton.cpp \
 	CTextBox.h CTextBox.cpp \
@@ -60,7 +59,6 @@ gb_gtk_la_SOURCES = \
 	gseparator.h \
 	gtrayicon.h \
 	gplugin.h \
-	glabel.h \
 	gbutton.h \
 	gcombobox.h \
 	gtextbox.h \
