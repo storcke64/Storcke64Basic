@@ -19,6 +19,7 @@ blur                    #
 book                    [-breeze*]actions/address-book-new;apps/accessories-dictionary
 bookmark                places/bookmarks;actions/bookmark-new;places/user-bookmarks
 bottom                  actions/go-bottom
+brush                   actions/draw-brush
 c                       $(mime)/text-x-csrc
 calculator              apps/accessories-calculator
 calendar                actions/office-calendar;apps/evolution-calendar;actions/view-pim-calendar
@@ -152,6 +153,7 @@ new-tab                 actions/tab-new
 new-tag                 actions/tag-new
 new-window              actions/window-new
 next                    actions/go-next;actions/go-next-view
+notification            actions/notifications
 office                  $(mime)/x-office-document
 office-calc             $(mime)/x-office-spreadsheet
 office-draw             $(mime)/x-office-drawing
@@ -197,6 +199,7 @@ right                   actions/go-next
 rotate                  actions/transform-rotate
 rotate-left             actions/object-rotate-left
 rotate-right            actions/object-rotate-right
+rss                     actions/rss;apps/akregator
 saturation              #
 save                    actions/document-save
 save-as                 actions/document-save-as
@@ -210,6 +213,7 @@ select-all              actions/edit-select-all
 server                  [breeze*!16]places/server-database;places/network-server
 share                   actions/document-share;actions/send-to
 shortcut                apps/accessories-character-map
+shuffle                 actions/media-playlist-shuffle
 sort-ascent             actions/view-sort-ascending
 sort-descent            actions/view-sort-descending
 spell-check             actions/tools-check-spelling
@@ -264,6 +268,7 @@ warning                 status/dialog-warning
 watch                   [breeze*]actions/visibility;apps/strigi
 webcam                  devices/camera-web
 wifi                    devices/network-wireless
+window                  actions/window
 wizard                  actions/tools-wizard
 wrap                    actions/text-wrap
 xml                     $(mime)/text-xml

@@ -97,9 +97,9 @@ Public Sub DrawingArea_Draw()
       
       Case Circle
       
-        R = Min(W, H) / 2 * 13 / 16 - $iPadding
+        R = Min(W, H) / 2 * 12 / 16 - $iPadding
         Paint.LineCap = Paint.LineCapButt
-        Paint.LineWidth = R / 4
+        Paint.LineWidth = R / 2
         
         Paint.Background = Color.SetAlpha(iFg, &HD0)
         Paint.Arc(W / 2, H / 2, R)
