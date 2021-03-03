@@ -100,6 +100,9 @@ void CUSERCONTROL_cb_font(gContainer *sender)
 	CWIDGET *_object = GetObject(sender);
 	GB_FUNCTION func;
 	
+	if (!THIS)
+		return;
+	
 	if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
 		GB.Call(&func, 0, TRUE);
 	else
