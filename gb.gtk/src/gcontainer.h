@@ -66,6 +66,8 @@ public:
 	bool indent() const { return arrangement.indent; }
 	bool invert() const { return arrangement.invert; }
 	bool centered() const { return arrangement.centered; }
+	bool isPaint() const { return arrangement.paint; }
+	bool isArranging() const { return arrangement.locked; }
 	
 	virtual int clientWidth();
 	virtual int clientHeight();
@@ -121,7 +123,7 @@ public:
 	bool hasBackground() const;
 	bool hasForeground() const;
 
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide = false);
 
 	virtual void setVisible(bool vl);
 
@@ -155,8 +157,6 @@ public:
 
 	virtual void createBorder(GtkWidget *new_border, bool keep_widget = false);
 	
-	static int _arrangement_level;
-
 private:
 
 	void initialize();
@@ -167,8 +167,8 @@ private:
   gContainer *_proxyContainerFor;
 	unsigned _did_arrangement : 1;
 	unsigned _cb_map : 1;
-	unsigned _no_arrangement : 6;
 	unsigned _user_container : 1;
+	unsigned char _no_arrangement;
 };
 
 #endif

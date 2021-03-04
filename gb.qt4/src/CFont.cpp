@@ -410,42 +410,65 @@ BEGIN_PROPERTY(Font_Height)
 
 END_PROPERTY
 
+static void get_text_size(CFONT *_object, QString s, int *w, int *h)
+{
+	QFontMetricsF fm(*(THIS->font));
+	
+	if (w)
+	{
+		QStringList sl;
+		qreal wt, width = 0;
+		int i;
+
+		sl = s.split('\n');
+
+		for (i = 0; i < (int)sl.count(); i++)
+		{
+			wt = fm.width(sl[i]);
+			if (wt > width) width = wt;
+		}
+		
+		*w = width;
+	}
+	
+	if (h)
+	{
+		int nl;
+
+		nl = s.count('\n');
+
+		*h = fm.height() * (1 + nl) + fm.leading() * nl;
+	}
+}
 
 BEGIN_METHOD(Font_TextHeight, GB_STRING text)
 
-	QFontMetrics fm(*(THIS->font));
-	int nl;
-
-	nl = QSTRING_ARG(text).count('\n');
-
-	GB.ReturnInteger(fm.height() * (1 + nl) + fm.leading() * nl);
+	int h;
+	get_text_size(THIS, QSTRING_ARG(text), NULL, &h);
+	GB.ReturnInteger(h);
 
 END_METHOD
 
 
 BEGIN_METHOD(Font_TextWidth, GB_STRING text)
 
-	QFontMetricsF fm(*(THIS->font));
-	QStringList sl;
-	qreal w, width = 0;
-	int i;
-
-	QString str = QSTRING_ARG(text);
-
-	sl = str.split('\n');
-
-	for (i = 0; i < (int)sl.count(); i++)
-	{
-		w = fm.width(sl[i]);
-		if (w > width) width = w;
-	}
-
-	GB.ReturnInteger((int)(width + 0.5));
+	int w;
+	get_text_size(THIS, QSTRING_ARG(text), &w, NULL);
+	GB.ReturnInteger(w);
 
 END_METHOD
 
 
-static void rich_text_size(CFONT *_object, char *text, int len, int sw, int *w, int *h)
+BEGIN_METHOD(Font_TextSize, GB_STRING text)
+
+	GEOM_RECT *rect = GEOM.CreateRect();
+	get_text_size(THIS, QSTRING_ARG(text), &rect->w, &rect->h);
+	GB.ReturnObject(rect);
+
+END_METHOD
+
+
+static void get_rich_text_size(CFONT *_object, char *text, int len, int sw, int *w, int *h)
 {
 	QTextDocument rt;
 	
@@ -461,11 +484,10 @@ static void rich_text_size(CFONT *_object, char *text, int len, int sw, int *w, 
 }
 
 
-BEGIN_METHOD(Font_RichTextWidth, GB_STRING text)
+BEGIN_METHOD(Font_RichTextWidth, GB_STRING text; GB_INTEGER width)
 
 	int w;
-	
-	rich_text_size(THIS, STRING(text), LENGTH(text), -1, &w, NULL);
+	get_rich_text_size(THIS, STRING(text), LENGTH(text), VARGOPT(width, -1), &w, NULL);
 	GB.ReturnInteger(w);
 
 END_METHOD
@@ -474,11 +496,21 @@ END_METHOD
 BEGIN_METHOD(Font_RichTextHeight, GB_STRING text; GB_INTEGER width)
 
 	int h;
-	
-	rich_text_size(THIS, STRING(text), LENGTH(text), VARGOPT(width, -1), NULL, &h);
+	get_rich_text_size(THIS, STRING(text), LENGTH(text), VARGOPT(width, -1), NULL, &h);
 	GB.ReturnInteger(h);
 
 END_METHOD
+
+
+BEGIN_METHOD(Font_RichTextSize, GB_STRING text; GB_INTEGER width)
+
+	GEOM_RECT *rect = GEOM.CreateRect();
+	get_rich_text_size(THIS, STRING(text), LENGTH(text), VARGOPT(width, -1), &rect->w, &rect->h);
+	GB.ReturnObject(rect);
+
+END_METHOD
+
+
 
 
 #ifdef USE_DPI
@@ -626,9 +658,11 @@ GB_DESC CFontDesc[] =
 
 	GB_METHOD("TextWidth", "i", Font_TextWidth, "(Text)s"),
 	GB_METHOD("TextHeight", "i", Font_TextHeight, "(Text)s"),
+	GB_METHOD("TextSize", "Rect", Font_TextSize, "(Text)s"),
 
-	GB_METHOD("RichTextWidth", "i", Font_RichTextWidth, "(Text)s"),
+	GB_METHOD("RichTextWidth", "i", Font_RichTextWidth, "(Text)s[(Width)i]"),
 	GB_METHOD("RichTextHeight", "i", Font_RichTextHeight, "(Text)s[(Width)i]"),
+	GB_METHOD("RichTextSize", "Rect", Font_RichTextSize, "(Text)s[(Width)i]"),
 
 	GB_STATIC_METHOD("_get", "Font", Font_get, "(Font)s"),
 

@@ -109,16 +109,11 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gDrawingArea *data)
 			gDrawingArea::_in_any_draw_event++;
 			data->_in_draw_event = true;
 
-			/*GdkRectangle *rect;
-			int i, n;
-			gdk_region_get_rectangles(e->region, &rect, &n);
-
-			for (i = 0; i < n; i++)
-				fprintf(stderr, "[%d] %d %d %d %d\n", i, rect[i].x, rect[i].y, rect[i].width, rect[i].height);
-
-			g_free(rect);*/
-
-			data->onExpose(data, e->region, wid->allocation.x, wid->allocation.y);
+			GtkAllocation a;
+			gtk_widget_get_allocation(wid, &a);
+			//fprintf(stderr, "%s: %d %d\n", data->parent()->name(), a.x, a.y);
+			
+			data->onExpose(data, e->region, a.x, a.y);
 			gDrawingArea::_in_any_draw_event--;
 			data->_in_draw_event = false;
 		}

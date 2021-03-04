@@ -1,8 +1,8 @@
 /***************************************************************************
 
-	fix_breeze.cpp
+	fix_stylecpp
 
-	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) Benoît Minisini <g4mba5@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 ***************************************************************************/
 
-#define __FIX_BREEZE_CPP
+#define __FIX_STYLE_CPP
 
 #include <QRect>
 #include <QStyleOptionSpinBox>
@@ -30,7 +30,23 @@
 
 #include "gb_common.h"
 #include "CStyle.h"
-#include "fix_breeze.h"
+#include "fix_style.h"
+
+//-------------------------------------------------------------------------
+
+void FixStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter * painter, const QWidget * widget) const
+{
+	if (element == CE_CheckBoxLabel || element == CE_RadioButtonLabel)
+	{
+		QStyleOptionButton newOption = *(QStyleOptionButton *)option;
+		newOption.direction = qApp->layoutDirection();
+		option = &newOption;
+	}
+	
+	QProxyStyle::drawControl(element, option, painter, widget);
+}
+
+//-------------------------------------------------------------------------
 
 QFontMetrics *FixBreezeStyle::fm = NULL;
 
@@ -48,55 +64,6 @@ void FixBreezeStyle::fixFontMetrics(QStyleOption *option)
 
 QRect FixBreezeStyle::subControlRect(ComplexControl element, const QStyleOptionComplex* option, SubControl subControl, const QWidget* widget) const
 {
-	/*if (element == CC_SpinBox)
-	{
-		const QStyleOptionSpinBox *spinBoxOption(qstyleoption_cast<const QStyleOptionSpinBox*>(option));
-		const bool flat( !spinBoxOption->frame );
-		QRect rect(option->rect);
-		
-		if (subControl == SC_SpinBoxEditField)
-		{
-			QRect labelRect;
-			
-			labelRect = QRect(
-					rect.left(), rect.top(),
-					rect.width() - 20, //Metrics::SpinBox_ArrowButtonWidth,
-					rect.height() );
-
-			// remove right side line editor margins
-			const int frameWidth( pixelMetric( PM_SpinBoxFrameWidth, option, widget ) );
-			if (!flat)
-			{
-				if (CSTYLE_fix_breeze)
-					labelRect.adjust(frameWidth, 2, 0, -2 );
-				else if (CSTYLE_fix_oxygen)
-					labelRect.adjust(frameWidth, 4, 0, -4 );
-			}
-
-			return visualRect( option, labelRect );
-		}
-		else if (subControl ==  SC_SpinBoxUp || subControl == SC_SpinBoxDown)
-		{
-			// take out frame width
-			if (!flat)
-				rect.adjust(2, 2, -2, -2); // = insideMargin( rect, 2); //Metrics::Frame_FrameWidth );
-
-			QRect arrowRect;
-			arrowRect = QRect(
-					rect.right() - 20 + 1 //Metrics::SpinBox_ArrowButtonWidth,
-					rect.top(),
-					20, //Metrics::SpinBox_ArrowButtonWidth,
-					rect.height() );
-
-			const int arrowHeight( qMin( rect.height(), 20)); //int(Metrics::SpinBox_ArrowButtonWidth) ) );
-			arrowRect = centerRect( arrowRect, 20, arrowHeight );  // Metrics::SpinBox_ArrowButtonWidth
-			arrowRect.setHeight( arrowHeight/2 );
-			if( subControl == SC_SpinBoxDown ) arrowRect.translate( 0, arrowHeight/2 );
-
-			return visualRect( option, arrowRect );
-		}
-	}
-	else */
 	if (element == CC_ComboBox)
 	{
 		if (subControl == SC_ComboBoxEditField)
@@ -250,17 +217,17 @@ void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOpti
 	QProxyStyle::drawComplexControl(element, option, painter, widget);
 }
 
-void FixBreezeStyle::drawControl(ControlElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const
+void FixBreezeStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter * painter, const QWidget * widget) const
 {
-	QStyleOptionButton newOption;
-	
 	if (element == CE_PushButtonBevel)
 	{
-		newOption = *(QStyleOptionButton *)option;
+		QStyleOptionButton newOption = *(QStyleOptionButton *)option;
 		newOption.iconSize = QSize(0, 0);
 		option = &newOption;
+		QProxyStyle::drawControl(element, option, painter, widget);
+		return;
 	}
 	
-	QProxyStyle::drawControl(element, option, painter, widget);
+	FixStyle::drawControl(element, option, painter, widget);
 }
 

@@ -525,15 +525,7 @@ void CWIDGET_destroy(CWIDGET *_object)
 	WIDGET->deleteLater();
 }
 
-
-//#if QT_VERSION >= 0x030005
-//  #define COORD(_c) (WIDGET->pos()._c())
-//#else
 #define COORD(_c) ((qobject_cast<MyMainWindow *>(WIDGET) && WIDGET->isWindow()) ? ((CWINDOW *)_object)->_c : WIDGET->pos()._c())
-//#define WIDGET_POS(_c) ((WIDGET->isWindow()) ? ((CWINDOW *)_object)->_c : WIDGET->pos()._c())
-//#define WIDGET_SIZE(_c) ((WIDGET->isA("MyMainWindow")) ? ((CWINDOW *)_object)->_c : WIDGET->pos()._c())
-//#endif
-
 #define get_widget(_object) QWIDGET(_object)
 
 static void arrange_parent(CWIDGET *_object)
@@ -606,58 +598,19 @@ void CWIDGET_resize(void *_object, int w, int h)
 	CWIDGET_move_resize(THIS, COORD(x), COORD(y), w, h);
 }
 
-#if 0
-void CWIDGET_move_resize(void *_object, int x, int y, int w, int h)
+void CWIDGET_auto_resize(void *_object, int w, int h)
 {
-	QWidget *wid = WIDGET;
-
-	if (wid)
-	{
-// 		if (wid->isA("QWorkspaceChild"))
-// 		{
-// 			CWIDGET_move(THIS, x, y);
-// 			CWIDGET_resize(THIS, w, h);
-// 			return;
-// 		}
-
-		if (w < 0)
-			w = wid->width();
-
-		if (h < 0)
-			h = wid->height();
-
-		if (x == wid->x() && y == wid->y() && w == wid->width() && h == wid->height())
-			return;
-		wid->setGeometry(x, y, qMax(0, w), qMax(0, h));
-	}
-
-	if (GB.Is(THIS, CLASS_Window))
-	{
-		((CWINDOW *)_object)->x = x;
-		((CWINDOW *)_object)->y = y;
-		((CWINDOW *)_object)->w = w;
-		((CWINDOW *)_object)->h = h;
-		//((CWINDOW *)_object)->container->resize(w, h);
-	}
-
-	CWIDGET_after_geometry_change(THIS, true);
+	bool dw, dh;
+	CCONTAINER_decide(THIS, &dw, &dh);
+	CWIDGET_resize(THIS, dw ? -1 : w, dh ? -1 : h);
 }
-#endif
 
-/*
-void CWIDGET_move_resize_cached(void *_object, int x, int y, int w, int h)
+void CWIDGET_auto_move_resize(void *_object, int x, int y, int w, int h)
 {
-	if (GB.Is(THIS, CLASS_Window))
-	{
-		((CWINDOW *)_object)->x = x;
-		((CWINDOW *)_object)->y = y;
-		((CWINDOW *)_object)->w = w;
-		((CWINDOW *)_object)->h = h;
-	}
-
-	CWIDGET_after_geometry_change(THIS, true);
+	bool dw, dh;
+	CCONTAINER_decide(THIS, &dw, &dh);
+	CWIDGET_move_resize(THIS, x, y, dw ? -1 : w, dh ? -1 : h);
 }
-*/
 
 #if 0
 void CWIDGET_check_hovered()
@@ -704,6 +657,21 @@ void CWIDGET_raise_event_action(void *object, int event)
 	
 	GB.Unref(POINTER(&object));
 }
+
+
+void CWIDGET_set_inverted(void *_object, bool v)
+{
+	if (v == THIS->flag.inverted)
+		return;
+	
+	THIS->flag.inverted = v;
+	
+	if (v)
+		WIDGET->setLayoutDirection(qApp->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight);
+	else
+		WIDGET->unsetLayoutDirection();
+}
+
 
 //---------------------------------------------------------------------------
 
@@ -756,7 +724,7 @@ BEGIN_PROPERTY(Control_Width)
 	if (READ_PROPERTY)
 		GB.ReturnInteger(WIDGET->width());
 	else
-		CWIDGET_resize(_object, VPROP(GB_INTEGER), -1);
+		CWIDGET_auto_resize(_object, VPROP(GB_INTEGER), -1);
 
 END_PROPERTY
 
@@ -766,7 +734,7 @@ BEGIN_PROPERTY(Control_Height)
 	if (READ_PROPERTY)
 		GB.ReturnInteger(WIDGET->height());
 	else
-		CWIDGET_resize(_object, -1, VPROP(GB_INTEGER));
+		CWIDGET_auto_resize(_object, -1, VPROP(GB_INTEGER));
 
 END_PROPERTY
 
@@ -888,14 +856,14 @@ END_PROPERTY
 
 BEGIN_METHOD(Control_Move, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h)
 
-	CWIDGET_move_resize(_object, VARG(x), VARG(y), VARGOPT(w, -1), VARGOPT(h, -1));
+	CWIDGET_auto_move_resize(_object, VARG(x), VARG(y), VARGOPT(w, -1), VARGOPT(h, -1));
 
 END_METHOD
 
 
 BEGIN_METHOD(Control_Resize, GB_INTEGER w; GB_INTEGER h)
 
-	CWIDGET_resize(_object, VARG(w), VARG(h));
+	CWIDGET_auto_resize(_object, VARG(w), VARG(h));
 
 END_METHOD
 
@@ -913,7 +881,7 @@ BEGIN_METHOD(Control_MoveScaled, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 	if (w == 0) w = 1;
 	if (h == 0) h = 1;
 
-	CWIDGET_move_resize(_object, x, y, w, h);
+	CWIDGET_auto_move_resize(_object, x, y, w, h);
 
 END_METHOD
 
@@ -929,7 +897,7 @@ BEGIN_METHOD(Control_ResizeScaled, GB_FLOAT w; GB_FLOAT h)
 	if (w == 0) w = 1;
 	if (h == 0) h = 1;
 
-	CWIDGET_resize(_object, w , h);
+	CWIDGET_auto_resize(_object, w , h);
 
 END_METHOD
 

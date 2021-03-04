@@ -177,7 +177,6 @@ void gt_color_to_frgba(gColor color, double *r, double *g, double *b, double *a)
 gColor gt_frgba_to_color(double r, double g, double b, double a);
 
 #ifdef GTK3
-
 void gt_from_color(gColor color, GdkRGBA *rgba);
 gColor gt_to_color(GdkRGBA *rgba);
 void gt_to_css_color(char *css, gColor color);
@@ -240,5 +239,7 @@ const char *gt_widget_set_name(GtkWidget *widget, const char *name);
 void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
 void gt_define_style_sheet(GtkStyleProvider **provider, GString *css);
 #endif
+
+void gt_widget_set_inverted(GtkWidget *widget, bool inverted);
 
 #endif

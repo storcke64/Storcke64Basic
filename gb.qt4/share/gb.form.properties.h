@@ -38,7 +38,7 @@
 #define CUSERCONTAINER_PROPERTIES "*," CARRANGEMENT_PROPERTIES
 
 #define CBUTTON_PROPERTIES "*,Action,AutoResize,Text,Picture,Border=True,Default,Cancel"
-#define CCHECKBOX_PROPERTIES "*,Action,AutoResize,Text,Tristate,Value{CheckBox.False;True;None}"
+#define CCHECKBOX_PROPERTIES "*,Action,AutoResize,Text,Tristate,Invert,Value{CheckBox.False;True;None}"
 #define CCOMBOBOX_PROPERTIES "*,Action,ReadOnly,List,Text,Password,MaxLength,Sorted,Border=True"
 #define CDIAL_PROPERTIES "*,MinValue=0,MaxValue=100,Step=1,PageStep=10,Wrap,Mark=True"
 #define CDRAWINGAREA_PROPERTIES "*," CARRANGEMENT_PROPERTIES ",Border{Border.None;Plain;Sunken;Raised;Etched},Cached,Focus,NoBackground,Tablet"
@@ -50,7 +50,7 @@
 #define CMENU_PROPERTIES "Action,Text,Picture,Enabled=True,Radio,Toggle,Checked,Visible=True,Tag,Shortcut"
 #define CPANEL_PROPERTIES "*," CARRANGEMENT_PROPERTIES ",Border{Border.None;Plain;Sunken;Raised;Etched}"
 #define CPRINTER_PROPERTIES "Orientation{Printer.Portrait;Landscape}=Portrait,Paper{Printer.A3;A4;A5;B5;Letter;Executive}=A4,CollateCopies,ReverseOrder,Duplex{Printer.Simplex;Horizontal;Vertical}=Simplex,GrayScale,FullPage"
-#define CRADIOBUTTON_PROPERTIES "*,AutoResize,Text,Value"
+#define CRADIOBUTTON_PROPERTIES "*,AutoResize,Text,Invert,Value"
 #define CSCROLLBAR_PROPERTIES "*,MinValue=0,MaxValue=100,Step=1,PageStep=10,Tracking=True,Orientation{ScrollBar.Auto;Horizontal;Vertical}=Auto"
 #define CSEPARATOR_PROPERTIES "*"
 #define CSLIDER_PROPERTIES "*,Action,MinValue=0,MaxValue=100,Step=1,PageStep=10,Tracking=True,Orientation{ScrollBar.Auto;Horizontal;Vertical}=Auto,Mark,Value"

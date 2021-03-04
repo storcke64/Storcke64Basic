@@ -86,6 +86,7 @@ typedef
 			unsigned design_ignore : 1;
 			unsigned no_design : 1;
 			unsigned orientation : 1;          // for scrollbars & similar widgets
+			unsigned inverted : 1;             // if layout has been inverted
 			} flag;
 		char *name;
 		void *font;
@@ -94,6 +95,26 @@ typedef
 
 typedef
 	CWIDGET CCONTROL;
+
+typedef
+	struct {
+		CWIDGET widget;
+		QWidget *container;
+		unsigned mode : 4;
+		unsigned user : 1;
+		unsigned locked : 1;
+		unsigned margin : 1;
+		unsigned spacing : 1;
+		unsigned padding : 8;
+		unsigned indent : 1;
+		unsigned centered : 1;
+		unsigned dirty : 1;
+		unsigned autoresize : 1;
+		unsigned invert : 1;
+		unsigned paint : 1;
+		unsigned _reserved: 10;
+		}
+	CCONTAINER_ARRANGEMENT;
 
 typedef
 	struct {
@@ -176,34 +197,41 @@ void CWIDGET_new(QWidget *w, void *_object, bool no_show = false, bool no_filter
 void CWIDGET_init_name(CWIDGET *_object);
 void CWIDGET_set_name(CWIDGET *_object, const char *name);
 int CWIDGET_check(void *object);
+
 QString CWIDGET_Utf8ToQString(GB_STRING *str);
+
 void CWIDGET_destroy(CWIDGET *_object);
+
 void CWIDGET_iconset(QIcon &icon, const QPixmap &p, int size = 0);
+
 void CWIDGET_set_color(CWIDGET *_object, int bg, int fg, bool handle_proxy = false);
 void CWIDGET_reset_color(CWIDGET *_object);
 QT_COLOR_FUNC CWIDGET_after_set_color(QT_COLOR_FUNC func);
 GB_COLOR CWIDGET_get_background(CWIDGET *_object, bool handle_proxy = false);
 GB_COLOR CWIDGET_get_foreground(CWIDGET *_object, bool handle_proxy = false);
-
 GB_COLOR CWIDGET_get_real_background(CWIDGET *_object);
 GB_COLOR CWIDGET_get_real_foreground(CWIDGET *_object);
+
 void *CWIDGET_get_real_font(CWIDGET *_object);
 
 void *CWIDGET_get_parent(void *_object);
 int CWIDGET_get_handle(void *_object);
 bool CWIDGET_is_visible(void *_object);
 void CWIDGET_set_visible(CWIDGET *_object, bool v);
+
 void CWIDGET_grab(CWIDGET *_object);
+
 void CWIDGET_move(void *_object, int x, int y);
 void CWIDGET_resize(void *_object, int w, int h);
 void CWIDGET_move_resize(void *_object, int x, int y, int w, int h);
-void CWIDGET_move_cached(void *_object, int x, int y);
-void CWIDGET_resize_cached(void *_object, int w, int h);
-void CWIDGET_move_resize_cached(void *_object, int x, int y, int w, int h);
+void CWIDGET_auto_resize(void *_object, int w, int h);
+
 void CWIDGET_handle_focus(CWIDGET *control, bool on);
 void CWIDGET_finish_focus(void);
+
 void CWIDGET_register_proxy(void *_object, void *proxy);
 bool CWIDGET_container_for(void *_object, void *container_for);
+
 #ifdef QT5
 #define CWIDGET_enter_popup() ((void *)NULL)
 void CWIDGET_leave_popup(void *);
@@ -211,16 +239,22 @@ void CWIDGET_leave_popup(void *);
 void *CWIDGET_enter_popup();
 void CWIDGET_leave_popup(void *save);
 #endif
+
 void CACTION_register(void *control, const char *old, const char *key);
 void CACTION_raise(void *control);
-bool CWIDGET_get_allow_focus(void *_object);
-void CWIDGET_set_allow_focus(void *_object, bool f);
-bool CWIDGET_is_design(void *_object);
-void CWIDGET_check_visibility(CWIDGET *_object);
-void CWIDGET_check_hovered();
 void CWIDGET_raise_event_action(void *control, int event);
 
+bool CWIDGET_get_allow_focus(void *_object);
+void CWIDGET_set_allow_focus(void *_object, bool f);
+
+bool CWIDGET_is_design(void *_object);
+
+void CWIDGET_check_visibility(CWIDGET *_object);
+void CWIDGET_check_hovered();
+
 void CWIDGET_set_design(CWIDGET *_object, bool ignore = false);
+
+void CWIDGET_set_inverted(void *_object, bool v);
 
 #ifndef DO_NOT_DECLARE_EVENTS
 #ifndef __CWIDGET_CPP

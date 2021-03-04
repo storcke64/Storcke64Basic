@@ -673,11 +673,11 @@ void gMainWindow::updateSize()
 	}
 }
 
-bool gMainWindow::resize(int w, int h)
+bool gMainWindow::resize(int w, int h, bool no_decide)
 {
 	if (!isTopLevel())
 	{
-		if (gContainer::resize(w, h))
+		if (gContainer::resize(w, h, no_decide))
 			return true;
 	}
 	else

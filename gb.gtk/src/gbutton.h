@@ -64,6 +64,8 @@ public:
 	void setTristate(bool vl);
 	void setAutoResize(bool vl);
 	
+	virtual bool setInverted(bool v);
+	
 	virtual void setRealForeground(gColor color);
 	//virtual void setRealBackground(gColor color);
 

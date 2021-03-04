@@ -406,6 +406,7 @@ void gButton::setText(const char *st)
 			gtk_button_set_label(GTK_BUTTON(widget), "");
 
 		_label = gtk_bin_get_child(GTK_BIN(widget));
+		gt_widget_set_inverted(_label, false);
 		#ifndef GTK3
 		set_gdk_fg_color(_label, foreground());
 		#endif
@@ -740,4 +741,14 @@ void gButton::updateSize()
 		mh = height();
 
 	resize(mw, mh);
+}
+
+bool gButton::setInverted(bool v)
+{
+	if (gControl::setInverted(v))
+		return true;
+	
+	if (_label)
+		gt_widget_set_inverted(_label, false);
+	return false;
 }
