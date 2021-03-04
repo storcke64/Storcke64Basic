@@ -105,7 +105,7 @@
 #include <QAbstractNativeEventFilter>
 #endif
 
-#include "fix_breeze.h"
+#include "fix_style.h"
 #include "main.h"
 
 /*#define DEBUG*/
@@ -1136,6 +1136,7 @@ static void QT_Init(void)
 	static bool init = false;
 	QFont f;
 	char *env;
+	bool fix_style;
 
 	if (init)
 		return;
@@ -1153,6 +1154,8 @@ static void QT_Init(void)
 
 	/*fcntl(ConnectionNumber(qt_xdisplay()), F_SETFD, FD_CLOEXEC);*/
 
+	fix_style = false;
+	
 	if (::strcmp(qApp->style()->metaObject()->className(), "Breeze::Style") == 0)
 	{
 		env = getenv("GB_QT_NO_BREEZE_FIX");
@@ -1160,6 +1163,7 @@ static void QT_Init(void)
 		{
 			CSTYLE_fix_breeze = TRUE;
 			qApp->setStyle(new FixBreezeStyle);
+		fix_style = true;
 		}
 	}
 	else if (::strcmp(qApp->style()->metaObject()->className(), "Oxygen::Style") == 0)
@@ -1169,8 +1173,12 @@ static void QT_Init(void)
 		{
 			CSTYLE_fix_oxygen = TRUE;
 			qApp->setStyle(new FixBreezeStyle);
+			fix_style = true;
 		}
 	}
+	
+	if (!fix_style)
+		qApp->setStyle(new FixStyle);
 
 	MAIN_update_scale(qApp->desktop()->font());
 

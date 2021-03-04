@@ -39,11 +39,7 @@ static void cb_click(gControl *sender)
 	GB.Unref(POINTER(&ob));
 }
 
-/***************************************************************
-
-CONSTRUCTORS
-
-****************************************************************/
+//-------------------------------------------------------------------------
 
 BEGIN_METHOD(CBUTTON_new, GB_OBJECT parent)
 
@@ -195,6 +191,17 @@ BEGIN_PROPERTY(CBUTTON_autoresize)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(CheckBox_Invert)
+
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(BUTTON->isInverted());
+	else
+		BUTTON->setInverted(VPROP(GB_BOOLEAN));
+
+END_PROPERTY
+
+//-------------------------------------------------------------------------
+
 GB_DESC CButtonDesc[] =
 {
   GB_DECLARE("Button", sizeof(CBUTTON)), GB_INHERITS("Control"),
@@ -249,6 +256,7 @@ GB_DESC CRadioButtonDesc[] =
   GB_PROPERTY("Caption", "s", CBUTTON_text),
   GB_PROPERTY("Value", "b", CBUTTON_value),
 	GB_PROPERTY("AutoResize", "b", CBUTTON_autoresize),
+	GB_PROPERTY("Invert", "b", CheckBox_Invert),
 
   GB_EVENT("Click", 0, 0, &EVENT_Click),
 
@@ -271,6 +279,7 @@ GB_DESC CCheckBoxDesc[] =
   GB_PROPERTY("Caption", "s", CBUTTON_text),
   GB_PROPERTY("Tristate", "b", CCHECKBOX_tristate),
 	GB_PROPERTY("AutoResize", "b", CBUTTON_autoresize),
+	GB_PROPERTY("Invert", "b", CheckBox_Invert),
 
   GB_PROPERTY("Value", "i", CCHECKBOX_value),
 

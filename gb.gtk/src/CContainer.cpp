@@ -78,9 +78,9 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 	PAINT_begin(THIS);
 	
 #ifndef GTK3
-	gdk_region_offset(region, -dx, -dy);
+	//gdk_region_offset(region, -dx, -dy);
 	PAINT_clip_region(region);
-	gdk_region_offset(region, dx, dy);
+	//gdk_region_offset(region, dx, dy);
 #endif
 	
 	handler.handler = (GB_CALLBACK)cleanup_drawing;

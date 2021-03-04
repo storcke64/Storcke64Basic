@@ -115,7 +115,7 @@ public:
 	void showPopup(int x, int y);
 	void activate();
 	virtual void move(int x, int y);
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide = false);
 	bool close();
 	virtual void reparent(gContainer *newpr, int x, int y);
 	virtual void destroy();

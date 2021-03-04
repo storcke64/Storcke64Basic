@@ -277,12 +277,15 @@ void gSlider::applyOrientation(GtkOrientation orientation)
 	}
 }
 
-bool gSlider::resize(int w, int h)
+bool gSlider::resize(int w, int h, bool no_decide)
 {
-	if (!_orientation)
-		applyOrientation((w < h) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+	if (gControl::resize(w, h, no_decide))
+		return true;
 
-	return gControl::resize(w, h);
+	if (!_orientation)
+		applyOrientation((width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+	
+	return false;
 }
 
 int gSlider::getDefaultSize()

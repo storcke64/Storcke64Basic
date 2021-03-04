@@ -84,7 +84,7 @@ static void resize_container(gContainer *cont, int w, int h)
 	h += cont->height() - cont->containerHeight();*/
 	
 	if (w >= 0 && h >= 0)
-		cont->resize(w, h);
+		cont->resize(w, h, true);
 }
 
 
@@ -116,8 +116,8 @@ static void resize_container(gContainer *cont, int w, int h)
 #define GET_WIDGET_W(_widget)  (((gControl*)_widget)->width())
 #define GET_WIDGET_H(_widget)  (((gControl*)_widget)->height())
 #define MOVE_WIDGET(_object, _widget, _x, _y)  (((gControl*)_widget)->move( _x, _y))
-#define RESIZE_WIDGET(_object, _widget, _w, _h)  (((gControl*)_widget)->resize( _w, _h))
-#define MOVE_RESIZE_WIDGET(_object, _widget, _x, _y, _w, _h) (((gControl*)_widget)->moveResize( _x, _y, _w, _h))
+#define RESIZE_WIDGET(_object, _widget, _w, _h)  (((gControl*)_widget)->resize( _w, _h, true))
+#define MOVE_RESIZE_WIDGET(_object, _widget, _x, _y, _w, _h) (((gControl*)_widget)->moveResize(_x, _y, _w, _h, true))
 #define RESIZE_CONTAINER(_object, _cont, _w, _h)  resize_container((gContainer *)(_cont), _w, _h) 
 
 #define INIT_CHECK_CHILDREN_LIST(_widget) \
@@ -142,8 +142,6 @@ static void resize_container(gContainer *cont, int w, int h)
 #define FUNCTION_NAME arrangeContainer
 
 #include "gb.form.arrangement.h"
-
-int gContainer::_arrangement_level = 0;
 
 void gContainer::performArrange()
 {
@@ -428,7 +426,7 @@ void gContainer::setUser()
 void gContainer::setPaint()
 {
 	arrangement.paint = true;
-	ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
+	ON_DRAW(border, this, cb_expose, cb_draw);
 }
 
 void gContainer::setInvert(bool vl)
@@ -736,7 +734,7 @@ GtkWidget *gContainer::getContainer()
 	return widget;
 }
 
-bool gContainer::resize(int w, int h)
+bool gContainer::resize(int w, int h, bool no_decide)
 {
 	if (!_cb_map)
 	{
@@ -744,7 +742,7 @@ bool gContainer::resize(int w, int h)
 		g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
 	}
 	
-	if (gControl::resize(w, h))
+	if (gControl::resize(w, h, no_decide))
 		return true;
 
 	_client_w = 0;

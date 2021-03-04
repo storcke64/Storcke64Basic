@@ -47,5 +47,5 @@ gb_qt5_la_SOURCES = \
  CWatcher.h CWatcher_moc.cpp CWatcher.cpp \
  cprinter.h cprinter_moc.cpp cprinter.cpp \
  csvgimage.h csvgimage_moc.cpp csvgimage.cpp \
- fix_breeze.h fix_breeze.cpp
+ fix_style.h fix_style.cpp
 

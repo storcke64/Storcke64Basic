@@ -73,9 +73,9 @@ public:
 	void setWidth(int w) { resize(w, height()); }
 	void setHeight(int h) { resize(width(), h); }
 	virtual void move(int x, int y);
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide = false);
 	void resize() { resize(width(), height()); }
-	virtual void moveResize(int x, int y, int w, int h);
+	void moveResize(int x, int y, int w, int h, bool no_decide = false);
 	void getGeometry(GdkRectangle *rect) const { rect->x = bufX; rect->y = bufY; rect->width = bufW; rect->height = bufH; }
 	void setGeometry(GdkRectangle *rect) { moveResize(rect->x, rect->y, rect->width, rect->height); }
 
@@ -259,28 +259,31 @@ public:
 	unsigned _expand : 1;
 	unsigned _ignore : 1;
 	unsigned _action : 1;                  // *reserved*
+	unsigned _inverted : 1;                // if the widget direction has been inverted
 	unsigned _accept_drops : 1;            // If the control accepts drops
+	
 	unsigned _dragging : 1;                // if the control is being dragged
 	unsigned _drag_get_data : 1;           // If we got information on the dragged data
 	unsigned _drag_enter : 1;              // If we have entered the control for drag & drop
 	unsigned _tracking : 1;                // If we are tracking mouse move even if no mouse button is pressed
-	
 	unsigned _old_tracking : 1;            // real value when Tracking is false
 	unsigned _bg_set : 1;                  // Have a private background
 	unsigned _fg_set : 1;                  // Have a private foreground
 	unsigned have_cursor : 1;              // If gApplication::setBusy() must update the cursor
+
 	unsigned use_base : 1;                 // Use base and text color for foreground and background
 	unsigned _visible : 1;                 // A control can be hidden if its width or height is zero
 	unsigned _destroyed : 1;               // If the control has already been added to the destroy list
-	
-	unsigned _locked : 4;                  // For locking events
-	unsigned frame_border : 4;
-	unsigned frame_padding : 8;
-
+	unsigned _no_delete : 1;               // Do not delete on destroy signal
 	unsigned _scrollbar : 2;
 	unsigned _dirty_pos : 1;               // If the position of the widget has changed
 	unsigned _dirty_size : 1;              // If the size of the widget has changed
-	unsigned _no_delete : 1;               // Do not delete on destroy signal
+	
+	unsigned _locked : 4;                  // For locking events
+	unsigned frame_border : 4;
+	
+	unsigned frame_padding : 8;
+
 	unsigned _has_input_method : 1;        // Has its own input method management
 	unsigned _no_default_mouse_event : 1;  // No default mouse events
 	unsigned _grab : 1;                    // control is currently grabbing mouse and keyboard
@@ -289,6 +292,7 @@ public:
 	unsigned _inside : 1;                  // if we got an enter event, but not a leave event yet.
 	unsigned _no_auto_grab : 1;            // do not automatically grab widget on button press event
 	unsigned _no_background : 1;           // Don't draw the background automatically
+	
 	unsigned _use_wheel : 1;               // Do not propagate the mouse wheel event
 	unsigned _is_container : 1;            // I am a container
 	unsigned _is_window : 1;               // I am a window
@@ -297,6 +301,7 @@ public:
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
 	unsigned _style_dirty : 1;             // If the style must be refreshed
+	
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
 #ifdef GTK3
 	unsigned _has_css_id : 1;              // If the widget has a css id
@@ -351,6 +356,9 @@ public:
 	virtual void onEnterEvent();
 	virtual void onLeaveEvent();
 #endif
+	
+	virtual bool setInverted(bool v);
+	bool isInverted() const { return _inverted; }
 	
 	static void cleanRemovedControls();
 

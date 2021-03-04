@@ -1,8 +1,8 @@
 /***************************************************************************
 
-	fix_breeze.h
+	fix_style.h
 
-	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) Benoît Minisini <g4mba5@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,18 +21,25 @@
 
 ***************************************************************************/
 
-#ifndef __FIX_BREEZE_H
-#define __FIX_BREEZE_H
+#ifndef __FIX_STYLE_H
+#define __FIX_STYLE_H
 
 #include <QProxyStyle>
 #include <QFontMetrics>
 
-class FixBreezeStyle : public QProxyStyle
+class FixStyle : public QProxyStyle
+{
+public:
+	
+	void drawControl(ControlElement, const QStyleOption *, QPainter *, const QWidget *) const;
+};
+
+class FixBreezeStyle : public FixStyle
 {
 public:
 		
-	virtual QRect subControlRect(ComplexControl, const QStyleOptionComplex*, SubControl, const QWidget*) const;
-	virtual QRect subElementRect(SubElement, const QStyleOption*, const QWidget*) const;
+	QRect subControlRect(ComplexControl, const QStyleOptionComplex*, SubControl, const QWidget*) const;
+	QRect subElementRect(SubElement, const QStyleOption*, const QWidget*) const;
 	
 	void drawComplexControl(ComplexControl, const QStyleOptionComplex*, QPainter*, const QWidget*) const;
 	void drawPrimitive(PrimitiveElement, const QStyleOption*, QPainter*, const QWidget*) const;

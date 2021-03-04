@@ -56,7 +56,7 @@ public:
 	int getDefaultSize();
 	bool isVertical() const;
 	
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide);
 	void applyOrientation(GtkOrientation orientation);
 
 //"Signals"

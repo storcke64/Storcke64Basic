@@ -326,6 +326,7 @@ void gControl::initAll(gContainer *parent)
 	_no_design = false;
 	_expand = false;
 	_ignore = false;
+	_inverted = false;
 	_accept_drops = false;
 	_dragging = false;
 	_drag_enter = false;
@@ -676,7 +677,7 @@ void gControl::move(int x, int y)
 	send_configure(this); // needed for Watcher and Form Move events
 }
 
-bool gControl::resize(int w, int h)
+bool gControl::resize(int w, int h, bool no_decide)
 {
 	bool decide_w, decide_h;
 	
@@ -689,7 +690,7 @@ bool gControl::resize(int w, int h)
 		_minimum_size_set = true;
 	}
 	
-	if (pr && pr->isArrangementEnabled())
+	if (pr && !no_decide)
 	{
 		pr->decide(this, &decide_w, &decide_h);
 
@@ -746,7 +747,6 @@ bool gControl::resize(int w, int h)
 			updateStyleSheet(false);
 #endif
 		}
-
 	}
 
 	if (pr && !isIgnore())
@@ -756,13 +756,13 @@ bool gControl::resize(int w, int h)
 	return false;
 }
 
-void gControl::moveResize(int x, int y, int w, int h)
+void gControl::moveResize(int x, int y, int w, int h, bool no_decide)
 {
 	if (pr)
 		pr->disableArrangement();
 
 	move(x, y);
-	resize(w, h);
+	resize(w, h, no_decide);
 
 	if (pr)
 		pr->enableArrangement();
@@ -2860,3 +2860,12 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 	}
 }
 
+bool gControl::setInverted(bool v)
+{
+	if (v == _inverted)
+		return true;
+	
+	_inverted = v;
+	gt_widget_set_inverted(widget, v);
+	return false;
+}

@@ -82,6 +82,9 @@ void gPanel::create(void)
 	
 	if (doReparent)
 	{
+		if (isPaint())
+			setPaint();
+	
 		if (box)
 			gtk_widget_realize(box);
 		

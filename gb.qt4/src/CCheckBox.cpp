@@ -30,7 +30,7 @@
 #include "CStyle.h"
 #include "CCheckBox.h"
 
-/** MyCheckBox *************************************************************/
+//-------------------------------------------------------------------------
 
 MyCheckBox::MyCheckBox(QWidget *parent) : QCheckBox(parent)
 {
@@ -57,7 +57,7 @@ void MyCheckBox::adjust(bool force)
 	a = _autoResize;
 	_autoResize = false;
 	hint = sizeHint();
-	CWIDGET_resize(THIS, hint.width(), qMax(hint.height(), height()));
+	CWIDGET_auto_resize(THIS, hint.width(), qMax(hint.height(), height()));
 	_autoResize = a;
 }
 
@@ -69,7 +69,8 @@ void MyCheckBox::resizeEvent(QResizeEvent *e)
   	adjust();
 }
 
-/** CheckBox ***************************************************************/
+
+//-------------------------------------------------------------------------
 
 DECLARE_EVENT(EVENT_Click);
 
@@ -148,6 +149,17 @@ BEGIN_PROPERTY(CheckBox_AutoResize)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(CheckBox_Invert)
+
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(THIS->widget.flag.inverted);
+	else
+		CWIDGET_set_inverted(THIS, VPROP(GB_BOOLEAN));
+	
+END_PROPERTY
+
+//-------------------------------------------------------------------------
+
 GB_DESC CCheckBoxDesc[] =
 {
 	GB_DECLARE("CheckBox", sizeof(CCHECKBOX)), GB_INHERITS("Control"),
@@ -163,6 +175,7 @@ GB_DESC CCheckBoxDesc[] =
 	GB_PROPERTY("Value", "i", CheckBox_Value),
 	GB_PROPERTY("Tristate", "b", CheckBox_TriState),
   GB_PROPERTY("AutoResize", "b", CheckBox_AutoResize),
+  GB_PROPERTY("Invert", "b", CheckBox_Invert),
 
 	CHECKBOX_DESCRIPTION,
 
@@ -172,7 +185,7 @@ GB_DESC CCheckBoxDesc[] =
 };
 
 
-/** CCheckBox *************************************************************/
+//-------------------------------------------------------------------------
 
 CCheckBox CCheckBox::manager;
 
