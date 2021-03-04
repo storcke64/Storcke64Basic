@@ -978,7 +978,7 @@ Private Sub CloseButton_Write(Value As Boolean)
     
     $hClosePanel = New DrawingArea(Me) As "ClosePanel"
     $hCloseAll = New ToolButton($hClosePanel) As "CloseAll"
-    $hCloseAll.Picture = Picture["icon:/tiny/close"]
+    $hCloseAll.Picture = Picture["icon:/small/close"]
     $hCloseAll.Show
     
     Me._Container = hSave
