@@ -31,7 +31,7 @@ Public Sub _new(iId As Integer, sFarm As String) ', sLogin As String, sPassword 
     $hInstall = Picture["icon:/16/download"].Image
   Endif
   
-  Me.Foreground = Color.TextForeground
+  'Me.Foreground = Color.TextForeground
   
   $sFarm = sFarm
   $iId = iId

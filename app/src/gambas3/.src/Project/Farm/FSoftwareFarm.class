@@ -231,6 +231,8 @@ Public Sub Request_Finished()
     Return
   Endif
   
+  'svwFarm.Arrangement = Arrange.None
+  
   aId = Split(hReq.Result["Result"])
   For Each sId In aId
     
@@ -240,6 +242,8 @@ Public Sub Request_Finished()
     If cmbSort.Index = SORT_INSTALLED Then hSoftwareBox.Load
     
   Next
+  
+  'svwFarm.Arrangement = Arrange.Row
   
   CheckSoftwareCount()
   
