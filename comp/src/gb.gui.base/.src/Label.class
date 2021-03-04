@@ -91,12 +91,13 @@ Public Sub _UpdateSize()
   Dim W As Integer
   Dim H As Integer
   Dim P As Integer
+  Dim hRect As Rect
   
   $hExt = Null
+  If $bLocked Then Return
   If Me.Design Then Return
   If Not $bAutoResize Then Return
   If Not $sText Then Return
-  If $bLocked Then Return
 
   $bLocked = True
 
@@ -104,16 +105,16 @@ Public Sub _UpdateSize()
 
   If $bRichText Then
     If _Wrap Then
-      W = Me.W
-      H = P * 2 + Me.Font.RichTextHeight($sText, W - P * 2)
+      hRect = Me.Font.RichTextSize($sText, Me.W - P * 2)
     Else
-      W = P * 2 + Me.Font.RichTextWidth($sText)
-      H = P * 2 + Me.Font.RichTextHeight($sText)
+      hRect = Me.Font.RichTextSize($sText)
     Endif
   Else
-    W = P * 2 + Me.Font.TextWidth($sText)
-    H = P * 2 + Me.Font.TextHeight($sText)
+    hRect = Me.Font.TextSize($sText)
   Endif
+  
+  W = hRect.W + P * 2
+  H = hRect.H + P * 2
   
   If Align.IsMiddle($iAlign) Then
     If H < Me.H Then H = Me.H
