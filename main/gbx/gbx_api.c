@@ -272,6 +272,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_ArrayAdd,
 	(void *)GB_ArrayGet,
 	(void *)GB_ArrayType,
+	(void *)GB_ArraySetReadOnly,
 
 	(void *)GB_CollectionNew,
 	(void *)GB_CollectionCount,

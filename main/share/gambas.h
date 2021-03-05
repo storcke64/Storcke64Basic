@@ -1163,6 +1163,7 @@ typedef
 			void *(*Add)(GB_ARRAY);
 			void *(*Get)(GB_ARRAY, int);
 			GB_TYPE (*Type)(GB_ARRAY);
+			void (*SetReadOnly)(GB_ARRAY);
 			}
 		Array;
 
