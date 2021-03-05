@@ -4,21 +4,22 @@ Compile and execute a Gambas script.
 Usage: gbs3 [options][--] [<script file> | - ]
 
 Options:
-  -b --buildonly  process and compile script do not execute
-  -c --nocache    force the script compilation (do not check cache)
-  -e              execute the source code provided by the command line ( ':' separator )
-     -p           preCompile - enable Short form Data Types({i} = integer etc) 
-                  For use with -e option only  May not be supported in future versions
-  -g --debug      add debugging information to application
-  -f --fast       use just-in-time compiler
-  -h --help       display this help
-  -L --license    display license
-  -t --trace      turns on tracing option during execution
-  -u --use        force component loading ('comp1,comp2...')
-  -U --unsafe     turn off all checks for address validation
-  -v --verbose    be verbose
-  -V --version    display Scripter version
-  -w --warnings   display warnings during compilation
+  -b --buildonly     process and compile script do not execute
+  -c --nocache       force the script compilation (do not check cache)
+  -e                 execute the source code provided by the command line ( ':' separator )
+  -g --debug         add debugging information to application
+  -f --fast          use just-in-time compiler
+  -h --help          display this help
+  -L --license       display license
+  -S --strict        Fail if Public or Sub defined and no main() defined
+  -t --trace         turns on tracing option during execution
+  -T --terse-listing Only print a very terse error report on compile errors
+  -u --use           force component loading ('comp1,comp2...')
+  -U --unsafe        turn off all checks for address validation
+  -v --verbose       be verbose
+  -V --version       display Scripter version
+  -w --warnings      display warnings during compilation
+  --convert-project <input Project directory> <output script directory> Convert a simple project to script 
   
   - if set as script name then gbs will read the script from stdin
   -- Stops any further option processing

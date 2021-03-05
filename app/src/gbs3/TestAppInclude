@@ -1,4 +1,8 @@
-public sub WriteSomething()
-print "Write Something"
+class Testit
+public a as integer = 3456
+public sub _Call() as  integer
+return a
 end
-INCLUDE "TestAppInclude2"
+end class
+
+Include "TestAppInclude2"

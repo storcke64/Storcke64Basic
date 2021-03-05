@@ -3,12 +3,20 @@
 Public Sub _Setup()
 
   TSR.CreateTestEnvironment()
+  CComponent._init()
 
 End
 
+Public Sub _Teardown()
+  
+  CComponent.Clear()
+  
+End
+
+
 Public Sub WebPageProgramCreation()
   MMain._ResetAll()
-  MMain.$bWebPage = True
+  MMain.$oContext.$bWebPage = True
   
   'Test.Note("Generate the script to be executed from the web page")
   
@@ -23,13 +31,13 @@ Public Sub RunWebPageGeneratedProgram()
   
   'Test.Note("Run the full web page generation and check we have valid output from the generated program")
   MMain._ResetAll()
-  CComponent._init()
-  MMain.$bWebPage = True
-  MMain.$bTestmode = True
+  MMain.$oContext.$bWebPage = True
+  MMain.$oContext.$bTestmode = True
+  MMain.$oContext.$sTestModeCapture = ""
   MMain.$sPath = "WebPageTest"
   
   Try MMain.Main()
-  Dim aServerOutput As String[] = Split(MMain.$sTestModeCapture, "\n", "", True, True)
+  Dim aServerOutput As String[] = Split(MMain.$oContext.$sTestModeCapture, "\n", "", True, True)
   Dim aServerExpected As String[] = Split(File.Load("WebPageExpected"), "\n", "", True, True)
   Assert.Equals(TSR.CompareStringArray(aServerOutput, aServerExpected) = True, True, "Verify That a correct Basic webpage is generated")
 End

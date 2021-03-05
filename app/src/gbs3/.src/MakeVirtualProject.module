@@ -1,0 +1,82 @@
+' Gambas module file
+
+Public $sPrjPath As String 
+Public $hOutFile As File                                              ' Main Module Output file
+
+'' returns the Project path after it is created
+
+Public Sub _Call($oContext As Context, sPath As String) As String 
+
+  Dim sPrjFileContent As String
+  'Dim i As Integer
+
+  $oContext.$sFinalProgram = ""
+  $oContext.$sStructures = ""
+  '$oContext.$sClassDefinition = ""
+  $oContext.$sProgramHeader = ""
+  $oContext.$sCompilerOptions = ""
+
+  $sPrjPath = Temp("project")
+
+   Verbose(("Create project") & ": " & $sPrjPath)
+
+  Try Mkdir $sPrjPath
+  Try Mkdir $sPrjPath &/ ".src"
+
+  'sPrjFileContent = "# Gambas Project File 3.0\n"
+  ' sPrjFileContent &= "Title=Gambas Script\n"
+  '  sPrjFileContent &= "Startup=MMain\n"
+
+  $oContext.$sPreambleHeader = "' Gambas module file\n"
+
+  If $oContext.$bExecuteFromArgs Then
+    GenerateFilesFromArgs($oContext, sPath)
+  Else
+    GenerateFiles($oContext, sPath, $sPrjPath)
+  Endif
+  
+  If $oContext.$bFast Then
+    $oContext.$sCompilerOptions &= "Fast"
+    If $oContext.$bUnsafe Then $oContext.$sCompilerOptions &= " Unsafe"
+    $oContext.$sCompilerOptions &= "\n"
+  Endif
+
+  Try $hOutFile = Open $sPrjPath &/ ".src" &/ ScriptPreProcess.ProjectInfo["Startup"] & ".module" For Write Create
+  If Error Then
+      Error.Raise("Unable to create module file")
+  Endif
+  
+  sPrjFileContent &= ScriptPreProcess.GetProjectOptions()
+
+  If UseLibComp.HasComponents Then
+    sPrjFileContent &= CComponent.ComponentEntries()
+    CComponent.Clear()
+  Endif
+
+   If UseLibComp.HasLibraries Then 
+       sPrjFileContent &= Libraries.LibraryEntries()
+  Endif
+
+  If $oContext.$bBuildOnly And If $oContext.$bTestMode Then
+    Error "Project file {\n"; sPrjFileContent; "\n}"
+    Error $oContext.$sPreambleHeader
+    Error $oContext.$sCompilerOptions
+    Error $oContext.$sStructures
+    Error $oContext.$sProgramHeader
+    Error $oContext.$sFinalProgram
+  Endif
+
+  Verbose(".project File\n" & sPrjFileContent)
+  File.Save($sPrjPath &/ ".project", sPrjFileContent)
+  Print #$hOutFile, $oContext.$sPreambleHeader
+  Print #$hOutFile, $oContext.$sCompilerOptions
+  Print #$hOutFile, $oContext.$sStructures
+  Print #$hOutFile, $oContext.$sProgramHeader
+  Print #$hOutFile, $oContext.$sFinalProgram
+  Close $hOutFile
+  
+  Return $sPrjPath
+  
+' Catch
+'   Print "MVP";; Error.text;; Error.where
+End
