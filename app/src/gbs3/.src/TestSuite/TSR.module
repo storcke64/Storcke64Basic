@@ -44,7 +44,7 @@ Public Sub CreateTestEnvironment()
       Test.Note("")
       Test.Note("Or up may execute the shell script : sudo " & User.home &/ "bin/makegbs" & System.version & "tests")
       Test.Note("From your ~/bin directory")
-      Test.BailOut("Please Create the required directories before continuing")
+      Test.BailOut("Please create the required directories before continuing")
 
   Endif
   
