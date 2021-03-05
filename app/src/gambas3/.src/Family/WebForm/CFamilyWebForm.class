@@ -185,7 +185,7 @@ Public Sub ActionDialog(sAction As String) As Boolean
     
     Case Like ".format-*"
       If FColorChooser.Run(, True) Then Return True
-      vColor = FColorChooser.Color
+      vColor = FColorChooser.ColorName
       If Not IsNull(Val(vColor)) Then vColor = Val(vColor)
       Me.ActionValue = vColor
       

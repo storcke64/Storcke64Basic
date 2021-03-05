@@ -9,18 +9,24 @@
   { tabVersionControl TabPanel
     MoveScaled(1,1,59,54)
     Expand = True
-    Arrangement = Arrange.Fill
+    Arrangement = Arrange.Vertical
     Count = 4
     Index = 0
     Text = ("Journal")
+    { ToolBar1 ToolBar
+      MoveScaled(2,1,36,4)
+      Separator = True
+    }
     { edtJournal TextEditor
       MoveScaled(13.25,11.125,16,16)
+      Expand = True
       Border = False
     }
     Index = 1
     Text = ("Changes")
     { edtDiff TextEditor
       MoveScaled(12,23,16,16)
+      Expand = True
       Border = False
       Highlight = "Diff"
       ReadOnly = True
@@ -30,6 +36,7 @@
     Text = ("History")
     { edtHistory TextEditor
       MoveScaled(12,10,16,16)
+      Expand = True
       Border = False
       Highlight = "Custom"
       ReadOnly = True
@@ -39,6 +46,7 @@
     Text = ("Terminal")
     { trmShell TerminalView
       MoveScaled(11.25,13.75,16,16)
+      Expand = True
       Border = False
       ShowLink = True
     }

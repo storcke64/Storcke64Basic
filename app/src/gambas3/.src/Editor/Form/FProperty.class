@@ -1008,7 +1008,7 @@ Public Sub txtProperty_Click()
       Endif
 
       If FColorChooser.Run(sColor, True) Then Goto _EXIT
-      $hEditor.Text = FColorChooser.Color
+      $hEditor.Text = FColorChooser.ColorName
 
     Case "Picture", "Image", "Animation", "WebImage", "SvgImage"
 

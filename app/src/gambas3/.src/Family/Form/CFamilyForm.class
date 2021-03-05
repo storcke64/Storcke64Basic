@@ -97,6 +97,10 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
     
       CFamily.PaintExpand(hCCtrl, True)
       Return
+      
+    Case "ToolBar"
+      'Paint.DrawRect(X, Y, W, H)
+      'Return
 
     Case Else
       
@@ -119,7 +123,7 @@ Public Sub ActionDialog(sAction As String) As Boolean
       
     Case Like ".format-*"
       If FColorChooser.Run(, True) Then Return True
-      vColor = FColorChooser.Color
+      vColor = FColorChooser.ColorName
       If Not IsNull(Val(vColor)) Then vColor = Val(vColor)
       Me.ActionValue = vColor
       

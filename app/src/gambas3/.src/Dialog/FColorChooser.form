@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,63,63)
+  MoveScaled(0,0,67,63)
   Text = ("Select a color")
   Persistent = True
   Arrangement = Arrange.Vertical
@@ -17,7 +17,12 @@
     { gvwColor GridView
       MoveScaled(2,2,43,44)
       Border = False
+      Mode = Select.Single
       Grid = False
+      Padding = 0
+      Header = GridView.Horizontal
+      ScrollBar = Scroll.Vertical
+      Resizable = False
     }
     Index = 1
     Text = ("Free")
