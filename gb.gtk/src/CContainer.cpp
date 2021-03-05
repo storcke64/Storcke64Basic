@@ -56,32 +56,22 @@ void CCONTAINER_raise_insert(CCONTAINER *_object, CWIDGET *child)
 	GB.Raise(THIS, EVENT_Insert, 1, GB_T_OBJECT, child);
 }
 
+#ifdef GTK3
+
 static void cleanup_drawing(intptr_t arg1, intptr_t arg2)
 {
 	PAINT_end();
 }
 
-#ifdef GTK3
 void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr)
-#else
-void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
-#endif
 {
 	CWIDGET *_object = GetObject(sender);
 	GB_ERROR_HANDLER handler;
 	
-#ifdef GTK3
 	cairo_t *save = THIS_USERCONTROL->context;
 	THIS_USERCONTROL->context = cr;
-#endif
 	
 	PAINT_begin(THIS);
-	
-#ifndef GTK3
-	//gdk_region_offset(region, -dx, -dy);
-	PAINT_clip_region(region);
-	//gdk_region_offset(region, dx, dy);
-#endif
 	
 	handler.handler = (GB_CALLBACK)cleanup_drawing;
 	GB.OnErrorBegin(&handler);
@@ -90,10 +80,40 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 	
 	PAINT_end();
 	
-#ifdef GTK3
 	THIS_USERCONTROL->context = save;
-#endif
 }
+
+#else
+
+static void cleanup_drawing(cairo_t *cr, intptr_t arg2)
+{
+	cairo_restore(cr);
+	PAINT_end();
+}
+
+void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
+{
+	CWIDGET *_object = GetObject(sender);
+	GB_ERROR_HANDLER handler;
+	cairo_t *cr;
+	
+	PAINT_begin(THIS);
+	
+	cr = PAINT_get_current_context();
+	cairo_save(cr);
+	PAINT_clip(0, 0, sender->width(), sender->height());
+	
+	handler.handler = (GB_CALLBACK)cleanup_drawing;
+	handler.arg1 = (intptr_t)cr;
+	GB.OnErrorBegin(&handler);
+	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	GB.OnErrorEnd(&handler);
+	
+	cairo_restore(cr);
+	PAINT_end();
+}
+
+#endif
 
 void CUSERCONTROL_cb_font(gContainer *sender)
 {

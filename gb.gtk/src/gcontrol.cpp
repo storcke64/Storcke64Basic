@@ -364,7 +364,6 @@ void gControl::initAll(gContainer *parent)
 	_is_drawingarea = false;
 	_has_native_popup = false;
 	_eat_return_key = false;
-	_style_dirty = false;
 
 	onFinish = NULL;
 	onFocusEvent = NULL;
@@ -386,6 +385,8 @@ void gControl::initAll(gContainer *parent)
 #ifdef GTK3
 	_css = NULL;
 	_has_css_id = false;
+	_style_dirty = false;
+	_no_style_without_child = false;
 #endif
 
 	/*if (pr && pr->isDesign())
@@ -2113,17 +2114,21 @@ void gControl::updateStyleSheet(bool dirty)
 	
 	if (dirty)
 		_style_dirty = true;
-	else
+
+	if (isContainer())
 	{
-		if (isContainer())
+		gContainer *cont = (gContainer *)this;
+		
+		if (_no_style_without_child && cont->childCount() == 0)
+			return;
+
+		if (!dirty)
 		{
-			gContainer *cont = (gContainer *)this;
-			int i;
-			
-			for (i = 0; i < cont->childCount(); i++)
+			for (int i = 0; i < cont->childCount(); i++)
 				cont->child(i)->updateStyleSheet(false);
 		}
 	}
+	
 	
 	if (!isReallyVisible() || !_style_dirty)
 		return;

@@ -227,6 +227,9 @@ gDrawingArea::gDrawingArea(gContainer *parent) : gContainer(parent)
 	_resize_cache = false;
 	_no_background = false;
 	_use_tablet = false;
+#ifdef GTK3
+	_no_style_without_child = true;
+#endif
 
 	onExpose = NULL;
 	onFontChange = NULL;

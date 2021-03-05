@@ -285,6 +285,7 @@ void gContainer::initialize()
 	arrangement.indent = false;
 	arrangement.centered = false;
 	arrangement.invert = false;
+	arrangement.paint = false;
 }
 
 gContainer::gContainer() 

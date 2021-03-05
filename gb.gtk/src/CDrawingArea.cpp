@@ -104,6 +104,8 @@ static void cb_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB_RAISE_HANDLER handler;
+	cairo_t *cr;
+	int fw;
 
 	if (GB.CanRaise(THIS, EVENT_Draw))
 	{
@@ -113,13 +115,14 @@ static void cb_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
 		GB.RaiseBegin(&handler);
 
 		PAINT_begin(THIS);
-
-		//gdk_region_offset(region, -dx, -dy);
-		PAINT_clip_region(region);
-		//gdk_region_offset(region, dx, dy);
+		cr = PAINT_get_current_context();
+		fw = sender->getFrameWidth();
+		cairo_save(cr);
+		PAINT_clip(fw, fw, sender->width() - fw * 2, sender->height() - fw * 2);
 
 		GB.Raise(THIS, EVENT_Draw, 0);
 
+		cairo_restore(cr);
 		PAINT_end();
 
 		GB.RaiseEnd(&handler);

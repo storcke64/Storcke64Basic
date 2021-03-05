@@ -123,6 +123,9 @@ void gPanel::create(void)
 gPanel::gPanel(gContainer *parent) : gContainer(parent)
 {
 	border = NULL;
+#ifdef GTK3
+	_no_style_without_child = true;
+#endif
 	create();
 }
 
