@@ -70,8 +70,8 @@ End
 
 Static Public Sub _get(Type As String) As TextHighlighter
 
-	Try Return Class.Load("TextHighlighter_" & Type).AutoCreate()
-	Error.Raise("Cannot load highlighter: '" & Type & "'")
+  Try Return Class.Load("TextHighlighter_" & Type).AutoCreate()
+  Error.Raise("Cannot load highlighter: '" & Type & "'")
 
 End
 
