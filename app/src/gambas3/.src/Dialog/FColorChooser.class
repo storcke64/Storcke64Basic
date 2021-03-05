@@ -131,8 +131,10 @@ Public Sub Form_Open()
     aColor.Sort(gb.Natural)
     $aColorName.Insert(aColor)
     
-    iSep = $aColorName.Count
-    $aColorName.Add("-")
+    If aColor.Count Then
+      iSep = $aColorName.Count
+      $aColorName.Add("-")
+    Endif
 
     aColor = New String[]
     For Each hSym In hClass.Symbols
@@ -150,8 +152,10 @@ Public Sub Form_Open()
     gvwColor.Rows.H = Desktop.Scale * 4
     gvwColor.Rows[2].H = 1
     gvwColor[2, 0].ColumnSpan = gvwColor.Columns.Count
-    gvwColor.Rows[iSep].H = 1
-    gvwColor[iSep, 0].ColumnSpan = gvwColor.Columns.Count
+    If iSep Then
+      gvwColor.Rows[iSep].H = 1
+      gvwColor[iSep, 0].ColumnSpan = gvwColor.Columns.Count
+    Endif
     
   Endif
 
