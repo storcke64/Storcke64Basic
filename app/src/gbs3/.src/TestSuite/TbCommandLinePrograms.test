@@ -3,65 +3,59 @@
 Public Sub _Setup()
 
   TSR.CreateTestEnvironment()
-
+  CComponent._init()
 End
 
-Public Sub Precompile()
+Public Sub _Teardown()
   
-  If TSR.$bTestDebug Then Test.note("Testing PreCompile")
-  Mmain._ResetAll()
-  Mmain.$bPrecompiler = True
-  MMain.$bExecuteFromArgs = True
+  CComponent.Clear()
   
-  MMain.$aVarsDecl.Clear()
-  MMain.PrecompileLine("{i}Acar=3")
-  MMain.PrecompileLine("{f}Bcar=3.0")
-  MMain.PrecompileLine("{l}Ccar=3")
-  Assert.equals(MMain.$aVarsDecl["Acar"], "Dim Acar As Integer", "Test precompile short forms I")
-  Assert.equals(MMain.$aVarsDecl["Bcar"], "Dim Bcar As Float", "Test precompile short forms F")
-  Assert.equals(MMain.$aVarsDecl["Ccar"], "Dim Ccar As Long", "Test precompile short forms L")
-  Dim expected As String = "gbs" & System.version & ": \"{l}Acar=45\".1: " & ("Redefinition of variable") & " Dim Acar As Long " & ("From") & " Dim Acar As Integer " & ("Not Allowed")
-  Assert.Equals(TSR.ErrorMsgOut(Mmain, "PrecompileLine", "{l}Acar=45"), expected, "Test For Error")
-  MMain.$aVarsDecl.Clear()
 End
 
 
 Public Sub CreateProgramFromCommandLineArgs()
 
   MMain._ResetAll()
-  MMain.$bExecuteFromArgs = True
-  MMain.$sUse = "gb.eval.highlight,gb.pcre,gb.inotifyt"
-  Dim sResult As String = TSR.ErrorMsgOut(Mmain, "GenerateFilesFromArgs", "Dim I As Integer:Print I:Inc I")
-  Dim sExpect As String = "gbs" & System.Version & ": \"Dim I As Integer:Print I:Inc I\".0:" & (" Unknown component") & ": gb.inotifyt"
+  MMain.$oContext.$bExecuteFromArgs = True
+  MMain.$oContext.$sUse = "gb.eval.highlight,gb.pcre,gb.notifyt"
+  Dim sResult As String = TSR.ErrorMsgOut(GenerateFilesFromArgs, "_call", mMain.$oContext, "Dim I As Integer:Print I:Inc I")
+  Dim sExpect As String = "gbs" & System.Version & ": gb.eval.highlight,gb.pcre,gb.notifyt.0: Unknown component: gb.notifyt"
   Assert.Equals(sResult, sExpect, "Test For bad Component ")
   If TSR.$bTestDebug Then
     Test.note(sResult)
     Test.Note(sExpect)
   Endif
   
-  MMain.$sFinalProgram = ""
-  MMain.$bPrecompiler = True
-  MMain.$bExecuteFromArgs = True
-  MMain.$sUse = "gb.eval.highlight,gb.pcre,gb.web"
-  MMain.GenerateFilesFromArgs("{i}i=9:Print i:inc i")
-  Assert.Equals(TSR.CompareStringArray(Split(Mmain.$sFinalProgram, "\n", "", True), Split("Public Sub Main()\nDim i As Integer\ni=9\nPrint i\ninc i\n\nEnd\n", "\n", "", True)), True, "Verify program is formatted Correctly from command Line")
+  MMain.$oContext.$sFinalProgram = ""
+  'MMain.$oContext.$bPrecompiler = True
+  MMain.$oContext.$bExecuteFromArgs = True
+  MMain.$oContext.$sUse = "gb.eval.highlight,gb.pcre,gb.web"
+  GenerateFilesFromArgs(mMain.$oContext, "Dim i As Integer:i=9:Print i:Inc i")
+  Assert.Equals(TSR.CompareStringArray(Split(Mmain.$oContext.$sFinalProgram, "\n", "", True), Split("Public Sub Main()\nDim i As Integer\ni=9\nPrint i\nInc i\n\nEnd\n", "\n", "", True)), True, "Verify program is formatted Correctly from command Line")
 End ' Gambas test file
 
 Public Sub ExecuteACommandLineProgram()
   
   MMain._ResetAll()
-  MMain.$bTestMode = True
-  Mmain.$bPrecompiler = True
-  MMain.$bExecuteFromArgs = True
+  MMain.$oContext.$bTestMode = True
+  'Mmain.$oContext.$bPrecompiler = True
+  MMain.$oContext.$bExecuteFromArgs = True
   
-  Mmain.$sPath = "{s}Var1=\"Hello World\":Print \"We say\";;Var1:For {i}i = 0 to 2:Print i:next"
+  Mmain.$sPath = "Dim Var1 as string =\"Hello World\":Print \"We say\";;Var1:For i as integer = 0 to 2:Print i:next"
   
   Mmain.Main()
   If TSR.$bTestDebug Then
       Test.Note("Application Output")
-      Test.Note(Mmain.$sTestModeCapture)
+      Test.Note(Mmain.$oContext.$sTestModeCapture)
   Endif
   
-  Assert.Equals(MMain.$sTestModeCapture, "We say Hello World\n0\n1\n2\n", "Check the output from the Executed command line script")
+  Assert.Equals(MMain.$oContext.$sTestModeCapture, "We say Hello World\r\n0\r\n1\r\n2\r\n", "Check the output from the Executed command line script")
   
 End
+
+' Public Sub PreCompile()
+'   Dim a As Integer = 0
+'   Inc a
+' End
+  
+

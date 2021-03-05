@@ -1,18 +1,19 @@
 #!/usr/bin/gbs3
 use "gb.eval.highlight","gb.pcre"
-Public x as string = "hello"
-class Testit
-public a as integer
-public sub GetA() as integer
-return a
-end
-end class
-public struct testStruct
-H as string 
-g as integer
-f as variant
-end struct
+
+#SCRIPT Version="1.0.5"
+
+Dim x as string = "hello"
+
+#INCLUDE "TestAppInclude"
+
+dim cNew as new TestIt
+
+print "From Include of class ",cNew();;"Static Class Include ";TestStatic()
+
+'bogomips
+
 for i as integer = 0 to 20
 print x;;i
 next
-INCLUDE "TestAppInclude"
+Print "Version Number :";;application.version
