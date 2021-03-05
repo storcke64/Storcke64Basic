@@ -47,8 +47,23 @@ End
 Public Sub Main()
 
   Dim hHighlighter As TextHighlighter
+  Dim sLine As String
+  Dim L As Integer
 
   hHighlighter = TextHighlighter["gambas"]
+  
+  '#Include "toto\n"
+  
+  ' For Each sLine In Split(File.Load("~/gambas/git/master/comp/src/gb.form.editor/.src/TextEditor.class"), "\n")
+  '   Print L
+  '   Highlight.Analyze(sLine, True)
+  '   Inc L
+  ' Next
+
+  Highlight.Analyze("  #If Test", True)
+  
+  Print
+  Print Highlight.Symbols.Join("\n")
   
   'Print hHighlighter.ToHTML(File.Load("src.txt"))
   

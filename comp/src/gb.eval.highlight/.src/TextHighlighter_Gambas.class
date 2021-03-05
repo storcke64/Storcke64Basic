@@ -6,6 +6,8 @@ Public Const Name As String = "gambas"
 
 Class Highlight
 
+Static Private $aKeywords As String[]
+
 Static Public Sub _init()
   
   Component.Load("gb.eval")
@@ -14,7 +16,12 @@ End
 
 Public Sub GetKeywords() As String[]
   
-  Return System.Keywords
+  If Not $aKeywords Then 
+    $aKeywords = System.Keywords.Copy()
+    $aKeywords.Insert(System.Subroutines)
+  Endif
+  
+  Return $aKeywords
   
 End
 
