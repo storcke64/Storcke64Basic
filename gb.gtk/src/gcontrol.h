@@ -300,10 +300,12 @@ public:
 	unsigned _is_drawingarea : 1;          // I am a drawing area
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
-	unsigned _style_dirty : 1;             // If the style must be refreshed
 	
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
+	
 #ifdef GTK3
+	unsigned _style_dirty : 1;             // If the style must be refreshed
+	unsigned _no_style_without_child : 1;  // For containers that do not need a css if they have no children
 	unsigned _has_css_id : 1;              // If the widget has a css id
 #endif
 	
