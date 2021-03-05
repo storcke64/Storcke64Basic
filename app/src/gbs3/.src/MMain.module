@@ -1,144 +1,21 @@
 ' Gambas module file
 
-Public $bTestMode As Boolean = False               ' used to test the application from the test suite
-Public $sTestModeCapture As String                 ' Used to capture executed program output in test mode
-Private gbsver As String = "gambas" & System.version ' Version name of the current program
+Public $oContext As New Context
+Public $sPath As String 
+Private $sPrjPath As String 
+Public $sArchivepath As String           ' When Create Executable option is used this is the destination for the archive from gba3
+Public $sMd5 As String                   ' Project md5 string to check if needs to rebuild or just execute
+Public $aAppArgs As New String[]         ' This is a list of all args on the script command line after the script name, these are passed to the executing project based on the script file
 
-Public $sMd5 As String                             ' Project md5 string to check if needs to rebuild or just execute
-Public $sPrjPath As String                         ' Path to temporary directory where project is built
-
-Public $hOutFile As File                           ' Main Module Output file
-Public $hOutClass As File                          ' Output file of currently prosessing Class in script file
-Public $bScriptSourceStdIn As Boolean = False      ' If file name is - or no filename is provided  input from file.in(stdin)
-
-Public $sProgramHeader As String                   ' Contains statements and variable definitions needed before pubic sub main is defined
-Public $sStructures As String                      ' Public structs that are global and outside and before the public sub main definition
-Public $sClassDefinition As String                 ' Used to build up the class definitions during compile time before written to file
-Public $sFinalProgram As String                    ' The final program Assembled from the script file to be written before compile is invoked
-
-Public $sMainScriptPath As String = ""             ' Used in MServerPage to define the location of the script file
-Public $iLevel As Integer = 0                      ' used by the script compiler to know what level, IE inside include process of not
-
-Public $cComponents As New Collection              ' list of components used by script
-Public $cLibraries As New Collection               ' List of libraries used by script
-Public $aImplemented As New String[]
-Public $aSortKey As New Integer[]
-Public $aVarsDecl As New Collection                ' Used by preprocessor to store generated variable definitions
-
-Public $aAppArgs As New String[]                   ' This is a list of all args on the script command line after the script name, these are passed to the executing project based on the script file
-Public $bBuildOnly As Boolean                      ' add support to have scripter build the project only and print out the source files
-Public $bPrecompiler As Boolean                    ' precompiler is enabled on the command line programs {i}var1 = 3 -> Dim Var1 as integer : var1 = 3
-Public $sUse As String                             ' List of the componants to be used from the command line
-Public $sPath As String                            ' Source Path
-Public $aIncFiles As New String[]                  ' files to be included
-
-Public $bNoCache As Boolean                        ' turns off script compiled version caching, or ignores the cache already there
-Public $bVerbose As Boolean                        ' Turns on the verbose, out put of the script compiler
-Public $bWarning As Boolean                        ' added to support warings to be displayed
-Public $bWebPage As Boolean                        ' Used to indicate if we are Building a web page project
-
-Public $bExecuteFromArgs As Boolean                ' Indicates that the program was defined on the gbs command line
-Public $bFast As Boolean                           ' This indicates that the script will compile with the fast i.e jit compiler
-Public $bUnsafe As Boolean                         ' turns off all bounds and memory checks for variables and calls
-
-Public $bDebug As Boolean                          ' Enables the debug switch during gbc compiling
-Public $bTrace As Boolean                          ' Turns on tracing in the compiler
-
-'' The following table is used by the precompiler to translate from {i} to Integer for example
-Public $cNativeTypes As Collection = ["i": "Integer", "s": "String", "f": "Float", "d": "Date", "b": "Boolean", "v": "Variant", "o": "Object", "l": "Long", "p": "Pointer"]
-
-' Search local directory then system directory for libraries
-Public $aLibraryPaths As String[] = [User.home &/ "/.local/share/" &/ gbsver &/ "lib", "/usr/lib" &/ gbsver]
-Public $sLibraryNoVendor As String = User.home &/ "/.local/share/" &/ gbsver &/ "lib/(unknown)"
-
-'' Reset all internal tables and conditions
-'' Used for Test harness
-Public Sub _ResetAll() 
-
-  $sMd5 = ""
-  $sPrjPath = ""
+Public Sub _ResetAll()
   
-  $hOutFile = Null
-  $hOutClass = Null
-  $bScriptSourceStdIn = False
-  
-  $sProgramHeader = ""
-  $sStructures = ""
-  $sClassDefinition = ""
-  
-  $sMainScriptPath = ""
-  $iLevel = 0
-  
-  $cComponents.Clear()
-  $cLibraries.Clear()
-  $aImplemented.Clear()
-  $aSortKey.Clear()
-  $aVarsDecl.Clear()                                 ' Changed from string[]
-  $bWebPage = False
+  $oContext._ResetAll()
   $aAppArgs.Clear()
-  $bBuildOnly = False                                ' add support to have scripter build the project only and print out the source files
-  $bPrecompiler = False
-  $sUse = ""
   $sPath = ""
-  $aIncFiles.Clear()
-  $sFinalProgram = ""
-  
-  $bNoCache = False
-  $bVerbose = False
-  $bWarning = False                                   ' added to support warings to be displayed
-  
-  $bExecuteFromArgs = False
-  $bFast = False
-  $bUnsafe = False
-  
-  $bDebug = False
-  $bTrace = False
+  $sPrjPath = ""
+  $sArchivePath = ""
+  $sMd5 = ""
 
-End
-
-'' This function looks for XDG-DATA-HOME and XDG-DATA-DIRS and replaces
-'' Entries in the $aLibraryPaths config array as needed
-Public Sub ConfigureLibraries() 
-  Dim aDataPaths As String[]
-  
-  If Env["XDG_DATA_HOME"] <> "" Then
-    $aLibraryPaths[0] = Env["XDG_DATA_HOME"] &/ gbsver &/ "lib"
-  Endif
-  
-  If Exist("usr/lib/" &/ System.Architecture) Then
-    $aLibraryPaths.Add("usr/lib/" &/ System.Architecture &/ gbsver)
-  Endif
-  
-  ' As an optional extra use the LD_LIBRARY_PATH to look for shared libraries as well
-  If Env["LD_LIBRARY_PATH"] <> "" Then
-    aDataPaths = Split(Env["LD_LIBRARY_PATH"], ":", "", True)
-    For iI As Integer = 0 To aDataPaths.Max
-      aDataPaths[iI] &= "/" & gbsver
-    Next
-    $aLibraryPaths.Insert(aDataPaths, 1)
-  Endif
-  
-  ' look in all the directories specified by the XDG_DATA paths
-  If Env["XDG_DATA_DIRS"] <> "" Then
-    aDataPaths = Split(Env["XDG_DATA_DIRS"], ":", "", True)
-    For iI As Integer = 0 To aDataPaths.Max
-      aDataPaths[iI] &= "/" & gbsver &/ "lib"
-    Next
-    $aLibraryPaths.Insert(aDataPaths, 1)
-  Endif
-  
-  ' For backward compatibility look for an executable of the provided name
-  If Env["PATH"] <> "" Then
-    aDataPaths = Split(Env["PATH"], ":", "", True)
-    $aLibraryPaths.Insert(aDataPaths)
-  Endif
-  
-End
-
-Sub Warning(sMsg As String)
-  
-  Error "gbs"; System.Version; ": "; sMsg
-  
 End
 
 Public Sub Main() As Integer
@@ -147,588 +24,178 @@ Public Sub Main() As Integer
   Dim sCacheDir As String = File.Dir(File.Dir(Temp$())) &/ "script-cache"
   Dim sRes As String
   Dim bCompile As Boolean
-  
- ' System.language = "fr_FR"
+ With $oContext 
+  ' System.language = "fr_FR"
 
   If Not Exist(sCacheDir) Then Mkdir sCacheDir
 
-  If Not $bTestMode Then        ' for testmode the test suite will set the parameters and paths
-    $sPath = ParseArgs()
+  If Not .$bTestMode Then        ' for testmode the test suite will set the parameters and paths
+    $sPath = ParseArgs($oContext)
+    
+    If IsNull($sPath) Then
+      Quit 0
+    Endif
+    
   Endif
-  
+
   sName = File.Name($sPath)
 
   If Not $sPath Then
 
     $sPath = Read Lof(File.In)           ' This is invoked when cmd line is like  ' gbs -e < filename'
-    
+
     If Not $sPath Then
-      Warning(("no input file specified"))
+      Warning(("no input file specified"), True)
       Return 1
     Else
-      $bExecuteFromArgs = True
-      If $bVerbose Then Warning("execute from command line: " & $sPath)
+      $oContext.$bExecuteFromArgs = True
+      verbose("execute from command line: " & $sPath)
       sName = File.Name($sPath)
     Endif
 
   Endif
   
-  ConfigureLibraries()
-  
-  If Not $bExecuteFromArgs And If Not $bScriptSourceStdIn Then
-    
+  If Not $oContext.$bExecuteFromArgs And If Not $oContext.$bScriptSourceStdIn Then
+    ' md5sum requires the absolute path unless we are using a shell which expands it so ./ddd and ~/ can not be calculated for md5sum Process
+    sName = File.Name($sPath)
+    $sPath = File.RealPath($sPath)
     If Not Exist($sPath) Then
-      $sPath = Application.Dir &/ $sPath
+      $sPath = Application.Dir &/ IIf($sPath = "", sName, $spath)
       If Not Exist($sPath) Then
-        Warning(("input file does not exist") & ": " & Application.Args[1])
+        Warning(("input file does not exist") & ": " & sName, True)
         Return 1
       Endif
     Else
-      $sMainScriptPath = File.Dir($sPath)
       Exec ["md5sum", $sPath] To $sMd5
     Endif
-    
+
   Else
-    
-     Shell ("echo '" & $sPath & "'|md5sum") To $sMd5
-     
+
+    Shell ("echo '" & $sPath & "'|md5sum") To $sMd5
+
   Endif
-  
+
   If $sMd5 = "" Then    ' when there is no path or the source inside the archive then this returns nil
     bCompile = True
   Else
-      $sMd5 = Scan($sMd5, "* *")[0]
-      If $bFast Then $sMd5 &= "-f"
+    $sMd5 = Scan($sMd5, "* *")[0]
+    If $oContext.$bFast Then $sMd5 &= "-f"
 
-      If $bNoCache Or $bExecuteFromArgs Then
+    If $oContext.$bNoCache Or $oContext.$bExecuteFromArgs Then
 
-          bCompile = True
+      bCompile = True
 
+    Else
+
+      If Not Exist(sCacheDir &/ $sMd5 &/ sName) Then
+        bCompile = True
       Else
-
-          If Not Exist(sCacheDir &/ $sMd5 &/ sName) Then
-              bCompile = True
-          Else
-
-              bCompile = Not IsValid(sCacheDir &/ $sMd5 & ".info")
-          Endif
-
+        bCompile = Not IsValid(sCacheDir &/ $sMd5 & ".info")
       Endif
+      If Not bCompile Then
+         verbose("Executing Script from Cache: " & $sPath)
+      Endif
+    Endif
   Endif
-  
+
   If bCompile Then
- 
-    If $bWebPage Then
-      If $bVerbose Then Print "gbw: " & ("compiling server page")
+
+    If $oContext.$bWebPage Then
+      If $oContext.$bVerbose Then Print "gbw: " & ("compiling server page")
       $sPath = MServerPage.Make($sPath)
-      If $bVerbose Then
+      If $oContext.$bVerbose Then
         Print String$(20, "-")
         Print File.Load($sPath)
         Print String$(20, "-")
       Endif
     Endif
 
-    MakeVirtualProject
-    
-    Dim parmstring As String = " -a"
-    If $bdebug Then parmstring &= "g"
-    If $bWarning Then parmstring &= "w"
-    If $bTrace Then parmstring &= "t"
-    
-    If $bVerbose Then Warning(System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1")
-    Shell (System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1") To sRes
-    
+    $sPrjPath = MakeVirtualProject($oContext, $sPath)
+  
+    Dim parmstring As String = "-a"
+    If $oContext.$bdebug Then parmstring &= "g"
+    If $oContext.$bWarning Then parmstring &= "w"
+    If $oContext.$bVerbose Then Parmstring &= "v"
+
+
+    Verbose(System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1")
+    'Shell (System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $oContext.$sPrjPath & " 2>&1") To sRes
+    sRes = Compile(parmstring, $sPrjPath)
+
     Dim sResLines As String[] = Split(sRes, "\n", "", True)   ' added to only check the last line from compiler, ignore all others
     If sResLines[sResLines.max] <> "OK" Then
-      Error sRes
-      Print File.Load($sPrjPath &/ ".project")
-      Print File.Load($sPrjPath &/ ".src" &/ "MMain.module")
+      
+      If Not $oContext.$bTerseListing Then 
+          Error sRes
+          Print File.Load($sPrjPath &/ ".project")
+      Endif
+      Print MakeListing($oContext, $sPrjPath, sRes)
       Return 1
     Endif
 
     Try Mkdir sCacheDir &/ $sMd5
-    If $bVerbose Then Warning(System.Path &/ "bin/gba" & System.Version & " -o" & sCacheDir &/ $sMd5 &/ sName)
-    Exec [System.Path &/ "bin/gba" & System.Version, "-o", sCacheDir &/ $sMd5 &/ sName, $sPrjPath] To sRes
-
-    File.Save(sCacheDir &/ $sMd5 & ".info", $aIncFiles.Join("\n"))
+     $sArchivePath = sCacheDir &/ $sMd5 &/ sName
+     Dim ArchiveCmd As String[] = [System.Path &/ "bin/gba" & System.Version, "-o", $sArchivePath, $sPrjPath]
+     If $oContext.$bVerbose Then ArchiveCmd.Add("-v", 1)
+     Verbose(ArchiveCmd.Join(" "))
+   
+    Exec ArchiveCmd To sRes
+    'Exec [System.Path &/ "bin/gba" & System.Version, "-o", $oContext.$sArchivePath, $oContext.$sPrjPath] To sRes
+    File.Save(sCacheDir &/ $sMd5 & ".info", $oContext.$aIncFiles.Join("\n"))
 
   Endif
-  
-  If Not $bBuildOnly Then
-      $aAppArgs.Insert(["gbr" & System.Version, "-a", $sPath, sCacheDir &/ $sMd5 &/ sName], 0)
-      If $bVerbose Then Warning($aAppArgs.Join(" "))
-      If $bTestMode Then 
-         Exec $aAppArgs To $sTestModeCapture
-      Else
-         Exec $aAppArgs Wait
-      Endif
-      
-      If Process.LastState = Process.Crashed Then
-        Warning(("Segmentation fault"))
-      Endif
-      
-     If $bTestMode Then
-         Return Process.LastValue
-     Else
-         Quit Process.LastValue
-     Endif
-      
-  Endif
-  
-  If $bTestMode Then
-         Return 0
-     Else
-         Quit 0
-     Endif
 
-Catch 
+  If Not $oContext.$bBuildOnly Then
+    $sArchivePath = sCacheDir &/ $sMd5 &/ sName
+    Dim RunParms As String[] = [System.Path &/ "bin/gbr" & System.Version, "-a", $sPath, $sArchivePath]
+    If $oContext.$bTrace Then RunParms.add("-t", 1)
+    $aAppArgs.Insert(RunParms, 0)
   
-  Error Error.Text
-  
-  If $bTestMode Then
+    Verbose($aAppArgs.Join(" "))
+    If $oContext.$bVerbose Then
+      Print "***************** Script Output Begins Bellow This Line **************************"
+    Endif
+    If $oContext.$bTestMode Then
+      Exec $aAppArgs To $oContext.$sTestModeCapture
+    Else
+      Exec $aAppArgs Wait
+    Endif
+
+    If Process.LastState = Process.Crashed Then
+      Warning(("Script had Segmentation fault, Code=" & Process.LastValue), True)
+    Endif
+
+    If $oContext.$bTestMode Then
+      Return Process.LastValue
+    Else
+      Quit Process.LastValue
+    Endif
+
+  Endif
+
+  If $oContext.$bTestMode Then
     Return 0
   Else
     Quit 0
   Endif
-  
-End
 
-Public Function ParseArgs() As String
+Catch
 
-  Dim I As Integer
-  Dim sApp As String
-
-  If File.Name(Args[0]) = "gbw" & System.version Then $bWebPage = True
-  
-  For I = 1 To Args.Max
-
-    If Args[I] = "--" Then
-      Inc I
-      Break
-    Else If Left(Args[I]) <> "-" Then
-      Break
-    Endif
-
-    Select Case Args[I]
-
-      Case "-V", "--version"
-
-        Print Application.Version
-        Quit
-
-      Case "-L", "--license"
-
-        Print
-        If Not $bWebPage Then
-          Print ("GAMBAS Scripter version") & " " & Application.Version
-        Else
-          Print ("GAMBAS Webpage Scripter version") & " " & Application.Version
-        Endif
-        Print File.Load("license")
-        Quit
-
-      Case "-h", "--help"
-
-        If Not $bWebPage Then
-          Print File.Load("usage-gbs")
-        Else
-          Print File.Load("usage-gbw")
-        Endif
-        Quit
-
-      Case "-c", "--nocache"
-
-        $bNoCache = True
-        
-      Case "-g", "--debug"                                    '  add debugging information
-
-        $bDebug = True
-
-      Case "-v", "--verbose"
-
-        $bVerbose = True
-
-      Case "-e"
-        If Not $bWebPage Then
-            $bExecuteFromArgs = True
-        Else
-            Error.Raise(File.Name(Args[0]) & ": -e " & ("Option Is Not supported For WebPages"))
-        Endif
-      Case "-f", "--fast"
-
-        $bFast = True
-        
-      Case "-U", "--unsafe"
-        
-        $bUnsafe = True
-        
-      Case "-t", "--trace"
-        
-        $bTrace = True
-
-      Case "-u", "--use"
-
-        If Not (Application.Args[I + 1] Begins "-") Then
-          $sUse = Application.Args[I + 1]
-          Inc I
-        Endif
-
-      Case "-p"
-        
-        $bPrecompiler = True
-        
-      Case "-w", "--warnings"
-        
-        $bWarning = True
-        
-      Case "-b", "--buildonly"
-        
-        $bBuildOnly = True
-        
-      Case "-"       ' Run from stdin Until eof recieved
-        
-        $bScriptSourceStdIn = True
-        $bNoCache = True
-        
-        Break
-        
-      Case Else
-        Error.Raise(File.Name(Args[0]) & " : " & ("Unknown option") & " : " & Args[I])
-
-    End Select
-
-  Next
-
-  sApp = Args[I]
-  Inc I
-  While I < Args.Count
-    $aAppArgs.Add(Args[I])
-    Inc I
-  Wend
-
-  Return sApp
-
-End
-
-Public Sub MakeVirtualProject()
-
-  Dim s As String
-  Dim sPrjFileContent As String
-  Dim i As Integer
-
-  $sFinalProgram = ""
-  $sStructures = ""
-  $sClassDefinition = ""
-  $sProgramHeader = ""
-  
-  $sPrjPath = Temp("project")
-
-  If $bVerbose Then Warning(("Create project") & ": " & $sPrjPath)
-
-  Try Mkdir $sPrjPath
-  Try Mkdir $sPrjPath &/ ".src"
-
-  sPrjFileContent = "# Gambas Project File 3.0\n"
-  sPrjFileContent &= "Title=Gambas Script\n"
-  sPrjFileContent &= "Startup=MMain\n"
-
-  $hOutFile = Open $sPrjPath &/ ".src/MMain.module" For Write Create
-  $sProgramHeader = "' Gambas module file\n"
-  If $bFast Then 
-    $sProgramHeader &= "Fast"
-    If $bUnsafe Then $sProgramHeader &= " Unsafe"
-    $sProgramHeader &= "\n"
+  Error Error.Text; " : "; Error.where          ' added for debugging
+  If UseLibComp.HasComponents Then  '' added because get circular ref from ccomponent otherwise on exit
+    CComponent.All.Clear()
   Endif
-
-  $iLevel = 0
-  If $bExecuteFromArgs Then
-    GenerateFilesFromArgs($sPath)
+  
+  If $oContext.$bTestMode Then
+    Return -2
   Else
-    GenerateFiles($sPath)
-  Endif
-
-  For Each s In $cComponents
-    GetNeededComp(s)
-  Next
-
-  For Each s In $cComponents
-    GetRequiredComp(s)
-  Next
-
-  CComponent.Exit
-
-  $aSortKey.Sort
-
-  For Each i In $aSortKey
-    sPrjFileContent &= "Component=" & $cComponents[i] & "\n"
-  Next
-  
-  For Each ci As String In $cLibraries
-    sPrjFileContent &= "Library=" & ci & "\n"
-  Next
-
-  If $bBuildOnly And If $bTestMode Then
-    Error "Project file {\n"; sPrjFileContent; "\n}"
-    Error $sProgramHeader
-    Error $sStructures
-    Error $sFinalProgram
+    Quit -2
   Endif
   
-    File.Save($sPrjPath &/ ".project", sPrjFileContent)
-    Print #$hOutFile, $sProgramHeader
-    Print #$hOutFile, $sStructures
-    Print #$hOutFile, $sFinalProgram
-    Close $hOutFile
-
-End
-
-Public Sub CompileError(sPath As String, iLine As Integer, sMessage As String)
-  If $bExecuteFromArgs Then sPath = Quote(sPath)
-  Error.Raise(File.Name(Args[0]) & ": " & sPath & "." & iLine & ": " & sMessage)
-
-End
-
-Public Sub GenerateFiles(Path As String)
-
-  Dim hFile As File
-  Dim sLine As String
-  Dim sPath As String
-  Dim sClass As String
-  Dim sStruct As String
-  Dim bInClass As Boolean = False
-  Dim bInStruct As Boolean = False
-  Dim s As String
-  Dim sCodeBuf As String
-  Dim bAutoMain As Boolean = True
-  Dim aSym As String[]
-  Dim iInd As Integer
-  Dim iLine As Integer
-
-  If $bScriptSourceStdIn And Not $bWebPage Then 
-    hFile = File.in
-  Else
-    If Not Exist(Path) Then Return
-
-    If $aIncFiles.Exist(Path) Then Return
-
-    If $bVerbose Then Warning(("process file") & ": " & Path)
-    $aIncFiles.Add(Path)
-    $aIncFiles.Add(Stat(Path).LastModified)
-    hFile = Open Path For Read
-  Endif
   
-  Inc $iLevel
-  
-  While Not Eof(hFile)
-
-    Inc iLine
-    Line Input #hFile, sLine
-    If sLine Like "#!*" Then Continue
-    If sline = "" Then Continue
-    aSym = Highlight.Analyze(sLine)
-
-    If aSym.Count Then
-      If Highlight.Types[aSym.Max] = Highlight.Comment Or If Highlight.Types[aSym.Max] = Highlight.Help Then
-        aSym.Remove(aSym.Max)
-      Endif
-    Endif
-    'Find the include keyword and add the queried files.
-    If aSym.Count = 2 And If aSym[0] = "INCLUDE" And If Highlight.Types[1] = Highlight.String Then
-      sPath = Mid$(aSym[1], 2, -1) 'Trim(Scan(sLine, "INCLUDE *")[0])
-      If Not Exist(sPath) Then sPath = $sMainScriptPath &/ sPath
-      If $bVerbose Then Warning(("include script file") & ": " & sPath)
-
-      GenerateFiles(sPath)
-      Continue
-    Endif
-
-    'Find the END STRUCT keyword and close the Struct if true
-    If aSym.Count = 2 And If aSym[0] = "END" And If aSym[1] == "STRUCT" And If bInStruct Then
-      $sStructures &= sLine & "\n"
-      bInStruct = False
-      Continue
-    Endif
-    
-    'Find the END CLASS keyword and close the class if true
-    If aSym.Count = 2 And If aSym[0] = "END" And If aSym[1] == "CLASS" And If bInClass Then
-         Print #$hOutClass, $sClassDefinition
-         Close #$hOutClass
-         
-         If $bBuildOnly Then Error "Class";; sClass;; "Defined {\n"; $sClassDefinition; "\n}"
-      
-      bInClass = False
-      Continue
-    Endif
-
-    If aSym.Count = 2 And If aSym[0] = "CLASS" And If Highlight.Types[1] = Highlight.Symbol Then
-
-      If bInClass Or bInStruct Then
-        CompileError(Path, iLine, ("Unexpected CLASS declaration"))
-      Endif
-      sClass = aSym[1] 'Trim(Scan(sLine, "CLASS *")[0])
-      If IsNull(sClass) Then
-        CompileError(Path, iLine, ("Class name missing"))
-        Continue
-      Endif
-      If $bVerbose Then Warning(("create class") & ": " & sClass)
-      $sClassDefinition = ""
-      $hOutClass = Open $sPrjPath &/ ".src" &/ sClass & ".class" For Write Create
-      
-      If $bFast Then $sClassDefinition &= "Fast"
-      bInClass = True
-      Continue
-    Endif
-    
-    If bAutoMain And If (aSym.Count = 2 Or aSym.Count = 3) And If aSym.Exist("STRUCT") Then 
-      Dim iStructPos As Integer = aSym.Find("STRUCT")
-      If (iStructPos = 0 And aSym.count = 2 And Highlight.Types[1] = Highlight.Symbol) Or If (iStructPos = 1 And aSym[0] = "PUBLIC" And aSym.count = 3 And Highlight.Types[2] = Highlight.Symbol) Then 
-
-        If bInStruct Then
-          CompileError(Path, iLine, ("Unexpected Structure declaration"))
-        Endif
-      
-        sStruct = aSym[iStructPos + 1]
-        If IsNull(sStruct) Then
-          CompileError(Path, iLine, ("Structure name missing"))
-          Continue
-        Endif
-      
-        If $bVerbose Then Warning(("Struct Defined outside main") & ": " & sStruct)
-        $sStructures &= If(iStructPos = 0, "Public ", "") & sLine & "\n"
-        bInStruct = True
-        Continue
-      Endif
-    Endif
-    
-    If aSym.Count >= 2 And If aSym[0] == "USE" Then
-      
-      For iInd = 1 To aSym.Max Step 2
-        If Highlight.Types[iInd] <> Highlight.String Then CompileError(Path, iLine, ("Syntax error"))
-        s = Mid$(aSym[iInd], 2, -1)
-        
-        If s Like "*:*" Or s Like "/*" Then 
-           If $bVerbose Then Warning(("use library") & " " & s)
-           ProcessLibrary(s, iLine, path)
-           
-        Else
-           If $bVerbose Then Warning(("use component") & " " & s)
-           ProcessComponent(s, iline, path)
-           
-        Endif 
-        
-        If iInd < aSym.Max Then
-              s = aSym[iInd + 1]
-              If s <> "," Then CompileError(Path, iLine, ("Comma missing"))
-        Endif
-        
-      Next
-      Continue
-    Endif
-
-    If aSym.Count = 5 And If aSym[0] = "PUBLIC" And If (aSym[1] = "SUB" Or aSym[1] = "PROCEDURE") And If Upper(aSym[2]) = "MAIN" And If aSym[3] = "(" And If aSym[4] = ")" Then
-      If $bVerbose Then Warning(("Main procedure already defined"))
-      bAutoMain = False
-    Else If aSym.Count > 3 And If aSym[0] = "PUBLIC" And If Not (bInClass Or bInStruct) And If aSym[2] = "AS" Then 
-      $sProgramHeader &= sLine & "\n"
-      Continue
-    Endif
-
-    If bInClass Then
-      $sClassDefinition &= sLine & "\n"
-    Else If bInStruct Then
-      $sStructures &= sLine & "\n"
-    Else
-      sCodeBuf &= sLine & "\n"
-
-      If aSym.Count = 1 And If aSym[0] = "END" Then
-            $sFinalProgram &= sCodeBuf
-            sCodeBuf = Null
-      Endif
-    Endif
-
-  Wend
-
-  If bInClass Then CompileError(Path, iLine, "END CLASS " & ("missing"))
-  If bInStruct Then CompileError(Path, iLine, "END STRUCT " & ("missing"))
-
-  If bAutoMain And Not IsNull(sCodeBuf) And $iLevel = 1 Then
-    If $bVerbose Then Warning("Main() " & ("procedure not defined, creating it"))
-    $sFinalProgram &= "Public Sub Main()\n"
-    $sFinalProgram &= sCodeBuf
-    $sFinalProgram &= "End\n"
-  Endif
-
-  Close #hFile
-
-  Dec $iLevel
-
-End
-
-Public Sub processComponent(CompName As String, Progline As Integer, Path As String)
-
-  If Not CComponent.Exist(CompName) Then 
-       CompileError(Path, ProgLine, Subst(("Unknown component") & ": &1", CompName))
-  Else
-        $cComponents[CComponent.All[CompName].SortKey] = CompName
-        $aSortKey.Add(CComponent.All[CompName].SortKey)
-        $aImplemented.Insert(CComponent.All[CompName].Implement)
-  Endif
+  End With
   
 End
-
-Public Sub ProcessLibrary(LibName As String, ProgLine As Integer, Path As String)
-
-  Dim LibAndVersion As String[] 
-  Dim LibEntry As String = ""
-  Dim LibPath As String[]
-  Dim LibFilename As String
-  Dim LibDirPath As String
-  Dim WantedVersion As String
-    
-    LibFileName = File.Name(LibName)                ' If full path then get the file name part
-    LibDirPath = File.Dir(LibName)                  ' Get the dir path portion
-    LibAndVersion = Split(LibFileName, ":", "", True)
-    If LibAndVersion.count = 1 Then LibAndVersion.add("")    ' add a "" to get highest version if no version provided
-    LibPath = Split(LibAndVersion[0], ".", "", True)              ' We should now have a vendor and libname or just one entry if no vendors
-    WantedVersion = LibAndVersion[1]                         ' The version that we will look for
-    
-    If LibDirPath <> "" Then                                 ' we have an absolute path or home based path
-        Try LibEntry = CheckLibVersions(LibDirPath &/ LibPath.Join("/"), WantedVersion)     ' if no version force to highest by using ""
-    Else
-        If LibPath.count = 1 Then                                ' We have an unknown vendor we can only check the (unknown) local directory then
-           Try LibEntry = CheckLibVersions($sLibraryNoVendor &/ LibPath[0], WantedVersion)
-        Else
-            For Each SearchLocation As String In $aLibraryPaths
-              Try LibEntry = CheckLibVersions(SearchLocation &/ LibPath.Join("/"), WantedVersion)
-              If Error Then Continue
-              If LibEntry <> "" Then Break
-           Next
-        Endif
-    Endif
-    
-    If LibEntry = "" Then 
-      CompileError(Path, ProgLine, Subst(("Unknown Library") & ": &1", LibName)) 
-    Else
-      If $bVerbose Then Warning(("use Library Path") & ": " & LibEntry)
-      $cLibraries.Add(LibEntry, LibFileName)
-    Endif
-End
-
-Public Sub CheckLibVersions(sPath As String, Version As String) As String
-  
-    Dim sDir As String = File.Dir(sPath)
-    If Not Exist(sDir) Then Return ""
-    
-    Dim sName As String = File.Name(sPath) & ":" & version & "*" & ".gambas"
-    
-    Dim sEntries As String[] = Dir(sDir, sName, gb.file).Sort()
-    If sEntries.count > 0 Then
-      Return sDir &/ sEntries[sEntries.max]   ' return the highest level library
-    Else
-      Return ""
-    Endif
-End
-
 
 
 Public Function IsValid(sPath As String) As Boolean
@@ -751,146 +218,5 @@ Catch
 
 End
 
-Public Sub GetRequiredComp(sComp As String)
 
-  Dim s As String
 
-  If Not CComponent.All.Exist(sComp) Then Return
-
-  For Each s In CComponent.All[sComp].Require
-    If Not $cComponents.Exist(s) Then
-      $cComponents.Add(s, CComponent.All[s].Sortkey)
-      $aSortKey.add(CComponent.All[s].SortKey)
-      $aImplemented.Insert(CComponent.All[s].Implement)
-      GetRequiredComp(s)
-    Endif
-
-  Next
-
-End
-
-Public Sub GetNeededComp(sComp As String)
-
-  Dim s, t As String
-  Dim bExist As Boolean
-
-  If Not CComponent.All.Exist(sComp) Then Return
-
-  For Each s In CComponent.All[sComp].Need
-    If $aImplemented.Exist(s) Then Break
-
-    For Each t In CComponent.WhoImplement[s]
-      If $cComponents.Exist(t) Then
-        bExist = True
-        Break
-      Endif
-
-    Next
-
-    If Not bExist Then
-      t = CComponent.WhoImplement[s][0]
-      $cComponents.Add(t, CComponent.All[t].SortKey)
-      $aSortKey.add(CComponent.All[t].SortKey)
-      $aImplemented.Insert(CComponent.All[t].Implement)
-    Endif
-
-    GetNeededComp(t)
-
-  Next
-
-End
-
-Public Sub GenerateFilesFromArgs(sLine As String)
-
-  Dim bCrochetOuvert As Boolean
-  Dim aDims As New String[]
-  Dim s As String
-  Dim i As Integer
-  Dim sCode, sNew As String
-
-  'Use management
-  If $sUse
-    For Each s In Split($sUse)
-      If Not CComponent.All.Exist(s) Then 
-         CompileError(sLine, 0, Subst(("Unknown component") & ": &1", s))
-         Return   ' added to allow for testing this function with errors in test mode
-      Endif 
-      $cComponents[CComponent.All[s].SortKey] = s
-      $aSortKey.Add(CComponent.All[s].SortKey)
-      $aImplemented.Insert(CComponent.All[s].Implement)
-    Next
-    s = ""
-  Endif
-
-  For i = 1 To Len(sLine)
-    s = Mid(sLine, i, 1)
-    If s = "[" Then bCrochetOuvert = True
-    If s = "]" Then bCrochetOuvert = False
-
-    If s = ":" And Not bCrochetOuvert Then s = "\n"
-    sCode &= s
-
-  Next
-  
-  $aVarsDecl.Clear()
-  
-  If $bPrecompiler Then
-    For Each s In Split(sCode, "\n")
-      sNew &= PrecompileLine(s) & "\n"
-    Next
-    'We look in the code if none of the insertion declaration exist already.
-    For Each sI As String In $aVarsDecl
-      If Not InStr(sNew, sI, 0, gb.IgnoreCase) Then 
-          aDims.Add(sI)
-      Endif
-    Next
-    
-    sCode = sNew
-    
-  Endif
-
-  scode = "Public Sub Main()\n" & aDims.Join("\n") & "\n" & sCode
-  sCode &= "\nEnd\n"
-
-  $sFinalProgram &= sCode
-
-End
-
-'' Public $cNativeTypes As Collection = ["i": "Integer", "s": "String", "f": "Float", "d": "Date", "b": "Boolean", "v": "Variant", "o": "Object", "l": "Long", "p": "Pointer"]
-Public Function PrecompileLine(sLine As String) As String
-
-  Dim sVar As String
-  Dim sType As String
-  Dim sDecl As String
-  Dim aSymbols As String[] = Highlight.Analyze(sline, True)
-  Dim aTypes As Integer[] = highlight.types
- 
-  For i As Integer = 0 To aSymbols.Max
-    
-    If aTypes[i] = highlight.symbol And If aSymbols[i].len = 3 And If (aSymbols[i][0] = "{" And aSymbols[i][2] = "}") And If i + 1 <= aSymbols.max And If aTypes[i + 1] = Highlight.Symbol Then
-        If $cNativeTypes.Exist(aSymbols[i][1]) Then
-          sType = $cNativeTypes[aSymbols[i][1]]
-          sVar = aSymbols[i + 1]
-          sDecl = "Dim " & sVar & " As " & sType
-          'If Not $aVarsDecl.Exist(sDecl) Then $aVarsDecl.Add(sDecl)
-          If Not $aVarsDecl.Exist(sVar) Then 
-             $aVarsDecl.Add(sDecl, sVar)
-          Else
-             If $aVarsDecl[sVar] <> sDecl Then
-               CompileError(sline, 1, ("Redefinition of variable") & " " & sDecl & " " & ("From") & " " & $aVarsDecl[sVar] & " " & ("Not Allowed"))
-             Endif
-          Endif
-          Inc i
-        Endif
-    Endif
-  Next
-  
-  For i = 0 To aSymbols.max
-    If aTypes[i] = Highlight.symbol And If aSymbols[i].len = 3 And If (aSymbols[i][0] = "{" And aSymbols[i][2] = "}") Then 
-      sLine = Replace(sline, aSymbols[i], "")
-    Endif
-  Next
-  
-Return sLine
-
-End

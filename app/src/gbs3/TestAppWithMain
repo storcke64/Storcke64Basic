@@ -1,20 +1,20 @@
 #!/usr/bin/gbs3
 Use "gb.eval.highlight","gb.pcre"
 Public x As String = "hello"
-Class Testit
-Public a as Integer
-Public Sub GetA() as Integer
-Return a
-End
-End class
-Public Sub main()
+
+INCLUDE "TestAppInclude"
+
 Public Struct testStruct
-H As String 
+Hp As String 
 g As Integer
 f As Variant
 End Struct
+
+Public Sub main()
+dim cNew as new TestIt
+print "Included Class Result ";cNew() 
 For i As Integer = 0 To 20
 Print x;;i
 Next
-INCLUDE "TestAppInclude"
+
 End

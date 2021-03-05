@@ -20,10 +20,7 @@ Public Sub CreateTestEnvironment()
   'System.language = "de_DE.UTF-8"
   
   Mmain._ResetAll()
-  MMain.$bTestmode = True
-  CComponent._init()
-  MMain.ConfigureLibraries()
- 
+  MMain.$oContext.$bTestmode = True
    
   If Not Exist("/usr/lib" &/ gbsVer &/ "biz1") Then
     

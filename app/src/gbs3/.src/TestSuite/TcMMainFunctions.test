@@ -5,9 +5,15 @@ Private $sTestRoot As String = User.home &/ ".local"
 Public Sub _Setup()
 
   TSR.CreateTestEnvironment()
-
+  CComponent._init()
+  
 End
 
+Public Sub _Teardown()
+  
+  CComponent.Clear()
+  
+End
 
   
 Public Sub Components()
@@ -17,8 +23,8 @@ Public Sub Components()
   CComponent._init()
   
   Assert.Equals(CComponent.WhoImplement["form"][0], "gb.gui", "Check if 'form' is correctly set on init of components")
-  MMain.GetNeededComp("gb.form")
-  Assert.Equals(MMain.$cComponents[MMain.$cComponents.first], "gb.gui", "Forms need gui first in components")
+  CComponent.GetNeededComp("gb.form")
+  Assert.Equals(CComponent.$cComponents[CComponent.$cComponents.first], "gb.gui", "Forms need gui first in components")
   
 End
 
@@ -32,13 +38,13 @@ End
 
 Public Sub CheckLibraryVersions()
   
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libe", "3.1"), $sTestRoot &/ "libtest/libe:3.1.9.gambas", "Veryify we can get the correct library n.n.x")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libe", "2"), $sTestRoot &/ "libtest/libe:2.2.3.gambas", "Veryify we can get the correct library n.x.x")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libe", "1.1.0"), $sTestRoot &/ "libtest/libe:1.1.0.gambas", "Veryify we can get the correct library n.n.n")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libe", "1"), $sTestRoot &/ "libtest/libe:1.1.0.gambas", "Veryify we can get the correct library n.x.x")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libe", ""), $sTestRoot &/ "libtest/libe:3.1.9.gambas", "Veryify we can get the correct library x.x.x")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/", "3.4.4"), "", "Veryify we can get the correct library bad directory name")
-  Assert.Equals(MMain.CheckLibVersions($sTestRoot &/ "libtest/libd", ""), "", "Veryify we can get the correct library Bad Lib Name")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libe", "3.1"), $sTestRoot &/ "libtest/libe:3.1.9.gambas", "Veryify we can get the correct library n.n.x")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libe", "2"), $sTestRoot &/ "libtest/libe:2.2.3.gambas", "Veryify we can get the correct library n.x.x")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libe", "1.1.0"), $sTestRoot &/ "libtest/libe:1.1.0.gambas", "Veryify we can get the correct library n.n.n")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libe", "1"), $sTestRoot &/ "libtest/libe:1.1.0.gambas", "Veryify we can get the correct library n.x.x")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libe", ""), $sTestRoot &/ "libtest/libe:3.1.9.gambas", "Veryify we can get the correct library x.x.x")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/", "3.4.4"), "", "Veryify we can get the correct library bad directory name")
+  Assert.Equals(Libraries.CheckLibVersions($sTestRoot &/ "libtest/libd", ""), "", "Veryify we can get the correct library Bad Lib Name")
   
 End
 
@@ -48,34 +54,34 @@ Public Sub CheckProcessLibrary()
   
   MMain._ResetAll()
   
-  Assert.Equals(TSR.ErrorMsgOut(MMain, "ProcessLibrary", "DummyLibName", 1, "~/projects"), "gbs" & System.Version & ": ~/projects.1: " & ("Unknown Library") & ": DummyLibName", "Verify that error is generated when not found")
+  Assert.Equals(TSR.ErrorMsgOut(Libraries, "ProcessLibrary", "DummyLibName", 1, "~/projects"), "gbs" & System.Version & ": ~/projects.1: " & ("Unknown Library") & ": DummyLibName", "Verify that error is generated when not found")
   
-  MMain.ProcessLibrary($sTestRoot &/ "libtest/libe:2", 1, "~/projects")
-  Assert.equals(MMain.$cLibraries[mMain.$cLibraries.first], $sTestRoot &/ "libtest/libe:2.2.3.gambas", "Test for absolute path in library name")
+  Libraries.ProcessLibrary($sTestRoot &/ "libtest/libe:2", 1, "~/projects")
+  Assert.equals(Libraries.$cLibraries[Libraries.$cLibraries.first], $sTestRoot &/ "libtest/libe:2.2.3.gambas", "Test for absolute path in library name")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("biz1.liba:3.1", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], "/usr/lib/gambas" & System.version & "/biz1/liba:3.1.3.gambas", "Test for auto select from system library n.n.x")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("biz1.liba:3.1", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], "/usr/lib/gambas" & System.version & "/biz1/liba:3.1.3.gambas", "Test for auto select from system library n.n.x")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("biz1.liba:6.1.8", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:6.1.8.gambas", "Test for auto select from User .local library n.n.n")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("biz1.liba:6.1.8", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:6.1.8.gambas", "Test for auto select from User .local library n.n.n")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("biz1.liba:", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:6.1.8.gambas", "Test for auto select from User .local library n.n.n")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("biz1.liba:", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:6.1.8.gambas", "Test for auto select from User .local library n.n.n")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("biz1.liba:4.2", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:4.2.1.gambas", "Test for auto select from User .local library n.n.x")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("biz1.liba:4.2", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:4.2.1.gambas", "Test for auto select from User .local library n.n.x")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("biz1.liba:4", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:4.3.2.gambas", "Test for auto select from User .local library n.x.x")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("biz1.liba:4", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/biz1/liba:4.3.2.gambas", "Test for auto select from User .local library n.x.x")
   
-  MMain.$cLibraries.Clear()
-  MMain.ProcessLibrary("liba:", 1, "~/DummyProg")
-  Assert.Equals(MMain.$cLibraries[mMain.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/(unknown)/liba:7.1.8.gambas", "Test for auto select from User .local unknown library x.x.x")
+ Libraries.$cLibraries.Clear()
+  Libraries.ProcessLibrary("liba:", 1, "~/DummyProg")
+  Assert.Equals(Libraries.$cLibraries[Libraries.$cLibraries.first], User.home &/ ".local/share/gambas" & System.version & "/lib/(unknown)/liba:7.1.8.gambas", "Test for auto select from User .local unknown library x.x.x")
   
 End
 
@@ -85,14 +91,17 @@ Public Sub FullReadCompileCheck()
   Dim ShouldBefile As String[] = Split(File.Load("TestAppCompiled"), "\n")
   
   MMain._ResetAll()
-  MMain.$bBuildOnly = True
+  MMain.$oContext.$bBuildOnly = True
   
   workdir = Temp()
   Mkdir workdir
   Try Copy "TestApp" To workdir &/ "TestApp"
-  Mmain.$sPath = workdir &/ "TestApp"
-  Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MMain, "MakeVirtualProject"), "\n", "", True)
+  Try Copy "TestAppInclude" To workdir &/ "TestAppInclude"
+  Try Copy "TestAppInclude2" To workdir &/ "TestAppInclude2"
   
+  Mmain.$sPath = workdir &/ "TestApp"
+  Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MakeVirtualProject, "_Call", MMain.$oContext, MMain.$sPath), "\n", "", True)
+
   Assert.Equals(TSR.CompareStringArray(CompiledResult, ShouldBeFile), True, "Test a Basic App with all supported types")
   
 End
@@ -103,14 +112,17 @@ Public Sub FullReadCompileCheckWithMain()
   MMain._ResetAll()
   CComponent._init()
   
-  MMain.$bBuildOnly = True
+  MMain.$oContext.$bBuildOnly = True
   
   workdir = Temp()
   Mkdir workdir
   Try Copy "TestAppWithMain" To workdir &/ "TestAppWithMain"
+  Try Copy "TestAppInclude" To workdir &/ "TestAppInclude"
+  Try Copy "TestAppInclude2" To workdir &/ "TestAppInclude2"
+  
   Mmain.$sPath = workdir &/ "TestAppWithMain"
-  Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MMain, "MakeVirtualProject"), "\n", "", True)
-  File.save(User.home &/ "Desktop/maincompiled", CompiledResult.Join("\n"))
+  Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MakeVirtualProject, "_Call", MMain.$oContext, MMain.$sPath), "\n", "", True)
+  'File.save(User.home &/ "Desktop/maincompiled", CompiledResult.Join("\n"))
   Assert.Equals(TSR.CompareStringContent(ShouldBeFile, CompiledResult), True, "Test a Basic App with all supported types")
   
 End
