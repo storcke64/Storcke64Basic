@@ -163,7 +163,6 @@ Public Sub UserControl_Draw()
   Dim P As Integer
   Dim F As Integer
   Dim X As Integer
-  Dim iAlign As Integer
   Dim hExt As RectF
   
   If $iBorder Then
@@ -200,7 +199,7 @@ Public Sub UserControl_Draw()
   ' Endif
 
   If $bRichText Then
-    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * ^ 2, $iAlign)
+    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
   Else
     Paint.DrawText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
   Endif
