@@ -191,18 +191,18 @@ Public Sub UserControl_Draw()
     X = (Me.W - hExt.W) / 2
   Endif
 
-  If Align.IsTop($iAlign) Then
-    iAlign = Align.TopLeft
-  Else If Align.IsBottom($iAlign) Then
-    iAlign = Align.BottomLeft
-  Else 
-    iAlign = Align.Left
-  Endif
+  ' If Align.IsTop($iAlign) Then
+  '   iAlign = Align.TopLeft
+  ' Else If Align.IsBottom($iAlign) Then
+  '   iAlign = Align.BottomLeft
+  ' Else 
+  '   iAlign = Align.Left
+  ' Endif
 
   If $bRichText Then
-    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, iAlign)
+    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * ^ 2, $iAlign)
   Else
-    Paint.DrawText($sText, X, P, Me.W, Me.H - P * 2, iAlign)
+    Paint.DrawText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
   Endif
   
 End

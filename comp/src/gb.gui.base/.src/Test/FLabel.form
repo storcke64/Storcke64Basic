@@ -7,61 +7,53 @@
   Spacing = True
   { Label6 Label
     MoveScaled(6,3,72,9)
-    Background = Color.Yellow
-    AutoResize = True
+    Background = Color.Cyan
     Alignment = Align.Left
     Text = ("     This is a Label test line")
   }
   { Label4 Label
     MoveScaled(6,13,72,9)
     Font = Font["Italic"]
-    Background = Color.Yellow
-    AutoResize = True
+    Background = Color.Pink
     Alignment = Align.Left
     Text = ("This is a Label test line")
   }
   { Label5 Label
-    MoveScaled(6,23,72,9)
-    Background = Color.Yellow
-    AutoResize = True
-    Alignment = Align.Right
-    Text = ("This is a Label test line")
+    MoveScaled(6,23,72,13)
+    Background = Color.Pink
+    Alignment = Align.Center
+    Text = ("This is a Label test line\nwith another one")
   }
   { Label1 Label
-    MoveScaled(6,33,72,9)
+    MoveScaled(6,38,72,9)
     Font = Font["Italic"]
-    Background = Color.Yellow
-    AutoResize = True
+    Background = Color.Pink
     Alignment = Align.Right
     Text = ("This is a Label test line")
   }
   { Label2 TextLabel
-    MoveScaled(1,44,85,6)
-    Background = Color.Yellow
+    MoveScaled(1,51,85,6)
+    Background = Color.Pink
     AutoResize = True
     Text = ("This is a TextLabel test line")
-    Alignment = Align.Left
   }
   { Label3 TextLabel
     MoveScaled(1,59,75,13)
     Font = Font["Italic"]
-    Background = Color.Yellow
+    Background = Color.Pink
     AutoResize = True
     Text = ("This is a TextLabel test line")
+    Alignment = Align.Top
   }
   { Label7 TextLabel
     MoveScaled(1,74,58,14)
-    Background = Color.Yellow
-    AutoResize = True
+    Background = Color.Pink
     Text = ("This is a TextLabel test line")
-    Alignment = Align.Right
   }
   { Label8 TextLabel
     MoveScaled(2,89,58,14)
     Font = Font["Italic"]
-    Background = Color.Yellow
-    AutoResize = True
+    Background = Color.Pink
     Text = ("This is a TextLabel test line")
-    Alignment = Align.Right
   }
 }
