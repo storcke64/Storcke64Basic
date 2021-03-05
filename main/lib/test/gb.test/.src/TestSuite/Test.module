@@ -331,7 +331,7 @@ End
 Public Sub BailOut(Optional Comment As String)
 
     $hPrinter.BailOut(Comment)
-    Quit 1
+    Error.Raise("Bailout!")
 
 End
 

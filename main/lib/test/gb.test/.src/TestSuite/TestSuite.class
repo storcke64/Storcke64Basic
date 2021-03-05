@@ -46,7 +46,8 @@ Public Sub Run()
     Endif
 
 Catch
-    Test.BailOut("Test Stopped with error \"" & Error.Text & "\" caused by " & CurrentAction & " in " & Error.Where & ".")
+    If Error.Where Begins "Test.BailOut." Then Quit 1
+    Test.BailOut("Test stopped with error \"" & Error.Text & "\" caused by " & CurrentAction & " in " & Error.Where & ".")
 
 End Sub
 
