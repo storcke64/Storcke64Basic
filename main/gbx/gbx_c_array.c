@@ -2573,4 +2573,9 @@ void GB_ArrayRemove(GB_ARRAY array, int index)
 	copy_remove((CARRAY *)array, index, 1, FALSE, TRUE);
 }
 
+void GB_ArraySetReadOnly(GB_ARRAY array)
+{
+	((CARRAY *)array)->read_only = TRUE;
+}
+
 #endif
