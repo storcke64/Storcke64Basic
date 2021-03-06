@@ -47,7 +47,7 @@ Public Sub Run()
 
     Try Object.Call($MyTestModule, Me.name)
     If Error Then
-        Assert.Fail(Subst$("&1:&2 crashed with error '&3' in '&4'", $MyTestModule.Name, Me.Name, Error.Text, Error.Where))
+        Assert.Fail(Subst$("&1.&2 crashed with error '&3' in '&4'", $MyTestModule.Name, Me.Name, Error.Text, Error.Where))
     Endif
 
     If $MyTestModule.Symbols.Exist("_TeardownEach", gb.IgnoreCase) Then
