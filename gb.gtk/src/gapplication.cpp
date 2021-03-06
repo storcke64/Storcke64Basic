@@ -1663,23 +1663,51 @@ void gApplication::onThemeChange()
 	_scrollbar_size = 0;
 }
 
-static void for_each_control(gContainer *cont, void (*cb)(gControl *))
+static void for_each_filter(gContainer *cont, GPtrArray *list, bool (*filter)(gControl *))
 {
 	int i;
 	gControl *control;
+	
+	if ((*filter)(cont))
+		g_ptr_array_add(list, cont);
 	
 	for (i = 0; i < cont->childCount(); i++)
 	{
 		control = cont->child(i);
 		if (control->isContainer())
+			for_each_filter((gContainer *)control, list, filter);
+		else
+		{
+			if ((*filter)(control))
+				g_ptr_array_add(list, control);
+		}
+	}
+}
+
+static void for_each_control(gContainer *cont, void (*cb)(gControl *))
+{
+	GPtrArray *children;
+	uint i;
+	gControl *control;
+	
+	(*cb)(cont);
+	
+	children = cont->childrenCopy();
+	for (i = 0; i < children->len; i++)
+	{
+		control = (gControl *)g_ptr_array_index(children, i);
+		if (control->isDestroyed())
+			continue;
+		
+		if (control->isContainer())
 			for_each_control((gContainer *)control, cb);
 		else
 			(*cb)(control);
 	}
-	(*cb)(cont);
+	g_ptr_array_unref(children);
 }
 
-void gApplication::forEachControl(void (*cb)(gControl *))
+void gApplication::forEachControl(void (*cb)(gControl *), bool (*filter)(gControl *))
 {
 	GList *iter_win;
 	gMainWindow *win;
@@ -1688,7 +1716,30 @@ void gApplication::forEachControl(void (*cb)(gControl *))
 	while (iter_win)
 	{
 		win = (gMainWindow *)iter_win->data;
-		for_each_control(win, cb);
 		iter_win = g_list_next(iter_win);
+		
+		if (filter)
+		{
+			uint i;
+			gControl *control;
+			GPtrArray *list = g_ptr_array_new();
+			
+			for_each_filter(win, list, filter);
+			
+			for (i = 0; i < list->len; i++)
+			{
+				control = (gControl *)g_ptr_array_index(list, i);
+				if (control->isDestroyed())
+					continue;
+				//fprintf(stderr, "[%d] %s\n", i, control->name());
+				(*cb)(control);
+			}
+			
+			g_ptr_array_unref(list);
+		}
+		else
+		{
+			for_each_control(win, cb);
+		}
 	}
 }

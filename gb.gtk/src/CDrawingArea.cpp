@@ -46,15 +46,19 @@ DECLARE_EVENT(EVENT_Change);
 
 ***************************************************************************/
 
+static bool cb_change_filter(gControl *control)
+{
+	return control->isDrawingArea();
+}
+
 static void cb_change(gControl *control)
 {
-	if (control->isDrawingArea())
-		GB.Raise(control->hFree, EVENT_Change, 0);
+	GB.Raise(control->hFree, EVENT_Change, 0);
 }
 
 void CDRAWINGAREA_send_change_event(void)
 {
-	gApplication::forEachControl(cb_change);
+	gApplication::forEachControl(cb_change, cb_change_filter);
 }
 
 static void cleanup_drawing(intptr_t _unused)

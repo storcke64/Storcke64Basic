@@ -104,7 +104,7 @@ public:
 	
 	static void onThemeChange();
 	
-	static void forEachControl(void (*cb)(gControl *));
+	static void forEachControl(void (*cb)(gControl *), bool (*filter)(gControl *) = NULL);
 	
 	static bool _fix_breeze;
 	static bool _fix_oxygen;

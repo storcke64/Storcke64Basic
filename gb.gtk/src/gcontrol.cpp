@@ -43,8 +43,9 @@
 
 //#define DEBUG_FOCUS 1
 //#define DEBUG_ENTER_LEAVE 1
+//#define DEBUG_DESTROY 1
 
-static GList *controls_destroyed = NULL;
+static GList *_destroy_list = NULL;
 
 #if 0
 static const char *_cursor_fdiag[] =
@@ -290,18 +291,21 @@ void gControl::cleanRemovedControls()
 
 	gMenu::cleanRemovedMenus();
 	
-	if (!controls_destroyed) return;
+	if (!_destroy_list) return;
 
 	for(;;)
 	{
-		iter = g_list_first(controls_destroyed);
+		iter = g_list_first(_destroy_list);
 		if (!iter)
 			break;
 		control = (gControl *)iter->data;
+#if DEBUG_DESTROY
+		fprintf(stderr, "cleanRemovedControls: %p %s\n", control, control->name());
+#endif
 		gtk_widget_destroy(control->border);
 	}
 
-	controls_destroyed = NULL;
+	_destroy_list = NULL;
 }
 
 static bool always_can_raise(gControl *sender, int type)
@@ -421,7 +425,6 @@ void gControl::dispose()
 gControl::~gControl()
 {
 	//fprintf(stderr, "~gControl: %s %p %s\n", name(), this, GB.GetClassName(hFree));
-
 	emit(SIGNAL(onFinish));
 
 	dispose();
@@ -456,7 +459,10 @@ gControl::~gControl()
 	if (_tooltip)
 		g_free(_tooltip);
 
-	controls_destroyed = g_list_remove(controls_destroyed, this);
+#if DEBUG_DESTROY
+	fprintf(stderr, "remove from destroy list: %p (%d)\n", this, _destroyed);
+#endif
+	_destroy_list = g_list_remove(_destroy_list, this);
 
 	#define CLEAN_POINTER(_p) if (_p == this) _p = NULL
 
@@ -478,13 +484,24 @@ void gControl::destroy()
 	if (_destroyed)
 		return;
 
+#if DEBUG_DESTROY
+	fprintf(stderr, "destroy: %p %s (%d)\n", this, name(), _destroyed);
+#endif
+	_destroyed = true;
+	
 	hide();
 	dispose();
 
-	_destroyed = true;
-	
-	//fprintf(stderr, "added to destroy list: %p\n", this);
-	controls_destroyed = g_list_prepend(controls_destroyed, (gpointer)this);
+#if DEBUG_DESTROY
+	fprintf(stderr, "added to destroy list: %p %s (%d)\n", this, name(), _destroyed);
+	if (g_list_find(_destroy_list, this))
+	{
+		fprintf(stderr, "already present!!!\n");
+		BREAKPOINT();
+	}
+#endif
+
+	_destroy_list = g_list_prepend(_destroy_list, (gpointer)this);
 }
 
 
