@@ -48,13 +48,14 @@ enum
 	RSF_OP2S   = 0x0061,
 	RSF_OP2SM  = 0x00A1,
 
-	RSF_POINT  = 0x0100,    // last pattern is a point or an exclamation mark
-	RSF_IDENT  = 0x0200,    // last pattern waits for an identifier
-	RSF_CLASS  = 0x0400,    // last pattern waits for a class
-	RSF_AS     = 0x0800,    // last pattern waits for a datatype
-	RSF_PREV   = 0x1000,    // last pattern use the flags of the last last pattern
-	RSF_EVENT  = 0x2000,    // last pattern waits for an event name
-	RSF_PUB    = 0x4000,    // last pattern is PUBLIC, PRIVATE or STATIC
+	RSF_POINT  = 0x0100,    // pattern is a point or an exclamation mark
+	RSF_IDENT  = 0x0200,    // pattern waits for an identifier
+	RSF_CLASS  = 0x0400,    // pattern waits for a class
+	RSF_AS     = 0x0800,    // pattern waits for a datatype
+	RSF_PREV   = 0x1000,    // pattern uses the flags of the previous pattern
+	RSF_EVENT  = 0x2000,    // pattern waits for an event name
+	RSF_PUB    = 0x4000,    // pattern is PUBLIC, PRIVATE or STATIC
+	RSF_PREP   = 0x8000,    // pattern is a preprocessor instruction
 	
 	RSF_IMASK  = 0xFF00
 };
@@ -91,6 +92,8 @@ enum {
 #define RES_get_assignment_operator(_res) (COMP_res_info[_res].value)
 
 #define RES_can_have_not_before(value) (COMP_res_info[value].flag & RSF_NOT)
+
+#define RES_is_preprocessor(value) (COMP_res_info[value].flag & RSF_PREP)
 
 typedef
 	enum {
@@ -225,6 +228,7 @@ typedef
 		RS_P_CONST,
 		RS_P_LINE,
 		RS_P_INCLUDE,
+		RS_P_SCRIPT,
 
 		RS_COLON,
 		RS_SCOLON,

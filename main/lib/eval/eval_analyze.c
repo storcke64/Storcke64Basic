@@ -116,17 +116,6 @@ static bool is_optional_kind(PATTERN pattern)
 		|| PATTERN_is(pattern, RS_BYREF);
 }
 
-static bool is_preprocessor(PATTERN pattern)
-{
-	return PATTERN_is(pattern, RS_P_IF)
-		|| PATTERN_is(pattern, RS_P_IF)
-		|| PATTERN_is(pattern, RS_P_ELSE)
-		|| PATTERN_is(pattern, RS_P_ENDIF)
-		|| PATTERN_is(pattern, RS_P_CONST)
-		|| PATTERN_is(pattern, RS_P_LINE)
-		|| PATTERN_is(pattern, RS_P_INCLUDE);
-}
-
 static void get_symbol(PATTERN pattern, const char **symbol, int *len)
 {
 	static char keyword[32];
@@ -421,7 +410,7 @@ static void analyze(EVAL_ANALYZE *result)
 					if (old_type != RT_OPERATOR)
 						space_before = TRUE;
 				}
-				else if (is_preprocessor(*pattern))
+				else if (PATTERN_is_preprocessor(*pattern))
 				{
 					preprocessor = TRUE;
 					space_before = FALSE;

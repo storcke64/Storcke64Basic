@@ -88,7 +88,8 @@ enum {
 #define PATTERN_set_flag(pattern, flag)    ((pattern) | flag)
 #define PATTERN_unset_flag(pattern, flag)    ((pattern) & ~flag)
 
-#define PATTERN_is_operand(pattern)   (PATTERN_is_reserved(pattern) && RES_is_operand(PATTERN_index(pattern)))
-#define PATTERN_is_type(pattern)      (PATTERN_is_reserved(pattern) && RES_is_type(PATTERN_index(pattern)))
+#define PATTERN_is_operand(pattern)       (PATTERN_is_reserved(pattern) && RES_is_operand(PATTERN_index(pattern)))
+#define PATTERN_is_type(pattern)          (PATTERN_is_reserved(pattern) && RES_is_type(PATTERN_index(pattern)))
+#define PATTERN_is_preprocessor(pattern)  (PATTERN_is_reserved(pattern) && RES_is_preprocessor(PATTERN_index(pattern)))
 
 #endif

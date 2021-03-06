@@ -152,12 +152,13 @@ COMP_INFO COMP_res_info[] =
 	{ "Chown"                                                     },
 	{ "Chgrp"                                                     },
 	
-	{ "#If"                                                       },
-	{ "#Else"                                                     },
-	{ "#Endif"                                                    },
-	{ "#Const"                                                    },
-	{ "#Line"                                                     },
-	{ "#Include"                                                  },
+	{ "#If",          RSF_PREP,                                   },
+	{ "#Else",        RSF_PREP,                                   },
+	{ "#Endif",       RSF_PREP,                                   },
+	{ "#Const",       RSF_PREP,                                   },
+	{ "#Line",        RSF_PREP,                                   },
+	{ "#Include",     RSF_PREP,                                   },
+	{ "#Script",      RSF_PREP,                                   },
 
 	{ ":",            RSF_NONE,                 OP_COLON,     0,  0,    T_OBJECT                      },  // Use for the immediate collection syntax
 	{ ";"                                                                                             },
