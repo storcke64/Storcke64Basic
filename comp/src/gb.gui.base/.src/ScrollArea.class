@@ -80,6 +80,7 @@ Private $iTargetX As Integer
 Private $iTargetY As Integer
 Private $hTimerScroll As Timer
 Private $bIgnoreNextAnimation As Boolean
+Private $N As Integer
 
 Private Sub LoadFades()
   
@@ -361,6 +362,7 @@ Private Sub LayoutShadows()
   If Not $hShadowN Then
     hSave = Me._Container
     Me._Container = Null
+    Inc $N
     $hShadowN = New DrawingArea(Me) As "Shadow"
     $hShadowN.Ignore = True
     $hShadowS = New DrawingArea(Me) As "Shadow"
