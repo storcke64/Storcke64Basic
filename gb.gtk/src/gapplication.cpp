@@ -1686,26 +1686,29 @@ static void for_each_filter(gContainer *cont, GPtrArray *list, bool (*filter)(gC
 
 static void for_each_control(gContainer *cont, void (*cb)(gControl *))
 {
-	GPtrArray *children;
-	uint i;
+	//GPtrArray *children;
+	int i;
 	gControl *control;
 	
 	(*cb)(cont);
 	
-	children = cont->childrenCopy();
-	for (i = 0; i < children->len; i++)
+	//children = cont->childrenCopy();
+	//for (i = 0; i < children->len; i++)
+	//{
+	//	control = (gControl *)g_ptr_array_index(children, i);
+	for (i = 0; i < cont->childCount(); i++)
 	{
-		control = (gControl *)g_ptr_array_index(children, i);
-		if (control->isDestroyed())
-			continue;
+		control = cont->child(i);
 		
 		if (control->isContainer())
 			for_each_control((gContainer *)control, cb);
 		else
 			(*cb)(control);
 	}
-	g_ptr_array_unref(children);
+	//g_ptr_array_unref(children);
 }
+
+// Of the callback may destroy controls, the filter must be specified!
 
 void gApplication::forEachControl(void (*cb)(gControl *), bool (*filter)(gControl *))
 {

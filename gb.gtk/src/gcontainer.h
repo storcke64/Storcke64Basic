@@ -96,7 +96,6 @@ public:
 	virtual gControl *child(int index) const;
 	gControl *firstChild() const { return child(0); };
 	gControl *lastChild() const { return child(childCount() - 1); }
-	GPtrArray *childrenCopy() const { return g_ptr_array_copy(_children, NULL, NULL); }
 	
 	int childIndex(gControl *ch) const;
 	
