@@ -2901,6 +2901,7 @@ Private Sub ReadOnly_Write(Value As Boolean)
   $bReadOnly = Value
   $hTimerCursor.Enabled = Not Value
   $hView.Mouse = If($bReadOnly, Mouse.Default, Mouse.Text)
+  Refresh
   
 End
 
@@ -3358,6 +3359,7 @@ End
 Private Sub ShowModified_Write(Value As Boolean)
   
   $bShowModified = Value
+  UpdateMargin
   Refresh
   
 End
@@ -5256,10 +5258,13 @@ Public Sub TimerHeight_Timer()
   
   Dim Y As Integer
   Dim CY, TY As Integer
+  Dim fTimer As Float
   
   'Debug Me.Window.Title;; $iWidth;; $hView.ClientW
   
   If $hView.Scrolling Then Return
+  
+  fTimer = Timer
   
   Y = $hRows._GetRowY($Y)
   If Y < $hView.ScrollY Then
@@ -5273,7 +5278,7 @@ Public Sub TimerHeight_Timer()
     CY = $Y
   Endif
   
-  If $hDoc.Count >= 10000 Then Inc Application.Busy
+  'If $hDoc.Count >= 10000 Then Inc Application.Busy
   
   $bNoResizeContents = True
   For Y = 0 To $hDoc.Max
@@ -5293,10 +5298,11 @@ Public Sub TimerHeight_Timer()
   
   If $hTimerHeight Then
     $hTimerHeight.Stop
-    $hTimerHeight = Null
+    fTimer = Timer - fTimer
+    $hTimerHeight.Delay = Max(20, CInt(fTimer * 1500))
   Endif
   
-  If $hDoc.Count >= 10000 Then Dec Application.Busy
+  'If $hDoc.Count >= 10000 Then Dec Application.Busy
   
 End
 
