@@ -90,7 +90,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
 
   SYMTYPE:
     Dim TypeIndex As Integer
-    TypeIndex = CompTypes[Upper(aSymbols[i])]
+    TypeIndex = CompTypes[Upper(UnQuote(aSymbols[i]))]
     Select Case TypeIndex
       Case 0 'Library
         ProjectInfo["Type"] = UnQuote(aSymbols[i])
