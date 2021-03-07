@@ -40,6 +40,7 @@
 #include "CWindow.h"
 #include "CFont.h"
 #include "CDrawingArea.h"
+#include "CContainer.h"
 #include "CScreen.h"
 
 #ifndef QT5
@@ -103,6 +104,12 @@ static void free_screens(void)
 		if (_screens[i])
 			GB.Unref(POINTER(&_screens[i]));
 	}
+}
+
+static void send_change_event()
+{
+	CDRAWINGAREA_send_change_event();
+	CUSERCONTROL_send_change_event();
 }
 
 //-------------------------------------------------------------------------
@@ -271,7 +278,7 @@ BEGIN_PROPERTY(Application_Animations)
 	else if (_animations != VPROP(GB_BOOLEAN))
 	{
 		_animations = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -284,7 +291,7 @@ BEGIN_PROPERTY(Application_Shadows)
 	else if (_shadows != VPROP(GB_BOOLEAN))
 	{
 		_shadows = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY

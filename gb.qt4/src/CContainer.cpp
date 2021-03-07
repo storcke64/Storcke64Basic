@@ -55,6 +55,31 @@
 //#define DEBUG_ME
 //#define USE_CACHE 1
 
+#define CALL_FUNCTION(_this, _func) \
+{ \
+	if ((_this)->_func) \
+	{ \
+		GB_FUNCTION func; \
+		func.object = (_this); \
+		func.index = (_this)->_func; \
+		GB.Call(&func, 0, TRUE); \
+	} \
+}
+
+static void send_change_event(CWIDGET *_object)
+{
+	if (GB.Is(THIS, CLASS_UserControl))
+		CALL_FUNCTION(THIS_USERCONTROL, change_func);
+}
+
+void CUSERCONTROL_send_change_event()
+{
+	CWidget::each(send_change_event);
+}
+
+
+//-------------------------------------------------------------------------
+
 DECLARE_EVENT(EVENT_Insert);
 //DECLARE_EVENT(EVENT_Remove);
 DECLARE_EVENT(EVENT_BeforeArrange);
@@ -816,7 +841,7 @@ void MyContainer::paintEvent(QPaintEvent *event)
 	handler.handler = (GB_CALLBACK)cleanup_drawing;
 
 	GB.OnErrorBegin(&handler);
-	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	CALL_FUNCTION(THIS_USERCONTROL, paint_func);
 	GB.OnErrorEnd(&handler);
 
 	PAINT_end();
@@ -833,13 +858,7 @@ void MyContainer::changeEvent(QEvent *e)
 	}
 	
 	if (e->type() == QEvent::FontChange)
-	{
-		GB_FUNCTION func;
-		if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
-			GB.Call(&func, 0, TRUE);
-		else
-			GB.Error(NULL);
-	}
+		CALL_FUNCTION(THIS_USERCONTROL, font_func);
 }
 
 
@@ -1205,6 +1224,7 @@ END_PROPERTY
 
 BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
+	GB_FUNCTION func;
 	MyContainer *wid = new MyContainer(QCONTAINER(VARG(parent)));
 
 	THIS->container = wid;
@@ -1213,13 +1233,19 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
 	CWIDGET_new(wid, (void *)_object);
 	
-	if (!GB.GetFunction(&THIS_USERCONTROL->paint_func, THIS, "UserControl_Draw", NULL, NULL))
+	if (!GB.GetFunction(&func, THIS, "UserControl_Draw", NULL, NULL))
+	{
 		THIS_ARRANGEMENT->paint = true;
-	else
-		GB.Error(NULL);
-
+		THIS_USERCONTROL->paint_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
+			THIS_USERCONTROL->font_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Change", NULL, NULL))
+			THIS_USERCONTROL->change_func = func.index;
+	}
+	
+	GB.Error(NULL);
+	
 END_METHOD
-
 
 BEGIN_PROPERTY(UserControl_Container)
 

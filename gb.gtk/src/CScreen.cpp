@@ -26,6 +26,7 @@
 #include "CWindow.h"
 #include "CPicture.h"
 #include "CFont.h"
+#include "CContainer.h"
 #include "CDrawingArea.h"
 #include "CScreen.h"
 
@@ -50,6 +51,15 @@ static CSCREEN *_screens[MAX_SCREEN] = { NULL };
 
 static bool _animations = FALSE;
 static bool _shadows = FALSE;
+
+//-------------------------------------------------------------------------
+
+static void send_change_event()
+{
+	CDRAWINGAREA_send_change_event();
+	CUSERCONTROL_send_change_event();
+}
+
 
 static CSCREEN *get_screen(int num)
 {
@@ -252,7 +262,7 @@ BEGIN_PROPERTY(Application_Animations)
 	else if (_animations != VPROP(GB_BOOLEAN))
 	{
 		_animations = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -265,7 +275,7 @@ BEGIN_PROPERTY(Application_Shadows)
 	else if (_shadows != VPROP(GB_BOOLEAN))
 	{
 		_shadows = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY

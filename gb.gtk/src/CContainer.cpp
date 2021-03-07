@@ -27,7 +27,20 @@
 #include "CContainer.h"
 #include "gpanel.h"
 #include "gmainwindow.h"
+#include "gapplication.h"
 #include "cpaint_impl.h"
+
+#define CALL_FUNCTION(_this, _func) \
+{ \
+	if ((_this) && (_this)->_func) \
+	{ \
+		GB_FUNCTION func; \
+		func.object = (_this); \
+		func.index = (_this)->_func; \
+		GB.Call(&func, 0, TRUE); \
+	} \
+}
+
 
 /***************************************************************************
 
@@ -75,7 +88,7 @@ void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr)
 	
 	handler.handler = (GB_CALLBACK)cleanup_drawing;
 	GB.OnErrorBegin(&handler);
-	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	CALL_FUNCTION(THIS_USERCONTROL, paint_func);
 	GB.OnErrorEnd(&handler);
 	
 	PAINT_end();
@@ -106,7 +119,7 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 	handler.handler = (GB_CALLBACK)cleanup_drawing;
 	handler.arg1 = (intptr_t)cr;
 	GB.OnErrorBegin(&handler);
-	GB.Call(&THIS_USERCONTROL->paint_func, 0, TRUE);
+	CALL_FUNCTION(THIS_USERCONTROL, paint_func);
 	GB.OnErrorEnd(&handler);
 	
 	cairo_restore(cr);
@@ -118,15 +131,23 @@ void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy)
 void CUSERCONTROL_cb_font(gContainer *sender)
 {
 	CWIDGET *_object = GetObject(sender);
-	GB_FUNCTION func;
-	
-	if (!THIS)
-		return;
-	
-	if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
-		GB.Call(&func, 0, TRUE);
-	else
-		GB.Error(NULL);
+	CALL_FUNCTION(THIS_USERCONTROL, font_func);
+}
+
+static bool cb_change_filter(gControl *control)
+{
+	return control->isContainer() && ((gContainer *)control)->isPaint();
+}
+
+static void cb_change(gControl *control)
+{
+	CWIDGET *_object = GetObject(control);
+	CALL_FUNCTION(THIS_USERCONTROL, change_func);
+}
+
+void CUSERCONTROL_send_change_event(void)
+{
+	gApplication::forEachControl(cb_change, cb_change_filter);
 }
 
 static void get_client_area(gContainer *cont, int *x, int *y, int *w, int *h)
@@ -456,6 +477,8 @@ GB_DESC ContainerDesc[] =
 
 BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
+	GB_FUNCTION func;
+
 	InitControl(new gPanel(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	
 	PANEL->setArrange(ARRANGE_FILL);
@@ -464,12 +487,19 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	if (GB.Is(THIS, CLASS_UserContainer))
 		PANEL->setUserContainer();
 	
-	THIS_USERCONTAINER->container = THIS;
+	THIS_USERCONTROL->container = THIS;
 
-	if (!GB.GetFunction(&THIS_USERCONTROL->paint_func, THIS, "UserControl_Draw", NULL, NULL))
+	if (!GB.GetFunction(&func, THIS, "UserControl_Draw", NULL, NULL))
+	{
 		PANEL->setPaint();
-	else
-		GB.Error(NULL);
+		THIS_USERCONTROL->paint_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
+			THIS_USERCONTROL->font_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Change", NULL, NULL))
+			THIS_USERCONTROL->change_func = func.index;
+	}
+	
+	GB.Error(NULL);
 
 END_METHOD
 

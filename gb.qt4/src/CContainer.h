@@ -80,7 +80,9 @@ extern GB_DESC UserContainerDesc[];
 typedef
 	struct {
 		CCONTAINER parent;
-		GB_FUNCTION paint_func;
+		ushort paint_func;
+		ushort font_func;
+		ushort change_func;
 		}
 	CUSERCONTROL;
 	
@@ -137,6 +139,8 @@ void CCONTAINER_set_border(char *border, char new_border, QWidget *wid);
 int CCONTAINER_get_border_width(char border);
 
 void CCONTAINER_update_design(void *_object);
+
+void CUSERCONTROL_send_change_event();
 
 class MyFrame : public QWidget
 {

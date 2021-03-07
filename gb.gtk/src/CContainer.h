@@ -94,10 +94,12 @@ typedef
 	{
 		CWIDGET widget;
 		CCONTAINER *container;
-		GB_FUNCTION paint_func;
 	#ifdef GTK3
 		cairo_t *context;
 	#endif
+		ushort paint_func;
+		ushort font_func;
+		ushort change_func;
 	}
 	CUSERCONTROL;
 
@@ -117,5 +119,7 @@ DECLARE_PROPERTY(Container_Centered);
 void CCONTAINER_cb_arrange(gContainer *sender);
 void CCONTAINER_cb_before_arrange(gContainer *sender);
 void CCONTAINER_raise_insert(CCONTAINER *_object, CWIDGET *child);
+void CUSERCONTROL_send_change_event();
+
 
 #endif
