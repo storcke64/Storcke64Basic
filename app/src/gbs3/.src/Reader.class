@@ -323,9 +323,10 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
     '' Check for out of stream lines
-    If Highlight.Types.count >= 2 And If Highlight.Types[0] = Highlight.Symbol Then
-      If Highlight.Types.count >= 2 And If Upper(Highlight.Symbols[0]) = "#SCRIPT" Then 
+    If Highlight.Types.count >= 2 And If Highlight.Types[0] = Highlight.Preprocessor Then
+      If Highlight.Types.count >= 2 And If Highlight.Symbols[0] = "#SCRIPT" Then 
          'ProjectOptions(Split(sLine, "# ,", "\"\",true,true"), CurrentLineNumber.last, cIncludeStack.last)
+         Highlight.Analyze(Right(Trim(sline), -1))
          ScriptPreProcess(Highlight.symbols, Highlight.types, CurrentLineNumber.last, cIncludeStack.last)
         sLine = "'" & sline
       Endif
