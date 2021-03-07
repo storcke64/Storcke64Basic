@@ -42,7 +42,7 @@ Public Sub CreateTestEnvironment()
       Test.Note("sudo touch /usr/lib/" & gbsVer & "/biz1/liba:2.1.0.gambas")
       Test.Note("sudo touch /usr/lib/" & gbsVer & "/biz1/liba:3.1.3.gambas")
       Test.Note("")
-      Test.Note("Or up may execute the shell script : sudo " & User.home &/ "bin/makegbs" & System.version & "tests")
+      Test.Note("Or you may execute the shell script : sudo " & User.home &/ "bin/makegbs" & System.version & "tests")
       Test.Note("From your ~/bin directory")
       Test.BailOut("Please create the required directories before continuing")
 
