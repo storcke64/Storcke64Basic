@@ -68,13 +68,6 @@
 #include "gambas.h"
 #include "gbx_api.h"
 
-typedef
-	struct {
-		OBJECT *object;
-		CLASS_DESC_METHOD *desc;
-		}
-	GB_API_FUNCTION;
-
 const void *const GAMBAS_Api[] =
 {
 	(void *)GB_VERSION,
@@ -1039,9 +1032,8 @@ __RETURN:
 }
 
 
-bool GB_GetFunction(GB_FUNCTION *_func, void *object, const char *name, const char *sign, const char *type)
+bool GB_GetFunction(GB_FUNCTION *func, void *object, const char *name, const char *sign, const char *type)
 {
-	GB_API_FUNCTION *func = (GB_API_FUNCTION *)_func;
 	char len_min, nparam, npvar;
 	TYPE *tsign;
 	TYPE tret;
@@ -1118,11 +1110,8 @@ bool GB_GetFunction(GB_FUNCTION *_func, void *object, const char *name, const ch
 		}
 	}
 
-	func->object = kind == CD_STATIC_METHOD ? NULL : object;
-	func->desc = &desc->method;
-
-	if (!func->desc)
-		abort();
+	func->object = object;
+	func->index = index + 1;
 
 	return FALSE;
 
@@ -1130,7 +1119,7 @@ _NOT_FOUND:
 
 	GB_Error("Unable to find method &1 in class &2. &3", name, CLASS_get_name(class), err);
 	func->object = NULL;
-	func->desc = NULL;
+	func->index = 0;
 	return TRUE;
 }
 
@@ -1166,18 +1155,25 @@ __NOT_FOUND:
 }
 
 
-GB_VALUE *GB_Call(GB_FUNCTION *_func, int nparam, int release)
+GB_VALUE *GB_Call(GB_FUNCTION *func, int nparam, int release)
 {
-	GB_API_FUNCTION *func = (GB_API_FUNCTION *)_func;
 	bool stop_event;
+	CLASS *class;
+	CLASS_DESC_METHOD *desc;
 
-	if (!func || !func->desc)
+	if (!func || !func->index)
 		GB_Error("Unknown function call");
 		//TEMP.type = GB_T_NULL;
 	else
 	{
+		class = (CLASS *)func->object;
+		if (!OBJECT_is_class(class))
+			class = OBJECT_class(class);
+		
+		desc = &class->table[func->index - 1].desc->method;
+		
 		stop_event = GAMBAS_StopEvent;
-		EXEC_public_desc(func->desc->class, func->object, func->desc, nparam);
+		EXEC_public_desc(class, func->object, desc, nparam);
 		_event_stopped = GAMBAS_StopEvent;
 		GAMBAS_StopEvent = stop_event;
 

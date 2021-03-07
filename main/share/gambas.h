@@ -687,11 +687,11 @@ typedef
 typedef
 	struct {
 		void *object;
-		void *desc;
+		ushort index;
 		}
 	GB_FUNCTION;
 
-#define GB_FUNCTION_IS_VALID(_func) ((_func)->desc)
+#define GB_FUNCTION_IS_VALID(_func) ((_func)->index != 0)
 
 
 /* Opaque type of a Gambas Array */
