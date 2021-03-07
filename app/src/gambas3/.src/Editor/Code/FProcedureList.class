@@ -379,3 +379,9 @@ Public Sub btnShowAll_Click()
   FilterProc
 
 End
+
+Public Sub gvwProc_Leave()
+
+  SetCurrent(-1)
+
+End

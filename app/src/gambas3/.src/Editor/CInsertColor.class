@@ -139,7 +139,7 @@ Private Sub ReadColor(sText As String, iPos As Integer, sPattern As String, Opti
     
   Else
     
-    If Mid$(sText, iPos, 1) Not Begins sPattern Then Return
+    If Mid$(sText, iPos) Not Begins sPattern Then Return
     
     iStart = iPos
     iPos += Len(sPattern)

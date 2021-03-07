@@ -97,6 +97,7 @@ Public Sub Form_Open()
   edtJournal.ReadConfig
   edtDiff.ReadConfig
   edtHistory.ReadConfig
+  edtHistory.ShowModified = False
   Project.SetEditorFont(trmShell)
 
   edtJournal.Text = RTrim(Project.Config["/FCommit/LastCommit"]) & "\n\n" & VersionControl.GetDefaultJournal()
