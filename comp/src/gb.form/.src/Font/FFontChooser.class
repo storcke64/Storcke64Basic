@@ -12,6 +12,8 @@ Public ShowFixed As Boolean
 Public StylePanel As Container
 Public Preview As Control
 
+Static Private $cCache As New Collection
+
 Private $iNoChange As Integer
 Private $bNoRefresh As Boolean
 Private $sLast As String
@@ -21,13 +23,15 @@ Private $sSplitFont As String
 Private $aSplitFont As String[]
 Private $bShowFont As Boolean
 Private $sLastFilter As String
+Private $hTask As FontCacheTask
+Private $hObs As Observer
 
 Public Sub _new()
   
   Inc $iNoChange
   $bNoRefresh = True
   $bShowFont = True
-  Me.Proxy = txtFilter
+  'Me.Proxy = txtFilter
   
   'lstSize.List = ["6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "24", "28", "32", "36", "40", "48", "56", "64", "72", "80", "96", "112", "128"]
   
@@ -37,6 +41,8 @@ Public Sub _new()
   txtFamily.Foreground = Color.Merge(Color.LightForeground, Color.Foreground)
   
   SetFont("")
+  
+  $hObs = New Observer(Me.Window) As "Window"
   
 End
 
@@ -138,20 +144,6 @@ Private Sub SplitFont(sFont As String, N As Integer) As String
   
 End
 
-Private Sub GetFontName(sFont As String) As String
-
-  Dim sText As String
-
-  If $bShowFont Then
-    sText = "<font size=\"+2\" face=\"" & Html(sFont) & "\">" & Html(sFont) & "</font>"
-  Else
-    sText = Html(sFont)
-  Endif
-  
-  Return sText
-  
-End
-
 Private Sub FillFamily()
   
   Dim sFont As String
@@ -225,25 +217,33 @@ Private Sub FillFamily()
     
     If sParentFont And If tvwFamily[sParentFont].Children = 0 Then
       With tvwFamily[sParentFont]
-        .Foreground = Color.Merge(Color.LightForeground, Color.TextForeground)
-        .Background = Color.Merge(Color.LightForeground, Color.TextBackground, 0.8)
-        .Expanded = True
-        .Font = Font["-2"]
-        .RichText = ""
-        .Text = sParentFont
-        .H = 0
-      End With
-      If cFont[sParentFont] >= 1000 Then
-        With tvwFamily.Add("." & sParentFont, "",, sParentFont)
+        If cFont[sParentFont] >= 1000 Then
           .H = H
-          .RichText = GetFontName(sParentFont)
-        End With
-      Endif
+          If Not $bShowFont Then 
+            .Text = sParentFont
+          Else 
+            .Tag = sParentFont
+          Endif
+        Else
+          .Foreground = Color.Merge(Color.LightForeground, Color.TextForeground)
+          .Background = Color.Merge(Color.LightForeground, Color.TextBackground, 0.8)
+          If .Depth = 0 Then .Expanded = True
+          .Font = Font["-2"]
+          .RichText = ""
+          .Text = sParentFont
+          .H = 0
+          .Tag = ""
+        Endif
+      End With
     Endif
     
     With tvwFamily.Add(sFont, "",, sParentFont)
       .H = H
-      .RichText = GetFontName(sFont)
+      If Not $bShowFont Then
+        .Text = sFont
+      Else 
+        .Tag = sFont
+      Endif
     End With
     cParent[sFont] = True
     
@@ -453,13 +453,11 @@ Public Sub tvwFamily_Select()
   
   If Not tvwFamily.Current Then Return
   
-  If tvwFamily.Current.Children Then
-    Return
+  If tvwFamily.Current.Tag Then
+    Family = tvwFamily.Key
+    If Family Begins "." Then Family = Mid$(Family, 2)
+    RefreshExample
   Endif
-  
-  Family = tvwFamily.Key
-  If Family Begins "." Then Family = Mid$(Family, 2)
-  RefreshExample
   
 End
 
@@ -600,6 +598,29 @@ Public Sub btnStrikeout_Click()
   
 End
 
+Private Sub StartCacheTask()
+
+  If $hTask Then Return
+  If Not panFilter.Visible Then Return
+  If Me.Window.Minimized Then Return
+  
+  $hTask = New FontCacheTask As "FontCacheTask"
+  spnCache.Value = 0
+  spnCache.Show
+  spnCache.Start
+  btnRefresh.Hide
+      
+End
+
+Private Sub StopCacheTask()
+
+  If Not $hTask Then Return
+
+  $hTask.Stop 
+  $hTask = Null
+
+End
+
 Public Sub panBorder_BeforeArrange()
   
   If panBorder.H < (Desktop.Scale * 32) Then
@@ -610,7 +631,8 @@ Public Sub panBorder_BeforeArrange()
       sepToolbar.Hide
       cmbFamily.Show
       cmbFamily.Lower
-      txtFilter.Hide
+      panFilter.Hide
+      StopCacheTask
       RefreshFamily
     Endif
     
@@ -633,15 +655,16 @@ Public Sub panBorder_BeforeArrange()
       tvwFamily.Show
       sepFamily.Show
       sepToolbar.Show
-      txtFilter.Show
+      panFilter.Show
       RefreshFamily
+      StartCacheTask
     Endif
     
   Endif
   
   RefreshExample
   
-  Me.Proxy = If(txtFilter.Visible, txtFilter, cmbFamily)
+  Me.Proxy = If(panFilter.Visible, txtFilter, cmbFamily)
   
 End
 
@@ -691,11 +714,8 @@ Public Sub txtFilter_KeyPress()
   Dim hScrollArea As Control
   
   If Key.Normal Then
-    If Key.Code = Key.Down Or If Key.Code = Key.Up Then
-      hGridView = tvwFamily.Children[0]
-      hScrollArea = hGridView.Children[0]
-      Object.Raise(hScrollArea, "KeyPress")
-      Stop Event
+    If Key.Code = Key.Down Or If Key.Code = Key.Up Or If Key.Code = Key.PageUp Or If Key.Code = Key.PageDown Then
+      Goto SEND_TO_LIST
     Else If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
       If tvwFamily.Current.Children Then
         hGridView = tvwFamily.Children[0]
@@ -706,7 +726,20 @@ Public Sub txtFilter_KeyPress()
         GetParent()._Activate()
       Endif
     Endif
+  Else If Key.Control Then
+    If Key.Code = Key.Home Or If Key.Code = Key.End Then
+      Goto SEND_TO_LIST
+    Endif
   Endif
+  
+  Return
+  
+SEND_TO_LIST:
+
+  hGridView = tvwFamily.Children[0]
+  hScrollArea = hGridView.Children[0]
+  Object.Raise(hScrollArea, "KeyPress")
+  Stop Event
 
 End
 
@@ -723,3 +756,109 @@ Public Sub Form_Show()
   RefreshFamily
 
 End
+
+Public Sub tvwFamily_Draw(X As Integer, Y As Integer, (Width) As Integer, Height As Integer, (Key) As String, (Column) As Integer)
+  
+  Dim sFont As String
+  Dim hImage As Image
+  Dim sDir As String
+  Dim sPath As String
+  Dim hItem As _TreeView_Item
+  Dim sFontKey As String
+  
+  If Not $bShowFont Then Return
+  hItem = tvwFamily[Key]
+  sFont = hItem.Tag
+  If Not sFont Then Return
+  
+  sFontKey = FontCacheTask.Normalize(sFont)
+  
+  hImage = $cCache[sFontKey]
+
+  If Not hImage Then
+
+    sDir = FontCacheTask.GetDir()
+    sPath = sDir &/ sFontKey & ".png"
+  
+    Try hImage = Image.Load(sPath)
+    If Not hImage Then hImage = FontCacheTask.CreateFontCacheImage(sFont)
+    
+    $cCache[sFont] = hImage
+    
+  Endif
+  
+  Paint.DrawImage(hImage, X + (1 + hItem.Depth) * tvwFamily.Indent, Y + (Height - hImage.H) \ 2)
+  
+  tvwFamily.MoveTo(Key)
+  ' If hItem.Depth = 0 Or If tvwFamily.MoveNext() Then Paint.FillRect(0, Y + Height + Desktop.Scale \ 2 - 1, Width + Desktop.Scale, 1, Color.Merge(Color.LightForeground, Color.TextBackground, 0.8))
+  
+End
+
+Public Sub Form_Close()
+
+  StopCacheTask
+
+End
+
+Public Sub FontCacheTask_Read(Data As String)
+
+  Dim aData As String[]
+  Dim iPos As Integer
+  
+  Data = RTrim(Data)
+  iPos = RInStr(Data, "\n")
+  If iPos Then Data = Mid$(Data, iPos + 1)
+  aData = Split(Data, " ")
+  spnCache.Value = CInt(aData[0]) / CInt(aData[1])
+  
+End
+
+Public Sub FontCacheTask_Kill()
+  
+  spnCache.Stop
+  spnCache.Hide
+  btnRefresh.Show
+  
+End
+
+Public Sub btnRefresh_Click()
+
+  Dim sDir As String
+
+  StopCacheTask
+
+  sDir = Main.GetCacheDir() &/ "gambas3/gb.form/fonts"
+  Try Shell "rm -rf " & Shell(sDir) & "~" Wait
+  Try Move sDir To sDir & "~"
+  Try Shell "rm -rf " & Shell(sDir) & "~" Wait
+  $cCache.Clear
+  
+  StartCacheTask
+
+End
+
+Public Sub Window_Show()
+  
+  StartCacheTask
+  
+End
+
+Public Sub Window_Hide()
+  
+  StopCacheTask
+  
+End
+
+Public Sub Window_State()
+
+  Dim hWin As Window
+  
+  hWin = Last
+  If hWin.Minimized Then
+    StopCacheTask
+  Else
+    StartCacheTask
+  Endif
+  
+End
+

@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,Border,Label,Padding{Range:0;63},Type={Spinner.*}"
+Public Const _Properties As String = "*,Border,Label,Padding{Range:0;63},Margin=False,Type={Spinner.*}"
 Public Const _DefaultSize As String = "8,8"
 
 Public Enum {Line}, Dot, Circle
@@ -14,9 +14,9 @@ Property Label As Boolean
 Property Value As Float
 Property Enabled As Boolean
 Property Padding As Integer
+Property Margin As Boolean
 Property Type As Integer
 
-Private $hDrawingArea As DrawingArea
 Private $fStartTime As Float
 Private $hTimer As Timer
 Private $bBorder As Boolean
@@ -25,19 +25,14 @@ Private $fValue As Float
 Private $fLastWait As Float
 Private $iPadding As Integer
 Private $iType As Integer
-
-Public Sub _new()
-  
-  $hDrawingArea = New DrawingArea(Me) As "DrawingArea"
-  
-End
+Private $bMargin As Boolean
 
 Public Sub Start()
   
   $fStartTime = Timer
   $hTimer = New Timer As "Timer"
   $hTimer.Delay = 50
-  $hDrawingArea.Refresh
+  Me.Refresh
   
 End
 
@@ -60,13 +55,13 @@ Public Sub Wait()
 End
 
 
-Public Sub DrawingArea_Draw()
+Public Sub UserControl_Draw()
   
   'Dim iFlag As Integer
   Dim A As Float
   Dim X As Float
   Dim Y As Float
-  Dim R As Variant
+  Dim R As Float
   Dim D As Float
   Dim I As Integer
   Dim C As Float
@@ -75,6 +70,7 @@ Public Sub DrawingArea_Draw()
   Dim HL As Integer
   Dim iFg As Integer
   Dim XC, YC As Float
+  Dim P As Integer
   
   If Not Me.Design Then
     If $fStartTime = 0 Then Goto DRAW_BORDER
@@ -83,8 +79,13 @@ Public Sub DrawingArea_Draw()
   
   iFg = Style.ForegroundOf(Me)
   
-  W = Paint.W
-  H = Paint.H
+  P = $iPadding
+  If $bMargin Then P += Desktop.Scale
+  
+  W = Paint.W - P * 2
+  H = Paint.H - P * 2
+  
+  Paint.Translate(P, P)
   
   If $bLabel Then
     HL = Paint.Font.Height + Desktop.Scale
@@ -97,7 +98,7 @@ Public Sub DrawingArea_Draw()
       
       Case Circle
       
-        R = Min(W, H) / 2 * 12 / 16 - $iPadding
+        R = Min(W, H) / 2 * 3 / 4
         Paint.LineCap = Paint.LineCapButt
         Paint.LineWidth = R / 2
         
@@ -118,7 +119,7 @@ Public Sub DrawingArea_Draw()
         
         X = W / 2
         Y = H / 2
-        R = Min(W, H) / 2 * 13 / 16 - $iPadding
+        R = Min(W, H) / 2 * 13 / 16
         
         For I = 0 To 15
           
@@ -137,7 +138,7 @@ Public Sub DrawingArea_Draw()
       
         X = W / 2
         Y = H / 2
-        R = Min(W, H) / 2 * 7 / 8 - $iPadding
+        R = Min(W, H) / 2 * 7 / 8
         
         Paint.LineWidth = R / 8
         Paint.LineCap = Paint.LineCapRound
@@ -164,6 +165,8 @@ Public Sub DrawingArea_Draw()
     Paint.DrawText(Format($fValue, "0 %"), 0, Paint.H - HL, Paint.W, HL - Desktop.Scale, Align.Center)
   Endif
   
+  Paint.Translate(-P, -P)
+  
 DRAW_BORDER:
   
   If $bBorder Then Style.PaintPanel(0, 0, Paint.W, Paint.H, Border.Plain) ', iFlag)
@@ -176,7 +179,7 @@ End
 
 Public Sub Timer_Timer()
   
-  $hDrawingArea.Refresh
+  Me.Refresh
   $hTimer.Stop
   
 End
@@ -190,7 +193,7 @@ End
 Private Sub Border_Write(Value As Boolean)
 
   $bBorder = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -203,7 +206,7 @@ End
 Private Sub Label_Write(Value As Boolean)
 
   $bLabel = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -216,7 +219,7 @@ End
 Private Sub Value_Write(Value As Float)
 
   $fValue = Max(0, Min(1, Value))
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -230,7 +233,7 @@ Private Sub Enabled_Write(Value As Boolean)
 
   If Value = Me.Enabled Then Return
   Super.Enabled = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -244,7 +247,7 @@ Private Sub Padding_Write(Value As Integer)
 
   If $iPadding = Value Then Return
   $iPadding = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -256,7 +259,22 @@ End
 
 Private Sub Type_Write(Value As Integer)
 
+  If $iType = Value Then Return
   $iType = Value
+  Me.Refresh
+
+End
+
+Private Function Margin_Read() As Boolean
+
+  Return $bMargin
+
+End
+
+Private Sub Margin_Write(Value As Boolean)
+
+  If $bMargin = Value Then Return
+  $bMargin = Value
   Me.Refresh
 
 End

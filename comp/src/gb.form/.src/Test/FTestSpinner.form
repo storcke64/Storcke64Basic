@@ -6,11 +6,12 @@
   Arrangement = Arrange.Fill
   Margin = True
   { Spinner1 Spinner
-    MoveScaled(11,9,18.25,18.25)
+    MoveScaled(11,9,18,18)
     Font = Font["+4"]
     Foreground = Color.DarkRed
     Border = True
-    Type = Spinner.Dot
+    Margin = True
+    Type = Spinner.Circle
   }
   { Timer1 #Timer
     #MoveScaled(4,3)

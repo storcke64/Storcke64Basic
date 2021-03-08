@@ -1211,7 +1211,7 @@ Public Sub Watcher_Resize()
 End
 
 
-Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, (Key) As String)
+Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, (Key) As String, Optional (Column) As Integer)
 
   'Dim iSize As Long
   'Dim hFont As Font
@@ -1220,6 +1220,8 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Dim dDate As Date
   Dim sDate As String
   Dim sAuth As String
+
+  If Not $hIconView.Visible Then Return
 
   H = $hInfoFont.H
   

@@ -259,6 +259,16 @@ Public Sub Task_Kill()
   Else
     Debug "->";; sStr
   Endif
+End
+
+Public Sub GetCacheDir() As String
   
+  Dim sPath As String = Env["XDG_CACHE_HOME"]
+  If sPath Then 
+    Return sPath 
+  Else 
+    Return User.Home &/ ".cache"
+  Endif
   
 End
+
