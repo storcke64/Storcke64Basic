@@ -86,7 +86,7 @@ Public Sub CompareStringArray(sA As String[], sB As String[]) As Boolean
   Dim bFinalResult As Boolean = True
   Dim sPrintLine As String
   For i As Integer = 0 To IIf(sA.max > sB.max, sA.max, sB.max)
-    Try bResult = (sA[i] = sB[i])
+    Try bResult = (sA[i] == sB[i])
     If Error Then 
          bResult = False
          Error.Clear()
@@ -142,7 +142,7 @@ Public Sub CompareStringContent(sA As String[], sB As String[]) As Boolean
  If bFinalResult = False Then
   Test.Note(Subst("Compare size a=&1, b=&2", sA.count, sB.count))
   For i As Integer = 0 To IIf(sA.max > sB.max, sA.max, sB.max)
-    Try bResult = (sA[i] = sB[i])
+    Try bResult = (sA[i] == sB[i])
     If Error Then 
          bResult = False
          Error.Clear()

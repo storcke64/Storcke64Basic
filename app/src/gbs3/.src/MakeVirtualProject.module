@@ -27,10 +27,10 @@ Public Sub _Call($oContext As Context, sPath As String) As String
   ' sPrjFileContent &= "Title=Gambas Script\n"
   '  sPrjFileContent &= "Startup=MMain\n"
 
-  $oContext.$sPreambleHeader = "' Gambas module file version(" & Application.version & ")\n"
+  $oContext.$sPreambleHeader = "' Gambas module file\n"
 
   If $oContext.$bExecuteFromArgs Then
-    GenerateFilesFromArgs($oContext, sPath)
+    GenerateFilesFromArgs($oContext, sPath, $sPrjPath)
   Else
     GenerateFiles($oContext, sPath, $sPrjPath)
   Endif

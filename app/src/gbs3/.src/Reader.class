@@ -49,7 +49,7 @@ Private aWarnings As New String[]                                               
 ' Public bUnsafe As Boolean = False                                                 ' Found an unsafe compiler option 
 Private $oContext As Context                                                             ' all the global variables
 
-Public Sub _New(cContext As Context, Optional SourceFile As String = "")
+Public Sub _New(cContext As Context, Optional SourceFile As String = "", Sourceprogram As String = "")
   Dim SourceBuffer As String
   
   $oContext = cContext                                                                         ' Access to global variables
@@ -57,7 +57,9 @@ Public Sub _New(cContext As Context, Optional SourceFile As String = "")
   sDefaultFilePath = File.Dir(SourceFile)                                         ' Set the default file path to use for includes
   sSourceFile = SourceFile
   
-  If SourceFile = "" Then 
+  If SourceProgram <> "" Then                                                           ' Updated to correctly process -e thru full process for -e < filename cases
+     SourceBuffer = SourceProgram
+  Else If SourceFile = "" Then 
       SourceBuffer = GetStdio()
   Else
      $oContext.$aIncFiles.Add(SourceFile)

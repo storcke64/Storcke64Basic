@@ -11,7 +11,10 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
   Dim cReader As Reader
   Dim cDef As ClassDef
 
-  If $oContext.$bScriptSourceStdIn And Not $oContext.$bWebPage Then
+  If $oContext.$bExecuteFromArgs Then 
+    Verbose("Begin Script Process : from args or -e < ")
+    cReader = New Reader($oContext, "", Path)
+  Else If $oContext.$bScriptSourceStdIn And Not $oContext.$bWebPage Then
     Verbose(("Begin Script Process : Read From StdIn"))
     cReader = New Reader($oContext, "")
   Else
@@ -71,7 +74,7 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
         CompileError(Path, 1, "Script Contains Public or Sub Definitions Without Having a  'Public Sub main()' defined")
       Endif
     Else
-      $oContext.$sFinalProgram = "'Gambas Module File\nPublic Sub main()\n" & cReader.GetProgram() & "\nEnd\n"
+      $oContext.$sFinalProgram = "Public Sub main()\n" & cReader.GetProgram() & "\nEnd\n"
     Endif
   Endif
   
