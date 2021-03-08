@@ -33,7 +33,7 @@ Public Sub Main() As Integer
   If Not .$bTestMode Then        ' for testmode the test suite will set the parameters and paths
     $sPath = ParseArgs($oContext)
     
-   ' If IsNull($sPath) Then
+   If ParseArgs.$bExit Then
   '    Quit 0
   '  Endif
     
