@@ -4,6 +4,7 @@
 
 Private $sCommand As String = System.Path &/ "bin/gbc" & System.Version
 Private $sBuffer As String
+Public GoodCompile As Boolean = False
 
 Public Sub _call(Parameters As String, ProjectPath As String) As String
 
@@ -15,6 +16,13 @@ Public Sub _call(Parameters As String, ProjectPath As String) As String
     Error.Raise("Compiler error:" & Error.text)
   Endif
   mmProc.Wait()
+  
+  If mmProc.value = 0 Then 
+    GoodCompile = True
+  Else 
+    GoodCompile = False
+  Endif
+  Verbose("Compile exit code=" & mmProc.Value)
   Return $sBuffer
 
 End

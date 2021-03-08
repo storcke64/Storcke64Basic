@@ -30,7 +30,7 @@ Public $sUse As String                                               ' List of t
 Public $aIncFiles As New String[]                           ' files to be included
 
 Public $bNoCache As Boolean                                 ' turns off script compiled version caching, or ignores the cache already there
-Public $bVerbose As Boolean                                  ' Turns on the verbose, out put of the script compiler
+Public $bVerbose As Boolean = False                    ' Turns on the verbose, out put of the script compiler
 Public $bWarning As Boolean                                  ' added to support warings to be displayed
 Public $bWebPage As Boolean                                ' Used to indicate if we are Building a web page project
 

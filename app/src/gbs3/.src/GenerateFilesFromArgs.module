@@ -4,7 +4,7 @@
 ' Public $cNativeTypes As Collection = ["i": "Integer", "s": "String", "f": "Float", "d": "Date", "b": "Boolean", "v": "Variant", "o": "Object", "l": "Long", "p": "Pointer"]
 ' Public $aVarsDecl As New Collection                    ' Used by preprocessor to store generated variable definitions
 
-Public Sub _Call($oContext As Context, sLine As String)
+Public Sub _Call($oContext As Context, sLine As String, sPrjPath As String)
 
   Dim bCrochetOuvert As Boolean
   Dim s As String
@@ -36,7 +36,9 @@ Public Sub _Call($oContext As Context, sLine As String)
     sCode &= s
 
   Next
-
+  sCode &= "\n"
+  $oContext.$bExecuteFromArgs = True
+  GenerateFiles($oContext, sCode, sPrjPath)
   ' $aVarsDecl.Clear()
 
   ' If $oContext.$bPrecompiler Then
@@ -55,10 +57,11 @@ Public Sub _Call($oContext As Context, sLine As String)
   ' Endif
 
   'scode = "Public Sub Main()\n" & aDims.Join("\n") & "\n" & sCode
-  scode = "Public Sub Main()\n" & sCode & "\nEnd\n"
+ '  scode = "Public Sub Main()\n" & sCode & "\nEnd\n"
 
-  $oContext.$sFinalProgram &= sCode
-
+ ' $oContext.$sFinalProgram &= sCode
+ 
+ 
 End
 
 'Public Function PrecompileLine(sLine As String) As String

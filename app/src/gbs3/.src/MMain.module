@@ -24,6 +24,7 @@ Public Sub Main() As Integer
   Dim sCacheDir As String = File.Dir(File.Dir(Temp$())) &/ "script-cache"
   Dim sRes As String
   Dim bCompile As Boolean
+  
  With $oContext 
   ' System.language = "fr_FR"
 
@@ -32,7 +33,7 @@ Public Sub Main() As Integer
   If Not .$bTestMode Then        ' for testmode the test suite will set the parameters and paths
     $sPath = ParseArgs($oContext)
     
-    If IsNull($sPath) Then
+   If ParseArgs.$bExit Then
       Quit 0
     Endif
     
@@ -41,9 +42,9 @@ Public Sub Main() As Integer
   sName = File.Name($sPath)
 
   If Not $sPath Then
-
+    verbose("Reading from default Stdin")
     $sPath = Read Lof(File.In)           ' This is invoked when cmd line is like  ' gbs -e < filename'
-
+    verbose(" Input read :\n" & $sPath)
     If Not $sPath Then
       Warning(("no input file specified"), True)
       Return 1
@@ -111,25 +112,31 @@ Public Sub Main() As Integer
     Endif
 
     $sPrjPath = MakeVirtualProject($oContext, $sPath)
-  
+    
+    If $sPath = "-" Then
+      $sPath = "mStdIoSource"
+      sName = $sPath
+      $oContext.$aIncFiles.push($sPath)
+    Endif 
+     
     Dim parmstring As String = "-a"
     If $oContext.$bdebug Then parmstring &= "g"
     If $oContext.$bWarning Then parmstring &= "w"
-    If $oContext.$bVerbose Then Parmstring &= "v"
+    'If $oContext.$bVerbose Then Parmstring &= "v"
 
 
     Verbose(System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1")
     'Shell (System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $oContext.$sPrjPath & " 2>&1") To sRes
     sRes = Compile(parmstring, $sPrjPath)
-
-    Dim sResLines As String[] = Split(sRes, "\n", "", True)   ' added to only check the last line from compiler, ignore all others
-    If sResLines[sResLines.max] <> "OK" Then
-      
+    'Dim sResLines As String[] = Split(sRes, "\n", "", True)   ' added to only check the last line from compiler, ignore all others
+    If Not Compile.GoodCompile Then
+    '  Error sRes
       If Not $oContext.$bTerseListing Then 
-          Error sRes
           Print File.Load($sPrjPath &/ ".project")
       Endif
+      
       Print MakeListing($oContext, $sPrjPath, sRes)
+      
       Return 1
     Endif
 
@@ -152,15 +159,14 @@ Public Sub Main() As Integer
     $aAppArgs.Insert(RunParms, 0)
   
     Verbose($aAppArgs.Join(" "))
-    If $oContext.$bVerbose Then
-      Print "***************** Script Output Begins Bellow This Line **************************"
-    Endif
+    verbose("***************** Script Output Begins Bellow This Line **************************")
     If $oContext.$bTestMode Then
       Exec $aAppArgs To $oContext.$sTestModeCapture
     Else
       Exec $aAppArgs Wait
     Endif
-
+    verbose("***************** Script Output Ends  **************************")
+    
     If Process.LastState = Process.Crashed Then
       Warning(("Script had Segmentation fault, Code=" & Process.LastValue), True)
     Endif

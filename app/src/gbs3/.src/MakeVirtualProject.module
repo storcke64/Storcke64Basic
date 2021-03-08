@@ -30,11 +30,12 @@ Public Sub _Call($oContext As Context, sPath As String) As String
   $oContext.$sPreambleHeader = "' Gambas module file\n"
 
   If $oContext.$bExecuteFromArgs Then
-    GenerateFilesFromArgs($oContext, sPath)
+    GenerateFilesFromArgs($oContext, sPath, $sPrjPath)
   Else
     GenerateFiles($oContext, sPath, $sPrjPath)
   Endif
   
+  If $oContext.$bExport Then $oContext.$sCompilerOptions &= "Export\n"
   If $oContext.$bFast Then
     $oContext.$sCompilerOptions &= "Fast"
     If $oContext.$bUnsafe Then $oContext.$sCompilerOptions &= " Unsafe"
@@ -68,11 +69,11 @@ Public Sub _Call($oContext As Context, sPath As String) As String
 
   Verbose(".project File\n" & sPrjFileContent)
   File.Save($sPrjPath &/ ".project", sPrjFileContent)
-  Print #$hOutFile, $oContext.$sPreambleHeader
-  Print #$hOutFile, $oContext.$sCompilerOptions
-  Print #$hOutFile, $oContext.$sStructures
-  Print #$hOutFile, $oContext.$sProgramHeader
-  Print #$hOutFile, $oContext.$sFinalProgram
+  If $oContext.$sPreambleHeader <> "" Then Print #$hOutFile, $oContext.$sPreambleHeader
+  If $oContext.$sCompilerOptions <> "" Then Print #$hOutFile, $oContext.$sCompilerOptions
+  If $oContext.$sStructures <> "" Then Print #$hOutFile, $oContext.$sStructures
+  If $oContext.$sProgramHeader <> "" Then Print #$hOutFile, $oContext.$sProgramHeader
+  If $oContext.$sFinalProgram <> "" Then Print #$hOutFile, $oContext.$sFinalProgram
   Close $hOutFile
   
   Return $sPrjPath

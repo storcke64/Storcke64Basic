@@ -1,7 +1,7 @@
 ' Gambas module file
 
 Enum eVersion, eLicense, eHelp, eNoCache, eDebug, eVerbose, eExec, eFast, eUnsafe, eTrace, eUse, eWarnings, eBuildOnly, eList, eStdio, eLazyStrict, eTerseListing, eConvertProject
-$bExit As Boolean = False
+Public $bExit As Boolean = False
 
 Public $cPossibleArgs As Collection = [
                            "-V": eVersion, "--version": eVersion,
