@@ -24,6 +24,7 @@ Public Sub Main() As Integer
   Dim sCacheDir As String = File.Dir(File.Dir(Temp$())) &/ "script-cache"
   Dim sRes As String
   Dim bCompile As Boolean
+  
  With $oContext 
   ' System.language = "fr_FR"
 
@@ -111,7 +112,13 @@ Public Sub Main() As Integer
     Endif
 
     $sPrjPath = MakeVirtualProject($oContext, $sPath)
-  
+    
+    If $sPath = "-" Then
+      $sPath = "mStdIoSource"
+      sName = $sPath
+      $oContext.$aIncFiles.push($sPath)
+    Endif 
+     
     Dim parmstring As String = "-a"
     If $oContext.$bdebug Then parmstring &= "g"
     If $oContext.$bWarning Then parmstring &= "w"
