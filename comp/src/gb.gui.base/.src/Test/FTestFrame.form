@@ -1,10 +1,11 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,64,64)
+  MoveScaled(0,0,102,64)
   { MyFrame1 Frame
-    MoveScaled(4,10,41,32)
+    MoveScaled(4,10,43,42)
     Text = ("Ceci est le titre de la frame et il peut être long mais très long en fait")
+    TextFont = Font["Bold"]
     { Button1 Button
       MoveScaled(5,5,15,5)
     }

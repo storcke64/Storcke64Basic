@@ -19,6 +19,7 @@ Property Background As Integer
 Property Foreground As Integer
 Property Font As Font
 Property Tag As Variant
+Property Read Depth As Integer
 
 Private $sKey As String
 Private $sParent As String
@@ -300,7 +301,7 @@ Private Sub Expanded_Write(Value As Boolean)
 
   hTree._RestoreSelection
   
-  If Value Then hTree._EnsureVisible(Me, True)
+  hTree._EnsureVisible(Me, Value)
   
   hTree._RaiseExpand($sKey, $bExpanded)
   
@@ -617,5 +618,11 @@ Private Sub Height_Write(Value As Integer)
   hTree = GetTree()
   hTree._UpdateItemHeight(Me)
   hTree._RefreshView
+
+End
+
+Private Function Depth_Read() As Integer
+
+  Return _Depth
 
 End

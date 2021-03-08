@@ -78,10 +78,10 @@ Public Sub Frame_Draw()
     Paint.Background = Color.LightForeground
 
     Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
-    Paint.LineTo(DS \ 2, H \ 2)
-    Paint.LineTo(DS \ 2, $hFrame.H - DS \ 2)
-    Paint.LineTo($hFrame.W - DS \ 2, $hFrame.H - DS \ 2)
-    Paint.LineTo($hFrame.W - DS \ 2, H \ 2)
+    Paint.LineTo(0, H \ 2)
+    Paint.LineTo(0, $hFrame.H - 1)
+    Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+    Paint.LineTo($hFrame.W - 1, H \ 2)
     Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
     Paint.LineWidth = 1
     Paint.AntiAlias = False

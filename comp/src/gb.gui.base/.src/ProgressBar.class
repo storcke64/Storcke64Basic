@@ -14,21 +14,12 @@ Property Value As Float
 Property Pulse As Boolean
 Property Border As Boolean
 
-Private $hDrawingArea As DrawingArea
 Private $fValue As Float
 Private $bLabel As Boolean = True
 Private $bPulse As Boolean
 Private $iPulse As Integer
 Private $hTimerPulse As Timer
 Private $bBorder As Boolean = True
-
-Public Sub _new()
-  
-  $hDrawingArea = New DrawingArea(Me) As "DrawingArea"
-  Me.Proxy = $hDrawingArea
-  
-End
-
 
 Private Function Label_Read() As Boolean
 
@@ -39,7 +30,7 @@ End
 Private Sub Label_Write(Value As Boolean)
 
   $bLabel = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End
 
@@ -53,12 +44,16 @@ End
 Private Sub Value_Write(Value As Float)
 
   If $bPulse Then Return
-  $fValue = Max(0, Min(1, Value))
-  $hDrawingArea.Refresh
+  
+  Value = Max(0, Min(1, Value))
+  If Value = $fValue Then Return
+  $fValue = Value
+  
+  Me.Refresh
 
 End
 
-Public Sub DrawingArea_Draw()
+Public Sub UserControl_Draw()
   
   Dim F As Integer '= 2 'Max(4, Style.FrameWidth + 2)
   Dim iWP As Integer
@@ -170,7 +165,7 @@ Public Sub Pulse_Timer()
     $iPulse = -1
   Endif
   
-  $hDrawingArea.Refresh
+  Me.Refresh
   
 End
 
@@ -183,6 +178,6 @@ End
 Private Sub Border_Write(Value As Boolean)
 
   $bBorder = Value
-  $hDrawingArea.Refresh
+  Me.Refresh
 
 End

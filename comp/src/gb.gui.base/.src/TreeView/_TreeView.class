@@ -26,6 +26,8 @@ Property ScrollY As Integer
 Property Read ScrollW, ScrollWidth As Integer
 Property Read ScrollH, ScrollHeight As Integer
 
+Property Read Indent As Integer
+
 Event Click
 Event Activate
 Event Select
@@ -36,6 +38,7 @@ Event Cancel
 Event Compare(Key As String, OtherKey As String)
 Event BeforeSort
 Event Scroll
+Event Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Key As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
 
@@ -509,8 +512,15 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
   Dim HA As Float
   Dim bHasNext As Boolean
   Dim hParent As _TreeView_Item
+  Dim bStopEvent As Boolean
   
   If Not hItem Then Return
+  
+  bStopEvent = Raise Draw(X, Y, W, H, hItem.Key, Column)
+  If bStopEvent Then
+    Stop Event
+    Return
+  Endif
   
   If Column = 0 Then
   
@@ -653,14 +663,15 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         If hItem.Count Then
           
           Paint.Background = Color.LightForeground
-          HA = H / 2
-          If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
-          WA = HA
+          'HA = H / 2
+          'If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
+          WA = Min(H, $iDepthW \ 2)
+          HA = WA
           XA = X + ($iDepthW - WA) / 2
           YA = Y + (H - HA) / 2
+          Paint.LineWidth = HA / 6
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
           Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
-          Paint.LineWidth = $iDepthW / 12
           Paint.LineCap = Paint.LineCapRound
           Paint.Stroke
           
@@ -1858,4 +1869,10 @@ Public Sub _RefreshPicture()
     Picture._Refresh(ByRef hItem.Picture)
   Next
   
+End
+
+Private Function Indent_Read() As Integer
+
+  Return $iDepthW
+
 End
