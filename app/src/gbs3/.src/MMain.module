@@ -34,8 +34,8 @@ Public Sub Main() As Integer
     $sPath = ParseArgs($oContext)
     
    If ParseArgs.$bExit Then
-  '    Quit 0
-  '  Endif
+      Quit 0
+    Endif
     
   Endif
 
