@@ -506,7 +506,7 @@ Private Sub Background_Write(Value As Integer)
   If Value = Color.Default Then
     $hTextBox.Background = Color.TextBackground
   Else
-    $hTextBox.Background = Color.Default
+    $hTextBox.Background = Value
   Endif
 
 End
