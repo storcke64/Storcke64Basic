@@ -160,8 +160,10 @@ Private Sub TokenizeFile(SourceBuffer As String)
           If Highlight.Types.count > 2 Then
                aWarnings.Add("Warning : Defined without main : " & Highlight.Symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
              bPublicOrSubDef = True
+             GlobalItemPosition.Add(ProgramLines.count)
           Else If $oContext.$bFast = True Then   ' already defined
-               Verbose("FAST Duplicate Definition at " & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last)
+               Warning("FAST Duplicate Definition at " & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last)
+               sLine = "' " & sLine
           Else If Highlight.types.count = 1 Then
              Verbose("FAST(Jit) activated for Module:" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last)
              $oContext.$bFast = True
@@ -395,11 +397,12 @@ Public Sub ProcessInclude(Includes As String[], atypes As Integer[], sDefaultPat
     Endif
     
     If cIncludedFiles[sFilePath] Then Continue                                  ' we only include things once
+    Verbose("Including script file :  " & sFilePath & " From File : " & cIncludeStack[cIncludeStack.max] & "." & CurrentLineNumber.last)
     
-    If cIncludeStack.Find(sFilePath) > 0 Then
-       CompileError(cIncludeStack.last, CurrentLineNumber.last, "Include \"" & sFilePath & "\" Circular Refrence")
+    If cIncludeStack.Find(sFilePath) > -1 Then
+       Warning(cIncludeStack.last & ":" & CurrentLineNumber.last & ":" & "Include \"" & sFilePath & "\" Circular Refrence")
+       Continue
     Else
-       Verbose("Including script file :  " & sFilePath & " From File : " & cIncludeStack[cIncludeStack.max] & "." & CurrentLineNumber.last)
        cIncludeStack.Push(sFilePath)
     Endif
    
