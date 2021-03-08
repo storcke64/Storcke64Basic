@@ -38,8 +38,6 @@ Public Sub _new()
   StylePanel = panStyle
   Preview = txtExample
   
-  txtFamily.Foreground = Color.Merge(Color.LightForeground, Color.Foreground)
-  
   SetFont("")
   
   $hObs = New Observer(Me.Window) As "Window"
@@ -395,6 +393,7 @@ Public Function GetFont() As String
   Dim sFont As String
   
   sFont = Family
+  If IsDigit(sFont) Then sFont = Quote(sFont)
   If Bold Then sFont &= ",Bold"
   If Italic Then sFont &= ",Italic"
   If Underline Then sFont &= ",Underline"
@@ -425,14 +424,14 @@ Private Sub RefreshExample()
   
   If panExample.Visible Then
     
-    txtFamily.Text = Family
+    txtFamily.Text = "  " & Family
     txtExample.Font = Font[sFont]
     
     If cmbFamily.Visible Then
       panExample.Expand = True
     Else
       panExample.Expand = False
-      panExample.H = Max(Desktop.Scale * 8, Min(Desktop.Scale * 16, txtExample.Font.Height * 2)) + txtFamily.H + 1 + Desktop.Scale * 2
+      panExample.H = Max(Desktop.Scale * 8, Min(Desktop.Scale * 16, txtExample.Font.Height * 2)) + Desktop.Scale * 2
     Endif
     
   Endif
@@ -562,7 +561,7 @@ Public Sub sldSize_Change()
   
 End
 
-Public Sub panFont_Arrange()
+Public Sub panFont_BeforeArrange()
   
   If (panFont.W - txtSize.W - sldSize.X) < 64 Then
     sldSize.Hide
@@ -626,41 +625,42 @@ Public Sub panBorder_BeforeArrange()
   If panBorder.H < (Desktop.Scale * 32) Then
     
     If tvwFamily.Visible Then
+      
       tvwFamily.Hide
-      sepFamily.Hide
-      sepToolbar.Hide
+      panFilter.Hide
+      txtFamily.Hide
+
       cmbFamily.Show
       cmbFamily.Lower
-      panFilter.Hide
+
       StopCacheTask
       RefreshFamily
+      
     Endif
     
     If panBorder.H < (Desktop.Scale * 18) Then
-      sepToolbar.Hide
       panExample.Hide
-      sepExample.Hide
     Else
       panExample.Show
-      sepExample.Show
-      sepToolbar.Show
     Endif
     
   Else
     
     If cmbFamily.Visible Then
       cmbFamily.Hide
+      txtFamily.Show
       panExample.Show
-      sepExample.Show
       tvwFamily.Show
-      sepFamily.Show
-      sepToolbar.Show
       panFilter.Show
       RefreshFamily
       StartCacheTask
     Endif
     
   Endif
+  
+  sepFilter.Visible = panFilter.Visible
+  sepTree.Visible = tvwFamily.Visible And panExample.Visible
+  sepToolbar.Visible = tvwFamily.Visible Or panExample.Visible
   
   RefreshExample
   
@@ -862,3 +862,15 @@ Public Sub Window_State()
   
 End
 
+
+Public Sub txtSize_GotFocus()
+
+  txtSize.Background = Color.Default
+
+End
+
+Public Sub txtSize_LostFocus()
+
+  txtSize.Background = Color.Background
+
+End
