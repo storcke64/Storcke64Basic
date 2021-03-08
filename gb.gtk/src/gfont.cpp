@@ -47,13 +47,7 @@ static void set_font_from_string(gFont *font, const char *str)
 	gchar *copy, *elt;
 	int grade;
 	double size;
-	
-	/*font->setBold(false);
-	font->setItalic(false);
-	font->setUnderline(false);
-	font->setStrikeOut(false);
-	font->setName(gDesktop::font()->name());
-	font->setSize(gDesktop::font()->size());*/
+	int len;
 	
 	if (!str || !*str)
 		return;
@@ -91,6 +85,13 @@ static void set_font_from_string(gFont *font, const char *str)
 				font->setItalic(false);
 				font->setUnderline(false);
 				font->setStrikeout(false);
+				
+				len = strlen(elt);
+				if (len > 2 && elt[0] == '"' && elt[len - 1] == '"')
+				{
+					elt[len - 1] = 0;
+					elt++;
+				}
 				font->setName(elt);
 			}
 		}
@@ -102,11 +103,8 @@ static void set_font_from_string(gFont *font, const char *str)
 }
 
 
-/********************************************************************************
+//-------------------------------------------------------------------------
 
-gFont
-
-*********************************************************************************/
 static int FONT_n_families;
 GList *FONT_families = NULL;
 
@@ -122,17 +120,19 @@ void gFont::init()
 	ct = gdk_pango_context_get();
 	pango_context_list_families(ct, &_families, &FONT_n_families);
 	
-	for (bucle=0;bucle<FONT_n_families;bucle++)
+	for (bucle = 0; bucle<FONT_n_families; bucle++)
 	{
-		buf1=(char*)pango_font_family_get_name (_families[bucle]);
-		if (buf1){
-		buf2=(char*)g_malloc(sizeof(char)*(strlen(buf1)+1));
-		strcpy(buf2,buf1);
-		FONT_families=g_list_prepend (FONT_families,buf2);
-	}
+		buf1 = (char *)pango_font_family_get_name(_families[bucle]);
+		if (buf1)
+		{
+			buf2 = (char *)g_malloc(sizeof(char)*(strlen(buf1)+1));
+			strcpy(buf2,buf1);
+			FONT_families = g_list_prepend (FONT_families,buf2);
+		}
 	}
 	
-	if (FONT_families) FONT_families=g_list_sort(FONT_families,(GCompareFunc)strcasecmp);
+	if (FONT_families)
+		FONT_families = g_list_sort(FONT_families, (GCompareFunc)strcasecmp);
 	
 	g_free(_families);
 	g_object_unref(G_OBJECT(ct));
@@ -142,11 +142,11 @@ void gFont::exit()
 {
 	GList *iter;
 	
-	iter=FONT_families;
+	iter = FONT_families;
 	
 	if (iter)
 	{
-		iter=g_list_first(iter);
+		iter = g_list_first(iter);
 		while (iter)
 		{
 			g_free(iter->data);
@@ -169,9 +169,9 @@ int gFont::count()
 const char *gFont::familyItem(int pos)
 {
 	if (!FONT_families) gFont::init();
-	if ( (pos<0) || (pos>=FONT_n_families) ) return NULL; 
+	if ( (pos < 0) || (pos >= FONT_n_families) ) return NULL; 
 	
-	return (const char*)g_list_nth (FONT_families,pos)->data;
+	return (const char *)g_list_nth(FONT_families, pos)->data;
 }
 
 #if 0
@@ -517,9 +517,18 @@ void gFont::setGrade(int grade)
 
 const char *gFont::toString()
 {
-	GString *desc = g_string_new(name());
+	char *family;
+	GString *desc;
 	char *ret;
 	int s;
+	
+	desc = g_string_new(NULL);
+	
+	family = name();
+	if (isdigit(*family) && atof(family))
+		g_string_append_printf(desc, "\"%s\"", family);
+	else
+		g_string_append(desc, family);
 	
 	s = (int)(size() * 10 + 0.5);
 	

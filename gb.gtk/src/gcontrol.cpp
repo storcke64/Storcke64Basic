@@ -719,12 +719,6 @@ bool gControl::resize(int w, int h, bool no_decide)
 			h = height();
 	}
 
-	/*if (w < minimumWidth())
-		w = minimumWidth();
-
-	if (h < minimumHeight())
-		h = minimumHeight();*/
-	
 	if (w < 0) w = 0;
 	if (h < 0) h = 0;
 

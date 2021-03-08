@@ -327,6 +327,9 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						if (!ob || IS_IGNORE(ob))
 							continue;
 						
+						/*if (!::strcmp(GET_OBJECT_NAME(_object), "panFont"))
+							fprintf(stderr, "CCONTAINER_arrange: %s: child: %s\n", GET_OBJECT_NAME(_object), GET_OBJECT_NAME(ob));*/
+
 						if (IS_EXPAND(ob))
 							nexp++;
 						else
@@ -381,6 +384,9 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 					
 					RESET_CHILDREN_LIST();
 					wid = 0;
+					
+					/*if (!::strcmp(GET_OBJECT_NAME(_object), "panFont"))
+						fprintf(stderr, "CCONTAINER_arrange: %s: %d %d / %d x %d / nexp = %d\n", GET_OBJECT_NAME(_object), xc, yc, wc, hc, nexp);*/
 
 					for(;;)
 					{

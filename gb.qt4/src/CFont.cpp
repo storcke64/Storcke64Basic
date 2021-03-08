@@ -156,6 +156,8 @@ static void set_font_from_string(CFONT *_object, QString &str)
 				f.setItalic(false);
 				f.setUnderline(false);
 				f.setStrikeOut(false);
+				if (elt.startsWith('"') && elt.endsWith('"'))
+					elt = elt.mid(1, elt.length() - 2);
 				f.setFamily(elt);
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
 				f.setStyleName("");
@@ -219,27 +221,46 @@ static void CFONT_manage(int prop, CFONT *_object, void *_param)
 	{
 		switch(prop)
 		{
-			case CFONT::Name: GB.ReturnNewZeroString(f->family().toUtf8()); break;
+			case CFONT::Name: 
+				GB.ReturnNewZeroString(f->family().toUtf8());
+				break;
+			
 			case CFONT::Size:
 				if (noResize)
 					GB.ReturnFloat(f->pointSizeF());
 				else
 					GB.ReturnFloat(SIZE_REAL_TO_VIRTUAL(f->pointSizeF()));
 				break;
+				
 			case CFONT::Grade:
 				GB.ReturnInteger(SIZE_TO_GRADE(f->pointSizeF(), qApp->font().pointSizeF()));
 				break;
-			case CFONT::Bold: GB.ReturnBoolean(f->bold()); break;
-			case CFONT::Italic: GB.ReturnBoolean(f->italic()); break;
-			case CFONT::Underline: GB.ReturnBoolean(f->underline()); break;
-			case CFONT::Strikeout: GB.ReturnBoolean(f->strikeOut()); break;
+				
+			case CFONT::Bold:
+				GB.ReturnBoolean(f->bold());
+				break;
+			
+			case CFONT::Italic:
+				GB.ReturnBoolean(f->italic());
+				break;
+			
+			case CFONT::Underline:
+				GB.ReturnBoolean(f->underline());
+				break;
+			
+			case CFONT::Strikeout:
+				GB.ReturnBoolean(f->strikeOut());
+				break;
 		}
 	}
 	else
 	{
 		switch (prop)
 		{
-			case CFONT::Name: f->setFamily(GB.ToZeroString(PROP(GB_STRING))); break;
+			case CFONT::Name:
+				f->setFamily(GB.ToZeroString(PROP(GB_STRING)));
+				break;
+				
 			case CFONT::Size:
 				if (noResize)
 					size = VPROP(GB_FLOAT);
@@ -254,6 +275,7 @@ static void CFONT_manage(int prop, CFONT *_object, void *_param)
 				
 				f->setPointSizeF(size);
 				break;
+				
 			case CFONT::Grade:
 				{
 					int g = VPROP(GB_INTEGER);
@@ -264,10 +286,22 @@ static void CFONT_manage(int prop, CFONT *_object, void *_param)
 					f->setPointSizeF(GRADE_TO_SIZE(g, qApp->font().pointSizeF()));
 				}
 				break;
-			case CFONT::Bold: f->setBold(VPROP(GB_BOOLEAN)); break;
-			case CFONT::Italic: f->setItalic(VPROP(GB_BOOLEAN)); break;
-			case CFONT::Underline: f->setUnderline(VPROP(GB_BOOLEAN)); break;
-			case CFONT::Strikeout: f->setStrikeOut(VPROP(GB_BOOLEAN)); break;
+				
+			case CFONT::Bold:
+				f->setBold(VPROP(GB_BOOLEAN));
+				break;
+				
+			case CFONT::Italic:
+				f->setItalic(VPROP(GB_BOOLEAN));
+				break;
+				
+			case CFONT::Underline:
+				f->setUnderline(VPROP(GB_BOOLEAN));
+				break;
+				
+			case CFONT::Strikeout:
+				f->setStrikeOut(VPROP(GB_BOOLEAN));
+				break;
 		}
 
 		if (THIS->func)
@@ -341,9 +375,16 @@ BEGIN_METHOD_VOID(Font_ToString)
 	QFont *f = THIS->font;
 	QString str;
 	double size;
+	QString family;
+	bool number;
 
 	//str = qfont.family().left(1).upper() + qfont.family().mid(1).lower() + " " + QString::number(qfont.pointSize());
-	add(str, f->family());
+	family = f->family();
+	family.toDouble(&number);
+	if (number)
+		str = '"' + str + '"';
+	add(str, family);
+	
 	size = SIZE_REAL_TO_VIRTUAL(f->pointSizeF());
 	size = (double)((int)(size * 10 + 0.5)) / 10;
 	add(str, QString::number(size));

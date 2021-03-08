@@ -350,8 +350,8 @@ void CCONTAINER_arrange(void *_object)
 	#if DEBUG_CONTAINER
 	static int level = 0;
 	
-	if (!level)
-		_count_move = _count_resize = _count_set_geom = 0;
+	//if (!level)
+	//	_count_move = _count_resize = _count_set_geom = 0;
 	level++;
 	#endif
 
@@ -360,11 +360,19 @@ void CCONTAINER_arrange(void *_object)
 	_cache_level++;
 	#endif
 
+	/*for (int i = 1; i < level; i++)
+		fputs("  ", stderr);
+	fprintf(stderr, "CCONTAINER_arrange: [%d], %s: %d %d / %d x %d\n", level, THIS->widget.name, WIDGET->x(), WIDGET->y(), WIDGET->width(), WIDGET->height());*/
+	
 	if (GB.Is(THIS, CLASS_TabStrip))
 		CTABSTRIP_arrange(THIS);
 
 	CCONTAINER_arrange_real(_object);
 	
+	/*for (int i = 1; i < level; i++)
+		fputs("  ", stderr);
+	fprintf(stderr, "CCONTAINER_arrange: [%d], %s: <<<<<<<<\n", level, THIS->widget.name);*/
+
 	#if USE_CACHE
 	_cache_level--;
 	
@@ -380,11 +388,11 @@ void CCONTAINER_arrange(void *_object)
 
 	#if DEBUG_CONTAINER
 	level--;
-	if (!level)
+	/*if (!level)
 	{
 		if (_count_move || _count_resize || _count_set_geom)
 			qDebug("CCONTAINER_arrange: (%s %s): move = %d  resize = %d  setGeometry = %d", GB.GetClassName(THIS), THIS->widget.name, _count_move, _count_resize, _count_set_geom);
-	}
+	}*/
 	#endif
 }
 
