@@ -131,7 +131,6 @@ Public Sub Save()
   Dim hFile As File
   Dim vVal As Variant
   Dim sTemp As String
-  Dim hLock As File
   Dim cModify As Collection
   Dim sSlot As String
 
@@ -146,9 +145,8 @@ Public Sub Save()
 
   $bModify = False
   
-  hLock = Lock $sPath & ".lock" Wait 2
-  
-  sTemp = $sPath & "#"
+  sTemp = $sPath & "." & CStr(Application.Id) & "~"
+  Try Kill sTemp
 
   If Not $bModifyAll Then
 
@@ -192,18 +190,8 @@ Public Sub Save()
   Next
 
   Close #hFile
-  Try Kill $sPath & "~"
-  Try Move $sPath To $sPath & "~"
-  Try Move sTemp To $sPath
   
-  '$dDateLoad = Stat($sPath).LastModified
-
-Finally
-
-  If Exist($sPath & ".lock") Then Try Kill $sPath & ".lock"
-  If Exist(sTemp) Then Try Kill sTemp
-  If Exist($sPath & "~") Then Try Kill $sPath & "~"
-  Try Unlock #hLock
+  Try Move sTemp Kill $sPath
   
 Catch
   
