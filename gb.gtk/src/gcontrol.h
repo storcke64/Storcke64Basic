@@ -129,7 +129,7 @@ public:
 	bool isTracking() const;
 	void setTracking(bool vl);
 	
-	bool isNoTabFocus() const { return _no_tab_focus; }
+	bool isNoTabFocus() const;
 	void setNoTabFocus(bool v);
 
 	gColor background() const { return _bg; }

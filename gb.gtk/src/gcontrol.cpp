@@ -2596,10 +2596,24 @@ bool gControl::setProxy(gControl *proxy)
 
 void gControl::setNoTabFocus(bool v)
 {
+	if (_proxy)
+	{
+		_proxy->setNoTabFocus(v);
+		return;
+	}
+	
 	if (_no_tab_focus == v)
 		return;
 
 	_no_tab_focus = v;
+}
+
+bool gControl::isNoTabFocus() const
+{
+	if (_proxy)
+		return _proxy->isNoTabFocus();
+	else
+		return _no_tab_focus;
 }
 
 #ifdef GTK3
