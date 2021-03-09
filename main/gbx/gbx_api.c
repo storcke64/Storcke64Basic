@@ -1159,6 +1159,7 @@ GB_VALUE *GB_Call(GB_FUNCTION *func, int nparam, int release)
 {
 	bool stop_event;
 	CLASS *class;
+	void *object;
 	CLASS_DESC_METHOD *desc;
 
 	if (!func || !func->index)
@@ -1166,14 +1167,21 @@ GB_VALUE *GB_Call(GB_FUNCTION *func, int nparam, int release)
 		//TEMP.type = GB_T_NULL;
 	else
 	{
-		class = (CLASS *)func->object;
-		if (!OBJECT_is_class(class))
-			class = OBJECT_class(class);
+		object = func->object;
+		if (OBJECT_is_class(object))
+		{
+			class = object;
+			object = NULL;
+		}
+		else
+		{
+			class = OBJECT_class(object);
+		}
 		
 		desc = &class->table[func->index - 1].desc->method;
 		
 		stop_event = GAMBAS_StopEvent;
-		EXEC_public_desc(class, func->object, desc, nparam);
+		EXEC_public_desc(class, object, desc, nparam);
 		_event_stopped = GAMBAS_StopEvent;
 		GAMBAS_StopEvent = stop_event;
 
