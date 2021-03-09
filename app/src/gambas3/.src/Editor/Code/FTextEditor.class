@@ -1427,6 +1427,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case ".preview-zoom-normal"
       $hPreview.ZoomNormal
       RefreshPreview
+      
+    Case ".preview-images"
+      $hPreview.Settings[WebSettings.AutoLoadImages] = btnLoadImages.Value
     
     Case Else
       Return True
@@ -1943,6 +1946,7 @@ Private Sub UpdatePreview()
     If Not $hPreview Then
       $hPreview = New HelpView(panPreview) As "Preview"
       $hPreview.Settings[WebSettings.Javascript] = True
+      $hPreview.Settings[WebSettings.AutoLoadImages] = btnLoadImages.Value
       $hPreview.Expand = True
       splPreview.Layout = [1, 1]
       $hTimerPreview = New Timer As "TimerPreview"

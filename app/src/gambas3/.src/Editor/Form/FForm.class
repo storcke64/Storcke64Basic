@@ -1588,8 +1588,6 @@ Public Sub HideFrame()
 
   Dim hCtrl As Control
 
-  'Debug System.Backtrace.Join(" ")
-
   For Each hCtrl In [panSelectN, panSelectS, panSelectW, panSelectE]
     hCtrl.Hide
   Next
