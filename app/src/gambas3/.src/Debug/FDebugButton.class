@@ -99,24 +99,6 @@ Public Sub OnProjectChange()
   
 End
 
-Public Sub SetTestResult(bFail As Boolean)
-  
-  'btnTest.Picture = Picture["icon:/small/" & If(bFail, "error", "apply")]
-  If bFail Then Balloon.Error(("Test has failed."), btnTest)
-  'If $hTimerReset Then $hTimerReset.Stop
-  '$hTimerReset = New Timer(5000) As "TimerReset"
-  
-End
-
-' Public Sub TimerReset_Timer()
-'   
-'   OnProjectChange
-'   $hTimerReset.Stop
-'   $hTimerReset = Null
-'   
-' End
-' 
-' 
 Public Sub SetMessage(sText As String, Optional bAdd As Boolean)
   
   If bAdd Then 

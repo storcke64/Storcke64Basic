@@ -1526,11 +1526,47 @@ End
 Public Sub btnTestClear_Click()
 
   trmTest.Clear
+  panTestResult.Hide
 
 End
 
 Public Sub btnTest_Click()
 
+  panTestResult.Hide
   Design.Test()
+
+End
+
+Public Sub trmTest_Link()
+
+  FOutput.CheckTerminalLink(trmTest)
+
+End
+
+Public Sub trmTest_Click()
+
+  If trmTest.Link.Type = "goto" Then
+    Project.Goto(trmTest.Link.Text)
+  Endif
+
+End
+
+Public Sub SetTestResult(bFail As Boolean)
+
+  If bFail Then
+    lblTestResult.Text = ("Test has failed.")
+    lblTestResult.Foreground = Color.DarkRed
+    picTestResult.Picture = Picture["icon:/small/error"]
+    panTestResult.Background = Color.Merge(Color.Red, Color.Background, 0.7)
+  Else
+    lblTestResult.Text = ("Test has succeeded.")
+    lblTestResult.Foreground = Color.DarkGreen
+    picTestResult.Picture = Picture["icon:/small/apply"]
+    panTestResult.Background = Color.Merge(Color.Green, Color.Background, 0.7)
+  Endif
+  
+  If Application.DarkTheme Then lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)
+  
+  panTestResult.Show
 
 End

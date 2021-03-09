@@ -509,11 +509,47 @@ End
 '   
 ' End
 
+Static Public Sub CheckTerminalLink(hTerm As TerminalView)
+
+  Dim sLine As String
+  Dim iPos As Integer
+  Dim iLen As Integer
+  Dim iPos2 As Integer
+
+  With hTerm.Link
+    
+    sLine = .Line
+    iPos = String.Pos(sLine, .Pos)
+    iPos2 = iPos
+    
+    While iPos > 0
+      If Mid$(sLine, iPos, 1) Not Like "[A-Za-z0-9._]" Then Break 
+      Dec iPos
+    Wend
+    Inc iPos
+    
+    Inc iPos2
+    While iPos2 <= Len(sLine)
+      If Mid$(sLine, iPos2, 1) Not Like "[A-Za-z0-9._]" Then Break 
+      Inc iPos2
+    Wend
+    Dec iPos2
+    
+    iLen = iPos2 - iPos + 1
+    If iLen <= 0 Then Return
+    
+    sLine = Mid$(sLine, iPos, iLen)
+    If sLine Not Match "^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*\\.[0-9]+" Then Return
+    
+    hTerm.Link.Select(String.Index(.Line, iPos) - 1, String.Len(sLine), "goto")
+    
+  End With
+
+End
+
 Public Sub trmOutput_Link()
 
-  If trmOutput.Link.Line Match "^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*\\.[0-9]+:.*" Then
-    trmOutput.Link.Select(0, String.InStr(trmOutput.Link.Line, ":") - 1, "goto")
-  Endif
+  CheckTerminalLink(trmOutput)
 
 End
 

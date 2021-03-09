@@ -467,12 +467,12 @@ Public Sub Process_Kill()
     If sMsg Then FMain.ShowWarning(sMsg)
   Else If $hProcess.Value Then
     If bTest Then
-      FDebugButton.SetTestResult(True)
+      FDebugInfo.SetTestResult(True)
     Else
       FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
     Endif
   Else
-    If bTest Then FDebugButton.SetTestResult(False)
+    If bTest Then FDebugInfo.SetTestResult(False)
   Endif
 
   $hProcess = Null
@@ -1575,3 +1575,4 @@ Public Sub RenameClass(sOld As String, sNew As String)
   FDebugInfo.RefreshBreakpointView()
   
 End
+
