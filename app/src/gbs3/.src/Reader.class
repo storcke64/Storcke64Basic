@@ -16,30 +16,15 @@ Public CurrentToken As Integer = -1                                             
 Public key As Integer = -1                                                                   '  the key to the datasets
 Private MainDef As New Collection(gb.ignorecase)                         '  Points to main if found in this file
 
-Private ClassList As New Integer[]                                       '  List of all discovered class definitions start
-Private ClassLineNumbers As New Integer[]                                ' Line number of the definition
-Private ClassNames As New String[]                                       '  List of the class names being created
-Public ClassesDefined As New Collection(gb.ignorecase)                   '  Collection of defined classes
 
-Private ModuleList As New Integer[]                                       '  List of all discovered Module definitions start
-Private ModuleLineNumbers As New Integer[]                                ' Line number of the definition
-Private ModuleNames As New String[]                                       '  List of the Module names being created
-Public ModulesDefined As New Collection(gb.ignorecase)                    '  Collection of defined Modules
-Public bModuleStartup As Boolean = False
+Private BlockList As New Integer[]                                                          '  List of all discovered block definitions start
+Private BlockLineNumbers As New Integer[]                                       ' Line number of the definition
+Private BlockNames As New String[]                                                      '  List of the block names being created
+Public BlockDefined As New Collection(gb.ignorecase)                   '  Collection of defined blocks
+Public BlockType As New String[]                                                             ' Type of block being created
 
-Private FormList As New Integer[]                                        ' List of all discovered Forms definitions start
-Private FormLineNumbers As New Integer[]                                 ' Line number of the definition
-Private FormNames As New String[]                                        ' List of the Forms names being created
-Public FormsDefined As New Collection(gb.ignorecase)                     ' Collection of defined Forms
-
-Private ConnectionList As New Integer[]                                   ' List of all discovered Connections definitions start
-Private ConnectionLineNumbers As New Integer[]                            ' Line number of the definition
-Private ConnectionNames As New String[]                                   ' List of the Connection names being created
-Public ConnectionDefined As New Collection(gb.ignorecase)                 ' Collection of defined Connections
-
-
-
-Private bInClass As Boolean = False                                                '  Processing a class block
+Public bClassIsMain As Boolean = False                                            ' indicates if a class is startup target
+Private $bInClass As Boolean = False                                                '  Processing a class block
 Private cIncludedFiles As New Collection(gb.Ignorecase)                   ' List of already included files, only load included files once
 Private cIncludeStack As New String[]                                           ' List of files included into this build, to check for circular refrence
 Private sDefaultFilePath As String = ""                                          ' Directory to look for included file with no full path defined
@@ -48,6 +33,15 @@ Private aWarnings As New String[]                                               
 ' Public bFast As Boolean = False                                                       ' found a fast definition compiler option
 ' Public bUnsafe As Boolean = False                                                 ' Found an unsafe compiler option 
 Private $oContext As Context                                                             ' all the global variables
+
+Private $cBlockTypes As Collection = ["MODULE": ["END", "MODULE"],
+                                                                          "CLASS": ["END", "CLASS"],
+                                                                          "FORM": ["END", "FORM"],
+                                                                          "CONNECTION": ["END", "CONNECTION"],
+                                                                          "WEBFORM": ["END", "WEBFORM"],
+                                                                          "WEBPAGE": ["END", "WEBPAGE"]
+                                                                         ]
+Private $sCurrentBlock As String = ""
 
 Public Sub _New(cContext As Context, Optional SourceFile As String = "", Sourceprogram As String = "")
   Dim SourceBuffer As String
@@ -153,11 +147,11 @@ Private Sub TokenizeFile(SourceBuffer As String)
         If Highlight.Symbols[0] = "EXPORT" Then
           $oContext.$bExport = True
           sLine = "' " & sLine
-        Else If Not bInClass And If $cKeywords[Highlight.Symbols[0]] Then
+        Else If Not $bInClass And If $cKeywords[Highlight.Symbols[0]] Then
             aWarnings.Add("Warning : Defined without main : " & Highlight.Symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
             bPublicOrSubDef = True
             GlobalItemPosition.Add(ProgramLines.count)
-        Else If Not bInClass And If Highlight.Symbols[0] = "FAST" Then
+        Else If Not $bInClass And If Highlight.Symbols[0] = "FAST" Then
           
           If Highlight.Types.count > 2 Then
                aWarnings.Add("Warning : Defined without main : " & Highlight.Symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
@@ -180,7 +174,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
           Endif
         Endif
          
-    '' check for inclusion of Components or libraries
+     '' check for inclusion of Components or libraries
     
         If Highlight.Symbols[0] = "USE" 
             If Highlight.Symbols.count >= 2 Then
@@ -193,124 +187,44 @@ Private Sub TokenizeFile(SourceBuffer As String)
         
         '' Check for the end of a class definition      
         If Highlight.Symbols[0] = "END" And Highlight.Symbols.count = 2 Then
-          If Highlight.types[1] = Highlight.keyword And If Highlight.Symbols[1] = "CLASS" Then
-             If Not bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected END CLASS: " & sLine)
+          
+          If Highlight.types[1] = Highlight.symbol Or Highlight.types[1] = Highlight.keyword And If Highlight.Symbols[1] == $sCurrentBlock Then
+             If Not $bInClass Then
+               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected : " & sLine)
              Endif
-             sClassName = ClassNames.Pop()
-             ClassesDefined.Add(ProcessClass(sClassName, ClassList.Pop(), ClassLineNumbers.Pop(), ClassDef.asClass), sClassName)
-             bInClass = False
+             sClassName = BlockNames.Pop()
+             BlockType.Pop()
+             BlockDefined.Add(ProcessClass(sClassName, BlockList.Pop(), BlockLineNumbers.Pop(), Lower($sCurrentBlock)), sClassName & "." & $sCurrentBlock)
+             $bInClass = False
              Continue
-          Else If Highlight.types[1] = Highlight.symbol And If Upper(Highlight.Symbols[1]) = "MODULE" Then
-             If Not bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected END MODULE: " & sLine)
-             Endif
-             sClassName = ModuleNames.Pop()
-             ModulesDefined.Add(ProcessClass(sClassName, ModuleList.Pop(), ModuleLineNumbers.Pop(), ClassDef.asModule), sClassName)
-             bInClass = False
-             Continue
-          Else If Highlight.types[1] = Highlight.symbol And If Upper(Highlight.Symbols[1]) = "FORM" Then
-             If Not bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected END FORM: " & sLine)
-             Endif
-             sClassName = FormNames.Pop()
-             FormsDefined.Add(ProcessClass(sClassName, FormList.Pop(), FormLineNumbers.Pop(), ClassDef.asForm), sClassName)
-             bInClass = False
-             Continue
-          Else If Highlight.types[1] = Highlight.symbol And If Upper(Highlight.Symbols[1]) = "CONNECTION" Then
-             If Not bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected END CONNECTION: " & sLine)
-             Endif
-             sClassName = ConnectionNames.Pop()
-             ConnectionDefined.Add(ProcessClass(sClassName, ConnectionList.Pop(), ConnectionLineNumbers.Pop(), ClassDef.asConnection), sClassName)
-             bInClass = False
-             Continue
-          Endif
+          Endif 
         Endif
         
-        '' Check for the definition of a class and make where it is defined
-        If Highlight.Symbols[0] = "CLASS" Then
-          If Highlight.Symbols.count < 2 Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Class : Name Missing ")
-          Else If Highlight.Types[1] = Highlight.symbol Then
-             If bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, " Class : Unexpected class definition inside Class definition : " & sLine)
-             Endif
-             If ClassesDefined[Highlight.Symbols[1]] Then 
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Class : " & Highlight.Symbols[1] & " Already defined")
-             Endif
-             ClassList.Push(ProgramSymbols.Count)
-             ClassNames.Push(Highlight.Symbols[1])
-             ClassLineNumbers.Push(CurrentLineNumber.last)
-             If Highlight.Symbols.count = 3 And If Upper(Highlight.Symbols[2]) = "STARTUP" Then
-               ScriptPreProcess.SetStartup(Highlight.Symbols[1])
-               bModuleStartup = True
-             Endif
-             bInClass = True
-             Continue
-          Else
-             CompileError(cIncludeStack.last, CurrentLineNumber.last, "Unexpected  : " & Highlight.Symbols[1] & " In Class definition")
-          Endif
-        Else If Upper(Highlight.Symbols[0]) = "MODULE" Then
-          If Highlight.Symbols.count < 2 Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Module : Name Missing ")
-          Else If Highlight.Types[1] = Highlight.symbol Then
-             If bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, " Module : Unexpected Module definition inside Module definition : " & sLine)
-             Endif
-             If ModulesDefined[Highlight.Symbols[1]] Then 
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Module : " & Highlight.Symbols[1] & " Already defined")
-             Endif
-             ModuleList.Push(ProgramSymbols.Count)
-             ModuleNames.Push(Highlight.Symbols[1])
-             ModuleLineNumbers.Push(CurrentLineNumber.last)
-             If Highlight.Symbols.count = 3 And If Upper(Highlight.Symbols[2]) = "STARTUP" Then
-               ScriptPreProcess.SetStartup(Highlight.Symbols[1])
-               bModuleStartup = True
-             Endif
-             bInClass = True
-             Continue
-          Else
-             CompileError(cIncludeStack.last, CurrentLineNumber.last, "Unexpected  : " & Highlight.Symbols[1] & " In Module definition")
-          Endif
-        Else If Upper(Highlight.Symbols[0]) = "FORM" Then
-          If Highlight.Symbols.count <> 2 Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Form : Name Missing ")
-          Else If Highlight.Types[1] = Highlight.symbol Then
-             If bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, " Form : Unexpected Form definition inside Form definition : " & sLine)
-             Endif
-             If FormsDefined[Highlight.Symbols[1]] Then 
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Form : " & Highlight.Symbols[1] & " Already defined")
-             Endif
-             FormList.Push(ProgramSymbols.Count)
-             FormNames.Push(Highlight.Symbols[1])
-             FormLineNumbers.Push(CurrentLineNumber.last)
-             bInClass = True
-             Continue
-          Else
-             CompileError(cIncludeStack.last, CurrentLineNumber.last, "Unexpected  : " & Highlight.Symbols[1] & " In Form definition")
-          Endif
-        Else If Upper(Highlight.Symbols[0]) = "CONNECTION" Then
-          If Highlight.Symbols.count <> 2 Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Connection : Name Missing ")
-          Else If Highlight.Types[1] = Highlight.symbol Then
-             If bInClass Then
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, " Connection : Unexpected Form definition inside Form definition : " & sLine)
-             Endif
-             If ConnectionDefined[Highlight.Symbols[1]] Then 
-               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Connection : " & Highlight.Symbols[1] & " Already defined")
-             Endif
-             ConnectionList.Push(ProgramSymbols.Count)
-             ConnectionNames.Push(Highlight.Symbols[1])
-             ConnectionLineNumbers.Push(CurrentLineNumber.last)
-             bInClass = True
-             Continue
-          Else
-             CompileError(cIncludeStack.last, CurrentLineNumber.last, "Unexpected  : " & Highlight.Symbols[1] & " In Connection definition")
-          Endif
+        '' Check for the definition of a block and make where it is defined
+        If $cBlockTypes.Exist(Upper(Highlight.Symbols[0])) Then 
+          
+             $sCurrentBlock = (Upper(Highlight.Symbols[0]))
+             If Highlight.Symbols.count < 2 Then
+               CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst("&1 : Name Missing ", $sCurrentBlock))
+            Endif 
+            If Highlight.Types[1] = Highlight.symbol Then
+                If $bInClass Then
+                    CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst(" &1 : Unexpected &1 definition inside &1 definition : ", $sCurrentBlock) & sLine)
+                Endif
+                Dim cdefBlock As ClassDef = BlockDefined[Highlight.Symbols[1] & "." & $sCurrentBlock]
+                If Not IsNull(cdefBlock) And If cdefBlock.sExtention == $sCurrentBlock Then 
+                   CompileError(cIncludeStack.last, CurrentLineNumber.last, $sCurrentBlock & " : " & Highlight.Symbols[1] & " Already defined")
+                Endif
+                Verbose("Begin to define Block : " & $sCurrentBlock & " : " & Highlight.Symbols[1])
+                BlockList.Push(ProgramSymbols.Count)
+                BlockNames.Push(Highlight.Symbols[1])
+                BlockLineNumbers.Push(CurrentLineNumber.last)
+                BlockType.Push($sCurrentBlock)
+                $binClass = True
+                Continue
+            Endif
+            
         Endif
-        
     Endif
     
     ''Check for an include statement -- Include is not a keyword, perhaps it should be
@@ -319,7 +233,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
          sLine = "'" & sLine
          Continue
     Else If Highlight.Types.count >= 2 And If Highlight.Types[0] = Highlight.symbol And If Highlight.Types[1] = Highlight.string Then
-      If Upper(Highlight.symbols[0]) = "INCLUDE" Then
+      If Highlight.symbols[0] == "INCLUDE" Then
          Warning("'Include' is Replaced by '#Include' and may not be supported in future releases")
          ProcessInclude(Highlight.symbols, Highlight.types, sDefaultFilePath)
          Continue
@@ -343,17 +257,17 @@ Private Sub TokenizeFile(SourceBuffer As String)
     
   Next
   
-  If ClassNames.count > 0 Then 
-    CompileError(cIncludeStack.last, CurrentLineNumber.last, "Missing 'END CLASS' for Class :" & ClassNames.Pop())
+  If BlockNames.count > 0 Or If $bInClass Then 
+    CompileError(cIncludeStack.last, CurrentLineNumber.last, "Missing 'END " & $sCurrentBlock & "' For " & $sCurrentBlock & ": " & BlockNames.Pop())
   Endif
   
   CurrentLineNumber.Pop()
 End
 
-Public Sub ProcessClass(name As String, Start As Integer, DefLine As Integer, Optional ClassType As Integer = ClassDef.asClass) As ClassDef
+Public Sub ProcessClass(name As String, Start As Integer, DefLine As Integer, Optional ClassType As String = "class") As ClassDef
    Dim cDef As ClassDef
    
-   Verbose("Defining " & ClassDef.FileExtention[ClassType] & " : " & name & " in script file : " & UnQuote(File.Name(cIncludeStack.last)) & "." & DefLine)
+   Verbose("Defining " & ClassType & " : " & name & " in script file : " & UnQuote(File.Name(cIncludeStack.last)) & "." & DefLine)
    cDef = New ClassDef(name, ProgramLines.Extract(start, -1), ProgramSymbols.Extract(start, -1), ProgramTypes.Extract(start, -1), ProgramPositions.Extract(start, -1), ClassType)
    cDef.iLineNumber = DefLine
    cDef.sDefinedIn = cIncludeStack.last
@@ -560,37 +474,47 @@ Public Sub IsMainDefined() As Boolean
   Return False
 End
 
-Public Sub HasClasses() As Boolean
+Public Sub HasBlocks() As Boolean
   
-  If ClassesDefined.count > 0 Then
+  If BlockDefined.count > 0 Then
     Return True
   Endif
   Return False
 End
 
-Public Sub HasModules() As Boolean
-  
-  If ModulesDefined.count > 0 Then
-    Return True
-  Endif
-  Return False
-End
+' Public Sub HasClasses() As Boolean
+'   
+'   If ClassesDefined.count > 0 Then
+'     Return True
+'   Endif
+'   Return False
+' End
 
-Public Sub HasForms() As Boolean
-  
-  If FormsDefined.count > 0 Then
-    Return True
-  Endif
-  Return False
-End
 
-Public Sub HasConnections() As Boolean
-  
-  If ConnectionDefined.count > 0 Then
-    Return True
-  Endif
-  Return False
-End
+
+' Public Sub HasModules() As Boolean
+'   
+'   If ModulesDefined.count > 0 Then
+'     Return True
+'   Endif
+'   Return False
+' End
+' 
+' Public Sub HasForms() As Boolean
+'   
+'   If FormsDefined.count > 0 Then
+'     Return True
+'   Endif
+'   Return False
+' End
+' 
+' Public Sub HasConnections() As Boolean
+'   
+'   If ConnectionDefined.count > 0 Then
+'     Return True
+'   Endif
+'   Return False
+' End
 
 Public Sub HasPublicOrSub() As Boolean
   
@@ -598,27 +522,33 @@ Public Sub HasPublicOrSub() As Boolean
   
 End
 
-Public Sub getClasses() As Collection
-  
-  Return ClassesDefined
-  
-End
+' Public Sub getClasses() As Collection
+'   
+'   Return ClassesDefined
+'   
+' End
+' 
+' Public Sub getModules() As Collection
+'   
+'   Return ModulesDefined
+'   
+' End
+' 
+' Public Sub getForms() As Collection
+'   
+'   Return FormsDefined
+'   
+' End
+' 
+' Public Sub getConnections() As Collection
+'   
+'   Return ConnectionDefined
+'   
+' End
 
-Public Sub getModules() As Collection
+Public Sub getBlocks() As Collection
   
-  Return ModulesDefined
-  
-End
-
-Public Sub getForms() As Collection
-  
-  Return FormsDefined
-  
-End
-
-Public Sub getConnections() As Collection
-  
-  Return ConnectionDefined
+  Return BlockDefined
   
 End
 

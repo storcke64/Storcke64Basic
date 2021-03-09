@@ -22,50 +22,22 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
     cReader = New Reader($oContext, Path)
   Endif
 
-  If cReader.HasClasses() Then
-    For Each cDef In cReader.getClasses()
-      cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
-      If $oContext.$bBuildOnly And $oContext.$bTestMode Then
-        Error "Class "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd Class\n"
-      Endif
-    Next
-  Endif
-  
-  If cReader.HasModules() Then
-    For Each cDef In cReader.getModules()
-      If cDef.sName = ScriptPreProcess.GetStartup() Then
-        $oContext.$sFinalProgram = cDef.aText.Join("\n") & "\n"
+   If cReader.HasBlocks() Then
+    For Each cDef In cReader.getBlocks()
+      If cDef.sExtention == "module" And If cDef.sName = ScriptPreProcess.GetStartup() Then 
+         $oContext.$sFinalProgram = cDef.aText.Join("\n") & "\n"
       Else
-        cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
-        If $oContext.$bBuildOnly And $oContext.$bTestMode Then
-          Error "Module "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd Module\n"
-        Endif
+          cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
+          If $oContext.$bBuildOnly And $oContext.$bTestMode Then
+              Error cDef.sExtension & " "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd " & cDef.sExtension & "\n"
+          Endif
       Endif
     Next
   Endif
   
-  If cReader.HasForms() Then
-    For Each cDef In cReader.getForms()
-      cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
-      If $oContext.$bBuildOnly And $oContext.$bTestMode Then
-        Error "Form "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd Form\n"
-      Endif
-    Next
-  Endif
-  
-  If cReader.HasConnections() Then
-    For Each cDef In cReader.getConnections()
-      cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
-      If $oContext.$bBuildOnly And $oContext.$bTestMode Then
-        Error "Connection "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd Connection\n"
-      Endif
-    Next
-  Endif
-  
-  If Not cReader.bModuleStartup Then 
+  'If Not cReader.bModuleStartup Then 
     If cReader.IsMainDefined() Then
       $oContext.$sFinalProgram = cReader.GetProgram()
-
     Else If cReader.HasPublicOrSub() Then
       cReader.DisplayWarnings()
       If $oContext.$bAllowLazyScript Then
@@ -76,7 +48,7 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
     Else
       $oContext.$sFinalProgram = "Public Sub main()\n" & cReader.GetProgram() & "\nEnd\n"
     Endif
-  Endif
+  'Endif
   
   verbose("Completed Generation of files ")
   'Stop
