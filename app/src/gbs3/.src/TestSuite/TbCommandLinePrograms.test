@@ -18,7 +18,7 @@ Public Sub CreateProgramFromCommandLineArgs()
   MMain._ResetAll()
   MMain.$oContext.$bExecuteFromArgs = True
   MMain.$oContext.$sUse = "gb.eval.highlight,gb.pcre,gb.notifyt"
-  Dim sResult As String = TSR.ErrorMsgOut(GenerateFilesFromArgs, "_call", mMain.$oContext, "Dim I As Integer:Print I:Inc I")
+  Dim sResult As String = TSR.ErrorMsgOut(GenerateFilesFromArgs, "_call", mMain.$oContext, "Dim I As Integer:Print I:Inc I", "projectpath")
   Dim sExpect As String = "gbs" & System.Version & ": gb.eval.highlight,gb.pcre,gb.notifyt.0: Unknown component: gb.notifyt"
   Assert.Equals(sResult, sExpect, "Test For bad Component ")
   If TSR.$bTestDebug Then
@@ -30,8 +30,8 @@ Public Sub CreateProgramFromCommandLineArgs()
   'MMain.$oContext.$bPrecompiler = True
   MMain.$oContext.$bExecuteFromArgs = True
   MMain.$oContext.$sUse = "gb.eval.highlight,gb.pcre,gb.web"
-  GenerateFilesFromArgs(mMain.$oContext, "Dim i As Integer:i=9:Print i:Inc i")
-  Assert.Equals(TSR.CompareStringArray(Split(Mmain.$oContext.$sFinalProgram, "\n", "", True), Split("Public Sub Main()\nDim i As Integer\ni=9\nPrint i\nInc i\n\nEnd\n", "\n", "", True)), True, "Verify program is formatted Correctly from command Line")
+  GenerateFilesFromArgs(mMain.$oContext, "Dim i As Integer:i=9:Print i:Inc i", "sourcepath")
+  Assert.Equals(TSR.CompareStringArray(Split(Mmain.$oContext.$sFinalProgram, "\n", "", True), Split("Public Sub main()\nDim i As Integer\ni=9\nPrint i\nInc i\n\nEnd\n", "\n", "", True)), True, "Verify program is formatted Correctly from command Line")
 End ' Gambas test file
 
 Public Sub ExecuteACommandLineProgram()
