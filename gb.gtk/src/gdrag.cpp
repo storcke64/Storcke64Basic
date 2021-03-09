@@ -315,7 +315,7 @@ guint32 gDrag::_time = 0;
 bool gDrag::_local = false;
 volatile bool gDrag::_got_data = false;
 volatile bool gDrag::_end = false;
-
+gControl *gDrag::_current = NULL;
 
 void gDrag::setIcon(gPicture *vl)
 {
@@ -777,4 +777,30 @@ void gDrag::end()
 {
 	_end = true;
 	_active = false;
+}
+
+
+bool gDrag::setCurrent(gControl *control)
+{
+	gControl *current;
+	
+	if (_current == control)
+		return true;
+	
+	if (_current)
+	{
+		current = _current;
+		while (current)
+		{
+			current->onDragLeave(current);
+			current = current->_proxy;
+		}
+	}
+	
+	_current = control;
+	
+	if (control)
+		return !control->onDrag(control);
+	else
+		return false;
 }

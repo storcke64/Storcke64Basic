@@ -333,7 +333,6 @@ void gControl::initAll(gContainer *parent)
 	_inverted = false;
 	_accept_drops = false;
 	_dragging = false;
-	_drag_enter = false;
 	_drag_get_data = false;
 	frame_border = 0;
 	frame_padding = 0;
@@ -477,6 +476,7 @@ gControl::~gControl()
 	CLEAN_POINTER(gApplication::_ignore_until_next_enter);
 	CLEAN_POINTER(gDrag::_destination);
 	CLEAN_POINTER(gDrag::_source);
+	CLEAN_POINTER(gDrag::_current);
 }
 
 void gControl::destroy()

@@ -253,6 +253,7 @@ public:
 	const char *_css_node;
 #endif
 	
+	unsigned _destroyed : 1;               // If the control has already been added to the destroy list
 	unsigned _design : 1;
 	unsigned _design_ignore : 1;
 	unsigned _no_design : 1;
@@ -260,11 +261,10 @@ public:
 	unsigned _ignore : 1;
 	unsigned _action : 1;                  // *reserved*
 	unsigned _inverted : 1;                // if the widget direction has been inverted
+
 	unsigned _accept_drops : 1;            // If the control accepts drops
-	
 	unsigned _dragging : 1;                // if the control is being dragged
 	unsigned _drag_get_data : 1;           // If we got information on the dragged data
-	unsigned _drag_enter : 1;              // If we have entered the control for drag & drop
 	unsigned _tracking : 1;                // If we are tracking mouse move even if no mouse button is pressed
 	unsigned _old_tracking : 1;            // real value when Tracking is false
 	unsigned _bg_set : 1;                  // Have a private background
@@ -273,11 +273,11 @@ public:
 
 	unsigned use_base : 1;                 // Use base and text color for foreground and background
 	unsigned _visible : 1;                 // A control can be hidden if its width or height is zero
-	unsigned _destroyed : 1;               // If the control has already been added to the destroy list
 	unsigned _no_delete : 1;               // Do not delete on destroy signal
 	unsigned _scrollbar : 2;
 	unsigned _dirty_pos : 1;               // If the position of the widget has changed
 	unsigned _dirty_size : 1;              // If the size of the widget has changed
+	unsigned _inside : 1;                  // if we got an enter event, but not a leave event yet.
 	
 	unsigned _locked : 4;                  // For locking events
 	unsigned frame_border : 4;
@@ -289,18 +289,16 @@ public:
 	unsigned _grab : 1;                    // control is currently grabbing mouse and keyboard
 	unsigned _has_border : 1;              // if the control has a border
 	unsigned _no_tab_focus : 1;            // Don't put inside focus chain
-	unsigned _inside : 1;                  // if we got an enter event, but not a leave event yet.
 	unsigned _no_auto_grab : 1;            // do not automatically grab widget on button press event
 	unsigned _no_background : 1;           // Don't draw the background automatically
-	
 	unsigned _use_wheel : 1;               // Do not propagate the mouse wheel event
+
 	unsigned _is_container : 1;            // I am a container
 	unsigned _is_window : 1;               // I am a window
 	unsigned _is_button : 1;               // I am a button
 	unsigned _is_drawingarea : 1;          // I am a drawing area
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
-	
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
 	
 #ifdef GTK3

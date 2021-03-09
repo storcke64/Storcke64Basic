@@ -156,7 +156,7 @@ static int to_gambas_event(int type)
 	}
 }
 
-static bool gb_can_raise(gControl *sender, int type)
+static bool can_raise(gControl *sender, int type)
 {
 	CWIDGET *ob = GetObject(sender);
 	if (!ob)
@@ -169,7 +169,7 @@ static bool gb_can_raise(gControl *sender, int type)
 	return GB.CanRaise(ob, type);
 }
 
-bool gb_raise_MouseEvent(gControl *sender, int type)
+static bool cb_mouse(gControl *sender, int type)
 {
 	CWIDGET *ob = GetObject(sender);
 	bool ret = false;
@@ -225,22 +225,22 @@ bool gb_raise_MouseEvent(gControl *sender, int type)
 	return ret;
 }
 
-bool gb_raise_KeyEvent(gControl *sender, int type)
+static bool cb_key(gControl *sender, int type)
 {
 	return GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-void gb_raise_EnterLeave(gControl *sender, int type)
+static void cb_enter_leave(gControl *sender, int type)
 {
 	GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-void gb_raise_FocusEvent(gControl *sender, int type)
+static void cb_focus(gControl *sender, int type)
 {
 	GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-bool gb_raise_Drag(gControl *sender)
+static bool cb_drag(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -258,14 +258,14 @@ bool gb_raise_Drag(gControl *sender)
 	return GB.Raise(THIS, EVENT_Drag, 0);
 }
 
-void gb_raise_DragLeave(gControl *sender)
+static void cb_drag_leave(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
 	GB.Raise(THIS, EVENT_DragLeave, 0);
 }
 
-bool gb_raise_DragMove(gControl *sender)
+static bool cb_drag_move(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -278,7 +278,7 @@ bool gb_raise_DragMove(gControl *sender)
 	return GB.Raise(THIS, EVENT_DragMove, 0);
 }
 
-bool gb_raise_Drop(gControl *sender)
+static bool cb_drop(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -347,15 +347,15 @@ void InitControl(gControl *control, CWIDGET *widget)
 		control->setName(name);
 
 	control->onFinish = DeleteControl;
-	control->onMouseEvent = gb_raise_MouseEvent;
-	control->onKeyEvent = gb_raise_KeyEvent;
-	control->onFocusEvent = gb_raise_FocusEvent;
-	control->onDrag = gb_raise_Drag;
-	control->onDragLeave = gb_raise_DragLeave;
-	control->onDragMove = gb_raise_DragMove;
-	control->onDrop = gb_raise_Drop;
-	control->onEnterLeave = gb_raise_EnterLeave;
-	control->canRaise = gb_can_raise;
+	control->onMouseEvent = cb_mouse;
+	control->onKeyEvent = cb_key;
+	control->onFocusEvent = cb_focus;
+	control->onDrag = cb_drag;
+	control->onDragLeave = cb_drag_leave;
+	control->onDragMove = cb_drag_move;
+	control->onDrop = cb_drop;
+	control->onEnterLeave = cb_enter_leave;
+	control->canRaise = can_raise;
 
 	if (control->isContainer())
 	{
