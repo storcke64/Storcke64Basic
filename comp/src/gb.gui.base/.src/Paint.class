@@ -101,7 +101,7 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
   Dim bMarkup As Boolean
   Dim iLen As Integer
   
-  If Not RichText Then Return
+  If Not RichText Or If W <= 0 Then Return
   If H = 0 Then H = Paint.Font.Height
   
   iLen = String.Len(RichText)
