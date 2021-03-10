@@ -4,18 +4,20 @@ Export
 
 Inherits UserContainer
 
-Public Const _Properties As String = "*,Text,TextFont"
+Public Const _Properties As String = "*,Text,TextFont,Alignment{Align.*}=Center"
 Public Const _Similar As String = "Panel"
 
 Property Text As String
 Property RichText As String
 Property TextFont As Font
+Property Alignment As Integer
 
 Private $hContainer As Panel
 Private $hFrame As DrawingArea
 Private $sText As String
 Private $bRichText As Boolean
 Private $hTextFont As Font
+Private $iAlign As Integer = Align.Center
 
 Public Sub _new()
 
@@ -33,21 +35,24 @@ Public Sub Frame_Arrange()
   Dim H As Integer
   
   DS = Desktop.Scale
+  
   If $hTextFont Then
     H = Max($hTextFont.H, DS)
   Else
     H = Max(Me.Font.H, DS)
   Endif
-  H += DS \ 2
-  
-  If $sText Then
-    $hContainer.Move(DS, H, $hFrame.W - DS * 2, $hFrame.H - DS - H)
-  Else
-    $hContainer.Move(DS, DS, $hFrame.W - DS * 2, $hFrame.H - DS * 2)
+
+  If Align.IsMiddle($iAlign) Then
+    H += DS \ 2
+  Else If Align.IsTop($iAlign) Then
+    H += DS
+  Else 
+    H += DS + DS \ 2
   Endif
   
+  $hContainer.Move(DS, H, $hFrame.W - DS * 2, $hFrame.H - DS - H)
+  
 End
-
 
 Public Sub Frame_Draw()
 
@@ -56,14 +61,18 @@ Public Sub Frame_Draw()
   Dim sText As String
   Dim hRect As PaintExtents
   Dim H As Integer
+  Dim iAlign As Integer
+  Dim Y As Integer
   
   DS = Desktop.Scale
   
+  If $hFrame.W < DS * 2 Or If $hFrame.H < DS * 2 Then Return
+    
   If $sText Then
     
     If $hTextFont Then Paint.Font = $hTextFont
     H = Max(Paint.Font.H, DS)
-    W = $hFrame.W - DS * 5
+    W = $hFrame.W - DS * 3
     
     If $bRichText Then
       sText = Paint.TrimRichText($sText, W)
@@ -75,27 +84,73 @@ Public Sub Frame_Draw()
 
     If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, H \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - (DS + H) \ 2 - 4, Me.Background)
     
-    Paint.Background = Color.LightForeground
+    If Align.IsTop($iAlign) Then
 
-    Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
-    Paint.LineTo(0, H \ 2)
-    Paint.LineTo(0, $hFrame.H - 1)
-    Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
-    Paint.LineTo($hFrame.W - 1, H \ 2)
-    Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
-    Paint.LineWidth = 1
-    Paint.AntiAlias = False
-    Paint.Stroke()
-    Paint.AntiAlias = True
-    
-    Paint.Background = Style.ForegroundOf(Me)
-    'Paint.Restore
-    
-    'Paint.FillRect(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2, hRect.Width + DS * 2, H - (H \ 2), Style.BackgroundOf(Me))
-    If $bRichText Then
-      Paint.DrawRichText(sText, 0, 0, $hFrame.W, H, Align.Center)
+      Paint.DrawRect(0, 0, $hFrame.W, $hFrame.H, Color.LightForeground)
+      Y = DS \ 2
+      
+    Else If Align.IsBottom($iAlign) Then
+      
+      Paint.DrawRect(0, H + DS \ 2, $hFrame.W, $hFrame.H - DS * 2 - DS \ 2, Color.LightForeground)
+
     Else
-      Paint.DrawText(sText, 0, 0, $hFrame.W, H, Align.Center)
+      
+      Paint.Background = Color.LightForeground
+  
+      If Align.IsLeft($iAlign) Then
+  
+        Paint.MoveTo(DS \ 2, H \ 2)
+        Paint.LineTo(0, H \ 2)
+        Paint.LineTo(0, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, H \ 2)
+        Paint.LineTo(hRect.W + DS + DS \ 2, H \ 2)
+
+      Else If Align.IsRight($iAlign) Then
+  
+        Paint.MoveTo($hFrame.W - hRect.W - DS - DS \ 2, H \ 2)
+        Paint.LineTo(0, H \ 2)
+        Paint.LineTo(0, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, H \ 2)
+        Paint.LineTo($hFrame.W - DS \ 2, H \ 2)
+
+      Else ' center
+  
+        Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
+        Paint.LineTo(0, H \ 2)
+        Paint.LineTo(0, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+        Paint.LineTo($hFrame.W - 1, H \ 2)
+        Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
+        
+      Endif
+        
+      Paint.LineWidth = 1
+      Paint.AntiAlias = False
+      Paint.Stroke()
+      Paint.AntiAlias = True
+      
+    Endif
+      
+    If sText Then
+
+      If Align.IsLeft($iAlign) Then
+        iAlign = Align.Left
+      Else If Align.IsRight($iAlign) Then
+        iAlign = Align.Right
+      Else
+        iAlign = Align.Center
+      Endif
+
+      Paint.Background = Style.ForegroundOf(Me)
+      
+      If $bRichText Then
+        Paint.DrawRichText(sText, DS, Y, $hFrame.W - DS * 2, H, iAlign)
+      Else
+        Paint.DrawText(sText, DS, Y, $hFrame.W - DS * 2, H, iAlign)
+      Endif
+      
     Endif
 
   Else
@@ -154,4 +209,19 @@ Public Sub Frame_Font()
   
   Frame_Arrange
   
+End
+
+Private Function Alignment_Read() As Integer
+
+  Return $iAlign
+
+End
+
+Private Sub Alignment_Write(Value As Integer)
+
+  If $iAlign = Value Then Return
+  $iAlign = Value
+  Frame_Arrange
+  $hFrame.Refresh
+
 End
