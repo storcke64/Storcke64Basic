@@ -207,6 +207,12 @@
         Text = ("Run test")
         Picture = Picture["icon:/small/ok"]
       }
+      { spnTest Spinner
+        MoveScaled(27,0,4,4)
+        Visible = False
+        Margin = True
+        Type = Spinner.Circle
+      }
       { panTestResult Panel
         MoveScaled(40,0,29,4)
         Visible = False

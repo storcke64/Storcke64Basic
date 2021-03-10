@@ -439,6 +439,7 @@ Public Sub Process_Kill()
 
   Dim sMsg As String
   Dim bTest As Boolean
+  Dim bFail As Boolean
 
   bTest = $bTest
   
@@ -462,19 +463,18 @@ Public Sub Process_Kill()
       Case 15
         sMsg = ("The program has been terminated.")
       Default
+        If bTest Then FDebugInfo.SetTestResult(True)
+        bTest = False
         FCrash.Run($hProcess)
     End Select
     If sMsg Then FMain.ShowWarning(sMsg)
   Else If $hProcess.Value Then
-    If bTest Then
-      FDebugInfo.SetTestResult(True)
-    Else
-      FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
-    Endif
-  Else
-    If bTest Then FDebugInfo.SetTestResult(False)
+    If Not bTest Then FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
+    bFail = True
   Endif
 
+  If bTest Then FDebugInfo.SetTestResult(bFail)
+  
   $hProcess = Null
 
   If Project.Profiling Then

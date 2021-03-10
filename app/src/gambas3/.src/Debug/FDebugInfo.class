@@ -923,6 +923,7 @@ Public Sub OnProjectChange()
   CloseSearch
   trmVersionControl.Clear
   trmTest.Clear
+  panTestResult.Hide
   
 End
 
@@ -1533,6 +1534,8 @@ End
 Public Sub btnTest_Click()
 
   panTestResult.Hide
+  spnTest.Show
+  spnTest.Start
   Design.Test()
 
 End
@@ -1553,6 +1556,9 @@ End
 
 Public Sub SetTestResult(bFail As Boolean)
 
+  spnTest.Stop
+  spnTest.Hide
+  
   If bFail Then
     lblTestResult.Text = ("Test has failed.")
     lblTestResult.Foreground = Color.DarkRed
