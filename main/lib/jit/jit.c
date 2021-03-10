@@ -222,7 +222,7 @@ const char *JIT_get_default_value(TYPE type)
 			
 			if (!_decl_null_object)
 			{
-				JIT_print_decl("  const GB_OBJECT null_object = {GB_T_NULL};\n");
+				JIT_print_decl("  const GB_OBJECT null_object = {GB_T_OBJECT};\n");
 				_decl_null_object = TRUE;
 			}
 			return "null_object";
