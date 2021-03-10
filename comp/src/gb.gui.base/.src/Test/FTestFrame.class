@@ -1,2 +1,8 @@
 ' Gambas class file
 
+
+Public Sub Form_Open()
+
+  Frame1.RichText = "<b>Titre</b> un <i>peu long</i>"
+
+End
