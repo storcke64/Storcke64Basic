@@ -544,8 +544,6 @@ bool CDRAG_drag_enter(QWidget *w, CWIDGET *control, QDropEvent *e)
 {
 	bool cancel;
 
-	//qDebug("CDRAG_drag_enter: (%s %p) %p", GB.GetClassName(control), control, qobject_cast<MyListView *>(QWIDGET(control)));
-
 	// Hack for QScrollView
 	/*if (CWIDGET_test_flag(control, WF_SCROLLVIEW) && qobject_cast<MyListView *>(QWIDGET(control)))
 		((MyListView *)QWIDGET(control))->contentsDragEnterEvent((QDragEnterEvent *)e);*/
@@ -564,6 +562,8 @@ bool CDRAG_drag_enter(QWidget *w, CWIDGET *control, QDropEvent *e)
 		return true;
 	}
 	
+	//fprintf(stderr, "CDRAG_drag_enter: %s %s\n", GB.GetClassName(control), control->name);
+
 	CDRAG_clear(true);
 	CDRAG_info.event = e;
 
@@ -582,6 +582,8 @@ bool CDRAG_drag_enter(QWidget *w, CWIDGET *control, QDropEvent *e)
 
 void CDRAG_drag_leave(CWIDGET *control)
 {
+	//fprintf(stderr, "CDRAG_drag_leave: %s %s\n", GB.GetClassName(control), control->name);
+
 	CDRAG_hide_frame(control);
 	
 	//while (EXT(control) && EXT(control)->proxy)
@@ -627,6 +629,8 @@ bool CDRAG_drag_move(QWidget *w, CWIDGET *control, QDropEvent *e)
 		return true;
 	}
 
+	//fprintf(stderr, "CDRAG_drag_move: %s %s\n", GB.GetClassName(control), control->name);
+	
 	CDRAG_clear(true);
 	CDRAG_info.event = e;
 
@@ -658,6 +662,8 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 	/*if (CWIDGET_test_flag(control, WF_SCROLLVIEW) && qobject_cast<MyListView *>(QWIDGET(control)))
 		((MyListView *)QWIDGET(control))->contentsDropEvent((QDragMoveEvent *)e);*/
 	
+	//fprintf(stderr, "CDRAG_drag_drop: %s %s\n", GB.GetClassName(control), control->name);
+
 	CDRAG_clear(true);
 	CDRAG_info.event = e;
 	CDRAG_destination = control;
