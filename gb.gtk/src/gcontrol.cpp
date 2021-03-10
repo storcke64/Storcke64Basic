@@ -555,7 +555,7 @@ void gControl::setVisible(bool vl)
 		gtk_widget_hide(border);
 	}
 
-	if (pr) pr->performArrange();
+	if (!isIgnore() && pr) pr->performArrange();
 }
 
 /*****************************************************************
