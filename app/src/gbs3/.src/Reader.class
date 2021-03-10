@@ -23,7 +23,6 @@ Private BlockNames As New String[]                                              
 Public BlockDefined As New Collection(gb.ignorecase)                   '  Collection of defined blocks
 Public BlockType As New String[]                                                             ' Type of block being created
 
-Public bClassIsMain As Boolean = False                                            ' indicates if a class is startup target
 Private $bInClass As Boolean = False                                                '  Processing a class block
 Private cIncludedFiles As New Collection(gb.Ignorecase)                   ' List of already included files, only load included files once
 Private cIncludeStack As New String[]                                           ' List of files included into this build, to check for circular refrence

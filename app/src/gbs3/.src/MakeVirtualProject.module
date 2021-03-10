@@ -8,6 +8,7 @@ Public $hOutFile As File                                              ' Main Mod
 Public Sub _Call($oContext As Context, sPath As String) As String 
 
   Dim sPrjFileContent As String
+  Dim RootModule As String = ""
   'Dim i As Integer
 
   $oContext.$sFinalProgram = ""
@@ -42,7 +43,12 @@ Public Sub _Call($oContext As Context, sPath As String) As String
     $oContext.$sCompilerOptions &= "\n"
   Endif
 
-  Try $hOutFile = Open $sPrjPath &/ ".src" &/ ScriptPreProcess.ProjectInfo["Startup"] & ".module" For Write Create
+  If $oContext.$bClassAsStartup Then 
+     RootModule = $sPrjPath &/ ".src" &/ "ScriptInfoModule.module"
+  Else
+    RootModule = $sPrjPath &/ ".src" &/ ScriptPreProcess.ProjectInfo["Startup"] & ".module"
+  Endif 
+  Try $hOutFile = Open RootModule For Write Create
   If Error Then
       Error.Raise("Unable to create module file")
   Endif
