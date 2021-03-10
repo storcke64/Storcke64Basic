@@ -1805,46 +1805,6 @@ Public Sub imvImage_Draw(hZoom As Image)
     Paint.Translate(hOffset.X, hOffset.Y)
     Paint.Scale(imvImage.Zoom, imvImage.Zoom)
     
-    ' If bBalance Then
-    '   
-    '   ' If $hSelect.IsInverted() Then
-    '   '   hImage = hZoom.Copy()
-    '   ' Else
-    '     hRect = $hSelect.GetExtentsInt(True)
-    '     If hRect.X < 0 Then
-    '       hRect.W += hRect.X
-    '       hRect.X = 0
-    '     Endif
-    '     If hRect.Y < 0 Then
-    '       hRect.H += hRect.Y
-    '       hRect.Y = 0
-    '     Endif
-    '     hImage = hZoom.Copy(hRect.X, hRect.Y, hRect.Width, hRect.Height)
-    '   'Endif
-    '   
-    '   FImageProperty.ApplyBalance(hImage)
-    '   
-    '   ' If $hSelect.IsInverted() Then
-    '   '   Paint.Save
-    '   '   Paint.Reset
-    '   '   imvImage._Paint(hImage, hOffset.X, hOffset.Y)
-    '   '   Paint.Restore
-    '   ' Endif
-    '   
-    '   Paint.Save
-    '   Paint.FillRule = FImageProperty.GetFillRule()
-    '   $hSelect.Paint($hImage, CImageSelection.ACTION_CLIP)
-    '   Paint.Reset
-    '   'Paint.Operator = Paint.OperatorSource
-    '   ' If $hSelect.IsInverted() Then
-    '   '   imvImage._Paint(hZoom, hOffset.X, hOffset.Y)
-    '   ' Else
-    '     imvImage._Paint(hImage, hOffset.X + hRect.X * imvImage.Zoom, hOffset.Y + hRect.Y * imvImage.Zoom)
-    '   ' Endif
-    '   Paint.Restore
-    '   
-    ' Endif
-    
     Paint.LineWidth = 1 / imvImage.Zoom
     Paint.DashOffset = -$fDashOffset
     
@@ -2015,10 +1975,15 @@ Public Sub imvImage_Draw(hZoom As Image)
         hImage = New Image(Ceil(.Width), Ceil(.Height), Color.Transparent)
         
         Paint.Begin(hImage)
-        Paint.Brush = Paint.Image($hPaste)
+        
         $hPasteSelect.Translate(-Floor(.X), -Floor(.Y))
-        Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
-        $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
+        
+        ' Paint.Brush = Paint.Image($hPaste)
+        ' Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
+        ' $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
+        Paint.Matrix = $hPasteSelect._BrushMatrix.Copy()
+        Paint.DrawImage($hPaste, 0, 0)
+        
         $hPasteSelect.Translate(Floor(.X), Floor(.Y))
         Paint.End
       
@@ -2580,15 +2545,15 @@ Private Sub DoPaste()
 
   If $hSelect Then $hSelect.Paint($hImage, CImageSelection.ACTION_CLIP)
   
-  Paint.Brush = Paint.Image($hPaste) ', ($hImage.W - $hPaste.W) \ 2, ($hImage.H - $hPaste.H) \ 2)
-  Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
-  $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
+  ' Paint.Brush = Paint.Image($hPaste) ', ($hImage.W - $hPaste.W) \ 2, ($hImage.H - $hPaste.H) \ 2)
+  ' Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
+  ' $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
+  Paint.Matrix = $hPasteSelect._BrushMatrix.Copy()
+  Paint.DrawImage($hPaste, 0, 0)
   
   Paint.End
   
   SetImage(hImage)
-  'ClearPaste
-  'SetTool("paste")
   
 End
 
