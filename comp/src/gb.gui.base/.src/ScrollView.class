@@ -39,7 +39,7 @@ Public Sub _new()
   $hCont.Move(0, 0)
   
   Me._Container = $hCont
-  $hTimer = New Timer As "TimerArrange"
+  $hTimer = New Timer As "AutoResizeContents"
   $hTimer.Trigger
   
   _OnBackgroundChange()
@@ -61,12 +61,11 @@ End
 Public Sub TimerArrange_Timer()
   
   AutoResizeContents
-  $hTimer = Null
   
 End
 
 
-Private Sub AutoResizeContents()
+Public Sub AutoResizeContents_Timer()
 
   Dim W, H As Integer
   Dim hChild As Control
@@ -125,6 +124,12 @@ Private Sub AutoResizeContents()
   
   $bLock = False
   
+End
+
+Private Sub AutoResizeContents()
+
+  $hTimer.Trigger
+
 End
 
 Public Sub Panel_MouseDown()

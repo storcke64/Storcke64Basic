@@ -7,9 +7,12 @@ Static Private $sLastFont As String
 
 Static Private Sub AddThreeDots(sStr As String) As String
   
-  While InStr(". \n", Right(sStr))
+  Do
+    sStr = RTrim(sStr)
+    If Right(sStr) <> "." Then Break 
     sStr = Left(sStr, -1)
-  Wend
+  Loop
+  
   Return sStr & "…"
   
 End
@@ -26,7 +29,7 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
   Dim WT As Integer
   Dim HT As Integer
   
-  If Not Text Then Return
+  If Not Text Or If W <= 0 Then Return
   
   HT = HL
   If H = 0 Then H = HT
@@ -36,7 +39,7 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
   For I = 1 To L
     
     sCar = String.Mid$(Text, I, 1)
-    If I < L And If InStr(" \n", sCar) = 0 Then Continue
+    'If I < L And If InStr("\n", sCar) = 0 Then Continue
     
     sLine = String.Mid$(Text, SL, I - SL)
     
@@ -75,9 +78,12 @@ Static Private Sub HtmlLeft(sHtml As String, iPos As Integer) As String
   Dim bMarkup As Boolean
   Dim sCar As String
   Dim I As Integer
+  Dim aHtml As String[]
 
   For I = 1 To String.Len(sHtml)
+    
     sCar = String.Mid(sHtml, I, 1)
+    
     If sCar = "<" Then
       bMarkup = True
       sRes &= sCar
@@ -87,10 +93,25 @@ Static Private Sub HtmlLeft(sHtml As String, iPos As Integer) As String
       sRes &= sCar
       Continue
     Endif
+    
     If bMarkup Or If I <= iPos Then sRes &= sCar
+    
   Next
 
-  Return sRes
+  aHtml = Main.SplitHTML(sRes)
+  I = 0
+  While I < aHtml.Max
+    sCar = aHtml[I]
+    If sCar Begins "<" And If sCar Ends ">" Then
+      If aHtml[I + 1] = "</" & Mid$(sCar, 2, -1) & ">" Then
+        aHtml.Remove(I, 2)
+        Continue
+      Endif
+    Endif
+    Inc I
+  Wend
+
+  Return RTrim(aHtml.Join(""))
   
 End
 
@@ -100,6 +121,9 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
   Dim sCar As String
   Dim bMarkup As Boolean
   Dim iLen As Integer
+  Dim sText As String
+  Dim sLeft As String
+  Dim sPrevLeft As String
   
   If Not RichText Or If W <= 0 Then Return
   If H = 0 Then H = Paint.Font.Height
@@ -113,13 +137,17 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
       bMarkup = False
     Endif
     If bMarkup Then Continue
-    If Paint.Font.RichTextHeight(HtmlLeft(RichText, I) & "…", W) > H Then Break
+    sPrevLeft = sLeft
+    sLeft = HtmlLeft(RichText, I)
+    If Paint.Font.RichTextHeight(AddThreeDots(sLeft), W) > H Then Break
   Next
   
   If I = 1 Then Return
   If I > iLen Then Return RichText
   
-  Return HtmlLeft(RichText, I - 1) & "…"
+  sText = sPrevLeft
+  If sText Then sText = AddThreeDots(sText)
+  Return sText
   
 End
 

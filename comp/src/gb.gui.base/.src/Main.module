@@ -61,3 +61,107 @@ Public Sub GetFileSize(iSize As Long, Optional nDigit As Integer = 1) As String
   
 End
 
+Public Sub SplitHTML(Html As String) As String[]
+
+  Dim P As Integer
+  Dim iLen As Integer
+  Dim C As String
+  Dim sResult As String
+  Dim C2 As String
+  Dim aResult As String[]
+  
+  aResult = New String[]
+  iLen = String.Len(Html)
+  
+READ_TEXT:
+  
+  GoSub LOOK_CHAR
+  
+  If C = "<" Then Goto READ_MARKUP
+  If C = "&" Then Goto READ_ENTITY
+  
+  GoSub READ_CHAR
+  Goto READ_TEXT
+  
+READ_MARKUP:
+
+  GoSub ADD_RESULT
+  GoSub READ_CHAR
+  
+READ_MARKUP_NAME:
+
+  GoSub READ_CHAR
+  
+  If C = " " Then Goto READ_MARKUP_REST
+  If C = ">" Then Goto READ_MARKUP_END
+  
+  Goto READ_MARKUP_NAME
+  
+READ_MARKUP_REST:
+
+  GoSub READ_CHAR
+  
+  If C = ">" Then Goto READ_MARKUP_END
+  
+  If C = Chr$(34) Or If C = "'" Then 
+    C2 = C
+    Goto READ_STRING
+  Endif
+  
+  Goto READ_MARKUP_REST
+
+READ_MARKUP_END:
+
+  GoSub ADD_RESULT
+  Goto READ_TEXT
+
+READ_STRING:
+
+  GoSub READ_CHAR
+  
+  If C = C2 Then Goto READ_MARKUP
+  
+  Goto READ_STRING
+
+READ_ENTITY:
+
+  GoSub ADD_RESULT
+  GoSub READ_CHAR
+
+  Do
+    GoSub READ_CHAR
+    If Not IsDigit(C) And If Not IsLetter(C) And If C <> "#" Then Break
+  Loop
+  
+  GoSub ADD_RESULT
+  Goto READ_TEXT
+  
+LOOK_CHAR:
+
+  If P >= iLen Then 
+    C = ""
+  Else
+    C = String.Mid$(Html, P + 1, 1)
+  Endif
+  Return
+  
+READ_CHAR:
+
+  Inc P
+  If P > iLen Then
+    GoSub ADD_RESULT
+    Return aResult
+  Endif
+  C = String.Mid$(Html, P, 1)
+  sResult &= C
+  Return
+  
+ADD_RESULT:
+
+  If sResult Then
+    aResult.Add(sResult)
+    sResult = ""
+  Endif
+  Return
+  
+End

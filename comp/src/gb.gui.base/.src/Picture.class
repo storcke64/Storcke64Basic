@@ -57,7 +57,6 @@ Static Public Sub _get(Path As String) As Picture
   
   If Path Begins "icon:/" Then
     
-    'Debug Path
     Try hPict = Stock[Mid$(Path, 7)]
     If Not hPict Then Return 
     

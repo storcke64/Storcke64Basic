@@ -44,7 +44,7 @@ Public Sub Frame_Arrange()
 
   If Align.IsMiddle($iAlign) Then
     H += DS \ 2
-  Else If Align.IsTop($iAlign) Then
+  Else If Align.IsBottom($iAlign) Then
     H += DS
   Else 
     H += DS + DS \ 2
@@ -63,6 +63,7 @@ Public Sub Frame_Draw()
   Dim H As Integer
   Dim iAlign As Integer
   Dim Y As Integer
+  Dim X As Integer
   
   DS = Desktop.Scale
   
@@ -72,7 +73,14 @@ Public Sub Frame_Draw()
     
     If $hTextFont Then Paint.Font = $hTextFont
     H = Max(Paint.Font.H, DS)
-    W = $hFrame.W - DS * 3
+    W = $hFrame.W
+    If Align.IsBottom($iAlign) Then 
+      W -= DS * 2
+      X = DS
+    Else If Align.IsMiddle($iAlign) Then 
+      W -= DS * 3
+      X = DS + DS \ 2
+    Endif
     
     If $bRichText Then
       sText = Paint.TrimRichText($sText, W)
@@ -84,14 +92,14 @@ Public Sub Frame_Draw()
 
     If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, H \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - (DS + H) \ 2 - 4, Me.Background)
     
-    If Align.IsTop($iAlign) Then
+    If Align.IsBottom($iAlign) Then
 
       Paint.DrawRect(0, 0, $hFrame.W, $hFrame.H, Color.LightForeground)
       Y = DS \ 2
       
-    Else If Align.IsBottom($iAlign) Then
+    Else If Align.IsTop($iAlign) Then
       
-      Paint.DrawRect(0, H + DS \ 2, $hFrame.W, $hFrame.H - DS * 2 - DS \ 2, Color.LightForeground)
+      Paint.DrawRect(0, H + DS \ 2, $hFrame.W, $hFrame.H - H - DS \ 2, Color.LightForeground)
 
     Else
       
@@ -146,9 +154,9 @@ Public Sub Frame_Draw()
       Paint.Background = Style.ForegroundOf(Me)
       
       If $bRichText Then
-        Paint.DrawRichText(sText, DS, Y, $hFrame.W - DS * 2, H, iAlign)
+        Paint.DrawRichText(sText, X, Y, $hFrame.W - X * 2, H, iAlign)
       Else
-        Paint.DrawText(sText, DS, Y, $hFrame.W - DS * 2, H, iAlign)
+        Paint.DrawText(sText, X, Y, $hFrame.W - X * 2, H, iAlign)
       Endif
       
     Endif
