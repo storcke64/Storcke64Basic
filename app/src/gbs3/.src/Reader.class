@@ -93,13 +93,13 @@ Private Sub GetFile(SourceFile As String) As String
 End
 
 Private $cKeywords As Collection = ["PRIVATE": True, "PUBLIC": True, "STATIC": True, "SUB": True, "FUNCTION": True, "PROCEDURE": True, "STRUCT": True, "ENUM": True]
-Private $cSegments As Collection = ["FORM": True, "MODULE": True, "CONNECTION": True]
+'Private $cSegments As Collection = ["FORM": True, "MODULE": True, "CONNECTION": True]
 Private Sub TokenizeFile(SourceBuffer As String)
   Dim SourceList As String[]
   Dim sClassName As String = ""
   Dim MainPos As Integer = 1
   $cKeywords.default = False
-  $cSegments.Default = False
+  '$cSegments.Default = False
  
   CurrentLineNumber.Push(0)
   
@@ -110,17 +110,21 @@ Private Sub TokenizeFile(SourceBuffer As String)
     If Left(sLine, 3) = "#!/" Then sLine = "' " & sLine  ' eliminate the script header
     
     Highlight.Analyze(sLine)
+    
+    Dim types As Integer[] = Highlight.Types
+    Dim symbols As String[] = Highlight.symbols
+    
     '' Here we look for any definition which will be a seperate source type or includes other sources
     '' Building the source pool as we go
    
     '' Check for The definition of main, Knowing this speeds up process of program portion of the script
-    If Highlight.Types.count >= 4 And If Highlight.Types[0] = Highlight.Keyword Then
+    If types.count >= 4 And If types[0] = Highlight.Keyword Then
       MainPos = 1
-      If Highlight.Symbols[0] = "PUBLIC" And Highlight.Types[1] = Highlight.keyword Or If Highlight.Types[1] = Highlight.symbol Then
-        If Highlight.Types[1] = Highlight.symbol Then MainPos = 0
-        If Highlight.Symbols[MainPos] = "SUB" Or If Highlight.Symbols[MainPos] = "PROCEDURE" Or If Highlight.Symbols[MainPos] = "FUNCTION" Then
-          If Upper(Highlight.Symbols[MainPos + 1]) = "MAIN" Then
-              If Highlight.Types.count = 4 Then
+      If symbols[0] = "PUBLIC" And types[1] = Highlight.keyword Or If types[1] = Highlight.symbol Then
+        If types[1] = Highlight.symbol Then MainPos = 0
+        If symbols[MainPos] = "SUB" Or If symbols[MainPos] = "PROCEDURE" Or If symbols[MainPos] = "FUNCTION" Then
+          If Upper(symbols[MainPos + 1]) = "MAIN" Then
+              If types.count = 4 Then
                 Warning("Main Was Not Declared as Public, assuming public")
                 sLine = "Public " & sline 
               Endif
@@ -140,44 +144,43 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
     '' Check for specifickeywords that trigger reliance upon MAIN being defined
-    
-     If Highlight.Symbols.count > 0 And If Highlight.Types[0] = Highlight.keyword Or $cSegments.Exist(Upper(Highlight.Symbols[0])) Then
+     If symbols.count > 0 And If types[0] = Highlight.keyword Or $cBlockTypes.Exist(Upper(symbols[0])) Then
        
-        If Highlight.Symbols[0] = "EXPORT" Then
+        If symbols[0] = "EXPORT" Then
           $oContext.$bExport = True
           sLine = "' " & sLine
-        Else If Not $bInClass And If $cKeywords[Highlight.Symbols[0]] Then
-            aWarnings.Add("Warning : Defined without main : " & Highlight.Symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+        Else If Not $bInClass And If $cKeywords[symbols[0]] Then
+            aWarnings.Add("Warning : Defined without main : " & symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
             bPublicOrSubDef = True
             GlobalItemPosition.Add(ProgramLines.count)
-        Else If Not $bInClass And If Highlight.Symbols[0] = "FAST" Then
+        Else If Not $bInClass And If symbols[0] = "FAST" Then
           
-          If Highlight.Types.count > 2 Then
-               aWarnings.Add("Warning : Defined without main : " & Highlight.Symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+          If types.count > 2 Then
+               aWarnings.Add("Warning : Defined without main : " & symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
              bPublicOrSubDef = True
              GlobalItemPosition.Add(ProgramLines.count)
           Else If $oContext.$bFast = True Then   ' already defined
                Warning("FAST Duplicate Definition at " & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last)
                sLine = "' " & sLine
-          Else If Highlight.types.count = 1 Then
+          Else If types.count = 1 Then
              Verbose("FAST(Jit) activated for Module:" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last)
              $oContext.$bFast = True
              sLine = "' " & sline
-          Else If Highlight.Types.count = 2 And If Highlight.Symbols[1] = "UNSAFE" Then
+          Else If types.count = 2 And If symbols[1] = "UNSAFE" Then
             Verbose("FAST UNSAFE(Jit and nochecks) activated for Module:" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last)
             $oContext.$bFast = True
             $oContext.$bUnsafe = True
             sLine = "' " & sline
           Else
-            CompileError(cIncludeStack.last, CurrentLineNumber.last, "UnKnown Entry : " & Highlight.Symbols[0] & " Following 'FAST'  Definition")
+            CompileError(cIncludeStack.last, CurrentLineNumber.last, "UnKnown Entry : " & symbols[0] & " Following 'FAST'  Definition")
           Endif
         Endif
          
      '' check for inclusion of Components or libraries
     
-        If Highlight.Symbols[0] = "USE" 
-            If Highlight.Symbols.count >= 2 Then
-                 ProcessUse(Highlight.Symbols, Highlight.types, sLine)
+        If symbols[0] = "USE" 
+            If symbols.count >= 2 Then
+                 ProcessUse(symbols, types, sLine)
                 Continue
             Else
                 CompileError(cIncludeStack.last, CurrentLineNumber.last, "USE statement without component or library definitions")
@@ -185,9 +188,9 @@ Private Sub TokenizeFile(SourceBuffer As String)
         Endif
         
         '' Check for the end of a class definition      
-        If Highlight.Symbols[0] = "END" And Highlight.Symbols.count = 2 Then
+        If symbols[0] = "END" And symbols.count = 2 Then
           
-          If Highlight.types[1] = Highlight.symbol Or Highlight.types[1] = Highlight.keyword And If Highlight.Symbols[1] == $sCurrentBlock Then
+          If types[1] = Highlight.symbol Or types[1] = Highlight.keyword And If symbols[1] == $sCurrentBlock Then
              If Not $bInClass Then
                CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected : " & sLine)
              Endif
@@ -200,23 +203,23 @@ Private Sub TokenizeFile(SourceBuffer As String)
         Endif
         
         '' Check for the definition of a block and make where it is defined
-        If $cBlockTypes.Exist(Upper(Highlight.Symbols[0])) Then 
+        If $cBlockTypes.Exist(Upper(symbols[0])) Then 
           
-             $sCurrentBlock = (Upper(Highlight.Symbols[0]))
-             If Highlight.Symbols.count < 2 Then
+             $sCurrentBlock = (Upper(symbols[0]))
+             If symbols.count < 2 Then
                CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst("&1 : Name Missing ", $sCurrentBlock))
             Endif 
-            If Highlight.Types[1] = Highlight.symbol Then
+            If types[1] = Highlight.symbol Then
                 If $bInClass Then
                     CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst(" &1 : Unexpected &1 definition inside &1 definition : ", $sCurrentBlock) & sLine)
                 Endif
-                Dim cdefBlock As ClassDef = BlockDefined[Highlight.Symbols[1] & "." & $sCurrentBlock]
+                Dim cdefBlock As ClassDef = BlockDefined[symbols[1] & "." & $sCurrentBlock]
                 If Not IsNull(cdefBlock) And If cdefBlock.sExtention == $sCurrentBlock Then 
-                   CompileError(cIncludeStack.last, CurrentLineNumber.last, $sCurrentBlock & " : " & Highlight.Symbols[1] & " Already defined")
+                   CompileError(cIncludeStack.last, CurrentLineNumber.last, $sCurrentBlock & " : " & symbols[1] & " Already defined")
                 Endif
-                Verbose("Begin to define Block : " & $sCurrentBlock & " : " & Highlight.Symbols[1])
+                Verbose("Begin to define Block : " & $sCurrentBlock & " : " & symbols[1])
                 BlockList.Push(ProgramSymbols.Count)
-                BlockNames.Push(Highlight.Symbols[1])
+                BlockNames.Push(symbols[1])
                 BlockLineNumbers.Push(CurrentLineNumber.last)
                 BlockType.Push($sCurrentBlock)
                 $binClass = True
@@ -227,21 +230,21 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
     ''Check for an include statement -- Include is not a keyword, perhaps it should be
-    If Highlight.types.count >= 2 And If Highlight.Types[0] = Highlight.Preprocessor And If Highlight.Symbols[0] = "#INCLUDE" Then
-         ProcessInclude(Highlight.symbols, Highlight.types, sDefaultFilePath)
+    If types.count >= 2 And If types[0] = Highlight.Preprocessor And If symbols[0] = "#INCLUDE" Then
+         ProcessInclude(symbols, types, sDefaultFilePath)
          sLine = "'" & sLine
          Continue
-    Else If Highlight.Types.count >= 2 And If Highlight.Types[0] = Highlight.symbol And If Highlight.Types[1] = Highlight.string Then
-      If Highlight.symbols[0] == "INCLUDE" Then
+    Else If types.count >= 2 And If types[0] = Highlight.symbol And If types[1] = Highlight.string Then
+      If symbols[0] == "INCLUDE" Then
          Warning("'Include' is Replaced by '#Include' and may not be supported in future releases")
-         ProcessInclude(Highlight.symbols, Highlight.types, sDefaultFilePath)
+         ProcessInclude(symbols, types, sDefaultFilePath)
          Continue
       Endif
     Endif
     
     '' Check for out of stream lines
-    If Highlight.Types.count >= 2 And If Highlight.Types[0] = Highlight.Preprocessor Then
-      If Highlight.Types.count >= 2 And If Highlight.Symbols[0] = "#SCRIPT" Then 
+    If types.count >= 2 And If types[0] = Highlight.Preprocessor Then
+      If types.count >= 2 And If symbols[0] = "#SCRIPT" Then 
          'ProjectOptions(Split(sLine, "# ,", "\"\",true,true"), CurrentLineNumber.last, cIncludeStack.last)
          Highlight.Analyze(Right(Trim(sline), -1))
          ScriptPreProcess(Highlight.symbols, Highlight.types, CurrentLineNumber.last, cIncludeStack.last)
@@ -250,7 +253,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
     ProgramLines.Add(sLine)
-    ProgramSymbols.Add(Highlight.Symbols)
+    ProgramSymbols.Add(Highlight.symbols)
     ProgramTypes.Add(Highlight.types)
     ProgramPositions.Add(Highlight.Positions)
     
