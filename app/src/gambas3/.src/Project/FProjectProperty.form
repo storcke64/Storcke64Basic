@@ -166,12 +166,9 @@
             ReadOnly = True
           }
         }
-        { Panel9 VBox
+        { btnIcon ToolButton
           MoveScaled(73,0,9,9)
-          { btnIcon ToolButton
-            MoveScaled(0,0,9,9)
-            Border = True
-          }
+          Border = True
         }
       }
       { panGeneral HPanel
@@ -566,8 +563,8 @@
       { Label7 Label
         MoveScaled(0,0,84,3)
         Font = Font["Bold"]
-        Text = ("Edition")
         Alignment = Align.BottomNormal
+        Text = ("Edition")
       }
       { HBox13 HBox
         MoveScaled(1,4,83,4)
@@ -604,8 +601,8 @@
       { Label8 Label
         MoveScaled(0,14,84,3)
         Font = Font["Bold"]
-        Text = ("Compilation")
         Alignment = Align.BottomNormal
+        Text = ("Compilation")
       }
       { HBox12 HBox
         MoveScaled(1,18,83,4)
@@ -649,8 +646,8 @@
       { Label19 Label
         MoveScaled(0,33,84,3)
         Font = Font["Bold"]
-        Text = ("Translation")
         Alignment = Align.BottomNormal
+        Text = ("Translation")
       }
       { HBox9 HBox
         MoveScaled(1,37,83,4)
@@ -683,8 +680,8 @@
       { Label27 Label
         MoveScaled(0,47,84,3)
         Font = Font["Bold"]
-        Text = ("Version control")
         Alignment = Align.BottomNormal
+        Text = ("Version control")
       }
       { HBox6 HBox
         MoveScaled(1,52,83,4)

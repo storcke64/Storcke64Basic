@@ -3768,7 +3768,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   Endif
 
   If Not $bTesting Then FMain.UpdateTranslate
-  RefreshComponents
+  RefreshComponents(True)
   UpdateLibraries(Libraries)
   'CreateConnectionDirectory
 

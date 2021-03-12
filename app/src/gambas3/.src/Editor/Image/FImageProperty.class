@@ -1031,20 +1031,22 @@ Public Sub OnProjectActivate()
   'UpdateInfo
   
   hCurrent = GetCurrent()
-  If hCurrent Then
-    ShowGridOption(hCurrent.HasGrid())
-    vGrid = hCurrent.GetGrid()
-    If vGrid Then
-      $bDoNotUpdateGrid = True
-      txtGridRes.Value = vGrid[0]
-      txtGridSnap.Value = vGrid[1]
-      chkGridSnap.Value = vGrid[2]
-      chkGridDiag.Value = vGrid[3]
-      $bDoNotUpdateGrid = False
-    Endif
-    ShowTextOption(hCurrent.GetTool() = "text")
-    Me.Enabled = Not hCurrent.ReadOnly
+  If Not hCurrent Then Return
+  
+  OnToolChange(hCurrent.GetTool())
+  
+  ShowGridOption(hCurrent.HasGrid())
+  vGrid = hCurrent.GetGrid()
+  If vGrid Then
+    $bDoNotUpdateGrid = True
+    txtGridRes.Value = vGrid[0]
+    txtGridSnap.Value = vGrid[1]
+    chkGridSnap.Value = vGrid[2]
+    chkGridDiag.Value = vGrid[3]
+    $bDoNotUpdateGrid = False
   Endif
+  
+  Me.Enabled = Not hCurrent.ReadOnly
   
 End
 
@@ -1414,7 +1416,7 @@ End
 
 Public Sub OnToolChange(sTool As String)
   
-  If sTool <> "text" Then ShowTextOption(False)
+  ShowTextOption(sTool = "text")
   panRoundness.Visible = sTool = "rectangle"
   panTolerance.Visible = sTool = "magic"
   

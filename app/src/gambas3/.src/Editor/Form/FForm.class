@@ -280,7 +280,9 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
       Inc iLevel
       sClass = Split(Trim(Mid$(sLine, 2)), " ")[1]
       If Left$(sClass) = "#" Then sClass = Mid$(sClass, 2)
-      If Not Project.Documentation.Classes.Exist(sClass) Then Return Subst(("Unknown control: &1"), sClass)
+      If Not Project.Documentation.Classes.Exist(sClass) Then 
+        Return Subst(("Unknown control: &1"), sClass)
+      Endif
     Else If sLine = "}" Then
       Dec iLevel
       If iLevel = 0 Then Break
