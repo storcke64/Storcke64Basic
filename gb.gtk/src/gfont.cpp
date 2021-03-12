@@ -273,6 +273,7 @@ void gFont::invalidateMetrics()
 		pango_font_metrics_unref(_metrics);
 		_metrics = NULL;
 	}
+	_height = 0;
 }
 
 void gFont::initFlags()
@@ -470,7 +471,6 @@ void gFont::setName(char *nm)
 	pango_font_description_set_family(desc, nm);
 	
 	_name_set = true;
-	_height = 0;
 	invalidateMetrics();
 	
 	checkMustFixSpacing();
@@ -499,7 +499,6 @@ void gFont::setSize(double sz)
 	pango_font_description_set_size(desc, (int)(sz * PANGO_SCALE + 0.5));
 	
 	_size_set = true;
-	_height = 0;
 	invalidateMetrics();
 }
 
