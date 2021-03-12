@@ -17,58 +17,78 @@ Static Private Sub AddThreeDots(sStr As String) As String
   
 End
 
+Static Private Sub TrimTextLine(sText As String, W As Float, Optional bDots As Boolean) As String[]
+
+  Dim I As Integer
+  Dim WT As Integer
+  Dim L As Integer
+  Dim aResult As New String[]
+  Dim sCar As String
+  Dim P As Integer
+  
+  If Not sText Then Return [""]
+  L = String.Len(sText)
+  
+  While I < L
+    Inc I
+    
+    sCar = String.Mid$(sText, I, 1)
+    If sCar = " " Or If sCar = "-" Then P = I
+    
+    If bDots Then
+      WT = Paint.Font.TextWidth(AddThreeDots(String.Left(sText, I)))
+    Else
+      WT = Paint.Font.TextWidth(RTrim(String.Left(sText, I)))
+    Endif
+    If WT > W Then
+      If P = 0 Then P = Max(1, I - 1)
+      aResult.Add(String.Left(sText, P))
+      sText = String.Mid$(sText, P + 1)
+      I = 0
+      P = 0
+    Endif
+    
+  Wend
+  
+  If sText Then aResult.Add(sText)
+  
+  Return aResult
+  
+End
 
 Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As String
   
-  Dim I, S, L As Integer
-  Dim HL As Integer = Paint.Font.Height
-  Dim sLine As String
-  Dim sSep As String
-  Dim sCar As String
-  Dim SL As Integer
-  Dim WT As Integer
-  Dim HT As Integer
+  Dim I As Integer
+  Dim HL As Integer
+  Dim aText As String[]
+  Dim N As Integer
+  Dim aResult As String[]
   
   If Not Text Or If W <= 0 Then Return
   
-  HT = HL
-  If H = 0 Then H = HT
-  SL = 1
-  L = String.Len(Text)
+  HL = Paint.Font.Height
+  If H = 0 Then H = HL
   
-  For I = 1 To L
-    
-    sCar = String.Mid$(Text, I, 1)
-    'If I < L And If InStr("\n", sCar) = 0 Then Continue
-    
-    sLine = String.Mid$(Text, SL, I - SL)
-    
-    If (HT + HL) > H Then
-      WT = Paint.Font.TextWidth(sLine & "…")
-      If WT > W Then
-        If S = 0 Then Return
-        Return AddThreeDots(String.Left(Text, S - 1))
-      Else If sCar = "\n" Then
-        Return AddThreeDots(String.Left(Text, I - 1))
-      Endif
-    Else
-      WT = Paint.Font.TextWidth(sLine)
-      If WT > W Then
-        If S = 0 Then Return
-        Text = String.Left(Text, S - 1) & "\n" & String.Mid$(Text, S + 1)
-        HT += HL
-        SL = S + 1
-        Dec I
-      Endif
+  N = CInt(H / HL) - 1
+  If N < 0 Then Return
+  
+  aText = Split(Text, "\n")
+
+  Do
+    If I > N Then 
+      aText.Remove(N + 1, -1)
+      aResult = TrimTextLine(aText.Last, W, True)
+      aText.Last = AddThreeDots(aResult[0])
+      Break
     Endif
-    
-    sSep = sCar
-    S = I
-    If sSep = "\n" Then HT += HL
-    
-  Next
-  
-  Return Text
+    If I >= aText.Count Then Break
+    aResult = TrimTextLine(aText[I], W)
+    aText.Remove(I)
+    aText.Insert(aResult, I)
+    I += aResult.Count
+  Loop
+
+  Return aText.Join("\n")
   
 End
 
