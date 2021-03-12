@@ -228,10 +228,7 @@ void DRAW_rich_text(QPainter *p, const QString &text, float x, float y, float w,
 		t = "<div align=\"" + a + "\">" + t + "</div>";
 	
 	if (!doc)
-	{
 		doc = new QTextDocument;
-		doc->setDocumentMargin(0);
-	}
 
 	DRAW_init_rich_text(doc, p->font());
 	doc->setHtml(t);

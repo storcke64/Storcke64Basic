@@ -445,9 +445,9 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Font_Height)
 
-	QFontMetrics fm(*(THIS->font));
+	QFontMetricsF fm(*(THIS->font));
 
-	GB.ReturnInteger(fm.height() + fm.leading());
+	GB.ReturnInteger(fm.lineSpacing());
 
 END_PROPERTY
 
