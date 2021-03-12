@@ -1,13 +1,13 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,120,64)
+  MoveScaled(0,0,113,64)
   Arrangement = Arrange.Fill
   Margin = True
+  Padding = 48
   { Frame1 Frame
     MoveScaled(7,5,89,44)
-    Font = Font["Ubuntu,12"]
     Text = ("Ceci est le titre de la frame et il peut être long. Mais très long en fait. Avec un point.")
-    Alignment = Align.TopLeft
+    TextFont = Font["+3"]
   }
 }

@@ -78,8 +78,8 @@ Public Sub Frame_Draw()
       W -= DS * 2
       X = DS
     Else If Align.IsMiddle($iAlign) Then 
-      W -= DS * 3
-      X = DS + DS \ 2
+      W -= DS * 4
+      X = DS * 2
     Endif
     
     If $bRichText Then
@@ -105,23 +105,27 @@ Public Sub Frame_Draw()
       
       Paint.Background = Color.LightForeground
   
-      If Align.IsLeft($iAlign) Then
+      If Not sText Then
   
-        Paint.MoveTo(DS \ 2, H \ 2)
+        Paint.DrawRect(0, H \ 2, $hFrame.W, $hFrame.H - H \ 2, Color.LightForeground)
+
+      Else If Align.IsLeft($iAlign) Then
+  
+        Paint.MoveTo(DS, H \ 2)
         Paint.LineTo(0, H \ 2)
         Paint.LineTo(0, $hFrame.H - 1)
         Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
         Paint.LineTo($hFrame.W - 1, H \ 2)
-        Paint.LineTo(hRect.W + DS + DS \ 2, H \ 2)
+        Paint.LineTo(hRect.W + DS * 3, H \ 2)
 
       Else If Align.IsRight($iAlign) Then
   
-        Paint.MoveTo($hFrame.W - hRect.W - DS - DS \ 2, H \ 2)
+        Paint.MoveTo($hFrame.W - hRect.W - DS * 3, H \ 2)
         Paint.LineTo(0, H \ 2)
         Paint.LineTo(0, $hFrame.H - 1)
         Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
         Paint.LineTo($hFrame.W - 1, H \ 2)
-        Paint.LineTo($hFrame.W - DS \ 2, H \ 2)
+        Paint.LineTo($hFrame.W - DS, H \ 2)
 
       Else ' center
   

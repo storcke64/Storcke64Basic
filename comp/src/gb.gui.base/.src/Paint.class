@@ -13,7 +13,9 @@ Static Private Sub AddThreeDots(sStr As String) As String
     sStr = Left(sStr, -1)
   Loop
   
-  Return sStr & "…"
+  If sStr Then sStr &= "…"
+  
+  Return sStr
   
 End
 
@@ -41,9 +43,11 @@ Static Private Sub TrimTextLine(sText As String, W As Float, Optional bDots As B
       WT = Paint.Font.TextWidth(RTrim(String.Left(sText, I)))
     Endif
     If WT > W Then
-      If P = 0 Then P = Max(1, I - 1)
+      If P = 0 Then P = I - 1
       aResult.Add(String.Left(sText, P))
+      If P = 0 Then Return aResult
       sText = String.Mid$(sText, P + 1)
+      L = String.Len(sText)
       I = 0
       P = 0
     Endif
@@ -63,6 +67,7 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
   Dim aText As String[]
   Dim N As Integer
   Dim aResult As String[]
+  Dim bAddDots As Boolean
   
   If Not Text Or If W <= 0 Then Return
   
@@ -76,9 +81,12 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
 
   Do
     If I > N Then 
+      bAddDots = N < aText.Max
       aText.Remove(N + 1, -1)
       aResult = TrimTextLine(aText.Last, W, True)
-      aText.Last = AddThreeDots(aResult[0])
+      aText.Last = aResult[0]
+      If aResult.Count > 1 Then bAddDots = True
+      If bAddDots Then aText.Last = AddThreeDots(aText.Last)
       Break
     Endif
     If I >= aText.Count Then Break
