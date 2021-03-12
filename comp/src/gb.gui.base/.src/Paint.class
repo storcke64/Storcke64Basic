@@ -66,7 +66,7 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
   
   If Not Text Or If W <= 0 Then Return
   
-  HL = Paint.Font.Height
+  HL = Paint.Font.TextHeight("")
   If H = 0 Then H = HL
   
   N = CInt(H / HL) - 1
@@ -146,7 +146,7 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
   Dim sPrevLeft As String
   
   If Not RichText Or If W <= 0 Then Return
-  If H = 0 Then H = Paint.Font.Height
+  If H = 0 Then H = Paint.Font.TextHeight("")
   
   iLen = String.Len(RichText)
   For I = 1 To iLen
@@ -159,7 +159,7 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
     If bMarkup Then Continue
     sPrevLeft = sLeft
     sLeft = HtmlLeft(RichText, I)
-    If Paint.Font.RichTextHeight(AddThreeDots(sLeft), W) > H Then Break
+    If Paint.Font.RichTextHeight(sLeft, W) > H Then Break
   Next
   
   If I = 1 Then Return
