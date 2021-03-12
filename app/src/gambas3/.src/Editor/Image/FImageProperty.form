@@ -4,7 +4,7 @@
   MoveScaled(0,0,68,177)
   Persistent = True
   Arrangement = Arrange.Fill
-  { Panel10 ScrollView
+  { svwImageProperty ScrollView
     MoveScaled(1,1,65,175)
     Arrangement = Arrange.Vertical
     Border = False
@@ -345,6 +345,7 @@
         Border = False
         Text = ("Effects")
         TextFont = Font["Bold"]
+        Animated = True
         Hidden = True
         { HPanel4 HBox
           MoveScaled(0,0,59,4)

@@ -924,7 +924,7 @@ Public Function ManageKey() As Boolean
           
         Else If $bGambas And If InStr(". A<", $sMode) Then
           
-          If InStr("([.!$", Key.Text) > 0 Then
+          If InStr("([.!", Key.Text) > 0 Then
           
             InsertItem
             Return

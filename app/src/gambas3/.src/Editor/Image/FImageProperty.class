@@ -1400,12 +1400,6 @@ Public Sub btnTextAlign_Click()
 
 End
 
-Public Sub panEffect_Arrange()
-
-  panEffect.Parent.H = panEffect.H + Desktop.Scale * 2
-
-End
-
 Public Sub slbOpacity_Change()
 
   UpdateBalance
@@ -1545,5 +1539,11 @@ End
 Public Sub chkGridSnap_Click()
 
   UpdateGrid
+
+End
+
+Public Sub panEffect_BeforeArrange()
+
+  panEffect.Parent.H = panEffect.H + Desktop.Scale * 2
 
 End

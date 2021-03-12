@@ -2835,7 +2835,7 @@ Public Sub btnOffset_Click()
   If FImageOffsetSelection.Run() Then Return
   
   AddUndo($hSelect.Copy())
-  $hSelect.Offset(FImageOffsetSelection.Size, FImageOffsetSelection.Duplicate)
+  $hSelect.Offset(FImageOffsetSelection.Size, FImageOffsetSelection.Mode)
   RefreshSelection
 
 End
@@ -3155,7 +3155,7 @@ Public Sub ExecAction(sAction As String)
       
     Case "clear"
       
-      If $hSelect Then
+      If $hSelect And If Not $hSelect.IsVoid() Then
         
         hImage = $hImage.Copy()
         Paint.Begin(hImage)

@@ -528,10 +528,10 @@ Public Sub cmbIconTheme_Click()
   If cmbIconTheme.Index > 0
     Settings["/Theme"] = cmbIconTheme.Text
   Else 
-    Settings["/Theme"] = ""
+    Settings["/Theme"] = "*"
   Endif
   
-  Application.Theme = Settings["/Theme"]
+  Project.UpdateTheme
   Stock.Refresh
   Project.Refresh
   'NeedRestart(cmbIcontheme)

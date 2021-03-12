@@ -344,7 +344,7 @@ Public Sub Main()
   If Not Settings["/ShowMenus", True] Then Env["APPMENU_DISPLAY_BOTH"] = "1"
   Env["QT_LOGGING_RULES"] = "*.debug=false"
 
-  Application.Theme = Settings["/Theme"]
+  UpdateTheme
   DESKTOP_FONT = Application.Font.ToString()
 
   Try Application.Font = Font[Settings["/Font"]]
@@ -7011,4 +7011,17 @@ Public Sub AddAllFileUnderVersionControl()
   
   Project.Refresh
   
+End
+
+Public Sub UpdateTheme()
+
+  Dim sTheme As String
+
+  sTheme = Settings["/Theme", "gambas"]
+  If sTheme = "*" Then sTheme = ""
+  Application.Theme = sTheme
+
+
+  
+
 End

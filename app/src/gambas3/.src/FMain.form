@@ -416,7 +416,7 @@
     { mnuViewProperty Menu
       Action = "property"
       Text = ("Properties")
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/properties"]
       Toggle = True
       Checked = True
     }
@@ -1355,7 +1355,7 @@
               Picture = Picture["icon:/small/view-tree"]
             }
             { btnWorkspaceProperty ToolButton
-              MoveScaled(27,1,4,4)
+              MoveScaled(77,1,4,4)
               Visible = False
               ToolTip = ("Show properties sheet")
               Ignore = True
