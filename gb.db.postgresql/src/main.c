@@ -607,19 +607,28 @@ static int do_query(DB_DATABASE *db, const char *error, PGresult **pres, const c
 
 static int db_version(DB_DATABASE *db)
 {
-	//Check db version
-	const char *vquery =
-		"select substring(version(),12,5)";
-	int dbversion =0;
+	unsigned int verMain = 0, verMajor = 0, verMinor = 0;
+	const char *query = "select version()";
+	const char *version;
+	int dbversion = 0;
 	PGresult *res;
 
-	if (!do_query(db, NULL, &res, vquery, 0))
+	if (!do_query(db, NULL, &res, query, 0))
 	{
-		unsigned int verMain, verMajor, verMinor;
-		sscanf(PQgetvalue(res, 0, 0), "%2u.%2u.%2u", &verMain, &verMajor, &verMinor);
-		dbversion = ((verMain * 10000) + (verMajor * 100) + verMinor);
+		version = PQgetvalue(res, 0, 0);
+		
+		while (*version && !isdigit(*version))
+			version++;
+		
+		if (*version)
+		{
+			sscanf(version, "%2u.%2u.%2u", &verMain, &verMajor, &verMinor);
+			dbversion = ((verMain * 10000) + (verMajor * 100) + verMinor);
+		}
+		
 		PQclear(res);
 	}
+	
 	return dbversion;
 }
 
@@ -1343,7 +1352,7 @@ static int begin_transaction(DB_DATABASE *db)
 
 /*****************************************************************************
 
-	commi_transaction()
+	commit_transaction()
 
 	Commit a transaction.
 
