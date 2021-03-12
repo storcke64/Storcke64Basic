@@ -18,14 +18,17 @@ Public hasAuthor As Boolean = False
 Public hasVersion As Boolean = False
 Public hasOptions As Boolean = False
 
+Public PublicFiles As New String[] 
+
 Public ProjectInfo As Collection
-Public Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eError, eScript
+Public Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eUseHttpServer, ePublic, eError, eScript
 ' On  Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP
 Public KeyWords As Collection = ["TYPE": eType, "VERSION": eVersion, "DESCRIPTION": eDescription, 
                                  "MAINTAINER": eMaintainer, "AUTHORS": eAuthor, "AUTHOR": eAuthor, 
                                  "VENDOR": eVendor, "LICENSE": eLicense,
                                  "INSTALL": eInstall, "TITLE": eTitle, "NAME": eName, "ERROR": eError,
-                                 "SCRIPT": eScript, "STARTUP": eStartup]
+                                 "SCRIPT": eScript, "STARTUP": eStartup, "USEHTTPSERVER": eUseHttpServer,
+                                 "PUBLIC": ePublic]
                                  
 Public CompTypes As Collection = ["LIBRARY": 0, "COMPONENT": 1, "PROGRAM": 2]
 'Private processLine As String[]
@@ -81,7 +84,8 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     Endif
     Inc i
     
-    On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP
+    On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP, 
+                                        SYMUSEHTTPSERVER, SYMPUBLIC
     Continue
 
   SYNOTFOUND:
@@ -144,6 +148,22 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   SYMSTARTUP:
     ProjectInfo["Startup"] = UnQuote(aSymbols[i])
     Continue
+    
+  SYMUSEHTTPSERVER:
+    ProjectInfo["UseHttpServer"] = UnQuote(aSymbols[i])
+    Continue
+    
+  SYMPUBLIC:
+    Dim sPublicFilePath As String = UnQuote(aSymbols[i])
+    Dim sPPATH As String = File.Dir(sPublicFilePath)
+    If sPpath = "" Then 
+        sPublicFilePath = Env["PWD"] &/ sPublicFilePath
+    Endif
+    If Not Exist(sPublicFilePath) Then 
+       CompileError(sPath, LineNumber, "Unable to find Public file:" & sPublicFilePath)
+    Endif
+    PublicFiles.Add(sPublicFilePath)
+    Continue 
     
   SYMIGNORED:
 

@@ -159,13 +159,15 @@ Public Sub Main() As Integer
     $aAppArgs.Insert(RunParms, 0)
   
     Verbose($aAppArgs.Join(" "))
-    verbose("***************** Script Output Begins Bellow This Line **************************")
+    Dim starttime As Float = Timer
+    verbose("***************** Script Output Begins Bellow This Line (" & CStr(Now) & ")**************************")
     If $oContext.$bTestMode Then
       Exec $aAppArgs To $oContext.$sTestModeCapture
     Else
       Exec $aAppArgs Wait
     Endif
-    verbose("***************** Script Output Ends  **************************")
+    verbose("***************** Script Output Ends  ****(" & CStr(Now) & ")**********************")
+    verbose("Execution Time = " & CStr(Timer - starttime))
     
     If Process.LastState = Process.Crashed Then
       Warning(("Script had Segmentation fault, Code=" & Process.LastValue), True)
