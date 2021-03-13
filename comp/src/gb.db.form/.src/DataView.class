@@ -1301,7 +1301,7 @@ Public Sub Find(Where As String, ...)
   
   Dim iIndex As Integer
   
-  iIndex = GetSource().FindNext(Where, ...)
+  iIndex = GetSource().FindNext(Index_Read() + 1, Where, ...)
   MoveTo(iIndex)
   
 End

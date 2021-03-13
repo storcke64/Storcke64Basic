@@ -159,7 +159,9 @@ Private Sub LoadUntil(iIndex As Integer)
   Raise CacheResize
   
 Finally
+  
   If iBusy <> Application.Busy Then Dec Application.Busy
+  
 End
 
 Public Sub Find(sWhere As String, Optional iFrom As Integer) As Integer

@@ -563,15 +563,15 @@ Public Function _get((Key) As String) As Variant
   
 End
 
-Public Function Find(Filter As String, ...) As Integer
+Public Function Find(Where As String, ...) As Integer
   
-  Return $hTable.Find($DB.Subst(Filter, ...))
+  Return $hTable.Find($DB.Subst(Where, ...))
   
 End
 
-Public Function FindNext(Filter As String, ...) As Integer
+Public Function FindNext(Index As Integer, Where As String, ...) As Integer
   
-  Return $hTable.Find($DB.Subst(Filter, ...), $iIndex + 1)
+  Return $hTable.Find($DB.Subst(Where, ...), Index)
   
 End
 
