@@ -31,12 +31,17 @@ Public Sub Form_Open()
 
   dlgFont.FixedOnly = $bShowFixed
   dlgFont.SelectedFont = $sFont
-  dlgFont.SetFocus
 
 End
 
 Public Sub dlgFont_Activate()
 
   btnOK.Value = True
+
+End
+
+Public Sub Form_Activate()
+
+  dlgFont.SetFocus
 
 End
