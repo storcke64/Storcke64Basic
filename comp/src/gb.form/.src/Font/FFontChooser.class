@@ -489,6 +489,11 @@ Public Sub txtSize_Change()
     Size = txtSize.Value
   Endif
   sldSize.Value = txtSize.Value
+  If btnRelative.Value And If txtSize.Value > 0 Then
+    btnSize.Text = "+" & txtSize.Text
+  Else
+    btnSize.Text = txtSize.Text
+  Endif
   RefreshExample
   
 End
@@ -599,6 +604,7 @@ End
 
 Private Sub StartCacheTask()
 
+  If Me.Design Then Return
   If $hTask Then Return
   If Not panFilter.Visible Then Return
   If Me.Window.Minimized Then Return
@@ -621,6 +627,8 @@ Private Sub StopCacheTask()
 End
 
 Public Sub panBorder_BeforeArrange()
+  
+  Dim bHasFocus As Boolean
   
   If panBorder.H < (Desktop.Scale * 32) Then
     
@@ -664,7 +672,9 @@ Public Sub panBorder_BeforeArrange()
   
   RefreshExample
   
+  bHasFocus = Me.HasFocus
   Me.Proxy = If(panFilter.Visible, txtFilter, cmbFamily)
+  If bHasFocus Then Me.SetFocus
   
 End
 
@@ -863,14 +873,18 @@ Public Sub Window_State()
 End
 
 
-Public Sub txtSize_GotFocus()
+Public Sub txtSize_LostFocus()
 
-  txtSize.Background = Color.Default
+  txtSize.Hide
+  btnSize.Show
 
 End
 
-Public Sub txtSize_LostFocus()
+Public Sub btnSize_Click()
 
-  txtSize.Background = Color.Background
+  btnSize.Hide
+  txtSize.Show
+  txtSize.SetFocus
+  txtSize.SelectAll
 
 End
