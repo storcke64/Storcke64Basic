@@ -1,5 +1,6 @@
 access                  preferences/preferences-desktop-accessibility;apps/preferences-desktop-accessibility
 add                     actions/list-add
+agenda                  apps/agenda;actions/view-calendar-agenda
 align-bottom            actions/align-vertical-bottom
 align-center            actions/align-horizontal-center
 align-height            actions/object-columns
@@ -82,6 +83,7 @@ file-manager            [-breeze*]apps/toolbar/system-file-manager;apps/system-f
 fill                    actions/color-fill;tools/color-fill
 filter                  actions/view-filter
 find                    actions/edit-find
+firewall                apps/firewall;apps/config-firewall;preferences/preferences-security-firewall;status/firewall-applet
 first                   actions/go-first
 flag                    actions/flag-red
 flip-h                  actions/object-flip-horizontal
