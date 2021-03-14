@@ -64,6 +64,7 @@
 #include "gambas.h"
 
 #include "CWidget.h"
+#include "CMouse.h"
 #include "CMenu.h"
 #include "CKey.h"
 #include "CDraw.h"
@@ -1940,6 +1941,7 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	MODAL_INFO info;
 
 	CWIDGET_finish_focus();
+	CMOUSE_finish_event();
 
 	info.that = this;
 	info.old = MyApplication::eventLoop;

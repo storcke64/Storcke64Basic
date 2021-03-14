@@ -984,6 +984,8 @@ void gMainWindow::showModal()
 	if (!isTopLevel()) return;
 	if (isModal()) return;
 
+	gMouse::finishEvent();
+	
 	//show();
 	setType(GTK_WINDOW_TOPLEVEL);
 
@@ -1018,6 +1020,8 @@ void gMainWindow::showPopup(int x, int y)
 
 	if (!isTopLevel()) return;
 	if (isModal()) return;
+
+	gMouse::finishEvent();
 
 	//gtk_widget_unrealize(border);
 	//((GtkWindow *)border)->type = GTK_WINDOW_POPUP;

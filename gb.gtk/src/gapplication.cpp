@@ -595,6 +595,7 @@ __FOUND_WIDGET:
 					switch ((int)event->type)
 					{
 						case GDK_BUTTON_PRESS:
+							gMouse::setControl(control);
 							gMouse::setStart(x, y);
 							cancel = control->onMouseEvent(control, gEvent_MousePress);
 							break;
@@ -604,6 +605,7 @@ __FOUND_WIDGET:
 							break;
 
 						case GDK_BUTTON_RELEASE:
+							gMouse::setControl(NULL);
 							cancel = control->onMouseEvent(control, gEvent_MouseRelease);
 							break;
 					}

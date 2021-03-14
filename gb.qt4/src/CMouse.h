@@ -103,5 +103,7 @@ typedef
 
 void CMOUSE_clear(int valid);
 void CMOUSE_reset_translate(void);
+void CMOUSE_set_control(void *control);
+void CMOUSE_finish_event(void);
 
 #endif

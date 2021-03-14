@@ -477,6 +477,7 @@ gControl::~gControl()
 	CLEAN_POINTER(gDrag::_destination);
 	CLEAN_POINTER(gDrag::_source);
 	CLEAN_POINTER(gDrag::_current);
+	CLEAN_POINTER(gMouse::_control);
 }
 
 void gControl::destroy()

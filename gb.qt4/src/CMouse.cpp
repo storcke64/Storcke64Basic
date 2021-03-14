@@ -47,6 +47,8 @@ POINTER_INFO POINTER_info = { 0 };
 static int _dx = 0;
 static int _dy = 0;
 
+static void *_control = NULL;
+
 void CMOUSE_clear(int valid)
 {
 	if (valid)
@@ -62,6 +64,23 @@ void CMOUSE_reset_translate()
 {
 	_dx = _dy = 0;
 }
+
+void CMOUSE_set_control(void *control)
+{
+	if (_control)
+		GB.Unref(&_control);
+	if (control)
+		GB.Ref(control);
+	
+	_control = control;
+}
+
+void CMOUSE_finish_event(void)
+{
+	if (_control)
+		GB.Raise(_control, EVENT_MouseUp, 0);
+}
+
 
 //int CMOUSE_last_state = 0;
 

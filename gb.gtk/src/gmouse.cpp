@@ -46,6 +46,7 @@ int gMouse::_click_count = 0;
 int gMouse::_click_x = -1;
 int gMouse::_click_y = -1;
 double gMouse::_click_timer = 0;
+gControl *gMouse::_control = NULL;
 
 #ifdef GTK3
 GdkDevice *gMouse::getPointer()
@@ -362,4 +363,13 @@ void gMouse::handleClickCount(GdkEvent *event)
 	}
 
 	_click_timer = timer;
+}
+
+void gMouse::finishEvent()
+{
+	if (_control)
+	{
+		_control->onMouseEvent(_control, gEvent_MouseRelease);
+		_control = NULL;
+	}
 }

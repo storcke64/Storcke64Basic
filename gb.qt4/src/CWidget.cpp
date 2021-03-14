@@ -2276,11 +2276,10 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		case QEvent::ContextMenu:
 			jump = &&__CONTEXT_MENU; break;
 		case QEvent::MouseButtonPress:
-		case QEvent::MouseButtonRelease:
 		case QEvent::MouseMove:
 		case QEvent::MouseButtonDblClick:
+		case QEvent::MouseButtonRelease:
 			jump = &&__MOUSE; break;
-			//jump = &&__DBL_CLICK; break;
 		case QEvent::KeyPress:
 		case QEvent::KeyRelease:
 			jump = &&__KEY; break;
@@ -2483,31 +2482,30 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		p.setY(mevent->globalY());
 		p = QWIDGET(control)->mapFromGlobal(p);
 		
-		if (type == QEvent::MouseButtonPress)
+		switch(type)
 		{
-			//qDebug("MouseDown on %p (%s %p) %s%s", widget, control ? GB.GetClassName(control) : "-", control, real ? "REAL " : "", design ? "DESIGN " : "");
-
-			event_id = EVENT_MouseDown;
-			//state = mevent->buttons();
-			
-			MOUSE_info.sx = p.x();
-			MOUSE_info.sy = p.y();
-			
-			//qDebug("MouseEvent: %d %d", mevent->x(), mevent->y());
+			case QEvent::MouseButtonPress:
+				event_id = EVENT_MouseDown;
+				//state = mevent->buttons();
+				MOUSE_info.sx = p.x();
+				MOUSE_info.sy = p.y();
+				CMOUSE_set_control(control);
+				break;
+				
+			case QEvent::MouseButtonDblClick:
+				event_id = EVENT_DblClick;
+				break;
+				
+			case QEvent::MouseButtonRelease:
+				event_id = EVENT_MouseUp;
+				CMOUSE_set_control(NULL);
+				break;
+				
+			default:
+				event_id = EVENT_MouseMove;
+				if (mevent->buttons() == Qt::NoButton && !has_tracking(control))
+					goto _DESIGN;
 		}
-		else if (type == QEvent::MouseButtonDblClick)
-		{
-			event_id = EVENT_DblClick;
-		}
-		else
-		{
-			event_id = (type == QEvent::MouseButtonRelease) ? EVENT_MouseUp : EVENT_MouseMove;
-			//state = mevent->buttons();
-		}
-
-		if (event_id == EVENT_MouseMove && mevent->buttons() == Qt::NoButton && !has_tracking(control))
-			goto _DESIGN;
-
 
 		/* GB.Raise() can free the control, so we must reference it as we may raise two successive events now */
 		GB.Ref(control);
