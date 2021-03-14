@@ -325,11 +325,11 @@ Public Sub View_MouseDown()
     Return
   Endif
   
-  CheckValue
-  ChangeValue($bTimerAdd, True)
-  
   $hTimer = New Timer(500) As "TimerMouse"
   $hTimer.Start
+  
+  CheckValue
+  ChangeValue($bTimerAdd, True)
   
 End
 
@@ -349,7 +349,6 @@ Public Sub View_MouseUp()
   
 End
 
-
 Public Sub TimerMouse_Timer()
 
   ChangeValue($bTimerAdd, True)
@@ -360,7 +359,6 @@ Public Sub TimerMouse_Timer()
   Endif
   
 End
-
 
 Private Function Value_Read() As Integer
 

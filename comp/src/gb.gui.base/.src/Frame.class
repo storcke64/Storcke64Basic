@@ -1,5 +1,7 @@
 ' Gambas class file
 
+''' This class implements a container with a border and a title on top.
+
 Export
 
 Inherits UserContainer
@@ -7,9 +9,18 @@ Inherits UserContainer
 Public Const _Properties As String = "*,Text,TextFont,Alignment{Align.*}=Center"
 Public Const _Similar As String = "Panel"
 
+'' Return or set the Frame title.
 Property Text As String
+
+'' Return or set the Frame title as rich text.
 Property RichText As String
+
+'' Return or set the font title.
+''
+'' If not set, the control font is used.
 Property TextFont As Font
+
+'' Return or set the position of the title relative to the border.
 Property Alignment As Integer
 
 Private $hContainer As Panel
@@ -18,6 +29,8 @@ Private $sText As String
 Private $bRichText As Boolean
 Private $hTextFont As Font
 Private $iAlign As Integer = Align.Center
+
+'' Create a new Frame.
 
 Public Sub _new()
 

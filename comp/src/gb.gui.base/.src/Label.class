@@ -1,5 +1,13 @@
 ' Gambas class file
 
+''' This control displays a piece of text.
+'''
+''' [[ info 
+''' @{since 3.16}
+''' 
+''' This control has been rewritten in Gambas since 3.16 version.
+''' ]]
+
 Export
 Inherits UserControl
 
@@ -10,11 +18,28 @@ Public Const _IsContainer As Boolean = False
 Public Const _Group As String = "Form"
 Public Const _Similar As String = "Label"
 
+'' Return or set the text alignment.
+''
+'' See the [../../align] class for a list of constants to use with this property.
+
 Property Alignment As Integer
+
+'' Return or set the border displayed around the control.
+''
+'' See the [../../border] class for a list of constants to use with this property.
+
 Property Border As Integer Use $iBorder
+
+'' Return or set the displayed text.
 Property Text, Caption As String Use $sText
+
+'' Return or set the inner padding around the text, in pixels.
 Property Padding As Integer Use $iPadding
+
+'' Return or set if the control adapts its size to its contents automatically.
 Property AutoResize As Boolean Use $bAutoResize
+
+'' Return or set if the control background is transparent. This property is deprecated.
 Property Transparent As Boolean Use $bTransparent
 
 Private $iAlign As Integer = Align.Normal
@@ -24,6 +49,8 @@ Private $bRichText As Boolean
 
 Public _Wrap As Boolean
 Private $bLocked As Boolean
+
+'' Create a new Label.
 
 Public Sub _new()
   
@@ -213,6 +240,8 @@ Private Sub Transparent_Write(Value As Boolean)
   $bTransparent = Value
 
 End
+
+'' Resize the control so that it adapts to its contents.
 
 Public Sub Adjust()
 
