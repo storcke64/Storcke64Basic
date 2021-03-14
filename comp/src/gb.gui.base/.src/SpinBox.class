@@ -64,8 +64,8 @@ Private Sub GetArrowRect(iArrow As Integer, Optional bForDrawing As Boolean) As 
   
   If $bBorder Then 
     BW = Style.BoxFrameWidth
-    BH = Style.BoxFrameHeight
   Endif
+  BH = Style.BoxFrameHeight
   
   D = Desktop.Scale
   W = D * 2 + BW
@@ -121,9 +121,6 @@ Public Sub View_Draw()
     iState = Style.StateOf($hView)
     If $hTextBox.HasFocus Then iState = iState Or Style.HasFocus
     If $hView.Hovered Then iState = iState Or Style.Hovered
-    'Debug "state = "; iState
-    'Debug "border = "; Style.BoxFrameWidth
-  
     Style.PaintBox(0, 0, Paint.W, Paint.H, iState, iCol)
     
   Else
