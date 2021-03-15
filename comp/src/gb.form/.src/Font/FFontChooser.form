@@ -85,13 +85,11 @@
         Expand = True
         Orientation = ScrollBar.Horizontal
       }
-      { btnSize ToolButton
-        MoveScaled(54,0,8,4)
-      }
       { txtSize SpinBox
         MoveScaled(63,0,8,4)
-        Visible = False
         Alignment = Align.Right
+        ReadOnly = True
+        ShowSign = True
       }
     }
     { sepToolbar Separator

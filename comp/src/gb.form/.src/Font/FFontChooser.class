@@ -31,9 +31,6 @@ Public Sub _new()
   Inc $iNoChange
   $bNoRefresh = True
   $bShowFont = True
-  'Me.Proxy = txtFilter
-  
-  'lstSize.List = ["6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "24", "28", "32", "36", "40", "48", "56", "64", "72", "80", "96", "112", "128"]
   
   StylePanel = panStyle
   Preview = txtExample
@@ -489,11 +486,6 @@ Public Sub txtSize_Change()
     Size = txtSize.Value
   Endif
   sldSize.Value = txtSize.Value
-  If btnRelative.Value And If txtSize.Value > 0 Then
-    btnSize.Text = "+" & txtSize.Text
-  Else
-    btnSize.Text = txtSize.Text
-  Endif
   RefreshExample
   
 End
@@ -875,15 +867,13 @@ End
 
 Public Sub txtSize_LostFocus()
 
-  txtSize.Hide
-  btnSize.Show
+  txtSize.ReadOnly = True
 
 End
 
-Public Sub btnSize_Click()
+Public Sub txtSize_Enter()
 
-  btnSize.Hide
-  txtSize.Show
+  txtSize.ReadOnly = False
   txtSize.SetFocus
   txtSize.SelectAll
 
