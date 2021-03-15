@@ -220,7 +220,7 @@ Public Sub Command(sCommand As String) As String[]
     
   Else If sCommand = "help" And If Main.Class Then
     
-    Return Split(Main.GetDefaultPage(), "\n")
+    Return Split(Main.GetDefaultHelp(), "\n")
 
   Else If sCommand = "stat" Then
     

@@ -341,7 +341,7 @@ Public Sub AddCacheHeaders(Optional dLast As Date)
     If Error Then dLast = Now
   Endif
   'Response.AddHeader("Expires", CGI.FormatDate(DateAdd(Now, gb.Month, 2)))
-  Response.AddHeader("Cache-Control", "public,max-age=3600,must-revalidate")
+  Response.AddHeader("Cache-Control", "public,max-age=86400,must-revalidate")
   Response.AddHeader("Last-Modified", CGI.FormatDate(dLast))
 
 End
@@ -421,10 +421,9 @@ Public Sub Main()
   Dim sFile As String
   Dim sSearch As String
   Dim sReplace As String
-  
+
   ' Print "data:image/png;base64,"; URL.Encode(Base64$(File.Load(".public/critical.png")));
   ' Quit
-  
   ' If Application.Host = "gambasfarm.org" Then
   '   Response.Redirect("http://gambasfarm.org/farm")
   '   Return
@@ -437,15 +436,15 @@ Public Sub Main()
 
   Select Case Args[1]
 
-    Case "-restore" 
-      If IsDir(Root) Then
-        Shell "rm -rf " & Shell$(Root & "~") & " >/dev/null 2>&1" Wait
-        Move Root To Root & "~"
-        Mkdir Root
-        'Copy "passwd" To Root &/ "passwd"
-      Endif
-      OldWiki.Restore
-      Return
+    ' Case "-restore" 
+    '   If IsDir(Root) Then
+    '     Shell "rm -rf " & Shell$(Root & "~") & " >/dev/null 2>&1" Wait
+    '     Move Root To Root & "~"
+    '     Mkdir Root
+    '     'Copy "passwd" To Root &/ "passwd"
+    '   Endif
+    '   OldWiki.Restore
+    '   Return
       
     Case "-convert-example" 
       ConvertExample
@@ -1159,18 +1158,19 @@ Public Sub GetToDo() As String[]
         
         sPath = "/comp" &/ LCase(sComp &/ hSymbol.Class &/ Replace(hSymbol.Name, ":", "."))
         If Not ExistPage(sPath) Then
-          
-          If bPrintComponent Then
-            aResult.Add("## [[" & sComp & "] (/comp" &/ sComp & ")]")
-            aIndex.Add("- [" & sComp & "](#t" & CStr(aIndex.Count + 1) & ")")
-            bPrintComponent = False
+          If Not HasDefaultHelp(sComp, hSymbol.Class, hSymbol.Name) Then
+            If bPrintComponent Then
+              aResult.Add("## [[" & sComp & "] (/comp" &/ sComp & ")]")
+              aIndex.Add("- [" & sComp & "](#t" & CStr(aIndex.Count + 1) & ")")
+              bPrintComponent = False
+            Endif
+            If bPrintClass Then
+              aResult.Add("* **[" & hClass.Name & "] (/comp" &/ sComp &/ LCase(hClass.Name) & ")**")
+              bPrintClass = False
+            Endif
+            aResult.Add("  * [" & sPath & "]")
+            Inc iCpt
           Endif
-          If bPrintClass Then
-            aResult.Add("* **[" & hClass.Name & "] (/comp" &/ sComp &/ LCase(hClass.Name) & ")**")
-            bPrintClass = False
-          Endif
-          aResult.Add("  * [" & sPath & "]")
-          Inc iCpt
         Endif
       Next
     Next
@@ -1280,7 +1280,34 @@ Public Sub Log(sText As String, Optional sUser As String)
 
 End
 
-Public Sub GetDefaultPage() As String
+Public Sub HasDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As Boolean
+
+  Dim hClass As CClassInfo
+  Dim hSymbol As CSymbolInfo
+
+  If Not sComp Then sComp = Main.Component
+  If Not sClass Then sClass = Main.Class
+  If Not sSymbol Then sSymbol = Main.Symbol
+
+  Try hClass = CComponent.Get(sComp)[sClass]
+  If Not hClass Then Return
+  
+  If sSymbol Then
+  
+    Try hSymbol = hClass.Symbols[sSymbol]
+    If Not hSymbol Then Return
+    
+    If hSymbol.Help Then Return True
+    
+  Else 
+    
+    If hClass.Help Then Return True
+    
+  Endif
+
+End
+
+Public Sub GetDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As String
   
   Dim hSymbol As CSymbolInfo
   Dim sSign As String
@@ -1289,12 +1316,16 @@ Public Sub GetDefaultPage() As String
   Dim iPos2 As Integer
   Dim hClass As CClassInfo
   
-  Try hClass = CComponent.Get(Main.Component)[Main.Class]
+  If Not sComp Then sComp = Main.Component
+  If Not sClass Then sClass = Main.Class
+  If Not sSymbol Then sSymbol = Main.Symbol
+
+  Try hClass = CComponent.Get(sComp)[sClass]
   If Not hClass Then Return
   
-  If Main.Symbol Then
+  If sSymbol Then
   
-    Try hSymbol = hClass.Symbols[Main.Symbol]
+    Try hSymbol = hClass.Symbols[sSymbol]
     If Not hSymbol Then Return
     
     If hSymbol.Help Then Return hSymbol.Help

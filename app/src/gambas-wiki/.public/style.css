@@ -86,7 +86,7 @@ A[id] {
 
 P {
   margin-bottom: 0;
-  margin-top: 0.75em;
+  margin-top: 0.5em;
 }
 
 H1,H2,H3,H4,H5,H6 {
@@ -132,10 +132,10 @@ TABLE.table, TABLE.error {
   border-bottom: solid #D0D0D0 1px;
   border-right: solid #D0D0D0 1px;
   padding: 0;
-  margin-top: 0.75em;
+  margin-top: 0.5em;
   border-spacing: 0;
   empty-cells: show;
-  line-height: 1.75em;
+  line-height: 1.5em;
 }
 
 TABLE.table > TBODY > TR > TD, TABLE.error > TBODY > TR > TD {
@@ -287,7 +287,7 @@ TABLE.desc > TBODY > TR > TH {
 }
 
 .page P {
-  line-height: 1.75em;
+  line-height: 1.5em;
 }
 
 .page > DIV:last-child {
@@ -366,11 +366,18 @@ DIV.box {
   padding: 0.5em;
 }
 
+DIV.image {
+  margin-top: 0.75em;
+  display: inline-block;
+  border: solid #606060 1px;
+  box-shadow: 0 0 0.25em black;
+}
+
 DIV.info {
   margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
-  padding-left: 3em;
+  padding-left: 3.5em;
   background: url('<%/%>/info.png') 0.5em 0.5em no-repeat;
   min-height: 2em;
   background-color: #EFF7FF;
@@ -381,7 +388,7 @@ DIV.warning {
   margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
-  padding-left: 3em;
+  padding-left: 3.5em;
   background: url('<%/%>/warning.png') 0.5em 0.5em no-repeat;
   min-height: 2em;
   background-color: #FFF6EF;
@@ -392,7 +399,7 @@ DIV.tip {
   margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
-  padding-left: 3em;
+  padding-left: 3.5em;
   background: url('<%/%>/tip.png') 0.5em 0.5em no-repeat;
   min-height: 2em;
   background-color: #EFFFEF;
@@ -403,7 +410,7 @@ DIV.vb {
   margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
-  padding-left: 3em;
+  padding-left: 3.5em;
   background: url('<%/%>/vb.png') 0.5em 0.5em no-repeat;
   min-height: 2em;
   background-color: #FFFCEF;
@@ -414,7 +421,7 @@ DIV.critical {
   margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
-  padding-left: 3em;
+  padding-left: 3.5em;
   background: url('<%/%>/critical.png') 0.5em 0.5em no-repeat;
   min-height: 2em;
   background-color: #FFEFEF;

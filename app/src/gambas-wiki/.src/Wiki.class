@@ -161,10 +161,10 @@ Private Sub _PrintPage()
   If Main.Edit Then
     sPath = Main.GetPagePath()  
     If Exist(sPath) Then sData = File.Load(sPath)
-    If Not sData Then
-      sPath = Main.Path
-      sData = OldWiki.GetPage(sPath)
-    Endif
+    ' If Not sData Then
+    '   sPath = Main.Path
+    '   'sData = OldWiki.GetPage(sPath)
+    ' Endif
     If Not sData Then
       If Main.Symbol Then
         sData = "@{syntax}\n@{help}\n" '& Main.GetDefaultPage()
@@ -208,7 +208,7 @@ Private Sub _PrintPage()
       
     Endif
       
-    If Not Main.ExistPage(sPath) Then
+    If Not Main.ExistPage(sPath) And If Not Main.HasDefaultHelp() Then
     
       If Main.Symbol Then
       
@@ -221,7 +221,7 @@ Private Sub _PrintPage()
           Main.Class = hClass.Parent
   
           sPath = Main.SolvePath("/comp/" & LCase(Main.Component &/ Main.Class &/ Main.Symbol))
-          If Main.ExistPage(sPath) Then Break
+          If Main.ExistPage(sPath) Or If Main.HasDefaultHelp() Then Break
           
         Loop
         
@@ -240,9 +240,9 @@ Private Sub _PrintPage()
         ' We use an automatic page
         Main.Lang = Main.DEFAULT_LANG
         If Main.Symbol Then
-          sData = "@{syntax}\n" & Main.GetDefaultPage()
+          sData = "@{syntax}\n" & Main.GetDefaultHelp()
         Else If Main.Class Then
-          sData = "@{symbols}\n"
+          sData = Main.GetDefaultHelp() & "\n@{symbols}\n" 
         Endif
         Goto DISPLAY_PAGE
         
@@ -324,7 +324,7 @@ Private Sub _PrintPage()
     Endif
     
     sPath = Main.GetPagePathFrom(sPath)
-    If Session.Id Then Main.AddCacheHeaders(Stat(sPath).LastModified)
+    Main.AddCacheHeaders(Stat(sPath).LastModified)
     sData = LTrim(File.Load(sPath))
     
   Endif
