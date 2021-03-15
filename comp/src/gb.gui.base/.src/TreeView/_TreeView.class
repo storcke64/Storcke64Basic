@@ -107,6 +107,7 @@ Public Sub Clear()
   Cancel()
   $cItem.Clear
   If $cSort Then $cSort.Clear
+  $hSelection.UnSelectAll()
   $bSortRoot = False
   $iLastRow = -2
   $sLastKey = ""
@@ -225,7 +226,10 @@ Private Sub RemoveRec((Key) As String, Optional bDoNotDestroy As Boolean)
     If Not hParent Then hParent = $hRoot
   Wend
   
-  If Not bDoNotDestroy Then $cItem.Remove(Key)
+  If Not bDoNotDestroy Then
+    $cItem.Remove(Key)
+    $hSelection.SelectItem(Key, False)
+  Endif
   
 End
 
@@ -1645,6 +1649,8 @@ End
 
 Public Sub _RestoreSelection()
   
+  Dim cSel As Collection
+  
   Dec $iSaveSelection
   
   If $iSaveSelection = 0 Then 
@@ -1653,7 +1659,11 @@ Public Sub _RestoreSelection()
     Inc $iSaveSelection
     
     If $hView.Mode = Select.Multiple Then
-      $hSelection.Restore($vSaveSelection)
+      cSel = $vSaveSelection
+      For Each cSel
+        If Not $cItem.Exist(cSel.Key) Then cSel.Remove(cSel.Key)
+      Next
+      $hSelection.Restore(cSel)
     Else
       Key_Write($vSaveSelection)
     Endif
