@@ -25,6 +25,15 @@ Public Sub Form_Open()
   chkIncVersion.Value = Not Project.Config["/Executable/DoNotIncrementVersion", False]
   chkIncVersion.Visible = Not Project.VersionFile
 
+  Dim sVers As String[] = Split(Project.FormatVersion(), ".")
+   With Project
+     txtMajor.Value = sVers[0]
+     txtMinor.Value = sVers[1]
+     Try txtRelease.Value = sVers[2]
+   End With
+
+  If Not chkIncVersion.Value And If chkIncVersion.Visible Then pnlVersion.Visible = True
+
   chkNoTest.Visible = Project.HasTest()
   chkNoTest.Value = Project.Config["/Executable/NoTestModule", False]
 
@@ -68,3 +77,19 @@ Public Sub btnCancel_Click()
 
 End
 
+
+Public Sub grpVersion_Change()
+
+   With Project
+     .MajorVersion = txtMajor.Value 
+     .MinorVersion = txtMinor.Value
+     .ReleaseVersion = txtRelease.Value
+   End With
+  
+End
+
+Public Sub chkIncVersion_Click()
+
+  pnlVersion.Visible = Not Last.Value
+
+End
