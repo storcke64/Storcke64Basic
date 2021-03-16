@@ -929,6 +929,7 @@ void SYSTRAY_init(Display *display, Window window, uint bg)
 	color.blue = (bg & 0xFF) << 8;
 	XGetWindowAttributes(tray_data.dpy, window, &xwa);
 	XAllocColor(display, DefaultColormapOfScreen(xwa.screen), &color);
+	//XSetWindowBackground(tray_data.dpy, window, color.pixel);
 	
 	tray_data.bg = color.pixel;
 
@@ -966,4 +967,26 @@ CX11SYSTRAYICON *SYSTRAY_get(int i)
 void SYSTRAY_refresh(void)
 {
 	refresh_icons_later(TRUE);
+}
+
+void SYSTRAY_move(int x, int y, int w, int h)
+{
+	if (w > 0)
+		tray_data.w = w;
+	if (h > 0)
+		tray_data.h = h;
+	tray_data.x = x;
+	tray_data.y = y;
+	
+	tray_update_size();
+}
+
+void SYSTRAY_resize(int w, int h)
+{
+	if (w > 0)
+		tray_data.w = w;
+	if (h > 0)
+		tray_data.h = h;
+	
+	tray_update_size();
 }
