@@ -26,11 +26,9 @@ Public Sub Form_Open()
   chkIncVersion.Visible = Not Project.VersionFile
 
   Dim sVers As String[] = Split(Project.FormatVersion(), ".")
-   With Project
-     txtMajor.Value = sVers[0]
-     txtMinor.Value = sVers[1]
-     Try txtRelease.Value = sVers[2]
-   End With
+    txtMajor.Value = sVers[0]
+    txtMinor.Value = sVers[1]
+    Try txtRelease.Value = sVers[2]
 
   If Not chkIncVersion.Value And If chkIncVersion.Visible Then pnlVersion.Visible = True
 
