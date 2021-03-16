@@ -779,6 +779,7 @@ Public Sub GridView_MouseDown()
   Dim hItem As _TreeView_Item
   Dim X As Integer
   Dim bCancel As Boolean
+  Dim D As Integer
 
   If Mouse.Click > 1 Then Return
 
@@ -807,8 +808,10 @@ Public Sub GridView_MouseDown()
   Endif
 
   X -= $hView.ScrollX
+  
+  If Not $bNoRoot Then D = $iDepthW
 
-  If Mouse.X < X + $iDepthW Then
+  If Mouse.X < X + D Then
     If hItem.Count And If Not $bNoRoot And If Mouse.X >= X Then
       hItem.Expanded = Not hItem.Expanded
     Else

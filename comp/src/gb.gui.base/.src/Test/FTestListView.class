@@ -18,7 +18,7 @@ Public Sub Form_Open()
   'Set listview to multi-select mode
   CheckBox1.Value = True
 
-
+  ListView1.Add(0, "Item 0", Picture["picturebox.png"])
   For I = 1 To 5
     ListView1.Add(i, "Item " & Str(i))  
   Next
