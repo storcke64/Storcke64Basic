@@ -537,15 +537,15 @@ void gControl::setVisible(bool vl)
 
 	if (vl)
 	{
-		if (bufW < minimumWidth() || bufH < minimumHeight())
-			return;
-
-		gtk_widget_show(border);
-		_dirty_size = true;
-		updateGeometry();
-#ifdef GTK3
-		updateStyleSheet(false);
-#endif
+		if (bufW >= minimumWidth() && bufH >= minimumHeight())
+		{
+			gtk_widget_show(border);
+			_dirty_size = true;
+			updateGeometry();
+	#ifdef GTK3
+			updateStyleSheet(false);
+	#endif
+		}
 	}
 	else
 	{
