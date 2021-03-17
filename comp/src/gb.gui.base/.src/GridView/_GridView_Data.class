@@ -14,6 +14,13 @@ Public Background As Integer = Color.Default
 Public Padding As Short
 Public WordWrap As Boolean
 Public Border As Border
+
+'' @{since 3.16}
+''
+'' Return or set the tag associated with a cell.
+''
+'' This property is intended for the programmer and is never used by the component. It can contain any Variant value.
+
 Public Tag As Variant
 
 Property Font As Font

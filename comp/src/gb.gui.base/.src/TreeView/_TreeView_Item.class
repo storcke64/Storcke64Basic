@@ -15,10 +15,43 @@ Property Read Width, W As Integer
 Property Height, H As Integer
 Property Editable As Boolean
 Property Selected As Boolean
+
+'' @{since 3.11}
+'' 
+'' Return or set the item background color.
+''
+'' If that property is 'NULL', the background color of the TreeView is used.
+
 Property Background As Integer
+
+'' @{since 3.11}
+'' 
+'' Return or set the item foreground color.
+''
+'' If that property is 'NULL', the foreground color of the TreeView is used.
+
 Property Foreground As Integer
+
+'' @{since 3.11}
+'' 
+'' Return or set the item font.
+''
+'' If that property is 'NULL', the font of the TreeView is used.
+
 Property Font As Font
+
+'' @{since 3.16}
+''
+'' Return or set the tag associated with a cell.
+''
+'' This property is intended for the programmer and is never used by the component. It can contain any Variant value.
+
 Property Tag As Variant
+
+'' @{since 3.16}
+''
+'' Return the depth of an item.
+
 Property Read Depth As Integer
 
 Private $sKey As String

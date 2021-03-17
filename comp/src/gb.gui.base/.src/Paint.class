@@ -278,6 +278,14 @@ Static Public Sub DrawRichTextShadow(Text As String, X As Float, Y As Float, W A
   
 End
 
+'' Stretch and draw an image or part of an image so that it fits a specified rectangle.
+''
+'' - ~Image~ is the image to draw.
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the position and size of the target rectangle.
+'' - ~Alignment~ is the alignment of the stretched image inside the targer rectangle. It's [Align.Center](../../align/center) by default.
+'' - ~Opacity~ is the opacity of the painting. By default it is '1.0', i.e. fully opaque.
+'' - ~Source~ defines the part of the image to draw. By default it is 'NULL', i.e. the entire image is drawn.
+
 Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width As Float, Height As Float, Optional Alignment As Integer = Align.Center, Optional Opacity As Float = 1, Optional Source As Rect)
   
   Dim W As Float
@@ -313,6 +321,12 @@ Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width A
   Paint.DrawImage(Image, X, Y, W, H, Opacity, Source)
   
 End
+
+'' Draw a rectangle frame
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the position and size of the rectangle.
+'' - ~Color~ is the color used for painting the rectangle.
+'' - ~Size~ is the width of the rectangle border. It's '1' pixel by default. If negative, then the frame will be painted outside of the rectangle, otherwise inside.
 
 Static Public Sub DrawRect(X As Float, Y As Float, Width As Float, Height As Float, (Color) As Integer, Optional Size As Float = 1)
   
@@ -470,6 +484,18 @@ End
 ' End
 ' 
 
+'' Add an arrow to the current path.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the arrow, and hence its size.
+'' - ~Orientation~ is the orientation of the arrow. It can be one the four following constants:
+''   - [Align.Top](../../align/top) for a top arrow.
+''   - [Align.Bottom](../../align/top) for a bottom arrow.
+''   - [Align.Left](../../align/top) for a left arrow.
+''   - [Align.Right](../../align/top) for a right arrow.
+'' - ~Alignment~ is the alignment of the arrow inside the specified rectangle. It's [Align.Center](../../align/center) by default.
+''
+'' Once the arrow is drawn, you must then use the [../stroke] method to actually paint it.
+
 Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float, Orientation As Integer, Optional Alignment As Integer = Align.Center)
 
   Dim SX, SY As Float
@@ -528,6 +554,12 @@ Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float,
   End Select
   
 End
+
+'' Add a check mark to the current path.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the check mark, and hence its size.
+'' 
+'' Once the check mark is drawn, you must then use the [../stroke] method to actually paint it.
 
 Static Public Sub Check(X As Float, Y As Float, Width As Float, Height As Float)
   

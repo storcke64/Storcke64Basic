@@ -8,7 +8,17 @@ Property Text As String
 Property RichText As String
 Property Selected As Boolean
 Property Editable As Boolean
+
+'' @{since 3.16}
+''
+'' Return or set the tag associated with a cell.
+''
+'' This property is intended for the programmer and is never used by the component. It can contain any Variant value.
+
 Property Tag As Variant
+
+'' Return if the item is hovered.
+
 Property Read Hovered As Boolean
 
 Property Read X As Integer

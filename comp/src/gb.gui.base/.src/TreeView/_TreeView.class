@@ -10,13 +10,26 @@ Property Border As Boolean
 Property Sorted As Boolean
 Property Read Current As _TreeView_Item
 Property Key As String
+
+'' @{since 3.12}
+''
+'' Return a list of all items keys
+
 Property Read Keys As String[]
+
 Property Read Item As _TreeView_Item
 Property Read Available As Boolean
 Property Read Renaming As Boolean
 Property Editable As Boolean
 Property Compare As Integer
 Property Selection As String[]
+
+'' @{since 3.15}
+''
+'' Return or set if selection is indicated by check boxes and radio buttons, or by highlighting the items.
+''
+'' Check boxes are used in multiple selection mode, radio buttons in single selection mode.
+
 Property ShowCheck As Boolean
 
 Property Read ClientWidth, ClientW As Integer
@@ -25,6 +38,10 @@ Property ScrollX As Integer
 Property ScrollY As Integer
 Property Read ScrollW, ScrollWidth As Integer
 Property Read ScrollH, ScrollHeight As Integer
+
+'' @{since 3.16}
+''
+'' Return the size of tree indentation in pixels.
 
 Property Read Indent As Integer
 
@@ -36,8 +53,29 @@ Event Collapse
 Event Rename
 Event Cancel
 Event Compare(Key As String, OtherKey As String)
+
+'' @{since 3.12}
+''
+'' This event is raised before automatically sorting the items
+
 Event BeforeSort
+
+'' @{since 3.14}
+''
+'' This event is raised when the view scrolls.
+
 Event Scroll
+
+'' {@since 3.16}
+''
+'' This event allows to customize the drawing of a specific item.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the item.
+'' - ~Key~ is the item key.
+'' - ~Column~ is the item column to draw in case of a ColumnView. For a TreeView or a ListView, it is always '0'.
+''
+'' This event is called just before drawing the item, and if the event is stopped, the default item drawing routine is ignored.
+
 Event Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Key As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
