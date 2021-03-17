@@ -9,6 +9,13 @@ Property Resizable As Boolean
 Property Expand As Boolean
 Property Alignment As Integer
 Property Background As Integer
+
+'' @{since 3.16}
+''
+'' Return or set the tag associated with a column.
+''
+'' This property is intended for the programmer and is never used by the component. It can contain any Variant value.
+
 Property Tag As Variant
 
 Event _Refresh

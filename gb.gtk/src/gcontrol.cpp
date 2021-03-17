@@ -537,15 +537,15 @@ void gControl::setVisible(bool vl)
 
 	if (vl)
 	{
-		if (bufW < minimumWidth() || bufH < minimumHeight())
-			return;
-
-		gtk_widget_show(border);
-		_dirty_size = true;
-		updateGeometry();
-#ifdef GTK3
-		updateStyleSheet(false);
-#endif
+		if (bufW >= minimumWidth() && bufH >= minimumHeight())
+		{
+			gtk_widget_show(border);
+			_dirty_size = true;
+			updateGeometry();
+	#ifdef GTK3
+			updateStyleSheet(false);
+	#endif
+		}
 	}
 	else
 	{
@@ -703,21 +703,23 @@ bool gControl::resize(int w, int h, bool no_decide)
 	if (w < 0 && h < 0)
 		return true;
 	
-	if (!_minimum_size_set)
-	{
-		setMinimumSize();
-		_minimum_size_set = true;
-	}
-	
 	if (pr && !no_decide)
 	{
-		pr->decide(this, &decide_w, &decide_h);
+		if (!_minimum_size_set)
+		{
+			setMinimumSize();
+			_minimum_size_set = true;
+		}
+		else
+		{
+			pr->decide(this, &decide_w, &decide_h);
 
-		if (w < 0 || decide_w)
-			w = width();
+			if (w < 0 || decide_w)
+				w = width();
 
-		if (h < 0 || decide_h)
-			h = height();
+			if (h < 0 || decide_h)
+				h = height();
+		}
 	}
 
 	if (w < 0) w = 0;
@@ -1894,7 +1896,7 @@ void gControl::realize(bool draw_frame)
 
 	connectParent();
 	
-	resize(8, 8);
+	resize(8, 8, true);
 	initSignals();
 
 	if (!_no_background && !gtk_widget_get_has_window(border))

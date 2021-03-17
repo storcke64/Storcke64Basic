@@ -39,6 +39,36 @@ Static Private Sub GetKey(sPath As String) As String
   
 End
 
+Static Public Sub Load(Path As String) As Picture
+  
+  Dim sPath As String
+  Dim bMoveUp As Boolean
+  
+  If Path Begins "icon:/" Then
+    
+    Try Return Stock[Mid$(Path, 7)]
+    
+  Else
+
+    sPath = Path
+    
+    If File.IsRelative(sPath) Then
+      If sPath Begins "./" Then
+        If sPath Not Begins "./gb." Then 
+          bMoveUp = True
+        Endif
+      Else 
+        bMoveUp = True
+      Endif
+    Endif
+    
+    If bMoveUp Then sPath = ".." &/ sPath
+
+    Return Super.Load(sPath)
+
+  Endif  
+  
+End
 
 Static Public Sub _get(Path As String) As Picture
   
@@ -92,14 +122,14 @@ Static Public Sub _get(Path As String) As Picture
     If Application.DarkTheme Then
       sDarkPath = File.SetBaseName(sPath, sBaseName & "-dark")
       If Exist(sDarkPath) Then
-        Try hPict = Image.Load(sDarkPath).Picture
+        Try hPict = Super.Load(sDarkPath)
       Else
         Try hPict = Image.Load(sPath).Invert(True).Picture
       Endif
       If hPict Then Goto __LOAD_OK
     Endif
     
-    Try hPict = Image.Load(sPath).Picture
+    Try hPict = Super.Load(sPath)
     If Error Then
       'Error "gb.gui: warning: unable to load icon "; Path; ": "; System.Backtrace.Join(" ")
       Return Null
