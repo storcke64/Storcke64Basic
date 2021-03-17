@@ -6009,21 +6009,21 @@ Public Sub SideBar_Menu()
   
 End
 
+Public Sub _GetFolding() As Integer[]
+  
+  Return $aFold
+  
+End
+
 Public Sub _SyncFolding()
   
-  Dim I As Integer
   Dim hSrc As TextEditor
   
   hSrc = Me.View
   If hSrc = Me Then Return
   
-  ExpandAll
-  Repeat
-    If Not hSrc[I].Expanded Then
-      _CollapseRow(I)
-    Endif
-    I = hSrc.FindNextLimit(I)
-  Until I < 0
+  $aFold = hSrc._GetFolding()
+  If $aFold Then $aFold = $aFold.Copy()
   
 End
 
