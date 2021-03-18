@@ -117,7 +117,7 @@ Private Sub LoadList(Optional sTable As String)
   lvwTable.MoveFirst
   Try sFirst = lvwTable.Item.Key
   
-  With lvwTable.Add(KEY_REQUEST, ("SQL requests"), Picture["icon:/16/find"])
+  With lvwTable.Add(KEY_REQUEST, ("SQL requests"), Picture["icon:/small/find"])
     If sFirst Then .MoveBefore(sFirst)
   End With
   
@@ -1666,7 +1666,7 @@ Public Sub btnNewTable_Click()
   If MConnection.CreateTable($hConn, sName, FNewTable.TableType) Then Return
   UpdateDefinition
   
-  lvwTable.Add("T" & sName, sName, Picture["icon:/16/table"])
+  lvwTable.Add("T" & sName, sName, Picture["icon:/small/table"])
   'lvwTable["T" & sName].Selected = True
   LoadTable(sName)
   

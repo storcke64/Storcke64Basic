@@ -219,7 +219,7 @@
     { mnuPublish Menu
       Action = "publish"
       Text = ("Publish") & "..."
-      Picture = Picture["icon:/medium/internet"]
+      Picture = Picture["icon:/small/internet"]
     }
     { Menu15 Menu
     }
@@ -485,7 +485,7 @@
     { mnuTerminal Menu
       Action = "open-terminal"
       Text = ("Open a terminal") & "..."
-      Picture = Picture["icon:/16/terminal"]
+      Picture = Picture["icon:/small/terminal"]
       Shortcut = "Ctrl+Alt+T"
     }
     { mnuSendMail Menu
@@ -709,7 +709,7 @@
     }
     { mnuAddVersion Menu
       Text = Shortcut(("Add to repository"), "A")
-      Picture = Picture["icon:/16/add"]
+      Picture = Picture["icon:/small/add"]
     }
     { mnuFilter Menu
       Text = ("Filter")
@@ -876,7 +876,7 @@
     }
     { mnuSystemInfo Menu
       Text = Shortcut(("System information"), "S") & "..."
-      Picture = Picture["icon:/16/system"]
+      Picture = Picture["icon:/small/system"]
     }
     { mnuAbout Menu
       Action = "about"

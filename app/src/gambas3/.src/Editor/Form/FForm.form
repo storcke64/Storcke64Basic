@@ -74,7 +74,7 @@
     { mnuSelectAll Menu
       Action = ".select-all"
       Text = ("Select all")
-      Picture = Picture["icon:/16/select-all"]
+      Picture = Picture["icon:/small/select-all"]
       Shortcut = "Ctrl+A"
     }
     { mnuSelectParent Menu
@@ -93,13 +93,13 @@
       { mnuRaise Menu
         Action = ".raise"
         Text = ("Bring to foreground")
-        Picture = Picture["icon:/16/raise"]
+        Picture = Picture["icon:/small/raise"]
         Shortcut = "Home"
       }
       { mnuLower Menu
         Action = ".lower"
         Text = ("Send to background")
-        Picture = Picture["icon:/16/lower"]
+        Picture = Picture["icon:/small/lower"]
         Shortcut = "End"
       }
       { mnuArrangeSep Menu
@@ -144,34 +144,34 @@
       { mnuAlignLeft Menu
         Action = ".align-left"
         Text = Shortcut(("Align to left"), "l")
-        Picture = Picture["icon:/16/align-left"]
+        Picture = Picture["icon:/small/align-left"]
       }
       { mnuAlignRight Menu
         Action = ".align-right"
         Text = Shortcut(("Align to right"), "r")
-        Picture = Picture["icon:/16/align-right"]
+        Picture = Picture["icon:/small/align-right"]
       }
       { mnuAlignTop Menu
         Action = ".align-top"
         Text = Shortcut(("Align to top"), "t")
-        Picture = Picture["icon:/16/align-top"]
+        Picture = Picture["icon:/small/align-top"]
       }
       { mnuAlignBottom Menu
         Action = ".align-bottom"
         Text = Shortcut(("Align to bottom"), "b")
-        Picture = Picture["icon:/16/align-bottom"]
+        Picture = Picture["icon:/small/align-bottom"]
       }
       { Menu5 Menu
       }
       { mnuAlignWidth Menu
         Action = ".same-width"
         Text = Shortcut(("Same width"), "w")
-        Picture = Picture["icon:/16/align-width"]
+        Picture = Picture["icon:/small/align-width"]
       }
       { mnuAlignHeight Menu
         Action = ".same-height"
         Text = Shortcut(("Same height"), "h")
-        Picture = Picture["icon:/16/align-height"]
+        Picture = Picture["icon:/small/align-height"]
       }
     }
     { mnuSepUndo Menu
@@ -409,49 +409,49 @@
       MoveScaled(68,0,4,4)
       ToolTip = ("Bring to foreground")
       Action = ".raise"
-      Picture = Picture["icon:/16/raise"]
+      Picture = Picture["icon:/small/raise"]
     }
     { ToolButton20 ToolButton
       MoveScaled(72,0,4,4)
       ToolTip = ("Send to background")
       Action = ".lower"
-      Picture = Picture["icon:/16/lower"]
+      Picture = Picture["icon:/small/lower"]
     }
     { ToolButton21 ToolButton
       MoveScaled(76,0,4,4)
       ToolTip = ("Align to top")
       Action = ".align-top"
-      Picture = Picture["icon:/16/align-top"]
+      Picture = Picture["icon:/small/align-top"]
     }
     { ToolButton22 ToolButton
       MoveScaled(80,0,4,4)
       ToolTip = ("Align to bottom")
       Action = ".align-bottom"
-      Picture = Picture["icon:/16/align-bottom"]
+      Picture = Picture["icon:/small/align-bottom"]
     }
     { ToolButton23 ToolButton
       MoveScaled(84,0,4,4)
       ToolTip = ("Align to left")
       Action = ".align-left"
-      Picture = Picture["icon:/16/align-left"]
+      Picture = Picture["icon:/small/align-left"]
     }
     { ToolButton24 ToolButton
       MoveScaled(88,0,4,4)
       ToolTip = ("Align to right")
       Action = ".align-right"
-      Picture = Picture["icon:/16/align-right"]
+      Picture = Picture["icon:/small/align-right"]
     }
     { ToolButton29 ToolButton
       MoveScaled(92,0,4,4)
       ToolTip = ("Same width")
       Action = ".same-width"
-      Picture = Picture["icon:/16/align-width"]
+      Picture = Picture["icon:/small/align-width"]
     }
     { ToolButton30 ToolButton
       MoveScaled(96,0,4,4)
       ToolTip = ("Same height")
       Action = ".same-height"
-      Picture = Picture["icon:/16/align-height"]
+      Picture = Picture["icon:/small/align-height"]
     }
     { ToolButton25 ToolButton
       MoveScaled(100,0,4,4)
@@ -740,22 +740,22 @@
   { Action align-bottom
     Text = "Align to bottom"
     Shortcut = ""
-    Picture = "icon:/16/align-bottom"
+    Picture = "icon:/small/align-bottom"
   }
   { Action align-left
     Text = "Align to left"
     Shortcut = ""
-    Picture = "icon:/16/align-left"
+    Picture = "icon:/small/align-left"
   }
   { Action align-right
     Text = "Align to right"
     Shortcut = ""
-    Picture = "icon:/16/align-right"
+    Picture = "icon:/small/align-right"
   }
   { Action align-top
     Text = "Align to top"
     Shortcut = ""
-    Picture = "icon:/16/align-top"
+    Picture = "icon:/small/align-top"
   }
   { Action arrange-column
     Text = "Columns"
@@ -858,7 +858,7 @@
   { Action lower
     Text = "Send to background"
     Shortcut = "End"
-    Picture = "icon:/16/lower"
+    Picture = "icon:/small/lower"
   }
   { Action menu
     Text = "Menu editor"
@@ -893,7 +893,7 @@
   { Action raise
     Text = "Bring to foreground"
     Shortcut = "Home"
-    Picture = "icon:/16/raise"
+    Picture = "icon:/small/raise"
   }
   { Action redo
     Text = "Redo"
@@ -913,12 +913,12 @@
   { Action same-height
     Text = "Same height"
     Shortcut = ""
-    Picture = "icon:/16/align-height"
+    Picture = "icon:/small/align-height"
   }
   { Action same-width
     Text = "Same width"
     Shortcut = ""
-    Picture = "icon:/16/align-width"
+    Picture = "icon:/small/align-width"
   }
   { Action save
     Text = "Save"
@@ -928,7 +928,7 @@
   { Action select-all
     Text = "Select all"
     Shortcut = "Ctrl+A"
-    Picture = "icon:/16/select-all"
+    Picture = "icon:/small/select-all"
   }
   { Action select-parent
     Text = "Select parent"

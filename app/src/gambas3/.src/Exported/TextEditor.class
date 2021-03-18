@@ -479,3 +479,26 @@ Public Sub Editor_Change()
   $iLastLine = -1
   
 End
+
+Public Sub StartModifySelection(Optional ByRef iStartLine As Integer, ByRef iEndLine As Integer) As String[]
+  
+  Dim aLines As String[]
+  
+  aLines = Me.GetSelectedLines()
+
+  iStartLine = Min(Me.SelectionLine, Me.Line)
+  iEndLine = Max(Me.SelectionLine, Me.Line)
+  
+  Return aLines
+  
+End
+
+Public Sub EndModifyLines(Optional aLines As String[])
+  
+  If aLines Then
+    StoreSelection
+    Me.Insert(aLines.Join("\n") & "\n")
+    RecallSelection
+  Endif
+  
+End

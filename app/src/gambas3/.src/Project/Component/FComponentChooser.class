@@ -244,7 +244,7 @@ Public Sub gvwComponent_Data(Row As Integer, Column As Integer)
         End Select
         
       Case 4
-        If hComp.State <> CComponent.UNKNOWN Then .Picture = Picture["icon:/16/next"]
+        If hComp.State <> CComponent.UNKNOWN Then .Picture = Picture["icon:/small/next"]
       
     End Select
     

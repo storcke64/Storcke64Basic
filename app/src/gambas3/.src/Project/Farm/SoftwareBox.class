@@ -26,9 +26,9 @@ Private $bInit As Boolean
 Public Sub _new(iId As Integer, sFarm As String) ', sLogin As String, sPassword As String)
   
   If Not $hVote Then
-    $hVote = Picture["icon:/16/bookmark"].Image
+    $hVote = Picture["icon:/small/bookmark"].Image
     $hVoteOff = $hVote.Copy().Desaturate()
-    $hInstall = Picture["icon:/16/download"].Image
+    $hInstall = Picture["icon:/small/download"].Image
   Endif
   
   'Me.Foreground = Color.TextForeground

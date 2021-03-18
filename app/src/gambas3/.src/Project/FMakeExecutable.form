@@ -23,7 +23,7 @@
     Index = 1
     Text = ("Options")
     { VBox1 VBox
-      MoveScaled(1,1,87,49)
+      MoveScaled(1,1,87,50)
       Margin = True
       { chkIncVersion CheckBox
         MoveScaled(1,1,19,4)
@@ -49,7 +49,7 @@
         MoveScaled(20,21,7,1)
       }
       { Panel2 VBox
-        MoveScaled(0,24,85.875,24.875)
+        MoveScaled(0,24,86,26)
         Expand = True
         Spacing = True
         { Label1 Label
@@ -62,13 +62,13 @@
           MoveScaled(0,4,24,4)
         }
         { TextLabel1 TextLabel
-          MoveScaled(2,9,83,15)
+          MoveScaled(2,9,83,16)
           Background = Color.TooltipBackground
           Foreground = Color.TooltipForeground
           Padding = 8
           AutoResize = True
-          Text = ("The following patterns will be substituted in the command&nbsp;:<br>\n&bull;&nbsp;<b><tt>$(FILE)</tt></b> will be replaced by the executable path.<br>\n&bull;&nbsp;<b><tt>$(DIR)</tt></b> by the project directory.<br>\n&bull;&nbsp;<b><tt>$(NAME)</tt></b> by the project name.<br>\n&bull;&nbsp;<b><tt>$(TITLE)</tt></b> by the project title.<br>\n&bull;&nbsp;<b><tt>$(VERSION)</tt></b> by the project version.<br>\n<br>\n<i>Note&nbsp;: all substitutions will be quoted.</i>")
           Border = Border.Plain
+          Text = ("The following patterns will be substituted in the command&nbsp;:<br>\n&bull;&nbsp;<b><tt>$(FILE)</tt></b> will be replaced by the executable path.<br>\n&bull;&nbsp;<b><tt>$(DIR)</tt></b> by the project directory.<br>\n&bull;&nbsp;<b><tt>$(NAME)</tt></b> by the project name.<br>\n&bull;&nbsp;<b><tt>$(TITLE)</tt></b> by the project title.<br>\n&bull;&nbsp;<b><tt>$(VERSION)</tt></b> by the project version.<br>\n<br>\n<i>Note&nbsp;: all substitutions will be quoted.</i>")
         }
       }
     }

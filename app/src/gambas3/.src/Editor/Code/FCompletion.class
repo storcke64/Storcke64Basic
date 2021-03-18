@@ -754,8 +754,8 @@ Private Sub FillWithFiles(sWord As String)
   Dim iPos As Integer
   Dim sName As String
   Dim sDir As String
-  Dim hPictFile As Picture = Picture["icon:/16/file"]
-  Dim hPictDir As Picture = Picture["icon:/16/directory"]
+  Dim hPictFile As Picture = Picture["icon:/small/file"]
+  Dim hPictDir As Picture = Picture["icon:/small/directory"]
   Dim aDir As String[]
   Dim bProject As Boolean
   Dim hPict As Picture

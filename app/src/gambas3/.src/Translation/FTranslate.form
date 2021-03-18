@@ -145,7 +145,7 @@
       { txtFind ButtonBox
         MoveScaled(33,0,16,4)
         Expand = True
-        Picture = Picture["icon:/16/find"]
+        Picture = Picture["icon:/small/find"]
         Border = False
       }
     }
@@ -264,8 +264,8 @@
       Margin = True
       { PictureBox3 PictureBox
         MoveScaled(0,0,4,4)
-        AutoResize = True
         Picture = Picture["icon:/medium/info"]
+        AutoResize = True
         Alignment = Align.Center
       }
       { lblInfo Label

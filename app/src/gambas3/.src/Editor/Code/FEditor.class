@@ -1142,64 +1142,35 @@ Public Sub IsBreakpointDisabled(iLine As Integer) As Boolean
   
 End
 
-
-Private Sub GetIndentWidth(iStart As Integer, iEnd As Integer) As Integer
-
-  Dim iLine As Integer
-  Dim sLine As String
-  Dim iInd As Integer
-  Dim iIndent As Integer = 0
-
-  For iLine = iStart To iEnd - 1
-    sLine = $hEditor[iLine].Text
-    If LTrim(sLine) Then
-      iInd = Len(sLine) - Len(LTrim(sLine))
-      If iIndent = 0 Then
-        iIndent = iInd
-      Else
-        iIndent = Min(iIndent, iInd)
-      Endif
-      If iIndent = 0 Then Break
-    Endif
-  Next
-
-  Return iIndent
-
-End
-
 Public Sub mnuComment_Click()
 
   Dim iStartLine As Integer
   Dim iEndLine As Integer
   Dim iLine As Integer
-  Dim iIndent As Integer
+  Dim sIndent As String
+  Dim aLines As String[]
+  Dim I As Integer
 
   If $hEditor.ReadOnly Then Return
   'IF NOT Editor.Selected THEN RETURN
 
   If $hEditor.Selected Then
     
-    $hEditor.StoreSelection
+    aLines = $hEditor.StartModifySelection(ByRef iStartLine, ByRef iEndLine)
+    sIndent = $hEditor.GetIndent(iStartLine, iEndLine)
 
-    iStartLine = Min($hEditor.SelectionLine, $hEditor.Line)
-    iEndLine = Max($hEditor.SelectionLine, $hEditor.Line)
-
-    iIndent = GetIndentWidth(iStartLine, iEndLine)
-
-    $hEditor.Begin
-    For iLine = iStartLine To iEndLine - 1
-      $hEditor[iLine].Text = Space$(iIndent) & "' " & Mid$($hEditor[iLine].Text, iIndent + 1)
+    For I = 0 To aLines.Max
+      aLines[I] = sIndent & "' " & Mid$(aLines[I], Len(sIndent) + 1)
     Next
-    $hEditor.End
-    'Modify
 
-    $hEditor.RecallSelection
+    $hEditor.EndModifyLines(aLines)
     
   Else
+    
     'Comment only the current line
     iLine = $hEditor.Line
-    iIndent = GetIndentWidth(iLine, iLine + 1)
-    $hEditor[iLine].Text = Space$(iIndent) & "' " & Mid$($hEditor[iLine].Text, iIndent + 1)
+    sIndent = $hEditor.GetIndent(iLine, iLine + 1)
+    $hEditor[iLine].Text = sIndent & "' " & Mid$($hEditor[iLine].Text, Len(sIndent) + 1)
     
   Endif
 
@@ -1209,55 +1180,55 @@ Public Sub mnuUncomment_Click()
 
   Dim iLine As Integer
   Dim sLine As String
-  Dim iIndent As Integer
   Dim iStartLine As Integer
   Dim iEndLine As Integer
+  Dim sIndent As String
+  Dim I As Integer
+  Dim aLines As String[]
 
   If $hEditor.ReadOnly Then Return
   'IF NOT Editor.Selected THEN RETURN
 
   If $hEditor.Selected Then
     
-    $hEditor.StoreSelection
+    aLines = $hEditor.StartModifySelection(ByRef iStartLine, ByRef iEndLine)
+    sIndent = $hEditor.GetIndent(iStartLine, iEndLine)
 
-    iStartLine = Min($hEditor.SelectionLine, $hEditor.Line)
-    iEndLine = Max($hEditor.SelectionLine, $hEditor.Line)
-
-    iIndent = GetIndentWidth(iStartLine, iEndLine)
-
-    For iLine = iStartLine To iEndLine - 1
-      sLine = $hEditor[iLine].Text
-      If Len(sLine) < (iIndent + 1) Then Break
-      If Left(LTrim(sLine), 1) <> "'" Then Break
+    For I = 0 To aLines.Max
+      sLine = aLines[I]
+      If Len(sLine) < (Len(sIndent) + 1) Then Break
+      If Left(LTrim(sLine)) <> "'" Then Break
     Next
-
-    If iLine = iEndLine Then
-      $hEditor.Begin
-      For iLine = iStartLine To iEndLine - 1
-        If Left(LTrim($hEditor[iLine].Text), 2) = "' " Then
-          $hEditor[iLine].Text = Space$(iIndent) & Mid$(LTrim($hEditor[iLine].Text), 3)
+    
+    If I >= aLines.Count Then
+      
+      For I = 0 To aLines.Max
+        If Left(LTrim(aLines[I]), 2) = "' " Then
+          aLines[I] = sIndent & Mid$(LTrim(aLines[I]), 3)
         Else
-          $hEditor[iLine].Text = Space$(iIndent) & Mid$(LTrim($hEditor[iLine].Text), 2)
+          aLines[I] = sIndent & Mid$(LTrim(aLines[I]), 2)
         Endif
       Next
-      $hEditor.End
-      'Modify
+      $hEditor.EndModifyLines(aLines)
+      
+    Else
+      
+      $hEditor.EndModifyLines()
+      
     Endif
 
-    $hEditor.RecallSelection
-    
   Else
     
     iLine = $hEditor.Line
     sLine = $hEditor[iLine].Text
-    iIndent = GetIndentWidth(iLine, iLine + 1)
+    sIndent = $hEditor.GetIndent(iLine, iLine + 1)
     
-    If Len(sLine) < (iIndent + 1) Then Return
-    If Left(LTrim(sLine), 1) <> "'" Then Return
+    If Len(sLine) < (Len(sIndent) + 1) Then Return
+    If Left(LTrim(sLine)) <> "'" Then Return
     If Left(LTrim($hEditor[iLine].Text), 2) = "' " Then
-      $hEditor[iLine].Text = Space$(iIndent) & Mid$(LTrim($hEditor[iLine].Text), 3)
+      $hEditor[iLine].Text = sIndent & Mid$(LTrim($hEditor[iLine].Text), 3)
     Else
-      $hEditor[iLine].Text = Space$(iIndent) & Mid$(LTrim($hEditor[iLine].Text), 2)
+      $hEditor[iLine].Text = sIndent & Mid$(LTrim($hEditor[iLine].Text), 2)
     Endif
   Endif
 
