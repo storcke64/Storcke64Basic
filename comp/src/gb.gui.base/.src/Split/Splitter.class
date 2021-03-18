@@ -3,6 +3,10 @@
 Export
 Inherits UserContainer
 
+Public Const _Properties As String = "*,-Margin,-Padding,-AutoResize,-Indent,Border=True,Arrangement{Arrange.Horizontal;Vertical}=Horizontal"
+Public Const _DefaultEvent As String = "Resize"
+Public Const _Similar As String = "Panel"
+
 Property Layout, Settings As Integer[]
 Property Border As Boolean
 
@@ -11,6 +15,7 @@ Property Border As Boolean
 '' Return or set the minimum size of a pane.
 
 Property MinSize As Integer
+Property Arrangement As Integer
 
 Event Resize
 
@@ -453,5 +458,21 @@ Private Sub MinSize_Write(Value As Integer)
 
   $iMinSize = Value
   Layout_Write(Layout_Read())
+
+End
+
+Private Function Arrangement_Read() As Integer
+
+  Return If($bVertical, Arrange.Vertical, Arrange.Horizontal)
+
+End
+
+Private Sub Arrangement_Write(Value As Integer)
+
+  Dim bVertical As Boolean = Value = Arrange.Vertical
+  
+  If bVertical = $bVertical Then Return
+  $bVertical = bVertical
+  DoLayout
 
 End
