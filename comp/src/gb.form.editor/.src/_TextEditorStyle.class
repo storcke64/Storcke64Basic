@@ -1,14 +1,21 @@
 ' Gambas class file
 
+''' This virtual class represents one highlighting style.
+
 Export
 Create Static 
 
 Static Public _Style As TextEditorStyle
 
+'' Return or set the main color of the style.
 Property Color As Integer
+'' Return or set the background color of the style.
 Property Background As Integer
+'' Return or set if the text should be bold.
 Property Bold As Boolean
+'' Return or set if the text should be underlined.
 Property Underline As Boolean
+'' Return or set if the text should be dotted.
 Property Dotted As Boolean
 
 Private Function Color_Read() As Integer

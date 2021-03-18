@@ -1,5 +1,7 @@
 ' Gambas class file
 
+''' This virtual class represents the highlighting styles of the TextEditor.
+
 Export
 
 Event _Change
@@ -89,6 +91,10 @@ Public Sub _SetStyles(aStyle As TextEditorStyle[])
   Next
   
 End
+
+'' Return the highlighting style associated with a specific highlight constant.
+''
+'' - ~Style~ is one of the [/comp/gb.eval/highlight] constants.
 
 Public Sub _get((Style) As Integer) As _TextEditorStyle
 

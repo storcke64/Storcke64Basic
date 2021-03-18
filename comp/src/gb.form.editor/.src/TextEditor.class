@@ -9,8 +9,6 @@ Public Const _DrawWith As String = "-"
 Public Const _DefaultEvent As String = "Change"
 Public Const _Similar As String = "TextArea"
 
-Public Enum Normal, Added, Removed
-
 '' This event is raised when the cursor has moved.
 
 Event Cursor
@@ -272,7 +270,7 @@ Property ShowCursor As Boolean
 
 Property ShowExpand As Boolean
 
-'' Return or set if spaces at the end of a line are made visible with a little point.
+'' Return or set if trailing whitespaces are displayed as dots.
 
 Property ShowSpaces As Boolean
 
