@@ -445,15 +445,14 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
     
   Endif
 
-  hWebView.Clear
-  
-  'hWebView.Stop
   If sHtml Then
     
     sTemp = File.Dir(Temp$()) &/ "help"
     Try Mkdir sTemp
     sTemp &/= Replace(sUrl, "/", "|") & ".html"
     File.Save(sTemp, sHtml)
+
+    hWebView.Clear
     hWebView.Url = "file://" & sTemp
     
   Else If sUrl Then
@@ -466,7 +465,11 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
     sUrl = URL.SetQuery(sUrl, "l", GetLanguage())
     sUrl = URL.SetQuery(sUrl, "nl")
     If sMore Then sUrl &= "&" & sMore
-    hWebView.Url = sUrl
+    
+    If sUrl <> hWebView.Url Then
+      hWebView.Clear
+      hWebView.Url = sUrl
+    Endif
     
   Else
     

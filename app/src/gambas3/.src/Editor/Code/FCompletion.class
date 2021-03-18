@@ -1111,7 +1111,7 @@ Public Sub timHelp_Timer()
   Try hModule = $hEditor.Window
   If Not hModule Then Return
   
-  Try sSymbol = gvwComp.Current.Text
+  Try sSymbol = Trim(gvwComp.Current.Text)
   If sSymbol Then   
     iType = CInt(Left($aKey[gvwComp.Row]))
     sClass = $sClass

@@ -259,3 +259,13 @@ Public Sub ZoomNormal()
   Me.Zoom = 1
   
 End
+
+Public Sub Clear()
+
+  Dim fZoom As Float
+  
+  fZoom = Me.Zoom
+  Super.Clear
+  Me.Zoom = fZoom
+  
+End
