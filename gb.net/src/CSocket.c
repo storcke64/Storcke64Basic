@@ -225,7 +225,7 @@ void CSocket_CallBackFromDns(void *_object)
 	myval = connect(SOCKET->socket,(struct sockaddr*)&(THIS->Server), sizeof(struct sockaddr));
 	SOCKET_set_blocking(SOCKET, TRUE);
 	
-	if (!myval || errno == EINPROGRESS) // Rhis is the good answer : connect in progress
+	if (!myval || errno == EINPROGRESS) // this is the good answer : connect in progress
 	{
 		set_status(THIS, NET_CONNECTING);
 		if (SOCKET->timeout > 0)
