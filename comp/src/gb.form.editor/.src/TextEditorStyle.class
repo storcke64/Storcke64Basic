@@ -2,24 +2,19 @@
 
 Event Change
 
-Property Color As Integer
-Property Background As Integer
-Property Bold As Boolean
-Property Underline As Boolean
-Property Dotted As Boolean
+Public Background As Integer
+Public (Color) As Integer
+Public Bold As Boolean
+Public Underline As Boolean
+Public Dotted As Boolean
 
-Public _Color As Integer
-Public _Background As Integer = Color.Default
-Public _Bold As Boolean
-Public _Underline As Boolean
-Public _Dotted As Boolean
+Public Sub _new(Optional (iColor) As Integer, Optional bBold As Boolean, bUnderline As Boolean, bDotted As Boolean)
 
-Public Sub _new(Optional (Color) As Integer, Optional Bold As Boolean, Underline As Boolean, Dotted As Boolean)
-
-  _Color = Color
-  _Bold = Bold
-  _Underline = Underline
-  _Dotted = Dotted
+  Background = -1
+  Color = iColor
+  Bold = bBold
+  Underline = bUnderline
+  Dotted = bDotted
   
 End
 
@@ -29,82 +24,19 @@ Public Sub Copy() As TextEditorStyle
   
   hStyle = New TextEditorStyle
   With hStyle
-    .Background = _Background
-    .Bold = _Bold
-    .Color = _Color
-    .Underline = _Underline
-    .Dotted = _Dotted
+    .Background = Background
+    .Bold = Bold
+    .Color = Color
+    .Underline = Underline
+    .Dotted = Dotted
   End With
+  
+  Return hStyle
   
 End
 
-
-Private Function Color_Read() As Integer
-
-  Return _Color
-
-End
-
-Private Sub Color_Write(Value As Integer)
-
-  If _Color = Value Then Return
-  _Color = Value
+Public Sub RaiseChange()
+  
   Raise Change
-
-End
-
-Private Function Bold_Read() As Boolean
-
-  Return _Bold
-
-End
-
-Private Sub Bold_Write(Value As Boolean)
-
-  If _Bold = Value Then Return
-  _Bold = Value
-  Raise Change
-
-End
-
-Private Function Underline_Read() As Boolean
-
-  Return _Underline
-
-End
-
-Private Sub Underline_Write(Value As Boolean)
-
-  If _Underline = Value Then Return
-  _Underline = Value
-  Raise Change
-
-End
-
-Private Function Background_Read() As Integer
-
-  Return _Background
-
-End
-
-Private Sub Background_Write(Value As Integer)
-
-  If _Background = Value Then Return
-  _Background = Value
-  Raise Change
-
-End
-
-Private Function Dotted_Read() As Boolean
-
-  Return _Dotted
-
-End
-
-Private Sub Dotted_Write(Value As Boolean)
-
-  If _Dotted = Value Then Return
-  _Dotted = Value
-  Raise Change
-
+  
 End

@@ -1,0 +1,83 @@
+' Gambas class file
+
+Export
+Create Static 
+
+Static Public _Style As TextEditorStyle
+
+Property Color As Integer
+Property Background As Integer
+Property Bold As Boolean
+Property Underline As Boolean
+Property Dotted As Boolean
+
+Private Function Color_Read() As Integer
+
+  Return _Style.Color
+
+End
+
+Private Sub Color_Write(Value As Integer)
+
+  If _Style.Color = Value Then Return
+  _Style.Color = Value
+  _Style.RaiseChange
+
+End
+
+Private Function Bold_Read() As Boolean
+
+  Return _Style.Bold
+
+End
+
+Private Sub Bold_Write(Value As Boolean)
+
+  If _Style.Bold = Value Then Return
+  _Style.Bold = Value
+  _Style.RaiseChange
+
+End
+
+Private Function Underline_Read() As Boolean
+
+  Return _Style.Underline
+
+End
+
+Private Sub Underline_Write(Value As Boolean)
+
+  If _Style.Underline = Value Then Return
+  _Style.Underline = Value
+  _Style.RaiseChange
+
+End
+
+Private Function Background_Read() As Integer
+
+  Return _Style.Background
+
+End
+
+Private Sub Background_Write(Value As Integer)
+
+  If _Style.Background = Value Then Return
+  _Style.Background = Value
+  _Style.RaiseChange
+
+End
+
+Private Function Dotted_Read() As Boolean
+
+  Return _Style.Dotted
+
+End
+
+Private Sub Dotted_Write(Value As Boolean)
+
+  If _Style.Dotted = Value Then Return
+  _Style.Dotted = Value
+  _Style.RaiseChange
+
+End
+

@@ -221,7 +221,47 @@ End
 
 Public Sub Button7_Click()
 
-  TextEditor1.ShowPreview = Not TextEditor1.ShowPreview
-  Dec Me.W
+  TextEditor1.Styles[Highlight.Background].Color = Color.SoftBlue
 
 End
+
+Public Sub btnComment_Click()
+
+  Dim iStartLine As Integer
+  Dim iEndLine As Integer
+  Dim iLine As Integer
+  Dim sIndent As String
+
+  If TextEditor1.ReadOnly Then Return
+  'IF NOT Editor.Selected THEN RETURN
+
+  If TextEditor1.Selected Then
+    
+    'TextEditor1.StoreSelection
+
+    iStartLine = Min(TextEditor1.SelectionLine, TextEditor1.Line)
+    iEndLine = Max(TextEditor1.SelectionLine, TextEditor1.Line)
+
+    sIndent = TextEditor1.GetIndent(iStartLine, iEndLine)
+
+    TextEditor1.Begin
+    TextEditor1.SaveCursor
+    For iLine = iStartLine To iEndLine - 1
+      TextEditor1[iLine].Text = sIndent & "' " & Mid$(TextEditor1[iLine].Text, Len(sIndent) + 1)
+    Next
+    TextEditor1.RestoreCursor
+    TextEditor1.End
+    'Modify
+
+    'TextEditor1.RecallSelection
+    
+  Else
+    'Comment only the current line
+    iLine = TextEditor1.Line
+    sIndent = TextEditor1.GetIndent(iLine, iLine + 1)
+    TextEditor1[iLine].Text = sIndent & "' " & Mid$(TextEditor1[iLine].Text, Len(sIndent) + 1)
+    
+  Endif
+
+End
+
