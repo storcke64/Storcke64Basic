@@ -51,11 +51,19 @@ void EXPORT GB_AFTER_INIT(void)
 	GB_FUNCTION func;
 	bool has_dbus_systemtray = FALSE;
 	void (*declare_tray_icon)();
+	char *env;
 	
-	GB.Component.Load("gb.dbus");
+	env = getenv("GB_GUI_TRAYICON_NO_DBUS");
 	
-	if (!GB.GetFunction(&func, (void *)GB.FindClass("DBus"), "_HasSystemTray", NULL, NULL))
-		has_dbus_systemtray = GB.Call(&func, 0, FALSE)->_boolean.value;
+	if (env && *env == '1')
+		has_dbus_systemtray = FALSE;
+	else
+	{
+		GB.Component.Load("gb.dbus");
+		
+		if (!GB.GetFunction(&func, (void *)GB.FindClass("DBus"), "_HasSystemTray", NULL, NULL))
+			has_dbus_systemtray = GB.Call(&func, 0, FALSE)->_boolean.value;
+	}
 	
 	if (has_dbus_systemtray)
 		GB.Component.Load("gb.dbus.trayicon");
