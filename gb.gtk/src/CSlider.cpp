@@ -155,13 +155,14 @@ GB_DESC ScrollBarDesc[] =
 
   GB_METHOD("_new", 0, ScrollBar_new, "(Parent)Container;"),
 
+  GB_PROPERTY_READ("DefaultSize", "i", Slider_DefaultSize),
+
   GB_PROPERTY("Tracking", "b", Slider_Tracking),
   GB_PROPERTY("Value", "i", Slider_Value),
   GB_PROPERTY("MinValue", "i", Slider_MinValue),
   GB_PROPERTY("MaxValue", "i", Slider_MaxValue),
   GB_PROPERTY("Step", "i", Slider_LineStep),
   GB_PROPERTY("PageStep", "i", Slider_PageStep),
-  GB_PROPERTY("DefaultSize", "i", Slider_DefaultSize),
   GB_PROPERTY("Orientation", "i", Slider_Orientation),
 
   GB_EVENT("Change", 0, 0, &EVENT_Change),
