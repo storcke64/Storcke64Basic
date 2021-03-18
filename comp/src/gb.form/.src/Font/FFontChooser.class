@@ -498,11 +498,13 @@ Private Sub UpdateRelative()
     txtSize.MinValue = -8
     txtSize.MaxValue = 24
     txtSize.Value = Grade
+    txtSize.ShowSign = True
     sldSize.PageStep = 1
   Else
     txtSize.MinValue = 1
     txtSize.MaxValue = 256
     txtSize.Value = Size
+    txtSize.ShowSign = False
     sldSize.PageStep = 4
   Endif
   

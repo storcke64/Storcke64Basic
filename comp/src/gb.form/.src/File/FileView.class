@@ -436,7 +436,8 @@ Private Sub RefreshView()
         
         bRichText = False
         
-        sText = sFile
+        sText = Replace(sFile, "\n", "")
+        
         If .Link Then
           sText = "<i>" & sText & "</i>"
           bRichText = True
@@ -448,7 +449,7 @@ Private Sub RefreshView()
   
         If $hColumnView.Visible Then
           If Not $hColumnView.Exist(sKey) Then
-            $hColumnView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            $hColumnView.Add(sKey, sText, hPict).Editable = Access(sDir, gb.Write)
             GoSub ADD_PREVIEW
           Else
             $hColumnView[sKey].Editable = Access(sDir, gb.Write)
@@ -462,7 +463,7 @@ Private Sub RefreshView()
           If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
         Else
           If Not $hIconView.Exist(sKey) Then
-            $hIconView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            $hIconView.Add(sKey, sText, hPict).Editable = Access(sDir, gb.Write)
             GoSub ADD_PREVIEW
           Else
             $hIconView[sKey].Editable = Access(sDir, gb.Write)

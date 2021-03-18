@@ -232,6 +232,7 @@ tag                     actions/tag
 terminal                apps/utilities-terminal
 text                    $(mime)/text-x-generic;$(mime)/text-plain
 text-baseline           actions/format-align-vertical-baseline;actions/align-vertical-baseline
+text-bigger             actions/format-font-size-more;actions/font-size-more
 text-bold               actions/format-text-bold
 text-bottom             actions/format-align-vertical-bottom;
 text-center             actions/format-justify-center
@@ -241,7 +242,10 @@ text-left               actions/format-justify-left
 text-lower              actions/format-text-lowercase
 text-middle             actions/format-align-vertical-center
 text-right              actions/format-justify-right
+text-smaller            actions/format-font-size-less;actions/font-size-less
 text-strike             actions/format-text-strikethrough
+text-sub                actions/format-text-subscript;actions/text-subscript
+text-super              actions/format-text-superscript;actions/text-superscript
 text-top                actions/format-align-vertical-top
 text-underline          actions/format-text-underline
 text-upper              actions/format-text-uppercase
