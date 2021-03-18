@@ -26,6 +26,8 @@ Property Read Path As String
 
 Private Sub CreateSession()
 
+  Dim sCookiePath As String
+  
   If $hManager Then Return
   
   Select Case $sType
@@ -41,8 +43,11 @@ Private Sub CreateSession()
     If $hManager.Load() Then Return
   Endif
   
+  sCookiePath = GetCookiePath()
+  $hManager["_"] = sCookiePath
+  
   Main.Log("CreateSession: " & $sId)
-  Response.SetCookie("GBSESSIONID", $sId, "", GetCookiePath(),, True)
+  Response.SetCookie("GBSESSIONID", $sId, "", sCookiePath,, True)
 
 End
 
@@ -99,10 +104,17 @@ End
 
 Public Sub Abandon()
   
+  Dim sCookiePath As String
+  
   CheckAllowLog
   Main.Log("Abandon")
   
-  Response.RemoveCookie("GBSESSIONID", "", "", GetCookiePath())
+  If $hManager Then
+    sCookiePath = $hManager["_"]
+  Else
+    sCookiePath = GetCookiePath()
+  Endif
+  Response.RemoveCookie("GBSESSIONID", "", "", sCookiePath)
   
   If Not $sId Then Return
   If Not $hManager Then Return
