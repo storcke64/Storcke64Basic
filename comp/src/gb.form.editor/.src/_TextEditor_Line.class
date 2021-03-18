@@ -151,6 +151,14 @@ Private Function InitialState_Read() As _TextEditor_State
 
 End
 
+'' Purge the line from its comments and/or strings, according to its highlighting.
+''
+'' - If ~KeepComment~ is set, the comments are kept intact. Comments are the characters associated with [Highlight.Comment](/comp/gb.eval/highlight/comment) or [Highlight.Help](/comp/gb.eval/highlight/help) styles.
+'' - If ~KeepString~ is set, the strings are kept intact. Strings are the characters associated with [Highlight.String](/comp/gb.eval/highlight/string) style.
+'' - ~Replace~ is the character that replaces the removed elements. By default it is a space.
+''
+'' If the line is not highlighted, then it is returned as is.
+
 Public Sub Purge(Optional KeepComment As Boolean, KeepString As Boolean, Replace As String = " ") As String
 
   Dim hDoc As CDocument = GetDoc()
