@@ -5,7 +5,7 @@
   Persistent = True
   Arrangement = Arrange.Vertical
   { tabTool TabPanel
-    MoveScaled(0,1,34,39)
+    MoveScaled(1,1,34,35)
     Font = Font["-1"]
     Expand = True
     Arrangement = Arrange.Fill
@@ -37,10 +37,18 @@
     }
   }
   { btnZoom ToolButton
-    MoveScaled(24,6,4,4)
+    MoveScaled(0,39,4,4)
     Visible = False
     ToolTip = ("Toolbox button size")
     Ignore = True
     Picture = Picture["icon:/small/zoom-in"]
+  }
+  { btnDeprecated ToolButton
+    MoveScaled(4,39,4,4)
+    Visible = False
+    ToolTip = ("Toolbox button size")
+    Ignore = True
+    Picture = Picture["icon:/small/delete"]
+    Toggle = True
   }
 }

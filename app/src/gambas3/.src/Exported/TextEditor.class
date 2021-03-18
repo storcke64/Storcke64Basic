@@ -245,7 +245,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
   If Not $hLabel Then
     
     hParent = Me.Parent
-    If hParent Is HSplit Or If hParent Is VSplit Then hParent = hParent.Parent
+    If hParent Is Splitter Then hParent = hParent.Parent
     
     $hLabel = New TextLabel(hParent) As "Label"
     $hLabel.Font = Me.Font

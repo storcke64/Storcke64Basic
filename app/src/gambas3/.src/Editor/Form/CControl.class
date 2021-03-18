@@ -48,6 +48,7 @@ Private $MY As Integer
 Private $hFamily As CFamily
 Private $bArranging As Boolean
 
+Static Private $hDeprecated As Image
 
 Static Public Sub _init()
 
@@ -71,10 +72,12 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
   Dim hClass As CClassInfo
   Dim W As Integer
   Dim DS As Integer
+  Dim bDeprecated As Boolean
    
   Do
     hClass = Project.Documentation.Classes[sComp &/ sClass]
     If Not hClass Then Break
+    bDeprecated = hClass.Group = "Deprecated"
     sComp = hClass.Component
     If sComp = CComponent.PROJECT_NAME Then
       sPath = Project.Dir &/ ".hidden/control" &/ LCase(sClass) & ".png"
@@ -121,6 +124,12 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
     
     Paint.End
     
+  Endif
+  
+  If bDeprecated Then
+    If Not $hDeprecated Then $hDeprecated = Image.Load("img/control/deprecated.png")
+    hImage = hImage.Opacity(0.5)
+    hImage.PaintImage($hDeprecated, 0, 0, hImage.W, hImage.H)
   Endif
 
   If iSize Then
@@ -239,7 +248,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
         hCtrl = New Splitter(hParent)
       Endif
 
-    Case "-", "drawingarea", "panel", "spring", "vbox", "hbox", "vpanel", "hpanel", "vsplit", "hsplit", "embedder", "datasource"
+    Case "-", "drawingarea", "panel", "spring", "vbox", "hbox", "vpanel", "hpanel", "vsplit", "hsplit", "embedder", "datasource", "splitter"
       hCtrl = New DrawingArea(hParent)
       hCtrl.NoBackground = True
       

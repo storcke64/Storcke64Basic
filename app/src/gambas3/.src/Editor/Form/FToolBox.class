@@ -13,10 +13,14 @@ Private $iSize As Integer
 
 Private $aOrder As New String[]
 
+Private $iTabDeprecated As Integer
+
 Public Sub _new()
   
   tabTool.AddButton(btnZoom, Align.Right)
   tabTool.ShowButton(btnZoom, True)
+  tabTool.AddButton(btnDeprecated, Align.Right)
+  tabTool.ShowButton(btnDeprecated, True)
   
 End
 
@@ -48,6 +52,8 @@ Private Function AddToolBar(sToolBar As String, sType As String) As FToolPanel
 
     If Not $sToolbar Then $sToolbar = sToolBar
 
+    If sToolBar = "Deprecated" Then $iTabDeprecated = tabTool.Index
+    
   Endif
 
   Return $cToolBar[sToolBar]
@@ -172,7 +178,6 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
 
         For Each sCtrl In .Controls
           sGroup = Project.Documentation.Classes[sCtrl].Group
-          If sGroup = "Deprecated" And If Not Project.ShowDeprecated Then Continue
           cToolBar[sGroup] = sGroup
         Next
 
@@ -192,9 +197,13 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
     
     aToolBar.Sort
     
+    $iTabDeprecated = 0
     For Each sGroup In aToolBar
       AddToolBar(Mid$(sGroup, 3), "Not yet implemented")
     Next
+    
+    btnDeprecated.Value = Project.ShowDeprecated
+    btnDeprecated_Click
     
     For Each hComp In Project.Documentation.Components
 
@@ -206,7 +215,6 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
           If cHidden.Exist(sCtrl) Then Continue
           hClass = Project.Documentation.Classes[sCtrl]
           sGroup = hClass.Group
-          If sGroup = "Deprecated" And If Not Project.ShowDeprecated Then Continue
           bExist = False
           For Each hToolBar In $cToolBar
             If hToolBar.Exist(sCtrl) Then 
@@ -375,6 +383,7 @@ Public Sub OnProjectActivate()
   Next
   
   tabTool.Index = iIndex
+  btnDeprecated_Click
   
 End
 
@@ -405,4 +414,10 @@ Public Sub SetTooltip(Optional sControl As String, sComp As String)
   lblControl.Text = sControl
   lblComp.Text = sComp
   
+End
+
+Public Sub btnDeprecated_Click()
+
+  If $iTabDeprecated Then tabTool[$iTabDeprecated].Visible = btnDeprecated.Value
+
 End
