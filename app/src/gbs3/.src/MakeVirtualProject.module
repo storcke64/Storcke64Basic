@@ -9,11 +9,9 @@ Public Sub _Call($oContext As Context, sPath As String) As String
 
   Dim sPrjFileContent As String
   Dim RootModule As String = ""
-  'Dim i As Integer
 
   $oContext.$sFinalProgram = ""
   $oContext.$sStructures = ""
-  '$oContext.$sClassDefinition = ""
   $oContext.$sProgramHeader = ""
   $oContext.$sCompilerOptions = ""
 
@@ -23,10 +21,6 @@ Public Sub _Call($oContext As Context, sPath As String) As String
 
   Try Mkdir $sPrjPath
   Try Mkdir $sPrjPath &/ ".src"
-
-  'sPrjFileContent = "# Gambas Project File 3.0\n"
-  ' sPrjFileContent &= "Title=Gambas Script\n"
-  '  sPrjFileContent &= "Startup=MMain\n"
 
   $oContext.$sPreambleHeader = "' Gambas module file\n"
 

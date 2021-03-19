@@ -44,6 +44,7 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
     Else If cReader.HasPublicOrSub() Then
       cReader.DisplayWarnings()
       If $oContext.$bAllowLazyScript Then
+        Warning("Auto Generation of Public Main() entry point")
         $oContext.$sFinalProgram = GenerateFromLazyScript($oContext, cReader)
       Else
         CompileError(Path, 1, "Script Contains Public or Sub Definitions Without Having a  'Public Sub main()' defined")
