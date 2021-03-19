@@ -57,6 +57,7 @@ Public Sub Printer_Begin()
   'Debug "Paint.ResolutionY = "; Paint.ResolutionY
   Paint.FontScale = 1
   
+  Inc Application.Busy
   $hEditor.Move(0, 0, ZOOM_EDITOR * Paint.W, $hEditor.LineHeight * 10)
   $hEditor._ResizeContents
   $hEditor.Move(-$hEditor.W - 16, -$hEditor.H - 16)
@@ -64,6 +65,7 @@ Public Sub Printer_Begin()
   Wait
   $hEditor._ResizeContents
   $hEditor.TimerHeight_Timer
+  Dec Application.Busy
 
   'Debug "Count = "; $hEditor.Count
   'Debug "$nLine = "; $hEditor.ScrollH / $hEditor.LineHeight;; $hEditor.ScrollH;; $hEditor.LineHeight
