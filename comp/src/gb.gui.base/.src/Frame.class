@@ -47,23 +47,21 @@ Public Sub Frame_Arrange()
   Dim DS As Integer
   Dim H As Integer
   
-  DS = Desktop.Scale
+  If $sText Then
+    
+    DS = Desktop.Scale
   
-  If $hTextFont Then
-    H = Max($hTextFont.H, DS)
-  Else
-    H = Max(Me.Font.H, DS)
-  Endif
-
-  If Align.IsMiddle($iAlign) Then
+    If $hTextFont Then
+      H = Max($hTextFont.H, DS)
+    Else
+      H = Max(Me.Font.H, DS)
+    Endif
+  
     H += DS \ 2
-  Else If Align.IsBottom($iAlign) Then
-    H += DS
-  Else 
-    H += DS + DS \ 2
+    
   Endif
   
-  $hContainer.Move(DS, H, $hFrame.W - DS * 2, $hFrame.H - DS - H)
+  $hContainer.Move(0, H, $hFrame.W, $hFrame.H - H)
   
 End
 
@@ -180,8 +178,8 @@ Public Sub Frame_Draw()
 
   Else
     
-    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, DS \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - DS - 4, Me.Background)
-    Paint.DrawRect(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Color.LightForeground)
+    If Me.Background <> Color.Default Then Paint.FillRect(0, 0, $hFrame.W, $hFrame.H, Me.Background)
+    Paint.DrawRect(0, 0, $hFrame.W, $hFrame.H, Color.LightForeground)
     'Style.PaintPanel(DS \ 2, DS \ 2, $hFrame.W - DS, $hFrame.H - DS, Border.Etched)
     
   Endif
