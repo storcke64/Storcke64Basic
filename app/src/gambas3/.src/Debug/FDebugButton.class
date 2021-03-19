@@ -93,13 +93,28 @@ Public Sub OnRefreshSources()
   
 End
 
-Public Sub OnProjectChange()
+Public Sub OnProjectActivate()
   
-  'btnTest.Picture = Picture["icon:/small/ok"]
+  If Not $sMessage Then SetMessage()
   
 End
 
-Public Sub SetMessage(sText As String, Optional bAdd As Boolean)
+Public Sub UpdateStatus(bForce As Boolean)
+  
+  If bForce Or If Not $sMessage Then
+    SetMessage()
+  Endif
+  
+End
+
+
+Public Sub dwgStatus_Draw()
+  
+  Try Project.ActiveForm.PaintStatus()
+  
+End
+
+Public Sub SetMessage(Optional sText As String, bAdd As Boolean)
   
   If bAdd Then 
     $sMessage = Trim($sMessage) & " " & sText
@@ -107,8 +122,16 @@ Public Sub SetMessage(sText As String, Optional bAdd As Boolean)
     $sMessage = sText
   Endif
   
-  lblMessage.Text = $sMessage
-  Wait
+  If $sMessage Then
+    lblMessage.Text = $sMessage
+    lblMessage.Show
+    dwgStatus.Hide
+    Wait
+  Else 
+    lblMessage.Hide
+    dwgStatus.Show
+    dwgStatus.Refresh
+  Endif
   
   If Not $sMessage Then
     timMessage.Stop
@@ -120,7 +143,7 @@ End
 
 Public Sub timMessage_Timer()
   
-  SetMessage("")
+  SetMessage()
   
 End
 

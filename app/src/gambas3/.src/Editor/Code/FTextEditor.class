@@ -383,6 +383,7 @@ Public Sub Editors_KeyPress()
    
   If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
     If Key.Normal Then
+      
       If $bWebPage Then
         If InAlternate() And If Not FindCloseAlternate() Then
           $hEditor.Insert("\n%>")
@@ -390,7 +391,13 @@ Public Sub Editors_KeyPress()
           Stop Event
         Endif
       Endif
+      
     Endif
+    
+  Else If Key.Code = Key.Insert Then
+    
+    Project.UpdateStatus()
+    
   Endif
   
 End
@@ -924,6 +931,7 @@ Public Sub Editors_Cursor()
   Endif
   
   CPosition.SaveCurrent(Me)
+  Project.UpdateStatus(True)
 
 End
 
@@ -2009,4 +2017,10 @@ Public Sub btnForward_Click()
 
   $hPreview.Forward
 
+End
+
+Public Sub PaintStatus()
+  
+  FEditor.PaintEditorStatus($hEditor)
+  
 End

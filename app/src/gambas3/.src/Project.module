@@ -789,7 +789,7 @@ _INIT_AGAIN:
     
     If Not bIsFake Then
       FDebugInfo.OnProjectChange
-      FDebugButton.OnProjectChange
+      'FDebugButton.OnProjectChange
     Endif
     
   Endif
@@ -3009,7 +3009,7 @@ Public Sub Activate(hForm As Object)
   Action["watch"].Enabled = bEditor
   Action["until"].Enabled = bEditor
 
-  'FFind.OnProjectActivate
+  FDebugButton.OnProjectActivate
   FToolBox.OnProjectActivate
   FImageProperty.OnProjectActivate
 
@@ -7021,7 +7021,10 @@ Public Sub UpdateTheme()
   If sTheme = "*" Then sTheme = ""
   Application.Theme = sTheme
 
+End
 
+Public Sub UpdateStatus(Optional bForce As Boolean)
   
-
+  FDebugButton.UpdateStatus(bForce)
+  
 End

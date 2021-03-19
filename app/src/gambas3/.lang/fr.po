@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.15.90\n"
-"PO-Revision-Date: 2021-03-19 05:35 UTC\n"
+"PO-Revision-Date: 2021-03-19 22:03 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1474,7 +1474,7 @@ msgstr "Enregistrer"
 msgid "Solve"
 msgstr "Résoudre"
 
-#: FConflictEditor.class:956 FEditor.class:2674 FTextEditor.class:1066
+#: FConflictEditor.class:956 FEditor.class:2737 FTextEditor.class:1074
 msgid "(Declarations)"
 msgstr "(Déclarations)"
 
@@ -2041,35 +2041,35 @@ msgstr "Référentiel"
 msgid "The project repository is directly sent to the 'svn checkout' command."
 msgstr "Le référentiel du projet est directement envoyé à la commande 'svn checkout'."
 
-#: FDebugButton.form:32 FDebugInfo.form:101
+#: FDebugButton.form:33 FDebugInfo.form:101
 msgid "Debugging"
 msgstr "Débogage"
 
-#: FDebugButton.form:41 FDebugInfo.form:195 FMain.form:797 FOption.form:1534
+#: FDebugButton.form:42 FDebugInfo.form:195 FMain.form:797 FOption.form:1534
 msgid "Console"
 msgstr "Console"
 
-#: FDebugButton.form:50 FDebugInfo.form:203 MTheme.module:6
+#: FDebugButton.form:51 FDebugInfo.form:203 MTheme.module:6
 msgid "Breakpoints"
 msgstr "Points d'arrêt"
 
-#: FDebugButton.form:59 FDebugInfo.form:265
+#: FDebugButton.form:60 FDebugInfo.form:265
 msgid "Warnings"
 msgstr "Avertissements"
 
-#: FDebugButton.form:68
+#: FDebugButton.form:69
 msgid "Notes"
 msgstr "Notes"
 
-#: FDebugButton.form:77 FDebugInfo.form:306
+#: FDebugButton.form:78 FDebugInfo.form:306
 msgid "Unit tests"
 msgstr "Tests unitaires"
 
-#: FDebugButton.form:86 FDebugInfo.form:369 FMain.form:507 FProjectProperty.form:959 FVersionControl.class:95
+#: FDebugButton.form:87 FDebugInfo.form:369 FMain.form:507 FProjectProperty.form:959 FVersionControl.class:95
 msgid "Version control"
 msgstr "Suivi de version"
 
-#: FDebugButton.form:95 FDebugInfo.form:450
+#: FDebugButton.form:96 FDebugInfo.form:450
 msgid "Search result"
 msgstr "Résultat de la recherche"
 
@@ -2105,7 +2105,7 @@ msgstr "Afficher tous les symboles"
 msgid "No element"
 msgstr "Aucun élément"
 
-#: FDebugInfo.class:45 FImageEditor.form:588 FImportTable.class:66
+#: FDebugInfo.class:45 FEditor.class:410 FImageEditor.form:588 FImportTable.class:66
 msgid "Line"
 msgstr "Ligne"
 
@@ -2236,6 +2236,14 @@ msgstr "Rechercher de nouveau"
 #: FDebugInfo.form:531 FSearch.class:521 FTranslate.class:641
 msgid "Search string cannot be found."
 msgstr "La chaîne recherchée est introuvable."
+
+#: FEditor.class:409
+msgid "Column"
+msgstr "Colonne"
+
+#: FEditor.class:411
+msgid "Overwrite"
+msgstr "Écrasement"
 
 #: FEditor.form:196 FTextEditor.form:232
 msgid "Format code"
@@ -5813,15 +5821,15 @@ msgstr "Utiliser une police non proportionnelle"
 msgid "Console output #&1"
 msgstr "Sortie de console n°&1"
 
-#: FTextEditor.class:1794
+#: FTextEditor.class:1802
 msgid "Preview refresh..."
 msgstr "Rafraîchissement de l'aperçu..."
 
-#: FTextEditor.class:1877
+#: FTextEditor.class:1885
 msgid "Default style sheet"
 msgstr "Feuille de style par défaut"
 
-#: FTextEditor.class:1930
+#: FTextEditor.class:1938
 msgid "Example"
 msgstr "Exemple"
 

@@ -400,8 +400,76 @@ Public Sub Editors_Cursor()
   If $hEditor.Line = $hEditor.StopLine Then Design.CheckErrorMessage(Me)
 
   CPosition.SaveCurrent(Me)
+  Project.UpdateStatus(True)
 
 End
+
+Static Public Sub PaintEditorStatus(hEditor As TextEditor)
+  
+  Dim sTextCol As String = ("Column")
+  Dim sTextLine As String = ("Line")
+  Dim sTextOverwrite As String = ("Overwrite")
+  Dim DS As Integer
+  Dim WC, WL, WO, WD As Integer
+  Dim X, Y, W, H As Integer
+  
+  DS = Desktop.Scale
+
+  Paint.Font = Application.Font
+  WC = Paint.TextSize(sTextCol).W
+  WL = Paint.TextSize(sTextLine).W
+  WD = Paint.TextSize("9").W
+  W = WC + DS + WD * 4 + DS + WL + DS + WD * 6
+  If hEditor.Overwrite Then
+    Paint.Font = Paint.Device.Font
+    Paint.Font.Bold = True
+    WO = Paint.TextSize(sTextOverwrite).W
+    W += WO + DS * 4
+  Endif
+  
+  X = Paint.W - W
+  H = (DS * 5) \ 2
+  Y = (Paint.H - H) / 2
+  
+  If System.RightToLeft Then
+    
+  Else
+  
+    If hEditor.Overwrite Then
+      Paint.Font = Paint.Device.Font
+      Paint.Font.Bold = True
+      Paint.Rectangle(X, Y, WO + DS * 2, H)
+      Paint.Background = Color.Foreground
+      Paint.Fill
+      Paint.Background = Color.Background
+      Paint.DrawText(sTextOverwrite, X, Y, WO + DS * 2, H, Align.Center)
+      X += WO + DS * 4
+    Endif
+    
+    Paint.Font = Application.Font
+    Paint.Background = Color.Foreground
+    Paint.DrawText(sTextCol, X, Y, WC, H, Align.Normal)
+    X += WC + DS
+    Paint.Font.Bold = True
+    Paint.DrawText(CStr(hEditor.Column + 1), X, Y, WD * 4, H, Align.Right)
+    X += WD * 4 + DS
+    Paint.Font.Bold = False
+    Paint.DrawText(sTextLine, X, Y, WL, H, Align.Normal)
+    X += WL + DS
+    Paint.Font.Bold = True
+    Paint.DrawText(CStr(hEditor.Line + 1), X, Y, WD * 6, H, Align.Right)
+    
+  Endif
+  
+End
+
+
+Public Sub PaintStatus()
+
+  PaintEditorStatus($hEditor)
+
+End
+
 
 Public Sub Form_GotFocus()
 
@@ -972,6 +1040,10 @@ Public Sub Editors_KeyPress()
     If Not $hEditor.Selected Or If $hEditor.Line = $hEditor.SelectionLine Then
       If CheckCodeSnippet() Then Stop Event
     Endif
+    
+  Else If Key.Code = Key.Insert Then
+    
+    Project.UpdateStatus()
 
   Endif
   

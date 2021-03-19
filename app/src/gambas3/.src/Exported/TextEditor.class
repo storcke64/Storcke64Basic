@@ -33,7 +33,7 @@ Public Sub ReadConfig(Optional bPreview As Boolean)
 
   MTheme.InitEditor(Me)
 
-  Me.ShowPosition = True
+  Me.ShowPosition = Not bPreview
   Me.ShowLimit = Settings["/Editor/ProcedureLimit", True]
   Me.ShowModified = Settings["/Editor/ShowChange", True]
   Me.ShowLineNumber = Settings["/Editor/ShowLineNumbers", False]

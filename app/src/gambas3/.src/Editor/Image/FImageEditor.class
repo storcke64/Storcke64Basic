@@ -26,6 +26,7 @@ Private $sToolBefore As String
 Private $hFirstPoint As PointF
 Private $hLastPoint As PointF
 Private $hCurrentPoint As PointF
+Private $bInsideImage As Boolean
 
 Private $bDblClick As Boolean
 Private $bPress As Boolean
@@ -792,9 +793,18 @@ End
 Public Sub imvImage_MouseDown()
 
   Me.SetFocus
+  
   $bPress = Mouse.Left
   
-  If Not $bPress Then Return
+  If Not $bPress Then 
+    
+    If Mouse.Middle And If $bInsideImage And If Not $bReadOnly Then
+      With GetImagePos()
+        Try FImageProperty.SetColor($hImage[.X, .Y])
+      End With
+    Endif
+    
+  Endif
   
   BeginUndo
   
@@ -1405,8 +1415,10 @@ Public Sub imvImage_MouseMove()
   Else
     
     If $hCurrentPoint.InRect(RectF(0, 0, $hImage.W, $hImage.H)) Or If $bPress Then
+      $bInsideImage = True
       SetMouse($iMouse)
     Else
+      $bInsideImage = False
       SetMouse(Mouse.Default)
     Endif
   
