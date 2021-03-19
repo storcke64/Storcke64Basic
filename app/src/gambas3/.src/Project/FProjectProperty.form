@@ -46,7 +46,8 @@
       }
       { Menu10 Menu mnuInsertEnv
         Name = "Menu10"
-        Text = ("GB_GUI_DARK_THEME=1")
+        #Translate = False
+        Text = "GB_GUI_DARK_THEME=1"
         Tag = "GB_GUI_DARK_THEME=1"
       }
       { Menu19 Menu mnuInsertEnv
@@ -706,7 +707,7 @@
     }
     Index = 6
     Text = ("Statistics")
-    Picture = Picture["icon:/large/monitor"]
+    Picture = Picture["icon:/large/statistics"]
     { gvwStat GridView
       MoveScaled(3,4,62,25)
       Expand = True
