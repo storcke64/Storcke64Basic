@@ -37,7 +37,7 @@ clone                   actions/edit-clone;actions/edit-duplicate
 close                   actions/window-close
 color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/preferences-desktop-color;categories/applications-graphics
 color-picker            actions/color-picker
-component               [-breeze*]actions/document-share;categories/applications-utilities;apps/nepomuk
+component               categories/applications-utilities;apps/nepomuk
 computer                devices/computer
 connect                 actions/network-connect
 contrast                #
@@ -139,11 +139,12 @@ lower                   actions/object-ordre-lower
 mail                    apps/evolution-mail;actions/mail-mark-unread
 make                    actions/arrow-down
 make-all                actions/arrow-down-double
+math                    actions/preview-math;actions/preview_math
 md                      $(mime)/text-x-markdown
 media-player            devices/multimedia-player
 menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
 microphone              devices/audio-input-microphone
-monitor                 [-breeze*]actions/view-statistics;apps/utilities-system-monitor
+monitor                 apps/utilities-system-monitor
 mouse                   devices/input-mouse
 move                    actions/transform-move
 multimedia              categories/applications-multimedia
@@ -166,7 +167,7 @@ ok                      actions/dialog-ok
 opacity                 [breeze]actions/edit-opacity
 open                    actions/document-open
 open-recent             actions/document-open-recent
-options                 [breeze*]actions/configure-shortcuts;categories/preferences-system;actions/configure
+options                 actions/configure;categories/preferences-system
 package                 apps/system-software-install;apps/preferences-desktop-default-applications
 paste                   actions/edit-paste
 pause                   actions/media-playback-pause
@@ -223,6 +224,7 @@ sort-descent            actions/view-sort-descending
 spell-check             actions/tools-check-spelling
 star                    [breeze*]actions/draw-star;status/starred
 start                   actions/media-skip-backward
+statistics              actions/view-statistics
 stop                    actions/media-playback-stop
 sun                     status/weather-clear
 system                  devices/computer
