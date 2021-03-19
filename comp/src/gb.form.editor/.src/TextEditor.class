@@ -441,6 +441,8 @@ Private $cDiffLayout As Collection
 
 Public _TopHeight As Integer
 
+Private $hMultiLineImage As Image
+
 '' Create a new TextEditor
 
 Public Sub _new()
@@ -549,6 +551,7 @@ Private Sub CalcSizes()
   $iTabWidth = $hFont.TextWidth("m") * $iTabSize
   $fTabSymbolSize = Max(1, $hRows.H / 5)
   $hTabImage = Null
+  $hMultiLineImage = Null
   
   $fCharWidth = Paint._EstimateFixedFontCharWidth($hFont)
   ' $fCharWidth = $iSpaceWidth
@@ -1103,12 +1106,20 @@ Private Sub PaintMultiLine(X As Integer, Y As Integer, Width As Integer, Height 
   If Not $cLineLayout Then Return
 
   If Not bEnd Then
+    
+    If Not $hMultiLineImage Then
+      $hMultiLineImage = New Image($LH \ 2, $LH, $iBackground)
+      Paint.Begin($hMultiLineImage)
+      Paint.Arrow(0, 0, $LH \ 3, $LH, Align.Right)
+      Paint.Background = Color.SetAlpha($iForeground, 64)
+      Paint.LineWidth = $LH / 16
+      Paint.Stroke
+      Paint.End
+    Endif
+    
     X += Width - Height \ 2
-    Paint.FillRect(X, Y, Height \ 2, Height, $iBackground)
-    Paint.Arrow(X, Y, Height \ 3, Height, Align.Right)
-    Paint.Background = $iForeground
-    Paint.LineWidth = $LH / 24
-    Paint.Stroke
+    Paint.DrawImage($hMultiLineImage, X, Y, Height \ 2, Height)
+
   Endif
   
   ' Paint.Save
@@ -1490,6 +1501,7 @@ Public Sub _PaintRow(Row As Integer, X As Integer, Y As Integer)
   Dim bRemoteDisplay As Boolean
   Dim iSaveMW As Integer
   
+  CheckStyle
   H = $LH
 
   Try aLayout = $cLineLayout[Row]
@@ -3399,6 +3411,26 @@ Public Sub _ResizeContents()
   
 End
 
+Private Sub CheckStyle()
+  
+  If $bStyleChanged Then
+    $iBackground = $hStyles[Highlight.Background].Color
+    $iForeground = $hStyles[Highlight.Normal].Color
+    $iSelectedBackground = $hStyles[Highlight.Selection].Color
+    $iLimitColor = Color.Gradient($iBackground, $hStyles[Highlight.Comment].Color)
+    $iIndentColor = Color.SetAlpha($iLimitColor, 160)
+    $iMatchColor = $hStyles[Highlight.Highlight].Color
+    '$iIndentColor = Color.Gradient($iBackground, $iForeground)
+    $iMarginColor = Color.SetAlpha($iForeground, 192)
+    $iCurrentColor = Color.SetAlpha($iForeground, 248)
+    CalcBoldWidth
+    $hMultiLineImage = Null
+    $bStyleChanged = False
+  Endif
+  
+End
+
+
 Public Sub View_Draw()
   
   Dim I As Integer
@@ -3421,19 +3453,7 @@ Public Sub View_Draw()
     _UpdateAllHeight(True)
   Endif
   
-  If $bStyleChanged Then
-    $iBackground = $hStyles[Highlight.Background].Color
-    $iForeground = $hStyles[Highlight.Normal].Color
-    $iSelectedBackground = $hStyles[Highlight.Selection].Color
-    $iLimitColor = Color.Gradient($iBackground, $hStyles[Highlight.Comment].Color)
-    $iIndentColor = Color.SetAlpha($iLimitColor, 160)
-    $iMatchColor = $hStyles[Highlight.Highlight].Color
-    '$iIndentColor = Color.Gradient($iBackground, $iForeground)
-    $iMarginColor = Color.SetAlpha($iForeground, 192)
-    $iCurrentColor = Color.SetAlpha($iForeground, 248)
-    CalcBoldWidth
-    $bStyleChanged = False
-  Endif
+  CheckStyle
   
   'Debug Me.Font.ToString();; Draw.Font.ToString()
   
@@ -5750,6 +5770,8 @@ Public Sub Styles__Change()
   If $bStyleChanged Then Return
   
   $bStyleChanged = True
+  $hMultiLineImage = Null
+  
   ClearCacheText
   If $hLabelFrame Then
     $hLabelFrame.Background = $hStyles[Highlight.Background].Color
