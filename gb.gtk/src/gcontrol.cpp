@@ -488,9 +488,8 @@ void gControl::destroy()
 #if DEBUG_DESTROY
 	fprintf(stderr, "destroy: %p %s (%d)\n", this, name(), _destroyed);
 #endif
-	_destroyed = true;
-	
 	hide();
+	_destroyed = true;
 	dispose();
 
 #if DEBUG_DESTROY
