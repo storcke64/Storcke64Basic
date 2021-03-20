@@ -72,6 +72,19 @@ End
 '   
 ' End
 
+Private Sub UpdateMouse()
+
+  Dim hResize As DrawingArea
+  Dim iMouse As Integer
+
+  iMouse = If($bVertical, Mouse.SplitV, Mouse.SplitH)
+  
+  For Each hResize In $aResize
+    hResize.Mouse = iMouse
+  Next
+
+End
+
 Public Sub Container_Arrange()
   
   Dim cNewWeight As Collection
@@ -141,13 +154,13 @@ Public Sub Container_Arrange()
         With $aResize[I]
           .NoBackground = True
           .Raise
-          '.Background = Color.Yellow
-          .Mouse = If($bVertical, Mouse.SplitV, Mouse.SplitH)
           .Tag = I
         End With
       Next
       Me._Container = $hPanel
     Endif
+    
+    UpdateMouse
     
   Endif
   
@@ -474,5 +487,6 @@ Private Sub Arrangement_Write(Value As Integer)
   If bVertical = $bVertical Then Return
   $bVertical = bVertical
   DoLayout
+  UpdateMouse
 
 End

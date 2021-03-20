@@ -7,14 +7,17 @@
   Arrangement = Arrange.Vertical
   { HBox1 HBox
     MoveScaled(6,3,47,4)
+    { Button1 Button
+      MoveScaled(0,0,16,4)
+    }
   }
   { Panel1 Panel
     MoveScaled(5,10,51,46)
     Expand = True
     Arrangement = Arrange.Fill
     Border = Border.Plain
-    { HSplit1 HSplit
-      MoveScaled(2,2,46,41)
+    { HSplit1 Splitter
+      MoveScaled(1,2,46,41)
       { TreeView1 TreeView
         MoveScaled(1,11,13,22)
         Visible = False
