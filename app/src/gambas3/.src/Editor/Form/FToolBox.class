@@ -301,12 +301,6 @@ Public Sub SetTool()
 
 End
 
-' PUBLIC SUB ToolBar_Change()
-'
-'   PRINT "ToolBar_Change: "; LAST.Name
-'
-' END
-
 Public Sub GetSize() As Integer
   
   Return 24 + Settings["/Toolbox/Size", 0] * 8
@@ -316,10 +310,13 @@ End
 Private Sub UpdateSize()
   
   Dim iSize As Integer = GetSize()
+  Dim iTab As Integer
   
   If iSize <> $iSize Then
+    iTab = tabTool.Index
     $iSize = iSize
     ClearToolBar
+    tabTool.Index = iTab
   Endif
   
 End
@@ -397,14 +394,11 @@ End
 Public Sub btnZoom_Click()
 
   Dim iSize As Integer
-  Dim iTab As Integer
 
   iSize = Settings["/Toolbox/Size", 0]
   iSize = (iSize + 1) Mod 4
   Settings["/Toolbox/Size"] = iSize
-  iTab = tabTool.Index
   UpdateSize
-  tabTool.Index = iTab
 
 End
 
@@ -419,5 +413,48 @@ End
 Public Sub btnDeprecated_Click()
 
   If $iTabDeprecated Then tabTool[$iTabDeprecated].Visible = btnDeprecated.Value
+  If btnDeprecated.Value Then tabTool.Index = $iTabDeprecated
 
+End
+
+Public Sub tabTool_Menu()
+
+  Dim hMenu As Menu
+  Dim I As Integer
+  
+  mnuShow.Children.Clear
+  
+  For I = 0 To tabTool.Count - 1
+    If Not tabTool[I].Visible Then Continue
+    hMenu = New Menu(mnuShow) As "mnuShow"
+    hMenu.Text = tabTool[I].Text
+    hMenu.Checked = I = tabTool.Index
+    hMenu.Tag = I
+  Next
+  
+  mnuDeprecated.Checked = btnDeprecated.Value
+  
+  mnuSize.Children[Settings["/Toolbox/Size", 0]].Checked = True
+  
+  mnuToolbox.Popup
+
+End
+
+Public Sub mnuShow_Click()
+  
+  tabTool.Index = Last.Tag
+  
+End
+
+Public Sub mnuDeprecated_Click()
+
+  btnDeprecated.Value = mnuDeprecated.Value
+
+End
+
+Public Sub mnuSize_Click()
+  
+  Settings["/Toolbox/Size"] = CInt(Last.Tag)
+  UpdateSize
+  
 End

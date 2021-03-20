@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,217,94)
+  MoveScaled(0,0,179,94)
   Icon = Picture["icon:/small/text"]
   Persistent = True
   Arrangement = Arrange.Fill
@@ -262,9 +262,9 @@
     }
   }
   { splPreview HSplit
-    MoveScaled(0,0,175,86)
+    MoveScaled(0,1,175,86)
     { Panel4 VBox
-      MoveScaled(0,0,108.875,80.875)
+      MoveScaled(1,1,108.875,80.875)
       { panToolBar ToolBar
         MoveScaled(0,0,108,8)
         Key = "text"
@@ -543,7 +543,7 @@
       }
     }
     { panPreview VBox
-      MoveScaled(111,-1,59,80)
+      MoveScaled(111,1,59,80)
       Visible = False
       { tlbPreview ToolBar
         MoveScaled(2,2,55,4)

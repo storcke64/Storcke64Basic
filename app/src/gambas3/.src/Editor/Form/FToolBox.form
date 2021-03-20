@@ -4,6 +4,43 @@
   MoveScaled(0,0,36,50)
   Persistent = True
   Arrangement = Arrange.Vertical
+  { mnuToolbox Menu
+    Visible = False
+    { mnuShow Menu
+      Text = ("Show")
+    }
+    { mnuSize Menu
+      Text = ("Button size")
+      { Menu1 Menu mnuSize
+        Name = "Menu1"
+        Text = ("Tiny")
+        Radio = True
+        Tag = "0"
+      }
+      { Menu2 Menu mnuSize
+        Name = "Menu2"
+        Text = ("Small")
+        Radio = True
+        Tag = "1"
+      }
+      { Menu3 Menu mnuSize
+        Name = "Menu3"
+        Text = ("Medium")
+        Radio = True
+        Tag = "2"
+      }
+      { Menu4 Menu mnuSize
+        Name = "Menu4"
+        Text = ("Large")
+        Radio = True
+        Tag = "3"
+      }
+    }
+    { mnuDeprecated Menu
+      Text = ("Deprecated controls")
+      Toggle = True
+    }
+  }
   { tabTool TabPanel
     MoveScaled(1,1,34,35)
     Font = Font["-1"]
@@ -39,7 +76,7 @@
   { btnZoom ToolButton
     MoveScaled(0,39,4,4)
     Visible = False
-    ToolTip = ("Toolbox button size")
+    ToolTip = ("Change button size")
     Ignore = True
     Picture = Picture["icon:/small/zoom-in"]
   }

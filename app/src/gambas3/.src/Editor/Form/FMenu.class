@@ -16,6 +16,7 @@ Private $bFreeze As Boolean
 Private $bModified As Boolean
 Private $iIconSize As Integer
 Private $sImageProp As String
+Private $hButtonClick As Button
 
 Static Public Sub Run(hForm As FForm)
 
@@ -801,6 +802,8 @@ Private Sub UpdateEvent()
   hPict.Image = Image.Load("img/symbol/event.png")
   hPict.Stretch = True
   
+  $hButtonClick = Null
+  
   For Each sName In Project.Documentation.Classes[$hFamily.MenuClass].Events
 
     hSymbol = cSymbol[sGroup & "_" & sName]
@@ -812,6 +815,8 @@ Private Sub UpdateEvent()
     hButton = New Button(panEvent) As "btnEvent"
     hButton.Text = sName
     hButton.AutoResize = True
+    
+    If sName == "Click" Then $hButtonClick = hButton
 
     If hSymbol And If hSymbol.Kind = "m" Then hButton.Picture = Picture["icon:/small/ok"]
 
@@ -1205,12 +1210,13 @@ End
 
 Public Sub gvwMenu_Activate()
   
-  btnEvent_Click
+  $hButtonClick.Value = True
   
 End
 
 Public Sub btnEvent_Click()
   
+  If WriteMenu() Then Return
   EventName = Last.Text
   Try OpenEventHandlerFor = $aMenu[$iCurrent].Name
   If Not Error Then

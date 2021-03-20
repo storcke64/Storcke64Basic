@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.15.90\n"
-"PO-Revision-Date: 2021-03-19 22:03 UTC\n"
+"PO-Revision-Date: 2021-03-20 13:28 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1070,7 +1070,7 @@ msgstr "Impossible de décompresser l'archive source."
 msgid "Abort"
 msgstr "Abandonner"
 
-#: CSoftware.class:361 FMain.class:2779 FMenu.class:98
+#: CSoftware.class:361 FMain.class:2779 FMenu.class:99
 msgid "Ignore"
 msgstr "Ignorer"
 
@@ -1466,7 +1466,7 @@ msgstr "Désindenter"
 msgid "Open"
 msgstr "Ouvrir"
 
-#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:374 FForm.form:451 FImageEditor.form:384 FMain.form:395 FMenu.class:98 FOption.form:1406 FSaveProjectAs.form:87 FTextEditor.form:399 FTranslate.form:234
+#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:374 FForm.form:451 FImageEditor.form:384 FMain.form:395 FMenu.class:99 FOption.form:1406 FSaveProjectAs.form:87 FTextEditor.form:399 FTranslate.form:234
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -1474,11 +1474,11 @@ msgstr "Enregistrer"
 msgid "Solve"
 msgstr "Résoudre"
 
-#: FConflictEditor.class:956 FEditor.class:2737 FTextEditor.class:1074
+#: FConflictEditor.class:962 FEditor.class:2746 FTextEditor.class:1074
 msgid "(Declarations)"
 msgstr "(Déclarations)"
 
-#: FConflictEditor.class:1145
+#: FConflictEditor.class:1151
 msgid "There are still conflicts in this file."
 msgstr "Il reste des conflits dans ce fichier."
 
@@ -4217,27 +4217,27 @@ msgstr "Générer une archive des sources du projet"
 msgid "Transform into a \".gmail.txt\" archive that fools GMail"
 msgstr "Transformer en une archive « *.gmail.txt » qui trompe GMail"
 
-#: FMenu.class:98
+#: FMenu.class:99
 msgid "Menus have been modified!"
 msgstr "Les menus ont été modifiés !"
 
-#: FMenu.class:339
+#: FMenu.class:340
 msgid "Please enter a menu name."
 msgstr "Veuillez entrer un nom de menu."
 
-#: FMenu.class:345
+#: FMenu.class:346
 msgid "Bad menu name !"
 msgstr "Nom de menu incorrect !"
 
-#: FMenu.class:351
+#: FMenu.class:352
 msgid "Bad group name !"
 msgstr "Nom de groupe incorrect !"
 
-#: FMenu.class:660
+#: FMenu.class:661
 msgid "This menu is too deep !"
 msgstr "Ce menu est trop profond !"
 
-#: FMenu.class:1150 Project.module:5725
+#: FMenu.class:1155 Project.module:5725
 msgid "modified"
 msgstr "modifié"
 
@@ -5717,7 +5717,7 @@ msgstr "Impossible de supprimer <b>&1</b> :"
 msgid "Gambas Software Farm"
 msgstr "Logithèque Gambas"
 
-#: FSoftwareFarm.form:159 FTranslate.form:208
+#: FSoftwareFarm.form:159 FToolBox.form:30 FTranslate.form:208
 msgid "Show"
 msgstr "Afficher"
 
@@ -5861,15 +5861,39 @@ msgstr "Impossible de lire l'astuce du jour !"
 msgid "Show tips on startup"
 msgstr "Afficher les astuces au démarrage"
 
-#: FToolBox.class:413 Project.module:864
+#: FToolBox.class:408 Project.module:864
 msgid "Current project"
 msgstr "Projet courant"
 
-#: FToolBox.form:59
-msgid "Toolbox button size"
-msgstr "Taille des boutons de la boite à outils"
+#: FToolBox.form:34
+msgid "Button size"
+msgstr "Taille des boutons"
 
-#: FToolBox.form:67
+#: FToolBox.form:38
+msgid "Tiny"
+msgstr "Minuscule"
+
+#: FToolBox.form:45
+msgid "Small"
+msgstr "Petit"
+
+#: FToolBox.form:52
+msgid "Medium"
+msgstr "Moyen"
+
+#: FToolBox.form:59
+msgid "Large"
+msgstr "Large"
+
+#: FToolBox.form:66
+msgid "Deprecated controls"
+msgstr "Contrôles dépréciés"
+
+#: FToolBox.form:112
+msgid "Change button size"
+msgstr "Changer la taille des boutons"
+
+#: FToolBox.form:120
 msgid "Show deprecated controls"
 msgstr "Afficher les contrôles dépréciés"
 
