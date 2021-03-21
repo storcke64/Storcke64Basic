@@ -21,7 +21,7 @@ Public Sub _call(oContext As Context, Program As Reader) As String
   
   Dim MainOutput As String
   If oContext.$bPlugin Then
-      MainOutput = "Public Sub _Call(...)\n"
+      MainOutput = "Public Sub _call(...) as Variant\n"
   Else
       MainOutput = "Public Sub Main()\n"
   Endif

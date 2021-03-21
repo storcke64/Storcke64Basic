@@ -122,7 +122,7 @@ Public Sub Main() As Integer
 
     Else
       
-      Dim sCheckCachePath,sCheckFileName  As String 
+      Dim sCheckCachePath, sCheckFileName As String 
       If $oContext.$bPlugin Then
           sCheckCachePath = sCacheDir &/ "plugins" &/ $sMd5
           sCheckFileName = File.BaseName($sPath) & ".gambas"

@@ -55,7 +55,9 @@ Public Function _Call(c As Context) As String
       Break
       
     Endif
-    On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict, gTerseListing, gConvertProject, gConvertScript, gPlugin
+    On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, 
+                  gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict,
+                  gTerseListing, gConvertProject, gConvertScript, gPlugin
 
 gVersion:
 
