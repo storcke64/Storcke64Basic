@@ -1,6 +1,10 @@
 ' Gambas module file
 
-Enum eVersion, eLicense, eHelp, eNoCache, eDebug, eVerbose, eExec, eFast, eUnsafe, eTrace, eUse, eWarnings, eBuildOnly, eList, eStdio, eLazyStrict, eTerseListing, eConvertProject
+Enum eVersion, eLicense, eHelp, eNoCache, eDebug, eVerbose, 
+     eExec, eFast, eUnsafe, eTrace, eUse, eWarnings, eBuildOnly, 
+     eList, eStdio, eLazyStrict, eTerseListing, eConvertProject, 
+     eConvertScript, ePlugin
+     
 Public $bExit As Boolean = False
 
 Public $cPossibleArgs As Collection = [
@@ -21,7 +25,9 @@ Public $cPossibleArgs As Collection = [
                            "-": eStdio,
                            "-S": eLazyStrict, "--strict": eLazyStrict,
                            "-T": eTerseListing, "--terse-listing": eTerseListing,
-                           "--convert-project": eConvertProject
+                           "--convert-project": eConvertProject,
+                           "--convert-script": eConvertscript,
+                           "-p": ePlugin, "--plugin": ePlugin
                         ]
                         
 Public Function _Call(c As Context) As String
@@ -33,7 +39,7 @@ Public Function _Call(c As Context) As String
   If File.Name(Args[0]) = "gbw" & System.version Then c.$bWebPage = True
 
   For I = 1 To Args.Max
-  
+    
     If Args[I] = "--" Then
       Inc I
       Break
@@ -41,16 +47,15 @@ Public Function _Call(c As Context) As String
       Break
     Endif
     
-  index = $cPossibleArgs[Args[I]]
-  If IsNull(index) Then
+    index = $cPossibleArgs[Args[I]]
+    If IsNull(index) Then
       '' note if I raise and error here it causes a double free error in tcache
       Error File.Name(Args[0]) & " : " & ("Unknown option") & " : " & Args[I]
       $bExit = True
       Break
       
-  Endif
- On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict,
-               gTerseListing, gConvertProject
+    Endif
+    On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict, gTerseListing, gConvertProject, gConvertScript, gPlugin
 
 gVersion:
 
@@ -172,14 +177,36 @@ gTerseListing: ' only show the actual line the error was on
         c.$bTerseListing = True
         Continue
         
-gConvertProject: ' do a project to script converstion
+gConvertProject: ' do a project to script conversion
         If i + 1 > Args.max Then 
-          warning("Not enough Parameters for conversion - need <source> [<dest>]", True)
+          warning("Not enough parameters for Project conversion - need <source project Directory> [<dest>]", True)
         Else
           ConvertProject(Args[I + 1], IIf(i + 2 <= Args.max, Args[i + 2], ""))
         Endif
         $bExit = True
         Break
+        
+gConvertScript: ' do a script to project conversion
+        If i + 1 > Args.max Or If i + 2 < Args.max Then 
+          warning("Not enough parameters for Script conversion - need <source script> [<dest directory where project created>]", True)
+          $bExit = True
+          Break
+        Else
+         c.$bCreateProject = True
+        Endif
+        Continue 
+        
+gPlugin:
+        If i + 1 > Args.max Or If i + 2 < Args.max Then 
+          warning("Not enough parameters for plugin - need <source script> [<dest directory where plugin is created>]", True)
+          $bExit = True
+          Break
+        Endif
+        c.$bBuildOnly = True
+        c.$bPlugin = True
+        c.$bExport = True
+        c.$bClassAsStartup = True
+        Continue 
         
   Next
 

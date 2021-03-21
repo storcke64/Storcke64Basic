@@ -5,21 +5,25 @@ Public HasLibraries As Boolean = False
 
 Public Sub _FromString(Comp As String)
   
-  Dim delta As String[] = Split(comp, ",")  ' yes looks stupid....
-  For i As Integer = 0 To delta.Max
-    delta[i] = Quote(delta[i])
-  Next
+ ' Dim delta As String[] = Split(comp, ",")  ' yes looks stupid....
+ ' For i As Integer = 0 To delta.Max
+ '   delta[i] = Quote(delta[i])
+ ' Next
   
-  Highlight.Analyze("USE " & delta.join())
-  _call(Comp, 0, Highlight.symbols, Highlight.types)
+  'Highlight.Analyze("USE " & delta.join())
+  _call(Comp, 0, "use " & Comp)
 End
 
-Public Sub _call(Path As String, iLine As Integer, aSym As String[], aTypes As Integer[])
-      For iInd As Integer = 1 To aSym.Max Step 2
-        If aTypes[iInd] <> Highlight.String Then
+Public Sub _call(Path As String, iLine As Integer, sLine As String)
+      Dim aNewLines As String[] = Split(Replace(Trim(sLine), "use ", "", gb.ignorecase))
+      Dim sRefrence As String = ""
+      For iInd As Integer = 0 To aNewLines.Max
+        Try sRefrence = Eval(aNewLines[iInd])
+        If Error Then
           CompileError(Path, iLine, ("Syntax error"))
         Endif
-        Dim s As String = Mid$(aSym[iInd], 2, -1)
+        
+        Dim s As String = sRefrence
 
         If s Like "*:*" Or s Like "/*" Then
           Verbose(("Use library") & " " & s)
@@ -31,12 +35,12 @@ Public Sub _call(Path As String, iLine As Integer, aSym As String[], aTypes As I
           HasComponents = True
         Endif
 
-        If iInd < aSym.Max Then
-          s = aSym[iInd + 1]
-          If s <> "," Then
-            CompileError(Path, iLine, ("Comma missing"))
-          Endif
-        Endif
+        ' If iInd < aNewLines.Max Then
+        '   s = aSym[iInd + 1]
+        '   If s <> "," Then
+        '     CompileError(Path, iLine, ("Comma missing"))
+        '   Endif
+        ' Endif
 
       Next
       

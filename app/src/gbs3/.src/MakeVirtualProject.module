@@ -5,7 +5,7 @@ Public $hOutFile As File                                              ' Main Mod
 
 '' returns the Project path after it is created
 
-Public Sub _Call($oContext As Context, sPath As String) As String 
+Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocation As String = "") As String 
 
   Dim sPrjFileContent As String
   Dim RootModule As String = ""
@@ -15,12 +15,28 @@ Public Sub _Call($oContext As Context, sPath As String) As String
   $oContext.$sProgramHeader = ""
   $oContext.$sCompilerOptions = ""
 
-  $sPrjPath = Temp("project")
+  If $oContext.$bCreateProject Then 
+    Dim sPathInfo As String = File.Dir(sPath)
+    If sPathInfo = "" Then sPath = Env["PWD"] &/ sPath
+    If sProjectLocation = "" Then sProjectLocation = Env["PWD"]
+    $sPrjPath = sProjectLocation &/ File.BaseName(sPath)
+    ScriptPreProcess["Name"] = File.BaseName(sPath)
+    ScriptPreProcess["Title"] = File.BaseName(sPath) & " From Script" & sPath
+  Else
+    $sPrjPath = Temp("project")
+  Endif
 
-   Verbose(("Create project") & ": " & $sPrjPath)
+  Verbose(("Create project") & ": " & $sPrjPath)
 
   Try Mkdir $sPrjPath
+  If Error Then 
+      CompileError("Unable to create project directory : " & $sPrjPath & " : " & Error.text)
+  Endif
+  
   Try Mkdir $sPrjPath &/ ".src"
+  If Error Then 
+      CompileError("Unable to create project .src directory : " & $sPrjPath & " : " & Error.text)
+  Endif
 
   $oContext.$sPreambleHeader = "' Gambas module file\n"
 
@@ -37,14 +53,20 @@ Public Sub _Call($oContext As Context, sPath As String) As String
     $oContext.$sCompilerOptions &= "\n"
   Endif
 
-  If $oContext.$bClassAsStartup Then 
-     RootModule = $sPrjPath &/ ".src" &/ "ScriptInfoModule.module"
+  Dim sExtension As String
+  If $oContext.$bPlugin Then
+    sExtension = ".class"
+  Else 
+    sExtension = ".module"
+  Endif
+  If $oContext.$bClassAsStartup And If Not $oContext.$bPlugin Then 
+    RootModule = $sPrjPath &/ ".src" &/ "ScriptInfoModule.module"
   Else
-    RootModule = $sPrjPath &/ ".src" &/ ScriptPreProcess.ProjectInfo["Startup"] & ".module"
+    RootModule = $sPrjPath &/ ".src" &/ ScriptPreProcess["Startup"] & sExtension
   Endif 
   Try $hOutFile = Open RootModule For Write Create
   If Error Then
-      Error.Raise("Unable to create module file")
+      Error.Raise("Unable to create " & Right(sExtension, -1) & " file")
   Endif
   
   sPrjFileContent &= ScriptPreProcess.GetProjectOptions()

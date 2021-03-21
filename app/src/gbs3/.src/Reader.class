@@ -121,7 +121,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
       If symbols[0] = "PUBLIC" And types[1] = Highlight.keyword Or If types[1] = Highlight.symbol Then
         If types[1] = Highlight.symbol Then MainPos = 0
         If symbols[MainPos] = "SUB" Or If symbols[MainPos] = "PROCEDURE" Or If symbols[MainPos] = "FUNCTION" Then
-          If Upper(symbols[MainPos + 1]) = "MAIN" Then
+          If Upper(symbols[MainPos + 1]) = "MAIN" Or If $oContext.$bPlugin And Upper(symbols[MainPos + 1]) = "_CALL" Then
               If types.count = 4 Then
                 Warning("Main Was Not Declared as Public, assuming public")
                 sLine = "Public " & sline 
@@ -287,7 +287,7 @@ End
 Public Sub ProcessUse(Symbols As String[], aTypes As Integer[], sLine As String)
   
   Warning("Use :" & File.Name(cIncludeStack.last & "." & CurrentLineNumber.last & ":" & sLine))
-  UseLibComp(cIncludeStack.last, CurrentLineNumber.last, Symbols, aTypes)
+  UseLibComp(cIncludeStack.last, CurrentLineNumber.last, sLine)
   
 End
 

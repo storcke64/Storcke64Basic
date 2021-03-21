@@ -6,6 +6,7 @@ Private $sPrjPath As String
 Public $sArchivepath As String           ' When Create Executable option is used this is the destination for the archive from gba3
 Public $sMd5 As String                   ' Project md5 string to check if needs to rebuild or just execute
 Public $aAppArgs As New String[]         ' This is a list of all args on the script command line after the script name, these are passed to the executing project based on the script file
+Public $bExecProjectDirectory As Boolean ' Set when the input is an actual project directory not a script
 
 Public Sub _ResetAll()
   
@@ -15,6 +16,7 @@ Public Sub _ResetAll()
   $sPrjPath = ""
   $sArchivePath = ""
   $sMd5 = ""
+  $bExecProjectDirectory = False
 
 End
 
@@ -24,6 +26,7 @@ Public Sub Main() As Integer
   Dim sCacheDir As String = File.Dir(File.Dir(Temp$())) &/ "script-cache"
   Dim sRes As String
   Dim bCompile As Boolean
+  Dim sDir As String
   
  With $oContext 
   ' System.language = "fr_FR"
@@ -38,12 +41,37 @@ Public Sub Main() As Integer
     Endif
     
   Endif
+  
+  '' Check if we are making a project from this script
+  If $oContext.$bCreateProject Then 
+      MakeVirtualProject($oContext, $sPath, IIf($aAppArgs.count > 0, $aAppArgs[0], ""))
+      Quit 0
+  Endif
 
+  '' We are creating a temp project to execute
+  
+  If $oContext.$bPlugin Then
+    ScriptPreProcess["Startup"] = File.BaseName($sPath)
+    If $aAppArgs.count > 0 Then
+      sCacheDir = $aAppArgs[0]
+    Else
+      sCacheDir = User.home &/ ".local/lib/gambas" & System.Version
+    Endif
+    
+    If Not Exist(sCacheDir) Then
+      Try Shell "mkdir -p " & sCacheDir Wait
+      If Error Then
+        CompileError("Unable to create cache directory " & sCacheDir)
+      Endif
+    Endif
+  Endif
+  
   sName = File.Name($sPath)
-
+ 
+  
   If Not $sPath Then
     verbose("Reading from default Stdin")
-    $sPath = Read Lof(File.In)           ' This is invoked when cmd line is like  ' gbs -e < filename'
+    $sPath = Read Lof(File.In)             ' This is invoked when cmd line is like  ' gbs -e < filename'
     verbose(" Input read :\n" & $sPath)
     If Not $sPath Then
       Warning(("no input file specified"), True)
@@ -60,7 +88,13 @@ Public Sub Main() As Integer
     ' md5sum requires the absolute path unless we are using a shell which expands it so ./ddd and ~/ can not be calculated for md5sum Process
     sName = File.Name($sPath)
     $sPath = File.RealPath($sPath)
-    If Not Exist($sPath) Then
+    
+    '' Check if we are being asked to just execute a project directly
+    If Exist($sPath) And If Stat($sPath).Type = gb.directory Then
+      $bExecProjectDirectory = True
+    Endif
+    
+    If Not $bExecProjectDirectory And Not Exist($sPath) Then
       $sPath = Application.Dir &/ IIf($sPath = "", sName, $spath)
       If Not Exist($sPath) Then
         Warning(("input file does not exist") & ": " & sName, True)
@@ -87,20 +121,34 @@ Public Sub Main() As Integer
       bCompile = True
 
     Else
-
-      If Not Exist(sCacheDir &/ $sMd5 &/ sName) Then
+      
+      Dim sCheckCachePath,sCheckFileName  As String 
+      If $oContext.$bPlugin Then
+          sCheckCachePath = sCacheDir &/ "plugins" &/ $sMd5
+          sCheckFileName = File.BaseName($sPath) & ".gambas"
+      Else
+          sCheckCachePath = sCacheDir &/ $sMd5
+          sCheckFileName = sName
+      Endif
+      If Not Exist(sCheckCachePath &/ sCheckFileName) Then
         bCompile = True
       Else
-        bCompile = Not IsValid(sCacheDir &/ $sMd5 & ".info")
+        bCompile = Not IsValid(sCheckCachePath & ".info")
       Endif
       If Not bCompile Then
-         verbose("Executing Script from Cache: " & $sPath)
+         verbose("Script is in Cache and will not be compiled: " & $sPath)
       Endif
     Endif
   Endif
 
   If bCompile Then
-
+    '' if we are executing a project then set some info up
+    If $bExecProjectDirectory Then
+      $sPrjPath = $sPath
+      Goto lExecuteProject
+    Endif
+    
+    '' a normal script is being run
     If $oContext.$bWebPage Then
       If $oContext.$bVerbose Then Print "gbw: " & ("compiling server page")
       $sPath = MServerPage.Make($sPath)
@@ -119,6 +167,7 @@ Public Sub Main() As Integer
       $oContext.$aIncFiles.push($sPath)
     Endif 
      
+lExecuteProject:
     Dim parmstring As String = "-a"
     If $oContext.$bdebug Then parmstring &= "g"
     If $oContext.$bWarning Then parmstring &= "w"
@@ -139,16 +188,45 @@ Public Sub Main() As Integer
       
       Return 1
     Endif
-
-    Try Mkdir sCacheDir &/ $sMd5
-     $sArchivePath = sCacheDir &/ $sMd5 &/ sName
+    
+     Dim sFileName As String
+     If $oContext.$bPlugin Then
+        If Not Exist(sCacheDir &/ "plugins") Then
+         Try Mkdir sCacheDir &/ "plugins"
+        Endif
+        sFileName = File.BaseName(sName) & ".gambas"
+        For Each sDir In Dir(sCacheDir &/ "plugins", "*", gb.Directory)
+          If Exist(sCacheDir &/ "plugins" &/ sDir &/ sFileName) Then
+            Try Kill sCacheDir &/ "plugins" &/ sDir &/ sFileName
+            Try Kill sCacheDir &/ "plugins" &/ sDir & ".info"
+            Try Rmdir sCacheDir &/ "plugins" &/ sDir
+          Endif
+        Next
+        
+        $sArchivePath = sCacheDir &/ "plugins" &/ $sMd5 &/ sFileName
+        Try Mkdir sCacheDir &/ "plugins" &/ $sMd5
+     Else
+        Try Mkdir sCacheDir &/ $sMd5
+        sFileName = sName
+        $sArchivePath = sCacheDir &/ $sMd5 &/ sFilename
+     Endif
+     
      Dim ArchiveCmd As String[] = [System.Path &/ "bin/gba" & System.Version, "-o", $sArchivePath, $sPrjPath]
      If $oContext.$bVerbose Then ArchiveCmd.Add("-v", 1)
      Verbose(ArchiveCmd.Join(" "))
    
     Exec ArchiveCmd To sRes
+    
+    If $oContext.$bPlugin Then
+      Try Kill sCacheDir &/ sFileName
+      Try Link $sArchivePath To sCacheDir &/ sFileName
+    Endif
     'Exec [System.Path &/ "bin/gba" & System.Version, "-o", $oContext.$sArchivePath, $oContext.$sPrjPath] To sRes
-    File.Save(sCacheDir &/ $sMd5 & ".info", $oContext.$aIncFiles.Join("\n"))
+    If $oContext.$bPlugin Then
+        File.Save(sCacheDir &/ "plugins" &/ $sMd5 & ".info", $oContext.$aIncFiles.Join("\n"))
+    Else
+        File.Save(sCacheDir &/ $sMd5 & ".info", $oContext.$aIncFiles.Join("\n"))
+    Endif
 
   Endif
 
@@ -180,7 +258,7 @@ Public Sub Main() As Integer
     Endif
 
   Endif
-
+  
   If $oContext.$bTestMode Then
     Return 0
   Else
