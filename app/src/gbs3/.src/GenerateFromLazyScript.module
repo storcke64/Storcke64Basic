@@ -14,7 +14,7 @@ Public Sub _call(oContext As Context, Program As Reader) As String
   
  ' Dim DefOutput As String = "'Gambas Module 3.15.3\n"
   Dim DefOutput As String = ""
-  If oContext.$bExport Then DefOutPut &= "Export\n"
+  'If oContext.$bExport Then DefOutPut &= "Export\n"
  ' If oContext.$bFast Then
  '   DefOutPut &= "Fast" & IIf(oContext.$bUnsafe, " Unsafe\n", "\n")
  ' Endif

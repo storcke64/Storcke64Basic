@@ -11,6 +11,7 @@ Public Sub _call(oContext As Context, sPrjPath As String, CompileErrors As Strin
             Return "Error : UnKnown Module/Class Dumping everything!:\n" & DumpAll(oContext, sPrjPath)
         Endif
         Dim aFileParts As String[] = Split(aErrorParts[0], ".")
+        If Trim(aErrorParts[2]) == "error" Then aErrorParts.add("0", 2) 
         sOutPut &= Subst("# Gambas &1 file : &2:&3:&4\n", aFileParts[1], aFileparts[0], aErrorParts[1], aErrorParts[2]) & 
                                    GenListing(oContext, sSource, aErrorParts[1], aErrorParts[2], aErrorParts.extract(4, -1).Join(":"))
   Next

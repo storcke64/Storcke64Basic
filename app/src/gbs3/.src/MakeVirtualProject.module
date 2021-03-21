@@ -95,6 +95,7 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
   If $oContext.$sCompilerOptions <> "" Then Print #$hOutFile, $oContext.$sCompilerOptions
   If $oContext.$sStructures <> "" Then Print #$hOutFile, $oContext.$sStructures
   If $oContext.$sProgramHeader <> "" Then Print #$hOutFile, $oContext.$sProgramHeader
+  If $oContext.$bPlugin Then Print #$hOutFile, PluginInfo()
   If $oContext.$sFinalProgram <> "" Then Print #$hOutFile, $oContext.$sFinalProgram
   Close $hOutFile
   
