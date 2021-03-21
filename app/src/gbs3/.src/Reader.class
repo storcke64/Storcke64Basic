@@ -188,7 +188,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
           '' check for inclusion of Components or libraries
         Else If symbols[0] = "USE" 
             If symbols.count >= 2 Then
-                 ProcessUse(symbols, types, sLine)
+                 ProcessUse(sLine)
                 Continue
             Else
                 CompileError(cIncludeStack.last, CurrentLineNumber.last, "USE statement without component or library definitions")
@@ -284,7 +284,7 @@ Public Sub ProcessClass(name As String, Start As Integer, DefLine As Integer, Op
    Return cDef
 End
 
-Public Sub ProcessUse(Symbols As String[], aTypes As Integer[], sLine As String)
+Public Sub ProcessUse(sLine As String)
   
   Warning("Use :" & File.Name(cIncludeStack.last & "." & CurrentLineNumber.last & ":" & sLine))
   UseLibComp(cIncludeStack.last, CurrentLineNumber.last, sLine)
