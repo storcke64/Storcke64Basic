@@ -933,7 +933,6 @@ Public Sub Control_MouseDown()
   Y = Mouse.Y
   $bSelectParent = False
           
-  
   $hCurrent = Control[Last.Tag]
   
   If $hCurrent = RootControl And If Y < RootControl.Control.ClientY Then
@@ -2670,7 +2669,6 @@ Public Sub Control_Draw(...)
 
   Dim hCtrl As Control = Last
   Dim hCCtrl As CControl = Control[hCtrl.Tag]
-  Dim hPict As Picture
   Dim DS As Integer
 
   If Not hCCtrl Then Return
@@ -2690,24 +2688,8 @@ Public Sub Control_Draw(...)
       Paint.Fill
     Endif
 
-    If $hFamily.DrawControl(hCCtrl) Then
+    $hFamily.DrawControl(hCCtrl)
 
-      hPict = Picture[".control" &/ LCase(hCCtrl.Kind)]
-      'Draw.ForeColor = Control[Name].Control.Foreground
-      If hPict Then
-        Paint.DrawPicture(hPict, DS, DS, DS * 4, DS * 4)
-        Paint.DrawText(hCtrl.Tag, DS * 6, DS, Paint.W, Paint.H, Align.TopLeft)
-      Else
-        Paint.DrawText(hCtrl.Tag, DS, DS, Paint.W, Paint.H, Align.TopLeft)
-      Endif
-      
-      Paint.Background = Color.Gradient(Color.Background, &H808080&)
-      Paint.Rectangle(0.5, 0.5, hCtrl.W - 1, hCtrl.H - 1)
-      Paint.LineWidth = 1
-      Paint.Stroke
-    
-    Endif
-    
   Endif
 
 End

@@ -421,6 +421,7 @@ Public Sub GetSimilars() As String[]
   Dim cSimilar As New Collection(gb.IgnoreCase)
   Dim sSimilar As String
   Dim aSimilar As New String[]
+  Dim hClass As CClassInfo
   
   For Each sSimilar In Documentation.GetSimilars(Name)
     cSimilar[sSimilar] = True
@@ -436,6 +437,8 @@ Public Sub GetSimilars() As String[]
   Endif
   
   For Each sSimilar In cSimilar
+    hClass = Project.Documentation.Classes[cSimilar.Key]
+    If hClass.IsDeprecated() And If Not FToolBox.IsDeprecatedVisible() Then Continue
     aSimilar.Add(cSimilar.Key)
   Next
   aSimilar.Sort(gb.IgnoreCase)
@@ -751,6 +754,13 @@ Public Function IsVirtual() As Boolean
   Return Left$(Name) = "." Or Left$(Name) = "_"
 
 End
+
+Public Sub IsDeprecated() As Boolean
+  
+  Return Group = "Deprecated"
+  
+End
+
 
 Private Function GetSymbolType(aSym As String[]) As String
 

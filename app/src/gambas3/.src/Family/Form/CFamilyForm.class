@@ -15,6 +15,8 @@ Public Const HasMenuEditor As Boolean = True
 Public Const MenuClass As String = "Menu"
 Public Const ToolBarClass As String = "ToolBar"
 
+Static Private $hConfigureImage As Image
+
 Public Sub GetIcon(hCCtrl As CControl) As String
   
   Dim sImage As String
@@ -38,6 +40,13 @@ Public Sub GetIcon(hCCtrl As CControl) As String
       
     Case "VSplit"
       sImage = "vsplit"
+      
+    Case "Splitter"
+      If hCCtrl["Arrangement"] = "Vertical" Then
+        sImage = "vsplit"
+      Else 
+        sImage = "hsplit"
+      Endif
       
     Case Else
       sImage = Super.GetIcon(hCCtrl)
@@ -63,13 +72,14 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
   Dim iBorder As Integer
   Dim hCtrl As Control = hCCtrl.Control
   
-  Select hCCtrl.Kind
+  Select LCase(hCCtrl.Kind)
   
-    Case "HBox", "VBox", "HPanel", "VPanel"
-    
-      'Paint.Background = &HFFB0B0
-    
-    Case "Panel"
+    Case "hbox", "vbox", "hpanel", "vpanel"
+      
+      CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+      Return
+  
+    Case "panel"
     
       CFamily.PaintExpand(hCCtrl)
     
@@ -83,33 +93,41 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
         Case "Plain"
           iBorder = Border.Plain
         Default
-          iBorder = Border.None
+          CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+          Return
       End Select
       
-      If iBorder Then
-        Style.PaintPanel(0, 0, hCtrl.W, hCtrl.H, iBorder)
-        Return
-      Endif
-      'If hCCtrl.GetProperty("Background") Then Return
-      'Draw.Foreground = Color.Gradient(Color.Background, &H808080&)
+      Style.PaintPanel(0, 0, hCtrl.W, hCtrl.H, iBorder)
+      Return
     
-    Case "Spring"
+    Case "spring"
     
       CFamily.PaintExpand(hCCtrl, True)
       Return
       
-    Case "ToolBar"
+    Case "toolbar"
+      
+      If Not $hConfigureImage Then $hConfigureImage = Picture["img/16/configure.png"].Image
+      
+      Paint.Brush = Paint.Image($hConfigureImage)
+      Paint.Rectangle(Paint.X, Paint.Y, Paint.W, Paint.H)
+      Paint.Fill 
+      
+      CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+      If hCCtrl["Separator"] Then Paint.FillRect(Paint.X, Paint.H - 1, Paint.W, 1, Color.LightForeground)
+      
+      Return
+      
       'Paint.DrawRect(X, Y, W, H)
       'Return
 
     Case Else
       
-      Return True
+      Super.DrawControl(hCCtrl)
 
   End Select
 
-  CFamily.PaintContainer(0, 0, hCtrl.W, hCtrl.H)
-  
+
 End
 
 Public Sub ActionDialog(sAction As String) As Boolean

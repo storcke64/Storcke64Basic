@@ -185,9 +185,9 @@ Public Procedure btnControl_MouseUp()
     If sClass <> SELECT_TOOL Then
       sComp = Project.Documentation.Classes[sClass].Component
       If sComp = CComponent.PROJECT_NAME Then
-        Project.OpenFile(Last.Tag[0])
+        Project.OpenFile(sClass)
       Else
-        MHelp.ShowHelpBrowserWith(MHelp.TYPE_CLASS, Last.Tag[0])
+        MHelp.ShowHelpBrowserWith(MHelp.TYPE_CLASS, sClass)
       Endif
     Endif
 
