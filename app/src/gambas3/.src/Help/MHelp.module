@@ -33,6 +33,9 @@ Public Sub _init()
   For Each sComp In ["gb.qt5.webkit", "gb.gui.qt.webkit"]
     $cSubstComponent[sComp] = "gb.qt4.webkit"
   Next
+  For Each sComp In ["gb.qt4.webview", "gb.qt5.webview", "gb.gtk3.webview"]
+    $cSubstComponent[sComp] = "gb.gui.webview"
+  Next
   
 End
 
@@ -955,50 +958,53 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Wiki.AnalyzePath()
   
   sPath = GetOfflineDir() &/ "data" &/ Wiki.Lang &/ Wiki.Path &/ "page.html"
-  If True Then 'Not Exist(sPath) Then
   
-    hFile = Open sPath For Create
-    Output To #hFile
-    
-    sHtml = File.Load("help/wiki/page.html")
-    iPos = 0
-    
-    Do
-      
-      iPos2 = InStr(sHtml, "$(", iPos + 1)
-      If iPos2 = 0 Then
-        Print Mid$(sHtml, iPos + 1);
-        Break
-      Endif
-      
-      Print Mid$(sHtml, iPos + 1, iPos2 - iPos - 1);
-      iPos = InStr(sHtml, ")", iPos2 + 2)
-      If iPos = 0 Then Break
-      
-      Select Case Mid$(sHtml, iPos2 + 2, iPos - iPos2 - 2)
-        Case "root"
-          Print GetOfflineDir();
-        Case "parent"
-          Wiki.PrintParent
-        Case "link"
-          Wiki.PrintLink
-        Case "page"
-          Wiki.PrintPage
-        Case "noheader"
-          If bNoHeader Then 
-            Print "<style type=\"text/css\">"
-            Print ".header { display: none; }"
-            Print ".page { top: 0; }"
-            Print "</style>"
-          Endif
-      End Select
-      
-    Loop
-    
-    Output To Default
-    Close #hFile
-    
+  If Not IsDir(File.Dir(sPath)) Then
+    If Wiki.Class And If Wiki.HasDefaultHelp() Then
+      Mkdir File.Dir(sPath)
+    Endif
   Endif
+  
+  hFile = Open sPath For Create
+  Output To #hFile
+  
+  sHtml = File.Load("help/wiki/page.html")
+  iPos = 0
+  
+  Do
+    
+    iPos2 = InStr(sHtml, "$(", iPos + 1)
+    If iPos2 = 0 Then
+      Print Mid$(sHtml, iPos + 1);
+      Break
+    Endif
+    
+    Print Mid$(sHtml, iPos + 1, iPos2 - iPos - 1);
+    iPos = InStr(sHtml, ")", iPos2 + 2)
+    If iPos = 0 Then Break
+    
+    Select Case Mid$(sHtml, iPos2 + 2, iPos - iPos2 - 2)
+      Case "root"
+        Print GetOfflineDir();
+      Case "parent"
+        Wiki.PrintParent
+      Case "link"
+        Wiki.PrintLink
+      Case "page"
+        Wiki.PrintPage
+      Case "noheader"
+        If bNoHeader Then 
+          Print "<style type=\"text/css\">"
+          Print ".header { display: none; }"
+          Print ".page { top: 0; }"
+          Print "</style>"
+        Endif
+    End Select
+    
+  Loop
+  
+  Output To Default
+  Close #hFile
 
   hWebView.Url = "file://" & URL.Encode(sPath)
   
@@ -1019,4 +1025,10 @@ Public Sub LoadCustom(sPage As String) As String
   
   Return sHtml
 
+End
+
+Public Sub OnDocumentationUpdate()
+  
+  $bInitOffline = False
+  
 End

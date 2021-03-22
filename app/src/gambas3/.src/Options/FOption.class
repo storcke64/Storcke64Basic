@@ -1555,6 +1555,7 @@ Public Sub DownloadHelp_End()
 
   $hDownloadHelp = Null  
   UpdateDocumentationState
+  MHelp.OnDocumentationUpdate
   Dec Application.Busy
   Return
   

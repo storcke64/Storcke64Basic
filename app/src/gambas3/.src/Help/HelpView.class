@@ -39,8 +39,9 @@ Public Sub _new()
   $hNotExist.Text = ("This page does not exist.")
   $hNotExist.AutoResize = True
   $hNotExist.Font.Bold = True
-  $hNotExist.Border = Border.Plain
-  $hNotExist.Background = Color.TextBackground
+  '$hNotExist.Border = Border.Plain
+  $hNotExist.Background = Color.TooltipBackground
+  $hNotExist.Foreground = Color.TooltipForeground
   
 End
 
