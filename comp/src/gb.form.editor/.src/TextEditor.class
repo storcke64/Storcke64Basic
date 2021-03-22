@@ -611,7 +611,8 @@ Private Sub Init()
   Endif
   
   $bShowCursor = True
-  GotoCenter(0, 0)
+  Goto(0, 0)
+  Scroll(0, 0)
 
   Refresh
   
@@ -1365,7 +1366,7 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
   If $bShowIndent Then
     
     P = GetLineIndentMark(Row, sText)
-    D = $iSpaceWidth / 4
+    D = $iSpaceWidth / 8
     If $IP And If Row >= $IY1 And If Row <= $IY2 Then IP = X + $IP
     
     Paint.Translate($iSpaceWidth \ 2, 0)
@@ -1390,7 +1391,7 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
       If IP And If XX = IP Then
         IP = 0
         Paint.Rectangle(XX, Y, D, HH)
-        Paint.Background = Color.SetAlpha($iMatchColor, 64)
+        Paint.Background = $iMarginColor
         Paint.Fill
         'Paint.FillRect(XX + D, Y, D, Height, $iMatchColor)
       Else
