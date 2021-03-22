@@ -341,7 +341,11 @@ End
 
 Public Sub gvwColor_Activate()
 
-  btnOK.Value = True
+  If $aButtonPattern And If $aButtonPattern.Count Then
+    $aButtonPattern[0].Value = True
+  Else
+    btnOK.Value = True
+  Endif
 
 End
 
