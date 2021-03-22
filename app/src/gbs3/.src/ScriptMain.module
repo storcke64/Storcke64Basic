@@ -1,12 +1,17 @@
 ' Gambas module file
 
-Public $oContext As New Context
+Public $oContext As New Context          ' Global variables
 Public $sPath As String 
 Private $sPrjPath As String 
 Public $sArchivepath As String           ' When Create Executable option is used this is the destination for the archive from gba3
 Public $sMd5 As String                   ' Project md5 string to check if needs to rebuild or just execute
 Public $aAppArgs As New String[]         ' This is a list of all args on the script command line after the script name, these are passed to the executing project based on the script file
 Public $bExecProjectDirectory As Boolean ' Set when the input is an actual project directory not a script
+Public $bRunAsPlugin As Boolean          ' Set when scripter is running as a plugin
+Public $sExecutable As String            ' Path to executable used by plugin interface
+Public $sStartupClass As String          ' Name of plugin class to start
+Public $sLastCompileError As String      ' The text of the last eorror message
+
 
 Public Sub _ResetAll()
   
@@ -17,10 +22,21 @@ Public Sub _ResetAll()
   $sArchivePath = ""
   $sMd5 = ""
   $bExecProjectDirectory = False
+  $sExecutable = ""
+  $sStartupClass = ""
+  $sLastCompileError = ""
 
 End
 
 Public Sub Main() As Integer
+    Dim aArgs As New String[]
+    For Each s As String In Args
+      aArgs.Push(s)
+    Next
+    Return ScripterMain(aArgs)
+End
+
+Public Sub ScripterMain(aArgs As String[]) As Integer
 
   Dim sName As String
   Dim sCacheDir As String = File.Dir(File.Dir(Temp$())) &/ "script-cache"
@@ -34,10 +50,14 @@ Public Sub Main() As Integer
   If Not Exist(sCacheDir) Then Mkdir sCacheDir
 
   If Not .$bTestMode Then        ' for testmode the test suite will set the parameters and paths
-    $sPath = ParseArgs($oContext)
+    $sPath = ParseArgs($oContext, aArgs)
     
    If ParseArgs.$bExit Then
-      Quit 0
+      If $bRunAsPlugin Then
+        Return 0
+      Else
+        Quit 0
+      Endif
     Endif
     
   Endif
@@ -45,7 +65,11 @@ Public Sub Main() As Integer
   '' Check if we are making a project from this script
   If $oContext.$bCreateProject Then 
       MakeVirtualProject($oContext, $sPath, IIf($aAppArgs.count > 0, $aAppArgs[0], ""))
-      Quit 0
+      If $bRunAsPlugin Then
+        Return 0
+      Else
+        Quit 0
+      Endif
   Endif
 
   '' We are creating a temp project to execute
@@ -126,6 +150,8 @@ Public Sub Main() As Integer
       If $oContext.$bPlugin Then
           sCheckCachePath = sCacheDir &/ "plugins" &/ $sMd5
           sCheckFileName = File.BaseName($sPath) & ".gambas"
+          $sExecutable = sCacheDir &/ File.BaseName($sPath) & ".gambas"
+          $sStartupClass = File.BaseName($sPath)
       Else
           sCheckCachePath = sCacheDir &/ $sMd5
           sCheckFileName = sName
@@ -175,15 +201,14 @@ lExecuteProject:
 
 
     Verbose(System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1")
-    'Shell (System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $oContext.$sPrjPath & " 2>&1") To sRes
     sRes = Compile(parmstring, $sPrjPath)
-    'Dim sResLines As String[] = Split(sRes, "\n", "", True)   ' added to only check the last line from compiler, ignore all others
     If Not Compile.GoodCompile Then
     '  Error sRes
       If Not $oContext.$bTerseListing Then 
           Print File.Load($sPrjPath &/ ".project")
       Endif
       
+      $sLastCompileError = sres
       Print MakeListing($oContext, $sPrjPath, sRes)
       
       Return 1
@@ -220,6 +245,8 @@ lExecuteProject:
     If $oContext.$bPlugin Then
       Try Kill sCacheDir &/ sFileName
       Try Link $sArchivePath To sCacheDir &/ sFileName
+      $sExecutable = sCacheDir &/ sFileName
+      $sStartupClass = ScriptPreProcess["Startup"]
     Endif
     'Exec [System.Path &/ "bin/gba" & System.Version, "-o", $oContext.$sArchivePath, $oContext.$sPrjPath] To sRes
     If $oContext.$bPlugin Then
@@ -259,7 +286,7 @@ lExecuteProject:
 
   Endif
   
-  If $oContext.$bTestMode Then
+  If $oContext.$bTestMode Or If $bRunAsPlugin Then
     Return 0
   Else
     Quit 0
@@ -268,11 +295,12 @@ lExecuteProject:
 Catch
 
   Error Error.Text; " : "; Error.where          ' added for debugging
+ 
   If UseLibComp.HasComponents Then  '' added because get circular ref from ccomponent otherwise on exit
     CComponent.All.Clear()
   Endif
   
-  If $oContext.$bTestMode Then
+  If $oContext.$bTestMode Or If $bRunAsPlugin Then
     Return -2
   Else
     Quit -2

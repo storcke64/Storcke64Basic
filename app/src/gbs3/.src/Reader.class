@@ -96,6 +96,8 @@ Private Sub TokenizeFile(SourceBuffer As String)
   Dim SourceList As String[]
   Dim sClassName As String = ""
   Dim MainPos As Integer = 1
+  Dim sline As String
+  
   $cKeywords.default = False
   '$cSegments.Default = False
  
@@ -109,20 +111,20 @@ Private Sub TokenizeFile(SourceBuffer As String)
     
     Highlight.Analyze(sLine)
     
-    Dim types As Integer[] = Highlight.Types
+    Dim aTypes As Integer[] = Highlight.Types
     Dim symbols As String[] = Highlight.symbols
     
     '' Here we look for any definition which will be a seperate source type or includes other sources
     '' Building the source pool as we go
    
     '' Check for The definition of main, Knowing this speeds up process of program portion of the script
-    If types.count >= 4 And If types[0] = Highlight.Keyword Then
+    If aTypes.count >= 4 And If aTypes[0] = Highlight.Keyword Then
       MainPos = 1
-      If symbols[0] = "PUBLIC" And types[1] = Highlight.keyword Or If types[1] = Highlight.symbol Then
-        If types[1] = Highlight.symbol Then MainPos = 0
+      If symbols[0] = "PUBLIC" And aTypes[1] = Highlight.keyword Or If aTypes[1] = Highlight.symbol Then
+        If aTypes[1] = Highlight.symbol Then MainPos = 0
         If symbols[MainPos] = "SUB" Or If symbols[MainPos] = "PROCEDURE" Or If symbols[MainPos] = "FUNCTION" Then
           If Upper(symbols[MainPos + 1]) = "MAIN" Or If $oContext.$bPlugin And Upper(symbols[MainPos + 1]) = "_CALL" Then
-              If types.count = 4 Then
+              If aTypes.count = 4 Then
                 Warning("Main Was Not Declared as Public, assuming public")
                 sLine = "Public " & sline 
               Endif
@@ -142,7 +144,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
     '' Check for specific keywords that trigger reliance upon MAIN being defined
-    If symbols.count > 0 And If types[0] = Highlight.keyword Or $cBlockTypes.Exist(Upper(symbols[0])) Then
+    If symbols.count > 0 And If aTypes[0] = Highlight.keyword Or $cBlockTypes.Exist(Upper(symbols[0])) Then
        
         If symbols[0] = "EXPORT" Then
           $oContext.$bExport = True
@@ -157,7 +159,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
              
         Else If Not $bInClass And If symbols[0] = "FAST" Then
           
-          If types.count > 2 Then
+          If aTypes.count > 2 Then
                aWarnings.Add("Warning : Defined without main : " & symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
              bPublicOrSubDef = True
              GlobalItemPosition.Add(ProgramLines.count)
@@ -168,13 +170,13 @@ Private Sub TokenizeFile(SourceBuffer As String)
                sLine = "' " & sLine
                Goto ContinueRecord
                
-          Else If types.count = 1 Then
+          Else If aTypes.count = 1 Then
              Verbose("FAST(Jit) activated for Module:" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last)
              $oContext.$bFast = True
              sLine = "' " & sline
              Goto ContinueRecord
              
-          Else If types.count = 2 And If symbols[1] = "UNSAFE" Then
+          Else If aTypes.count = 2 And If symbols[1] = "UNSAFE" Then
             Verbose("FAST UNSAFE(Jit and nochecks) activated for Module:" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last)
             $oContext.$bFast = True
             $oContext.$bUnsafe = True
@@ -197,7 +199,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
           '' Check for the end of a class definition 
         Else If symbols[0] = "END" And symbols.count = 2 Then      
           
-          If types[1] = Highlight.symbol Or types[1] = Highlight.keyword And If symbols[1] == $sCurrentBlock Then
+          If aTypes[1] = Highlight.symbol Or aTypes[1] = Highlight.keyword And If symbols[1] == $sCurrentBlock Then
              If Not $bInClass Then
                CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected : " & sLine)
              Endif
@@ -216,9 +218,13 @@ Private Sub TokenizeFile(SourceBuffer As String)
              If symbols.count < 2 Then
                CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst("&1 : Name Missing ", $sCurrentBlock))
             Endif 
-            If types[1] = Highlight.symbol Then
+            If aTypes[1] = Highlight.symbol Then
                 If $bInClass Then
-                    CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst(" &1 : Unexpected &1 definition inside &1 definition : ", $sCurrentBlock) & sLine)
+                    If symbols[0] == "class" And If $sCurrentBlock == "class" Or $sCurrentBlock == "module" Then
+                       Goto ContinueRecord
+                    Else 
+                       CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst(" &1 : Unexpected &1 definition inside &1 definition : ", $sCurrentBlock) & sLine)
+                    Endif 
                 Endif
                 Dim cdefBlock As ClassDef = BlockDefined[symbols[1] & "." & $sCurrentBlock]
                 If Not IsNull(cdefBlock) And If cdefBlock.sExtention == $sCurrentBlock Then 
@@ -237,13 +243,13 @@ Private Sub TokenizeFile(SourceBuffer As String)
     Endif
     
      ''Check for an include statement -- Include is not a keyword, perhaps it should be
-    If types.count >= 2 And If types[0] = Highlight.symbol And If types[1] = Highlight.string And If symbols[0] == "INCLUDE" Then
+    If aTypes.count >= 2 And If aTypes[0] = Highlight.symbol And If aTypes[1] = Highlight.string And If symbols[0] == "INCLUDE" Then
          Warning("'Include' is Replaced by '#Include' and may not be supported in future releases")
          ProcessInclude(symbols, types, sDefaultFilePath)
          Continue
          
      '' Check for PreProccessor  lines
-    Else If types.count >= 2 And If types[0] = Highlight.Preprocessor Then
+    Else If aTypes.count >= 2 And If aTypes[0] = Highlight.Preprocessor Then
         If symbols[0] == "#SCRIPT" Then 
            Highlight.Analyze(Right(Trim(sline), -1))
           ScriptPreProcess(Highlight.symbols, Highlight.types, CurrentLineNumber.last, cIncludeStack.last)
@@ -254,8 +260,10 @@ Private Sub TokenizeFile(SourceBuffer As String)
            ProcessInclude(symbols, types, sDefaultFilePath)
            Continue
         Endif
-    Else If types.count = 2 And If symbols[0] == "CLASSREF" And If types[1] = Highlight.symbol
+    Else If aTypes.count = 2 And If symbols[0] == "CLASSREF" And If aTypes[1] = Highlight.symbol
       sline = Replace(sLine, "ClassRef", "Class", gb.ignorecase)
+      $oContext.$sProgramHeader &= sLine & "\n"
+      Continue
     Endif
     
 ContinueRecord:

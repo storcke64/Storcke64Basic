@@ -1,0 +1,20 @@
+' Gambas module file
+
+Public Sub main()
+  Dim TestPlugin As Object = Scripter(User.home &/ "Scripts/TestPlugin",, ["NewTestPlugin", "CD", 100, 200])
+  Dim TestPlugin2 As Object = Scripter(User.home &/ "Scripts/TestPlugin2",, ["New testPlugin2"])
+  If TestPlugin Then 
+      Print TestPlugin("Element 1", 1, 2, "Element 3", "Last Item 4")
+  Else 
+      Print "Error in compile of plugin"
+  Endif 
+  
+  If TestPlugin2 Then 
+      Print TestPlugin2()
+  Else 
+      Print "Error in compile of plugin"
+  Endif 
+  
+End
+
+

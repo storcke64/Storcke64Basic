@@ -30,27 +30,27 @@ Public $cPossibleArgs As Collection = [
                            "-p": ePlugin, "--plugin": ePlugin
                         ]
                         
-Public Function _Call(c As Context) As String
+Public Function _Call(c As Context, aArgs As String[]) As String
 
   Dim I As Integer
   Dim sApp As String
   Dim index As Variant
 
-  If File.Name(Args[0]) = "gbw" & System.version Then c.$bWebPage = True
+  If File.Name(aArgs[0]) = "gbw" & System.version Then c.$bWebPage = True
 
-  For I = 1 To Args.Max
+  For I = 1 To aArgs.Max
     
-    If Args[I] = "--" Then
+    If aArgs[I] = "--" Then
       Inc I
       Break
-    Else If Left(Args[I]) <> "-" Then
+    Else If Left(aArgs[I]) <> "-" Then
       Break
     Endif
     
-    index = $cPossibleArgs[Args[I]]
+    index = $cPossibleArgs[aArgs[I]]
     If IsNull(index) Then
       '' note if I raise and error here it causes a double free error in tcache
-      Error File.Name(Args[0]) & " : " & ("Unknown option") & " : " & Args[I]
+      Error File.Name(aArgs[0]) & " : " & ("Unknown option") & " : " & aArgs[I]
       $bExit = True
       Break
       
@@ -104,7 +104,7 @@ gExecCommandLine:
         If Not c.$bWebPage Then
           c.$bExecuteFromArgs = True
         Else
-          Error.Raise(File.Name(Args[0]) & ": -e " & ("Option Is Not supported For WebPages"))
+          Error.Raise(File.Name(aArgs[0]) & ": -e " & ("Option Is Not supported For WebPages"))
         Endif
         Continue
         
@@ -125,8 +125,8 @@ gTrace:
         Continue
         
 gUse:
-        If Not (Application.Args[I + 1] Begins "-") Then
-          c.$sUse = Application.Args[I + 1]
+        If Not (aArgs[I + 1] Begins "-") Then
+          c.$sUse = aArgs[I + 1]
           Inc I
         Endif
         Continue
@@ -141,8 +141,8 @@ gBuildOnly:
         Continue
 
 gList:
-        If Not (Application.Args[I + 1] Begins "-") Then
-          Select Case Upper(Application.Args[I + 1])
+        If Not (Application.aArgs[I + 1] Begins "-") Then
+          Select Case Upper(aArgs[I + 1])
             Case "COMPONENT"
               c.$bListComponents = True
               CComponent.ListAllComponents()
@@ -154,7 +154,7 @@ gList:
               Libraries.ListLibraries()
 
             Default
-              Error.Raise(Application.Args[I + 1] & " Not Support List Type - Library or Component - are supported")
+              Error.Raise(aArgs[I + 1] & " Not Support List Type - Library or Component - are supported")
 
           End Select
         Endif
@@ -180,16 +180,16 @@ gTerseListing: ' only show the actual line the error was on
         Continue
         
 gConvertProject: ' do a project to script conversion
-        If i + 1 > Args.max Then 
+        If i + 1 > aArgs.max Then 
           warning("Not enough parameters for Project conversion - need <source project Directory> [<dest>]", True)
         Else
-          ConvertProject(Args[I + 1], IIf(i + 2 <= Args.max, Args[i + 2], ""))
+          ConvertProject(aArgs[I + 1], IIf(i + 2 <= aArgs.max, aArgs[i + 2], ""))
         Endif
         $bExit = True
         Break
         
 gConvertScript: ' do a script to project conversion
-        If i + 1 > Args.max Or If i + 2 < Args.max Then 
+        If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then 
           warning("Not enough parameters for Script conversion - need <source script> [<dest directory where project created>]", True)
           $bExit = True
           Break
@@ -199,7 +199,7 @@ gConvertScript: ' do a script to project conversion
         Continue 
         
 gPlugin:
-        If i + 1 > Args.max Or If i + 2 < Args.max Then 
+        If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then 
           warning("Not enough parameters for plugin - need <source script> [<dest directory where plugin is created>]", True)
           $bExit = True
           Break
@@ -216,10 +216,10 @@ gPlugin:
  
  'Make the remainder of the arguments available to the
  'main program, and pass the first one as the file to execute
-  sApp = Args[I]
+  sApp = aArgs[I]
   Inc I
-  While I < Args.Count
-    MMain.$aAppArgs.Add(Args[I])
+  While I < aArgs.Count
+    ScriptMain.$aAppArgs.Add(aArgs[I])
     Inc I
   Wend
 

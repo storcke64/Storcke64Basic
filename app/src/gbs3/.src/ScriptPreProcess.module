@@ -69,7 +69,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   Dim i As Integer
 
   ' If hasOptions Then ' options have already been defined
-  '   MMain.CompileError("Options", LineNumber, "Project Options already defined")
+  '   ScriptMain.CompileError("Options", LineNumber, "Project Options already defined")
   ' Endif
   If aSymbols.count < 2 Then Return
  
