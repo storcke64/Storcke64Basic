@@ -624,6 +624,8 @@ Public Sub panBorder_BeforeArrange()
   
   Dim bHasFocus As Boolean
   
+  bHasFocus = Me.HasFocus
+  
   If panBorder.H < (Desktop.Scale * 32) Then
     
     If tvwFamily.Visible Then
@@ -666,7 +668,6 @@ Public Sub panBorder_BeforeArrange()
   
   RefreshExample
   
-  bHasFocus = Me.HasFocus
   Me.Proxy = If(panFilter.Visible, txtFilter, cmbFamily)
   If bHasFocus Then Me.SetFocus
   
