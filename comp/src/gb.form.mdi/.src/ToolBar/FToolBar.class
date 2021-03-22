@@ -1768,20 +1768,21 @@ Public Sub panToolbar_Draw()
 
   If $bConfigure Then
     If Not $hConfigureImage Then 
-      If Color[Color.Background].Luminance > 127 Then
-        $hConfigureImage = Image.Load("img/configure.png")
-      Else
-        $hConfigureImage = Image.Load("img/configure_dark.png")
-      Endif
+      $hConfigureImage = Picture["img/configure.png"].Image
+      ' If Color[Color.Background].Luminance > 127 Then
+      '   $hConfigureImage = Image.Load("img/configure.png")
+      ' Else
+      '   $hConfigureImage = Image.Load("img/configure_dark.png")
+      ' Endif
     Endif
     Paint.Brush = Paint.Image($hConfigureImage)
     Paint.Rectangle(0, 0, panToolBar.W, panToolBar.H)
     Paint.Fill
-  Else If GetToolBar().Design Then
-    Paint.Rectangle(0.5, 0.5, Paint.W - 1, Paint.H - 1)
-    Paint.LineWidth = 1
-    Paint.Background = Color.LightBackground
-    Paint.Stroke
+  ' Else If GetToolBar().Design Then
+  '   Paint.Rectangle(0.5, 0.5, Paint.W - 1, Paint.H - 1)
+  '   Paint.LineWidth = 1
+  '   Paint.Background = Color.LightBackground
+  '   Paint.Stroke
   Endif
 
 End
