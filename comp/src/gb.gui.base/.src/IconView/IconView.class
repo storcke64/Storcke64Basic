@@ -1452,6 +1452,7 @@ Public Sub RenameBox_KeyPress()
   If Key.Code = Key.Escape Then
     ExitRename
     Raise Cancel
+    Stop Event
   Else If Key.Code = Key.Enter Or If Key.Code = Key.Return Then
     RenameBox_Activate
     Stop Event
