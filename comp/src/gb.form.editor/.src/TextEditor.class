@@ -916,7 +916,7 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
     
     iBg = hStyle.Background
     If iBg <> Color.Default Then Paint.FillRect(XX, YY, X2 - XX, H, iBg)
-    If bAlt Then Paint.FillRect(XX, YY, X2 - XX, H, Color.SetAlpha(aStyle[Highlight.Alternate].Color, 192))
+    If bAlt Then Paint.FillRect(XX, YY, X2 - XX, H, Color.SetAlpha(aStyle[Highlight.Alternate].Color, 160))
     
     sStr = String.Mid$(sText, P + 1, iLen)
     ' If hStyle.Bold Then
