@@ -50,7 +50,7 @@ Public Sub Main()
   Dim sLine As String
   Dim L As Integer
 
-  hHighlighter = TextHighlighter["gambas"]
+  hHighlighter = TextHighlighter["webpage"]
   
   '#Include "toto\n"
   
@@ -60,12 +60,12 @@ Public Sub Main()
   '   Inc L
   ' Next
 
-  Highlight.Analyze("  #If Test", True)
+  ' Highlight.Analyze("  #If Test", True)
+  ' 
+  ' Print
+  ' Print Highlight.Symbols.Join("\n")
   
-  Print
-  Print Highlight.Symbols.Join("\n")
-  
-  'Print hHighlighter.ToHTML(File.Load("src.txt"))
+  Print hHighlighter.ToHTML(File.Load("~/gambas/git/master/app/src/gambas-wiki/.src/Wiki.webpage"))
   
   ' TextHighlighter._Highlight = New Byte[]
   ' hHighlighter.Run("Label:")
