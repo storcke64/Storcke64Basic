@@ -31,6 +31,18 @@ Static Public Sub _call(ScriptPath As String, Optional CompileParameters As Stri
    Else 
       PlugInObject = PluginClass.New(PlugInNewParameters)
    Endif 
-   
+   ScriptMain._ResetAll()
    Return PluginObject
+End
+
+'' Allow user to define keyword filter, this will allow to stop certain functions from
+'' being allowed inside a script file. as need by the pluging user
+'' This filter set is a set of regular expressions which will be used to match program lines
+'' Entry would be : "Message if matched":"Regular expression"
+'' example "File IO not permitted":"*Open* For * Write"
+'' to prevent opening a file for or input output would look like
+Static Public Sub SetKeyWordFilter(KeyManagement As Collection)
+  
+  Reader.$sScriptFilter = KeyManagement
+  
 End

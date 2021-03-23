@@ -23,19 +23,27 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
     ScriptPreProcess["Name"] = File.BaseName(sPath)
     ScriptPreProcess["Title"] = File.BaseName(sPath) & " From Script" & sPath
   Else
-    $sPrjPath = Temp("project")
+    If $oContext.$bPlugin Then
+      $sPrjPath = Temp("project" & "-" & File.BaseName(sPath))
+      If Exist($sPrjPath) Then 
+        Exec ["rmdir", "-r", $sPrjPath] Wait
+      Endif
+    Else
+      $sPrjPath = Temp("project")
+    Endif
+    
   Endif
 
   Verbose(("Create project") & ": " & $sPrjPath)
 
   Try Mkdir $sPrjPath
   If Error Then 
-      CompileError("Unable to create project directory : " & $sPrjPath & " : " & Error.text)
+      CompileError(sPath, 0, "Unable to create project directory : " & $sPrjPath & " : " & Error.text)
   Endif
   
   Try Mkdir $sPrjPath &/ ".src"
   If Error Then 
-      CompileError("Unable to create project .src directory : " & $sPrjPath & " : " & Error.text)
+      CompileError(sPath, 0, "Unable to create project .src directory : " & $sPrjPath & " : " & Error.text)
   Endif
 
   $oContext.$sPreambleHeader = "' Gambas module file\n"

@@ -1,18 +1,22 @@
 ' Gambas module file
 
+Public Filter As Collection = ["Print statement is not allowed in script": ".*Print.*",
+                               "Comments not allowed in scripts": ".*'.*$"]
+
 Public Sub main()
-  Dim TestPlugin As Object = Scripter(User.home &/ "Scripts/TestPlugin",, ["NewTestPlugin", "CD", 100, 200])
-  Dim TestPlugin2 As Object = Scripter(User.home &/ "Scripts/TestPlugin2",, ["New testPlugin2"])
+  Scripter.SetKeyWordFilter(Filter)
+  Dim TestPlugin As Object = Scripter("TestPlugin", ["-w", "-v"], ["NewTestPlugin", "CD", 100, 200])
   If TestPlugin Then 
       Print TestPlugin("Element 1", 1, 2, "Element 3", "Last Item 4")
   Else 
-      Print "Error in compile of plugin"
-  Endif 
+      Print "Error in compile of plugin 1:"; Scripter.CompileResult
+  Endif
   
+  Dim TestPlugin2 As Object = Scripter("TestPlugin2", ["-w", "-v"], ["New testPlugin2"])
   If TestPlugin2 Then 
       Print TestPlugin2()
   Else 
-      Print "Error in compile of plugin"
+      Print "Error in compile of plugin 2:"; Scripter.CompileResult
   Endif 
   
 End

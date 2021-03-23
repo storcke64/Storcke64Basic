@@ -30,6 +30,7 @@ Private sDefaultFilePath As String = ""                                         
 Private bPublicOrSubDef As Boolean = False                                          ' Used to indicate that the script contained public or Subroutines
 Private aWarnings As New String[]                                                             ' Builds an array of possible warnings
 Private $oContext As Context                                                                      ' all the global variables
+Private $sEntryPoint As String = "MAIN"                                   'Defines the default type of entry point for the generated program
 
 Private $cBlockTypes As Collection = ["MODULE": ["END", "MODULE"],
                                                                           "CLASS": ["END", "CLASS"],
@@ -39,6 +40,7 @@ Private $cBlockTypes As Collection = ["MODULE": ["END", "MODULE"],
                                                                           "WEBPAGE": ["END", "WEBPAGE"]
                                                                          ]
 Private $sCurrentBlock As String = ""
+Static Public $sScriptFilter As New Collection
 
 Public Sub _New(cContext As Context, Optional SourceFile As String = "", Sourceprogram As String = "")
   Dim SourceBuffer As String
@@ -97,14 +99,19 @@ Private Sub TokenizeFile(SourceBuffer As String)
   Dim sClassName As String = ""
   Dim MainPos As Integer = 1
   Dim sline As String
+  Dim bDoFilter As Boolean = ($sScriptFilter.count > 0)
   
   $cKeywords.default = False
-  '$cSegments.Default = False
- 
+  
+  If $oContext.$bPlugin Then $sEntryPoint = "_Call"
+  
   CurrentLineNumber.Push(0)
   
   SourceList = Split(SourceBuffer, "\n", "", True)
   For Each sLine As String In SourceList
+    
+    If bDoFilter Then ScriptKeywordFilter(sLine, $sScriptFilter, CurrentLineNumber.last, cIncludeStack.last) 'filter the script if needed
+      
     Inc CurrentLineNumber.last
     
     If Left(sLine, 3) = "#!/" Then sLine = "' " & sLine  ' eliminate the script header
@@ -123,20 +130,20 @@ Private Sub TokenizeFile(SourceBuffer As String)
       If symbols[0] = "PUBLIC" And aTypes[1] = Highlight.keyword Or If aTypes[1] = Highlight.symbol Then
         If aTypes[1] = Highlight.symbol Then MainPos = 0
         If symbols[MainPos] = "SUB" Or If symbols[MainPos] = "PROCEDURE" Or If symbols[MainPos] = "FUNCTION" Then
-          If Upper(symbols[MainPos + 1]) = "MAIN" Or If $oContext.$bPlugin And Upper(symbols[MainPos + 1]) = "_CALL" Then
+          If Upper(symbols[MainPos + 1]) == $sEntryPoint Then
               If aTypes.count = 4 Then
-                Warning("Main Was Not Declared as Public, assuming public")
+                Warning(Subst("&1 Was Not Declared as Public, assuming Public Sub &1", $sEntryPoint))
                 sLine = "Public " & sline 
               Endif
               MainDef.Add(CurrentLineNumber.last, cIncludeStack.last)
               If MainDef.count > 1 Then 
-                Warning("Multiple Main Definitions :", True)
+                Warning(Subst("Multiple &1 Definitions :", $sEntryPoint), True)
                 For Each i As Integer In MainDef       
-                  Verbose("Main Defined : " & Quote(MainDef.key) & "." & i, True)
+                  Verbose(Subst("&1 Defined : &2", $sEntryPoint, Quote(MainDef.key) & "." & i), True)
                 Next
-                CompileError(cIncludeStack.last, CurrentLineNumber.last, "Too Many Main Definitions")
+                CompileError(cIncludeStack.last, CurrentLineNumber.last, "Too Many " & $sEntryPoint & " Definitions")
               Else
-                Verbose("Main Defined  : " & cIncludeStack.last & "." & CurrentLineNumber.last)
+                Verbose($sEntryPoint & " Defined  : " & cIncludeStack.last & "." & CurrentLineNumber.last)
               Endif
           Endif
         Endif
@@ -152,7 +159,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
           Goto ContinueRecord
           
         Else If Not $bInClass And If $cKeywords[symbols[0]] Then
-            aWarnings.Add("Warning : Defined without main : " & symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+            aWarnings.Add("Warning : Defined without " & $sEntryPoint & " : " & symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
             bPublicOrSubDef = True
             GlobalItemPosition.Add(ProgramLines.count)
              Goto ContinueRecord
@@ -160,7 +167,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
         Else If Not $bInClass And If symbols[0] = "FAST" Then
           
           If aTypes.count > 2 Then
-               aWarnings.Add("Warning : Defined without main : " & symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+               aWarnings.Add("Warning : Defined without " & $sEntryPoint & " : " & symbols[0] & ":" & File.Name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
              bPublicOrSubDef = True
              GlobalItemPosition.Add(ProgramLines.count)
              Goto ContinueRecord
@@ -221,6 +228,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
             If aTypes[1] = Highlight.symbol Then
                 If $bInClass Then
                     If symbols[0] == "class" And If $sCurrentBlock == "class" Or $sCurrentBlock == "module" Then
+                       Warning("Found class definition inside a &1, Assuming that it is a class refrence not the beginning of a new class")
                        Goto ContinueRecord
                     Else 
                        CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst(" &1 : Unexpected &1 definition inside &1 definition : ", $sCurrentBlock) & sLine)
@@ -276,7 +284,13 @@ ContinueRecord:
   Next
   
   If BlockNames.count > 0 Or If $bInClass Then 
-    CompileError(cIncludeStack.last, CurrentLineNumber.last, "Missing 'END " & $sCurrentBlock & "' For " & $sCurrentBlock & ": " & BlockNames.Pop())
+    If $sCurrentBlock == "class" Then 
+        BlockList.Pop()
+        BlockType.Pop()
+        Warning(Subst("Class '&1' Defined in Script at Line &2, No End Class encountered, Assuming this was a class refrence not a class definition", BlockNames.Pop(), BlockLineNumbers.Pop()))
+    Else
+        CompileError(cIncludeStack.last, CurrentLineNumber.last, "Missing 'END " & $sCurrentBlock & "' For " & $sCurrentBlock & ": " & BlockNames.Pop())
+    Endif
   Endif
   
   CurrentLineNumber.Pop()
@@ -527,4 +541,7 @@ Public Sub DisplayWarnings()
   Next
   
 End
+
+
+
 
