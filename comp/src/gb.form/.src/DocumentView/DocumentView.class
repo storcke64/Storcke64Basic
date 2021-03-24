@@ -8,7 +8,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Border,Arrangement{Arrange.Row;Column;Vertical;Horizontal;Fill}=Row,Padding=10,Spacing=10,Columns,Center,ShowShadow,ShowPage"
+Public Const _Properties As String = "*,Border,Arrangement{Arrange.Row;Column;Vertical;Horizontal;Fill}=Row,Padding=16,Spacing=16,Columns,Center,ShowShadow,ShowPage"
 Public Const _Group As String = "View"
 Public Const _Similar As String = "GridView"
 
@@ -43,12 +43,19 @@ Property Zoom, Scale As Float
 Property Columns As Integer
 
 '' Return or set how the different pages are arranged inside the view.
+''
+'' This property can take one of the following values:
+'' - [Arrange.Vertical](/comp/gb.qt4/arrange/vertical)
+'' - [Arrange.Horizontal](/comp/gb.qt4/arrange/horizontal)
+'' - [Arrange.Row](/comp/gb.qt4/arrange/row)
+'' - [Arrange.Column](/comp/gb.qt4/arrange/column)
+'' - [Arrange.Fill](/comp/gb.qt4/arrange/fill)
 Property Arrangement As Integer
 
-'' Return or set the padding around the view in pixels.
+'' Return or set the padding inside the view in millimiters.
 Property Padding As Integer 
 
-'' Return or set the spacing between the different pages in pixels.
+'' Return or set the spacing between the different pages in millimiters.
 Property Spacing As Integer
 
 '' Return or set if pages are drawn with a little shadow.
@@ -57,10 +64,11 @@ Property ShowShadow As Boolean
 '' Return or set if the page number must be displayed inside the view.
 Property ShowPage As Boolean
 
-Property Read Item As _DocumentItem
+'' Return the index of the first visible page.
+Property Read FirstVisiblePage As Integer
 
-Property Read FirstVisibleDocument As Integer
-Property Read LastVisibleDocument As Integer
+'' Return the index of the last visible page.
+Property Read LastVisiblePage As Integer
 
 '' Return or set if the page must be centered in the view.
 Property Center As Boolean
@@ -107,7 +115,6 @@ Private $aImageToLoad As New Integer[]
 Private $aImageLoaded As New Integer[]
 Private $iNbreDocByLine As Integer
 Private $hDocItem As _DocumentItem
-Private $iIntern As Integer
 Private $iCurrent As Integer
 Private $fZoom As Float = 1.0
 Private $aSelected As New Integer[]
@@ -948,66 +955,6 @@ Public Sub _get(Index As Integer) As _DocumentItem
   
 End
 
-'' Move to a specific page.
-''
-'' - ~Index~ is the page number, starting from zero.
-''
-'' Return 'TRUE' if the specified page does not exist.
-
-Public Function MoveTo(Index As Integer) As Boolean
-  
-  If Index < 0 Or Index >= $iCount Then Return True
-  $iIntern = Index
-  
-End
-
-'' Move to the first page.
-''
-'' This function returns 'TRUE' if there is no page in the document.
-
-Public Function MoveFirst() As Boolean
-  
-  If $iCount = 0 Then Return True
-  $iIntern = 0
-  
-End
-
-'' Move to the next page.
-''
-'' This function returns 'TRUE' if we already are at the last page or if there is no page in the document.
-
-Public Function MoveNext() As Boolean
-  
-  If $iIntern + 1 >= $iCount Then Return True
-  Inc $iIntern
-  
-End
-
-'' Move to the previous page.
-''
-'' This function returns 'TRUE' if we already are at the first page or if there is no page in the document.
-
-Public Function MovePrevious() As Boolean
-  
-  If $iIntern = 0 Then Return True
-  Dec $iIntern
-  
-End
-
-Private Function Item_Read() As _DocumentItem
-  
-  $hDocItem._Index = $iIntern
-  Return $hDocItem
-  
-End
-
-' Private Function Current_Read() As _DocumentItem
-'   
-'   $hDocItem._Index = $iCurrent
-'   Return $hDocItem
-'   
-' End
-
 Public Sub View_MouseDown()
   
   $MX = Mouse.X
@@ -1052,21 +999,13 @@ Public Function _IsVisible(Index As Integer) As Boolean
   
 End
 
-' Public Function _GetX(Index As Integer) As Integer
-'   
-' End
-' 
-' Public Function _GetY(Index As Integer) As Integer
-'   
-' End
-
-Private Function FirstVisibleDocument_Read() As Integer
+Private Function FirstVisiblePage_Read() As Integer
   
   Return $iFirstVisibleDocument
   
 End
 
-Private Function LastVisibleDocument_Read() As Integer
+Private Function LastVisiblePage_Read() As Integer
   
   Return $iLastVisibleDocument
   
@@ -1096,6 +1035,7 @@ Private Sub Center_Write(Value As Boolean)
   
   If value = $bAutoCenter Then Return
   $bAutoCenter = Value
+  DoLayout
   $tmrRefresh.Trigger
   
 End
