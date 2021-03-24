@@ -49,8 +49,8 @@
       }
       { lblZoom Label
         MoveScaled(6,0,7,4)
-        Text = ("100 %")
         Alignment = Align.Center
+        Text = ("100 %")
       }
       { btnZoomIn ToolButton
         MoveScaled(13,0,4,4)
@@ -325,6 +325,7 @@
     { dvwPrint DocumentView
       MoveScaled(43,10,40,43)
       Expand = True
+      ShowShadow = True
       ShowPage = True
     }
   }
