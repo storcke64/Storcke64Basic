@@ -1,6 +1,10 @@
 ' Gambas module file
 
-Enum eVersion, eLicense, eHelp, eNoCache, eDebug, eVerbose, eExec, eFast, eUnsafe, eTrace, eUse, eWarnings, eBuildOnly, eList, eStdio, eLazyStrict, eTerseListing, eConvertProject
+Enum eVersion, eLicense, eHelp, eNoCache, eDebug, eVerbose, 
+     eExec, eFast, eUnsafe, eTrace, eUse, eWarnings, eBuildOnly, 
+     eList, eStdio, eLazyStrict, eTerseListing, eConvertProject, 
+     eConvertScript, ePlugin
+     
 Public $bExit As Boolean = False
 
 Public $cPossibleArgs As Collection = [
@@ -21,36 +25,39 @@ Public $cPossibleArgs As Collection = [
                            "-": eStdio,
                            "-S": eLazyStrict, "--strict": eLazyStrict,
                            "-T": eTerseListing, "--terse-listing": eTerseListing,
-                           "--convert-project": eConvertProject
+                           "--convert-project": eConvertProject,
+                           "--convert-script": eConvertscript,
+                           "-p": ePlugin, "--plugin": ePlugin
                         ]
                         
-Public Function _Call(c As Context) As String
+Public Function _Call(c As Context, aArgs As String[]) As String
 
   Dim I As Integer
   Dim sApp As String
   Dim index As Variant
 
-  If File.Name(Args[0]) = "gbw" & System.version Then c.$bWebPage = True
+  If File.Name(aArgs[0]) = "gbw" & System.version Then c.$bWebPage = True
 
-  For I = 1 To Args.Max
-  
-    If Args[I] = "--" Then
+  For I = 1 To aArgs.Max
+    
+    If aArgs[I] = "--" Then
       Inc I
       Break
-    Else If Left(Args[I]) <> "-" Then
+    Else If Left(aArgs[I]) <> "-" Then
       Break
     Endif
     
-  index = $cPossibleArgs[Args[I]]
-  If IsNull(index) Then
+    index = $cPossibleArgs[aArgs[I]]
+    If IsNull(index) Then
       '' note if I raise and error here it causes a double free error in tcache
-      Error File.Name(Args[0]) & " : " & ("Unknown option") & " : " & Args[I]
+      Error File.Name(aArgs[0]) & " : " & ("Unknown option") & " : " & aArgs[I]
       $bExit = True
       Break
       
-  Endif
- On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict,
-               gTerseListing, gConvertProject
+    Endif
+    On index Goto gVersion, gLicense, gHelp, gNoCache, gDebugInfo, gVerbose, gExecCommandLine, 
+                  gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict,
+                  gTerseListing, gConvertProject, gConvertScript, gPlugin
 
 gVersion:
 
@@ -97,7 +104,7 @@ gExecCommandLine:
         If Not c.$bWebPage Then
           c.$bExecuteFromArgs = True
         Else
-          Error.Raise(File.Name(Args[0]) & ": -e " & ("Option Is Not supported For WebPages"))
+          Error.Raise(File.Name(aArgs[0]) & ": -e " & ("Option Is Not supported For WebPages"))
         Endif
         Continue
         
@@ -118,8 +125,8 @@ gTrace:
         Continue
         
 gUse:
-        If Not (Application.Args[I + 1] Begins "-") Then
-          c.$sUse = Application.Args[I + 1]
+        If Not (aArgs[I + 1] Begins "-") Then
+          c.$sUse = aArgs[I + 1]
           Inc I
         Endif
         Continue
@@ -134,8 +141,8 @@ gBuildOnly:
         Continue
 
 gList:
-        If Not (Application.Args[I + 1] Begins "-") Then
-          Select Case Upper(Application.Args[I + 1])
+        If Not (Application.aArgs[I + 1] Begins "-") Then
+          Select Case Upper(aArgs[I + 1])
             Case "COMPONENT"
               c.$bListComponents = True
               CComponent.ListAllComponents()
@@ -147,7 +154,7 @@ gList:
               Libraries.ListLibraries()
 
             Default
-              Error.Raise(Application.Args[I + 1] & " Not Support List Type - Library or Component - are supported")
+              Error.Raise(aArgs[I + 1] & " Not Support List Type - Library or Component - are supported")
 
           End Select
         Endif
@@ -172,14 +179,36 @@ gTerseListing: ' only show the actual line the error was on
         c.$bTerseListing = True
         Continue
         
-gConvertProject: ' do a project to script converstion
-        If i + 1 > Args.max Then 
-          warning("Not enough Parameters for conversion - need <source> [<dest>]", True)
+gConvertProject: ' do a project to script conversion
+        If i + 1 > aArgs.max Then 
+          warning("Not enough parameters for Project conversion - need <source project Directory> [<dest>]", True)
         Else
-          ConvertProject(Args[I + 1], IIf(i + 2 <= Args.max, Args[i + 2], ""))
+          ConvertProject(aArgs[I + 1], IIf(i + 2 <= aArgs.max, aArgs[i + 2], ""))
         Endif
         $bExit = True
         Break
+        
+gConvertScript: ' do a script to project conversion
+        If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then 
+          warning("Not enough parameters for Script conversion - need <source script> [<dest directory where project created>]", True)
+          $bExit = True
+          Break
+        Else
+         c.$bCreateProject = True
+        Endif
+        Continue 
+        
+gPlugin:
+        If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then 
+          warning("Not enough parameters for plugin - need <source script> [<dest directory where plugin is created>]", True)
+          $bExit = True
+          Break
+        Endif
+        c.$bBuildOnly = True
+        c.$bPlugin = True
+        c.$bExport = True
+        c.$bClassAsStartup = True
+        Continue 
         
   Next
 
@@ -187,10 +216,10 @@ gConvertProject: ' do a project to script converstion
  
  'Make the remainder of the arguments available to the
  'main program, and pass the first one as the file to execute
-  sApp = Args[I]
+  sApp = aArgs[I]
   Inc I
-  While I < Args.Count
-    MMain.$aAppArgs.Add(Args[I])
+  While I < aArgs.Count
+    ScriptMain.$aAppArgs.Add(aArgs[I])
     Inc I
   Wend
 

@@ -1,8 +1,10 @@
 
 Compile and execute a Gambas script.
 
-Usage: gbs3 [options][--] [<script file> | - ]
-       gbs3 --convert-project <input project directory> <output script directory>
+Usage: gbs3 [options][--] [<script file> | <project directory> | - ]
+       gbs3 --convert-project <input project directory> [<output script directory>]
+       gbs3 --convert-script <input script> [<output directory where project directory is created>]
+       gbs3 --plugin <input script> [<output plugin cache directory>]
 
 Options:
   -b --buildonly           process and compile the script without executing it
@@ -12,6 +14,7 @@ Options:
   -f --fast                use just-in-time compiler
   -h --help                display this help
   -L --license             display license
+  -p --plugin              Compile the script, no main, define the class name as script base name entry point _Call(...)
   -S --strict              fail if 'Public' or 'Sub' are defined without a 'main' function
   -t --trace               turn on tracing option during execution
   -T --terse-listing       only print a very terse error report on compile errors
@@ -21,5 +24,6 @@ Options:
   -V --version             display version
   -w --warnings            display warnings during compilation
   --convert-project        convert a simple project to a script 
+  --convert-script         convert a simple script to a project
   --                       stop any further option processing  
   -                        read the script from standard input

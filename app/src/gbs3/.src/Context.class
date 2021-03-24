@@ -38,7 +38,9 @@ Public $bExport As Boolean
 Public $bDebug As Boolean                                      ' Enables the debug switch during gbc compiling
 Public $bTrace As Boolean                                      ' Turns on tracing in the compiler
 Public $bTerseListing As Boolean                               ' limit the output from a script error
-
+Public $bCreateProject As Boolean                              ' Create a project from the script file
+Public $bPlugin As Boolean                                     ' if true then generate a plugin, class with script name and _Call() as the entry point
+                                                               ' can be loaded with component.load followed by class.load both with the basename of the script
 
 '' Reset all internal tables and conditions
 '' Used for Test harness

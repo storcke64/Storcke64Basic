@@ -19,8 +19,8 @@ Public Sub CreateTestEnvironment()
   'Test.Note("Initialize the component collection")
   'System.language = "de_DE.UTF-8"
   
-  Mmain._ResetAll()
-  MMain.$oContext.$bTestmode = True
+  ScriptMain._ResetAll()
+  ScriptMain.$oContext.$bTestmode = True
    
   If Not Exist("/usr/lib" &/ gbsVer &/ "biz1") Then
     

@@ -30,7 +30,7 @@ End
 
 Public Sub ReadFile(sPath As String) As String
   Dim sSourceFile As String = ""
-  If MMain.$oContext.$bScriptSourceStdIn Then
+  If ScriptMain.$oContext.$bScriptSourceStdIn Then
     While Not Eof(File.in)
       Try sSourceFile &= Read -254
       Wait
