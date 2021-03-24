@@ -83,20 +83,22 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
       Endif
       Dim aFiles As String[] = Dir(sPath, "*." & cSources.key, gb.file)
        For Each s In aFiles
-            If cSources.key == "module" And aFiles.Count = 1 Or If cSources.key == "module" And File.basename(s) == Startup Then
-               Try ScriptFile &= File.Load(sPath &/ s) & "\n"
-                If Error Then
-                        Warning("Unable to generate Startup file " & Startup & " : " & sPath &/ s, True)
+            Dim Program As String 
+            Try Program = File.Load(sPath &/ s)
+             If Error Then
+                        Warning("Unable to generate Script using  file:" & Error.text & " : " & sPath &/ s, True)
                        Return
-                Endif
-            Else
-                Try ScriptFile &= cSources.key & " " & File.BaseName(s) & "\n" & File.Load(sPath &/ s) & "\nEnd " & cSources.key & "\n"
-                 If Error Then
-                        Warning("Unable to access " & cSources.key & ":" & sPath &/ s, True)
-                       Return
-                Endif
             Endif
-           
+            
+            If cSources.key == "module" Or If cSources.key == "class" Then 
+               Program = ConvertContextWords(Program)
+            Endif
+            
+            If cSources.key == "module" And aFiles.Count = 1 Or If cSources.key == "module" And File.basename(s) == Startup Then
+               ScriptFile &= Program & "\n"
+            Else
+               ScriptFile &= cSources.key & " " & File.BaseName(s) & "\n" & Program & "\nEnd " & cSources.key & "\n"
+            Endif
       Next
     Next
     
@@ -108,3 +110,18 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
     Endif
 
 End
+
+Sub ConvertContextWords(Program As String) As String
+ Dim OutPutProgram As String = "" 
+ Dim ProgLines As String[] = Split(Program, "\n")
+ For Each sLine As String In ProgLines
+   Highlight.Analyze(sLine)
+   If Highlight.Types.count = 2 And If Highlight.Types[0] = Highlight.Keyword And If Highlight.Symbols[0] == "class" And If Highlight.Types[1] = Highlight.symbol Then 
+     sline = Replace(sline, "class", "ClassRef", gb.IgnoreCase)
+   Endif
+   OutPutProgram &= sLine & "\n"
+ Next
+Return OutPutProgram
+End
+
+

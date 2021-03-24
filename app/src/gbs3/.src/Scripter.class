@@ -1,0 +1,48 @@
+' Gambas class file
+
+Export 
+Static Public CompileResult As Integer = 0
+Static Public CompileError As String = ""
+'' This allows integration of scripter into an application that uses plugins
+'' the call would be Scripter(MyScript,"-b -c etc these are other parameters")
+'' This returns the instanciated class of the plugin script
+Static Public Sub _call(ScriptPath As String, Optional CompileParameters As String[] = [], PluginNewParameters As Variant[] = Null) As Variant
+   Dim PluginClass As Class
+   Dim PluginObject As Object
+   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
+   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
+   If Not Class.IsLoaded("Highlight") Then Class.load("ScriptMain")
+   
+   ScriptMain.$bRunAsPlugin = True
+   Dim aParms As String[] = CompileParameters
+   aParms.Add("gbs" & System.version, 0)
+   aParms.Push("-p")
+   aParms.Push(ScriptPath)
+   CompileResult = ScriptMain.ScripterMain(aParms)
+   If CompileResult <> 0 Then 
+      Warning("Plugin Compile Failed :" & ScriptMain.$sLastCompileError)
+      CompileError = ScriptMain.$sLastCompileError
+      Return Null
+   Endif
+   Component.Load(ScriptMain.$sExecutable)
+   PlugInClass = Class.Load(ScriptMain.$sStartUpClass)
+   If IsNull(PluginNewParameters) Then
+      PlugInObject = PluginClass.New()
+   Else 
+      PlugInObject = PluginClass.New(PlugInNewParameters)
+   Endif 
+   ScriptMain._ResetAll()
+   Return PluginObject
+End
+
+'' Allow user to define keyword filter, this will allow to stop certain functions from
+'' being allowed inside a script file. as need by the pluging user
+'' This filter set is a set of regular expressions which will be used to match program lines
+'' Entry would be : "Message if matched":"Regular expression"
+'' example "File IO not permitted":"*Open* For * Write"
+'' to prevent opening a file for or input output would look like
+Static Public Sub SetKeyWordFilter(KeyManagement As Collection)
+  
+  Reader.$sScriptFilter = KeyManagement
+  
+End
