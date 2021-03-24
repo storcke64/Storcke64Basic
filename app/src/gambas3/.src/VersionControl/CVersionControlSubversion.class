@@ -264,9 +264,13 @@ Public Sub Diff(sPath As String, Optional (bFull) As Boolean, (bNoWhiteSpace) As
 
 End
 
-Public Sub History(sPath As String, Optional (bFull) As Boolean) As String
+Public Sub History(sPath As String, Optional sPath2 As String, (bFull) As Boolean) As String
 
-  Return VersionControl.Shell("svn log " & Shell$(SvnPath$(sPath)))
+  Dim sCmd As String
+
+  sCmd = "svn log " & Shell$(SvnPath$(sPath))
+  If sPath2 Then sCmd &= " " & Shell$(SvnPath$(sPath2))
+  Return VersionControl.Shell(sCmd)
 
 End
 

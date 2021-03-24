@@ -180,7 +180,7 @@ Public Sub Diff(sPath As String, Optional bFull As Boolean, bNoWhiteSpace As Boo
 
 End
 
-Public Sub History(sPath As String, Optional bFull As Boolean) As String
+Public Sub History(sPath As String, Optional sPath2 As String, bFull As Boolean) As String
   
   Dim sCmd As String
   Dim sFull As String
@@ -191,6 +191,7 @@ Public Sub History(sPath As String, Optional bFull As Boolean) As String
     sCmd = "cd " & Shell(sPath) & " && git log --date=rfc2822 " & sFull & "."
   Else
     sCmd = "cd " & Shell(File.Dir(sPath)) & " && git log --date=rfc2822 " & sFull & Shell(File.Name(sPath))
+    If sPath2 Then sCmd &= " " & Shell(File.Name(sPath2))
   Endif
   
   Return VersionControl.Shell(sCmd)

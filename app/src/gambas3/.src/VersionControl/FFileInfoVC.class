@@ -3,10 +3,17 @@
 Class DesktopMime
 
 Static Private $sPath As String
+Static Private $sPath2 As String
 
 Public Sub Run(sPath As String) As Boolean
   
   $sPath = sPath
+  If Project.IsFormPath($sPath) Then 
+    $sPath2 = File.SetExt($sPath, "class")
+  Else 
+    $sPath2 = ""
+  Endif
+  
   Return Not FFileInfoVC.ShowModal()
   
 End
@@ -49,9 +56,7 @@ Private Sub LoadVersionControlInfo()
 
   edtChange.Font = Font[Settings["/Editor/Font", Project.DEFAULT_FONT]]
   sDiff = VersionControl.Diff($sPath)
-  If Project.IsFormPath($sPath) Then
-    sDiff &= "\n" & VersionControl.Diff(File.SetExt($sPath, "class"))
-  Endif
+  If $sPath2 Then sDiff &= "\n" & VersionControl.Diff($sPath2)
   sDiff = Trim(sDiff)
   If sDiff Then
     edtChange.Highlight = "Diff"
@@ -129,7 +134,7 @@ Public Sub tabInfo_Click()
     
       btnRevert.Hide
       chkShowHistoryChanges.Show
-      If edtHistory.IsVoid() Then edtHistory.FillWithHistory($sPath)
+      If edtHistory.IsVoid() Then edtHistory.FillWithHistory($sPath, $sPath2)
     
   End Select
   
@@ -155,6 +160,6 @@ End
 
 Public Sub chkShowHistoryChanges_Click()
 
-  edtHistory.FillWithHistory($sPath, chkShowHistoryChanges.Value)
+  edtHistory.FillWithHistory($sPath, $sPath2, chkShowHistoryChanges.Value)
 
 End
