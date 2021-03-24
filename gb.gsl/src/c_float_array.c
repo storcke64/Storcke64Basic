@@ -397,7 +397,7 @@ GB_DESC FloatArrayStatDesc[] =
 	GB_METHOD("Kurtosis", "f", FloatArrayStat_Kurtosis, "[(Weight)Float[];(Mean)f(StdDev)f]"),
 	GB_METHOD("AutoCorrelation", "f", FloatArrayStat_AutoCorrelation, "[(Mean)f]"),
 	GB_METHOD("Covariance", "f", FloatArrayStat_Covariance, "(Other)Float[];[(Mean)f(MeanOther)f]"),
-	GB_METHOD("Correlation", "f", FloatArrayStat_Correlation, "[(Mean)f]"),
+	GB_METHOD("Correlation", "f", FloatArrayStat_Correlation, "(Other)Float[];"),
 	GB_METHOD("Median", "f", FloatArrayStat_Median, "[(Sorted)b]"),
 	GB_METHOD("Quantile", "f", FloatArrayStat_Quantile, "(Quantile)f[(Sorted)b]"),
 	GB_METHOD("TrimmedMean", "f", FloatArrayStat_TrimmedMean, "(Trim)f[(Sorted)b]"),
