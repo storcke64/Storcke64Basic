@@ -1,31 +1,74 @@
 ' Gambas class file
 
+''' This class implements a generic document viewer.
+'''
+''' You must define first the number of page of your document with the [./count] property.
+''' Then you draw each page of the document in the [./.draw] event handler.
+
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Border,Arrangement{Arrange.Row;Column;Vertical;Horizontal;Fill}=Row,Padding=10,Spacing=10,Column,AutoCenter,ShowShadow,ShowPage"
+Public Const _Properties As String = "*,Border,Arrangement{Arrange.Row;Column;Vertical;Horizontal;Fill}=Row,Padding=10,Spacing=10,Columns,Center,ShowShadow,ShowPage"
 Public Const _Group As String = "View"
 Public Const _Similar As String = "GridView"
 
-'Public Enum Portrait, Paysage
-'Public Enum None, PagesWidth, PageHeight
+'' Return or set the default width of a page in millimiters.
+''
+'' By default the size of the page is 210 x 297 mm (A4 format).
 Property DocWidth, PageWidth As Integer
+
+'' Return or set the default height of a page in millimiters.
+''
+'' By default the size of the page is 210 x 297 mm (A4 format).
 Property DocHeight, PageHeight As Integer
+
+'' Return or set the number of pages in the document.
 Property Count As Integer
+
+'' Return the number of pages in the document minus one.
 Property Read Max As Integer
+
+'' Return a virtual object used for defining the layout of a specific page.
+''
+'' See the [./.layout] event for more details.
 Property Read Layout As _DocumentLayout
+
+'' Return or set the zoom factor of the view.
 Property Zoom, Scale As Float
-Property Column, Row As Integer
+
+'' Return or set the number of columns used for layouting pages.
+''
+'' If set to zero (the default), then the preview only shows pages one by one.
+'' Otherwise all pages are layouted from top to bottom.
+Property Columns As Integer
+
+'' Return or set how the different pages are arranged inside the view.
 Property Arrangement As Integer
+
+'' Return or set the padding around the view in pixels.
 Property Padding As Integer 
+
+'' Return or set the spacing between the different pages in pixels.
 Property Spacing As Integer
+
+'' Return or set if pages are drawn with a little shadow.
 Property ShowShadow As Boolean
+
+'' Return or set if the page number must be displayed inside the view.
 Property ShowPage As Boolean
+
 Property Read Item As _DocumentItem
+
 Property Read FirstVisibleDocument As Integer
 Property Read LastVisibleDocument As Integer
-Property AutoCenter As Boolean
+
+'' Return or set if the page must be centered in the view.
+Property Center As Boolean
+
+'' Return or set if the document view has a border.
 Property Border As Boolean
+
+'' Return or set if the preview is automatically desaturated.
 Property Desaturate As Boolean
 
 Private $bAutoCenter As Boolean
@@ -76,13 +119,28 @@ Private $MY As Integer
 Private $bShowPage As Boolean
 Private $hObs As Observer
 
+'' This event is raised so that each page layout can be defined independently.
+''
+'' - ~Page~ is the index of the page to layout.
+''
+'' Use the [../layout] property inside the handler of this event to define the layout of the specified page.
 Event Layout(Page As Integer)
+
+'' This event is raised when a specific page preview must me drawn
+''
+'' - ~Page~ is the index of the page to draw.
+'' - ~Width~ and ~Height~ are the size of the image buffer where the page must be drawn.
 Event Draw(Page As Integer, Width As Integer, Height As Integer)
+
+'' This event is raised when all page preview have been drawn.
 Event Finished
+
+'' This event is raised when the zoom level has changed.
 Event Zoom
 
 Private $bDesaturate As Boolean
 
+'' Create a new DocumentView
 Public Sub _new()
   
   $hView = New ScrollArea(Me) As "View"
@@ -283,11 +341,12 @@ Private Sub RefreshLayoutNeeds()
   Dim i As Integer
   
   For i = 0 To $iCount - 1
+    
+    $hLayout = New _DocumentLayout
     Raise Layout(i)
     
-    If $hLayout.Width <> 0 Or If $hLayout.Height <> 0 Or If $hLayout.Orientation <> 1 Then
+    If $hLayout.Width > 0 And If $hLayout.Height > 0 Then
       $colLayout[i] = $hLayout
-      $hLayout = New _DocumentLayout
     Endif
   Next
   DoLayout
@@ -577,6 +636,8 @@ Private Sub Zoom_Write(Value As Float)
   
 End
 
+'' Refresh the view contents.
+
 Public Sub Refresh()
   
   $aImageLoaded.Clear
@@ -586,6 +647,8 @@ Public Sub Refresh()
   $tmrRefresh.Trigger
   
 End
+
+'' Resets the view.
 
 Public Sub Reset()
   
@@ -683,6 +746,10 @@ Private Sub Spacing_Write(Value As Integer)
   
 End
 
+'' Move the view to a specified page.
+''
+'' - ~Page~ is the page number, starting from zero.
+
 Public Sub Goto(Page As Integer)
   
   Dim iPageCol, iPageRow As Integer
@@ -742,6 +809,9 @@ Public Sub Obs_MouseWheel()
   
 End
 
+'' Return the page number under a specific mouse cursor position.
+''
+'' - ~X~ and ~Y~ are the mouse cursor position relative to the document view.
 
 Public Function Find(X As Integer, Y As Integer) As Integer
   
@@ -866,20 +936,34 @@ End
 '   
 ' End
 
-Public Sub _Get(Index As Integer) As _DocumentItem
+'' Return a virtual object that represents a specific preview page.
+''
+'' - ~Index~ is the index of the page.
+
+Public Sub _get(Index As Integer) As _DocumentItem
   
-  If Index > $iCount - 1 Then Return Null
+  If Index < 0 Or If Index >= $iCount Then Error.Raise("Bad argument")
   $hDocItem._Index = Index
   Return $hDocItem
   
 End
 
+'' Move to a specific page.
+''
+'' - ~Index~ is the page number, starting from zero.
+''
+'' Return 'TRUE' if the specified page does not exist.
+
 Public Function MoveTo(Index As Integer) As Boolean
   
-  If Index < 0 Or index > $iCount + 1 Then Return True
+  If Index < 0 Or Index >= $iCount Then Return True
   $iIntern = Index
   
 End
+
+'' Move to the first page.
+''
+'' This function returns 'TRUE' if there is no page in the document.
 
 Public Function MoveFirst() As Boolean
   
@@ -888,12 +972,20 @@ Public Function MoveFirst() As Boolean
   
 End
 
+'' Move to the next page.
+''
+'' This function returns 'TRUE' if we already are at the last page or if there is no page in the document.
+
 Public Function MoveNext() As Boolean
   
   If $iIntern + 1 >= $iCount Then Return True
   Inc $iIntern
   
 End
+
+'' Move to the previous page.
+''
+'' This function returns 'TRUE' if we already are at the first page or if there is no page in the document.
 
 Public Function MovePrevious() As Boolean
   
@@ -980,13 +1072,13 @@ Private Function LastVisibleDocument_Read() As Integer
   
 End
 
-Private Function Column_Read() As Integer
+Private Function Columns_Read() As Integer
   
   Return $iColumn
   
 End
 
-Private Sub Column_Write(Value As Integer)
+Private Sub Columns_Write(Value As Integer)
   
   If Value = $iColumn Then Return
   $iColumn = Value
@@ -994,13 +1086,13 @@ Private Sub Column_Write(Value As Integer)
   
 End
 
-Private Function AutoCenter_Read() As Boolean
+Private Function Center_Read() As Boolean
   
   Return $bAutoCenter 
   
 End
 
-Private Sub AutoCenter_Write(Value As Boolean)
+Private Sub Center_Write(Value As Boolean)
   
   If value = $bAutoCenter Then Return
   $bAutoCenter = Value
