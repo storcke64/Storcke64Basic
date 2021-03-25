@@ -478,7 +478,7 @@ static void add_newline()
 	
 	add_pattern(RT_NEWLINE, comp->line);
 	comp->line++;
-	
+
 	if (action == PREP_IGNORE)
 		jump_to_next_prep();
 }
@@ -1241,9 +1241,10 @@ __BREAK:
 	// We add end markers to simplify the compiler job, when it needs to look 
 	// at many patterns in one shot.
 	
-	JOB->max_line = JOB->line - 1;
-	
 	add_newline();
+
+	JOB->max_line = JOB->line;
+
 	add_end();
 	add_end();
 	add_end();
