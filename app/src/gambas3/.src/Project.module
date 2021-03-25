@@ -2382,10 +2382,11 @@ Private Sub CompileError(sMsg As String)
 
     Try hEditor = hForm.GetEditor()
 
-    If hEditor And If iLine > hEditor.Count Then
+    If iLine >= 100000 Then
       SetMessage(File.BaseName(sFile) & ": " & sErr & " " & ("in form definition"))
       sMsg = FormatError(sErr, ("in form definition"))
     Else If iLine >= 1 Then
+      If hEditor Then iLine = Min(iLine, hEditor.Count)
       SetMessage(File.BaseName(sFile) & "." & CStr(iLine) & ": " & sErr)
       sMsg = FormatError(sErr, File.Name(sFile) & ":" & CStr(iLine))
     Else

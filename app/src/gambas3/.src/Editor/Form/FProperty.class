@@ -863,6 +863,7 @@ End
 
 Public Sub txtProperty_Clear()
   
+  txtProperty.Text = $hObject.GetDefaultValueString($sLast)
   SaveProperty
   
 End

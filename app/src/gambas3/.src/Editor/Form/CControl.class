@@ -851,6 +851,16 @@ Public Function GetPropertyString(sProp As String) As String
 
 End
 
+Public Sub GetDefaultValueString(sProp As String) As String
+  
+  Dim hProp As CPropertyInfo
+  Try hProp = Project.Documentation.Classes[Kind].Properties[sProp]
+  If IsNull(hProp) Then Return
+  Return ConvertToString(hProp.DefaultValue, hProp)
+  
+End
+
+
 
 Public Function IsContainer() As Boolean
 
