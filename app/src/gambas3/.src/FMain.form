@@ -729,6 +729,10 @@
         Text = ("Show files in conflict")
         Picture = Picture["img/32/conflict.png"]
       }
+      { mnuFilterDoNotTranslate Menu
+        Text = ("Show untranslatable files")
+        Picture = Picture["img/32/do-not-translate.png"]
+      }
       { mnuFilterCompressed Menu
         Text = ("Show compressed files")
         Picture = Picture["icon:/small/archive"]
@@ -737,7 +741,7 @@
       }
       { mnuFilterAll Menu
         Text = ("Show all")
-        Picture = Picture["icon:/small/refresh"]
+        Picture = Picture["icon:/small/clear"]
       }
     }
     { mnuAddVersionAll Menu

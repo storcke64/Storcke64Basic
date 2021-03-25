@@ -142,6 +142,7 @@ Public Const FILTER_EXPORTED As String = " X"
 Public Const FILTER_CONFLICT As String = " C"
 Public Const FILTER_MODIFIED As String = " M"
 Public Const FILTER_COMPRESSED As String = " P"
+Public Const FILTER_DO_NOT_TRANSLATE As String = " T"
 
 Public Files As New Collection
 Public ExternFiles As New Collection
@@ -1823,6 +1824,14 @@ Private Sub InitProjectFilter()
     $cProjectFilter = New Collection
 
     For Each sFile In Project.CompressedFiles
+      AddPathToFilter(Project.Dir &/ sFile)
+    Next
+
+  Else If ProjectFilter = FILTER_DO_NOT_TRANSLATE Then
+
+    $cProjectFilter = New Collection
+
+    For Each sFile In Project.DoNotTranslate
       AddPathToFilter(Project.Dir &/ sFile)
     Next
 
@@ -6802,6 +6811,13 @@ Private Sub RenamePaths(sOld As String, sNew As String)
   For I = 0 To DoNotTranslate.Max
     sPath = ApplyRename(sOld, sNew, DoNotTranslate[I])
     If sPath Then DoNotTranslate[I] = sPath
+  Next
+  
+  ' Rename CompressedFiles
+  
+  For I = 0 To CompressedFiles.Max
+    sPath = ApplyRename(sOld, sNew, CompressedFiles[I])
+    If sPath Then CompressedFiles[I] = sPath
   Next
   
   ' Rename sources

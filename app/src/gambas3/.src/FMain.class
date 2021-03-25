@@ -2291,6 +2291,8 @@ Public Sub DoFilter(sFilter As String)
       sText = mnuFilterModified.Text
     Case Project.FILTER_COMPRESSED
       sText = mnuFilterCompressed.Text
+    Case Project.FILTER_DO_NOT_TRANSLATE
+      sText = mnuFilterDoNotTranslate.Text
   End Select
   
   txtSearchProject.Font.Italic = True
@@ -3162,5 +3164,11 @@ End
 Public Sub mnuHelpShortcuts_Click()
 
   FHelpShortcut.Load
+
+End
+
+Public Sub mnuFilterDoNotTranslate_Click()
+
+  DoFilter(Project.FILTER_DO_NOT_TRANSLATE)
 
 End
