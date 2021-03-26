@@ -1,14 +1,20 @@
 .TH "gbs3" "1" "March 2021" "Ubuntu" "User Commands"
 
 .SH "NAME"
-gbs3 \- GAMBAS Scripter
+.B gbs3 \- GAMBAS Scripter.
 
 .SH "SYNOPSIS"
 .B gbs3
-[options] [--] [<script file> | -]
+[options] [--] [<script file> | project directory | -]
 .br
 .B gbs3
 --convert-project <source project directory> <destination script directory>
+.br
+.B gbs3
+--convert-script <script file> [<Destination where project directory is created>]
+.br
+.B gbs3
+[-p | --plugin] <script file> [<Destination directory where plugin is created>] 
 
 .SH "DESCRIPTION"
 Gambas is a free development environment based on a Basic interpreter with object extensions,
@@ -23,7 +29,7 @@ pilot KDE applications with DCOP, translate your program into many languages, an
 is the interpreter that allows you to compile and execute a Gambas script.
 .br
 .B gbs3
-may also be used to convert a gambas project to a script
+may also be used to convert a gambas project to a script or a script back to a project.
 
 .SH "OPTIONS"
 .TP
@@ -32,6 +38,12 @@ process and compile the script without executing it
 .TP
 \fB\-c, --nocache\fR
 force the script compilation (do not check cache)
+.TP
+\fB\--convert-project\fR
+convert a simple project to a script
+.TP
+\fB\--convert-script\fR
+convert a script file to a gambas project
 .TP
 \fB\-e\fR
 execute the source code provided by the command line ( ':' separator )
@@ -47,6 +59,9 @@ display help and exit
 .TP
 \fB\-L, --license\fR
 display license
+.TP
+\fB\-p, --plugin\fR
+generate a plugin executable that can be loaded by other scripts
 .TP
 \fB\-S --strict\fR
 fail if 'Public' or 'Sub' are defined without a 'main' function otherwise create main()
@@ -71,17 +86,46 @@ display warnings during compilation
 .TP
 \fB\--convert-project\fR
 convert a simple project to a script
+.TP
+\fb\--convert-script\fR
+convert a script file to a gambas project
 
 .SH "PROJECT CONVERSION"
 .B gbs3
-can convert a gambas project to an executable script file using the --convert-project option.
-.br
-The input project directory is used to createthe script which is written to the output script directory.
-.br
+can convert a gambas project into an executable script file using the --convert-project option.
+The input project directory is used to create the script which is written to the output script directory.
 The script is created and named the same as the orginating project.
-
+.br
 .B gbs3
 MyProjectDirectory DestinationScriptDirectory
+
+
+.SH "SCRIPT CONVERSION"
+.B gbs3
+can convert a script file to a full gambas project using the --convert-script option.
+.br
+the input script is translated into a project by the same basename as the script and
+is created in the specified directory. In the case where no output directory is specified
+the environment variable PWD is used as the location to create the gambas project.
+.br
+.B gbs3
+MyScript.gbs ~/Projects
+.br
+This created the project 'MyScript' directory in the users 'Projects' directory.
+
+.SH "PLUGINS"
+.B gbs3
+can create plugins that can be used by other scripts after being built using the --plugin or -p option.
+Pluins are created in a user-selected directory and are also executed and cached in this directory. 
+Unlike normal scripts executables are created in the temp directory and are executed from there. 
+This allows scripts to persist after scripter exits.
+.br 
+If no ouput destination is specified then the plugin is created in the ~/.local/lib/gambas directory.
+and may be loaded from there using the component.load() function.
+.br
+B gbs3
+MyPluginScript [Plugin Destination Directory]
+
 
 .SH "EXAMPLE"
 
