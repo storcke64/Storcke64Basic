@@ -4791,6 +4791,10 @@ Public Sub MakeSourcePackageFromTo(sFrom As String, sPath As String, Optional bF
         sCmd &= " --exclude=" & Shell$(sIgnore)
       Next
       sCmd &= " " & Shell$(File.Name(sFrom))
+      
+    Case Else
+      
+      Goto UNSUPPORTED
     
   End Select
 
