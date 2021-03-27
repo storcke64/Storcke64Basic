@@ -5,7 +5,7 @@
 
 .SH "SYNOPSIS"
 .B gbs3
-[options] [--] [<script file> | project directory | -]
+[options] [--] [<script file> | <project directory> | -]
 .br
 .B gbs3
 --convert-project <source project directory> <destination script directory>
@@ -29,7 +29,7 @@ pilot KDE applications with DCOP, translate your program into many languages, an
 is the interpreter that allows you to compile and execute a Gambas script.
 .br
 .B gbs3
-may also be used to convert a gambas project to a script or a script back to a project.
+may also be used to convert a Gambas project to a script or a script back to a project.
 
 .SH "OPTIONS"
 .TP
@@ -40,10 +40,10 @@ process and compile the script without executing it
 force the script compilation (do not check cache)
 .TP
 \fB\--convert-project\fR
-convert a simple project to a script
+convert a Gambas project into an executable Gambas script file
 .TP
 \fB\--convert-script\fR
-convert a script file to a gambas project
+convert a Gambas script file into a Gambas project
 .TP
 \fB\-e\fR
 execute the source code provided by the command line ( ':' separator )
@@ -83,18 +83,12 @@ display version
 .TP
 \fB\-w, --warnings\fR
 display warnings during compilation
-.TP
-\fB\--convert-project\fR
-convert a simple project to a script
-.TP
-\fb\--convert-script\fR
-convert a script file to a gambas project
 
 .SH "PROJECT CONVERSION"
 .B gbs3
-can convert a gambas project into an executable script file using the --convert-project option.
+can convert a Gambas project into an executable script file using the --convert-project option.
 The input project directory is used to create the script which is written to the output script directory.
-The script is created and named the same as the orginating project.
+The script is created and named the same as the originating project.
 .br
 .B gbs3
 MyProjectDirectory DestinationScriptDirectory
@@ -102,11 +96,11 @@ MyProjectDirectory DestinationScriptDirectory
 
 .SH "SCRIPT CONVERSION"
 .B gbs3
-can convert a script file to a full gambas project using the --convert-script option.
+can convert a script file to a full Gambas project using the --convert-script option.
 .br
-the input script is translated into a project by the same basename as the script and
-is created in the specified directory. In the case where no output directory is specified
-the environment variable PWD is used as the location to create the gambas project.
+The input script is translated into a project by the same basename as the script and
+is created in the specified directory. In the case in which no output directory is specified,
+the environment variable PWD is used as the location to create the Gambas project.
 .br
 .B gbs3
 MyScript.gbs ~/Projects
@@ -115,20 +109,18 @@ This created the project 'MyScript' directory in the users 'Projects' directory.
 
 .SH "PLUGINS"
 .B gbs3
-can create plugins that can be used by other scripts after being built using the --plugin or -p option.
-Pluins are created in a user-selected directory and are also executed and cached in this directory. 
-Unlike normal scripts executables are created in the temp directory and are executed from there. 
-This allows scripts to persist after scripter exits.
+can create plugins that can be used by other scripts or Gambas applications after being built using the --plugin or -p option.
+Plugins are created in a user-selected directory and are also executed and cached in this directory, 
+unlike a normal script, in which executables are created in the temp directory and are executed from there. 
+This allows plugins to persist after the scripter exits.
 .br 
-If no ouput destination is specified then the plugin is created in the ~/.local/lib/gambas directory.
+If no output destination is specified, then the plugin is created in the ~/.local/lib/gambas directory.
 and may be loaded from there using the component.load() function.
 .br
-B gbs3
+.B gbs3
 MyPluginScript [Plugin Destination Directory]
 
-
 .SH "EXAMPLE"
-
 #!/usr/bin/env gbs3
 .br
 for i as integer = 0 to 10
@@ -139,7 +131,11 @@ next
 
 .SH "AVAILABILITY"
 The latest version of Gambas can always be obtained from
-\fBgambas.sourceforge.net\fR, documentation about the language is at
+.br
+\fBgambas.sourceforge.net\fR,
+.br 
+documentation about the language is at
+.br
 \fBhttp://gambaswiki.org/wiki\fR.
 
 .SH "REPORTING BUGS"
