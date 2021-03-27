@@ -1,16 +1,27 @@
 ' Gambas class file
 
-Inherits UserControl
+''' This virtual class represents a [../toolpanel] tab.
 
 Export
+Inherits UserControl
 
-Event Change
+Event _Change
 
+'' Return or set the tab title.
 Property Text As String
+
+'' Return or set if the font of the tab title.
+''
+'' If this property is 'NULL' (the default), then the font of the ToolPanel control is used.
 Property TextFont As Font
+
+'' Return or set the tab icon.
 Property Picture As Picture
-'PROPERTY Enabled AS Boolean
+
+'' Return or set if the tab is visible.
 Property Visible As Boolean
+
+'' Return the actual internal container of the tab.
 Property Read Container As Container
 
 Private frmContainer As FToolBar
@@ -24,7 +35,7 @@ Public Sub _new()
 End
 
 
-Public Function GetButtonHeight() As Integer
+Public Function _GetButtonHeight() As Integer
 
   Return frmContainer.GetButtonHeight()
 
@@ -57,7 +68,7 @@ End
 
 Public Sub _Change()
 
-  Raise Change
+  Raise _Change
 
 End
 

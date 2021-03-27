@@ -17,7 +17,12 @@ Event Icon(Path As String)
 
 Property {Dir} As String
 Property Current As String
+
+'' Return the current selected path.
+''
+'' It's an equivalent of '[../dir] &/ [../current]'.
 Property Read Path As String
+
 Property ShowHidden As Boolean
 Property ShowDirectory As Boolean
 Property Mode As Integer

@@ -21,7 +21,10 @@ Property ShowDetailed As Boolean
 Property ShowBookmark As Boolean
 Property ShowFile As Boolean
 Property ShowPreview As Boolean
+
+'' Return or set if the toolbar is visible.
 Property ShowToolbar As Boolean
+
 Property Bookmarks As Collection[]
 Property Settings As Variant[]
 Property Read DirView As DirView
@@ -30,18 +33,26 @@ Property ShowButton As Boolean
 Property Read Extension As Container
 Property Border As Boolean
 Property Margin As Boolean
+
+'' Return or set if the extension of the file is automatically set from the current filter.
 Property AutoExt As Boolean
 
 Property ReadOnly As Boolean
 Property Filter As String[]
 Property FilterIndex As Integer
 Property Icon As Picture
+
+'' Return or set a list of file filters that identify files that can be uncompressed in response of the [../.uncompress] event.
 Property UncompressFilter As String[]
 
 Event Change
 Event Activate
 Event Icon(Path As String)
 Event Cancel
+
+'' Raise when a specific compressed file must be uncompressed.
+''
+'' - ~Path~ is the path of the compressed file.
 Event Uncompress(Path As String)
 
 'EVENT ShowHidden

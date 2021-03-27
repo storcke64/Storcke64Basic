@@ -136,14 +136,14 @@ Private Sub MoveToolbar(Optional bAnim As Boolean)
     hToolBar._Container.Visible = True
     
     If iInd = $iCurrent Then
-      BH = $aToolBar[0].GetButtonHeight()
+      BH = $aToolBar[0]._GetButtonHeight()
       YY = $hPanel.ClientY + Max($hPanel.ClientH, BH * $aToolBar.Count + BH + Desktop.Scale * 8)
       For iRest = iInd + 1 To $aToolBar.Max
         If Not $aToolBar[iRest].Visible Then Continue
         YY -= BH
       Next
     Else
-      YY = Y + hToolbar.GetButtonHeight()
+      YY = Y + hToolbar._GetButtonHeight()
     Endif
 
     If bAnim Then
@@ -228,7 +228,7 @@ Private Sub Picture_Write(hPict As Picture)
 
 End
 
-Public Sub ToolPanelContainer_Change()
+Public Sub ToolPanelContainer__Change()
 
   Index_Write(Last.Tag)
   Raise Click

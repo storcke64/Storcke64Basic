@@ -214,11 +214,7 @@ Private Sub FillFamily()
       With tvwFamily[sParentFont]
         If cFont[sParentFont] >= 1000 Then
           .H = H
-          If Not $bShowFont Then 
-            .Text = sParentFont
-          Else 
-            .Tag = sParentFont
-          Endif
+          .Tag = sParentFont
         Else
           .Foreground = Color.Merge(Color.LightForeground, Color.TextForeground)
           .Background = Color.Merge(Color.LightForeground, Color.TextBackground, 0.8)
@@ -234,11 +230,7 @@ Private Sub FillFamily()
     
     With tvwFamily.Add(sFont, "",, sParentFont)
       .H = H
-      If Not $bShowFont Then
-        .Text = sFont
-      Else 
-        .Tag = sFont
-      Endif
+      .Tag = sFont
     End With
     cParent[sFont] = True
     
@@ -252,28 +244,28 @@ Private Sub FillFamily()
 
 End
 
-Private Sub UpdateShowFont()
-  
-  Dim sKey As String
-  
-  For Each sKey In tvwFamily.Keys
-    
-    With tvwFamily[sKey]
-      If .Children = 0 Then 
-        If sKey Begins "." Then sKey = Mid$(sKey, 2)
-        If $bShowFont Then
-          .Font = Font[sKey & ",+4"]
-        Else
-          .Font = Null
-        Endif
-        '.Text = "\n" & .Text & "\n"
-      Endif
-    End With
-    
-  Next
-  
-End
-
+' Private Sub UpdateShowFont()
+'   
+'   Dim sKey As String
+'   
+'   For Each sKey In tvwFamily.Keys
+'     
+'     With tvwFamily[sKey]
+'       If .Children = 0 Then 
+'         If sKey Begins "." Then sKey = Mid$(sKey, 2)
+'         If $bShowFont Then
+'           .Font = Font[sKey & ",+4"]
+'         Else
+'           .Font = Null
+'         Endif
+'         '.Text = "\n" & .Text & "\n"
+'       Endif
+'     End With
+'     
+'   Next
+'   
+' End
+' 
 Public Sub RefreshFamily(Optional bForce As Boolean)
   
   Dim hFont As Font
@@ -596,6 +588,13 @@ Public Sub btnStrikeout_Click()
   
 End
 
+Private Sub UpdateRefreshButton()
+  
+  btnRefresh.Visible = $bShowFont And Not spnCache.Visible 
+  
+End
+
+
 Private Sub StartCacheTask()
 
   If Me.Design Then Return
@@ -607,8 +606,8 @@ Private Sub StartCacheTask()
   spnCache.Value = 0
   spnCache.Show
   spnCache.Start
-  btnRefresh.Hide
-      
+  UpdateRefreshButton
+  
 End
 
 Private Sub StopCacheTask()
@@ -697,7 +696,9 @@ Public Sub SetShowFont(bShow As Boolean)
   
   If $bShowFont = bShow Then Return
   $bShowFont = bShow
-  UpdateShowFont
+  UpdateRefreshButton
+  tvwFamily.Refresh
+  btnPreview.Value = $bShowFont
   
 End
 
@@ -770,11 +771,19 @@ Public Sub tvwFamily_Draw(X As Integer, Y As Integer, (Width) As Integer, Height
   Dim sPath As String
   Dim hItem As _TreeView_Item
   Dim sFontKey As String
+  Dim D As Integer
   
-  If Not $bShowFont Then Return
   hItem = tvwFamily[Key]
   sFont = hItem.Tag
   If Not sFont Then Return
+
+  D = (1 + hItem.Depth) * tvwFamily.Indent
+  
+  If Not $bShowFont Then
+    Paint.Font.Grade = 2
+    Paint.DrawText(sFont, X + D, Y, Width - D, Height, Align.Normal)
+    Return
+  Endif
   
   sFontKey = FontCacheTask.Normalize(sFont)
   
@@ -792,9 +801,9 @@ Public Sub tvwFamily_Draw(X As Integer, Y As Integer, (Width) As Integer, Height
     
   Endif
   
-  Paint.DrawImage(hImage, X + (1 + hItem.Depth) * tvwFamily.Indent, Y + (Height - hImage.H) \ 2)
+  Paint.DrawImage(hImage, X + D, Y + (Height - hImage.H) \ 2)
   
-  tvwFamily.MoveTo(Key)
+  'tvwFamily.MoveTo(Key)
   ' If hItem.Depth = 0 Or If tvwFamily.MoveNext() Then Paint.FillRect(0, Y + Height + Desktop.Scale \ 2 - 1, Width + Desktop.Scale, 1, Color.Merge(Color.LightForeground, Color.TextBackground, 0.8))
   
 End
@@ -822,7 +831,7 @@ Public Sub FontCacheTask_Kill()
   
   spnCache.Stop
   spnCache.Hide
-  btnRefresh.Show
+  UpdateRefreshButton
   
 End
 
@@ -880,4 +889,10 @@ Public Sub txtSize_Enter()
   txtSize.SetFocus
   txtSize.SelectAll
 
+End
+
+Public Sub btnPreview_Click()
+
+  SetShowFont(btnPreview.Value)
+  
 End

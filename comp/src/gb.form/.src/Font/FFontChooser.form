@@ -35,6 +35,13 @@
         ToolTip = ("Refresh cache")
         Picture = Picture["icon:/small/refresh"]
       }
+      { btnPreview ToolButton
+        MoveScaled(65,0,4,4)
+        ToolTip = ("Show font preview")
+        Picture = Picture["icon:/small/preview"]
+        Toggle = True
+        Value = True
+      }
     }
     { sepFilter Separator
       MoveScaled(17,14,35,0)

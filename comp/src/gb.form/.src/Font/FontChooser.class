@@ -18,7 +18,10 @@ Property ShowStyle As Boolean
 Property ShowPreview As Boolean
 Property ShowLabel As Boolean '' Deprecated
 Property ShowRelative As Boolean
+
+'' Return or set if font preview is displayed
 Property ShowFont As Boolean
+
 Property Border As Boolean
 
 Private frmChooser As FFontChooser

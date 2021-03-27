@@ -29,7 +29,7 @@ Property Read DirView As DirView
 Property Read FileView As FileView
 Property Border As Boolean
 
-'' Return or set a list of file filters that identify compressed files that will be uncompress in response of the [../.uncompress] event.
+'' Return or set a list of file filters that identify files that can be uncompressed in response of the [../.uncompress] event.
 Property UncompressFilter As String[]
 
 Event Change
@@ -39,9 +39,7 @@ Event Icon(Path As String)
 '' Raise when a specific compressed file must be uncompressed.
 ''
 '' - ~Path~ is the path of the compressed file.
-
 Event Uncompress(Path As String)
-'EVENT ShowHidden
 
 Private frmChooser As FDirChooser
 
