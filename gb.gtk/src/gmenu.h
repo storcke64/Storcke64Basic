@@ -121,7 +121,8 @@ public:
 	unsigned _disabled : 1;
 	unsigned _mapping : 1;
 	unsigned _proxy_for : 1;
-	unsigned _ignore_signal : 1;
+	unsigned _ignore_destroy : 1;
+	unsigned _ignore_activate : 1;
 
 	void initialize();
 	gMenuStyle style() const { return _style; }
@@ -140,7 +141,8 @@ public:
 	void remove(gMenu *child);
 	void removeParent();
 	
-	bool ignoreSignal();
+	bool ignoreDestroy();
+	bool ignoreActivate();
 	
 	static void cleanRemovedMenus();
 

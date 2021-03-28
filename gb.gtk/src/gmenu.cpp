@@ -96,7 +96,7 @@ static void patch_classes(void)
 
 static void cb_destroy(GtkWidget *object, gMenu *data)
 {
-	if (data->ignoreSignal()) 
+	if (data->ignoreDestroy()) 
 		return;
 	
 	delete data;
@@ -104,7 +104,7 @@ static void cb_destroy(GtkWidget *object, gMenu *data)
 
 static void cb_activate(GtkMenuItem *menuitem, gMenu *data)
 {
-	if (data->ignoreSignal()) 
+	if (data->ignoreActivate()) 
 		return;
 	
 	if (data->_popup)
@@ -116,7 +116,7 @@ static void cb_activate(GtkMenuItem *menuitem, gMenu *data)
 		data->updateChecked();
 	else if (data->checked())
 	{
-		data->_ignore_signal = true;
+		data->_ignore_activate = true;
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), true);
 	}
 	
@@ -236,7 +236,7 @@ void gMenu::update()
 			pos = get_menu_pos(GTK_WIDGET(menu));
 			//shell = (GtkMenuShell*)GTK_WIDGET(menu)->parent;
 			if (_style != NOTHING)
-				_ignore_signal = true;
+				_ignore_destroy = true;
 			gtk_widget_hide(GTK_WIDGET(menu));
 			gtk_widget_destroy(GTK_WIDGET(menu));
 			_shortcut_key = 0;
@@ -489,7 +489,8 @@ void gMenu::initialize()
 	_style = NOTHING;
 	_oldstyle = NOTHING;
 	
-	_ignore_signal = false;
+	_ignore_destroy = false;
+	_ignore_activate = false;
 	_no_update = false;
 	_destroyed = false;
 	_delete_later = false;
@@ -782,7 +783,7 @@ void gMenu::setChecked(bool vl)
 	_checked = vl;
 	if (_toggle || _radio)
 	{
-		_ignore_signal = true;
+		_ignore_activate = true;
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), vl);
 	}
 	else
@@ -1332,11 +1333,22 @@ void gMenu::updateChecked()
 		_checked = false;
 }
 
-bool gMenu::ignoreSignal()
+bool gMenu::ignoreDestroy()
 {
-	if (_ignore_signal)
+	if (_ignore_destroy)
 	{
-		_ignore_signal = false;
+		_ignore_destroy = false;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool gMenu::ignoreActivate()
+{
+	if (_ignore_activate)
+	{
+		_ignore_activate = false;
 		return true;
 	}
 	else
