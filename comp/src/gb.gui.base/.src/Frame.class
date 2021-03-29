@@ -35,10 +35,12 @@ Private $iAlign As Integer = Align.Center
 Public Sub _new()
 
   $hFrame = New DrawingArea(Me) As "Frame"
-  $hFrame.Margin = True
+  '$hFrame.Margin = True
   
   $hContainer = New Panel($hFrame)
   Me._Container = $hContainer
+  
+  'Me.Proxy = $hFrame
   
 End
 
@@ -101,7 +103,7 @@ Public Sub Frame_Draw()
       hRect = Paint.TextExtents(sText)
     Endif
 
-    If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, H \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - (DS + H) \ 2 - 4, Me.Background)
+    'If Me.Background <> Color.Default Then Paint.FillRect(DS \ 2 + 2, H \ 2 + 2, $hFrame.W - DS - 4, $hFrame.H - (DS + H) \ 2 - 4, Me.Background)
     
     If Align.IsBottom($iAlign) Then
 
@@ -120,40 +122,46 @@ Public Sub Frame_Draw()
   
         Paint.DrawRect(0, H \ 2, $hFrame.W, $hFrame.H - H \ 2, Color.LightForeground)
 
-      Else If Align.IsLeft($iAlign) Then
+      Else
   
-        Paint.MoveTo(DS, H \ 2)
-        Paint.LineTo(0, H \ 2)
-        Paint.LineTo(0, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, H \ 2)
-        Paint.LineTo(hRect.W + DS * 3, H \ 2)
-
-      Else If Align.IsRight($iAlign) Then
+        Paint.Translate(0.5, 0.5)
+        
+        If Align.IsLeft($iAlign) Then
+          
+          Paint.MoveTo(DS, H \ 2)
+          Paint.LineTo(0, H \ 2)
+          Paint.LineTo(0, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, H \ 2)
+          Paint.LineTo(hRect.W + DS * 3, H \ 2)
   
-        Paint.MoveTo($hFrame.W - hRect.W - DS * 3, H \ 2)
-        Paint.LineTo(0, H \ 2)
-        Paint.LineTo(0, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, H \ 2)
-        Paint.LineTo($hFrame.W - DS, H \ 2)
-
-      Else ' center
+        Else If Align.IsRight($iAlign) Then
+    
+          Paint.MoveTo($hFrame.W - hRect.W - DS * 3, H \ 2)
+          Paint.LineTo(0, H \ 2)
+          Paint.LineTo(0, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, H \ 2)
+          Paint.LineTo($hFrame.W - DS, H \ 2)
   
-        Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
-        Paint.LineTo(0, H \ 2)
-        Paint.LineTo(0, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
-        Paint.LineTo($hFrame.W - 1, H \ 2)
-        Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
+        Else ' center
+    
+          Paint.MoveTo(CInt($hFrame.W - hRect.W) \ 2 - DS, H \ 2)
+          Paint.LineTo(0, H \ 2)
+          Paint.LineTo(0, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, $hFrame.H - 1)
+          Paint.LineTo($hFrame.W - 1, H \ 2)
+          Paint.LineTo(CInt($hFrame.W - hRect.W) \ 2 + hRect.W + DS, H \ 2)
+          
+        Endif
+        
+        Paint.LineWidth = 1
+        Paint.Stroke()
+      
+        Paint.Translate(-0.5, -0.5)
         
       Endif
-        
-      Paint.LineWidth = 1
-      Paint.AntiAlias = False
-      Paint.Stroke()
-      Paint.AntiAlias = True
-      
+          
     Endif
       
     If sText Then
