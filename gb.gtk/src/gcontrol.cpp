@@ -704,21 +704,13 @@ bool gControl::resize(int w, int h, bool no_decide)
 	
 	if (pr && !no_decide)
 	{
-		if (!_minimum_size_set)
-		{
-			setMinimumSize();
-			_minimum_size_set = true;
-		}
-		else
-		{
-			pr->decide(this, &decide_w, &decide_h);
+		pr->decide(this, &decide_w, &decide_h);
 
-			if (w < 0 || decide_w)
-				w = width();
+		if (w < 0 || decide_w)
+			w = width();
 
-			if (h < 0 || decide_h)
-				h = height();
-		}
+		if (h < 0 || decide_h)
+			h = height();
 	}
 
 	if (w < 0) w = 0;
@@ -1895,7 +1887,8 @@ void gControl::realize(bool draw_frame)
 
 	connectParent();
 	
-	resize(8, 8, true);
+	setMinimumSize();
+	resize(_min_w, _min_h, true);
 	initSignals();
 
 	if (!_no_background && !gtk_widget_get_has_window(border))

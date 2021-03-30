@@ -663,7 +663,7 @@ void MAIN_do_iteration(bool do_not_block)
 	if (do_not_block)
 	{
 		if (gtk_events_pending())
-			gtk_main_iteration_do(false);
+			gtk_main_iteration();
 	}
 	else
 		gtk_main_iteration_do(true);
