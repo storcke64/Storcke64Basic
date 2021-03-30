@@ -168,6 +168,8 @@ Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As
       Try Close #hProcess
       hProcess.Kill
       Process_Error(("Command timeout.") & "\n" & ("Please check your network connection.") & "\n")
+      $bCancel = True
+      Break
     Endif
     
     Sleep 0.1

@@ -856,6 +856,7 @@ Public Sub GetDefaultValueString(sProp As String) As String
   Dim hProp As CPropertyInfo
   Try hProp = Project.Documentation.Classes[Kind].Properties[sProp]
   If IsNull(hProp) Then Return
+  If hProp.Type = "Color" Then Return
   Return ConvertToString(hProp.DefaultValue, hProp)
   
 End
