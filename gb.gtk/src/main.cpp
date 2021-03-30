@@ -585,7 +585,13 @@ static void hook_wait(int duration)
 		return;
 	}
 
-	MAIN_do_iteration(duration >= 0);
+	if (duration == 0)
+	{
+		while (gtk_events_pending())
+			MAIN_do_iteration(false);
+	}
+	else
+		MAIN_do_iteration(duration > 0);
 }
 
 static void hook_watch(int fd, int type, void *callback, intptr_t param)
