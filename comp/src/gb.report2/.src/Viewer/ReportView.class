@@ -236,7 +236,7 @@ Private Sub ScaleMode_Write(Value As Integer)
 
   $iScaleMode = Value
 
-  $hView.AutoCenter = False
+  $hView.Center = False
 
   Select Case Value
     Case Me.Custom
@@ -245,11 +245,11 @@ Private Sub ScaleMode_Write(Value As Integer)
     Case Me.Page
       $hView.Column = 0
       $hView.Arrangement = Arrange.Fill
-      $hView.AutoCenter = True
+      $hView.Center = True
     Case Me.DualPage
       $hView.Column = 2
       $hView.Arrangement = Arrange.Row
-      $hView.AutoCenter = True
+      $hView.Center = True
     Case Me.FullWidth
       $hView.Column = 0
       $hView.Arrangement = Arrange.Vertical
