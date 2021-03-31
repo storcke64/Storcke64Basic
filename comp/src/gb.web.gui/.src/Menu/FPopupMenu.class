@@ -29,7 +29,7 @@ Public Sub panMenu_Render()
     If hMenu.Text Then
     
       Print "<div class=\"gw-menuitem\"";
-      If hMenu.Enabled And If Not hMenu.HasChildren() Then Print Me._GetUpdateJS("onmouseup", "#click", JS(hMenu.Name));
+      If hMenu.Enabled And If Not hMenu.HasChildren() Then Print Me._GetUpdateWaitJS("onmouseup", "#click", JS(hMenu.Name));
       Print ">";
       If hMenu.Image Then
         Print "<img class=\"gw-menuitem-icon\" src=\""; hMenu._GetImageLink(hMenu.Image); "\">";
