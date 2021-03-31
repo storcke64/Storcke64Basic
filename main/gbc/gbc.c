@@ -24,7 +24,6 @@
 #define __GBC_C
 
 #include "config.h"
-#include "trunk_version.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -122,11 +121,7 @@ static void get_arguments(int argc, char **argv)
 		{
 			case 'V':
 				#ifdef TRUNK_VERSION
-				#ifdef TRUNK_VERSION_GIT
 				printf(VERSION " " TRUNK_VERSION "\n");
-				#else /* from svn */
-				printf(VERSION " r" TRUNK_VERSION "\n");
-				#endif
 				#else /* no TRUNK_VERSION */
 				printf(VERSION "\n");
 				#endif

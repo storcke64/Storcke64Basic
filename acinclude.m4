@@ -93,6 +93,46 @@ AC_DEFUN([GB_INIT_AUTOMAKE],
 ])
 
 ## ---------------------------------------------------------------------------
+## GB_TRUNK_VERSION
+## detect version and branch (svn and git supported)
+## ---------------------------------------------------------------------------
+
+AC_DEFUN([GB_TRUNK_VERSION],
+[
+  gb_detect_git=`which git 2> /dev/null`
+  gb_vcs_hash=""
+  gb_vcs_branch=""
+  gb_vcs_version=""
+
+  AC_MSG_CHECKING(for vcs revision)
+
+  if test "x${gb_detect_git}" != "x"; then
+    gb_vcs_branch=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    gb_vcs_hash=`git rev-parse --short HEAD 2> /dev/null`
+  else
+    gb_detect_svn=`which svn 2> /dev/null`
+      if test "x${gb_detect_svn}" != "x"; then
+        gb_vcs_hash=`svn info --show-item last-changed-revision 2> /dev/null`
+      fi
+  fi
+
+  if test "x${gb_vcs_branch}" != "x"; then
+    gb_vcs_version="${gb_vcs_hash} (${gb_vcs_branch})"
+  else
+    if test "x${gb_vcs_hash}" != "x"; then
+      gb_vcs_version="r${gb_vcs_hash}"
+    fi
+  fi
+
+  if test "x${gb_vcs_version}" != "x"; then
+    AC_DEFINE_UNQUOTED(TRUNK_VERSION, "${gb_vcs_version}", [vcs revision])
+    AC_MSG_RESULT([$gb_vcs_version])
+  else
+    AC_MSG_RESULT(not found)
+  fi
+])
+
+## ---------------------------------------------------------------------------
 ## GB_CONFIG_SUBDIRS
 ## configuration of a component sub-directory, with a flag for disabling it
 ## ---------------------------------------------------------------------------
