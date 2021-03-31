@@ -115,7 +115,7 @@ Public Sub Area_MouseWheel()
 
   If Not $hView.Arrangement = Arrange.Row Then
     $hView.Arrangement = Arrange.Row
-    $hView.Column = 0
+    $hView.Columns = 0
   Endif
 
 End
@@ -240,21 +240,21 @@ Private Sub ScaleMode_Write(Value As Integer)
 
   Select Case Value
     Case Me.Custom
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Row
     Case Me.Page
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Fill
       $hView.Center = True
     Case Me.DualPage
-      $hView.Column = 2
+      $hView.Columns = 2
       $hView.Arrangement = Arrange.Row
       $hView.Center = True
     Case Me.FullWidth
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Vertical
     Case Me.RealSize
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Row
       $hView.Zoom = 1
   End Select
