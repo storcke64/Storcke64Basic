@@ -125,7 +125,7 @@ Public Sub Area_Draw()
   Dim sText As String
   Dim iTextWidth As Integer
 
-  sText = Str($hView.FirstVisibleDocument + 1) & "/" & Str($hView.Count)
+  sText = Str($hView.FirstVisiblePage + 1) & "/" & Str($hView.Count)
   iTextWidth = Paint.TextSize(sText).Width + 10
   Paint.Rectangle(Paint.Width - iTextWidth - 10, 10, iTextWidth, 25, 5)
   Paint.Brush = Paint.Color(Color.SetAlpha(Color.black, 125))
