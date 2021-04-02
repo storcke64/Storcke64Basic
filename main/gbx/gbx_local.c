@@ -1738,6 +1738,20 @@ static bool add_date_time_token(DATE_SERIAL *date, char token, int count)
 }
 
 
+static uint find_first_separator(uint psep[4])
+{
+	int i;
+	
+	for (i = 1; i <= 3; i++)
+	{
+		if (psep[i])
+			return psep[i];
+	}
+	
+	return 0;
+}
+
+
 static void add_date_separator(char token)
 {
 	uchar index;
@@ -1752,6 +1766,8 @@ static void add_date_separator(char token)
 	}
 			
 	sep = local_current->date_sep[index];
+	if (!sep && !local_current->date_many_sep)
+		sep = find_first_separator(local_current->date_sep);
 	if (sep) add_unicode(sep);
 }
 
@@ -1770,6 +1786,8 @@ static void add_time_separator(char token)
 	}
 			
 	sep = local_current->time_sep[index];
+	if (!sep && !local_current->time_many_sep)
+		sep = find_first_separator(local_current->time_sep);
 	if (sep) add_unicode(sep);
 }
 
