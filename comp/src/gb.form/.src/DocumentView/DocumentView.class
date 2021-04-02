@@ -146,6 +146,7 @@ Event Finished
 Event Zoom
 
 Private $bDesaturate As Boolean
+Private $bLayouting As Boolean
 
 '' Create a new DocumentView
 Public Sub _new()
@@ -371,6 +372,9 @@ Private Sub DoLayout()
   'If $hView.H <> Me.H Or If $hView.W <> Me.W Then Return
   $fCenter = 0
   
+  If $bLayouting Then Return
+  $bLayouting = True
+  
   'TODO: go
   '$tmrLoad.Stop
   'Found the maxPage Size
@@ -537,6 +541,8 @@ Private Sub DoLayout()
   $aImageToLoad = $aImageToLoad.Reverse()
   'If $aImageToLoad.Count > 0 Then 
   $tmrLoad.Trigger
+  
+  $bLayouting = False
   
 End
 
