@@ -157,6 +157,7 @@ Private Sub _PrintPage()
   Dim hStat As Stat
   Dim hStatDef As Stat
   Dim hClass As CClassInfo
+  Dim sDefaultHelp As String
 
   If Main.Edit Then
     sPath = Main.GetPagePath()  
@@ -229,6 +230,8 @@ Private Sub _PrintPage()
       
     Endif
     
+  TRY_AGAIN:
+    
     If Not Main.ExistPage(sPath) Then
       
       If Main.Symbol Or If Main.Class Then
@@ -240,7 +243,13 @@ Private Sub _PrintPage()
         ' We use an automatic page
         Main.Lang = Main.DEFAULT_LANG
         If Main.Symbol Then
-          sData = "@{syntax}\n" & Main.GetDefaultHelp()
+          sDefaultHelp = Main.GetDefaultHelp()
+          If sDefaultHelp Begins "-->" Then
+            sPath = Main.MakeAbsolute(Trim(Mid$(sDefaultHelp, 4)), sPath)
+            Goto TRY_AGAIN
+          Else
+            sData = "@{syntax}\n" & sDefaultHelp
+          Endif
         Else If Main.Class Then
           sData = Main.GetDefaultHelp() & "\n@{symbols}\n" 
         Endif

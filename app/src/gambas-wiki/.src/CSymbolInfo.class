@@ -661,18 +661,33 @@ Public Sub GetDescription() As String
   Dim iPos As Integer
   Dim sData As String
   Dim sDesc As String
+  Dim aDefaultHelp As String[]
   
-  sPath = Main.GetPagePathFrom(Main.SolvePath("/comp" &/ LCase(Component &/ Class &/ Replace(Name, ":", "."))))
+  sPath = "/comp" &/ LCase(Component &/ Class &/ Replace(Name, ":", "."))
+  
+TRY_AGAIN:
+
+  aDefaultHelp = Null
+  aData = Null
+  sPath = Main.GetPagePathFrom(Main.SolvePath(sPath))
   If Exist(sPath) Then aData = Split(File.Load(sPath), "\n")
   
-  If Not aData Or If aData.Count = 0 Then aData = ["@{help}"]
+  If Not aData Or If aData.Count = 0 Then 
+    GoSub GET_DEFAULT_HELP
+    If aDefaultHelp.Count = 1 And If aDefaultHelp[0] Begins "-->" Then
+      sPath = Main.MakeAbsolute(Trim(Mid$(aDefaultHelp[0], 4)), sPath)
+      Goto TRY_AGAIN
+    Endif
+    aData = ["@{help}"]
+  Endif
   
   While iPos < aData.Count
     sData = aData[iPos]
     If Trim(sData) = "@{help}" Then 
       aData.Remove(iPos)
       'Return "« " & Main.GetDefaultHelp(Me.Component, Me.Class, Me.Name) & " »"
-      aData.Insert(Split(Main.GetDefaultHelp(Me.Component, Me.Class, Me.Name), "\n"), iPos)
+      GoSub GET_DEFAULT_HELP
+      aData.Insert(aDefaultHelp, iPos)
       Continue
     Endif
     If sData Then
@@ -688,6 +703,11 @@ Public Sub GetDescription() As String
   Wend
   
   Return sDesc
+  
+GET_DEFAULT_HELP:
+
+  If Not aDefaultHelp Then aDefaultHelp = Split(Main.GetDefaultHelp(Me.Component, Me.Class, Me.Name), "\n")
+  Return
   
 End
 
