@@ -269,46 +269,9 @@ static void get_arguments(int argc, char **argv)
 }
 
 
-static int lock_file(const char *name)
-{
-	const char *path;
-	int fd;
-	
-	path = FILE_cat(COMP_dir, name, NULL);
-	
-	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
-	if (fd < 0)
-		goto __ERROR;
-	if (lockf(fd, F_LOCK, 0) < 0)
-		goto __ERROR;
-	
-	return fd;
-		
-__ERROR:
-
-	ERROR_fail("unable to lock file: %s: %s", path, strerror(errno));
-}
-
-
-static void unlock_file(int fd)
-{
-	close(fd);
-}
-
-
-static void remove_lock(const char *name)
-{
-	const char *path;
-	
-	path = FILE_cat(COMP_dir, name, NULL);
-	if (FILE_exist(path))
-		FILE_unlink(path);
-}
-
-
 static void compile_file(const char *file)
 {
-	int i, fd;
+	int i, lock;
 	time_t time_src, time_form, time_pot, time_output;
 	char *source;
 
@@ -408,9 +371,9 @@ static void compile_file(const char *file)
 	JOB->step = JOB_STEP_OUTPUT;
 	OUTPUT_do(main_swap);
 	
-	fd = lock_file(".gbc.lock");
+	lock = COMPILE_lock_file(".gbc.lock");
 	CLASS_export();
-	unlock_file(fd);
+	COMPILE_unlock_file(lock);
 	
 	COMPILE_free();
 	
@@ -790,7 +753,8 @@ int main(int argc, char **argv)
 
 		wait_for_all_task();
 		
-		remove_lock(".gbc.lock");
+		COMPILE_remove_lock(".gbc.lock");
+		COMPILE_remove_lock(".gbc.stderr");
 
 		exit_files();
 		
