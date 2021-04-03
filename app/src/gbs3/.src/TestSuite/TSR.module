@@ -129,13 +129,16 @@ Public Sub CompareStringContent(sA As String[], sB As String[]) As Boolean
     bFinalResult = False
   Else
     For i As Integer = 0 To sA.max
-      Try bResult = sB.Exist(sA[i])
+      Try bResult = sB.Exist(sA[i], gb.IgnoreCase)
       If Error Then 
          bResult = False
          Error.Clear()
       Endif
     
-      If Not bResult Then bFinalResult = False
+      If Not bResult Then 
+         bFinalResult = False
+      Endif
+      
     Next 
   Endif
   
