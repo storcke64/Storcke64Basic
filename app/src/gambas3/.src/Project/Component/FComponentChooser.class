@@ -172,7 +172,8 @@ Public Sub btnBack_Click()
   If webAboutComponent.History.CanGoBack Then
     webAboutComponent.Back
   Else
-    webAboutComponent.Stop
+    'webAboutComponent.Stop
+    webAboutComponent.Clear
     wizComponent.MovePrevious
   Endif
   
