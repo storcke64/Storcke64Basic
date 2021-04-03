@@ -1,28 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4 --install
 SUBDIRS = gbc gbx . lib share man
 EXTRA_DIST = TODO reconf tools spec README mime gb.*.h
-BUILT_SOURCES = trunk_version.h
-CLEANFILES = trunk_version.h
-
-.PHONY: trunk_version.h
-trunk_version.h:
-	@if test -d ../.svn ; then \
-		if test ../.svn/wc.db -nt trunk_version.h || test ../.svn/entries -nt trunk_version.h; then \
-			echo '#define TRUNK_VERSION "'`LC_ALL=C svn info 2>/dev/null | grep Revision | egrep -wo [0-9]+`'"' > trunk_version.h; \
-		fi \
-	elif test -d ../.git ; then \
-		GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`; \
-		if test \! -e ../.git/refs/heads/$$GIT_BRANCH -o ../.git/refs/heads/$$GIT_BRANCH -nt trunk_version.h; then \
-			if GIT_TAG=$$(git describe --exact-match $$GIT_BRANCH 2>/dev/null) ; then \
-				GIT_BRANCH="$$GIT_TAG"; \
-			fi; \
-			GIT_HASH=`git rev-parse --short HEAD`; \
-			echo '#define TRUNK_VERSION "'$$GIT_HASH' ('$$GIT_BRANCH')"' > trunk_version.h; \
-			echo '#define TRUNK_VERSION_GIT 1' >> trunk_version.h; \
-		fi; \
-	else \
-		touch trunk_version.h; \
-	fi
 
 install-exec-local:
 	@rm -f $(srcdir)/../warnings.log

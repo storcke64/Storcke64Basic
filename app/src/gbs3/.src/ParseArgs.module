@@ -216,7 +216,7 @@ gPlugin:
  
  'Make the remainder of the arguments available to the
  'main program, and pass the first one as the file to execute
-  sApp = aArgs[I]
+  If I <= aArgs.max Then sApp = aArgs[I]
   Inc I
   While I < aArgs.Count
     ScriptMain.$aAppArgs.Add(aArgs[I])
