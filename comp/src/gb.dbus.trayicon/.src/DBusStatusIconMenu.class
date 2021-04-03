@@ -179,7 +179,8 @@ Private Sub UpdateMenuRec(hMenu As Menu, Optional bChild As Boolean) As Integer
       cProp["toggle-state"] = If(hMenu.Value, 1, 0)
     Endif
     Write #$hProp, hMenu.Radio As Boolean
-    Write #$hProp, hMenu.Toggle Or hMenu.Checked As Boolean
+    Write #$hProp, hMenu.Toggle As Boolean
+    Write #$hProp, hMenu.Checked As Boolean
     
     ' shortcut
     
