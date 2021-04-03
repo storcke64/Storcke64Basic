@@ -42,7 +42,7 @@ End
 
 Static Public Sub Warning((Message) As String, Optional Button1 As String, Button2 As String, Button3 As String) As Integer
   
-  Return FMessage.Run("warning", Message, [Button1, Button2, Button3], [("Cancel")])
+  Return FMessage.Run("warning", Message, [Button1, Button2, Button3], [("OK")])
   
 End
 
