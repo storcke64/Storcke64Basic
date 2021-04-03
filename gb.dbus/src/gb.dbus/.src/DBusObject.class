@@ -419,7 +419,9 @@ Public Sub _Introspect() As String
         
       Case Class.Property
         
-        sDesc &= "    <property name=\"" & sSymbol & "\" type=\"" & sType & "\" access=\"" & If(bReadOnly, "read", "readwrite") & "\"/>\n"
+        sDesc &= "    <property name=\"" & sSymbol & "\" type=\"" & sType & "\" access=\"" & If(bReadOnly, "read", "readwrite") & "\">\n"
+        'sDesc &= "      <annotation name=\"org.freedesktop.DBus.Property.EmitsChangedSignal\" value=\"false\"/>"
+        sDesc &= "    </property>"
         
     End Select
     
