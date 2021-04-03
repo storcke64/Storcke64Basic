@@ -953,7 +953,7 @@ Public Sub SetCompilation(Optional sOutput As String)
     Return
   Endif
   
-  aOutput = Split(Trim(sOutput), "\n")
+  aOutput = Split(Trim(sOutput), "\n").Sort(gb.Natural)
   gvwCompilation.Rows.Count = aOutput.Count
   
   For Each sLine In aOutput
