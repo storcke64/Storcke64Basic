@@ -4,6 +4,8 @@ Private $hPrinter As Printer
 
 Public Sub Main()
 
+  Application.Theme = "gambas"
+
   $hPrinter = New Printer As "Printer"
 
   $hPrinter.MarginTop = 15  
