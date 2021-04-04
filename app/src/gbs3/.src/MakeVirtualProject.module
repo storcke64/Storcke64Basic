@@ -25,13 +25,13 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
   Else
     If $oContext.$bPlugin Then
       $sPrjPath = Temp("project" & "-" & File.BaseName(sPath))
-      If Exist($sPrjPath) Then 
-        Exec ["rmdir", "-r", $sPrjPath] Wait
-      Endif
     Else
       $sPrjPath = Temp("project")
     Endif
-    
+    If Exist($sPrjPath) Then 
+        Dim rmresult As String = ""
+        Exec ["rm", "-r", $sPrjPath] Wait To rmresult
+    Endif
   Endif
 
   Verbose(("Create project") & ": " & $sPrjPath)
@@ -61,20 +61,20 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
     $oContext.$sCompilerOptions &= "\n"
   Endif
 
-  Dim sExtension As String
+  Dim sExtention As String
   If $oContext.$bPlugin Then
-    sExtension = ".class"
+    sExtention = ".class"
   Else 
-    sExtension = ".module"
+    sExtention = ".module"
   Endif
   If $oContext.$bClassAsStartup And If Not $oContext.$bPlugin Then 
     RootModule = $sPrjPath &/ ".src" &/ "ScriptInfoModule.module"
   Else
-    RootModule = $sPrjPath &/ ".src" &/ ScriptPreProcess["Startup"] & sExtension
+    RootModule = $sPrjPath &/ ".src" &/ ScriptPreProcess["Startup"] & sExtention
   Endif 
   Try $hOutFile = Open RootModule For Write Create
   If Error Then
-      Error.Raise("Unable to create " & Right(sExtension, -1) & " file")
+      Error.Raise("Unable to create " & Right(sExtention, -1) & " file")
   Endif
   
   sPrjFileContent &= ScriptPreProcess.GetProjectOptions()
