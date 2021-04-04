@@ -132,6 +132,7 @@ Private Sub PlaySound() As Boolean
   sTemp = Temp$()
   Copy "welcome" &/ sPlay To sTemp
   $hPlayer.URL = Media.URL(sTemp)
+  $hPlayer.ProgressiveDownload = True
   $hPlayer.Play(True)
 
   Return bHasTear

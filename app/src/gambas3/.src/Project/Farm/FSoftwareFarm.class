@@ -238,7 +238,7 @@ Public Sub Request_Finished()
     
     hSoftwareBox = New SoftwareBox(svwFarm, CInt(sId), hReq.Farm) As "SoftwareBox"
     If cmbSort.Index = SORT_INSTALLED Then hSoftwareBox.Hide
-    hSoftwareBox.ResizeScaled(54, 30)
+    hSoftwareBox.ResizeScaled(48, 24)
     If cmbSort.Index = SORT_INSTALLED Then hSoftwareBox.Load
     
   Next
@@ -310,8 +310,7 @@ End
 
 Public Sub tagFarm_Change()
 
-  timLoad.Stop
-  timLoad.Start
+  timLoad.Restart
 
 End
 
@@ -748,7 +747,7 @@ Public Sub dwgName_Draw()
   If Not $hSoft Then Return
   
   Paint.Font.Grade = 4
-  $hSoft.PaintName(0, 0)
+  $hSoft.PaintName(0, 0, Paint.W)
 
 End
 

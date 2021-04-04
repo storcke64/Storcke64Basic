@@ -208,8 +208,8 @@ Public Sub DrawingArea_Draw()
       X += CSoftware.IconSize + P
     Endif
     
-    Paint.Font.Grade = 2
-    HN = $hSoft.PaintName(X, Y)
+    Paint.Font.Grade = 1
+    HN = $hSoft.PaintName(X, Y, W - X + P)
       
     X = P '-= CSoftware.ICON_SIZE + P
     
@@ -294,12 +294,12 @@ Static Public Sub PaintStat(hSoft As CSoftware, iBg As Integer, Optional (bWithS
       sDownload = "<b>" & CStr(.DownloadCount) & "</b>"
     Endif
     
-    Y = P
+    Y = Paint.H - P - $hInstall.H
     'W = Paint.Font.TextWidth(sVote)
     
     X = Paint.W - P - Paint.Font.RichTextWidth(sDownload) - 1 - $hInstall.W - P \ 2
     
-    Paint.FillRect(X - P, 0, Paint.W - X + P * 2, $hInstall.H + P * 2, iBg)
+    'Paint.FillRect(X - P, 0, Paint.W - X + P * 2, $hInstall.H + P * 2, iBg)
     Paint.DrawImage($hInstall, X, Y)
     X += $hInstall.W + P \ 2
     Paint.DrawRichText(sDownload, X, Y, Paint.W - X, $hInstall.H, Align.Left)
