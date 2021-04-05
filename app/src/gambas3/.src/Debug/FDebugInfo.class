@@ -1574,5 +1574,7 @@ Public Sub SetTestResult(bFail As Boolean)
   If Application.DarkTheme Then lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)
   
   panTestResult.Show
+  
+  ShowTest
 
 End
