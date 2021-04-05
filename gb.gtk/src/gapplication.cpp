@@ -934,6 +934,7 @@ void (*gApplication::onEnterEventLoop)();
 void (*gApplication::onLeaveEventLoop)();
 bool gApplication::_must_quit = false;
 GdkEvent *gApplication::_event = NULL;
+bool gApplication::_keep_focus = false;
 
 bool gApplication::_fix_breeze = false;
 bool gApplication::_fix_oxygen = false;

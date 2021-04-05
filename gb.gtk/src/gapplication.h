@@ -139,6 +139,7 @@ public:
 	static bool _fix_printer_dialog;
 	static void (*onEnterEventLoop)();
 	static void (*onLeaveEventLoop)();
+	static bool _keep_focus;
 };
 
 #endif

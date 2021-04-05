@@ -360,6 +360,9 @@ public:
 	virtual bool setInverted(bool v);
 	bool isInverted() const { return _inverted; }
 	
+	void hideButKeepFocus();
+	void showButKeepFocus();
+	
 	static void cleanRemovedControls();
 
 private:

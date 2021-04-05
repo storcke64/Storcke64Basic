@@ -695,6 +695,33 @@ void gControl::move(int x, int y)
 	send_configure(this); // needed for Watcher and Form Move events
 }
 
+void gControl::hideButKeepFocus()
+{
+	//fprintf(stderr, "gControl::hideButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
+
+	gApplication::_keep_focus = true;
+	gtk_widget_hide(border);
+	gApplication::_keep_focus = false;
+}
+
+void gControl::showButKeepFocus()
+{
+	gControl *focus;
+
+	//fprintf(stderr, "gControl::showButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
+
+	gtk_widget_show(border);
+	
+	focus = gApplication::_active_control;
+	if (focus)
+	{
+		gApplication::_active_control = NULL;
+		if (!focus->hasFocus())
+			focus->setFocus();
+		gApplication::_active_control = focus;
+	}
+}
+
 bool gControl::resize(int w, int h, bool no_decide)
 {
 	bool decide_w, decide_h;
@@ -724,7 +751,7 @@ bool gControl::resize(int w, int h, bool no_decide)
 
 	if (w < minimumWidth() || h < minimumHeight())
 	{
-		gtk_widget_hide(border);
+		hideButKeepFocus();
 	}
 	else
 	{
@@ -748,7 +775,7 @@ bool gControl::resize(int w, int h, bool no_decide)
 		
 		if (isVisible() && !isReallyVisible())
 		{
-			gtk_widget_show(border);
+			showButKeepFocus();
 #ifdef GTK3
 			updateStyleSheet(false);
 #endif
@@ -1416,7 +1443,7 @@ void gControl::restack(bool raise)
 		return;
 	
 	if (_visible)
-		gtk_widget_hide(border);
+		hideButKeepFocus();
 	
 	*children = g_list_remove_link(*children, find);
 	if (raise)
@@ -1447,7 +1474,7 @@ void gControl::restack(bool raise)
 	}
 	
 	if (_visible)
-		gtk_widget_show(border);
+		showButKeepFocus();
 
 	pr->performArrange();
 	pr->refresh();

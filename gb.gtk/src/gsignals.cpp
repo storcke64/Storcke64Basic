@@ -66,10 +66,14 @@ gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 gboolean gcb_focus_out(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 {	
 	if (!gApplication::allEvents()) return false;
-	
+
 	//fprintf(stderr, "gcb_focus_out: %s\n", data->name());
 	
-	gApplication::setActiveControl(data, false);
+	/*if (!::strcmp(data->name(), "txtName"))
+		BREAKPOINT();*/
+
+	if (!gApplication::_keep_focus)
+		gApplication::setActiveControl(data, false);
 	
 	return false;
 }
@@ -107,8 +111,6 @@ gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data
 
 	return true;
 }
-
-
 
 
 /****************************************************
