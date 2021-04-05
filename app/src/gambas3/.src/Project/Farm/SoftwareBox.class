@@ -278,7 +278,7 @@ Static Private Sub GetBackgroundColor() As Integer
 End
 
 
-Static Public Sub PaintStat(hSoft As CSoftware, iBg As Integer, Optional (bWithSize) As Boolean)
+Static Public Sub PaintStat(hSoft As CSoftware, (iBg) As Integer, Optional (bWithSize) As Boolean)
 
   Dim sDownload As String
   Dim X, Y As Integer

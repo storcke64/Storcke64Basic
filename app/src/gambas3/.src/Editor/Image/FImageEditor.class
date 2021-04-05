@@ -1591,7 +1591,7 @@ Public Sub imvImage_MouseUp()
     Case "change"
 
       If $iChangeAction = CHANGE_NOTHING And If $hSelect Then $hSelect.SelectAll
-      If $hLastPoint <> $hCurrentPoint Then
+      If Not $hLastPoint Or If $hLastPoint <> $hCurrentPoint Then
         RefreshSelection
       Else If $iChangeAction <> CHANGE_SELECT Then
         btnUndo_Click
