@@ -321,6 +321,9 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	focus = gtk_window_get_focus(window);
 	if (focus)
 	{
+		if (!gtk_widget_get_realized(focus))
+			return handled;
+		
 		if (GTK_IS_ENTRY(focus) || GTK_IS_TEXT_VIEW(focus))
 		{
 			propagated = TRUE;
@@ -345,6 +348,31 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
   /* Chain up, invokes binding set */
 	GtkWidgetClass *parent_klass = (GtkWidgetClass*)g_type_class_peek(g_type_parent(GTK_TYPE_WINDOW));
   handled = parent_klass->key_press_event(widget, event);
+
+  return handled;
+}
+
+
+static gboolean my_key_release_event(GtkWidget *widget, GdkEventKey *event)
+{
+  GtkWindow *window = GTK_WINDOW (widget);
+  gboolean handled = FALSE;
+	GtkWidget *focus;
+
+	focus = gtk_window_get_focus(window);
+	if (focus && !gtk_widget_get_realized(focus))
+		return handled;
+	
+  /* handle focus widget key events */
+  if (!handled)
+    handled = gtk_window_propagate_key_event(window, event);
+
+  /* Chain up, invokes binding set */
+  if (!handled)
+	{
+		GtkWidgetClass *parent_klass = (GtkWidgetClass*)g_type_class_peek(g_type_parent(GTK_TYPE_WINDOW));
+    handled = parent_klass->key_release_event(widget, event);
+	}
 
   return handled;
 }
@@ -469,6 +497,7 @@ static void workaround_accel_management()
 	
 	GtkWidgetClass *klass = (GtkWidgetClass*)g_type_class_peek(GTK_TYPE_WINDOW);
 	klass->key_press_event = my_key_press_event;
+	klass->key_release_event = my_key_release_event;
 	_init = TRUE;
 }
 
