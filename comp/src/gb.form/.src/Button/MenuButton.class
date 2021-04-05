@@ -80,7 +80,7 @@ End
 Private Sub Text_Write(Value As String)
 
   Dim iPos As Integer
-  Dim S As Integer
+  'Dim S As Integer
 
   $sText = Value
   $sActualText = $sText
@@ -98,11 +98,12 @@ Private Sub Text_Write(Value As String)
       $hButton = New Button(Me) As "Button"
       $hButton.Ignore = True
       $hButton.Border = False
-      S = Desktop.Scale * 3
-      $hButton.Move(0, 0, S, S)
+      'S = Desktop.Scale * 3
+      $hButton.Move(0, 0, 1, 1)
       $hButton.Lower()
     Endif
     $hButton.Text = String.Mid$($sText, iPos, 2)
+    $hButton.Enabled = Not Me.Design
     $iShortcutPos = iPos
     $sActualText = String.Left($sText, iPos - 1) & String.Mid($sText, iPos + 1)
     Break
@@ -432,7 +433,7 @@ Public Sub DrawingArea_Draw()
   If bMenu Then
     Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Color.SelectedBackground)
   Else 
-    Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Style.BackgroundOf(Me))
+    'Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Style.BackgroundOf(Me))
     If $bInsideArrow Or If $bMenuOnly Then
       Style.PaintButton(0, 0, Me.W, Me.H, False, iFlag, bFlat)
     Else

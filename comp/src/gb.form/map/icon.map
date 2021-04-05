@@ -13,6 +13,7 @@ apply                   actions/dialog-apply;actions/dialog-ok-apply
 archive                 $(mime)/package-x-generic;apps/utilities-file-archiver
 attach                  status/mail-attachment;actions/mail-attachment
 audio                   $(mime)/audio-x-generic
+average                 #
 battery                 devices/battery
 brightness              #
 blue                    [breeze*]actions/colors-chromablue
@@ -35,6 +36,7 @@ clear                   actions/edit-clear-locationbar-rtl;actions/edit-clear
 clock                   apps/clock;actions/chronometer
 clone                   actions/edit-clone;actions/edit-duplicate
 close                   actions/window-close
+cloud                   status/weather-cloudy
 color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/preferences-desktop-color;categories/applications-graphics
 color-picker            actions/color-picker
 component               categories/applications-utilities;apps/nepomuk
@@ -55,9 +57,11 @@ directory               places/folder
 disconnect              actions/network-disconnect
 down                    actions/go-down
 download                [elementary]actions/media-import-audio-cd;emblems/emblem-downloads;actions/edit-download;actions/download
+draw-arrow              actions/draw-arrow
 draw-circle             actions/draw-circle;tools/draw-ellipse
 draw-line               actions/draw-line
 draw-path               actions/draw-path;tools/draw-freehand
+draw-polygon            actions/draw-polygon
 draw-rectangle          actions/draw-rectangle;tools/draw-rectangle
 draw-text               actions/draw-text;tools/draw-text
 edit                    actions/document-edit;apps/accessories-text-editor
@@ -90,6 +94,7 @@ flip-h                  actions/object-flip-horizontal
 flip-v                  actions/object-flip-vertical
 floppy                  devices/media-floppy
 font                    [-breeze*]actions/format-text-superscript;apps/preferences-desktop-font
+formula                 actions/formula
 forward                 actions/media-seek-forward
 fullscreen              actions/view-fullscreen
 gambas                  #
@@ -136,6 +141,7 @@ link                    emblems/emblem-symbolic-link
 linux                   #
 lock                    actions/object-locked;status/object-locked
 lower                   actions/object-ordre-lower
+love                    actions/love
 mail                    apps/evolution-mail;actions/mail-mark-unread
 make                    actions/arrow-down
 make-all                actions/arrow-down-double
@@ -177,6 +183,7 @@ pda                     devices/pda
 pdf                     $(mime)/application-pdf
 pen                     actions/draw-freehand
 people                  [breeze*]actions/user-group-new;apps/system-users
+percent                 actions/format-number-percent
 phone                   [-breeze*]devices/smartphone;devices/phone
 pin                     actions/pin;actions/view-pin
 play                    actions/media-playback-start
@@ -190,6 +197,7 @@ properties              actions/document-properties
 question                status/dialog-question;actions/svn-status
 quit                    actions/application-exit
 raise                   actions/object-ordre-raise
+repeat                  actions/media-playlist-repeat
 recent                  [breeze*]actions/appointment-new;actions/document-open-recent
 record                  actions/media-record
 red                     [breeze*]actions/colors-chromared
@@ -228,6 +236,7 @@ star                    [breeze*]actions/draw-star;status/starred
 start                   actions/media-skip-backward
 statistics              actions/view-statistics
 stop                    actions/media-playback-stop
+sum                     #
 sun                     status/weather-clear
 system                  devices/computer
 table                   [breeze*]actions/table
