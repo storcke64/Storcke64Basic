@@ -622,7 +622,7 @@ Public Sub GetSyntax() As String[]
         sSyntax = sSyntax & " " & Keyword("=") & " "
         Select Case Type
           Case "s"
-            sSyntax = sSyntax & Keyword(Chr$(34)) & Value & Keyword(Chr$(34))
+            sSyntax = sSyntax & Keyword(Replace(Quote(Value), "\\", "\\\\"), &HFF0000&)
           Case "b"
             If Left(Value) = "T" Then
               sSyntax &= Keyword("True")

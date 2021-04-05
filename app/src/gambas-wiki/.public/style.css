@@ -114,6 +114,10 @@ PRE {
   white-space: pre-wrap;
 }
 
+PRE:first-child {
+  margin-top: 0;
+}
+
 HR {
   margin-top: 0.75em;
   margin-left: -0.5em;
