@@ -123,8 +123,10 @@ End
 
 Private Sub Breakpoint_Write(Value As Boolean)
 
-  GetDoc().SetBreakpoint(_Line, Value, GetDoc().IsBreakpointDisabled(_Line))
-  Refresh
+  With GetDoc()
+    .SetBreakpoint(_Line, Value, GetDoc().IsBreakpointDisabled(_Line))
+    .Refresh(_Line)
+  End With
 
 End
 
@@ -136,8 +138,10 @@ End
 
 Private Sub Bookmark_Write(Value As Boolean)
 
-  GetDoc().SetBookmark(_Line, Value)
-  Refresh
+  With GetDoc()
+    .SetBookmark(_Line, Value)
+    .Refresh(_Line)
+  End With
 
 End
 
@@ -230,9 +234,11 @@ End
 
 Private Sub Disabled_Write(Value As Boolean)
 
-  GetDoc().SetBreakpoint(_Line, GetDoc().HasBreakpoint(_Line), Value)
-  Refresh
-
+  With GetDoc()
+    .SetBreakpoint(_Line, GetDoc().HasBreakpoint(_Line), Value)
+    .Refresh(_Line)
+  End With
+  
 End
 
 '' Paint that line on the current painter at a specified position.
