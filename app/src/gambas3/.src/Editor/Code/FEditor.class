@@ -368,8 +368,7 @@ Private Sub RefreshLineInfo(Optional bForce As Boolean) As Boolean
     ResetIfModified
     
     UpdateCurrentProc
-    timProc.Stop
-    timProc.Start
+    timProc.Restart
 
     If $hSampleCode Then
       If $hEditor.Line < $iSampleStart Or If $hEditor.Line >= $iSampleEnd Then

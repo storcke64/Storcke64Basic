@@ -43,9 +43,9 @@ Public Sub Form_Open()
   Dim s As String
   Dim hMenu As Menu
 
-  SetPicture(btnOnePage, "img/print-one-page.png")
-  SetPicture(btnTwoPages, "img/print-two-pages.png")
-  SetPicture(btnFullWidth, "img/print-full-width.png")
+  'SetPicture(btnOnePage, "img/print-one-page.png")
+  'SetPicture(btnTwoPages, "img/print-two-pages.png")
+  'SetPicture(btnFullWidth, "img/print-full-width.png")
   'SetPicture(btnRealSize, "img/print-real-size.png")
   
   For Each s In Printer.List
@@ -463,15 +463,15 @@ Public Sub Form_Close()
   
 End
 
-Private Sub SetPicture(hCtrl As ToolButton, sImage As String)
-
-  Dim S As Integer
-
-  S = Stock.GetSize("small")
-  hCtrl.Picture = Image.Load(sImage).Stretch(S, S).Picture
-
-End
-
+' Private Sub SetPicture(hCtrl As ToolButton, sImage As String)
+' 
+'   Dim S As Integer
+' 
+'   S = Stock.GetSize("small")
+'   hCtrl.Picture = Image.Load(sImage).Stretch(S, S).Picture
+' 
+' End
+' 
 Public Sub btnZoomIn_Click()
   
   SetZoom(MODE_CUSTOM, 2 ^ (Int(Log2(dvwPrint.Zoom) * 2 + 1) / 2))

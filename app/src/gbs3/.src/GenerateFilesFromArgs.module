@@ -14,17 +14,6 @@ Public Sub _Call($oContext As Context, sLine As String, sPrjPath As String)
   'Use management
   If $oContext.$sUse Then
     UseLibComp._FromString($oContext.$sUse)
-    ' For Each s In Split($oContext.$sUse)
-    '   If Not CComponent.All.Exist(s) Then
-    '     CompileError(sLine, 0, Subst(("Unknown component") & ": &1", s))
-    '     Return   ' added to allow for testing this function with errors in test mode
-    '   Endif
-    '   $oContext.$cComponents[CComponent.All[s].SortKey] = s
-    '   $oContext.$aSortKey.Add(CComponent.All[s].SortKey)
-    '   $oContext.$aImplemented.Insert(CComponent.All[s].Implement)
-    ' Next
-    ' s = ""
-    
   Endif
 
   For i = 1 To Len(sLine)

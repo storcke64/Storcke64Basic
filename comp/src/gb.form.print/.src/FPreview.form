@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,123,101)
+  MoveScaled(0,0,107,90)
   Text = ("Print preview")
   Icon = Picture["icon:/small/preview"]
   Arrangement = Arrange.Vertical
@@ -14,7 +14,7 @@
     }
   }
   { panPreview HBox
-    MoveScaled(1,1,120,4)
+    MoveScaled(1,1,94,4)
     { btnPrinter MenuButton
       MoveScaled(0,0,34,4)
       Border = False
@@ -27,75 +27,72 @@
       Picture = Picture["icon:/small/close"]
     }
     { Spring1 Spring
-      MoveScaled(57,0,3,4)
+      MoveScaled(42,0,2,4)
     }
     { btnPrint ToolButton
-      MoveScaled(104,0,12,4)
+      MoveScaled(83,0,10,4)
       Visible = False
       AutoResize = True
       Text = ("Print")
       Picture = Picture["icon:/small/print"]
     }
     { panZoom HBox
-      MoveScaled(62,0,38,4)
+      MoveScaled(46,0,31,4)
       Ignore = True
-      { Spring2 Spring
-        MoveScaled(0,0,2,4)
-      }
       { btnZoomOut ToolButton
-        MoveScaled(2,0,4,4)
+        MoveScaled(0,0,4,4)
         ToolTip = ("Zoom out")
         Picture = Picture["icon:/small/zoom-out"]
       }
       { lblZoom Label
-        MoveScaled(6,0,7,4)
+        MoveScaled(4,0,7,4)
         Alignment = Align.Center
         Text = ("100 %")
       }
       { btnZoomIn ToolButton
-        MoveScaled(13,0,4,4)
+        MoveScaled(11,0,4,4)
         ToolTip = ("Zoom in")
         Picture = Picture["icon:/small/zoom-in"]
       }
       { btnOnePage ToolButton btnMode
         Name = "btnOnePage"
-        MoveScaled(17,0,4,4)
+        MoveScaled(15,0,4,4)
         Tag = "1"
         ToolTip = ("One page")
+        Picture = Picture["icon:/small/page"]
         Toggle = True
       }
       { btnTwoPages ToolButton btnMode
         Name = "btnTwoPages"
-        MoveScaled(21,0,4,4)
+        MoveScaled(19,0,4,4)
         Tag = "2"
         ToolTip = ("Two pages")
+        Picture = Picture["icon:/small/page-two"]
         Toggle = True
       }
       { btnFullWidth ToolButton btnMode
         Name = "btnFullWidth"
-        MoveScaled(25,0,4,4)
+        MoveScaled(23,0,4,4)
         Tag = "3"
         ToolTip = ("Full width")
+        Picture = Picture["icon:/small/zoom-width"]
         Toggle = True
       }
       { btnRealSize ToolButton btnMode
         Name = "btnRealSize"
-        MoveScaled(29,0,4,4)
+        MoveScaled(27,0,4,4)
         Tag = "4"
         ToolTip = ("Real size")
         Picture = Picture["icon:/small/zoom-normal"]
         Toggle = True
       }
-      { Spring3 Spring
-        MoveScaled(35,1,2,2)
-      }
     }
   }
   { Panel1 HBox
-    MoveScaled(1,7,84,88)
+    MoveScaled(1,6,84,83)
     Expand = True
     { panSide VBox
-      MoveScaled(0,0,38,86)
+      MoveScaled(0,0,38,83)
       Spacing = True
       Margin = True
       { txtFile ButtonBox
@@ -107,7 +104,7 @@
         MoveScaled(1,6,35,4)
         Spacing = True
         { TextLabel1 TextLabel
-          MoveScaled(1,1,18,3)
+          MoveScaled(1,0,18,4)
           Text = ("Resolution")
           Alignment = Align.Normal
         }
@@ -303,10 +300,10 @@
         }
       }
       { Spring6 Spring
-        MoveScaled(17,75,1,3)
+        MoveScaled(17,75,3,2)
       }
       { HBox2 HBox
-        MoveScaled(3,80,30,4)
+        MoveScaled(3,78,30,4)
         { Spring4 Spring
           MoveScaled(2,1,3,2)
         }

@@ -34,7 +34,7 @@
     { mnuOpenExtern Menu
       Action = "open-extern"
       Text = ("Open file") & "..."
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/file"]
     }
     { Menu5 Menu
     }
@@ -238,7 +238,7 @@
     { mnuProperty Menu
       Action = "project-property"
       Text = Shortcut(("Properties"), "P") & "..."
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/properties"]
       Shortcut = "Ctrl+I"
     }
   }
@@ -415,8 +415,8 @@
     }
     { mnuViewProperty Menu
       Action = "property"
-      Text = ("Properties")
-      Picture = Picture["icon:/small/properties"]
+      Text = ("Properties sheet")
+      Picture = Picture["icon:/small/edit"]
       Toggle = True
       Checked = True
     }
@@ -931,7 +931,7 @@
       MoveScaled(14,0,4,4)
       ToolTip = ("Project properties")
       Action = "project-property"
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/properties"]
     }
     { ToolButton7 ToolButton
       MoveScaled(22,0,4,4)
@@ -1363,7 +1363,7 @@
               Visible = False
               ToolTip = ("Show properties sheet")
               Ignore = True
-              Picture = Picture["icon:/small/properties"]
+              Picture = Picture["icon:/small/edit"]
             }
           }
           { panDebug SidePanel
@@ -1747,10 +1747,10 @@
   { Action project-property
     Text = "Properties"
     Shortcut = "Ctrl+I"
-    Picture = "icon:/small/edit"
+    Picture = "icon:/small/properties"
   }
   { Action property
-    Text = "Properties"
+    Text = "Properties sheet"
     Shortcut = ""
     Picture = "icon:/small/properties"
   }

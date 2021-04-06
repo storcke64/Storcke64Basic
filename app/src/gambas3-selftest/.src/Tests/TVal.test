@@ -1,0 +1,13 @@
+' Gambas test file
+
+Public Sub ValDateStandard()
+
+  Dim d As Date
+  Dim s As String
+  
+  d = Now
+  
+  s = Format(d, gb.Standard)
+  Assert.Equals(Val(s), d, "Val Date Standard")
+
+End

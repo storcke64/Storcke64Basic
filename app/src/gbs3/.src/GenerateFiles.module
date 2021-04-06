@@ -32,7 +32,7 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
           Endif
           cDef.Save(sPrjPath, $oContext.$bFast, $oContext.$bUnsafe)
           If $oContext.$bBuildOnly And $oContext.$bTestMode Then
-              Error cDef.sExtension & " "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd " & cDef.sExtension & "\n"
+              Error cDef.sExtention & " "; cDef.sName; "\n"; cDef.aText.Join("\n"); "\nEnd " & cDef.sExtention & "\n"
           Endif
       Endif
     Next

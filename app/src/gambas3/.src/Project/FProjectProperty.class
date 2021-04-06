@@ -273,10 +273,12 @@ Private Function DoApply() As Boolean
   SaveEnvironment
   WriteComponent
 
+  Inc Project.TimeStamp
+  
   Project.WriteProject
   Project.MakeDirectoryIcon
   Project.Compile
-
+  
   Project.RefreshRoot
   ' If bRefreshForm Then Project.RefreshForm
   If bRefreshEditor Then Project.RefreshEditor

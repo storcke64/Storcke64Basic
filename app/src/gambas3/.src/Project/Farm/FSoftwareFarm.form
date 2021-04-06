@@ -101,23 +101,23 @@
         }
       }
       { panFilter VBox
-        MoveScaled(1,7,89,10)
+        MoveScaled(1,7,89,11)
         Visible = False
         Spacing = True
         { panFilterTags HBox
-          MoveScaled(0,0,88,5)
+          MoveScaled(0,0,88,7)
           Spacing = True
           { Label3 Label
             MoveScaled(0,0,11,4)
             Text = ("Tags")
           }
           { tagFarm CTagEditor
-            MoveScaled(15,0,69,5)
+            MoveScaled(16,0,69,6)
             Expand = True
           }
         }
         { Panel5 HPanel
-          MoveScaled(0,6,89,4)
+          MoveScaled(0,7,89,4)
           Spacing = True
           { Label4 Label
             MoveScaled(0,0,11,4)
@@ -140,7 +140,6 @@
     }
     { Separator3 Separator
       MoveScaled(20,22,21,0)
-      Visible = False
     }
     { Panel7 Panel
       MoveScaled(1,24,91,38)

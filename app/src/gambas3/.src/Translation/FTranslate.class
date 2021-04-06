@@ -515,6 +515,7 @@ Private Sub SaveTranslate(Optional bForce As Boolean)
   If $nTrans = 0 Then
     VersionControl.RemoveFile($sPath, True)
     Try Kill $sPath
+    If Not Error Then Inc Project.TimeStamp
     If bExistMO Then
       VersionControl.RemoveFile(sPathMO, True)
       Try Kill sPathMO
@@ -551,6 +552,8 @@ Private Sub SaveTranslate(Optional bForce As Boolean)
     Endif
 
   Endif
+  
+  Inc Project.TimeStamp
 
   ComputeTransStat($sLang)
 

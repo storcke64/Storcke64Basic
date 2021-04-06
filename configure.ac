@@ -14,6 +14,7 @@ AC_CONFIG_SUBDIRS(main)
 
 GB_CONFIG_SUBDIRS(bzlib2, gb.compress.bzlib2)
 GB_CONFIG_SUBDIRS(zlib, gb.compress.zlib)
+GB_CONFIG_SUBDIRS(zstd, gb.compress.zstd)
 GB_CONFIG_SUBDIRS(mysql, gb.db.mysql)
 GB_CONFIG_SUBDIRS(odbc, gb.db.odbc)
 GB_CONFIG_SUBDIRS(postgresql, gb.db.postgresql)

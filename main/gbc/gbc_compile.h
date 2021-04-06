@@ -124,6 +124,10 @@ void COMPILE_print(int type, int line, const char *msg, ...);
 void COMPILE_create_file(FILE **fw, const char *file);
 void COMPILE_add_component(const char *name);
 
+int COMPILE_lock_file(const char *name);
+void COMPILE_unlock_file(int fd);
+void COMPILE_remove_lock(const char *name);
+
 #define COMPILE_get_column(_pattern) (JOB->pattern_pos[(_pattern) - JOB->pattern])
 
 #endif

@@ -926,6 +926,7 @@ Public Sub ReloadFile(hForm As Object)
 
   Inc Application.Busy
   hForm.Reload
+  Inc Project.TimeStamp
   Dec Application.Busy
   
 Catch
@@ -2854,6 +2855,7 @@ Public Sub InsertSource(sName As String, sType As String, sDir As String, Option
   Endif
 
   VersionControl.AddFile(sPath)
+  Inc Project.TimeStamp
 
   Tree.Sources[sName] = sPath
   OnRefreshSources
@@ -2899,12 +2901,13 @@ Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As Str
   Endif
 
   VersionControl.AddFile(sPath)
+  Inc Project.TimeStamp
 
   Refresh
   'RefreshLibrary
 
   If Not bNoOpen Then OpenFile(sPath)
-
+  
 End
 
 Public Sub MakeDir(sDir As String) As Boolean
@@ -2963,6 +2966,8 @@ Public Function InsertDirectory(sDir As String, Optional bNoVerCtrl As Boolean) 
     Endif
   Next
 
+  Inc Project.TimeStamp
+  
 End
 
 Private Sub RefreshActivate()
@@ -4284,6 +4289,7 @@ Public Sub DeleteFile(sPath As String)
   Endif
 
   Tree.RefreshKey(sPath)
+  Inc Project.TimeStamp
 
 End
 
@@ -4310,6 +4316,7 @@ Public Sub DeleteDir(sDir As String, Optional bNoVerCtrl As Boolean)
   Endif
 
   Tree.RefreshKey(sDir)
+  Inc Project.TimeStamp
 
 End
 
@@ -4589,6 +4596,8 @@ Public Sub RenameFile(sPath As String, sNewName As String) As Boolean
     Try ProjectTree[sNewPath].EnsureVisible
     
   Endif
+  
+  Inc Project.TimeStamp
 
 Catch
 
@@ -5080,6 +5089,7 @@ Public Sub DefineStartup(sPath As String, Optional bDoNotWrite As Boolean)
   Endif
 
   Tree.SelectKey(sKey)
+  Inc Project.TimeStamp
 
 'Catch
 
@@ -5136,6 +5146,7 @@ Public Sub CopyFile(sSrc As String, sDst As String)
   
   Tree.RefreshKey(sDest)
   Tree.SelectKey(sDest)
+  Inc Project.TimeStamp
 
 Catch
 
@@ -6684,7 +6695,8 @@ Public Sub SetShouldTranslate(sPath As String, bTrans As Boolean)
     DoNotTranslate.Add(sPath)
     RefreshKey(Project.Dir &/ sPath)
   Endif
-  
+  Inc Project.TimeStamp
+
 End
 
 Public Sub ShouldCompress(sPath As String) As Boolean
@@ -6708,6 +6720,7 @@ Public Sub SetShouldCompress(sPath As String, bCompress As Boolean)
     CompressedFiles.Add(sPath)
     RefreshKey(Project.Dir &/ sPath)
   Endif
+  Inc Project.TimeStamp
   
 End
 

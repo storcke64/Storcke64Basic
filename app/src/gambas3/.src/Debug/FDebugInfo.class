@@ -953,7 +953,7 @@ Public Sub SetCompilation(Optional sOutput As String)
     Return
   Endif
   
-  aOutput = Split(Trim(sOutput), "\n")
+  aOutput = Split(Trim(sOutput), "\n").Sort(gb.Natural)
   gvwCompilation.Rows.Count = aOutput.Count
   
   For Each sLine In aOutput
@@ -1574,5 +1574,7 @@ Public Sub SetTestResult(bFail As Boolean)
   If Application.DarkTheme Then lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)
   
   panTestResult.Show
+  
+  ShowTest
 
 End

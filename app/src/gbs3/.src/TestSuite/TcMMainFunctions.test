@@ -102,7 +102,7 @@ Public Sub FullReadCompileCheck()
   ScriptMain.$sPath = workdir &/ "TestApp"
   Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MakeVirtualProject, "_Call", ScriptMain.$oContext, ScriptMain.$sPath), "\n", "", True)
 
-  Assert.Equals(TSR.CompareStringArray(CompiledResult, ShouldBeFile), True, "Test a Basic App with all supported types")
+  Assert.Equals(TSR.CompareStringArray(CompiledResult, ShouldBeFile), True, "No Main Test a Basic App with all supported types")
   
 End
 
@@ -123,6 +123,6 @@ Public Sub FullReadCompileCheckWithMain()
   ScriptMain.$sPath = workdir &/ "TestAppWithMain"
   Dim CompiledResult As String[] = Split(TSR.PrintErrOut(MakeVirtualProject, "_Call", ScriptMain.$oContext, ScriptMain.$sPath), "\n", "", True)
   'File.save(User.home &/ "Desktop/maincompiled", CompiledResult.Join("\n"))
-  Assert.Equals(TSR.CompareStringContent(ShouldBeFile, CompiledResult), True, "Test a Basic App with all supported types")
+  Assert.Equals(TSR.CompareStringContent(ShouldBeFile, CompiledResult), True, "With Main Test a Basic App with all supported types")
   
 End

@@ -253,7 +253,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
      ''Check for an include statement -- Include is not a keyword, perhaps it should be
     If aTypes.count >= 2 And If aTypes[0] = Highlight.symbol And If aTypes[1] = Highlight.string And If symbols[0] == "INCLUDE" Then
          Warning("'Include' is Replaced by '#Include' and may not be supported in future releases")
-         ProcessInclude(symbols, types, sDefaultFilePath)
+         ProcessInclude(symbols, atypes, sDefaultFilePath)
          Continue
          
      '' Check for PreProccessor  lines
@@ -265,7 +265,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
            Goto ContinueRecord
            
         Else If symbols[0] == "#INCLUDE" Then
-           ProcessInclude(symbols, types, sDefaultFilePath)
+           ProcessInclude(symbols, atypes, sDefaultFilePath)
            Continue
         Endif
     Else If aTypes.count = 2 And If symbols[0] == "CLASSREF" And If aTypes[1] = Highlight.symbol

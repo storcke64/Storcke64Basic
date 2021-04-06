@@ -656,16 +656,56 @@ void COMPILE_enum_class(char **name, int *len)
 	*name = p + 1;
 }
 
+int COMPILE_lock_file(const char *name)
+{
+	const char *path;
+	int fd;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	
+	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
+	if (fd < 0)
+		goto __ERROR;
+	if (lockf(fd, F_LOCK, 0) < 0)
+		goto __ERROR;
+	
+	return fd;
+		
+__ERROR:
+
+	ERROR_fail("unable to lock file: %s: %s", path, strerror(errno));
+}
+
+
+void COMPILE_unlock_file(int fd)
+{
+	close(fd);
+}
+
+
+void COMPILE_remove_lock(const char *name)
+{
+	const char *path;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	if (FILE_exist(path))
+		FILE_unlink(path);
+}
+
+
 void COMPILE_print(int type, int line, const char *msg, ...)
 {
 	int i;
   va_list args;
 	const char *arg[4];
 	int col = -1;
+	int lock;
 
 	if (!JOB->warnings && type == MSG_WARNING)
 		return;
 
+	lock = COMPILE_lock_file(".gbc.stderr");
+	
   va_start(args, msg);
 
 	if (line < 0)
@@ -722,6 +762,8 @@ void COMPILE_print(int type, int line, const char *msg, ...)
 		fputs(ERROR_info.msg, stderr);
 		putc('\n', stderr);
 	}
+	
+	COMPILE_unlock_file(lock);
 
 	va_end(args);
 }

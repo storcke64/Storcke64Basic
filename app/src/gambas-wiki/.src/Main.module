@@ -776,7 +776,7 @@ Public Sub SolvePath(sPath As String) As String
 End
 
 
-Public Sub GetPageTitle(sPath As String) As String
+Public Sub GetPageTitle(sPath As String, Optional bForceReadFile As Boolean) As String
   
   Dim sFile As String
   Dim iPos As Integer
@@ -786,7 +786,7 @@ Public Sub GetPageTitle(sPath As String) As String
   sPath = SolvePath(sPath)
   bComp = sPath Begins "/comp/"
   
-  If bComp Then
+  If bComp And If Not bForceReadFile Then
     If sPath Like "/comp/*/*/?*" Then Return GetSymbolTitle(sPath)
     If sPath Like "/comp/*/?*" Then Return GetClassTitle(sPath)
   Endif
@@ -960,7 +960,7 @@ Public Sub GetStat() As String[]
     nClass += iCpt
     nSym += ((aFile.Count - iComment) - iCpt * 3) / 4
   Next
-
+  
   Return [Subst(("There are &1 classes and &2 symbols in all Gambas components."), nClass, nSym)]
 
 Catch
@@ -1008,6 +1008,7 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   Dim sClass As String
   Dim sSymbol As String
   Dim aPath As String[]
+  Dim sClassName As String
   
   If Not sPath Then
     sComponent = Main.Component
@@ -1037,22 +1038,31 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   
   If Not hSym Then Return sClass & "." & sSymbol & " (" & sComponent & ")?"
 
+  sClassName = hSym.Class
+  If Not IsLetter(Left(sClassName)) Then
+    sTitle = Trim(GetPageTitle("/comp" &/ sComponent &/ sClass, True))
+    If sTitle Then
+      If Right(sTitle) = ")" Then sTitle = Trim(Left$(sTitle, RInStr(sTitle, "(") - 1))
+      sClassName = sTitle
+    Endif
+  Endif
+
   Select Case Main.Symbol
     Case "_new"
-      sTitle = "New " & hSym.Class
+      sTitle = "New " & sClassName
     Case "_put"
-      sTitle = hSym.Class & "\\[…] = …"
+      sTitle = sClassName & "\\[…] = …"
     Case "_get"
-      sTitle = "… = " & hSym.Class & "\\[…]"
+      sTitle = "… = " & sClassName & "\\[…]"
     Case "_call"
-      sTitle = hSym.Class & "()"
+      sTitle = sClassName & "()"
     Case "_next"
-      sTitle = "For Each " & hSym.Class
+      sTitle = "For Each " & sClassName
     Default
       If InStr(":e", hSym.Kind) Then
-        sTitle = "Event " & hSym.Class & "." & Mid$(hSym.Name, 2)
+        sTitle = "Event " & sClassName & "." & Mid$(hSym.Name, 2)
       Else
-        sTitle = hSym.Class & "." & hSym.Name
+        sTitle = sClassName & "." & hSym.Name
       Endif
   End Select
 
@@ -1088,7 +1098,7 @@ End
 
 Private Sub GetIgnore() As String[]
 
-  Return ["gb.gui", "gb.gtk", "gb.gtk.opengl", "gb.gtk3", "gb.gtk3.opengl", "gb.gui.opengl", "gb.gui.base", "gb.option", "gb.v4l", "gb.qt5", "gb.qt5.opengl", "gb.qt5.webkit", "gb.gui.qt", "gb.gui.qt.webkit"]
+  Return ["gb.gui", "gb.gtk", "gb.gtk.opengl", "gb.gtk3", "gb.gtk3.opengl", "gb.gui.opengl", "gb.gui.base", "gb.option", "gb.v4l", "gb.qt5", "gb.qt5.opengl", "gb.qt5.webkit", "gb.gui.qt", "gb.gui.qt.webkit", "gb.qt4.webview", "gb.qt5.webview", "gb.gtk3.webview", "gb.dbus.trayicon", "gb.qt5.ext"]
 
 End
 
