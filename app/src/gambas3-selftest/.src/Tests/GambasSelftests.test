@@ -58,13 +58,12 @@ End Struct
 
 'Private arr As New Integer[2, 2]
 
-
- Private sTest As String '
-' 
- Private bReadOK As Boolean
- Private bWriteOK As Boolean
- Private hWatchFile As File
- 'Private bZeroExpected As Boolean
+Private sTest As String '
+'
+Private bReadOK As Boolean
+Private bWriteOK As Boolean
+Private hWatchFile As File
+'Private bZeroExpected As Boolean
 
 Private hStillHere1 As New MyPoint
 
@@ -184,7 +183,7 @@ Fast Public Function FastTests() As Integer
         Inform(("GambasTester cannot be run without debugging information! Recompile debugging information enabled."))
         Return -1
     Endif
-    
+
     ' ------------------------------------------------- End Prerequisites
 
     ' If bRun = False Then
@@ -1020,18 +1019,18 @@ Fast Public Function FastTests() As Integer
     '     Assert.Fail("Format Pi")
     ' Endif
 
-    Test.Note("ValPtr")
+    Test.Note("VarPtr")
     bTest = True
     pp = VarPtr(bTest)
     If Boolean@(pp) <> bTest Or Boolean@(pp) = False Then
-        Assert.Fail("ValPtr")
+        Assert.Fail("VarPtr")
     Endif
 
-    Test.Note("ValPtr2")
+    Test.Note("VarPtr2")
     bTest = False
     pp = VarPtr(bTest)
     If Boolean@(pp) <> bTest Or Boolean@(pp) = True Then
-        Assert.Fail("ValPtr2")
+        Assert.Fail("VarPtr2")
     Endif
 
     Assert.Equals(Val(Format$(Exp(20), "#########.#####")), 485165195.40979, "Val(Format$(Exp(20)")
@@ -1190,8 +1189,8 @@ TestLabel3:
 
     ' -------------------------------------------------
     ' TODO: From here on use appropriate Assertions.
-    ' 
-    ' Too much work to replace the old Errors.Add(System.Backtrace[0]) by appropriate Asserts. To 
+    '
+    ' Too much work to replace the old Errors.Add(System.Backtrace[0]) by appropriate Asserts. To
     '
     ' Now I replace
     '
@@ -2508,8 +2507,6 @@ Pass:
         Endif
     Endif
 
-
-
     bWriteOK = False
     hWatchFile = Open "/dev/full" For Write Watch
 
@@ -2551,7 +2548,7 @@ Pass:
     Else
         Assert.Pass(sDescription)
     Endif
-    
+
     sDescription = "JITTest"
     If mTest.JITTest() = False Then
         Assert.Fail(sDescription)
@@ -2604,13 +2601,30 @@ Pass:
     Test.Note("- - - - - - - - - - - - - - - - - - - - - - - - - - - Missing tests")
     Test.TODO("Tests missing")
     Assert.Ok(mTest.TestTester())
-    
+
     'done
 
 End
 
+Public Sub TVal()
 
+    Dim d As Date
+    Dim s As String
 
+    ' ------------------------------------------------- Date Standard
+    d = Date(Year(Now), Month(Now), Day(Now), Hour(Now), Minute(Now), Second(Now))
+    s = Format(d, gb.Standard)
+    Assert.Equals(Val(s), d, "Val Date Standard")
+
+    s = Str(3.14)
+    Assert.Equals(Val(s), 3.14, "Str-Val")
+    Assert.Equals(Val("-25"), -25, "Val -25")
+    Assert.Equals(Val("&H123abc"), 1194684, "Val string representing hex number")
+    Assert.Ok(Val("True"), " Val \"True\"")
+    Assert.NotOk(Val("False"), " Val \"False\"")
+    Assert.Null(Val("Gambas"), "Val \"Gambas\" is Null") 
+
+End
 
 Fast Public Function _TestAndIf() As Integer
 
