@@ -30,6 +30,10 @@
 #define _LARGEFILE64_SOURCE
 #endif
 
+// fix some building errors with zstd prior v1.3.5?
+// - tagged as experimental on these releases -
+#define ZSTD_STATIC_LINKING_ONLY 1
+
 #include <errno.h>
 #include <zstd.h>
 
@@ -37,6 +41,11 @@
 
 #define MODE_READ 0
 #define MODE_WRITE 1
+
+// since zstd v1.3.5
+#ifndef ZSTD_CLEVEL_DEFAULT
+#define ZSTD_CLEVEL_DEFAULT 3
+#endif
 
 GB_INTERFACE EXPORT GB;
 COMPRESS_INTERFACE EXPORT COMPRESSION;
