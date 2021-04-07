@@ -565,6 +565,7 @@ static void CWIDGET_after_geometry_change(void *_object, bool arrange)
 void CWIDGET_move_resize(void *_object, int x, int y, int w, int h)
 {
 	QWidget *wid = WIDGET;
+	bool arrange = true;
 
 	if (GB.Is(THIS, CLASS_Window))
 	{
@@ -580,12 +581,15 @@ void CWIDGET_move_resize(void *_object, int x, int y, int w, int h)
 
 		if (x == wid->x() && y == wid->y() && w == wid->width() && h == wid->height())
 			return;
-			
+		
+		if (w == wid->width() && h == wid->height())
+			arrange = false;
+		
 		wid->setGeometry(x, y, w, h);
 	}
 
 	CWIDGET_check_visibility(THIS);
-	CWIDGET_after_geometry_change(THIS, true);
+	CWIDGET_after_geometry_change(THIS, arrange);
 }
 
 void CWIDGET_move(void *_object, int x, int y)
@@ -835,7 +839,8 @@ BEGIN_PROPERTY(Control_Expand)
 	{
 		THIS->flag.expand = VPROP(GB_BOOLEAN);
 		CWIDGET_check_visibility(THIS);
-		arrange_parent(THIS);
+		if (!THIS->flag.ignore)
+			arrange_parent(THIS);
 	}
 
 END_PROPERTY
