@@ -206,6 +206,7 @@ Public Sub _new()
   
   gvwSnippet.Columns.Count = 2
   gvwSnippet.Columns[0].Width = Desktop.Scale * 8
+  gvwSnippet.Font = Project.GetEditorFont()
   
   aColors = [Color.White, &HC0C0C0, &H808080, &H404040, 0]
   For iInd = 0 To 359 Step 30
@@ -947,7 +948,7 @@ Public Sub gvwSnippet_Data(Row As Integer, Column As Integer)
   
   With gvwSnippet
     .Data.Padding = 4
-    .Data.Font = Font[txtEditorFont.Value]
+    '.Data.Font = Project.GetEditorFont()
     If Column = 0 Then
       .Data.Text = hSampleCode.Trigger
       If hSampleCode.Default Then 
