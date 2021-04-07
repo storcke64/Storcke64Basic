@@ -43,14 +43,13 @@ End
 
 Private Sub LoadSuites()
 
-  Dim hSettings As Settings
-  Dim iCount As Integer
-  Dim I As Integer
-  Dim sKey As String
   Dim sName As String
+  Dim iTestWith As Integer
 
-  hSettings = New Settings(Project.Dir &/ ".test")
-  iCount = hSettings["/TestSuites/Count", 0]
+  $cSuites = MTest.LoadSuites(ByRef iTestWith)
+
+  'hSettings = New Settings(Project.Dir &/ ".test")
+  'iCount = hSettings["/TestSuites/Count", 0]
   
   lvwSuite.Clear
   
@@ -59,24 +58,22 @@ Private Sub LoadSuites()
     .Editable = False
   End With
   
-  $cSuites.Clear
+  '$cSuites.Clear
 
   cmbTestWith.Add(("Default"))
-  $cSuites["$"] = SuiteToSelection(hSettings["/TestSuites/Default"])
+  '$cSuites["$"] = SuiteToSelection(hSettings["/TestSuites/Default"])
   
-  For I = 1 To iCount
+  For Each $cSuites
     
-    sKey = "/TestSuites/" & CStr(I)
-    sName = hSettings[sKey &/ "Name"]
+    sName = $cSuites.Key
+    If sName = "$" Then Continue
     lvwSuite.Add(sName, sName)
     cmbTestWith.Add(sName)
-    $cSuites[sName] = SuiteToSelection(hSettings[sKey &/ "Tests"])
     
   Next
   
-  
   LoadTestWith
-  Try cmbTestWith.Index = hSettings["/TestSuites/TestWith", 0]
+  Try cmbTestWith.Index = iTestWith
   If Error Then cmbTestWith.Index = 0
 
   If cmbTestWith.Index = 0 Then
@@ -94,29 +91,22 @@ End
 Private Sub LoadTests()
 
   Dim sClass As String
-  Dim sPath As String
-  Dim cSymbol As Collection
-  Dim hSymbol As CSymbolInfo
   Dim sName As String
+  Dim iPos As Integer
+  Dim sMethod As String
 
   tvwSuite.Clear
 
-  For Each sPath In Project.Tree.GetTestModules()
+  For Each sName In MTest.GetTestModules(True)
     
-    sClass = File.BaseName(sPath)
-    tvwSuite.Add(sClass, sClass, Picture["icon:/small/directory"])
+    iPos = InStr(sName, ".")
+    If iPos = 0 Then Continue
     
-    cSymbol = Project.Documentation.GetClassSymbols(sClass)
-    If Not cSymbol Then Continue
-    
-    For Each hSymbol In cSymbol
-      
-      If Not hSymbol.IsFunction Or If hSymbol.NotPublic Or If hSymbol.IsHidden Then Continue
-      sName = hSymbol.Name
-      
-      tvwSuite.Add(sClass & "." & sName, sName, Picture["$symbol:s-method"], sClass)
-      
-    Next
+    sClass = Left(sName, iPos - 1)
+    sMethod = Mid$(sName, iPos + 1)
+
+    If Not tvwSuite.Exist(sClass) Then tvwSuite.Add(sClass, sClass, Picture["icon:/small/directory"])
+    tvwSuite.Add(sName, sMethod, Picture["$symbol:s-method"], sClass)
     
   Next
 
@@ -166,37 +156,6 @@ Public Sub lvwSuite_Select()
   tvwSuite.Key = tvwSuite.Item.Key
   tvwSuite.Current.EnsureVisible()
   
-End
-
-Private Sub SuiteToSelection(sSuite As String) As String[]
-
-  Dim aSelection As New String[]
-  Dim sTest As String
-  Dim iPos As Integer
-  Dim aMethod As String[]
-  Dim sMethod As String
-  
-  If Not sSuite Then Return
-  
-  For Each sTest In Split(sSuite)
-    
-    iPos = InStr(sTest, ".")
-    
-    If iPos Then
-      aMethod = Split(Mid$(sTest, iPos + 1), ";")
-      sTest = Left(sTest, iPos - 1)
-      aSelection.Add(sTest)
-      For Each sMethod In aMethod
-        aSelection.Add(sTest & "." & sMethod)
-      Next
-    Else
-      aSelection.Add(sTest)
-    Endif
-    
-  Next
-  
-  Return aSelection
-
 End
 
 Private Sub CreateSuite(Optional sCopy As String)
@@ -314,81 +273,10 @@ Public Sub tvwSuite_Select()
 
 End
 
-Private Sub SelectionToSuite(aSel As String[]) As String
-
-  Dim aSelection As New String[]
-  Dim iPos As Integer
-  Dim sMethod As String
-  Dim sLastClass As String
-  Dim sSuite As String
-  Dim bMethod As Boolean
-  Dim sKey As String
-  Dim sClass As String
-  
-  If Not aSel Then Return
-  
-  For Each sKey In aSel.Sort(gb.Natural)
-    
-    iPos = InStr(sKey, ".")
-    If iPos Then
-      sMethod = Mid$(sKey, iPos + 1)
-      sClass = Left(sKey, iPos - 1)
-    Else
-      sClass = sKey
-      sMethod = ""
-    Endif
-    
-    If sClass <> sLastClass Then
-      If sSuite Then sSuite &= ","
-      sSuite &= sClass
-      sLastClass = sClass
-      bMethod = False
-    Endif
-    
-    If sMethod Then 
-      sSuite &= If(bMethod, ";", ".") & sMethod
-      bMethod = True
-    Endif
-    
-  Next
-  
-  Return sSuite
-  
-  Return aSelection
-
-End
-
 Private Sub SaveSuites()
 
-  Dim sKey As String
-  Dim hSettings As Settings
-  Dim iCount As Integer
-  Dim sSlot As String
+  MTest.SaveSuites($cSuites, cmbTestWith.Index)
 
-  hSettings = New Settings(Project.Dir &/ ".test")
-  
-  hSettings.Clear("/TestSuites", True)
-
-  lvwSuite.MoveFirst
-  While lvwSuite.Available
-    sKey = lvwSuite.Item.Key
-    
-    If sKey = "$" Then
-      hSettings["/TestSuites/Default"] = SelectionToSuite($cSuites[sKey])
-    Else
-      Inc iCount
-      sSlot = "/TestSuites/" & CStr(iCount)
-      hSettings[sSlot &/ "Name"] = sKey
-      hSettings[sSlot &/ "Tests"] = SelectionToSuite($cSuites[sKey])
-    Endif
-    
-    lvwSuite.MoveNext 
-  Wend
-
-  hSettings["/TestSuites/Count"] = iCount
-  hSettings["/TestSuites/TestWith"] = cmbTestWith.Index
-  hSettings.Save
-  
 Catch
   
   Message.Error(("Unable to save test suites.") & "\n\n" & Error.Text)

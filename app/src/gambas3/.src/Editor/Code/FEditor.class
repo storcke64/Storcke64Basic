@@ -176,7 +176,7 @@ Public Sub ReadConfig()
   Project.SetSmallFont(panToolbar)
 
   RefreshBackground
-
+  
 End
 
 Public Function Save() As Boolean
@@ -230,6 +230,8 @@ Public Function Save() As Boolean
 
   Save.End()
   
+  If File.Ext(Path) = "test" Then MTest.UpdateSuites
+
   UpdateDiffAction
 
 Catch
@@ -2298,6 +2300,8 @@ End
 Private Function GetCurrentProcLine(iLine As Integer) As Integer
 
   $sName = ""
+  
+  If iLine >= $hEditor.Count Then Return -1
 
   Do
     If $hEditor[iLine].Limit Then

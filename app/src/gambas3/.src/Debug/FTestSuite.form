@@ -104,22 +104,19 @@
       }
     }
     { Panel4 HBox
-      MoveScaled(34,0,44,4)
-      Expand = True
+      MoveScaled(39,0,38,4)
       Spacing = True
-      { Spring1 Spring
-        MoveScaled(2,1,5,1)
-      }
-      { btnReset Button
-        MoveScaled(8,0,16,4)
-        Text = ("Reset")
-        Picture = Picture["icon:/small/undo"]
-      }
+      Invert = True
       { btnClose Button
-        MoveScaled(25,0,16,4)
+        MoveScaled(19,0,16,4)
         Text = ("Close")
         Picture = Picture["icon:/small/close"]
         Cancel = True
+      }
+      { btnReset Button
+        MoveScaled(2,0,16,4)
+        Text = ("Reset")
+        Picture = Picture["icon:/small/undo"]
       }
     }
   }

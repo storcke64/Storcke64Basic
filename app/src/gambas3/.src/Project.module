@@ -3213,7 +3213,7 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
 
     If Config["/Executable/NoTestModule"] Then
       
-      For Each sPath In Project.Tree.GetTestModules()
+      For Each sPath In MTest.GetTestModules()
         Try Kill Project.Dir &/ ".gambas" &/ UCase(File.BaseName(sPath))
       Next
       
@@ -4270,9 +4270,8 @@ Public Sub DeleteFile(sPath As String)
     Tree.Sources.Remove(File.Name(sPath))
     OnRefreshSources
 
-    If sName = Startup Then
-      DefineStartup("")
-    Endif
+    If sName = Startup Then DefineStartup("")
+    If File.Ext(sPath) = "test" Then MTest.UpdateSuites
 
     If bReloadComponent Then Compile(True,, True)
 
@@ -4470,6 +4469,9 @@ Private Function RenameOneFile(sDir As String, sName As String, sNewName As Stri
   If sExt Then
     
     Try Kill Project.Dir &/ ".gambas" &/ UCase(sName)
+    
+    If sExt = "test" Then MTest.UpdateSuites
+    
     'If Not Error Then bRecompile = True
     'Try Kill Project.Dir &/ ".list"
     'Try Kill Project.Dir &/ ".info"
@@ -7062,3 +7064,4 @@ Public Sub UpdateStatus(Optional bForce As Boolean)
   FDebugButton.UpdateStatus(bForce)
   
 End
+

@@ -233,6 +233,8 @@ Private Sub UpdateColor()
   Else
     sColor = CStr(dlgColor.Value)
   Endif
+  
+  If sColor = "-" Then Return
 
   If Not sColor Then
     ColorName = ""

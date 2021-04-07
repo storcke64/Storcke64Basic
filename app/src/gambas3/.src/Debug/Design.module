@@ -871,7 +871,7 @@ Private Sub GetTestSuite() As String
   sSuite = hSettings["/TestSuites/Default"]
   
   If Not sSuite Then
-    aTest = Project.Tree.GetTestModules()
+    aTest = MTest.GetTestModules()
     For I = 0 To aTest.Max
       aTest[I] = File.BaseName(aTest[I])
     Next
