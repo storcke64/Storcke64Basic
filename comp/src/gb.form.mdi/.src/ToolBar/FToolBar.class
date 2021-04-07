@@ -33,13 +33,17 @@ Private $iLock As Integer
 
 Private $aHidden As Control[]
 Private $aDisabled As Control[]
+Private $hTimerUpdate As Timer
 
 Public Sub _new()
   
   $iHandleSize = 1 'Max(4, Desktop.Scale)
   $iButtonWidth = Desktop.Scale * 2 + GetRealIconSize()
   dwgHandle.Width = $iHandleSize
+
   $hObserverParent = New Observer(Me.Parent.Parent) As "Container"
+  $hTimerUpdate = New Timer As "TimerUpdate"
+
   $bAutoResize = True
   UpdateHandle
   
@@ -416,16 +420,22 @@ Private Sub Update()
   
 End
 
-Public Sub Form_Resize()
+Public Sub TimerUpdate_Timer()
   
   Update
   
 End
 
+
+Public Sub Form_Resize()
+  
+  $hTimerUpdate.Trigger
+  
+End
  
 Public Sub Container_Arrange()
   
-  Update
+  $hTimerUpdate.Trigger
   
 End
 
