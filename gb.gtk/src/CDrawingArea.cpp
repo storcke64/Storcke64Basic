@@ -61,49 +61,62 @@ void CDRAWINGAREA_send_change_event(void)
 	gApplication::forEachControl(cb_change, cb_change_filter);
 }
 
-static void cleanup_drawing(intptr_t _unused)
+#ifdef GTK3
+
+typedef
+	struct {
+		CDRAWINGAREA *control;
+		cairo_t *save;
+	}
+	HANDLER_INFO;
+
+static void cleanup_drawing(HANDLER_INFO *info)
 {
 	PAINT_end();
+	info->control->context = info->save;
 }
 
-#ifdef GTK3
 static void cb_expose(gDrawingArea *sender, cairo_t *cr)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB_RAISE_HANDLER handler;
-	cairo_t *save;
+	HANDLER_INFO info;
 	int fw;
 
 	if (GB.CanRaise(THIS, EVENT_Draw))
 	{
-		handler.callback = cleanup_drawing;
-		handler.data = (intptr_t)0;
+		handler.callback = (void (*)(intptr_t))cleanup_drawing;
+		handler.data = (intptr_t)&info;
 
+		info.control = THIS;
+		info.save = THIS->context;
+		
 		GB.RaiseBegin(&handler);
 
-		save = THIS->context;
 		THIS->context = cr;
 		PAINT_begin(THIS);
 
 		fw = sender->getFrameWidth();
-		if (fw)
-		{
-			cairo_save(cr);
-			PAINT_clip(fw, fw, sender->width() - fw * 2, sender->height() - fw * 2);
-		}
+		cairo_save(cr);
+		//cairo_reset_clip(cr);
+		PAINT_clip(fw, fw, sender->width() - fw * 2, sender->height() - fw * 2);
 		
 		GB.Raise(THIS, EVENT_Draw, 0);
 		
-		if (fw)
-			cairo_restore(cr);
+		cairo_restore(cr);
 
 		PAINT_end();
-		THIS->context = save;
+		THIS->context = info.save;
 
 		GB.RaiseEnd(&handler);
 	}
 }
 #else
+static void cleanup_drawing(intptr_t _unused)
+{
+	PAINT_end();
+}
+
 static void cb_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
 {
 	CWIDGET *_object = GetObject(sender);

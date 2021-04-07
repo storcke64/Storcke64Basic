@@ -37,8 +37,6 @@ static void cb_click(GtkButton *object, gButton *data)
 		return;
 	}
 		
-	if (!gApplication::userEvents()) return;
-
 	data->unsetOtherRadioButtons();
 
 	if (data->type == gButton::Tool)
@@ -55,8 +53,6 @@ static void cb_click(GtkButton *object, gButton *data)
 
 static void cb_click_radio(GtkButton *object,gControl *data)
 {
-	if (!gApplication::userEvents()) return;
-
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(object)))
 		if (((gButton*)data)->onClick) ((gButton*)data)->onClick((gControl*)data);
 	return;

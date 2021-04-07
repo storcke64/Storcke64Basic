@@ -155,7 +155,10 @@ public:
 	void hideHiddenChildren();
 	virtual GtkWidget *getContainer();
 
-	virtual void createBorder(GtkWidget *new_border, bool keep_widget = false);
+	void setShown(bool v) { _shown = v; }
+	bool isShown() const { return _shown; }
+	
+	virtual void connectBorder();
 	
 private:
 
@@ -166,8 +169,8 @@ private:
   gContainer *_proxyContainer;
   gContainer *_proxyContainerFor;
 	unsigned _did_arrangement : 1;
-	unsigned _cb_map : 1;
 	unsigned _user_container : 1;
+	unsigned _shown : 1;
 	unsigned char _no_arrangement;
 };
 

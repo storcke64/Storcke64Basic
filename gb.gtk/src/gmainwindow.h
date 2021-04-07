@@ -213,7 +213,6 @@ public:
 	unsigned _no_take_focus : 1;
 	unsigned _moved : 1;
 	unsigned _resized : 1;
-	unsigned _event_resized : 1;
 	unsigned _resizable : 1;
 	unsigned _unmap : 1;
 	unsigned _initMenuBar : 1;

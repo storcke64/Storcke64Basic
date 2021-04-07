@@ -34,14 +34,22 @@ DECLARE_EVENT(EVENT_Hide);
 
 static void connect_signals(GtkWidget *wid, void *_object);
 
+static bool is_disabled(CWATCHER *_object)
+{
+	gControl *ctrl = THIS->wid->widget;
+	return ctrl->_hidden_temp;
+}
+
 static void raise_show(GtkWidget *widget, CWATCHER *_object)
 {
-	GB.Raise(THIS, EVENT_Show, 0);
+	if (!is_disabled(THIS))
+		GB.Raise(THIS, EVENT_Show, 0);
 }
 
 static void raise_hide(GtkWidget *widget, CWATCHER *_object)
 {
-	GB.Raise(THIS, EVENT_Hide, 0);
+	if (!is_disabled(THIS))
+		GB.Raise(THIS, EVENT_Hide, 0);
 }
 
 static void raise_configure(GtkWidget *widget, GdkEventConfigure *e, CWATCHER *_object)
@@ -87,7 +95,6 @@ static void connect_signals(GtkWidget *wid, void *_object)
 	g_signal_connect(G_OBJECT(wid), "configure-event", G_CALLBACK(raise_configure), _object);
 	g_signal_connect(G_OBJECT(wid), "destroy", G_CALLBACK(cb_destroy), _object);
 }
-	
 
 /** Watcher class *********************************************************/
 
