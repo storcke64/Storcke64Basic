@@ -245,12 +245,6 @@
       Picture = Picture["icon:/small/lock"]
       Toggle = True
     }
-    { mnuClose Menu
-      Action = ".close"
-      Text = ("Close")
-      Picture = Picture["icon:/small/close"]
-      Shortcut = "Ctrl+W"
-    }
     { mnuReload Menu
       Action = ".reload"
       Text = ("Reload")
@@ -261,6 +255,14 @@
       Text = ("Save")
       Picture = Picture["icon:/small/save"]
       Shortcut = "Ctrl+S"
+    }
+    { Menu9 Menu
+    }
+    { mnuClose Menu
+      Action = ".close"
+      Text = ("Close")
+      Picture = Picture["icon:/small/close"]
+      Shortcut = "Ctrl+W"
     }
   }
   { mnuFont Menu

@@ -198,12 +198,6 @@
     }
     { mnuSep5 Menu
     }
-    { mnuClose Menu
-      Action = ".close"
-      Text = ("Close")
-      Picture = Picture["icon:/small/close"]
-      Shortcut = "Ctrl+W"
-    }
     { mnuLocked Menu
       Action = ".locked"
       Text = ("Locked")
@@ -225,6 +219,14 @@
       Text = ("Save")
       Picture = Picture["icon:/small/save"]
       Shortcut = "Ctrl+S"
+    }
+    { Menu7 Menu
+    }
+    { mnuClose Menu
+      Action = ".close"
+      Text = ("Close")
+      Picture = Picture["icon:/small/close"]
+      Shortcut = "Ctrl+W"
     }
   }
   { mnuPasteAs Menu
