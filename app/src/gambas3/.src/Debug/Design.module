@@ -463,7 +463,7 @@ Public Sub Process_Kill()
       Case 15
         sMsg = ("The program has been terminated.")
       Default
-        If bTest Then FDebugInfo.SetTestResult(True)
+        If bTest Then FDebugInfo.StopTest(True)
         bTest = False
         FCrash.Run($hProcess)
     End Select
@@ -473,7 +473,7 @@ Public Sub Process_Kill()
     bFail = True
   Endif
 
-  If bTest Then FDebugInfo.SetTestResult(bFail)
+  If bTest Then FDebugInfo.StopTest(bFail)
   
   $hProcess = Null
 
@@ -754,6 +754,7 @@ Public Sub Test()
     Return
   Endif
   
+  FDebugInfo.StartTest()
   Run(True)
   
 End
