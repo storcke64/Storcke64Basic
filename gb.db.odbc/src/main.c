@@ -221,7 +221,7 @@ int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 	//Make sure the statement has a cursor
 	if (!(stmtHandle && (cursorScrollable == SQL_TRUE)))
 	{
-		DB.Debug("gb.db.odbc", "cannot do GetRecordCount()!");
+		DB.Debug("gb.db.odbc", "GetRecordCount(): Cannot count records!");
 		return ((int) myRecCnt);
 	}
 
@@ -810,7 +810,7 @@ fflush(stderr);
 		retcode = SQLConnect(odbc->odbcHandle, (SQLCHAR *)host, SQL_NTS, (SQLCHAR *)user, SQL_NTS, (SQLCHAR *) desc->password, SQL_NTS);
 	}
 
-        //zxMarce: Must bail out NOW if failed to connect, or nonsense errors will appear.
+    //zxMarce: Must bail out NOW if failed to connect, or nonsense errors will appear.
 	if (!SQL_SUCCEEDED(retcode))
 	{
 		throwODBCError((hostIsAConnString ? "SQLDriverConnect" : "SQLConnect"), odbc->odbcHandle, SQL_HANDLE_DBC);
@@ -1133,47 +1133,38 @@ fflush(stderr);
 	{
 		if(res->Cursor_Scrollable == SQL_TRUE)	//Does the query support scrolling?
 		{
-			retcode2 = SQLFetchScroll(res->odbcStatHandle, SQL_FETCH_ABSOLUTE, pos + 1);
-			DB.Debug(
-				"gb.db.odbc",
-				"query_fill.SQLFetchScroll(SQL_FETCH_ABSOLUTE): retcode2=%d",
-				(int)retcode2
+			retcode2 = SQLFetchScroll(
+				res->odbcStatHandle, 
+				SQL_FETCH_ABSOLUTE, 
+				pos + 1
 			);
 		}
 		else
 		{
-			retcode2 = SQLFetchScroll(res->odbcStatHandle, SQL_FETCH_NEXT, pos + 1);
-			if(!SQL_SUCCEEDED(retcode2))
-			{
-				reportODBCError(
-					"SQLFetchScroll(SQL_FETCH_NEXT)",
-					res->odbcStatHandle,
-					SQL_HANDLE_STMT
-				);
-			}
-			DB.Debug(
-				"gb.db.odbc",
-				"query_fill.SQLFetchScroll(SQL_FETCH_NEXT): retcode2=%d",
-				(int)retcode2
+			retcode2 = SQLFetchScroll(
+				res->odbcStatHandle, 
+				SQL_FETCH_NEXT, 
+				pos + 1
 			);
 		}
 	}
 	else
 	{
 		/**
-		 * zxMarce, 20210405: This next IF seems to be unnecessary 
-		 * (and even bad) for MDBTools (and maybe any other driver that
-		 * not support cursors). Disabling until a new problem arises.
-		 * Actually, come to think of it, I do not understand what the 
-		 * purpose of this "next" parameter can be.
+		 * 20210409 zxMarce: The next IF makes sure the query is not
+		 * forced to fetch-back, as the first fetch is issued with:
+		 *   (next == false) && (pos == 0)
+		 * Subsequent valid (forward) fetches are issued with:
+		 *   (next == true) && (pos != 0)
+		 * Any invalid fetch is detected by comparing against:
+		 *   (!next) && (pos != 0)
+		 * which will trigger a descriptive error message.
 		 */
-		/*
-		if (!next)
+		if ((!next) && (pos != 0))
 		{
-			GB.Error("Unable to fetch row (!next)");
+			GB.Error("Forward-only result cannot fetch backwards");
 			return DB_ERROR;
 		}
-		*/
 		retcode2 = SQLFetch(res->odbcStatHandle);
 	}
 
