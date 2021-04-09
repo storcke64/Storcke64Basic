@@ -11,7 +11,7 @@ dnl ---- zstd compression driver
 
 GB_COMPONENT_PKG_CONFIG(
   zstd, ZSTD, gb.compress.zstd, [src],
-  'libzstd >= 1.3.8')
+  'libzstd >= 1.3.3')
 
 dnl ---- Create makefiles
 
