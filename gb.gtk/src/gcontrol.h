@@ -85,6 +85,9 @@ public:
 	void hide() { setVisible(false); }
 	void show() { setVisible(true); }
 
+	void setVisibility(bool v);
+	void checkVisibility();
+	
 	virtual bool isEnabled() const;
 	virtual void setEnabled(bool vl);
 
@@ -300,6 +303,8 @@ public:
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
+	unsigned _hidden_temp : 1;             // Temporarily hidden (must not raise watchers)
+	unsigned _allow_show : 1;              // Allowed to be visible (after the first resize)
 	
 #ifdef GTK3
 	unsigned _style_dirty : 1;             // If the style must be refreshed
@@ -341,8 +346,9 @@ public:
 	void drawBackground(GdkEventExpose *e);
 #endif
 	
-	virtual void createBorder(GtkWidget *new_border, bool keep_widget = false);
+	void createBorder(GtkWidget *new_border, bool keep_widget = false);
 	void createWidget();
+	virtual void connectBorder();
 	
 	int minimumWidth() const { return _min_w; }
 	int minimumHeight() const { return _min_h; }
@@ -362,6 +368,7 @@ public:
 	
 	void hideButKeepFocus();
 	void showButKeepFocus();
+	bool isTempHidden() const { return _hidden_temp; }
 	
 	static void cleanRemovedControls();
 

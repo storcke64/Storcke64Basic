@@ -52,11 +52,6 @@ public:
 	static void setActiveControl(gControl *control, bool on);
 	static void handleFocusNow();
 
-	static void suspendEvents(bool vl);
-	static void enableEvents();
-	static bool userEvents();
-	static bool allEvents();
-
 	static void enableTooltips(bool vl);
 	static bool areTooltipsEnabled();
 

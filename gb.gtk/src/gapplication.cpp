@@ -983,29 +983,6 @@ void gApplication::enableTooltips(bool vl)
   g_object_set (settings, "gtk-enable-tooltips", enabled, (char *)NULL);
 }
 
-void gApplication::suspendEvents(bool vl)
-{
-	if (!vl) appEvents=3; //all
-	else appEvents=1;     //user
-}
-
-void gApplication::enableEvents()
-{
-	appEvents=0;
-}
-
-bool gApplication::userEvents()
-{
-	if (appEvents) return false;
-	return true;
-}
-
-bool gApplication::allEvents()
-{
-	if (appEvents & 2) return false;
-	return true;
-}
-
 static void do_nothing()
 {
 }

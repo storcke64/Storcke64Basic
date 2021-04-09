@@ -30,6 +30,10 @@
 #define _LARGEFILE64_SOURCE
 #endif
 
+// fix some building errors with zstd prior v1.3.5?
+// - tagged as experimental on these releases -
+#define ZSTD_STATIC_LINKING_ONLY 1
+
 #include <errno.h>
 #include <zstd.h>
 
@@ -37,6 +41,11 @@
 
 #define MODE_READ 0
 #define MODE_WRITE 1
+
+// since zstd v1.3.5
+#ifndef ZSTD_CLEVEL_DEFAULT
+#define ZSTD_CLEVEL_DEFAULT 3
+#endif
 
 GB_INTERFACE EXPORT GB;
 COMPRESS_INTERFACE EXPORT COMPRESSION;
@@ -83,7 +92,11 @@ static int ZSTD_max_compression(void)
 
 static int ZSTD_min_compression(void)
 {
+    #if ZSTD_VERSION_NUMBER < 10308 // ubuntu 18.04 LTS - zstd v1.3.3 / debian stable is v1.3.8
+    return 1;
+    #else
 	return ZSTD_minCLevel();
+    #endif
 }
 
 static int ZSTD_default_compression(void)
@@ -149,16 +162,73 @@ static void ZSTD_c_File(char *source,char *target,int level)
         GB.Error("Error while compressing file: ZSTD_createCCtx() failed!");
         goto error_cfile;
     }
+
+    #if ZSTD_VERSION_NUMBER < 10308 // ubuntu 18.04 LTS - zstd v1.3.3 / debian stable is v1.3.8
+    size_t const retValue = ZSTD_initCStream(cctx, level);
     
+    if (ZSTD_isError(retValue))
+    {
+        GB.Error("Error while compressing file, ZSTD_initCStream() failed:  &1", ZSTD_getErrorName(retValue));
+        goto error_cfile;
+    }
+    
+    while(!feof(f_src))
+	{
+        size_t len = fread(buffIn, 1, buffInSize, f_src);
+		if (len < buffInSize)
+		{
+			if (ferror(f_src))
+			{
+				GB.Error("Error while reading data: &1", strerror(errno));
+				goto error_cfile;
+			}
+        }
+        if (len > 0)
+		{
+            ZSTD_inBuffer input = { buffIn, len, 0 };
+            int finished;
+            do {
+                ZSTD_outBuffer output = { buffOut, buffOutSize, 0 };
+                size_t const remaining = ZSTD_compressStream(cctx, &output , &input);
+
+                if (ZSTD_isError(remaining))
+                {
+                    GB.Error("Error while compressing file: &1", ZSTD_getErrorName(remaining));
+                    goto error_cfile;
+                }
+                if (fwrite(buffOut, 1, output.pos, f_dst) != output.pos)
+                {
+                    GB.Error("Error while writing data: &1", strerror(errno));
+                    goto error_cfile;
+                }
+                finished = remaining;
+            } while (!finished);
+            
+            ZSTD_outBuffer output = { buffOut, buffOutSize, 0 };
+            size_t const remaining = ZSTD_endStream(cctx, &output);
+            
+ 			if (remaining)
+			{
+				GB.Error("Error while compressing file: not fully flushed!");
+				goto error_cfile;
+			}
+            if (fwrite(buffOut, 1, output.pos, f_dst) != output.pos)
+            {
+                GB.Error("Error while writing flushed data: &1", strerror(errno));
+                goto error_cfile;
+            }
+        }
+    }
+    
+    #else
     // TODO: check errors ?
     ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, level);
     ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 1);
-    
     ZSTD_EndDirective mode = ZSTD_e_continue;
+
 	while(!feof(f_src))
 	{
-    size_t len = fread(buffIn, 1, buffInSize, f_src);
-
+        size_t len = fread(buffIn, 1, buffInSize, f_src);
 		if (len < buffInSize)
 		{
 			if (ferror(f_src))
@@ -168,7 +238,6 @@ static void ZSTD_c_File(char *source,char *target,int level)
 			}
 			mode = ZSTD_e_end;
 		}
-
 		if (len > 0)
 		{
             ZSTD_inBuffer input = { buffIn, len, 0 };
@@ -187,12 +256,12 @@ static void ZSTD_c_File(char *source,char *target,int level)
                     GB.Error("Error while writing data: &1", strerror(errno));
                     goto error_cfile;
                 }
-                
                 finished = (len < buffInSize) ? (remaining == 0) : (input.pos == input.size);
             } while (!finished);
 		}
 	}
-
+    #endif /* ZSTD_VERSION_NUMBER < 10308 */
+    
 error_cfile:
     if (cctx != NULL)
         ZSTD_freeCCtx(cctx);
@@ -279,6 +348,14 @@ static void ZSTD_u_File(char *source,char *target)
         goto error_ufile;
     }
     
+    #if ZSTD_VERSION_NUMBER < 10308 // ubuntu 18.04 LTS - zstd v1.3.3 / debian stable is v1.3.8
+    size_t const retValue = ZSTD_initDStream(dctx);
+    if (ZSTD_isError(retValue))
+    {
+        GB.Error("Error while decompressing file, ZSTD_initDStream() failed:  &1", ZSTD_getErrorName(retValue));
+        goto error_ufile;
+    }
+    #endif /* ZSTD_VERSION_NUMBER < 10308 */
 	while(!feof(f_src))
 	{
     size_t len = fread(buffIn, 1, buffInSize, f_src);

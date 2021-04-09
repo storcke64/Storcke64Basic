@@ -12,7 +12,7 @@ Private Sub Decode()
   
   If $cVal Then Return
   $cVal = New Collection
-  Main.DecodeURL(CGI["QUERY_STRING"], $aField, $cVal)
+  Main.DecodeURL(CGI["QUERY_STRING"], $aField, $cVal, True)
   
 End
 

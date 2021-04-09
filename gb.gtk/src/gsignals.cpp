@@ -45,7 +45,6 @@ static void cb_destroy(GtkWidget *object, gControl *data)
 
 static gboolean cb_menu(GtkWidget *widget, gControl *data)
 {
-	if (!gApplication::userEvents()) return false;
 	if (data->onMouseEvent)
 		return data->onMouseEvent(data, gEvent_MouseMenu);
 	else
@@ -54,19 +53,15 @@ static gboolean cb_menu(GtkWidget *widget, gControl *data)
 
 gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 {
-	if (!gApplication::allEvents()) return false;
-
 	//fprintf(stderr, "gcb_focus_in: %s\n", data->name());
 	
 	gApplication::setActiveControl(data, true);
-	
+
 	return false;
 }
 
 gboolean gcb_focus_out(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 {	
-	if (!gApplication::allEvents()) return false;
-
 	//fprintf(stderr, "gcb_focus_out: %s\n", data->name());
 	
 	/*if (!::strcmp(data->name(), "txtName"))
@@ -82,8 +77,7 @@ gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data
 {
 	gControl *ctrl;
 	
-	data = gApplication::activeControl();
-	if (!data)
+	if (data != gApplication::activeControl())
 		return true;
 			
 	if (direction == GTK_DIR_TAB_FORWARD || direction == GTK_DIR_TAB_BACKWARD)
@@ -177,8 +171,6 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	bool retval = true;
 	int action;
 	gControl *source;
-	
-	if (!gApplication::allEvents()) return true;
 	
 	#if DEBUG_DND
 	fprintf(stderr, "cb_drag_motion: %s\n", data->name());

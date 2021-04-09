@@ -522,12 +522,14 @@ void CCONTAINER_decide(CWIDGET *control, bool *width, bool *height)
 	
 	if ((THIS_ARRANGEMENT->mode == ARRANGE_VERTICAL)
 	    || (THIS_ARRANGEMENT->mode == ARRANGE_HORIZONTAL && control->flag.expand)
-	    || (THIS_ARRANGEMENT->mode == ARRANGE_ROW && control->flag.expand))
+	    || (THIS_ARRANGEMENT->mode == ARRANGE_ROW && control->flag.expand)
+			|| (THIS_ARRANGEMENT->mode == ARRANGE_FILL))
 		*width = TRUE;
 	
 	if ((THIS_ARRANGEMENT->mode == ARRANGE_HORIZONTAL)
 	    || (THIS_ARRANGEMENT->mode == ARRANGE_VERTICAL && control->flag.expand)
-	    || (THIS_ARRANGEMENT->mode == ARRANGE_COLUMN && control->flag.expand))
+	    || (THIS_ARRANGEMENT->mode == ARRANGE_COLUMN && control->flag.expand)
+			|| (THIS_ARRANGEMENT->mode == ARRANGE_FILL))
 		*height = TRUE;
 }
 

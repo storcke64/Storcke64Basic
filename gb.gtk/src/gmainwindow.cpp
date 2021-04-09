@@ -228,7 +228,7 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 	}
 	
 	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "cb_configure: %s: (%d %d %d %d) -> (%d/%d %d/%d %d %d) window = %p resized = %d send_event = %d\n", data->name(), data->bufX, data->bufY, data->bufW, data->bufH, x, event->x, y, event->y, event->width, event->height, event->window, data->_event_resized, event->send_event);
+	fprintf(stderr, "cb_configure: %s: (%d %d %d %d) -> (%d/%d %d/%d %d %d) window = %p send_event = %d\n", data->name(), data->bufX, data->bufY, data->bufW, data->bufH, x, event->x, y, event->y, event->width, event->height, event->window, event->send_event);
 	#endif
 
 	data->calcCsdSize();
@@ -404,7 +404,6 @@ void gMainWindow::initialize()
 	_mask = false;
 	_masked = false;
 	_resized = false;
-	_event_resized = false;
 	_top_only = false;
 	_closing = false;
 	_closed = false;
@@ -712,7 +711,10 @@ bool gMainWindow::resize(int w, int h, bool no_decide)
 	else
 	{
 		if (w == bufW && h == bufH)
+		{
+			_resized = true;
 			return true;
+		}
 
 		bufW = w < 0 ? 0 : w;
 		bufH = h < 0 ? 0 : h;
@@ -728,17 +730,8 @@ bool gMainWindow::resize(int w, int h, bool no_decide)
 	}
 
 	_resized = true;
-	_event_resized = true;
 	return false;
 }
-
-/*void gMainWindow::moveResize(int x, int y, int w, int h)
-{
-	//if (isTopLevel())
-	//	gdk_window_move_resize(border->window, x, y, w, h);
-	//else
-		gContainer::moveResize(x, y, w, h);
-}*/
 
 bool gMainWindow::emitOpen()
 {

@@ -144,6 +144,8 @@ Public Sub Panel_MouseUp()
   X = Mouse.X
   Y = Mouse.Y
 
+  If X < 0 Or If Y < 0 Or If X >= $hPanel.W Or If Y >= $hPanel.H Then Return
+
   Raise Click
   Stop Event
 

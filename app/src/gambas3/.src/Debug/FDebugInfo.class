@@ -1406,6 +1406,7 @@ End
 
 Public Sub ShowTest()
   
+  FMain.ShowDebug(True)
   FDebugButton.SelectButton(TAB_TEST)
   
 End
@@ -1533,9 +1534,6 @@ End
 
 Public Sub btnTest_Click()
 
-  panTestResult.Hide
-  spnTest.Show
-  spnTest.Start
   Design.Test()
 
 End
@@ -1554,7 +1552,15 @@ Public Sub trmTest_Click()
 
 End
 
-Public Sub SetTestResult(bFail As Boolean)
+Public Sub StartTest()
+  
+  panTestResult.Hide
+  spnTest.Show
+  spnTest.Start
+  
+End
+
+Public Sub StopTest(bFail As Boolean)
 
   spnTest.Stop
   spnTest.Hide

@@ -63,7 +63,16 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
+	sender->setShown(true);
+
+	if (sender->isTempHidden())
+		return;
 	sender->performArrange();
+}
+
+static void cb_unmap(GtkWidget *widget, gContainer *sender)
+{
+	sender->setShown(false);
 }
 
 static void cb_arrange(gContainer *sender)
@@ -100,7 +109,7 @@ static void resize_container(gContainer *cont, int w, int h)
 #define IS_DESIGN(_object) (((gControl*)_object)->isDesign())
 #define IS_WIDGET_VISIBLE(_widget)  (((gControl*)_widget)->isVisible())
 
-#define CAN_ARRANGE(_object) (gtk_widget_get_mapped(((gControl *)_object)->border))
+#define CAN_ARRANGE(_object) (((gContainer *)_object)->isShown() && !((gControl *)_object)->isDestroyed())
 //|| (((gControl *)_object)->isTopLevel() && ((gMainWindow *)_object)->opened))
 
 // BM: ClientX() & ClientY() are relative to the border.
@@ -146,16 +155,12 @@ static void resize_container(gContainer *cont, int w, int h)
 void gContainer::performArrange()
 {
 	if (_no_arrangement)
-	{
 		_did_arrangement = true;
-		return;
+	else
+	{
+		_did_arrangement = false;
+		arrangeContainer((void *)this);
 	}
-
-	if (!gApplication::allEvents()) return;
-
-	_did_arrangement = false;
-
-	arrangeContainer((void*)this);
 }
 
 
@@ -241,17 +246,19 @@ void gContainer::decide(gControl *child, bool *width, bool *height)
 {
 	*width = *height = FALSE;
 	
-	if (child->isIgnore() || autoResize())
+	if (!child->_allow_show || child->isIgnore() || autoResize())
 		return;
 	
 	if ((arrange() == ARRANGE_VERTICAL)
 	    || (arrange() == ARRANGE_HORIZONTAL && child->isExpand())
-	    || (arrange() == ARRANGE_ROW && child->isExpand()))
+	    || (arrange() == ARRANGE_ROW && child->isExpand())
+		  || (arrange() == ARRANGE_FILL))
 		*width = TRUE;
 	
 	if ((arrange() == ARRANGE_HORIZONTAL)
 	    || (arrange() == ARRANGE_VERTICAL && child->isExpand())
-	    || (arrange() == ARRANGE_COLUMN && child->isExpand()))
+	    || (arrange() == ARRANGE_COLUMN && child->isExpand())
+		  || (arrange() == ARRANGE_FILL))
 		*height = TRUE;
 }
 
@@ -271,9 +278,9 @@ void gContainer::initialize()
 	_client_h = 0;
 	_no_arrangement = 0;
 	_did_arrangement = false;
-	_cb_map = false;
 	_is_container = true;
 	_user_container = false;
+	_shown = false;
 	
 	arrangement.mode = 0;
 	arrangement.spacing = false;
@@ -621,13 +628,14 @@ void gContainer::insert(gControl *child, bool realize)
 		child->_visible = true;
     
 	//g_debug("gContainer::insert: visible = %d", isReallyVisible());
-	performArrange();
+	if (!realize)
+		performArrange();
 	//fprintf(stderr, "--> %d %d %d %d\n", child->x(), child->y(), child->width(), child->height());
 
 	if (realize)
 	{
     //gtk_widget_realize(child->border);
-		gtk_widget_show(child->border);
+		//gtk_widget_show(child->border);
 		if (child->frame)
 			gtk_widget_show(child->frame);
 		if (child->widget != child->border)
@@ -735,14 +743,14 @@ GtkWidget *gContainer::getContainer()
 	return widget;
 }
 
+void gContainer::connectBorder()
+{
+	g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
+	g_signal_connect(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
+}
+
 bool gContainer::resize(int w, int h, bool no_decide)
 {
-	if (!_cb_map)
-	{
-		_cb_map = true;
-		g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
-	}
-	
 	if (gControl::resize(w, h, no_decide))
 		return true;
 
@@ -919,10 +927,4 @@ void gContainer::setProxyContainer(gContainer *proxy)
 		_proxyContainer = NULL;
 	
 	updateDesignChildren();
-}
-
-void gContainer::createBorder(GtkWidget *new_border, bool keep_widget)
-{
-	gControl::createBorder(new_border, keep_widget);
-	_cb_map = false;
 }

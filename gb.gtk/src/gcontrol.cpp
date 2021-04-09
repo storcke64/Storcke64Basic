@@ -367,6 +367,8 @@ void gControl::initAll(gContainer *parent)
 	_is_drawingarea = false;
 	_has_native_popup = false;
 	_eat_return_key = false;
+	_hidden_temp = false;
+	_allow_show = false;
 
 	onFinish = NULL;
 	onFocusEvent = NULL;
@@ -391,9 +393,6 @@ void gControl::initAll(gContainer *parent)
 	_style_dirty = false;
 	_no_style_without_child = false;
 #endif
-
-	/*if (pr && pr->isDesign())
-		setDesignIgnore();*/
 }
 
 gControl::gControl()
@@ -527,12 +526,15 @@ void gControl::setEnabled(bool vl)
 	gtk_widget_set_sensitive(border, vl);
 }
 
-void gControl::setVisible(bool vl)
+void gControl::setVisibility(bool vl)
 {
-	if (vl == _visible)
+	_visible = vl;
+	
+	if (!_allow_show)
 		return;
 
-	_visible = vl;
+	if (vl == gtk_widget_get_visible(border))
+		return;
 
 	if (vl)
 	{
@@ -556,6 +558,12 @@ void gControl::setVisible(bool vl)
 	}
 
 	if (!isIgnore() && pr) pr->performArrange();
+}
+
+void gControl::setVisible(bool vl)
+{
+	setVisibility(vl);
+	checkVisibility();
 }
 
 /*****************************************************************
@@ -691,7 +699,12 @@ void gControl::move(int x, int y)
 	#else
 	updateGeometry();
 	#endif
+	
+	/*if (name() && !::strcmp(name(), "txtTagEditor") && y == 43)
+		BREAKPOINT();*/
 
+	checkVisibility();
+	
 	send_configure(this); // needed for Watcher and Form Move events
 }
 
@@ -699,6 +712,7 @@ void gControl::hideButKeepFocus()
 {
 	//fprintf(stderr, "gControl::hideButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
+	_hidden_temp = true;
 	gApplication::_keep_focus = true;
 	gtk_widget_hide(border);
 	gApplication::_keep_focus = false;
@@ -710,7 +724,8 @@ void gControl::showButKeepFocus()
 
 	//fprintf(stderr, "gControl::showButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
-	gtk_widget_show(border);
+	if (_allow_show)
+		gtk_widget_show(border);
 	
 	focus = gApplication::_active_control;
 	if (focus)
@@ -720,6 +735,8 @@ void gControl::showButKeepFocus()
 			focus->setFocus();
 		gApplication::_active_control = focus;
 	}
+
+	_hidden_temp = false;
 }
 
 bool gControl::resize(int w, int h, bool no_decide)
@@ -740,15 +757,15 @@ bool gControl::resize(int w, int h, bool no_decide)
 			h = height();
 	}
 
-	if (w < 0) w = 0;
-	if (h < 0) h = 0;
+	if (w <= 0) w = 1;
+	if (h <= 0) h = 1;
 
 	if (width() == w && height() == h)
 		return true;
-
+	
 	bufW = w;
 	bufH = h;
-
+	
 	if (w < minimumWidth() || h < minimumHeight())
 	{
 		hideButKeepFocus();
@@ -782,6 +799,8 @@ bool gControl::resize(int w, int h, bool no_decide)
 		}
 	}
 
+	checkVisibility();
+	
 	if (pr && !isIgnore())
 		pr->performArrange();
 
@@ -850,6 +869,7 @@ void gControl::setExpand(bool vl)
 		return;
 
 	_expand = vl;
+	checkVisibility();
 
 	if (pr && !_ignore)
 		pr->performArrange();
@@ -1869,10 +1889,17 @@ void gControl::setMinimumSize()
 	else
 	{
 		GtkRequisition minimum_size, natural_size;
+		bool mapped = gtk_widget_get_mapped(border);
 		
+		if (!mapped)
+			gtk_widget_show(border);
+			
 		_do_not_patch = true;
 		gtk_widget_get_preferred_size(widget, &minimum_size, &natural_size);
 		_do_not_patch = false;
+		
+		if (!mapped)
+			gtk_widget_hide(border);
 		
 		//fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);
 
@@ -1887,6 +1914,10 @@ void gControl::setMinimumSize()
 	#endif
 }
 
+
+void gControl::connectBorder()
+{
+}
 
 void gControl::realize(bool draw_frame)
 {
@@ -1913,9 +1944,10 @@ void gControl::realize(bool draw_frame)
 #endif
 
 	connectParent();
+	connectBorder();
 	
 	setMinimumSize();
-	resize(_min_w, _min_h, true);
+	resize(Max(8, _min_w), Max(8, _min_h), true);
 	initSignals();
 
 	if (!_no_background && !gtk_widget_get_has_window(border))
@@ -2899,6 +2931,7 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 	GtkWidget *old = border;
 	
 	border = new_border;
+	connectBorder();
 	
 	if (keep_widget && widget)
 		gt_widget_reparent(widget, border);
@@ -2920,4 +2953,13 @@ bool gControl::setInverted(bool v)
 	_inverted = v;
 	gt_widget_set_inverted(widget, v);
 	return false;
+}
+
+void gControl::checkVisibility()
+{
+	if (_allow_show)
+		return;
+	
+	_allow_show = true;
+	setVisibility(_visible);
 }

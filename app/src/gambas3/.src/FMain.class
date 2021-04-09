@@ -44,6 +44,8 @@ Public Sub _new()
   'ScrollArea(tvwProject.Proxy.Proxy).Shadow = True
   'tvwProject.Columns.Count = 2
   
+  btnUseInheritance.Picture = Picture["img/32/inheritance.png"].Stretch(Stock.GetSize("small"))
+  
   panProject.MinSize = Desktop.Scale * 24
   
   Design.Init

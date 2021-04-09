@@ -267,3 +267,9 @@ REFRESH_MENU:
   
 End
 
+Public Sub Stretch(Width As Integer, Optional Height As Integer) As Picture
+  
+  If IsMissing(Height) Then Height = Width
+  Return Me.Image.Stretch(Width, Height).Picture
+  
+End
