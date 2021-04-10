@@ -120,7 +120,7 @@ End
 
 Static Private Function ShowDesktop_Read() As Boolean
 
-  Return X11.GetWindowProperty(X11.RootWindow, Atom["_NET_SHOWING_DESKTOP"])[0]
+  Try Return X11.GetWindowProperty(X11.RootWindow, Atom["_NET_SHOWING_DESKTOP"])[0]
 
 End
 
