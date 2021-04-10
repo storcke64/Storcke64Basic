@@ -642,7 +642,6 @@ char *DB_GetQuotedTable(DB_DRIVER *driver, DB_DATABASE *db, const char *table, i
 	
 	quote = (*driver->GetQuote)();
 	
-	
 	if (!point)
 	{
 		res = GB.TempString(NULL, len + 2);

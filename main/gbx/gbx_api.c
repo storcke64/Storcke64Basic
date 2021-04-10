@@ -222,6 +222,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_MakeDate,
 	(void *)DATE_from_time,
 	(void *)DATE_timer,
+	(void *)DATE_from_string,
 
 	(void *)GB_Watch,
 
