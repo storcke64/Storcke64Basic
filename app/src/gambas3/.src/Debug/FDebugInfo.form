@@ -213,22 +213,19 @@
         Margin = True
         Type = Spinner.Circle
       }
-      { panTestResult Panel
-        MoveScaled(40,0,29,4)
-        Visible = False
+      { panTestResult DrawingArea
+        MoveScaled(33,0,52,4)
         Arrangement = Arrange.Horizontal
-        AutoResize = True
+        Centered = True
+        Spacing = True
         { picTestResult PictureBox
-          MoveScaled(1,0,4,4)
+          MoveScaled(3,0,4,4)
           Alignment = Align.Center
         }
         { lblTestResult Label
-          MoveScaled(7,0,12,4)
+          MoveScaled(9,0,12,4)
           Font = Font["Bold"]
           AutoResize = True
-        }
-        { Panel10 Panel
-          MoveScaled(26,0,1,4)
         }
       }
     }

@@ -21,6 +21,7 @@ Private $sLastObject As String
 
 Private $hBreakpoint As Picture
 Private $hDisabledBreakpoint As Picture
+Private $iTestBg As Integer
 
 Public Sub _new()
   
@@ -1568,19 +1569,36 @@ Public Sub StopTest(bFail As Boolean)
   If bFail Then
     lblTestResult.Text = ("Test has failed.")
     lblTestResult.Foreground = Color.DarkRed
-    picTestResult.Picture = Picture["icon:/small/error"]
-    panTestResult.Background = Color.Merge(Color.Red, Color.Background, 0.7)
+    picTestResult.Picture = Picture["icon:/small/emote-sad"]
+    $iTestBg = Color.Merge(Color.Red, Color.Background, 0.7)
   Else
     lblTestResult.Text = ("Test has succeeded.")
     lblTestResult.Foreground = Color.DarkGreen
-    picTestResult.Picture = Picture["icon:/small/apply"]
-    panTestResult.Background = Color.Merge(Color.Green, Color.Background, 0.7)
+    picTestResult.Picture = Picture["icon:/small/love"]
+    $iTestBg = Color.Merge(Color.Green, Color.Background, 0.7)
   Endif
   
-  If Application.DarkTheme Then lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)
+  If Application.DarkTheme Then 
+    lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)
+    $iTestBg = Color.Invert($iTestBg, True)
+  Endif
   
+  picTestResult.W = Stock.GetSize("small")
+  panTestResult.W = picTestResult.W + lblTestResult.W + Desktop.Scale * 4
   panTestResult.Show
+  panTestResult.Refresh
   
   ShowTest
+
+End
+
+Public Sub panTestResult_Draw()
+
+  Dim DS As Integer
+
+  DS = Desktop.Scale \ 2
+  Paint.Rectangle(0, DS, Paint.W, Paint.H - DS * 2, DS * 4)
+  Paint.Background = $iTestBg
+  Paint.Fill
 
 End
