@@ -1099,6 +1099,7 @@ fflush(stderr);
 	buffer.
 
 *****************************************************************************/
+
 static int query_fill(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VALUE * buffer, int next)
 {
 	ODBC_RESULT *res = (ODBC_RESULT *) result;
@@ -1217,8 +1218,8 @@ fflush(stderr);
 		 * 20210405 zxMarce: The line below asked for the attribute
 		 * SQL_DESC_LENGTH, but it should have asked instead for 
 		 * SQL_DESC_DISPLAY_SIZE. It messed up drivers like MDBTools,
-		 * where SQL_DESC_LENGTH seems to return the field name lenght
-		 * instead of the max field data lenght. Sources:
+		 * where SQL_DESC_LENGTH seems to return the field name length
+		 * instead of the max field data length. Sources:
 		 * https://docs.microsoft.com/en-us/sql/odbc/reference/syntax/sqlcolattribute-function
 		 * https://www.ibm.com/support/producthub/db2/docs/content/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.cli.doc/doc/r0000569.html
 		 */
@@ -1446,6 +1447,7 @@ fflush(stderr);
 	only
 
 *****************************************************************************/
+
 static void query_init(DB_RESULT result, DB_INFO * info, int *count)
 {
 
@@ -1574,6 +1576,7 @@ fflush(stderr);
 	<result> can be NULL, when we don't care getting the result.
 
 *****************************************************************************/
+
 static int exec_query(DB_DATABASE *db, const char *query, DB_RESULT * result, const char *err)
 {
 #ifdef ODBC_DEBUG_HEADER
@@ -1638,6 +1641,7 @@ fflush(stderr);
 	<info> points to the info structure.
 
 *****************************************************************************/
+
 static void query_release(DB_RESULT result, DB_INFO *info)
 {
 #ifdef ODBC_DEBUG_HEADER
@@ -1942,6 +1946,7 @@ fflush(stderr);
 	everything was OK.
 
 *****************************************************************************/
+
 static int begin_transaction(DB_DATABASE *db)
 {
 	return (do_query(db, "Unable to begin transaction: &1", NULL, "BEGIN", 0));
@@ -1973,7 +1978,7 @@ static int commit_transaction(DB_DATABASE *db)
 
 	rollback_transaction()
 
-	Rolllback a transaction.
+	Rollback a transaction.
 
 	<handle> is the database handle.
 
@@ -1981,6 +1986,7 @@ static int commit_transaction(DB_DATABASE *db)
 	everything was OK.
 
 *****************************************************************************/
+
 static int rollback_transaction(DB_DATABASE *db)
 {
 	return do_query(db, "Unable to rollback transaction: &1", NULL, "ROLLBACK", 0);
@@ -2671,11 +2677,11 @@ fflush(stderr);
 		DB.Query.Add(fp->name);
 
 //AB autoincrement field is mapped to Integer because this is Database dependent
-			if (fp->type == DB_T_SERIAL)
-			DB.Query.Add(" INTEGER ");//
-//AB Blob field		else if (fp->type == DB_T_BLOB)
+		if (fp->type == DB_T_SERIAL)
+			DB.Query.Add(" INTEGER ");
+//AB Blob field
+		else if (fp->type == DB_T_BLOB)
 			DB.Query.Add(" LONG VARBINARY ");
-
 
 		switch (fp->type)
 		{
@@ -3063,7 +3069,6 @@ fflush(stderr);
 
 static int index_exist(DB_DATABASE *db, const char *table, const char *index)
 {
-	//GB.Error("ODBC does not implement this function - index_exist");
 	return FALSE;
 }
 
@@ -3087,7 +3092,6 @@ static int index_exist(DB_DATABASE *db, const char *table, const char *index)
 
 static int index_list(DB_DATABASE *db, const char *table, char ***indexes)
 {
-	//GB.Error("ODBC does not implement this function - index_list");
 	return (-1);
 }
 
@@ -3110,7 +3114,6 @@ static int index_list(DB_DATABASE *db, const char *table, char ***indexes)
 
 static int index_info(DB_DATABASE *db, const char *table, const char *index,	DB_INDEX * info)
 {
-//GB.Error("ODBC does not implement this function");
 	return TRUE;
 }
 
@@ -3132,7 +3135,6 @@ static int index_info(DB_DATABASE *db, const char *table, const char *index,	DB_
 
 static int index_delete(DB_DATABASE *db, const char *table, const char *index)
 {
-//GB.Error("ODBC does not implement this function");
 	return TRUE;
 }
 
@@ -3155,7 +3157,6 @@ static int index_delete(DB_DATABASE *db, const char *table, const char *index)
 
 static int index_create(DB_DATABASE *db, const char *table, const char *index, DB_INDEX * info)
 {
-//GB.Error("ODBC does not implement this function");
 	return TRUE;
 }
 
@@ -3175,15 +3176,9 @@ static int index_create(DB_DATABASE *db, const char *table, const char *index, D
 
 static int database_exist(DB_DATABASE *db, const char *name)
 {
-	//GB.Error("ODBC does not implement this function");
 	ODBC_CONN *han = (ODBC_CONN *)db->handle;
 
-	if (strcmp(han->dsn_name, name) == 0)
-	{
-
-		return TRUE;
-	}
-	return FALSE;
+	return strcmp(han->dsn_name, name) == 0;
 }
 
 
@@ -3208,9 +3203,11 @@ static int database_list(DB_DATABASE *db, char ***databases)
 {
 	ODBC_CONN *han = (ODBC_CONN *)db->handle;
 
-//GB.Error("ODBC does not implement this function");
-	GB.NewArray(databases, sizeof(char *), 1);
-	(*databases)[0] = GB.NewZeroString(han->dsn_name);
+	if (databases)
+	{
+		GB.NewArray(databases, sizeof(char *), 1);
+		(*databases)[0] = GB.NewZeroString(han->dsn_name);
+	}
 
 	return (1);
 }
