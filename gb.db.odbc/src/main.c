@@ -555,7 +555,6 @@ static void conv_data(char *data, int len, GB_VARIANT_VALUE * val, int type)
 	switch (type)
 	{
 		//case SQL_NUMERIC:
-		case SQL_DECIMAL:
 		case SQL_INTEGER:
 		case SQL_SMALLINT:
 			val->type = GB_T_INTEGER;
@@ -565,13 +564,17 @@ static void conv_data(char *data, int len, GB_VARIANT_VALUE * val, int type)
 				val->value._integer = conv._integer.value;
 			break;
 
+		case SQL_DECIMAL:
 		case SQL_NUMERIC:
 		case SQL_FLOAT:
 		case SQL_REAL:
 		case SQL_DOUBLE:
 			val->type = GB_T_FLOAT;
-			if (GB.NumberFromString(GB_NB_READ_FLOAT, data, len, &conv))
+			if (GB.NumberFromString(GB_NB_READ_FLOAT | GB_NB_LOCAL, data, len, &conv) && GB.NumberFromString(GB_NB_READ_FLOAT, data, len, &conv))
+			{
+				fprintf(stderr, "gb.db.odbc: unable to convert float: %.*s\n", len, data);
 				val->value._float = 0;
+			}
 			else
 				val->value._float = conv._float.value;
 			break;
@@ -612,6 +615,11 @@ static void conv_data(char *data, int len, GB_VARIANT_VALUE * val, int type)
 				val->value._date.time = conv._date.value.time;
 				break;
 			}
+			
+		case SQL_TINYINT:
+			val->type = GB_T_BOOLEAN;
+			val->value._boolean = atoi(data) ? -1 : 0;
+			break;
 
 		case SQL_CHAR:
 		default:
@@ -1286,7 +1294,7 @@ fflush(stderr);
 		)
 		{
 			*field->data = 0; // If SQLGetData returns nothing
-			len_read = 1;
+			len_read = 0;
 			
 			SQLGetData(
 				res->odbcStatHandle,
@@ -1297,10 +1305,10 @@ fflush(stderr);
 				&len_read
 			);
 			
-			DB.Debug("gb.db.odbc", "query_fill: %s (%d) = %.*s", field->name, field->type, (int)len_read - 1, field->data);
+			DB.Debug("gb.db.odbc", "query_fill: %s (%d) = %.*s", field->name, field->type, (int)len_read, field->data);
 			
-			if (len_read > 1)
-				conv_data((char *)field->data, len_read - 1, &value.value, (int)field->type);
+			if (len_read > 0)
+				conv_data((char *)field->data, len_read, &value.value, (int)field->type);
 			
 			GB.StoreVariant(&value, &buffer[i]);
 		}
