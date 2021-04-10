@@ -4,7 +4,7 @@
 
 	(c) 2004-2007 Andrea Bortolan <andrea_bortolan@yahoo.it>
 	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
-	(c) 2015-2017 zxMarce <d4t4full@gmail.com>
+	(c) 2015-2021 zxMarce <d4t4full@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -76,13 +76,13 @@ static DB_DRIVER _driver;
 
 typedef struct
 	{
-		//	SQLHENV odbcEnvHandle;
-		//	SQLHDBC odbcHandle;
-		SQLHANDLE odbcEnvHandle;        //ODBC environment handle
-		SQLHANDLE odbcHandle;           //ODBC connection handle
-		SQLUSMALLINT FetchScroll_exist; //Flag
-		char *dsn_name;                 //DSN name
-		char *user_name;                //Logged-in user name
+		//SQLHENV odbcEnvHandle;
+		//SQLHDBC odbcHandle;
+		SQLHANDLE odbcEnvHandle;        	//ODBC environment handle
+		SQLHANDLE odbcHandle;           	//ODBC connection handle
+		SQLUSMALLINT drvrCanFetchScroll;	//Flag
+		char *dsn_name;                 	//DSN name
+		char *user_name;                	//Logged-in user name
 	}
 ODBC_CONN;
 
@@ -103,7 +103,7 @@ ODBC_FIELDS;
 typedef struct
 	{
 		SQLHSTMT odbcStatHandle;
-		SQLUSMALLINT Function_exist;	//Does the Driver supports the SQLFetchScroll ?
+		SQLUSMALLINT Function_exist;	//Does the Driver support SQLFetchScroll ?
 		SQLUSMALLINT Cursor_Scrollable;  //Is it possible to set a Scrollable cursor ?
 		ODBC_FIELDS *fields;
 		SQLLEN count;
@@ -221,7 +221,7 @@ int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 	//Make sure the statement has a cursor
 	if (!(stmtHandle && (cursorScrollable == SQL_TRUE)))
 	{
-		DB.Debug("gb.db.odbc", "cannot do GetRecordCount()!");
+		DB.Debug("gb.db.odbc", "GetRecordCount(): Cannot count records!");
 		return ((int) myRecCnt);
 	}
 
@@ -775,7 +775,15 @@ fflush(stderr);
 	*/
 	//SQLSetConnectAttr(odbc->odbcHandle, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER)(intptr_t)db->timeout, 0);
 	SQLSetConnectAttr(odbc->odbcHandle, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER)(intptr_t)db->timeout, 0);
-	SQLSetConnectAttr(odbc->odbcHandle, SQL_ATTR_ODBC_CURSORS, (SQLPOINTER)SQL_CUR_USE_IF_NEEDED, 0);
+	
+	/* 
+	 * 20210404: Watch out, by using SQL_CUR_USE_IF_NEEDED, if the driver does not provide cursors, 
+	 * unixODBC seems to need bound columns. This has the nasty side effect to raise SQL errors. Do 
+	 * not yet know how to workaround this.
+	 * The SQL_CUR_USE_IF_NEEDED constant tells ODBC to provide its own cursors if the driver doesn't.
+	 */
+	//SQLSetConnectAttr(odbc->odbcHandle, SQL_ATTR_ODBC_CURSORS, (SQLPOINTER)SQL_CUR_USE_IF_NEEDED, 0);
+	SQLSetConnectAttr(odbc->odbcHandle, SQL_ATTR_ODBC_CURSORS, (SQLPOINTER)SQL_CUR_USE_DRIVER, 0);
 	
 	if (hostIsAConnString)
 	{
@@ -802,7 +810,7 @@ fflush(stderr);
 		retcode = SQLConnect(odbc->odbcHandle, (SQLCHAR *)host, SQL_NTS, (SQLCHAR *)user, SQL_NTS, (SQLCHAR *) desc->password, SQL_NTS);
 	}
 
-        //zxMarce: Must bail out NOW if failed to connect, or nonsense errors will appear.
+    //zxMarce: Must bail out NOW if failed to connect, or nonsense errors will appear.
 	if (!SQL_SUCCEEDED(retcode))
 	{
 		throwODBCError((hostIsAConnString ? "SQLDriverConnect" : "SQLConnect"), odbc->odbcHandle, SQL_HANDLE_DBC);
@@ -828,8 +836,8 @@ fflush(stderr);
 
 	db->version = 3;
 
-	retcode = SQLGetFunctions(odbc->odbcHandle, SQL_API_SQLFETCHSCROLL, &odbc->FetchScroll_exist);
-        if (!SQL_SUCCEEDED(retcode))
+	retcode = SQLGetFunctions(odbc->odbcHandle, SQL_API_SQLFETCHSCROLL, &odbc->drvrCanFetchScroll);
+    if (!SQL_SUCCEEDED(retcode))
 	{
 		throwODBCError("SQLGetFunctions SQL_API_SQLFETCHSCROLL", odbc->odbcHandle, SQL_HANDLE_DBC);
 		free(odbc);
@@ -839,7 +847,7 @@ fflush(stderr);
 
 	/* flags */
 	db->flags.no_table_type = TRUE;
-	db->flags.no_seek = (odbc->FetchScroll_exist == SQL_FALSE);
+	db->flags.no_seek = (odbc->drvrCanFetchScroll == SQL_FALSE);
 	db->flags.no_serial = TRUE;		// Need to be done!
 	db->flags.no_blob = FALSE;		// Need to be done!
 	db->flags.no_collation = TRUE;
@@ -1021,11 +1029,11 @@ static void format_blob(DB_BLOB *blob, DB_FORMAT_CALLBACK add)
 
 }
 
-
 static char *query_param[3];
 
 static void query_get_param(int index, char **str, int *len, char quote)
 {
+DB.Debug("gb.db.odbc", "query_get_param() invoked.");
 	if (index > 3)
 		return;
 
@@ -1039,6 +1047,427 @@ static void query_get_param(int index, char **str, int *len, char quote)
 		*len = GB.StringLength(*str);
 	}
 }
+
+/*
+	Reverse the function call order to make C happy:
+		2021-04-03 21:03:10.117 gb.db.odbc: query_fill.SQLFetch(): retcode2=-1
+		2021-04-03 21:03:10.117 gb.db.odbc: query_fill() invoked.
+		2021-04-03 21:03:10.117 gb.db.odbc: query_make_result() invoked.
+		2021-04-03 21:03:10.117 gb.db.odbc: query_init() invoked.
+		2021-04-03 21:03:10.117 gb.db.odbc: cannot do GetRecordCount()!
+		2021-04-03 21:03:10.111 gb.db.odbc: 0x55dfb1cfbca8: SELECT * FROM Employees
+		2021-04-03 21:03:10.111 gb.db.odbc: do_query() invoked.
+		2021-04-03 21:03:10.111 gb.db.odbc: exec_query() invoked.
+*/
+
+static int get_num_columns(ODBC_RESULT *result)
+{
+
+#ifdef ODBC_DEBUG_HEADER
+fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
+fprintf(stderr,"\tget_num_columns\n");
+fflush(stderr);
+#endif
+
+	SQLSMALLINT colsNum = 0;
+	SQLRETURN retcode;
+
+	retcode = SQLNumResultCols(result->odbcStatHandle, &colsNum);
+
+	if ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO))
+		GB.Error("ODBC error: Unable to get the number of columns");
+
+	return colsNum;
+}
+
+/*****************************************************************************
+
+	query_fill()
+
+	Fill a result buffer with the value of each field of a record.
+
+	<db> is the database handle, as returned by open_database()
+	<result> is the handle of the result.
+	<pos> is the index of the record in the result.
+	<buffer> points to an array having one element for each field in the
+	result.
+	<next> is a boolean telling if we want the next row.
+
+	This function must return DB_OK, DB_ERROR or DB_NO_DATA
+
+	This function must use GB.StoreVariant() to store the value in the
+	buffer.
+
+*****************************************************************************/
+static int query_fill(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VALUE * buffer, int next)
+{
+	ODBC_RESULT *res = (ODBC_RESULT *) result;
+	GB_VARIANT value;
+	SQLRETURN retcode2;
+	SQLINTEGER i;
+	ODBC_FIELDS *current;
+	//SQLRETURN retcode;
+	int nResultCols;
+	SQLINTEGER displaySize;
+	//int V_OD_erg=0;
+
+#ifdef ODBC_DEBUG_HEADER
+fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
+fprintf(stderr,"\tquery_fill result %p,result->odbcStatHandle %p, pos %d\n",res,res->odbcStatHandle,pos);
+fflush(stderr);
+#endif
+
+	nResultCols = get_num_columns(res);
+	if (nResultCols == 0)
+		return DB_ERROR;
+
+	/*current = res->fields;
+
+	for (i = 0; i < nResultCols; i++)
+	{
+		if(current->next)
+			current = (ODBC_FIELDS *) current->next;
+	}*/
+
+	if (res->Function_exist == SQL_TRUE)		//Does driver support SQLFetchScroll?
+	{
+		if(res->Cursor_Scrollable == SQL_TRUE)	//Does the query support scrolling?
+		{
+			retcode2 = SQLFetchScroll(
+				res->odbcStatHandle, 
+				SQL_FETCH_ABSOLUTE, 
+				pos + 1
+			);
+		}
+		else
+		{
+			retcode2 = SQLFetchScroll(
+				res->odbcStatHandle, 
+				SQL_FETCH_NEXT, 
+				pos + 1
+			);
+		}
+	}
+	else
+	{
+		/**
+		 * 20210409 zxMarce: The next IF makes sure the query is not
+		 * forced to fetch-back, as the first fetch is issued with:
+		 *   (next == false) && (pos == 0)
+		 * Subsequent valid (forward) fetches are issued with:
+		 *   (next == true) && (pos != 0)
+		 * Any invalid fetch is detected by comparing against:
+		 *   (!next) && (pos != 0)
+		 * which will trigger a descriptive error message.
+		 */
+		if ((!next) && (pos != 0))
+		{
+			GB.Error("Forward-only result cannot fetch backwards");
+			return DB_ERROR;
+		}
+		retcode2 = SQLFetch(res->odbcStatHandle);
+	}
+
+	if (
+		(retcode2 != SQL_SUCCESS) && 
+		(retcode2 != SQL_SUCCESS_WITH_INFO) && 
+		(retcode2 != SQL_NO_DATA_FOUND) && 
+		(retcode2 != SQL_NO_DATA)
+	)
+	{
+		DB.Debug("gb.db.odbc","SQLFetchScroll()/SQLFetch() returned code %d, cannot fetch a row.", (int)retcode2);
+		GB.Error("Unable to fetch row");
+		return DB_ERROR;
+	}
+
+	if(
+		(retcode2 == SQL_NO_DATA_FOUND) || 
+		(retcode2==SQL_NO_DATA)
+	)
+	{
+		return DB_NO_DATA;
+	}
+
+	current = res->fields;
+
+	for (i = 0; i < nResultCols; i++)
+	{
+
+		char * 		fieldata;
+		SQLULEN 	precision = 0;
+		SQLSMALLINT colnamelen = 0, scale = 0, type;
+		SQLLEN 		read = 0;
+		SQLCHAR 	namebuff[25];
+
+		displaySize = 0;
+
+		SQLDescribeCol(
+			res->odbcStatHandle, 
+			i + 1, 
+			namebuff, 
+			sizeof(namebuff), 
+			&colnamelen,
+			&type,
+			&precision, 
+			&scale,
+			NULL
+		);
+
+		/*
+		 * 20210405 zxMarce: The line below asked for the attribute
+		 * SQL_DESC_LENGTH, but it should have asked instead for 
+		 * SQL_DESC_DISPLAY_SIZE. It messed up drivers like MDBTools,
+		 * where SQL_DESC_LENGTH seems to return the field name lenght
+		 * instead of the max field data lenght. Sources:
+		 * https://docs.microsoft.com/en-us/sql/odbc/reference/syntax/sqlcolattribute-function
+		 * https://www.ibm.com/support/producthub/db2/docs/content/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.cli.doc/doc/r0000569.html
+		 */
+		SQLColAttribute(
+			res->odbcStatHandle, 
+			i + 1, 
+			SQL_DESC_DISPLAY_SIZE, 
+			"",
+			0, 
+			NULL, 
+			(SQLPOINTER) &displaySize
+		);
+
+		read = 0;
+
+		if (displaySize >= strlen((char *) namebuff))
+		{
+			displaySize = displaySize + 1;
+		}
+		else
+		{
+			displaySize = strlen((char *) namebuff) + 1;
+		}
+
+		if (displaySize > 0)
+		{
+			
+			if (displaySize < 2)
+			{
+				displaySize = 2;
+			}
+
+			if (
+				(type != SQL_LONGVARCHAR) && 
+				(type != SQL_VARBINARY) && 
+				(type != SQL_LONGVARBINARY)
+			)
+			{
+				fieldata = malloc(sizeof(char) * (displaySize));
+				SQLGetData(
+					res->odbcStatHandle,
+					i + 1,
+					SQL_C_CHAR, 
+					fieldata,
+					displaySize,
+					&read
+				);
+			}
+			else
+			{
+				//BLOB field, not retrieved here
+				//the BLOB field hasn't the string terminator
+				//displaySize = displaySize-1;
+				displaySize--;
+			}
+			current->outlen = displaySize;
+		}
+
+		value.type = GB_T_VARIANT;
+		value.value.type = GB_T_NULL;
+
+		if (current == NULL)
+		{
+			GB.Error("ODBC internal error 4");
+			return DB_ERROR;
+		}
+
+		//fprintf(stderr, "Lunghezza letta = %d\n", read);
+		if (current)
+		{
+			if(current->fieldata == NULL)
+			{
+				GB.Error("ODBC internal error 5");
+				return DB_ERROR;
+			}
+
+			if (read == -1)
+			{
+				fieldata[0] = ' ';
+				fieldata[1] = '\0';
+				current->type = SQL_CHAR;
+			}
+			conv_data((char *) fieldata, &value.value, (int) current->type);
+		}
+
+		GB.StoreVariant(&value, &buffer[i]);
+
+		if(
+			(displaySize > 0) && 
+			(fieldata != NULL)
+		)
+		{
+			free(fieldata);
+		}
+
+		current = (ODBC_FIELDS *) current->next;
+		fieldata = NULL;
+
+	}/* for all columns in this row  */
+
+	return DB_OK;
+}
+
+
+/* Internal function - create the space for the result and bind the column to each field-space allocated */
+static void query_make_result(ODBC_RESULT * result)
+{
+
+#ifdef ODBC_DEBUG_HEADER
+fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
+fprintf(stderr,"\tquery_make_result result %p, result->odbcStatHandle %p\n", result, result->odbcStatHandle);
+fflush(stderr);
+#endif
+
+	SQLCHAR colname[32];
+	SQLSMALLINT colnamelen;
+	SQLULEN precision;
+	SQLSMALLINT scale;
+	SQLINTEGER i;
+	SQLLEN displaySize;
+	ODBC_FIELDS *field, *current;
+	SQLINTEGER collen;
+	int nResultCols;
+
+	nResultCols = get_num_columns(result);
+
+	result->fields = NULL;
+
+	if (result->fields == NULL)
+	{
+
+		field = malloc(sizeof(ODBC_FIELDS));
+
+		result->fields = field;
+		current = field;
+		current->next=NULL;
+		current->fieldata=NULL;
+
+	}
+
+	for (i = 0; i < nResultCols; i++)
+	{
+
+		SQLDescribeCol(
+			result->odbcStatHandle, 
+			i + 1, 
+			current->fieldname, 
+			sizeof(current->fieldname), 
+			&colnamelen, 
+			&current->type, 
+			&precision, 
+			&scale, 
+			NULL
+		);
+		collen = precision;
+
+		/* Get display length for column */
+		SQLColAttribute(
+			result->odbcStatHandle, 
+			i + 1, 
+			SQL_COLUMN_DISPLAY_SIZE, 
+			NULL,
+			0, 
+			NULL, 
+			&displaySize
+		);
+
+		/*
+		* Set column length to max of display length, and column name
+		* length. Plus one byte for null terminator
+		*/
+		//printf("collen : %u, display len %u\n", strlen((char *) colname), displaySize);
+
+		if (displaySize >= strlen((char *) colname))
+		{
+			collen = displaySize + 1;
+		}
+		else
+		{
+			collen = strlen((char *) colname) + 1;
+		}
+
+		if(collen <= 0)
+		{
+			collen = 1;
+		}
+		current->fieldata = (SQLCHAR *) malloc(collen);
+		current->outlen = collen;
+
+		if (collen > 0)
+		{
+			current->fieldata[collen-1] = '\0';
+		}
+
+		current->next = NULL;
+
+		{
+			field = malloc(sizeof(ODBC_FIELDS));
+			current->next = (struct ODBC_FIELDS *) field;
+			current = field;
+			current->next = NULL;
+			current->fieldata = NULL;
+			current->outlen = 0;
+		}
+
+	}
+
+}
+
+
+/*****************************************************************************
+
+	query_init()
+
+	Initialize an info structure from a query result.
+
+	<result> is the handle of the query result.
+	<info> points to the info structure.
+	<count> will receive the number of records returned by the query.
+
+	This function must initialize the info->nfield field with the number of
+	fields in the query result.
+
+	If <count> receives -1, that will mean that the result is "move forward"
+	only
+
+*****************************************************************************/
+static void query_init(DB_RESULT result, DB_INFO * info, int *count)
+{
+
+#ifdef ODBC_DEBUG_HEADER
+fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
+fprintf(stderr,"\tquery_init\n");
+fflush(stderr);
+#endif
+
+	ODBC_RESULT *res = (ODBC_RESULT *) result;
+	SQLSMALLINT colsNum = 0;
+	colsNum = get_num_columns(res);
+
+	if (colsNum == 0)
+		return;
+
+	*count = res->count;
+	info->nfield = colsNum;
+	query_make_result(res);
+
+}
+
 
 /* Internal function to implement the query execution */
 static int do_query(DB_DATABASE *db, const char *error, ODBC_RESULT **res, const char *qtemp, int nsubst, ...)
@@ -1061,17 +1490,21 @@ fflush(stderr);
 	{
 		va_start(args, nsubst);
 		if (nsubst > 3)
+		{
 			nsubst = 3;
+		}
 		for (i = 0; i < nsubst; i++)
+		{
 			query_param[i] = va_arg(args, char *);
-
+		}
 		query = DB.SubstString(qtemp, 0, query_get_param);
 	}
 	else
+	{
 		query = qtemp;
+	}
 
-	//DB.Debug("gb.db.odbc", "do_query: res %p, dbc handle %p, query '%s'", res, handle, query);
-	DB.Debug("gb.db.odbc", "%p: %s", handle, query);
+	DB.Debug("gb.db.odbc", "do_query() db->handle=%p, query='%s'", handle, query);
 
 	GB.AllocZero(POINTER(&odbcres), sizeof(ODBC_RESULT));
 
@@ -1085,16 +1518,13 @@ fflush(stderr);
 	}
 
 	retcode = SQLSetStmtAttr(odbcres->odbcStatHandle, SQL_ATTR_CURSOR_SCROLLABLE, (SQLPOINTER) SQL_SCROLLABLE, 0);
-	//if ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO))
-	//{
-	//	odbcres->Cursor_Scrollable = SQL_FALSE;
-	//}
-	//else odbcres->Cursor_Scrollable = SQL_TRUE;
+	//DB.Debug("gb.db.odbc", "do_query() SQLSetStmtAttr(SQL_ATTR_CURSOR_SCROLLABLE)=%d", odbcres->Cursor_Scrollable);
 	odbcres->Cursor_Scrollable = ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO)) ? SQL_FALSE : SQL_TRUE;
-	odbcres->Function_exist = handle->FetchScroll_exist;
+	odbcres->Function_exist = handle->drvrCanFetchScroll;
 
 	/* Execute the query */
 	retcode = SQLExecDirect(odbcres->odbcStatHandle, (SQLCHAR *) query, SQL_NTS);
+	//DB.Debug("gb.db.odbc", "do_query() SQLExecDirect()=%d [SQL_SUCCESS=%d]", (int)retcode, (int)SQL_SUCCESS);
 	if ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO) && (retcode != SQL_NO_DATA))
 	{
 		DB.Debug("gb.db.odbc", "do_query: SQLExecDirect() returned code %d", (int)retcode);
@@ -1104,18 +1534,18 @@ fflush(stderr);
 		return retcode;
 	}
 
-        if (res)
+    if (res)
 	{
 
-	        if (retcode == SQL_NO_DATA)
-                {
-                        odbcres->count = 0;
-                        retcode = SQL_SUCCESS;
-                }
+	    if (retcode == SQL_NO_DATA)
+		{
+			odbcres->count = 0;
+			retcode = SQL_SUCCESS;
+		}
 		else
 		{
-		        odbcres->count = GetRecordCount(odbcres->odbcStatHandle, odbcres->Cursor_Scrollable);
-                }
+			odbcres->count = GetRecordCount(odbcres->odbcStatHandle, odbcres->Cursor_Scrollable);
+		}
 		*res = odbcres;
 
 	}
@@ -1128,6 +1558,30 @@ fflush(stderr);
 	}
 
 	return retcode;
+}
+
+/*****************************************************************************
+
+	exec_query()
+
+	Send a query to the server and gets the result.
+
+	<handle> is the database handle, as returned by open_database()
+	<query> is the query string.
+	<result> will receive the result handle of the query.
+	<err> is an error message used when the query failed.
+
+	<result> can be NULL, when we don't care getting the result.
+
+*****************************************************************************/
+static int exec_query(DB_DATABASE *db, const char *query, DB_RESULT * result, const char *err)
+{
+#ifdef ODBC_DEBUG_HEADER
+fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
+fprintf(stderr,"\texec_query\n");
+fflush(stderr);
+#endif
+	return do_query(db, err, (ODBC_RESULT **) result, query, 0);
 }
 
 
@@ -1176,199 +1630,6 @@ fflush(stderr);
 
 /*****************************************************************************
 
-	exec_query()
-
-	Send a query to the server and gets the result.
-
-	<handle> is the database handle, as returned by open_database()
-	<query> is the query string.
-	<result> will receive the result handle of the query.
-	<err> is an error message used when the query failed.
-
-	<result> can be NULL, when we don't care getting the result.
-
-*****************************************************************************/
-
-static int exec_query(DB_DATABASE *db, const char *query, DB_RESULT * result, const char *err)
-{
-#ifdef ODBC_DEBUG_HEADER
-fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
-fprintf(stderr,"\texec_query\n");
-fflush(stderr);
-#endif
-	return do_query(db, err, (ODBC_RESULT **) result, query, 0);
-}
-
-static int get_num_columns(ODBC_RESULT *result)
-{
-
-#ifdef ODBC_DEBUG_HEADER
-fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
-fprintf(stderr,"\tget_num_columns\n");
-fflush(stderr);
-#endif
-
-	SQLSMALLINT colsNum = 0;
-	SQLRETURN retcode;
-
-	retcode = SQLNumResultCols(result->odbcStatHandle, &colsNum);
-
-	if ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO))
-		GB.Error("ODBC error: Unable to get the number of columns");
-
-	return colsNum;
-}
-
-
-/* Internal function - create the space for the result and bind the column to each field-space allocated */
-static void query_make_result(ODBC_RESULT * result)
-{
-
-#ifdef ODBC_DEBUG_HEADER
-fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
-fprintf(stderr,"\tquery_make_result result %p, result->odbcStatHandle %p\n", result, result->odbcStatHandle);
-fflush(stderr);
-#endif
-
-	SQLCHAR colname[32];
-	SQLSMALLINT colnamelen;
-	SQLULEN precision;
-	SQLSMALLINT scale;
-	SQLINTEGER i;
-	SQLLEN displaysize;
-	ODBC_FIELDS *field, *current;
-	SQLINTEGER collen;
-	int nresultcols;
-
-	nresultcols = get_num_columns(result);
-
-	result->fields = NULL;
-
-	if (result->fields == NULL)
-	{
-
-		field = malloc(sizeof(ODBC_FIELDS));
-
-		result->fields = field;
-		current = field;
-		current->next=NULL;
-		current->fieldata=NULL;
-
-	}
-
-	for (i = 0; i < nresultcols; i++)
-	{
-
-
-		SQLDescribeCol(result->odbcStatHandle, i + 1, current->fieldname, sizeof(current->fieldname), &colnamelen, &current->type, &precision, &scale, NULL);
-		collen = precision;
-
-		/* Get display length for column */
-		SQLColAttribute(result->odbcStatHandle, i + 1, SQL_COLUMN_DISPLAY_SIZE, NULL,0, NULL, &displaysize);
-
-		/*
-		* Set column length to max of display length, and column name
-		* length. Plus one byte for null terminator
-		*/
-		//printf("collen : %u, display len %u\n", strlen((char *) colname), displaysize);
-
-		if (displaysize >= strlen((char *) colname))
-		{
-			collen = displaysize + 1;
-		}
-		else
-		{
-			collen = strlen((char *) colname) + 1;
-		}
-
-		if(collen <= 0){
-						collen = 1;
-		}
-		current->fieldata = (SQLCHAR *) malloc(collen);
-		current->outlen = collen;
-
-		if (collen > 0)
-			current->fieldata[collen-1] = '\0';
-
-		current->next = NULL;
-
-		{
-			field = malloc(sizeof(ODBC_FIELDS));
-			current->next = (struct ODBC_FIELDS *) field;
-			current = field;
-			current->next = NULL;
-			current->fieldata = NULL;
-			current->outlen = 0;
-		}
-
-	}
-
-
-}
-
-
-/*****************************************************************************
-
-	get_last_insert_id()
-
-	Return the value of the last serial field used in an INSERT statement
-
-	<db> is the database handle, as returned by open_database()
-
-*****************************************************************************/
-
-static int64_t get_last_insert_id(DB_DATABASE *db)
-{
-	GB.Error("Unsupported feature");
-	return -1;
-}
-
-/*****************************************************************************
-
-	query_init()
-
-	Initialize an info structure from a query result.
-
-	<result> is the handle of the query result.
-	<info> points to the info structure.
-	<count> will receive the number of records returned by the query.
-
-	This function must initialize the info->nfield field with the number of
-	field in the query result.
-
-	If <count> receives -1, that will mean that the result is "move forward"
-	only
-
-*****************************************************************************/
-
-static void query_init(DB_RESULT result, DB_INFO * info, int *count)
-{
-
-#ifdef ODBC_DEBUG_HEADER
-fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
-fprintf(stderr,"\tquery_init\n");
-fflush(stderr);
-#endif
-
-	ODBC_RESULT *res = (ODBC_RESULT *) result;
-	SQLSMALLINT colsNum = 0;
-	colsNum = get_num_columns(res);
-
-	if (colsNum == 0)
-		return;
-
-	//SQLRowCount(res->odbcStatHandle, &rowsNum);
-
-	*count = res->count;
-	info->nfield = colsNum;
-	query_make_result(res);
-
-}
-
-
-
-/*****************************************************************************
-
 	query_release()
 
 	Free the info structure filled by query_init() and the result handle.
@@ -1377,7 +1638,6 @@ fflush(stderr);
 	<info> points to the info structure.
 
 *****************************************************************************/
-
 static void query_release(DB_RESULT result, DB_INFO *info)
 {
 #ifdef ODBC_DEBUG_HEADER
@@ -1400,173 +1660,20 @@ fflush(stderr);
 }
 
 
-
 /*****************************************************************************
 
-	query_fill()
+	get_last_insert_id()
 
-	Fill a result buffer with the value of each field of a record.
+	Return the value of the last serial field used in an INSERT statement
 
 	<db> is the database handle, as returned by open_database()
-	<result> is the handle of the result.
-	<pos> is the index of the record in the result.
-	<buffer> points to an array having one element for each field in the
-	result.
-	<next> is a boolean telling if we want the next row.
-
-	This function must return DB_OK, DB_ERROR or DB_NO_DATA
-
-	This function must use GB.StoreVariant() to store the value in the
-	buffer.
 
 *****************************************************************************/
 
-
-static int query_fill(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VALUE * buffer, int next)
+static int64_t get_last_insert_id(DB_DATABASE *db)
 {
-	ODBC_RESULT *res = (ODBC_RESULT *) result;
-	GB_VARIANT value;
-	SQLRETURN retcode2;
-	SQLINTEGER i;
-	ODBC_FIELDS *current;
-	//SQLRETURN retcode;
-	int nresultcols;
-	SQLINTEGER displaysize;
-	//int V_OD_erg=0;
-
-#ifdef ODBC_DEBUG_HEADER
-fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
-fprintf(stderr,"\tquery_fill result %p,result->odbcStatHandle %p, pos %d\n",res,res->odbcStatHandle,pos);
-fflush(stderr);
-#endif
-
-	nresultcols = get_num_columns(res);
-	if (nresultcols == 0)
-		return DB_ERROR;
-
-	/*current = res->fields;
-
-	for (i = 0; i < nresultcols; i++)
-	{
-		if(current->next)
-			current = (ODBC_FIELDS *) current->next;
-	}*/
-
-	if (res->Function_exist == SQL_TRUE)
-	{
-		if(res->Cursor_Scrollable == SQL_TRUE)
-		{
-			retcode2 = SQLFetchScroll(res->odbcStatHandle, SQL_FETCH_ABSOLUTE, pos + 1);
-		}
-		else
-		{
-			retcode2 = SQLFetchScroll(res->odbcStatHandle, SQL_FETCH_NEXT, pos + 1);
-		}
-	}
-	else
-	{
-		if (!next)
-		{
-			GB.Error("Unable to fetch row");
-			return DB_ERROR;
-		}
-
-		retcode2 = SQLFetch(res->odbcStatHandle);
-	}
-
-	if ((retcode2 != SQL_SUCCESS) && (retcode2 != SQL_SUCCESS_WITH_INFO) && (retcode2 != SQL_NO_DATA_FOUND) && (retcode2 != SQL_NO_DATA))
-	{
-		GB.Error("Unable to fetch row");
-		return DB_ERROR;
-	}
-
-	if((retcode2 == SQL_NO_DATA_FOUND) || (retcode2==SQL_NO_DATA))
-		return DB_NO_DATA;
-
-	current = res->fields;
-
-	for (i = 0; i < nresultcols; i++)
-	{
-		displaysize=0;
-		char * fieldata;
-		SQLULEN   precision=0;
-
-		SQLSMALLINT colnamelen=0,scale=0,type;
-		SQLLEN read=0;
-		SQLCHAR namebuff[25];
-
-		SQLDescribeCol(res->odbcStatHandle, i+1 , namebuff, sizeof(namebuff), &colnamelen,&type,&precision, &scale,NULL);
-
-		SQLColAttribute(res->odbcStatHandle, i+1 , SQL_DESC_LENGTH, "",0, NULL, (SQLPOINTER)&displaysize);
-
-		read=0;
-
-		if (displaysize >= strlen((char *) namebuff))
-		{
-			displaysize = displaysize + 1;
-		}
-		else
-		{
-			displaysize=strlen((char *) namebuff) + 1;
-		}
-
-		if (displaysize > 0)
-		{
-			if (displaysize < 2)
-				displaysize = 2;
-
-			if (type != SQL_LONGVARCHAR && type != SQL_VARBINARY && type != SQL_LONGVARBINARY)
-			{
-				fieldata=malloc(sizeof(char)*(displaysize));
-				SQLGetData(res->odbcStatHandle,i+1,SQL_C_CHAR , fieldata,displaysize,&read);
-
-			}
-			else
-			{
-				//BLOB field, not retrieved here
-
-				//the BLOB field hasn't the string terminator
-				displaysize=displaysize-1;
-
-			}
-
-			current->outlen=displaysize;
-		}
-
-		value.type = GB_T_VARIANT;
-		value.value.type = GB_T_NULL;
-
-		if (current==NULL)
-		{
-			GB.Error("ODBC internal error 4");
-			return DB_ERROR;
-		}
-
-	//fprintf(stderr,"Lunghezza letta = %d\n",read);
-		if (current)
-		{
-			if(current->fieldata==NULL)
-			{
-				GB.Error("ODBC internal error 5");
-				return DB_ERROR;
-			}
-
-			if (read == -1){
-				fieldata[0]=' ';fieldata[1]='\0';
-				current->type=SQL_CHAR;
-			}
-			conv_data((char *) fieldata, &value.value, (int) current->type);
-		}
-
-		GB.StoreVariant(&value,&buffer[i]);
-
-		if(displaysize >0 && fieldata !=NULL)free(fieldata);
-		current = (ODBC_FIELDS *) current->next;
-		fieldata=NULL;
-
-	}/* for all columns in this row  */
-
-	return DB_OK;
+	GB.Error("Unsupported feature");
+	return -1;
 }
 
 
@@ -1589,7 +1696,7 @@ static void blob_read(DB_RESULT result, int pos, int field, DB_BLOB *blob)
 	//int outlen;
 	//int precision;
 	//int scale;
-	//int displaysize;
+	//int displaySize;
 	//char * pointer;
 	ODBC_RESULT * res= (ODBC_RESULT *) result;
 	ODBC_FIELDS * cfield ;
