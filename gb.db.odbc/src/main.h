@@ -33,6 +33,6 @@ extern "C" GB_INTERFACE GB;
 extern "C" DB_INTERFACE DB;
 #endif
 
-#define QUOTE_STRING ""
+#define QUOTE_STRING "\""
 
 #endif /* __MAIN_H */

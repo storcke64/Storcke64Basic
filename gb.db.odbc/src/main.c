@@ -430,6 +430,7 @@ fflush(stderr);
 
 /* internal function to unquote a value stored as a blob */
 
+#if 0
 static int unquote_blob(char *data, int len, DB_FORMAT_CALLBACK add)
 {
 #ifdef ODBC_DEBUG_HEADER
@@ -462,6 +463,7 @@ fflush(stderr);
 
 	return FALSE;
 }
+#endif
 
 /*
 Internal function to check if the .Host property is actually an ODBC connection string.
@@ -508,36 +510,36 @@ fflush(stderr);
 #endif
 	switch (type)
 	{
-		case SQL_BINARY:
+		case SQL_TINYINT:
 			return GB_T_BOOLEAN;
-		/*case INT8OID: */
-		case SQL_NUMERIC:
-			return GB_T_FLOAT;
+
 		case SQL_DECIMAL:
-			return GB_T_INTEGER;
 		case SQL_INTEGER:
-			return GB_T_INTEGER;
 		case SQL_SMALLINT:
 			return GB_T_INTEGER;
+
 		case SQL_BIGINT:
 			// New datatype bigint 64 bits
 			return GB_T_LONG;
+
+		case SQL_NUMERIC:
 		case SQL_FLOAT:
-			return GB_T_FLOAT;
 		case SQL_REAL:
-			return GB_T_FLOAT;
 		case SQL_DOUBLE:
 			return GB_T_FLOAT;
+
 		case SQL_DATETIME:
 		case SQL_TYPE_DATE:
 		case SQL_TYPE_TIME:
 		case SQL_TYPE_TIMESTAMP:
 			return GB_T_DATE;
+
 		case SQL_LONGVARCHAR:
 		case SQL_VARBINARY:
 		case SQL_LONGVARBINARY:
 			// Data type for BLOB
 			return DB_T_BLOB;
+
 		case SQL_CHAR:
 		default:
 			return GB_T_STRING;
@@ -546,13 +548,9 @@ fflush(stderr);
 
 
 /* Internal function to convert a database value into a Gambas variant value */
-static void conv_data(char *data, GB_VARIANT_VALUE * val, int type)
+static void conv_data(char *data, int len, GB_VARIANT_VALUE * val, int type)
 {
 	GB_VALUE conv;
-	GB_DATE_SERIAL date;
-	double sec;
-	int len;
-	int bc = 0;
 
 	switch (type)
 	{
@@ -561,7 +559,7 @@ static void conv_data(char *data, GB_VARIANT_VALUE * val, int type)
 		case SQL_INTEGER:
 		case SQL_SMALLINT:
 			val->type = GB_T_INTEGER;
-			if (GB.NumberFromString(GB_NB_READ_INTEGER, data, strlen(data), &conv))
+			if (GB.NumberFromString(GB_NB_READ_INTEGER, data, len, &conv))
 				val->value._integer = 0;
 			else
 				val->value._integer = conv._integer.value;
@@ -572,7 +570,7 @@ static void conv_data(char *data, GB_VARIANT_VALUE * val, int type)
 		case SQL_REAL:
 		case SQL_DOUBLE:
 			val->type = GB_T_FLOAT;
-			if (GB.NumberFromString(GB_NB_READ_FLOAT, data, strlen(data), &conv))
+			if (GB.NumberFromString(GB_NB_READ_FLOAT, data, len, &conv))
 				val->value._float = 0;
 			else
 				val->value._float = conv._float.value;
@@ -580,7 +578,7 @@ static void conv_data(char *data, GB_VARIANT_VALUE * val, int type)
 
 		case SQL_BIGINT: // Data type bigint 64 bits
 			val->type = GB_T_LONG;
-			if (GB.NumberFromString(GB_NB_READ_LONG, data, strlen(data), &conv))
+			if (GB.NumberFromString(GB_NB_READ_LONG, data, len, &conv))
 				val->value._long = 0;
 			else
 				val->value._long = conv._long.value;
@@ -599,21 +597,18 @@ static void conv_data(char *data, GB_VARIANT_VALUE * val, int type)
 		case SQL_TYPE_TIMESTAMP:
 		case SQL_DATETIME: // Data type for Time
 			{
-				memset(&date, 0, sizeof(date));
-				len = strlen(data);
-				if (len > 3 && strcmp(&data[len - 2], "BC") == 0)
-					bc != 0;
-				else
-					bc = 0;
-				sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year, &date.month,
-							&date.day, &date.hour, &date.min, &sec);
-				date.sec = (short) sec;
-				date.msec = (short) ((sec - date.sec) * 1000 + 0.5);
-				if (bc)
-					date.year = (-date.year);
-				GB.MakeDate(&date, (GB_DATE *) & conv);
+				bool bc = (len > 3) && (strcmp(&data[len - 2], "BC") == 0);
+				
+				if (GB.DateFromString(data, len, &conv, TRUE))
+				{
+					fprintf(stderr, "gb.db.odbc: unable to convert date: %.*s\n", len, data);
+					conv._date.value.date = conv._date.value.time = 0;
+				}
+				
 				val->type = GB_T_DATE;
 				val->value._date.date = conv._date.value.date;
+				if (bc)
+					val->value._date.date = (- val->value._date.date);
 				val->value._date.time = conv._date.value.time;
 				break;
 			}
@@ -655,7 +650,7 @@ void GetConnectedDBName(DB_DESC *desc, ODBC_CONN *odbc)
 
 	SQLRETURN	retcode;
 	SQLINTEGER	charsNeeded = 0;
-	SQLTCHAR	*dbName;
+	char *dbName;
 
 	/*zxMarce: Attribute to fetch is SQL_ATTR_CURRENT_CATALOG
 	  We call the function first with a NULL buffer pointer so as to
@@ -668,9 +663,7 @@ void GetConnectedDBName(DB_DESC *desc, ODBC_CONN *odbc)
 
 	if (SQL_SUCCEEDED(retcode))
 	{
-		charsNeeded++;
-		
-		dbName = malloc(sizeof(SQLTCHAR) * charsNeeded);
+		dbName = GB.NewString(NULL, charsNeeded);
 		
 		/*zxMarce: We call the function again, this time specifying a
 		  hopefully big enough buffer for storing the catalog name.
@@ -679,11 +672,12 @@ void GetConnectedDBName(DB_DESC *desc, ODBC_CONN *odbc)
 					    dbName, charsNeeded,
 					    &charsNeeded
 					   );
-		dbName[sizeof(SQLTCHAR) * charsNeeded] = 0;
 		
-		GB.FreeString(&desc->name);
-		desc->name = GB.NewZeroString((char *)dbName);
-		free(dbName);
+		if (SQL_SUCCEEDED(retcode))
+		{
+			GB.FreeString(&desc->name);
+			desc->name = dbName;
+		}
 	}
 
 	if (desc->name)
@@ -694,13 +688,18 @@ void GetConnectedDBName(DB_DESC *desc, ODBC_CONN *odbc)
 }
 
 /*****************************************************************************
+ * 
 	open_database()
+	
 	Connect to a database.
+
 	<desc> points at a structure describing each connection parameter.
+
 	This function must return a database handle, or NULL if the connection
 	has failed.
-	The name of the database can be NULL, meaning a default database.
+	
 *****************************************************************************/
+
 static int open_database(DB_DESC *desc, DB_DATABASE *db)
 {
 
@@ -1031,7 +1030,7 @@ static char *query_param[3];
 
 static void query_get_param(int index, char **str, int *len, char quote)
 {
-DB.Debug("gb.db.odbc", "query_get_param() invoked.");
+	//DB.Debug("gb.db.odbc", "query_get_param() invoked.");
 	if (index > 3)
 		return;
 
@@ -1105,11 +1104,9 @@ static int query_fill(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VAL
 	SQLRETURN retcode2;
 	SQLINTEGER i;
 	ODBC_FIELD *field;
-	//SQLRETURN retcode;
 	int nResultCols;
-	//SQLINTEGER displaySize;
-	//SQLLEN len_read;
-	//int V_OD_erg=0;
+	SQLLEN len_read;
+
 
 #ifdef ODBC_DEBUG_HEADER
 fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
@@ -1122,6 +1119,8 @@ fflush(stderr);
 		return DB_ERROR;*/
 	
 	nResultCols = GB.Count(res->fields);
+	
+	DB.Debug("gb.odbc","query_fill: %p: %d (%d)", result, pos, next);
 
 	/*current = res->fields;
 
@@ -1133,7 +1132,7 @@ fflush(stderr);
 
 	if (res->Function_exist == SQL_TRUE)		//Does driver support SQLFetchScroll?
 	{
-		if(res->Cursor_Scrollable == SQL_TRUE)	//Does the query support scrolling?
+		if (res->Cursor_Scrollable == SQL_TRUE)	//Does the query support scrolling?
 		{
 			retcode2 = SQLFetchScroll(
 				res->odbcStatHandle, 
@@ -1287,6 +1286,7 @@ fflush(stderr);
 		)
 		{
 			*field->data = 0; // If SQLGetData returns nothing
+			len_read = 1;
 			
 			SQLGetData(
 				res->odbcStatHandle,
@@ -1294,13 +1294,18 @@ fflush(stderr);
 				SQL_C_CHAR, 
 				field->data,
 				field->len,
-				NULL
+				&len_read
 			);
 			
-			conv_data((char *)field->data, &value.value, (int)field->type);
+			DB.Debug("gb.db.odbc", "query_fill: %s (%d) = %.*s", field->name, field->type, (int)len_read - 1, field->data);
+			
+			if (len_read > 1)
+				conv_data((char *)field->data, len_read - 1, &value.value, (int)field->type);
+			
 			GB.StoreVariant(&value, &buffer[i]);
 		}
 
+		
 		/*if (current == NULL)
 		{
 			GB.Error("ODBC internal error 4");
@@ -1366,7 +1371,9 @@ fflush(stderr);
 	SQLSMALLINT type;
 
 	nResultCols = get_num_columns(result);
-
+	
+	DB.Debug("gb.db.odbc", "query_make_result: %p (%d columns)", result, nResultCols);
+	
 	GB.NewArray(POINTER(&result->fields), sizeof(ODBC_FIELD), nResultCols);
 	
 	for (i = 0; i < nResultCols; i++)
@@ -1386,7 +1393,7 @@ fflush(stderr);
 		);
 		
 		field->name = GB.NewString(NULL, colnamelen);
-
+		
 		SQLDescribeCol(
 			result->odbcStatHandle, 
 			i + 1, 
@@ -1399,6 +1406,16 @@ fflush(stderr);
 			NULL
 		);
 		
+		if (type < 0)
+		{
+			DB.Debug("gb.db.odbc", "field '%s' has datatype: %d, assuming SQLCHAR instead", field->name, type);
+			type = SQL_CHAR;
+		}
+		
+		field->type = type;
+		
+		DB.Debug("gb.db.odbc", "query_make_result: '%s' -> type = %d", field->name, field->type);
+
 		collen = precision;
 
 		/* Get display length for column */
@@ -1468,13 +1485,14 @@ fflush(stderr);
 	SQLSMALLINT colsNum = 0;
 	colsNum = get_num_columns(res);
 
+	DB.Debug("gb.db.odbc", "query_init: %p -> %d columns", result, colsNum);
+	
 	if (colsNum == 0)
 		return;
 
 	*count = res->count;
 	info->nfield = colsNum;
 	query_make_result(res);
-
 }
 
 
@@ -1513,7 +1531,7 @@ fflush(stderr);
 		query = qtemp;
 	}
 
-	DB.Debug("gb.db.odbc", "do_query() db->handle=%p, query='%s'", handle, query);
+	//DB.Debug("gb.db.odbc", "do_query() db->handle=%p, query='%s'", handle, query);
 
 	GB.AllocZero(POINTER(&odbcres), sizeof(ODBC_RESULT));
 
@@ -1555,6 +1573,7 @@ fflush(stderr);
 			odbcres->count = GetRecordCount(odbcres->odbcStatHandle, odbcres->Cursor_Scrollable);
 		}
 		*res = odbcres;
+		DB.Debug("gb.db.odbc", "do_query: create handle %p", odbcres->odbcStatHandle);
 	}
 	else
 	{
@@ -1641,7 +1660,12 @@ fflush(stderr);
 	/*if (res != NULL)*/	//query_free_result(res);
 
 	if (!invalid)
+	{
 		SQLFreeHandle(SQL_HANDLE_STMT, res->odbcStatHandle);
+		DB.Debug("gb.db.odbc", "query_release: %p: free handle %p", result, res->odbcStatHandle);
+	}
+	else
+		DB.Debug("gb.db.odbc", "query_release: %p: database is closed, do not free the handle", result);
 	//free(res->odbcStatHandle);
 
 	query_free_result(res);
@@ -1684,9 +1708,10 @@ static int64_t get_last_insert_id(DB_DATABASE *db)
 static void blob_read(DB_RESULT result, int pos, int field, DB_BLOB *blob)
 {
 	ODBC_RESULT *res = (ODBC_RESULT *)result;
-	ODBC_FIELD *cfield ;
-	SQLLEN strlen;
-	SQLRETURN retcode;
+	SQLCHAR buffer[1024];
+	SQLLEN len_read;
+	int old_length;
+	SQLRETURN ret;
 
 #ifdef ODBC_DEBUG_HEADER
 fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
@@ -1694,44 +1719,29 @@ fprintf(stderr,"\tblob_read DB_RESULT %p, dbresult->stathandle %p, pos %d , fiel
 fflush(stderr);
 #endif
 
-	cfield = &res->fields[field];
-
 	blob->data = NULL;
 	blob->length = 0;
 	
-	if (cfield->len > 0)
+	for(;;)
 	{
-		blob->data = malloc(cfield->len);
-		blob->length = cfield->len;
-
-		DB.Query.Init();
-
-		retcode = SQLGetData(res->odbcStatHandle, field + 1, SQL_C_BINARY, blob->data, blob->length, &strlen);
-
-		if ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO))
-		{
-			GB.Error("Unable to retrieve blob data");
-			free(blob->data);
-			blob->length = 0;
-			blob->data = NULL;
-			return;
-		}
-	}
-
-	char *data = NULL;
-	int len = 0;
-
-	if (!unquote_blob(blob->data, blob->length, DB.Query.AddLength))
-	{
-		len = DB.Query.Length();
-		data = DB.Query.GetNew();
-	}
-	else
-		blob->constant = TRUE;
-
-	free(blob->data);//091107
-	blob->data = data;
-	blob->length = len;
+		len_read = 0;
+		ret = SQLGetData(res->odbcStatHandle, field + 1, SQL_C_BINARY, buffer, sizeof(buffer), &len_read);
+		if (ret == SQL_ERROR || ret == SQL_NO_DATA || len_read <= 0)
+			break;
+	
+		fprintf(stderr, "blob_read: %d %ld\n", blob->length, len_read);
+		if (len_read > sizeof(buffer) || len_read == SQL_NO_TOTAL)
+			len_read = sizeof(buffer);
+		
+		old_length = blob->length;
+		blob->length += len_read;
+		GB.Realloc(POINTER(&blob->data), blob->length);
+		
+		memcpy(&blob->data[old_length], buffer, len_read);
+	} 
+	
+	if (ret != SQL_NO_DATA)
+		DB.Debug("gb.db.odbc", "unable to read blob from field '%s'", res->fields[field].name);
 }
 
 
@@ -1753,18 +1763,8 @@ fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
 fprintf(stderr,"\tfield_name\n");
 fflush(stderr);
 #endif
-	SQLCHAR colname[32];
-	SQLSMALLINT coltype=0;
-	SQLSMALLINT colnamelen=0;
-	SQLULEN precision=0;
-	SQLSMALLINT scale=0;
-
-	ODBC_RESULT *res = (ODBC_RESULT *) result;
-
-	SQLDescribeCol(res->odbcStatHandle, field + 1, colname, sizeof(colname), &colnamelen, &coltype, &precision, &scale, NULL);
-	//colnamer = malloc(sizeof(char) * strlen((char *) colname) + 1);
-	strcpy(_buffer, (char *) colname);
-	return _buffer;
+	ODBC_RESULT *res = (ODBC_RESULT *)result;
+	return res->fields[field].name;
 }
 
 
@@ -1787,32 +1787,16 @@ fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
 fprintf(stderr,"\tfield_index\n");
 fflush(stderr);
 #endif
-	SQLCHAR colname[32];
-	SQLSMALLINT coltype;
-	SQLSMALLINT colnamelen;
-	SQLULEN precision;
-	SQLSMALLINT scale;
-	SQLSMALLINT colsNum;
-	int field;
 	ODBC_RESULT *res = (ODBC_RESULT *) result;
+	int i;
 
-	colnamelen = 32;
-	colsNum = get_num_columns(res);
-
-	for (field = 0; field < colsNum; field++)
+	for (i = 0; i < GB.Count(res->fields); i++)
 	{
-		SQLDescribeCol(res->odbcStatHandle, field + 1, colname, sizeof(colname),
-									&colnamelen, &coltype, &precision, &scale, NULL);
-
-		if (strcmp(name, (char *)colname) == 0)
-		{
-			return (int) (field);
-		}
-
+		if (strcmp(res->fields[i].name, name) == 0)
+			return i;
 	}
-
-
-	return (0);
+	
+	return (-1);
 }
 
 
@@ -1834,24 +1818,9 @@ fprintf(stderr,"[ODBC][%s][%d]\n",__FILE__,__LINE__);
 fprintf(stderr,"\tfield_type id %d\n",field);
 fflush(stderr);
 #endif
-	SQLCHAR colname[32];
-	SQLSMALLINT coltype;
-	SQLSMALLINT colnamelen;
-	SQLULEN precision;
-	SQLSMALLINT scale;
-	ODBC_RESULT *res = (ODBC_RESULT *) result;
-	SQLRETURN retcode;
+	ODBC_RESULT *res = (ODBC_RESULT *)result;
 
-	retcode=SQLDescribeCol(res->odbcStatHandle, field + 1, colname, sizeof(colname),
-								&colnamelen, &coltype, &precision, &scale, NULL);
-
-	if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-	{
-		GB.Error("Unable to retrieve field type");
-		return GB_T_NULL;
-	}
-	else
-		return conv_type(coltype);
+	return conv_type(res->fields[field].type);
 }
 
 
@@ -2015,6 +1984,7 @@ fflush(stderr);
 					sizeof(coltype), 0)))
 			goto __ERROR;
 
+		fprintf(stderr, "table_init: %s -> %s\n", field->name, coltype);
 		field->type = atol((char *)coltype);
 
 		if (!SQL_SUCCEEDED
@@ -2592,7 +2562,7 @@ fflush(stderr);
 		switch (fp->type)
 		{
 			case GB_T_BOOLEAN:
-				type = "SMALLINT"; //
+				type = "TINYINT"; //
 				break;
 			case GB_T_INTEGER:
 				type = "INTEGER";
