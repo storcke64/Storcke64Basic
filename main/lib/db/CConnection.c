@@ -367,11 +367,14 @@ BEGIN_PROPERTY(Connection_Collations)
 	CHECK_DB();
 	CHECK_OPEN();
 
-	array = THIS->driver->GetCollations(&THIS->db);
-	if (array)
-		GB.ReturnObject(array);
-	else
-		GB.Error("Collations are not supported");
+	if (!THIS->db.flags.no_collation)
+	{
+		array = THIS->driver->GetCollations(&THIS->db);
+		if (array)
+			GB.ReturnObject(array);
+	}
+	
+	GB.Error("Collations are not supported");
 
 END_PROPERTY
 
