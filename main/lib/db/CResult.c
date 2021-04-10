@@ -361,7 +361,7 @@ BEGIN_METHOD_VOID(Result_free)
 	release_buffer(THIS);
 
 	if (THIS->mode != RESULT_CREATE)
-		THIS->driver->Result.Release(THIS->handle, &THIS->info);
+		THIS->driver->Result.Release(THIS->handle, &THIS->info, check_result(THIS));
 
 	if (THIS->mode != RESULT_FIND)
 		table_release(&THIS->info);
