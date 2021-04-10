@@ -803,10 +803,11 @@ static void query_init(DB_RESULT result, DB_INFO *info, int *count)
 
 	<result> is the handle of the query result.
 	<info> points to the info structure.
+	<invalid> tells if the associated connection has been closed.
 
 *****************************************************************************/
 
-static void query_release(DB_RESULT result, DB_INFO *info)
+static void query_release(DB_RESULT result, DB_INFO *info, bool invalid)
 {
 	((Dataset *)result)->close();
 }
@@ -1078,7 +1079,7 @@ static int rollback_transaction(DB_DATABASE *db)
 
 	This function must initialize the following info fields:
 	- info->nfield must contain the number of fields in the table.
-	- info->fields is a char*[] pointing at the name of each field.
+	- info->field is an array of DB_FIELD, one element for each field.
 
 	This function returns TRUE if the command has failed, and FALSE if
 	everything was OK.

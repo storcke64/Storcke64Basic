@@ -1,23 +1,23 @@
 /***************************************************************************
 
-  main.c
+	main.c
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2, or (at your option)
-  any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2, or (at your option)
+	any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-  MA 02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+	MA 02110-1301, USA.
 
 ***************************************************************************/
 
@@ -108,25 +108,25 @@ static void conv_data(const char *data, GB_VARIANT_VALUE * val, int type)
 			{
 				case 14:
 					sscanf(data, "%4d%2d%2d%2d%2d%lf", &date.year, &date.month,
-								 &date.day, &date.hour, &date.min, &sec);
+								&date.day, &date.hour, &date.min, &sec);
 					date.sec = (short) sec;
 					date.msec = (short) ((sec - date.sec) * 1000 + 0.5);
 					break;
 				case 12:
 					sscanf(data, "%2d%2d%2d%2d%2d%lf", &date.year, &date.month,
-								 &date.day, &date.hour, &date.min, &sec);
+								&date.day, &date.hour, &date.min, &sec);
 					date.sec = (short) sec;
 					date.msec = (short) ((sec - date.sec) * 1000 + 0.5);
 					break;
 				case 10:
 					if (sscanf(data, "%4d-%2d-%2d", &date.year, &date.month,
-										 &date.day) != 3)
+										&date.day) != 3)
 					{
 						if (sscanf(data, "%4d/%2d/%2d", &date.year, &date.month,
-											 &date.day) != 3)
+											&date.day) != 3)
 						{
 							if (sscanf(data, "%4d:%2d:%lf", &date.hour, &date.min,
-												 &sec) == 3)
+												&sec) == 3)
 							{
 								date.sec = (short) sec;
 								date.msec = (short) ((sec - date.sec) * 1000 + 0.5);
@@ -134,7 +134,7 @@ static void conv_data(const char *data, GB_VARIANT_VALUE * val, int type)
 							else
 							{
 								sscanf(data, "%2d%2d%2d%2d%2d", &date.year,
-											 &date.month, &date.day, &date.hour, &date.min);
+											&date.month, &date.day, &date.hour, &date.min);
 							}
 						}
 					}
@@ -142,10 +142,10 @@ static void conv_data(const char *data, GB_VARIANT_VALUE * val, int type)
 					break;
 				case 8:
 					if (sscanf(data, "%4d%2d%2d", &date.year, &date.month,
-										 &date.day) != 3)
+										&date.day) != 3)
 					{
 						sscanf(data, "%2d/%2d/%2d", &date.year, &date.month,
-									 &date.day);
+									&date.day);
 					}
 					break;
 				case 6:
@@ -159,7 +159,7 @@ static void conv_data(const char *data, GB_VARIANT_VALUE * val, int type)
 					break;
 				default:
 					sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year,
-								 &date.month, &date.day, &date.hour, &date.min, &sec);
+								&date.month, &date.day, &date.hour, &date.min, &sec);
 					date.sec = (short)sec;
 					date.msec = (short)((sec - date.sec) * 1000 + 0.5);
 			}
@@ -301,7 +301,7 @@ static int do_query(DB_DATABASE *db, const char *error, SQLITE_RESULT **pres, co
 		usleep(200000);
 	}
 
- 	db->error = err;
+	db->error = err;
 	_need_field_type = FALSE;
 	return err != 0;
 }
@@ -310,29 +310,29 @@ static int do_query(DB_DATABASE *db, const char *error, SQLITE_RESULT **pres, co
 
 static bool is_sqlite2_database(const char *filename)
 {
-  /*                   SQLite databases start with the string:
-   *                  ** This file contains an SQLite 2.1 database **
-   *                                  */
-  FILE* fp;
-  bool res;
-  char magic_text[48];
+	/*                   SQLite databases start with the string:
+	*                  ** This file contains an SQLite 2.1 database **
+	*                                  */
+	FILE* fp;
+	bool res;
+	char magic_text[48];
 
-  fp = fopen(filename, "r");
-  if (!fp)
-    return FALSE;
+	fp = fopen(filename, "r");
+	if (!fp)
+		return FALSE;
 
-  res = fread(magic_text, 1, 47, fp) == 47;
-  fclose(fp);
+	res = fread(magic_text, 1, 47, fp) == 47;
+	fclose(fp);
 
-  if (!res)
-    return FALSE;
+	if (!res)
+		return FALSE;
 
-  magic_text[47] = '\0';
+	magic_text[47] = '\0';
 
-  if (strcmp(magic_text, "** This file contains an SQLite 2.1 database **"))
-    return FALSE;
+	if (strcmp(magic_text, "** This file contains an SQLite 2.1 database **"))
+		return FALSE;
 
-  return TRUE;
+	return TRUE;
 }
 
 static bool is_sqlite3_database(const char *filename)
@@ -436,12 +436,12 @@ static char *get_database_home()
 	if (env == NULL)
 	{
 		/*
-		   if (getcwd(dbhome, PATH_MAX) == NULL){
-		   GB.Error("Unable to get databases: &1", "Can't find current directory");
-		   GB.Free((void **)&dbhome);
-		   return NULL;
-		   }
-		 */
+			if (getcwd(dbhome, PATH_MAX) == NULL){
+			GB.Error("Unable to get databases: &1", "Can't find current directory");
+			GB.Free((void **)&dbhome);
+			return NULL;
+			}
+		*/
 
 		sprintf(dbhome, "%s/sqlite", GB.TempDir());
 	}
@@ -529,9 +529,9 @@ static char *get_table_schema(DB_DATABASE *db, const char *table)
 
 /*****************************************************************************
 
-  get_quote()
+	get_quote()
 
-  Returns the character used for quoting object names.
+	Returns the character used for quoting object names.
 
 *****************************************************************************/
 
@@ -542,17 +542,17 @@ static const char *get_quote(void)
 
 /*****************************************************************************
 
-  open_database()
+	open_database()
 
-  Connect to a database.
+	Connect to a database.
 
-  <desc> points at a structure describing each connection parameter.
+	<desc> points at a structure describing each connection parameter.
 
-  In Sqlite, there is no such thing as a host.  If this is set then check
-  to see whether this is actually a path to a home area. NG 01/04/04
+	In Sqlite, there is no such thing as a host.  If this is set then check
+	to see whether this is actually a path to a home area. NG 01/04/04
 
-  This function must return a database handle, or NULL if the connection
-  has failed.
+	This function must return a database handle, or NULL if the connection
+	has failed.
 
 *****************************************************************************/
 
@@ -615,7 +615,7 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 		goto CANNOT_OPEN;
 
 	/* Character set cannot be set for sqlite. A sqlite re-compile
-	 * is required.                                             */
+	* is required.                                             */
 	db->charset = GB.NewZeroString("UTF-8");
 
 	/* flags */
@@ -635,11 +635,11 @@ CANNOT_OPEN:
 
 /*****************************************************************************
 
-  close_database()
+	close_database()
 
-  Terminates the database connection.
+	Terminates the database connection.
 
-  <handle> contains the database handle.
+	<handle> contains the database handle.
 
 *****************************************************************************/
 
@@ -673,18 +673,18 @@ static GB_ARRAY get_collations(DB_DATABASE *db)
 
 /*****************************************************************************
 
-  format_value()
+	format_value()
 
-  This function transforms a gambas value into a string value that can
-  be inserted into a SQL query.
+	This function transforms a gambas value into a string value that can
+	be inserted into a SQL query.
 
-  <arg> points to the value.
-  <add> is a callback called to insert the string into the query.
+	<arg> points to the value.
+	<add> is a callback called to insert the string into the query.
 
-  This function must return TRUE if it translates the value, and FALSE if
-  it does not.
+	This function must return TRUE if it translates the value, and FALSE if
+	it does not.
 
-  If the value is not translated, then a default translation is used.
+	If the value is not translated, then a default translation is used.
 
 *****************************************************************************/
 
@@ -751,13 +751,13 @@ static int format_value(GB_VALUE * arg, DB_FORMAT_CALLBACK add)
 
 /*****************************************************************************
 
-  format_blob()
+	format_blob()
 
-  This function transforms a blob value into a string value that can
-  be inserted into a SQL query.
+	This function transforms a blob value into a string value that can
+	be inserted into a SQL query.
 
-  <blob> points to the DB_BLOB structure.
-  <add> is a callback called to insert the string into the query.
+	<blob> points to the DB_BLOB structure.
+	<add> is a callback called to insert the string into the query.
 
 *****************************************************************************/
 
@@ -769,16 +769,16 @@ static void format_blob(DB_BLOB * blob, DB_FORMAT_CALLBACK add)
 
 /*****************************************************************************
 
-  exec_query()
+	exec_query()
 
-  Send a query to the server and gets the result.
+	Send a query to the server and gets the result.
 
-  <handle> is the database handle, as returned by open_database()
-  <query> is the query string.
-  <result> will receive the result handle of the query.
-  <err> is an error message used when the query failed.
+	<handle> is the database handle, as returned by open_database()
+	<query> is the query string.
+	<result> will receive the result handle of the query.
+	<err> is an error message used when the query failed.
 
-  <result> can be NULL, when we don't care getting the result.
+	<result> can be NULL, when we don't care getting the result.
 
 *****************************************************************************/
 
@@ -815,16 +815,16 @@ static int64_t get_last_insert_id(DB_DATABASE *db)
 
 /*****************************************************************************
 
-  query_init()
+	query_init()
 
-  Initialize an info structure from a query result.
+	Initialize an info structure from a query result.
 
-  <result> is the handle of the query result.
-  <info> points to the info structure.
-  <count> will receive the number of records returned by the query.
+	<result> is the handle of the query result.
+	<info> points to the info structure.
+	<count> will receive the number of records returned by the query.
 
-  This function must initialize the info->nfield field with the number of
-  field in the query result.
+	This function must initialize the info->nfield field with the number of
+	field in the query result.
 
 *****************************************************************************/
 
@@ -847,16 +847,17 @@ static void query_init(DB_RESULT result, DB_INFO * info, int *count)
 
 /*****************************************************************************
 
-  query_release()
+	query_release()
 
-  Free the info structure filled by query_init() and the result handle.
+	Free the info structure filled by query_init() and the result handle.
 
-  <result> is the handle of the query result.
-  <info> points to the info structure.
+	<result> is the handle of the query result.
+	<info> points to the info structure.
+	<invalid> tells if the associated connection has been closed.
 
 *****************************************************************************/
 
-static void query_release(DB_RESULT result, DB_INFO * info)
+static void query_release(DB_RESULT result, DB_INFO * info, bool invalid)
 {
 	sqlite_query_free((SQLITE_RESULT *)result);
 }
@@ -920,14 +921,14 @@ static int query_fill(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VAL
 
 /*****************************************************************************
 
-  blob_read()
+	blob_read()
 
-  Returns the value of a BLOB field.
+	Returns the value of a BLOB field.
 
-  <result> is the handle of the result.
-  <pos> is the index of the record in the result.
-  <blob> points at a DB_BLOB structure that will receive a pointer to the
-  data and its length.
+	<result> is the handle of the result.
+	<pos> is the index of the record in the result.
+	<blob> points at a DB_BLOB structure that will receive a pointer to the
+	data and its length.
 
 *****************************************************************************/
 
@@ -940,12 +941,12 @@ static void blob_read(DB_RESULT result, int pos, int field, DB_BLOB * blob)
 
 /*****************************************************************************
 
-  field_name()
+	field_name()
 
-  Return the name of a field in a result from its index.
+	Return the name of a field in a result from its index.
 
-  <result> is the result handle.
-  <field> is the field index.
+	<result> is the result handle.
+	<field> is the field index.
 
 *****************************************************************************/
 
@@ -957,13 +958,13 @@ static char *field_name(DB_RESULT result, int field)
 
 /*****************************************************************************
 
-  field_index()
+	field_index()
 
-  Return the index of a field in a result from its name.
+	Return the index of a field in a result from its name.
 
-  <Result> is the result handle.
-  <name> is the field name.
-  <handle> can be ignored by this driver.
+	<Result> is the result handle.
+	<name> is the field name.
+	<handle> can be ignored by this driver.
 
 *****************************************************************************/
 
@@ -975,12 +976,12 @@ static int field_index(DB_RESULT result, const char *name, DB_DATABASE *db)
 
 /*****************************************************************************
 
-  field_type()
+	field_type()
 
-  Return the Gambas type of a field in a result from its index.
+	Return the Gambas type of a field in a result from its index.
 
-  <result> is the result handle.
-  <field> is the field index.
+	<result> is the result handle.
+	<field> is the field index.
 
 *****************************************************************************/
 
@@ -992,12 +993,12 @@ static GB_TYPE field_type(DB_RESULT result, int field)
 
 /*****************************************************************************
 
-  field_length()
+	field_length()
 
-  Return the length of a field in a result from its index.
+	Return the length of a field in a result from its index.
 
-  <result> is the result handle.
-  <field> is the field index.
+	<result> is the result handle.
+	<field> is the field index.
 
 *****************************************************************************/
 
@@ -1009,20 +1010,20 @@ static int field_length(DB_RESULT result, int field)
 
 /*****************************************************************************
 
-  begin_transaction()
+	begin_transaction()
 
-  Begin a transaction.
+	Begin a transaction.
 
-  <handle> is the database handle.
+	<handle> is the database handle.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
-  In mysql commit/rollback can only be used with transaction safe tables (BDB,
-  or InnoDB tables)
+	In mysql commit/rollback can only be used with transaction safe tables (BDB,
+	or InnoDB tables)
 
-  ISAM, MyISAM and HEAP tables will commit straight away. The transaction
-  methods are therefore ignored.
+	ISAM, MyISAM and HEAP tables will commit straight away. The transaction
+	methods are therefore ignored.
 
 *****************************************************************************/
 
@@ -1034,14 +1035,14 @@ static int begin_transaction(DB_DATABASE * db)
 
 /*****************************************************************************
 
-  commit_transaction()
+	commit_transaction()
 
-  Commit a transaction.
+	Commit a transaction.
 
-  <handle> is the database handle.
+	<handle> is the database handle.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1053,14 +1054,14 @@ static int commit_transaction(DB_DATABASE * db)
 
 /*****************************************************************************
 
-  rollback_transaction()
+	rollback_transaction()
 
-  Rolllback a transaction.
+	Rolllback a transaction.
 
-  <handle> is the database handle.
+	<handle> is the database handle.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1071,20 +1072,20 @@ static int rollback_transaction(DB_DATABASE * db)
 
 /*****************************************************************************
 
-  table_init()
+	table_init()
 
-  Initialize an info structure from table fields.
+	Initialize an info structure from table fields.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <info> points at the info structure.
+	<handle> is the database handle.
+	<table> is the table name.
+	<info> points at the info structure.
 
-  This function must initialize the following info fields:
-   - info->nfield must contain the number of fields in the table.
-   - info->fields is a char*[] pointing at the name of each field.
+	This function must initialize the following info fields:
+	- info->nfield must contain the number of fields in the table.
+	- info->field is an array of DB_FIELD, one element for each field.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1138,23 +1139,23 @@ static int table_init(DB_DATABASE * db, const char *table, DB_INFO * info)
 
 /*****************************************************************************
 
-  table_index()
+	table_index()
 
-  Initialize an info structure from table primary index.
+	Initialize an info structure from table primary index.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <info> points at the info structure.
+	<handle> is the database handle.
+	<table> is the table name.
+	<info> points at the info structure.
 
-  This function must initialize the following info fields:
-   - info->nindex must contain the number of fields in the primary index.
-   - info->index is a int[] giving the index of each index field in
-     info->fields.
+	This function must initialize the following info fields:
+	- info->nindex must contain the number of fields in the primary index.
+	- info->index is a int[] giving the index of each index field in
+		info->fields.
 
-  This function must be called after table_init().
+	This function must be called after table_init().
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1248,12 +1249,12 @@ static int table_index(DB_DATABASE * db, const char *table, DB_INFO * info)
 
 /*****************************************************************************
 
-  table_release()
+	table_release()
 
-  Free the info structure filled by table_init() and/or table_index()
+	Free the info structure filled by table_init() and/or table_index()
 
-  <handle> is the database handle.
-  <info> points at the info structure.
+	<handle> is the database handle.
+	<info> points at the info structure.
 
 *****************************************************************************/
 
@@ -1264,14 +1265,14 @@ static void table_release(DB_DATABASE * db, DB_INFO * info)
 
 /*****************************************************************************
 
-  table_exist()
+	table_exist()
 
-  Returns if a table exists
+	Returns if a table exists
 
-  <handle> is the database handle.
-  <table> is the table name.
+	<handle> is the database handle.
+	<table> is the table name.
 
-  This function returns TRUE if the table exists, and FALSE if not.
+	This function returns TRUE if the table exists, and FALSE if not.
 
 *****************************************************************************/
 
@@ -1301,17 +1302,17 @@ static int table_exist(DB_DATABASE * db, const char *table)
 
 /*****************************************************************************
 
-  table_list()
+	table_list()
 
-  Returns an array containing the name of each table in the database
+	Returns an array containing the name of each table in the database
 
-  <handle> is the database handle.
-  <tables> points to a variable that will receive the char* array.
+	<handle> is the database handle.
+	<tables> points to a variable that will receive the char* array.
 
-  This function returns the number of tables, or -1 if the command has
-  failed.
+	This function returns the number of tables, or -1 if the command has
+	failed.
 
-  Be careful: <tables> can be NULL, so that just the count is returned.
+	Be careful: <tables> can be NULL, so that just the count is returned.
 
 *****************************************************************************/
 
@@ -1351,16 +1352,16 @@ static int table_list(DB_DATABASE * db, char ***tables)
 
 /*****************************************************************************
 
-  table_primary_key()
+	table_primary_key()
 
-  Returns a string representing the primary key of a table.
+	Returns a string representing the primary key of a table.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <key> points to a string that will receive the primary key.
+	<handle> is the database handle.
+	<table> is the table name.
+	<key> points to a string that will receive the primary key.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1427,7 +1428,7 @@ static int old_table_primary_key(DB_DATABASE * db, const char *table, char ***pr
 	{
 		if (do_query
 				(db, "Unable to get primary key: &1", &res,
-				 "PRAGMA table_info('&1')", 1, table))
+				"PRAGMA table_info('&1')", 1, table))
 			return TRUE;
 
 		r = (result_set *) res->getResult();
@@ -1482,18 +1483,18 @@ static int table_primary_key(DB_DATABASE * db, const char *table, char ***primar
 
 /*****************************************************************************
 
-  table_is_system()
+	table_is_system()
 
-  Returns if a table is a system table.
+	Returns if a table is a system table.
 
-  <handle> is the database handle.
-  <table> is the table name.
+	<handle> is the database handle.
+	<table> is the table name.
 
-  This function returns TRUE if the table is a system table, and FALSE if
-  not.
+	This function returns TRUE if the table is a system table, and FALSE if
+	not.
 
-  Note: According to the documentation, all tables beginning without
-        "sqlite_" are reserved.
+	Note: According to the documentation, all tables beginning without
+				"sqlite_" are reserved.
 
 *****************************************************************************/
 
@@ -1504,12 +1505,12 @@ static int table_is_system(DB_DATABASE * db, const char *table)
 
 /*****************************************************************************
 
-  table_type()
+	table_type()
 
-  Not Valid in Sqlite
+	Not Valid in Sqlite
 
-  <handle> is the database handle.
-  <table> is the table name.
+	<handle> is the database handle.
+	<table> is the table name.
 
 *****************************************************************************/
 
@@ -1522,15 +1523,15 @@ static char *table_type(DB_DATABASE * db, const char *table, const char *type)
 
 /*****************************************************************************
 
-  table_delete()
+	table_delete()
 
-  Deletes a table.
+	Deletes a table.
 
-  <handle> is the database handle.
-  <table> is the table name.
+	<handle> is the database handle.
+	<table> is the table name.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1541,17 +1542,17 @@ static int table_delete(DB_DATABASE * db, const char *table)
 
 /*****************************************************************************
 
-  table_create()
+	table_create()
 
-  Creates a table.
+	Creates a table.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <fields> points to a linked list of field descriptions.
-  <key> is the primary key.
+	<handle> is the database handle.
+	<table> is the table name.
+	<fields> points to a linked list of field descriptions.
+	<key> is the primary key.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1673,15 +1674,15 @@ static int table_create(DB_DATABASE * db, const char *table, DB_FIELD * fields, 
 
 /*****************************************************************************
 
-  field_exist()
+	field_exist()
 
-  Returns if a field exists in a given table
+	Returns if a field exists in a given table
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <field> is the field name.
+	<handle> is the database handle.
+	<table> is the table name.
+	<field> is the field name.
 
-  This function returns TRUE if the field exists, and FALSE if not.
+	This function returns TRUE if the field exists, and FALSE if not.
 
 *****************************************************************************/
 
@@ -1712,18 +1713,18 @@ static int field_exist(DB_DATABASE * db, const char *table, const char *field)
 
 /*****************************************************************************
 
-  field_list()
+	field_list()
 
-  Returns an array containing the name of each field in a given table
+	Returns an array containing the name of each field in a given table
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <fields> points to a variable that will receive the char* array.
+	<handle> is the database handle.
+	<table> is the table name.
+	<fields> points to a variable that will receive the char* array.
 
-  This function returns the number of fields, or -1 if the command has
-  failed.
+	This function returns the number of fields, or -1 if the command has
+	failed.
 
-  Be careful: <fields> can be NULL, so that just the count is returned.
+	Be careful: <fields> can be NULL, so that just the count is returned.
 
 *****************************************************************************/
 
@@ -1754,17 +1755,17 @@ static int field_list(DB_DATABASE * db, const char *table, char ***fields)
 
 /*****************************************************************************
 
-  field_info()
+	field_info()
 
-  Get field description
+	Get field description
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <field> is the field name.
-  <info> points to a structure filled by the function.
+	<handle> is the database handle.
+	<table> is the table name.
+	<field> is the field name.
+	<info> points to a structure filled by the function.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -1935,15 +1936,15 @@ static int field_info(DB_DATABASE *db, const char *table, const char *field, DB_
 
 /*****************************************************************************
 
-  index_exist()
+	index_exist()
 
-  Returns if an index exists in a given table
+	Returns if an index exists in a given table
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <field> is the index name.
+	<handle> is the database handle.
+	<table> is the table name.
+	<field> is the index name.
 
-  This function returns TRUE if the index exists, and FALSE if not.
+	This function returns TRUE if the index exists, and FALSE if not.
 
 *****************************************************************************/
 
@@ -1968,24 +1969,24 @@ static int index_exist(DB_DATABASE * db, const char *table, const char *index)
 
 /*****************************************************************************
 
-  index_list()
+	index_list()
 
-  Returns an array containing the name of each index in a given table
+	Returns an array containing the name of each index in a given table
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <indexes> points to a variable that will receive the char* array.
+	<handle> is the database handle.
+	<table> is the table name.
+	<indexes> points to a variable that will receive the char* array.
 
-  This function returns the number of indexes, or -1 if the command has
-  failed.
+	This function returns the number of indexes, or -1 if the command has
+	failed.
 
-  Be careful: <indexes> can be NULL, so that just the count is returned.
+	Be careful: <indexes> can be NULL, so that just the count is returned.
 
 *****************************************************************************/
 
 static int index_list(DB_DATABASE * db, const char *table, char ***indexes)
 {
-  const char *query =
+	const char *query =
 		"select name from "
 		"( select name from sqlite_master where type = 'index' and tbl_name = '&1' "
 		" union select name from sqlite_temp_master where type = 'index' and "
@@ -2009,17 +2010,17 @@ static int index_list(DB_DATABASE * db, const char *table, char ***indexes)
 
 /*****************************************************************************
 
-  index_info()
+	index_info()
 
-  Get index description
+	Get index description
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <field> is the index name.
-  <info> points to a structure filled by the function.
+	<handle> is the database handle.
+	<table> is the table name.
+	<field> is the index name.
+	<info> points to a structure filled by the function.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -2092,16 +2093,16 @@ static int index_info(DB_DATABASE * db, const char *table, const char *index, DB
 
 /*****************************************************************************
 
-  index_delete()
+	index_delete()
 
-  Deletes an index.
+	Deletes an index.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <index> is the index name.
+	<handle> is the database handle.
+	<table> is the table name.
+	<index> is the index name.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -2112,17 +2113,17 @@ static int index_delete(DB_DATABASE * db, const char *table, const char *index)
 
 /*****************************************************************************
 
-  index_create()
+	index_create()
 
-  Creates an index.
+	Creates an index.
 
-  <handle> is the database handle.
-  <table> is the table name.
-  <index> is the index name.
-  <info> points to a structure describing the index.
+	<handle> is the database handle.
+	<table> is the table name.
+	<index> is the index name.
+	<info> points to a structure describing the index.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
 *****************************************************************************/
 
@@ -2150,16 +2151,16 @@ static int index_create(DB_DATABASE * db, const char *table, const char *index, 
 
 /*****************************************************************************
 
-   database_exist()
+	database_exist()
 
-   Returns if a database exists
+	Returns if a database exists
 
-   <handle> is any database handle.
-   <name> is the database name.
+	<handle> is any database handle.
+	<name> is the database name.
 
-   This function returns TRUE if the database exists, and FALSE if not.
-   SQLite: Databases are just files, so we need to ceck to see whether
-   the file exists and is a sqlite file.
+	This function returns TRUE if the database exists, and FALSE if not.
+	SQLite: Databases are just files, so we need to ceck to see whether
+	the file exists and is a sqlite file.
 
 ******************************************************************************/
 
@@ -2179,23 +2180,23 @@ static int database_exist(DB_DATABASE *db, const char *name)
 
 /*****************************************************************************
 
-    database_list()
+		database_list()
 
-    Returns an array containing the name of each database
+		Returns an array containing the name of each database
 
-    <handle> is any database handle.
-    <databases> points to a variable that will receive the char* array.
+		<handle> is any database handle.
+		<databases> points to a variable that will receive the char* array.
 
-    This function returns the number of databases, or -1 if the command has
-    failed.
+		This function returns the number of databases, or -1 if the command has
+		failed.
 
-    Be careful: <databases> can be NULL, so that just the count is returned.
+		Be careful: <databases> can be NULL, so that just the count is returned.
 
-    Sqlite databases are files. Using we will only list
-    files within a designated directory. Propose that all
-    areas are walked through.
+		Sqlite databases are files. Using we will only list
+		files within a designated directory. Propose that all
+		areas are walked through.
 
- ******************************************************************************/
+******************************************************************************/
 
 static int database_list(DB_DATABASE *db, char ***databases)
 {
@@ -2223,19 +2224,19 @@ static int database_list(DB_DATABASE *db, char ***databases)
 }
 
 /*****************************************************************************
- *
- *   database_is_system()
- *
- *   Returns if a database is a system database.
- *
- *   <handle> is any database handle.
- *   <name> is the database name.
- *
- *   This function returns TRUE if the database is a system database, and
- *   FALSE if not.
- *
- *   Note: Sqlite doesn't have such a thing.
- ******************************************************************************/
+*
+*   database_is_system()
+*
+*   Returns if a database is a system database.
+*
+*   <handle> is any database handle.
+*   <name> is the database name.
+*
+*   This function returns TRUE if the database is a system database, and
+*   FALSE if not.
+*
+*   Note: Sqlite doesn't have such a thing.
+******************************************************************************/
 
 static int database_is_system(DB_DATABASE * db, const char *name)
 {
@@ -2243,18 +2244,18 @@ static int database_is_system(DB_DATABASE * db, const char *name)
 }
 
 /*****************************************************************************
- *
- *   database_delete()
- *
- *   Deletes a database.
- *
- *   <handle> is the database handle.
- *   <name> is the database name.
- *
- *   This function returns TRUE if the command has failed, and FALSE if
- *   everything was OK.
- *
- ******************************************************************************/
+*
+*   database_delete()
+*
+*   Deletes a database.
+*
+*   <handle> is the database handle.
+*   <name> is the database name.
+*
+*   This function returns TRUE if the command has failed, and FALSE if
+*   everything was OK.
+*
+******************************************************************************/
 
 static int database_delete(DB_DATABASE * db, const char *name)
 {
@@ -2294,20 +2295,20 @@ static int database_delete(DB_DATABASE * db, const char *name)
 }
 
 /*****************************************************************************
- *
- *   database_create()
- *
- *   Creates a database.
- *
- *   <handle> is the database handle.
- *   <name> is the database name.
- *
- *   This function returns TRUE if the command has failed, and FALSE if
- *   everything was OK.
- *
- *   SQLite automatically creates a database on connect if the file
- *   does not exist.
- ******************************************************************************/
+*
+*   database_create()
+*
+*   Creates a database.
+*
+*   <handle> is the database handle.
+*   <name> is the database name.
+*
+*   This function returns TRUE if the command has failed, and FALSE if
+*   everything was OK.
+*
+*   SQLite automatically creates a database on connect if the file
+*   does not exist.
+******************************************************************************/
 
 static int database_create(DB_DATABASE *db, const char *name)
 {
@@ -2370,23 +2371,23 @@ _CREATE_DATABASE:
 
 
 /*****************************************************************************
- *
- *  user_exist()
- *
- *  Returns if a user exists.
- *
- *  <handle> is any database handle.
- *  <name> is the user name.
- *
- *  This function returns TRUE if the user exists, and FALSE if not.
- *  Sqlite does not have different  users.  Access is controlled by
- *  access rightd on the file.
- *  We can check that the user exists on the machine and has access to
- *  database file!
- *  [Currently only checks against /etc/passwd.
- *   Does not check against /etc/shadow or pam.
- *
- ******************************************************************************/
+*
+*  user_exist()
+*
+*  Returns if a user exists.
+*
+*  <handle> is any database handle.
+*  <name> is the user name.
+*
+*  This function returns TRUE if the user exists, and FALSE if not.
+*  Sqlite does not have different  users.  Access is controlled by
+*  access rightd on the file.
+*  We can check that the user exists on the machine and has access to
+*  database file!
+*  [Currently only checks against /etc/passwd.
+*   Does not check against /etc/shadow or pam.
+*
+******************************************************************************/
 
 static int user_exist(DB_DATABASE *db, const char *name)
 {
@@ -2394,21 +2395,21 @@ static int user_exist(DB_DATABASE *db, const char *name)
 }
 
 /*****************************************************************************
- *
- *   user_list()
- *
- *   Returns an array containing the name of each user.
- *
- *   <handle> is the database handle.
- *   <users> points to a variable that will receive the char* array.
- *
- *   This function returns the number of users, or -1 if the command has
- *   failed.
- *
- *   Be careful: <users> can be NULL, so that just the count is returned.
- *   Sqlite does not have users.
- *
- ******************************************************************************/
+*
+*   user_list()
+*
+*   Returns an array containing the name of each user.
+*
+*   <handle> is the database handle.
+*   <users> points to a variable that will receive the char* array.
+*
+*   This function returns the number of users, or -1 if the command has
+*   failed.
+*
+*   Be careful: <users> can be NULL, so that just the count is returned.
+*   Sqlite does not have users.
+*
+******************************************************************************/
 
 
 static int user_list(DB_DATABASE * db, char ***users)
@@ -2419,21 +2420,21 @@ static int user_list(DB_DATABASE * db, char ***users)
 }
 
 /*****************************************************************************
- *
- *   user_info()
- *
- *   Get user description
- *
- *   <handle> is the database handle.
- *   <name> is the user name.
- *   <info> points to a structure filled by the function.
- *
- *   This function returns TRUE if the command has failed, and FALSE if
- *   everything was OK.
- *
- *   Sqlite privileges are just file privileges. We will return Admin
- *   rights where privilege allows Write. There is no password.
- ******************************************************************************/
+*
+*   user_info()
+*
+*   Get user description
+*
+*   <handle> is the database handle.
+*   <name> is the user name.
+*   <info> points to a structure filled by the function.
+*
+*   This function returns TRUE if the command has failed, and FALSE if
+*   everything was OK.
+*
+*   Sqlite privileges are just file privileges. We will return Admin
+*   rights where privilege allows Write. There is no password.
+******************************************************************************/
 
 static int user_info(DB_DATABASE * db, const char *name, DB_USER * info)
 {
@@ -2443,17 +2444,17 @@ static int user_info(DB_DATABASE * db, const char *name, DB_USER * info)
 
 /*****************************************************************************
 
-  user_delete()
+	user_delete()
 
-  Deletes a user.
+	Deletes a user.
 
-  <handle> is any database handle.
-  <name> is the user name.
+	<handle> is any database handle.
+	<name> is the user name.
 
-  This function returns TRUE if the command has failed, and FALSE if
-  everything was OK.
+	This function returns TRUE if the command has failed, and FALSE if
+	everything was OK.
 
-  Sqlite users are operated by the O/S
+	Sqlite users are operated by the O/S
 
 *****************************************************************************/
 
@@ -2464,21 +2465,21 @@ static int user_delete(DB_DATABASE * db, const char *name)
 }
 
 /*****************************************************************************
- *
- *   user_create()
- *
- *     Creates a user.
- *
- *     <handle> is the database handle.
- *     <name> is the user name.
- *     <info> points to a structure describing the user.
- *
- *     This function returns TRUE if the command has failed, and FALSE if
- *           everything was OK.
- *
- *
- *   Sqlite: No user create
- ******************************************************************************/
+*
+*   user_create()
+*
+*     Creates a user.
+*
+*     <handle> is the database handle.
+*     <name> is the user name.
+*     <info> points to a structure describing the user.
+*
+*     This function returns TRUE if the command has failed, and FALSE if
+*           everything was OK.
+*
+*
+*   Sqlite: No user create
+******************************************************************************/
 
 static int user_create(DB_DATABASE * db, const char *name, DB_USER * info)
 {
@@ -2487,20 +2488,20 @@ static int user_create(DB_DATABASE * db, const char *name, DB_USER * info)
 }
 
 /*****************************************************************************
- *
- *   user_set_password()
- *
- *   Change the user password.
- *
- *   <handle> is the database handle.
- *   <name> is the user name.
- *   <password> is the new password
- *
- *   This function returns TRUE if the command has failed, and FALSE if
- *   everything was OK.
- *
- *   Sqlite : No user passwords.
- ******************************************************************************/
+*
+*   user_set_password()
+*
+*   Change the user password.
+*
+*   <handle> is the database handle.
+*   <name> is the user name.
+*   <password> is the new password
+*
+*   This function returns TRUE if the command has failed, and FALSE if
+*   everything was OK.
+*
+*   Sqlite : No user passwords.
+******************************************************************************/
 
 static int user_set_password(DB_DATABASE * db, const char *name, const char *password)
 {
@@ -2511,7 +2512,7 @@ static int user_set_password(DB_DATABASE * db, const char *name, const char *pas
 
 /*****************************************************************************
 
-  The driver interface
+	The driver interface
 
 *****************************************************************************/
 
@@ -2519,7 +2520,7 @@ DECLARE_DRIVER(_driver, "sqlite3");
 
 /*****************************************************************************
 
-  The component entry and exit functions.
+	The component entry and exit functions.
 
 *****************************************************************************/
 
