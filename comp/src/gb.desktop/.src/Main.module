@@ -224,6 +224,8 @@ Public Sub Main()
   ' Print hMime.Type
   
   Print Desktop.Count
+  Print Desktop.Showing
+  Desktop.Showing = True
   
 End
 
