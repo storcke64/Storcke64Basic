@@ -2626,6 +2626,40 @@ Public Sub TVal()
 
 End
 
+Public Sub TCatch()
+
+    Dim f As Float
+    'do an error
+    f = 2 / 0
+
+    Catch 
+        Print Error.Text
+        
+        Assert.Equals(Error.Code, 26, "division 0")
+End
+
+'' Tests a Error an Error.Clear
+Public Sub TError()
+
+    Dim f As Float
+    'do an error
+    Try f = 2 / 0
+    
+    'first test if error is handled
+    Assert.GreaterEqual(Error.Code, 0, "Error.Code > 0")
+    Assert.NotNull(Error.Text, "Error.Text not null")
+    Assert.Error("Test Error happened")
+    
+    'test error clear
+    Try f = 2 / 0
+    Error.Clear
+    Assert.Equals(Error.Code, 0, "Error.Code = 0")
+    Assert.Null(Error.Text, "Error.Text Null")
+    Assert.Null(Error.Where, "Error.Where Null")
+
+End
+
+
 Fast Public Function _TestAndIf() As Integer
 
     iTestAndIf = 1
