@@ -13,6 +13,7 @@ Public _IntendedFailure As Boolean
 Public Sub Ok(Result As Boolean, Optional Description As String) As Boolean
 
     Dim bRes As Boolean
+    Dim bt As String[]
 
     If Test._InSetup = True Then
         Test.BailOut(("Failure: Assertion forbidden inside _Setup or _Teardown."))
@@ -23,6 +24,11 @@ Public Sub Ok(Result As Boolean, Optional Description As String) As Boolean
 
 DAWAI:
 
+    bt = System.Backtrace
+    While bt[0] Begins "Assert." Or bt[0] Begins "Test." Or bt[0] Begins "TestCase." Or bt[0] Begins "TestSuite."
+        bt.Extract(0)
+    Wend
+    Test._Next.Line = bt[0]
     Test._Next.Ok = Result
     Test._Next.Description = Description
     bRes = Test._Printer.Assert(Test._Next).Ok

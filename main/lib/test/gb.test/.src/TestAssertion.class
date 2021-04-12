@@ -24,6 +24,8 @@ Public Subtests As New TestAssertion[]
 Public SubPlanned As Integer
 '' If this is a subtest summary assertion, whether it was skipped completely.
 Public SubSkippedAll As Boolean
+'' The position in the code where the test was called
+Public Line As String
 
 '' Whether the test counts as succeeded. A "not ok" test can succeed if it was marked as TODO.
 Property Read Success As Boolean

@@ -1,7 +1,7 @@
 ' Gambas class file
 
 ''' Low-level class for planning and printing test results in Test Anything Protocol ([TAP]) format.
-''' 
+'''
 ''' [TAP]: http://testanything.org/tap-specification.html
 
 Event Filter
@@ -121,7 +121,11 @@ Public Sub Assert(Assertion As TestAssertion) As TestAssertion
         Inc $hCurrent.TestsRun
         If Not .Id Then .Id = $hCurrent.TestsRun
         $hCurrent.LastId = .Id
-        sLine = Subst$("&1 &2 - &3", IIf(.Ok, "ok", "not ok"), .Id, .Description)
+        If .Line Then
+            sLine = Subst$("&1 &2 - &3: &4", IIf(.Ok, "ok", "not ok"), .Id, .Line, .Description)
+        Else
+            sLine = Subst$("&1 &2 - &3", IIf(.Ok, "ok", "not ok"), .Id, .Description)
+        Endif
 
         If .Directive <> TestAssertion.NONE Then
             ' Matches the values of the Enum TestAssertion.TODO, TestAssertion.SKIP
