@@ -33,10 +33,10 @@ Public Sub Form_Open()
   
     Project.SetEditorFont(trmDetail)
     MTheme.InitControl(trmDetail)
+    panExpand.Hide
     trmDetail.Print(Replace($sDetail, "\n", "\r\n"))
     trmDetail.Show
-    panExpand.Hide
-    Me.Resize(DS * 120, trmDetail.Y + trmDetail.H + DS * 6)
+    Me.Resize(DS * 100, trmDetail.Y + DS * 30)
     
   Else
     
