@@ -286,7 +286,9 @@ Public Sub _get(Key As String) As Variant
   Dim hFile As File
   Dim vVal As Variant
 
-  If $cDelete And If $cDelete.Exist(Key) Then Return
+  If Not $cValues Then Return
+  
+  If $cDelete.Exist(Key) Then Return
   vVal = $cValues[Key]
   If Not IsNull(vVal) Then Return vVal
 
