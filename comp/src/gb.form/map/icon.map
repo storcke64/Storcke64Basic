@@ -22,6 +22,7 @@ book                    [-breeze*]actions/address-book-new;apps/accessories-dict
 bookmark                places/bookmarks;actions/bookmark-new;places/user-bookmarks
 bottom                  actions/go-bottom
 brush                   actions/draw-brush
+bus                     places/poi-bus-stop
 c                       $(mime)/text-x-csrc
 calculator              apps/accessories-calculator
 calendar                actions/office-calendar;apps/evolution-calendar;actions/view-pim-calendar
@@ -31,7 +32,7 @@ cap-round               actions/stroke-cap-round
 cap-square              actions/stroke-cap-square
 camera                  devices/camera-photo
 cancel                  actions/dialog-cancel
-car                     #
+car                     places/poi-car
 cdrom                   devices/media-optical
 clear                   actions/edit-clear-locationbar-rtl;actions/edit-clear
 clock                   apps/clock;actions/chronometer
@@ -65,6 +66,7 @@ draw-path               actions/draw-path;tools/draw-freehand
 draw-polygon            actions/draw-polygon
 draw-rectangle          actions/draw-rectangle;tools/draw-rectangle
 draw-text               actions/draw-text;tools/draw-text
+drink                   places/poi-bar
 earth                   #
 edit                    actions/document-edit;apps/accessories-text-editor
 eject                   actions/media-eject
@@ -109,6 +111,7 @@ grid                    actions/view-grid;actions/games-config-board
 group                   [-breeze*]actions/user-group-new;apps/system-users
 h                       $(mime)/text-x-chdr
 halt                    actions/process-stop
+house                   places/poi-building
 harddisk                devices/drive-harddisk
 hardware                devices/audio-card
 headset                 devices/audio-headset
@@ -148,7 +151,7 @@ love                    actions/love
 mail                    apps/evolution-mail;actions/mail-mark-unread
 make                    actions/arrow-down
 make-all                actions/arrow-down-double
-marker                  #
+marker                  places/poi-marker
 math                    actions/preview-math;actions/preview_math
 md                      $(mime)/text-x-markdown
 media-player            devices/multimedia-player
@@ -191,7 +194,7 @@ percent                 actions/format-number-percent
 phone                   [-breeze*]devices/smartphone;devices/phone
 pin                     actions/pin;actions/view-pin
 play                    actions/media-playback-start
-plane                   #
+plane                   places/poi-airport
 plugin                  [breeze*]preferences/preferences-plugin;[breeze*]apps/preferences-plugin;categories/applications-puzzles;apps/preferences-system-sharing
 preview                 actions/document-print-preview
 previous                actions/go-previous;actions/go-previous-view
@@ -213,6 +216,7 @@ rename                  actions/edit-rename
 replace                 actions/edit-find-replace
 resize                  actions/transform-scale
 restart                 actions/system-restart;actions/system-reboot
+restaurant              places/poi-restaurant
 revert                  actions/document-revert
 rewind                  actions/media-seek-backward
 right                   actions/go-next
@@ -269,6 +273,8 @@ text-underline          actions/format-text-underline
 text-upper              actions/format-text-uppercase
 tools                   [elementary]categories/applications-developmenent;[breeze*]categories/applications-system;actions/applications-system;categories/applications-system
 top                     actions/go-top
+town                    places/poi-town
+train                   places/poi-railway-station
 transparency            #
 trash                   [breeze*!16]places/user-trash;places/user-trash
 usb                     devices/media-removable;devices/drive-removable-media
@@ -296,6 +302,7 @@ webcam                  devices/camera-web
 wifi                    devices/network-wireless
 window                  actions/window
 wizard                  actions/tools-wizard
+worship                 places/poi-place-of-worship
 wrap                    actions/text-wrap
 xml                     $(mime)/text-xml
 zoom-fit                actions/zoom-fit-best
