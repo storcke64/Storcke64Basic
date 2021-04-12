@@ -87,12 +87,6 @@
         Picture = Picture["icon:/small/paste"]
         Shortcut = "Ctrl+Shift+V"
       }
-      { mnuInsertColor Menu
-        Action = ".color"
-        Text = ("Insert color") & "..."
-        Picture = Picture["icon:/small/color"]
-        Shortcut = "Ctrl+Shift+C"
-      }
       { mnuPretty Menu
         Action = ".pretty"
         Text = ("Format code")
@@ -104,6 +98,14 @@
         Text = ("Compress file")
         Picture = Picture["icon:/small/archive"]
         Toggle = True
+      }
+      { Menu12 Menu
+      }
+      { mnuInsertColor Menu
+        Action = ".color"
+        Text = ("Insert color") & "..."
+        Picture = Picture["icon:/small/color"]
+        Shortcut = "Ctrl+Shift+C"
       }
     }
     { mnuSep3 Menu

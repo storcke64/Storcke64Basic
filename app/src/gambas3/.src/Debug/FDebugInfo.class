@@ -1602,3 +1602,9 @@ Public Sub panTestResult_Draw()
   Paint.Fill
 
 End
+
+Public Sub trmTest_GotFocus()
+
+  Project.SetCurrentPopup(Null)
+
+End
