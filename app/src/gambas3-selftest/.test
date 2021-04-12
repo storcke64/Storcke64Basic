@@ -1,15 +1,15 @@
 [TestSuites]
 Count=3
 TestWith=0
-Default="GambasSelftests.FastTests;TVal"
+Default="GambasSelftests.FastTests;TCatch;TError;TVal"
 
 [TestSuites/1]
 Name="Fast"
-Tests="GambasSelftests.FastTests;TVal,TVal"
+Tests="GambasSelftests.FastTests;TCatch;TError;TVal"
 
 [TestSuites/2]
 Name="Full"
-Tests="FileReadWrite.FileReadWrite;ReadUrandom;ReadZero,GambasSelftests.FastTests;TVal,SlowThousandsProcs.FewThousandProcesses,TVal,Timers.Timers"
+Tests="FileReadWrite.FileReadWrite;ReadUrandom;ReadZero,GambasSelftests.FastTests;TCatch;TError;TVal,SlowThousandsProcs.FewThousandProcesses,Timers.Timers"
 
 [TestSuites/3]
 Name="Slow tests"
