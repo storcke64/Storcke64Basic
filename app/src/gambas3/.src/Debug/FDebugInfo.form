@@ -203,6 +203,7 @@
       }
       { btnTest ToolButton
         MoveScaled(5,0,14,4)
+        Action = "test"
         AutoResize = True
         Text = ("Run test")
         Picture = Picture["icon:/small/ok"]
@@ -383,5 +384,14 @@
       }
     }
     Index = 0
+  }
+}
+
+# Gambas Action File 3.0
+
+{ Actions
+  { Action test
+    Text = "Run test"
+    Picture = "icon:/small/ok"
   }
 }

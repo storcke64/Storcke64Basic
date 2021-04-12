@@ -729,18 +729,30 @@ Public Sub RunUntil(hForm As FEditor, iLine As Integer)
 
 End
 
-
 Public Sub Run(Optional bTest As Boolean)
 
   If $iState = STATE_RUNNING Then Return
 
-  $bTest = bTest
   $bLastCommandMayBeLong = True
 
   If $iState = STATE_STOP Then
+    
+    $bTest = bTest
+  
+    If bTest Then
+      If Not Project.HasTest() Then
+        $bLastCommandMayBeLong = False
+        Message.Warning(("The project has no test module."))
+        Return
+      Endif
+    Endif
+
     Start("g")
+    
   Else
+    
     Command("g", STATE_RUNNING)
+    
   Endif
 
   $bLastCommandMayBeLong = False
@@ -749,11 +761,8 @@ End
 
 Public Sub Test()
   
-  If Not Project.HasTest() Then
-    Message.Warning(("The project has no test module."))
-    Return
-  Endif
-  
+  If $iState = STATE_RUNNING Then Return
+
   FDebugInfo.StartTest()
   Run(True)
   
