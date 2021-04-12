@@ -4,8 +4,8 @@ Export
 
 Class __Test
 
-''' The class Test is the central class which orchestrates 
-''' the execution of tests and also gives a couple of tools to 
+''' The class Test is the central class which orchestrates
+''' the execution of tests and also gives a couple of tools to
 ''' manipulate running tests.
 
 '' Special value for unspecified test plan
@@ -26,31 +26,31 @@ Public Const _TRIGGER_GET_ALLTESTS As String = "#GetAllTests"
 
 '' The static procedure Test.Main() runs tests. By default it runs all tests (aka testmethods) in all
 '' testmodules of a project ordered by name and prints the result to stdout.
-'' 
+''
 '' A testmodule is a special class with the ending test. It must contain at minimum one test.
 ''
 '' A test is a public sub in a testmodule whose name does not contain an underscore.
-'' 
+''
 '' On the command line the interpreter is commanded with this line to execute Test.Main():
-'' 
+''
 '' gbx3 -T "*" /path/to/project
 ''
 '' The optional argument ca be used to create a testsuite which chooses any
-'' combination of testmodule and test(s). The format of the string is like so: Testmodules 
-'' are separated by a comma. If not all tests of a testmodule should be called then the 
-'' name of the testmodule is followed by a dot and a string containing the tests separated 
+'' combination of testmodule and test(s). The format of the string is like so: Testmodules
+'' are separated by a comma. If not all tests of a testmodule should be called then the
+'' name of the testmodule is followed by a dot and a string containing the tests separated
 '' by a semikolon. For example:
-'' 
+''
 '' gbx3 -T "testmodule1,testmodule2.test1;test2,testmodule3" /path/to/project
 ''
-'' In the Gambas IDE one is able to define testsuites and store them with a individual name 
+'' In the Gambas IDE one is able to define testsuites and store them with a individual name
 '' in a file named ".test" in the project's path.
-'' 
+''
 '' A test suite stored like that can be called by it's name with a preceeding "@", for example:
-'' 
+''
 '' gbx3 -T "@My production testsuite1" /path/to/project
 ''
-'' Public methods called "_Setup", "_Teardown", "_SetupEach" or "_TeardownEach" inside a testmodule 
+'' Public methods called "_Setup", "_Teardown", "_SetupEach" or "_TeardownEach" inside a testmodule
 '' can be used to create a testfixture, which defines a special environment for the tests.
 
 Public Sub Main(Optional Tests As String)
@@ -148,7 +148,13 @@ Private Sub ShowTestCollection(Description As String, TestCollection As Collecti
             Else If hTest.Comment Then
                 sNote = Subst$("# &1", hTest.Comment)
             Endif
-            Test.Note(Subst$("&2: &1 -- &3&4", cTest["Path"], hTest.Id, sName, IIf(sNote, " " & sNote, "")))
+
+            If hTest.Line Then
+                Test.Note(Subst$("&2: &1 -- &3&4", hTest.Line, hTest.Id, sName, IIf(sNote, " " & sNote, "")))
+            Else
+                Test.Note(Subst$("&2: &1 -- &3&4", cTest["Path"], hTest.Id, sName, IIf(sNote, " " & sNote, "")))
+            Endif
+
         Next
         Test.Note(gb.Lf)
     Endif
@@ -358,7 +364,7 @@ Public Sub Note(Comment As String)
 
 End
 
-'' Tell the testing system that the next assertion is a TODO. 
+'' Tell the testing system that the next assertion is a TODO.
 '' Even if it fails it reports ok, but will be reported as Todo.
 '' If the next assertion does not fail, it will be reported as bonus.
 Public Sub Todo(Optional Comment As String)
@@ -423,7 +429,7 @@ Public Sub _Subtest(Description As String, Optional Tests As Integer, Optional C
 
 End
 
-'' Plan the number of assertions within a test method. 
+'' Plan the number of assertions within a test method.
 '' If the number is not correct, the test fails.
 Public Sub Plan(Tests As Integer, Optional Comment As String)
 
@@ -486,4 +492,3 @@ Private Sub FromString(Tests As String)
     Next
 
 End
-

@@ -117,7 +117,7 @@ Public Sub Runner()
     Dim hMethod As TestAssertion = hStats.Subtests[0]
     Assert.Ok(hMethod.Success)
     Assert.Equals(hMethod.Subtests.Count, 16)
-    Assert.Equals(hMethod.Subtests[0].Description, "- Event count is correct")
+    Assert.Equals(Right(hMethod.Subtests[0].Description, Len("Event count is correct")), "Event count is correct")
     Assert.Equals(hMethod.Subtests[0].Subtests.Count, 0)
 
 End

@@ -79,11 +79,11 @@ Public Sub ReflectTest()
     tests = Test.AllTestsCollection()
 
     'count of all testmodules, if it fails we created a new one and we have to count new
-    Assert.Equals(tests.Count, 12, "number of all testmodules")
+    Assert.Equals(tests.Count, 13, "number of all testmodules")
     Assert.Equals(tests["TAllAsserts"].Count, 21, "count of all tests in TAllAsserts")
     Assert.Equals(tests["TBailout"].Count, 1, "count of all tests in TBailout")
     Assert.Equals(tests["TCrashes"].Count, 2, "count of all tests in TCrashes")
-    Assert.Equals(tests["TElse"].Count, 4, "count of all tests in TElse")
+    Assert.Equals(tests["TElse"].Count, 3, "count of all tests in TElse")
     Assert.Equals(tests["TEmpty"].Count, 0, "count of all tests in TEmpty")
     Assert.Equals(tests["TInternals"].Count, 6, "count of all tests in TInternals")
     Assert.Equals(tests["TParser"].Count, 3, "count of all tests in TParser")
@@ -101,7 +101,7 @@ Public Sub ReflectTestsString()
 
     Test.Plan(2)
 
-    want = "TAllAsserts.Approximate;Equals;Error;ErrorCode;Fail;Greater;GreaterEqual;IsType;Less;LessEqual;Like;Match;NotNull;NotOk;Notequals;Noterror;Null;Ok;Pass;RelativeApproximate;StringEquals,TBailout.Bailout,TCrashes.DoACrash;ErrorTwo,TElse.NoMessage;NoMessageInbetween;Note;TestNoteGotAndExpected,TFailures.EqualsFailure;Error;LongFailure;LongTypeMismatchFailure;StringFailure,TInternals.CommandsToString;FindTestSuiteByName;InterpreterInterface;ParseTestCommands;ReflectTest;ReflectTestsString,TParser.Runner;SkipAll;Subtests,TSetup.A;B,TSkipAll.SkipAll,TSummary.DoBadPlan;DoOneFailure;DoSkip;DoSomeAsserts;DoTodo;TodoErrorCode,TWrongPlan.IHaveAWrongPlan"
+    want = "MustFail.TestNoteGotAndExpected,TAllAsserts.Approximate;Equals;Error;ErrorCode;Fail;Greater;GreaterEqual;IsType;Less;LessEqual;Like;Match;NotNull;NotOk;Notequals;Noterror;Null;Ok;Pass;RelativeApproximate;StringEquals,TBailout.Bailout,TCrashes.DoACrash;ErrorTwo,TElse.NoMessage;NoMessageInbetween;Note,TIntendedFailures.EqualsFailure;Error;LongFailure;LongTypeMismatchFailure;StringFailure,TInternals.CommandsToString;FindTestSuiteByName;InterpreterInterface;ParseTestCommands;ReflectTest;ReflectTestsString,TParser.Runner;SkipAll;Subtests,TSetup.A;B,TSkipAll.SkipAll,TSummary.DoBadPlan;DoOneFailure;DoSkip;DoSomeAsserts;DoTodo;TodoErrorCode,TWrongPlan.IHaveAWrongPlan"
     got = Test.AllTests()
     Assert.Equals(got, want, "All Test names as string")
 
