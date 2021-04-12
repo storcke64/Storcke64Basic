@@ -26,7 +26,7 @@ DAWAI:
 
     bt = System.Backtrace
     While bt[0] Begins "Assert." Or bt[0] Begins "Test." Or bt[0] Begins "TestCase." Or bt[0] Begins "TestSuite."
-        bt.Extract(0)
+        bt.Remove(0)
     Wend
     Test._Next.Line = bt[0]
     Test._Next.Ok = Result
