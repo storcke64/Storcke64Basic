@@ -1940,9 +1940,14 @@ End
 
 Public Sub Raise()
 
-  GetUndo().Add("LowerControl", [Name])
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
+  hUndo.Add("LowerControl", [Name])
   Control.Raise
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1950,8 +1955,14 @@ End
 
 Public Sub Lower()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   GetUndo().Add("RaiseControl", [Name])
   Control.Lower
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
+  MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1959,9 +1970,15 @@ End
 
 Public Sub MoveDown()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   Try Control.Next = Control.Next.Next
   If Error Then Return
+  GetUndo().Add("MoveUpControl", [Name])
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1969,9 +1986,15 @@ End
 
 Public Sub MoveUp()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   Try Control.Previous = Control.Previous.Previous
   If Error Then Return
+  GetUndo().Add("MoveDownControl", [Name])
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End

@@ -4038,6 +4038,21 @@ Public Sub LowerControl(sName As String)
   
 End
 
+Public Sub MoveUpControl(sName As String)
+  
+  Dim hCCtrl As CControl = Control[sName]
+  hCCtrl.MoveUp
+  
+End
+
+Public Sub MoveDownControl(sName As String)
+  
+  Dim hCCtrl As CControl = Control[sName]
+  hCCtrl.MoveDown
+  
+End
+
+
 Public Sub Form_Close()
 
   HideFrame
