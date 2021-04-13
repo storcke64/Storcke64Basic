@@ -267,6 +267,16 @@ REFRESH_MENU:
   
 End
 
+'' @{since 3.16}
+''
+'' Return a stretched copy of a picture.
+''
+'' - ~Width~ and ~Height~ are the size of the stretched picture. If ~Height~ is omitted, it is made equal to ~Width~.
+''
+'' [[ info
+'' This function internally transforms the picture into an image and calls the [Image.Stretch](/comp/gb.qt4/image/stretch) method.
+'' ]]
+
 Public Sub Stretch(Width As Integer, Optional Height As Integer) As Picture
   
   If IsMissing(Height) Then Height = Width
