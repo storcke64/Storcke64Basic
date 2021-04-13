@@ -202,15 +202,15 @@ Public Sub Main()
   Dim sDir As String
   Dim sPngQuant As String
 
-  MakeInternet
+  'MakeInternet
 
-  Quit
+  'Quit
   sPngQuant = System.Find("pngquant")
   sDir = "/home/benoit/gambas/git/master/comp/src/gb.form.stock"
   For Each sFile In RDir(sDir)
     If File.Ext(sFile) <> "png" Then Continue
     Print sFile
-    Kill sDir &/ File.Dir(sFile) &/ File.BaseName(sFile) & "png"
+    'Kill sDir &/ File.Dir(sFile) &/ File.BaseName(sFile) & "png"
     Exec [sPngQuant, "-f", "--ext", ".png", sDir &/ sFile] Wait
   Next
 
