@@ -1692,6 +1692,7 @@ Public Sub View_Menu()
     hMenu.Text = ("Paste")
     hMenu.Picture = Picture["icon:/small/paste"]
     hMenu.Shortcut = "CTRL+SHIFT+V"
+    hMenu.Enabled = Not $bReadOnly
     
     hMenu = New Menu(mnuPopup)
     
@@ -1703,6 +1704,7 @@ Public Sub View_Menu()
     hMenu = New Menu(mnuPopup) As "mnuClear"
     hMenu.Text = ("Clear")
     hMenu.Picture = Picture["icon:/small/clear"]
+    hMenu.Enabled = Not $bReadOnly
     
   Endif
   
