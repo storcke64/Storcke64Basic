@@ -2947,10 +2947,11 @@ End
 
 Public Sub panDebug_Arrange()
 
+  ' FIXME: GTK+ needs the width and height!
   If System.RightToLeft Then
-    btnClosePanel.Move(0, 0)
+    btnClosePanel.Move(0, 0, Desktop.Scale * 4, Desktop.Scale * 4)
   Else
-    btnClosePanel.Move(panDebug.W - btnClosePanel.W, 0)
+    btnClosePanel.Move(panDebug.W - btnClosePanel.W, 0, Desktop.Scale * 4, Desktop.Scale * 4)
   Endif
   btnClosePanel.Raise
 
