@@ -754,7 +754,7 @@ Catch
 
 End
 
-Public Sub SolvePath(sPath As String) As String
+Public Sub SolvePath(sPath As String, Optional bFollowRedirect As Boolean) As String
   
   Dim sData As String
   
@@ -766,6 +766,8 @@ Public Sub SolvePath(sPath As String) As String
     
     sData = File.Load(Main.GetPagePathFrom(sPath))
     If sData Begins "-->" Then
+      sPath = MakeAbsolute(Trim$(Mid$(sData, 4)), sPath)
+    Else If bFollowRedirect And If sData Begins "==>" Then
       sPath = MakeAbsolute(Trim$(Mid$(sData, 4)), sPath)
     Else
       Return sPath
@@ -783,7 +785,7 @@ Public Sub GetPageTitle(sPath As String, Optional bForceReadFile As Boolean) As 
   Dim bComp As Boolean
   Dim sRealPath As String
   
-  sPath = SolvePath(sPath)
+  sPath = SolvePath(sPath, IsNull(Session.Id))
   bComp = sPath Begins "/comp/"
   
   If bComp And If Not bForceReadFile Then
@@ -1142,6 +1144,8 @@ Public Sub GetToDo() As String[]
   
       'If $cCompRedirect And If $cCompRedirect.Exist(sComp) Then Continue
       If aIgnore.Find(sComp) >= 0 Then Continue
+      
+      If hClass.IsRedirected() Then Continue
   
       For Each hSymbol In hClass.Symbols
   

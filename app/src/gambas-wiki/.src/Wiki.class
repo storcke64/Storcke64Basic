@@ -340,6 +340,18 @@ Private Sub _PrintPage()
   
 DISPLAY_PAGE:
   
+  If sData Begins "==>" Then
+    iPos = InStr(sData, "\n")
+    If iPos Then sData = Left(sData, iPos - 1)
+    sData = Trim(Mid$(sData, 4))
+    Print "<tt>==>"; Html(sData); "</tt>"
+    If Not Session.Id Then
+      Response.Cancel
+      Response.Redirect(Application.Root &/ sData)
+    Endif
+    Return
+  Endif
+  
   If Main.Class Then
     If sData Begins "# " Then
       iPos = InStr(sData, "\n")

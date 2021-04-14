@@ -525,6 +525,19 @@ Public Sub HasEvents() As Boolean
 
 End
 
+Public Sub IsRedirected() As Boolean
+
+  Dim sPath As String
+  
+  sPath = "/comp" &/ LCase(Component &/ Name)
+  sPath = Main.GetPagePathFrom(sPath)
+  
+  If Exist(sPath) Then 
+    If LTrim(File.Load(sPath)) Begins "==>" Then Return True
+  Endif
+  
+End
+
 Public Sub GetDescription() As String
   
   Dim sPath As String
@@ -534,12 +547,29 @@ Public Sub GetDescription() As String
   Dim sDesc As String
   Dim sCar As String
   Dim sSave As String
+  Dim sFirst As String
   
-  sPath = Main.GetPagePathFrom("/comp" &/ LCase(Component &/ Name))
+  sPath = "/comp" &/ LCase(Component &/ Name)
+  
+TRY_AGAIN:
+  
+  sPath = Main.GetPagePathFrom(sPath)
+  
   If Exist(sPath) Then 
+    
     aData = Split(File.Load(sPath), "\n")
+    If aData.Count Then
+      sFirst = Trim(aData[0])
+      If sFirst Begins "-->" Or If sFirst Begins "==>" Then
+        sPath = Trim(Mid$(sFirst, 4))
+        Goto TRY_AGAIN
+      Endif
+    Endif
+    
   Else
+    
     aData = ["@{help}"]
+    
   Endif
   
   While iPos < aData.Count
