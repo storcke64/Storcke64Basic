@@ -112,7 +112,6 @@ static void cb_activate(GtkEntry *editable,gTextBox *data)
 	data->emit(SIGNAL(data->onActivate));
 }
 
-
 gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 {
 #ifndef GTK3

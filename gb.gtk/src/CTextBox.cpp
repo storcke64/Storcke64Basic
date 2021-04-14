@@ -37,11 +37,6 @@ DECLARE_EVENT(EVENT_Change);
 DECLARE_EVENT(EVENT_Activate);
 DECLARE_EVENT(EVENT_Click);
 
-/*static void txt_post_change(void *_object)
-{
-	GB.Raise(THIS, EVENT_Change, 0);
-	GB.Unref(POINTER(&_object));
-}*/
 
 static void cb_change(gTextBox *sender)
 {
@@ -330,13 +325,7 @@ END_PROPERTY
 
 BEGIN_METHOD(ComboBox_Add, GB_STRING item; GB_INTEGER pos)
 
-	int Pos;
-	char *Item=GB.ToZeroString(ARG(item));
-
-	if (MISSING(pos)) Pos=COMBOBOX->count();
-	else Pos=VARG(pos);
-	
-	COMBOBOX->add(Item,Pos);
+	COMBOBOX->add(GB.ToZeroString(ARG(item)), VARGOPT(pos, -1));
 
 END_METHOD
 
@@ -350,8 +339,10 @@ END_METHOD
 
 BEGIN_PROPERTY(ComboBox_Sorted)
 
-	if (READ_PROPERTY) { GB.ReturnBoolean(COMBOBOX->isSorted()); return; }
-	COMBOBOX->setSorted(VPROP(GB_BOOLEAN));
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(COMBOBOX->isSorted());
+	else
+		COMBOBOX->setSorted(VPROP(GB_BOOLEAN));
 
 END_METHOD
 
@@ -365,8 +356,10 @@ END_PROPERTY
 
 BEGIN_PROPERTY(ComboBox_Index)
 
-	if (READ_PROPERTY) { GB.ReturnInteger(COMBOBOX->index()); return; }
-	COMBOBOX->setIndex(VPROP(GB_INTEGER));
+	if (READ_PROPERTY)
+		GB.ReturnInteger(COMBOBOX->index());
+	else
+		COMBOBOX->setIndex(VPROP(GB_INTEGER));
 
 END_PROPERTY
 
@@ -378,6 +371,7 @@ BEGIN_PROPERTY(ComboBox_Current)
 	RETURN_SELF();
 
 END_PROPERTY
+
 
 BEGIN_METHOD(ComboBox_Find, GB_STRING item)
 
@@ -426,6 +420,7 @@ BEGIN_PROPERTY(ComboBox_List)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(ComboBox_Border)
 
 	if (READ_PROPERTY)
@@ -435,11 +430,8 @@ BEGIN_PROPERTY(ComboBox_Border)
 
 END_PROPERTY
 
-/***************************************************************************
 
-	Descriptions
-
-***************************************************************************/
+//-------------------------------------------------------------------------
 
 GB_DESC CTextBoxSelectionDesc[] =
 {
@@ -489,7 +481,6 @@ GB_DESC CTextBoxDesc[] =
 
 	GB_END_DECLARE
 };
-
 
 
 GB_DESC CComboBoxItemDesc[] =

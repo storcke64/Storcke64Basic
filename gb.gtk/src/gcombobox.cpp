@@ -704,9 +704,14 @@ void gComboBox::updateFont()
 
 void gComboBox::setFocus()
 {
-	gControl::setFocus();
-	if (entry && window()->isVisible())
+	if (entry && !proxy() && window()->isVisible())
+	{
+		gtk_editable_set_editable(GTK_EDITABLE(entry), false);
 		gtk_widget_grab_focus(entry);
+		gtk_editable_set_editable(GTK_EDITABLE(entry), true);
+	}
+	else
+		gControl::setFocus();
 }
 
 int gComboBox::minimumHeight()
