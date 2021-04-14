@@ -159,9 +159,6 @@ public:
 	void setGeometryHints();
 	virtual void updateFont();
 	void present();
-	void setTransientFor();
-	void setType(GtkWindowType type);
-	void calcCsdSize();
 	
 	void setTransientFor();
 	void setType(GtkWindowType type);
@@ -188,9 +185,6 @@ public:
 	int _min_h;
 	int _default_min_w;
 	int _default_min_h;
-	
-	int _csd_w;
-	int _csd_h;
 	
 	int _csd_w;
 	int _csd_h;

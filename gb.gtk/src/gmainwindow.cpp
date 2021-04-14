@@ -242,59 +242,6 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 }
 
 #ifdef GTK3
-static void cb_resize(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
-{
-	int w, h;
-	
-	if (data->layout)
-		return;
-	
-	w = a->width;
-	h = a->height;
-	
-	data->calcCsdSize();
-	if (data->_csd_w < 0)
-		return;
-	
-	w -= data->_csd_w;
-	h -= data->_csd_h;
-	
-	if (w != data->bufW || h != data->bufH || data->_resized)
-	{
-		#ifdef DEBUG_RESIZE
-		fprintf(stderr, "cb_resize: %s: %d %d\n", data->name(), w, h);
-		#endif
-	
-		data->_resized = false;
-		data->bufW = w;
-		data->bufH = h;
-		data->emitResizeLater();
-	}
-}
-
-static void cb_resize_layout(GtkWidget *wid, GdkRectangle *a, gMainWindow *data)
-{
-	int w, h;
-	
-	data->calcCsdSize();
-	
-	w = a->width;
-	h = a->height;
-	
-	if (w != data->bufW || h != data->bufH || data->_resized)
-	{
-		#ifdef DEBUG_RESIZE
-		fprintf(stderr, "cb_resize_layout: %s: %d x %d / resize = %d\n", data->name(), w, h, data->_resized);
-		#endif
-
-		data->_resized = false;
-		data->bufW = w;
-		data->bufH = h;
-		data->emitResizeLater();
-	}
-}
-
-
 static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gMainWindow *data)
 {
 	if (data->isTransparent())
@@ -943,9 +890,6 @@ void gMainWindow::setVisible(bool vl)
 		else
 		{
 			gtk_widget_show(border);
-			#ifdef DEBUG_RESIZE
-			fprintf(stderr, "#3\n");
-			#endif
 			parent()->performArrange();
 			performArrange();
 		}
@@ -1797,9 +1741,6 @@ bool gMainWindow::setMenuBarVisible(bool v)
 		return TRUE;
 
 	configure();
-	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "#5\n");
-	#endif
 	performArrange();
 
 	return FALSE;
@@ -1842,9 +1783,6 @@ void gMainWindow::checkMenuBar()
 	}
 
 	configure();
-	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "#6\n");
-	#endif
 	performArrange();
 }
 
@@ -1922,9 +1860,6 @@ void gMainWindow::emitResize()
 	_resize_last_w = bufW;
 	_resize_last_h = bufH;
 	configure();
-	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "#7\n");
-	#endif
 	performArrange();
 	emit(SIGNAL(onResize));
 }

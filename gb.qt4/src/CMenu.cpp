@@ -1053,11 +1053,6 @@ void CMenu::slotShown(void)
 	}
 	#endif
 	
-	#ifdef QT5
-		if (menu->menu->windowHandle())
-			menu->menu->windowHandle()->setTransientParent(menu->toplevel->windowHandle());
-	#endif
-
 	GB.Ref(menu);
 	
 	menu->opened = TRUE;

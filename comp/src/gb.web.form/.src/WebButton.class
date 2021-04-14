@@ -33,13 +33,6 @@ Private $sText As String
 Private $sImage As String
 Private $bImmediate As Boolean
 
-'' Create a new WebButton control.
-
-Public Sub _new()
-  
-End
-
-
 Private Function Text_Read() As String
 
   Return $sText

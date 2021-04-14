@@ -75,11 +75,6 @@ static void cb_unmap(GtkWidget *widget, gContainer *sender)
 	sender->setShown(false);
 }
 
-static void cb_map(GtkWidget *widget, gContainer *sender)
-{
-	sender->performArrange();
-}
-
 static void cb_arrange(gContainer *sender)
 {
 	if (sender->onArrange)

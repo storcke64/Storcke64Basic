@@ -48,13 +48,6 @@ Private $bSpacing As Boolean
 Private $bBorder As Boolean
 Private $bIndent As Boolean
 
-
-'' Create a new WebContainer.
-Public Sub _new()
-  
-End
-
-
 Public Sub _Add(hChild As WebControl)
   
   Dim aExtraChild As String[]

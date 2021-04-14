@@ -51,19 +51,19 @@
         { Label4 Label
           MoveScaled(0,0,19,3)
           Font = Font["Bold"]
-          Text = ("Options")
           Alignment = Align.TopNormal
+          Text = ("Options")
         }
         { chkCaseSensitive CheckBox
           MoveScaled(0,3,25,4)
           Text = Shortcut(("Case sensitive"), "C")
         }
         { chkWordsOnly CheckBox
-          MoveScaled(0,6,25,4)
+          MoveScaled(0,7,25,4)
           Text = Shortcut(("Words only"), "W")
         }
         { chkRegularExpression CheckBox
-          MoveScaled(0,9,25,4)
+          MoveScaled(0,11,25,4)
           Text = Shortcut(("Regular expression"), "x")
         }
         { chkIgnoreStrings CheckBox
@@ -71,7 +71,7 @@
           Text = Shortcut(("Ignore strings"), "I")
         }
         { chkIgnoreComments CheckBox
-          MoveScaled(0,18,25,4)
+          MoveScaled(0,19,25,4)
           Text = Shortcut(("Ignore comments"), "g")
         }
       }
@@ -84,8 +84,8 @@
         { Label3 Label
           MoveScaled(0,0,19,3)
           Font = Font["Bold"]
-          Text = ("Search in")
           Alignment = Align.TopNormal
+          Text = ("Search in")
         }
         { radCurrentProcedure RadioButton radSearch
           Name = "radCurrentProcedure"

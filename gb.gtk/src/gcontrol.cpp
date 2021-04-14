@@ -1876,21 +1876,6 @@ void gt_patch_control(GtkWidget *widget)
 	else PATCH_CLASS(widget, GTK_TYPE_TEXT_VIEW)
 }
 
-/*int gControl::getPreferredWidth() const
-{
-	GtkWidgetClass *klass = (GtkWidgetClass*)g_type_class_peek(G_OBJECT_TYPE(border));
-	int size = -1;
-	
-	if (OLD_FUNC)
-	{
-		int nat;
-		(*OLD_FUNC->get_preferred_width)(border, &size, &nat);
-		fprintf(stderr, "getPreferredWidth: %d %d\n", size, nat);
-	}
-	
-	return size;
-}*/
-
 #endif
 
 void gControl::setMinimumSize()
