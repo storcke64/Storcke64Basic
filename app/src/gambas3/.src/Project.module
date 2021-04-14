@@ -2684,7 +2684,7 @@ End
 
 Public Sub Test()
   
-  If Project.Running Then Design.Stop()
+  'If Project.Running Then Design.Stop()
   If CheckRunning() Then Return
   Design.Run(True)
   

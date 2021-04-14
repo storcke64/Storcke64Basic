@@ -2026,6 +2026,10 @@ Public Sub Form_KeyPress()
       Stop Event
     Endif
     
+  Else If Shortcut.FromKey() = Action["test"].Shortcut Then
+    
+    Project.Test()
+    
   Endif
   
 End
