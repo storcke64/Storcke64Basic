@@ -159,6 +159,13 @@ Public Sub IsWeekEnd({Date} As Date) As Boolean
   
 End
 
+'' @{since 3.15}
+''
+'' Convert a date to the ISO-8601 format.
+''
+'' - ~Date~ is the date to convert.
+'' - ~Timezone~ is the timezone of the date in RFC822 format. By default, the local timezone is used.
+
 Public Sub ToISO8601({Date} As Date, Optional Timezone As String) As String
 
   Dim iYear As Integer

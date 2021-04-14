@@ -1098,14 +1098,12 @@ __BASE64:
 
 __URL:
 
-	// Warning! '/' is not encoded, so that the function is more pratical, by supposing that no file url will have '/' in its name.
+	// Warning! '/' is not encoded, so that the function is more practical, by supposing that no file url will have '/' in its name.
 
 	for (i = 0; i < lstr; i++)
 	{
 		c = str[i];
-		if (c == ' ')
-			STRING_make_char('+');
-		else if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || index("-._~,$!/", c))
+		if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || index("-._~,$!/", c))
 			STRING_make_char(c);
 		else
 		{

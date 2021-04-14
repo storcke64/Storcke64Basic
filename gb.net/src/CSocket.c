@@ -177,10 +177,18 @@ static void CSocket_close(CSOCKET *_object)
 		set_status(THIS, NET_INACTIVE);
 	}
 	
+	if (THIS->timer)
+		GB.Unref(POINTER(&THIS->timer));
+	
 	if (THIS->OnClose)
 		THIS->OnClose(_object);
 }
 
+static int connect_timeout(void *_object)
+{
+	CSocket_stream_internal_error(THIS, NET_CONNECTION_TIMEOUT, TRUE);
+	return TRUE;
+}
 
 /*
 	This function is called by DnsClient to inform
@@ -217,9 +225,11 @@ void CSocket_CallBackFromDns(void *_object)
 	myval = connect(SOCKET->socket,(struct sockaddr*)&(THIS->Server), sizeof(struct sockaddr));
 	SOCKET_set_blocking(SOCKET, TRUE);
 	
-	if (!myval || errno == EINPROGRESS) // Rhis is the good answer : connect in progress
+	if (!myval || errno == EINPROGRESS) // this is the good answer : connect in progress
 	{
 		set_status(THIS, NET_CONNECTING);
+		if (SOCKET->timeout > 0)
+			THIS->timer = GB.Every(SOCKET->timeout, (GB_TIMER_CALLBACK)connect_timeout, (intptr_t)THIS);
 		GB.Watch(SOCKET->socket, GB_WATCH_WRITE, (void *)CSocket_CallBackConnecting, (intptr_t)THIS);
 	}
 	else
@@ -294,6 +304,8 @@ void CSocket_CallBackConnecting(int t_sock,int type,intptr_t param)
 	
 	GB.Ref(THIS);
 	GB.Post(CSocket_post_connected,(intptr_t)THIS);
+	
+	GB.Unref(POINTER(&THIS->timer));
 }
 
 /*******************************************************************

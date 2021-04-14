@@ -37,6 +37,7 @@
 
 #include "gb_common.h"
 #include "gb_common_case.h"
+#include "gb_system.h"
 #include "gb_error.h"
 #include "gbx_api.h"
 #include "gbx_class.h"
@@ -50,6 +51,8 @@
 #include "gbx_object.h"
 #include "gbx_c_process.h"
 #include "gbx_c_system.h"
+
+#include "gb_system_temp.h"
 
 typedef
 	struct {
@@ -327,6 +330,25 @@ BEGIN_METHOD(System_Exist, GB_STRING program)
 
 END_METHOD
 
+
+BEGIN_METHOD(System_GetFormat, GB_INTEGER format)
+
+	const char *fmt = LOCAL_get_format(&LOCAL_local, VARG(format));
+	if (!fmt)
+		GB_ReturnNull();
+	else
+		GB_ReturnNewZeroString(fmt);
+
+END_METHOD
+
+
+BEGIN_PROPERTY(System_Cores)
+
+	GB_ReturnInteger(SYSTEM_get_cpu_count());
+
+END_PROPERTY
+
+
 //-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Jit_Time)
@@ -374,6 +396,7 @@ GB_DESC NATIVE_System[] =
 	GB_STATIC_PROPERTY_READ("ByteOrder", "i", System_ByteOrder),
 	GB_STATIC_PROPERTY_READ("Error", "i", System_Error),
 	GB_STATIC_PROPERTY_READ("TimeZone", "i", System_TimeZone),
+	GB_STATIC_PROPERTY_READ("Cores", "i", System_Cores),
 
 	GB_CONSTANT("Family", "s", SYSTEM),
 	GB_CONSTANT("Architecture", "s", ARCHITECTURE),
@@ -388,6 +411,8 @@ GB_DESC NATIVE_System[] =
 	GB_STATIC_METHOD("Exist", "b", System_Exist, "(Program)s"),
 	GB_STATIC_METHOD("Find", "s", System_Find, "(Program)s"),
 
+	GB_STATIC_METHOD("GetFormat", "s", System_GetFormat, "(Format)i"),
+	
 	GB_END_DECLARE
 };
 

@@ -8,13 +8,12 @@ Static Public WasDefaultValue As Boolean
 
 Static Public LastError As String
 
-Static Public COMPLEX_STRING_PROPERTIES As String[] = ["Font[", "Picture[", "Image.Load(", "SvgImage.Load(", "Connections[", "ReportPadding[", "ReportMargin[", "ReportBoxShadow[", "ReportBorder[", "ReportBrush["]
+Static Public COMPLEX_STRING_PROPERTIES As String[] = ["Font[", "Picture[", "Picture.Load(", "Image.Load(", "SvgImage.Load(", "Connections[", "ReportPadding[", "ReportMargin[", "ReportBoxShadow[", "ReportBorder[", "ReportBrush[", "Animation.Load("]
 
 Public Name As String
 Public Parent As CControl
 Public Control As Object
 Public Kind As String
-Public Tag As Variant
 Public DrawWith As String
 Public Selected As Boolean
 Public Virtual As Boolean
@@ -22,13 +21,12 @@ Public Unknown As Boolean
 Public {Public} As Boolean
 Public VirtualCoord As Boolean
 Public NoParent As Boolean
+Public Tabs As Collection
 
 Property Read X As Integer
 Property Read Y As Integer
-Property Read Width As Integer
-Property Read Height As Integer
-Property Read W As Integer
-Property Read H As Integer
+Property Read W, Width As Integer
+Property Read H, Height As Integer
 
 Static Private $bDoNotMoveHandle As Boolean
 
@@ -50,6 +48,7 @@ Private $MY As Integer
 Private $hFamily As CFamily
 Private $bArranging As Boolean
 
+Static Private $hDeprecated As Image
 
 Static Public Sub _init()
 
@@ -72,11 +71,13 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
   Dim sPath As String
   Dim hClass As CClassInfo
   Dim W As Integer
-  Dim F As Integer
+  Dim DS As Integer
+  Dim bDeprecated As Boolean
    
   Do
     hClass = Project.Documentation.Classes[sComp &/ sClass]
     If Not hClass Then Break
+    bDeprecated = hClass.IsDeprecated()
     sComp = hClass.Component
     If sComp = CComponent.PROJECT_NAME Then
       sPath = Project.Dir &/ ".hidden/control" &/ LCase(sClass) & ".png"
@@ -94,37 +95,41 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
   
   If Not hImage Then
     
+    DS = Desktop.Scale
+    
     hImage = New Image(1, 1)
     
     Paint.Begin(hImage)
-    Paint.Font.Size = 7
+    Paint.Font.Size = DS * 2
     W = Paint.Font.TextWidth(sClass)
     Paint.End
     
-    hImage = New Image(Max(32, W + 8), 32, Color.Transparent)
+    hImage = New Image(Max(DS * 8, W + DS * 2), DS * 8, Color.White)
     
     Paint.Begin(hImage)
     
-    F = 4
+    Paint.DrawRect(0, 0, hImage.W, hImage.H, Color.Gray, 2)
     
-    Paint.Rectangle(0, F, hImage.W - 1, hImage.H - F * 2 - 1, 2)
-    Paint.Background = Color.White
-    Paint.Fill
+    ' Paint.Rectangle(0.5, F + 0.5, hImage.W - 1, hImage.H - F * 2 - 1)
+    ' Paint.Background = Color.Gray
+    ' Paint.LineWidth = 2
+    ' Paint.Stroke
     
-    Paint.Rectangle(0.5, F + 0.5, hImage.W - 1, hImage.H - F * 2 - 1)
-    Paint.Background = Color.Gray
-    Paint.LineWidth = 1
-    Paint.Stroke
-    
-    Paint.Rectangle(3, 3 + F, hImage.W - 6, hImage.H - 6 - F * 2)
+    Paint.Rectangle(DS, 0, hImage.W - DS * 2, hImage.H)
     Paint.Clip
     
-    Paint.Font.Size = 7
+    Paint.Font.Size = DS * 2
     Paint.Background = Color.Black
-    Paint.DrawText(sClass, 0, 0, hImage.W, hImage.H, Align.Center)
+    Paint.DrawText(sClass, DS, 0, hImage.W - DS * 2, hImage.H, Align.Left)
     
     Paint.End
     
+  Endif
+  
+  If bDeprecated Then
+    If Not $hDeprecated Then $hDeprecated = Image.Load("img/control/deprecated.png")
+    hImage = hImage.Opacity(0.5)
+    hImage.PaintImage($hDeprecated, 0, 0, hImage.W, hImage.H)
   Endif
 
   If iSize Then
@@ -184,6 +189,9 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
 
     Case "picturebox"
       hCtrl = New PictureBox(hParent)
+    
+    Case "moviebox"
+      hCtrl = New MovieBox(hParent)
       'hCtrl.Picture = Picture["img/control/picturebox.png"]
 
     Case "treeview"
@@ -225,7 +233,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
       hCtrl[0, 0].Text = sName
       hCtrl[0, 0].ColumnSpan = hCtrl.Columns.Count
       'hCtrl.Rows.H = -1
-
+      
     Case "menu"
       hCtrl = New Menu(hParent)
 
@@ -233,14 +241,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
       hCtrl = New ProgressBar(hParent)
       hCtrl.Value = 0.5
 
-    Case "splitter"
-      If sName Then
-        hCtrl = New Panel(hParent)
-      Else
-        hCtrl = New Splitter(hParent)
-      Endif
-
-    Case "-", "drawingarea", "panel", "spring", "vbox", "hbox", "vpanel", "hpanel", "vsplit", "hsplit", "embedder", "datasource"
+    Case "-", "drawingarea", "panel", "spring", "vbox", "hbox", "vpanel", "hpanel", "vsplit", "hsplit", "embedder", "datasource", "splitter", "toolbar"
       hCtrl = New DrawingArea(hParent)
       hCtrl.NoBackground = True
       
@@ -297,6 +298,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   'IF hCtrl IS UserControl OR NOT hCtrl IS Container THEN
   'Try hCtrl.Tracking = True
   hCtrl.Raise
+  hCtrl.Name = sName
   Try hCtrl.Design = True
   
   Return hCtrl
@@ -334,6 +336,18 @@ Static Public Sub GetVirtualSize() As Integer
   
   Return 2 + (32 + Desktop.Scale - 1) \ Desktop.Scale '(40 + Desktop.Scale - 1) Div Desktop.Scale  
   
+End
+
+Private Sub GetDefaultTabText(iIndex As Integer) As String
+
+  Dim hClass As CClassInfo
+  Dim sText As String
+
+  hClass = Project.Documentation.Classes[Kind]
+  sText = hClass.DefaultText
+  If Not sText Then sText = "Tab &1"
+  Return Subst(sText, CStr(iIndex + 1))
+
 End
 
 Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As FForm, hFamily As CFamily)
@@ -421,7 +435,10 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
 
   InitControl()
 
-  If $bIsMultiContainer Then Tag = New Collection
+  If $bIsMultiContainer Then
+    Tabs = New Collection
+    Control[0].Text = GetDefaultTabText(0)
+  Endif
 
   UpdateName
 
@@ -494,6 +511,10 @@ Private Function GetRealValue(hProp As CPropertyInfo, vVal As Variant) As Varian
         vRealVal = Picture.Load(File.Dir(Project.Path) &/ vRealVal)
       Endif
 
+    Case "Animation"
+
+      vRealVal = Animation.Load(File.Dir(Project.Path) &/ vRealVal)
+
     Case "Constant"
 
       'IF IsNumber(vRealVal) THEN
@@ -540,6 +561,7 @@ Public Function SetProperty(sProp As String, vVal As Variant, Optional bDoNotApp
   Dim hProp As CPropertyInfo
   Dim vRealVal As Variant
   Dim hClass As Class
+  Dim I, C As Integer
 
   With Project.Documentation.Classes[Kind]
     Try hProp = .Properties[sProp]
@@ -595,14 +617,17 @@ Public Function SetProperty(sProp As String, vVal As Variant, Optional bDoNotApp
     End With
   Endif
 
-  If IsMultiContainer() Then
+  If $bIsMultiContainer Then
     If sProp = "Picture" Then
-      If IsNull(vVal) Then
-        vRealVal = vDefault
-      Else
-        vRealVal = vVal
-      Endif
-      Tag[Control.Index] = vRealVal
+      Tabs[Control.Index] = If(IsNull(vVal), vDefault, vVal)
+    Else If sProp = "Count" Then
+      C = Control.Count
+      If IsNull(vVal) Then vVal = 1
+      Control.Count = vVal
+      For I = C To Control.Count - 1
+        Control[I].Text = GetDefaultTabText(I)
+      Next
+      Goto _DO_NOT_APPLY
     Endif
   Endif
 
@@ -757,7 +782,7 @@ Private Function ConvertToString(vVal As Variant, hProp As CPropertyInfo) As Str
 
       Return CStr(vVal)
 
-    Case "List", "Path", "Picture", "Font", "Table", "Menu", "Image", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "WebCoord", "WebFont"
+    Case "List", "Path", "Picture", "Font", "Table", "Menu", "Image", "Animation", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "WebCoord", "WebFont"
 
       Return CStr(vVal)
       
@@ -826,6 +851,17 @@ Public Function GetPropertyString(sProp As String) As String
 
 End
 
+Public Sub GetDefaultValueString(sProp As String) As String
+  
+  Dim hProp As CPropertyInfo
+  Try hProp = Project.Documentation.Classes[Kind].Properties[sProp]
+  If IsNull(hProp) Then Return
+  If hProp.Type = "Color" Then Return
+  Return ConvertToString(hProp.DefaultValue, hProp)
+  
+End
+
+
 
 Public Function IsContainer() As Boolean
 
@@ -860,7 +896,6 @@ Public Sub GetChildren() As CControl[]
   Return aChildren
   
 End
-
 
 Public Sub Delete()
 
@@ -1818,10 +1853,17 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
         Endif
 
       Case "Picture"
-        sLine &= "Picture[" & Quote$(vVal) & "]"
+        If hProp.Argument = "NoCache" Then
+          sLine &= "Picture.Load(" & Quote$(vVal) & ")"
+        Else
+          sLine &= "Picture[" & Quote$(vVal) & "]"
+        Endif
         
       Case "Image"
         sLine &= "Image.Load(" & Quote$(vVal) & ")"
+        
+      Case "Animation"
+        sLine &= "Animation.Load(" & Quote$(vVal) & ")"
         
       Case "SvgImage"
         sLine &= "SvgImage.Load(" & Quote$(vVal) & ")"
@@ -1898,9 +1940,14 @@ End
 
 Public Sub Raise()
 
-  GetUndo().Add("LowerControl", [Name])
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
+  hUndo.Add("LowerControl", [Name])
   Control.Raise
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1908,8 +1955,14 @@ End
 
 Public Sub Lower()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   GetUndo().Add("RaiseControl", [Name])
   Control.Lower
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
+  MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1917,9 +1970,15 @@ End
 
 Public Sub MoveDown()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   Try Control.Next = Control.Next.Next
   If Error Then Return
+  GetUndo().Add("MoveUpControl", [Name])
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -1927,9 +1986,15 @@ End
 
 Public Sub MoveUp()
 
+  Dim hUndo As CUndo = GetUndo()
+  
+  hUndo.Begin()
   Try Control.Previous = Control.Previous.Previous
   If Error Then Return
+  GetUndo().Add("MoveDownControl", [Name])
+  If $hFamily.AutomaticArrangement Then Parent.Arrange()
   MoveAllHandle
+  hUndo.End()
   Modify
 
 End
@@ -2117,18 +2182,6 @@ End
 Private Function Y_Read() As Integer
 
   Try Return $cValue["#Y"]
-
-End
-
-Private Function Width_Read() As Integer
-
-  Try Return $cValue["#Width"]
-
-End
-
-Private Function Height_Read() As Integer
-
-  Try Return $cValue["#Height"]
 
 End
 
@@ -2382,5 +2435,104 @@ Public Sub Arrange()
   Endif
 
   $bArranging = False
+  
+End
+
+Public Sub FindFreePlace(W As Integer, H As Integer, ByRef X As Integer, ByRef Y As Integer) As Boolean
+  
+  Dim hCont As Object
+  Dim aRect As Rect[]
+  Dim hChild As Control
+  Dim hRect As Rect
+  Dim hTest As Rect
+  Dim NY As Integer
+  Dim NX As Integer
+  
+  If Not IsContainer() Then Return True
+  
+  hCont = Control
+  aRect = New Rect[]
+
+  If IsMultiContainer() Then
+    
+    For Each hChild In hCont[hCont.Index].Children
+      aRect.Add(Rect(hChild.X, hChild.Y, hChild.W, hChild.H))
+    Next
+  
+  Else  
+    
+    For Each hChild In hCont.Children
+      aRect.Add(Rect(hChild.X, hChild.Y, hChild.W, hChild.H))
+    Next
+  
+  Endif
+  
+  hTest = Rect(0, 0, W, H)
+  
+  If InStr("VR", GetArrangement()) Then
+  
+    NX = Me.W
+    
+    Do
+    
+      For Each hRect In aRect
+        If hTest.Intersection(hRect) Then
+          NX = Min(NX, hRect.X + hRect.W)
+          NY = hRect.Y + hRect.H
+          Break
+        Endif
+        hRect = Null
+      Next
+      
+      If Not hRect Then
+        X = hTest.X
+        Y = hTest.Y
+        Return
+      Endif
+      
+      If (NY + H) > Me.H Then
+        If (NX + W) > Me.W Then Return True
+        hTest.X = NX
+        hTest.Y = 0
+        NX = Me.W
+      Else
+        hTest.Y = NY
+      Endif
+      
+    Loop
+
+  Else
+  
+    NY = Me.H
+    
+    Do
+    
+      For Each hRect In aRect
+        If hTest.Intersection(hRect) Then
+          NY = Min(NY, hRect.Y + hRect.H)
+          NX = hRect.X + hRect.W
+          Break
+        Endif
+        hRect = Null
+      Next
+      
+      If Not hRect Then
+        X = hTest.X
+        Y = hTest.Y
+        Return
+      Endif
+      
+      If (NX + W) > Me.W Then
+        If (NY + H) > Me.H Then Return True
+        hTest.X = 0
+        hTest.Y = NY
+        NY = Me.H
+      Else
+        hTest.X = NX
+      Endif
+      
+    Loop
+    
+  Endif
   
 End

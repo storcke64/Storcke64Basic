@@ -546,6 +546,9 @@ void FILE_stat(const char *path, FILE_STAT *info, bool follow)
 	info->hidden = (*FILE_get_name(path) == '.');
 	info->uid = buf.st_uid;
 	info->gid = buf.st_gid;
+	info->device = buf.st_dev;
+	info->blkdev = S_ISBLK(buf.st_mode);
+	info->chrdev = S_ISCHR(buf.st_mode);
 }
 
 char *FILE_mode_to_string(mode_t mode)
@@ -945,12 +948,12 @@ void FILE_rmdir(const char *path)
 }
 
 
-void FILE_mkdir(const char *path)
+void FILE_mkdir_mode(const char *path, mode_t mode)
 {
 	if (FILE_is_relative(path))
 		THROW(E_ACCESS);
 
-	if (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
+	if (mkdir(path, mode) != 0)
 		THROW_SYSTEM(errno, path);
 }
 
@@ -999,8 +1002,8 @@ void FILE_copy(const char *src, const char *dst)
 
 	TRY
 	{
-		STREAM_open(&stream_src, src, STO_READ);
-		STREAM_open(&stream_dst, dst, STO_CREATE);
+		STREAM_open(&stream_src, src, GB_ST_READ);
+		STREAM_open(&stream_dst, dst, GB_ST_CREATE);
 
 		STREAM_lof(&stream_src, &len);
 
@@ -1033,9 +1036,11 @@ void FILE_copy(const char *src, const char *dst)
 
 bool FILE_access(const char *path, int mode)
 {
+	int m;
+	
 	if (FILE_is_relative(path))
 	{
-		if (mode & (W_OK | X_OK))
+		if (mode & (GB_ST_WRITE | GB_ST_EXEC))
 			return FALSE;
 
 		/*if (!EXEC_arch)
@@ -1048,7 +1053,12 @@ bool FILE_access(const char *path, int mode)
 		return ARCHIVE_exist(NULL, path);
 	}
 
-	return (access(path, mode) == 0);
+	m = 0;
+	if (mode & GB_ST_READ) m += R_OK;
+	if (mode & GB_ST_WRITE) m += W_OK;
+	if (mode & GB_ST_EXEC) m += X_OK;
+	
+	return (access(path, m) == 0);
 }
 
 

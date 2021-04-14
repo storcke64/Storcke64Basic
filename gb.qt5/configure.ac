@@ -12,12 +12,27 @@ AM_CONDITIONAL(XWINDOW, test x"$have_x" = xyes)
 
 GB_COMPONENT_PKG_CONFIG(
   qt5, QT5, gb.qt5, [src],
-  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets Qt5Svg Qt5PrintSupport Qt5X11Extras x11
+  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets Qt5Svg Qt5PrintSupport
+)
+
+GB_COMPONENT_PKG_CONFIG(
+  qt5x11, QT5X11, gb.qt5.x11, [x11],
+  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets Qt5X11Extras x11-xcb
+)
+
+GB_COMPONENT_PKG_CONFIG(
+  qt5wayland, QT5WAYLAND, gb.qt5.wayland, [wayland],
+  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets
 )
 
 GB_COMPONENT_PKG_CONFIG(
   qt5webkit, QT5WEBKIT, gb.qt5.webkit, [webkit],
-  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets Qt5Network Qt5Xml Qt5WebKit Qt5WebKitWidgets Qt5PrintSupport x11
+  'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets Qt5Network Qt5Xml Qt5WebKit Qt5WebKitWidgets Qt5PrintSupport
+)
+
+GB_COMPONENT_PKG_CONFIG(
+  qt5webview, QT5WEBVIEW, gb.qt5.webview, [webview],
+  'Qt5Core >= 5.5.0' Qt5WebEngineWidgets
 )
 
 pkg-config --atleast-version 5.4.0 Qt5Core
@@ -45,7 +60,10 @@ AC_SUBST(MOC)
 AC_OUTPUT( \
 Makefile \
 src/Makefile \
+src/x11/Makefile \
+src/wayland/Makefile \
 src/webkit/Makefile \
+src/webview/Makefile \
 src/opengl/Makefile \
 src/ext/Makefile \
 )

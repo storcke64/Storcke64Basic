@@ -11,9 +11,12 @@ Public Const STYLE_HTML As Integer = 1
 Public Const STYLE_WEB As Integer = 2
 
 Private Const TAG_HTML As Integer = 0
-Private Const TAG_COMMENT As Integer = 1
-Private Const TAG_SCRIPT As Integer = 2
-Private Const TAG_STYLE As Integer = 3
+Private Const TAG_MARKUP As Integer = 1
+Private Const TAG_MARKUP_SCRIPT As Integer = 2
+Private Const TAG_MARKUP_STYLE As Integer = 3
+Private Const TAG_COMMENT As Integer = 4
+Private Const TAG_SCRIPT As Integer = 5
+Private Const TAG_STYLE As Integer = 6
 
 Private Const TAG_CODE As Integer = 16
 Private Const TAG_CODE_COMMENT As Integer = 32
@@ -104,10 +107,9 @@ Private Sub RunWith(Text As String, iStyle As Integer)
   Dim sMarkup As String
   Dim bClose As Boolean
   Dim iStart As Integer
-  Dim bMarkup As Boolean
   Dim sHighlightText As String
 
-  'Print "    "; Bin$(Highlight.Tag, 16);; Highlight.Text
+  'Print "    "; Bin$(TextHighlighter.Tag, 16);; Text
 
   AllowCode = iStyle = STYLE_WEB
 
@@ -133,11 +135,12 @@ Private Sub RunWith(Text As String, iStyle As Integer)
     iTagMode = 0
     iTagCode = 0
     TextHighlighter.Alternate = False
-    On iTag Goto STATE_HTML, STATE_COMMENT, STATE_SCRIPT, STATE_STYLE
+    On iTag Goto STATE_HTML, STATE_MARKUP, STATE_MARKUP, STATE_MARKUP, STATE_COMMENT, STATE_SCRIPT, STATE_STYLE
   Endif
   
 STATE_HTML:
 
+  iTag = TAG_HTML
   iTagMode = 0
   iTagCode = 0
   TextHighlighter.Alternate = False
@@ -146,22 +149,61 @@ STATE_HTML:
     GoSub NEXT_CHAR
     
     If sCar = "<" Then
+      
       If String.Mid$(sText, I, 3) = "!--" Then
+        
         Add("<!--", Highlight.Comment)
         I += 3
         iTag = TAG_COMMENT
         Goto STATE_COMMENT
+        
       Else If iStyle = STYLE_WEB And If String.Mid$(sText, I, 1) = "<" Then
+        
         Goto STATE_DOUBLE_MARKUP
+        
       Else
+        
+        Add("<", Highlight.Keyword)
+        sMarkup = ""
+        
+        GoSub LOOK_CHAR
+        If sCar = "!" Then
+          sMarkup &= sCar
+          Inc I
+        Endif
+        
+        Do
+          
+          GoSub LOOK_CHAR
+          If Not sCar Then Break
+          If Not IsLetter(sCar) And If Not IsDigit(sCar) Then Break
+          Inc I
+          sMarkup &= sCar
+          
+        Loop
+        
+        If sMarkup Then Add(sMarkup, Highlight.Keyword)
+        
+        If sMarkup == "script" Then
+          iTag = TAG_MARKUP_SCRIPT
+        Else If sMarkup == "style"
+          iTag = TAG_MARKUP_STYLE
+        Else
+          iTag = TAG_MARKUP
+        Endif
+
         Goto STATE_MARKUP
+        
       Endif
+      
     Else If sCar = "&" Then
+      
       iPos = String.InStr(sText, ";", I)
       If iPos = 0 Then iPos = iLenText
       Add("&" & String.Mid$(sText, I, iPos - I + 1), Highlight.Number)
       I = iPos + 1
       Continue
+      
     Endif
   
     Add(sCar, Highlight.Normal)
@@ -180,20 +222,12 @@ STATE_COMMENT:
     iTag = TAG_HTML
     Goto STATE_HTML
   Endif
-
+  
 STATE_MARKUP:
 
-  sMarkup = ""
   bClose = False
   
-  'If IsMarkup(sText, I, "style") Or If IsMarkup(sText, I, "script") Then
-  '  Highlight.AlternateState = True
-  'Endif
-  
-  Add("<", Highlight.Keyword)
-  
   iState = Highlight.Keyword
-  bMarkup = True  
   Do
     
     GoSub NEXT_CHAR
@@ -206,10 +240,9 @@ STATE_MARKUP:
       Add("/>", Highlight.Keyword)
       Inc I
       Break
-    Else If sCar = " " Then
-      Add(" ", iState)
+    Else If IsSpace(sCar) Then
+      Add(sCar, Highlight.Normal)
       iState = Highlight.Keyword
-      bMarkup = False
       Continue
     Else If sCar = "=" Then
       Add("=", Highlight.Keyword)
@@ -220,28 +253,23 @@ STATE_MARKUP:
       Continue
     Endif
     
-    If bMarkup Then sMarkup &= sCar
     Add(sCar, iState)
     
   Loop
   
   If Not bClose Then
-    If sMarkup = "script" Then
+    If iTag = TAG_MARKUP_SCRIPT Then
       iTag = TAG_SCRIPT
       iTagMode = 0
       TextHighlighter.State = Highlight.Normal
       bLimit = True
       Goto STATE_SCRIPT
-    Else If sMarkup = "style" Then
+    Else If iTag = TAG_MARKUP_STYLE Then
       iTag = TAG_STYLE
       iTagMode = 0
       TextHighlighter.State = Highlight.Normal
       bLimit = True
       Goto STATE_STYLE
-    ' Else If sMarkup = "html" Or If sMarkup = "body" Or If sMarkup = "head" Then
-    '   bLimit = True
-    ' Else If sMarkup = "/html" Or If sMarkup = "/body" Or If sMarkup = "/head" Then
-    '   bNextLimit = True
     Endif
   Endif
   Goto STATE_HTML
@@ -477,6 +505,15 @@ READ_CODE_COMMENT:
     Add(String.Mid$(sText, I, iPos - I + 3), Highlight.Help)
     I = iPos + 3
     iTagCode = 0
+  Endif
+  Return
+
+LOOK_CHAR:
+
+  If I > iLenText Then 
+    sCar = ""
+  Else
+    sCar = String.Mid$(sText, I, 1)
   Endif
   Return
 

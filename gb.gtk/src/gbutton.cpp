@@ -37,8 +37,6 @@ static void cb_click(GtkButton *object, gButton *data)
 		return;
 	}
 		
-	if (!gApplication::userEvents()) return;
-
 	data->unsetOtherRadioButtons();
 
 	if (data->type == gButton::Tool)
@@ -55,8 +53,6 @@ static void cb_click(GtkButton *object, gButton *data)
 
 static void cb_click_radio(GtkButton *object,gControl *data)
 {
-	if (!gApplication::userEvents()) return;
-
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(object)))
 		if (((gButton*)data)->onClick) ((gButton*)data)->onClick((gControl*)data);
 	return;
@@ -122,7 +118,7 @@ static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
 	if (data->hasText())
 	{
 		gt_set_cell_renderer_text_from_font((GtkCellRendererText *)data->rendtxt, data->font());
-		wt = data->font()->width(data->text(), strlen(data->text()));
+		wt = data->font()->width(data->text(), strlen(data->text())) + 4;
 	}
 	
 	if (data->rendpix)
@@ -190,8 +186,9 @@ static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
 			
 			switch (f)
 			{
-				//case GTK_STATE_NORMAL:
-				//case GTK_STATE_ACTIVE: state=GTK_CELL_RENDERER_PRELIT; break;
+				case GTK_STATE_PRELIGHT: 
+					state = GTK_CELL_RENDERER_PRELIT;
+					break;
 				//case GTK_STATE_PRELIGHT: state=GTK_CELL_RENDERER_PRELIT; break;
 				case GTK_STATE_SELECTED: 
 					state = GTK_CELL_RENDERER_SELECTED; 
@@ -236,8 +233,6 @@ gButton::gButton(gContainer *par, Type typ) : gControl(par)
 {
 	gContainer *ct;
 
-	g_typ = Type_gButton;
-	
 	disable = false;
 	_toggle = false;
 	_radio = false;
@@ -252,6 +247,7 @@ gButton::gButton(gContainer *par, Type typ) : gControl(par)
 	_label = NULL;
 	pic = NULL;
 	shortcut = 0;
+	_is_button = TRUE;
 	
 	switch(typ)
 	{
@@ -347,7 +343,7 @@ void gButton::setInconsistent(bool vl)
 	gtk_toggle_button_set_inconsistent (GTK_TOGGLE_BUTTON(widget),vl);
 }
 
-bool gButton::inconsistent()
+bool gButton::inconsistent() const
 {
 	gboolean vl=false;
 
@@ -406,14 +402,17 @@ void gButton::setText(const char *st)
 			gtk_button_set_label(GTK_BUTTON(widget), "");
 
 		_label = gtk_bin_get_child(GTK_BIN(widget));
+		gt_widget_set_inverted(_label, false);
+		#ifndef GTK3
 		set_gdk_fg_color(_label, foreground());
+		#endif
 	}
 
 	updateFont();
 }
 
 
-gPicture* gButton::picture()
+gPicture* gButton::picture() const
 {
 	if ( (type == Check) || (type == Radio) ) 
     return NULL;
@@ -445,7 +444,7 @@ void gButton::setPicture(gPicture *npic)
 	refresh();
 }
 
-bool gButton::getBorder()
+bool gButton::getBorder() const
 {
 	switch(gtk_button_get_relief(GTK_BUTTON(widget)))
 	{
@@ -462,7 +461,7 @@ void gButton::setBorder(bool vl)
 	gtk_button_set_relief (GTK_BUTTON(widget), vl ? GTK_RELIEF_NORMAL : GTK_RELIEF_NONE);
 }
 
-bool gButton::isDefault()
+bool gButton::isDefault() const
 {
 	gMainWindow *win = window();	
 	return win ? win->_default == this : false;
@@ -497,7 +496,7 @@ void gButton::setDefault(bool vl)
 	}
 }
 
-bool gButton::isCancel()
+bool gButton::isCancel() const
 {
 	gMainWindow *win = window();	
 	return win ? win->_cancel == this : false;
@@ -516,7 +515,7 @@ void gButton::setCancel(bool vl)
 		win->_cancel = NULL;
 }
 
-bool gButton::value()
+bool gButton::value() const
 {
   if (type == Button)
     return false;
@@ -531,7 +530,7 @@ void gButton::setValue(bool vl)
     if (vl) gtk_button_clicked(GTK_BUTTON(widget));
   }
   else
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),vl);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), vl);
 }
 
 void gButton::setToggle(bool vl)
@@ -540,7 +539,7 @@ void gButton::setToggle(bool vl)
 	_toggle = vl;
 }
 
-bool gButton::isToggle()
+bool gButton::isToggle() const
 {
 	return type == Toggle || type == Check || type == Radio || _toggle;
 }
@@ -563,15 +562,16 @@ void gButton::animateClick(bool on)
 	{
 		_animated = false;
 #ifdef GTK3
-		gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_NORMAL, FALSE);
+		gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_ACTIVE);
 #else
 		gtk_widget_set_state(widget, GTK_STATE_NORMAL);
 #endif
+		refresh();
 		gtk_button_clicked(GTK_BUTTON(widget));
 	}
 }
 
-int gButton::minimumHeight()
+int gButton::autoHeight() const
 {
 	int mh = 0;
 	
@@ -596,7 +596,7 @@ void gButton::setRadio(bool vl)
 		unsetOtherRadioButtons();
 }
 
-bool gButton::isRadio()
+bool gButton::isRadio() const
 {
 	return type == Radio || _radio;
 }
@@ -614,7 +614,7 @@ void gButton::unsetOtherRadioButtons()
 	for (i = 0; i < pr->childCount(); i++)
 	{
 		child = pr->child(i);
-		if (child->getClass() != getClass())
+		if (!child->isButton())
 			continue;
 			
 		button = (gButton *)child;
@@ -635,7 +635,7 @@ void gButton::unsetOtherRadioButtons()
 	}
 }
 
-bool gButton::hasShortcut()
+bool gButton::hasShortcut() const
 {
 	return isDefault() || isCancel() || shortcut;
 }
@@ -695,7 +695,7 @@ void gButton::updateSize()
 	if (!_autoresize)
 		return;
 	
-	mh = minimumHeight();
+	mh = autoHeight();
 	mw = 0;
 	
 	if (hasText())
@@ -737,4 +737,14 @@ void gButton::updateSize()
 		mh = height();
 
 	resize(mw, mh);
+}
+
+bool gButton::setInverted(bool v)
+{
+	if (gControl::setInverted(v))
+		return true;
+	
+	if (_label)
+		gt_widget_set_inverted(_label, false);
+	return false;
 }

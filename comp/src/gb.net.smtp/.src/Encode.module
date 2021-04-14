@@ -45,16 +45,16 @@ Public Sub PrintQuoted(hStream As Stream, sStr As String, bDebug As Boolean)
         If bDebug Then Error "=3D";
         W += 3
         
-      Case 10 'newline
+      ' Case 10 'newline
+      '   
+      '   If I > 1 And If Asc(sLastCar) <= 32 Then 
+      '     Print #hStream, "="
+      '     If bDebug Then Error "="
+      '   Endif
+      '   Print #hStream
+      '   If bDebug Then Error
+      '   W = 0
         
-        If I > 1 And If Asc(sLastCar) <= 32 Then 
-          Print #hStream, "="
-          If bDebug Then Error "="
-        Endif
-        Print #hStream
-        If bDebug Then Error
-        W = 0
-
       Default
         
         If Asc(sCar) < 33 Or If Asc(sCar) > 126 Then

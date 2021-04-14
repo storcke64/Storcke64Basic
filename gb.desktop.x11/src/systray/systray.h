@@ -41,5 +41,7 @@ int SYSTRAY_event_filter(XEvent *ev);
 int SYSTRAY_get_count();
 CX11SYSTRAYICON *SYSTRAY_get(int i);
 void SYSTRAY_refresh(void);
+void SYSTRAY_move(int x, int y, int w, int h);
+void SYSTRAY_resize(int w, int h);
 
 #endif

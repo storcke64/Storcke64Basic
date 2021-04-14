@@ -18,7 +18,6 @@ Private $hObserver As Observer
 Private $iArrange As Integer
 Private $hObsList As Observer
 Private $dRecent As Date
-Private $sLastURL As String
 Private $hHelp As WebView
 Private $hCurrent As ProjectBox
 Private $iCount As Integer
@@ -106,11 +105,10 @@ Private Sub FillWithExample()
       $hHelp = New WebView($hList) As "ExampleWebView"
       $hHelp.MoveScaled(0, 0, 4, 4)
       $hHelp.Foreground = Color.LightForeground
-      $hHelp.HTML = "<html><body><style type=\"text/css\">BODY { font-family:sans-serif;font-style:italic;color:#" & Hex$(Color.LightForeground) & "; }</style>" & 
-        Subst(("Examples are stored on the Gambas farm server. Click &1 to access the farm server and download them..."), "<a href=\"farm://\">" & ("here") & "</a>") &
-        "</body></html>"
+      $hHelp.SetHtml("<html><body><style type=\"text/css\">BODY { font-family:sans-serif;font-style:italic;color:#" & Hex$(Color.LightForeground) & "; }</style>" & Subst(("Examples are stored on the Gambas farm server. Click &1 to access the farm server and download them..."), "<a href=\"farm://\">" & ("here") & "</a>") & "</body></html>")
     Endif
     $hList.Arrangement = Arrange.Fill
+    $hList.Margin = False
     $hFilter.Enabled = False
     
   Else
@@ -152,6 +150,7 @@ Private Sub FillWithExample()
     Next
   
     ApplyFilter($hFilter.Text)
+    $hList.Margin = True
     $hList.Arrangement = $iArrange
     $hFilter.Enabled = True
   
@@ -635,18 +634,22 @@ Private Sub AllowOpenExtern_Write(Value As Boolean)
 
 End
 
-Public Sub ExampleWebView_Link(sURL As String)
+Public Sub ExampleWebView_Start()
   
-  $sLastURL = sURL
+  Dim hTimer As Timer
+  
+  If Last.Link = "farm://" Then
+    hTimer = New Timer As "TimerFarm"
+    hTimer.Trigger
+    Stop Event
+  Endif
   
 End
 
-Public Sub ExampleWebView_Error()
+Public Sub TimerFarm_Timer()
   
-  If $sLastURL = "farm://" Then 
-    FSoftwareFarm.Run
-    Fill
-  Endif
+  FSoftwareFarm.Run
+  Fill
   
 End
 

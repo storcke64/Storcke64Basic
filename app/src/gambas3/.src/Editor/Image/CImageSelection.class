@@ -3,6 +3,7 @@
 Public Enum ACTION_NONE, ACTION_STROKE, ACTION_FILL, ACTION_CLEAR, ACTION_CLIP, ACTION_EXTENT, ACTION_HANDLE, ACTION_MAGNET, ACTION_SELECT
 Public Enum MAGNET_NONE, MAGNET_RECTANGLE, MAGNET_ELLIPSE
 Public Enum OP_UNION, OP_INTERSECTION, OP_DIFFERENCE, OP_XOR
+Public Enum OFFSET_SHRINK, OFFSET_GROW, OFFSET_BORDER
 
 Private Enum CMD_MOVE_TO, CMD_LINE_TO ', CMD_RECTANGLE, CMD_ELLIPSE
 
@@ -350,6 +351,7 @@ Public Sub Clear()
   
   Shapes.Clear
   _Magnets.Clear
+  Current = -1
   
 End
 
@@ -726,10 +728,6 @@ End
 ' 
 ' End
 
-Public Sub Enlarge((iSize) As Integer, (bDup) As Boolean)
-  
-End
-
 Public Sub Apply(hMatrix As PaintMatrix)
   
   Dim I As Integer
@@ -975,11 +973,13 @@ Public Sub Duplicate()
   
 End
 
-Public Sub Offset(fOffset As Float, bDup As Boolean)
+Public Sub Offset(fOffset As Float, iMode As Integer)
   
   Dim aPolygons As New Polygon[]
   Dim hShape As CImageShape
   Dim I As Integer
+  
+  If iMode <> OFFSET_GROW Then fOffset = -fOffset
   
   If Current < 0 Then
   
@@ -989,14 +989,14 @@ Public Sub Offset(fOffset As Float, bDup As Boolean)
     
     aPolygons = Clipper.Offset(aPolygons, fOffset)
     
-    If Not bDup Then Clear()
+    If iMode <> OFFSET_BORDER Then Clear()
     
     For I = 0 To aPolygons.Max
       hShape = New CImageShape
       hShape.Points = aPolygons[I]
       AddShape(hShape)
     Next
-  
+    
   Else
     
     aPolygons.Add(Shapes[Current].Points)
@@ -1004,7 +1004,7 @@ Public Sub Offset(fOffset As Float, bDup As Boolean)
     aPolygons = Clipper.Offset(aPolygons, fOffset)
     
     If aPolygons.Count Then
-      If Not bDup Then
+      If iMode <> OFFSET_BORDER Then
         Shapes[Current].Points = aPolygons[0]
         Shapes[Current].Invalidate
       Else
@@ -1017,6 +1017,8 @@ Public Sub Offset(fOffset As Float, bDup As Boolean)
     
   Endif
   
+  If iMode = OFFSET_BORDER Then Operation(OP_DIFFERENCE)
+ 
 End
 
 Public Sub CleanLastShape()

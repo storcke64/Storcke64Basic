@@ -131,6 +131,28 @@ static bool event_loop()
 
 static void my_main(int *argc, char **argv)
 {
+	char *env;
+	const char *driver = NULL;
+	
+	env = getenv("GB_GUI_PLATFORM");
+	if (env && *env)
+	{
+		if (!strcasecmp(env, "wayland"))
+			driver = "SDL_VIDEODRIVER=wayland";
+		else if (!strcasecmp(env, "x11"))
+			driver = "SDL_VIDEODRIVER=x11";
+		else
+			fprintf(stderr, "gb.sdl2: warning: unsupported platform: %s\n", env);
+	}
+	
+	if (!driver)
+	{
+		if (getenv("WAYLAND_DISPLAY"))
+			putenv("SDL_VIDEODRIVER=wayland");
+	}
+	else
+		putenv((char *)driver);
+	
 	init_sdl();
 
 	CLASS_Window = GB.FindClass("Window");

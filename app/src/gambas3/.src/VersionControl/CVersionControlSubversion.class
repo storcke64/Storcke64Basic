@@ -1,7 +1,5 @@
 ' Gambas class file
 
-' TODO: Vérifier si la variable d'environnement EDITOR est bien disponible
-
 Inherits CVersionControl
 Create Static
 
@@ -257,7 +255,7 @@ Public Sub GetVersion(sDir As String) As String
 
 End
 
-Public Sub Diff(sPath As String, Optional (bFull) As Boolean) As String
+Public Sub Diff(sPath As String, Optional (bFull) As Boolean, (bNoWhiteSpace) As Boolean) As String
 
   Dim sDiff As String
 
@@ -266,9 +264,13 @@ Public Sub Diff(sPath As String, Optional (bFull) As Boolean) As String
 
 End
 
-Public Sub History(sPath As String, Optional (bFull) As Boolean) As String
+Public Sub History(sPath As String, Optional sPath2 As String, (bFull) As Boolean) As String
 
-  Return VersionControl.Shell("svn log " & Shell$(SvnPath$(sPath)))
+  Dim sCmd As String
+
+  sCmd = "svn log " & Shell$(SvnPath$(sPath))
+  If sPath2 Then sCmd &= " " & Shell$(SvnPath$(sPath2))
+  Return VersionControl.Shell(sCmd)
 
 End
 

@@ -54,7 +54,7 @@ void SUBR_is_type(ushort code)
 
 	//VALUE_conv_string(PARAM);
 	SUBR_get_string_len(PARAM, &addr, &len);
-	VALUE_from_string(&temp, addr, len);
+	VALUE_from_local_string(&temp, addr, len);
 
 	goto *jump[code];
 
@@ -148,7 +148,7 @@ void SUBR_str(void)
 
   SUBR_ENTER_PARAM(1);
 
-  VALUE_to_string(PARAM, &addr, &len);
+  VALUE_to_local_string(PARAM, &addr, &len);
   STRING_new_temp_value(RETURN, addr, len);
 
   SUBR_LEAVE();
@@ -167,7 +167,7 @@ void SUBR_val(void)
 	else
 	{
 		VALUE_get_string(PARAM, &addr, &len);
-		VALUE_from_string(RETURN, addr, len);
+		VALUE_from_local_string(RETURN, addr, len);
 		VALUE_conv_variant(RETURN);
 	}
 

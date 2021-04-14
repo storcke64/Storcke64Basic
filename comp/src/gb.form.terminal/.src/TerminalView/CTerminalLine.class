@@ -1,11 +1,13 @@
 ' Gambas class file
 
-Fast
+Fast Unsafe
 
 Public Text As String
 Public Length As Integer
 
 Private Attr As New Integer[]
+
+Public NewLine As Boolean
 
 Private $bCompressed As Boolean
 
@@ -35,7 +37,7 @@ Private Sub Uncompress()
 
 End
 
-Private Sub Compress()
+Private Sub Compress(bFull As Boolean)
   
   Dim I As Integer
   Dim iAttr As Integer
@@ -59,8 +61,13 @@ Private Sub Compress()
   
   If iCount Then aAttr.Add(iOldAttr Or Lsl(iCount - 1, 8))
   
-  Attr = aAttr
+  If bFull And If Attr.Count < Length Then
+    iCount = Length - Attr.Count
+    aAttr.Add(Lsl(iCount - 1, 8))
+  Endif
+  
   $bCompressed = True
+  Attr = aAttr
   
 End
 
@@ -128,8 +135,62 @@ End
 
 Public Sub GetAttr() As Integer[]
   
-  If Not $bCompressed Then Compress()
+  If Not $bCompressed Then Compress(False)
   Return Attr
+  
+End
+
+Public Sub GetFullAttr() As Integer[]
+  
+  If $bCompressed Then Uncompress()
+  Compress(True)
+  Return Attr
+  
+End
+
+Public Sub InitAttr(aInit As Integer[])
+
+  Dim L As Integer
+  Dim I As Integer
+  Dim iAttr As Integer
+  Dim iCount As Integer
+  Dim C As Integer
+  Dim aAttr As Integer[]
+  Dim aTemp As Integer[]
+  
+  L = Length
+  aAttr = New Integer[]
+
+  For I = 0 To aInit.Max
+    
+    If L = 0 Then Break
+    
+    iAttr = aInit[0]
+    iCount = (Lsr(iAttr, 8) And 255) + 1
+    C = Min(L, iCount)
+    iAttr = iAttr And &HFFFF00FF
+    aTemp = New Integer[C]
+    aTemp.Fill(iAttr)
+    aAttr.Insert(aTemp)
+    
+    L -= C
+    If C = iCount Then
+      aInit.Remove(0)
+    Else
+      iCount -= C
+      aInit[0] = iAttr Or Lsl(iCount - 1, 8)
+    Endif
+    
+  Next
+  
+  For I = aAttr.Max DownTo 0
+    If aAttr[I] Then Break
+  Next
+
+  If I < aAttr.Max Then aAttr.Remove(I + 1, -1)
+  
+  Attr = aAttr
+  $bCompressed = False
   
 End
 
@@ -138,6 +199,7 @@ Public Sub Clear()
   
   Text = ""
   Length = 0
+  NewLine = False
   Attr.Clear
   $bCompressed = False
   

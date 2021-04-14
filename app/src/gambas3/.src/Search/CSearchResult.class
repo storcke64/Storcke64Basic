@@ -15,33 +15,19 @@ Public (Highlight) As String
 Public RichText As String
 Public Location As String
 
-'Private $sWhere As String
+Public Sub InitFromLine(sLine As String) As Boolean
 
-' Public Sub GetLocation() As String
-'   
-'   Dim hFile As Object
-'   Dim sPath As String
-'   
-'   sPath = Project.Dir &/ Path
-'   
-'   If Not Project.IsSourcePath(sPath) Then Return
-'   If $sWhere Then Return $sWhere
-'   
-'   $sWhere = "-"
-'   Try hFile = Project.LoadFile(sPath)
-'   If hFile Then
-'     If hFile Is FEditor Or If hFile Is FTextEditor Then
-'       $sWhere = hFile.GetProcAt({Line})
-'       If Not $sWhere Then $sWhere = ("(Declarations)")
-'     Else If hFile Is FForm Then
-'       $sWhere = hFile.GetLocation({Line})
-'     Endif
-'   Endif
-'   Return $sWhere
-'   
-' Catch
-'   
-'   $sWhere = "?"
-'   Return $sWhere
-'   
-' End
+  Dim aResult As String[]
+
+  aResult = Split(sLine, ":")
+  
+  {Line} = CInt(aResult[0])
+  Pos = CInt(aResult[1])
+  Bytes = CInt(aResult[2])
+  Length = CInt(aResult[3])
+      
+Catch
+
+  Return True  
+  
+End

@@ -142,13 +142,14 @@ End
 Public Sub Background_Draw()
   
   'Dim FW, FH As Integer
-  Dim iBg As Integer = Color.TextBackground
+  Dim iBg As Integer = Color.Default
   
   If Me.Background <> Color.Default Then iBg = Me.Background
   
   If $bBorder Then 
     Style.PaintBox(0, 0, Me.W, Me.H, Style.StateOf($hTextBox), iBg)
   Else
+    If iBg = Color.Default Then iBg = Color.TextBackground
     Paint.FillRect(0, 0, Me.W, Me.H, iBg)
   Endif
   
@@ -303,6 +304,7 @@ End
 Public Sub ClearButton_Click()
   
   $hTextBox.Clear
+  FilterNow
   Raise Clear
   
 End

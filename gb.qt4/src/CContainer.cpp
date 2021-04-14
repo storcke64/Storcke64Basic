@@ -41,7 +41,7 @@
 #include "CConst.h"
 #include "CTabStrip.h"
 #include "CColor.h"
-
+#include "cpaint_impl.h"
 #include "CContainer.h"
 
 #if QT5
@@ -54,6 +54,31 @@
 
 //#define DEBUG_ME
 //#define USE_CACHE 1
+
+#define CALL_FUNCTION(_this, _func) \
+{ \
+	if ((_this)->_func) \
+	{ \
+		GB_FUNCTION func; \
+		func.object = (_this); \
+		func.index = (_this)->_func; \
+		GB.Call(&func, 0, TRUE); \
+	} \
+}
+
+static void send_change_event(CWIDGET *_object)
+{
+	if (GB.Is(THIS, CLASS_UserControl))
+		CALL_FUNCTION(THIS_USERCONTROL, change_func);
+}
+
+void CUSERCONTROL_send_change_event()
+{
+	CWidget::each(send_change_event);
+}
+
+
+//-------------------------------------------------------------------------
 
 DECLARE_EVENT(EVENT_Insert);
 //DECLARE_EVENT(EVENT_Remove);
@@ -254,11 +279,11 @@ static void resize_container(void *_object, QWidget *cont, int w, int h)
 #define GET_ARRANGEMENT(_object) ((CCONTAINER_ARRANGEMENT *)_object)
 #define IS_EXPAND(_object) (((CWIDGET *)_object)->flag.expand)
 #define IS_IGNORE(_object) (((CWIDGET *)_object)->flag.ignore)
-#define IS_DESIGN(_object) (CWIDGET_test_flag(_object, WF_DESIGN) && CWIDGET_test_flag(_object, WF_DESIGN_LEADER))
+#define IS_DESIGN(_object) (CWIDGET_is_design(_object))
 //#define IS_WIDGET_VISIBLE(_widget) (_widget)->isVisible()
 
 //#define CAN_ARRANGE(_object) ((_object) && !CWIDGET_test_flag(_object, WF_DELETED) && (!GB.Is(_object, CLASS_Window) || (((CWINDOW *)_object)->opened)))
-#define CAN_ARRANGE(_object) ((_object) && ((CWIDGET *)(_object))->flag.shown && !CWIDGET_test_flag(_object, WF_DELETED))
+#define CAN_ARRANGE(_object) ((_object) && ((CWIDGET *)(_object))->flag.shown && !((CWIDGET *)(_object))->flag.deleted)
 
 #if USE_CACHE
 
@@ -325,8 +350,8 @@ void CCONTAINER_arrange(void *_object)
 	#if DEBUG_CONTAINER
 	static int level = 0;
 	
-	if (!level)
-		_count_move = _count_resize = _count_set_geom = 0;
+	//if (!level)
+	//	_count_move = _count_resize = _count_set_geom = 0;
 	level++;
 	#endif
 
@@ -335,11 +360,19 @@ void CCONTAINER_arrange(void *_object)
 	_cache_level++;
 	#endif
 
+	/*for (int i = 1; i < level; i++)
+		fputs("  ", stderr);
+	fprintf(stderr, "CCONTAINER_arrange: [%d], %s: %d %d / %d x %d\n", level, THIS->widget.name, WIDGET->x(), WIDGET->y(), WIDGET->width(), WIDGET->height());*/
+	
 	if (GB.Is(THIS, CLASS_TabStrip))
 		CTABSTRIP_arrange(THIS);
 
 	CCONTAINER_arrange_real(_object);
 	
+	/*for (int i = 1; i < level; i++)
+		fputs("  ", stderr);
+	fprintf(stderr, "CCONTAINER_arrange: [%d], %s: <<<<<<<<\n", level, THIS->widget.name);*/
+
 	#if USE_CACHE
 	_cache_level--;
 	
@@ -355,11 +388,11 @@ void CCONTAINER_arrange(void *_object)
 
 	#if DEBUG_CONTAINER
 	level--;
-	if (!level)
+	/*if (!level)
 	{
 		if (_count_move || _count_resize || _count_set_geom)
 			qDebug("CCONTAINER_arrange: (%s %s): move = %d  resize = %d  setGeometry = %d", GB.GetClassName(THIS), THIS->widget.name, _count_move, _count_resize, _count_set_geom);
-	}
+	}*/
 	#endif
 }
 
@@ -472,7 +505,10 @@ void CCONTAINER_insert_child(void *_object)
 {
 	CWIDGET *parent = CWidget::get(WIDGET->parentWidget());
 	if (parent)
+	{
+		CCONTAINER_update_design(parent);
 		GB.Raise(parent, EVENT_Insert, 1, GB_T_OBJECT, THIS);
+	}
 }
 
 void CCONTAINER_decide(CWIDGET *control, bool *width, bool *height)
@@ -481,18 +517,59 @@ void CCONTAINER_decide(CWIDGET *control, bool *width, bool *height)
 
 	*width = *height = FALSE;
 	
-	if (!THIS || control->flag.ignore || THIS_ARRANGEMENT->autoresize)
+	if (!THIS || !control->flag.resized || control->flag.ignore || THIS_ARRANGEMENT->autoresize)
 		return;
 	
 	if ((THIS_ARRANGEMENT->mode == ARRANGE_VERTICAL)
 	    || (THIS_ARRANGEMENT->mode == ARRANGE_HORIZONTAL && control->flag.expand)
-	    || (THIS_ARRANGEMENT->mode == ARRANGE_ROW && control->flag.expand))
+	    || (THIS_ARRANGEMENT->mode == ARRANGE_ROW && control->flag.expand)
+			|| (THIS_ARRANGEMENT->mode == ARRANGE_FILL))
 		*width = TRUE;
 	
 	if ((THIS_ARRANGEMENT->mode == ARRANGE_HORIZONTAL)
 	    || (THIS_ARRANGEMENT->mode == ARRANGE_VERTICAL && control->flag.expand)
-	    || (THIS_ARRANGEMENT->mode == ARRANGE_COLUMN && control->flag.expand))
+	    || (THIS_ARRANGEMENT->mode == ARRANGE_COLUMN && control->flag.expand)
+			|| (THIS_ARRANGEMENT->mode == ARRANGE_FILL))
 		*height = TRUE;
+}
+
+void CCONTAINER_update_design(void *_object)
+{
+	QObjectList list;
+	CWIDGET *child;
+	int i;
+
+	if (!THIS->widget.flag.design)
+		return;
+	
+	if (!THIS_ARRANGEMENT->user && !THIS->widget.flag.design_ignore)
+		return;
+	
+	//fprintf(stderr, "CCONTAINER_update_design: %s %d\n", THIS->widget.name, THIS->widget.flag.design_ignore);
+	
+	if (THIS->widget.flag.design_ignore)
+	{
+		list = THIS->widget.widget->children();
+		
+		for (i = 0; i < list.count(); i++)
+		{
+			child = CWidget::getRealExisting(list.at(i));
+			if (child)
+				CWIDGET_set_design(child, true);
+		}
+	}
+
+	if (GB.Is(THIS, CLASS_UserContainer) && CONTAINER == WIDGET)
+		return;
+	
+	list = CONTAINER->children();
+	
+	for (i = 0; i < list.count(); i++)
+	{
+		child = CWidget::getRealExisting(list.at(i));
+		if (child)
+			CWIDGET_set_design(child, true);
+	}
 }
 
 
@@ -543,6 +620,8 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 	else
 		style = QApplication::style();
 
+	p->save();
+	
 	switch (frame)
 	{
 		case BORDER_PLAIN:
@@ -567,18 +646,17 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 			p->setBrush(QBrush());
 			style->drawPrimitive(QStyle::PE_Frame, &optv3, p, w);
 			p->setBrush(save_brush);
-			//style->drawControl(QStyle::CE_ShapedFrame, &optv3, p, w);
 			break;
 			
 		case BORDER_RAISED:
 			optv3.rect = opt.rect;
 			optv3.state = opt.state | QStyle::State_Raised;
 			optv3.frameShape = QFrame::StyledPanel;
+
+			save_brush = p->brush();
+			p->setBrush(QBrush());
 			style->drawPrimitive(QStyle::PE_Frame, &optv3, p, w);
-			/*opt.lineWidth = 2;
-			opt.midLineWidth = 2;
-			opt.state |= QStyle::State_Raised;
-			style->drawPrimitive(QStyle::PE_Frame, &opt, p, w);*/
+			p->setBrush(save_brush);
 			break;
 			
 		case BORDER_ETCHED:
@@ -586,12 +664,10 @@ static void _draw_border(QPainter *p, int frame, QWidget *w, QStyleOptionFrame &
 			//optv3.state = opt.state | QStyle::State_Raised;
 			optv3.frameShape = QFrame::StyledPanel;
 			style->drawPrimitive(QStyle::PE_FrameGroupBox, &optv3, p, w);
-			//qDrawShadeRect(p, opt.rect, opt.palette, true, 1, 0);
 			break;
-			
-		default:
-			return;
 	}
+	
+	p->restore();
 }
 
 void CCONTAINER_draw_border(QPainter *p, char frame, QWidget *wid)
@@ -713,7 +789,7 @@ MyContainer::~MyContainer()
 {
 	CWIDGET *_object = CWidget::getReal(this);
 	if (THIS)
-		CWIDGET_set_flag(THIS, WF_DELETED);
+		THIS->widget.flag.deleted = true;
 }
 
 void MyContainer::showEvent(QShowEvent *e)
@@ -741,6 +817,59 @@ void MyContainer::hideEvent(QHideEvent *e)
 	}*/
 }
 
+static void cleanup_drawing(intptr_t arg1, intptr_t arg2)
+{
+	PAINT_end();
+}
+
+void MyContainer::paintEvent(QPaintEvent *event)
+{
+	void *_object = CWidget::get(this);
+	//QPainter *p;
+	QRect r;
+	//GB_COLOR bg;
+	GB_ERROR_HANDLER handler;
+	
+	if (!THIS_ARRANGEMENT->paint)
+	{
+		MyFrame::paintEvent(event);
+		return;
+	}
+	
+	r = event->rect();
+	
+	PAINT_begin(THIS);
+	//p = PAINT_get_current();
+
+	/*bg = CWIDGET_get_background((CWIDGET *)THIS);
+	if (bg != COLOR_DEFAULT)
+		p->fillRect(0, 0, width(), height(), TO_QCOLOR(bg));*/
+
+	//fprintf(stderr, "paintEvent: %s: %d %d %d %d\n", THIS->widget.name, r.x(), r.y(), r.width(), r.height());
+	PAINT_clip(r.x(), r.y(), r.width(), r.height());
+
+	handler.handler = (GB_CALLBACK)cleanup_drawing;
+
+	GB.OnErrorBegin(&handler);
+	CALL_FUNCTION(THIS_USERCONTROL, paint_func);
+	GB.OnErrorEnd(&handler);
+
+	PAINT_end();
+}
+
+void MyContainer::changeEvent(QEvent *e)
+{
+	void *_object = CWidget::get(this);
+
+	if (!THIS_ARRANGEMENT->paint)
+	{
+		MyFrame::changeEvent(e);
+		return;
+	}
+	
+	if (e->type() == QEvent::FontChange)
+		CALL_FUNCTION(THIS_USERCONTROL, font_func);
+}
 
 
 /*void MyContainer::childEvent(QChildEvent *e)
@@ -807,7 +936,7 @@ static QRect getRect(void *_object)
 	return w->contentsRect();
 }
 
-BEGIN_PROPERTY(Container_X)
+BEGIN_PROPERTY(Container_ClientX)
 
 	#ifdef DEBUG
 	if (!CONTAINER)
@@ -822,7 +951,7 @@ BEGIN_PROPERTY(Container_X)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(Container_Y)
+BEGIN_PROPERTY(Container_ClientY)
 
 	#ifdef DEBUG
 	if (!CONTAINER)
@@ -837,7 +966,7 @@ BEGIN_PROPERTY(Container_Y)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(Container_Width)
+BEGIN_PROPERTY(Container_ClientWidth)
 
 	#ifdef DEBUG
 	if (!CONTAINER)
@@ -849,7 +978,7 @@ BEGIN_PROPERTY(Container_Width)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(Container_Height)
+BEGIN_PROPERTY(Container_ClientHeight)
 
 	#ifdef DEBUG
 	if (!CONTAINER)
@@ -1087,8 +1216,25 @@ BEGIN_PROPERTY(Container_Indent)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Container_Centered)
+
+  if (READ_PROPERTY)
+    GB.ReturnBoolean(THIS_ARRANGEMENT->centered);
+  else
+  {
+  	bool val = VPROP(GB_BOOLEAN);
+  	if (val != THIS_ARRANGEMENT->centered)
+  	{
+    	THIS_ARRANGEMENT->centered = val;
+			arrange_now(CONTAINER);
+		}
+  }
+
+END_PROPERTY
+
 BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
+	GB_FUNCTION func;
 	MyContainer *wid = new MyContainer(QCONTAINER(VARG(parent)));
 
 	THIS->container = wid;
@@ -1096,9 +1242,20 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	THIS_ARRANGEMENT->user = true;
 
 	CWIDGET_new(wid, (void *)_object);
-
+	
+	if (!GB.GetFunction(&func, THIS, "UserControl_Draw", NULL, NULL))
+	{
+		THIS_ARRANGEMENT->paint = true;
+		THIS_USERCONTROL->paint_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Font", NULL, NULL))
+			THIS_USERCONTROL->font_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Change", NULL, NULL))
+			THIS_USERCONTROL->change_func = func.index;
+	}
+	
+	GB.Error(NULL);
+	
 END_METHOD
-
 
 BEGIN_PROPERTY(UserControl_Container)
 
@@ -1121,6 +1278,7 @@ BEGIN_PROPERTY(UserControl_Container)
 			if (current)
 				CWIDGET_container_for(current, NULL);
 			THIS->container = WIDGET;
+			CCONTAINER_update_design(THIS);
 			CWIDGET_register_proxy(THIS, NULL);
 			return;
 		}
@@ -1151,10 +1309,11 @@ BEGIN_PROPERTY(UserControl_Container)
 			
 			THIS->container = w;
 
-			CWIDGET_update_design((CWIDGET *)THIS);
 			CCONTAINER_arrange(THIS);
 
 			CWIDGET_set_color((CWIDGET *)cont, bg, fg, true);
+			
+			CCONTAINER_update_design(THIS);
 
 			CWIDGET_register_proxy(THIS, cont);
 		}
@@ -1168,9 +1327,17 @@ BEGIN_PROPERTY(UserContainer_Indent)
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
 	Container_Indent(cont, _param);
 	if (!READ_PROPERTY)
-	{
 		THIS_USERCONTAINER->save = cont->arrangement;
-	}
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(UserContainer_Centered)
+
+	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
+	Container_Centered(cont, _param);
+	if (!READ_PROPERTY)
+		THIS_USERCONTAINER->save = cont->arrangement;
 
 END_PROPERTY
 
@@ -1410,12 +1577,12 @@ GB_DESC ContainerDesc[] =
 
 	GB_PROPERTY_READ("Children", "ContainerChildren", Container_Children),
 
-	GB_PROPERTY_READ("ClientX", "i", Container_X),
-	GB_PROPERTY_READ("ClientY", "i", Container_Y),
-	GB_PROPERTY_READ("ClientW", "i", Container_Width),
-	GB_PROPERTY_READ("ClientWidth", "i", Container_Width),
-	GB_PROPERTY_READ("ClientH", "i", Container_Height),
-	GB_PROPERTY_READ("ClientHeight", "i", Container_Height),
+	GB_PROPERTY_READ("ClientX", "i", Container_ClientX),
+	GB_PROPERTY_READ("ClientY", "i", Container_ClientY),
+	GB_PROPERTY_READ("ClientW", "i", Container_ClientWidth),
+	GB_PROPERTY_READ("ClientWidth", "i", Container_ClientWidth),
+	GB_PROPERTY_READ("ClientH", "i", Container_ClientHeight),
+	GB_PROPERTY_READ("ClientHeight", "i", Container_ClientHeight),
 	
 	GB_METHOD("_unknown", "v", Container_unknown, "."),
 	GB_METHOD("FindChild", "Control", Container_FindChild, "(X)i(Y)i"),
@@ -1432,7 +1599,7 @@ GB_DESC ContainerDesc[] =
 
 GB_DESC UserControlDesc[] =
 {
-	GB_DECLARE("UserControl", sizeof(CCONTAINER)), GB_INHERITS("Container"),
+	GB_DECLARE("UserControl", sizeof(CUSERCONTROL)), GB_INHERITS("Container"),
 	GB_NOT_CREATABLE(),
 
 	GB_METHOD("_new", NULL, UserControl_new, "(Parent)Container;"),
@@ -1445,8 +1612,11 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Margin", "b", Container_Margin),
 	GB_PROPERTY("_Indent", "b", Container_Indent),
 	GB_PROPERTY("_Invert", "b", Container_Invert),
+	GB_PROPERTY("_Centered", "b", Container_Centered),
 
 	USERCONTROL_DESCRIPTION,
+	
+	GB_INTERFACE("Paint", &PAINT_Interface),
 	
 	GB_END_DECLARE
 };
@@ -1469,7 +1639,8 @@ GB_DESC UserContainerDesc[] =
 	GB_PROPERTY("Margin", "b", UserContainer_Margin),
 	GB_PROPERTY("Indent", "b", UserContainer_Indent),
 	GB_PROPERTY("Invert", "b", UserContainer_Invert),
-	
+	GB_PROPERTY("Centered", "b", UserContainer_Centered),
+
 	GB_PROPERTY("Design", "b", UserContainer_Design),
 
 	//GB_PROPERTY("Focus", "b", UserContainer_Focus),

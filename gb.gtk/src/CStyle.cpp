@@ -189,6 +189,28 @@ static bool begin_draw(int *x, int *y)
 
 		_widget = wid->widget;
 	}
+	else if (GB.Is(device, CLASS_UserControl))
+	{
+		gContainer *wid;
+		GtkAllocation *a;
+		
+		if (PAINT_is_internal())
+		{
+			GB.Error("Cannot draw outside of 'Draw' event handler");
+			return TRUE;
+		}
+		
+		wid = (gContainer *)((CDRAWINGAREA *)device)->ob.widget;
+
+		_dr = wid->widget->window;
+		a = &wid->widget->allocation;
+		_dr_x = a->x;
+		_dr_y = a->y;
+		*x += _dr_x;
+		*y += _dr_y;
+
+		_widget = wid->widget;
+	}
 	else if (GB.Is(device, CLASS_Picture))
 	{
 		gPicture *pic = ((CPICTURE *)device)->picture;
@@ -597,10 +619,11 @@ static void style_panel(int x, int y, int w, int h, int border, int state)
 	gColor col = 0;
 
 	if (border == BORDER_PLAIN)
-	{
+		col = gDesktop::getColor(gDesktop::LIGHT_FOREGROUND);
+	/*{
 		col = IMAGE.MergeColor(gDesktop::bgColor(), gDesktop::fgColor(), 0.5);
 		col = IMAGE.LighterColor(col);
-	}
+	}*/
 
 	gt_draw_border(_cr, style, get_state(state), border, col, x, y, w, h);
 
@@ -624,9 +647,7 @@ static void style_panel(int x, int y, int w, int h, int border, int state)
 		GdkGCValues values;
 		uint col;
 
-		col = IMAGE.MergeColor(gDesktop::bgColor(), gDesktop::fgColor(), 0.5);
-		col = IMAGE.LighterColor(col);
-
+		col = gDesktop::getColor(gDesktop::LIGHT_FOREGROUND);
 		fill_gdk_color(&values.foreground, col, gdk_drawable_get_colormap(_dr));
 		gc = gtk_gc_get(gdk_drawable_get_depth(_dr), gdk_drawable_get_colormap(_dr), &values, GDK_GC_FOREGROUND);
 		gdk_draw_rectangle(_dr, gc, FALSE, x, y, w - 1, h - 1);
@@ -658,7 +679,7 @@ static void style_box(int x, int y, int w, int h, int state, GB_COLOR color)
 {
 	STYLE_T *style = get_style(GTK_TYPE_ENTRY);
 
-	if (gApplication::fix_oxygen)
+	if (gApplication::_fix_oxygen)
 	{
 		x -= 3;
 		w += 6;
@@ -701,7 +722,7 @@ static void style_box(int x, int y, int w, int h, int state, GB_COLOR color)
 
 #else
 
-	if (gApplication::fix_breeze)
+	if (gApplication::_fix_breeze)
 		state &= ~GB_DRAW_STATE_HOVER;
 
 	GtkStateType st = get_state(state);

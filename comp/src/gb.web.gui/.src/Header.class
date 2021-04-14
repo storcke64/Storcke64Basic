@@ -34,3 +34,17 @@ Private Sub PrintJavascriptExternFiles()
   Endif
 
 End
+
+Private Sub PrintHeaders()
+
+  Dim aHeaders As String[]
+  Dim sHeader As String
+  
+  aHeaders = Form._GetHeaders()
+  If aHeaders Then
+    For Each sHeader In aHeaders
+      Print sHeader
+    Next
+  Endif
+  
+End

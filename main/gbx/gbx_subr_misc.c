@@ -279,7 +279,7 @@ _ERROR:
 _FREE:
 	EVAL.Free((void **)(void *)&eval);
 
-	VALUE_to_string(RETURN, &expr, &len);
+	VALUE_to_local_string(RETURN, &expr, &len);
 	STREAM_write(CSTREAM_TO_STREAM(CFILE_out), expr, len);
 	STREAM_write_eol(CSTREAM_TO_STREAM(CFILE_out));
 	STREAM_flush(CSTREAM_TO_STREAM(CFILE_out));

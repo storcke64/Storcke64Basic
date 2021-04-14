@@ -16,9 +16,15 @@ Event Menu
 Event Icon(Path As String)
 
 Property {Dir} As String
+Property Current As String
+
+'' Return the current selected path.
+''
+'' It's an equivalent of '[../dir] &/ [../current]'.
+Property Read Path As String
+
 Property ShowHidden As Boolean
 Property ShowDirectory As Boolean
-Property Current As String
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
@@ -144,13 +150,10 @@ Public Sub _new()
     .Columns[1].Text = ("Size")
     .Columns[1].Alignment = Align.Right
     .Columns[2].Text = ("Last modified")
-    '.Columns[2].Alignment = Align.Right
-    '.Columns[0].Width = 64
-    '.Columns[1].Width = 64
-    '.Columns[2].Width = 96
     .Visible = False
     .Sorted = True
     .Resizable = True
+    .AutoResize = False
   End With
   
   $hVoidView = New TextLabel(Me)
@@ -352,6 +355,8 @@ Private Sub RefreshView()
   Dim aPreview As New String[]
   Dim sExt As String
   Dim bVoid As Boolean
+  Dim iSort As Integer
+  Dim bSortAscent As Boolean
 
   Inc Application.Busy
   
@@ -368,6 +373,8 @@ Private Sub RefreshView()
       $hColumnView.Clear
       $hColumnView._Begin()
     Endif
+    iSort = $hColumnView.Columns.Sort
+    bSortAscent = $hColumnView.Columns.Ascending
     $hColumnView.Sorted = False
     hPictFile = Picture["icon:/small/file"]
     hPictFolder = Picture["icon:/small/directory"]
@@ -434,7 +441,8 @@ Private Sub RefreshView()
         
         bRichText = False
         
-        sText = sFile
+        sText = Replace(sFile, "\n", "")
+        
         If .Link Then
           sText = "<i>" & sText & "</i>"
           bRichText = True
@@ -446,7 +454,7 @@ Private Sub RefreshView()
   
         If $hColumnView.Visible Then
           If Not $hColumnView.Exist(sKey) Then
-            $hColumnView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            $hColumnView.Add(sKey, sText, hPict).Editable = Access(sDir, gb.Write)
             GoSub ADD_PREVIEW
           Else
             $hColumnView[sKey].Editable = Access(sDir, gb.Write)
@@ -460,7 +468,7 @@ Private Sub RefreshView()
           If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
         Else
           If Not $hIconView.Exist(sKey) Then
-            $hIconView.Add(sKey, sFile, hPict).Editable = Access(sDir, gb.Write)
+            $hIconView.Add(sKey, sText, hPict).Editable = Access(sDir, gb.Write)
             GoSub ADD_PREVIEW
           Else
             $hIconView[sKey].Editable = Access(sDir, gb.Write)
@@ -482,6 +490,8 @@ Private Sub RefreshView()
       For I = 1 To $hColumnView.Columns.Max
         $hColumnView.Columns[I].W = -1
       Next
+      $hColumnView.Columns[0].W = -1
+      $hColumnView.Columns[0].Width = Min(Desktop.Scale * 64, $hColumnView.Columns[0].Width)
     Endif
     
     For Each sFile In aSel
@@ -499,6 +509,8 @@ Finally
   If $hColumnView.Visible Then 
     $hColumnView._End
     $hColumnView.Sorted = True
+    $hColumnView.Columns.Sort = iSort
+    $hColumnView.Columns.Ascending = bSortAscent
   Else
     $hIconView._End
   Endif
@@ -1205,7 +1217,7 @@ Public Sub Watcher_Resize()
 End
 
 
-Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, (Key) As String)
+Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, (Key) As String, Optional (Column) As Integer)
 
   'Dim iSize As Long
   'Dim hFont As Font
@@ -1214,6 +1226,8 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Dim dDate As Date
   Dim sDate As String
   Dim sAuth As String
+
+  If Not $hIconView.Visible Then Return
 
   H = $hInfoFont.H
   
@@ -1233,7 +1247,7 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Paint.Font = $hInfoFont
   
   Y += Desktop.Scale
-  Paint.DrawText(Main.GetFileSize(hStat.Size, 0), X, Y, Width, Height, Align.TopNormal)
+  Paint.DrawText(Main.GetFileSize(hStat.Size), X, Y, Width, Height, Align.TopNormal)
   
   If $iIconSize < (H * 5) Then Return
   
@@ -1255,4 +1269,11 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Y += H * 1.25
   Paint.DrawText(sAuth, X, Y, Width, Height, Align.TopNormal)
   
+End
+
+Private Function Path_Read() As String
+
+  Dim sCurrent As String = Current_Read()
+  If sCurrent Then Return $sDir &/ sCurrent
+
 End

@@ -34,3 +34,11 @@ Public Sub Button6_Click()
   Me.Maximized = Not Me.Maximized
 
 End
+
+Public Sub Button7_Click()
+
+  'Dim iIndex As Integer
+
+  DataBrowser1.Find("user = &1", 133)
+
+End

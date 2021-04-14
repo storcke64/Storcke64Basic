@@ -34,7 +34,7 @@
 
 //#define DEBUG_DND 1
 
-static void  sg_destroy (GtkWidget *object,gControl *data)
+static void cb_destroy(GtkWidget *object, gControl *data)
 {
 	if (data->_no_delete)
 		return;
@@ -43,44 +43,75 @@ static void  sg_destroy (GtkWidget *object,gControl *data)
 	delete data;
 }
 
-static gboolean sg_menu(GtkWidget *widget, gControl *data)
+static gboolean cb_menu(GtkWidget *widget, gControl *data)
 {
-	if (!gApplication::userEvents()) return false;
 	if (data->onMouseEvent)
 		return data->onMouseEvent(data, gEvent_MouseMenu);
 	else
 		return false;
 }
 
-gboolean gcb_focus_in(GtkWidget *widget,GdkEventFocus *event,gControl *data)
+gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 {
-	if (!gApplication::allEvents()) return false;
-
 	//fprintf(stderr, "gcb_focus_in: %s\n", data->name());
 	
 	gApplication::setActiveControl(data, true);
-	
+
 	return false;
 }
 
-gboolean gcb_focus_out(GtkWidget *widget,GdkEventFocus *event,gControl *data)
+gboolean gcb_focus_out(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 {	
-	if (!gApplication::allEvents()) return false;
-	
 	//fprintf(stderr, "gcb_focus_out: %s\n", data->name());
 	
-	gApplication::setActiveControl(data, false);
+	/*if (!::strcmp(data->name(), "txtName"))
+		BREAKPOINT();*/
+
+	if (!gApplication::_keep_focus)
+		gApplication::setActiveControl(data, false);
 	
 	return false;
 }
 
+gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data)
+{
+	gControl *ctrl;
+	
+	if (data != gApplication::activeControl())
+		return true;
+			
+	if (direction == GTK_DIR_TAB_FORWARD || direction == GTK_DIR_TAB_BACKWARD)
+	{
+		ctrl = data;
+		for(;;)
+		{
+			//fprintf(stderr, "cb_focus: %s / %d %d\n", ctrl->name(), ctrl->isEnabled(), ctrl->canFocus());
+			
+			if (direction == GTK_DIR_TAB_FORWARD)
+				ctrl = ctrl->nextFocus();
+			else
+				ctrl = ctrl->previousFocus();
+			
+			if (ctrl->isEnabled() && ctrl->canFocus() && !ctrl->isNoTabFocus() && ctrl->isReallyVisible())
+			{
+				//fprintf(stderr, "cb_focus: --> %s\n", ctrl->name());
+				ctrl->setFocus();
+				break;
+			}
+			if (ctrl == data)
+				break;
+		}
+	}
+
+	return true;
+}
 
 
 /****************************************************
  Drag 
 *****************************************************/
 
-static void sg_drag_data_get(GtkWidget *widget, GdkDragContext *context, GtkSelectionData *dt, guint i, guint time, gControl *data)
+static void cb_drag_data_get(GtkWidget *widget, GdkDragContext *context, GtkSelectionData *dt, guint i, guint time, gControl *data)
 {
 	char *text;
 	int len;
@@ -105,7 +136,7 @@ static void sg_drag_data_get(GtkWidget *widget, GdkDragContext *context, GtkSele
 	gDrag::disable(context);
 }
 
-static void sg_drag_end(GtkWidget *widget,GdkDragContext *ct,gControl *data)
+static void cb_drag_end(GtkWidget *widget,GdkDragContext *ct,gControl *data)
 {
 	#if DEBUG_DND
 	fprintf(stderr, "sg_drag_end: %s\n", data->name());
@@ -122,23 +153,34 @@ static void sg_drag_end(GtkWidget *widget,GdkDragContext *ct,gControl *data)
 // BM: What for?
 //static guint32 _drag_time = 0;
 
-static gboolean sg_drag_motion(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
+static void cb_drag_leave(GtkWidget *widget, GdkDragContext *context, guint time, gControl *data)
+{
+	if (!gDrag::isCurrent(data))
+		return;
+	
+	#if DEBUG_DND
+	fprintf(stderr, "cb_drag_leave: %s\n", data->name());
+	#endif
+
+	gDrag::setCurrent(NULL);
+	gDrag::hide(data);
+}
+
+static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
 {
 	bool retval = true;
 	int action;
 	gControl *source;
 	
-	if (!gApplication::allEvents()) return true;
-	
 	#if DEBUG_DND
-	fprintf(stderr, "sg_drag_motion: %s\n", data->name());
+	fprintf(stderr, "cb_drag_motion: %s\n", data->name());
 	#endif	
 	
 	gApplication::checkHoveredControl(data);
 	
 	/*if (_drag_time != context->start_time) 
 	{ 
-		g_debug("sg_drag_motion: cancel!\n");
+		g_debug("cb_drag_motion: cancel!\n");
 		gDrag::cancel();
 		data->_drop_0 = true; 
 		data->_drop_1 = false; 
@@ -167,21 +209,11 @@ static gboolean sg_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	
 	context = gDrag::enable(context, data, time);
 	
-	if (!data->_drag_enter)
-	{
-		//fprintf(stderr, "sg_drag_motion: onDrag: %p\n", widget);
-	
-		x = 0; 
-		y = 0; 
-		
-		if (data->onDrag) 
-			retval = !data->onDrag(data);
-		data->_drag_enter = true;
-	}
+	retval = gDrag::setCurrent(data);
 	
 	if (retval)
 	{
-		//fprintf(stderr, "sg_drag_motion: onDragMove: %p\n", widget);
+		//fprintf(stderr, "cb_drag_motion: onDragMove: %p\n", widget);
 		gControl *control = data;
 		
 		//while (control->_proxy)
@@ -190,7 +222,7 @@ static gboolean sg_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 		while (control)
 		{
 			#if DEBUG_DND
-			fprintf(stderr, "drag move %s\n", control->name());
+			fprintf(stderr, "send DragMove %s\n", control->name());
 			#endif
 			if (control->canRaise(control, gEvent_DragMove))
 			{
@@ -210,7 +242,7 @@ static gboolean sg_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	if (retval) 
 	{
 		#if DEBUG_DND
-		fprintf(stderr, "sg_drag_motion: accept\n");
+		fprintf(stderr, "cb_drag_motion: accept\n");
 		#endif
 #if GTK_CHECK_VERSION(2, 22, 0)
 		gdk_drag_status(context, gdk_drag_context_get_suggested_action(context), time);
@@ -221,45 +253,26 @@ static gboolean sg_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	}
 	
 	#if DEBUG_DND
-	fprintf(stderr, "sg_drag_motion: cancel\n");
+	fprintf(stderr, "cb_drag_motion: cancel\n");
 	#endif
 	gDrag::hide(data);
 	return false;
 }
 
 
-void sg_drag_leave(GtkWidget *widget, GdkDragContext *context, guint time, gControl *data)
-{
-	#if DEBUG_DND
-	fprintf(stderr, "sg_drag_leave: %s\n", data->name());
-	#endif
-	
-	data->_drag_enter = false;
-	gDrag::hide(data);
-
-	gControl *control = data;
-	
-	//while (control->_proxy)
-	//	control = control->_proxy;
-	
-	while (control)
-	{
-		control->emit(SIGNAL(control->onDragLeave));
-		control = control->_proxy;
-	}
-}
-
-
-gboolean sg_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
+static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
 {
 	gControl *source;
 
 	#if DEBUG_DND
-	fprintf(stderr, "sg_drag_drop: %s\n", data->name());
+	fprintf(stderr, "cb_drag_drop: %s\n", data->name());
 	#endif
 	
-	// sg_drag_leave() is automatically called when a drop occurs
-	//sg_drag_leave(widget, context, time, data);
+	/*if (!gDrag::isCurrent(data))
+		return false;*/
+	
+	// cb_drag_leave() is automatically called when a drop occurs
+	//cb_drag_leave(widget, context, time, data);
 	
 	if (!data->canRaise(data, gEvent_Drop))
 	{
@@ -302,13 +315,13 @@ static void cb_show(GtkWidget *widget, gContainer *data)
 
 void gControl::borderSignals()
 {	
-	g_signal_connect(G_OBJECT(border),"destroy",G_CALLBACK(sg_destroy),(gpointer)this);
+	g_signal_connect_after(G_OBJECT(border), "destroy", G_CALLBACK(cb_destroy), (gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"drag-data-received",G_CALLBACK(sg_drag_data_received),(gpointer)this);
-	g_signal_connect(G_OBJECT(border),"drag-motion",G_CALLBACK(sg_drag_motion),(gpointer)this);
-	g_signal_connect(G_OBJECT(border),"drag-leave",G_CALLBACK(sg_drag_leave),(gpointer)this);
-	g_signal_connect(G_OBJECT(border),"drag-drop",G_CALLBACK(sg_drag_drop),(gpointer)this);
-	g_signal_connect(G_OBJECT(border),"drag-data-get",G_CALLBACK(sg_drag_data_get),(gpointer)this);
-	g_signal_connect(G_OBJECT(border),"drag-end",G_CALLBACK(sg_drag_end),(gpointer)this);
+	g_signal_connect(G_OBJECT(border), "drag-motion", G_CALLBACK(cb_drag_motion),(gpointer)this);
+	g_signal_connect(G_OBJECT(border), "drag-leave", G_CALLBACK(cb_drag_leave),(gpointer)this);
+	g_signal_connect(G_OBJECT(border), "drag-drop", G_CALLBACK(cb_drag_drop),(gpointer)this);
+	g_signal_connect(G_OBJECT(border), "drag-data-get", G_CALLBACK(cb_drag_data_get),(gpointer)this);
+	g_signal_connect(G_OBJECT(border), "drag-end", G_CALLBACK(cb_drag_end),(gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"enter-notify-event",G_CALLBACK(sg_enter),(gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"leave-notify-event",G_CALLBACK(sg_enter),(gpointer)this);
 	
@@ -324,7 +337,7 @@ void gControl::borderSignals()
 			g_signal_connect(G_OBJECT(border),"button-release-event",G_CALLBACK(gcb_button_release),(gpointer)this);
 			g_signal_connect(G_OBJECT(border),"button-press-event",G_CALLBACK(gcb_button_press),(gpointer)this);
 		}*/
-		g_signal_connect(G_OBJECT(border),"popup-menu",G_CALLBACK(sg_menu),(gpointer)this);	
+		g_signal_connect(G_OBJECT(border), "popup-menu", G_CALLBACK(cb_menu), (gpointer)this);	
 		//g_signal_connect_after(G_OBJECT(border),"motion-notify-event",G_CALLBACK(sg_motion),(gpointer)this);
 		//g_signal_connect(G_OBJECT(border),"scroll-event",G_CALLBACK(sg_scroll),(gpointer)this);
 	}
@@ -341,17 +354,18 @@ void gControl::widgetSignals()
 			g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(gcb_button_press),(gpointer)this);
 		}*/
 		//g_signal_connect(G_OBJECT(widget),"motion-notify-event",G_CALLBACK(sg_motion),(gpointer)this);
-		g_signal_connect(G_OBJECT(widget),"popup-menu",G_CALLBACK(sg_menu),(gpointer)this);
+		g_signal_connect(G_OBJECT(widget), "popup-menu", G_CALLBACK(cb_menu), (gpointer)this);
 	}	
 	
 	g_signal_connect(G_OBJECT(widget), "key-press-event", G_CALLBACK(gcb_key_event), (gpointer)this);
 	g_signal_connect(G_OBJECT(widget), "key-release-event", G_CALLBACK(gcb_key_event), (gpointer)this);
-	g_signal_connect(G_OBJECT(widget), "focus-in-event", G_CALLBACK(gcb_focus_in),(gpointer)this);
-	g_signal_connect(G_OBJECT(widget), "focus-out-event", G_CALLBACK(gcb_focus_out),(gpointer)this);
+	g_signal_connect(G_OBJECT(widget), "focus", G_CALLBACK(gcb_focus), (gpointer)this);
+	g_signal_connect(G_OBJECT(widget), "focus-in-event", G_CALLBACK(gcb_focus_in), (gpointer)this);
+	g_signal_connect(G_OBJECT(widget), "focus-out-event", G_CALLBACK(gcb_focus_out), (gpointer)this);
 	//g_signal_connect(G_OBJECT(widget),"event",G_CALLBACK(sg_event),(gpointer)this);
 	if (widget != border)
 	{
-		g_signal_connect(G_OBJECT(widget), "drag-end", G_CALLBACK(sg_drag_end), (gpointer)this);
+		g_signal_connect(G_OBJECT(widget), "drag-end", G_CALLBACK(cb_drag_end), (gpointer)this);
 	}
 }
 
@@ -360,3 +374,4 @@ void gControl::initSignals()
 	borderSignals();
 	widgetSignals();
 }
+

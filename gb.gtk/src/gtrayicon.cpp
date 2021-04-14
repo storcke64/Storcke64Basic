@@ -24,7 +24,9 @@
 #include "widgets.h"
 
 #include <unistd.h>
+#ifndef GTK3
 #include "x11.h"
+#endif
 #include "gapplication.h"
 #include "gmouse.h"
 #include "gtrayicon.h"
@@ -240,12 +242,16 @@ void gTrayIcon::setVisible(bool vl)
 			updateTooltip();
 
 			#ifdef GDK_WINDOWING_X11
-			// Needed, otherwise the icon does not appear in Gnome or XFCE notification area!
-			XSizeHints hints;
-			hints.flags = PMinSize;
-			hints.min_width = _iconw;
-			hints.min_height = _iconh;
-			XSetWMNormalHints(gdk_x11_display_get_xdisplay(gdk_display_get_default()), gtk_status_icon_get_x11_window_id(plug), &hints);
+				#ifdef GTK3
+					PLATFORM.Desktop.ShowTrayIcon(plug, _iconw, _iconh);
+				#else
+					// Needed, otherwise the icon does not appear in Gnome or XFCE notification area!
+					XSizeHints hints;
+					hints.flags = PMinSize;
+					hints.min_width = _iconw;
+					hints.min_height = _iconh;
+					XSetWMNormalHints(gdk_x11_display_get_xdisplay(gdk_display_get_default()), gtk_status_icon_get_x11_window_id(plug), &hints);
+				#endif
 			#endif
 
 			gtk_status_icon_set_visible(plug, TRUE);
@@ -280,5 +286,9 @@ void gTrayIcon::exit()
 
 bool gTrayIcon::hasSystemTray()
 {
-	return X11_get_system_tray() != 0;
+	#ifdef GTK3
+		return PLATFORM.Desktop.HasSystemTray();
+	#else
+		return X11_get_system_tray() != 0;
+	#endif
 }

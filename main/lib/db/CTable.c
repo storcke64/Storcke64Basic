@@ -201,7 +201,11 @@ BEGIN_PROPERTY(CTABLE_primary_key)
 		if (READ_PROPERTY)
 		{
 			if (THIS->driver->Table.PrimaryKey(&THIS->conn->db, THIS->name, &THIS->primary))
+			{
+				if (!GB.HasError())
+					GB.Error("Unable to retrieve primary key for table: &1", THIS->name);
 				return;
+			}
 
 			GB.ReturnObject(DB_StringArrayToGambasArray(THIS->primary));
 			DB_FreeStringArray(&THIS->primary);

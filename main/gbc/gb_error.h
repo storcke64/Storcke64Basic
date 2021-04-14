@@ -121,6 +121,7 @@ void ERROR_panic(const char *error, ...) NORETURN;
 void ERROR_print(void);
 void ERROR_print_at(FILE *where);
 void ERROR_warning(const char *warning, ...);
+void ERROR_fail(const char *error, ...) NORETURN;
 
 /*PUBLIC void ERROR_must_free(void *object);*/
 

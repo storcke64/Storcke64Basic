@@ -95,12 +95,17 @@ public:
 
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
+	virtual void updateScrollBar();
+	virtual void setMinimumSize();
+	virtual void setFont(gFont *ft);
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();
-	virtual int minimumWidth() const;
-	virtual int minimumHeight() const;
+	virtual void customStyleSheet(GString *css);
+	virtual void onEnterEvent();
+	virtual void onLeaveEvent();
 #endif
+	void updateFixSpacing();
 	virtual GtkIMContext *getInputMethod();
   //void waitForLayout(int *tw, int *th);
 	void clearUndoStack();
@@ -109,13 +114,15 @@ public:
 	gTextAreaAction *_undo_stack;
 	gTextAreaAction *_redo_stack;
 	int _not_undoable_action;
-	bool _undo_in_progress;
+	unsigned _undo_in_progress : 1;
 
 private:
 	GtkWidget *textview;
 	GtkTextBuffer *_buffer;
-	bool _align_normal;
+	unsigned _align_normal : 1;
+	unsigned _text_area_visible : 1;
 	int _last_pos;
+	GtkTextTag *_fix_spacing_tag;
 
 	GtkTextIter *getIterAt(int pos = -1);
 };

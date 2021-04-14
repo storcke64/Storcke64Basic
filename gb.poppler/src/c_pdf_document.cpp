@@ -86,7 +86,7 @@ BEGIN_METHOD(PdfDocument_new, GB_STRING path; GB_STRING password)
 
 	const char *password;
 	GError *error;
-	SplashColor paper = { 0xFF, 0xFF, 0xFF };
+	std::string rpasswd;
 
 	if (GB.LoadFile(STRING(path), LENGTH(path), &THIS->buffer, &THIS->length))
 		return;
@@ -105,8 +105,15 @@ BEGIN_METHOD(PdfDocument_new, GB_STRING path; GB_STRING password)
 	
 	THIS->resolution = 72.0;
 	
-	THIS->renderer = new SplashOutputDev(splashModeRGB8, 3, false, paper);
-	THIS->renderer->startDoc(GET_DOCUMENT());
+	if (password)
+		rpasswd = password;
+	THIS->rdoc = poppler::document::load_from_raw_data(THIS->buffer, THIS->length, rpasswd, rpasswd);
+	
+	THIS->renderer = new poppler::page_renderer;
+	
+	THIS->renderer->set_render_hint(poppler::page_renderer::antialiasing, true);
+	THIS->renderer->set_render_hint(poppler::page_renderer::text_antialiasing, true);
+	THIS->renderer->set_render_hint(poppler::page_renderer::text_hinting, false);
 
 END_METHOD
 
@@ -134,6 +141,7 @@ BEGIN_METHOD_VOID(PdfDocument_free)
 	}
 
 	delete THIS->renderer;
+	delete THIS->rdoc;
 	g_object_unref(THIS->doc);
 	
 	GB.ReleaseFile(THIS->buffer, THIS->length);
@@ -309,6 +317,18 @@ BEGIN_METHOD(PdfDocument_Find, GB_STRING label)
 	
 END_METHOD
 
+#define IMPLEMENT_DOC_HINT_PROP(_name, _hint) \
+BEGIN_PROPERTY(PdfDocument_##_name) \
+	if (READ_PROPERTY) \
+		GB.ReturnBoolean(THIS->renderer->render_hints() & poppler::page_renderer::_hint); \
+	else \
+		THIS->renderer->set_render_hint(poppler::page_renderer::_hint, VPROP(GB_BOOLEAN)); \
+END_PROPERTY
+
+IMPLEMENT_DOC_HINT_PROP(Antialiasing, antialiasing)
+IMPLEMENT_DOC_HINT_PROP(TextAntialiasing, text_antialiasing)
+IMPLEMENT_DOC_HINT_PROP(TextHinting, text_hinting)
+
 //--------------------------------------------------------------------------
 
 /*BEGIN_PROPERTY(PdfPage_Orientation)
@@ -319,27 +339,49 @@ END_PROPERTY*/
 
 BEGIN_METHOD(PdfPage_Render, GB_INTEGER x; GB_INTEGER y; GB_INTEGER width; GB_INTEGER height; GB_INTEGER rotation; GB_FLOAT res)
 
-	Page *page = GET_CURRENT_PAGE();
-	SplashBitmap *map;
-	unsigned char *data = NULL;
-
+	poppler::page *page;
+	poppler::rectf size;
+	poppler::rotation_enum rot;
+	poppler::image image;
+	
+	const char *data = NULL;
 	int rotation = VARGOPT(rotation, THIS->rotation);
-	int orientation;
+	int orientation = 0;
 	double res = VARGOPT(res, THIS->resolution);
 	int width, height;
 	int x, y, w, h;
 	
-	orientation = (rotation + page->getRotate() + 720) % 360;
+	page = THIS->rdoc->create_page(poppler_page_get_index(THIS->current));
+	
+	switch (page->orientation())
+	{
+		case poppler::page::portrait: orientation = 0; break;
+		case poppler::page::landscape: orientation = 90; break;
+		case poppler::page::upside_down: orientation = 180; break;
+		case poppler::page::seascape: orientation = 270; break;
+	}
+	
+	orientation = (orientation + rotation + 720) % 360;
+	
+	switch (orientation)
+	{
+		case 90: rot = poppler::rotate_90; break;
+		case 180: rot = poppler::rotate_180; break;
+		case 270: rot = poppler::rotate_270; break;
+		default: rot = poppler::rotate_0;
+	}
+	
+	size = page->page_rect(poppler::media_box);
 	
 	if (orientation % 180)
 	{
-		width = (int)(page->getMediaHeight() * res / 72.0);
-		height = (int)(page->getMediaWidth() * res / 72.0);
+		width = (int)(size.height() * res / 72.0);
+		height = (int)(size.width() * res / 72.0);
 	}
 	else
 	{
-		width = (int)(page->getMediaWidth() * res / 72.0);
-		height = (int)(page->getMediaHeight() * res / 72.0);
+		width = (int)(size.width() * res / 72.0);
+		height = (int)(size.height() * res / 72.0);
 	}
 	
 	x = VARGOPT(x, 0);
@@ -367,28 +409,17 @@ BEGIN_METHOD(PdfPage_Render, GB_INTEGER x; GB_INTEGER y; GB_INTEGER width; GB_IN
 	
 	if (w > 0 && h > 0)
 	{
-		page->displaySlice(THIS->renderer, res, res, rotation, false, true, x, y, w, h, false);
-		map = THIS->renderer->getBitmap();
-		data = (unsigned char *)map->getDataPtr();
+		image = THIS->renderer->render_page(page, res, res, x, y, w, h, rot);
+		data = image.const_data();
 	}
 
-	GB.ReturnObject(IMAGE.Create(w, h, GB_IMAGE_RGB, (unsigned char *)data));
+	GB.ReturnObject(IMAGE.Create(w, h, GB_IMAGE_BGRA, (unsigned char *)data));
 		
 END_METHOD
 
 BEGIN_PROPERTY(PdfPage_Thumbnail)
 
-	Page *page = GET_CURRENT_PAGE();
-	unsigned char *data;
-	int width, height;
-
-	if (!page->loadThumb(&data, &width, &height, NULL))
-	{
-    GB.ReturnNull();
-		return;
-	}
-	
-	GB.ReturnObject(IMAGE.Create(width, height, GB_IMAGE_RGB, (unsigned char *)data));
+  GB.ReturnNull();
 
 END_PROPERTY
 
@@ -798,9 +829,10 @@ GB_DESC PdfDocumentDesc[] =
 	
 	GB_PROPERTY("Resolution", "f", PdfDocument_Resolution),
 	GB_PROPERTY("Rotation", "i", PdfDocument_Rotation),
-	/*GB_PROPERTY("Antialiasing", "b", PdfDocument_Antialiasing),
+	
+	GB_PROPERTY("Antialiasing", "b", PdfDocument_Antialiasing),
 	GB_PROPERTY("TextAntialiasing", "b", PdfDocument_TextAntialiasing),
-	GB_PROPERTY("TextHinting", "b", PdfDocument_TextHinting),*/
+	GB_PROPERTY("TextHinting", "b", PdfDocument_TextHinting),
 	
 	GB_PROPERTY_READ("Index", ".PdfDocumentIndex", PdfDocument_Index),
 	

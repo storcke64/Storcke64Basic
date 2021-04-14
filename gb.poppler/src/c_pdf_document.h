@@ -26,9 +26,12 @@
 #ifndef __C_PDF_DOCUMENT_H
 #define __C_PDF_DOCUMENT_H
 
-#include <SplashOutputDev.h>
-#include "splash/SplashBitmap.h"
+//#include <SplashOutputDev.h>
+//#include "splash/SplashBitmap.h"
 #include "glib/poppler.h"
+#include "cpp/poppler-document.h"
+#include "cpp/poppler-page.h"
+#include "cpp/poppler-page-renderer.h"
 #include "main.h"
 
 #ifndef __C_PDF_DOCUMENT_CPP
@@ -69,10 +72,11 @@ typedef
 		PopplerDocument *doc;
 		PopplerPage **pages;
 		PopplerPage *current;
-		SplashOutputDev *renderer;
 		double resolution;
 		int rotation;
 		CPDFINDEX **index;
+		poppler::document *rdoc;
+		poppler::page_renderer *renderer;
 	}
 	CPDFDOCUMENT;
 

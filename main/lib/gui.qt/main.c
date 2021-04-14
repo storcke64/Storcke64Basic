@@ -38,6 +38,8 @@ GB_DESC *GB_CLASSES[] EXPORT =
 
 char *GB_INCLUDE EXPORT = "gb.qt4|gb.qt5";
 
+static bool _debug = FALSE;
+
 
 const char *get_name(int use)
 {
@@ -56,6 +58,8 @@ int EXPORT GB_INIT(void)
 	int use_other = USE_NOTHING;
 	char *env;
 	const char *comp;
+	const char *fail;
+	char not_found[32];
 
 	env = getenv("GB_GUI");
 	if (env && *env)
@@ -68,40 +72,38 @@ int EXPORT GB_INIT(void)
 			fprintf(stderr, "gb.gui.qt: warning: '%s' component not supported\n", env);
 	}
 	
+	env = getenv("GB_GUI_DEBUG");
+	if (env && strcmp(env, "0")) 
+		_debug = TRUE;
+	
 	if (use == USE_NOTHING)
 	{
-		use = USE_GB_QT5;
-		
-		env = getenv("KDE_FULL_SESSION");
-		
-		if (env && !strcmp(env, "true"))
-		{
-			env = getenv("KDE_SESSION_VERSION");
-			if (env)
-			{
-				if (strcmp(env, "4") == 0)
-					use = USE_GB_QT4;
-				else if (strcmp(env, "5") == 0)
-					use = USE_GB_QT5;
-			}
-		}
+		use = GUI_should_use();
+		if (use == USE_NOTHING)
+			use = USE_GB_QT5;
 	}
 
-	if (!GUI_can_use(use))
+	if (_debug)
+		fprintf(stderr, "gb.gui: checking %s...\n", get_name(use));
+	
+	fail = GUI_can_use(use);
+	if (fail)
 	{
+		strcpy(not_found, fail);
+
 		if (use == USE_GB_QT4)
 			use_other = USE_GB_QT5;
 		else
 			use_other = USE_GB_QT4;
 		
-		if (GUI_can_use(use_other))
+		if (!GUI_can_use(use_other))
 		{
-			fprintf(stderr, "gb.gui.qt: warning: '%s' component not found, using '%s' instead\n", get_name(use), get_name(use_other));
+			fprintf(stderr, "gb.gui.qt: warning: '%s' component not found, using '%s' instead\n", not_found, get_name(use_other));
 			use = use_other;
 		}
 		else
 		{
-			fprintf(stderr, "gb.gui.qt: error: unable to find any QT component\n");
+			fprintf(stderr, "gb.gui.qt: error: '%s' component not found, unable to find any QT replacement component\n", not_found);
 			exit(1);
 		}
 	}
@@ -115,12 +117,11 @@ int EXPORT GB_INIT(void)
 	}
 	else
 	{
-		env = getenv("GB_GUI_DEBUG");
-		if (env && !strcmp(env, "0")) 
+		if (_debug)
 			fprintf(stderr, "gb.gui.qt: loading '%s'\n", comp);
 	}
-  
-  setenv("GB_GUI", comp, TRUE);
+
+	setenv("GB_GUI", comp, TRUE);
 
   return 0;
 }

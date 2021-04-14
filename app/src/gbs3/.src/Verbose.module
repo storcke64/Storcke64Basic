@@ -1,0 +1,13 @@
+' Gambas module file
+
+Public $bVerboseOn As Boolean = False
+
+Public Sub _Call(sMsg As String)
+
+ If $bVerboseOn Then
+  Error "gbs"; System.Version; " : "; sMsg
+Endif 
+
+End
+
+

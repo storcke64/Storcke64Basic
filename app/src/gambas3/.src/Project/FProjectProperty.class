@@ -47,10 +47,25 @@ Static Public Function ShowArguments() As Boolean
 
 End
 
+Public Sub _new()
+  
+  Dim hBorder As Border
+
+  tvwEnv.AddColumn("")
+  tvwEnv.AddColumn(("Variable"), Desktop.Scale * 16)
+  tvwEnv.AddColumn(("Value"))
+
+  tvwEnv.Rows.Resizable = False
+  
+  hBorder = Border("style:none;bottom-style:solid;padding:" & CStr(Desktop.Scale \ 2) & ";")
+  hBorder.Color = Color.LightForeground
+  gvwLibrary.Rows.Border = hBorder
+  
+End
+
 Public Sub Form_Open()
 
   Dim sLang As String
-  Dim hBorder As Border
 
   Me.Title = ("Project properties") & " - " & Project.Name
 
@@ -108,10 +123,6 @@ Public Sub Form_Open()
 
   End With
   
-  hBorder = Border("style:none;bottom-style:solid;padding:" & CStr(Desktop.Scale \ 2) & ";")
-  hBorder.Color = Color.LightForeground
-  gvwLibrary.Rows.Border = hBorder
-  
   choComponent.Checkable = True
   choComponent.CheckedComponents = Project.Components
   choComponent.Libraries = $aLibraries
@@ -141,6 +152,8 @@ Public Sub Form_Open()
   
   gvwVcInfo.Rows.Count = 0
   
+  Me.Center()
+  
 End
 
 Public Sub Form_Activate()
@@ -157,14 +170,7 @@ End
 
 Private Sub InitEnvironment()
 
-  tvwEnv.Columns.Count = 2
-  tvwEnv.Columns[0].Text = ("Variable")
-  tvwEnv.Columns[1].Text = ("Value")
-  
   $aEnv = Project.Environment.Copy()
-    
-  tvwEnv.Rows.Resizable = False
-  
   UpdateEnv
   
 End
@@ -172,18 +178,20 @@ End
 Private Sub SaveEnvironment()
   
   Dim iInd As Integer
+  Dim aEnv As String[]
   
   tvwEnv.Save
+  aEnv = $aEnv.Copy()
   
   While iInd < $aEnv.Count
     If Not Trim(Scan($aEnv[iInd], "*=*")[0]) Then 
-      $aEnv.Remove(iInd)
+      aEnv.Remove(iInd)
     Else 
       Inc iInd
     Endif
   Wend
 
-  Project.Environment = $aEnv
+  Project.Environment = aEnv
   
 End
 
@@ -265,16 +273,18 @@ Private Function DoApply() As Boolean
   SaveEnvironment
   WriteComponent
 
+  Inc Project.TimeStamp
+  
   Project.WriteProject
   Project.MakeDirectoryIcon
   Project.Compile
-
+  
   Project.RefreshRoot
   ' If bRefreshForm Then Project.RefreshForm
   If bRefreshEditor Then Project.RefreshEditor
   FMain.OnRefreshComponents
   
-  Project.SetMessage(("OK"))
+  'Project.SetMessage(("OK"))
 
   Return
 
@@ -621,35 +631,98 @@ Public Sub btnReset_Click()
   
   End Select
 
+End
+
+Private Sub IsEnvDisabled(Row As Integer) As Boolean
+
+  Return $aEnv[Row] Begins " "
 
 End
 
 Public Sub tvwEnv_Click()
 
-  tvwEnv.Edit
+  Dim iRow As Integer
+  
+  If tvwEnv.Column Then
+    tvwEnv.Edit
+  Else
+    Try iRow = Key.Code
+    If Not Error Then
+      Stop Event
+      Return
+    Endif
+    iRow = tvwEnv.Row
+    If IsEnvDisabled(iRow) Then
+      $aEnv[iRow] = Mid$($aEnv[iRow], 2)
+    Else
+      $aEnv[iRow] = " " & $aEnv[iRow]
+    Endif
+    tvwEnv[iRow, 0].Refresh
+  Endif
+
+End
+
+Public Sub tvwEnv_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Row As Integer, Column As Integer)
+
+  If Column Then Return
+  
+  X += (Width - 16) \ 2
+  Y += (Height - 16) \ 2
+  'Y += (gvwComponent.Rows.Height - gvwComponent.Padding * 2 - 16) \ 2
+  Width = 16
+  Height = 16
+  
+  Style.PaintBox(X - 2, Y - 2, Width + 4, Height + 4)
+  
+  If Not IsEnvDisabled(Row) Then
+    Paint.DrawPicture(Picture["img/16/checked.png"], X, Y)
+  Endif
 
 End
 
 Public Sub tvwEnv_Data(Row As Integer, Column As Integer)
 
-  Dim aEnv As String[] = Scan($aEnv[Row], "*=*")
+  Dim sEnv As String = $aEnv[Row]
+  Dim aEnv As String[] 
   
-  Try tvwEnv.Data.Text = aEnv[Column]
+  If Column = 0 Then Return
   
-Catch
-
+  If sEnv Begins " " Then
+    tvwEnv.Data.Foreground = Color.LightForeground
+    sEnv = Mid$(sEnv, 2)
+  Endif
+  
+  aEnv = Scan(sEnv, "*=*")
+  Try tvwEnv.Data.Text = aEnv[Column - 1]
+  
 End
 
 Public Sub tvwEnv_Save(Row As Integer, Column As Integer, Value As String)
 
-  Dim aEnv As String[] = Scan($aEnv[Row], "*=*")
+  Dim sEnv As String = $aEnv[Row]
+  Dim aEnv As String[]
+  Dim bDisabled As Boolean
   
-  If Column = 0 Then 
-    $aEnv[Row] = Trim(Value) & "=" & aEnv[1]
-    tvwEnv.Columns[0].Width = -1
-  Else 
-    $aEnv[Row] = aEnv[0] & "=" & Value
+  If Column = 0 Then Return
+
+  If sEnv Begins " " Then
+    bDisabled = True
+    sEnv = Mid$(sEnv, 2)
   Endif
+    
+  aEnv = Scan(sEnv, "*=*")
+  
+  If Column = 1 Then 
+    sEnv = Trim(Value) & "=" & aEnv[1]
+  Else 
+    sEnv = aEnv[0] & "=" & Value
+  Endif
+  
+  If bDisabled Then sEnv = " " & sEnv
+  
+  $aEnv[Row] = sEnv
+  
+  If Column = 1 Then tvwEnv.Columns[1].Width = -1
   
 End
 
@@ -668,8 +741,9 @@ Public Sub btnInsertEnv_Click()
   If $aEnv.Count >= 255 Then Return
   $aEnv.Add("=")
   UpdateEnv
-  tvwEnv.MoveTo($aEnv.Max, 0)
-  tvwEnv.Edit      
+  tvwEnv.MoveTo($aEnv.Max, 1)
+  tvwEnv.Columns[1].Width = Max(tvwEnv.Columns[1].Width, Desktop.Scale * 24)
+  tvwEnv.Edit
 
 End
 
@@ -1333,8 +1407,9 @@ End
 Private Sub UpdateEnv()
 
   tvwEnv.Rows.Count = $aEnv.Count
-  tvwEnv.Columns[0].Width = -1
-  tvwEnv.Columns[0].Width = Max(tvwEnv.Columns[0].Width, Desktop.Scale * 24)
+  tvwEnv.Columns[0].Width = Desktop.Scale * 4
+  tvwEnv.Columns[0].Resizable = False
+  tvwEnv.Columns[1].Width = -1
   tvwEnv.Refresh
 
 End
@@ -1356,5 +1431,47 @@ Public Sub lstReferences_Add()
   If lstReferences.List.Exist(sPath) Then Return
 
   lstReferences.Add(sPath)
+
+End
+
+Public Sub btnMoveUpEnv_Click()
+
+  Dim iRow As Integer
+
+  iRow = tvwEnv.Row
+  If iRow < 1 Then Return
+  
+  tvwEnv.Save()
+  Swap $aEnv[iRow], $aEnv[iRow - 1]
+  tvwEnv.Refresh
+  tvwEnv.MoveTo(iRow - 1, tvwEnv.Column)
+
+End
+
+Public Sub btnMoveDownEnv_Click()
+
+  Dim iRow As Integer
+
+  iRow = tvwEnv.Row
+  If iRow < 0 Or If iRow >= $aEnv.Max Then Return
+  
+  tvwEnv.Save()
+  Swap $aEnv[iRow], $aEnv[iRow + 1]
+  tvwEnv.Refresh
+  tvwEnv.MoveTo(iRow + 1, tvwEnv.Column)
+
+End
+
+Public Sub tvwEnv_Select()
+
+  btnRemoveEnv.Enabled = tvwEnv.Row >= 0
+  btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
+  btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
+
+End
+
+Public Sub tvwEnv_Hide()
+
+  UpdateEnv
 
 End

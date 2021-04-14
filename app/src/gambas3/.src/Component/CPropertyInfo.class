@@ -288,7 +288,7 @@ GET_KIND:
   ' {...:Arg}
     
   iPos = RInStr(sKind, ":")
-  If iPos Then 
+  If iPos Then
     Argument = Mid$(sKind, iPos + 1)
     sKind = Left$(sKind, iPos - 1)
   Endif
@@ -353,7 +353,6 @@ GET_KIND:
     Type = sKind
     
   Endif
-  
 
   If Type = "i" Then
     If Name = "Background" Or Name = "Foreground" Or InStr(Name, "Color") > 0 Then

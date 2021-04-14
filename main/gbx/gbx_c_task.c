@@ -729,6 +729,7 @@ GB_DESC TaskDesc[] =
 	GB_PROPERTY_READ("Running", "b", Task_Running),
 
 	GB_METHOD("Stop", NULL, Task_Stop, NULL),
+	GB_METHOD("Kill", NULL, Task_Stop, NULL),
 	GB_METHOD("Wait", NULL, Task_Wait, NULL),
 
 	GB_EVENT("Read", NULL, "(Data)s", &EVENT_Read),

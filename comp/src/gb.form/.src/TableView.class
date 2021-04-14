@@ -538,21 +538,13 @@ Public Sub Clear()
   
 End
 
-' Private Function ShowCursor_Read() As Boolean
-' 
-'   Return $bShowCursor
-' 
-' End
-' 
-' Private Sub UpdateShowCursor()
-' 
-'   Super.ShowCursor = $bShowCursor 'And IsNull($hEditor)
-' 
-' End
-' 
-' Private Sub ShowCursor_Write(Value As Boolean)
-' 
-'   $bShowCursor = Value
-'   UpdateShowCursor
-' 
-' End
+Public Sub _GetPreferredWidth(iCol As Integer) As Integer
+
+  Dim PW As Integer
+  
+  PW = Super._GetPreferredWidth(iCol)
+  If Me.Rows.Count Then PW += 6
+  Return PW
+  
+End
+

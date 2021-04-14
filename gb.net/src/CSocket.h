@@ -64,19 +64,20 @@ typedef
 		CSOCKET_COMMON common;
 		struct sockaddr_in Server;  /* struct for TCP connections  */
 		struct sockaddr_un UServer; /* struct for UNIX connections */
-		int iUsePort;
-		int iPort;
-		int iLocalPort;
-		int conn_type;
+		unsigned short iUsePort;
+		unsigned short iPort;
+		unsigned short iLocalPort;
+		char conn_type;
+		bool watch_write;
 		char *sPath;
 		char *sLocalHostIP;
 		char *sRemoteHostIP;
 		char *Host;
 		char *Path;
 		CDNSCLIENT *DnsTool;
+		GB_TIMER *timer;
 		void *parent;
 		void (*OnClose)(void *sck);
-		bool watch_write;
 	}  
 	CSOCKET;
 

@@ -113,6 +113,9 @@ typedef
 	void *QT_PICTURE;
 
 typedef
+	void *QT_IMAGE;
+
+typedef
 	struct {
 		QPainter *p;
 		QPainter *pm;
@@ -146,6 +149,7 @@ typedef
 		QT_PICTURE (*CreatePicture)(const QPixmap &);
 		//QMimeSourceFactory *(*MimeSourceFactory)(void);
 		QPixmap *(*GetPixmap)(QT_PICTURE);
+		//QT_IMAGE (*CreateImage)(const QImage &);
 		const char *(*ToUtf8)(const QString &);
 		int (*GetLastUtf8Length)();
 		char *(*NewString)(const QString &);
@@ -159,6 +163,7 @@ typedef
 		uint (*GetBackgroundColor)(void *);
 		void (*MouseProperty)(void *, void *);
 		QT_COLOR_FUNC (*AfterSetColor)(QT_COLOR_FUNC);
+		int (*GetDesktopScale)(void);
 		void *_null;
 		}
 	QT_INTERFACE;

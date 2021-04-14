@@ -54,8 +54,8 @@ Public Sub _new()
   $hObs = New Observer(Me) As "ProjectItem"
   
   If Not $hRemove Then
-    $hRemove = Picture["icon:/small/remove"].Image
-    $hRemoveGray = $hRemove.Copy().Brightness(1).Colorize(Color.LightGray)
+    $hRemove = Picture["icon:/small/close"].Image
+    $hRemoveGray = $hRemove.Copy().Desaturate().Lightness(0.5)
   Endif
   
   ' If Not $hGradient Then
@@ -179,8 +179,10 @@ Public Sub DrawingArea_Draw()
     Paint.AntiAlias = False
     Paint.Rectangle(X, Y, W - 1, H - 1)
 
-    If $bSelected Or If $bHighlight Then
-      iBg = Color.Gradient(Color.LightBackground, Color.TextBackground)
+    If $bSelected Then 'Or If $bHighlight Then
+      iBg = Color.Merge(Color.LightBackground, Color.TextBackground)
+    Else If $bHighlight Then
+      iBg = Color.Merge(Color.LightBackground, Color.TextBackground, 0.9)
     Else
       iBg = Color.TextBackground 'Color.Merge(Color.TextForeground, Color.TextBackground, 0.97)
     Endif
@@ -235,6 +237,7 @@ Public Sub DrawingArea_Draw()
     'Paint.DrawTextShadow(sText, X, Y, W, H, Align.TopLeft)
     Paint.Font.Bold = True
     Paint.DrawText(sText, X, Y, W, H, Align.TopLeft)
+    WT = Paint.Font.TextWidth(sText)
     Paint.Font.Bold = False
     
     If Template Then
@@ -251,10 +254,8 @@ Public Sub DrawingArea_Draw()
       
     Else If bSmall Then
     
-      WT = Paint.Font.TextWidth(sText & " ")
-      
       Paint.Font.Bold = False
-      sText = .Version
+      sText = " • " & .Version
       'Paint.Background = Color.Red
       'Paint.DrawTextShadow(sText, X + WT, Y, Paint.W, Paint.H, Align.TopLeft, 4)
       Paint.DrawText(sText, X + WT, Y, Paint.W, Paint.H, Align.TopLeft)
@@ -310,6 +311,7 @@ Public Sub DrawingArea_Draw()
   Endif
   
   If ShowRemove And If $bHighlight Then
+    Paint.FillRect(Paint.W - $hRemove.W - P - P \ 2, P \ 2, $hRemove.W + P, $hRemove.H + P, iBg)
     Paint.DrawImage(If($bInsideRemove, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
   Endif
   

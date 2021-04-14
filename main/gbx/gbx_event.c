@@ -27,6 +27,7 @@
 #include "gb_common_buffer.h"
 #include "gbx_exec.h"
 #include "gbx_api.h"
+#include "gbx_signal.h"
 
 #include "gbx_event.h"
 
@@ -231,6 +232,8 @@ bool EVENT_check_post(void)
 	fprintf(stderr, "EVENT_check_post: START\n");
 	#endif
 
+	SIGNAL_check(SIGCHLD);
+	
 	while (_post_list)
 	{
 		ret = TRUE;

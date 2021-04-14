@@ -1031,20 +1031,22 @@ Public Sub OnProjectActivate()
   'UpdateInfo
   
   hCurrent = GetCurrent()
-  If hCurrent Then
-    ShowGridOption(hCurrent.HasGrid())
-    vGrid = hCurrent.GetGrid()
-    If vGrid Then
-      $bDoNotUpdateGrid = True
-      txtGridRes.Value = vGrid[0]
-      txtGridSnap.Value = vGrid[1]
-      chkGridSnap.Value = vGrid[2]
-      chkGridDiag.Value = vGrid[3]
-      $bDoNotUpdateGrid = False
-    Endif
-    ShowTextOption(hCurrent.GetTool() = "text")
-    Me.Enabled = Not hCurrent.ReadOnly
+  If Not hCurrent Then Return
+  
+  OnToolChange(hCurrent.GetTool())
+  
+  ShowGridOption(hCurrent.HasGrid())
+  vGrid = hCurrent.GetGrid()
+  If vGrid Then
+    $bDoNotUpdateGrid = True
+    txtGridRes.Value = vGrid[0]
+    txtGridSnap.Value = vGrid[1]
+    chkGridSnap.Value = vGrid[2]
+    chkGridDiag.Value = vGrid[3]
+    $bDoNotUpdateGrid = False
   Endif
+  
+  Me.Enabled = Not hCurrent.ReadOnly
   
 End
 
@@ -1400,12 +1402,6 @@ Public Sub btnTextAlign_Click()
 
 End
 
-Public Sub panEffect_Arrange()
-
-  panEffect.Parent.H = panEffect.H + Desktop.Scale * 2
-
-End
-
 Public Sub slbOpacity_Change()
 
   UpdateBalance
@@ -1420,7 +1416,7 @@ End
 
 Public Sub OnToolChange(sTool As String)
   
-  If sTool <> "text" Then ShowTextOption(False)
+  ShowTextOption(sTool = "text")
   panRoundness.Visible = sTool = "rectangle"
   panTolerance.Visible = sTool = "magic"
   
@@ -1457,7 +1453,7 @@ Private Sub SetLineCap(iLineCap As Integer)
       sImage = "square"
   End Select
   
-  btnLineCap.Picture = Picture["img/draw/cap-" & sImage & ".png"]
+  btnLineCap.Picture = Picture["icon:/small/cap-" & sImage]
   
   $iLineCap = iLineCap
 
@@ -1476,7 +1472,7 @@ Private Sub SetLineJoin(iLineJoin As Integer)
       sImage = "round"
   End Select
   
-  btnLineJoin.Picture = Picture["img/draw/join-" & sImage & ".png"]
+  btnLineJoin.Picture = Picture["icon:/small/join-" & sImage]
   
   $iLineJoin = iLineJoin
 
@@ -1505,7 +1501,7 @@ Private Sub SetFillRule(iFillRule As Integer)
       sImage = "union"
   End Select
   
-  btnFillRule.Picture = Picture["img/draw/" & sImage & ".png"]
+  btnFillRule.Picture = Picture["icon:/small/" & sImage]
   
   $iFillRule = iFillRule
 
@@ -1545,5 +1541,11 @@ End
 Public Sub chkGridSnap_Click()
 
   UpdateGrid
+
+End
+
+Public Sub panEffect_BeforeArrange()
+
+  panEffect.Parent.H = panEffect.H + Desktop.Scale * 2
 
 End

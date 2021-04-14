@@ -98,6 +98,7 @@ typedef
 EXTERN bool COMP_verbose;
 EXTERN COMPILE COMP_current;
 EXTERN char *COMP_root;
+EXTERN char *COMP_dir;
 EXTERN char *COMP_project;
 EXTERN char *COMP_project_name;
 EXTERN char *COMP_info_path;
@@ -112,6 +113,8 @@ void COMPILE_init(void);
 void COMPILE_load(void);
 void COMPILE_exit(void);
 void COMPILE_begin(const char *file, bool trans, bool debug);
+void COMPILE_alloc();
+void COMPILE_free();
 void COMPILE_end(void);
 void COMPILE_export_class(char *name);
 void COMPILE_add_class(const char *name, int len);
@@ -120,6 +123,10 @@ void COMPILE_enum_class(char **name, int *len);
 void COMPILE_print(int type, int line, const char *msg, ...);
 void COMPILE_create_file(FILE **fw, const char *file);
 void COMPILE_add_component(const char *name);
+
+int COMPILE_lock_file(const char *name);
+void COMPILE_unlock_file(int fd);
+void COMPILE_remove_lock(const char *name);
 
 #define COMPILE_get_column(_pattern) (JOB->pattern_pos[(_pattern) - JOB->pattern])
 

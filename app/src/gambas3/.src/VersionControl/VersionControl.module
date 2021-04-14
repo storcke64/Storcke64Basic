@@ -165,9 +165,11 @@ Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As
     If $bEnd Then Break
     
     If DateDiff($dOutput, Now, gb.Second) >= 15 Then
-      Close #hProcess
+      Try Close #hProcess
       hProcess.Kill
       Process_Error(("Command timeout.") & "\n" & ("Please check your network connection.") & "\n")
+      $bCancel = True
+      Break
     Endif
     
     Sleep 0.1
@@ -264,6 +266,7 @@ End
 Public Sub AddFile(sPath As String, Optional bForce As Boolean)
 
   $hVC.AddFile(sPath, bForce)
+  $hVC.UpdatePath(sPath)
 
   ' If $bCVS Then
   '   'NB: For CVS file must already exist
@@ -485,17 +488,17 @@ End
 ' 
 ' End
 
-Public Sub Diff(Optional sPath As String, Optional bFull As Boolean) As String
+Public Sub Diff(Optional sPath As String, Optional bFull As Boolean, bNoWhiteSpace As Boolean) As String
 
   If Not sPath Then sPath = Project.Dir
-  Return $hVC.Diff(sPath, bFull)
+  Return $hVC.Diff(sPath, bFull, bNoWhiteSpace)
 
 End
 
-Public Sub History(Optional sPath As String, Optional bFull As Boolean) As String
+Public Sub History(Optional sPath As String, sPath2 As String, bFull As Boolean) As String
 
   If Not sPath Then sPath = Project.Dir
-  Return $hVC.History(sPath, bFull)
+  Return $hVC.History(sPath, sPath2, bFull)
 
 End
 

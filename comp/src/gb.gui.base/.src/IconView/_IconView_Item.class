@@ -8,6 +8,17 @@ Property Text As String
 Property RichText As String
 Property Selected As Boolean
 Property Editable As Boolean
+
+'' @{since 3.16}
+''
+'' Return or set the tag associated with a cell.
+''
+'' This property is intended for the programmer and is never used by the component. It can contain any Variant value.
+
+Property Tag As Variant
+
+'' Return if the item is hovered.
+
 Property Read Hovered As Boolean
 
 Property Read X As Integer
@@ -20,6 +31,7 @@ Public _Key As String
 Private $sText As String
 Private $sRichText As String
 Private $hPicture As Picture
+Private $vTag As Variant
 Private $bSelected As Boolean
 Private $bEditable As Boolean
 Private $bEllipsized As Boolean
@@ -769,4 +781,16 @@ Public Sub _Invalidate()
   
   $hInside = Null
   
+End
+
+Private Function Tag_Read() As Variant
+
+  Return $vTag
+
+End
+
+Private Sub Tag_Write(Value As Variant)
+
+  $vTag = Value
+
 End

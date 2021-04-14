@@ -29,8 +29,17 @@
 #endif
 
 #ifndef NO_CONFIG_H
+#ifdef PACKAGE_NAME
+	#undef PACKAGE_NAME
+	#undef PACKAGE_BUGREPORT
+	#undef PACKAGE_STRING
+	#undef PACKAGE_TARNAME
+	#undef PACKAGE_VERSION
+	#undef PACKAGE_URL
+#endif
 #include "config.h"
 #endif
+
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>
@@ -678,11 +687,11 @@ typedef
 typedef
 	struct {
 		void *object;
-		void *desc;
+		ushort index;
 		}
 	GB_FUNCTION;
 
-#define GB_FUNCTION_IS_VALID(_func) ((_func)->desc)
+#define GB_FUNCTION_IS_VALID(_func) ((_func)->index != 0)
 
 
 /* Opaque type of a Gambas Array */
@@ -692,12 +701,15 @@ typedef
 
 typedef
 	struct {
-		int size;
+		unsigned size : 24;
+		unsigned read_only : 1;
+		unsigned n_dim : 3;
 		int count;
 		GB_TYPE type;
 		void *data;
 		int *dim;
 		void *ref;
+		
 		}
 	GB_ARRAY_BASE;
 
@@ -787,6 +799,25 @@ typedef
 	GB_STREAM;
 
 
+/* File constants */
+
+#define GB_ST_READ         1
+#define GB_ST_WRITE        2
+#define GB_ST_READ_WRITE   3
+#define GB_ST_MODE         3
+#define GB_ST_EXEC         4
+#define GB_ST_APPEND       4
+#define GB_ST_CREATE       8
+#define GB_ST_ACCESS       15
+#define GB_ST_BUFFERED     16
+#define GB_ST_LOCK         32
+#define GB_ST_WATCH        64
+#define GB_ST_PIPE         128
+#define GB_ST_MEMORY       256
+#define GB_ST_STRING       512
+#define GB_ST_NULL         1024
+
+
 /* Constants used by the GB.NumberFromString() API function */
 
 #define GB_NB_READ_INTEGER    1
@@ -804,7 +835,7 @@ typedef
 #define GB_COMP_NOCASE      1
 
 
-/* Constant used by GB.ConvString to convert to 32 bits Unicode (that needs some special processing) */
+/* Constant used by GB.ConvString to convert to 32 bits Unicode (it needs some special processing) */
 
 #define GB_SC_UNICODE ((char *)-1)
 
@@ -815,13 +846,13 @@ typedef
 	struct {
 		GB_BASE object;
 		intptr_t id;
-		intptr_t tag;
-		unsigned delay : 31;
+		unsigned delay : 30;
 		unsigned triggered : 1;
+		unsigned task : 1;
 		#if __WORDSIZE == 64
 		int _pad;
 		#endif
-		GB_TIMER_CALLBACK callback;
+		void *ext;
 		}
 	GB_TIMER;
 
@@ -907,7 +938,10 @@ typedef
 		int64_t size;
 		uid_t uid;
 		gid_t gid;
-		char hidden;
+		dev_t device;
+		unsigned hidden : 1;
+		unsigned blkdev : 1;
+		unsigned chrdev : 1;
 		}
 	GB_FILE_STAT;
 
@@ -966,12 +1000,14 @@ typedef
 		char *(*GetLastEventName)(void);
 		void (*RaiseTimer)(void *);
 		bool (*Stopped)(void);
+		bool (*IsRaiseLocked)(void *);
 
 		int (*NParam)(void);
 		bool (*Conv)(GB_VALUE *, GB_TYPE);
 		char *(*GetUnknown)(void);
 		
 		void (*Error)(const char *, ...);
+		bool (*HasError)();
 		void (*Propagate)(void);
 		void (*Deprecated)(const char *, const char *, const char *);
 		void (*OnErrorBegin)(GB_ERROR_HANDLER *);
@@ -997,6 +1033,7 @@ typedef
 		void *(*New)(GB_CLASS, char *, void *);
 		void *(*AutoCreate)(GB_CLASS, int);
 		bool (*CheckObject)(void *);
+		bool (*IsLocked)(void *);
 
 		void *(*GetEnum)(void);
 		void (*StopEnum)(void);
@@ -1004,6 +1041,7 @@ typedef
 		void (*EndEnum)(void *);
 		bool (*NextEnum)(void);
 		void (*StopAllEnum)(void *);
+		void (*OnFreeEnum)(GB_CALLBACK);
 
 		GB_VALUE *(*GetReturnValue)(void);
 		void (*Return)(GB_TYPE, ...);
@@ -1075,6 +1113,7 @@ typedef
 		bool (*MakeDate)(GB_DATE_SERIAL *, GB_DATE *);
 		void (*MakeDateFromTime)(time_t, int, GB_DATE *);
 		bool (*GetTime)(double *, int);
+		bool (*DateFromString)(const char *str, int len, GB_VALUE *val, bool local);
 
 		void (*Watch)(int, int, void *, intptr_t);
 
@@ -1126,6 +1165,7 @@ typedef
 			void *(*Add)(GB_ARRAY);
 			void *(*Get)(GB_ARRAY, int);
 			GB_TYPE (*Type)(GB_ARRAY);
+			void (*SetReadOnly)(GB_ARRAY);
 			}
 		Array;
 
@@ -1167,6 +1207,7 @@ typedef
 			void (*Start)(int length);
 			char *(*End)(void);
 			void (*Add)(const char *src, int len);
+			GB_ARRAY (*Split)(const char *str, int lstr, const char *sep, int lsep, const char *esc, int lesc, bool no_void, bool keep_esc);
 			}
 		String;
 		
@@ -1180,6 +1221,7 @@ typedef
 		struct {
 			GB_SIGNAL_CALLBACK *(*Register)(int signum, void (*func)(int, intptr_t), intptr_t data);
 			void (*Unregister)(int signum, GB_SIGNAL_CALLBACK *cb);
+			void (*MustCheck)(int signum);
 		}
 		Signal;
 		

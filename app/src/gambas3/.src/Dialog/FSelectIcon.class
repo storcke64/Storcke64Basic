@@ -8,9 +8,11 @@ Public Const SELECT_SVGIMAGE As Integer = 4
 Public Const SELECT_PUBLIC As Integer = 8
 
 Private $sIcon As String
+Private $sKey As String
 Private $sSize As String
 Private $iOption As Integer
 Private $aSizes As String[]
+Private $bNoRefreshStock As Boolean
 
 Public Sub Run(sIcon As String, Optional iOption As Integer = SELECT_IMAGE + SELECT_STOCK, aSizes As String[]) As String
   
@@ -28,6 +30,7 @@ Public Sub Form_Open()
 
   Dim iPos As Integer
   Dim aFilter As String[]
+  Dim sIcon As String
 
   Inc Application.Busy
   
@@ -44,6 +47,8 @@ Public Sub Form_Open()
   Endif
   
   fchIcon.Filter = aFilter
+
+  $bNoRefreshStock = True
   
   If $aSizes And If $iOption And SELECT_STOCK Then
     cmbSize.List = $aSizes
@@ -53,26 +58,32 @@ Public Sub Form_Open()
   Endif
   
   If $sIcon Begins "icon:/" Then 
-    $sIcon = Mid$($sIcon, 7)
-    iPos = InStr($sIcon, "/")
+    sIcon = Mid$($sIcon, 7)
+    iPos = InStr(sIcon, "/")
     icwStock.Clear
     If iPos Then 
-      SetSize(Left$($sIcon, iPos - 1))
+      SetSize(Left$(sIcon, iPos - 1))
     Else 
       SetSize(Settings["FSelectIcon/Size", "32"])
     Endif
-    $sIcon = Mid$($sIcon, iPos + 1)
-    If icwStock.Exist($sIcon) Then
-      icwStock[$sIcon].Selected = True
-      icwStock[$sIcon].EnsureVisible
+    sIcon = Mid$(sIcon, iPos + 1)
+    If icwStock.Exist(sIcon) Then
+      icwStock[sIcon].Selected = True
+      icwStock[sIcon].EnsureVisible
     Endif
+    $sKey = sIcon
     tabIcon.Index = 1 
   Else If $sIcon Then
     fchIcon.SelectedPath = fchIcon.Root &/ $sIcon
     tabIcon.Index = 0
   Endif
 
+  txtFilter.Text = ""
+  chkUseSize.Value = Settings["FSelectIcon/PreviewSize", 0]
   If Not $sSize Then SetSize(Settings["FSelectIcon/Size", "32"])
+  
+  $bNoRefreshStock = False
+  RefreshStock
   
   Dec Application.Busy
   
@@ -107,23 +118,31 @@ End
 Private Sub RefreshStock()
   
   Dim sIcon As String
-  Dim sKey As String
+  Dim sFilter As String
+  Dim bPreviewSize As Boolean
+  
+  If $bNoRefreshStock Then Return
   
   Inc Application.Busy
 
-  sKey = icwStock.Key
+  sFilter = Trim(txtFilter.Text)
+  bPreviewSize = chkUseSize.Value
+
   icwStock.Clear
 
   For Each sIcon In Stock.Icons
-    icwStock.Add(sIcon, sIcon, Stock[$sSize &/ sIcon])
+    If sFilter And If InStr(sIcon, LCase(sFilter)) = 0 Then Continue
+    icwStock.Add(sIcon, sIcon, Stock[If(bPreviewSize, $sSize, "32") &/ sIcon])
   Next
   
-  If sKey Then 
-    icwStock[sKey].Selected = True
-    icwStock[sKey].EnsureVisible
+  If $sKey And If icwStock.Exist($sKey) Then 
+    icwStock[$sKey].Selected = True
+    icwStock[$sKey].EnsureVisible
   Endif
   
   Dec Application.Busy
+  
+  txtFilter.SetFocus
   
 End
 
@@ -164,8 +183,8 @@ Public Sub btnOK_Click()
       If Left($sIcon) = "/" Then $sIcon = Mid$($sIcon, 2)
   
     Case 1
-      If Not icwStock.Key Then Return
-      $sIcon = "icon:/" &/ $sSize &/ icwStock.Key
+      If Not $sKey Then Return
+      $sIcon = "icon:/" &/ $sSize &/ $sKey
       Settings["FSelectIcon/Size"] = $sSize
       
   End Select 
@@ -197,7 +216,26 @@ End
 Public Sub tabIcon_Click()
 
   If tabIcon.Index = 1 Then 
-    icwStock.SetFocus
+    txtFilter.SetFocus
   Endif 
+
+End
+
+Public Sub txtFilter_Filter()
+
+  RefreshStock
+
+End
+
+Public Sub icwStock_Select()
+
+  $sKey = icwStock.Key
+
+End
+
+Public Sub chkUseSize_Click()
+
+  Settings["FSelectIcon/PreviewSize"] = chkUseSize.Value
+  RefreshStock
 
 End

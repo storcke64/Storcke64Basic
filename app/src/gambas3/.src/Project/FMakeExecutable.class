@@ -20,9 +20,17 @@ Public Sub Form_Open()
   fchExec.SetFocus
   
   chkDebug.Value = Project.KeepDebugInfo
+  chkCompress.Value = Project.CompressFiles
+
+  chkIncVersion.Visible = Not Project.VersionFile
+  panVersion.Visible = chkIncVersion.Visible
+
+  txtMajor.Value = Project.MajorVersion
+  txtMinor.Value = Project.MinorVersion
+  txtRelease.Value = Project.ReleaseVersion
 
   chkIncVersion.Value = Not Project.Config["/Executable/DoNotIncrementVersion", False]
-  chkIncVersion.Visible = Not Project.VersionFile
+  chkSetVersion.Value = False
 
   chkNoTest.Visible = Project.HasTest()
   chkNoTest.Value = Project.Config["/Executable/NoTestModule", False]
@@ -50,12 +58,22 @@ End
 Public Sub btnOK_Click()
 
   $sPath = fchExec.SelectedPath
-  Project.KeepDebugInfo = chkDebug.Value
-  Project.CreateShortcut = chkShortcut.Value
-  Project.RunAfterMakingExec = Trim(txtCommand.Text)
-  Project.Config["/Executable/DoNotIncrementVersion"] = chkIncVersion.Value = CheckBox.False
-  Project.Config["/Executable/NoTestModule"] = CBool(chkNoTest.Value)
-  Project.WriteProject(True)
+  
+  With Project
+    .KeepDebugInfo = chkDebug.Value
+    .CompressFiles = chkCompress.Value
+    .CreateShortcut = chkShortcut.Value
+    .RunAfterMakingExec = Trim(txtCommand.Text)
+    .Config["/Executable/DoNotIncrementVersion"] = chkIncVersion.Value = CheckBox.False
+    .Config["/Executable/NoTestModule"] = CBool(chkNoTest.Value)
+    
+    .MajorVersion = txtMajor.Value 
+    .MinorVersion = txtMinor.Value
+    .ReleaseVersion = txtRelease.Value
+    
+    .WriteProject(True)
+  End With
+  
   Me.Close(True)
 
 End
@@ -66,3 +84,34 @@ Public Sub btnCancel_Click()
 
 End
 
+Public Sub chkIncVersion_Click()
+
+  If chkIncVersion.Value Then
+    txtMajor.Value = Project.MajorVersion
+    txtMinor.Value = Project.MinorVersion
+    txtRelease.Value = Project.ReleaseVersion + 1
+    chkSetVersion.Value = False
+  Endif
+
+End
+
+Public Sub chkSetVersion_Click()
+
+  txtMajor.Enabled = chkSetVersion.Value
+  txtMinor.Enabled = chkSetVersion.Value
+  txtRelease.Enabled = chkSetVersion.Value
+  btnUndoVersion.Enabled = True
+  
+  If chkSetVersion.Value Then 
+    chkIncVersion.Value = False
+  Endif
+
+End
+
+Public Sub btnUndoVersion_Click()
+
+  txtMajor.Value = Project.MajorVersion
+  txtMinor.Value = Project.MinorVersion
+  txtRelease.Value = Project.ReleaseVersion
+
+End

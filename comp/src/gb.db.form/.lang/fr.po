@@ -76,19 +76,17 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-21 13:35 UTC\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Project-Id-Version: gb.db.form 3.15.90\n"
+"PO-Revision-Date: 2020-11-18 18:28 UTC\n"
+"Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: .project:1
 msgid "Data bound controls"
-msgstr ""
+msgstr "Contrôles liés aux données"
 
 #: DataControl.class:112 DataView.class:454
 msgid "True"
@@ -102,11 +100,11 @@ msgstr "Faux"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: DataSource.class:413
+#: DataSource.class:421 DataView.class:740
 msgid "Invalid value."
 msgstr "Valeur incorrecte."
 
-#: DataSource.class:436
+#: DataSource.class:444
 msgid "You must fill all mandatory fields."
 msgstr "Vous devez saisir tous les champs obligatoires."
 
@@ -114,15 +112,11 @@ msgstr "Vous devez saisir tous les champs obligatoires."
 msgid "Unable to save value."
 msgstr "Impossible d'enregistrer la valeur."
 
-#: DataView.class:740
-msgid "Incorrect value."
-msgstr "Valeur incorrecte."
-
 #: DataView.class:904
 msgid "Unable to save record."
 msgstr "Impossible de sauver l'enregistrement."
 
-#: DataView.class:1072
+#: DataView.class:1084
 msgid "Unable to delete record."
 msgstr "Impossible de supprimer l'enregistrement."
 
@@ -158,13 +152,13 @@ msgstr "Impossible d'effacer le blob"
 msgid "Blob contents"
 msgstr "Contenu du blob"
 
-#: FBlobEditor.form:24
-msgid "Save..."
-msgstr "Enregistrer..."
+#: FBlobEditor.form:24 FBrowser.form:50
+msgid "Save"
+msgstr "Enregistrer"
 
 #: FBlobEditor.form:31
-msgid "Load..."
-msgstr "Charger..."
+msgid "Load"
+msgstr "Charger"
 
 #: FBlobEditor.form:38
 msgid "Clear"
@@ -174,11 +168,7 @@ msgstr "Effacer"
 msgid "New"
 msgstr "Nouveau"
 
-#: FBrowser.form:50
-msgid "Save"
-msgstr "Enregistrer"
-
-#: FBrowser.form:56 FMain2.form:41 FMain3.form:20 FTest.form:30
+#: FBrowser.form:56
 msgid "Refresh"
 msgstr "Actualiser"
 
@@ -202,101 +192,3 @@ msgstr "Suivant"
 msgid "End"
 msgstr "Fin"
 
-#: FMain2.form:90
-msgid "Id"
-msgstr ""
-
-#: FMain2.form:95
-msgid "Color"
-msgstr ""
-
-#: FMain2.form:100
-msgid "First Name"
-msgstr ""
-
-#: FMain2.form:105
-msgid "Name"
-msgstr ""
-
-#: FMain2.form:110
-msgid "Birth"
-msgstr ""
-
-#: FMain2.form:115
-msgid "Active"
-msgstr ""
-
-#: FMain2.form:121
-msgid "Comment"
-msgstr ""
-
-#: FMain2.form:127
-msgid "Salary"
-msgstr ""
-
-#: FMain2.form:132
-msgid "Image"
-msgstr ""
-
-#: FMain3.form:25
-msgid "Info"
-msgstr ""
-
-#: FProcessesMaint.form:26
-msgid "Process ID Code"
-msgstr ""
-
-#: FProcessesMaint.form:31
-msgid "Process Title"
-msgstr ""
-
-#: FProcessesMaint.form:37
-msgid "Process ID"
-msgstr ""
-
-#: FProcessesMaint.form:43
-msgid "Title"
-msgstr ""
-
-#: FProcessesMaint.form:48
-msgid "Taxable"
-msgstr ""
-
-#: FTest.form:25
-msgid "Create"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 1"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 2"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 3"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 4"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 5"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 6"
-msgstr ""
-
-#: FTest.form:35
-msgid "Élément 7"
-msgstr ""
-
-#: FTest.form:40
-msgid "Editable"
-msgstr ""
-
-#~ msgid "Clear blob"
-#~ msgstr "Effacer le blob"

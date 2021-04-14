@@ -19,7 +19,7 @@
     }
     { ComboBox1 ComboBox
       MoveScaled(21,0,15,4)
-      List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6"), ("Élément 7")]
+      List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6")]
     }
     { Button3 ToggleButton
       MoveScaled(37,0,11,4)
@@ -37,6 +37,10 @@
       MoveScaled(69,0,12,4)
       Text = ("Maximized")
     }
+    { Button7 Button
+      MoveScaled(82,0,11,4)
+      Text = ("Find")
+    }
   }
   { DataSource1 DataSource
     MoveScaled(1,6,55,40)
@@ -44,7 +48,7 @@
     Arrangement = Arrange.Vertical
     Spacing = True
     Connection = Connections["Connection4"]
-    Table = "user"
+    Table = "login"
     { DataBrowser1 DataBrowser
       MoveScaled(2,7,52,18)
       Expand = True

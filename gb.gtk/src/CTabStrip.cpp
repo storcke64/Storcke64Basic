@@ -41,6 +41,9 @@ static void gb_tabstrip_post_click(gTabStrip *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	
+	if (GB.IsRaiseLocked(_object))
+		return;
+	
 	GB.Ref(THIS);
 	GB.Post((GB_CALLBACK)gb_tabstrip_raise_click, (long)THIS);
 }
@@ -57,7 +60,7 @@ static void handle_close(gTabStrip *sender, int index)
 
 ***************************************************************************/
 
-BEGIN_METHOD(CTABSTRIP_new, GB_OBJECT parent)
+BEGIN_METHOD(TabStrip_new, GB_OBJECT parent)
 
 	InitControl(new gTabStrip(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	TABSTRIP->onClick = gb_tabstrip_post_click;
@@ -74,7 +77,7 @@ BEGIN_METHOD_VOID(TabStrip_free)
 END_METHOD
 
 
-BEGIN_PROPERTY(CTABSTRIP_tabs)
+BEGIN_PROPERTY(TabStrip_Count)
 
 	if (READ_PROPERTY) { GB.ReturnInteger(TABSTRIP->count()); return; }
 	
@@ -91,7 +94,7 @@ END_PROPERTY
 
 
 
-BEGIN_PROPERTY(CTABSTRIP_index)
+BEGIN_PROPERTY(TabStrip_Index)
 
 	if (READ_PROPERTY) { GB.ReturnInteger(TABSTRIP->index()); return; }
 	if ( (VPROP(GB_INTEGER)<0) || (VPROP(GB_INTEGER)>=TABSTRIP->count()) )
@@ -105,7 +108,7 @@ BEGIN_PROPERTY(CTABSTRIP_index)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTABSTRIP_current)
+BEGIN_PROPERTY(TabStrip_Current)
 
 	THIS->index = TABSTRIP->index();
 	RETURN_SELF();
@@ -113,7 +116,7 @@ BEGIN_PROPERTY(CTABSTRIP_current)
 END_PROPERTY
 
 
-BEGIN_METHOD(CTABSTRIP_get, GB_INTEGER index)
+BEGIN_METHOD(TabStrip_get, GB_INTEGER index)
 
 	if ( (VARG(index)<0) || (VARG(index)>=TABSTRIP->count()) )
 	{
@@ -127,7 +130,7 @@ BEGIN_METHOD(CTABSTRIP_get, GB_INTEGER index)
 END_METHOD
 
 
-BEGIN_PROPERTY(CTABSTRIP_orientation)
+BEGIN_PROPERTY(TabStrip_Orientation)
 
 	if (READ_PROPERTY)
 		switch (TABSTRIP->orientation())
@@ -159,7 +162,7 @@ END_PROPERTY
 
 ***************************************************************************/
 
-BEGIN_PROPERTY(CTAB_text)
+BEGIN_PROPERTY(TabStripContainer_Text)
 
 	if (READ_PROPERTY)
 		GB.ReturnNewZeroString(TABSTRIP->tabText(THIS->index));
@@ -186,7 +189,7 @@ BEGIN_PROPERTY(TabStrip_TextFont)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTAB_picture)
+BEGIN_PROPERTY(TabStripContainer_Picture)
 
 	if (READ_PROPERTY)
 	{
@@ -202,7 +205,7 @@ BEGIN_PROPERTY(CTAB_picture)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTAB_enabled)
+BEGIN_PROPERTY(TabStripContainer_Enabled)
 
 	if (READ_PROPERTY)
 		GB.ReturnBoolean(TABSTRIP->tabEnabled(THIS->index));
@@ -212,7 +215,7 @@ BEGIN_PROPERTY(CTAB_enabled)
 END_PROPERTY
 
 
-BEGIN_METHOD_VOID(CTAB_next)
+BEGIN_METHOD_VOID(TabStripContainer_next)
 
 	int *ct = (int *)GB.GetEnum();
 	
@@ -227,7 +230,7 @@ BEGIN_METHOD_VOID(CTAB_next)
 
 END_METHOD
 
-BEGIN_METHOD(CTAB_get, GB_INTEGER index)
+BEGIN_METHOD(TabStripContainer_get, GB_INTEGER index)
 
 	int index = VARG(index);
 	
@@ -241,14 +244,14 @@ BEGIN_METHOD(CTAB_get, GB_INTEGER index)
 
 END_METHOD
 
-BEGIN_PROPERTY(CTAB_count)
+BEGIN_PROPERTY(TabStripContainer_Count)
 
 	GB.ReturnInteger(TABSTRIP->tabCount(THIS->index));
 
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTABSTRIP_text)
+BEGIN_PROPERTY(TabStrip_Text)
 
 	if (READ_PROPERTY)
 		GB.ReturnNewZeroString(TABSTRIP->tabText(TABSTRIP->index()));
@@ -258,7 +261,7 @@ BEGIN_PROPERTY(CTABSTRIP_text)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(CTABSTRIP_picture)
+BEGIN_PROPERTY(TabStrip_Picture)
 
 	int index = TABSTRIP->index();
 
@@ -286,14 +289,14 @@ BEGIN_PROPERTY(TabStrip_Closable)
 END_PROPERTY
 
 
-BEGIN_METHOD_VOID(CTAB_delete)
+BEGIN_METHOD_VOID(TabStripContainer_Delete)
 
 	if (TABSTRIP->removeTab(THIS->index))
 		GB.Error("Tab is not empty");
 
 END_METHOD
 
-BEGIN_PROPERTY(CTAB_visible)
+BEGIN_PROPERTY(TabStripContainer_Visible)
 
 	if (READ_PROPERTY)
 		GB.ReturnBoolean(TABSTRIP->tabVisible(THIS->index));
@@ -324,9 +327,9 @@ GB_DESC CTabStripContainerChildrenDesc[] =
 {
 	GB_DECLARE_VIRTUAL(".TabStripContainer.Children"),
 
-	GB_METHOD("_next", "Control", CTAB_next, NULL),
-	GB_PROPERTY_READ("Count", "i", CTAB_count),
-	GB_METHOD("_get", "Control", CTAB_next, "(Index)i"),
+	GB_METHOD("_next", "Control", TabStripContainer_next, NULL),
+	GB_PROPERTY_READ("Count", "i", TabStripContainer_Count),
+	GB_METHOD("_get", "Control", TabStripContainer_get, "(Index)i"),
 
 	GB_END_DECLARE
 };
@@ -336,13 +339,13 @@ GB_DESC CTabStripContainerDesc[] =
 {
 	GB_DECLARE_VIRTUAL(".TabStripContainer"),
 
-	GB_PROPERTY("Text", "s", CTAB_text),
-	GB_PROPERTY("Picture", "Picture", CTAB_picture),
-	GB_PROPERTY("Caption", "s", CTAB_text),
-	GB_PROPERTY("Enabled", "b", CTAB_enabled),
-	GB_PROPERTY("Visible", "b", CTAB_visible),
+	GB_PROPERTY("Text", "s", TabStripContainer_Text),
+	GB_PROPERTY("Picture", "Picture", TabStripContainer_Picture),
+	GB_PROPERTY("Caption", "s", TabStripContainer_Text),
+	GB_PROPERTY("Enabled", "b", TabStripContainer_Enabled),
+	GB_PROPERTY("Visible", "b", TabStripContainer_Visible),
 	GB_PROPERTY_SELF("Children", ".TabStripContainer.Children"),
-	GB_METHOD("Delete", 0, CTAB_delete, 0),
+	GB_METHOD("Delete", NULL, TabStripContainer_Delete, 0),
 
 	GB_END_DECLARE
 };
@@ -352,28 +355,29 @@ GB_DESC CTabStripDesc[] =
 {
 	GB_DECLARE("TabStrip", sizeof(CTABSTRIP)), GB_INHERITS("Container"),
 
-	GB_METHOD("_new", NULL, CTABSTRIP_new, "(Parent)Container;"),
+	GB_METHOD("_new", NULL, TabStrip_new, "(Parent)Container;"),
 	GB_METHOD("_free", NULL, TabStrip_free, NULL),
 
-	GB_PROPERTY("Count", "i", CTABSTRIP_tabs),
-	GB_PROPERTY("Text", "s", CTABSTRIP_text),
+	GB_PROPERTY("Count", "i", TabStrip_Count),
+	GB_PROPERTY("Text", "s", TabStrip_Text),
 	GB_PROPERTY("TextFont", "Font", TabStrip_TextFont),
-	GB_PROPERTY("Picture", "Picture", CTABSTRIP_picture),
+	GB_PROPERTY("Picture", "Picture", TabStrip_Picture),
 	GB_PROPERTY("Closable", "b", TabStrip_Closable),
-	GB_PROPERTY("Caption", "s", CTABSTRIP_text),
-	GB_PROPERTY_READ("Current", ".TabStripContainer", CTABSTRIP_current),
-	GB_PROPERTY("Index", "i", CTABSTRIP_index),
-	GB_PROPERTY("Orientation", "i", CTABSTRIP_orientation),
+	GB_PROPERTY("Caption", "s", TabStrip_Text),
+	GB_PROPERTY_READ("Current", ".TabStripContainer", TabStrip_Current),
+	GB_PROPERTY("Index", "i", TabStrip_Index),
+	GB_PROPERTY("Orientation", "i", TabStrip_Orientation),
 	
-	GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-	GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-	GB_PROPERTY("Padding", "i", Container_Padding),
-	GB_PROPERTY("Spacing", "b", Container_Spacing),
-	GB_PROPERTY("Margin", "b", Container_Margin),
-	GB_PROPERTY("Indent", "b", Container_Indent),
-	GB_PROPERTY("Invert", "b", Container_Invert),
+	GB_PROPERTY_READ("ClientX", "i", Container_ClientX),
+	GB_PROPERTY_READ("ClientY", "i", Container_ClientY),
+	GB_PROPERTY_READ("ClientW", "i", Container_ClientWidth),
+	GB_PROPERTY_READ("ClientWidth", "i", Container_ClientWidth),
+	GB_PROPERTY_READ("ClientH", "i", Container_ClientHeight),
+	GB_PROPERTY_READ("ClientHeight", "i", Container_ClientHeight),
 
-	GB_METHOD("_get", ".TabStripContainer", CTABSTRIP_get, "(Index)i"),
+	ARRANGEMENT_PROPERTIES,
+	
+	GB_METHOD("_get", ".TabStripContainer", TabStrip_get, "(Index)i"),
 	GB_METHOD("FindIndex", "i", TabStrip_FindIndex, "(Child)Control;"),
 
 	GB_EVENT("Click", NULL, NULL, &EVENT_Click),

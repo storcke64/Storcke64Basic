@@ -43,9 +43,9 @@ Public Sub Form_Open()
   Dim s As String
   Dim hMenu As Menu
 
-  SetPicture(btnOnePage, "img/print-one-page.png")
-  SetPicture(btnTwoPages, "img/print-two-pages.png")
-  SetPicture(btnFullWidth, "img/print-full-width.png")
+  'SetPicture(btnOnePage, "img/print-one-page.png")
+  'SetPicture(btnTwoPages, "img/print-two-pages.png")
+  'SetPicture(btnFullWidth, "img/print-full-width.png")
   'SetPicture(btnRealSize, "img/print-real-size.png")
   
   For Each s In Printer.List
@@ -211,7 +211,7 @@ End
 
 Public Sub btnMode_Click()
   
-  If Last.Value Then SetZoom(Last.Tag)
+  SetZoom(Last.Tag)
 
 End
 
@@ -463,15 +463,15 @@ Public Sub Form_Close()
   
 End
 
-Private Sub SetPicture(hCtrl As ToolButton, sImage As String)
-
-  Dim S As Integer
-
-  S = Stock.GetSize("small")
-  hCtrl.Picture = Image.Load(sImage).Stretch(S, S).Picture
-
-End
-
+' Private Sub SetPicture(hCtrl As ToolButton, sImage As String)
+' 
+'   Dim S As Integer
+' 
+'   S = Stock.GetSize("small")
+'   hCtrl.Picture = Image.Load(sImage).Stretch(S, S).Picture
+' 
+' End
+' 
 Public Sub btnZoomIn_Click()
   
   SetZoom(MODE_CUSTOM, 2 ^ (Int(Log2(dvwPrint.Zoom) * 2 + 1) / 2))
@@ -530,7 +530,7 @@ Private Sub SetZoom(iMode As Integer, Optional fZoom As Float)
   
   $iScaleMode = iMode
 
-  dvwPrint.AutoCenter = False
+  dvwPrint.Center = False
 
   For Each hButton In $aModeButtons
     Object.Lock(hButton)
@@ -540,22 +540,22 @@ Private Sub SetZoom(iMode As Integer, Optional fZoom As Float)
 
   Select Case $iScaleMode
     Case MODE_CUSTOM
-      dvwPrint.Column = 0
+      dvwPrint.Columns = 0
       dvwPrint.Arrangement = Arrange.Row
       If fZoom Then dvwPrint.Zoom = fZoom
     Case MODE_PAGE
-      dvwPrint.AutoCenter = True
-      dvwPrint.Column = 0
+      dvwPrint.Center = True
+      dvwPrint.Columns = 0
       dvwPrint.Arrangement = Arrange.Fill
     Case MODE_DUAL_PAGE
-      dvwPrint.AutoCenter = True
-      dvwPrint.Column = 2
+      dvwPrint.Center = True
+      dvwPrint.Columns = 2
       dvwPrint.Arrangement = Arrange.Row
     Case MODE_FULL_WIDTH
-      dvwPrint.Column = 0
+      dvwPrint.Columns = 0
       dvwPrint.Arrangement = Arrange.Vertical
     Case MODE_REAL_SIZE
-      dvwPrint.Column = 0
+      dvwPrint.Columns = 0
       dvwPrint.Arrangement = Arrange.Row
       dvwPrint.Zoom = 1
   End Select

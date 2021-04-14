@@ -204,7 +204,7 @@ void SUBR_open(ushort code)
 	SUBR_ENTER_PARAM(2);
 
 	SUBR_check_integer(&PARAM[1]);
-	mode = PARAM[1]._integer.value;
+	mode = PARAM[1]._integer.value ^ GB_ST_BUFFERED;
 
 	if (code & 0x3F)
 	{
@@ -213,9 +213,9 @@ void SUBR_open(ushort code)
 		else
 			THROW_TYPE(T_POINTER, PARAM->type);
 		
-		STREAM_open(&stream, (char *)addr, mode | STO_MEMORY);
+		STREAM_open(&stream, (char *)addr, mode | GB_ST_MEMORY);
 	}
-	else if (mode & STO_STRING)
+	else if (mode & GB_ST_STRING)
 	{
 		char *str;
 
@@ -225,7 +225,7 @@ void SUBR_open(ushort code)
 		{
 			str = SUBR_get_string(PARAM);
 			
-			if (mode & STO_WRITE)
+			if (mode & GB_ST_WRITE)
 			{
 				stream.string.buffer = STRING_new(str, STRING_length(str));
 			}
@@ -317,7 +317,7 @@ void SUBR_print(ushort code)
 	{
 		PARAM++;
 		//PRINT_value(PARAM);
-		VALUE_to_string(PARAM, &addr, &len);
+		VALUE_to_local_string(PARAM, &addr, &len);
 		if (len == 1 && *addr == '\n')
 			STREAM_write_eol(_stream);
 		else
@@ -778,7 +778,7 @@ void SUBR_kill(ushort code)
 			break;
 			
 		case 1:
-			FILE_mkdir(get_path(PARAM));
+			FILE_mkdir_mode(get_path(PARAM), CFILE_default_dir_auth);
 			break;
 			
 		case 2:
@@ -994,7 +994,7 @@ void SUBR_access(ushort code)
 	SUBR_ENTER();
 
 	if (NPARAM == 1)
-		access = R_OK;
+		access = GB_ST_READ;
 	else
 	{
 		VALUE_conv_integer(&PARAM[1]);
@@ -1037,7 +1037,7 @@ void SUBR_lock(ushort code)
 
 		for(;;)
 		{
-			STREAM_open(&stream, path, STO_LOCK);
+			STREAM_open(&stream, path, GB_ST_LOCK);
 			
 			if (!STREAM_lock_all(&stream) && FILE_exist(path))
 				break;
@@ -1057,7 +1057,7 @@ void SUBR_lock(ushort code)
 			THROW(E_LOCK);
 		}
 
-		file = CFILE_create(&stream, STO_LOCK);
+		file = CFILE_create(&stream, GB_ST_LOCK);
 		OBJECT_put(RETURN, file);
 		SUBR_LEAVE();
 	}

@@ -93,6 +93,46 @@ AC_DEFUN([GB_INIT_AUTOMAKE],
 ])
 
 ## ---------------------------------------------------------------------------
+## GB_TRUNK_VERSION
+## detect version and branch (svn and git supported)
+## ---------------------------------------------------------------------------
+
+AC_DEFUN([GB_TRUNK_VERSION],
+[
+  gb_detect_git=`which git 2> /dev/null`
+  gb_vcs_hash=""
+  gb_vcs_branch=""
+  gb_vcs_version=""
+
+  AC_MSG_CHECKING(for vcs revision)
+
+  if test "x${gb_detect_git}" != "x"; then
+    gb_vcs_branch=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    gb_vcs_hash=`git rev-parse --short HEAD 2> /dev/null`
+  else
+    gb_detect_svn=`which svn 2> /dev/null`
+      if test "x${gb_detect_svn}" != "x"; then
+        gb_vcs_hash=`svn info --show-item last-changed-revision 2> /dev/null`
+      fi
+  fi
+
+  if test "x${gb_vcs_branch}" != "x"; then
+    gb_vcs_version="${gb_vcs_hash} (${gb_vcs_branch})"
+  else
+    if test "x${gb_vcs_hash}" != "x"; then
+      gb_vcs_version="r${gb_vcs_hash}"
+    fi
+  fi
+
+  if test "x${gb_vcs_version}" != "x"; then
+    AC_DEFINE_UNQUOTED(TRUNK_VERSION, "${gb_vcs_version}", [vcs revision])
+    AC_MSG_RESULT([$gb_vcs_version])
+  else
+    AC_MSG_RESULT(not found)
+  fi
+])
+
+## ---------------------------------------------------------------------------
 ## GB_CONFIG_SUBDIRS
 ## configuration of a component sub-directory, with a flag for disabling it
 ## ---------------------------------------------------------------------------
@@ -370,9 +410,9 @@ AC_DEFUN([GB_INIT],
 
   if test "x$gambas_optimization" = "xyes"; then
     AM_CFLAGS_OPT="$AM_CFLAGS -O3"
-    AM_CFLAGS="$AM_CFLAGS -Os"
+    AM_CFLAGS="$AM_CFLAGS -O2"
     AM_CXXFLAGS_OPT="$AM_CXXFLAGS -O3 -fno-omit-frame-pointer"
-    AM_CXXFLAGS="$AM_CXXFLAGS -Os -fno-omit-frame-pointer"
+    AM_CXXFLAGS="$AM_CXXFLAGS -O2 -fno-omit-frame-pointer"
   else
     AM_CFLAGS_OPT="$AM_CFLAGS -O0"
     AM_CFLAGS="$AM_CFLAGS -O0"
@@ -638,6 +678,11 @@ AC_DEFUN([GB_SYSTEM],
       ARCH=ARM
       AC_DEFINE(ARCH_ARM, 1, [Target architecture is ARM])
       AC_DEFINE(ARCHITECTURE, "arm", [Architecture])
+      ;;
+    aarch64*-*-* )
+      ARCH=AARCH64
+      AC_DEFINE(ARCH_AARCH64, 1, [Target architecture is AARCH64])
+      AC_DEFINE(ARCHITECTURE, "aarch64", [Architecture])
       ;;
     powerpc*-*-* )
       ARCH=PPC

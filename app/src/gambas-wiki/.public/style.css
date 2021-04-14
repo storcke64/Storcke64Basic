@@ -86,7 +86,7 @@ A[id] {
 
 P {
   margin-bottom: 0;
-  margin-top: 0.75em;
+  margin-top: 0.5em;
 }
 
 H1,H2,H3,H4,H5,H6 {
@@ -101,18 +101,21 @@ H1,H2 {
 }
 
 CODE {
-  /*background: #F0F0F0;*/
-  /*padding: 0px 1px;*/
+  background-color: #F4F4F4;
   display: inline;
 }
 
 PRE {
-  /*background: #F0F0F0;*/
+  /*background-color: #F4F4F4;*/
   display: inline-block;
   padding-left: 0.5em;
   margin: 0px;
   margin-top: 0.75em;
   white-space: pre-wrap;
+}
+
+DIV:first-child > PRE {
+  margin-top: 0;
 }
 
 HR {
@@ -133,10 +136,10 @@ TABLE.table, TABLE.error {
   border-bottom: solid #D0D0D0 1px;
   border-right: solid #D0D0D0 1px;
   padding: 0;
-  margin-top: 0.75em;
+  margin-top: 0.5em;
   border-spacing: 0;
   empty-cells: show;
-  line-height: 1.75em;
+  line-height: 1.5em;
 }
 
 TABLE.table > TBODY > TR > TD, TABLE.error > TBODY > TR > TD {
@@ -220,13 +223,21 @@ TABLE.desc > TBODY > TR > TH {
 }
 
 .header-bar INPUT[type=submit],.header-bar INPUT[type=button] {
-  background-color: #A0A0A0;
+  background-color: #C0C0C0;
   color: white;
   font-size: 80%;
   height: 1.6em;
-  border: none;
+  border: solid 1px transparent;
   cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-sizing: border-box;
 }
+
+.header-bar INPUT[type=submit]:hover,.header-bar INPUT[type=button]:hover {
+  border: solid 1px #A0A0A0;
+}
+
 
 .header-bar INPUT[type=text] {
   font-size: 80%;
@@ -280,7 +291,7 @@ TABLE.desc > TBODY > TR > TH {
 }
 
 .page P {
-  line-height: 1.75em;
+  line-height: 1.5em;
 }
 
 .page > DIV:last-child {
@@ -359,54 +370,66 @@ DIV.box {
   padding: 0.5em;
 }
 
+DIV.image {
+  margin-top: 0.75em;
+  display: inline-block;
+  border: solid #606060 1px;
+  box-shadow: 0 0 0.25em black;
+}
+
 DIV.info {
   margin-top: 0.75em;
   display: inline-block;
-  border: solid #D8D8D8 1px;
   padding: 0.5em;
-  padding-left: 48px;
-  background: url('<%/%>/info.png') 8px 8px no-repeat;
-  min-height: 32px;
+  padding-left: 3.5em;
+  background: url('<%/%>/info.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #EFF7FF;
+  border: solid 1px rgba(0,0,0,0.1);
 }
 
 DIV.warning {
   margin-top: 0.75em;
   display: inline-block;
-  border: solid #D8D8D8 1px;
-  padding: 8px;
-  padding-left: 48px;
-  background: url('<%/%>/warning.png') 8px 8px no-repeat;
-  min-height: 32px;
+  padding: 0.5em;
+  padding-left: 3.5em;
+  background: url('<%/%>/warning.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #FFF6EF;
+  border: solid 1px rgba(0,0,0,0.1);
 }
 
 DIV.tip {
   margin-top: 0.75em;
   display: inline-block;
-  border: solid #D8D8D8 1px;
-  padding: 8px;
-  padding-left: 48px;
-  background: url('<%/%>/tip.png') 8px 8px no-repeat;
-  min-height: 32px;
+  padding: 0.5em;
+  padding-left: 3.5em;
+  background: url('<%/%>/tip.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #EFFFEF;
+  border: solid 1px rgba(0,0,0,0.1);
 }
 
 DIV.vb {
   margin-top: 0.75em;
   display: inline-block;
-  border: solid #D8D8D8 1px;
-  padding: 8px;
-  padding-left: 48px;
-  background: url('<%/%>/vb.png') 8px 8px no-repeat;
-  min-height: 32px;
+  padding: 0.5em;
+  padding-left: 3.5em;
+  background: url('<%/%>/vb.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #FFFCEF;
+  border: solid 1px rgba(0,0,0,0.1);
 }
 
 DIV.critical {
   margin-top: 0.75em;
   display: inline-block;
-  border: solid #D8D8D8 1px;
-  padding: 8px;
-  padding-left: 48px;
-  background: url('<%/%>/critical.png') 8px 8px no-repeat;
-  min-height: 32px;
+  padding: 0.5em;
+  padding-left: 3.5em;
+  background: url('<%/%>/critical.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #FFEFEF;
+  border: solid 1px rgba(0,0,0,0.1);
 }
 
 DIV.example, DIV.seealso {
@@ -438,8 +461,10 @@ TABLE.index TD {
 DIV.index {
   display: inline-block;
   font-size: 85%;
-  padding: 0;
+  padding: 0.5em;
+  padding-right: 1.5em;
   margin-top: 0.75em;
+  border: solid 1px #C0C0C0;
 }
 
 /*------------------------------------------------------------------*/
@@ -654,7 +679,7 @@ DIV.syntax > P:first-child {
 
 .user-name {
   display: inline-block;
-  margin-right: 1em;
+  font-size: 90%;
 }
 
 DIV.welcome {

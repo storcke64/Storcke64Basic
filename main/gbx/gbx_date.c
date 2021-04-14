@@ -42,16 +42,6 @@
 
 //#define DEBUG_DATE
 
-#define buffer_init COMMON_buffer_init
-#define get_char COMMON_get_char
-#define last_char COMMON_last_char
-#define look_char COMMON_look_char
-#define put_char COMMON_put_char
-#define jump_space COMMON_jump_space
-#define get_current COMMON_get_current
-#define buffer_pos COMMON_pos
-#define get_size_left COMMON_get_size_left
-
 static const char days_in_months[2][13] =
 {  /* error, jan feb mar apr may jun jul aug sep oct nov dec */
 	{  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
@@ -362,15 +352,15 @@ static bool read_integer(int *number, bool *zero)
 	int c;
 	bool minus = FALSE;
 
-	c = get_char();
+	c = COMMON_get_char();
 
 	if (c == '-')
 	{
 		minus = TRUE;
-		c = get_char();
+		c = COMMON_get_char();
 	}
 	else if (c == '+')
-		c = get_char();
+		c = COMMON_get_char();
 
 	if ((c < 0) || !isdigit(c))
 		return TRUE;
@@ -385,11 +375,11 @@ static bool read_integer(int *number, bool *zero)
 			return TRUE;
 		nbr = nbr2;
 
-		c = look_char();
+		c = COMMON_look_char();
 		if ((c < 0) || !isdigit(c))
 			break;
 
-		buffer_pos++;
+		COMMON_pos++;
 	}
 
 	if (minus)
@@ -407,7 +397,7 @@ static bool read_msec(int *number)
 	int c;
 	int i;
 
-	c = get_char();
+	c = COMMON_get_char();
 
 	if ((c < 0) || !isdigit(c))
 		return TRUE;
@@ -424,11 +414,11 @@ static bool read_msec(int *number)
 		if (i == 3)
 			break;
 
-		c = look_char();
+		c = COMMON_look_char();
 		if ((c < 0) || !isdigit(c))
 			break;
 
-		buffer_pos++;
+		COMMON_pos++;
 	}
 
 	for (; i < 3; i++)
@@ -488,15 +478,15 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 
 	CLEAR(&date);
 
-	buffer_init(str, len);
-	jump_space();
+	COMMON_buffer_init(str, len);
+	COMMON_jump_space();
 
 	if (read_integer(&nbr, &zero))
 		return TRUE;
 
 	c = COMMON_get_unicode_char();
 
-	if (c == info->date_sep)
+	if (c == info->date_sep[info->date_order[0]])
 	{
 		has_date = TRUE;
 
@@ -505,14 +495,26 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 
 		c = COMMON_get_unicode_char();
 
-		if (c == info->date_sep)
+		if (c == info->date_sep[info->date_order[1]])
 		{
 			set_date(&date, info->date_order[0], nbr, zero);
 			set_date(&date, info->date_order[1], nbr2, zero2);
 
 			if (read_integer(&nbr, &zero))
-				return TRUE;
-
+			{
+				if (!info->date_tail_sep)
+					return TRUE;
+				else
+					goto _OK;
+			}
+			
+			if (info->date_sep[info->date_order[2]])
+			{
+				c = COMMON_get_unicode_char();
+				if (c > 0 && c != info->date_sep[info->date_order[2]])
+					return TRUE;
+			}
+			
 			set_date(&date, info->date_order[2], nbr, zero);
 		}
 		else if ((c < 0) || isspace(c))
@@ -528,9 +530,9 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 			set_date(&date, info->date_order[i], nbr2, zero2);
 		}
 
-		jump_space();
+		COMMON_jump_space();
 
-		c = look_char();
+		c = COMMON_look_char();
 		if (c < 0)
 			goto _OK;
 
@@ -540,32 +542,44 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 		c = COMMON_get_unicode_char();
 	}
 
-	if (c == info->time_sep)
+	if (c == info->time_sep[info->time_order[0]])
 	{
-		//has_time = TRUE;
-
 		if (read_integer(&nbr2, NULL))
 			return TRUE;
 
 		c = COMMON_get_unicode_char();
 
-		if (c == info->time_sep)
+		if (c == info->time_sep[info->time_order[1]])
 		{
 			set_time(&date, info->time_order[0], nbr);
 			set_time(&date, info->time_order[1], nbr2);
 
 			if (read_integer(&nbr, NULL))
-				return TRUE;
+			{
+				if (!info->time_tail_sep)
+					return TRUE;
+				else
+					goto _OK;
+			}
 
 			set_time(&date, info->time_order[2], nbr);
 
-			c = get_char();
+			c = COMMON_look_char();
 			if (c == '.') // msec separator
 			{
+				COMMON_pos++;
 				if (read_msec(&nbr))
 					return TRUE;
 				date.msec = nbr;
 			}
+
+			if (info->time_sep[info->time_order[2]])
+			{
+				c = COMMON_get_unicode_char();
+				if (c > 0 && c != info->time_sep[info->time_order[2]])
+					return TRUE;
+			}
+
 		}
 		else if ((c < 0) || isspace(c))
 		{
@@ -578,7 +592,7 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 			set_time(&date, info->time_order[i], nbr2);
 		}
 
-		c = get_char();
+		c = COMMON_get_char();
 		if ((c < 0) || isspace(c))
 			goto _OK;
 	}

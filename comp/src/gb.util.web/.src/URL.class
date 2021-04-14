@@ -30,7 +30,7 @@ Static Public Sub Quote((Path) As String) As String
   
 End
 
-Static Public Sub UnQuote((Path) As String, Optional IgnorePlus As Boolean) As String
+Static Public Sub Unquote((Path) As String, Optional DoNotDecodePlus As Boolean) As String
   
   Dim iInd As Integer
   Dim sRes As String
@@ -41,7 +41,7 @@ Static Public Sub UnQuote((Path) As String, Optional IgnorePlus As Boolean) As S
     If sCar = "%" Then 
       sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
       iInd += 2
-    Else If sCar = "+" And If Not IgnorePlus Then 
+    Else If sCar = "+" And If Not DoNotDecodePlus Then 
       sCar = " "
     Endif
     sRes &= sCar

@@ -33,23 +33,26 @@ class gDesktop
 {
 public:
 
+	enum {
+		BACKGROUND,
+		FOREGROUND,
+		TEXT_BACKGROUND,
+		TEXT_FOREGROUND,
+		SELECTED_BACKGROUND,
+		SELECTED_FOREGROUND,
+		BUTTON_BACKGROUND,
+		BUTTON_FOREGROUND,
+		LIGHT_BACKGROUND,
+		LIGHT_FOREGROUND,
+		TOOLTIP_BACKGROUND,
+		TOOLTIP_FOREGROUND,
+		LINK_FOREGROUND,
+		VISITED_FOREGROUND,
+		NUM_COLORS
+	};
+	
 	static void init();
 	static void exit();
-
-	static gColor buttonfgColor();
-	static gColor buttonbgColor();
-	static gColor fgColor();
-	static gColor bgColor();
-	static gColor textfgColor();
-	static gColor textbgColor();
-	static gColor selfgColor();
-	static gColor selbgColor();
-	static gColor lightbgColor();
-	static gColor lightfgColor();
-	static gColor tooltipForeground();
-	static gColor tooltipBackground();
-	static gColor linkForeground();
-	static gColor visitedForeground();
 
 	static gFont* font();
 	static void setFont(gFont *vl);
@@ -69,10 +72,24 @@ public:
 	static void geometry(GdkRectangle *rect) { geometry(0, rect); }
 	static void availableGeometry(GdkRectangle *rect) { availableGeometry(0, rect); }
 	
+	static void screenResolution(int screen, double *x, double *y);
+	
+	static gColor getColor(int color);
+	
+	static void onThemeChange();
+	
 private:
 
 	static int _desktop_scale;
 	static gFont *_desktop_font;
+	static bool _colors_valid;
+	static gColor _colors[NUM_COLORS];
+	
+	static void calcColors();
+	
+#ifdef GTK3
+	static GtkStyleProvider *_css;
+#endif
 };
 
 #endif

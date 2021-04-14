@@ -15,6 +15,8 @@ Static Private $iPos As Integer
 
 Property Read Keys As _Settings_Keys
 Property Read Path As String
+
+'' Return the number of entries in the settings file
 Property Read Count As Integer
 
 Private $sPath As String
@@ -131,7 +133,6 @@ Public Sub Save()
   Dim hFile As File
   Dim vVal As Variant
   Dim sTemp As String
-  Dim hLock As File
   Dim cModify As Collection
   Dim sSlot As String
 
@@ -146,9 +147,8 @@ Public Sub Save()
 
   $bModify = False
   
-  hLock = Lock $sPath & ".lock" Wait 2
-  
-  sTemp = $sPath & "#"
+  sTemp = $sPath & "." & CStr(Application.Id) & "~"
+  Try Kill sTemp
 
   If Not $bModifyAll Then
 
@@ -192,18 +192,8 @@ Public Sub Save()
   Next
 
   Close #hFile
-  Try Kill $sPath & "~"
-  Try Move $sPath To $sPath & "~"
-  Try Move sTemp To $sPath
   
-  '$dDateLoad = Stat($sPath).LastModified
-
-Finally
-
-  If Exist($sPath & ".lock") Then Try Kill $sPath & ".lock"
-  If Exist(sTemp) Then Try Kill sTemp
-  If Exist($sPath & "~") Then Try Kill $sPath & "~"
-  Try Unlock #hLock
+  Try Move sTemp Kill $sPath
   
 Catch
   
@@ -243,6 +233,8 @@ Public Function _get(Key As String, Optional {Default} As Variant) As Variant
   Return {Default}
 
 End
+
+'' Return if the specified settings key has a value
 
 Public Sub Exist(Key As String) As Boolean
   
@@ -624,6 +616,8 @@ Static Private Sub WriteValue(vVal As Variant)
     
 End
 
+'' Convert a value into its settings internal string representation
+
 Static Public Sub ToString(Value As Variant) As String
   
   $sStr = ""
@@ -860,6 +854,7 @@ Static Private Sub ReadValue(Optional bNotStrict As Boolean) As Variant
   
 End
 
+'' Return a value from its settings internal string representation
 
 Static Public Sub FromString(Value As String) As Variant
   

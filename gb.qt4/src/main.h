@@ -55,6 +55,9 @@ extern bool MAIN_key_debug;
 extern bool MAIN_right_to_left;
 #ifndef NO_X_WINDOW
 extern int MAIN_x11_last_key_code;
+#define MAIN_platform "x11"
+#else
+#define MAIN_platform ""
 #endif
 
 extern GB_CLASS CLASS_Control;
@@ -73,6 +76,7 @@ extern GB_CLASS CLASS_Printer;
 extern GB_CLASS CLASS_Image;
 extern GB_CLASS CLASS_SvgImage;
 extern GB_CLASS CLASS_TextArea;
+extern GB_CLASS CLASS_ComboBox;
 
 #endif
 

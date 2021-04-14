@@ -49,7 +49,7 @@ Static Private Function PrepareOldSource(sOldSource As String) As String
   Else If Right$(sOldSource, 3) = ".xz" Then
     sType = "J"
   Else
-    Error.Raise(("Unsupported source archive format"))
+    Error.Raise(("Unsupported source archive format."))
     Return Null
   Endif
   

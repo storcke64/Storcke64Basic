@@ -1,5 +1,12 @@
 ' Gambas class file
 
+Public Sub _new()
+  
+  Me.Buffered = True
+  
+End
+
+
 Private Sub _PrintTitle()
 
   If Main.Path Then
@@ -150,14 +157,15 @@ Private Sub _PrintPage()
   Dim hStat As Stat
   Dim hStatDef As Stat
   Dim hClass As CClassInfo
+  Dim sDefaultHelp As String
 
   If Main.Edit Then
     sPath = Main.GetPagePath()  
     If Exist(sPath) Then sData = File.Load(sPath)
-    If Not sData Then
-      sPath = Main.Path
-      sData = OldWiki.GetPage(sPath)
-    Endif
+    ' If Not sData Then
+    '   sPath = Main.Path
+    '   'sData = OldWiki.GetPage(sPath)
+    ' Endif
     If Not sData Then
       If Main.Symbol Then
         sData = "@{syntax}\n@{help}\n" '& Main.GetDefaultPage()
@@ -201,7 +209,7 @@ Private Sub _PrintPage()
       
     Endif
       
-    If Not Main.ExistPage(sPath) Then
+    If Not Main.ExistPage(sPath) And If Not Main.HasDefaultHelp() Then
     
       If Main.Symbol Then
       
@@ -214,13 +222,15 @@ Private Sub _PrintPage()
           Main.Class = hClass.Parent
   
           sPath = Main.SolvePath("/comp/" & LCase(Main.Component &/ Main.Class &/ Main.Symbol))
-          If Main.ExistPage(sPath) Then Break
+          If Main.ExistPage(sPath) Or If Main.HasDefaultHelp() Then Break
           
         Loop
         
       Endif
       
     Endif
+    
+  TRY_AGAIN:
     
     If Not Main.ExistPage(sPath) Then
       
@@ -233,9 +243,15 @@ Private Sub _PrintPage()
         ' We use an automatic page
         Main.Lang = Main.DEFAULT_LANG
         If Main.Symbol Then
-          sData = "@{syntax}\n" & Main.GetDefaultPage()
+          sDefaultHelp = Main.GetDefaultHelp()
+          If sDefaultHelp Begins "-->" Then
+            sPath = Main.MakeAbsolute(Trim(Mid$(sDefaultHelp, 4)), sPath)
+            Goto TRY_AGAIN
+          Else
+            sData = "@{syntax}\n" & sDefaultHelp
+          Endif
         Else If Main.Class Then
-          sData = "@{symbols}\n"
+          sData = Main.GetDefaultHelp() & "\n@{symbols}\n" 
         Endif
         Goto DISPLAY_PAGE
         
@@ -316,11 +332,25 @@ Private Sub _PrintPage()
       Endif
     Endif
     
-    sData = LTrim(File.Load(Main.GetPagePathFrom(sPath)))
+    sPath = Main.GetPagePathFrom(sPath)
+    Main.AddCacheHeaders(Stat(sPath).LastModified)
+    sData = LTrim(File.Load(sPath))
     
   Endif
   
 DISPLAY_PAGE:
+  
+  If sData Begins "==>" Then
+    iPos = InStr(sData, "\n")
+    If iPos Then sData = Left(sData, iPos - 1)
+    sData = Trim(Mid$(sData, 4))
+    Print "<tt>==>"; Html(sData); "</tt>"
+    If Not Session.Id Then
+      Response.Cancel
+      Response.Redirect(Application.Root &/ sData)
+    Endif
+    Return
+  Endif
   
   If Main.Class Then
     If sData Begins "# " Then

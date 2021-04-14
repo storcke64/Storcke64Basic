@@ -21,9 +21,6 @@
 
 ***************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <gtk/gtk.h>
 #include "main.h"
 #include "gambas.h"
 #include "watcher.h"
@@ -33,6 +30,8 @@ static WATCH **watch = NULL;
 static gboolean watch_adaptor(GIOChannel *source, GIOCondition condition, gpointer param)
 {
 	WATCH *data = (WATCH *)param;
+
+	//fprintf(stderr, "watch_adaptor: %p: condition = %d, data = %p\n", source, (int)condition, (void *)param);
 
 	if (!data) return true;
 	
@@ -69,7 +68,7 @@ void CWatcher::Clear()
 
 void CWatcher::Remove(int fd)
 {
-	CWatcher::Add(fd,GB_WATCH_NONE,NULL,0);
+	CWatcher::Add(fd, GB_WATCH_NONE, NULL, 0);
 }
 
 void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
@@ -93,6 +92,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			return;
 		
 		pwatch = (WATCH **)GB.Add(&watch);
+
 		GB.Alloc(POINTER(pwatch), sizeof(WATCH));
 		data = *pwatch;
 		data->fd = fd;
@@ -102,6 +102,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 
 	if (data->callback_read && (type == GB_WATCH_NONE || type == GB_WATCH_READ))
 	{
+		//fprintf(stderr, "remove watch on fd %d for read (%p)\n", data->fd, data->channel_read);
 		g_source_remove(data->id_read);
 		g_io_channel_unref(data->channel_read);
 		data->callback_read = 0;
@@ -110,6 +111,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 	
 	if (data->callback_write && (type == GB_WATCH_NONE || type == GB_WATCH_WRITE))
 	{
+		//fprintf(stderr, "remove watch on fd %d for read (%p)\n", data->fd, data->channel_write);
 		g_source_remove(data->id_write);
 		g_io_channel_unref(data->channel_write);
 		data->callback_write = 0;
@@ -125,6 +127,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			data->channel_read = g_io_channel_unix_new(fd);
 			g_io_channel_set_encoding(data->channel_read, NULL, NULL);
 			data->id_read = g_io_add_watch_full(data->channel_read, G_PRIORITY_LOW, G_IO_IN, watch_adaptor, (void*)data, NULL);
+			//fprintf(stderr, "add watch on fd %d for read (%p)\n", fd, data->channel_read);
 		}
 		else if (type == GB_WATCH_WRITE)
 		{
@@ -133,6 +136,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			data->channel_write = g_io_channel_unix_new(fd);
 			g_io_channel_set_encoding(data->channel_write, NULL, NULL);
 			data->id_write = g_io_add_watch_full(data->channel_write, G_PRIORITY_LOW, G_IO_OUT, watch_adaptor, (void*)data, NULL);
+			//fprintf(stderr, "add watch on fd %d for write (%p)\n", fd, data->channel_write);
 		}
 	}
 

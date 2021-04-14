@@ -42,8 +42,9 @@ BEGIN_METHOD(Key_get, GB_STRING key)
 END_METHOD
 
 #define CHECK_VALID() \
-  if (gKey::valid() == 0) \
+  if (!gKey::isValid()) \
   { \
+		BREAKPOINT(); \
     GB.Error("No keyboard event data"); \
     return; \
   }

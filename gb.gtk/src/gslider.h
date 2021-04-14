@@ -29,16 +29,18 @@ class gSlider : public gControl
 public:
 	gSlider(gContainer *parent, bool scrollbar = false);
 
+	bool isScrollBar() const { return _is_scrollbar; }
+	
 //"Properties"
-	//int foreground();
-	//int background();
-	int max();
-	int min();
-	bool tracking();
-	int value();
-	bool mark();
-	int step();
-	int pageStep();
+	
+	int max() const { return _max; }
+	int min() const { return _min; }
+	bool tracking() const { return _tracking; }
+	int value() const { return _value; }
+	bool mark() const { return _mark; }
+	int step() const { return _step; }
+	int pageStep() const { return _page_step; }
+	int orientation() const { return _orientation; }
 
 	//void setForeground(int vl);
 	//void setBackground(int vl);
@@ -49,11 +51,13 @@ public:
 	void setMark(bool vl);
 	void setStep(int vl);
 	void setPageStep(int vl);
+	void setOrientation(int vl);
 	
 	int getDefaultSize();
 	bool isVertical() const;
 	
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide);
+	void applyOrientation(GtkOrientation orientation);
 
 //"Signals"
 	void (*onChange)(gSlider *sender);
@@ -64,12 +68,15 @@ public:
 	void update();
 	void checkInverted();
 	
-	bool _mark;
+	unsigned _mark : 1;
+	unsigned _tracking : 1;
+	unsigned _is_scrollbar : 1;
+	unsigned _orientation : 2;
+	
 	int _step;
 	int _page_step;
 	int _value;
 	int _min, _max;
-	bool _tracking;
 };
 
 #endif

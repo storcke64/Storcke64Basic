@@ -60,14 +60,17 @@ static bool _daemon = FALSE;
 
 BEGIN_PROPERTY(Application_Path)
 
-  GB_ReturnString(PROJECT_path);
+	if (PROJECT_override)
+		GB_ReturnNewZeroString(FILE_get_dir(PROJECT_override));
+	else
+		GB_ReturnString(PROJECT_path);
 
 END_PROPERTY
 
 
 BEGIN_PROPERTY(Application_Name)
 
-  GB_ReturnConstZeroString(PROJECT_name);
+	GB_ReturnConstZeroString(PROJECT_name);
 
 END_PROPERTY
 
@@ -134,7 +137,9 @@ BEGIN_METHOD(Application_Args_get, GB_INTEGER index)
 
   if (index >= PROJECT_argc)
     GB_ReturnVoidString();
-  else
+  else if (index == 0 && PROJECT_override)
+    GB_ReturnNewZeroString(FILE_get_name(PROJECT_override));
+	else
     GB_ReturnConstZeroString(PROJECT_argv[index]);
 
 END_METHOD

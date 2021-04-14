@@ -2,9 +2,11 @@
 
 Export
 
-Static Property Title As String
+Static Property Title As String Use $sTitle
+Static Property Style As String
+Static Property ColoredButtons As Boolean Use $bUseColor
 
-Static Private $sTitle As String
+Static Private $sStyle As String
 
 'Export
 ' GB_DESC CMessageDesc[] =
@@ -26,50 +28,57 @@ Static Private $sTitle As String
 ' };
 ' 
 
-Static Public Sub _call((Message) As String, Optional Button As String = ("OK")) As Integer
+Static Public Sub _call((Message) As String, Optional Button As String) As Integer
   
   Return Info(Message, Button)
   
 End
 
-Static Public Sub Info((Message) As String, Optional Button As String = ("OK")) As Integer
+Static Public Sub Info((Message) As String, Optional Button As String) As Integer
   
-  Return FMessage.Run("info", Message, [Button])
+  Return FMessage.Run("info", Message, [Button], [("OK")])
   
 End
 
 Static Public Sub Warning((Message) As String, Optional Button1 As String, Button2 As String, Button3 As String) As Integer
   
-  Return FMessage.Run("warning", Message, [Button1, Button2, Button3])
+  Return FMessage.Run("warning", Message, [Button1, Button2, Button3], [("OK")])
   
 End
 
 Static Public Sub Question((Message) As String, Optional Button1 As String, Button2 As String, Button3 As String) As Integer
   
-  Return FMessage.Run("question", Message, [Button1, Button2, Button3])
+  Return FMessage.Run("question", Message, [Button1, Button2, Button3], [("Yes"), ("Cancel")])
   
 End
 
 Static Public Sub Error((Message) As String, Optional Button1 As String, Button2 As String, Button3 As String) As Integer
   
-  Return FMessage.Run("error", Message, [Button1, Button2, Button3])
+  Return FMessage.Run("error", Message, [Button1, Button2, Button3], [("OK")])
   
 End
 
 Static Public Sub Delete((Message) As String, Optional Button1 As String, Button2 As String, Button3 As String) As Integer
   
-  Return FMessage.Run("delete", Message, [Button1, Button2, Button3])
+  Return FMessage.Run("delete", Message, [Button1, Button2, Button3], [("Delete"), ("Cancel")])
   
 End
 
-Static Private Function Title_Read() As String
+Static Private Function Style_Read() As String
 
-  Return $sTitle
+  If Not $sStyle Then Return "default"
+  Return $sStyle
 
 End
 
-Static Private Sub Title_Write(Value As String)
+Static Private Sub Style_Write(Value As String)
 
-  $sTitle = Value
+  Value = LCase(Value)
+  Select Case Value
+    Case "flat"
+      $sStyle = Value
+    Case Else
+      $sStyle = ""
+  End Select
 
 End

@@ -69,7 +69,7 @@ Private Sub RefreshList()
     If hComp.Hidden Then Continue
     If hComp.Library Then Continue
     If hComp.Key = CComponent.PROJECT_NAME Then Continue
-    If hComp.Key = Project.Name Then Continue 
+    'If hComp.Key = Project.Name Then Continue 
     If $aHidden And If $aHidden.Exist(sComp) Then Continue
     If sFilter And If Not hComp.Match(sFilter) Then Continue
     
@@ -130,11 +130,11 @@ Public Sub btnForward_Click()
 
 End
 
-Public Sub webAboutComponent_Click((Frame) As WebFrame)
-
-  btnForward.Enabled = webAboutComponent.History.Index < webAboutComponent.History.Max
-
-End
+' Public Sub webAboutComponent_Click((Frame) As WebFrame)
+' 
+'   btnForward.Enabled = webAboutComponent.History.Index < webAboutComponent.History.Max
+' 
+' End
 
 Public Sub btnStop_Click()
   
@@ -150,29 +150,30 @@ End
 
 Public Sub btnZoomIn_Click()
   
-  webAboutComponent.TextZoom = Round(webAboutComponent.TextZoom * 1.125, -3)
+  webAboutComponent.Zoom = Round(webAboutComponent.Zoom * 1.125, -3)
   
 End
 
 Public Sub btnZoomOut_Click()
   
-  webAboutComponent.TextZoom = Round(webAboutComponent.TextZoom / 1.125, -3)
+  webAboutComponent.Zoom = Round(webAboutComponent.Zoom / 1.125, -3)
   
 End
 
 Public Sub btnZoomNormal_Click()
   
-  webAboutComponent.TextZoom = DEFAULT_ZOOM
+  webAboutComponent.Zoom = DEFAULT_ZOOM
   
 End
 
 
 Public Sub btnBack_Click()
 
-  If webAboutComponent.History.Index Then
+  If webAboutComponent.History.CanGoBack Then
     webAboutComponent.Back
   Else
-    webAboutComponent.Stop
+    'webAboutComponent.Stop
+    webAboutComponent.Clear
     wizComponent.MovePrevious
   Endif
   
@@ -244,7 +245,7 @@ Public Sub gvwComponent_Data(Row As Integer, Column As Integer)
         End Select
         
       Case 4
-        If hComp.State <> CComponent.UNKNOWN Then .Picture = Picture["icon:/16/next"]
+        If hComp.State <> CComponent.UNKNOWN Then .Picture = Picture["icon:/small/next"]
       
     End Select
     

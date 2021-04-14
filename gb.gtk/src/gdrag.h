@@ -89,11 +89,15 @@ public:
 	static GdkDragContext *disable(GdkDragContext *context);
 	static bool getData(const char *prefix);
 
+	static bool setCurrent(gControl *control);
+	static bool isCurrent(gControl *control) { return control == _current; }
+	
 	static volatile bool _got_data;
 
 	static gControl *_source;
 	static gControl *_destination;
 	static gControl *_dest;
+	static gControl *_current;
 
 private:	
 

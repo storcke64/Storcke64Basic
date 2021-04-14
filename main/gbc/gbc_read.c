@@ -246,9 +246,9 @@ char *READ_get_pattern(PATTERN *pattern)
 				strcpy(COMMON_buffer, "string");
 			break;
 
-		case RT_COMMAND:
+		/*case RT_COMMAND:
 			snprintf(COMMON_buffer, COMMON_BUF_MAX, "#%d", index);
-			break;
+			break;*/
 
 		case RT_NEWLINE:
 			strcpy(COMMON_buffer, "end of line");
@@ -333,8 +333,8 @@ void READ_dump_pattern(PATTERN *pattern)
 		printf("PARAM        %d\n", index);
 	else if (type == RT_SUBR)
 		printf("SUBR         %s\n", READ_get_pattern(pattern));
-	else if (type == RT_COMMAND)
-		printf("COMMAND      %d\n", index);
+	/*else if (type == RT_COMMAND)
+		printf("COMMAND      %d\n", index);*/
 	else
 		printf("?            %d\n", index);
 
@@ -478,7 +478,7 @@ static void add_newline()
 	
 	add_pattern(RT_NEWLINE, comp->line);
 	comp->line++;
-	
+
 	if (action == PREP_IGNORE)
 		jump_to_next_prep();
 }
@@ -758,7 +758,7 @@ static void add_identifier()
 			break;
 			
 		__CLASS:
-			can_be_reserved = canres_car[car] && _begin_line;
+			can_be_reserved = canres_car[car] && (_begin_line || PATTERN_is(last_pattern, RS_END));
 			break;
 			
 		__STRUCT:
@@ -1241,9 +1241,10 @@ __BREAK:
 	// We add end markers to simplify the compiler job, when it needs to look 
 	// at many patterns in one shot.
 	
-	JOB->max_line = JOB->line - 1;
-	
 	add_newline();
+
+	JOB->max_line = JOB->line;
+
 	add_end();
 	add_end();
 	add_end();

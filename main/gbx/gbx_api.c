@@ -63,16 +63,10 @@
 #include "gbx_struct.h"
 #include "gbx_signal.h"
 #include "gbx_jit.h"
+#include "gbx_split.h"
 #include "gbx.h"
 #include "gambas.h"
 #include "gbx_api.h"
-
-typedef
-	struct {
-		OBJECT *object;
-		CLASS_DESC_METHOD *desc;
-		}
-	GB_API_FUNCTION;
 
 const void *const GAMBAS_Api[] =
 {
@@ -115,12 +109,14 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_GetLastEventName,
 	(void *)CTIMER_raise,
 	(void *)GB_Stopped,
+	(void *)GB_IsRaiseLocked,
 
 	(void *)GB_NParam,
 	(void *)GB_Conv,
 	(void *)GB_GetUnknown,
 
 	(void *)GB_Error,
+	(void *)GB_HasError,
 	(void *)ERROR_propagate,
 	(void *)GB_Deprecated,
 	(void *)GB_OnErrorBegin,
@@ -146,6 +142,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_New,
 	(void *)CLASS_auto_create,
 	(void *)GB_CheckObject,
+	(void *)OBJECT_is_locked,
 
 	(void *)GB_GetEnum,
 	(void *)GB_StopEnum,
@@ -153,6 +150,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_EndEnum,
 	(void *)GB_NextEnum,
 	(void *)GB_StopAllEnum,
+	(void *)GB_OnFreeEnum,
 
 	(void *)GB_GetReturnValue,
 	(void *)GB_Return,
@@ -224,6 +222,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_MakeDate,
 	(void *)DATE_from_time,
 	(void *)DATE_timer,
+	(void *)DATE_from_string,
 
 	(void *)GB_Watch,
 
@@ -268,6 +267,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_ArrayAdd,
 	(void *)GB_ArrayGet,
 	(void *)GB_ArrayType,
+	(void *)GB_ArraySetReadOnly,
 
 	(void *)GB_CollectionNew,
 	(void *)GB_CollectionCount,
@@ -297,6 +297,7 @@ const void *const GAMBAS_Api[] =
 	(void *)STRING_start_len,
 	(void *)STRING_end,
 	(void *)STRING_make,
+	(void *)STRING_split,
 
 	(void *)DEBUG_get_current_position,
 	(void *)DEBUG_enter_event_loop,
@@ -304,6 +305,7 @@ const void *const GAMBAS_Api[] =
 
 	(void *)SIGNAL_register,
 	(void *)SIGNAL_unregister,
+	(void *)SIGNAL_must_check,
 
 	(void *)LIST_insert,
 	(void *)LIST_remove,
@@ -318,7 +320,7 @@ const void *const GAMBAS_DebugApi[] =
 	(void *)ERROR_get_message,
 	(void *)ERROR_save,
 	(void *)ERROR_restore,
-	(void *)VALUE_to_string,
+	(void *)VALUE_to_local_string,
 	(void *)LOCAL_format_date,
 	(void *)LOCAL_format_number,
 	(void *)DEBUG_get_value,
@@ -749,6 +751,25 @@ bool GB_CanRaise(void *object, int event_id)
 	return (func_id != 0);
 }
 
+bool GB_IsRaiseLocked(void *object)
+{
+	COBSERVER *obs;
+
+	if (GAMBAS_DoNotRaiseEvent)
+		return TRUE;
+	
+	if (!object || !OBJECT_has_events(object))
+		return TRUE;
+
+	LIST_for_each(obs, OBJECT_event(object)->observer)
+	{
+		if (OBJECT_active_parent(obs))
+			return FALSE;
+	}
+	
+	return OBJECT_active_parent(object) == NULL;
+}
+
 
 static int get_event_func_id(ushort *event_tab, int event_id)
 {
@@ -771,6 +792,7 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 	CLASS_DESC_METHOD *desc;
 	void *old_last;
 	bool result;
+	uint stack_barrier;
 
 	func_id--;
 
@@ -802,13 +824,15 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 	stop_event = GAMBAS_StopEvent;
 	GAMBAS_StopEvent = FALSE;
 
+	stack_barrier = STACK_push_barrier();
+	
 	TRY
 	{
 		EXEC_public_desc(class, observer, desc, nparam);
 	}
 	CATCH 
 	{
-		if (ERROR->info.code && ERROR->info.code != E_ABORT && !STACK_has_error_handler())
+		if (ERROR->info.code && ERROR->info.code != E_ABORT) // && !STACK_has_error_handler())
 		{
 			ERROR_hook();
 
@@ -824,10 +848,15 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 			}
 		}
 		else
+		{
+			EVENT_Last = old_last;
+			GAMBAS_StopEvent = stop_event;
+			STACK_pop_barrier(stack_barrier);
 			PROPAGATE();
+		}
 	}
 	END_TRY
-
+	
 	if (RP->type == T_VOID)
 		result = FALSE;
 	else
@@ -836,10 +865,9 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 	if (GAMBAS_StopEvent)
 		result = TRUE;
 
-	GAMBAS_StopEvent = stop_event;
-
-	//OBJECT_UNREF(object, "raise_event");
 	EVENT_Last = old_last;
+	GAMBAS_StopEvent = stop_event;
+	STACK_pop_barrier(stack_barrier);
 
 	EXEC_release_return_value();
 
@@ -880,7 +908,7 @@ bool GB_Raise(void *object, int event_id, int nparam, ...)
 {
 	OBJECT *parent;
 	int func_id;
-	int result;
+	bool result;
 	va_list args;
 	bool arg;
 	COBSERVER *obs;
@@ -1006,9 +1034,8 @@ __RETURN:
 }
 
 
-bool GB_GetFunction(GB_FUNCTION *_func, void *object, const char *name, const char *sign, const char *type)
+bool GB_GetFunction(GB_FUNCTION *func, void *object, const char *name, const char *sign, const char *type)
 {
-	GB_API_FUNCTION *func = (GB_API_FUNCTION *)_func;
 	char len_min, nparam, npvar;
 	TYPE *tsign;
 	TYPE tret;
@@ -1085,11 +1112,8 @@ bool GB_GetFunction(GB_FUNCTION *_func, void *object, const char *name, const ch
 		}
 	}
 
-	func->object = kind == CD_STATIC_METHOD ? NULL : object;
-	func->desc = &desc->method;
-
-	if (!func->desc)
-		abort();
+	func->object = object;
+	func->index = index + 1;
 
 	return FALSE;
 
@@ -1097,7 +1121,7 @@ _NOT_FOUND:
 
 	GB_Error("Unable to find method &1 in class &2. &3", name, CLASS_get_name(class), err);
 	func->object = NULL;
-	func->desc = NULL;
+	func->index = 0;
 	return TRUE;
 }
 
@@ -1133,18 +1157,33 @@ __NOT_FOUND:
 }
 
 
-GB_VALUE *GB_Call(GB_FUNCTION *_func, int nparam, int release)
+GB_VALUE *GB_Call(GB_FUNCTION *func, int nparam, int release)
 {
-	GB_API_FUNCTION *func = (GB_API_FUNCTION *)_func;
 	bool stop_event;
+	CLASS *class;
+	void *object;
+	CLASS_DESC_METHOD *desc;
 
-	if (!func || !func->desc)
+	if (!func || !func->index)
 		GB_Error("Unknown function call");
 		//TEMP.type = GB_T_NULL;
 	else
 	{
+		object = func->object;
+		if (OBJECT_is_class(object))
+		{
+			class = object;
+			object = NULL;
+		}
+		else
+		{
+			class = OBJECT_class(object);
+		}
+		
+		desc = &class->table[func->index - 1].desc->method;
+		
 		stop_event = GAMBAS_StopEvent;
-		EXEC_public_desc(func->desc->class, func->object, func->desc, nparam);
+		EXEC_public_desc(class, object, desc, nparam);
 		_event_stopped = GAMBAS_StopEvent;
 		GAMBAS_StopEvent = stop_event;
 
@@ -1231,6 +1270,11 @@ void GB_Error(const char *error, ...)
 
 	ERROR_define(error, arg);
 	EXEC_set_native_error(TRUE);
+}
+
+bool GB_HasError()
+{
+	return EXEC_has_native_error();
 }
 
 void GB_Deprecated(const char *msg, const char *func, const char *repl)
@@ -1376,6 +1420,11 @@ void GB_StopEnum(void)
 	//VALUE_default(&TEMP, *GAMBAS_ReturnType);
 	TEMP.type = T_VOID;
 	EXEC_enum->stop = TRUE;
+}
+
+void GB_OnFreeEnum(void (*cb)(void *))
+{
+	EXEC_enum->free = cb;
 }
 
 
@@ -1698,7 +1747,7 @@ void GB_ReturnNewString(const char *src, int len)
 {
 	if (len <= 0)
 	{
-		if (*src)
+		if (src && *src)
 		{
 			ERROR_warning("please use GB.ReturnNewZeroString() instead of GB.ReturnNewString()");
 			len = strlen(src);
@@ -2475,7 +2524,7 @@ bool GB_Serialize(const char *path, GB_VALUE *value)
 
 	CATCH_ERROR
 	{
-		STREAM_open(&stream, path, STO_CREATE);
+		STREAM_open(&stream, path, GB_ST_CREATE);
 		STREAM_write_type(&stream, T_VARIANT, (VALUE *)value);
 		STREAM_close(&stream);
 	}
@@ -2488,7 +2537,7 @@ bool GB_UnSerialize(const char *path, GB_VALUE *value)
 
 	CATCH_ERROR
 	{
-		STREAM_open(&stream, path, STO_READ);
+		STREAM_open(&stream, path, GB_ST_READ);
 		STREAM_read_type(&stream, T_VARIANT, (VALUE *)value);
 		STREAM_close(&stream);
 	}

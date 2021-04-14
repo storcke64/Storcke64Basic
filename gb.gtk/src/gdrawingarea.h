@@ -46,6 +46,9 @@ public:
 //"Methods"
 	void clear();
 	virtual void setEnabled(bool vl);
+#ifndef GTK3
+	virtual void setBackground(gColor color = COLOR_DEFAULT);
+#endif
 	virtual void setRealBackground(gColor color);
 	virtual void updateFont();
 

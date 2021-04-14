@@ -23,31 +23,38 @@ Private $bTear As Boolean
 Private $hTear As Image
 Private $iTearAge As Integer
 
-Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean)
+Private $bWithPlatform As Boolean
+
+Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean, bWithPlatform As Boolean)
   
-  Dim hSnowFlake As Image
   Dim I As Integer
   Dim dNow As Date
   
   hDrawingArea.Background = BACKGROUND_COLOR
   
   $hObs = New Observer(hDrawingArea) As "dwgWelcome"
+  $bWithPlatform = bWithPlatform
+  $bTear = bHasTear
   
   dNow = Now
   If dNow >= Date(Year(dNow), 12, 25) Then
   
-    hSnowFlake = Image.Load("welcome/snowflake.png")
     $aImage = New Image[8]
     For I = 0 To $aImage.Max
-      $aImage[I] = hSnowFlake.Stretch(I + 1, I + 1)
+      '$aImage[I] = hSnowFlake.Stretch(I + 1, I + 1)
+      $aImage[I] = New Image(I + 1, I + 1, Color.Transparent)
+      Paint.Begin($aImage[I])
+      'Paint.Background = &HF0F0F0&
+      Paint.Brush = Paint.RadialGradient((I + 1) / 2, (I + 1) / 2, (I + 1) / 2, (I + 1) / 2, (I + 1) / 2, [Color.White, Color.SetAlpha(Color.White, 255)], [0, 1])
+      Paint.Ellipse(0, 0, $aImage[I].W, $aImage[I].H)
+      Paint.Fill
+      Paint.End
     Next
     
     $bSnow = True
     
   Endif
   
-  $bTear = bHasTear
-
   If $bSnow Or If $bTear Then  
     $hTimer = New Timer As "SnowTimer"
     $hTimer.Delay = 50
@@ -109,7 +116,11 @@ Public Sub dwgWelcome_Draw()
   Dim bDraw As Boolean
   Dim DYT As Float
   Dim iLum As Integer
-   
+  Dim hRect As RectF
+  Dim DS As Integer
+  
+  DS = Desktop.Scale
+  
   If Not $hLogo Then 
     
     'hSvgLogo = SvgImage.Load("img/logo/gambas.svg")
@@ -123,7 +134,7 @@ Public Sub dwgWelcome_Draw()
     $hText = New Image(hDrawingArea.Width, hDrawingArea.Height, Color.Transparent)
     Paint.Begin($hText)
     
-    Paint.Translate(Desktop.Scale, Desktop.Scale * 2)
+    Paint.Translate(DS, DS * 2)
     
     Paint.Font = Font["+10,Bold"]
     Y = Paint.Font.Ascent
@@ -131,7 +142,7 @@ Public Sub dwgWelcome_Draw()
     If sVersion Begins "3.14." And If sVersion Not Ends ".90" Then
       If sVersion Ends ".0" Then sVersion = Left(sVersion, -2)
       X = PaintText("Gambas " & sVersion, 8, Y, Color.White) 'TEXT_COLOR)
-      X += Desktop.Scale * 17
+      X += DS * 17
       For I = -6 To 14
         Paint.Font = Font[Format(I, "+0") & ",Italic,Bold"]
         PaintText("π", X, Y, Color.White)
@@ -156,14 +167,33 @@ Public Sub dwgWelcome_Draw()
     Paint.Background = Color.SelectedForeground
     Paint.DrawRichText(sText, 12, Y, Paint.W - 24, Paint.H - Y - 6, Align.TopNormal)
     
+    If $bWithPlatform Then
+    
+      Paint.Font = Font["Bold,-3"]
+  
+      sText = UCase(Desktop.Platform)
+      hRect = Paint.TextSize(sText)
+      hRect.Adjust(-DS / 2, -DS / 4)
+      hRect.Move(DS, Paint.H - hRect.H - DS * 3)
+      GoSub DRAW_TEXT
+  
+      X = hRect.X + hRect.W
+      sText = Mid$(UCase(Env["GB_GUI"]), 4)
+      hRect = Paint.TextSize(sText)
+      hRect.Adjust(-DS / 2, -DS / 4)
+      hRect.Move(DS + X, Paint.H - hRect.H - DS * 3)
+      GoSub DRAW_TEXT
+      
+    Endif
+    
     Paint.End
     
     '$hLogo.Brightness(-0.1)
     
   Endif
 
-  'Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width, -10 - Desktop.Scale)
-  Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width - Desktop.Scale, 0)
+  'Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width, -10 - DS)
+  Paint.DrawImage($hLogo, hDrawingArea.W - $hLogo.Width - DS, 0)
   
   If $hTimer Then
   
@@ -229,7 +259,7 @@ Public Sub dwgWelcome_Draw()
       
       Paint.End
       
-      Paint.DrawImage($hTear, hDrawingArea.W - $hLogo.Width - Desktop.Scale, 0)
+      Paint.DrawImage($hTear, hDrawingArea.W - $hLogo.Width - DS, 0)
       
     Endif
     
@@ -249,7 +279,14 @@ Public Sub dwgWelcome_Draw()
         hSnowFlake = $aSnowFlakes[I]
         With hSnowFlake
           S = 1 + .Size \ 2
-          Paint.DrawImage($aImage[.Size], CInt(.X) - S, CInt(.Y) - S)
+          ' If .Alpha Then
+          '   'Paint.Background = Color.SetAlpha(&HF0F0F0&, .Alpha)
+          '   'Paint.Ellipse(CInt(.X) - S \ 2, CInt(.Y) - S \ 2 + 1, S, S)
+          '   'Paint.Fill
+          '   Paint.DrawImage($aImage[.Size], CInt(.X) - S, CInt(.Y) - S,,, (255 - .Alpha) / 255)
+          ' Else
+            Paint.DrawImage($aImage[.Size], CInt(.X) - S, CInt(.Y) - S)
+          'Endif
         End With
       Next
       
@@ -260,6 +297,15 @@ Public Sub dwgWelcome_Draw()
   Endif
 
   Paint.DrawImage($hText, 0, 0)
+  
+  Return
+  
+DRAW_TEXT:
+
+  Paint.FillRect(hRect.X, hRect.Y, hRect.W, hRect.H, TEXT_COLOR)
+  Paint.Background = Color.White
+  Paint.DrawText(sText, hRect.X, hRect.Y, hRect.W, hRect.H, Align.Center)
+  Return
   
 End
 
@@ -274,6 +320,7 @@ Fast Public Sub SnowTimer_Timer()
   Dim Y As Integer
   Dim C As Integer
   Dim hTear As CTear
+  Dim iSize As Integer
   
   $hTimer.Stop
   If Not Object.IsValid(hDrawingArea) Then Return
@@ -288,43 +335,63 @@ Fast Public Sub SnowTimer_Timer()
     While I < $aSnowFlakes.Count
       hSnowFlake = $aSnowFlakes[I]
       With hSnowFlake
+        
         .X += .DX
         .Y += .DY
         X = CInt(.X)
         Y = Min(H, CInt(.Y))
-        C = $hSnow[X, Y]
+        C = Color[$hSnow[X, Y]].Alpha
         
-        If Y < H And If C <> Color.White Then
-          If .IgnoreTree Or If Color[C].Alpha > 16 Then
-            Inc I
-            Continue
-          Endif
-        Endif
-        
-        .X -= .DX
-        .Y -= .DY
-        
-        If .DX Then
+        If .Stopped Then
           
-          If .DX < 1 Then
+          If Abs(.DX) < 0.25 Or If C >= 64 Then
+            
+            $aSnowFlakes.Remove(I)
+            
             .DX = 0
+            .DY = 0
+            iSize = CInt(.Size * 0.75)
+            S = 1 + iSize \ 2
+            
+            If .IgnoreTree Then
+              While Y > 0
+                If Color[$hSnow[X, Y]].Alpha >= 16 Then Break
+                If Color[$hSnow[X - S, Y]].Alpha >= 16 Then Break
+                If Color[$hSnow[X + S, Y]].Alpha >= 16 Then Break
+                Dec Y
+              Wend
+            Endif
+            
+            Paint.DrawImage($aImage[iSize], X - S, Y - S) ',,, 0.5)
+            'Paint.Ellipse(X - S - 0.5, Y - S - 0.5, S * 2, S * 2)
+            'Paint.Fill
+            
           Else
+            
             .DX *= 0.5
-            .DY *= 0.75
+            .DY *= 0.5
+            Inc I
+            
           Endif
-          Inc I
-          Continue
           
+        Else
+        
+          If Y < H Then 'And If C <> Color.White Then
+            If .IgnoreTree Or If C >= 64 Then
+              Inc I
+              Continue
+            Endif
+          Endif
+          
+          If Y >= H Or If .IgnoreTree Then
+            .DX = 0
+            .DY = 0
+          Endif
+          .Stopped = True
+          Inc I
+        
         Endif
         
-        $aSnowFlakes.Remove(I)
-        'S = .Size \ 2
-        'Paint.DrawImage($aImage[S], X - S \ 2, Y - S \ 2)
-        'Paint.DrawImage($aImage[.Size], CInt(.X), CInt(.Y))
-        S = 1 + Min(3, .Size \ 2)
-        Paint.Ellipse(X - S \ 2, Y - S \ 2 + 1, S, S)
-        Paint.Fill
-  
       End With
   
     Wend

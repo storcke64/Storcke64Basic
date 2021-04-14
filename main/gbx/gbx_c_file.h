@@ -54,6 +54,7 @@ typedef
 	CSTAT;
 
 #ifndef __GBX_C_FILE_C
+
 extern GB_DESC StreamLinesDesc[];
 extern GB_DESC StreamTermDesc[];
 extern GB_DESC StreamDesc[];
@@ -64,11 +65,15 @@ extern GB_DESC StatPermDesc[];
 extern CFILE *CFILE_in;
 extern CFILE *CFILE_out;
 extern CFILE *CFILE_err;
+extern mode_t CFILE_default_dir_auth;
+
 #else
+
 #define THIS ((CFILE *)_object)
 #define THIS_STREAM ((CSTREAM *)_object)
 #define THIS_STAT ((CSTAT *)_object)
 #define THE_STREAM CSTREAM_TO_STREAM(THIS_STREAM)
+
 #endif
 
 #define CSTREAM_TO_STREAM(_cstream) (&((CSTREAM *)(void *)(_cstream))->stream)

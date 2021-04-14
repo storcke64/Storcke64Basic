@@ -50,6 +50,7 @@ End
 Public Sub _new()
   
   gvwComp.Columns.Count = 1
+  ScrollArea(gvwComp.Children[0]).NoAnimation = True
 
 End
 
@@ -68,15 +69,110 @@ Private Function GetClass() As String
   
 End
 
-Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Optional bStatic As Boolean, Optional bHidden As Boolean)
+Public Sub Position(hEditor As TextEditor)
 
+  Dim hPos As Point
   Dim iX As Integer
   Dim iY As Integer
-  Dim iPos As Integer
   Dim hCont As Container
+  
+  If hEditor <> $hEditor Then Return
+
+  hPos = $hEditor.ToPos($hEditor.Line, $iCol)
+  
+  iX = $hEditor.X + hPos.X - Stock.GetSize("tiny") - 6
+
+  iX = Max(0, Min(iX, $hEditor.Window.ClientW - Me.Width))
+
+  iY = hPos.Y + $hEditor.LineHeight
+
+  If (iY + Me.Height) > ($hEditor.Y + $hEditor.H) Then
+    iY = $hEditor.Y + $hEditor.ToPosY() - Me.Height
+    If iY < 0 Then
+      Me.Height += iY
+      iY = 0
+    Endif
+    panResizeBottom.Hide
+    panResizeTop.Show
+  Else
+    panResizeBottom.Show
+    panResizeTop.Hide
+  Endif
+
+  iY += $hEditor.Y
+  hCont = $hEditor.Parent
+  Do
+    If hCont Is Form Then Break
+    iX += hCont.X
+    iY += hCont.Y
+    hCont = hCont.Parent
+  Loop
+  
+  FCompletion.FixPosition($hEditor, ByRef iX, ByRef iY)
+  
+  Dec Application.Busy
+
+  If Me.Parent = $hForm And If iX = Me.X And If iY = Me.Y And If Me.Visible Then Return
+  
+  Me.Reparent($hForm, iX, iY)
+  If Not Me.Visible Then
+    Me.Show
+    Me.Raise
+  Endif
+  
+End
+
+Static Public Sub FixPosition(hEditor As TextEditor, Optional ByRef X As Integer, ByRef Y As Integer)
+
+  Dim bCompletion As Boolean
+  Dim bSignature As Boolean
+  
+  If IsMissing(X) And If IsMissing(Y) Then
+    bCompletion = FCompletion.VisibleFrom(hEditor)
+    bSignature = True
+  Else
+    bCompletion = True
+    bSignature = FSignature.VisibleFrom(hEditor)
+  Endif
+  
+  If bCompletion And If bSignature Then
+    
+    If IsMissing(X) And If IsMissing(Y) Then
+      X = FCompletion.X
+      Y = FCompletion.Y
+    Endif
+    
+    'Debug Y;; "/";; FSignature.Y;; FSignature.H
+    
+    'FIXME: Had a crash with Me.W inside that static function
+    
+    If X < FSignature.X + FSignature.W And If X + FCompletion.W > FSignature.X Then
+    
+      If Y = FSignature.Y Then
+        Y += FSignature.H - 1
+      Else If Y + FCompletion.H = FSignature.Y + FSignature.H Then
+        Y -= FSignature.H - 1
+      Endif
+      
+      If IsMissing(X) And If IsMissing(Y) Then
+        FCompletion.Move(X, Y)
+      Endif
+      
+    Endif
+    
+  Endif
+  
+End
+
+
+Public Sub Open(hCompletion As CCompletion, sMode As String, Optional sClass As String, Optional bStatic As Boolean, Optional bHidden As Boolean)
+
+  Dim iPos As Integer
   Dim sText As String
   Dim W, H As Integer
-  Dim hPos As Point
+  Dim hForm As Object
+
+  hForm = hCompletion.GetModule()
 
   If hForm.GetEditor() <> $hEditor Then HideFrom($hEditor)
   $bHideLater = False
@@ -92,7 +188,7 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
   $sMode = Left(sMode)
   $iLen = 0
   $iMaxLen = 16
-  $iCol = $hEditor.Column + 1
+  $iCol = $hEditor.Column
   $sClass = ""
   $sEventClass = ""
   
@@ -142,11 +238,6 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
       iPos = String.RInStr(sClass, "/")
       $sText = String.Mid$(sClass, iPos + 1)
       $iLen = String.Len($sText)
-      If Key.Code = Key.BackSpace Then
-        $iCol -= String.Len($sText) + 2
-        'sMode = "<"
-      Endif
-      'Debug "$iLen = "; $iLen;; "$iCol = "; $iCol;; ":";; $sText
       FillWithFiles(String.Left(sClass, iPos))
   End Select
 
@@ -161,7 +252,7 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
   'H = lvwComp.Item.H
   H = gvwComp.Rows.H
   
-  If sMode = "<" Or If sMode = "A" Then 
+  If hCompletion.Backspace Or If sMode = "A" Then 
     If FindItem(True) Then 
       Dec Application.Busy
       Return
@@ -199,47 +290,11 @@ Public Sub Open(hForm As Object, sMode As String, Optional sClass As String, Opt
 
   sText = String.Left($hEditor[$hEditor.Line].Text, $iCol)
   
-  If InStr(" ./", sMode) And If Key.Code <> Key.Backspace Then 
-    sText &= Key.Text
-  Endif
+  ' If InStr(" ./", sMode) Then 'And If Key.Code <> Key.Backspace Then 
+  '   sText &= hCompletion.Text
+  ' Endif
 
-  hPos = $hEditor.ToPos($hEditor.Line, $iCol)
-  
-  iX = $hEditor.X + hPos.X
-
-  iX = Max(0, Min(iX, $hEditor.Window.ClientW - Me.Width))
-
-  iY = hPos.Y + $hEditor.LineHeight
-
-  If (iY + Me.Height) > ($hEditor.Y + $hEditor.H) Then
-    iY = $hEditor.Y + $hEditor.ToPosY() - Me.Height
-    If iY < 0 Then
-      Me.Height += iY
-      iY = 0
-    Endif
-    panResizeBottom.Hide
-    panResizeTop.Show
-  Else
-    panResizeBottom.Show
-    panResizeTop.Hide
-  Endif
-
-  iY += $hEditor.Y
-  hCont = $hEditor.Parent
-  Do
-    If hCont Is Form Then Break
-    iX += hCont.X
-    iY += hCont.Y
-    hCont = hCont.Parent
-  Loop
-  
-  Dec Application.Busy
-
-  If Me.Parent = hForm And If iX = Me.X And iY = Me.Y And Me.Visible Then Return
-  
-  Me.Reparent(hForm, iX, iY)
-  Me.Show
-  Me.Raise
+  Position($hEditor)
   
   $hEditor.SetFocus
 
@@ -583,7 +638,7 @@ Private Sub FillWithIdent(sWord As String)
         If cKey.Exist(sCar) Then Continue
         If sCar Ends "$" And If cKey.Exist(Left(sCar, -1)) Then Continue
         cKey[sCar] = True
-        If sCar = UCase(sCar) Then sCar &= " "
+        If $bGambas And If System.Keywords.Exist(sCar) Then sCar &= " "
         aResult.Add(sCar & " " & MHelp.TYPE_KEYWORD)
       Endif
     Next
@@ -699,8 +754,8 @@ Private Sub FillWithFiles(sWord As String)
   Dim iPos As Integer
   Dim sName As String
   Dim sDir As String
-  Dim hPictFile As Picture = Picture["icon:/16/file"]
-  Dim hPictDir As Picture = Picture["icon:/16/directory"]
+  Dim hPictFile As Picture = Picture["icon:/small/file"]
+  Dim hPictDir As Picture = Picture["icon:/small/directory"]
   Dim aDir As String[]
   Dim bProject As Boolean
   Dim hPict As Picture
@@ -761,6 +816,13 @@ Private Sub FillWithFiles(sWord As String)
   
 End
 
+Private Sub HideMe()
+
+  Me.Hide
+  'Debug System.Backtrace.Join(" ")
+
+End
+
 Public Function ManageKey() As Boolean
 
   Dim iRow As Integer
@@ -769,65 +831,67 @@ Public Function ManageKey() As Boolean
 
     Case Key.Up, Key.PageUp
 
-      iRow = gvwComp.Row - If(Key.Code = Key.Up, 1, 8)
-      If iRow < 0 Then iRow = gvwComp.Rows.Count - 1
+      iRow = gvwComp.Row - If(Key.Code = Key.Up, 1, gvwComp.ClientH \ gvwComp.Rows.Height)
+      If Key.Code = Key.Up Then
+        If iRow < 0 Then iRow = gvwComp.Rows.Count - 1
+      Else
+        If iRow < 0 Then iRow = 0
+      Endif
       gvwComp.Row = iRow
       $bUserChoice = True
 
     Case Key.Down, Key.PageDown
 
-      iRow = gvwComp.Row + If(Key.Code = Key.Down, 1, 8)
-      If iRow >= gvwComp.Rows.Count Then iRow = 0
+      iRow = gvwComp.Row + If(Key.Code = Key.Down, 1, gvwComp.ClientH \ gvwComp.Rows.Height)
+      If Key.Code = Key.Down Then
+        If iRow >= gvwComp.Rows.Count Then iRow = 0
+      Else
+        If iRow >= gvwComp.Rows.Count Then iRow = gvwComp.Rows.Max
+      Endif
       gvwComp.Row = iRow
       $bUserChoice = True
 
     Case Key.Home
 
-      If gvwComp.Row = 0 Then
-        Me.Hide
-        Return
-      Endif
+      If gvwComp.Row = 0 Then Goto HIDE_ME
 
       gvwComp.Row = 0
       $bUserChoice = True
 
     Case Key.End
 
-      If gvwComp.Row = gvwComp.Rows.Count - 1 Then
-        Me.Hide
-        Return
-      Endif
+      If gvwComp.Row = gvwComp.Rows.Count - 1 Then Goto HIDE_ME
 
       gvwComp.Row = gvwComp.Rows.Count - 1
       $bUserChoice = True
 
-    Case Key.Escape
-      Me.Hide
-
-    Case Key.Left, Key.Right
-      Me.Hide
-      Return
+    Case Key.Escape, Key.Left, Key.Right
+      
+      Goto HIDE_ME
 
     Case Key.Enter, Key.Return
+      
       InsertItem
       'IF Key.Code <> Key.Tab THEN RETURN
 
     Case Key.Space
+      
       If Key.Control Then
         If UCase($sText) = "NEW" Then Return
         InsertItem(True)
+        Return False 
       Else
-        Me.Hide
+        Goto HIDE_ME
       Endif
-      Return False 
 
     Case Key.Backspace
+      
       'Debug $iLen;; $sText
       If String.Len($sText) > $iLen Then
         SetText(String.Left$($sText, -1))
       Else
-        $bHideLater = True
-        timHideLater.Trigger
+        '$bHideLater = True
+        'timHideLater.Trigger
       Endif
       Return False
       
@@ -848,38 +912,49 @@ Public Function ManageKey() As Boolean
           $sText &= Key.Text
           Return FindItem()
           
-        Else If InStr(FEditor.IDENT_CAR, Key.Text) Then
+        Else If Key.Text = "[" And If Not $sText Then
+          
+        Else If InStr(FEditor.IDENT_CAR, Key.Text) And If Key.Text <> "$" Then
           
           If Key.Text = "_" Then 
-            If GetEvents($sText) Then 
-              Me.Hide
-              Return 
-            Endif
+            If GetEvents($sText) Then Goto HIDE_ME
           Endif
         
           Return SetText($sText & Key.Text, True)
           
-        Else If Key.Text = "[" And If Not $sText Then
+        Else If $bGambas And If InStr(". A<", $sMode) Then
           
-          Me.Hide
+          If InStr("([.!", Key.Text) > 0 Then
           
-        Else If $bGambas And If InStr("([.!", Key.Text) > 0 And If InStr(". A<", $sMode) Then
-          
-          InsertItem
-          
-        Else
-          
-          Me.Hide
+            InsertItem
+            Return
+            
+          Else If InStr("=+-*/^", Key.Text) Then
+            
+            InsertItem(False, " " & Key.Text & " ")
+            Return True
+            
+          Else If InStr(":", Key.Text) Then
+            
+            InsertItem(False, ": ")
+            Return True
+            
+          Endif
           
         Endif
-        
-        Return False
+          
+        Goto HIDE_ME
         
       Endif
 
   End Select
 
   Return True
+  
+HIDE_ME:
+
+  HideMe
+  Return
 
 End
 
@@ -900,7 +975,7 @@ Private Function FindItem(Optional bNoInsert As Boolean) As Boolean
   Next
 
   If I >= gvwComp.Rows.Count Then
-    Me.Hide
+    HideMe
     Return 
   Endif 
   
@@ -934,7 +1009,7 @@ Private Function FindItem(Optional bNoInsert As Boolean) As Boolean
   
 End
 
-Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
+Private Function InsertItem(Optional bNoSpace As Boolean, sMore As String) As Boolean
 
   Dim sText As String
   Dim hClass As CClassInfo
@@ -943,7 +1018,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
 
   Try sText = gvwComp.Current.Text
   If Not sText Then Return True
-
+  
   If gvwComp[gvwComp.Row, 0].Picture = Picture["$symbol:event"] Then
     If $hForm.IsProc($hEditor[$hEditor.Line].Text) Then
       hClass = Project.Documentation.Classes[$sEventClass]
@@ -955,6 +1030,9 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
 
   If bNoSpace Then
     If Right(sText) = " " Then sText = Left$(sText, -1)
+  Else If sMore Then
+    If sMore Begins " " Then sText = RTrim(sText)
+    sText &= sMore
   Endif
 
   With $hEditor
@@ -963,7 +1041,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean) As Boolean
     .SetFocus
   End With
 
-  Me.Hide
+  HideMe
 
 End
 
@@ -1033,7 +1111,7 @@ Public Sub timHelp_Timer()
   Try hModule = $hEditor.Window
   If Not hModule Then Return
   
-  Try sSymbol = gvwComp.Current.Text
+  Try sSymbol = Trim(gvwComp.Current.Text)
   If sSymbol Then   
     iType = CInt(Left($aKey[gvwComp.Row]))
     sClass = $sClass
@@ -1107,7 +1185,7 @@ Public Sub HideFrom(hEditor As TextEditor)
   If $hEditor <> hEditor Then Return
   $hEditor = Null
   If Not Me.Visible Then Return
-  Me.Hide
+  HideMe
   
 End
 
@@ -1122,16 +1200,10 @@ Public Sub timHideLater_Timer()
   'Debug $bHideLater
   If Not $bHideLater Then Return
   $bHideLater = False
-  Me.Hide
+  HideMe
   
 End
  
-Static Public Sub IsPath(sWord As String) As Boolean
-  
-   If Left(sWord) = "/" Or If Left(sWord) = "~" Or If Left(sWord, 2) = "./" Or If sWord Begins "icon:/" Then Return True
-  
-End
-
 Public Sub panComp_Arrange()
 
   panResizeTop.Move(panComp.W - panResizeTop.W, 0)

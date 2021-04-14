@@ -7,6 +7,8 @@ Private $hPrinter As New Printer As "Printer"
 Private $bVerif As Boolean
 Private $bPrinting As Boolean
 Private $iFileRes As Integer = 150
+Static Property Path As String Use $sPath
+
 
 Static Public Function Run(hReport As Report)
   
@@ -88,6 +90,7 @@ Private Sub GetValuesFromReport()
   spHeight.Value = $hPrinter.PaperHeight
   Object.Unlock(spHeight)
   
+
 End
 
 Public Sub sldZoom_Change()
@@ -404,6 +407,9 @@ Public Sub Form_Close()
     Settings.Save()
   Endif
   
+  FPreview.Path = IIf(tabPrint.Index = 1, txtFile.Text, "")
+
+  
 End
 
 Public Sub Form_Open()
@@ -447,6 +453,13 @@ Public Sub Form_Open()
   
   btnOnePage.Value = True
   tabPrint_Click
+  
+  If FPreview.Path And If Not IsDir(FPreview.Path) Then
+    tabPrint.Index = 1
+    txtFile.Text = FPreview.Path
+  Endif
+  
+  
 End
 
 Public Sub btnZoomIn_Click()

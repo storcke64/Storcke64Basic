@@ -993,6 +993,7 @@ void CPROCESS_wait_for(CPROCESS *process, int timeout)
 			#ifdef DEBUG_ME
 			fprintf(stderr, "Watch process %d (end = %d)\n", process->pid, sigfd);
 			#endif
+			SIGNAL_check(SIGCHLD);
 			ret = WATCH_process(sigfd, process->out, process->err, timeout);
 			#ifdef DEBUG_ME
 			fprintf(stderr, "Watch process %d ->%s%s%s%s\n", process->pid, ret & WP_END ? " END" : "", ret & WP_OUTPUT ? " OUTPUT" : "", ret & WP_ERROR ? " ERROR" : "", ret & WP_TIMEOUT ? " TIMEOUT" : "");
@@ -1229,42 +1230,6 @@ BEGIN_METHOD_VOID(Process_CloseInput)
 	close_fd(&THIS->in);
 
 END_METHOD
-
-/*
-static int calc_mode(int arg)
-{
-	int mode = 0;
-	
-	if (arg & R_OK) mode += PM_READ;
-	if (arg & W_OK) mode += PM_WRITE;
-	if (arg & X_OK) mode += PM_SHELL;
-	
-	return mode;
-}
-
-BEGIN_METHOD(Process_Exec, GB_OBJECT command; GB_INTEGER mode; GB_OBJECT env)
-
-	CARRAY *command = (CARRAY *)VARG(command);
-	CARRAY *env = (CARRAY *)VARG(env);
-	
-	if (GB_CheckObject(command))
-		return;
-
-	init_process(THIS);
-	run_process(THIS, calc_mode(VARGOPT(mode, 0)), command, env);
-
-END_METHOD
-
-BEGIN_METHOD(Process_Shell, GB_STRING command; GB_INTEGER mode; GB_OBJECT env)
-
-	char *command = GB_ToZeroString(ARG(command));
-	CARRAY *env = (CARRAY *)VARG(env);
-	
-	init_process(THIS);
-	run_process(THIS, calc_mode(VARGOPT(mode, 0)) | PM_SHELL, command, env);
-
-END_METHOD
-*/
 
 #endif
 

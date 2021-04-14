@@ -56,6 +56,7 @@ double gt_from_alignment(int align, bool vertical = false);
 
 gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data);
 gboolean gcb_focus_out(GtkWidget *widget, GdkEventFocus *event, gControl *data);
+gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data);
 
 // Where to scroll to ensure that a specific area is visible
 
@@ -123,6 +124,10 @@ gPicture *gt_grab_window(GdkWindow *win, int x = 0, int y = 0, int w = 0, int h 
 
 void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float *th, int align, float *offX, float *offY);
 
+// Compute the extents of a layout
+
+void gt_layout_get_extents(PangoLayout *layout, int *w, int *h, bool pixels);
+
 #if GTK_CHECK_VERSION(2, 18, 0)
 #else
 void gtk_widget_set_can_focus(GtkWidget *widget, gboolean can_focus);
@@ -147,12 +152,11 @@ void gt_cairo_draw_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf, float x, float y, floa
 
 // Color functions
 
-gColor get_gdk_color(GdkColor *gcol);
+gColor gt_gdkcolor_to_color(GdkColor *gcol);
 #ifdef GTK3
 void fill_gdk_color(GdkColor *gcol, gColor color);
 #else
 void fill_gdk_color(GdkColor *gcol, gColor color, GdkColormap *cmap = NULL);
-#endif
 gColor get_gdk_text_color(GtkWidget *wid, bool enabled);
 void set_gdk_text_color(GtkWidget *wid,gColor color);
 gColor get_gdk_base_color(GtkWidget *wid, bool enabled);
@@ -161,6 +165,7 @@ gColor get_gdk_fg_color(GtkWidget *wid, bool enabled);
 void set_gdk_fg_color(GtkWidget *wid,gColor color);
 gColor get_gdk_bg_color(GtkWidget *wid, bool enabled);
 void set_gdk_bg_color(GtkWidget *wid,gColor color);
+#endif
 
 void gt_color_to_rgb(gColor color, int *r, int *g, int *b);
 gColor gt_rgb_to_color(int r, int g, int b);
@@ -172,14 +177,9 @@ void gt_color_to_frgba(gColor color, double *r, double *g, double *b, double *a)
 gColor gt_frgba_to_color(double r, double g, double b, double a);
 
 #ifdef GTK3
-
 void gt_from_color(gColor color, GdkRGBA *rgba);
 gColor gt_to_color(GdkRGBA *rgba);
 void gt_to_css_color(char *css, gColor color);
-
-void gt_widget_set_color(GtkWidget *widget, bool fg, gColor color, const char *name = NULL, const GdkRGBA *def_color = NULL);
-bool gt_style_lookup_color(GtkStyleContext *style, const char **names, const char **pname, GdkRGBA *rgba);
-
 #endif
 
 // Draw a control border
@@ -191,12 +191,14 @@ void gt_draw_border(cairo_t *cr, GtkStyleContext *st, GtkStateFlags state, int b
 // Style management
 
 #ifdef GTK3
-GtkStyleContext *gt_get_style(GType type);
+GtkStyleContext *gt_get_style(GType type, const char *node = NULL, const char *more_klass = NULL);
 #else
 GtkStyle *gt_get_style(GType type);
 #endif
 
 void gt_get_style_property(GType type, const char *name, void *pvalue);
+
+void gt_on_theme_change();
 
 void gMnemonic_correctText(char *st,char **buf);
 guint gMnemonic_correctMarkup(char *st,char **buf);
@@ -225,5 +227,19 @@ void gt_widget_reparent(GtkWidget *widget, GtkWidget *new_parent);
 #define gt_set_focus_on_click(_widget, _flag) (gtk_button_set_focus_on_click(GTK_BUTTON(_widget), (_flag)))
 #define gt_get_focus_on_click(_widget) (gtk_button_get_focus_on_click(GTK_BUTTON(_widget)))
 #endif
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+int gt_find_monitor(GdkMonitor *monitor);
+#endif
+
+#ifdef GTK3
+void gt_css_add_font(GString *css, gFont *font);
+void gt_css_add_color(GString *css, gColor bg, gColor fg);
+const char *gt_widget_set_name(GtkWidget *widget, const char *name);
+void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
+void gt_define_style_sheet(GtkStyleProvider **provider, GString *css);
+#endif
+
+void gt_widget_set_inverted(GtkWidget *widget, bool inverted);
 
 #endif

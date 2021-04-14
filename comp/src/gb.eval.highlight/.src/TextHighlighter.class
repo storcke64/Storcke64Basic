@@ -20,6 +20,7 @@ Static Public TextAfter As String
 Static Public Alternate As Boolean
 Static Public Limit As Boolean
 Static Public Comment As Boolean
+Static Public CanRewrite As Boolean
 
 Static Private $aStyle As TextHighlighterStyle[]
 
@@ -69,8 +70,8 @@ End
 
 Static Public Sub _get(Type As String) As TextHighlighter
 
-	Try Return Class.Load("TextHighlighter_" & Type).AutoCreate()
-	Error.Raise("Cannot load highlighter: '" & Type & "'")
+  Try Return Class.Load("TextHighlighter_" & Type).AutoCreate()
+  Error.Raise("Cannot load highlighter: '" & Type & "'")
 
 End
 
@@ -686,7 +687,6 @@ End
 '   
 '   
 ' End
-' 
 ' 
 ' 
 

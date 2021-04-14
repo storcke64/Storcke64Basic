@@ -12,3 +12,9 @@ Public Sub MaskBox1_Change()
   Debug Last.Text
 
 End
+
+Public Sub Button1_Click()
+
+  ButtonBox1.Enabled = Not ButtonBox1.Enabled
+
+End

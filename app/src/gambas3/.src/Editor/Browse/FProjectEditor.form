@@ -1,0 +1,165 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,107,64)
+  Persistent = True
+  Arrangement = Arrange.Vertical
+  { tlbProject ToolBar
+    MoveScaled(1,1,103,4)
+    Key = "project"
+    Text = ("Project browser")
+    Separator = True
+    { btnReload ToolButton
+      MoveScaled(0,0,4,4)
+      ToolTip = ("Reload")
+      Action = ".reload"
+      Picture = Picture["icon:/small/refresh"]
+    }
+    { btnParent ToolButton
+      MoveScaled(4,0,4,4)
+      Visible = False
+      ToolTip = ("Parent directory")
+      Action = ".up"
+      Picture = Picture["icon:/small/up"]
+    }
+    { Separator3 Separator
+      MoveScaled(18,0,1,4)
+    }
+    { btnZoomOut ToolButton
+      MoveScaled(20,0,4,4)
+      Action = ".zoom-out"
+      Picture = Picture["icon:/small/zoom-out"]
+    }
+    { sldIconSize Slider
+      MoveScaled(24,0,16,4)
+      Action = ".icon-size"
+      MaxValue = 8
+      PageStep = 1
+    }
+    { btnZoomIn ToolButton
+      MoveScaled(40,0,4,4)
+      Action = ".zoom-in"
+      Picture = Picture["icon:/small/zoom-in"]
+    }
+    { Separator1 Separator
+      MoveScaled(44,0,1,4)
+    }
+    { btnPreview ToolButton
+      MoveScaled(46,0,4,4)
+      ToolTip = ("Image preview")
+      Action = ".image-preview"
+      Picture = Picture["icon:/small/image"]
+      Toggle = True
+    }
+    { btnDetail ToolButton mnuShowDetailed
+      Name = "btnDetail"
+      MoveScaled(50,0,4,4)
+      ToolTip = ("Detailed view")
+      Action = ".detail"
+      Picture = Picture["icon:/small/view-detail"]
+      Toggle = True
+    }
+    { btnProperty ToolButton mnuProperty
+      Name = "btnProperty"
+      MoveScaled(53,0,4,4)
+      ToolTip = ("File properties")
+      Action = ".property"
+      Picture = Picture["icon:/small/info"]
+    }
+    { Separator2 Separator
+      MoveScaled(57,0,1,4)
+    }
+    { btnCopy ToolButton
+      MoveScaled(58,0,4,4)
+      ToolTip = ("Copy")
+      Action = ".copy"
+      Picture = Picture["icon:/small/copy"]
+    }
+    { btnCut ToolButton
+      MoveScaled(61,0,4,4)
+      ToolTip = ("Cut")
+      Action = ".cut"
+      Picture = Picture["icon:/small/cut"]
+    }
+    { btnPaste ToolButton
+      MoveScaled(64,0,4,4)
+      ToolTip = ("Paste")
+      Action = ".paste"
+      Picture = Picture["icon:/small/paste"]
+    }
+    { btnDelete ToolButton
+      MoveScaled(68,0,4,4)
+      ToolTip = ("Delete")
+      Action = ".delete"
+      Picture = Picture["icon:/small/trash"]
+    }
+  }
+  { fvwProject FileView
+    MoveScaled(2,9,93,50)
+    Expand = True
+    Border = False
+    Mode = Select.Multiple
+    ShowDirectory = True
+  }
+}
+
+# Gambas Action File 3.0
+
+{ Actions
+  { Action copy
+    Text = "Copy"
+    Picture = "icon:/small/copy"
+  }
+  { Action cut
+    Text = "Cut"
+    Picture = "icon:/small/cut"
+  }
+  { Action delete
+    Text = "Delete"
+    Picture = "icon:/small/trash"
+  }
+  { Action detail
+    Text = "Detailed view"
+    Picture = "icon:/small/view-detail"
+  }
+  { Action icon-size
+    Text = ""
+    Picture = "$Slider"
+  }
+  { Action image-preview
+    Text = "Image preview"
+    Picture = "icon:/small/image"
+  }
+  { Action paste
+    Text = "Paste"
+    Picture = "icon:/small/paste"
+  }
+  { Action property
+    Text = "File properties"
+    Picture = "icon:/small/info"
+  }
+  { Action reload
+    Text = "Reload"
+    Picture = "icon:/small/refresh"
+  }
+  { Action up
+    Text = "Parent directory"
+    Picture = "icon:/small/up"
+  }
+  { Action zoom-in
+    Text = ""
+    Picture = "icon:/small/zoom-in"
+  }
+  { Action zoom-out
+    Text = ""
+    Picture = "icon:/small/zoom-out"
+  }
+}
+
+{ Toolbars
+  { Toolbar project
+    Text = "Project browser"
+    List = "reload,up,zoom-out,icon-size,zoom-in,image-preview,detail,property,copy,cut,paste,delete"
+    Default = "reload,|,zoom-out,icon-size,zoom-in,|,image-preview,detail,property,|,copy,cut,paste,delete"
+  }
+}

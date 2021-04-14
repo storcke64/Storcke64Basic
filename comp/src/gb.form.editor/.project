@@ -2,7 +2,7 @@
 Title=Text editor with syntax highlighting
 Startup=FTestEditor
 Icon=.hidden/control/texteditor.png
-Version=3.15.90
+Version=3.16.0
 VersionFile=1
 Component=gb.image
 Component=gb.gui
@@ -10,6 +10,7 @@ Component=gb.form
 Component=gb.eval
 Component=gb.eval.highlight
 Component=gb.util
+Environment="GB_GUI=gb.qt5\n GB_NO_JIT=1"
 TabSize=2
 Language=en_US
 Type=Component

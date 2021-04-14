@@ -10,7 +10,7 @@ Private $iEndLine As Integer
 Private $iEndColumn As Integer
 
 Private $hLabel As TextLabel
-Private $hLabelTimer As Timer
+'Private $hLabelTimer As Timer
 Private $hObserver As Observer
 
 Private $bLabelBottom As Boolean
@@ -33,7 +33,7 @@ Public Sub ReadConfig(Optional bPreview As Boolean)
 
   MTheme.InitEditor(Me)
 
-  Me.ShowPosition = True
+  Me.ShowPosition = Not bPreview
   Me.ShowLimit = Settings["/Editor/ProcedureLimit", True]
   Me.ShowModified = Settings["/Editor/ShowChange", True]
   Me.ShowLineNumber = Settings["/Editor/ShowLineNumbers", False]
@@ -197,18 +197,19 @@ Public Sub RecallSelection()
 
 End
 
-Public Sub LabelTimer_Timer()
-
-  If $hLabel.Visible Then
-    HideMessageLabel
-    $hLabelTimer.Stop
-  Endif
-
-End
+' Public Sub LabelTimer_Timer()
+' 
+'   If $hLabel.Visible Then
+'     HideMessageLabel
+'     $hLabelTimer.Stop
+'   Endif
+' 
+' End
 
 Public Sub Label_MouseDown()
 
-  LabelTimer_Timer
+  'LabelTimer_Timer
+  HideMessageLabel
 
 End
 
@@ -244,16 +245,17 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
   If Not $hLabel Then
     
     hParent = Me.Parent
-    If hParent Is HSplit Or If hParent Is VSplit Then hParent = hParent.Parent
+    If hParent Is Splitter Then hParent = hParent.Parent
     
     $hLabel = New TextLabel(hParent) As "Label"
+    $hLabel.Font = Me.Font
     $hLabel.Ignore = True
     $hLabel.AutoResize = True
     $hLabel.Border = Border.None 'If(bBottom, Border.None, Border.Plain)
-    $hLabel.Padding = 2
+    $hLabel.Padding = Desktop.Scale \ 2
     $hLabel.Wrap = False
-    $hLabelTimer = New Timer As "LabelTimer"
-    $hLabelTimer.Delay = 10000
+    '$hLabelTimer = New Timer As "LabelTimer"
+    '$hLabelTimer.Delay = 10000
     
   Endif
   
@@ -265,10 +267,10 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     $hLabel.Border = Border.Plain
   Else
     $hLabel.Background = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
-    $hLabel.Foreground = Me.Styles[Highlight.Background].Color
+    $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
     $hLabel.Border = Border.None
   Endif
-  $hLabel.Text = "&nbsp;&nbsp;" & Replace(Replace(sStr, "<p>", " "), "<br>", " ") & "&nbsp;&nbsp;"
+  $hLabel.Text = Replace(Replace(sStr, "<p>", " "), "<br>", " ")
 
   $bLabelBottom = bBottom
   
@@ -276,7 +278,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
   $hLabel.Raise
   MoveMessageLabel
   
-  $hLabelTimer.Restart
+  '$hLabelTimer.Restart
   Me.SetFocus
 
 End
@@ -370,10 +372,10 @@ Static Public Sub GetModeFromPath(sPath As String) As String
     Case "c"
       sMode = "c"
     Case "cpp", "h"
-      sMode = "c++"
+      sMode = "cplusplus"
     Case "gbs"
       sMode = "gambas"
-    Case "html", "htm", "xml", "kml", "rss"
+    Case "html", "htm", "xml", "kml", "rss", "svg"
       sMode = "html"
     Case "module", "test", "class"
       If Project.IsSourcePath(sPath) Then sMode = "gambas"
@@ -461,11 +463,11 @@ HANDLE_REMOVED:
 
 End
 
-Public Sub FillWithHistory(sPath As String)
+Public Sub FillWithHistory(sPath As String, Optional sPath2 As String, Optional bFull As Boolean)
   
   Inc Application.Busy
   Me.Clear
-  Me.Text = VersionControl.History(sPath)
+  Me.Text = VersionControl.History(sPath, sPath2, bFull)
   Me.SetFocus
   Me.Reset
   Dec Application.Busy
@@ -475,5 +477,28 @@ End
 Public Sub Editor_Change()
   
   $iLastLine = -1
+  
+End
+
+Public Sub StartModifySelection(Optional ByRef iStartLine As Integer, ByRef iEndLine As Integer) As String[]
+  
+  Dim aLines As String[]
+  
+  aLines = Me.GetSelectedLines()
+
+  iStartLine = Min(Me.SelectionLine, Me.Line)
+  iEndLine = Max(Me.SelectionLine, Me.Line)
+  
+  Return aLines
+  
+End
+
+Public Sub EndModifyLines(Optional aLines As String[])
+  
+  If aLines Then
+    StoreSelection
+    Me.Insert(aLines.Join("\n") & "\n")
+    RecallSelection
+  Endif
   
 End

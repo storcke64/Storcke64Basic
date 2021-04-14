@@ -51,7 +51,7 @@ End
 Public Sub ProjectItem_Click(sPath As String, (bAnother) As Boolean)
   
   $sTemplate = sPath
-  Balloon.Hide
+  'Balloon.Hide
   
 End
 
@@ -169,7 +169,7 @@ Public Sub wizProject_BeforeChange()
     
     Case 0
       If Not $sTemplate Then
-        Balloon.Warning(("Please choose a template"), svwTemplate)
+        Message.Info(("Please choose a project template."))
         Stop Event
       Endif
       $bRepository = File.Name($sTemplate) = "~subversion"
@@ -197,7 +197,7 @@ Public Sub wizProject_Close()
   
     If Not Trim(txtRepository.Text) Then
       txtRepository.SetFocus
-      Balloon.Warning(("Please enter the location of the repository."), txtRepository)
+      Message.Warning(("Please enter the location of the repository."))
       Return
     Endif
   
@@ -207,7 +207,7 @@ Public Sub wizProject_Close()
     If sMsg
       txtName.SetFocus
       txtName.SelectAll
-      Balloon.Warning(sMsg, txtName)
+      Message.Warning(sMsg)
       Return
     Endif  
 

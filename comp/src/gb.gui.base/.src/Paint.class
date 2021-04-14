@@ -7,63 +7,96 @@ Static Private $sLastFont As String
 
 Static Private Sub AddThreeDots(sStr As String) As String
   
-  While InStr(". \n", Right(sStr))
+  Do
+    sStr = RTrim(sStr)
+    If Right(sStr) <> "." Then Break 
     sStr = Left(sStr, -1)
-  Wend
-  Return sStr & "…"
+  Loop
+  
+  If sStr Then sStr &= "…"
+  
+  Return sStr
   
 End
 
+Static Private Sub TrimTextLine(sText As String, W As Float, Optional bDots As Boolean) As String[]
+
+  Dim I As Integer
+  Dim WT As Integer
+  Dim L As Integer
+  Dim aResult As New String[]
+  Dim sCar As String
+  Dim P As Integer
+  
+  If Not sText Then Return [""]
+  L = String.Len(sText)
+  
+  While I < L
+    Inc I
+    
+    sCar = String.Mid$(sText, I, 1)
+    If sCar = " " Or If sCar = "-" Then P = I
+    
+    If bDots Then
+      WT = Paint.Font.TextWidth(AddThreeDots(String.Left(sText, I)))
+    Else
+      WT = Paint.Font.TextWidth(RTrim(String.Left(sText, I)))
+    Endif
+    If WT > W Then
+      If P = 0 Then P = I - 1
+      aResult.Add(String.Left(sText, P))
+      If P = 0 Then Return aResult
+      sText = String.Mid$(sText, P + 1)
+      L = String.Len(sText)
+      I = 0
+      P = 0
+    Endif
+    
+  Wend
+  
+  If sText Then aResult.Add(sText)
+  
+  Return aResult
+  
+End
 
 Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As String
   
-  Dim I, S, L As Integer
-  Dim HL As Integer = Paint.Font.Height
-  Dim sLine As String
-  Dim sSep As String
-  Dim sCar As String
-  Dim SL As Integer
-  Dim WT As Integer
-  Dim HT As Integer
+  Dim I As Integer
+  Dim HL As Integer
+  Dim aText As String[]
+  Dim N As Integer
+  Dim aResult As String[]
+  Dim bAddDots As Boolean
   
-  If Not Text Then Return
+  If Not Text Or If W <= 0 Then Return
   
-  If H = 0 Then H = HT
-  HT = HL
-  SL = 1
-  L = String.Len(Text)
+  HL = Paint.Font.TextHeight("")
+  If H = 0 Then H = HL
   
-  For I = 1 To L
-    
-    sCar = String.Mid$(Text, I, 1)
-    If I < L And If InStr(" \n", sCar) = 0 Then Continue
-    
-    sLine = String.Mid$(Text, SL, I - SL)
-    
-    If (HT + HL) > H Then
-      WT = Paint.Font.TextWidth(sLine & "…")
-      If WT > W Then
-        Return AddThreeDots(String.Left(Text, S - 1))
-      Else If sCar = "\n" Then
-        Return AddThreeDots(String.Left(Text, I - 1))
-      Endif
-    Else
-      WT = Paint.Font.TextWidth(sLine)
-      If WT > W Then
-        Text = String.Left(Text, S - 1) & "\n" & String.Mid$(Text, S + 1)
-        HT += HL
-        SL = S + 1
-        Dec I
-      Endif
+  N = CInt(H / HL) - 1
+  If N < 0 Then Return
+  
+  aText = Split(Text, "\n")
+
+  Do
+    If I > N Then 
+      bAddDots = N < aText.Max
+      aText.Remove(N + 1, -1)
+      aResult = TrimTextLine(aText.Last, W, True)
+      aText.Last = aResult[0]
+      If aResult.Count > 1 Then bAddDots = True
+      If bAddDots Then aText.Last = AddThreeDots(aText.Last)
+      Break
     Endif
-    
-    sSep = sCar
-    S = I
-    If sSep = "\n" Then HT += HL
-    
-  Next
-  
-  Return Text
+    If I >= aText.Count Then Break
+    aResult = TrimTextLine(aText[I], W)
+    aText.Remove(I)
+    aText.Insert(aResult, I)
+    I += aResult.Count
+  Loop
+
+  Return aText.Join("\n")
   
 End
 
@@ -73,9 +106,12 @@ Static Private Sub HtmlLeft(sHtml As String, iPos As Integer) As String
   Dim bMarkup As Boolean
   Dim sCar As String
   Dim I As Integer
+  Dim aHtml As String[]
 
   For I = 1 To String.Len(sHtml)
+    
     sCar = String.Mid(sHtml, I, 1)
+    
     If sCar = "<" Then
       bMarkup = True
       sRes &= sCar
@@ -85,10 +121,25 @@ Static Private Sub HtmlLeft(sHtml As String, iPos As Integer) As String
       sRes &= sCar
       Continue
     Endif
+    
     If bMarkup Or If I <= iPos Then sRes &= sCar
+    
   Next
 
-  Return sRes
+  aHtml = Main.SplitHTML(sRes)
+  I = 0
+  While I < aHtml.Max
+    sCar = aHtml[I]
+    If sCar Begins "<" And If sCar Ends ">" Then
+      If aHtml[I + 1] = "</" & Mid$(sCar, 2, -1) & ">" Then
+        aHtml.Remove(I, 2)
+        Continue
+      Endif
+    Endif
+    Inc I
+  Wend
+
+  Return RTrim(aHtml.Join(""))
   
 End
 
@@ -97,11 +148,16 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
   Dim I As Integer
   Dim sCar As String
   Dim bMarkup As Boolean
+  Dim iLen As Integer
+  Dim sText As String
+  Dim sLeft As String
+  Dim sPrevLeft As String
   
-  If Not RichText Then Return
-  If H = 0 Then H = Paint.Font.Height
+  If Not RichText Or If W <= 0 Then Return
+  If H = 0 Then H = Paint.Font.TextHeight("")
   
-  For I = 1 To String.Len(RichText)
+  iLen = String.Len(RichText)
+  For I = 1 To iLen
     sCar = String.Mid(RichText, I, 1)
     If sCar = "<" Then
       bMarkup = True
@@ -109,10 +165,17 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
       bMarkup = False
     Endif
     If bMarkup Then Continue
-    If Paint.Font.RichTextHeight(HtmlLeft(RichText, I) & "…", W) > H Then Break
+    sPrevLeft = sLeft
+    sLeft = HtmlLeft(RichText, I)
+    If Paint.Font.RichTextHeight(sLeft, W) > H Then Break
   Next
   
-  Return HtmlLeft(RichText, I - 1) & "…"
+  If I = 1 Then Return
+  If I > iLen Then Return RichText
+  
+  sText = sPrevLeft
+  If sText Then sText = AddThreeDots(sText)
+  Return sText
   
 End
 
@@ -215,6 +278,14 @@ Static Public Sub DrawRichTextShadow(Text As String, X As Float, Y As Float, W A
   
 End
 
+'' Stretch and draw an image or part of an image so that it fits a specified rectangle.
+''
+'' - ~Image~ is the image to draw.
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the position and size of the target rectangle.
+'' - ~Alignment~ is the alignment of the stretched image inside the targer rectangle. It's [Align.Center](../../align/center) by default.
+'' - ~Opacity~ is the opacity of the painting. By default it is '1.0', i.e. fully opaque.
+'' - ~Source~ defines the part of the image to draw. By default it is 'NULL', i.e. the entire image is drawn.
+
 Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width As Float, Height As Float, Optional Alignment As Integer = Align.Center, Optional Opacity As Float = 1, Optional Source As Rect)
   
   Dim W As Float
@@ -250,6 +321,12 @@ Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width A
   Paint.DrawImage(Image, X, Y, W, H, Opacity, Source)
   
 End
+
+'' Draw a rectangle frame
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the position and size of the rectangle.
+'' - ~Color~ is the color used for painting the rectangle.
+'' - ~Size~ is the width of the rectangle border. It's '1' pixel by default. If negative, then the frame will be painted outside of the rectangle, otherwise inside.
 
 Static Public Sub DrawRect(X As Float, Y As Float, Width As Float, Height As Float, (Color) As Integer, Optional Size As Float = 1)
   
@@ -407,11 +484,23 @@ End
 ' End
 ' 
 
+'' Add an arrow to the current path.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the arrow, and hence its size.
+'' - ~Orientation~ is the orientation of the arrow. It can be one the four following constants:
+''   - [Align.Top](../../align/top) for a top arrow.
+''   - [Align.Bottom](../../align/top) for a bottom arrow.
+''   - [Align.Left](../../align/top) for a left arrow.
+''   - [Align.Right](../../align/top) for a right arrow.
+'' - ~Alignment~ is the alignment of the arrow inside the specified rectangle. It's [Align.Center](../../align/center) by default.
+''
+'' Once the arrow is drawn, you must then use the [../stroke] method to actually paint it.
+
 Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float, Orientation As Integer, Optional Alignment As Integer = Align.Center)
 
   Dim SX, SY As Float
 
-  SX = Min(Width / 2, Height / 2) / 2
+  SX = Min(Width, Height) / 4
   If SX <= 0 Then Return
   SY = SX * 2
   
@@ -465,6 +554,12 @@ Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float,
   End Select
   
 End
+
+'' Add a check mark to the current path.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the check mark, and hence its size.
+'' 
+'' Once the check mark is drawn, you must then use the [../stroke] method to actually paint it.
 
 Static Public Sub Check(X As Float, Y As Float, Width As Float, Height As Float)
   

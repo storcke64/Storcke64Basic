@@ -6,11 +6,15 @@
   Arrangement = Arrange.Vertical
   { TerminalView1 TerminalView
     MoveScaled(4,3,63,35)
-    Font = Font["Liberation Mono,10"]
+    Font = Font["Gambas,11"]
+    Background = Color.TextBackground
+    Foreground = Color.TextForeground
     Expand = True
     Border = False
     Limit = 0
     Blink = True
+    ShowLink = True
+    ReadOnly = True
   }
   { Panel1 HBox
     MoveScaled(2,45,120,5)

@@ -68,6 +68,7 @@ uninstall-local:
 		xdg-mime uninstall $(srcdir)/mime/application-x-gambasserverpage.xml; \
 		xdg-icon-resource uninstall --context mimetypes --size 256 application-x-gambasscript; \
 		xdg-icon-resource uninstall --context mimetypes --size 256 application-x-gambasserverpage; \
+		xdg-icon-resource uninstall --context apps --size 256 gambas3; \
 	fi
 	@rm -rf $(DESTDIR)$(datarootdir)/metainfo/gambas3.appdata.xml
 	@rm -rf $(DESTDIR)$(datarootdir)/appdata/gambas3.appdata.xml

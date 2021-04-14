@@ -24,7 +24,6 @@
 #define __GBX_C
 
 #include "config.h"
-#include "../trunk_version.h"
 
 //#define USE_PROFILE 1
 
@@ -212,11 +211,7 @@ static bool is_option_arg(char **argv, int argc, int *i, char option, const char
 static void print_version()
 {
 #ifdef TRUNK_VERSION
-#ifdef TRUNK_VERSION_GIT
 	printf(VERSION " " TRUNK_VERSION "\n");
-#else /* from svn */
-	printf(VERSION " r" TRUNK_VERSION "\n");
-#endif
 #else /* no TRUNK_VERSION */
 	printf(VERSION "\n");
 #endif
@@ -271,6 +266,7 @@ int main(int argc, char *argv[])
 				printf("  -e              evaluate an expression\n");
 
 			printf(
+				"  -a <path>       override application path\n"
 				"  -g              enter debugging mode\n"
 				"  -h --help       display this help\n"
 				"  -H --httpd      run through an embedded http server\n"
@@ -375,6 +371,9 @@ int main(int argc, char *argv[])
 		else if (is_option_arg(argv, argc, &i, 'T', "test", &_tests))
 		{
 			PROJECT_run_tests = TRUE;
+		}
+		else if (is_option_arg(argv, argc, &i, 'a', NULL, &PROJECT_override))
+		{
 		}
 		else if (is_option(argv[i], '-'))
 		{

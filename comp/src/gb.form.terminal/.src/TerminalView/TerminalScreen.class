@@ -25,13 +25,13 @@ Public WrapMode As Boolean
 Public HideCursor As Boolean
 
 Static Private $aDarkColor As Integer[] = [
-  &H404040, &HC00000, &H00C000, &HD0C000, &H005090, &H900090, &H009090, &HC0C0C0,
-  &HA0A0A0, &HFF0000, &H00FF00, &HFFFF00, &H0080FF, &HFF00FF, &H00FFFF, &HFFFFFF]
+  &H404040, &HC00000, &H00C000, &HC0A300, &H005090, &H900090, &H009090, &HC0C0C0,
+  &HA0A0A0, &HFF0000, &H00FF00, &HFFDD00, &H0080FF, &HFF00FF, &H00FFFF, &HFFFFFF]
   '&H808080, &HC00000, &H00C000, &HD0C000, &H0060C0, &H800080, &H008080, &HFFFFFF,
   '&H000000, &HFF0000, &H00FF00, &HFFFF00, &H0080FF, &HFF00FF, &H00FFFF, &HC0C0C0]
 
 Static Private $aColor As Integer[] = [
-  &H000000, &HC00000, &H00C000, &HD0C000, &H0060C0, &H900090, &H009090, &HC0C0C0,
+  &H000000, &HC00000, &H00C000, &HC0A300, &H0060C0, &H900090, &H009090, &HC0C0C0,
   &H808080, &H800000, &H008000, &H606000, &H004080, &H600060, &H006060, &HF0F0F0,
   &H000000, &H00005F, &H000087, &H0000AF, &H0000D7, &H0000FF,
   &H005F00, &H005F5F, &H005F87, &H005FAF, &H005FD7, &H005FFF,
@@ -91,6 +91,9 @@ Public Lines As New CTerminalLine[]
 Private $W As Integer
 Private $H As Integer
 
+' If a line had to be broken
+Private $bBrokenLine As Boolean
+
 ' Cursor position
 Private $X As Integer
 Private $Y As Integer
@@ -107,6 +110,12 @@ Private $X1 As Integer
 Private $Y1 As Integer
 Private $X2 As Integer
 Private $Y2 As Integer
+
+' Link
+Private $LX1 As Integer
+Private $LY1 As Integer
+Private $LX2 As Integer
+Private $LY2 As Integer
 
 ' Scroll area
 Private $iScrollStart As Integer = -1
@@ -144,18 +153,127 @@ End
 Public Sub Clear()
   
   Lines.Clear
+  $bBrokenLine = False
   GetView()._UpdateSize
   Goto(0, 0)
+  
+End
+
+Fast Private Sub Relayout(W As Integer)
+
+  Dim aAttr As Integer[]
+  Dim aLines As String[]
+  Dim I As Integer
+  Dim hLine As CTerminalLine
+  Dim sText As String
+  Dim SY As Integer
+  Dim L As Integer
+  Dim sLine As String
+  Dim hView As TerminalView
+  Dim D As Integer
+
+  hView = GetView()
+
+  'fTimer = Timer
+  aAttr = New Integer[]
+  aLines = New String[]
+  
+  D = Lines.Count - 10000
+  If D < 0 Then D = 0
+  
+  SY = -1
+
+  For I = D To Lines.Max
+    If I = $Y Then SY = aLines.Count
+    hLine = Lines[I]
+    If hLine Then
+      sText &= hLine.Text
+      aAttr.Insert(hLine.GetFullAttr())
+      If hLine.NewLine Then 
+        aLines.Add(sText)
+        sText = ""
+        'aAttr.Insert(&H00000100)
+      Endif
+    Endif
+  Next
+  
+  aLines.Add(sText)
+  'Debug "#1 "; Timer - fTimer;; $X;; $Y
+  
+  'fTimer = Timer
+  
+  'SX = $X
+  'SY = $Y
+
+  hView._DisableUpdateSize()
+
+  Lines.Remove(D, -1)
+  If D = 0 Then $bBrokenLine = False
+  'GetView()._UpdateSize
+  'Goto(0, D)
+
+  L = D
+  For I = 0 To aLines.Max
+    
+    If I = SY Then $Y = L
+    
+    sLine = aLines[I]
+    While String.Len(sLine) > W
+      With GetLine(L)
+        .Text = String.Left(sLine, W)
+        .Length = W
+      End With
+      sLine = String.Mid$(sLine, W + 1)
+      Inc L
+      $bBrokenLine = True
+      
+      If I = SY Then
+        If $X >= W Then
+          $X -= W
+          $Y = L
+        Endif
+      Endif
+      
+    Wend
+
+    With GetLine(L)
+      .Text = sLine
+      .Length = String.Len(sLine)
+      .NewLine = I < aLines.Max
+    End With
+    Inc L
+    
+  Next
+  
+  'Debug "#2 "; Timer - fTimer;; $X;; $Y
+  
+  'fTimer = Timer
+  
+  For I = D To Lines.Max
+    Lines[I].InitAttr(aAttr)
+  Next
+  
+  'Debug "#3 "; Timer - fTimer
+
+  hView._EnableUpdateSize()
+  hView._UpdateSize
+  'hView.EnsureVisible()
   
 End
 
 Public Sub Resize(W As Integer, H As Integer) As Boolean
   
   If W <> $W Or If H <> $H Then
+    
+    If Not GetView().AlternateScreen And If Lines.Count < 100000 Then
+      If $bBrokenLine Or If W < $W Then
+        Relayout(W)
+      Endif
+    Endif
+      
     $W = W
     $H = H
-    $X = Min($X, $W - 1)
-    $Y = ScreenTop() + Max(0, Min($Y - ScreenTop(), $H - 1))
+
     $X1 = 0
     $Y1 = 0
     $X2 = 0
@@ -163,6 +281,7 @@ Public Sub Resize(W As Integer, H As Integer) As Boolean
     'Debug "$Y = "; $Y
     $iScrollStart = -1
     $iScrollEnd = -1
+
     If GetView().AlternateScreen Then
       If Lines.Count > $H Then
         Lines.Resize($H)
@@ -170,12 +289,17 @@ Public Sub Resize(W As Integer, H As Integer) As Boolean
       Endif
     Endif
     $hLineCache = Null
+    
+    $X = Min($X, $W - 1)
+    $Y = ScreenTop() + Max(0, Min($Y - ScreenTop(), $H - 1))
+
     Return True
+    
   Endif
   
 End
 
-Public Sub GetLine(Y As Integer) As CTerminalLine
+Fast Public Sub GetLine(Y As Integer) As CTerminalLine
   
   Dim hLine As CTerminalLine
   
@@ -190,6 +314,15 @@ Public Sub GetLine(Y As Integer) As CTerminalLine
   Endif
   
   Return hLine
+  
+End
+
+Fast Public Sub GetLineLength(Y As Integer) As Integer
+
+  Dim hLine As CTerminalLine
+  
+  hLine = Lines[Y]
+  If hLine Then Return hLine.Length
   
 End
 
@@ -231,9 +364,10 @@ Private Sub Insert(sText As String, Optional X As Integer = $X)
         Return
       Endif
       Insert(sLeft, X)
-      sText = String.Mid$(sText, iLen + 1) 
+      sText = String.Mid$(sText, iLen + 1)
     Endif
     If WrapMode Then
+      $bBrokenLine = True
       Index()
       $X = 0
       Insert(sText)
@@ -299,6 +433,7 @@ Public Sub Print(sText As String)
     
     Select Case iCode
       Case 7
+        Bell
       Case 8
         CursorLeft
       Case 9
@@ -323,6 +458,11 @@ Public Sub Print(sText As String)
 End
 
 Private Sub NewLine()
+
+  Dim hLine As CTerminalLine
+  
+  hLine = GetLine($Y)
+  hLine.NewLine = True
   
   If NewlineMode Then $X = 0
   Index()
@@ -854,6 +994,8 @@ Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Int
   
   If Paint.W > X Then Paint.FillRect(X, Y, Paint.W - X, LH, hView.Background)
   
+  'If hLine.NewLine Then Paint.FillRect(Paint.W - 1, Y, 1, 4, Color.Yellow)
+  
   Return
   
 DRAW_TEXT:
@@ -1024,12 +1166,19 @@ DRAW_BOLD_CHAR:
   
 End
 
-Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As Integer, ByRef Y2 As Integer) As Boolean
+Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As Integer, ByRef Y2 As Integer, Optional bLink As Boolean) As Boolean
   
-  Y1 = $Y1
-  Y2 = $Y2
-  X1 = $X1
-  X2 = $X2
+  If bLink Then
+    Y1 = $LY1
+    Y2 = $LY2
+    X1 = $LX1
+    X2 = $LX2
+  Else
+    Y1 = $Y1
+    Y2 = $Y2
+    X1 = $X1
+    X2 = $X2
+  Endif
   
   If Y1 > Y2 Then
     Swap Y1, Y2
@@ -1052,15 +1201,20 @@ Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As I
   
 End
 
+Public Sub HasLink() As Boolean
+  
+  Dim X1, X2, Y1, Y2 As Integer
+
+  Return GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, True)
+  
+End
+
 Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bDarkBackground As Boolean)
   
   Dim hView As TerminalView = GetView()
   Dim L, L1, L2 As Integer
   Dim Y As Integer
-  Dim X1 As Integer
-  Dim X2 As Integer
-  Dim Y1 As Integer
-  Dim Y2 As Integer
+  Dim X1, X2, Y1, Y2 As Integer
   
   If Not $hLineCache Then $hLineCache = New Image($W * CW, LH)
   $cCharCache.Clear
@@ -1098,6 +1252,28 @@ Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHide
           X2 = Paint.W
         Endif
         If X2 > X1 Then Paint.FillRect(X1, Y, X2 - X1, LH, Color.SetAlpha(Color.SelectedBackground, 128))
+      Endif
+      
+    Endif
+    
+    ' Link
+    
+    If GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, True) Then
+      
+      If L >= Y1 And If L <= Y2 Then
+        If L = Y1 Then
+          X1 *= CW
+        Else
+          X1 = 0
+        Endif
+        If L = Y2 Then
+          X2 *= CW
+        Else
+          X2 = Paint.W
+        Endif
+        If X2 > X1 Then
+          Paint.FillRect(X1, Y + LH, X2 - X1, -((LH + 15) \ 16), Color.SetAlpha(Color.SelectedBackground, 64))
+        Endif
       Endif
       
     Endif
@@ -1202,7 +1378,7 @@ Private Function HasMode_Read() As Boolean
   
 End
 
-Public Sub GetSelectedText() As String
+Public Sub GetSelectedText(Optional bLink As Boolean) As String
   
   Dim X1 As Integer
   Dim X2 As Integer
@@ -1210,15 +1386,20 @@ Public Sub GetSelectedText() As String
   Dim Y2 As Integer
   Dim sText As String
   Dim Y As Integer
+  Dim hLine As CTerminalLine
   
-  If Not GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2) Then Return
+  If Not GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2, bLink) Then Return
   
   If Y2 = Y1 Then
     sText = String.Mid$(GetLine(Y1).Text, X1 + 1, X2 - X1)
   Else
-    sText = String.Mid$(GetLine(Y1).Text, X1 + 1) & "\n"
+    hLine = GetLine(Y1)
+    sText = String.Mid$(hLine.Text, X1 + 1)
+    If hLine.NewLine Then sText &= "\n"
     For Y = Y1 + 1 To Y2 - 1
-      sText &= GetLine(Y).Text & "\n"
+      hLine = GetLine(Y)
+      sText &= hLine.Text
+      If hLine.NewLine Then sText &= "\n"
     Next
     sText &= String.Left$(GetLine(Y2).Text, X2)
   Endif
@@ -2255,4 +2436,21 @@ Private Function Count_Read() As Integer
 
   Return Lines.Count
 
+End
+
+Public Sub SetLink(Optional X1 As Integer, Y1 As Integer, X2 As Integer, Y2 As Integer) As Boolean
+  
+  If $LX1 = X1 And If $LY1 = Y1 And If $LX2 = X2 And If $LY2 = Y2 Then Return True
+  
+  $LX1 = X1
+  $LY1 = Y1
+  $LX2 = X2
+  $LY2 = Y2
+  
+End
+
+Private Sub Bell()
+  
+  GetView()._Bell()
+  
 End

@@ -21,15 +21,16 @@
 
 ***************************************************************************/
 
+#include "gb.form.const.h"
 #include "widgets.h"
 #include "gdesktop.h"
 #include "gapplication.h"
 #include "gscrollbar.h"
 #include "gslider.h"
 
-static void cb_change(GtkAdjustment *adj, gSlider *data)
+static void cb_change(GtkRange *wid, gSlider *data)
 {
-	int new_value = gtk_adjustment_get_value(adj);
+	int new_value = gtk_adjustment_get_value(gtk_range_get_adjustment(wid));
 
 	if (data->_value == new_value)
 		return;
@@ -41,52 +42,48 @@ static void cb_change(GtkAdjustment *adj, gSlider *data)
 
 void gSlider::update()
 {
-	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	int value = _value;
+	int max;
 	
 	if (value < _min)
 		value = _min;
 	else if (value > _max)
 		value = _max;
 	
-	if (g_typ == Type_gSlider)
+	//gtk_range_set_adjustment(GTK_RANGE(widget), NULL);
+	
+	max = _max + _page_step;
+	/*if (!isScrollBar())
 	{
-#ifndef GTK3
-	if (_min == _max)
-		_max = _min + 1;
-#endif
-		gtk_range_set_range(GTK_RANGE(widget), (gdouble)_min, (gdouble)_max);
-		gtk_range_set_increments(GTK_RANGE(widget), (gdouble)_step, (gdouble)_page_step);
-	}
-	else
-	{
-		gtk_range_set_range(GTK_RANGE(widget), (gdouble)_min, (gdouble)_max + _page_step);
-		gtk_range_set_increments(GTK_RANGE(widget), (gdouble)_step, (gdouble)_page_step);
-		gtk_adjustment_set_page_size(adj, _page_step);
-	}
-	gtk_range_set_value(GTK_RANGE(widget), value);
-#ifndef GTK3
+		#ifndef GTK3
+		if (max == _min)
+			max = _min + 1;
+		#endif
+	}*/
+	
+	gtk_adjustment_configure(adj, value, _min, max, _step, _page_step, _page_step);
+	
+	#ifndef GTK3
 	gtk_range_set_update_policy(GTK_RANGE(widget), _tracking ? GTK_UPDATE_CONTINUOUS : GTK_UPDATE_DISCONTINUOUS);
-#endif
+	#endif
 
 	checkInverted();
 }
 
 void gSlider::init()
 {
-	GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	//GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 
 	_use_wheel = true;
 	onChange = NULL;
 
-	g_signal_connect(adj, "value-changed", G_CALLBACK(cb_change), (gpointer)this);
+	g_signal_connect(widget, "value-changed", G_CALLBACK(cb_change), (gpointer)this);
 	//g_signal_connect(adj, "changed", G_CALLBACK(cb_change), (gpointer)this);
 }
 
 gSlider::gSlider(gContainer *par, bool scrollbar) : gControl(par)
 {	
-	g_typ = Type_gSlider;
-	
 	_mark = false;
 	_step = 1;
 	_page_step = 10;
@@ -94,6 +91,8 @@ gSlider::gSlider(gContainer *par, bool scrollbar) : gControl(par)
 	_min = 0;
 	_max = 100;
 	_tracking = true;
+	_is_scrollbar = scrollbar;
+	_orientation = ORIENTATION_AUTO;
 
 /*#ifdef GTK3
 	border = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -114,13 +113,12 @@ gSlider::gSlider(gContainer *par, bool scrollbar) : gControl(par)
 		
 	init();
 	update();
-	realize(false);
+	realize();
 	//g_signal_connect_after(G_OBJECT(border),"expose-event",G_CALLBACK(slider_Expose),(gpointer)this);
 }
 
 gScrollBar::gScrollBar(gContainer *par) : gSlider(par, true)
 {
-	g_typ = Type_gScrollBar;
 #ifdef GTK3
 	widget = gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL, NULL);
 #else
@@ -129,16 +127,11 @@ gScrollBar::gScrollBar(gContainer *par) : gSlider(par, true)
 	
 	init();
 	update();
-	realize(false);
+	realize();
 	
 #ifndef GTK3
 	gtk_range_set_update_policy(GTK_RANGE(widget),GTK_UPDATE_CONTINUOUS);
 #endif
-}
-
-bool gSlider::mark()
-{
-	return _mark;
 }
 
 void gSlider::updateMark()
@@ -161,22 +154,11 @@ void gSlider::updateMark()
 
 void gSlider::setMark(bool vl)
 {
-	
 	if (vl == _mark) return;
 	
 	_mark = vl;
 	gtk_scale_clear_marks(GTK_SCALE(widget));
 	updateMark();
-}
-
-int gSlider::step()
-{
-	return _step;
-}
-
-int gSlider::pageStep()
-{
-	return _page_step;
 }
 
 void gSlider::setStep(int vl)
@@ -199,23 +181,11 @@ void gSlider::setPageStep(int vl)
 	updateMark();
 }
 
-int gSlider::max()
-{
-	return _max;
-}
-
-int gSlider::min()
-{
-	return _min;
-}
-
-int gSlider::value()
-{
-	return _value;
-}
-	
 void gSlider::setMax(int vl)
 {
+	if (vl == _max)
+		return;
+
 	_max = vl;
 	if (_min > _max)
 		_min = _max;
@@ -225,16 +195,14 @@ void gSlider::setMax(int vl)
 
 void gSlider::setMin(int vl)
 {
+	if (vl == _min)
+		return;
+	
 	_min = vl;
 	if (_min > _max)
 		_max = _min;
 	update();
 	updateMark();
-}
-
-bool gSlider::tracking()
-{
-	return _tracking;
 }
 
 void gSlider::setTracking(bool vl)
@@ -294,21 +262,29 @@ void gSlider::orientation(int w,int h)
 }
 #endif
 
-bool gSlider::resize(int w, int h)
+void gSlider::applyOrientation(GtkOrientation orientation)
 {
-	if (gControl::resize(w, h))
-		return true;
-	
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), (width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-	return false;
+	GtkOrientation old_orientation = gtk_orientable_get_orientation(GTK_ORIENTABLE(widget));
+	int swap;
+
+	if (orientation != old_orientation)
+	{
+		gtk_orientable_set_orientation(GTK_ORIENTABLE(widget), orientation);
+		
+		swap = _min_w;
+		_min_w = _min_h;
+		_min_h = swap;
+	}
 }
 
-bool gScrollBar::resize(int w, int h)
+bool gSlider::resize(int w, int h, bool no_decide)
 {
-	if (gControl::resize(w, h))
+	if (gControl::resize(w, h, no_decide))
 		return true;
+
+	if (!_orientation)
+		applyOrientation((width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
 	
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(widget),  (width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
 	return false;
 }
 
@@ -338,12 +314,22 @@ void gSlider::checkInverted()
 	gtk_range_set_inverted(GTK_RANGE(widget), !isVertical() && gDesktop::rightToLeft());
 }
 
-int gScrollBar::minimumWidth() const
+void gSlider::setOrientation(int vl)
 {
-	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
-}
-
-int gScrollBar::minimumHeight() const
-{
-	return gApplication::getScrollbarSize() + gApplication::getScrollbarSpacing();
+	if (vl == _orientation)
+		return;
+	
+	_orientation = vl;
+	
+	switch(_orientation)
+	{
+		case ORIENTATION_HORIZONTAL:
+		case ORIENTATION_VERTICAL:
+			applyOrientation(_orientation == ORIENTATION_HORIZONTAL ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL);
+			break;
+			
+		default:
+			_orientation = ORIENTATION_AUTO;
+			applyOrientation((width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
+	}
 }

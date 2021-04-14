@@ -165,7 +165,9 @@ static void analyze(const char *src, int len_src, bool rewrite, int state)
 	n = 0;
 	for (i = 0; i < result.len; i++)
 	{
-		if (result.color[i].state != RT_END)
+		if (result.color[i].state == RT_END)
+			break;
+		if (result.color[i].state != RT_SPACE)
 			n++;
 	}
 
@@ -180,19 +182,23 @@ static void analyze(const char *src, int len_src, bool rewrite, int state)
 	{
 		len = result.color[p].len;
 
-		ulen = 0;
-		for (l = 0; l < len; l++)
-			ulen += get_char_length(result.str[upos + ulen]);
-		
-		if (result.color[p].state != RT_END)
+		if (result.color[p].state == RT_SPACE)
 		{
+			ulen = len;
+		}
+		else
+		{
+			ulen = 0;
+			for (l = 0; l < len; l++)
+				ulen += get_char_length(result.str[upos + ulen]);
+
 			str = GB.NewString(&result.str[upos], ulen);
 			*((char **)GB.Array.Get(garray, i)) = str;
 			*((int *)GB.Array.Get(tarray, i)) = convState(result.color[p].state);
 			*((int *)GB.Array.Get(parray, i)) = pos;
 			i++;
 		}
-
+		
 		pos += len;
 		upos += ulen;
 	}

@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Private $bNoSelectButton As Boolean
+Private $sMessage As String
 
 Public Sub ReadConfig()
   
@@ -23,7 +24,7 @@ Public Sub OnVisibilityChange()
   If FMain.IsDebugVisible() Then
     SelectButton(FDebugInfo.GetCurrentTab())
   Else
-    For Each hButton In Me.Children
+    For Each hButton In panButton.Children
       hButton.Value = False
     Next
   Endif
@@ -40,8 +41,8 @@ Public Sub btnDebug_Click()
     
     FMain.ShowDebug(True)
     
-    For I = 0 To Me.Children.Count - 1
-      hButton = Me.Children[I]
+    For I = 0 To panButton.Children.Count - 1
+      Try hButton = panButton.Children[I]
       If hButton <> hLast Then
         Object.Lock(hButton)
         hButton.Value = False
@@ -62,7 +63,7 @@ End
 
 Public Sub SelectButton(iTab As Integer)
 
-  Dim hButton As ToolButton = Me.Children[iTab]
+  Dim hButton As ToolButton = panButton.Children[iTab]
   
   If $bNoSelectButton Then Return
 
@@ -74,17 +75,17 @@ End
 
 Public Sub ShowButton(iTab As Integer, bShow As Boolean)
   
-  Dim hButton As ToolButton = Me.Children[iTab]
+  Dim hButton As ToolButton = panButton.Children[iTab]
   If hButton.Value And If Not bShow Then FMain.ShowDebug(False)
   hButton.Visible = bShow
   
 End
 
-Public Sub Form_Arrange()
-
-  FOutput.UpdateWidth(Me.W)
-
-End
+' Public Sub Form_Arrange()
+' 
+'   FOutput.UpdateWidth(Me.W)
+' 
+' End
 
 Public Sub OnRefreshSources()
   
@@ -92,27 +93,106 @@ Public Sub OnRefreshSources()
   
 End
 
-Public Sub OnProjectChange()
+Public Sub OnProjectActivate()
   
-  'btnTest.Picture = Picture["icon:/small/ok"]
-  
-End
-
-Public Sub SetTestResult(bFail As Boolean)
-  
-  'btnTest.Picture = Picture["icon:/small/" & If(bFail, "error", "apply")]
-  If bFail Then Balloon.Error(("Test has failed."), btnTest)
-  'If $hTimerReset Then $hTimerReset.Stop
-  '$hTimerReset = New Timer(5000) As "TimerReset"
+  If Not $sMessage Then SetMessage()
   
 End
 
-' Public Sub TimerReset_Timer()
-'   
-'   OnProjectChange
-'   $hTimerReset.Stop
-'   $hTimerReset = Null
-'   
-' End
-' 
-' 
+Public Sub UpdateStatus(bForce As Boolean)
+  
+  If bForce Or If Not $sMessage Then
+    SetMessage()
+  Endif
+  
+End
+
+
+Public Sub dwgStatus_Draw()
+  
+  Try Project.ActiveForm.PaintStatus()
+  
+End
+
+Public Sub SetMessage(Optional sText As String, bAdd As Boolean)
+  
+  If bAdd Then 
+    $sMessage = Trim($sMessage) & " " & sText
+  Else
+    $sMessage = sText
+  Endif
+  
+  If $sMessage Then
+    lblMessage.Text = $sMessage
+    lblMessage.Show
+    dwgStatus.Hide
+    Wait
+  Else 
+    lblMessage.Hide
+    dwgStatus.Show
+    dwgStatus.Refresh
+  Endif
+  
+  If Not $sMessage Then
+    timMessage.Stop
+  Else
+    timMessage.Restart
+  Endif
+  
+End
+
+Public Sub timMessage_Timer()
+  
+  SetMessage()
+  
+End
+
+Public Sub UpdateProfile()
+  
+  Dim aProf As FProfile[]
+  Dim hProf As FProfile
+  Dim hSeparator As Separator
+  Dim hButton As ToolButton
+  Dim W As Integer
+  
+  aProf = FProfile.FindAll()
+  
+  panProfile.Children.Clear
+  
+  If aProf.Count = 0 Then
+    panProfile.Hide
+    Return
+  Endif
+  
+  hSeparator = New Separator(panProfile)
+  hSeparator.W = 1
+  
+  ' hButton = New ToolButton(panProfile) As "btnCloseProfile"
+  ' hButton.Picture = Picture["icon:/small/close"]
+  ' hButton.AutoResize = True
+  
+  W = 1
+  For Each hProf In aProf
+    hButton = New ToolButton(panProfile) As "btnShowProfile"
+    hButton.Tag = hProf.Path
+    hButton.Text = hProf.GetName()
+    hButton.Picture = Picture["icon:/small/clock"]
+    hButton.AutoResize = True
+    W += hButton.W
+  Next
+  
+  panProfile.W = W
+  panProfile.Show
+  
+End
+
+Public Sub btnShowProfile_Click()
+
+  Dim hProf As FProfile
+  
+  hProf = FProfile.Find(Last.Tag)
+  If hProf Then
+    hProf.Minimized = Not hProf.Minimized
+  Endif
+  
+End

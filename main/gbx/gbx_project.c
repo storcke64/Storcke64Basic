@@ -46,7 +46,6 @@
 
 char *PROJECT_path = NULL;
 char *PROJECT_exec_path = NULL;
-
 char *PROJECT_name = NULL;
 char *PROJECT_title = NULL;
 const char *PROJECT_startup = NULL;
@@ -61,6 +60,8 @@ char *PROJECT_oldcwd = NULL;
 
 bool PROJECT_run_httpd = FALSE;
 bool PROJECT_run_tests = FALSE;
+
+const char *PROJECT_override = NULL;
 
 static char *project_buffer;
 

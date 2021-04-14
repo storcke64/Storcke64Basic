@@ -109,16 +109,11 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gDrawingArea *data)
 			gDrawingArea::_in_any_draw_event++;
 			data->_in_draw_event = true;
 
-			/*GdkRectangle *rect;
-			int i, n;
-			gdk_region_get_rectangles(e->region, &rect, &n);
-
-			for (i = 0; i < n; i++)
-				fprintf(stderr, "[%d] %d %d %d %d\n", i, rect[i].x, rect[i].y, rect[i].width, rect[i].height);
-
-			g_free(rect);*/
-
-			data->onExpose(data, e->region, wid->allocation.x, wid->allocation.y);
+			GtkAllocation a;
+			gtk_widget_get_allocation(wid, &a);
+			//fprintf(stderr, "%s: %d %d\n", data->parent()->name(), a.x, a.y);
+			
+			data->onExpose(data, e->region, a.x, a.y);
 			gDrawingArea::_in_any_draw_event--;
 			data->_in_draw_event = false;
 		}
@@ -165,15 +160,16 @@ void gDrawingArea::create(void)
 			gtk_container_remove(GTK_CONTAINER(widget), ch);
 		}
 
-		_no_delete = true;
-		gtk_widget_destroy(border);
-		_no_delete = false;
 		doReparent = true;
 	}
 
+#ifdef GTK3
 	if (_cached || _use_tablet)
+#else
+	if (_cached || _use_tablet || background() != COLOR_DEFAULT)
+#endif
 	{
-		border = gtk_event_box_new();
+		createBorder(gtk_event_box_new());
 		widget = gtk_fixed_new();
 		box = widget;
 		gtk_widget_set_app_paintable(border, TRUE);
@@ -181,13 +177,16 @@ void gDrawingArea::create(void)
 	}
 	else
 	{
-		border = widget = gtk_fixed_new();
+		createBorder(gtk_fixed_new());
+		widget = border;
 		box = NULL;
 	}
 
-	realize(false);
+	realize();
 
-	g_signal_connect(G_OBJECT(border), "size-allocate", G_CALLBACK(cb_size), (gpointer)this);
+	if (_cached)
+		g_signal_connect(G_OBJECT(border), "size-allocate", G_CALLBACK(cb_size), (gpointer)this);
+	
 	ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
 
 	updateUseTablet();
@@ -220,6 +219,7 @@ void gDrawingArea::create(void)
 
 gDrawingArea::gDrawingArea(gContainer *parent) : gContainer(parent)
 {
+	_is_drawingarea = true;
 	_cached = false;
 	buffer = NULL;
 	box = NULL;
@@ -227,11 +227,12 @@ gDrawingArea::gDrawingArea(gContainer *parent) : gContainer(parent)
 	_resize_cache = false;
 	_no_background = false;
 	_use_tablet = false;
+#ifdef GTK3
+	_no_style_without_child = true;
+#endif
 
 	onExpose = NULL;
 	onFontChange = NULL;
-
-	g_typ = Type_gDrawingArea;
 
 	create();
 }
@@ -285,7 +286,9 @@ void gDrawingArea::setCached(bool vl)
 	if (!_cached)
 	{
 		UNREF_BUFFER();
+		#ifndef GTK3
 		set_gdk_bg_color(border, background());
+		#endif
 	}
 
 	create();
@@ -466,3 +469,16 @@ void gDrawingArea::updateFont()
 	gContainer::updateFont();
 	emit(SIGNAL(onFontChange));
 }
+
+#ifdef GTK3
+#else
+void gDrawingArea::setBackground(gColor color)
+{
+	bool set = background() != COLOR_DEFAULT;
+	
+	gContainer::setBackground(color);
+	
+	if (set != (background() != COLOR_DEFAULT))
+		create();
+}
+#endif

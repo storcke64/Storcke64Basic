@@ -74,6 +74,16 @@ public:
 	
 	static void handleClickCount(GdkEvent *event);
 	static int clickCount() { return _isValid ? _click_count : 0; }
+	
+	static void setControl(gControl *control) { _control = control; }
+	static gControl *getControl() { return _control; }
+	static void finishEvent();
+	
+#ifdef GTK3
+	static GdkDevice *getPointer();
+#endif
+
+	static gControl *_control;
 
 private:
 	static int _isValid;

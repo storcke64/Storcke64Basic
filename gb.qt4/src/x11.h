@@ -27,6 +27,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+
+#ifdef QT_VERSION
 //#include <X11/extensions/shape.h>
 const int XFocusIn = FocusIn;
 #undef FocusIn
@@ -36,6 +38,7 @@ const int XKeyPress = KeyPress;
 #undef KeyPress
 const int XKeyRelease = KeyRelease;
 #undef KeyRelease
+#endif
 
 #include "gambas.h"
 #include "gb_common.h"

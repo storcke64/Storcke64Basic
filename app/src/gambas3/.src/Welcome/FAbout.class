@@ -45,7 +45,7 @@ End
 
 Public Sub Form_Open()
 
-  $hWelcome = New CWelcome(dwgWelcome)
+  $hWelcome = New CWelcome(dwgWelcome, False, True)
 
 End
 
@@ -232,11 +232,11 @@ Private Sub FillAbout()
     
     sName = String.UCase(aSplit[0])
     '"<font size=\"-2\" color=\"#808080\">" & String$(64, "─") & "</font>
-    sText = "<br><br><b><font size=+1>" & sName & "</font>"
+    sText = "<br><br><b><font size=\"4\">" & sName & "</font>"
 
     If aSplit.Count = 2 Then
       
-      sText &= "</b><blockquote>"
+      sText &= "</b><br><br>"
       sText &= "<font color=\"" & sColor & "\">"
       sText &= ("Financial support") & "<br>" & GetStars(CInt(aSplit[1]))
       
@@ -245,15 +245,15 @@ Private Sub FillAbout()
       sText &= "</b>"
       If aSplit[3] Then sText &= " <i>(" & aSplit[3] & ")</i>"
       If aSplit[2] Then sText &= "<br><tt>" & aSplit[2] & "</tt>"
-      sText &= "<blockquote>"
-      sText &= "<font color=\"" & sCOlor & "\">"
+      sText &= "<br><br>"
+      sText &= "<font color=\"" & sColor & "\">"
       sText &= aSplit[4]
       If aSplit[1] Then sText &= "<br>" & ("Financial support") & "<br>" & GetStars(CInt(aSplit[1]))
       sText &= "</font>"
 
     Endif
     
-    sText &= "</blockquote>"
+    'sText &= "</blockquote>"
     
     gvwAbout[N, 0].WordWrap = True
     gvwAbout[N, 0].RichText = sText

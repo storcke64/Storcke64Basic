@@ -24,7 +24,6 @@ Private Sub HasDebianTarget() As Boolean
   
 End
 
-
 Private Sub MakeChangeLog() As String
 
   Dim aLine As String[]
@@ -148,6 +147,22 @@ Public Sub Form_Open()
   tvwFile.Columns[1].Width = Desktop.Scale * 40
   'tvwFile.Rows.H = Desktop.Scale * 4
  
+  If Project.Systems.Count Then
+  
+    If Project.SameDependencies Then
+      If Not Project.ExtraDependencies.Exist(Package.ALL_TARGETS) Then
+        Project.ExtraDependencies[Package.ALL_TARGETS] = Project.ExtraDependencies[Project.Systems[0]]
+      Endif
+    Endif
+    
+    If Project.SameFiles Then
+      If Not Project.ExtraFiles.Exist(Package.ALL_TARGETS) Then
+        Project.ExtraFiles[Package.ALL_TARGETS] = Project.ExtraFiles[Project.Systems[0]]
+      Endif
+    Endif
+    
+  Endif
+  
   chkDep.Value = Project.SameDependencies
   chkFile.Value = Project.SameFiles
   
@@ -512,27 +527,27 @@ Public Sub wizInstall_BeforeChange()
   
 End 
 
-Private Sub UpdateDepCombo()
-
-  If chkDep.Value Then
-    cmbDep.Hide
-    cmbDep.Index = 0
-  Else  
-    cmbDep.Visible = cmbDep.Count > 1 
-  Endif
-  
-End
-
-Private Sub UpdateFileCombo()
-
-  If chkFile.Value Then
-    cmbFile.Hide
-    cmbFile.Index = 0
-  Else  
-    cmbFile.Visible = cmbFile.Count > 1 
-  Endif
-  
-End
+' Private Sub UpdateDepCombo()
+' 
+'   If chkDep.Value Then
+'     cmbDep.Hide
+'     cmbDep.Index = 0
+'   Else  
+'     cmbDep.Visible = cmbDep.Count > 1 
+'   Endif
+'   
+' End
+' 
+' Private Sub UpdateFileCombo()
+' 
+'   If chkFile.Value Then
+'     cmbFile.Hide
+'     cmbFile.Index = 0
+'   Else  
+'     cmbFile.Visible = cmbFile.Count > 1 
+'   Endif
+'   
+' End
 
 Public Sub wizInstall_Change()
 
@@ -556,15 +571,11 @@ Public Sub wizInstall_Change()
     
     Case TAB_DEP
       FillComboWithSystems(cmbDep)
-      chkDep.Visible = cmbDep.Count > 1
       UpdateDepCombo
-      'cmbDep_Click
       
     Case TAB_FILE
       FillComboWithSystems(cmbFile)
-      chkFile.Visible = cmbFile.Count > 1
       UpdateFileCombo
-      'cmbFile_Click
       
     Case TAB_DIR
       dchInstall.SelectedPath = Project.UntildePath(Project.Config["/Package/Dir", Settings["/FMakeInstall/PackagePath", "~"]])
@@ -594,13 +605,15 @@ End
 
 
 
-Private Function GetSystemFromName(sName As String) As String
+Private Function GetSystemFromName(sName As String, Optional bAll As Boolean) As String
 
   Dim hCtrl As CheckBox
 
   For Each hCtrl In GetSystemControls()
     If Replace(hCtrl.Text, "&", "") = sName Then Return hCtrl.Parent.Tag
   Next
+  
+  If bAll Then Return Package.ALL_TARGETS
 
 End
 
@@ -614,8 +627,6 @@ Public Function GetSystemName(sTag As String) As String
   Next
 
 End
-
-
 
 Public Sub AddLog(sText As String, Optional bNoNewLine As Boolean)
 
@@ -918,7 +929,9 @@ End
 
 Public Sub cmbDep_Click()
 
-  $sDepSystem = GetSystemFromName(cmbDep.Text)
+  tvwDep.Cancel
+  
+  $sDepSystem = GetSystemFromName(cmbDep.Text, True)
 
   $aDep = Split(Project.ExtraDependencies[$sDepSystem], "\n")
   tvwDep.Rows.Count = $aDep.Count
@@ -1074,23 +1087,9 @@ Public Sub btnClearDep_Click()
 
 End
 
-Public Sub chkDep_Click()
-
-  Project.SameDependencies = chkDep.Value
-  UpdateDepCombo
-
-End
-
-Public Sub chkFile_Click()
-
-  Project.SameFiles = chkFile.Value
-  UpdateFileCombo
-
-End
-
 Public Sub cmbFile_Click()
 
-  $sFileSystem = GetSystemFromName(cmbFile.Text)
+  $sFileSystem = GetSystemFromName(cmbFile.Text, True)
 
   $aFile = Split(Project.ExtraFiles[$sFileSystem], "\n")
   tvwFile.Rows.Count = $aFile.Count
@@ -1103,7 +1102,6 @@ Public Sub tvwFile_Insert()
   btnAddFile.Value = True  
 
 End
-
 
 Public Sub tvwFile_Data(Row As Integer, Column As Integer)
 
@@ -1338,3 +1336,44 @@ Public Sub chkPackageNameWithMajor_Click()
   UpdatePackageName
 
 End
+
+Public Sub chkDep_Click()
+
+  Project.SameDependencies = chkDep.Value
+  UpdateDepCombo
+
+End
+
+Public Sub chkFile_Click()
+
+  Project.SameFiles = chkFile.Value
+  UpdateFileCombo
+
+End
+
+Private Sub UpdateDepCombo()
+
+  If chkDep.Value Then
+    cmbDep.Hide
+    cmbDep.Index = -1
+    cmbDep_Click
+  Else  
+    cmbDep.Visible = cmbDep.Count > 1 
+    cmbDep.Index = 0
+  Endif
+  
+End
+
+Private Sub UpdateFileCombo()
+
+  If chkFile.Value Then
+    cmbFile.Hide
+    cmbFile.Index = -1
+    cmbFile_Click
+  Else  
+    cmbFile.Visible = cmbFile.Count > 1 
+    cmbFile.Index = 0
+  Endif
+  
+End
+

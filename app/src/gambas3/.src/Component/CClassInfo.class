@@ -28,6 +28,7 @@ Public HasEvents As Boolean
 Public Container As Boolean
 Public (Form) As Boolean
 Public MultiContainer As Boolean
+Public DefaultText As String
 
 Public Sub _new(hDoc As CDocumentation, sName As String, sComp As String, Optional sParent As String)
 
@@ -40,7 +41,7 @@ Public Sub _new(hDoc As CDocumentation, sName As String, sComp As String, Option
   Component = sComp
   Symbols = New Collection(gb.IgnoreCase)
 
-  If {Parent} Then
+  If sParent Then
     'IF Parent = "GridView" THEN STOP
     'IF ERROR THEN
     '  STOP
@@ -49,6 +50,8 @@ Public Sub _new(hDoc As CDocumentation, sName As String, sComp As String, Option
     hParent = Documentation.Classes[sComp &/ sParent]
     If Not hParent Then hParent = hDoc.Classes[sParent]
     ParentComponent = hParent.Component
+    
+    AutoCreatable = hParent.AutoCreatable
 
     For Each hSym In Documentation.GetClassSymbols(sParent, ParentComponent)
       Symbols[hSym.Name] = hSym
@@ -152,13 +155,14 @@ Public Sub InitControl()
   If hSym Then VirtualControl = hSym.Value
 
   hSym = Symbols["_IsContainer"]
-  If hSym Then 
-    Container = hSym.Value
-  Endif
+  If hSym Then Container = hSym.Value
   
   hSym = Symbols["_IsMultiContainer"]
-  If hSym Then 
-    MultiContainer = hSym.Value
+  If hSym Then MultiContainer = hSym.Value
+
+  If MultiContainer Then
+    hSym = Symbols["_DefaultText"]
+    If hSym Then DefaultText = hSym.Value
   Endif
 
   hSym = Symbols["_Similar"]
@@ -417,6 +421,7 @@ Public Sub GetSimilars() As String[]
   Dim cSimilar As New Collection(gb.IgnoreCase)
   Dim sSimilar As String
   Dim aSimilar As New String[]
+  Dim hClass As CClassInfo
   
   For Each sSimilar In Documentation.GetSimilars(Name)
     cSimilar[sSimilar] = True
@@ -432,6 +437,8 @@ Public Sub GetSimilars() As String[]
   Endif
   
   For Each sSimilar In cSimilar
+    hClass = Project.Documentation.Classes[cSimilar.Key]
+    If hClass.IsDeprecated() And If Not FToolBox.IsDeprecatedVisible() Then Continue
     aSimilar.Add(cSimilar.Key)
   Next
   aSimilar.Sort(gb.IgnoreCase)
@@ -747,6 +754,13 @@ Public Function IsVirtual() As Boolean
   Return Left$(Name) = "." Or Left$(Name) = "_"
 
 End
+
+Public Sub IsDeprecated() As Boolean
+  
+  Return Group = "Deprecated"
+  
+End
+
 
 Private Function GetSymbolType(aSym As String[]) As String
 

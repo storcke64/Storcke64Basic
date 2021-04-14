@@ -45,6 +45,7 @@ void GB_RaiseEnd(GB_RAISE_HANDLER *handler);
 int GB_GetEvent(void *class, char *name);
 char *GB_GetLastEventName(void);
 bool GB_Stopped(void);
+bool GB_IsRaiseLocked(void *object);
 
 int GB_NParam(void);
 const char *GB_GetUnknown(void);
@@ -56,6 +57,7 @@ bool GB_Serialize(const char *path, GB_VALUE *value);
 bool GB_UnSerialize(const char *path, GB_VALUE *value);
 
 void GB_Error(const char *msg, ...);
+bool GB_HasError(void);
 void GB_Deprecated(const char *msg, const char *func, const char *repl);
 void GB_OnErrorBegin(GB_ERROR_HANDLER *handler);
 void GB_OnErrorEnd(GB_ERROR_HANDLER *handler);
@@ -70,6 +72,7 @@ void *GB_BeginEnum(void *);
 void GB_EndEnum(void *);
 bool GB_NextEnum(void);
 void GB_StopAllEnum(void *);
+void GB_OnFreeEnum(void (*cb)(void *));
 
 GB_VALUE *GB_GetReturnValue(void);
 void GB_Return(GB_TYPE type, ...);
@@ -163,6 +166,7 @@ int GB_ArrayCount(GB_ARRAY array);
 void *GB_ArrayAdd(GB_ARRAY array);
 void *GB_ArrayGet(GB_ARRAY array, int index);
 TYPE GB_ArrayType(GB_ARRAY array);
+void GB_ArraySetReadOnly(GB_ARRAY array);
 
 void GB_CollectionNew(GB_COLLECTION *col, int mode);
 int GB_CollectionCount(GB_COLLECTION col);

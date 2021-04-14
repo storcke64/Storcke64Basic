@@ -164,7 +164,7 @@ typedef
 		}
 	STREAM;
 
-enum {
+/*enum {
 	STO_READ        = (1 << 0),
 	STO_WRITE       = (1 << 1),
 	STO_READ_WRITE  = STO_READ + STO_WRITE,
@@ -179,7 +179,7 @@ enum {
 	STO_MEMORY      = (1 << 8),
 	STO_STRING      = (1 << 9),
 	STO_NULL        = (1 << 10)
-	};
+	};*/
 
 enum {
 	ST_EOL_UNIX = 0,

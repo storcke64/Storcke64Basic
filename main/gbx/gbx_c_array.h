@@ -38,7 +38,9 @@
 typedef
 	struct {
 		OBJECT object;
-		int size;
+		unsigned size : 24;
+		unsigned read_only : 1;
+		unsigned n_dim : 3;
 		int count;
 		TYPE type;
 		void *data;
@@ -117,14 +119,14 @@ void CARRAY_release_static(CLASS *class, CLASS_ARRAY *desc, void *data);
 #define CARRAY_check_not_read_only(_object) \
 ({ \
 	CARRAY *__object = (CARRAY *)(_object); \
-	if (__object->ref == __object) \
+	if (__object->read_only) \
 		THROW(E_SARRAY); \
 })
 
 
 #endif  // #ifndef __GBX_CLASS_INFO_C 
 
-#define ARRAY_TEMPLATE_NDESC 24
+#define ARRAY_TEMPLATE_NDESC 28
 #define ARRAY_OF_STRUCT_TEMPLATE_NDESC 15
 
 #endif

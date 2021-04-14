@@ -73,7 +73,7 @@ static int stream_close(STREAM *stream)
 
 static int stream_read(STREAM *stream, char *buffer, int len)
 {
-	/*if ((stream->common.mode & STO_READ) == 0)
+	/*if ((stream->common.mode & GB_ST_READ) == 0)
 		THROW(E_ACCESS);*/
 	
   CHECK_enter();
@@ -97,7 +97,7 @@ static int stream_read(STREAM *stream, char *buffer, int len)
 
 static int stream_write(STREAM *stream, char *buffer, int len)
 {
-	if ((stream->common.mode & STO_WRITE) == 0)
+	if ((stream->common.mode & GB_ST_WRITE) == 0)
 		THROW(E_ACCESS);
 	
   CHECK_enter();

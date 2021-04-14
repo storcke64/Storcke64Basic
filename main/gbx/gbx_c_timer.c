@@ -34,8 +34,10 @@
 #include "gbx_event.h"
 #include "gbx_c_timer.h"
 
-DECLARE_EVENT(EVENT_Timer);
+#define EXT(_ob) ((CTIMER_EXT *)((CTIMER *)_ob)->ext)
 
+
+DECLARE_EVENT(EVENT_Timer);
 
 static void enable_timer(CTIMER *_object, bool on)
 {
@@ -52,9 +54,13 @@ CTIMER *CTIMER_every(int delay, GB_TIMER_CALLBACK callback, intptr_t param)
 
 	timer = OBJECT_create(CLASS_Timer, NULL, NULL, 0);
 	OBJECT_REF(timer);
-	timer->callback = callback;
+	
 	timer->delay = delay;
-	timer->tag = param;
+	timer->task = EXEC_task;
+
+	ALLOC_ZERO(&timer->ext, sizeof(CTIMER_EXT));
+	EXT(timer)->callback = callback;
+	EXT(timer)->tag = param;
 
 	enable_timer(timer, TRUE);
 
@@ -63,15 +69,18 @@ CTIMER *CTIMER_every(int delay, GB_TIMER_CALLBACK callback, intptr_t param)
 
 void CTIMER_raise(void *_object)
 {
-	if (THIS->callback)
+	if (THIS->task == EXEC_task)
 	{
-		if (!(*(THIS->callback))(THIS->tag))
-			return;
-	}
-	else
-	{
-		if (!GB_Raise(THIS, EVENT_Timer, 0))
-			return;
+		if (THIS_EXT && THIS_EXT->callback)
+		{
+			if (!(*(THIS_EXT->callback))(THIS_EXT->tag))
+				return;
+		}
+		else
+		{
+			if (!GB_Raise(THIS, EVENT_Timer, 0))
+				return;
+		}
 	}
 
 	enable_timer(THIS, FALSE);
@@ -87,6 +96,7 @@ BEGIN_METHOD(Timer_new, GB_INTEGER delay)
 	if (delay < 0)
 		delay = 1000;
 	
+	THIS->task = EXEC_task;
 	THIS->delay = delay;
 	if (!MISSING(delay))
 		enable_timer(THIS, TRUE);
@@ -98,6 +108,9 @@ BEGIN_METHOD_VOID(Timer_free)
 
 	if (THIS->id)
 		HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, FALSE);
+	
+	if (THIS->ext)
+		IFREE(THIS->ext);
 
 END_METHOD
 
@@ -143,16 +156,19 @@ BEGIN_PROPERTY(Timer_Delay)
 		int delay = VPROP(GB_INTEGER);
 		bool enabled = THIS->id != 0;
 
-		if (delay > 0)
+		if (delay < 0 || delay >= (1<<30))
 		{
-			if (enabled)
-				HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, FALSE);
-
-			THIS->delay = delay;
-
-			if (enabled)
-				HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, TRUE);
+			GB_Error(GB_ERR_ARG);
+			return;
 		}
+		
+		if (enabled)
+			HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, FALSE);
+
+		THIS->delay = delay;
+
+		if (enabled)
+			HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, TRUE);
 	}
 
 END_PROPERTY

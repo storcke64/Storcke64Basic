@@ -98,7 +98,7 @@ Public Sub Form_Open()
     sIcon = hGroup.Icon
     If InStr(sIcon, "/") = 0 Then sIcon = "icon:/48" &/ sIcon
     hButton.Picture = Picture[sIcon]
-    hButton.ResizeScaled(36, 10)
+    hButton.ResizeScaled(30, 8)
     hButton.Mouse = Mouse.Pointing
     
   Next
@@ -179,6 +179,7 @@ Public Sub Reload()
   hReq = New FarmRequest($hIdentity.Farm) As "Request"
   hReq.SearchSoftware(["date", "download", "date"][cmbSort.Index], "", txtFilter.Text, tagFarm.GetTags())
   spnFarm.Show
+  spnFarm.Start
   
 End
 
@@ -231,15 +232,19 @@ Public Sub Request_Finished()
     Return
   Endif
   
+  'svwFarm.Arrangement = Arrange.None
+  
   aId = Split(hReq.Result["Result"])
   For Each sId In aId
     
     hSoftwareBox = New SoftwareBox(svwFarm, CInt(sId), hReq.Farm) As "SoftwareBox"
     If cmbSort.Index = SORT_INSTALLED Then hSoftwareBox.Hide
-    hSoftwareBox.ResizeScaled(54, 30)
+    hSoftwareBox.ResizeScaled(48, 24)
     If cmbSort.Index = SORT_INSTALLED Then hSoftwareBox.Load
     
   Next
+  
+  'svwFarm.Arrangement = Arrange.Row
   
   CheckSoftwareCount()
   
@@ -306,8 +311,7 @@ End
 
 Public Sub tagFarm_Change()
 
-  timLoad.Stop
-  timLoad.Start
+  timLoad.Restart
 
 End
 
@@ -406,7 +410,7 @@ Private Sub UpdateSoftware()
     Else
     
       txtDescription.Text = sText
-      txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(sText), "\n", "<br>"), txtDescription.W)
+      txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(sText), "\n", "<br>"), txtDescription.W) + Desktop.Scale
       txtDescription.Show
       
     Endif
@@ -528,7 +532,7 @@ End
 
 Public Sub TimerArrange_Timer()
   
-  txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(txtDescription.Text), "\n", "<br>"), txtDescription.W)
+  txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(txtDescription.Text), "\n", "<br>"), txtDescription.W) + Desktop.Scale
   $hTimerArrange.Stop
   $hTimerArrange = Null
   
@@ -728,6 +732,7 @@ End
 Public Sub chkShowFilter_Click()
 
   panFilter.Visible = chkShowFilter.Value
+  If panFilter.Visible Then tagFarm.SetFocus
   
   tagFarm_Arrange
   
@@ -744,7 +749,7 @@ Public Sub dwgName_Draw()
   If Not $hSoft Then Return
   
   Paint.Font.Grade = 4
-  $hSoft.PaintName(0, 0)
+  $hSoft.PaintName(0, 0, Paint.W)
 
 End
 
@@ -763,5 +768,11 @@ End
 Public Sub chkShowAllVersion_Click()
 
   Reload
+
+End
+
+Public Sub wizFarm_Arrange()
+
+  tagFarm_Arrange
 
 End

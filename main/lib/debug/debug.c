@@ -683,10 +683,25 @@ void DEBUG_backtrace(FILE *out)
 
 static void debug_info()
 {
+	const char *p;
+	char c;
+	
 	fprintf(_out, "*[%d]\t", getpid());
 	
 	if (_error)
-		fputs(_error, _out);
+	{
+		p = _error;
+		for(;;)
+		{
+			c = *p++;
+			if (!c)
+				break;
+			
+			if (c == '\n' || c == '\r' || c == '\t')
+				c = ' ';
+			fputc(c, _out);
+		}
+	}
 	
 	fprintf(_out, "\t");
 	

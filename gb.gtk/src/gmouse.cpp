@@ -46,11 +46,16 @@ int gMouse::_click_count = 0;
 int gMouse::_click_x = -1;
 int gMouse::_click_y = -1;
 double gMouse::_click_timer = 0;
+gControl *gMouse::_control = NULL;
 
 #ifdef GTK3
-static GdkDevice *get_pointer()
+GdkDevice *gMouse::getPointer()
 {
+#if GTK_CHECK_VERSION(3, 22, 0)
+	return gdk_seat_get_pointer(gdk_display_get_default_seat(gdk_display_get_default()));
+#else
 	return gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default()));
+#endif
 }
 #endif
 
@@ -58,7 +63,7 @@ void gMouse::move(int x, int y)
 {
 	GdkDisplay* dpy = gdk_display_get_default();
 #ifdef GTK3
-	gdk_device_warp(get_pointer(), gdk_display_get_default_screen(dpy), x, y);
+	gdk_device_warp(getPointer(), gdk_display_get_default_screen(dpy), x, y);
 #else
 	gdk_display_warp_pointer(dpy, gdk_display_get_default_screen(dpy), x, y);
 #endif
@@ -134,7 +139,7 @@ void gMouse::getScreenPos(int *x, int *y)
 	else
 	{
 #ifdef GTK3
-		gdk_device_get_position(get_pointer(), NULL, x, y);
+		gdk_device_get_position(getPointer(), NULL, x, y);
 #else
 		gdk_display_get_pointer(gdk_display_get_default(), NULL, x, y, NULL);
 #endif
@@ -146,7 +151,7 @@ int gMouse::screenX()
 	gint x;
 	
 #ifdef GTK3
-		gdk_device_get_position(get_pointer(), NULL, &x, NULL);
+		gdk_device_get_position(getPointer(), NULL, &x, NULL);
 #else
 		gdk_display_get_pointer(gdk_display_get_default(), NULL, &x, NULL, NULL);
 #endif
@@ -159,7 +164,7 @@ int gMouse::screenY()
 	gint y;
 	
 #ifdef GTK3
-		gdk_device_get_position(get_pointer(), NULL, NULL, &y);
+		gdk_device_get_position(getPointer(), NULL, NULL, &y);
 #else
 		gdk_display_get_pointer(gdk_display_get_default(), NULL, NULL, &y, NULL);
 #endif
@@ -358,4 +363,13 @@ void gMouse::handleClickCount(GdkEvent *event)
 	}
 
 	_click_timer = timer;
+}
+
+void gMouse::finishEvent()
+{
+	if (_control)
+	{
+		_control->onMouseEvent(_control, gEvent_MouseRelease);
+		_control = NULL;
+	}
 }

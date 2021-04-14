@@ -10,11 +10,13 @@
     MoveScaled(1,1,125,69)
     Expand = True
     Arrangement = Arrange.Vertical
-    { HBox5 HBox
-      MoveScaled(0,0,105,4)
+    { tlbMenu ToolBar
+      MoveScaled(1,1,123,4)
+      Key = "menu"
       { btnInsert ToolButton
         MoveScaled(0,0,9,4)
         ToolTip = ("Insert menu")
+        Action = ".insert"
         AutoResize = True
         Text = Shortcut(("Insert"), "I")
         Picture = Picture["icon:/small/add"]
@@ -22,6 +24,7 @@
       { btnInsertSeparator ToolButton
         MoveScaled(10,0,16,4)
         ToolTip = ("Insert separator")
+        Action = ".insert-separator"
         AutoResize = True
         Text = Shortcut(("Insert separator"), "s")
         Picture = Picture["img/16/separator.png"]
@@ -29,6 +32,7 @@
       { btnInsertBefore ToolButton
         MoveScaled(27,0,14,4)
         ToolTip = ("Insert menu before")
+        Action = ".insert-before"
         AutoResize = True
         Text = ("Insert before")
         Picture = Picture["icon:/small/top"]
@@ -36,54 +40,71 @@
       { btnDelete ToolButton
         MoveScaled(41,0,10,4)
         ToolTip = ("Delete menu")
+        Action = ".delete"
         AutoResize = True
         Text = Shortcut(("Delete"), "D")
-        Picture = Picture["icon:/small/delete"]
-      }
-      { Separator2 Separator
-        MoveScaled(51,0,1,4)
-      }
-      { btnCut ToolButton
-        MoveScaled(52,0,4,4)
-        ToolTip = ("Cut")
-        Picture = Picture["icon:/small/cut"]
-      }
-      { btnCopy ToolButton
-        MoveScaled(56,0,4,4)
-        ToolTip = ("Copy")
-        Picture = Picture["icon:/small/copy"]
-      }
-      { btnPaste ToolButton
-        MoveScaled(60,0,4,4)
-        ToolTip = ("Paste")
-        Picture = Picture["icon:/small/paste"]
+        Picture = Picture["icon:/small/remove"]
       }
       { Separator1 Separator
-        MoveScaled(64,0,1,4)
+        MoveScaled(59,0,1,4)
       }
       { btnRight ToolButton
-        MoveScaled(65,0,4,4)
+        MoveScaled(60,0,4,4)
         ToolTip = ("Indent")
+        Action = ".indent-right"
         Picture = Picture["icon:/small/indent"]
       }
       { btnLeft ToolButton
-        MoveScaled(69,0,4,4)
+        MoveScaled(64,0,4,4)
         ToolTip = ("Unindent")
+        Action = ".indent-left"
         Picture = Picture["icon:/small/unindent"]
       }
       { btnUp ToolButton
-        MoveScaled(73,0,4,4)
+        MoveScaled(68,0,4,4)
         ToolTip = ("Move up")
+        Action = ".move-up"
         Picture = Picture["icon:/small/up"]
       }
       { btnDown ToolButton
-        MoveScaled(77,0,4,4)
+        MoveScaled(72,0,4,4)
         ToolTip = ("Move down")
+        Action = ".move-down"
         Picture = Picture["icon:/small/down"]
       }
+      { Separator2 Separator
+        MoveScaled(76,0,1,4)
+      }
+      { btnCut ToolButton
+        MoveScaled(77,0,4,4)
+        ToolTip = ("Cut")
+        Action = ".cut"
+        Picture = Picture["icon:/small/cut"]
+      }
+      { btnCopy ToolButton
+        MoveScaled(81,0,4,4)
+        ToolTip = ("Copy")
+        Action = ".copy"
+        Picture = Picture["icon:/small/copy"]
+      }
+      { btnPaste ToolButton
+        MoveScaled(85,0,4,4)
+        ToolTip = ("Paste")
+        Action = ".paste"
+        Picture = Picture["icon:/small/paste"]
+      }
+      { btnPasteBefore ToolButton
+        MoveScaled(89,0,15,4)
+        ToolTip = ("Paste before")
+        Action = ".paste-before"
+        AutoResize = True
+        Text = ("Paste before")
+        Picture = Picture["icon:/small/paste"]
+      }
       { txtSearch ButtonBox
-        MoveScaled(82,0,21,4)
+        MoveScaled(107,0,15,4)
         Expand = True
+        Action = ".search"
         Picture = Picture["icon:/small/find"]
       }
     }
@@ -105,7 +126,7 @@
         MoveScaled(34,11,0,21)
       }
       { VBox3 VBox
-        MoveScaled(41,1,64,59)
+        MoveScaled(41,1,63,59)
         Spacing = True
         Margin = True
         { lblCreate Label
@@ -172,9 +193,8 @@
             Text = "Shortcut"
           }
           { HBox3 HBox
-            MoveScaled(14,21,42,4)
+            MoveScaled(14,21,44,4)
             Expand = True
-            Spacing = True
             { chkCtrl CheckBox
               MoveScaled(0,0,10,4)
               #Translate = False
@@ -294,20 +314,87 @@
     MoveScaled(1,71,16,0)
   }
   { HBox2 HBox
-    MoveScaled(1,74,55,6)
+    MoveScaled(1,74,114,6)
     Spacing = True
     Margin = True
-    { Panel2 Panel
-      MoveScaled(3,0,4,4)
+    { panEvent Panel
+      MoveScaled(4,0,37,4)
       Expand = True
+      Arrangement = Arrange.Horizontal
+      Spacing = True
     }
     { btnOK Button
-      MoveScaled(21,0,16,4)
+      MoveScaled(55,0,16,4)
       Text = ("OK")
     }
     { btnCancel Button
-      MoveScaled(38,0,16,4)
+      MoveScaled(72,0,16,4)
       Text = ("Cancel")
     }
+  }
+}
+
+# Gambas Action File 3.0
+
+{ Actions
+  { Action copy
+    Text = "Copy"
+    Picture = "icon:/small/copy"
+  }
+  { Action cut
+    Text = "Cut"
+    Picture = "icon:/small/cut"
+  }
+  { Action delete
+    Text = "Delete"
+    Picture = "icon:/small/remove"
+  }
+  { Action indent-left
+    Text = "Unindent"
+    Picture = "icon:/small/unindent"
+  }
+  { Action indent-right
+    Text = "Indent"
+    Picture = "icon:/small/indent"
+  }
+  { Action insert
+    Text = "Insert"
+    Picture = "icon:/small/add"
+  }
+  { Action insert-before
+    Text = "Insert before"
+    Picture = "icon:/small/top"
+  }
+  { Action insert-separator
+    Text = "Insert separator"
+    Picture = "img/16/separator.png"
+  }
+  { Action move-down
+    Text = "Move down"
+    Picture = "icon:/small/down"
+  }
+  { Action move-up
+    Text = "Move up"
+    Picture = "icon:/small/up"
+  }
+  { Action paste
+    Text = "Paste"
+    Picture = "icon:/small/paste"
+  }
+  { Action paste-before
+    Text = "Paste before"
+    Picture = "icon:/small/paste"
+  }
+  { Action search
+    Text = ""
+    Picture = "icon:/small/find"
+  }
+}
+
+{ Toolbars
+  { Toolbar menu
+    Text = ""
+    List = "insert,insert-separator,insert-before,delete,indent-right,indent-left,move-up,move-down,cut,copy,paste,paste-before,search"
+    Default = "insert,insert-separator,insert-before,delete,|,indent-right,indent-left,move-up,move-down,|,cut,copy,paste,paste-before,search"
   }
 }

@@ -37,8 +37,6 @@ Public Sub _new()
   
   btnHome.Menu = "mnuLang"
   
-  movWaiting.Resize(64, 64)
-  
   '$hHistory = New CHistory As "History"
   
 End
@@ -126,14 +124,12 @@ End
 
 Public Sub btnBack_Click()
   
-  'GotoURL($hHistory.Backward())
   webHelp.Back
   
 End
 
 Public Sub btnForward_Click()
   
-  'GotoURL($hHistory.Forward())
   webHelp.Forward
   
 End
@@ -152,19 +148,19 @@ End
 
 Public Sub btnZoomIn_Click()
   
-  webHelp.TextZoom = Round(webHelp.TextZoom * 1.125, -3)
+  webHelp.ZoomIn
   
 End
 
 Public Sub btnZoomOut_Click()
   
-  webHelp.TextZoom = Round(webHelp.TextZoom / 1.125, -3)
+  webHelp.ZoomOut
   
 End
 
 Public Sub btnZoomNormal_Click()
   
-  webHelp.TextZoom = 1
+  webHelp.ZoomNormal
   
 End
 
@@ -338,3 +334,4 @@ Public Sub OnProjectChange()
   Endif
   
 End
+

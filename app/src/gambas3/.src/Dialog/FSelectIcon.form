@@ -8,62 +8,79 @@
   Spacing = True
   Margin = True
   { tabIcon TabPanel
-    MoveScaled(1,1,69,48)
+    MoveScaled(1,1,73,48)
     Expand = True
-    Arrangement = Arrange.Fill
-    Padding = 8
+    Arrangement = Arrange.Vertical
     Count = 2
     Index = 0
     Text = ("Project")
     { fchIcon FileChooser
-      MoveScaled(1,1,66,39)
-      Picture = Picture["img/logo/head-16.png"]
+      MoveScaled(2,2,66,39)
+      Expand = True
+      Border = False
+      Picture = Picture["icon:/small/gambas"]
       ShowPreview = True
       ShowBookmark = False
+      Margin = True
       ReadOnly = True
     }
     Index = 1
     Text = ("Stock")
-    { VBox1 VBox
-      MoveScaled(1,1,63,42)
+    { HBox2 HBox
+      MoveScaled(1,2,71,6)
       Spacing = True
-      { HBox2 HBox
-        MoveScaled(1,1,42,4)
-        Spacing = True
-        { Label1 Label
-          MoveScaled(0,0,6,4)
-          AutoResize = True
-          Text = ("Size")
-        }
-        { cmbSize ComboBox
-          MoveScaled(8,0,16,4)
-        }
-      }
-      { icwStock IconView
-        MoveScaled(2,7,47,26)
-        Font = Font["-1"]
+      Margin = True
+      { txtFilter ButtonBox
+        MoveScaled(1,0,24,4)
         Expand = True
-        Sorted = True
-        IconLines = 1
+        Button = False
+        ClearButton = True
+        Filter = True
       }
+      { Label1 Label
+        MoveScaled(27,0,5,4)
+        AutoResize = True
+        Text = ("Size")
+      }
+      { cmbSize ComboBox
+        MoveScaled(33,0,16,4)
+      }
+      { chkUseSize CheckBox
+        MoveScaled(51,0,18,4)
+        AutoResize = True
+        Text = ("Size preview")
+      }
+    }
+    { Separator1 Separator
+      MoveScaled(7,10,20,0)
+    }
+    { icwStock IconView
+      MoveScaled(3,14,47,26)
+      Font = Font["-1"]
+      Expand = True
+      Sorted = True
+      IconLines = 1
+      Border = False
     }
     Index = 0
   }
   { HBox1 HBox
     MoveScaled(3,52,44,4)
     Spacing = True
-    { Panel1 Panel
-      MoveScaled(7,1,4,3)
-      Expand = True
+    Invert = True
+    { btnCancel Button
+      MoveScaled(29,0,15,4)
+      Text = ("Cancel")
+      Cancel = True
     }
     { btnOK Button
       MoveScaled(13,0,15,4)
       Text = ("OK")
     }
-    { btnCancel Button
-      MoveScaled(29,0,15,4)
-      Text = ("Cancel")
-      Cancel = True
+    { Panel1 Panel
+      MoveScaled(7,1,4,3)
+      Visible = False
+      Expand = True
     }
   }
 }

@@ -36,7 +36,8 @@ extern GB_PAINT_MATRIX_DESC PAINT_MATRIX_Interface;
 #endif
 
 void PAINT_begin(void *device);
-void PAINT_end();
+void PAINT_end(void);
+bool PAINT_is_internal(void);
 void PAINT_clip(int x, int y, int w, int h);
 #ifndef GTK3
 void PAINT_clip_region(GdkRegion *region);

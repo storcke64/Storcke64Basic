@@ -80,6 +80,7 @@ End
 Private Sub Text_Write(Value As String)
 
   Dim iPos As Integer
+  'Dim S As Integer
 
   $sText = Value
   $sActualText = $sText
@@ -96,9 +97,13 @@ Private Sub Text_Write(Value As String)
     If Not $hButton Then
       $hButton = New Button(Me) As "Button"
       $hButton.Ignore = True
-      $hButton.Move(-16, -16, 8, 8)
+      $hButton.Border = False
+      'S = Desktop.Scale * 3
+      $hButton.Move(0, 0, 1, 1)
+      $hButton.Lower()
     Endif
     $hButton.Text = String.Mid$($sText, iPos, 2)
+    $hButton.Enabled = Not Me.Design
     $iShortcutPos = iPos
     $sActualText = String.Left($sText, iPos - 1) & String.Mid($sText, iPos + 1)
     Break
@@ -191,7 +196,7 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
     hCurrent.SetFocus ' Should refresh old and new menus
     
     hMenu.Popup(hCurrent.ScreenX, hCurrent.ScreenY + hCurrent.H)
-    
+
     If $hCurrent = hCurrent Then Break
     hCurrent = $hCurrent
     
@@ -427,10 +432,13 @@ Public Sub DrawingArea_Draw()
 
   If bMenu Then
     Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Color.SelectedBackground)
-  Else If $bInsideArrow Or If $bMenuOnly Then
-    Style.PaintButton(0, 0, Me.W, Me.H, False, iFlag, bFlat)
-  Else
-    Style.PaintButton(0, 0, Me.W, Me.H, $bPressed, iFlag, bFlat)
+  Else 
+    'Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Style.BackgroundOf(Me))
+    If $bInsideArrow Or If $bMenuOnly Then
+      Style.PaintButton(0, 0, Me.W, Me.H, False, iFlag, bFlat)
+    Else
+      Style.PaintButton(0, 0, Me.W, Me.H, $bPressed, iFlag, bFlat)
+    Endif
   Endif
   
   If $hPicture Then

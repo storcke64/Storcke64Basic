@@ -30,6 +30,8 @@ Public SubstClass As String
 Private $aDeveloperTable As String[]
 Private $aTranslatorTable As String[]
 Private $bInitAuthor As Boolean
+Private $bGitLabCI As Boolean
+Private $aGitLabCI As String[]
 
 Private Sub AddLinkSuffix(sReq As String)
 
@@ -330,7 +332,7 @@ End
 '   
 ' End
 ' 
-Private Sub AddCacheHeaders(Optional dLast As Date)
+Public Sub AddCacheHeaders(Optional dLast As Date)
 
   'If InternetExplorer Then Return
 
@@ -338,9 +340,8 @@ Private Sub AddCacheHeaders(Optional dLast As Date)
     Try dLast = Stat(Args[0]).LastModified
     If Error Then dLast = Now
   Endif
-  Response.AddHeader("Expires", CGI.FormatDate(DateAdd(Now, gb.Month, 2)))
-  Response.AddHeader("Cache-Control", "public")
-  'Response.AddHeader("Cache-Control", "max-age=5184000")
+  'Response.AddHeader("Expires", CGI.FormatDate(DateAdd(Now, gb.Month, 2)))
+  Response.AddHeader("Cache-Control", "public,max-age=86400,must-revalidate")
   Response.AddHeader("Last-Modified", CGI.FormatDate(dLast))
 
 End
@@ -420,28 +421,30 @@ Public Sub Main()
   Dim sFile As String
   Dim sSearch As String
   Dim sReplace As String
-  
+
+  ' Print "data:image/png;base64,"; URL.Encode(Base64$(File.Load(".public/critical.png")));
+  ' Quit
   ' If Application.Host = "gambasfarm.org" Then
   '   Response.Redirect("http://gambasfarm.org/farm")
   '   Return
   ' Endif
   
-  CGI["SCRIPT_NAME"] = "/wiki" ' Fix web server bug
+  'CGI["SCRIPT_NAME"] = "/wiki" ' Fix web server bug
   Root = User.Home &/ "wiki/gambas"
   InfoDir = User.Home &/ "wiki/info"
   If Not Exist(InfoDir) Then InfoDir = ""
 
   Select Case Args[1]
 
-    Case "-restore" 
-      If IsDir(Root) Then
-        Shell "rm -rf " & Shell$(Root & "~") & " >/dev/null 2>&1" Wait
-        Move Root To Root & "~"
-        Mkdir Root
-        'Copy "passwd" To Root &/ "passwd"
-      Endif
-      OldWiki.Restore
-      Return
+    ' Case "-restore" 
+    '   If IsDir(Root) Then
+    '     Shell "rm -rf " & Shell$(Root & "~") & " >/dev/null 2>&1" Wait
+    '     Move Root To Root & "~"
+    '     Mkdir Root
+    '     'Copy "passwd" To Root &/ "passwd"
+    '   Endif
+    '   OldWiki.Restore
+    '   Return
       
     Case "-convert-example" 
       ConvertExample
@@ -588,8 +591,9 @@ Public Sub Main()
   
   If Request.Exist("logout") Then
     
+    Session.CookiePath = "/"
     Session.Abandon
-    Redirect()
+    Response.Redirect("/wiki" &/ Request.Path & LinkSuffix)
     Return
     
   ' Else If Request.Exist("register") Then
@@ -603,6 +607,7 @@ Public Sub Main()
     
     cUser = LoadUser(Request["login"])
     If cUser And If cUser["password"] = Request["password"] And If cUser["activé"] Then
+      Session.CookiePath = "/"
       Session["login"] = LCase(Request["login"])
       Session["full-name"] = Trim(cUser["prénom"] & " " & cUser["nom"])
     Endif
@@ -631,6 +636,11 @@ Public Sub Main()
   Endif
 
   If Session.Id Then
+  
+    If Application.Root <> "/edit" Then
+      Response.Redirect("/edit" &/ Request.Path & LinkSuffix)
+      Return
+    Endif
   
     If Request.Exist("save") Then
     
@@ -744,7 +754,7 @@ Catch
 
 End
 
-Public Sub SolvePath(sPath As String) As String
+Public Sub SolvePath(sPath As String, Optional bFollowRedirect As Boolean) As String
   
   Dim sData As String
   
@@ -757,6 +767,8 @@ Public Sub SolvePath(sPath As String) As String
     sData = File.Load(Main.GetPagePathFrom(sPath))
     If sData Begins "-->" Then
       sPath = MakeAbsolute(Trim$(Mid$(sData, 4)), sPath)
+    Else If bFollowRedirect And If sData Begins "==>" Then
+      sPath = MakeAbsolute(Trim$(Mid$(sData, 4)), sPath)
     Else
       Return sPath
     Endif
@@ -766,17 +778,17 @@ Public Sub SolvePath(sPath As String) As String
 End
 
 
-Public Sub GetPageTitle(sPath As String) As String
+Public Sub GetPageTitle(sPath As String, Optional bForceReadFile As Boolean) As String
   
   Dim sFile As String
   Dim iPos As Integer
   Dim bComp As Boolean
   Dim sRealPath As String
   
-  sPath = SolvePath(sPath)
+  sPath = SolvePath(sPath, IsNull(Session.Id))
   bComp = sPath Begins "/comp/"
   
-  If bComp Then
+  If bComp And If Not bForceReadFile Then
     If sPath Like "/comp/*/*/?*" Then Return GetSymbolTitle(sPath)
     If sPath Like "/comp/*/?*" Then Return GetClassTitle(sPath)
   Endif
@@ -950,7 +962,7 @@ Public Sub GetStat() As String[]
     nClass += iCpt
     nSym += ((aFile.Count - iComment) - iCpt * 3) / 4
   Next
-
+  
   Return [Subst(("There are &1 classes and &2 symbols in all Gambas components."), nClass, nSym)]
 
 Catch
@@ -998,6 +1010,7 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   Dim sClass As String
   Dim sSymbol As String
   Dim aPath As String[]
+  Dim sClassName As String
   
   If Not sPath Then
     sComponent = Main.Component
@@ -1027,22 +1040,31 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   
   If Not hSym Then Return sClass & "." & sSymbol & " (" & sComponent & ")?"
 
+  sClassName = hSym.Class
+  If Not IsLetter(Left(sClassName)) Then
+    sTitle = Trim(GetPageTitle("/comp" &/ sComponent &/ sClass, True))
+    If sTitle Then
+      If Right(sTitle) = ")" Then sTitle = Trim(Left$(sTitle, RInStr(sTitle, "(") - 1))
+      sClassName = sTitle
+    Endif
+  Endif
+
   Select Case Main.Symbol
     Case "_new"
-      sTitle = "New " & hSym.Class
+      sTitle = "New " & sClassName
     Case "_put"
-      sTitle = hSym.Class & "\\[…] = …"
+      sTitle = sClassName & "\\[…] = …"
     Case "_get"
-      sTitle = "… = " & hSym.Class & "\\[…]"
+      sTitle = "… = " & sClassName & "\\[…]"
     Case "_call"
-      sTitle = hSym.Class & "()"
+      sTitle = sClassName & "()"
     Case "_next"
-      sTitle = "For Each " & hSym.Class
+      sTitle = "For Each " & sClassName
     Default
       If InStr(":e", hSym.Kind) Then
-        sTitle = "Event " & hSym.Class & "." & Mid$(hSym.Name, 2)
+        sTitle = "Event " & sClassName & "." & Mid$(hSym.Name, 2)
       Else
-        sTitle = hSym.Class & "." & hSym.Name
+        sTitle = sClassName & "." & hSym.Name
       Endif
   End Select
 
@@ -1078,7 +1100,7 @@ End
 
 Private Sub GetIgnore() As String[]
 
-  Return ["gb.gui", "gb.gtk", "gb.gtk.opengl", "gb.gtk3", "gb.gtk3.opengl", "gb.gui.opengl", "gb.gui.base", "gb.option", "gb.v4l", "gb.qt5", "gb.qt5.opengl", "gb.qt5.webkit", "gb.gui.qt", "gb.gui.qt.webkit"]
+  Return ["gb.gui", "gb.gtk", "gb.gtk.opengl", "gb.gtk3", "gb.gtk3.opengl", "gb.gui.opengl", "gb.gui.base", "gb.option", "gb.v4l", "gb.qt5", "gb.qt5.opengl", "gb.qt5.webkit", "gb.gui.qt", "gb.gui.qt.webkit", "gb.qt4.webview", "gb.qt5.webview", "gb.gtk3.webview", "gb.dbus.trayicon", "gb.qt5.ext"]
 
 End
 
@@ -1122,6 +1144,8 @@ Public Sub GetToDo() As String[]
   
       'If $cCompRedirect And If $cCompRedirect.Exist(sComp) Then Continue
       If aIgnore.Find(sComp) >= 0 Then Continue
+      
+      If hClass.IsRedirected() Then Continue
   
       For Each hSymbol In hClass.Symbols
   
@@ -1148,18 +1172,19 @@ Public Sub GetToDo() As String[]
         
         sPath = "/comp" &/ LCase(sComp &/ hSymbol.Class &/ Replace(hSymbol.Name, ":", "."))
         If Not ExistPage(sPath) Then
-          
-          If bPrintComponent Then
-            aResult.Add("## [[" & sComp & "] (/comp" &/ sComp & ")]")
-            aIndex.Add("- [" & sComp & "](#t" & CStr(aIndex.Count + 1) & ")")
-            bPrintComponent = False
+          If Not HasDefaultHelp(sComp, hSymbol.Class, hSymbol.Name) Then
+            If bPrintComponent Then
+              aResult.Add("## [[" & sComp & "] (/comp" &/ sComp & ")]")
+              aIndex.Add("- [" & sComp & "](#t" & CStr(aIndex.Count + 1) & ")")
+              bPrintComponent = False
+            Endif
+            If bPrintClass Then
+              aResult.Add("* **[" & hClass.Name & "] (/comp" &/ sComp &/ LCase(hClass.Name) & ")**")
+              bPrintClass = False
+            Endif
+            aResult.Add("  * [" & sPath & "]")
+            Inc iCpt
           Endif
-          If bPrintClass Then
-            aResult.Add("* **[" & hClass.Name & "] (/comp" &/ sComp &/ LCase(hClass.Name) & ")**")
-            bPrintClass = False
-          Endif
-          aResult.Add("  * [" & sPath & "]")
-          Inc iCpt
         Endif
       Next
     Next
@@ -1269,7 +1294,34 @@ Public Sub Log(sText As String, Optional sUser As String)
 
 End
 
-Public Sub GetDefaultPage() As String
+Public Sub HasDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As Boolean
+
+  Dim hClass As CClassInfo
+  Dim hSymbol As CSymbolInfo
+
+  If Not sComp Then sComp = Main.Component
+  If Not sClass Then sClass = Main.Class
+  If Not sSymbol Then sSymbol = Main.Symbol
+
+  Try hClass = CComponent.Get(sComp)[sClass]
+  If Not hClass Then Return
+  
+  If sSymbol Then
+  
+    Try hSymbol = hClass.Symbols[sSymbol]
+    If Not hSymbol Then Return
+    
+    If hSymbol.Help Then Return True
+    
+  Else 
+    
+    If hClass.Help Then Return True
+    
+  Endif
+
+End
+
+Public Sub GetDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As String
   
   Dim hSymbol As CSymbolInfo
   Dim sSign As String
@@ -1278,12 +1330,16 @@ Public Sub GetDefaultPage() As String
   Dim iPos2 As Integer
   Dim hClass As CClassInfo
   
-  Try hClass = CComponent.Get(Main.Component)[Main.Class]
+  If Not sComp Then sComp = Main.Component
+  If Not sClass Then sClass = Main.Class
+  If Not sSymbol Then sSymbol = Main.Symbol
+
+  Try hClass = CComponent.Get(sComp)[sClass]
   If Not hClass Then Return
   
-  If Main.Symbol Then
+  If sSymbol Then
   
-    Try hSymbol = hClass.Symbols[Main.Symbol]
+    Try hSymbol = hClass.Symbols[sSymbol]
     If Not hSymbol Then Return
     
     If hSymbol.Help Then Return hSymbol.Help
@@ -1598,4 +1654,76 @@ Private Sub SendPlayground()
   Print sData;
   Response.End  
 
+End
+
+Public Sub GetHowToInstall(sSystem As String) As String[]
+  
+  Dim I As Integer
+  Dim sLine As String
+  Dim sCommand As String
+  Dim aResult As String[]
+  Dim sPath As String
+  Dim sOutput As String
+  
+  If Not $bGitLabCI Then
+    
+    sPath = User.Home &/ "gitlab-ci.yml"
+    If Not Exist(sPath) Or If DateAdd(Stat(sPath).LastModified, gb.Day, 1) < Now Then
+      Try Kill sPath
+      Try Exec ["wget", "-q", "-O", "-", "https://gitlab.com/gambas/gambas/-/raw/master/.gitlab-ci.yml"] To sOutput
+      If sOutput Then File.Save(sPath, sOutput)
+    Endif
+    
+    Try $aGitLabCI = Split(File.Load(sPath), "\n")
+    $bGitLabCI = True
+    
+  Endif
+  
+  If Not $aGitLabCI Then Return ["<div class=\"error\">" & ("Unable to download configuration file from GitLab") & "</div>"]
+  
+  I = $aGitLabCI.Find("build:" & sSystem & ":")
+  If I < 0 Then Return ["<div class=\"error\">" & Subst(("Unable to find build configuration for '&1'"), sSystem) & "</div>"]
+  
+  aResult = New String[]
+  
+  Inc I
+  While I <= $aGitLabCI.Max
+    
+    sLine = $aGitLabCI[I]
+    If sLine Begins "build:" Then Break
+    
+    sLine = Trim(sLine)
+    If sLine Begins "- " Then
+      GoSub ADD_COMMAND
+      sCommand = " "
+      sLine = Mid$(sLine, 3)
+      If sLine <> ">" Then sCommand &= sLine
+    Else If sLine Ends ":" Then
+      GoSub ADD_COMMAND
+    Else
+      If sCommand And If sLine Then sCommand = Trim(sCommand & " " & sLine)
+    Endif
+    
+    Inc I
+  Wend
+  
+  GoSub ADD_COMMAND
+
+  aResult.Add("[[ code", 0)  
+  aResult.Add("]]")  
+  Return aResult
+  
+ADD_COMMAND:
+
+  If sCommand Then 
+    sCommand = Trim(Replace(sCommand, "GAMBAS_CONFIG_FAILURE=1 ", ""))
+    If sCommand Not Begins "make" Then
+      If aResult.Count Then aResult.Add("    ")
+      aResult.Add("    " & sCommand)
+    Endif
+    sCommand = ""
+  Endif
+  Return
+
+  
 End

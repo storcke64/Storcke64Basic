@@ -44,7 +44,7 @@ Private Sub IsWordLimit(sCar As String) As Boolean
 
 End
 
-Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) As String
+Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean) As String
   
   Dim iLine As Integer
   Dim aResult As String[]
@@ -73,6 +73,9 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
   Dim sList As String
   Dim bSaveComment As Boolean
   Dim aTemp As String[]
+  Dim cLine As Collection
+  Dim J As Integer
+  Dim iNextLine As Integer
   
   aResult = New String[]
   
@@ -119,6 +122,8 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     aLine[iLine] = ""
     
   Next
+  
+  If $hMarkdown.LinkAnchors And If Not bNoLineAnchors Then cLine = New Collection
     
   iLine = -1
   While iLine < aLine.Max
@@ -126,10 +131,10 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
     Inc iLine
     sLine = aLine[iLine]
     
-    If Not bDoNotSetLine Then 
-      $hMarkdown.Line = iLine
-      $hMarkdown.Current = sLine
-    Endif
+    If $hMarkdown.LinkAnchors And If Not bNoLineAnchors Then GoSub ADD_LINE
+    
+    $hMarkdown.Line = iLine
+    $hMarkdown.Current = sLine
     
     'If $aMarkup.Count Then
     '  aResult.Add(ConvertLine(sLine))
@@ -548,7 +553,30 @@ Private Sub ConvertMarkup(aLine As String[], Optional bDoNotSetLine As Boolean) 
         $aIndex[I] = Mid$($aIndex[I], iIndent + 1)
       Next
     Endif
-    aResult[iIndexPos] = "<div class=\"index\">\n" & ConvertMarkup($aIndex) & "</div>\n"
+    aResult[iIndexPos] = "<div class=\"index\">\n" & ConvertMarkup($aIndex, True) & "</div>\n"
+  Endif
+  
+  If $hMarkdown.LinkAnchors And If Not bNoLineAnchors Then 
+    
+    iLine = 0
+    For I = 0 To aResult.Max
+      If cLine.Exist(I) Then
+        aLine = New String[]
+        'If iLine Then aLine.Add("<a id=\"l" & CStr(iLine - 1) & "e\"></a>")
+        iNextLine = cLine[I]
+        For J = iLine To iNextLine - 1
+          aLine.Add("<a id=\"l" & CStr(J) & "\"></a>") ' & "<a id=\"l" & CStr(J) & "e\"></a>")
+        Next
+        J = Len(aResult[I]) - Len(LTrim(aResult[I]))
+        aResult[I] = Left(aResult[I], J) & aLine.Join("") & "<a id=\"l" & CStr(iNextLine) & "\"></a>" & Mid$(aResult[I], J + 1)
+        iLine = iNextLine + 1
+      Endif
+    Next
+    
+    'aLine = New String[]
+    'If iLine Then aLine.Add("<a id=\"l" & CStr(iLine - 1) & "e\"></a>")
+    aResult.Add("<a id=\"l" & CStr(iLine) & "\"></a>") ' & "<a id=\"l" & CStr(iLine) & "e\"></a>")
+    
   Endif
   
   $bComment = bSaveComment
@@ -569,7 +597,7 @@ CLOSE_CODE:
 CLOSE_BLOCKQUOTE:
 
   While iBlockQuote
-    aResult.Add("</blockquote>")
+    aResult[aResult.Max] &= "</blockquote>"
     Dec iBlockQuote
   Wend
   Return
@@ -579,7 +607,8 @@ CLOSE_LIST:
   While iIndent < iCurrentIndent
     GoSub CLOSE_PARA
     GoSub CLOSE_CODE
-    aResult.Add(Space$(iCurrentIndent) & "</li>")
+    'aResult.Add(Space$(iCurrentIndent) & "</li>")
+    aResult[aResult.Max] &= "</li>"
     bJustList = False
     aResult.Add(Space$(aList[aList.Max].iIndent) & "</" & aList[aList.Max].sType & ">")
     aList.Remove(aList.Max)
@@ -603,10 +632,11 @@ CLOSE_PARA:
   Endif
   Return
   
-'Catch
-  
-'  Error.Raise("Line " & CStr(iLine + 1) & ": " & Error.Text)
+ADD_LINE:
 
+  cLine[aResult.Count] = iLine
+  Return
+  
 End
 
 

@@ -4,6 +4,8 @@ Private $hPrinter As Printer
 
 Public Sub Main()
 
+  Application.Theme = "gambas"
+
   $hPrinter = New Printer As "Printer"
 
   $hPrinter.MarginTop = 15  
@@ -40,6 +42,7 @@ Public Sub Printer_Draw()
   Paint.Rectangle(0, 0, Paint.W, H)
   Paint.Stroke
   
+  Paint.Background = Color.Red
   Paint.DrawRichText(File.Load("molly-malone.txt"), 0, 100, Paint.W, Paint.H)
   
   'Paint.DrawText("ABCD",10,)

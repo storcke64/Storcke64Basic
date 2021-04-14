@@ -698,6 +698,8 @@ void TRANS_on_goto_gosub(void)
 		
 		if (n == 127)
 			THROW("Too many labels");
+
+		TRANS_newline();
 	}
 	
 	pos = CODE_set_current_pos(pos);

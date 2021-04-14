@@ -157,7 +157,7 @@ typedef
 			void (*Init)(DB_RESULT result, DB_INFO *info, int *count);
 			int (*Fill)(DB_DATABASE *db, DB_RESULT result, int pos, GB_VARIANT_VALUE *buffer, int next);
 			void (*Blob)(DB_RESULT result, int pos, int field, DB_BLOB *blob);
-			void (*Release)(DB_RESULT result, DB_INFO *info);
+			void (*Release)(DB_RESULT result, DB_INFO *info, bool invalid);
 			struct {
 				GB_TYPE (*Type)(DB_RESULT result, int index);
 				char *(*Name)(DB_RESULT result, int index);

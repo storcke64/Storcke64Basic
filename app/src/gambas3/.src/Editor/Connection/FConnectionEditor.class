@@ -117,7 +117,7 @@ Private Sub LoadList(Optional sTable As String)
   lvwTable.MoveFirst
   Try sFirst = lvwTable.Item.Key
   
-  With lvwTable.Add(KEY_REQUEST, ("SQL requests"), Picture["icon:/16/find"])
+  With lvwTable.Add(KEY_REQUEST, ("SQL requests"), Picture["icon:/small/find"])
     If sFirst Then .MoveBefore(sFirst)
   End With
   
@@ -683,6 +683,7 @@ Public Sub btnRunQuery_Click()
   Dim iPos As Integer
   Dim sStart As String
   Dim fTimer As Float
+  Dim sErr As String
   
   While Left(sReq, 2) = "/*"
     iPos = InStr(sReq, "*/")
@@ -696,6 +697,8 @@ Public Sub btnRunQuery_Click()
   
   Inc Application.Busy
   
+  Project.SetMessage(("Running request") & "...")
+  
   iPos = InStr(sReq, " ")
   If iPos Then sStart = UCase(Left$(sReq, iPos - 1))
   
@@ -703,18 +706,20 @@ Public Sub btnRunQuery_Click()
     Try datRequest.Table = sReq
   Else
     Try $hConn.Exec(sReq)
-    If Not Error Then 
-      Balloon.Info(("OK"), btnRunQuery)
-      'edtRequest.Reset
+    If Error Then
+      sErr = Error.Text
+    Else
+      LoadList($sTable)
     Endif
   Endif
   
   Dec Application.Busy
   
-  If Error Then 
-    Balloon.Error(("Unable to run query.") & "\n\n" & Error.Text, btnRunQuery)
+  If sErr Then 
+    FMain.ShowError(("Unable to run query.") & "\n\n" & sErr)
   Else
-    edtRequest.ShowMessageLabel(Subst(("&1 s"), Format(Timer - fTimer, "0.###")), Highlight.Highlight, True)
+    Project.SetMessage(("OK"), True)
+    Project.SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.#")), True)
   Endif
   
 End
@@ -1661,7 +1666,7 @@ Public Sub btnNewTable_Click()
   If MConnection.CreateTable($hConn, sName, FNewTable.TableType) Then Return
   UpdateDefinition
   
-  lvwTable.Add("T" & sName, sName, Picture["icon:/16/table"])
+  lvwTable.Add("T" & sName, sName, Picture["icon:/small/table"])
   'lvwTable["T" & sName].Selected = True
   LoadTable(sName)
   

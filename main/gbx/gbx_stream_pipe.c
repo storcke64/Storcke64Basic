@@ -54,18 +54,18 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 
 	fmode = 0;
 
-	switch (mode & STO_MODE)
+	switch (mode & GB_ST_MODE)
 	{
-		case STO_READ: fmode |= O_RDONLY | O_NONBLOCK; break;
-		case STO_WRITE: fmode |= O_WRONLY; break;
-		case STO_READ_WRITE: fmode |= O_RDWR; break;
+		case GB_ST_READ: fmode |= O_RDONLY | O_NONBLOCK; break;
+		case GB_ST_WRITE: fmode |= O_WRONLY; break;
+		case GB_ST_READ_WRITE: fmode |= O_RDWR; break;
 		default: fmode |= O_RDONLY;
 	}
 
 	RESTART_SYSCALL(fd = open(path, fmode)) 
 		return TRUE;
 
-	if ((mode & STO_MODE) == STO_READ)
+	if ((mode & GB_ST_MODE) == GB_ST_READ)
 		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
 		
 	stream->direct.size = 0;

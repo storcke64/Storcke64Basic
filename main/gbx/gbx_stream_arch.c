@@ -55,7 +55,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		return TRUE;
 	}
 
-	if ((mode & STO_ACCESS) != STO_READ)
+	if ((mode & GB_ST_ACCESS) != GB_ST_READ)
 	{
 		errno = EACCES;
 		return TRUE;

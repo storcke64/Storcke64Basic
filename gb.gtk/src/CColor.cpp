@@ -31,85 +31,85 @@
 
 BEGIN_PROPERTY(Color_Background)
 
-	GB.ReturnInteger(gDesktop::bgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_Foreground)
 
-	GB.ReturnInteger(gDesktop::fgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_TextBackground)
 
-	GB.ReturnInteger(gDesktop::textbgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::TEXT_BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_TextForeground)
 
-	GB.ReturnInteger(gDesktop::textfgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::TEXT_FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_SelectedBackground)
 
-	GB.ReturnInteger(gDesktop::selbgColor());
-
-END_PROPERTY
-
-BEGIN_PROPERTY(Color_LightBackground)
-
-	GB.ReturnInteger(gDesktop::lightbgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::SELECTED_BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_SelectedForeground)
 
-	GB.ReturnInteger(gDesktop::selfgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::SELECTED_FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_ButtonBackground)
 
-	GB.ReturnInteger(gDesktop::buttonbgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::BUTTON_BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_ButtonForeground)
 
-	GB.ReturnInteger(gDesktop::buttonfgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::BUTTON_FOREGROUND));
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Color_LightBackground)
+
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::LIGHT_BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_LightForeground)
 
-	GB.ReturnInteger(gDesktop::lightfgColor());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::LIGHT_FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_TooltipBackground)
 
-	GB.ReturnInteger(gDesktop::tooltipBackground());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::TOOLTIP_BACKGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_TooltipForeground)
 
-	GB.ReturnInteger(gDesktop::tooltipForeground());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::TOOLTIP_FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_LinkForeground)
 
-  GB.ReturnInteger(gDesktop::linkForeground());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::LINK_FOREGROUND));
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_VisitedForeground)
 
-  GB.ReturnInteger(gDesktop::visitedForeground());
+	GB.ReturnInteger(gDesktop::getColor(gDesktop::VISITED_FOREGROUND));
 
 END_PROPERTY
 

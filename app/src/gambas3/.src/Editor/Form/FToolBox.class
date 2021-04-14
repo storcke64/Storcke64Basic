@@ -3,6 +3,7 @@
 Private Const WIDTH As Integer = 40
 
 Private $cToolBar As New Collection
+Private $cToolBarFromIndex As New Collection
 Private $sToolBar As String
 Private $sLastToolBar As String
 Private $sFamily As String
@@ -13,17 +14,26 @@ Private $iSize As Integer
 
 Private $aOrder As New String[]
 
+Private $iTabDeprecated As Integer
+
 Public Sub _new()
   
   tabTool.AddButton(btnZoom, Align.Right)
   tabTool.ShowButton(btnZoom, True)
+  tabTool.AddButton(btnDeprecated, Align.Right)
+  tabTool.ShowButton(btnDeprecated, True)
   
 End
 
 
 Public Sub Form_Open()
 
-  $aOrder = ["Form", "WebForm", "TermForm", "View", "Report", "Dialog", "Chooser", "Container", "Data", "Network", "Special"]
+  Dim aTrans As String[]
+  
+  $aOrder = ["Form", "WebForm", "TermForm", "Report", "View", "Dialog", "Chooser", "Container", "Data", "Network", "Special"]
+
+  ' Just for the translations
+  aTrans = [("Form"), ("WebForm"), ("TermForm"), ("View"), ("Report"), ("Dialog"), ("Chooser"), ("Container"), ("Data"), ("Network"), ("Special"), ("Deprecated")]
 
   ReadConfig
   SetTool
@@ -39,65 +49,26 @@ Private Function AddToolBar(sToolBar As String, sType As String) As FToolPanel
   If Not $cToolBar.Exist(sToolBar) Then
 
     If $cToolBar.Count Then Inc tabTool.Count
+    
     tabTool.Index = tabTool.Count - 1
-    'Debug tabTool.Count;; tabTool.Index
-    tabTool.Text = sToolBar
 
+    If sToolBar = "Deprecated" Then $iTabDeprecated = tabTool.Index
+    
+    tabTool.Text = Tr(sToolBar)
+    
     hToolBar = New FToolPanel(sToolBar, sType, tabTool) As "ToolBar"
+    hToolBar.Tag = sToolBar
     $cToolBar[sToolBar] = hToolBar
+    $cToolBarFromIndex[tabTool.Index] = hToolBar
 
     If Not $sToolbar Then $sToolbar = sToolBar
-
+    
   Endif
 
   Return $cToolBar[sToolBar]
 
 End
 
-
-' PRIVATE SUB MoveToolbar(OPTIONAL bAnim AS Boolean)
-' 
-'   DIM hToolBar AS FToolBar
-'   DIM Y AS Integer
-'   DIM H AS Integer
-'   DIM iInd AS Integer
-'   DIM bCurrent AS Boolean
-' 
-'   RETURN
-' 
-'   FOR EACH hToolBar IN $cToolBar
-' 
-'     bCurrent = $cToolBar.Key = $sToolBar
-'     hToolBar.ShowToolBar(TRUE)
-' 
-'     IF bAnim AND $bAnimate THEN
-'       IF ((hToolBar.Y < Y) AND $cToolBar.Key = $sLastToolBar) OR ((hToolBar.Y > Y) AND bCurrent) THEN
-'         FOR iInd = hToolBAR.Y TO Y STEP 8 * Sgn(Y - hToolBAR.Y)
-'           hToolBar.Y = iInd
-'           WAIT 0.001
-'         NEXT
-'       ENDIF
-'     ENDIF
-' 
-'     IF $cToolBar.Key = $sToolBar THEN
-'       H = ME.ClientH - $cToolBar.Count * FToolBar.HEIGHT + FToolBar.HEIGHT
-'     ELSE
-'       H = FToolBar.HEIGHT
-'     ENDIF
-' 
-'     hToolBar.Move(0, Y, ME.ClientW, H)
-'     Y += H
-' 
-'   NEXT
-' 
-'   FOR EACH hToolBar IN $cToolBar
-' 
-'     bCurrent = $cToolBar.Key = $sToolBar
-'     hToolBar.ShowToolBar(bCurrent)
-' 
-'   NEXT
-' 
-' END
 
 Public Sub RefreshToolbar(Optional bForce As Boolean)
 
@@ -144,6 +115,7 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
   Next
   
   $cToolBar.Clear
+  $cToolBarFromIndex.Clear
   'Debug tabTool.Index
   tabTool.Count = 1
   'Debug "->";; tabTool.Index
@@ -172,7 +144,6 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
 
         For Each sCtrl In .Controls
           sGroup = Project.Documentation.Classes[sCtrl].Group
-          If sGroup = "Deprecated" And If Not Project.ShowDeprecated Then Continue
           cToolBar[sGroup] = sGroup
         Next
 
@@ -192,9 +163,13 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
     
     aToolBar.Sort
     
+    $iTabDeprecated = 0
     For Each sGroup In aToolBar
       AddToolBar(Mid$(sGroup, 3), "Not yet implemented")
     Next
+    
+    btnDeprecated.Value = Project.ShowDeprecated
+    btnDeprecated_Click
     
     For Each hComp In Project.Documentation.Components
 
@@ -206,7 +181,6 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
           If cHidden.Exist(sCtrl) Then Continue
           hClass = Project.Documentation.Classes[sCtrl]
           sGroup = hClass.Group
-          If sGroup = "Deprecated" And If Not Project.ShowDeprecated Then Continue
           bExist = False
           For Each hToolBar In $cToolBar
             If hToolBar.Exist(sCtrl) Then 
@@ -218,13 +192,17 @@ Public Sub RefreshToolbar(Optional bForce As Boolean)
             If $cToolBar[sGroup] Then 
               $cToolBar[sGroup].Add(sCtrl, hComp.Key, hClass.Family)
             Else
-              Error "gambas3: warning: unknown control group: "; sGroup
+              Error "gambas3: warning: unknown group '"; sGroup; "' for control '"; sCtrl; "'"
             Endif
           Endif
         Next
 
       End With
 
+    Next
+    
+    For Each hToolBar In $cToolBar
+      hToolBar.Sort()
     Next
 
     'Try SelectToolbar($sToolBar)
@@ -257,24 +235,6 @@ Private Sub ClearToolBar()
 
 End
 
-' Public Sub Form_Close()
-' 
-'   'Config.SaveWindow(ME, "/FToolBox")
-'   'DEBUG ME.x;; ME.y
-'   Settings.Write(Me)
-' 
-' End
-
-Private Sub SelectToolBar(sToolBar As String)
-
-  If Not $cToolBar.Exist(sToolBar) Then Return
-  $sLastToolBar = $sToolBar
-  $sToolBar = sToolBar
-  SetTool
-  'MoveToolBar(ME.Visible)
-
-End
-
 Public Function GetTool() As String
 
   If Not $sToolBar Then Return
@@ -289,12 +249,6 @@ Public Sub SetTool()
 
 End
 
-' PUBLIC SUB ToolBar_Change()
-'
-'   PRINT "ToolBar_Change: "; LAST.Name
-'
-' END
-
 Public Sub GetSize() As Integer
   
   Return 24 + Settings["/Toolbox/Size", 0] * 8
@@ -304,10 +258,13 @@ End
 Private Sub UpdateSize()
   
   Dim iSize As Integer = GetSize()
+  Dim iTab As Integer
   
   If iSize <> $iSize Then
+    iTab = tabTool.Index
     $iSize = iSize
     ClearToolBar
+    tabTool.Index = iTab
   Endif
   
 End
@@ -326,7 +283,14 @@ End
 
 Public Sub tabTool_Click()
 
-  SelectToolbar(tabTool.Text)
+  Dim hToolbar As FToolPanel
+
+  hToolbar = $cToolBarFromIndex[tabTool.Index]
+  If Not hToolBar Then Return
+  
+  $sLastToolBar = $sToolBar
+  $sToolBar = hToolBar.Tag
+  SetTool
 
 End
 
@@ -337,7 +301,6 @@ Public Sub OnProjectActivate()
   Dim nVisible As Integer
   Dim hCtrl As Control
   Dim sType As String
-  Dim sTitle As String
   Dim sOldTab As String
   Dim iIndex As Integer
   
@@ -353,8 +316,7 @@ Public Sub OnProjectActivate()
   For iTab = 0 To tabTool.Count - 1
   
     nVisible = 0
-    sTitle = tabTool[iTab].Text
-    For Each hCtrl In $cToolBar[sTitle].Container.Children
+    For Each hCtrl In $cToolBarFromIndex[iTab].Container.Children
     
       sType = hCtrl.Tag[1]
       hCtrl.Visible = sType = "*" Or sType = $sFamily
@@ -365,12 +327,13 @@ Public Sub OnProjectActivate()
     tabTool[iTab].Visible = nVisible > 1
     If tabTool[iTab].Visible Then
       If iIndex < 0 Then iIndex = iTab
-      If sTitle = sOldTab Then iIndex = iTab
+      If tabTool[iTab].Text = sOldTab Then iIndex = iTab
     Endif
   
   Next
   
   tabTool.Index = iIndex
+  btnDeprecated_Click
   
 End
 
@@ -397,5 +360,60 @@ Public Sub SetTooltip(Optional sControl As String, sComp As String)
   If sComp = "$" Then sComp = "<i>" & ("Current project") & "</i>"
   lblControl.Text = sControl
   lblComp.Text = sComp
+  
+End
+
+Public Sub btnDeprecated_Click()
+
+  If $iTabDeprecated Then tabTool[$iTabDeprecated].Visible = btnDeprecated.Value
+  If btnDeprecated.Value Then tabTool.Index = $iTabDeprecated
+
+End
+
+Public Sub tabTool_Menu()
+
+  Dim hMenu As Menu
+  Dim I As Integer
+  
+  mnuShow.Children.Clear
+  
+  For I = 0 To tabTool.Count - 1
+    If Not tabTool[I].Visible Then Continue
+    hMenu = New Menu(mnuShow) As "mnuShow"
+    hMenu.Text = tabTool[I].Text
+    hMenu.Checked = I = tabTool.Index
+    hMenu.Tag = I
+  Next
+  
+  mnuDeprecated.Checked = btnDeprecated.Value
+  
+  mnuSize.Children[Settings["/Toolbox/Size", 0]].Checked = True
+  
+  mnuToolbox.Popup
+
+End
+
+Public Sub mnuShow_Click()
+  
+  tabTool.Index = Last.Tag
+  
+End
+
+Public Sub mnuDeprecated_Click()
+
+  btnDeprecated.Value = mnuDeprecated.Value
+
+End
+
+Public Sub mnuSize_Click()
+  
+  Settings["/Toolbox/Size"] = CInt(Last.Tag)
+  UpdateSize
+  
+End
+
+Public Sub IsDeprecatedVisible() As Boolean
+  
+  Return btnDeprecated.Value
   
 End

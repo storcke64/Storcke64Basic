@@ -12,7 +12,7 @@ program är ditt <i>eget</i> ansvar...</p>
 <p>Lycka till!</p>
 
 <p align=right>Beno&icirc;t Minisini<br>
-<u>gambas@users.sourceforge.net</u></p>
+<u>g4mba5@gmail.com</u></p>
 
 
 [STARTUP]
@@ -393,7 +393,7 @@ en <b>Gambas</b>-expert nu! :-)</p>
 
 <p>Om du vill bidraga, sänd nya tips till följande
 adress&nbsp;:</p>
-<p><u>gambas@users.sourceforge.net</u></p>
+<p><u>g4mba5@gmail.com</u></p>
 
 <p>Tack på förhand!</p>
 

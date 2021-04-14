@@ -46,6 +46,7 @@
 #include "CPicture.h"
 #include "CImage.h"
 #include "CDrawingArea.h"
+#include "CContainer.h"
 #include "CColor.h"
 #include "CDraw.h"
 #include "cprinter.h"
@@ -83,6 +84,8 @@ typedef
 #define PAINTER(d) EXTRA(d)->painter
 #define PATH(d) EXTRA(d)->path
 //#define CLIP(d) EXTRA(d)->clip
+	
+static bool _internal_paint = false;
 
 static inline qreal to_deg(float angle)
 {
@@ -244,6 +247,27 @@ static int Begin(GB_PAINT *d)
 		d->area.height = wid->height();
 		return FALSE;
 	}
+	else if (GB.Is(device, CLASS_UserControl))
+	{
+		MyContainer *wid;
+
+		wid = (MyContainer *)(((CWIDGET *)device)->widget);
+
+		if (!_internal_paint)
+		{
+			GB.Error("Cannot paint outside of Draw event handler");
+			return TRUE;
+		}
+
+		target = wid;
+
+		if (init_painting(d, target))
+			return TRUE;
+
+		d->area.width = wid->width();
+		d->area.height = wid->height();
+		return FALSE;
+	}
 	else if (GB.Is(device, CLASS_Printer))
 	{
 		CPRINTER *printer = (CPRINTER *)device;
@@ -372,6 +396,17 @@ static void Antialias(GB_PAINT *d, int set, int *antialias)
 		*antialias = PAINTER(d)->testRenderHint(QPainter::Antialiasing) ? 1 : 0;
 }
 
+static void set_painter_font(QPainter *p, QFont f)
+{
+	p->setFont(f);	
+	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
+	if (f != p->font())
+	{
+		f.fromString(f.toString());
+		p->setFont(f);
+	}
+}
+
 static void apply_font(QFont &font, void *object = 0)
 {
 	GB_PAINT *d = (GB_PAINT *)DRAW.Paint.GetCurrent();
@@ -380,13 +415,7 @@ static void apply_font(QFont &font, void *object = 0)
 	if (d->fontScale != 1)
 		f.setPointSizeF(f.pointSizeF() * d->fontScale);
 
-	PAINTER(d)->setFont(f);
-	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
-	if (f != PAINTER(d)->font())
-	{
-		f.fromString(f.toString());
-		PAINTER(d)->setFont(f);
-	}
+	set_painter_font(PAINTER(d), f);
 }
 
 static void Font(GB_PAINT *d, int set, GB_FONT *font)
@@ -397,7 +426,7 @@ static void Font(GB_PAINT *d, int set, GB_FONT *font)
 	{
 		if (*font)
 			f = QFont(*((CFONT *)(*font))->font);
-		else if ((GB.Is(d->device, CLASS_DrawingArea)))
+		else if ((GB.Is(d->device, CLASS_DrawingArea) || GB.Is(d->device, CLASS_UserControl)))
 			f = (((CWIDGET *)d->device)->widget)->font();
 		
 		apply_font(f);
@@ -982,7 +1011,7 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 		MyPaintDevice device;
 		QPainter p(&device);
 
-		p.setFont(PAINTER(d)->font());
+		set_painter_font(&p, PAINTER(d)->font());
 		p.setPen(PAINTER(d)->pen());
 		p.setBrush(PAINTER(d)->brush());
 
@@ -1011,8 +1040,10 @@ static void get_text_extents(GB_PAINT *d, bool rich, const char *text, int len, 
 	QPainterPath path;
 	MyPaintDevice device;
 	QPainter p(&device);
+	QFont f = PAINTER(d)->font();
 
-	p.setFont(PAINTER(d)->font());
+	set_painter_font(&p, f);
+	
 	_draw_path = &path;
 	GetCurrentPoint(d, &_draw_x, &_draw_y);
 	_draw_y -= PAINTER(d)->fontMetrics().ascent();
@@ -1450,7 +1481,9 @@ GB_PAINT_MATRIX_DESC PAINT_MATRIX_Interface =
 
 void PAINT_begin(void *device)
 {
+	_internal_paint = true;
 	DRAW.Paint.Begin(device);
+	_internal_paint = false;
 }
 
 void PAINT_end()

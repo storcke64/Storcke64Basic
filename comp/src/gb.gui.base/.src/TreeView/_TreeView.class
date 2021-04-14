@@ -10,13 +10,26 @@ Property Border As Boolean
 Property Sorted As Boolean
 Property Read Current As _TreeView_Item
 Property Key As String
+
+'' @{since 3.12}
+''
+'' Return a list of all items keys
+
 Property Read Keys As String[]
+
 Property Read Item As _TreeView_Item
 Property Read Available As Boolean
 Property Read Renaming As Boolean
 Property Editable As Boolean
 Property Compare As Integer
 Property Selection As String[]
+
+'' @{since 3.15}
+''
+'' Return or set if selection is indicated by check boxes and radio buttons, or by highlighting the items.
+''
+'' Check boxes are used in multiple selection mode, radio buttons in single selection mode.
+
 Property ShowCheck As Boolean
 
 Property Read ClientWidth, ClientW As Integer
@@ -26,6 +39,12 @@ Property ScrollY As Integer
 Property Read ScrollW, ScrollWidth As Integer
 Property Read ScrollH, ScrollHeight As Integer
 
+'' @{since 3.16}
+''
+'' Return the size of tree indentation in pixels.
+
+Property Read Indent As Integer
+
 Event Click
 Event Activate
 Event Select
@@ -34,8 +53,30 @@ Event Collapse
 Event Rename
 Event Cancel
 Event Compare(Key As String, OtherKey As String)
+
+'' @{since 3.12}
+''
+'' This event is raised before automatically sorting the items
+
 Event BeforeSort
+
+'' @{since 3.14}
+''
+'' This event is raised when the view scrolls.
+
 Event Scroll
+
+'' {@since 3.16}
+''
+'' This event allows to customize the drawing of a specific item.
+''
+'' - ~X~, ~Y~, ~Width~ and ~Height~ define the rectangle enclosing the item.
+'' - ~Key~ is the item key.
+'' - ~Column~ is the item column to draw in case of a ColumnView. For a TreeView or a ListView, it is always '0'.
+''
+'' This event is called just before drawing the item, and if the event is stopped, the default item drawing routine is ignored.
+
+Event Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Key As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
 
@@ -104,6 +145,7 @@ Public Sub Clear()
   Cancel()
   $cItem.Clear
   If $cSort Then $cSort.Clear
+  $hSelection.UnSelectAll()
   $bSortRoot = False
   $iLastRow = -2
   $sLastKey = ""
@@ -222,7 +264,10 @@ Private Sub RemoveRec((Key) As String, Optional bDoNotDestroy As Boolean)
     If Not hParent Then hParent = $hRoot
   Wend
   
-  If Not bDoNotDestroy Then $cItem.Remove(Key)
+  If Not bDoNotDestroy Then
+    $cItem.Remove(Key)
+    $hSelection.SelectItem(Key, False)
+  Endif
   
 End
 
@@ -509,8 +554,15 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
   Dim HA As Float
   Dim bHasNext As Boolean
   Dim hParent As _TreeView_Item
+  Dim bStopEvent As Boolean
   
   If Not hItem Then Return
+  
+  bStopEvent = Raise Draw(X, Y, W, H, hItem.Key, Column)
+  If bStopEvent Then
+    Stop Event
+    Return
+  Endif
   
   If Column = 0 Then
   
@@ -558,10 +610,12 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
       
         If hItem.Count Then
           
-          XA = X + W + $iDepthW / 4
-          YA = Y + $iDepthW / 4
-          WA = $iDepthW / 2
-          HA = H - $iDepthW / 2
+          HA = H / 2
+          If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
+          WA = HA
+          XA = X + W + ($iDepthW + WA) / 4
+          YA = Y + CInt(H - HA) \ 2
+          
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Left))
           Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
           Paint.LineWidth = $iDepthW / 12
@@ -651,13 +705,15 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         If hItem.Count Then
           
           Paint.Background = Color.LightForeground
-          XA = X + $iDepthW / 4
-          YA = Y + $iDepthW / 4
-          WA = $iDepthW / 2
-          HA = H - $iDepthW / 2
+          'HA = H / 2
+          'If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
+          WA = Min(H, $iDepthW \ 2)
+          HA = WA
+          XA = X + ($iDepthW - WA) / 2
+          YA = Y + (H - HA) / 2
+          Paint.LineWidth = HA / 6
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
           Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
-          Paint.LineWidth = $iDepthW / 12
           Paint.LineCap = Paint.LineCapRound
           Paint.Stroke
           
@@ -712,7 +768,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     'Draw.Text(hItem.Text & " (" & hItem._Index & ") [" & hItem._Rows & "] {" & hItem._GrandChildren & "}", X, Y, W, H, $hView.Columns[Column].Alignment)
     sText = hItem.RichText
     If sText Then
-      Paint.DrawRichText(sText, X, Y, W, H, Align.Normal)
+      Paint.DrawRichText(sText, X, Y, 65536, H, Align.Normal)
     Else
       Paint.DrawText(hItem.Text, X, Y, W, H, Align.Normal)
     Endif
@@ -757,13 +813,24 @@ End
 
 Public Sub GridView_MouseDown()
   
-  Dim iRow As Integer = $hView.RowAt(Mouse.Y)
-  Dim hItem As _TreeView_Item = _RowToItem(iRow)
+  Dim iRow As Integer
+  Dim hItem As _TreeView_Item
   Dim X As Integer
+  Dim bCancel As Boolean
+  Dim D As Integer
 
-  If Not hItem Then Return
   If Mouse.Click > 1 Then Return
 
+  bCancel = Raise MouseDown
+  If bCancel Then 
+    Stop Event
+    Return
+  Endif
+
+  iRow = $hView.RowAt(Mouse.Y)
+  hItem = _RowToItem(iRow)
+  If Not hItem Then Return
+  
   If Mouse.Right And If Not $bShowCheck Then
     _SetItemSelected(hItem, True) '.Rows[iRow].Selected = True
   Endif
@@ -779,8 +846,10 @@ Public Sub GridView_MouseDown()
   Endif
 
   X -= $hView.ScrollX
+  
+  If Not $bNoRoot Then D = $iDepthW
 
-  If Mouse.X < X + $iDepthW Then
+  If Mouse.X < X + D Then
     If hItem.Count And If Not $bNoRoot And If Mouse.X >= X Then
       hItem.Expanded = Not hItem.Expanded
     Else
@@ -798,16 +867,28 @@ Public Sub GridView_KeyPress()
   
   If Key.Code = Key.F2 Then 
     hItem = Current_Read()
-    If hItem Then hItem.Rename
+    If hItem Then 
+      hItem.Rename
+      Stop Event
+    Endif
   Else If Key.Text = "+" Then
     hItem = Current_Read()
-    If hItem Then hItem.Expanded = True
+    If hItem Then 
+      hItem.Expanded = True
+      Stop Event
+    Endif
   Else If Key.Text = "-" Then
     hItem = Current_Read()
-    If hItem Then hItem.Expanded = False
+    If hItem Then 
+      hItem.Expanded = False
+      Stop Event
+    Endif
   Else If Key.Code = Key.Space Or If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
     hItem = Current_Read()
-    If hItem Then hItem.Expanded = Not hItem.Expanded
+    If hItem Then
+      hItem.Expanded = Not hItem.Expanded
+      Stop Event
+    Endif
   Endif
   
 End
@@ -1397,6 +1478,8 @@ Public Sub _Rename(hItem As _TreeView_Item, iCol As Integer)
   
   If iCol < 0 Or If iCol >= $hView.Columns.Count Then Error.Raise("Out of bounds")
   
+  Cancel()
+  
   _EnsureVisible(hItem)
   Wait
   Key_Write(hItem.Key)
@@ -1607,6 +1690,8 @@ End
 
 Public Sub _RestoreSelection()
   
+  Dim cSel As Collection
+  
   Dec $iSaveSelection
   
   If $iSaveSelection = 0 Then 
@@ -1615,7 +1700,11 @@ Public Sub _RestoreSelection()
     Inc $iSaveSelection
     
     If $hView.Mode = Select.Multiple Then
-      $hSelection.Restore($vSaveSelection)
+      cSel = $vSaveSelection
+      For Each cSel
+        If Not $cItem.Exist(cSel.Key) Then cSel.Remove(cSel.Key)
+      Next
+      $hSelection.Restore(cSel)
     Else
       Key_Write($vSaveSelection)
     Endif
@@ -1820,5 +1909,21 @@ Private Sub ShowCheck_Write(Value As Boolean)
   $hView._ToggleSelection = Value
   '$hView._NoMouse = Value
   $hView.Refresh
+
+End
+
+Public Sub _RefreshPicture()
+
+  Dim hItem As _TreeView_Item
+  
+  For Each hItem In $cItem
+    Picture._Refresh(ByRef hItem.Picture)
+  Next
+  
+End
+
+Private Function Indent_Read() As Integer
+
+  Return $iDepthW
 
 End

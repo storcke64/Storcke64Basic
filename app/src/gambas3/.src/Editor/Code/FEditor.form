@@ -91,6 +91,7 @@
         Action = ".color"
         Text = ("Insert color") & "..."
         Picture = Picture["icon:/small/color"]
+        Shortcut = "Ctrl+Shift+C"
       }
     }
     { Menu3 Menu
@@ -142,7 +143,7 @@
       { mnuWrap Menu
         Action = ".wrap"
         Text = ("Automatic word wrap")
-        Picture = Picture["img/32/wrap.png"]
+        Picture = Picture["icon:/small/wrap"]
         Toggle = True
       }
       { mnuNoSplit Menu
@@ -197,12 +198,6 @@
     }
     { mnuSep5 Menu
     }
-    { mnuClose Menu
-      Action = ".close"
-      Text = ("Close")
-      Picture = Picture["icon:/small/close"]
-      Shortcut = "Ctrl+W"
-    }
     { mnuLocked Menu
       Action = ".locked"
       Text = ("Locked")
@@ -224,6 +219,14 @@
       Text = ("Save")
       Picture = Picture["icon:/small/save"]
       Shortcut = "Ctrl+S"
+    }
+    { Menu7 Menu
+    }
+    { mnuClose Menu
+      Action = ".close"
+      Text = ("Close")
+      Picture = Picture["icon:/small/close"]
+      Shortcut = "Ctrl+W"
     }
   }
   { mnuPasteAs Menu
@@ -453,7 +456,7 @@
       Visible = False
       ToolTip = ("Find definition")
       Action = ".find-definition"
-      Picture = Picture["icon:/16/info"]
+      Picture = Picture["icon:/small/info"]
     }
     { btnNoSplit ToolButton mnuNoSplit
       Name = "btnNoSplit"
@@ -487,10 +490,11 @@
       Mouse = Mouse.Pointing
       Action = ".proc"
       Text = ("Procedure list")
-      Picture = Picture["icon:/small/bottom"]
-      Arrow = False
       Border = False
       MenuOnly = True
+    }
+    { Separator5 Separator
+      MoveScaled(170,0,1,4)
     }
     { Panel2 Panel
       MoveScaled(172,0,5,4)
@@ -500,7 +504,7 @@
       MoveScaled(185,0,4,4)
       ToolTip = ("Automatic word wrap")
       Action = ".wrap"
-      Picture = Picture["img/32/wrap.png"]
+      Picture = Picture["icon:/small/wrap"]
       Toggle = True
     }
     { btnLocked ToolButton
@@ -516,11 +520,6 @@
     Background = Color.TextBackground
     Expand = True
     Arrangement = Arrange.Fill
-    { splVertical VSplit
-      MoveScaled(2,41,22,18)
-      Visible = False
-      Expand = True
-    }
     { edtEditor TextEditor Editors
       Name = "edtEditor"
       MoveScaled(4,1,24,16)
@@ -529,6 +528,11 @@
     }
     { splHorizontal HSplit
       MoveScaled(3,19,22,18)
+      Visible = False
+      Expand = True
+    }
+    { splVertical VSplit
+      MoveScaled(2,41,22,18)
       Visible = False
       Expand = True
     }
@@ -565,7 +569,7 @@
   }
   { Action color
     Text = "Insert color"
-    Shortcut = ""
+    Shortcut = "Ctrl+Shift+C"
     Picture = "icon:/small/color"
   }
   { Action comment
@@ -602,7 +606,7 @@
   { Action find-definition
     Text = "Find definition"
     Shortcut = "F2"
-    Picture = "icon:/16/info"
+    Picture = "icon:/small/info"
   }
   { Action find-next
     Text = "Find next"
@@ -665,7 +669,7 @@
   }
   { Action proc
     Text = "Procedure list"
-    Picture = "icon:/small/bottom"
+    Picture = "$MenuButton"
   }
   { Action redo
     Text = "Redo"
@@ -739,7 +743,7 @@
   { Action wrap
     Text = "Automatic word wrap"
     Shortcut = ""
-    Picture = "img/32/wrap.png"
+    Picture = "icon:/small/wrap"
   }
 }
 
@@ -747,6 +751,6 @@
   { Toolbar editor
     Text = "Editor"
     List = "show-form,diff,diff-previous,diff-next,save,reload,print,run-me,undo,redo,cut,copy,paste,paste-special,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,break,watch,find-definition,view-nosplit,view-hsplit,view-vsplit,proc,wrap,locked"
-    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,|,proc,~,wrap,locked"
+    Default = "show-form,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,break,watch,|,proc,|,~,wrap,locked"
   }
 }

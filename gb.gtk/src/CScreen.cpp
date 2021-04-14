@@ -26,6 +26,7 @@
 #include "CWindow.h"
 #include "CPicture.h"
 #include "CFont.h"
+#include "CContainer.h"
 #include "CDrawingArea.h"
 #include "CScreen.h"
 
@@ -50,6 +51,15 @@ static CSCREEN *_screens[MAX_SCREEN] = { NULL };
 
 static bool _animations = FALSE;
 static bool _shadows = FALSE;
+
+//-------------------------------------------------------------------------
+
+static void send_change_event()
+{
+	CDRAWINGAREA_send_change_event();
+	CUSERCONTROL_send_change_event();
+}
+
 
 static CSCREEN *get_screen(int num)
 {
@@ -145,11 +155,28 @@ BEGIN_PROPERTY(Desktop_HasSystemTray)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Desktop_Scale)
+
+	GB.ReturnInteger(MAIN_scale);
+
+END_PROPERTY
+
 BEGIN_PROPERTY(Desktop_Type)
 
 	GB.ReturnConstZeroString(DESKTOP_get_type());
 
 END_PROPERTY
+
+BEGIN_PROPERTY(Desktop_Platform)
+
+	#ifdef GTK3
+		GB.ReturnConstZeroString(MAIN_platform);
+	#else
+		GB.ReturnConstZeroString("x11");
+	#endif
+
+END_PROPERTY
+
 
 //-------------------------------------------------------------------------
 
@@ -164,7 +191,10 @@ BEGIN_PROPERTY(Application_Font)
 	if (READ_PROPERTY)
 		GB.ReturnObject(CFONT_create(gDesktop::font()->copy(), set_font));
 	else if (VPROP(GB_OBJECT))
-		set_font(((CFONT*)VPROP(GB_OBJECT))->font);
+	{
+		CFONT *font = (CFONT*)VPROP(GB_OBJECT);
+		set_font(font ? font->font : NULL);
+	}
 
 END_PROPERTY
 
@@ -215,13 +245,6 @@ BEGIN_PROPERTY(Application_Busy)
 END_PROPERTY
 
 
-BEGIN_PROPERTY(Desktop_Scale)
-
-	GB.ReturnInteger(MAIN_scale);
-
-END_PROPERTY
-
-
 BEGIN_PROPERTY(Application_ShowTooltips)
 
 	if (READ_PROPERTY)
@@ -239,7 +262,7 @@ BEGIN_PROPERTY(Application_Animations)
 	else if (_animations != VPROP(GB_BOOLEAN))
 	{
 		_animations = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -252,7 +275,7 @@ BEGIN_PROPERTY(Application_Shadows)
 	else if (_shadows != VPROP(GB_BOOLEAN))
 	{
 		_shadows = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -317,7 +340,7 @@ BEGIN_PROPERTY(Application_DarkTheme)
 	if (!_init)
 	{
 		_init = TRUE;
-		bg = gDesktop::bgColor();
+		bg = gDesktop::getColor(gDesktop::BACKGROUND);
 		if (IMAGE.GetLuminance(bg) >= 128)
 		{
 			env = getenv("GB_GUI_DARK_THEME");
@@ -429,6 +452,22 @@ BEGIN_PROPERTY(Screen_AvailableHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Screen_ResolutionX)
+
+	double r;
+	gDesktop::screenResolution(SCREEN->index, &r, NULL);
+	GB.ReturnFloat(r);
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Screen_ResolutionY)
+
+	double r;
+	gDesktop::screenResolution(SCREEN->index, NULL, &r);
+	GB.ReturnFloat(r);
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 GB_DESC ScreenDesc[] =
@@ -447,6 +486,9 @@ GB_DESC ScreenDesc[] =
 	GB_PROPERTY_READ("AvailableWidth", "i", Screen_AvailableWidth),
 	GB_PROPERTY_READ("AvailableHeight", "i", Screen_AvailableHeight),
 
+	GB_PROPERTY_READ("ResolutionX", "f", Screen_ResolutionX),
+	GB_PROPERTY_READ("ResolutionY", "f", Screen_ResolutionY),
+	
 	GB_END_DECLARE
 };
 
@@ -480,6 +522,7 @@ GB_DESC DesktopDesc[] =
 	GB_STATIC_METHOD("Screenshot", "Picture", Desktop_Screenshot, "[(X)i(Y)i(Width)i(Height)i]"),
 
 	GB_STATIC_PROPERTY_READ("Type", "s", Desktop_Type),
+	GB_STATIC_PROPERTY_READ("Platform", "s", Desktop_Platform),
 
 	GB_END_DECLARE
 };

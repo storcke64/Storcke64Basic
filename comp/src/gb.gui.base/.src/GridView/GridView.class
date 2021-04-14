@@ -417,8 +417,6 @@ Public Sub ScrollArea_Draw()
   Dim iBgSel As Integer
   Dim iPadding As Integer
   
-  'Debug Me.Font.ToString();; Draw.Font.ToString()
-  
   If $iBg <> Color.Transparent Then
     If $iBg = Color.Default Then 
       iBg = Color.TextBackground
@@ -1235,6 +1233,7 @@ Public Sub ScrollArea_MouseDown()
 
   If $iRowResize >= 0 Or If $iColResize >= 0 Then
     $bResize = True
+    Stop Event
     Return
   Endif
   
@@ -1282,32 +1281,26 @@ Public Sub ScrollArea_MouseDown()
   Else If Mouse.X < $hRows.Width And If Mouse.Y > $hColumns.H Then
     I = $hRows._FindRowFromPos(Mouse.Y - $hColumns.Height + $hView.ScrollY)
     If I >= 0 Then 
-      'bCancel = Raise MouseDown
-      'If Not bCancel Then Raise RowClick(I)
-      
       Raise RowClick(I)
-      'Stop Event
     Endif
   Else If Mouse.Y < $hColumns.Height And If Mouse.X > $hRows.W Then
     I = $hColumns._FindColumnFromPos(Mouse.X - $hRows.Width + $hView.ScrollX)
     If I >= 0 Then 
-      'bCancel = Raise MouseDown
-      'If Not bCancel Then
-        bCancel = Raise ColumnClick(I)
-        If Not bCancel Then
-          If $bSorted Then
-            If $hColumns.Sort = I Then
-              $hColumns.Ascending = Not $hColumns.Ascending
-            Else
-              $hColumns.Sort = I
-              $hColumns.Ascending = True
-            Endif
+      bCancel = Raise ColumnClick(I)
+      If Not bCancel Then
+        If $bSorted Then
+          If $hColumns.Sort = I Then
+            $hColumns.Ascending = Not $hColumns.Ascending
+          Else
+            $hColumns.Sort = I
+            $hColumns.Ascending = True
           Endif
         Endif
-      'Endif
-      'Stop Event
+      Endif
     Endif
   Endif
+  
+  Stop Event
   
 End
 
@@ -1410,7 +1403,6 @@ Public Sub _CheckCurrent()
   
 End
 
-
 Public Sub _GetCellData(iRow As Integer, iColumn As Integer, Optional bCreate As Boolean) As _GridView_Data
 
   Dim hData As _GridView_Data
@@ -1436,7 +1428,6 @@ Public Sub _GetCellData(iRow As Integer, iColumn As Integer, Optional bCreate As
   Return hData
   
 End
-
 
 Public Sub _get(Row As Integer, Column As Integer) As _GridView_Cell
   
@@ -2453,3 +2444,14 @@ Public Sub AddColumn(Text As String, Optional Width As Integer, Alignment As Int
   
 End
 
+Public Sub _RefreshPicture()
+
+  Dim hData As _GridView_Data
+  
+  For Each hData In $cCells
+    Picture._Refresh(ByRef hData.Picture)
+  Next
+  
+  $hView.Refresh
+  
+End

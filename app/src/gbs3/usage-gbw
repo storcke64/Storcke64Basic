@@ -1,13 +1,20 @@
 
 Compile and execute a Gambas server page script.
 
-Usage: gbw3 [options] [<server page file>]
+Usage: gbw3 [options] [--] [<server page file> | - ]
 
 Options:
-  -c --nocache    force the script compilation (do not check cache)
-  -e              execute the source code provided by the command line ( ':' separator )
-  -h --help       display this help
-  -L --license    display license
-  -u              force components loading ('comp1,comp2...')
-  -v --verbose    be verbose
-  -V --version    display version
+  -b --buildonly           process and compile the server page without executing it
+  -c --nocache             force the server page compilation (do not check cache)
+  -g --debug               add debugging information to application
+  -f --fast                use just-in-time compiler
+  -h --help                display this help
+  -L --license             display license
+  -t --trace               turns on tracing option during execution
+  -u --use <components>    force components loading ('comp1,comp2...')
+  -U --unsafe              allows jit compiler to generate unsafe faster code
+  -v --verbose             be verbose
+  -V --version             display version
+  -w --warnings            display warnings during compilation
+  --                       stop any further option processing  
+  -                        read the server page from standard input

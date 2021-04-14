@@ -959,6 +959,8 @@ void CLASS_inheritance(CLASS *class, CLASS *parent)
 
 	if (parent->auto_create)
 		class->auto_create = TRUE;
+	
+	class->is_array = parent->is_array;
 
 	if (!class->array_type)
 		class->array_type = parent->array_type;

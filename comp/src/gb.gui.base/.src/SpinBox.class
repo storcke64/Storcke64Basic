@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,Action,MinValue=0,MaxValue=100,Step=1,Wrap,Value,Alignment{Align.Normal;Left;Center;Right}=Normal,Border=True"
+Public Const _Properties As String = "*,Action,MinValue=0,MaxValue=100,Step=1,Wrap,Value,Alignment{Align.Normal;Left;Center;Right}=Normal,ReadOnly,Border=True,ShowZero,ShowSign"
 Public Const _Group As String = "Form"
 Public Const _DefaultEvent As String = "Change"
 Public Const _DefaultSize As String = "9,4"
@@ -23,6 +23,7 @@ Property Text As String
 Property Background As Integer
 Property Alignment As Integer
 Property ShowZero As Boolean
+Property ShowSign As Boolean
 Property ReadOnly As Boolean
 
 Private Enum ARROW_NONE, ARROW_TOP, ARROW_BOTTOM
@@ -40,6 +41,8 @@ Private $bBorder As Boolean = True
 Private $bWrap As Boolean
 Private $iStep As Integer = 1
 Private $bShowZero As Boolean
+Private $iBg As Integer = Color.Default
+Private $bShowSign As Boolean
 
 Public Sub _new()
   
@@ -64,8 +67,8 @@ Private Sub GetArrowRect(iArrow As Integer, Optional bForDrawing As Boolean) As 
   
   If $bBorder Then 
     BW = Style.BoxFrameWidth
-    BH = Style.BoxFrameHeight
   Endif
+  BH = Style.BoxFrameHeight
   
   D = Desktop.Scale
   W = D * 2 + BW
@@ -114,16 +117,19 @@ Public Sub View_Draw()
   Dim iCol As Integer
 
   iCol = $hTextBox.Background
-   If iCol = Color.Default Then iCol = Color.TextBackground
+  If iCol = Color.Default Then
+    If $hTextBox.ReadOnly Then
+      iCol = Color.Background
+    Else
+      iCol = Color.TextBackground
+    Endif
+  Endif
   
   If $bBorder Then  
     
     iState = Style.StateOf($hView)
     If $hTextBox.HasFocus Then iState = iState Or Style.HasFocus
     If $hView.Hovered Then iState = iState Or Style.Hovered
-    'Debug "state = "; iState
-    'Debug "border = "; Style.BoxFrameWidth
-  
     Style.PaintBox(0, 0, Paint.W, Paint.H, iState, iCol)
     
   Else
@@ -131,6 +137,8 @@ Public Sub View_Draw()
     Paint.FillRect(0, 0, Paint.W, Paint.H, iCol)
 
   Endif
+  
+  If $hTextBox.ReadOnly Then Return
   
   hRect = GetArrowRect(ARROW_TOP, True)
   If $iValue = $iMax Or If $hTextBox.ReadOnly Then
@@ -206,6 +214,7 @@ Private Sub SetValue(iValue As Integer, Optional bFocus As Boolean)
     nZero = Max(Len(CStr($iMin)), Len(CStr($iMax)))
     If nZero > Len(sValue) Then sValue = String$(nZero - Len(sValue), "0") & sValue
   Endif
+  If $bShowSign And If iValue > 0 Then sValue = "+" & sValue
   
   If $hTextBox.Text <> sValue Then $hTextBox.Text = sValue
   If $iValue <> iValue Then
@@ -325,11 +334,11 @@ Public Sub View_MouseDown()
     Return
   Endif
   
-  CheckValue
-  ChangeValue($bTimerAdd, True)
-  
   $hTimer = New Timer(500) As "TimerMouse"
   $hTimer.Start
+  
+  CheckValue
+  ChangeValue($bTimerAdd, True)
   
 End
 
@@ -349,7 +358,6 @@ Public Sub View_MouseUp()
   
 End
 
-
 Public Sub TimerMouse_Timer()
 
   ChangeValue($bTimerAdd, True)
@@ -360,7 +368,6 @@ Public Sub TimerMouse_Timer()
   Endif
   
 End
-
 
 Private Function Value_Read() As Integer
 
@@ -496,18 +503,31 @@ End
 
 Private Function Background_Read() As Integer
 
-  Return Super.Background
+  Return $iBg
+
+End
+
+Private Sub UpdateTextBoxBackground()
+
+  Dim iCol As Integer
+
+  iCol = $iBg
+  If iCol = Color.Default Then
+    If $hTextBox.ReadOnly Then
+      iCol = Color.Background
+    Else 
+      iCol = Color.TextBackground
+    Endif
+  Endif
+  
+  $hTextBox.Background = iCol
 
 End
 
 Private Sub Background_Write(Value As Integer)
 
-  Super.Background = Value
-  If Value = Color.Default Then
-    $hTextBox.Background = Color.TextBackground
-  Else
-    $hTextBox.Background = Color.Default
-  Endif
+  $iBg = Value
+  UpdateTextBoxBackground
 
 End
 
@@ -544,7 +564,22 @@ End
 
 Private Sub ReadOnly_Write(Value As Boolean)
 
+  If $hTextBox.ReadOnly = Value Then Return
   $hTextBox.ReadOnly = Value
+  UpdateTextBoxBackground
   $hView.Refresh
+
+End
+
+Private Function ShowSign_Read() As Boolean
+
+  Return $bShowSign
+
+End
+
+Private Sub ShowSign_Write(Value As Boolean)
+
+  $bShowSign = Value
+  SetValue($iValue)
 
 End

@@ -102,6 +102,12 @@ BEGIN_METHOD(DBusConnection_Introspect, GB_STRING application; GB_STRING object)
 	else
 		object = "/";
 	
+	if (DBUS_validate_path(object, LENGTH(object)))
+	{
+		GB.Error("Invalid object path");
+		return;
+	}
+	
 	GB.ReturnNewZeroString(DBUS_introspect(THIS->connection, application, object));
 
 END_METHOD

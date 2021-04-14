@@ -17,7 +17,9 @@ Private $sRoot As String
 Private $bCanControl As Boolean
 Private $bCanInit As Boolean
 Private $bHasRemote As Boolean
+
 Private $iPadHistory As Integer
+Private $hHighlightDiff As TextHighlighter
 
 Private Sub Init()
 
@@ -34,10 +36,29 @@ Private Sub RunShell(sCmd As String, Optional bSilent As Boolean) As String
   
 End
 
+Private Sub FindRoot() As String
+
+  Dim sDir As String
+  Dim sPath As String
+  Dim sData As String
+
+  sDir = Project.Dir
+  While Len(sDir) > 1
+    sPath = sDir &/ ".git"
+    If Exist(sPath) Then
+      If Exist(sPath &/ "HEAD") Then Return sDir
+      Try sData = File.Load(sPath)
+      If sData Begins "gitdir:" Then Return sDir
+    Endif
+    sDir = File.Dir(sDir)
+  Wend
+
+End
 
 Public Sub Check() As Boolean
   
   Dim sResult As String
+  Dim sRoot As String
   
   Init()
   
@@ -53,9 +74,9 @@ Public Sub Check() As Boolean
       $bCanControl = sResult Begins "??"
 
       If Not $bCanControl Then
-        sResult = RunShell("git rev-parse --show-toplevel")
-        If Process.LastValue = 0 Then 
-          $sRoot = Trim(sResult)
+        sRoot = FindRoot()
+        If sRoot Then
+          $sRoot = sRoot
           $bHasRemote = RunShell("git remote show")
           Return True
         Endif
@@ -105,23 +126,27 @@ Public Sub GetBranches(ByRef sCurrent As String) As String[]
   
 End
 
-Public Sub GetCurrentBranch() As String
+Static Public Sub GetCurrentBranch(Optional sDir As String) As String
   
   Dim sCurrent As String
   
-  GetBranches(ByRef sCurrent)
-  If sCurrent = "master" Then sCurrent = ""
+  If Not sDir Then sDir = Project.Dir
+
+  sCurrent = Trim(VersionControl.Shell("cd " & Shell(sDir) & " && git branch --show-current", True))
+  'If sCurrent = "master" Then sCurrent = ""
+  
   Return sCurrent
   
 End
 
-Public Sub Diff(sPath As String, Optional bFull As Boolean) As String
+Public Sub Diff(sPath As String, Optional bFull As Boolean, bNoWhiteSpace As Boolean) As String
   
   Dim sDiff As String
   Dim sCmd As String
   Dim sHead As String
   Dim sFull As String
   Dim iPos As Integer
+  Dim sOption As String
 
   'If VersionControl.Shell("cd " & Shell(Project.Dir) & " && git log -1", True) Then
   If RunShell("git log -1", True) Then
@@ -131,11 +156,13 @@ Public Sub Diff(sPath As String, Optional bFull As Boolean) As String
   Endif
 
   If bFull Then sFull = " -U100000"
+  
+  If bNoWhiteSpace Then sOption = " -b --ignore-blank-lines"
 
   If IsDir(sPath) Then
-    sCmd = "cd " & Shell(sPath) & " && git diff" & sFull & " " & sHead & " ."
+    sCmd = "cd " & Shell(sPath) & " && git diff" & sOption & sFull & " " & sHead & " ."
   Else
-    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git diff" & sFull & " " & sHead & " " & Shell(File.Name(sPath))
+    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git diff" & sOption & sFull & " " & sHead & " " & Shell(File.Name(sPath))
   Endif
   
   sDiff = VersionControl.Shell(sCmd)
@@ -153,14 +180,18 @@ Public Sub Diff(sPath As String, Optional bFull As Boolean) As String
 
 End
 
-Public Sub History(sPath As String, Optional (bFull) As Boolean) As String
+Public Sub History(sPath As String, Optional sPath2 As String, bFull As Boolean) As String
   
   Dim sCmd As String
+  Dim sFull As String
+  
+  If bFull Then sFull = "-p -b "
   
   If IsDir(sPath) Then
-    sCmd = "cd " & Shell(sPath) & " && git log --date=rfc2822 ."
+    sCmd = "cd " & Shell(sPath) & " && git log --date=rfc2822 " & sFull & "."
   Else
-    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git log --date=rfc2822 " & Shell(File.Name(sPath))
+    sCmd = "cd " & Shell(File.Dir(sPath)) & " && git log --date=rfc2822 " & sFull & Shell(File.Name(sPath))
+    If sPath2 Then sCmd &= " " & Shell(File.Name(sPath2))
   Endif
   
   Return VersionControl.Shell(sCmd)
@@ -480,18 +511,30 @@ Public Sub HighlightHistory(Text As String)
     $iPadHistory = Max(Max(String.Len(("Date")), String.Len(("Author"))), String.Len("Commit"))
   Endif
   
+  TextHighlighter.Alternate = True
   If Text Begins "commit " Then 
     TextHighlighter.TextAfter = String.PadRight("Commit", $iPadHistory) & " : " & Mid$(Text, 8)
     TextHighlighter.Add(Highlight.DataType, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.DataType, String.Len(Text))
+    TextHighlighter.Limit = True
+  Else If Text Begins "Merge: " Then 
+    TextHighlighter.TextAfter = String.PadRight("Merge", $iPadHistory) & " : " & Mid$(Text, 8)
+    TextHighlighter.Add(Highlight.Number, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.DataType, String.Len(Text))
     TextHighlighter.Limit = True
   Else If Text Begins "Author: " Then
     TextHighlighter.TextAfter = String.PadRight(("Author"), $iPadHistory) & " : " & Mid$(Text, 9)
     TextHighlighter.Add(Highlight.Function, String.Len(TextHighlighter.TextAfter))
+    'TextHighlighter.Add(Highlight.Function, String.Len(Text))
   Else If Text Begins "Date: " Then
     TextHighlighter.TextAfter = String.PadRight(("Date"), $iPadHistory) & " : " & FormatDate(Mid$(Text, 7))
     TextHighlighter.Add(Highlight.Preprocessor, String.Len(TextHighlighter.TextAfter))
-  Else 
-    TextHighlighter.Add(Highlight.Normal, iLen)
+    'TextHighlighter.Add(Highlight.Preprocessor, String.Len(Text))
+  Else
+    TextHighlighter.Alternate = False
+    If Not $hHighlightDiff Then $hHighlightDiff = TextHighlighter["diff"]
+    $hHighlightDiff.Run(Text)
+    'TextHighlighter.Add(Highlight.Normal, iLen)
   Endif
   
 End

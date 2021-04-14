@@ -826,7 +826,7 @@ static bool header_function(TRANS_FUNC *func)
 	if (!PATTERN_is_newline(*(JOB->current)))
 		THROW("Syntax error at function declaration");
 
-	func->line = PATTERN_index(*(JOB->current)) + 1;
+	func->line = JOB->line = PATTERN_index(*(JOB->current)) + 1;
 	func->start = JOB->current + 1;
 
 	look = JOB->current;
@@ -859,7 +859,7 @@ static bool header_function(TRANS_FUNC *func)
 						THROW(E_EXPECTED, "END FUNCTION");
 				}
 			}
-			else if (UNLIKELY(PATTERN_is_end(pat))) // || PATTERN_is_command(pat)))
+			else if (PATTERN_is_end(pat))
 				THROW(E_MISSING, "END");
 		}
 

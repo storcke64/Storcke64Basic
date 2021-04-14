@@ -17,6 +17,8 @@ End
 Public Sub Form_Open()
   
   $sLast = ""
+  
+  dchProject.UncompressFilter = ["*.tar.gz.gmail.txt"]
   dchProject.Bookmarks = Project.GetBookmarks()
   dchProject.ShowFile = True
   dchProject_Change
@@ -183,4 +185,10 @@ Public Sub Form_Arrange()
   Endif
   panOpen.Raise
 
+End
+
+Public Sub dchProject_Uncompress(Path As String)
+  
+  Util.UncompressForGmail(Path)
+  
 End

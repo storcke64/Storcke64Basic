@@ -211,10 +211,10 @@ Public Sub cmbReplace_Activate()
 
 End
 
-Private Sub ShowMessage(sMsg As String, hCtrl As Control)
+Private Sub ShowMessage(sMsg As String, (hCtrl) As Control)
   
   If Me.Visible Then
-    Balloon.Info(sMsg, hCtrl)
+    Message(sMsg)
   Else 
     Project.SetMessage(sMsg)
   Endif
@@ -1360,7 +1360,6 @@ Public Sub timFillList_Timer()
   
   Dim sLine As String
   Dim hResult As CSearchResult
-  Dim aResult As String[]
   Dim hFile As Object
   Dim fTimer As Float
   Dim iPos As Integer
@@ -1428,13 +1427,13 @@ Public Sub timFillList_Timer()
       If Not hFile Then Continue
       
       hResult = New CSearchResult
-      aResult = Split(sLine, ":")
       hResult.Path = $sTaskPath
       hResult.File = hFile.Name
-      hResult.Line = CInt(aResult[0])
-      hResult.Pos = CInt(aResult[1])
-      hResult.Bytes = CInt(aResult[2])
-      hResult.Length = CInt(aResult[3])
+      
+      If hResult.InitFromLine(sLine) Then 
+        Error "gambas3: warning: incorrect search result: "; sLine
+        Continue
+      Endif
       
       If hFile.SetPosition(hResult, True) Then Continue
       
@@ -1472,6 +1471,7 @@ Public Sub timFillList_Timer()
   
   gvwFind.Columns[0].Width = -1
   gvwFind.Columns[1].Width = -1
+  If gvwFind.Columns[1].Width >= Desktop.Scale * 32 Then gvwFind.Columns[1].Width = Desktop.Scale * 32
   gvwFind.Columns[4].W = -1
       
   timFillList.Stop
@@ -1494,6 +1494,7 @@ Private Sub Search(iMode As Integer, Optional aPath As String[])
   
   If InitSearch() Then Return
   
+  Me.Hide
   FDebugInfo.ShowSearchList
   FDebugInfo.StartSearch
   

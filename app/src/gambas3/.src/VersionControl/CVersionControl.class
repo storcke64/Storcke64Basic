@@ -68,11 +68,11 @@ Public Sub GetVersion((sDir) As String) As String
   
 End
 
-Public Sub Diff((sPath) As String, Optional (bFull) As Boolean) As String
+Public Sub Diff((sPath) As String, Optional (bFull) As Boolean, (bNoWhiteSpace) As Boolean) As String
   
 End
 
-Public Sub History((sPath) As String, Optional (bFull) As Boolean) As String
+Public Sub History((sPath) As String, Optional (sPath2) As String, (bFull) As Boolean) As String
   
 End
 
@@ -90,10 +90,6 @@ Public Sub CleanUp((sPath) As String)
 End
 
 Public Sub GetBranches(ByRef (sCurrent) As String) As String[]
-  
-End
-
-Public Sub GetCurrentBranch() As String
   
 End
 

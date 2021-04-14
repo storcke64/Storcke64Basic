@@ -5,6 +5,7 @@ AC_INIT(gambas3-main, GB_VERSION, GB_MAIL, [], GB_URL)
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(main)
+GB_TRUNK_VERSION
 GB_MATH_FUNC
 LT_INIT 
 AM_PROG_CC_C_O
@@ -128,6 +129,7 @@ lib/geom/Makefile \
 lib/draw/Makefile \
 lib/gui/Makefile \
 lib/gui.opengl/Makefile \
+lib/gui.webview/Makefile \
 lib/gui.qt/Makefile \
 lib/gui.qt.webkit/Makefile \
 lib/gui.qt.opengl/Makefile \

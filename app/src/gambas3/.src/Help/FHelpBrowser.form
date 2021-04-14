@@ -1,8 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,113,71)
-  Visible = False
+  MoveScaled(0,0,99,56)
   Action = "help"
   Text = ("Help browser")
   Icon = Picture["icon:/small/help"]
@@ -10,7 +9,7 @@
   Utility = True
   Arrangement = Arrange.Vertical
   { panToolbar HBox
-    MoveScaled(0,0,107,4)
+    MoveScaled(0,0,97,4)
     { btnShowPanel ToolButton
       MoveScaled(1,0,4,4)
       Tracking = True
@@ -84,32 +83,26 @@
       Picture = Picture["icon:/small/print"]
     }
   }
+  { Separator4 Separator
+    MoveScaled(26,8,28,0)
+  }
   { Panel1 Panel
-    MoveScaled(2,9,81,30)
+    MoveScaled(4,16,84,33)
     Expand = True
     Arrangement = Arrange.Fill
-    Border = Border.Plain
     { splHelp HSplit
-      MoveScaled(0,0,80,29)
-      Expand = True
+      MoveScaled(2,2,80,29)
       { tvwClasses TreeView
-        MoveScaled(3,1,16,27)
+        MoveScaled(9,1,16,22)
         Visible = False
         Expand = True
         Border = False
       }
       { !webHelp HelpView
-        MoveScaled(22,2,28,16)
+        MoveScaled(29,1,28,16)
         #Public = True
       }
     }
-  }
-  { movWaiting MovieBox
-    MoveScaled(31,5,9,8)
-    Visible = False
-    Ignore = True
-    Path = "img/waiting.gif"
-    Alignment = Align.Center
   }
   { Printer1 #Printer
     #MoveScaled(90,13)

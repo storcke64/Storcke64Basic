@@ -1,0 +1,255 @@
+' Gambas class file
+
+''' This control displays a piece of text.
+'''
+''' [[ info 
+''' @{since 3.16}
+''' 
+''' This control has been rewritten in Gambas since 3.16 version.
+''' ]]
+
+Export
+Inherits UserControl
+
+Public Const _Properties As String = "*,Padding{Range:0;64},AutoResize,Alignment{Align.*}=Normal,Border{Border.None;Plain;Sunken;Raised;Etched},Text"
+Public Const _DefaultEvent As String = "MouseDown"
+Public Const _DefaultSize As String = "8,3"
+Public Const _IsContainer As Boolean = False
+Public Const _Group As String = "Form"
+Public Const _Similar As String = "Label"
+
+'' Return or set the text alignment.
+''
+'' See the [../../align] class for a list of constants to use with this property.
+
+Property Alignment As Integer
+
+'' Return or set the border displayed around the control.
+''
+'' See the [../../border] class for a list of constants to use with this property.
+
+Property Border As Integer Use $iBorder
+
+'' Return or set the displayed text.
+Property Text, Caption As String Use $sText
+
+'' Return or set the inner padding around the text, in pixels.
+Property Padding As Integer Use $iPadding
+
+'' Return or set if the control adapts its size to its contents automatically.
+Property AutoResize As Boolean Use $bAutoResize
+
+'' Return or set if the control background is transparent. This property is deprecated.
+Property Transparent As Boolean Use $bTransparent
+
+Private $iAlign As Integer = Align.Normal
+Private $hExt As RectF
+Private $bWarningTransparent As Boolean
+Private $bRichText As Boolean
+
+Public _Wrap As Boolean
+Private $bLocked As Boolean
+
+'' Create a new Label.
+
+Public Sub _new()
+  
+  $bRichText = Me Is TextLabel
+  If $bRichText Then 
+    _Wrap = True
+    $iAlign = Align.TopNormal
+  Endif
+  
+End
+
+Private Sub Alignment_Write(Value As Integer)
+
+  If $iAlign = Value Then Return
+  $iAlign = Value
+  Me.Refresh
+
+End
+
+Private Sub Border_Write(Value As Integer)
+  
+  If $iBorder = Value Then Return
+  $iBorder = Value
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub Text_Write(Value As String)
+  
+  If $sText = Value Then Return
+  $sText = Value
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub Padding_Write(Value As Integer)
+
+  If $iPadding = Value Then Return
+  $iPadding = Value
+  _UpdateSize
+  Me.Refresh
+
+End
+
+Private Sub GetPadding() As Integer
+
+  Dim P As Integer
+
+  P = $iPadding
+  Select Case $iBorder
+    Case Border.Plain
+      Inc P
+    Case Border.Raised, Border.Sunken
+      P += Style.FrameWidth
+  End Select
+    
+  Return P  
+
+End
+
+Public Sub _UpdateSize()
+  
+  Dim W As Integer
+  Dim H As Integer
+  Dim P As Integer
+  Dim hRect As Rect
+  
+  $hExt = Null
+  If $bLocked Then Return
+  If Me.Design Then Return
+  If Not $bAutoResize Then Return
+  If Not $sText Then Return
+
+  $bLocked = True
+
+  P = GetPadding()
+
+  If $bRichText Then
+    If _Wrap Then
+      hRect = Me.Font.RichTextSize($sText, Me.W - P * 2)
+    Else
+      hRect = Me.Font.RichTextSize($sText)
+    Endif
+  Else
+    hRect = Me.Font.TextSize($sText)
+  Endif
+  
+  W = hRect.W + P * 2
+  H = hRect.H + P * 2
+  
+  If Align.IsMiddle($iAlign) Then
+    If H < Me.H Then H = Me.H
+  Endif
+  
+  Me.Resize(W, H)
+  
+  $bLocked = False
+  
+End
+
+Private Sub AutoResize_Write(Value As Boolean)
+
+  If $bAutoResize = Value Then Return
+  $bAutoResize = Value
+  _UpdateSize
+
+End
+
+Public Sub UserControl_Font()
+  
+  _UpdateSize
+  Me.Refresh
+  
+End
+
+Private Sub GetExtents() As RectF
+
+  If Not $hExt Then
+    If $bRichText Then
+      If _Wrap Then
+        $hExt = Paint.RichTextSize($sText, Me.W - GetPadding() * 2)
+      Else
+        $hExt = Paint.RichTextSize($sText)
+      Endif
+    Else
+      $hExt = Paint.TextSize($sText)
+    Endif
+  Endif
+  Return $hExt
+
+End
+
+Public Sub UserControl_Draw()
+  
+  Dim P As Integer
+  Dim F As Integer
+  Dim X As Integer
+  Dim hExt As RectF
+  
+  If $iBorder Then
+    Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
+    If $iBorder = Border.Plain Then
+      F = 1
+    Else
+      F = Style.FrameWidth + 1
+    Endif
+    Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
+    Paint.Clip()
+  Endif
+  
+  If Not $sText Then Return
+  
+  P = GetPadding()
+
+  hExt = GetExtents()
+  If Align.IsLeft($iAlign) Then
+    X = P '- hExt.X
+  Else If Align.IsRight($iAlign) Then
+    X = Me.W - P - Ceil(hExt.W)
+  Else If Align.IsCenter($iAlign) Then
+    X = (Me.W - hExt.W) / 2
+  Endif
+
+  If $bRichText Then
+    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
+  Else
+    Paint.DrawText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
+  Endif
+  
+End
+
+Private Function Alignment_Read() As Integer
+
+  Return $iAlign
+
+End
+
+Private Sub Transparent_Write(Value As Boolean)
+
+  If Not $bWarningTransparent Then
+    Error "gb.gui: warning; Label.Transparent and TextLabel.Transparent are deprecated"
+    $bWarningTransparent = True
+  Endif
+  
+  $bTransparent = Value
+
+End
+
+'' Resize the control so that it adapts to its contents.
+
+Public Sub Adjust()
+
+  Dim bSave As Boolean
+
+  bSave = $bAutoResize
+  $bAutoResize = True  
+  _UpdateSize
+  $bAutoResize = bSave
+  
+End

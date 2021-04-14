@@ -76,6 +76,8 @@ public:
 	int height();
 	void textSize(const char *text, int len, float *w, float *h);
 	void richTextSize(const char *txt, int len, float sw, float *w, float *h);
+	
+	bool mustFixSpacing() const { return _must_fix_spacing; }
 
 //"Private"
 	gFont(GtkWidget *wg);
@@ -93,7 +95,7 @@ public:
 	unsigned _size_set : 1;
 	unsigned _strikeout_set : 1;
 	unsigned _underline_set : 1;
-
+	
 private:
 	
 	bool uline;
@@ -101,7 +103,13 @@ private:
 	void create();
 	void realize();
 	void initFlags();
+	void checkMustFixSpacing();
+	PangoFontMetrics *metrics();
+	void invalidateMetrics();
+
+	PangoFontMetrics *_metrics;
 	int _height;
+	unsigned _must_fix_spacing : 1;
 };
 
 #endif

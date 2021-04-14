@@ -297,6 +297,7 @@ Public Sub Editors_KeyPress()
    
   If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
     If Key.Normal Then
+      
       If $bWebPage Then
         If InAlternate() And If Not FindCloseAlternate() Then
           $hEditor.Insert("\n%>")
@@ -304,7 +305,13 @@ Public Sub Editors_KeyPress()
           Stop Event
         Endif
       Endif
+      
     Endif
+    
+  Else If Key.Code = Key.Insert Then
+    
+    Project.UpdateStatus()
+    
   Endif
   
 End
@@ -816,6 +823,7 @@ Public Sub Editors_Cursor()
 
   RefreshLineInfo()
   CPosition.SaveCurrent(Me)
+  Project.UpdateStatus(True)
 
 End
 
@@ -831,8 +839,6 @@ Public Sub Editors_MouseUp()
   CPosition.SaveCurrent(Me)
   
 End
-
-
 
 Public Sub mnuLowerCase_Click()
   
@@ -1572,5 +1578,11 @@ Private Sub HasConflict() As Boolean
     sLine = Left($hEditor[Y].Text, 6)
     If sLine = "<<<<<<" Or If sLine = "======" Or If sLine = ">>>>>>" Then Return True
   Next
+  
+End
+
+Public Sub PaintStatus()
+  
+  FEditor.PaintEditorStatus($hEditor)
   
 End

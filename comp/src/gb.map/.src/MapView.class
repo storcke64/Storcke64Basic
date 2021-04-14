@@ -308,7 +308,7 @@ Private Sub Lock_Write(Value As Boolean)
 End
 
 Public Sub Refresh()
-
+  $hmap.Refresh
   $hView.Refresh
 
 End

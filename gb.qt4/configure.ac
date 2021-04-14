@@ -33,7 +33,12 @@ GB_COMPONENT_PKG_CONFIG(
 
 GB_COMPONENT_PKG_CONFIG(
   qtwebkit, QTWEBKIT, gb.qt4.webkit, [webkit],
-  'QtCore >= 4.5.0' QtGui QtNetwork QtDBus QtXml 'QtWebKit >= 4.5.0' x11
+  'QtCore >= 4.5.0' QtGui QtNetwork QtDBus QtXml 'QtWebKit >= 4.5.0'
+)
+
+GB_COMPONENT_PKG_CONFIG(
+  qtwebview, QTWEBVIEW, gb.qt4.webview, [webview],
+  'QtCore >= 4.5.0' QtGui QtNetwork QtDBus QtXml 'QtWebKit >= 4.5.0'
 )
 
 GB_COMPONENT_PKG_CONFIG(
@@ -49,6 +54,7 @@ Makefile \
 src/Makefile \
 src/ext/Makefile \
 src/webkit/Makefile \
+src/webview/Makefile \
 src/opengl/Makefile \
 )
 

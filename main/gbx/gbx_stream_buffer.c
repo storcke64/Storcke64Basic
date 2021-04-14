@@ -49,11 +49,11 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 	struct stat info;
 	int fd;
 
-	if (mode & STO_CREATE)
+	if (mode & GB_ST_CREATE)
 		fmode = "w+";
-	else if (mode & STO_APPEND)
+	else if (mode & GB_ST_APPEND)
 		fmode = "a+";
-	else if (mode & STO_WRITE)
+	else if (mode & GB_ST_WRITE)
 		fmode = "r+";
 	else
 		fmode = "r";

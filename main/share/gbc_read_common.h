@@ -40,7 +40,7 @@ enum {
 	RT_CLASS = 9,
 	RT_COMMENT = 10,    // Used by Eval()
 	RT_OPERATOR = 11,   // Used by Eval()
-	RT_COMMAND = 12,    // unused
+	RT_SPACE = 12,      // Used by Eval()
 	RT_OUTPUT = 0x20,
 	RT_POINT = 0x40,
 	RT_FIRST = 0x80
@@ -77,6 +77,7 @@ enum {
 #define PATTERN_is_tstring(pattern)     (PATTERN_type(pattern) == RT_TSTRING)
 #define PATTERN_is_command(pattern)     (PATTERN_type(pattern) == RT_COMMAND)
 #define PATTERN_is_comment(pattern)     (PATTERN_type(pattern) == RT_COMMENT)
+#define PATTERN_is_space(pattern)       (PATTERN_type(pattern) == RT_SPACE)
 
 #define PATTERN_is_newline_end(pattern) (PATTERN_is_newline(pattern) || PATTERN_is_end(pattern))
 
@@ -87,7 +88,8 @@ enum {
 #define PATTERN_set_flag(pattern, flag)    ((pattern) | flag)
 #define PATTERN_unset_flag(pattern, flag)    ((pattern) & ~flag)
 
-#define PATTERN_is_operand(pattern)   (PATTERN_is_reserved(pattern) && RES_is_operand(PATTERN_index(pattern)))
-#define PATTERN_is_type(pattern)      (PATTERN_is_reserved(pattern) && RES_is_type(PATTERN_index(pattern)))
+#define PATTERN_is_operand(pattern)       (PATTERN_is_reserved(pattern) && RES_is_operand(PATTERN_index(pattern)))
+#define PATTERN_is_type(pattern)          (PATTERN_is_reserved(pattern) && RES_is_type(PATTERN_index(pattern)))
+#define PATTERN_is_preprocessor(pattern)  (PATTERN_is_reserved(pattern) && RES_is_preprocessor(PATTERN_index(pattern)))
 
 #endif

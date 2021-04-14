@@ -102,11 +102,11 @@ Public Sub fchChoose_Activate()
     Dialog.AutoExt = chkAutoExt.Value
     If Dialog.AutoExt Then sPath = SetExtension(sPath)
     Dialog.Path = sPath
-    If Not fchChoose.ReadOnly Then 
-      If Exist(sPath) Then 
-        If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("&Overwrite"), ("Cancel")) = 2 Then Return
-      Endif 
-    Endif
+    ' If Not fchChoose.ReadOnly Then 
+    '   If Exist(sPath) Then 
+    '     If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("&Overwrite"), ("Cancel")) = 2 Then Return
+    '   Endif 
+    ' Endif
 
   Endif
 
@@ -128,5 +128,11 @@ Public Sub Form_Close()
   Endif
   
   Dialog.Key = ""
+
+End
+
+Public Sub chkAutoExt_Click()
+
+  fchChoose.AutoExt = chkAutoExt.Value
 
 End

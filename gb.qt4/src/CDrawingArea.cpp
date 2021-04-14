@@ -27,7 +27,6 @@
 #include <QPaintEvent>
 #include <QPixmap>
 #include <QPainter>
-#include <QX11Info>
 #include <QColormap>
 #include <QTimer>
 #include <QEvent>
@@ -37,8 +36,8 @@
 #include "CColor.h"
 #include "CDrawingArea.h"
 
-#ifndef QT5
 #ifndef NO_X_WINDOW
+#ifndef QT5
 #include <QX11Info>
 #include <X11/Xlib.h>
 #endif
@@ -727,14 +726,8 @@ GB_DESC CDrawingAreaDesc[] =
 	GB_METHOD("_new", NULL, DrawingArea_new, "(Parent)Container;"),
 
 	GB_PROPERTY("Cached", "b", DrawingArea_Cached),
-
-	GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-	GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-	GB_PROPERTY("Spacing", "b", Container_Spacing),
-	GB_PROPERTY("Margin", "b", Container_Margin),
-	GB_PROPERTY("Padding", "i", Container_Padding),
-	GB_PROPERTY("Indent", "b", Container_Indent),
-  GB_PROPERTY("Invert", "b", Container_Invert),
+	
+	ARRANGEMENT_PROPERTIES,
 
 	GB_PROPERTY("Border", "i", DrawingArea_Border),
 	GB_PROPERTY("NoBackground", "b", DrawingArea_NoBackground),

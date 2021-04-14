@@ -46,6 +46,9 @@ typedef
 	void (*EXEC_FUNC_CODE)(ushort);
 	
 typedef
+	void (*EXEC_FUNC_CODE_SP)(ushort, VALUE *);
+	
+typedef
 	struct {
 		CLASS *class;
 		OBJECT *object;

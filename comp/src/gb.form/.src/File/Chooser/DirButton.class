@@ -48,7 +48,7 @@ Public Sub DirButton_Draw()
   
   Paint.Background = Style.ForegroundOf(Me)
 
-  If Me.Hovered Then 
+  If Me.Hovered And If Not Me.Design Then 
     'Paint.Background = Color.SetAlpha(Paint.Background, 128)
     Paint.DrawTextShadow($sText, Desktop.Scale * 1.75, 0, Paint.W - Desktop.Scale, Paint.H, Align.Left)
     'Paint.Background = Color.SetAlpha(Paint.Background, 0)
@@ -104,6 +104,7 @@ End
 
 Public Sub DirButton_MouseDown()
   
+  If Me.Design Or If Me.Parent.Design Then Return
   Raise Click
   
 End

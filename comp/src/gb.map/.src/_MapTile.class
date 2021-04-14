@@ -12,6 +12,7 @@ Property MaxBounds As MapBounds
 Property CacheRefreshDelay As Integer             '' Delay before refreshing an image in the cache. (By default 30 day)
 Property WMSProjection As String                  '' Set the projection used by the WMS server.
 Property Opacity As Float
+Property Header As String[] Use $aHeader
 Private $aStack As New String[]
 Private $aClients As New HttpClient[]
 Private $iClientCount As Integer = 4
@@ -369,7 +370,7 @@ Public Sub tmrGet_Timer()
     hClient.Url = sUrl
     'Print surl
     hClient.Tag = sFile
-    hClient.Get(Null, $sCachePath &/ sFile)
+    hClient.Get($aHeader, $sCachePath &/ sFile)
   Loop
 
 End

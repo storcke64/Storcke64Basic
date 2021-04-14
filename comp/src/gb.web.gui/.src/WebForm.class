@@ -77,8 +77,6 @@ Static Private $iEventLoopLevel As Integer
 
 Static Private $aJavascript As New String[]
 Static Private $aJavascriptBefore As New String[]
-Static Private $aJavascriptFiles As String[]
-Static Private $aJavascriptExternFiles As String[]
 
 Public _Loaded As Boolean
 Public _Window As Integer
@@ -97,6 +95,10 @@ Private $vEventLoopReturn As Variant
 
 Private $hMenuBar As WebMenuBar
 Private $hContents As WebContainer
+
+Private $aJavascriptFiles As String[]
+Private $aJavascriptExternFiles As String[]
+Private $aHeaders As String[]
 
 'Private $bOpened As Boolean
 
@@ -408,7 +410,7 @@ Static Public Sub Main()
   ' Endif
   
   PrintLog("WAITING FOR SIGUSR2")
-  ' Now we wait SIGUSR1 from session process
+  ' Now we wait SIGUSR2 from session process
   Return
   
 NOT_FOUND:
@@ -1191,7 +1193,6 @@ Public Sub ShowPopup(Control As WebControl) As Variant
   
   _Window = hWindow.Id
   
-  
   hPrevious = _CurrentPopup
   _CurrentPopup = Me
   
@@ -1354,5 +1355,18 @@ End
 Public Sub _GetMenuBar() As WebMenuBar
   
   Return $hMenuBar
+  
+End
+
+Public Sub AddHeader(Header As String)
+  
+  If Not $aHeaders Then $aHeaders = New String[]
+  $aHeaders.Add(Trim(Header))
+  
+End
+
+Public Sub _GetHeaders() As String[]
+  
+  Return $aHeaders
   
 End

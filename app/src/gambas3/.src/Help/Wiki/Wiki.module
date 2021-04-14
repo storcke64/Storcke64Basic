@@ -795,13 +795,32 @@ Public Sub PrintPage()
   sPath = Wiki.SolvePath(Wiki.Path)
   
   If Not Wiki.ExistPage(sPath) Then
-    If Wiki.Lang = Wiki.DEFAULT_LANG Then
-      Print "<div class=\"unknown\">"; ("This page does not exist."); "</div>"
-    Else
+    
+    If Wiki.Lang <> Wiki.DEFAULT_LANG Then
       Print "<div class=\"unknown\">"; ("This page does not exist in that language."); "</div>"
+    Endif 
+    
+    If Wiki.Class And If Wiki.HasDefaultHelp() Then
+    
+      If Wiki.Symbol Then
+        sData = "# " & Wiki.GetSymbolTitle() & "\n@{syntax}\n@{help}\n"
+      Else
+        sData = "# " & Wiki.GetClassTitle() & "\n@{help}\n@{symbols}\n"
+      Endif
+      
+      Goto PRINT_MARKDOWN
+
+    Else
+    
+      If Wiki.Lang = Wiki.DEFAULT_LANG Then
+        Print "<div class=\"unknown\">"; ("This page does not exist."); "</div>"
+        Return
+      Endif
+      'If Not Wiki.ExistPage(sPath, Wiki.DEFAULT_LANG) Then Return
+      Wiki.Lang = Wiki.DEFAULT_LANG
+      
     Endif
-    If Not Wiki.ExistPage(sPath, Wiki.DEFAULT_LANG) Then Return
-    Wiki.Lang = Wiki.DEFAULT_LANG
+    
   Endif
   
   ' If Wiki.Lang <> Wiki.DEFAULT_LANG Then
@@ -830,6 +849,8 @@ Public Sub PrintPage()
       sData = "# " & Wiki.GetClassTitle() & "\n" & sData
     Endif
   Endif
+
+PRINT_MARKDOWN:
 
   Print WikiMarkdown.ToHTML(sData)
   
@@ -884,32 +905,75 @@ Public Sub AnalyzePath()
   
 End
 
-Public Sub GetDefaultPage() As String
+Public Sub HasDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As Boolean
+
+  Dim hClass As CClassInfo
+  Dim hSymbol As CSymbolInfo
+
+  If Not sComp Then sComp = Wiki.Component
+  If Not sClass Then sClass = Wiki.Class
+  If Not sSymbol Then sSymbol = Wiki.Symbol
+
+  Try hClass = Documentation.Get(sComp)[sClass]
+  If Not hClass Then Return
+  
+  If sSymbol Then
+  
+    Try hSymbol = hClass.Symbols[sSymbol]
+    If Not hSymbol Then Return
+    
+    If hSymbol.Help Then Return True
+    
+  Else 
+    
+    If hClass.Help Then Return True
+    
+  Endif
+
+End
+
+Public Sub GetDefaultHelp(Optional sComp As String, sClass As String, sSymbol As String) As String
   
   Dim hSymbol As CSymbolInfo
   Dim sSign As String
   Dim iPos As Integer
   Dim sResult As String
   Dim iPos2 As Integer
+  Dim hClass As CClassInfo
   
-  Try hSymbol = Documentation.Get(Wiki.Component)[Wiki.Class].Symbols[Wiki.Symbol]
-  If Not hSymbol Then Return
+  If Not sComp Then sComp = Wiki.Component
+  If Not sClass Then sClass = Wiki.Class
+  If Not sSymbol Then sSymbol = Wiki.Symbol
+
+  Try hClass = Documentation.Get(sComp)[sClass]
+  If Not hClass Then Return
   
-  If hSymbol.Help Then Return hSymbol.Help
+  If sSymbol Then
   
-  sResult = "\n"
-  sSign = hSymbol.Signature
-  Do
+    Try hSymbol = hClass.Symbols[sSymbol]
+    If Not hSymbol Then Return
     
-    iPos = InStr(sSign, "(", iPos + 1)
-    If iPos = 0 Then Break
-    iPos2 = InStr(sSign, ")", iPos + 1)
-    If iPos2 = 0 Then Break
+    If hSymbol.Help Then Return hSymbol.Help
     
-    sResult &= "- ~" & Mid$(sSign, iPos + 1, iPos2 - iPos - 1) & "~\n"
-    iPos = iPos2
+    sResult = "\n"
+    sSign = hSymbol.Signature
+    Do
+      
+      iPos = InStr(sSign, "(", iPos + 1)
+      If iPos = 0 Then Break
+      iPos2 = InStr(sSign, ")", iPos + 1)
+      If iPos2 = 0 Then Break
+      
+      sResult &= "- ~" & Mid$(sSign, iPos + 1, iPos2 - iPos - 1) & "~\n"
+      iPos = iPos2
+      
+    Loop
     
-  Loop
+  Else
+    
+    If hClass.Help Then Return hClass.Help
+
+  Endif
   
   'If hSymbol.Help Then sResult = Trim(sResult) & "\n" & hSymbol.Help
   

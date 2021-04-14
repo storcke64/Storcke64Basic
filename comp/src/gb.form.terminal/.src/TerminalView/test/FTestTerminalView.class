@@ -27,8 +27,10 @@ End
 Public Sub Form_Open()
 
   'Exec ["stty", "onlcr"] Wait
+  Component.Load("gb.desktop")
   Application.Animations = True
   TerminalView1.Exec(["bash"], ["PWD=/home/benoit/gambas/git/master/comp/src/gb.form.terminal"]) 
+  TerminalView1.SetFocus
 
 End
 
@@ -111,7 +113,8 @@ End
 
 Public Sub Button6_Click()
 
-  Swap TerminalView1.Background, TerminalView1.Foreground 
+  'Swap TerminalView1.Background, TerminalView1.Foreground 
+  TerminalView1.Print(Left$("bébé", 2))
 
 End
 
@@ -124,5 +127,18 @@ End
 Public Sub Button7_Click()
 
   TerminalView1.ReadOnly = Not TerminalView1.ReadOnly
+
+End
+
+Public Sub TerminalView1_Click()
+
+  Debug TerminalView1.Link.Text
+  Stop Event
+
+End
+
+Public Sub TerminalView1_Drop()
+
+  Debug
 
 End

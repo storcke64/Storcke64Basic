@@ -21,14 +21,6 @@
 
 ***************************************************************************/
 
-#ifndef GAMBAS_DIRECTFB
-#ifdef GDK_WINDOWING_X11
-#include <gdk/gdkx.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#endif
-#endif
-
 #include "widgets.h"
 #include "gapplication.h"
 #include "gmainwindow.h"
@@ -145,7 +137,8 @@ int gClipboard::getCurrent()
 
 void gClipboard::clear()
 {
-	gtk_clipboard_clear(get_clipboard());
+	if (gApplication::isInit())
+		gtk_clipboard_clear(get_clipboard());
 }
 
 char *gClipboard::getFormat(int n)
@@ -157,7 +150,7 @@ char *gClipboard::getFormat(int n)
 
 	if (!gtk_clipboard_wait_for_targets(get_clipboard(), &targets, &n_tg))
 		return NULL;
-	
+
 	for (i = 0; i < n_tg; i++)
 	{
 		fmt = gdk_atom_name(targets[i]);
@@ -174,7 +167,7 @@ char *gClipboard::getFormat(int n)
 		}
 		n--;
 	}
-	
+
 	return NULL;
 }
 
@@ -206,7 +199,7 @@ gPicture * gClipboard::getImage()
   return new gPicture(gtk_clipboard_wait_for_image(get_clipboard()));
 }
 
-static void 
+static void
 gt_clipboard_set_text (GtkClipboard *clipboard, char *format, const gchar *text, gint len)
 {
   GtkTargetList *list;
@@ -226,11 +219,11 @@ gt_clipboard_set_text (GtkClipboard *clipboard, char *format, const gchar *text,
       GtkTargetPair *pair = (GtkTargetPair *)l->data;
       targets[i].target = gdk_atom_name (pair->target);
     }
-  
+
   if (len < 0)
     len = strlen (text);
-  
-  gtk_clipboard_set_with_data (clipboard, 
+
+  gtk_clipboard_set_with_data (clipboard,
 			       targets, n_targets,
 			       cb_get_text, cb_clear_text,
 			       g_strndup (text, len));
@@ -246,7 +239,7 @@ void gClipboard::setText(char *text, int len, char *format)
 {
 	if (!text)
 		return;
-		
+
 	gt_clipboard_set_text(get_clipboard(), format, text, len);
 }
 
@@ -261,10 +254,10 @@ char *gClipboard::getText(int *len, const char *format)
 	char *text;
 
 	*len = 0;
-	
+
 	if (!gtk_clipboard_wait_for_targets(get_clipboard(), &targets, &n_tg) || n_tg <= 0)
 		return NULL;
-	
+
 	for (i = 0; i < n_tg; i++)
 	{
 		target = targets[i];
@@ -276,22 +269,22 @@ char *gClipboard::getText(int *len, const char *format)
 		if (format && !strcasecmp(fmt, format))
 			break;
 	}
-	
+
 	if (i >= n_tg)
 		return NULL;
-	
+
 	if (!gtk_clipboard_wait_is_target_available(get_clipboard(), target))
 		return NULL;
-	
+
 	data = gtk_clipboard_wait_for_contents(get_clipboard(), target);
 	*len = gtk_selection_data_get_length(data);
 	text = (char *)g_malloc(*len);
 	memcpy(text, gtk_selection_data_get_data(data), *len);
-	
+
 	gtk_selection_data_free(data);
-	
+
 	_clipboard_has_changed[_current_clipboard] = FALSE;
-	
+
 	return gt_free_later(text);
 }
 
@@ -322,10 +315,10 @@ guint32 gDrag::_time = 0;
 bool gDrag::_local = false;
 volatile bool gDrag::_got_data = false;
 volatile bool gDrag::_end = false;
-
+gControl *gDrag::_current = NULL;
 
 void gDrag::setIcon(gPicture *vl)
-{  
+{
 	gPicture::assign(&_icon, vl);
 }
 
@@ -350,7 +343,7 @@ void gDrag::cancel()
 	_got_data = false;
 	_local = false;
 	_active = false;
-	
+
 	gApplication::setButtonGrab(NULL);
 
 #if DEBUG_ME
@@ -410,7 +403,7 @@ gControl *gDrag::drag(gControl *source, GtkTargetList *list)
 	
 	dest = _destination;
 	cancel();
-	
+
 #if DEBUG_ME
 	fprintf(stderr, "gDrag::drag: end\n");
 #endif
@@ -421,45 +414,45 @@ gControl *gDrag::drag(gControl *source, GtkTargetList *list)
 gControl *gDrag::dragText(gControl *source, char *text, char *format)
 {
 	GtkTargetList *list;
-	
+
 	//cancel();
-	
+
 	#if DEBUG_ME
 		fprintf(stderr, "gDrag::dragText: %s\n", text);
 	#endif
 
 	setDropText(text);
-	
+
 	list = gtk_target_list_new (NULL, 0);
 	if (format)
 		gtk_target_list_add(list, gdk_atom_intern(format, false), 0, 0);
 	gtk_target_list_add_text_targets(list, 0);
-	
+
 	//gtk_target_list_add (list,gdk_atom_intern("UTF8_STRING",false),0,0);
 	//gtk_target_list_add (list,gdk_atom_intern("COMPOUND_TEXT",false),0,0);
 	//gtk_target_list_add (list,gdk_atom_intern("TEXT",false),0,0);
 	//gtk_target_list_add (list,GDK_TARGET_STRING,0,0);
 	//gtk_target_list_add (list,gdk_atom_intern("text/plain;charset=utf-8",false),0,0);
 	//gtk_target_list_add (list,gdk_atom_intern("text/plain",false),0,0);
-	
+
 	setDropInfo(Text, format);
-	
+
 	return drag(source, list);
 }
 
 gControl *gDrag::dragImage(gControl *source, gPicture *image)
 {
 	GtkTargetList *list;
-	
+
 	setDropImage(image);
-	
+
 	list = gtk_target_list_new (NULL,0);
-	
+
 	gtk_target_list_add(list, gdk_atom_intern("image/png", false), 0, 0);
 	gtk_target_list_add(list, gdk_atom_intern("image/jpg", false), 0, 0);
 	gtk_target_list_add(list, gdk_atom_intern("image/jpeg", false), 0, 0);
 	gtk_target_list_add(list, gdk_atom_intern("image/gif", false), 0, 0);
-	
+
 	setDropInfo(Image, NULL);
 
 	return drag(source, list);
@@ -518,9 +511,9 @@ void gDrag::setDropImage(char *buf, int len)
 {
 	GdkPixbufLoader *ld;
 	GdkPixbuf *pixbuf = NULL;
-	
+
 	//g_debug("gDrag::setDropImage: buf = %p len = %d\n", buf, len);
-	
+
 	if (buf && len > 0)
 	{
 		ld = gdk_pixbuf_loader_new ();
@@ -531,7 +524,7 @@ void gDrag::setDropImage(char *buf, int len)
 		}
 		g_object_unref(G_OBJECT(ld));
 	}
-	
+
 	if (pixbuf)
 		setDropImage(new gPicture(pixbuf));
 	else
@@ -544,7 +537,7 @@ bool gDrag::checkThreshold(gControl *control, int x, int y, int sx, int sy)
 		return false;
 	else
 		return gtk_drag_check_threshold(control->border, sx, sy, x, y);
-} 
+}
 
 GdkDragContext *gDrag::enable(GdkDragContext *context, gControl *control, guint32 time)
 {
@@ -584,7 +577,7 @@ void gDrag::show(gControl *control, int x, int y, int w, int h)
 		GB.GetFunction(&func, (void *)GB.FindClass("_Gui"), "_ShowDNDFrame", NULL, NULL);
 		init = TRUE;
 	}
-	
+
 	GB.Push(5, GB_T_OBJECT, control->hFree, GB_T_INTEGER, x, GB_T_INTEGER, y, GB_T_INTEGER, w, GB_T_INTEGER, h);
 	GB.Call(&func, 5, FALSE);
 }
@@ -599,7 +592,7 @@ void gDrag::hide(gControl *control)
 		GB.GetFunction(&func, (void *)GB.FindClass("_Gui"), "_HideDNDFrame", NULL, NULL);
 		init = TRUE;
 	}
-	
+
 	GB.Push(1, GB_T_OBJECT, control ? control->hFree : NULL);
 	GB.Call(&func, 1, FALSE);
 }
@@ -609,25 +602,25 @@ char *gDrag::getFormat(int n)
 {
 	GList *tg;
 	gchar *format, *cformat;
-	
+
 	//if (gDrag::getType()) // local DnD
 	//	return;
-	
+
 	//g_debug("set_from_context: non local\n");
-	
+
 	if (_format)
 		return n == 0 ? _format : NULL;
-		
+
 	if (!_context)
 		return NULL;
-	
+
 	tg = g_list_first(gdk_drag_context_list_targets(_context));
-	
+
 	while (tg)
 	{
 		format = gdk_atom_name((GdkAtom)tg->data);
 		cformat = convert_format(format);
-		
+
 		if (islower(cformat[0]))
 		{
 			if (n <= 0)
@@ -637,11 +630,11 @@ char *gDrag::getFormat(int n)
 			}
 			n--;
 		}
-		
+
 		g_free(format);
 		tg = g_list_next(tg);
 	}
-	
+
 	return NULL;
 }
 
@@ -649,16 +642,16 @@ int gDrag::getType()
 {
 	int i;
 	char *format;
-	
+
 	if (_type)
 		return _type;
-	
+
 	for (i = 0;; i++)
 	{
 		format = getFormat(i);
 		if (!format)
 			return Nothing;
-		if (strlen(format) >= 5 && !strncasecmp(format, "text/", 5)) 
+		if (strlen(format) >= 5 && !strncasecmp(format, "text/", 5))
 			return Text;
 		if (strlen(format) >= 6 &&! strncasecmp(format, "image/", 6))
 			return Image;
@@ -678,7 +671,7 @@ static void cb_drag_data_received(GtkWidget *widget, GdkDragContext *context, gi
 		else
 			gDrag::setDropText(NULL);
 	}
-	
+
 	if (gDrag::getType() == gDrag::Image)
 	{
 		//fprintf(stderr, "Image\n");
@@ -687,7 +680,7 @@ static void cb_drag_data_received(GtkWidget *widget, GdkDragContext *context, gi
 		else
 			gDrag::setDropImage(NULL);
 	}
-	
+
 	gDrag::_got_data = true;
 }
 
@@ -700,25 +693,25 @@ bool gDrag::getData(const char *prefix)
 	gulong id;
 	static bool norec = false;
 	gControl *dest;
-	
+
 #if DEBUG_ME
 	fprintf(stderr, "getData: norec = %d _local = %d\n", norec, _local);
 #endif
-	
+
 	if (norec || _local) // local DnD
 		return false;
-	
+
 	tg = g_list_first(gdk_drag_context_list_targets(_context));
-	
+
 	while (tg)
 	{
 		g_free(format);
 		format = gdk_atom_name((GdkAtom)tg->data);
 		cfmt = convert_format(format);
 		//fprintf(stderr, "getData: prefix = %s format = '%s'\n", prefix, format);
-		
+
 		if (strlen(cfmt) >= strlen(prefix) && !strncasecmp(cfmt, prefix, strlen(prefix)))
-		{ 
+		{
 			g_free(format);
 
 			dest = _dest;
@@ -727,25 +720,25 @@ bool gDrag::getData(const char *prefix)
 			//fprintf(stderr, "gDrag::getData: g_signal_connect -> %p %ld\n", dest->border, id);
 
 			_got_data = false;
-			
+
 			norec = true;
-			
+
 			gtk_drag_get_data (_dest->border, _context, (GdkAtom)tg->data, _time);
-			
+
 			while (!_got_data)
 				MAIN_do_iteration(true);
-	
+
 			norec = false;
-			
+
 			//fprintf(stderr, "gDrag::getData: g_signal_disconnect -> %p %ld\n", dest->border, id);
 			g_signal_handler_disconnect(dest->border, id);
 
 			return false;
 		}
-			
+
 		tg = g_list_next(tg);
 	}
-	
+
 	g_free(format);
 	return true;
 }
@@ -753,10 +746,10 @@ bool gDrag::getData(const char *prefix)
 char *gDrag::getText(int *len, const char *format, bool fromOutside)
 {
 	//setDropText(NULL);
-	
+
 	if (!format)
 		format = "text/";
-	
+
 	if (!fromOutside && getData(format))
 	{
 		*len = 0;
@@ -773,10 +766,10 @@ gPicture *gDrag::getImage(bool fromOutside)
 {
 	if (_picture)
 		return _picture;
-		
+
 	if (!fromOutside && getData("image/"))
 		return NULL;
-	
+
 	return _picture;
 }
 
@@ -784,4 +777,30 @@ void gDrag::end()
 {
 	_end = true;
 	_active = false;
+}
+
+
+bool gDrag::setCurrent(gControl *control)
+{
+	gControl *current;
+	
+	if (_current == control)
+		return true;
+	
+	if (_current)
+	{
+		current = _current;
+		while (current)
+		{
+			current->onDragLeave(current);
+			current = current->_proxy;
+		}
+	}
+	
+	_current = control;
+	
+	if (control)
+		return !control->onDrag(control);
+	else
+		return false;
 }

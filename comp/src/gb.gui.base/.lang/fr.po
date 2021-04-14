@@ -1,15 +1,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.gui.base 3.14.90\n"
-"POT-Creation-Date: 2020-06-06 17:05 UTC\n"
-"PO-Revision-Date: 2020-06-06 17:03 UTC\n"
+"Project-Id-Version: gb.gui.base 3.15.90\n"
+"POT-Creation-Date: 2021-03-29 14:24 UTC\n"
+"PO-Revision-Date: 2020-12-15 13:48 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+# gb-ignore
 #: .project:1
 msgid "Common controls and classes for GUI components"
 msgstr ""
@@ -18,7 +19,7 @@ msgstr ""
 msgid "Border"
 msgstr ""
 
-#: FGridView.form:40
+#: FGridView.form:41
 msgid "Drag me"
 msgstr ""
 
@@ -26,7 +27,7 @@ msgstr ""
 msgid "Selection"
 msgstr ""
 
-#: FGridView.form:69 FTestCombo.form:101
+#: FGridView.form:69 FTestCombo.form:117
 msgid "TextBox1"
 msgstr ""
 
@@ -34,99 +35,158 @@ msgstr ""
 msgid "TextArea1"
 msgstr ""
 
-#: FListBox.form:16 FTestCombo.form:33
+#: FLabel.form:23
+msgid "     This is a Label test line"
+msgstr ""
+
+#: FLabel.form:31
+msgid "This is a Label test line"
+msgstr ""
+
+#: FLabel.form:38
+msgid ""
+"This is a Label test line\n"
+"with another one"
+msgstr ""
+
+#: FLabel.form:53
+msgid "This is a TextLabel test line"
+msgstr ""
+
+#: FListBox.form:17 FTestCombo.form:49
 msgid "Élément 1"
 msgstr ""
 
-#: FListBox.form:16 FTestCombo.form:33
+#: FListBox.form:17 FTestCombo.form:49
 msgid "Élément 2"
 msgstr ""
 
-#: FListBox.form:16 FTestCombo.form:33
+#: FListBox.form:17 FTestCombo.form:49
 msgid "Élément 3"
 msgstr ""
 
-#: FListBox.form:16 FTestCombo.form:33
+#: FListBox.form:17 FTestCombo.form:49
 msgid "Élément 4"
 msgstr ""
 
-#: FListBox.form:16 FTestCombo.form:33
+#: FListBox.form:17 FTestCombo.form:49
 msgid "Élément 5"
 msgstr ""
 
-#: FListBox.form:16
+#: FListBox.form:17
 msgid "Élément 6"
 msgstr ""
 
-#: FListBox.form:16
+#: FListBox.form:17
 msgid "Élément 7"
 msgstr ""
 
-#: FListBox.form:23 FProgressBar.form:20 FTestCombo.form:27
-msgid "Button1"
+#: FListBox.form:23
+msgid "Add"
 msgstr ""
 
-#: FMessage.class:23 Message.class:33
+#: FMessage.class:59 Message.class:39
 msgid "OK"
 msgstr "OK"
 
-#: FMessage.form:48
+#: FMessage.form:33
 msgid "Copy message"
 msgstr "Copier le message"
 
-#: FScrollArea.form:71
+#: FScrollArea.form:315
 msgid "Button"
 msgstr ""
 
-#: FTestCombo.form:34
+#: FTestCombo.form:29 FTreeView.form:27
+msgid "Menu1"
+msgstr ""
+
+#: FTestCombo.form:33 FTreeView.form:31
+msgid "Menu2"
+msgstr ""
+
+#: FTestCombo.form:37 FTreeView.form:35
+msgid "Menu3"
+msgstr ""
+
+#: FTestCombo.form:43 FTestProgressBar.form:20
+msgid "Button1"
+msgstr ""
+
+#: FTestCombo.form:50
 msgid "dhdgfhdfghdf"
 msgstr ""
 
-#: FTestCombo.form:44
+#: FTestCombo.form:60
 msgid "fdsgsdg"
 msgstr ""
 
-#: FTestCombo.form:49
+#: FTestCombo.form:65
 msgid "trytryertyter"
 msgstr ""
 
-#: FTestCombo.form:64
+#: FTestCombo.form:80
 msgid "2"
 msgstr ""
 
-#: FTestCombo.form:71
+#: FTestCombo.form:87
 msgid "bxvcbxcbc"
 msgstr ""
 
-#: FTestCombo.form:83
+#: FTestCombo.form:99
 msgid "Frame"
 msgstr ""
 
-#: FTestCombo.form:87
+#: FTestCombo.form:103
 msgid "tyrtyrty"
 msgstr ""
 
-#: FTestCombo.form:96
+#: FTestCombo.form:112
 msgid "1"
 msgstr ""
 
-#: FTestCombo.form:106
+#: FTestCombo.form:122
 msgid "Normal quoi"
 msgstr ""
 
-#: FTestCombo.form:111
+#: FTestCombo.form:127
 msgid "3"
 msgstr ""
 
-#: FTestCombo.form:117
+#: FTestCombo.form:133
 msgid "Index"
 msgstr ""
+
+#: FTestCombo.form:138
+#, fuzzy
+msgid "Message"
+msgstr "Copier le message"
 
 #: FTestFileView.form:22
 msgid "Toggle view"
 msgstr ""
 
-#: FTestMouseWheel.form:29
+#: FTestFrame.form:13
+msgid "gfdhgdfhfdg"
+msgstr ""
+
+#: FTestListView.form:11
+msgid "ListView Bug Demo"
+msgstr ""
+
+#: FTestListView.form:19
+msgid "Delete Selected Item"
+msgstr ""
+
+#: FTestListView.form:24
+msgid "Fill List"
+msgstr ""
+
+#: FTestListView.form:29
+msgid "Multiselect Mode"
+msgstr ""
+
+#: FTestMouseWheel.form:31
 msgid ""
 "vfdg\n"
 "df\n"
@@ -143,16 +203,8 @@ msgid ""
 "sdf"
 msgstr ""
 
-#: FTreeView.form:27
-msgid "Menu1"
-msgstr ""
-
-#: FTreeView.form:31
-msgid "Menu2"
-msgstr ""
-
-#: FTreeView.form:35
-msgid "Menu3"
+#: FTestMouseWheel.form:47
+msgid "ok"
 msgstr ""
 
 #: FTreeView.form:39
@@ -163,9 +215,9 @@ msgstr ""
 msgid "Menu5"
 msgstr ""
 
-#: FTreeView.form:52
+#: FTreeView.form:52 Message.class:63
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: FTreeView.form:62
 msgid "Drag"
@@ -207,18 +259,29 @@ msgstr ""
 msgid "The '/' character is forbidden inside file or directory names."
 msgstr ""
 
-#: Main.module:55
+#: Main.module:53
 msgid "&1 B"
-msgstr ""
+msgstr "&1 o"
+
+#: Main.module:55
+msgid "&1 KiB"
+msgstr "&1 Kio"
 
 #: Main.module:57
-msgid "&1 KiB"
-msgstr ""
+msgid "&1 MiB"
+msgstr "&1 Mio"
 
 #: Main.module:59
-msgid "&1 MiB"
-msgstr ""
-
-#: Main.module:61
 msgid "&1 GiB"
-msgstr ""
+msgstr "&1 Gio"
+
+#: Message.class:45
+msgid "Cancel"
+msgstr "Annuler"
+
+#: Message.class:51
+msgid "Yes"
+msgstr "Oui"
+
+#~ msgid "Apply"
+#~ msgstr "Appliquer"

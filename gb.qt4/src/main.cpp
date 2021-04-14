@@ -64,7 +64,6 @@
 #include "CWindow.h"
 #include "CButton.h"
 #include "CContainer.h"
-#include "CLabel.h"
 #include "CTextBox.h"
 #include "CTextArea.h"
 #include "CMenu.h"
@@ -74,19 +73,18 @@
 #include "CColor.h"
 #include "CConst.h"
 #include "CCheckBox.h"
-#include "CFrame.h"
 #include "CRadioButton.h"
 #include "CTabStrip.h"
 #include "CDialog.h"
 #include "CPicture.h"
 #include "CImage.h"
+#include "canimation.h"
 #include "CClipboard.h"
 #include "CDraw.h"
 #include "CWatch.h"
 #include "CDrawingArea.h"
 #include "CSlider.h"
 #include "CScrollBar.h"
-#include "CMovieBox.h"
 #include "CWatcher.h"
 #include "cprinter.h"
 #include "csvgimage.h"
@@ -107,7 +105,7 @@
 #include <QAbstractNativeEventFilter>
 #endif
 
-#include "fix_breeze.h"
+#include "fix_style.h"
 #include "main.h"
 
 /*#define DEBUG*/
@@ -145,6 +143,7 @@ GB_CLASS CLASS_Printer;
 GB_CLASS CLASS_Image;
 GB_CLASS CLASS_SvgImage;
 GB_CLASS CLASS_TextArea;
+GB_CLASS CLASS_ComboBox;
 
 static bool in_event_loop = false;
 static int _no_destroy = 0;
@@ -1009,6 +1008,7 @@ static void hook_quit()
 
 	CWINDOW_close_all(true);
 	CWINDOW_delete_all(true);
+	CMOUSE_set_control(NULL);
 
 	qApp->sendPostedEvents(); //processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::DeferredDeletion, 0);
 	qApp->sendPostedEvents(0, QEvent::DeferredDelete);
@@ -1137,6 +1137,7 @@ static void QT_Init(void)
 	static bool init = false;
 	QFont f;
 	char *env;
+	bool fix_style;
 
 	if (init)
 		return;
@@ -1154,6 +1155,8 @@ static void QT_Init(void)
 
 	/*fcntl(ConnectionNumber(qt_xdisplay()), F_SETFD, FD_CLOEXEC);*/
 
+	fix_style = false;
+	
 	if (::strcmp(qApp->style()->metaObject()->className(), "Breeze::Style") == 0)
 	{
 		env = getenv("GB_QT_NO_BREEZE_FIX");
@@ -1161,6 +1164,7 @@ static void QT_Init(void)
 		{
 			CSTYLE_fix_breeze = TRUE;
 			qApp->setStyle(new FixBreezeStyle);
+		fix_style = true;
 		}
 	}
 	else if (::strcmp(qApp->style()->metaObject()->className(), "Oxygen::Style") == 0)
@@ -1170,8 +1174,12 @@ static void QT_Init(void)
 		{
 			CSTYLE_fix_oxygen = TRUE;
 			qApp->setStyle(new FixBreezeStyle);
+			fix_style = true;
 		}
 	}
+	
+	if (!fix_style)
+		qApp->setStyle(new FixStyle);
 
 	MAIN_update_scale(qApp->desktop()->font());
 
@@ -1275,6 +1283,11 @@ static void *QT_CreatePicture(const QPixmap &p)
 	return CPICTURE_create(&p);
 }
 
+/*static void *QT_CreateImage(const Image &p)
+{
+	return CIMAGE_create(&p);
+}*/
+
 void MyApplication::linkDestroyed(QObject *qobject)
 {
 	void *object = _link_map.value(qobject, 0);
@@ -1325,13 +1338,18 @@ static void declare_tray_icon()
 	GB.Component.Declare(TrayIconsDesc);
 }
 
+static int QT_GetDesktopScale(void)
+{
+	return MAIN_scale;
+}
+
 extern "C" {
 
 GB_DESC *GB_CLASSES[] EXPORT =
 {
-	CBorderDesc, CColorDesc,
-	CAlignDesc, CArrangeDesc, CScrollDesc, CKeyDesc, CSelectDesc,
-	CImageDesc, CPictureDesc,
+	BorderDesc, CColorDesc,
+	AlignDesc, ArrangeDesc, ScrollDesc, CKeyDesc, SelectDesc,
+	CImageDesc, CPictureDesc, AnimationDesc,
 	CFontDesc, CFontsDesc,
 	CMouseDesc, CCursorDesc, CPointerDesc,
 	CClipboardDesc, CDragDesc,
@@ -1340,15 +1358,14 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CControlDesc, ContainerChildrenDesc, ContainerDesc,
 	UserControlDesc, UserContainerDesc,
 	CMenuChildrenDesc, CMenuDesc,
-	CLabelDesc, CTextLabelDesc, CSeparatorDesc,
 	CButtonDesc, CToggleButtonDesc, CToolButtonDesc,
 	CCheckBoxDesc, CRadioButtonDesc,
 	CTextBoxSelectionDesc, CTextBoxDesc, CComboBoxItemDesc, CComboBoxDesc,
 	CTextAreaSelectionDesc, CTextAreaDesc,
-	CFrameDesc, CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
+	CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
 	CTabStripContainerChildrenDesc, CTabStripContainerDesc, CTabStripDesc,
 	CDrawingAreaDesc,
-	CSliderDesc, CMovieBoxDesc, CScrollBarDesc,
+	SliderDesc, ScrollBarDesc,
 	CWindowMenusDesc, CWindowControlsDesc, CWindowDesc, CWindowsDesc, CFormDesc,
 	CDialogDesc,
 #ifndef QT5
@@ -1383,6 +1400,7 @@ void *GB_QT4_1[] EXPORT =
 	(void *)QT_CreatePicture,
 	//(void *)QT_MimeSourceFactory,
 	(void *)QT_GetPixmap,
+	//(void *)QT_CreateImage,
 	(void *)QT_ToUtf8,
 	(void *)QT_GetLastUtf8Length,
 	(void *)QT_NewString,
@@ -1396,6 +1414,7 @@ void *GB_QT4_1[] EXPORT =
 	(void *)CWIDGET_get_background,
 	(void *)Control_Mouse,
 	(void *)CWIDGET_after_set_color,
+	(void *)QT_GetDesktopScale,
 	NULL
 };
 
@@ -1448,6 +1467,7 @@ int EXPORT GB_INIT(void)
 	CLASS_Image = GB.FindClass("Image");
 	CLASS_SvgImage = GB.FindClass("SvgImage");
 	CLASS_TextArea = GB.FindClass("TextArea");
+	CLASS_ComboBox = GB.FindClass("ComboBox");
 
 	QT_InitEventLoop();
 

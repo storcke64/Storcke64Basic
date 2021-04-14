@@ -73,13 +73,13 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
   If Not $sError Then Return
   If hEditor Then
     If hEditor.Name == $sPosClass And If hEditor.GetEditor().Line = ($iPosLine - 1) Then
-      hEditor.ShowErrorMessage(Html($sError), "error")
+      hEditor.ShowErrorMessage($sError, "error")
     Else If $iPosLine > hEditor.GetEditor().Count Then
       sPath = Project.FindForm(hEditor.Name)
-      FMain.ShowError(Html($sError), sPath)
+      FMain.ShowError($sError, sPath)
     Endif
   Else
-    FDebugInfo.ShowError(Html($sError))
+    FDebugInfo.ShowError($sError)
   Endif
   
 End
@@ -250,6 +250,8 @@ Public Sub Debug_Read(Data As String)
   Dim sClass As String
   Dim iLine As Integer
   Dim sVar As String
+  Dim sError As String
+  Dim sWhere As String
 
   If Not Data Then Return 
   
@@ -322,8 +324,17 @@ Public Sub Debug_Read(Data As String)
 
       If FDebugInfo.FillStack(aPos) Then
         If aData[1] Then 
-          $sError = MakeMessage(aData[1])
-          If sClass Then $sError &= " " & Subst(("in &1:&2."), $sPosClass, $iPosLine)
+          
+          sError = MakeMessage(aData[1])
+          
+          If sClass Then
+            sWhere = $sPosClass & ":" & CStr($iPosLine)
+          Else
+            sWhere = ""
+          Endif
+          
+          $sError = Project.FormatError(sError, sWhere)
+          
           If sClass Then
             Try CheckErrorMessage(Project.ActiveForm)
           Else
@@ -428,6 +439,7 @@ Public Sub Process_Kill()
 
   Dim sMsg As String
   Dim bTest As Boolean
+  Dim bFail As Boolean
 
   bTest = $bTest
   
@@ -451,19 +463,18 @@ Public Sub Process_Kill()
       Case 15
         sMsg = ("The program has been terminated.")
       Default
+        If bTest Then FDebugInfo.StopTest(True)
+        bTest = False
         FCrash.Run($hProcess)
     End Select
     If sMsg Then FMain.ShowWarning(sMsg)
   Else If $hProcess.Value Then
-    If bTest Then
-      FDebugButton.SetTestResult(True)
-    Else
-      FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
-    Endif
-  Else
-    If bTest Then FDebugButton.SetTestResult(False)
+    If Not bTest Then FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
+    bFail = True
   Endif
 
+  If bTest Then FDebugInfo.StopTest(bFail)
+  
   $hProcess = Null
 
   If Project.Profiling Then
@@ -529,7 +540,7 @@ Private Sub AfterStop()
 
   Action["console"].Value = $bConsole
 
-  Project.SetMessage(("OK"))
+  'Project.SetMessage(("OK"))
 
   FMain.ActivateCurrentWindow
 
@@ -718,18 +729,30 @@ Public Sub RunUntil(hForm As FEditor, iLine As Integer)
 
 End
 
-
 Public Sub Run(Optional bTest As Boolean)
 
   If $iState = STATE_RUNNING Then Return
 
-  $bTest = bTest
   $bLastCommandMayBeLong = True
 
   If $iState = STATE_STOP Then
+    
+    $bTest = bTest
+  
+    If bTest Then
+      If Not Project.HasTest() Then
+        $bLastCommandMayBeLong = False
+        Message.Warning(("The project has no test module."))
+        Return
+      Endif
+    Endif
+
     Start("g")
+    
   Else
+    
     Command("g", STATE_RUNNING)
+    
   Endif
 
   $bLastCommandMayBeLong = False
@@ -738,11 +761,9 @@ End
 
 Public Sub Test()
   
-  If Not Project.HasTest() Then
-    Message.Warning(("The project has no test module."))
-    Return
-  Endif
-  
+  If $iState = STATE_RUNNING Then Return
+
+  FDebugInfo.StartTest()
   Run(True)
   
 End
@@ -860,7 +881,7 @@ Private Sub GetTestSuite() As String
   sSuite = hSettings["/TestSuites/Default"]
   
   If Not sSuite Then
-    aTest = Project.Tree.GetTestModules()
+    aTest = MTest.GetTestModules()
     For I = 0 To aTest.Max
       aTest[I] = File.BaseName(aTest[I])
     Next
@@ -884,6 +905,7 @@ Private Sub Start(sCmd As String)
   Dim sOpenWebBrowser As String
   Dim sPort As String
   Dim iPos As Integer
+  Dim I As Integer
 
   If Project.Running Then Return
   
@@ -950,22 +972,30 @@ Private Sub Start(sCmd As String)
   FDebugInfo.UpdateView
   FDebugInfo.OnProjectDebug
 
+  aEnv = Project.Environment.Copy()
+  I = 0
+  While I < aEnv.Count
+    If aEnv[I] Begins " " Then
+      aEnv.Remove(I)
+    Else
+      Inc I
+    Endif
+  Wend
+  
+  If Not aEnv.Exist("GB_GUI=*", gb.Like) Then 
+    aEnv.Add("GB_GUI=")
+  Endif
+  
   If $bTest Then
     
     aExec = [System.Path &/ "bin/gbx" & System.Version, "-g", "-f", $sFifo, "-T", GetTestSuite(), File.Dir(SConv(Project.Path))]
     
-    $hProcess = FDebugInfo.GetTestTerminal().Exec(aExec)
+    $hProcess = FDebugInfo.GetTestTerminal().Exec(aExec, aEnv)
     $hProcess.Term.Echo = True
     $hObserver = New Observer($hProcess, True) As "Process"
 
   Else
 
-    aEnv = Project.Environment.Copy()
-    
-    If Not aEnv.Exist("GB_GUI=*", gb.Like) Then 
-      aEnv.Add("GB_GUI=")
-    Endif
-  
     If Project.Profiling Then FProfile.CleanProfileFiles
   
     ' If Project.Environment And If Project.Environment.Count Then 
@@ -1555,3 +1585,4 @@ Public Sub RenameClass(sOld As String, sNew As String)
   FDebugInfo.RefreshBreakpointView()
   
 End
+

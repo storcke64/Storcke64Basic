@@ -422,7 +422,7 @@ Public Function Remove(Key As String) As Boolean
   If iRet = -1 Then Return False
   $aShapeNames.Remove(iRet)
   $aShapes.Remove(iRet)
-  _Load()
+  '_Load()
 
   Return True
 

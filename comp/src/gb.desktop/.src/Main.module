@@ -223,7 +223,9 @@ Public Sub Main()
   ' hMime = DesktopMime.FromFile("/bin/ls")
   ' Print hMime.Type
   
-  Print Desktop.Types.Count
+  Print Desktop.Count
+  Print Desktop.Showing
+  Desktop.Showing = True
   
 End
 
@@ -304,3 +306,14 @@ Public Sub MakeSearchPath(sKey As String, aList As String[]) As String[]
   Return aResult
   
 End
+
+Public Sub NotSupported()
+
+  If Desktop.Platform Then
+    Error.Raise("Not supported on " & Desktop.Platform)
+  Else
+    Error.Raise("Not desktop detected")
+  Endif
+
+End
+

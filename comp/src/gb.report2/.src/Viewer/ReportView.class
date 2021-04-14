@@ -115,7 +115,7 @@ Public Sub Area_MouseWheel()
 
   If Not $hView.Arrangement = Arrange.Row Then
     $hView.Arrangement = Arrange.Row
-    $hView.Column = 0
+    $hView.Columns = 0
   Endif
 
 End
@@ -125,7 +125,7 @@ Public Sub Area_Draw()
   Dim sText As String
   Dim iTextWidth As Integer
 
-  sText = Str($hView.FirstVisibleDocument + 1) & "/" & Str($hView.Count)
+  sText = Str($hView.FirstVisiblePage + 1) & "/" & Str($hView.Count)
   iTextWidth = Paint.TextSize(sText).Width + 10
   Paint.Rectangle(Paint.Width - iTextWidth - 10, 10, iTextWidth, 25, 5)
   Paint.Brush = Paint.Color(Color.SetAlpha(Color.black, 125))
@@ -236,25 +236,25 @@ Private Sub ScaleMode_Write(Value As Integer)
 
   $iScaleMode = Value
 
-  $hView.AutoCenter = False
+  $hView.Center = False
 
   Select Case Value
     Case Me.Custom
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Row
     Case Me.Page
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Fill
-      $hView.AutoCenter = True
+      $hView.Center = True
     Case Me.DualPage
-      $hView.Column = 2
+      $hView.Columns = 2
       $hView.Arrangement = Arrange.Row
-      $hView.AutoCenter = True
+      $hView.Center = True
     Case Me.FullWidth
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Vertical
     Case Me.RealSize
-      $hView.Column = 0
+      $hView.Columns = 0
       $hView.Arrangement = Arrange.Row
       $hView.Zoom = 1
   End Select

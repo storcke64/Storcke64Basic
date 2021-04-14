@@ -32,6 +32,7 @@ Public Sub _new()
   $hSlider = New Slider(Me) As "Slider"
   $hSlider.Expand = True
   $hSlider.PageStep = 1
+  $hSlider.Orientation = ScrollBar.Horizontal
   
   $hSpinBox = New SpinBox(Me) As "SpinBox"
   UpdateSpinBoxWidth

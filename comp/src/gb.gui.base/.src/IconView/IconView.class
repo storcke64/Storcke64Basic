@@ -1452,6 +1452,7 @@ Public Sub RenameBox_KeyPress()
   If Key.Code = Key.Escape Then
     ExitRename
     Raise Cancel
+    Stop Event
   Else If Key.Code = Key.Enter Or If Key.Code = Key.Return Then
     RenameBox_Activate
     Stop Event
@@ -1636,4 +1637,14 @@ Private Function Keys_Read() As String[]
   Next
   Return aKeys
 
+End
+
+Public Sub _RefreshPicture()
+
+  Dim hItem As _IconView_Item
+  
+  For Each hItem In $cItems
+    Picture._Refresh(ByRef hItem.Picture)
+  Next
+  
 End

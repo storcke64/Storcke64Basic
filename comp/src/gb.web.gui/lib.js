@@ -476,8 +476,8 @@ gw = {
       var boundingRect = elt.getBoundingClientRect();
       var baseRect = offsetBase.getBoundingClientRect();
       found = true;
-      left = boundingRect.left - baseRect.left;
-      top = boundingRect.top - baseRect.top;
+      left = boundingRect.left - baseRect.left; //- document.documentElement.scrollLeft;
+      top = boundingRect.top - baseRect.top; //- document.documentElement.scrollTop;
       width = boundingRect.right - boundingRect.left;
       height = boundingRect.bottom - boundingRect.top;
     }
@@ -686,6 +686,8 @@ gw = {
       }
       
       gw.window.refresh();
+      
+      $(id).scrollIntoView({behavior:"auto", block:"nearest"});      
     },
 
     close: function(id)

@@ -281,3 +281,9 @@ Private Function TabPanel_Read() As TabPanel
   Return $hWorkspace.GetTabPanel()
 
 End
+
+Public Sub _RefreshPicture()
+
+  ' Prevent the Workspace Picture property to be refreshed.
+  
+End

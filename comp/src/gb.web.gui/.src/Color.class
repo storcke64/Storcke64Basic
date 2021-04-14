@@ -5,21 +5,45 @@
 Export Optional
 
 Public Const Default As Integer = -1
+Public Const Transparent As Integer = &HFF000000
 Public Const Black As Integer = &H000000&
 Public Const White As Integer = &HFFFFFF&
 Public Const Gray As Integer = &H808080&
 Public Const LightGray As Integer = &HC0C0C0&
 Public Const DarkGray As Integer = &H404040&
 Public Const Blue As Integer = &HFF&
+Public Const DarkBlue As Integer = &H000080&
+Public Const SoftBlue As Integer = &H8080FF&
 Public Const Green As Integer = &HFF00&
+Public Const DarkGreen As Integer = &H008000&
+Public Const SoftGreen As Integer = &H80FF80&
 Public Const Red As Integer = &HFF0000&
-Public Const Yellow As Integer = &HFFFF00&
-Public Const Magenta As Integer = &HFF00FF&
+Public Const DarkRed As Integer = &H800000&
+Public Const SoftRed As Integer = &HFF8080&
 Public Const Cyan As Integer = &H00FFFF&
-Public Const Orange As Integer = &HFF7F00&
-Public Const Violet As Integer = &H7F00FF&
-Public Const RoyalBlue As Integer = &H007FFF&
+Public Const DarkCyan As Integer = &H008080&
+Public Const SoftCyan As Integer = &H80FFFF&
+Public Const Magenta As Integer = &HFF00FF&
+Public Const DarkMagenta As Integer = &H800080&
+Public Const SoftMagenta As Integer = &HFF80FF&
 Public Const Pink As Integer = &HFF80FF&
+Public Const Yellow As Integer = &HFFFF00&
+Public Const DarkYellow As Integer = &H808000&
+Public Const SoftYellow As Integer = &HFFFF80&
+Public Const Orange As Integer = &HFF8000&
+Public Const DarkOrange As Integer = &H804000&
+Public Const SoftOrange As Integer = &HFFC080&
+Public Const Violet As Integer = &H8000FF&
+Public Const DarkViolet As Integer = &H400080&
+Public Const SoftViolet As Integer = &HC080FF&
+Public Const Royal As Integer = &H0080FF&
+Public Const DarkRoyal As Integer = &H004080&
+Public Const SoftRoyal As Integer = &H80C0FF&
+Public Const Purple As Integer = &HFF0080&
+Public Const DarkPurple As Integer = &H800040&
+Public Const SoftPurple As Integer = &HFF80C0&
+' 
+
 
 '' Change the alpha component of a color and return it.
 

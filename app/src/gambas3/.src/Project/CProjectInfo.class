@@ -26,9 +26,10 @@ Private $sIcon As String
 Private $sStartup As String
 Private $aComponents As New String[]
 
-Private $bRead As Boolean
 Private $sTranslatedTitle As String
 Private $sTranslatedDescription As String
+Private $bVersionAddBranch As Boolean
+Private $dDate As Date
 
 Private Sub GetProjectPath(sPath As String) As String
   
@@ -49,15 +50,20 @@ Private Sub ReadProject()
   Dim iPos As Integer
   Dim sKey As String
   Dim sVal As String
-  
-  If $bRead Then Return
-  $bRead = True
+  Dim sBranch As String
+  Dim dDate As Date
+  Dim sPath As String
   
   If Not $sPath Then Return
+
+  sPath = $sPath &/ ".project"
+  dDate = Stat(sPath).LastModified
+  If $dDate And If $dDate = dDate Then Return
+  $dDate = dDate
   
   $aComponents = New String[]
-    
-  hFile = Open $sPath &/ ".project"
+  
+  hFile = Open sPath 
   
   For Each sLine In hFile.Lines
     sLine = Trim(sLine)
@@ -76,6 +82,8 @@ Private Sub ReadProject()
         $sTitle = sVal
 
       Case "version"
+        iPos = InStr(sVal, " ")
+        If iPos Then sVal = Left(sVal, iPos - 1)
         $sVersion = sVal
         
       Case "description"
@@ -113,10 +121,18 @@ Private Sub ReadProject()
             Type = Project.TYPE_COMPONENT
         End Select
         
+      Case "versionaddbranch"
+        $bVersionAddBranch = CInt(sVal)
+        
     End Select
   
   Next
   
+  If $bVersionAddBranch Then
+    sBranch = CVersionControlGit.GetCurrentBranch($sPath)
+    If sBranch Then $sVersion &= " (" & sBranch & ")"
+  Endif
+
   Close #hFile
 
 End
@@ -164,7 +180,7 @@ Private Function Title_Read() As String
 End
 
 Private Function Version_Read() As String
-
+  
   ReadProject
   Return $sVersion
 

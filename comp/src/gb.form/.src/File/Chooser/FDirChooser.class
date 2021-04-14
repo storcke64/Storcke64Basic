@@ -10,6 +10,10 @@ Event {Select}
 Event GetIcon(Path As String)
 Event ShowHidden
 Event Cancel
+Event Uncompress(Path As String)
+
+Property AutoExt As Boolean
+Property UncompressFilter As String[]
 
 Private mnuBookmark As Menu
 Private mnuEditBookmark As Menu
@@ -39,6 +43,10 @@ Private $bNoSaveHistory As Boolean
 
 Static Private $aIconSize As Integer[] = [16, 22, 32, 48, 64, 96, 128, 192, 256]
 Static Private $hGradient As Image
+
+Private $bAutoExt As Boolean
+Private $sLastExt As String
+Private $aUncompressFilter As String[]
 
 
 Public Sub _new(Optional bFile As Boolean)
@@ -291,12 +299,14 @@ Private Sub UpdateBookmarkButton()
     btnRoot.Picture = Picture["icon:/small/system"]
     mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
     btnBookmark.Show
+    sepBookmark.Show
     dvwChoose.HideRoot = True
   Else
     'btnBookmark.Text = File.Name(dvwChoose.Root)
     btnRoot.Picture = dvwChoose.Picture 'Picture["icon:/small/directory"]
     dvwChoose.HideRoot = False
     btnBookmark.Hide
+    sepBookmark.Hide
   Endif
   
   btnBookmark.Tooltip = dvwChoose.Root
@@ -440,6 +450,8 @@ Public Sub SetPath(sPath As String)
       txtFile.Text = File.Name(sPath)
     Endif
     
+    CheckAutomaticExtension
+    
   Endif
   
   If sMsg Then Message.Error(sMsg & "\n\n" & sPath)
@@ -506,6 +518,7 @@ Public Sub fvwChoose_Activate()
   If IsDir(dvwChoose.Current &/ fvwChoose.Current) Then
     dvwChoose.Current &/= fvwChoose.Current
   Else
+    If CheckFile() Then Return
     Raise {Select}
   Endif
 
@@ -566,10 +579,33 @@ Public Function GetFilter() As String[]
 
 End
 
+Private Sub CheckAutomaticExtension()
+
+  Dim aFilter As String[]
+  Dim sFilter As String
+  Dim sFile As String
+  
+  If Not $bAutoExt Or If Not txtFile.Visible Or If txtFile.ReadOnly Or If txtFile.Length = 0 Then Return
+  
+  aFilter = fvwChoose.Filter
+  If Not aFilter Or If aFilter.Count > 1 Then Return
+  sFilter = aFilter[0]
+  
+  If sFilter Not Begins "*." Then Return
+  sFilter = Mid$(sFilter, 2)
+  If InStr(sFilter, "*") Then Return
+  
+  sFile = txtFile.Text
+  If $sLastExt And If sFile Ends $sLastExt Then sFile = Left(sFile, -Len($sLastExt))
+  txtFile.Text = sFile & sFilter
+  $sLastExt = sFilter
+
+End
 
 Public Sub cmbFilter_Click()
 
   fvwChoose.Filter = Split($aFilter[cmbFilter.Index], ";", Chr$(34), True)
+  CheckAutomaticExtension
 
 End
 
@@ -581,7 +617,7 @@ End
 
 Public Sub fvwChoose_Icon(Path As String)
 
-  Raise GetIcon(Path)    
+  Raise GetIcon(Path)
 
 End
 
@@ -590,7 +626,6 @@ Public Sub dvwChoose_Icon(Path As String)
   Raise GetIcon(Path)    
 
 End
-
 
 Public Sub SetReadOnly(bReadOnly As Boolean)
   
@@ -830,35 +865,29 @@ Public Sub IsDialogButtonVisible() As Boolean
   
 End
 
-
-' Public Sub ShowAutomaticExtension(bShow As Boolean)
-'   
-'   chkExt.Visible = bShow
-'   
-' End
-' 
-' Public Sub SetAutomaticExtension(bVal As Boolean)
-'   
-'   chkExt.Value = bVal
-'   
-' End
-
  Private Sub CheckFile() As Boolean ' FIXME: If 'As Boolean' is forgotten, and 'Return True' is removed, we can get an interpreter crash
   
   Dim sPath As String
+  Dim sFile As String
   
   If Not txtFile.Visible Then Return
   If txtFile.ReadOnly Then Return
+  If GetMulti() Then Return
   
-  sPath = txtFile.Text
-  If InStr(sPath, "/") = 0 Then Return
+  sFile = txtFile.Text
+  If Not sFile Then Return True
   
-  txtFile.Text = File.Name(sPath)
-  SetDir(File.Dir(sPath))
-  Return True
+  If InStr(sPath, "/") Then 
+    txtFile.Text = File.Name(sPath)
+    SetDir(File.Dir(sPath))
+    Return True
+  Endif
+
+  If Exist(dvwChoose.Current &/ sFile) Then 
+    If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("&Overwrite"), ("Cancel")) = 2 Then Return True
+  Endif 
   
 End
-
 
 Public Sub btnOK_Click()
 
@@ -986,6 +1015,8 @@ Private Sub FillMenu()
     mnuEditBookmark = hMenu
     
     hMenu = New Menu(mnuBookmark)
+
+    UpdateBookmarkButton
     
   Endif
   
@@ -1139,12 +1170,7 @@ Public Sub fvwChoose_Menu()
 
   Dim sFile As String = fvwChoose.Current
   
-  If sFile Like "*.tar.gz" Or If sFile Like "*.tar.bz2" Or If sFile Like "*.tgz" Or If sFile Like "*.tar" Or If sFile Like "*.zip" Then
-    mnuUncompress.Show
-  Else
-    mnuUncompress.Hide
-  Endif
-  
+  mnuUncompress.Visible = IsCompressedFile(sFile)
   mnuShowDetailed.Show
   mnuShowPreview.Show
   mnuRename.Visible = sFile
@@ -1250,6 +1276,8 @@ Public Sub mnuUncompress_Click()
   Dim hTreeView As TreeView
   Dim aOutput As String[]
   Dim iPos As Integer
+  Dim bCancel As Boolean
+  Dim sCmd As String
   
   Inc Application.Busy
   
@@ -1258,6 +1286,7 @@ Public Sub mnuUncompress_Click()
     Case Like "*.tar.gz", "*.tar.bz2", "*.tgz", "*.tar"
       
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar tf " & Shell$(fvwChoose.Current) To sOutput
+      If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
   
       For Each sOutput In Split(Trim(sOutput), "\n")
         
@@ -1277,6 +1306,7 @@ Public Sub mnuUncompress_Click()
           Endif
           
           Shell "rm -rf " & Shell$(fvwChoose.Dir &/ sOutput) Wait
+          If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
           
         Endif
         
@@ -1285,6 +1315,7 @@ Public Sub mnuUncompress_Click()
     Case Like "*.zip"
       
       Shell "cd " & Shell(fvwChoose.Dir) & ";unzip -l " & Shell$(fvwChoose.Current) To sOutput
+      If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
       
       aOutput = Split(sOutput, "\n")
       If aOutput.Count > 2 Then iPos = InStr(aOutput[1], "Name")
@@ -1317,39 +1348,52 @@ Public Sub mnuUncompress_Click()
           Endif
           
           Shell "rm -rf " & Shell$(fvwChoose.Dir &/ sOutput) Wait
+          If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
           
         Endif
         
       Next
       
     Case Else
-      Application.Busy = 0
-      Message.Error(("Cannot uncompress file.") & "\n\n" & ("Unknown archive."))
-      Return
+      
+      If $aUncompressFilter Then
+        bCancel = Raise Uncompress(fvwChoose.Dir &/ fvwChoose.Current)
+        If bCancel Then Goto _CANNOT_UNCOMPRESS
+      Else
+        Application.Busy = 0
+        Message.Error(("Cannot uncompress file.") & "\n\n" & ("Unknown archive."))
+        Return
+      Endif
       
   End Select
 
-  If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
-  
   Select Case File.Name(fvwChoose.Current)
     
     Case Like "*.tar.gz", "*.tgz"
-      Shell "cd " & Shell(fvwChoose.Dir) & ";tar xfz " & Shell$(fvwChoose.Current) Wait
-      'Exec ["/bin/tar", "xfz", "-C", fvwChoose.Dir, sPath] To sResult
+      sCmd = "tar xfz " & Shell$(fvwChoose.Current)
       
     Case Like "*.tar.bz2"
+      sCmd = "tar xfj " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar xfj " & Shell$(fvwChoose.Current) Wait
       'Exec ["/bin/tar", "xfj", "-C", fvwChoose.Dir, sPath] To sResult
       '
     Case Like "*.tar"
+      sCmd = "tar xf " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";tar xf " & Shell$(fvwChoose.Current) Wait
       
     Case Like "*.zip"
+      sCmd = "unzip -q " & Shell$(fvwChoose.Current)
       Shell "cd " & Shell(fvwChoose.Dir) & ";unzip -q " & Shell$(fvwChoose.Current) Wait
-      
-  End Select
+    
+    Case Else
+      sCmd = ""
   
-  If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
+  End Select
+
+  If sCmd Then  
+    Shell "cd " & Shell(fvwChoose.Dir) & ";" & sCmd Wait
+    If Process.LastValue Then Goto _CANNOT_UNCOMPRESS
+  Endif
   
   Wait ' Let watch events proceed
   
@@ -1672,5 +1716,52 @@ End
 Public Sub SetShowToolbar(bShow As Boolean)
   
   panTool.Visible = bShow
+  
+End
+
+Private Function AutoExt_Read() As Boolean
+
+  Return $bAutoExt
+
+End
+
+Private Sub AutoExt_Write(Value As Boolean)
+
+  If $bAutoExt = Value Then Return
+  $bAutoExt = Value
+  CheckAutomaticExtension
+
+End
+
+Private Function UncompressFilter_Read() As String[]
+
+  Return $aUncompressFilter
+
+End
+
+Private Sub UncompressFilter_Write(Value As String[])
+
+  If Value Then
+    $aUncompressFilter = Value.Copy()
+    $aUncompressFilter.ReadOnly = True
+  Else
+    $aUncompressFilter = Null
+  Endif
+  
+End
+
+Private Sub IsCompressedFile(sFile As String, Optional bCustom As Boolean) As Boolean
+
+  Dim I As Integer
+  
+  If Not bCustom Then
+    If sFile Like "*.tar.gz" Or If sFile Like "*.tar.bz2" Or If sFile Like "*.tgz" Or If sFile Like "*.tar" Or If sFile Like "*.zip" Then Return True
+  Endif
+
+  If $aUncompressFilter Then
+    For I = 0 To $aUncompressFilter.Max
+      If sFile Like $aUncompressFilter[I] Then Return True
+    Next
+  Endif
   
 End

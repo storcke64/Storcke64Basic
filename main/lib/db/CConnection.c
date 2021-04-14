@@ -367,11 +367,14 @@ BEGIN_PROPERTY(Connection_Collations)
 	CHECK_DB();
 	CHECK_OPEN();
 
-	array = THIS->driver->GetCollations(&THIS->db);
-	if (array)
-		GB.ReturnObject(array);
-	else
-		GB.Error("Collations are not supported");
+	if (!THIS->db.flags.no_collation)
+	{
+		array = THIS->driver->GetCollations(&THIS->db);
+		if (array)
+			GB.ReturnObject(array);
+	}
+	
+	GB.Error("Collations are not supported");
 
 END_PROPERTY
 
@@ -393,7 +396,10 @@ BEGIN_METHOD_VOID(Connection_Commit)
 	CHECK_OPEN();
 
 	if (THIS->trans == 0)
+	{
+		//GB.Error("Not in a transaction");
 		return;
+	}
 
 	THIS->trans--;
 	if (!THIS->db.flags.no_nest || THIS->trans == 0)
@@ -408,7 +414,10 @@ BEGIN_METHOD_VOID(Connection_Rollback)
 	CHECK_OPEN();
 
 	if (THIS->trans == 0)
+	{
+		//GB.Error("Not in a transaction");
 		return;
+	}
 
 	THIS->trans--;
 	if (!THIS->db.flags.no_nest || THIS->trans == 0)

@@ -45,13 +45,13 @@
 #include <QEventLoop>
 #include <QDesktopWidget>
 #include <QAction>
-#include <QX11Info>
 #include <QTimer>
 
 #include "main.h"
 
 #ifndef NO_X_WINDOW
 #ifndef QT5
+#include <QX11Info>
 #include <QX11EmbedWidget>
 #include <QX11EmbedContainer>
 #endif
@@ -64,15 +64,20 @@
 #include "gambas.h"
 
 #include "CWidget.h"
+#include "CMouse.h"
 #include "CMenu.h"
 #include "CKey.h"
 #include "CDraw.h"
 #include "CWindow.h"
 
 #ifndef NO_X_WINDOW
+	#ifndef QT5
 #include "x11.h"
 #undef FontChange
-#else
+	#endif
+#endif
+
+#ifdef NO_X_WINDOW
 enum
 {
 	_NET_WM_WINDOW_TYPE_NORMAL,
@@ -146,14 +151,18 @@ static void clear_mask(CWINDOW *_object)
 	if (THIS->toplevel)
 	{
 		#ifndef NO_X_WINDOW
-		bool v = !WINDOW->isHidden() && WINDOW->isVisible();
-		//WINDOW->setBorder(WINDOW->hasBorder(), true);
-		//WINDOW->setResizable(WINDOW->isResizable(), true);
-		if (v && THIS->reallyMasked)
-		{
-			X11_window_remap(WINDOW->effectiveWinId());
-			WINDOW->initProperties(PROP_ALL);
-		}
+			bool v = !WINDOW->isHidden() && WINDOW->isVisible();
+			//WINDOW->setBorder(WINDOW->hasBorder(), true);
+			//WINDOW->setResizable(WINDOW->isResizable(), true);
+			if (v && THIS->reallyMasked)
+			{
+				#ifdef QT5
+					PLATFORM.Window.Remap(WINDOW);
+				#else
+					X11_window_remap(WINDOW->effectiveWinId());
+				#endif
+				WINDOW->initProperties(PROP_ALL);
+			}
 		#endif
 	}
 }
@@ -206,14 +215,9 @@ static bool emit_open_event(void *_object)
 	if (THIS->opened)
 		return false;
 
-	CWIDGET_clear_flag(THIS, WF_CLOSED);
+	THIS->closed = false;
 	THIS->opened = true;
 
-	if (!THIS->minw && !THIS->minh)
-	{
-		THIS->minw = THIS->w;
-		THIS->minh = THIS->h;
-	}
 	#if DEBUG_WINDOW
 	qDebug("emit_open_event: %s %p", GB.GetClassName(THIS), THIS);
 	#endif
@@ -221,7 +225,7 @@ static bool emit_open_event(void *_object)
 	//WINDOW->configure();
 	GB.Raise(THIS, EVENT_Open, 0);
 	//THIS->opening = false;
-	if (CWIDGET_test_flag(THIS, WF_CLOSED))
+	if (THIS->closed)
 	{
 		#if DEBUG_WINDOW
 		qDebug("emit_open_event: %s %p [CANCELED]", GB.GetClassName(THIS), THIS);
@@ -308,11 +312,9 @@ void CWINDOW_ensure_active_window()
 	void *_object = CWINDOW_Active;
 
 	if (THIS)
-		WINDOW->activateWindow();
+		WINDOW->activate();
 }
 
-
-//-- Window ---------------------------------------------------------------
 
 static void show_later(CWINDOW *_object)
 {
@@ -328,6 +330,63 @@ static void show_later(CWINDOW *_object)
 	}
 	GB.Unref(POINTER(&_object));
 }
+
+
+void CWINDOW_move_resize(void *_object, int x, int y, int w, int h)
+{
+	bool move, resize;
+
+	move = x != THIS->x || y != THIS->y || !THIS->moved;
+	
+	if (w < 0)
+		w = THIS->w;
+
+	if (h < 0)
+		h = THIS->h;
+	
+	resize = w != THIS->w || h != THIS->h || !THIS->resized;
+	
+	if (!move && !resize)
+		return;
+	
+	THIS->x = x;
+	THIS->y = y;
+	THIS->w = w;
+	THIS->h = h;
+	
+	if (!THIS->moved && (x || y))
+		THIS->moved = TRUE;
+
+	if (move)
+		WINDOW->move(x, y);
+	
+	if (resize)
+	{
+		bool resizable = false;
+	
+		if (WINDOW->isTopLevel() && !WINDOW->isResizable())
+		{
+			resizable = true;
+			WINDOW->setResizable(true);
+		}
+
+		WINDOW->resize(w, h);
+
+		THIS->resized = TRUE;
+		if (THIS->default_minw <= 0 && THIS->default_minh <= 0)
+		{
+			THIS->default_minw = w;
+			THIS->default_minh = h;
+		}
+	
+		if (resizable)
+			WINDOW->setResizable(false);
+		
+		WINDOW->configure();
+	}
+}
+
+//-- Window ---------------------------------------------------------------
 
 BEGIN_METHOD(Window_new, GB_OBJECT parent)
 
@@ -472,7 +531,7 @@ BEGIN_METHOD(Window_new, GB_OBJECT parent)
 	#endif
 
 	THIS->showMenuBar = true;
-
+	
 END_METHOD
 
 
@@ -486,7 +545,7 @@ BEGIN_METHOD_VOID(CFORM_new)
 END_METHOD
 
 
-BEGIN_METHOD_VOID(CFORM_main)
+BEGIN_METHOD_VOID(Form_Main)
 
 	CWINDOW *form = (CWINDOW *)GB.AutoCreate(GB.GetClass(NULL), 0);
 
@@ -496,9 +555,9 @@ BEGIN_METHOD_VOID(CFORM_main)
 END_METHOD
 
 
-BEGIN_METHOD(CFORM_load, GB_OBJECT parent)
+BEGIN_METHOD(Form_Load, GB_OBJECT parent)
 
-	//qDebug("CFORM_load");
+	//qDebug("Form_Load");
 	reparent_window((CWINDOW *)GB.AutoCreate(GB.GetClass(NULL), 0), VARGOPT(parent, 0), false);
 
 END_METHOD
@@ -563,10 +622,10 @@ static bool do_close(CWINDOW *_object, int ret, bool destroyed = false)
 	bool closed;
 
 	#if DEBUG_WINDOW
-	qDebug("do_close: (%s %p) %d %d", GB.GetClassName(THIS), THIS, THIS->closing, CWIDGET_test_flag(THIS, WF_CLOSED));
+	qDebug("do_close: (%s %p) %d %d", GB.GetClassName(THIS), THIS, THIS->closing, THIS->closed);
 	#endif
 
-	if (THIS->closing || CWIDGET_test_flag(THIS, WF_CLOSED)) // || WIDGET->isHidden())
+	if (THIS->closing || THIS->closed) // || WIDGET->isHidden())
 		return false;
 
 	if (!THIS->toplevel)
@@ -583,14 +642,14 @@ static bool do_close(CWINDOW *_object, int ret, bool destroyed = false)
 
 		if (destroyed || closed)
 		{
-			CWIDGET_set_flag(THIS, WF_CLOSED);
+			THIS->closed = true;
 			THIS->opened = false;
 		}
 
 		if (closed)
 		{
 			WIDGET->hide();
-			if (!CWIDGET_test_flag(_object, WF_PERSISTENT))
+			if (!THIS->persistent)
 				CWIDGET_destroy((CWIDGET *)THIS);
 		}
 	}
@@ -789,27 +848,8 @@ BEGIN_PROPERTY(Window_TopLevel)
 
 END_PROPERTY
 
-/*BEGIN_METHOD_VOID(CWINDOW_dialog)
-
-	CWINDOW *win;
-
-	GB.New(POINTER(&win), GB.GetClass(NULL), NULL, NULL);
-
-	win->ret = 0;
-	((MyMainWindow *)win->widget.widget)->showModal();
-	GB.ReturnInteger(win->ret);
-
-END_METHOD*/
-
 
 BEGIN_PROPERTY(Window_Persistent)
-
-	/*
-	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET->isPersistent());
-	else
-		WIDGET->setPersistent(PROPERTY(char) != 0);
-	*/
 
 	if (!THIS->toplevel)
 	{
@@ -819,14 +859,9 @@ BEGIN_PROPERTY(Window_Persistent)
 	else
 	{
 		if (READ_PROPERTY)
-			GB.ReturnBoolean(CWIDGET_test_flag(THIS, WF_PERSISTENT));
+			GB.ReturnBoolean(THIS->persistent);
 		else
-		{
-			if (VPROP(GB_BOOLEAN))
-				CWIDGET_set_flag(THIS, WF_PERSISTENT);
-			else
-				CWIDGET_clear_flag(THIS, WF_PERSISTENT);
-		}
+			THIS->persistent = VPROP(GB_BOOLEAN);
 	}
 
 END_PROPERTY
@@ -1093,7 +1128,7 @@ BEGIN_METHOD_VOID(Window_Delete)
 	do_close(THIS, 0);
 
 	if (THIS->toplevel)
-		CWIDGET_clear_flag(THIS, WF_PERSISTENT);
+		THIS->persistent = false;
 
 	CWIDGET_destroy((CWIDGET *)THIS);
 
@@ -1107,6 +1142,8 @@ BEGIN_PROPERTY(Window_Visible)
 	else
 	{
 		bool show = !!VPROP(GB_BOOLEAN);
+		
+		THIS->hidden = !show;
 		
 		if (show == WINDOW->isHidden())
 		{
@@ -1341,9 +1378,33 @@ END_PROPERTY
 BEGIN_METHOD_VOID(Window_Activate)
 
 	if (THIS->toplevel && WINDOW->isVisible() && !WINDOW->isHidden())
-		WINDOW->activateWindow();
+		WINDOW->activate();
 
 END_METHOD
+
+BEGIN_PROPERTY(Window_MinWidth)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(THIS->minw);
+	else
+	{
+		THIS->minw = Max(0, VPROP(GB_INTEGER));
+		WINDOW->setGeometryHints();
+	}
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Window_MinHeight)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(THIS->minh);
+	else
+	{
+		THIS->minh = Max(0, VPROP(GB_INTEGER));
+		WINDOW->setGeometryHints();
+	}
+
+END_PROPERTY
 
 
 /***************************************************************************/
@@ -1446,13 +1507,12 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Transparent", "b", Window_Transparent),
 	GB_PROPERTY("TakeFocus", "b", Window_TakeFocus),
 
-	GB_PROPERTY("Arrangement", "i", Container_Arrangement),
-	GB_PROPERTY("Padding", "i", Container_Padding),
-	GB_PROPERTY("Spacing", "b", Container_Spacing),
-	GB_PROPERTY("Margin", "b", Container_Margin),
-	GB_PROPERTY("AutoResize", "b", Container_AutoResize),
-  GB_PROPERTY("Invert", "b", Container_Invert),
-  GB_PROPERTY("Indent", "b", Container_Indent),
+	GB_PROPERTY("MinWidth", "i", Window_MinWidth),
+	GB_PROPERTY("MinHeight", "i", Window_MinHeight),
+	GB_PROPERTY("MinW", "i", Window_MinWidth),
+	GB_PROPERTY("MinH", "i", Window_MinHeight),
+
+	ARRANGEMENT_PROPERTIES,
 
 	//GB_PROPERTY("Type", "i", CWINDOW_type),
 	GB_PROPERTY("Utility", "b", Window_Utility),
@@ -1502,8 +1562,8 @@ GB_DESC CFormDesc[] =
 	GB_DECLARE("Form", sizeof(CFORM)), GB_INHERITS("Window"),
 	GB_AUTO_CREATABLE(),
 
-	GB_STATIC_METHOD("Main", NULL, CFORM_main, NULL),
-	GB_STATIC_METHOD("Load", NULL, CFORM_load, "[(Parent)Control;]"),
+	GB_STATIC_METHOD("Main", NULL, Form_Main, NULL),
+	GB_STATIC_METHOD("Load", NULL, Form_Load, "[(Parent)Control;]"),
 	GB_METHOD("_new", NULL, CFORM_new, NULL),
 
 	FORM_DESCRIPTION,
@@ -1525,7 +1585,7 @@ MyMainWindow::MyMainWindow(QWidget *parent, const char *name, bool embedded) :
 	_border = true;
 	_resizable = true;
 	_deleted = false;
-	_type = _NET_WM_WINDOW_TYPE_NORMAL;
+	//_type = _NET_WM_WINDOW_TYPE_NORMAL;
 	_enterLoop = false;
 	_utility = false;
 	_state = windowState();
@@ -1620,8 +1680,7 @@ void MyMainWindow::showEvent(QShowEvent *e)
 		//qDebug("showEvent: activate: %s", THIS->widget.name);
 		raise();
 		//setFocus();
-		activateWindow();
-		//X11_window_activate(effectiveWinId());
+		activate();
 		_activate = false;
 	}
 
@@ -1631,56 +1690,96 @@ void MyMainWindow::showEvent(QShowEvent *e)
 
 void MyMainWindow::initProperties(int which)
 {
-	#ifndef NO_X_WINDOW
 	CWIDGET *_object = CWidget::get(this);
 
-	if (!THIS->toplevel || effectiveWinId() == 0)
+	if (!THIS->toplevel) // || effectiveWinId() == 0)
 		return;
 
 	if (!THIS->title && _border)
 		setWindowTitle(TO_QSTRING(GB.Application.Title()));
 
-	//qDebug("initProperties: %d", which);
-	X11_flush();
+	#ifdef QT5
+		QT_WINDOW_PROP prop;
+		
+		prop.stacking = THIS->stacking;
+		prop.skipTaskbar = THIS->skipTaskbar;
+		prop.border = _border;
+		prop.sticky = THIS->sticky;
+		
+		PLATFORM.Window.SetProperties(this, which, &prop);
+	#else
+		if (effectiveWinId() == 0)
+			return;
+		X11_flush();
 
-	if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
-	{
-		X11_window_change_begin(effectiveWinId(), isVisible());
-
-		if (which & PROP_STACKING)
+		if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
 		{
-			X11_window_change_property(X11_atom_net_wm_state_above, THIS->stacking == 1);
-			X11_window_change_property(X11_atom_net_wm_state_stays_on_top, THIS->stacking == 1);
-			X11_window_change_property(X11_atom_net_wm_state_below, THIS->stacking == 2);
+			X11_window_change_begin(effectiveWinId(), isVisible());
+
+			if (which & PROP_STACKING)
+			{
+				X11_window_change_property(X11_atom_net_wm_state_above, THIS->stacking == 1);
+				X11_window_change_property(X11_atom_net_wm_state_stays_on_top, THIS->stacking == 1);
+				X11_window_change_property(X11_atom_net_wm_state_below, THIS->stacking == 2);
+			}
+			if (which & PROP_SKIP_TASKBAR)
+				X11_window_change_property(X11_atom_net_wm_state_skip_taskbar, THIS->skipTaskbar);
+
+			X11_window_change_end();
 		}
-		if (which & PROP_SKIP_TASKBAR)
-			X11_window_change_property(X11_atom_net_wm_state_skip_taskbar, THIS->skipTaskbar);
 
-		X11_window_change_end();
-	}
+		//if (which == PROP_ALL)
+		//	X11_set_window_type(effectiveWinId(), _type);
 
-	//if (which == PROP_ALL)
-	//	X11_set_window_type(effectiveWinId(), _type);
+		if (which & PROP_BORDER)
+			X11_set_window_decorated(effectiveWinId(), _border);
 
-	if (which & PROP_BORDER)
-		X11_set_window_decorated(effectiveWinId(), _border);
+		if (which & PROP_STICKY)
+			X11_window_set_desktop(effectiveWinId(), isVisible(), THIS->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
 
-	if (which & PROP_STICKY)
-		X11_window_set_desktop(effectiveWinId(), isVisible(), THIS->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
-
-	X11_flush();
+		X11_flush();
 	#endif
 }
 
 void MyMainWindow::setEventLoop()
 {
-	if (!CWIDGET_test_flag(THIS, WF_CLOSED))
+	if (!THIS->closed)
 		THIS->loopLevel = CWINDOW_Current ? CWINDOW_Current->loopLevel : 0;
 }
 
-void MyMainWindow::activateLater()
+void MyMainWindow::setGeometryHints()
 {
-	activateWindow();
+	CWIDGET *_object = CWidget::get(this);
+	int minw, minh;
+	
+	if (!THIS->toplevel)
+	{
+		setMinimumSize(0, 0);
+		setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+		return;
+	}
+	
+	minw = THIS->minw;
+	minh = THIS->minh;
+	
+	if (_resizable)
+	{
+		if (isModal() || isUtility())
+		{
+			if (!minw && !minh)
+			{
+				minw = THIS->default_minw;
+				minh = THIS->default_minh;
+			}
+		}
+		setMinimumSize(minw, minh);
+		setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+	}
+	else
+	{
+		setMinimumSize(width(), height());
+		setMaximumSize(width(), height());
+	}
 }
 
 void MyMainWindow::present(QWidget *parent)
@@ -1699,12 +1798,14 @@ void MyMainWindow::present(QWidget *parent)
 	{
 		//X11_window_startup(WINDOW->effectiveWinId(), THIS->x, THIS->y, THIS->w, THIS->h);
 
-		if (isUtility() && _resizable)
-			setMinimumSize(THIS->minw, THIS->minh);
+		setGeometryHints();
 
 		setAttribute(Qt::WA_ShowWithoutActivating, THIS->noTakeFocus);
 
-#ifndef QT5
+#ifdef QT5
+		if (MAIN_platform_is_wayland)
+			initProperties(PROP_ALL);
+#else
 		if (effectiveWinId() == 0)
 		{
 			createWinId();
@@ -1722,12 +1823,15 @@ void MyMainWindow::present(QWidget *parent)
 			show();
 
 #ifdef QT5
-		//qDebug("createWinId: %p", (void *)effectiveWinId());
-		if (THIS->noTakeFocus)
-			X11_window_set_user_time(effectiveWinId(), 0);
-		initProperties(PROP_ALL);
-		if (THIS->noTakeFocus)
-			X11_window_set_user_time(effectiveWinId(), 0);
+		if (!MAIN_platform_is_wayland)
+		{
+			//qDebug("createWinId: %p", (void *)effectiveWinId());
+			if (THIS->noTakeFocus)
+				PLATFORM.Window.SetUserTime(this, 0);
+			initProperties(PROP_ALL);
+			if (THIS->noTakeFocus)
+				PLATFORM.Window.SetUserTime(this, 0);
+		}
 #else
 		initProperties(PROP_SKIP_TASKBAR);
 #endif
@@ -1749,14 +1853,14 @@ void MyMainWindow::present(QWidget *parent)
 	}
 
 	if (!THIS->noTakeFocus) // && (parent || hasBorder()))
-		activateWindow();
+		activate();
 
 	if (parent)
 	{
-		X11_set_transient_for(effectiveWinId(), parent->effectiveWinId());
 		#ifdef QT5
-			if (windowHandle())
-				windowHandle()->setTransientParent(parent->windowHandle());
+			PLATFORM.Window.SetTransientFor(this, parent);
+		#else
+			X11_set_transient_for(effectiveWinId(), parent->effectiveWinId());
 		#endif
 	}
 
@@ -1830,13 +1934,14 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 {
 	CWIDGET *_object = CWidget::get(this);
 	CWINDOW *parent;
-	bool persistent = CWIDGET_test_flag(THIS, WF_PERSISTENT);
+	bool persistent = THIS->persistent;
 	//QPoint p = pos();
 	QEventLoop eventLoop;
 	GB_ERROR_HANDLER handler;
 	MODAL_INFO info;
 
 	CWIDGET_finish_focus();
+	CMOUSE_finish_event();
 
 	info.that = this;
 	info.old = MyApplication::eventLoop;
@@ -1844,21 +1949,14 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	info.save_popup = popup ? CWIDGET_enter_popup() : NULL;
 	info.flags = windowFlags() & ~Qt::WindowType_Mask;
 
-	if (popup)
-		setWindowFlags(Qt::Popup | info.flags);
-	
 	setWindowModality(Qt::ApplicationModal);
-
-	if (!popup && _resizable && _border)
-	{
-		setMinimumSize(THIS->minw, THIS->minh);
-		setSizeGrip(true);
-	}
 
 	_enterLoop = false; // Do not call exitLoop() if we do not entered the loop yet!
 
 	if (popup)
 	{
+		setWindowFlags(Qt::Popup | info.flags);
+		
 		move(0, 0);
 		move(*pos);
 		setFocus();
@@ -1867,6 +1965,9 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	}
 	else
 	{
+		if (_resizable && _border)
+			setSizeGrip(true);
+
 		parent = CWINDOW_Current;
 		if (!parent)
 		{
@@ -1875,6 +1976,9 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 				parent = CWINDOW_Active;
 		}
 
+		if (parent)
+			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Window | info.flags);
+		
 		present(parent ? CWidget::getTopLevel((CWIDGET *)parent)->widget.widget : 0);
 	}
 	
@@ -2125,18 +2229,22 @@ void MyMainWindow::setBorder(bool b)
 		return;
 
 	_border = b;
+	
 	if (!isWindow())
 		return;
 
+	//qDebug("effectiveWinId");
+	initProperties(PROP_BORDER);
+	#ifdef QT5
+		PLATFORM.Window.Remap(WINDOW);
+	#else
 	if (effectiveWinId())
-	{
-		//qDebug("effectiveWinId");
-		initProperties(PROP_BORDER);
 		X11_window_remap(effectiveWinId());
-	}
-#ifndef QT5
+	#endif
+
+	#ifndef QT5
 	doReparent(parentWidget(), pos());
-#endif
+	#endif
 }
 
 void MyMainWindow::setResizable(bool b)
@@ -2162,6 +2270,7 @@ void MyMainWindow::setUtility(bool b)
 	doReparent(parentWidget(), pos());
 }
 
+#if 0
 #ifdef NO_X_WINDOW
 #else
 int MyMainWindow::getType()
@@ -2180,6 +2289,7 @@ void MyMainWindow::setType(int type)
 	X11_set_window_type(effectiveWinId(), type);
 	_type = type;
 }
+#endif
 #endif
 
 void MyMainWindow::moveEvent(QMoveEvent *e)
@@ -2301,7 +2411,7 @@ void MyMainWindow::keyPressEvent(QKeyEvent *e)
 		if (!ob)
 			return;
 
-		if (CWIDGET_test_flag(ob, WF_DESIGN))
+		if (CWIDGET_is_design(ob))
 			return;
 
 		if (!test->isVisible() || !test->isEnabled())
@@ -2434,7 +2544,7 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 
 	//modal = isModal(); //testWFlags(Qt::WShowModal); // && THIS->opened;
 
-	CWIDGET_set_flag(THIS, WF_CLOSED);
+	THIS->closed = true;
 	//qApp->sendEvent(WIDGET, new QEvent(EVENT_CLOSE));
 
 	/*if (CWINDOW_Active == THIS)
@@ -2452,7 +2562,7 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 	if (THIS == CWINDOW_Active)
 		CWINDOW_activate(NULL);
 
-	if (!CWIDGET_test_flag(THIS, WF_PERSISTENT))
+	if (!THIS->persistent)
 	{
 		if (CWINDOW_Main == THIS)
 		{
@@ -2484,7 +2594,7 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 
 IGNORE:
 
-	CWIDGET_clear_flag(THIS, WF_CLOSED);
+	THIS->closed = false;
 	e->ignore();
 }
 
@@ -2562,7 +2672,7 @@ void MyMainWindow::doReparent(QWidget *parent, const QPoint &pos)
 		#ifndef NO_X_WINDOW
 			initProperties(PROP_ALL);
 			if (active && hasBorder())
-				activateWindow();
+				activate();
 		#endif
 
 		setWindowIcon(icon);
@@ -2732,8 +2842,8 @@ void MyMainWindow::changeEvent(QEvent *e)
 
 	if (e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange)
 	{
-		configure();
 		void *_object = CWidget::get(this);
+		configure();
 		GB.Raise(THIS, EVENT_Font, 0);
 	}
 	else if (e->type() == QEvent::WindowStateChange)
@@ -2795,6 +2905,14 @@ void MyMainWindow::setBetterMask(QPixmap &bg)
 	}
 
 	setMask(QBitmap::fromImage(mask));
+}
+
+void MyMainWindow::activate(void)
+{
+#ifdef QT5
+	if (!MAIN_platform_is_wayland)
+#endif
+		activateWindow();
 }
 
 /***************************************************************************
@@ -2898,7 +3016,7 @@ bool CWindow::eventFilter(QObject *o, QEvent *e)
 {
 	CWINDOW *_object = (CWINDOW *)CWidget::get(o);
 
-	if (THIS && !CWIDGET_test_flag(THIS, WF_DELETED))
+	if (THIS && !THIS->widget.flag.deleted)
 	{
 		if (e->type() == QEvent::Show) // && !e->spontaneous())
 		{

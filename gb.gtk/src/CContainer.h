@@ -41,15 +41,28 @@ extern GB_DESC UserContainerDesc[];
 
 #define THIS ((CCONTAINER *)_object)
 #define THIS_CHILDREN ((CCONTAINERCHILDREN *)_object)
-#define THIS_UC ((CUSERCONTROL *)_object)
+#define THIS_USERCONTAINER ((CUSERCONTAINER *)_object)
+#define THIS_USERCONTROL ((CUSERCONTROL *)_object)
 #define WIDGET ((gContainer*)THIS->ob.widget)
 #define PANEL ((gPanel *)(THIS->ob.widget))
 
-#define THIS_CONT (THIS_UC->container)
-#define WIDGET_CONT ((gContainer *)THIS_UC->container->ob.widget)
+#define THIS_CONT (THIS_USERCONTAINER->container)
+#define WIDGET_CONT ((gContainer *)THIS_USERCONTAINER->container->ob.widget)
 
 #endif
 
+#define ARRANGEMENT_FLAG_PROPERTIES \
+	GB_PROPERTY("AutoResize", "b", Container_AutoResize), \
+	GB_PROPERTY("Padding", "i", Container_Padding), \
+	GB_PROPERTY("Spacing", "b", Container_Spacing), \
+	GB_PROPERTY("Margin", "b", Container_Margin), \
+	GB_PROPERTY("Indent", "b", Container_Indent), \
+	GB_PROPERTY("Invert", "b", Container_Invert), \
+	GB_PROPERTY("Centered", "b", Container_Centered)
+
+#define ARRANGEMENT_PROPERTIES \
+	GB_PROPERTY("Arrangement", "i", Container_Arrangement), \
+	ARRANGEMENT_FLAG_PROPERTIES
 
 typedef 
 	struct
@@ -74,9 +87,26 @@ typedef
 		CCONTAINER *container;
 		gContainerArrangement save;
 	}
+	CUSERCONTAINER;
+
+typedef  
+	struct
+	{
+		CWIDGET widget;
+		CCONTAINER *container;
+	#ifdef GTK3
+		cairo_t *context;
+	#endif
+		ushort paint_func;
+		ushort font_func;
+		ushort change_func;
+	}
 	CUSERCONTROL;
 
-
+DECLARE_PROPERTY(Container_ClientX);
+DECLARE_PROPERTY(Container_ClientY);
+DECLARE_PROPERTY(Container_ClientWidth);
+DECLARE_PROPERTY(Container_ClientHeight);
 DECLARE_PROPERTY(Container_Arrangement);
 DECLARE_PROPERTY(Container_AutoResize);
 DECLARE_PROPERTY(Container_Padding);
@@ -84,9 +114,12 @@ DECLARE_PROPERTY(Container_Spacing);
 DECLARE_PROPERTY(Container_Margin);
 DECLARE_PROPERTY(Container_Indent);
 DECLARE_PROPERTY(Container_Invert);
+DECLARE_PROPERTY(Container_Centered);
 
 void CCONTAINER_cb_arrange(gContainer *sender);
 void CCONTAINER_cb_before_arrange(gContainer *sender);
 void CCONTAINER_raise_insert(CCONTAINER *_object, CWIDGET *child);
+void CUSERCONTROL_send_change_event();
+
 
 #endif

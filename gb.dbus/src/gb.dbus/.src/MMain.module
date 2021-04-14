@@ -139,7 +139,7 @@ Public Sub Main1()
 
 End
 
-Public Sub Main()
+Public Sub Main4()
 
   Dim hDBusApplication As DBusApplication
   Dim hDBusProxy As DBusProxy
@@ -150,5 +150,11 @@ Public Sub Main()
   Try Print hDBusProxy.Version
   Print hDBusProxy.state()
   Print hDBusProxy.State() 'Should be invalid
+
+End
+
+Public Sub Main()
+
+  Print DBus["org.freedesktop.DBus"]._Introspect("/a")
 
 End

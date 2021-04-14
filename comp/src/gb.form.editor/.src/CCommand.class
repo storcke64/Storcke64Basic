@@ -1,6 +1,6 @@
 ' Gambas class file
 
-Public Enum BEGIN, {END}, INSERT, DELETE, CHANGE
+Public Enum BEGIN, {END}, {LINK}, INSERT, DELETE, CHANGE
 
 'Public View As Editor
 Public Type As Integer
@@ -57,7 +57,7 @@ End
 Public Sub Print(sPrefix As String)
   
   Print sPrefix;
-  Print ["BEGIN", "END", "INSERT", "DELETE"][Type];;
+  Print ["BEGIN", "END", "LINK", "INSERT", "DELETE"][Type];;
   Print "X =";; X;; "Y =";; Y;; "SX =";; SX;; "SY =";; SY;; "XA =";; XA;; "YA =";; YA;; "Text =";; Quote(Str(Text));
   
 End

@@ -45,10 +45,11 @@
 #ifdef QT5
 #include <QScreen>
 #include <QDesktopWidget>
-#endif
-
+#else
 #include <QX11Info>
 #include <X11/Xlib.h>
+#endif
+
 
 
 static CPICTURE *create()
@@ -122,7 +123,8 @@ CPICTURE *CPICTURE_grab(QWidget *wid, int screen, int x, int y, int w, int h)
 		}
 		
 #ifdef QT5
-		*pict->pixmap = QGuiApplication::primaryScreen()->grabWindow(QX11Info::appRootWindow(), x, y, w, h);
+		//*pict->pixmap = QGuiApplication::primaryScreen()->grabWindow(QX11Info::appRootWindow(), x, y, w, h);
+		PLATFORM.Desktop.Screenshot(pict->pixmap, x, y, w, h);
 #else
 		*pict->pixmap = QPixmap::grabWindow(QX11Info::appRootWindow(), x, y, w, h);
 #endif

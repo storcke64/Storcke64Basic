@@ -4,13 +4,13 @@
   MoveScaled(0,0,68,177)
   Persistent = True
   Arrangement = Arrange.Fill
-  { Panel10 ScrollView
+  { svwImageProperty ScrollView
     MoveScaled(1,1,65,175)
     Arrangement = Arrange.Vertical
     Border = False
     ScrollBar = Scroll.Vertical
     { tabBrush TabPanel
-      MoveScaled(-1,1,61,53)
+      MoveScaled(1,1,61,53)
       Arrangement = Arrange.Vertical
       Border = False
       Count = 4
@@ -241,19 +241,26 @@
         ToolTip = ("Make transparent")
         Picture = Picture["icon:/small/transparency"]
       }
+      { btnDarkTheme ToolButton btnAction
+        Name = "btnDarkTheme"
+        MoveScaled(24,0,4,4)
+        Tag = "invert"
+        ToolTip = ("Invert colors for dark themes")
+        Picture = Picture["icon:/small/invert"]
+      }
       { Separator5 Separator
-        MoveScaled(25,0,1,4)
+        MoveScaled(35,0,1,4)
       }
       { btnLineCap ToolButton
-        MoveScaled(27,0,4,4)
+        MoveScaled(37,0,4,4)
         ToolTip = ("Line cap")
       }
       { btnLineJoin ToolButton
-        MoveScaled(33,0,4,4)
+        MoveScaled(43,0,4,4)
         ToolTip = ("Line join")
       }
       { btnFillRule ToolButton
-        MoveScaled(39,0,4,4)
+        MoveScaled(49,0,4,4)
         ToolTip = ("Fill rule")
       }
     }
@@ -338,6 +345,7 @@
         Border = False
         Text = ("Effects")
         TextFont = Font["Bold"]
+        Animated = True
         Hidden = True
         { HPanel4 HBox
           MoveScaled(0,0,59,4)
@@ -588,30 +596,30 @@
       Visible = False
       Margin = True
       { Panel1 HBox
-        MoveScaled(1,1,27,4)
+        MoveScaled(1,1,57,4)
         { Label12 Label
           MoveScaled(0,0,15,4)
           Expand = True
           AutoResize = True
           Text = ("Grid resolution")
         }
-        { txtGridRes SpinBox
-          MoveScaled(17,0,9,4)
+        { txtGridRes SliderBox
+          MoveScaled(38,0,17,4)
           MinValue = 4
-          MaxValue = 512
+          MaxValue = 128
           Step = 4
           Value = 64
         }
       }
       { Panel5 HBox
-        MoveScaled(1,5,40,4)
+        MoveScaled(1,5,57,4)
         { chkGridSnap CheckBox
           MoveScaled(0,0,15,4)
           Expand = True
           Text = ("Grid snap")
         }
-        { txtGridSnap SpinBox
-          MoveScaled(29,0,9,4)
+        { txtGridSnap SliderBox
+          MoveScaled(38,0,17,4)
           MinValue = 1
           MaxValue = 512
           Step = 8

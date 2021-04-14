@@ -57,6 +57,7 @@ Static Private Sub InitComponentNames()
   $cName["gb.compress"] = ("Compression & decompression")
   $cName["gb.compress.bzlib2"] = ("bzlib2 compression driver")
   $cName["gb.compress.zlib"] = ("zlib compression driver")
+  $cName["gb.compress.zstd"] = ("zstd compression driver")
   $cName["gb.crypt"] = ("MD5/DES/SHA crypting")
   $cName["gb.data"] = ("More data containers")
   $cName["gb.db"] = ("Database access")
@@ -86,8 +87,10 @@ Static Private Sub InitComponentNames()
   $cName["gb.gtk"] = ("GTK+2 toolkit")
   $cName["gb.gtk.opengl"] = ("OpenGL with GTK+ toolkit")
   $cName["gb.gtk3"] = ("GTK+3 toolkit")
+  $cName["gb.gtk3.webview"] = ("GTK+3 web browser component")
   $cName["gb.gui"] = ("QT/GTK+ switcher component")
   $cName["gb.gui.opengl"] = ("OpenGL with QT/GTK+ switcher component")
+  $cName["gb.gui.webview"] = ("QT/GTK+ web browser switcher component")
   $cName["gb.gui.qt"] = ("QT4/QT5 switcher component")
   $cName["gb.gui.qt.opengl"] = ("QT4/QT5 OpenGL switcher component")
   $cName["gb.gui.qt.webkit"] = ("QT4/QT5 WebKit switcher component")
@@ -128,6 +131,7 @@ Static Private Sub InitComponentNames()
   $cName["gb.qt4.opengl"] = ("OpenGL with QT4 toolkit")
   $cName["gb.qt5"] = ("QT5 toolkit")
   $cName["gb.qt5.webkit"] = ("QT5 WebKit component")
+  $cName["gb.qt5.webview"] = ("QT5 web browser component")
   $cName["gb.qt5.opengl"] = ("OpenGL with QT5 toolkit")
   $cName["gb.qt5.ext"] = ("QT5 toolkit extension")
   $cName["gb.report"] = ("Report designer")
@@ -543,6 +547,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   'Dim aSymbol As CSymbolInfo[]
   Dim iStart As Integer
   Dim hClass As CClassInfo
+  Dim hParentClass As CClassInfo
   Dim sName, sName2 As String
   Dim aName As String[]
   Dim sLine As String
@@ -556,17 +561,17 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   hEditor = hModule.GetEditor()
   hModule.AutoCreatable = False
   hModule.NotCreatable = False
-  'DEBUG hModule.Name; " := "; hModule.AutoCreatable
-  
+
   If bCanInherit Then
     
     hClass = Classes[hModule.Name]
-    
-    If hClass And If hClass.Component = CComponent.PROJECT_NAME And If hClass.Parent Then
-      hClass = Classes[hClass.ParentComponent &/ hClass.Parent]
-      MakeInheritance(hModule, cSymbol, hClass.Name, hClass.Component)
-      bCanInherit = False
-    Endif 
+    If hClass Then
+      If hClass.Component = CComponent.PROJECT_NAME And If hClass.Parent Then
+        hParentClass = Classes[hClass.ParentComponent &/ hClass.Parent]
+        MakeInheritance(hModule, cSymbol, hParentClass.Name, hParentClass.Component)
+        bCanInherit = False
+      Endif 
+    Endif
     
   Endif
   
@@ -847,6 +852,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
           hSymbol2 = hSymbol.Copy()
           hSymbol2.Name = sName
           hSymbol2.LineNumber = hSymbol.LineNumber
+          hSymbol2.NotPublic = True
           cSymbol[sName] = hSymbol2
         Endif
       Endif
@@ -1006,11 +1012,9 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
   Dim hPForm As Object
   Dim hPModule As FEditor
   Dim hPClass As FEditor
-  'Dim hModule As Object
   Dim cSymbol As Collection
-  Dim hSymbol As CSymbolInfo
-  'Dim aClass As String[]
   Dim sFamily As String
+  Dim hSymbol As CSymbolInfo
   
   If Len(sClass) <= 1 Then
     If sClass = "s" Then
@@ -1094,7 +1098,7 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
         hPClass.ParentClass = sFamily
         If hPForm Is FForm Then ScanForm(hPForm, cSymbol)
       Endif
-      ScanClass(hPClass, cSymbol, False, IsNull(hPForm))
+      ScanClass(hPClass, cSymbol, False)
     Endif
     $hDumbClass.Parent = hPClass.ParentClass
     $hDumbClass.ParentComponent = hPClass.ParentComponent

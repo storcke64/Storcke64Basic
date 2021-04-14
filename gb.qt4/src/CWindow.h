@@ -52,42 +52,51 @@ typedef
 		MyContainer *container;
 		CARRANGEMENT arrangement;
 		QMenuBar *menuBar;
-		int ret;
 		CPICTURE *icon;
 		CPICTURE *picture;
 		CWIDGET *focus;
 		QPushButton *defaultButton;
 		QPushButton *cancelButton;
+		int ret;
 		int loopLevel;
+
 		int x;
 		int y;
 		int w;
 		int h;
 		int minw;
 		int minh;
+		int default_minw;
+		int default_minh;
 		int last_resize_w;
 		int last_resize_h;
+		
 		unsigned toplevel : 1;
+		unsigned persistent : 1;
+		unsigned closed : 1;
 		unsigned embedded : 1;
 		unsigned xembed : 1;
 		unsigned stacking : 2;
 		unsigned skipTaskbar : 1;
+		
 		unsigned masked : 1;
 		unsigned reallyMasked : 1;
 		unsigned opened : 1;
 		unsigned hidden : 1;
 		unsigned toolbar : 1;
-		unsigned scale : 1;
 		unsigned minsize : 1;
 		unsigned title : 1;
 		unsigned stateChange : 1;
+		
 		unsigned closing : 1;
 		unsigned hideMenuBar : 1;
 		unsigned showMenuBar : 1;
 		unsigned sticky : 1;
 		unsigned noTakeFocus : 1;
 		unsigned moved : 1;
+		unsigned resized : 1;
 		unsigned popup : 1;
+		
 		unsigned modal : 1;
 		}
 	CWINDOW;
@@ -169,7 +178,9 @@ typedef
 	}
 	MODAL_INFO;
 
+#ifndef QT5
 enum { PROP_ALL = -1, PROP_STACKING = 1, PROP_SKIP_TASKBAR = 2, PROP_BORDER = 4, PROP_STICKY = 8 };
+#endif
 	
 class MyMainWindow : public QWidget
 {
@@ -185,7 +196,7 @@ private:
 	bool _deleted;
 	bool _enterLoop;
 	bool _utility;
-	int _type;
+	//int _type;
 	Qt::WindowStates _state;
 	int _screen;
 	
@@ -202,10 +213,6 @@ protected:
 
 	//bool eventFilter(QObject *, QEvent *);
 
-public slots:
-	
-	void activateLater();
-	
 public:
 
 	enum { BorderNone = 0, BorderFixed = 1, BorderResizable = 2 };
@@ -232,15 +239,9 @@ public:
 	
 	bool isResizable(void) const { return _resizable; }
 	void setResizable(bool);
+
+	void activate(void);
 	
-	#ifdef NO_X_WINDOW
-	#else
-	int getType(void);
-	void setType(int type);
-	#endif
-	
-	//bool getTool(void) { return testWFlags(WStyle_Tool); }
-	//void setTool(bool);
 	bool isUtility(void) const { return _utility; }
 	void setUtility(bool b);
 	
@@ -265,6 +266,8 @@ public:
 	virtual void resize(int w, int h);
 	virtual void setGeometry(int x, int y, int w, int h);
 	
+	void setGeometryHints();
+	
 	friend void on_error_show_modal(MODAL_INFO *info);
 };
 
@@ -278,6 +281,6 @@ void CWINDOW_ensure_active_window();
 bool CWINDOW_must_quit();
 bool CWINDOW_close_all(bool main);
 void CWINDOW_delete_all(bool main);
-//void CWINDOW_fix_menubar(CWINDOW *window);
+void CWINDOW_move_resize(void *_object, int x, int y, int w, int h);
 
 #endif

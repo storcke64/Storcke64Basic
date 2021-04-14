@@ -292,28 +292,3 @@ _FIN:
   SP -= 2;
   PC++;
 }
-
-#if 0
-void EXEC_pop_array(ushort code)
-{
-  CLASS *class;
-  OBJECT *object;
-  GET_NPARAM(np);
-  VALUE *val;
-  VALUE swap;
-
-  val = &SP[-np];
-    
-  EXEC_object(val, &class, &object);
-
-	/* swap object and value to be inserted */
-	VALUE_copy(&swap, &val[0]);
-	VALUE_copy(&val[0], &val[-1]);
-	VALUE_copy(&val[-1], &swap);
-
-	if (EXEC_special(SPEC_PUT, class, object, np, TRUE))
-		THROW(E_NARRAY, CLASS_get_name(class));
-
-	POP(); /* free the object */
-}
-#endif

@@ -37,7 +37,7 @@ Public Sub Run(Project As String, Optional Tests As String) As TestStats
 
     $hParser = New TapParser As "Parser"
     With $hStats = New TestStats
-        .Name = Subst$(("&1 - &2"), Project, Tests)
+        .Name = Subst$("&1 - &2", Project, Tests)
         .Plan = [1, 0]
         .Started = Now()
     End With

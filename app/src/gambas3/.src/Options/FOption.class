@@ -5,6 +5,8 @@ Static Private $aThemeName As String[] = [("Amethyst"), ("Amber"), ("Emerald"), 
 Static Private $aBrowser As String[] = ["konqueror", "rekonq", "firefox", "iceweasel", "epiphany", "seamonkey", "opera", "chromium"]
 Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "Terminal", "lxterminal", "xterm"]
 'Static Private $aImageEditor As String[] = ["gimp", "kolourpaint", "krita"]
+Static Private $aMessageBoxStyle As String[] = ["default", "flat"]
+Static Private $aMessageBoxStyleName As String[] = [("Default"), ("Flat")]
 Static Private $cLayoutName As Collection
 
 Private $cLast As Collection
@@ -94,6 +96,8 @@ Public Sub _new()
   txtPrintFont.Default = Project.DEFAULT_FONT
   txtHelpFixedFont.Default = Project.DEFAULT_FONT
   
+  cmbMessageBoxStyle.List = $aMessageBoxStyleName.Copy().Sort(gb.Language)
+  
   $cLast = MTheme.ReadSettings(Settings, "/Highlight", True)
   $cCurrent = MTheme.Copy($cLast)
   
@@ -106,7 +110,7 @@ Public Sub _new()
     [txtHelpFixedFont, "/Browser/FixedFont", ""],
     [btnCloseWithMiddleClick, "/CloseWithMiddleClick", 0],
     [txtTabSize, "/DefaultTabSize", 2],
-    [btnFoldProc, "/Editor/CollapseByDefault", 0],
+    [txtCompilerJobs, "/CompilerJobs", 1],
     [btnWrapText, "/Editor/WrapTextByDefault", 1],
     [btnTabIndent, "/Editor/TabIndentByDefault", 0],
     [btnVersionControl, "/VersionControl/Enabled", 1],
@@ -129,7 +133,6 @@ Public Sub _new()
     [btnShadow, "/Shadows", 1],
     [btnShowFileInTitle, "/ShowFileInTitle", 1],
     [btnHelpCompletion, "/ShowHelpInPopup", 1],
-    [btnSeparateStatic, "/Editor/SeparateStaticMethod", 1],
     [btnUpperCaseKeywords, "/Editor/KeywordsUseUpperCase", 0],
     [btnControlStructCompletion, "/Editor/ControlStructCompletion", 1],
     [btnLocalVarDecl, "/Editor/LocalVariableDeclaration", 0],
@@ -171,6 +174,13 @@ Public Sub _new()
     cmbTheme.Index = 0
   Endif
   
+  iInd = $aMessageBoxStyle.Find(Settings["/MessageBoxStyle"])
+  If iInd >= 0 Then
+    cmbMessageBoxStyle.Text = $aMessageBoxStyleName[iInd]
+  Else
+    cmbMessageBoxStyle.Text = ("Default")
+  Endif
+  
   UpdateFont(txtGlobalFont.Value)
   
   $bNoChange = False
@@ -196,6 +206,7 @@ Public Sub _new()
   
   gvwSnippet.Columns.Count = 2
   gvwSnippet.Columns[0].Width = Desktop.Scale * 8
+  gvwSnippet.Font = Project.GetEditorFont()
   
   aColors = [Color.White, &HC0C0C0, &H808080, &H404040, 0]
   For iInd = 0 To 359 Step 30
@@ -233,6 +244,21 @@ Public Sub cmbTheme_Click()
   $cCurrent = MTheme.ReadFile($aTheme[iTheme])
   RefreshEditor
   
+End
+
+Public Sub cmbMessageBoxStyle_Click()
+
+  Dim iStyle As Integer
+
+  iStyle = $aMessageBoxStyleName.Find(cmbMessageBoxStyle.Text)
+  If iStyle <= 0 Then
+    Settings["/MessageBoxStyle"] = ""
+  Else
+    Settings["/MessageBoxStyle"] = $aMessageBoxStyle[iStyle]
+  Endif
+  
+  Project.UpdateMessageBoxStyle
+
 End
 
 Public Sub btnExport_Click()
@@ -287,7 +313,7 @@ Private Sub RefreshEditor()
   FProperty.ReadConfig
   FFormStack.ReadConfig
   FOutput.ReadConfig
-  FProfile.ReadConfig
+  FProfile.ReadAllConfig
   FDebugInfo.ReadConfig
   FDebugExpr.ReadConfig
   FCompletion.ReadConfig
@@ -404,6 +430,12 @@ Public Sub txtTabSize_Change()
 
 End
 
+Public Sub txtCompilerJobs_Change()
+
+  Settings["/CompilerJobs"] = txtCompilerJobs.Value
+
+End
+
 Public Sub btnShowLimit_Click()
 
   Settings["/Editor/ProcedureLimit"] = btnShowLimit.Value
@@ -497,10 +529,13 @@ Public Sub cmbIconTheme_Click()
   If cmbIconTheme.Index > 0
     Settings["/Theme"] = cmbIconTheme.Text
   Else 
-    Settings["/Theme"] = ""
+    Settings["/Theme"] = "*"
   Endif
   
-  NeedRestart(cmbIcontheme)
+  Project.UpdateTheme
+  Stock.Refresh
+  Project.Refresh
+  'NeedRestart(cmbIcontheme)
   
 End
 
@@ -555,7 +590,7 @@ Private Sub UpdateOfflineHelp()
 
   MHelp.ReadConfig
   panDownloadHelp.Visible = btnOfflineHelp.Value
-  panProxyConfig.Visible = Not panDownloadHelp.Visible
+  panProxyConfig.Visible = False 'Not panDownloadHelp.Visible
   UpdateDocumentationState
 
 End
@@ -788,11 +823,11 @@ Public Sub btnFold_Click()
 
 End
 
-Public Sub btnFoldProc_Click()
-
-  Settings["/Editor/CollapseByDefault"] = btnFoldProc.Value
-
-End
+' Public Sub btnFoldProc_Click()
+' 
+'   Settings["/Editor/CollapseByDefault"] = btnFoldProc.Value
+' 
+' End
 
 Public Sub btnWrapText_Click()
 
@@ -913,7 +948,7 @@ Public Sub gvwSnippet_Data(Row As Integer, Column As Integer)
   
   With gvwSnippet
     .Data.Padding = 4
-    .Data.Font = Font[txtEditorFont.Value]
+    '.Data.Font = Project.GetEditorFont()
     If Column = 0 Then
       .Data.Text = hSampleCode.Trigger
       If hSampleCode.Default Then 
@@ -1191,7 +1226,8 @@ Public Sub btnInstallFont_Click()
   
   If Not Exist(sDir) Then Mkdir sDir
   
-  For Each sFont In ["GambasMedium-12.bdf", "GambasBold-12.bdf", "GambasMedium-13.bdf", "GambasBold-13.bdf", "GambasMedium-16.bdf", "GambasBold-16.bdf"]
+  'For Each sFont In ["GambasMedium-12.bdf", "GambasBold-12.bdf", "GambasMedium-13.bdf", "GambasBold-13.bdf", "GambasMedium-16.bdf", "GambasBold-16.bdf"]
+  For Each sFont In Dir("font", "*.otb")
     Try Kill sDir &/ sFont
     Try Copy "font" &/ sFont To sDir &/ sFont
   Next
@@ -1326,20 +1362,6 @@ Public Sub btnVersionControl_Click()
   Settings["/VersionControl/Enabled"] = btnVersionControl.Value
   VersionControl.Refresh
   Project.Refresh
-
-End
-
-Public Sub btnSeparateStatic_Click()
-
-  Dim hFile As Object
-  Dim hEditor As FEditor
-  
-  Settings["/Editor/SeparateStaticMethod"] = btnSeparateStatic.Value
-  For Each hFile In Project.Files
-    Try hEditor = hFile
-    If Error Then Continue
-    hEditor.ResetProcList
-  Next  
 
 End
 
@@ -1534,6 +1556,7 @@ Public Sub DownloadHelp_End()
 
   $hDownloadHelp = Null  
   UpdateDocumentationState
+  MHelp.OnDocumentationUpdate
   Dec Application.Busy
   Return
   

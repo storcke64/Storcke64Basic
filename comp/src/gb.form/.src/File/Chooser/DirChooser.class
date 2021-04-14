@@ -18,7 +18,10 @@ Property ShowDetailed As Boolean
 Property ShowBookmark As Boolean
 Property ShowSplitter As Boolean
 Property ShowPreview As Boolean
+
+'' Return or set if the toolbar is visible.
 Property ShowToolbar As Boolean
+
 Property Bookmarks As Collection[]
 Property Icon As Picture
 Property Settings As Variant[]
@@ -26,10 +29,17 @@ Property Read DirView As DirView
 Property Read FileView As FileView
 Property Border As Boolean
 
+'' Return or set a list of file filters that identify files that can be uncompressed in response of the [../.uncompress] event.
+Property UncompressFilter As String[]
+
 Event Change
 Event Activate
 Event Icon(Path As String)
-'EVENT ShowHidden
+
+'' Raise when a specific compressed file must be uncompressed.
+''
+'' - ~Path~ is the path of the compressed file.
+Event Uncompress(Path As String)
 
 Private frmChooser As FDirChooser
 
@@ -62,6 +72,12 @@ End
 Public Sub frmChooser_GetIcon(Path As String)
   
   Raise Icon(Path)
+  
+End
+
+Public Sub frmChooser_Uncompress(Path As String)
+  
+  Raise Uncompress(Path)
   
 End
 
@@ -268,5 +284,17 @@ End
 Private Sub ShowToolbar_Write(Value As Boolean)
 
   frmChooser.SetShowToolbar(Value)
+
+End
+
+Private Function UncompressFilter_Read() As String[]
+
+  Return frmChooser.UncompressFilter
+
+End
+
+Private Sub UncompressFilter_Write(Value As String[])
+
+  frmChooser.UncompressFilter = Value
 
 End

@@ -1,0 +1,22 @@
+' Gambas class file
+
+Public fault As Boolean = True
+
+Public Sub SpinBox1_Change()
+
+  Dosomething
+  
+
+End
+
+
+Public Sub Dosomething()
+  
+  If fault = True Then
+    Message("its a message")
+  Else
+    Print "It works"
+    
+  Endif
+  
+End

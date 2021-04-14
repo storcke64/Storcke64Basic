@@ -40,26 +40,30 @@
 #include "CWindow.h"
 #include "CFont.h"
 #include "CDrawingArea.h"
+#include "CContainer.h"
 #include "CScreen.h"
 
+#ifndef QT5
 #include <QX11Info>
 #include "x11.h"
+#endif
+
 #include "desktop.h"
 
 #ifdef QT5
-#define DESKTOP_INFO() (QGuiApplication::screens().front()->availableGeometry())
-#define SCREEN_INFO(_id) (QGuiApplication::screens().at(_id)->geometry())
-#define SCREEN_AVAILABLE_SIZE(_id) (QGuiApplication::screens().at(_id)->availableGeometry())
-#define NUM_SCREENS() (QGuiApplication::screens().count())
+	#define DESKTOP_INFO() (QGuiApplication::screens().front()->availableGeometry())
+	#define SCREEN_INFO(_id) (QGuiApplication::screens().at(_id)->geometry())
+	#define SCREEN_AVAILABLE_SIZE(_id) (QGuiApplication::screens().at(_id)->availableGeometry())
+	#define NUM_SCREENS() (QGuiApplication::screens().count())
 #else
-#define DESKTOP_INFO() (QApplication::desktop()->availableGeometry())
-#define SCREEN_INFO(_id) (QApplication::desktop()->screenGeometry(_id))
-#define SCREEN_AVAILABLE_SIZE(_id) (QApplication::desktop()->availableGeometry(_id))
-#if QT_VERSION >= 0x040600
-#define NUM_SCREENS() (QApplication::desktop()->screenCount())
-#else
-#define NUM_SCREENS() (QApplication::desktop()->numScreens())
-#endif
+	#define DESKTOP_INFO() (QApplication::desktop()->availableGeometry())
+	#define SCREEN_INFO(_id) (QApplication::desktop()->screenGeometry(_id))
+	#define SCREEN_AVAILABLE_SIZE(_id) (QApplication::desktop()->availableGeometry(_id))
+	#if QT_VERSION >= 0x040600
+		#define NUM_SCREENS() (QApplication::desktop()->screenCount())
+	#else
+		#define NUM_SCREENS() (QApplication::desktop()->numScreens())
+	#endif
 #endif
 
 #define MAX_SCREEN 16
@@ -102,6 +106,12 @@ static void free_screens(void)
 	}
 }
 
+static void send_change_event()
+{
+	CDRAWINGAREA_send_change_event();
+	CUSERCONTROL_send_change_event();
+}
+
 //-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Desktop_X)
@@ -130,11 +140,15 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Desktop_Resolution)
 
+#ifdef QT5
+	GB.ReturnInteger(PLATFORM.Desktop.GetResolutionY());
+#else
 	#ifdef NO_X_WINDOW
 		GB.ReturnInteger(72);
 	#else
 		GB.ReturnInteger(QX11Info::appDpiY());
 	#endif
+#endif
 
 END_PROPERTY
 
@@ -165,6 +179,12 @@ END_PROPERTY
 BEGIN_PROPERTY(Desktop_Type)
 
 	GB.ReturnConstZeroString(DESKTOP_get_type());
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Desktop_Platform)
+
+	GB.ReturnConstZeroString(MAIN_platform);
 
 END_PROPERTY
 
@@ -258,7 +278,7 @@ BEGIN_PROPERTY(Application_Animations)
 	else if (_animations != VPROP(GB_BOOLEAN))
 	{
 		_animations = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -271,7 +291,7 @@ BEGIN_PROPERTY(Application_Shadows)
 	else if (_shadows != VPROP(GB_BOOLEAN))
 	{
 		_shadows = VPROP(GB_BOOLEAN);
-		CDRAWINGAREA_send_change_event();
+		send_change_event();
 	}
 
 END_PROPERTY
@@ -292,7 +312,11 @@ BEGIN_PROPERTY(Application_MainWindow)
 			if (CWINDOW_MainDesktop >= 0)
 			{
 				MyMainWindow *win = (MyMainWindow *)CWINDOW_Main->widget.widget;
-				X11_window_set_desktop(win->winId(), win->isVisible(), CWINDOW_MainDesktop);
+				#ifdef QT5
+					PLATFORM.Window.SetVirtualDesktop(win, win->isVisible(), CWINDOW_MainDesktop);
+				#else
+					X11_window_set_desktop(win->winId(), win->isVisible(), CWINDOW_MainDesktop);
+				#endif
 				CWINDOW_MainDesktop = -1;
 			}
 			
@@ -466,6 +490,26 @@ BEGIN_PROPERTY(Screen_AvailableHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Screen_ResolutionX)
+
+#ifdef QT5
+	GB.ReturnFloat(QGuiApplication::screens().at(SCREEN->index)->physicalDotsPerInchX());
+#else
+	GB.ReturnFloat(QX11Info::appDpiX());
+#endif
+
+END_PROPERTY
+
+BEGIN_PROPERTY(Screen_ResolutionY)
+
+#ifdef QT5
+	GB.ReturnFloat(QGuiApplication::screens().at(SCREEN->index)->physicalDotsPerInchY());
+#else
+	GB.ReturnFloat(QX11Info::appDpiY());
+#endif
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 GB_DESC ScreenDesc[] =
@@ -484,6 +528,9 @@ GB_DESC ScreenDesc[] =
 	GB_PROPERTY_READ("AvailableWidth", "i", Screen_AvailableWidth),
 	GB_PROPERTY_READ("AvailableHeight", "i", Screen_AvailableHeight),
 
+	GB_PROPERTY_READ("ResolutionX", "f", Screen_ResolutionX),
+	GB_PROPERTY_READ("ResolutionY", "f", Screen_ResolutionY),
+	
 	GB_END_DECLARE
 };
 
@@ -518,6 +565,7 @@ GB_DESC DesktopDesc[] =
 	GB_STATIC_METHOD("Screenshot", "Picture", Desktop_Screenshot, "[(X)i(Y)i(Width)i(Height)i]"),
 	
 	GB_STATIC_PROPERTY_READ("Type", "s", Desktop_Type),
+	GB_STATIC_PROPERTY_READ("Platform", "s", Desktop_Platform),
 
 	GB_END_DECLARE
 };

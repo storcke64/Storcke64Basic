@@ -205,7 +205,9 @@ bool gPrinter::run(bool configure)
 	
 	#if DEBUG_ME
 	fprintf(stderr, "gPrinter::run: %d\n", configure);
+	fprintf(stderr, "name = %s\n", name());
 	fprintf(stderr, "orientation = %d\n", orientation());
+	fprintf(stderr, "isVirtual = %d\n", isVirtual());
 	#endif
 
 	operation = gtk_print_operation_new();
@@ -637,7 +639,8 @@ void gPrinter::setOutputFileName(const char *file)
 	else
 		format = NULL;*/
 
-	gtk_enumerate_printers((GtkPrinterFunc)find_file_printer, this, NULL, TRUE);
+	if (file && *file)
+		gtk_enumerate_printers((GtkPrinterFunc)find_file_printer, this, NULL, TRUE);
 	
 	gtk_print_settings_set(_settings, GTK_PRINT_SETTINGS_OUTPUT_URI, uri);	
 	g_free(uri);

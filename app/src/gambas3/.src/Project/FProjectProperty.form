@@ -3,114 +3,133 @@
 { Form Form
   MoveScaled(0,0,112,73)
   Text = ("Project properties")
-  Icon = Picture["icon:/small/edit"]
+  Icon = Picture["icon:/small/properties"]
   Persistent = True
   Resizable = False
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
   { mnuInsertEnv Menu
-    { Menu17 Menu mnuInsertEnv
-      Name = "Menu17"
-      #Translate = False
-      Text = "GB_GUI=gb.qt4"
-      Tag = "GB_GUI=gb.qt4"
-    }
-    { Menu1 Menu mnuInsertEnv
-      Name = "Menu1"
-      #Translate = False
-      Text = "GB_GUI=gb.qt5"
-      Tag = "GB_GUI=gb.qt5"
-    }
-    { Menu2 Menu mnuInsertEnv
-      Name = "Menu2"
-      #Translate = False
-      Text = "GB_GUI=gb.gtk"
-      Tag = "GB_GUI=gb.gtk"
-    }
-    { Menu9 Menu mnuInsertEnv
-      Name = "Menu9"
-      #Translate = False
-      Text = "GB_GUI=gb.gtk3"
-      Tag = "GB_GUI=gb.gtk3"
-    }
-    { Menu20 Menu
-    }
-    { Menu18 Menu mnuInsertEnv
-      Name = "Menu18"
-      #Translate = False
-      Text = "GB_GUI_BUSY=1"
-      Tag = "GB_GUI_BUSY=1"
-    }
-    { Menu19 Menu mnuInsertEnv
-      Name = "Menu19"
-      #Translate = False
-      Text = "GB_X11_INIT_THREADS=1"
-      Tag = "GB_X11_INIT_THREADS=1"
-    }
-    { Menu12 Menu mnuInsertEnv
-      Name = "Menu12"
-      #Translate = False
-      Text = "LIBOVERLAY_SCROLLBAR=0"
-      Tag = "LIBOVERLAY_SCROLLBAR=0"
-    }
-    { Menu10 Menu
-    }
-    { Menu16 Menu mnuInsertEnv
-      Name = "Menu16"
-      #Translate = False
-      Text = "GB_DB_DEBUG=1"
-      Tag = "GB_DB_DEBUG=1"
+    { Menu23 Menu
+      Text = ("GUI component")
+      { Menu17 Menu mnuInsertEnv
+        Name = "Menu17"
+        #Translate = False
+        Text = "GB_GUI=gb.qt4"
+        Tag = "GB_GUI=gb.qt4"
+      }
+      { Menu1 Menu mnuInsertEnv
+        Name = "Menu1"
+        #Translate = False
+        Text = "GB_GUI=gb.qt5"
+        Tag = "GB_GUI=gb.qt5"
+      }
+      { Menu2 Menu mnuInsertEnv
+        Name = "Menu2"
+        #Translate = False
+        Text = "GB_GUI=gb.gtk"
+        Tag = "GB_GUI=gb.gtk"
+      }
+      { Menu9 Menu mnuInsertEnv
+        Name = "Menu9"
+        #Translate = False
+        Text = "GB_GUI=gb.gtk3"
+        Tag = "GB_GUI=gb.gtk3"
+      }
+      { Menu20 Menu
+      }
+      { Menu18 Menu mnuInsertEnv
+        Name = "Menu18"
+        #Translate = False
+        Text = "GB_GUI_BUSY=1"
+        Tag = "GB_GUI_BUSY=1"
+      }
+      { Menu10 Menu mnuInsertEnv
+        Name = "Menu10"
+        #Translate = False
+        Text = "GB_GUI_DARK_THEME=1"
+        Tag = "GB_GUI_DARK_THEME=1"
+      }
+      { Menu19 Menu mnuInsertEnv
+        Name = "Menu19"
+        #Translate = False
+        Text = "GB_X11_INIT_THREADS=1"
+        Tag = "GB_X11_INIT_THREADS=1"
+      }
+      { Menu3 Menu mnuInsertEnv
+        Name = "Menu3"
+        #Translate = False
+        Text = "GB_STOCK_DEBUG=1"
+        Tag = "GB_STOCK_DEBUG=1"
+      }
+      { Menu11 Menu
+      }
+      { Menu12 Menu mnuInsertEnv
+        Name = "Menu12"
+        #Translate = False
+        Text = "LIBOVERLAY_SCROLLBAR=0"
+        Tag = "LIBOVERLAY_SCROLLBAR=0"
+      }
+      { Menu22 Menu mnuInsertEnv
+        Name = "Menu22"
+        #Translate = False
+        Text = "GTK_DEBUG=interactive"
+        Tag = "GTK_DEBUG=interactive"
+      }
     }
     { Menu13 Menu
-    }
-    { Menu5 Menu mnuInsertEnv
-      Name = "Menu5"
-      #Translate = False
-      Text = "LANGUAGE=C ; LANG=C ; LC_ALL=C"
-      Tag = "LANGUAGE=C,LANG=C,LC_ALL=C"
-    }
-    { Menu8 Menu mnuInsertEnv
-      Name = "Menu8"
-      #Translate = False
-      Text = "GB_REVERSE=1"
-      Tag = "GB_REVERSE=1"
-    }
-    { Menu11 Menu
-    }
-    { Menu3 Menu mnuInsertEnv
-      Name = "Menu3"
-      #Translate = False
-      Text = "GB_STOCK_DEBUG=1"
-      Tag = "GB_STOCK_DEBUG=1"
+      Text = ("Translation")
+      { Menu5 Menu mnuInsertEnv
+        Name = "Menu5"
+        #Translate = False
+        Text = "LANGUAGE=C ; LANG=C ; LC_ALL=C"
+        Tag = "LANGUAGE=C,LANG=C,LC_ALL=C"
+      }
+      { Menu8 Menu mnuInsertEnv
+        Name = "Menu8"
+        #Translate = False
+        Text = "GB_REVERSE=1"
+        Tag = "GB_REVERSE=1"
+      }
     }
     { Menu15 Menu
-    }
-    { Menu21 Menu mnuInsertEnv
-      Name = "Menu21"
-      #Translate = False
-      Text = "GB_NO_JIT=1"
-      Tag = "GB_NO_JIT=1"
-    }
-    { Menu4 Menu mnuInsertEnv
-      Name = "Menu4"
-      #Translate = False
-      Text = "GB_JIT_DEBUG=1"
-      Tag = "GB_JIT_DEBUG=1"
+      Text = ("JIT compiler")
+      { Menu21 Menu mnuInsertEnv
+        Name = "Menu21"
+        #Translate = False
+        Text = "GB_NO_JIT=1"
+        Tag = "GB_NO_JIT=1"
+      }
+      { Menu4 Menu mnuInsertEnv
+        Name = "Menu4"
+        #Translate = False
+        Text = "GB_JIT_DEBUG=1"
+        Tag = "GB_JIT_DEBUG=1"
+      }
     }
     { Menu14 Menu
+      Text = ("Embedded HTTP server")
+      { Menu7 Menu mnuInsertEnv
+        Name = "Menu7"
+        #Translate = False
+        Text = "GB_HTTPD_DEBUG=1"
+        Tag = "GB_HTTPD_DEBUG=1"
+      }
+      { Menu6 Menu mnuInsertEnv
+        Name = "Menu6"
+        #Translate = False
+        Text = "GB_HTTPD_PORT=8080"
+        Tag = "GB_HTTPD_PORT=8080"
+      }
     }
-    { Menu7 Menu mnuInsertEnv
-      Name = "Menu7"
-      #Translate = False
-      Text = "GB_HTTPD_DEBUG=1"
-      Tag = "GB_HTTPD_DEBUG=1"
-    }
-    { Menu6 Menu mnuInsertEnv
-      Name = "Menu6"
-      #Translate = False
-      Text = "GB_HTTPD_PORT=8080"
-      Tag = "GB_HTTPD_PORT=8080"
+    { Menu24 Menu
+      Text = ("Database")
+      { Menu16 Menu mnuInsertEnv
+        Name = "Menu16"
+        #Translate = False
+        Text = "GB_DB_DEBUG=1"
+        Tag = "GB_DB_DEBUG=1"
+      }
     }
   }
   { ipnProject IconPanel
@@ -155,18 +174,14 @@
             ReadOnly = True
           }
         }
-        { Panel9 VBox
+        { btnIcon ToolButton
           MoveScaled(73,0,9,9)
-          { btnIcon ToolButton
-            MoveScaled(0,0,9,9)
-            Border = True
-          }
+          Border = True
         }
       }
       { panGeneral HPanel
         MoveScaled(0,10,84,54)
         Expand = True
-        AutoResize = True
         Spacing = True
         { Label16 Label
           MoveScaled(0,0,16,4)
@@ -491,7 +506,7 @@
         Text = ("Additional references")
       }
       { lstReferences ListEditor
-        MoveScaled(0,43,79,20)
+        MoveScaled(2,43,74,20)
         Expand = True
         ReadOnly = True
         Unique = True
@@ -506,9 +521,10 @@
       Arrangement = Arrange.Vertical
       Border = Border.Plain
       { tvwEnv TableView
-        MoveScaled(0,0,68,20)
+        MoveScaled(2,2,65,20)
         Expand = True
         Border = False
+        Mode = Select.Single
         Padding = 4
         Header = GridView.Horizontal
       }
@@ -519,7 +535,7 @@
         MoveScaled(1,34,64,4)
         Background = Color.TextBackground
         { btnInsertEnv MenuButton
-          MoveScaled(0,0,19,4)
+          MoveScaled(0,0,11,4)
           AutoResize = True
           Text = ("&Add")
           Picture = Picture["icon:/small/add"]
@@ -527,10 +543,21 @@
           Menu = "mnuInsertEnv"
         }
         { btnRemoveEnv ToolButton
-          MoveScaled(20,0,17,4)
+          MoveScaled(12,0,12,4)
+          Enabled = False
           AutoResize = True
           Text = Shortcut(("Remove"), "R")
           Picture = Picture["icon:/small/remove"]
+        }
+        { btnMoveUpEnv ToolButton
+          MoveScaled(24,0,4,4)
+          Enabled = False
+          Picture = Picture["icon:/small/up"]
+        }
+        { btnMoveDownEnv ToolButton
+          MoveScaled(28,0,4,4)
+          Enabled = False
+          Picture = Picture["icon:/small/down"]
         }
       }
     }
@@ -544,8 +571,8 @@
       { Label7 Label
         MoveScaled(0,0,84,3)
         Font = Font["Bold"]
-        Text = ("Edition")
         Alignment = Align.BottomNormal
+        Text = ("Edition")
       }
       { HBox13 HBox
         MoveScaled(1,4,83,4)
@@ -582,8 +609,8 @@
       { Label8 Label
         MoveScaled(0,14,84,3)
         Font = Font["Bold"]
-        Text = ("Compilation")
         Alignment = Align.BottomNormal
+        Text = ("Compilation")
       }
       { HBox12 HBox
         MoveScaled(1,18,83,4)
@@ -627,8 +654,8 @@
       { Label19 Label
         MoveScaled(0,33,84,3)
         Font = Font["Bold"]
-        Text = ("Translation")
         Alignment = Align.BottomNormal
+        Text = ("Translation")
       }
       { HBox9 HBox
         MoveScaled(1,37,83,4)
@@ -661,8 +688,8 @@
       { Label27 Label
         MoveScaled(0,47,84,3)
         Font = Font["Bold"]
-        Text = ("Version control")
         Alignment = Align.BottomNormal
+        Text = ("Version control")
       }
       { HBox6 HBox
         MoveScaled(1,52,83,4)
@@ -680,7 +707,7 @@
     }
     Index = 6
     Text = ("Statistics")
-    Picture = Picture["icon:/large/monitor"]
+    Picture = Picture["icon:/large/statistics"]
     { gvwStat GridView
       MoveScaled(3,4,62,25)
       Expand = True

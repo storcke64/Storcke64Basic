@@ -2,7 +2,7 @@
 
 	gbx_stack.h
 
-	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) Benoît Minisini <g4mba5@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,10 +60,12 @@ EXTERN size_t STACK_size;
 EXTERN char *STACK_limit;
 //EXTERN size_t STACK_relocate;
 
-EXTERN int STACK_frame_count;
+EXTERN uint STACK_frame_count;
 EXTERN STACK_CONTEXT *STACK_frame;
 
 EXTERN uintptr_t STACK_process_stack_limit;
+
+EXTERN uint STACK_frame_barrier;
 
 #endif
 
@@ -95,9 +97,9 @@ STACK_BACKTRACE *STACK_copy_backtrace(STACK_BACKTRACE *bt);
 #define STACK_backtrace_clear_end(_bt) ((_bt)->cp = (void *)(((intptr_t)((_bt)->cp)) & ~1))
 
 
-STACK_CONTEXT *STACK_get_frame(int frame);
+STACK_CONTEXT *STACK_get_frame(uint frame);
 
-#define STACK_get_previous_pc() ((STACK_frame_count <= 0) ? NULL : STACK_frame->pc)
+#define STACK_get_previous_pc() ((STACK_frame_count == 0) ? NULL : STACK_frame->pc)
 
 #define STACK_get_current() ((STACK_frame_count > 0) ? STACK_frame : NULL)
 
@@ -129,5 +131,14 @@ STACK_CONTEXT *STACK_get_frame(int frame);
 
 #define STACK_enable_for_eval() STACK_limit += STACK_FOR_EVAL * sizeof(VALUE)
 #define STACK_disable_for_eval() STACK_limit -= STACK_FOR_EVAL * sizeof(VALUE)
+
+#define STACK_push_barrier() \
+({ \
+	int old = STACK_frame_barrier; \
+	STACK_frame_barrier = STACK_frame_count + 1; \
+	old; \
+})
+
+#define STACK_pop_barrier(_old) (STACK_frame_barrier = (_old))
 
 #endif

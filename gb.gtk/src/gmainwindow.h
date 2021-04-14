@@ -29,20 +29,22 @@
 class gMainWindow : public gContainer
 {
 public:
-	gMainWindow(int plug = 0);
+	gMainWindow();
 	gMainWindow(gContainer *parent);
+	gMainWindow(int plug);
 	~gMainWindow();
 
 //"Properties"
 	bool hasBorder();
 	bool isResizable();
 	bool isUtility() const;
+	bool isEmbedded() const { return _xembed; }
 	gPicture *icon() { return _icon; }
 	gPicture *picture() { return _picture; }
 	bool mask() { return _mask; }
 	int menuCount();
 	bool isModal() const;
-	const char* text();
+	const char *text();
 	bool isTopOnly() const { return isTopLevel() && _top_only; }
 	bool isSkipTaskBar() const { return isTopLevel() && _skip_taskbar; }
 	bool minimized() const { return _minimized; }
@@ -58,10 +60,9 @@ public:
 	bool isTransparent() const { return _transparent; }
 	bool isNoTakeFocus() const { return _no_take_focus; }
 	int screen();
-	
-	int controlCount();
-	gControl *getControl(char *name);
-	gControl *getControl(int i);
+
+	GPtrArray *getControlList();
+	gControl *getControl(const char *name);
 
 	void setBorder(bool b);
 	void setResizable(bool b);
@@ -81,6 +82,9 @@ public:
 	void setTransparent(bool vl);
 	void setNoTakeFocus(bool vl);
 	
+	void setCustomMinimumSize(int w, int h);
+	void getCustomMinimumSize(int *w, int *h) const;
+
 	virtual void setVisible(bool vl);
 	virtual void setBackground(gColor vl);
 	virtual void setRealBackground(gColor vl);
@@ -94,12 +98,12 @@ public:
 	virtual int containerY();
 
 	//virtual bool getScreenPos(int *x, int *y);
-	
+
 	bool spontaneous() { return !_not_spontaneous; }
-	
+
 	bool setMenuBarVisible(bool v);
 	bool isMenuBarVisible();
-	
+
 	double opacity();
 	void setOpacity(double v);
 
@@ -110,12 +114,13 @@ public:
 	void showPopup();
 	void showPopup(int x, int y);
 	void activate();
-	void raise();
 	virtual void move(int x, int y);
-	virtual bool resize(int w, int h);
+	virtual bool resize(int w, int h, bool no_decide = false);
 	bool close();
 	virtual void reparent(gContainer *newpr, int x, int y);
-
+	virtual void destroy();
+	virtual void restack(bool raise);
+	
 //"Signals"
 	void (*onOpen)(gMainWindow *sender);
 	void (*onShow)(gMainWindow *sender);
@@ -136,14 +141,14 @@ public:
 	static void setActiveWindow(gControl *control);
 	static gMainWindow *_current;
 	static bool closeAll();
-
+	
 //"Private"
   void initialize();
 	void drawMask();
 	void initWindow();
 	bool emitOpen();
 	void remap();
-	bool doClose();
+	bool doClose(bool destroying = false);
 	void afterShow();
 	void checkMenuBar();
 	int menuBarHeight();
@@ -158,33 +163,40 @@ public:
 	void setType(GtkWindowType type);
 	void calcCsdSize();
 	
+	void setTransientFor();
+	void setType(GtkWindowType type);
+	void calcCsdSize();
+	void createWindow(GtkWidget *new_border);
+	void updateSize();
+	
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;
 	GtkMenuBar *menuBar;
-	GtkFixed *layout;
 	int stack;
-	int _type;
 	gPicture *_icon;
 	gPicture *_picture;
 	char *_title;
-	GtkStyle *_style;
-	
+
 	gControl *focus;
 	gButton *_default;
 	gButton *_cancel;
-	
+
 	int _resize_last_w;
 	int _resize_last_h;
 
 	int _min_w;
 	int _min_h;
+	int _default_min_w;
+	int _default_min_h;
+	
+	int _csd_w;
+	int _csd_h;
 	
 	int _csd_w;
 	int _csd_h;
 	
 	unsigned _mask : 1;
 	unsigned _top_only : 1;
-	unsigned _resized : 1;
 	unsigned _persistent : 1;
 	unsigned _sticky : 1;
 	unsigned _opened : 1;
@@ -206,10 +218,12 @@ public:
 	unsigned _transparent : 1;
 	unsigned _no_take_focus : 1;
 	unsigned _moved : 1;
+	unsigned _resized : 1;
 	unsigned _resizable : 1;
 	unsigned _unmap : 1;
 	unsigned _initMenuBar : 1;
 	unsigned _grab_on_show : 1;
+	unsigned _frame_init : 1;
 };
 
 #endif

@@ -510,7 +510,7 @@ void MyPushButton::calcMinimumSize()
 	CBUTTON *_object = (CBUTTON *)CWidget::getReal(this);
 	QSize size;
 
-	if (!THIS || CWIDGET_test_flag(THIS, WF_DESIGN_LEADER))
+	if (!THIS || CWIDGET_is_design(THIS)) //CWIDGET_test_flag(THIS, WF_DESIGN_LEADER))
 		return;
 
 	if (text().length() > 0)
@@ -572,7 +572,7 @@ void MyToolButton::calcMinimumSize()
 	CBUTTON *_object = (CBUTTON *)CWidget::get(this);
 	QSize size;
 
-	if (!THIS || CWIDGET_test_flag(THIS, WF_DESIGN))
+	if (!THIS || CWIDGET_is_design(THIS))
 		return;
 
 	if (text().length() > 0)

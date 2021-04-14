@@ -1296,3 +1296,12 @@ Public Sub UnselectAll()
   $hCtrl.UnSelectAll
   
 End
+
+Public Sub Find(Where As String, ...)
+  
+  Dim iIndex As Integer
+  
+  iIndex = GetSource().FindNext(Index_Read() + 1, Where, ...)
+  MoveTo(iIndex)
+  
+End

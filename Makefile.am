@@ -2,6 +2,7 @@ SUBDIRS = \
  main \
  @bzlib2_dir@ \
  @zlib_dir@ \
+ @zstd_dir@ \
  @mysql_dir@ \
  @odbc_dir@ \
  @postgresql_dir@ \

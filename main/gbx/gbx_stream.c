@@ -183,21 +183,21 @@ void STREAM_open(STREAM *stream, const char *path, int mode)
 
 	stream->type = NULL;
 
-	if (mode & STO_PIPE)
+	if (mode & GB_ST_PIPE)
 		sclass = &STREAM_pipe;
-	else if (mode & STO_MEMORY)
+	else if (mode & GB_ST_MEMORY)
 		sclass = &STREAM_memory;
-	else if (mode & STO_STRING)
+	else if (mode & GB_ST_STRING)
 		sclass = &STREAM_string;
-	else if (mode & STO_LOCK)
+	else if (mode & GB_ST_LOCK)
 		sclass = &STREAM_lock;
-	else if (mode & STO_NULL)
+	else if (mode & GB_ST_NULL)
 		sclass = &STREAM_null;
 	else
 	{
 		// ".99" is used for opening a file descriptor in direct mode
 
-		if (FILE_is_relative(path) && !((mode & STO_DIRECT) && path[0] == '.' && isdigit(path[1])))
+		if (FILE_is_relative(path) && !(((mode & GB_ST_BUFFERED) == 0) && path[0] == '.' && isdigit(path[1])))
 		{
 			ARCHIVE *arch = NULL;
 			const char *tpath = path;
@@ -215,7 +215,7 @@ void STREAM_open(STREAM *stream, const char *path, int mode)
 				goto _OPEN;
 			}*/
 
-			if ((mode & STO_ACCESS) != STO_READ || mode & STO_PIPE)
+			if ((mode & GB_ST_ACCESS) != GB_ST_READ || mode & GB_ST_PIPE)
 				THROW(E_ACCESS);
 
 			if (!ARCHIVE_find_from_path(&arch, &tpath))
@@ -227,10 +227,10 @@ void STREAM_open(STREAM *stream, const char *path, int mode)
 			path = tpath;
 		}
 
-		if (mode & STO_DIRECT)
-			sclass = &STREAM_direct;
-		else
+		if (mode & GB_ST_BUFFERED)
 			sclass = &STREAM_buffer;
+		else
+			sclass = &STREAM_direct;
 	}
 
 __OPEN:
@@ -1039,7 +1039,7 @@ static STREAM *enter_temp_stream(STREAM *stream)
 		
 		OBJECT_UNREF(_temp_stream);
 		_temp_stream = OBJECT_new(CLASS_File, NULL, NULL);
-		STREAM_open(CSTREAM_TO_STREAM(_temp_stream), NULL, STO_STRING | STO_WRITE);
+		STREAM_open(CSTREAM_TO_STREAM(_temp_stream), NULL, GB_ST_STRING | GB_ST_WRITE);
 	}
 
 	_temp_level++;
@@ -1795,7 +1795,7 @@ void STREAM_load(const char *path, char **buffer, int *rlen)
 	STREAM stream;
 	int64_t len;
 
-	STREAM_open(&stream, path, STO_READ);
+	STREAM_open(&stream, path, GB_ST_READ);
 	STREAM_lof(&stream, &len);
 
 	if (len >> 31)
@@ -1819,7 +1819,7 @@ bool STREAM_map(const char *path, char **paddr, int *plen)
 	size_t len;
 	bool ret = TRUE;
 
-	STREAM_open(&stream, path, STO_READ + STO_DIRECT);
+	STREAM_open(&stream, path, GB_ST_READ);
 
 	if (stream.type == &STREAM_arch)
 	{
@@ -2068,7 +2068,7 @@ void STREAM_begin(STREAM *stream)
 	{
 		STREAM_EXTRA *extra = ENSURE_EXTRA(stream);
 		ALLOC_ZERO(&extra->redirect, sizeof(STREAM));
-		STREAM_open(extra->redirect, NULL, STO_STRING | STO_WRITE);
+		STREAM_open(extra->redirect, NULL, GB_ST_STRING | GB_ST_WRITE);
 	}
 
 	stream->common.redirected = TRUE;

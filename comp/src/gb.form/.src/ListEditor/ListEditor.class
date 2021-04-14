@@ -15,12 +15,22 @@ Property Text As String
 Property Moveable As Boolean
 Property ReadOnly As Boolean
 Property Read Editor As Control
+
+'' Return or set if duplicates are allowed in the list.
+''
+'' By default, this property is 'FALSE' and duplicate are allowed.
 Property Unique As Boolean
+
+'' Return or set the index of the current item.
+''
+'' '-1' means that there is no current item.
 Property Index As Integer
 
 Event Select
 Event Change
 Event Add
+
+'' This event is raised when an item is double-clicked.
 Event Activate
 
 Private $hForm As FListEditor
@@ -121,6 +131,11 @@ Public Sub Add(Text As String)
   
 End
 
+'' Remove one or more items from the list.
+''
+'' - ~Index~ is the index of the first item to remove.
+'' - ~Length~ is the number of items to remove from the specified index. One item is removed by default.
+
 Public Sub Remove(Index As Integer, Optional Length As Integer = 1)
   
   $hForm.Remove(Index, Length)
@@ -132,6 +147,8 @@ Public Sub _RaiseActivate()
   Raise Activate
   
 End
+
+'' Clear the list.
 
 Public Sub Clear()
   
@@ -162,6 +179,13 @@ Private Sub Index_Write(Value As Integer)
   $hForm.SetIndex(Value)
 
 End
+
+'' Find an item in the list and return its index.
+''
+'' - ~Text~ is the text of the item.
+'' - ~Mode~ is one of the [/lang/compmethod].
+''
+'' If no item is found, '-1' is returned.
 
 Public Sub Find(Text As String, Optional Mode As Integer) As Integer
   

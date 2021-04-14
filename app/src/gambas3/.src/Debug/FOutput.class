@@ -96,10 +96,7 @@ Public Sub trmOutput_KeyPress()
       Clear
       Stop Event
     Else If Key.Code = Key["G"] Then 
-      ' edtOutput.ReadOnly = False
-      ' edtOutput.Print(Chr$(7))
-      ' edtOutput.ReadOnly = True
-      ' TODO: flash
+      trmOutput.Print(Chr$(7))
       Stop Event
     Endif
     
@@ -118,12 +115,12 @@ Public Sub Form_Close()
 
 End
 
-Public Sub Form_Show()
-
-  trmOutput.AutoResize = True
-  'Action["console"].Value = TRUE
-
-End
+' Public Sub Form_Show()
+' 
+'   trmOutput.AutoResize = True
+'   'Action["console"].Value = TRUE
+' 
+' End
 
 Public Sub btnClear_Click()
 
@@ -503,11 +500,63 @@ Public Sub btnSuspend_Click()
 
 End
 
-Public Sub UpdateWidth(W As Integer)
+' Public Sub UpdateWidth(W As Integer)
+'   
+'   If trmOutput.AutoResize Then Return
+'   If Me.W <> W Then
+'     trmOutput.ScreenWidth = (W - Style.ScrollbarSize) \ trmOutput.CharWidth
+'   Endif
+'   
+' End
+
+Static Public Sub CheckTerminalLink(hTerm As TerminalView)
+
+  Dim sLine As String
+  Dim iPos As Integer
+  Dim iLen As Integer
+  Dim iPos2 As Integer
+
+  With hTerm.Link
+    
+    sLine = .Line
+    iPos = String.Pos(sLine, .Pos)
+    iPos2 = iPos
+    
+    While iPos > 0
+      If Mid$(sLine, iPos, 1) Not Like "[A-Za-z0-9._]" Then Break 
+      Dec iPos
+    Wend
+    Inc iPos
+    
+    Inc iPos2
+    While iPos2 <= Len(sLine)
+      If Mid$(sLine, iPos2, 1) Not Like "[A-Za-z0-9._]" Then Break 
+      Inc iPos2
+    Wend
+    Dec iPos2
+    
+    iLen = iPos2 - iPos + 1
+    If iLen <= 0 Then Return
+    
+    sLine = Mid$(sLine, iPos, iLen)
+    If sLine Not Match "^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*\\.[0-9]+" Then Return
+    
+    hTerm.Link.Select(String.Index(.Line, iPos) - 1, String.Len(sLine), "goto")
+    
+  End With
+
+End
+
+Public Sub trmOutput_Link()
+
+  CheckTerminalLink(trmOutput)
+
+End
+
+Public Sub trmOutput_Click()
   
-  If trmOutput.AutoResize Then Return
-  If Me.W <> W Then
-    trmOutput.ScreenWidth = (W - Style.ScrollbarSize) \ trmOutput.CharWidth
+  If trmOutput.Link.Type = "goto" Then
+    Project.Goto(trmOutput.Link.Text)
   Endif
   
 End

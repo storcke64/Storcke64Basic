@@ -30,9 +30,6 @@ class gScrollBar : public gSlider
 {
 public:
 	gScrollBar(gContainer *parent);
-	virtual bool resize(int w, int h);
-	virtual int minimumWidth() const;
-	virtual int minimumHeight() const;
 };
 
 #endif

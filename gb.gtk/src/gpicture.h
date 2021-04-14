@@ -98,9 +98,8 @@ public:
 	int _height;
 
 	gPicture(GdkPixbuf *image, bool trans = true);
-#ifdef GTK3
 	gPicture(cairo_surface_t *surf);
-#else
+#ifndef GTK3
 	gPicture(GdkPixmap *pix);
 #endif
 	void initialize();

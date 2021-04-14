@@ -1,8 +1,12 @@
 ' Gambas class file
 
 Static Public OpenEventHandlerFor As String
+Static Public EventName As String
+
 Static Private $hForm As FForm
 Static Private $aMenu As New CMenu[]
+Static Private $iSaveCurrent As Integer
+Static Private $iSaveScrollY As Integer
 
 Private $hFamily As CFamily
 Private $iLevel As Integer
@@ -12,11 +16,18 @@ Private $bFreeze As Boolean
 Private $bModified As Boolean
 Private $iIconSize As Integer
 Private $sImageProp As String
+Private $hButtonClick As Button
 
 Static Public Sub Run(hForm As FForm)
 
-  $hForm = hForm
+  If hForm <> $hForm Then
+    $hForm = hForm
+    $iSaveCurrent = 0
+    $iSaveScrollY = 0
+  Endif
+  
   OpenEventHandlerFor = ""
+  EventName = ""
   FMenu.ShowModal()
 
 End
@@ -43,10 +54,10 @@ End
 '   
 ' End
 
-
 Public Sub Form_Open()
 
   Settings.Read(Me)
+  Project.SetSmallFont(tlbMenu)
 
   Me.Title = $hForm.Name & " - " & ("Menu editor")
   
@@ -99,6 +110,8 @@ Public Sub Form_Close()
     End Select
   Endif
   
+  $iSaveCurrent = $iCurrent
+  $iSaveScrollY = gvwMenu.ScrollY
   Settings.Write(Me)
   
 End
@@ -217,7 +230,8 @@ Private Sub LoadAllMenu()
   $bFreeze = False
   $bModified = False
 
-  SetCurrent(0)
+  SetCurrent($iSaveCurrent)
+  gvwMenu.ScrollY = $iSaveScrollY
 
 End
 
@@ -468,6 +482,27 @@ Public Sub btnDelete_Click()
 
 End
 
+Private Sub InsertMenuAt(iIndex As String, sName As String, iLevel As Integer) As CMenu
+
+  Dim hCMenu As CMenu
+  
+  hCMenu = New CMenu
+  If $cName.Exist(sName) Then sName = GetName()
+  hCMenu.Name = sName
+  hCMenu.Translate = True
+  hCMenu.Level = iLevel
+  $cName[sName] = True
+
+  $aMenu.Add(hCMenu, iIndex)
+  SetModified
+  Inc gvwMenu.Rows.Count
+  gvwMenu.Refresh
+  
+  Return hCMenu
+  
+End
+
+
 Private Sub InsertMenu(bAfter As Boolean, Optional bSeparator As Boolean)
 
   Dim hCMenu As CMenu
@@ -491,20 +526,8 @@ Private Sub InsertMenu(bAfter As Boolean, Optional bSeparator As Boolean)
   
   $bFreeze = True
 
-  hCMenu = New CMenu
-  hCMenu.Name = GetName()
+  hCMenu = InsertMenuAt(iIndex, GetName(), iLevel)
   If Not bSeparator Then hCMenu.Caption = hCMenu.Name
-  hCMenu.Translate = True
-  
-  hCMenu.Level = iLevel
-  
-  $cName[hCMenu.Name] = True
-  'hCMenu.Caption = hCMenu.Name
-
-  $aMenu.Add(hCMenu, iIndex)
-  SetModified
-  Inc gvwMenu.Rows.Count
-  gvwMenu.Refresh
 
   gvwMenu.UnSelectAll
   $bFreeze = False
@@ -751,6 +774,57 @@ Public Sub btnDown_Click()
 
 End
 
+Private Sub UpdateEvent()
+
+  Dim cSymbol As Collection
+  Dim sName As String
+  Dim hCMenu As CMenu
+  Dim sGroup As String
+  Dim hSymbol As CSymbolInfo
+  Dim hButton As Button
+  Dim hPict As PictureBox
+
+  panEvent.Children.Clear
+  
+  If $iCurrent < 0 Then Return
+  hCMenu = $aMenu[$iCurrent]
+  
+  If Not hCMenu.Caption Then Return
+
+  cSymbol = Project.Documentation.GetClassSymbols($hForm.Name)
+  If Not cSymbol Then Return
+  
+  sGroup = hCMenu.Group
+  If Not sGroup Then sGroup = hCMenu.Name
+
+  hPict = New PictureBox(panEvent)
+  hPict.Resize(panEvent.H, panEvent.H)
+  hPict.Image = Image.Load("img/symbol/event.png")
+  hPict.Stretch = True
+  
+  $hButtonClick = Null
+  
+  For Each sName In Project.Documentation.Classes[$hFamily.MenuClass].Events
+
+    hSymbol = cSymbol[sGroup & "_" & sName]
+    
+    'If $bReadOnly Then
+    '  If Not hSymbol Or If hSymbol.Kind <> "m" Then Continue
+    'Endif
+    
+    hButton = New Button(panEvent) As "btnEvent"
+    hButton.Text = sName
+    hButton.AutoResize = True
+    
+    If sName == "Click" Then $hButtonClick = hButton
+
+    If hSymbol And If hSymbol.Kind = "m" Then hButton.Picture = Picture["icon:/small/ok"]
+
+  Next
+
+  If panEvent.Children.Count = 0 Then Return
+
+End
 
 Private Sub SetCurrent(iCurrent As Integer)
 
@@ -770,6 +844,7 @@ Private Sub SetCurrent(iCurrent As Integer)
   Endif
   
   ReadMenu
+  UpdateEvent
 
 End
 
@@ -874,16 +949,17 @@ End
 Private Sub UpdatePaste()
   
   btnPaste.Enabled = Clipboard.Formats.Exist(MMime.MENU)
+  btnPasteBefore.Enabled = btnPaste.Enabled
   
 End
 
-
-Public Sub btnPaste_Click()
+Public Sub btnPasteBefore_Click()
 
   Dim sData As String
   Dim aMenu As String[]
   Dim iStart As Integer
   Dim iLength As Integer
+  Dim hCMenu As CMenu
   
   sData = Trim(Clipboard.Paste(MMime.MENU))
   If Not sData Then Return
@@ -891,39 +967,41 @@ Public Sub btnPaste_Click()
   gvwMenu.Rows.UnselectAll
   
   iStart = $iCurrent
-  iLength = 0
+  If iStart < 0 Then iStart = 0
   
   For Each sData In Split(sData, "\n")
     aMenu = Split(sData, ",", Chr$(34))
-    InsertMenu(False)
-    txtName.Text = aMenu[0]
-    $aMenu[$iCurrent].Level = CInt(aMenu[1])
-    txtCaption.Text = aMenu[2]
-    txtAction.Text = aMenu[3]
-    txtGroup.Text = aMenu[4]
-    chkVisible.Value = CBool(aMenu[5])
-    chkEnabled.Value = CBool(aMenu[6])
-    chkChecked.Value = CBool(aMenu[7])
-    chkToggle.Value = CBool(aMenu[8])
-    chkRadio.Value = CBool(aMenu[9])
-    chkTranslate.Value = CBool(aMenu[10])
-    chkCtrl.Value = CBool(aMenu[11])
-    chkShift.Value = CBool(aMenu[12])
-    chkAlt.Value = CBool(aMenu[13])
-    cmbShortcut.Text = aMenu[14]
-    SetPicture(aMenu[15])
-    txtTag.Text = aMenu[16]
-    WriteMenu
-    gvwMenu.Rows[$iCurrent].Selected = True
-    Inc $iCurrent
+    hCMenu = InsertMenuAt(iStart + iLength, aMenu[0], CInt(aMenu[1]))
+    With hCMenu
+      .Caption = aMenu[2]
+      .Action = aMenu[3]
+      .Group = aMenu[4]
+      .Visible = CBool(aMenu[5])
+      .Enabled = CBool(aMenu[6])
+      .Checked = CBool(aMenu[7])
+      .Toggle = CBool(aMenu[8])
+      .Radio = CBool(aMenu[9])
+      .Translate = CBool(aMenu[10])
+      .Ctrl = CBool(aMenu[11])
+      .Shift = CBool(aMenu[12])
+      .Alt = CBool(aMenu[13])
+      .Shortcut = aMenu[14]
+      .Picture = aMenu[15]
+      .Tag = aMenu[16]
+    End With
     Inc iLength
-    ReadMenu
   Next
   
-  ReadMenu
-  
+  SetCurrent(iStart)
   gvwMenu.Select(iStart, iLength)
 
+End
+
+Public Sub btnPaste_Click()
+  
+  Inc $iCurrent
+  btnPasteBefore_Click
+  
 End
 
 Public Sub txtSearch_Click()
@@ -1131,7 +1209,15 @@ Public Sub btnInsertSeparator_Click()
 End
 
 Public Sub gvwMenu_Activate()
+  
+  $hButtonClick.Value = True
+  
+End
 
+Public Sub btnEvent_Click()
+  
+  If WriteMenu() Then Return
+  EventName = Last.Text
   Try OpenEventHandlerFor = $aMenu[$iCurrent].Name
   If Not Error Then
     Me.Close()

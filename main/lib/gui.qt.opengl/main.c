@@ -51,7 +51,7 @@ int EXPORT GB_INIT(void)
 	if (!comp)
 	{
 		// GB_GUI should be set by gb.gui
-		if (!env)
+		if (!env || !*env)
 			fprintf(stderr, "gb.gui.qt.opengl: error: no component specified in GB_GUI environment variable");
 		else
 			fprintf(stderr, "gb.gui.qt.opengl: error: unsupported component specified in GB_GUI environment variable");

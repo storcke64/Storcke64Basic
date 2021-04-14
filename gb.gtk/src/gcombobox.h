@@ -33,13 +33,13 @@ public:
 	gComboBox(gContainer *parent);
 	~gComboBox();
 
-	int count();
+	int count() const;
 	int index();
 	char* itemText(int ind);
 	virtual int length();
 	//char** list();
-	virtual bool isReadOnly();
-	bool isSorted();
+	virtual bool isReadOnly() const;
+	bool isSorted() const;
 	virtual char *text();
 
 	void setIndex(int vl);
@@ -49,7 +49,6 @@ public:
 	void setSorted(bool vl);
 	virtual void setText(const char *vl);
 	
-	bool hasBorder() const;
 	void setBorder(bool v);
 
 //"Methods"
@@ -61,17 +60,23 @@ public:
 	
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
+	virtual const char *getStyleSheetColorNode();
+	virtual const char *getStyleSheetFontNode();
+	virtual void customStyleSheet(GString *css);
+	virtual void setForeground(gColor color);
 #else
 	virtual void setRealBackground(gColor vl);
-#endif
 	virtual void setRealForeground(gColor vl);
+#endif
 	virtual void setFocus();
+	virtual bool canFocus() const;
+	void updateBorder();
+	virtual void setDesign(bool ignore = false);
 	
 //"Signals"
 	void (*onClick)(gComboBox *sender);
 
 //"Private"
-	bool sort;
 	GtkCellRenderer *cell;
 	virtual int minimumHeight();
 	gTree *tree;
@@ -79,6 +84,7 @@ public:
 	int _last_key;
 	GtkWidget *_button;
 	int _model_dirty_timeout;
+	unsigned _sort : 1;
 	
 	virtual void updateFont();
 	void updateModel();

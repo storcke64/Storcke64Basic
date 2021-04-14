@@ -154,6 +154,7 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 	int padding;
 	int spacing;
 	int indent;
+	bool centered;
 
 	if (!CAN_ARRANGE(_object))
 		return;
@@ -231,7 +232,9 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 		
 		indent = arr->indent * DESKTOP_SCALE;
 		
-		for(i = 0; i < 3; i++)
+		centered = arr->centered;
+		
+		for (i = 0; i < 3; i++)
 		{
 			redo = false;
 
@@ -324,6 +327,9 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						if (!ob || IS_IGNORE(ob))
 							continue;
 						
+						/*if (!::strcmp(GET_OBJECT_NAME(_object), "panFont"))
+							fprintf(stderr, "CCONTAINER_arrange: %s: child: %s\n", GET_OBJECT_NAME(_object), GET_OBJECT_NAME(ob));*/
+
 						if (IS_EXPAND(ob))
 							nexp++;
 						else
@@ -361,8 +367,26 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 					if (sexp < 0)
 						sexp = 0;
 
+					if (centered && sexp && nexp == 0)
+					{
+						if (swap)
+						{
+							y += sexp / 2;
+							hc -= sexp / 2;
+						}
+						else
+						{
+							x += sexp / 2;
+							wc -= sexp / 2;
+						}
+						sexp = 0;
+					}
+					
 					RESET_CHILDREN_LIST();
 					wid = 0;
+					
+					/*if (!::strcmp(GET_OBJECT_NAME(_object), "panFont"))
+						fprintf(stderr, "CCONTAINER_arrange: %s: %d %d / %d x %d / nexp = %d\n", GET_OBJECT_NAME(_object), xc, yc, wc, hc, nexp);*/
 
 					for(;;)
 					{
@@ -393,9 +417,15 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						{
 							if (IS_EXPAND(ob)) // && !autoresize)
 							{
-								h = sexp / nexp;
-								sexp -= h;
-								nexp--;
+								if (nexp == 0) // the list of expanded widget may change
+									h = 0;
+								else
+								{
+									h = sexp / nexp;
+									sexp -= h;
+									nexp--;
+								}
+								
 								if (h <= 0)
 									MOVE_WIDGET(ob, wid, -GET_WIDGET_W(wid), GET_WIDGET_Y(wid));
 							}
@@ -426,9 +456,17 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						{
 							if (IS_EXPAND(ob)) // && !autoresize)
 							{
-								w = sexp / nexp;
-								sexp -= w;
-								nexp--;
+								if (nexp == 0) // the list of expanded widget may change
+								{
+									w = 0;
+								}
+								else
+								{
+									w = sexp / nexp;
+									sexp -= w;
+									nexp--;
+								}
+								
 								if (w <= 0)
 									MOVE_WIDGET(ob, wid, GET_WIDGET_X(wid), -GET_WIDGET_H(wid));
 							}
@@ -584,8 +622,6 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 
 				case ARRANGE_FILL:
 					
-					w = h = 0;
-					
 					for(;;)
 					{
 						wid = GET_NEXT_CHILD_WIDGET();
@@ -596,15 +632,21 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						if (!ob || IS_IGNORE(ob))
 							continue;
 						
-						MOVE_RESIZE_WIDGET(ob, wid, xc, yc, wc, hc);
+						if (centered)
+							MOVE_WIDGET(ob, wid, xc + (wc - GET_WIDGET_W(wid)) / 2, yc + (hc - GET_WIDGET_H(wid)) / 2);
+						else
+							MOVE_RESIZE_WIDGET(ob, wid, xc, yc, wc, hc);
 						
-						if (GET_WIDGET_H(wid) > h)
+						/*if (GET_WIDGET_H(wid) > h)
 							h = GET_WIDGET_H(wid);
 						
 						if (GET_WIDGET_W(wid) > w)
-							w = GET_WIDGET_W(wid);
+							w = GET_WIDGET_W(wid);*/
 					}
 
+					w = wc;
+					h = hc;
+					
 					break;
 			}
 
@@ -662,10 +704,7 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						break;
 					
 					case ARRANGE_FILL:
-// 						#ifndef QNAMESPACE_H
-// 						if (strncmp(((gControl *)_object)->name(), "DataControl", 11) == 0)
-// 							fprintf(stderr, "%s: RESIZE_CONTAINER(%p, %p, %d, %d)\n", ((gControl *)_object)->name(), GET_WIDGET(_object), cont, w, h);
-// 						#endif
+						//fprintf(stderr, "%s: RESIZE_CONTAINER(%p, %p, %d, %d)\n", GET_OBJECT_NAME(_object), GET_WIDGET(_object), cont, w + padding * 2, h + padding * 2);
 						RESIZE_CONTAINER(_object, cont, w + padding * 2, h + padding * 2);
 						break;
 				}

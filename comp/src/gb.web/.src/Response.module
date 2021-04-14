@@ -71,6 +71,7 @@ Public Sub RemoveCookie(Cookie As String, Value As String, Optional Domain As St
   If Domain Then sVal &= ";domain=" & Domain
   sVal &= ";expires=Thu, 01 Jan 1970 00:00:00 GMT"
   If Path Then sVal &= ";path=" & Path
+  sVal &= ";SameSite=Lax"
   
   AddHeader("Set-Cookie", sVal)
   

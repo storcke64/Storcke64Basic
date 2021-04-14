@@ -143,6 +143,18 @@ Public Sub Close()
   
 End
 
+'' @{since 3.15}
+'' 
+'' Quote a string value for a CSV file.
+''
+'' - ~Value~ if the string value to quote.
+'' - ~Separator~ is the CSV file field separator. By default a comma.
+'' - ~Escape~ is the CSV file escape character. By default a double quote.
+''
+'' [[ info
+'' `"\r"` characters are automatically removed when the string value has to be escaped, because it makes Microsoft Excel&trade; fail.
+'' ]]
+
 Static Public Sub Quote(Value As String, Optional Separator As String = ",", Optional Escape As String = "\"") As String
   
   If InStr(Value, Separator) Or If InStr(Value, "\n") Or If InStr(Value, " ") Or If InStr(Value, Escape) Then

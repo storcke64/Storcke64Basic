@@ -32,9 +32,11 @@
 #include <grp.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <sys/sysmacros.h>
 #include <termios.h>
 
 #include "gb_common.h"
+#include "gb_common_buffer.h"
 #include "gb_list.h"
 #include "gb_file.h"
 
@@ -54,6 +56,7 @@
 #define STREAM_FD STREAM_handle(THE_STREAM)
 
 CFILE *CFILE_in, *CFILE_out, *CFILE_err;
+mode_t CFILE_default_dir_auth = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
 DECLARE_EVENT(EVENT_Read);
 DECLARE_EVENT(EVENT_Write);
@@ -95,10 +98,10 @@ static void watch_stream(CSTREAM *_object, int mode, bool on)
 	STREAM *stream = &THIS_STREAM->stream;
 	int fd = STREAM_handle(stream);
 	
-	if (mode & STO_READ)
+	if (mode & GB_ST_READ)
 		GB_Watch(fd, GB_WATCH_READ, (void *)(on ? callback_read : NULL), (intptr_t)THIS);
 
-	if (mode & STO_WRITE)
+	if (mode & GB_ST_WRITE)
 		GB_Watch(fd, GB_WATCH_WRITE, (void *)(on ? callback_write : NULL), (intptr_t)THIS);
 }
 
@@ -112,7 +115,7 @@ CFILE *CFILE_create(STREAM *stream, int mode)
 		*CSTREAM_TO_STREAM(file) = *stream;
 		//file->watch_fd = -1;
 
-		if (mode & STO_WATCH)
+		if (mode & GB_ST_WATCH)
 		{
 			watch_stream(&file->ob, mode, TRUE);
 			OBJECT_attach((OBJECT *)file, OP ? (OBJECT *)OP : (OBJECT *)CP, "File");
@@ -139,9 +142,9 @@ static CFILE *create_default_stream(FILE *file, int mode)
 
 void CFILE_init(void)
 {
-	CFILE_in = create_default_stream(stdin, STO_READ);
-	CFILE_out = create_default_stream(stdout, STO_WRITE);
-	CFILE_err = create_default_stream(stderr, STO_WRITE);
+	CFILE_in = create_default_stream(stdin, GB_ST_READ);
+	CFILE_out = create_default_stream(stdout, GB_ST_WRITE);
+	CFILE_err = create_default_stream(stderr, GB_ST_WRITE);
 }
 
 void CFILE_exit(void)
@@ -366,34 +369,23 @@ BEGIN_PROPERTY(Stat_Auth)
 
 END_PROPERTY
 
-#if 0
-BEGIN_METHOD(CFILE_access, GB_INTEGER who; GB_INTEGER access)
 
-	bool ret;
-	int access = VARGOPT(access, GB_STAT_READ);
-	int who = VARG(who);
-	int mode = THIS_STAT->info.mode;
+BEGIN_PROPERTY(Stat_Device)
 
-	if ((access & GB_STAT_READ) == 0)
-		mode &= ~(S_IRUSR | S_IRGRP | S_IROTH);
-	if ((access & GB_STAT_WRITE) == 0)
-		mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
-	if ((access & GB_STAT_EXEC) == 0)
-		mode &= ~(S_IXUSR | S_IXGRP | S_IXOTH);
-
-	switch(who)
+	dev_t dev = THIS_STAT->info.device;
+	int len;
+	
+	if (dev == 0)
+		GB_ReturnNull();
+	else
 	{
-		case GB_STAT_USER: ret = mode & S_IRWXU; break;
-		case GB_STAT_GROUP: ret = mode & S_IRWXG; break;
-		case GB_STAT_OTHER: ret = mode & S_IRWXO; break;
-		default: ret = FALSE; break;
+		len = sprintf(COMMON_buffer, "/%s/%d:%d", THIS_STAT->info.chrdev ? "char" : "block", major(dev), minor(dev));
+		GB_ReturnNewString(COMMON_buffer, len);
 	}
 
-	GB_ReturnBoolean(ret);
+END_PROPERTY
 
-END_METHOD
-#endif
-
+//--------------------------------------------------------------------------
 
 static void return_perm(CSTAT *_object, int rf, int wf, int xf)
 {
@@ -413,25 +405,25 @@ static void return_perm(CSTAT *_object, int rf, int wf, int xf)
 }
 
 
-BEGIN_PROPERTY(CFILE_perm_user)
+BEGIN_PROPERTY(StatPerm_User)
 
 	return_perm(THIS_STAT, S_IRUSR, S_IWUSR, S_IXUSR);
 
 END_PROPERTY
 
-BEGIN_PROPERTY(CFILE_perm_group)
+BEGIN_PROPERTY(StatPerm_Group)
 
 	return_perm(THIS_STAT, S_IRGRP, S_IWGRP, S_IXGRP);
 
 END_PROPERTY
 
-BEGIN_PROPERTY(CFILE_perm_other)
+BEGIN_PROPERTY(StatPerm_Other)
 
 	return_perm(THIS_STAT, S_IROTH, S_IWOTH, S_IXOTH);
 
 END_PROPERTY
 
-BEGIN_METHOD(CFILE_perm_get, GB_STRING user)
+BEGIN_METHOD(StatPerm_get, GB_STRING user)
 
 	char *who;
 	char *user = GB_ToZeroString(ARG(user));
@@ -618,7 +610,7 @@ BEGIN_METHOD(File_Load, GB_STRING path)
 	int rlen;
 	char *str = NULL;
 
-	STREAM_open(&stream, STRING_conv_file_name(STRING(path), LENGTH(path)), STO_READ);
+	STREAM_open(&stream, STRING_conv_file_name(STRING(path), LENGTH(path)), GB_ST_READ);
 	
 	ON_ERROR_1(error_CFILE_load_save, &stream)
 	{
@@ -662,7 +654,7 @@ BEGIN_METHOD(File_Save, GB_STRING path; GB_STRING data)
 
 	STREAM stream;
 
-	STREAM_open(&stream, STRING_conv_file_name(STRING(path), LENGTH(path)), STO_CREATE);
+	STREAM_open(&stream, STRING_conv_file_name(STRING(path), LENGTH(path)), GB_ST_CREATE);
 	
 	ON_ERROR_1(error_CFILE_load_save, &stream)
 	{
@@ -743,7 +735,22 @@ BEGIN_METHOD(File_RealPath, GB_STRING path)
 
 END_METHOD
 
-//---------------------------------------------------------------------------
+BEGIN_PROPERTY(File_DefaultDirAuth)
+
+	if (READ_PROPERTY)
+	{
+		char *auth = FILE_mode_to_string(CFILE_default_dir_auth);
+		GB_ReturnNewString(auth, FILE_buffer_length());
+	}
+	else
+	{
+		CFILE_default_dir_auth = FILE_mode_from_string((mode_t)0, GB_ToZeroString(PROP(GB_STRING)));
+	}
+
+END_PROPERTY
+
+
+//--------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Stream_Handle)
 
@@ -885,13 +892,9 @@ BEGIN_METHOD(Stream_Watch, GB_INTEGER mode; GB_BOOLEAN on)
 
 	int mode = VARG(mode);
 	
-	if (mode == R_OK)
-		mode = STO_READ;
-	else if (mode == W_OK)
-		mode = STO_WRITE;
-	else
+	if (mode != GB_ST_READ && mode != GB_ST_WRITE)
 	{
-		GB_Error("Unknown watch");
+		GB_Error(GB_ERR_ARG);
 		return;
 	}
 	
@@ -1077,10 +1080,10 @@ GB_DESC StatPermDesc[] =
 {
 	GB_DECLARE_VIRTUAL(".Stat.Perm"),
 
-	GB_METHOD("_get", "s", CFILE_perm_get, "(UserOrGroup)s"),
-	GB_PROPERTY_READ("User", "s", CFILE_perm_user),
-	GB_PROPERTY_READ("Group", "s", CFILE_perm_group),
-	GB_PROPERTY_READ("Other", "s", CFILE_perm_other),
+	GB_METHOD("_get", "s", StatPerm_get, "(UserOrGroup)s"),
+	GB_PROPERTY_READ("User", "s", StatPerm_User),
+	GB_PROPERTY_READ("Group", "s", StatPerm_Group),
+	GB_PROPERTY_READ("Other", "s", StatPerm_Other),
 
 	GB_END_DECLARE
 };
@@ -1110,6 +1113,7 @@ GB_DESC StatDesc[] =
 	GB_PROPERTY_READ("Path", "s", Stat_Path),
 	GB_PROPERTY_READ("Link", "s", Stat_Link),
 	GB_PROPERTY_READ("Auth", "s", Stat_Auth),
+	GB_PROPERTY_READ("Device", "s", Stat_Device),
 
 	GB_END_DECLARE
 };
@@ -1146,7 +1150,9 @@ GB_DESC FileDesc[] =
 	GB_STATIC_METHOD("Save", NULL, File_Save, "(FileName)s(Data)s"),
 
 	GB_STATIC_METHOD("RealPath", "s", File_RealPath, "(Path)s"),
-	
+
+	GB_STATIC_PROPERTY("DefaultDirAuth", "s", File_DefaultDirAuth),
+
 	GB_EVENT("Read", NULL, NULL, &EVENT_Read),
 	GB_EVENT("Write", NULL, NULL, &EVENT_Write),
 	GB_EVENT("Resize", NULL, NULL, &EVENT_Resize),

@@ -115,6 +115,8 @@ Static Public Sub GetInfo() As String[]
   aText.Add("Architecture=" & System.Architecture)
   aText.Add("Distribution=" & GetDistribution())
   aText.Add("Desktop=" & Desktop.Type)
+  aText.Add("Font=" & Application.Font.ToString())
+  aText.Add("Scale=" & Desktop.Scale)
   aText.Add("Theme=" & Style.Name)
   aText.Add("Language=" & System.Language)
 

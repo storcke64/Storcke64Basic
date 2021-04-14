@@ -4,15 +4,6 @@ Static Private $aOrder As New String[]
 
 Static Private $iTip As Integer
 
-Static Public Sub Run()
-
-  Dim hForm As Form
-
-  hForm = New FTips
-  hForm.ShowModal
-
-End
-
 Static Public Sub _init()
 
   Dim hFic As File
@@ -179,7 +170,7 @@ End
 Public Sub dwgBackground_Draw()
 
   Paint.Brush = Paint.Color(Color.LightBackground)
-  PaintRoundedRect(0, 0, dwgBackground.W, dwgBackground.H, 8)
+  PaintRoundedRect(0, 0, dwgBackground.W, dwgBackground.H, Paint.H / 2)
   Paint.Fill
 
 End

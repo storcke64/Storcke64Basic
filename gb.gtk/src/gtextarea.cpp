@@ -154,6 +154,8 @@ struct _GtkTextViewPrivate
   guint in_scroll : 1;
 };
 
+#define TEXT_AREA(_textview) (gtk_text_view_get_window(GTK_TEXT_VIEW(_textview), GTK_TEXT_WINDOW_TEXT))
+
 #else
 
 // Private structure took from GTK+ 2.10 code. Used for setting the text area cursor.
@@ -178,6 +180,9 @@ void gtk_text_layout_get_size(struct _GtkTextLayout  *layout, gint *width, gint 
 void gtk_text_layout_invalidate (struct _GtkTextLayout *layout, const GtkTextIter *start, const GtkTextIter *end);
 void gtk_text_layout_validate (struct _GtkTextLayout *layout, gint max_pixels);
 }
+
+#define TEXT_AREA(_textview) (((PrivateGtkTextWindow *)GTK_TEXT_VIEW(_textview)->text_window)->bin_window)
+
 #endif
 
 #if !GLIB_CHECK_VERSION(2, 32, 0)
@@ -326,6 +331,7 @@ void gTextAreaAction::addText(char *add, int len)
 
 static void cb_changed(GtkTextBuffer *buf, gTextArea *data)
 {
+	data->updateFixSpacing();
 	data->emit(SIGNAL(data->onChange));
 } 
 
@@ -467,7 +473,6 @@ static gboolean cb_keypress(GtkWidget *widget, GdkEvent *event, gTextArea *ctrl)
 
 gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 {
-	g_typ = Type_gTextArea;
 	_align_normal = false;
 	_last_pos = -1;
 	
@@ -478,6 +483,11 @@ gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 	_undo_in_progress = false;
 	_has_input_method = true;
 	_use_wheel = true;
+	_fix_spacing_tag = NULL;
+	_has_native_popup = true;
+	_eat_return_key = true;
+	_text_area_visible = false;
+	_no_background = true;
 	
 	onChange = 0;
 	onCursor = 0;
@@ -570,6 +580,7 @@ void gTextArea::setReadOnly(bool vl)
 {
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(textview), !vl);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview), !vl);
+	_eat_return_key = !vl;
 }
 
 GtkTextIter *gTextArea::getIterAt(int pos)
@@ -851,14 +862,8 @@ void gTextArea::selSelect(int pos, int length)
 
 void gTextArea::updateCursor(GdkCursor *cursor)
 {
-  GdkWindow *win;
+  GdkWindow *win = TEXT_AREA(textview);
 
-#ifdef GTK3
-	win = gtk_text_view_get_window(GTK_TEXT_VIEW(textview), GTK_TEXT_WINDOW_TEXT);
-#else
-	win = ((PrivateGtkTextWindow *)GTK_TEXT_VIEW(textview)->text_window)->bin_window;
-#endif
-  
   gControl::updateCursor(cursor);
   
   if (!win)
@@ -1040,6 +1045,31 @@ GtkIMContext *gTextArea::getInputMethod()
 #endif
 }
 
+void gTextArea::updateFixSpacing()
+{
+	GtkTextIter start;
+	GtkTextIter end;
+	
+	if (font()->mustFixSpacing())
+	{
+		if (!_fix_spacing_tag)
+			_fix_spacing_tag = gtk_text_buffer_create_tag(_buffer, NULL, "letter-spacing", PANGO_SCALE, NULL);
+	
+		gtk_text_buffer_get_bounds(_buffer, &start, &end);
+		gtk_text_buffer_apply_tag (_buffer, _fix_spacing_tag, &start, &end);
+	}
+	else
+	{
+		if (_fix_spacing_tag)
+		{
+			gtk_text_buffer_get_bounds(_buffer, &start, &end);
+			gtk_text_buffer_remove_tag(_buffer, _fix_spacing_tag, &start, &end);
+			gtk_text_tag_table_remove(gtk_text_buffer_get_tag_table(_buffer), _fix_spacing_tag);
+			_fix_spacing_tag = NULL;
+		}
+	}
+}
+
 #ifdef GTK3
 GtkWidget *gTextArea::getStyleSheetWidget()
 {
@@ -1051,15 +1081,14 @@ const char *gTextArea::getStyleSheetColorNode()
 	return "text";
 }
 
-int gTextArea::minimumWidth() const
+void gTextArea::customStyleSheet(GString *)
 {
-	return gDesktop::scale() * 4;
+	gtk_text_view_set_pixels_inside_wrap(GTK_TEXT_VIEW(widget), font()->mustFixSpacing());
+	gtk_text_view_set_pixels_below_lines(GTK_TEXT_VIEW(widget), font()->mustFixSpacing());
+	
+	updateFixSpacing();
 }
 
-int gTextArea::minimumHeight() const
-{
-	return gDesktop::scale() * 8;
-}
 #endif
 
 void gTextArea::getCursorPos(int *x, int *y, int pos)
@@ -1083,4 +1112,41 @@ void gTextArea::emitCursor()
 	
 	_last_pos = pos;
 	emit(SIGNAL(onCursor));
+}
+
+#ifdef GTK3
+void gTextArea::onEnterEvent()
+{
+	if (_text_area_visible)
+		gdk_window_show(TEXT_AREA(textview));
+}
+
+void gTextArea::onLeaveEvent()
+{
+	_text_area_visible = !hasFocus() && gdk_window_is_visible(TEXT_AREA(textview));
+	if (_text_area_visible)
+		gdk_window_hide(TEXT_AREA(textview));
+}
+#endif
+
+void gTextArea::setMinimumSize()
+{
+	if (scrollBar())
+		_min_h = gApplication::getScrollbarBigSize(); // + font()->height() + (hasBorder() ? 4 : 0);
+	else
+		_min_h = font()->height() + (hasBorder() ? 4 : 0);
+	
+	_min_w = _min_h;
+}
+
+void gTextArea::updateScrollBar()
+{
+	gControl::updateScrollBar();
+	setMinimumSize();
+}
+
+void gTextArea::setFont(gFont *ft)
+{
+	gControl::setFont(ft);
+	setMinimumSize();
 }

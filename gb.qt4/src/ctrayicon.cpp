@@ -175,7 +175,6 @@ BEGIN_PROPERTY(TrayIcon_Picture)
 		GB.StoreObject(PROP(GB_OBJECT), POINTER(&THIS->icon));
 		define_icon(THIS);
 	}
-	
 
 END_PROPERTY
 

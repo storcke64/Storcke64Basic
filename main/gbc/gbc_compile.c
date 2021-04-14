@@ -57,6 +57,7 @@
 bool COMP_verbose = FALSE;
 
 char *COMP_root = NULL;
+char *COMP_dir;
 char *COMP_project;
 char *COMP_project_name;
 char *COMP_info_path;
@@ -534,9 +535,6 @@ void COMPILE_init(void)
 
 void COMPILE_begin(const char *file, bool trans, bool debug)
 {
-	struct stat info;
-	off_t size;
-
 	CLEAR(JOB);
 
 	JOB->name = STR_copy(file);
@@ -549,6 +547,13 @@ void COMPILE_begin(const char *file, bool trans, bool debug)
 		JOB->trans = TRUE;
 		JOB->tname = OUTPUT_get_trans_file(JOB->name);
 	}
+}
+
+
+void COMPILE_alloc()
+{
+	struct stat info;
+	off_t size;
 
 	BUFFER_create(&JOB->source);
 	CLASS_create(&JOB->class);
@@ -587,7 +592,7 @@ void COMPILE_load(void)
 }
 
 
-void COMPILE_end(void)
+void COMPILE_free(void)
 {
 	CLASS_delete(&JOB->class);
 	BUFFER_delete(&JOB->source);
@@ -596,7 +601,10 @@ void COMPILE_end(void)
 
 	if (JOB->help)
 		ARRAY_delete(&JOB->help);
+}
 
+void COMPILE_end(void)
+{
 	STR_free(JOB->name);
 	STR_free(JOB->form);
 	STR_free(JOB->output);
@@ -614,6 +622,7 @@ void COMPILE_exit(void)
 	STR_free(COMP_project_name);
 	STR_free(COMP_project);
 	STR_free(COMP_info_path);
+	STR_free(COMP_dir);
 	STR_free(COMP_root);
 }
 
@@ -647,16 +656,56 @@ void COMPILE_enum_class(char **name, int *len)
 	*name = p + 1;
 }
 
+int COMPILE_lock_file(const char *name)
+{
+	const char *path;
+	int fd;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	
+	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
+	if (fd < 0)
+		goto __ERROR;
+	if (lockf(fd, F_LOCK, 0) < 0)
+		goto __ERROR;
+	
+	return fd;
+		
+__ERROR:
+
+	ERROR_fail("unable to lock file: %s: %s", path, strerror(errno));
+}
+
+
+void COMPILE_unlock_file(int fd)
+{
+	close(fd);
+}
+
+
+void COMPILE_remove_lock(const char *name)
+{
+	const char *path;
+	
+	path = FILE_cat(COMP_dir, name, NULL);
+	if (FILE_exist(path))
+		FILE_unlink(path);
+}
+
+
 void COMPILE_print(int type, int line, const char *msg, ...)
 {
 	int i;
   va_list args;
 	const char *arg[4];
 	int col = -1;
+	int lock;
 
 	if (!JOB->warnings && type == MSG_WARNING)
 		return;
 
+	lock = COMPILE_lock_file(".gbc.stderr");
+	
   va_start(args, msg);
 
 	if (line < 0)
@@ -713,6 +762,8 @@ void COMPILE_print(int type, int line, const char *msg, ...)
 		fputs(ERROR_info.msg, stderr);
 		putc('\n', stderr);
 	}
+	
+	COMPILE_unlock_file(lock);
 
 	va_end(args);
 }

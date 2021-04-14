@@ -19,9 +19,9 @@ End
 
 Static Public Sub _get(Type As String) As TextEditorMode
 
-	Try Return Object.New("TextEditorMode_" & Type)
-	'Error.Raise("Cannot load highlighter: '" & Type & "'")
-	Return New TextEditorMode
+ Try Return Object.New("TextEditorMode_" & Type)
+ 'Error.Raise("Cannot load highlighter: '" & Type & "'")
+ Return New TextEditorMode
 
 End
 

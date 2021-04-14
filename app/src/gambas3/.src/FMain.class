@@ -29,8 +29,6 @@ Private $iTabBarHeight As Integer
 
 Private $bFirstShowDebug As Boolean
 
-Static Private $sCompressMessage As String
-
 Public Sub _new()
   
   'Me.ResizeScaled(86, 97)
@@ -45,6 +43,8 @@ Public Sub _new()
   
   'ScrollArea(tvwProject.Proxy.Proxy).Shadow = True
   'tvwProject.Columns.Count = 2
+  
+  btnUseInheritance.Picture = Picture["img/32/inheritance.png"].Stretch(Stock.GetSize("small"))
   
   panProject.MinSize = Desktop.Scale * 24
   
@@ -164,7 +164,9 @@ Public Sub tvwProject_Activate()
   sKey = tvwProject.Key
   
   If sKey Then
-    tvwProject[sKey].Expanded = True
+    'tvwProject[sKey].Expanded = True
+    'If sKey Begins "$" Or If IsDir(sKey) Then
+    '  Project.OpenFile(GetCurrentDir(sKey),,, True)
     If CanEdit(sKey) Then
       If $bCtrl Then
         If Project.IsSourcePath(sKey) And If Not Project.IsModuleExt(sKey) Then
@@ -446,11 +448,15 @@ Public Sub mnuPopup_Show()
       mnuDoNotTranslate.Hide
     Endif
     
+    mnuCompressFile.Hide
+    mnuCompressNow.Hide
+    
     If mnuCut.Visible Then
       
       mnuCut.Visible = bCurrent
       mnuCopy.Hide
       mnuPaste.Visible = True
+      mnuClone.Hide
       
       sParent = tvwProject[$sKey].ParentKey
       
@@ -502,8 +508,8 @@ Public Sub mnuPopup_Show()
     mnuRenameFile.Visible = mnuRenameFile.Visible And bCurrent
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent)
     
-    If $sKey = Project.KEY_MISC Or If bIsDir And bProject Then
-      If MCompressFile.CanCompress(If($sKey = Project.KEY_MISC, Project.Dir, sCurrent), True) Then
+    If $sKey = Project.KEY_MISC Or If $sKey = Project.KEY_PUBLIC Or If bIsDir And bProject Then
+      If MCompressFile.CanCompress(GetCurrentDir()) Then
         mnuCompressAll.Show
         mnuUncompressAll.Show
       Endif
@@ -522,6 +528,15 @@ Public Sub mnuPopup_Show()
     Endif
     
     mnuDoNotTranslate.Hide
+
+    mnuCompressNow.Visible = MCompressFile.CanCompress(sCurrent, True)
+      
+    If MCompressFile.CanCompress(sCurrent, False) Then
+      mnuCompressFile.Show
+      mnuCompressFile.Checked = Project.ShouldCompress(sCurrent)
+    Else
+      mnuCompressFile.Hide
+    Endif
     
     bFile = bCurrent
     
@@ -530,6 +545,7 @@ Public Sub mnuPopup_Show()
       mnuCopy.Visible = bFile And Not IsDir($sKey)
       mnuPaste.Visible = bFile Or bCanStoreFile
       mnuPaste.Enabled = Clipboard.Format = MMime.FILE
+      mnuClone.Visible = mnuCopy.Visible And mnuPaste.Visible
     Endif
     
     mnuEditWith.Visible = False
@@ -907,12 +923,6 @@ Private Sub NewProject()
   
 End
 
-Public Sub mnuTip_Click()
-  
-  FTips.Run
-  
-End
-
 ' PUBLIC SUB mnuAddIcon_Click()
 ' 
 '   IF FNewIcon.Run(GetCurrentDir()) THEN RETURN
@@ -930,18 +940,20 @@ End
 
 Private Sub Rename(sKey As String)
   
-  Dim hEditor As TextArea
+  Dim hEditor As Object
   Dim sText As String
   Dim iLen As Integer
   Dim sExt As String
   
+  If $bInRename Then Return
   $bInRename = True
   tvwProject[sKey].Rename
   
   Try hEditor = Application.ActiveControl
-  If Error Then Return
+  If Not hEditor Then Return
+  Try sText = hEditor.Text
+  If Not sText Then Return
   
-  sText = hEditor.Text
   iLen = String.Len(sText) 
   If sText Not Begins "." Then
     sExt = File.Ext(sText)
@@ -1150,6 +1162,14 @@ Public Sub mnuPaste_Click()
   
 End
 
+Public Sub mnuClone_Click()
+  
+  mnuCopy_Click()
+  mnuPaste_Click()
+  
+End
+
+
 Public Sub tvwProject_Select()
   
   RefreshMenu
@@ -1222,7 +1242,7 @@ Public Sub UpdateMenu()
   
   UpdateTranslate
   
-  For Each sAction In ["exec", "install", "compile", "compile-all"]
+  For Each sAction In ["exec", "install", "compile", "compile-all", "test"]
     Action[sAction].Visible = bVisible
     Action[sAction].Enabled = bEnabled
   Next
@@ -1242,6 +1262,7 @@ Public Sub UpdateMenu()
   mnuCut.Visible = bVisible
   mnuCopy.Visible = bVisible
   mnuPaste.Visible = bVisible
+  mnuClone.Visible = bVisible
   mnuDeleteFile.Visible = bVisible
   mnuClean.Visible = bVisible
   mnuNew.Visible = bVisible
@@ -1480,7 +1501,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "compile-all"
       Project.Compile(True)
     Case "archive"
-      Project.MakePackage
+      Project.MakeSourceArchive
     Case "send-mail"
       Project.SendMail
     Case "exec"
@@ -1560,13 +1581,8 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "compress-all", "uncompress-all"
       
       Inc Application.Busy
-      $sCompressMessage = ""
       CompressAll(tvwProject.Key, Key = "compress-all")
       Dec Application.Busy
-      If $sCompressMessage Then 
-        Message.Error($sCompressMessage)
-        $sCompressMessage = ""
-      Endif
       
     Case "open-file-manager"
       Desktop.Open(GetCurrentDir())
@@ -1655,17 +1671,25 @@ Public Sub tvwProject_Rename()
   'DEBUG Before;; tvwProject.Item.Text
   If $sDeleteKey Then
     sNew = File.Dir($sDeleteKey) &/ tvwProject.Item.Text
+    
+    If Project.InsertDirectory(sNew) Then Goto RENAME_FAILED
     Project.DeleteDir(sPath, True)
-    Project.InsertDirectory(sNew)
     $sDeleteKey = ""
   Else
-    Project.RenameFile(sPath, tvwProject.Item.Text)
+    If Project.RenameFile(sPath, tvwProject.Item.Text) Then Goto RENAME_FAILED
   Endif
+  
+  Return
+  
+RENAME_FAILED:
+
+  $sDeleteKey = ""
+  Rename(sPath)
   
 End
 
 Public Sub mnuRenameFile_Click()
-  
+
   Rename(tvwProject.Key)
   
 End
@@ -2002,6 +2026,10 @@ Public Sub Form_KeyPress()
       Stop Event
     Endif
     
+  Else If Shortcut.FromKey() = Action["test"].Shortcut Then
+    
+    Project.Test()
+    
   Endif
   
 End
@@ -2141,16 +2169,16 @@ Public Sub ShowMessage(sMsg As String, sIcon As String, Optional sKey As String)
   
   If NoMessage Then Return
   
-  If sKey Then sMsg = "<b>" & GetKeyTitle(sKey) & "</b><p>" & sMsg
+  If sKey Then sMsg = "<b>" & GetKeyTitle(sKey) & "</b>\n\n" & sMsg
   
   sMsg = Replace(sMsg, "\n", "<br>")
     
-  If FMain.Visible And If panProject.Visible And If Not panProject.Hidden Then
-    
-    msgError.Open(sMsg, Picture["icon:/32/" & sIcon])
-    'msgError.Move((Me.ClientW - msgError.W) \ 2, (Me.ClientH - msgError.H) \ 2)
-    
-  Else
+  ' If FMain.Visible And If panProject.Visible And If Not panProject.Hidden Then
+  '   
+  '   msgError.Open(sMsg, Picture["icon:/32/" & sIcon])
+  '   'msgError.Move((Me.ClientW - msgError.W) \ 2, (Me.ClientH - msgError.H) \ 2)
+  '   
+  ' Else
     
     If sIcon = "error" Then
       Message.Error(sMsg)
@@ -2160,7 +2188,7 @@ Public Sub ShowMessage(sMsg As String, sIcon As String, Optional sKey As String)
       Message(sMsg)
     Endif
     
-  Endif
+  'Endif
   
 End
 
@@ -2196,16 +2224,9 @@ End
 
 Public Sub mnuAddVersionAll_Click()
   
-  Dim sPath As String
-  
   If Message.Question(("Do you really want to add every file to the repository?"), ("Add"), ("Cancel")) = 2 Then Return
-  
-  For Each sPath In Project.AllFlags(Project.FLAG_ADDED)
-    VersionControl.AddFile(sPath)
-    If Project.IsFormPath(sPath) Then VersionControl.AddFile(File.SetExt(sPath, "class"))
-  Next
-  
-  Project.Refresh
+
+  Project.AddAllFileUnderVersionControl()
   
 End
 
@@ -2218,13 +2239,6 @@ End
 Public Sub mnuReplace_Click()
   
   FSearch.WakeUp(True)
-  
-End
-
-Public Sub txtSearchProject_Clear()
-  
-  txtSearchProject.FilterNow
-  txtSearchProject.SetFocus
   
 End
 
@@ -2281,6 +2295,10 @@ Public Sub DoFilter(sFilter As String)
       sText = mnuFilterExport.Text
     Case Project.FILTER_MODIFIED
       sText = mnuFilterModified.Text
+    Case Project.FILTER_COMPRESSED
+      sText = mnuFilterCompressed.Text
+    Case Project.FILTER_DO_NOT_TRANSLATE
+      sText = mnuFilterDoNotTranslate.Text
   End Select
   
   txtSearchProject.Font.Italic = True
@@ -2313,6 +2331,12 @@ End
 Public Sub mnuFilterConflict_Click()
 
   DoFilter(Project.FILTER_CONFLICT)
+
+End
+
+Public Sub mnuFilterCompressed_Click()
+
+  DoFilter(Project.FILTER_COMPRESSED)
 
 End
 
@@ -2548,7 +2572,6 @@ End
 Private Sub CompressAll(sPath As String, bCompress As Boolean)
   
   Dim sFile As String
-  Dim hTextEditor As FTextEditor
   Dim hForm As Object
   
   If sPath = Project.KEY_MISC Then sPath = Project.Dir
@@ -2562,14 +2585,11 @@ Private Sub CompressAll(sPath As String, bCompress As Boolean)
     
   Else
     
-    If MCompressFile.CanCompress(sPath, True) Then
+    If MCompressFile.CanCompress(sPath, False) Then
     
-      Try hTextEditor = Project.LoadFile(sPath)
-      If hTextEditor Then 
-        hTextEditor.SetCompression(bCompress)
-      Endif
+      Project.SetShouldCompress(sPath, bCompress)
       
-    Else 
+    Else If MCompressFile.CanCompress(sPath, True) And If bCompress Then
     
       hForm = Project.Files[sPath]
       If hForm Then
@@ -2689,8 +2709,12 @@ Public Sub mnuSetEnv_Click()
   sValue = Mid(sEnv, iPos + 1)
   
   aEnv = Project.Environment
-  iPos = aEnv.Find(sVar & "=*", gb.Like)
-
+  
+  For iPos = 0 To aEnv.Max
+    If LTrim(aEnv[iPos]) Begins (sVar & "=") Then Break
+  Next
+  If iPos >= aEnv.Count Then iPos = -1
+  
   If Not sValue Then
     If iPos >= 0 Then 
       aEnv.Remove(iPos)
@@ -2855,6 +2879,23 @@ Public Sub mnuDoNotTranslate_Click()
   
 End
 
+Public Sub mnuCompressFile_Click()
+
+  Dim sPath As String = GetCurrent()
+  If Not sPath Then Return
+  Project.SetShouldCompress(sPath, mnuCompressFile.Value)
+  Project.WriteProject(True)
+  
+End
+
+Public Sub mnuCompressNow_Click()
+  
+  Dim sPath As String = GetCurrent()
+  If Not sPath Then Return
+  CompressAll(sPath, True)
+  
+End
+
 Private Sub UpdateBranchMenu()
 
   Dim sCurrent As String
@@ -2875,7 +2916,7 @@ Private Sub UpdateBranchMenu()
       hMenu.Text = sBranch
       hMenu.Tag = sBranch
       hMenu.Radio = True
-      hMenu.Value = sBranch = sCurrent
+      hMenu.Checked = sBranch = sCurrent
     Next
   Endif
 
@@ -2906,10 +2947,11 @@ End
 
 Public Sub panDebug_Arrange()
 
+  ' FIXME: GTK+ needs the width and height!
   If System.RightToLeft Then
-    btnClosePanel.Move(0, 0)
+    btnClosePanel.Move(0, 0, Desktop.Scale * 4, Desktop.Scale * 4)
   Else
-    btnClosePanel.Move(panDebug.W - btnClosePanel.W, 0)
+    btnClosePanel.Move(panDebug.W - btnClosePanel.W, 0, Desktop.Scale * 4, Desktop.Scale * 4)
   Endif
   btnClosePanel.Raise
 
@@ -3118,4 +3160,22 @@ Public Sub OnRefreshSources()
   
   Action["test,test-suite"].Visible = Project.HasTest()
   
+End
+
+Public Sub mnuTip_Click()
+
+  FTips.Load
+
+End
+
+Public Sub mnuHelpShortcuts_Click()
+
+  FHelpShortcut.Load
+
+End
+
+Public Sub mnuFilterDoNotTranslate_Click()
+
+  DoFilter(Project.FILTER_DO_NOT_TRANSLATE)
+
 End

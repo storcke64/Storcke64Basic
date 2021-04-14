@@ -26,6 +26,72 @@
 #include "gdesktop.h"
 #include "gcombobox.h"
 
+#ifdef GTK3
+
+struct _GtkComboBoxPrivate
+{
+  GtkTreeModel *model;
+
+  GtkCellArea *area;
+
+  gint col_column;
+  gint row_column;
+
+  gint wrap_width;
+
+  gint active; /* Only temporary */
+  GtkTreeRowReference *active_row;
+
+  GtkWidget *tree_view;
+
+  GtkWidget *cell_view;
+
+  GtkWidget *box;
+  GtkWidget *button;
+  GtkWidget *arrow;
+
+  GtkWidget *popup_widget;
+  GtkWidget *popup_window;
+  GtkWidget *scrolled_window;
+
+  //GtkCssGadget *gadget;
+	void *gadget;
+
+  guint popup_idle_id;
+  GdkEvent *trigger_event;
+  guint scroll_timer;
+  guint resize_idle_id;
+
+  /* For "has-entry" specific behavior we track
+   * an automated cell renderer and text column
+   */
+  gint  text_column;
+  GtkCellRenderer *text_renderer;
+
+  gint id_column;
+
+  guint popup_in_progress : 1;
+  guint popup_shown : 1;
+  guint add_tearoffs : 1;
+  guint has_frame : 1;
+  guint is_cell_renderer : 1;
+  guint editing_canceled : 1;
+  guint auto_scroll : 1;
+  guint button_sensitivity : 2;
+  guint has_entry : 1;
+  guint popup_fixed_width : 1;
+
+  GtkTreeViewRowSeparatorFunc row_separator_func;
+  gpointer                    row_separator_data;
+  GDestroyNotify              row_separator_destroy;
+
+  GdkDevice *grab_pointer;
+
+  gchar *tearoff_title;
+};
+
+#endif
+
 /**************************************************************************
 	
 	gComboBox
@@ -158,13 +224,14 @@ void gComboBox::create(bool readOnly)
 		cell = NULL;
 		gtk_widget_destroy(widget);
 		_button = NULL;
+		createWidget();
 	}
 	
 	if (readOnly)
 	{
 		widget = gtk_combo_box_new_with_model(GTK_TREE_MODEL(tree->store));
 		entry = NULL;
-
+		
 		cell = gtk_cell_renderer_text_new ();
 		g_object_ref_sink(cell);
 		gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget), cell, true);
@@ -189,6 +256,7 @@ void gComboBox::create(bool readOnly)
 		entry = gtk_bin_get_child(GTK_BIN(widget));
 
 #ifdef GTK3
+		//gtk_widget_set_hexpand(widget, TRUE);
 		gtk_widget_set_hexpand(entry, TRUE);
 #endif
 
@@ -204,19 +272,28 @@ void gComboBox::create(bool readOnly)
 	}
 
 #ifdef GTK3
-	gtk_combo_box_set_popup_fixed_width(GTK_COMBO_BOX(widget), true);
+	gtk_combo_box_set_popup_fixed_width(GTK_COMBO_BOX(widget), TRUE);
 #endif
 
 	if (first)
 	{
-		realize(false);
+		realize();
 	}
 	else
 	{
 		gtk_container_add(GTK_CONTAINER(border), widget);
 		gtk_widget_show(widget);
 		widgetSignals();
+#ifdef GTK3
+		gt_patch_control(border);
+		gt_patch_control(widget);
+#endif
 	}
+	
+#ifdef GTK3
+	if (entry)
+		gt_patch_control(entry);
+#endif
 	
 	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(cb_click), (gpointer)this);
 
@@ -237,15 +314,19 @@ void gComboBox::create(bool readOnly)
 	
 	updateFocusHandler();
 
+	//gtk_widget_reset_style(border);
+	
 	if (!first)
 	{
 		setBackground(bg);
 		setForeground(fg);
 		updateFont();
+		
+		setText(save);
+		g_free(save);
+		
+		updateDesign();
 	}
-
-	setText(save);
-	g_free(save);
 	
 	unlock();
 }
@@ -260,14 +341,13 @@ gComboBox::gComboBox(gContainer *parent) : gTextBox(parent, true)
 	_last_key = 0;
 	_model_dirty = false;
 	_model_dirty_timeout = 0;
-	sort = false;
+	_sort = false;
+	_has_border = true;
 	border = widget = NULL;
 	entry = NULL;
 	_button = NULL;
 	cell = NULL;
 	_use_wheel = true;
-	
-	g_typ = Type_gComboBox;
 	
 	tree = new gTree();
 	tree->addColumn();
@@ -295,28 +375,82 @@ void gComboBox::popup()
 }
 
 #ifdef GTK3
+
 GtkWidget *gComboBox::getStyleSheetWidget()
 {
-	return entry ? entry : border;
+	if (entry)
+		return entry;
+	
+	return GTK_COMBO_BOX(widget)->priv->button;
+}
+
+const char *gComboBox::getStyleSheetColorNode()
+{
+	return "";
+}
+
+const char *gComboBox::getStyleSheetFontNode()
+{
+	return "";
+}
+
+void gComboBox::customStyleSheet(GString *css)
+{
+	if (!_has_border)
+	{
+		setStyleSheetNode(css, "");
+		g_string_append_printf(css, "border:none;box-shadow:none;padding-top:0;padding-bottom:0;\n");
+		/*if (background() == COLOR_DEFAULT)
+			g_string_append_printf(css, "background:none;");*/
+		
+		if (entry)
+		{
+			setStyleSheetNode(css, " + button");
+			g_string_append_printf(css, "border:none;box-shadow:none;");
+			/*if (background() == COLOR_DEFAULT)
+				g_string_append_printf(css, "background:none;");*/
+		}
+	}
+}
+
+void gComboBox::setForeground(gColor color)
+{
+	GdkRGBA rgba;
+
+	gControl::setForeground(color);
+
+	gt_from_color(realForeground(true), &rgba);
+	g_object_set(G_OBJECT(cell), "foreground-rgba", &rgba, NULL);
 }
 
 #else
+
 void gComboBox::setRealBackground(gColor color)
 {
 	gControl::setRealBackground(color);
 	if (entry) 
 		set_gdk_base_color(entry, color);
 }
-#endif
 
 void gComboBox::setRealForeground(gColor color)
 {
 	gControl::setRealForeground(color);
 	if (entry) 
 		set_gdk_text_color(entry, color);
-}
 
-int gComboBox::count()
+#ifdef GTK3	
+	GdkRGBA rgba;
+	gt_from_color(color, &rgba);
+	g_object_set(G_OBJECT(cell), "foreground-rgba", &rgba, NULL);
+#else
+	GdkColor col;
+	fill_gdk_color(&col, color);
+	g_object_set(G_OBJECT(cell), "foreground-gdk", &col, NULL);
+#endif
+}
+#endif
+
+int gComboBox::count() const
 {
 	return tree->rowCount();
 }
@@ -363,7 +497,7 @@ int gComboBox::length()
 		return gTextBox::length();
 }
 
-bool gComboBox::isSorted()
+bool gComboBox::isSorted() const
 {
 	return tree->isSorted();
 }
@@ -385,7 +519,7 @@ void gComboBox::setIndex(int vl)
 	else if (vl >= count()) 
 		return;
 		
-	if (vl == index())
+	if (vl == index() && vl >= 0)
 	{
 		emit(SIGNAL(onClick));
 		return;
@@ -570,9 +704,14 @@ void gComboBox::updateFont()
 
 void gComboBox::setFocus()
 {
-	gControl::setFocus();
-	if (entry && window()->isVisible())
+	if (entry && !proxy() && window()->isVisible())
+	{
+		gtk_editable_set_editable(GTK_EDITABLE(entry), false);
 		gtk_widget_grab_focus(entry);
+		gtk_editable_set_editable(GTK_EDITABLE(entry), true);
+	}
+	else
+		gControl::setFocus();
 }
 
 int gComboBox::minimumHeight()
@@ -594,7 +733,7 @@ int gComboBox::minimumHeight()
 }
 
 
-bool gComboBox::isReadOnly()
+bool gComboBox::isReadOnly() const
 {
 	return entry == NULL;
 }
@@ -631,15 +770,32 @@ void gComboBox::updateFocusHandler()
 	g_signal_connect(G_OBJECT(button), "focus-out-event", G_CALLBACK(button_focus_out), (gpointer)this);
 }
 
-bool gComboBox::hasBorder() const
-{
-	gboolean v;
-	
-	g_object_get(G_OBJECT(widget), "has-frame", &v, (void *)NULL);
-	return v;
-}
-
 void gComboBox::setBorder(bool v)
 {
-	g_object_set(G_OBJECT(widget), "has-frame", v, 	(void *)NULL);
+	if (_has_border == v)
+		return;
+	
+	_has_border = v;
+	updateBorder();
+}
+
+void gComboBox::updateBorder()
+{
+#ifdef GTK3
+	updateStyleSheet(true);
+#else
+	g_object_set(G_OBJECT(widget), "has-frame", _has_border, NULL);
+#endif
+}
+
+bool gComboBox::canFocus() const
+{
+	return !_design;
+}
+
+void gComboBox::setDesign(bool ignore)
+{
+	gControl::setDesign(ignore);
+	if (entry)
+		gtk_widget_set_can_focus(entry, false);
 }

@@ -78,6 +78,8 @@ struct TrayData {
 	/* General */
 	Window tray;							/* ID of tray window */
 	Window hint_win;						/* ID of icon window */
+	Window parent;
+	int x, y, w, h;
 	Display *dpy;							/* Display pointer */
 	unsigned long bg; // background color
 	XSizeHints xsh;							/* Size & position of the tray window */
@@ -138,5 +140,7 @@ int tray_update_window_strut();
 int tray_update_window_props();
 /* Set tray window WM hints */
 int tray_set_wm_hints();
+// update tray window size
+void tray_update_size();
 
 #endif

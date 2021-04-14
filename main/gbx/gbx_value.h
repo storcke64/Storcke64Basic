@@ -243,8 +243,8 @@ void VALUE_write_variant(VALUE *value, void *addr);
 //void VALUE_put(VALUE *value, void *addr, TYPE type);
 
 void VALUE_free(void *addr, TYPE type);
-void VALUE_to_string(VALUE *value, char **addr, int *len);
-void VALUE_from_string(VALUE *value, const char *addr, int len);
+void VALUE_to_local_string(VALUE *value, char **addr, int *len);
+void VALUE_from_local_string(VALUE *value, const char *addr, int len);
 
 void VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref);
 void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype);

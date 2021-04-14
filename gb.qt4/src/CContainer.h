@@ -45,13 +45,29 @@ typedef
 		unsigned spacing : 1;
 		unsigned padding : 8;
 		unsigned indent : 1;
+		unsigned centered : 1;
 		unsigned dirty : 1;
 		unsigned autoresize : 1;
 		unsigned invert : 1;
-		unsigned _reserved: 12;
+		unsigned paint : 1;
+		unsigned _reserved: 10;
 		}
 	CARRANGEMENT;
 
+#define ARRANGEMENT_FLAG_PROPERTIES \
+	GB_PROPERTY("AutoResize", "b", Container_AutoResize), \
+	GB_PROPERTY("Padding", "i", Container_Padding), \
+	GB_PROPERTY("Spacing", "b", Container_Spacing), \
+	GB_PROPERTY("Margin", "b", Container_Margin), \
+	GB_PROPERTY("Indent", "b", Container_Indent), \
+	GB_PROPERTY("Invert", "b", Container_Invert), \
+	GB_PROPERTY("Centered", "b", Container_Centered)
+
+#define ARRANGEMENT_PROPERTIES \
+	GB_PROPERTY("Arrangement", "i", Container_Arrangement), \
+	ARRANGEMENT_FLAG_PROPERTIES
+
+	
 #ifndef __CCONTAINER_CPP
 
 extern GB_DESC ContainerDesc[];
@@ -63,22 +79,13 @@ extern GB_DESC UserContainerDesc[];
 
 typedef
 	struct {
-		CWIDGET widget;
-		QWidget *container;
-		unsigned mode : 4;
-		unsigned user : 1;
-		unsigned locked : 1;
-		unsigned margin : 1;
-		unsigned spacing : 1;
-		unsigned padding : 8;
-		unsigned indent : 4;
-		unsigned dirty : 1;
-		unsigned autoresize : 1;
-		unsigned invert : 1;
-		unsigned _reserved: 9;
+		CCONTAINER parent;
+		ushort paint_func;
+		ushort font_func;
+		ushort change_func;
 		}
-	CCONTAINER_ARRANGEMENT;
-
+	CUSERCONTROL;
+	
 typedef
 	struct {
 		CCONTAINER parent;
@@ -99,11 +106,15 @@ typedef
 #define THIS_CHILDREN ((CCONTAINERCHILDREN *)_object)
 #define CONTAINER (THIS->container)
 #define THIS_ARRANGEMENT (((CCONTAINER_ARRANGEMENT *)_object))
+#define THIS_USERCONTROL (((CUSERCONTROL *)_object))
 #define THIS_USERCONTAINER (((CUSERCONTAINER *)_object))
 
 //#define CCONTAINER_PROPERTIES CWIDGET_PROPERTIES ",Arrangement"
 
 #endif
+
+DECLARE_PROPERTY(Container_ClientX);
+DECLARE_PROPERTY(Container_ClientY);
 
 DECLARE_PROPERTY(Container_Arrangement);
 DECLARE_PROPERTY(Container_AutoResize);
@@ -114,6 +125,7 @@ DECLARE_PROPERTY(Container_Indent);
 DECLARE_PROPERTY(Container_Border);
 DECLARE_PROPERTY(Container_SimpleBorder);
 DECLARE_PROPERTY(Container_Invert);
+DECLARE_PROPERTY(Container_Centered);
 
 void CCONTAINER_arrange(void *_object);
 void CCONTAINER_get_max_size(void *_object, int xc, int yc, int wc, int hc, int *w, int *h);
@@ -125,6 +137,10 @@ void CCONTAINER_draw_border(QPainter *p, char border, QWidget *w);
 void CCONTAINER_draw_border_without_widget(QPainter *p, char border, QStyleOptionFrame &opt);
 void CCONTAINER_set_border(char *border, char new_border, QWidget *wid);
 int CCONTAINER_get_border_width(char border);
+
+void CCONTAINER_update_design(void *_object);
+
+void CUSERCONTROL_send_change_event();
 
 class MyFrame : public QWidget
 {
@@ -161,10 +177,14 @@ public:
 	MyContainer(QWidget *);
 	~MyContainer();
 
+	bool inDrawEvent();
+	
 protected:
 
 	virtual void showEvent(QShowEvent *);
 	virtual void hideEvent(QHideEvent *);
+	virtual void paintEvent(QPaintEvent *);
+	virtual void changeEvent(QEvent *);
 };
 
 #endif

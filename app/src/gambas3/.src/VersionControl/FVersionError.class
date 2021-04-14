@@ -25,24 +25,24 @@ End
 
 Public Sub Form_Open()
 
-  Dim DS As Integer
+  Dim DS As Integer = Desktop.Scale
   
-  DS = Desktop.Scale
-  
-  lblError.Text = $sText
+  lblError.Text = Html($sText)
   
   If $sDetail Then 
   
     Project.SetEditorFont(trmDetail)
     MTheme.InitControl(trmDetail)
+    panExpand.Hide
     trmDetail.Print(Replace($sDetail, "\n", "\r\n"))
     trmDetail.Show
-    Me.Resize(DS * 120, trmDetail.Y + trmDetail.H + DS * 6)
+    Me.Resize(DS * 100, trmDetail.Y + DS * 30)
     
   Else
     
-    Me.Resize(DS * 60, trmDetail.Y + DS * 6)
     trmDetail.Hide
+    panExpand.Show
+    Me.Resize(Min(lblError.Font.TextWidth($sText), DS * 40), trmDetail.Y + DS * 6)
     
   Endif
   

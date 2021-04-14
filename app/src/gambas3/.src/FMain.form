@@ -34,7 +34,7 @@
     { mnuOpenExtern Menu
       Action = "open-extern"
       Text = ("Open file") & "..."
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/file"]
     }
     { Menu5 Menu
     }
@@ -180,7 +180,7 @@
     { mnuVersionControl Menu
       Action = "version-control"
       Text = ("Version control")
-      Picture = Picture["icon:/small/clock"]
+      Picture = Picture["icon:/small/record"]
       { mnuVcCommit Menu
         Action = "vc-commit"
         Text = ("Commit") & "..."
@@ -219,7 +219,7 @@
     { mnuPublish Menu
       Action = "publish"
       Text = ("Publish") & "..."
-      Picture = Picture["icon:/medium/internet"]
+      Picture = Picture["icon:/small/internet"]
     }
     { Menu15 Menu
     }
@@ -238,7 +238,7 @@
     { mnuProperty Menu
       Action = "project-property"
       Text = Shortcut(("Properties"), "P") & "..."
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/properties"]
       Shortcut = "Ctrl+I"
     }
   }
@@ -317,11 +317,6 @@
       Text = ("Use embedded HTTP server")
       Toggle = True
     }
-    { mnuProfile Menu
-      Action = "profile"
-      Text = Shortcut(("Activate profiling"), "g")
-      Toggle = True
-    }
     { Menu44 Menu
     }
     { mnuEnvReverse Menu mnuSetEnv
@@ -383,12 +378,19 @@
         Tag = "GB_GUI=gb.gtk3"
       }
     }
-    { Menu9 Menu
+    { Menu48 Menu
+    }
+    { mnuProfile Menu
+      Action = "profile"
+      Text = Shortcut(("Activate profiling"), "g")
+      Toggle = True
     }
     { mnuOpenProfile Menu
       Action = "open-profile"
       Text = Shortcut(("Open profile"), "O") & "..."
       Picture = Picture["icon:/small/clock"]
+    }
+    { Menu9 Menu
     }
     { mnuClearBreakpoints Menu
       Action = "clear-break"
@@ -413,7 +415,7 @@
     }
     { mnuViewProperty Menu
       Action = "property"
-      Text = ("Properties")
+      Text = ("Properties sheet")
       Picture = Picture["icon:/small/edit"]
       Toggle = True
       Checked = True
@@ -483,7 +485,7 @@
     { mnuTerminal Menu
       Action = "open-terminal"
       Text = ("Open a terminal") & "..."
-      Picture = Picture["icon:/16/terminal"]
+      Picture = Picture["icon:/small/terminal"]
       Shortcut = "Ctrl+Alt+T"
     }
     { mnuSendMail Menu
@@ -608,7 +610,6 @@
       }
       { mnuNewFile Menu mnuNewFile
         Name = "mnuNewFile"
-        Action = "new-other"
         Text = Shortcut(("Other"), "O") & "..."
         Picture = Picture["icon:/small/new"]
         Tag = "text"
@@ -647,16 +648,6 @@
       { Menu23 Menu
       }
     }
-    { mnuCompressAll Menu
-      Action = "compress-all"
-      Text = ("Compress all")
-      Picture = Picture["icon:/small/archive"]
-    }
-    { mnuUncompressAll Menu
-      Action = "uncompress-all"
-      Text = ("Uncompress all")
-      Picture = Picture["icon:/small/undo"]
-    }
     { Menu7 Menu
     }
     { mnuCut Menu
@@ -676,6 +667,11 @@
       Text = Shortcut(("Paste"), "P")
       Picture = Picture["icon:/small/paste"]
       Shortcut = "Ctrl+V"
+    }
+    { mnuClone Menu
+      Action = "duplicate-file"
+      Text = ("Duplicate")
+      Picture = Picture["icon:/small/clone"]
     }
     { mnuRenameFile Menu
       Action = "rename"
@@ -701,7 +697,7 @@
     { mnuStartup Menu
       Action = "startup-class"
       Text = Shortcut(("Startup class"), "S")
-      Picture = Picture["icon:/small/program"]
+      Picture = Picture["icon:/small/home"]
       Shortcut = "Alt+S"
     }
     { mnuRunThat Menu
@@ -713,7 +709,7 @@
     }
     { mnuAddVersion Menu
       Text = Shortcut(("Add to repository"), "A")
-      Picture = Picture["icon:/16/add"]
+      Picture = Picture["icon:/small/add"]
     }
     { mnuFilter Menu
       Text = ("Filter")
@@ -733,11 +729,19 @@
         Text = ("Show files in conflict")
         Picture = Picture["img/32/conflict.png"]
       }
+      { mnuFilterDoNotTranslate Menu
+        Text = ("Show untranslatable files")
+        Picture = Picture["img/32/do-not-translate.png"]
+      }
+      { mnuFilterCompressed Menu
+        Text = ("Show compressed files")
+        Picture = Picture["icon:/small/archive"]
+      }
       { Menu13 Menu
       }
       { mnuFilterAll Menu
         Text = ("Show all")
-        Picture = Picture["icon:/small/refresh"]
+        Picture = Picture["icon:/small/clear"]
       }
     }
     { mnuAddVersionAll Menu
@@ -749,6 +753,27 @@
       Text = ("Do not translate")
       Picture = Picture["img/32/do-not-translate.png"]
       Toggle = True
+    }
+    { mnuCompressAll Menu
+      Action = "compress-all"
+      Text = ("Compress all")
+      Picture = Picture["icon:/small/archive"]
+    }
+    { mnuUncompressAll Menu
+      Action = "uncompress-all"
+      Text = ("Uncompress all")
+      Picture = Picture["icon:/small/undo"]
+    }
+    { mnuCompressFile Menu
+      Action = "compress-file"
+      Text = ("Compress file into the executable")
+      Picture = Picture["icon:/small/archive"]
+      Toggle = True
+    }
+    { mnuCompressNow Menu
+      Action = "compress-now"
+      Text = ("Compress file")
+      Picture = Picture["icon:/small/archive"]
     }
     { Menu46 Menu
     }
@@ -843,6 +868,7 @@
       Action = "tips"
       Text = Shortcut(("Tips of the day"), "T") & "..."
       Picture = Picture["icon:/small/lamp"]
+      Toggle = True
     }
     { mnuHelpShortcuts Menu
       Action = "help-shortcut"
@@ -854,7 +880,7 @@
     }
     { mnuSystemInfo Menu
       Text = Shortcut(("System information"), "S") & "..."
-      Picture = Picture["icon:/16/system"]
+      Picture = Picture["icon:/small/system"]
     }
     { mnuAbout Menu
       Action = "about"
@@ -874,6 +900,7 @@
     MoveScaled(0,0,175,8)
     Visible = False
     Key = "main"
+    Separator = True
     { ToolButton1 ToolButton
       MoveScaled(0,0,4,4)
       ToolTip = ("New project")
@@ -904,7 +931,7 @@
       MoveScaled(14,0,4,4)
       ToolTip = ("Project properties")
       Action = "project-property"
-      Picture = Picture["icon:/small/edit"]
+      Picture = Picture["icon:/small/properties"]
     }
     { ToolButton7 ToolButton
       MoveScaled(22,0,4,4)
@@ -1254,7 +1281,6 @@
     MoveScaled(2,17,170,77)
     Expand = True
     Arrangement = Arrange.Horizontal
-    Border = Border.Plain
     { panProject SidePanel
       MoveScaled(1,3,31,66)
       Visible = False
@@ -1270,7 +1296,6 @@
         { btnUseInheritance ToolButton
           MoveScaled(0,0,4,4)
           ToolTip = ("Dispose class files according to inheritance")
-          Picture = Picture["icon:/small/vector"]
           Toggle = True
         }
         { txtSearchProject ButtonBox
@@ -1326,11 +1351,11 @@
               Visible = False
             }
             { btnWorkspaceProperty ToolButton
-              MoveScaled(27,1,4,4)
+              MoveScaled(77,1,4,4)
               Visible = False
               ToolTip = ("Show properties sheet")
               Ignore = True
-              Picture = Picture["icon:/small/properties"]
+              Picture = Picture["icon:/small/edit"]
             }
             { btnWorkspaceProject ToolButton
               MoveScaled(22,1,4,4)
@@ -1350,6 +1375,7 @@
             Hidden = True
             { btnClosePanel ToolButton
               MoveScaled(73,3,4,4)
+              Background = Color.Background
               Ignore = True
               Picture = Picture["icon:/small/close"]
             }
@@ -1372,7 +1398,7 @@
           Separator = True
           Transparent = True
           { panImageProperty Panel
-            MoveScaled(7,4,16,14)
+            MoveScaled(8,3,16,14)
             Expand = True
             Arrangement = Arrange.Fill
           }
@@ -1398,7 +1424,14 @@
               Visible = False
               ToolTip = ("Show property help")
               Ignore = True
-              Picture = Picture["icon:/small/help"]
+              Picture = Picture["icon:/tiny/help"]
+            }
+            { btnPropertyToolbar ToolButton
+              MoveScaled(0,0,4,4)
+              Visible = False
+              ToolTip = ("Show controls")
+              Ignore = True
+              Picture = Picture["icon:/tiny/development"]
             }
             { btnPropertyToolbar ToolButton
               MoveScaled(0,0,4,4)
@@ -1504,6 +1537,16 @@
     Shortcut = ""
     Picture = "icon:/small/archive"
   }
+  { Action compress-file
+    Text = "Compress file into the executable"
+    Shortcut = ""
+    Picture = "icon:/small/archive"
+  }
+  { Action compress-now
+    Text = "Compress file"
+    Shortcut = ""
+    Picture = "icon:/small/archive"
+  }
   { Action console
     Text = "Console"
     Shortcut = "F11"
@@ -1536,6 +1579,11 @@
     Text = "Do not translate"
     Shortcut = ""
     Picture = "img/32/do-not-translate.png"
+  }
+  { Action duplicate-file
+    Text = "Duplicate"
+    Shortcut = ""
+    Picture = "icon:/small/clone"
   }
   { Action edit-class
     Text = "Open code"
@@ -1648,11 +1696,6 @@
     Shortcut = ""
     Picture = "$MenuButton"
   }
-  { Action new-other
-    Text = "Other"
-    Shortcut = ""
-    Picture = "icon:/small/new"
-  }
   { Action new-project
     Text = "New project"
     Shortcut = "Ctrl+N"
@@ -1710,10 +1753,10 @@
   { Action project-property
     Text = "Properties"
     Shortcut = "Ctrl+I"
-    Picture = "icon:/small/edit"
+    Picture = "icon:/small/properties"
   }
   { Action property
-    Text = "Properties"
+    Text = "Properties sheet"
     Shortcut = ""
     Picture = "icon:/small/properties"
   }
@@ -1789,7 +1832,7 @@
   { Action startup-class
     Text = "Startup class"
     Shortcut = "Alt+S"
-    Picture = "icon:/small/program"
+    Picture = "icon:/small/home"
   }
   { Action step
     Text = "Step"
