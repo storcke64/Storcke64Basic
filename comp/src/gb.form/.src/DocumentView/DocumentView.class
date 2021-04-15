@@ -1,10 +1,5 @@
 ' Gambas class file
 
-''' This class implements a generic document viewer.
-'''
-''' You must define first the number of page of your document with the [./count] property.
-''' Then you draw each page of the document in the [./.draw] event handler.
-
 Export
 Inherits UserControl
 
@@ -40,7 +35,7 @@ Property Zoom, Scale As Float
 ''
 '' If set to zero (the default), then the preview only shows pages one by one.
 '' Otherwise all pages are layouted from top to bottom.
-Property Columns As Integer
+Property Columns, Column As Integer
 
 '' Return or set how the different pages are arranged inside the view.
 ''
@@ -65,13 +60,13 @@ Property ShowShadow As Boolean
 Property ShowPage As Boolean
 
 '' Return the index of the first visible page.
-Property Read FirstVisiblePage As Integer
+Property Read FirstVisiblePage, FirstVisibleDocument As Integer
 
 '' Return the index of the last visible page.
-Property Read LastVisiblePage As Integer
+Property Read LastVisiblePage, LastVisibleDocument As Integer
 
 '' Return or set if the page must be centered in the view.
-Property Center As Boolean
+Property Center, AutoCenter As Boolean
 
 '' Return or set if the document view has a border.
 Property Border As Boolean
