@@ -77,12 +77,16 @@ gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data
 {
 	gControl *ctrl;
 	
-	if (data != gApplication::activeControl())
-		return true;
-			
 	if (direction == GTK_DIR_TAB_FORWARD || direction == GTK_DIR_TAB_BACKWARD)
 	{
-		ctrl = data;
+		ctrl = gApplication::activeControl();
+
+		if (!ctrl)
+			return true;
+		
+		if (ctrl->topLevel() != data)
+			return true;
+		
 		for(;;)
 		{
 			//fprintf(stderr, "cb_focus: %s / %d %d\n", ctrl->name(), ctrl->isEnabled(), ctrl->canFocus());

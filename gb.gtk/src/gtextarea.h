@@ -33,14 +33,14 @@ public:
 	~gTextArea();
 
 //"Properties"
-	int column();
-	int length();
-	int line();
-	int position();
-	bool readOnly();
-	char* text();
-	bool wrap();
-	bool isSelected();
+	int column() const;
+	int length() const;
+	int line() const;
+	int position() const;
+	bool readOnly() const;
+	char* text() const;
+	bool wrap() const;
+	bool isSelected() const;
 
 	void setColumn(int vl);
 	void setLine(int vl);
@@ -48,7 +48,6 @@ public:
 	void setReadOnly(bool vl);
 	void setText(const char *txt, int len = -1);
 	void setWrap(bool vl);
-	
 	//int textWidth();
 	//int textHeight();
 	
@@ -61,14 +60,14 @@ public:
 	void ensureVisible();
 	void paste();
 	void insert(const char *txt);
-	int toLine(int pos);
-	int toColumn(int pos);
-	int toPosition(int line, int col);
+	int toLine(int pos) const;
+	int toColumn(int pos) const;
+	int toPosition(int line, int col) const;
 
 //"Selection properties"
-	int selStart();
-	int selEnd();
-	char* selText();
+	int selStart() const;
+	int selEnd() const;
+	char* selText() const;
 
 	void setSelText(const char *vl);
 
@@ -85,7 +84,7 @@ public:
 	void redo();
 	void clear();
 	
-	void getCursorPos(int *x, int *y, int pos);
+	void getCursorPos(int *x, int *y, int pos) const;
 	
 	void emitCursor();
 	
@@ -124,7 +123,7 @@ private:
 	int _last_pos;
 	GtkTextTag *_fix_spacing_tag;
 
-	GtkTextIter *getIterAt(int pos = -1);
+	GtkTextIter *getIterAt(int pos = -1) const;
 };
 
 #endif

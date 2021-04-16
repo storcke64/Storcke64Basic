@@ -336,7 +336,7 @@ public:
 	bool hasBorder() const;
 	int getFramePadding() const { return frame_padding; }
 	void setFramePadding(int padding);
-	virtual int getFrameWidth();
+	virtual int getFrameWidth() const;
 	virtual gColor getFrameColor();
 #ifdef GTK3
 	void drawBorder(cairo_t *cr);
