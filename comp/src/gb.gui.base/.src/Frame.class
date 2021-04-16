@@ -23,6 +23,9 @@ Property TextFont As Font
 '' Return or set the position of the title relative to the border.
 Property Alignment As Integer
 
+'' --> [/comp/gb.qt4/usercontainer/arrangement]
+Property Arrangement As Integer
+
 Private $hContainer As Panel
 Private $hFrame As DrawingArea
 Private $sText As String
@@ -47,9 +50,9 @@ End
 Public Sub Frame_Arrange()
 
   Dim DS As Integer
-  Dim H As Integer
+  Dim H As Integer = 0
   
-  If $sText Then
+  If $sText And If Me.Arrangement Then
     
     DS = Desktop.Scale
   
@@ -254,5 +257,18 @@ Private Sub Alignment_Write(Value As Integer)
   $iAlign = Value
   Frame_Arrange
   $hFrame.Refresh
+
+End
+
+Private Function Arrangement_Read() As Integer
+
+  Return Super.Arrangement
+
+End
+
+Private Sub Arrangement_Write(Value As Integer)
+
+  Super.Arrangement = Value
+  Frame_Arrange
 
 End
