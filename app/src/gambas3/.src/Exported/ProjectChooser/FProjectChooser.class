@@ -176,16 +176,16 @@ Public Sub btnCancel_Click()
 
 End
 
-Public Sub Form_Arrange()
-
-  If System.RightToLeft Then
-    panOpen.Move(Desktop.Scale, Me.ClientH - panOpen.H - Desktop.Scale)
-  Else
-    panOpen.Move(Me.ClientW - panOpen.W - Desktop.Scale, Me.ClientH - panOpen.H - Desktop.Scale)
-  Endif
-  panOpen.Raise
-
-End
+' Public Sub panProject_Arrange()
+' 
+'   If System.RightToLeft Then
+'     panOpen.Move(Desktop.Scale, panOpen.Parent.ClientH - panOpen.H - Desktop.Scale)
+'   Else
+'     panOpen.Move(panOpen.Parent.ClientW - panOpen.W - Desktop.Scale, panOpen.Parent.ClientH - panOpen.H - Desktop.Scale)
+'   Endif
+'   panOpen.Raise
+' 
+' End
 
 Public Sub dchProject_Uncompress(Path As String)
   

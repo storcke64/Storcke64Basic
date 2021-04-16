@@ -594,6 +594,7 @@ End
 Public Sub Filter_Change()
 
   ApplyFilter($hFilter.Text)
+  $hList.Scroll(0, 0)
 
 End
 
