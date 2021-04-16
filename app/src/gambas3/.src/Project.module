@@ -3077,7 +3077,7 @@ Private Sub GetVersion(Optional bWriteProject As Boolean) As Boolean
   sDir = Project.Dir
   Do
     sDir = File.Dir(sDir)
-    If sDir = "/" Then Return True
+    If Not sDir Or If sDir = "/" Then Return True
     If Exist(sDir &/ "VERSION") Then Break
   Loop
 
