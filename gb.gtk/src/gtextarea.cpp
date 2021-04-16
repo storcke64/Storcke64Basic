@@ -544,7 +544,7 @@ gTextArea::~gTextArea()
 	clearUndoStack();
 }
 
-char *gTextArea::text()
+char *gTextArea::text() const
 {
 	GtkTextIter start;
 	GtkTextIter end;
@@ -571,7 +571,7 @@ void gTextArea::setText(const char *txt, int len)
 	end();
 }
 
-bool gTextArea::readOnly()
+bool gTextArea::readOnly() const
 {
 	return !gtk_text_view_get_editable(GTK_TEXT_VIEW(textview));
 }
@@ -583,7 +583,7 @@ void gTextArea::setReadOnly(bool vl)
 	_eat_return_key = !vl;
 }
 
-GtkTextIter *gTextArea::getIterAt(int pos)
+GtkTextIter *gTextArea::getIterAt(int pos) const
 {
 	static GtkTextIter iter;
 	
@@ -595,7 +595,7 @@ GtkTextIter *gTextArea::getIterAt(int pos)
 	return &iter;
 }
 
-int gTextArea::line()
+int gTextArea::line() const
 {
 	return gtk_text_iter_get_line(getIterAt());
 }
@@ -624,7 +624,7 @@ void gTextArea::setLine(int vl)
 	ensureVisible();
 }
 
-int gTextArea::column()
+int gTextArea::column() const
 {
 	return gtk_text_iter_get_line_offset(getIterAt());
 }
@@ -648,7 +648,7 @@ void gTextArea::setColumn(int vl)
 	ensureVisible();
 }
 
-int gTextArea::position()
+int gTextArea::position() const
 {
 	return gtk_text_iter_get_offset(getIterAt());
 }
@@ -662,7 +662,7 @@ void gTextArea::setPosition(int vl)
 	ensureVisible();
 }
 
-int gTextArea::length()
+int gTextArea::length() const
 {
 	GtkTextIter iter;
 	
@@ -670,7 +670,7 @@ int gTextArea::length()
 	return gtk_text_iter_get_offset(&iter);
 }
 
-bool gTextArea::wrap()
+bool gTextArea::wrap() const
 {
 	return (gtk_text_view_get_wrap_mode(GTK_TEXT_VIEW(textview)) != GTK_WRAP_NONE);
 }
@@ -725,7 +725,7 @@ void gTextArea::insert(const char *txt)
 	gtk_text_buffer_insert_at_cursor(_buffer, (const gchar *)txt, -1);
 }
 
-int gTextArea::toLine(int pos)
+int gTextArea::toLine(int pos) const
 {
 	if (pos < 0)
 		pos=0;
@@ -735,7 +735,7 @@ int gTextArea::toLine(int pos)
 	return gtk_text_iter_get_line(getIterAt(pos));
 }
 
-int gTextArea::toColumn(int pos)
+int gTextArea::toColumn(int pos) const
 {
 	if (pos < 0)
 		pos=0;
@@ -745,7 +745,7 @@ int gTextArea::toColumn(int pos)
 	return gtk_text_iter_get_line_offset(getIterAt(pos));
 }
 
-int gTextArea::toPosition(int line, int col)
+int gTextArea::toPosition(int line, int col) const
 {
 	GtkTextIter iter;
 	int lm, cm;
@@ -779,13 +779,13 @@ gTextArea selection
 
 ***********************************************************************************/
 
-bool gTextArea::isSelected()
+bool gTextArea::isSelected() const
 {
 	return gtk_text_buffer_get_selection_bounds(_buffer, NULL, NULL);
 	//return gtk_text_buffer_get_has_selection(buf); // Only since 2.10
 }
 
-int gTextArea::selStart()
+int gTextArea::selStart() const
 {
 	GtkTextIter start, end;
 	
@@ -793,7 +793,7 @@ int gTextArea::selStart()
 	return gtk_text_iter_get_offset(&start);	
 }
 
-int gTextArea::selEnd()
+int gTextArea::selEnd() const
 {
 	GtkTextIter start, end;
 	
@@ -801,7 +801,7 @@ int gTextArea::selEnd()
 	return gtk_text_iter_get_offset(&end);
 }
 
-char *gTextArea::selText()
+char *gTextArea::selText() const
 {
 	GtkTextIter start, end;
 	char *text;
@@ -1091,7 +1091,7 @@ void gTextArea::customStyleSheet(GString *)
 
 #endif
 
-void gTextArea::getCursorPos(int *x, int *y, int pos)
+void gTextArea::getCursorPos(int *x, int *y, int pos) const
 {
 	GdkRectangle rect;
 	int f = getFrameWidth();

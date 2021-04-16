@@ -2051,7 +2051,7 @@ void gControl::updateBorder()
 	//gtk_widget_queue_draw(frame);
 }
 
-int gControl::getFrameWidth()
+int gControl::getFrameWidth() const
 {
 	guint p;
 
