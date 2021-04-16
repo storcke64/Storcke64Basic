@@ -1,14 +1,14 @@
 # Gambas Project File 3.0
 Title=Common controls and classes for GUI components
-Startup=FPictureBox
+Startup=FTestFrame
 Icon=.hidden/window.png
-Version=3.16.0
+Version=3.16.90
 VersionFile=1
 Component=gb.image
 Component=gb.gui
 Component=gb.settings
 Arguments=[["-style=oxygen"],["-style=qtcurve"]]
-Environment="GB_JIT_DEBUG=1\nGB_GUI=gb.gtk\nLIBOVERLAY_SCROLLBAR=0\n GTK_DEBUG=interactive"
+Environment="GB_JIT_DEBUG=1\nGB_GUI=gb.qt5\nLIBOVERLAY_SCROLLBAR=0\n GTK_DEBUG=interactive"
 TabSize=2
 Translate=1
 Language=en

@@ -6,3 +6,9 @@ Public Sub Form_Open()
   'Frame1.RichText = "<b>Titre</b> un <i>peu long :</i> Ceci est le titre de la frame. Et il peut être long. Mais très long en fait !"
 
 End
+
+Public Sub Button3_Click()
+
+  Frame1.Arrangement = Arrange.None
+  
+End
