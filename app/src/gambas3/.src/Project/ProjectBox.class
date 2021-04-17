@@ -15,6 +15,7 @@ Property Highlight As Boolean
 Property Selected As Boolean
 Property ShowAuthors As Boolean
 Property Read Info As CProjectInfo
+Property Read Deleted As Boolean
 
 Public ShowRemove As Boolean
 Public Group As String ' for examples
@@ -315,6 +316,8 @@ Public Sub DrawingArea_Draw()
     Paint.DrawImage(If($bInsideRemove, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
   Endif
   
+  Me.Enabled = Not $hProjectInfo.Deleted
+  
   If Not Me.Enabled Then Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha(Style.BackgroundOf($hDrawingArea), 64))
   
   ' If Template And If $sPath = GetParent().Current Then
@@ -469,5 +472,11 @@ Private Sub Selected_Write(Value As Boolean)
 
   $bSelected = Value
   $hDrawingArea.Refresh
+
+End
+
+Private Function Deleted_Read() As Boolean
+
+  Return $hProjectInfo.Deleted
 
 End

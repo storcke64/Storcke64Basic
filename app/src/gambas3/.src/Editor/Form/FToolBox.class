@@ -16,16 +16,6 @@ Private $aOrder As New String[]
 
 Private $iTabDeprecated As Integer
 
-Public Sub _new()
-  
-  tabTool.AddButton(btnZoom, Align.Right)
-  tabTool.ShowButton(btnZoom, True)
-  tabTool.AddButton(btnDeprecated, Align.Right)
-  tabTool.ShowButton(btnDeprecated, True)
-  
-End
-
-
 Public Sub Form_Open()
 
   Dim aTrans As String[]
@@ -276,7 +266,7 @@ Public Sub ReadConfig()
   hFont = Project.GetSmallFont()
   tabTool.TextFont = hFont
   panTooltip.Font = hFont
-  panTooltip.Height = hFont.H + 4
+  'panTooltip.Height = hFont.H + 4
   UpdateSize
 
 End
@@ -386,12 +376,22 @@ Public Sub tabTool_Menu()
   Next
   
   mnuDeprecated.Checked = btnDeprecated.Value
+  mnuHelp.Visible = lblControl.Text
+  mnuHelp.Text = Subst(("Help on &1") & "...", lblControl.Text)
+  mnuHelp.Tag = lblControl.Text
   
   mnuSize.Children[Settings["/Toolbox/Size", 0]].Checked = True
   
   mnuToolbox.Popup
 
 End
+
+Public Sub ToolBar_Menu()
+  
+  tabTool_Menu
+  
+End
+
 
 Public Sub mnuShow_Click()
   
@@ -416,4 +416,21 @@ Public Sub IsDeprecatedVisible() As Boolean
   
   Return btnDeprecated.Value
   
+End
+
+Public Sub mnuHelp_Click()
+
+  Dim sClass As String
+  Dim sComp As String
+  
+  sClass = mnuHelp.Tag
+  If Not sClass Then Return
+  
+  sComp = Project.Documentation.Classes[sClass].Component
+  If sComp = CComponent.PROJECT_NAME Then
+    Project.OpenFile(sClass)
+  Else
+    MHelp.ShowHelpBrowserWith(MHelp.TYPE_CLASS, sClass)
+  Endif
+
 End
