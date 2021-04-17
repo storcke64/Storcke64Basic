@@ -9,6 +9,7 @@ Property Read Authors As String[]
 Property Read Icon As String
 Property Read Startup As String
 Property Read Components As String[]
+Property Read Deleted As Boolean Use $bDeleted
 
 Public Type As Integer
 Public Translate As Boolean
@@ -57,7 +58,12 @@ Private Sub ReadProject()
   If Not $sPath Then Return
 
   sPath = $sPath &/ ".project"
-  dDate = Stat(sPath).LastModified
+  Try dDate = Stat(sPath).LastModified
+  If Error Then
+    $dDate = Now
+    $bDeleted = True
+    Return
+  Endif
   If $dDate And If $dDate = dDate Then Return
   $dDate = dDate
   
@@ -134,7 +140,7 @@ Private Sub ReadProject()
   Endif
 
   Close #hFile
-
+  
 End
 
 Public Sub _new(sPath As String)

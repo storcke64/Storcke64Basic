@@ -11,6 +11,7 @@
     }
     { mnuSize Menu
       Text = ("Button size")
+      Picture = Picture["icon:/small/zoom-in"]
       { Menu1 Menu mnuSize
         Name = "Menu1"
         Text = ("Tiny")
@@ -38,7 +39,14 @@
     }
     { mnuDeprecated Menu
       Text = ("Deprecated controls")
+      Picture = Picture["img/control/deprecated.png"]
       Toggle = True
+    }
+    { mnuHelp Menu
+      #Translate = False
+      Text = "Help"
+      Picture = Picture["icon:/small/help"]
+      Visible = False
     }
   }
   { tabTool TabPanel
@@ -57,35 +65,31 @@
     MoveScaled(8,44,21,0)
   }
   { panTooltip HBox
-    MoveScaled(1,46,33,3)
+    MoveScaled(1,45,33,4)
     { lblControl Label
-      MoveScaled(4,0,10,3)
+      MoveScaled(0,0,10,3)
       Font = Font["Bold"]
       Expand = True
       Alignment = Align.Right
     }
     { Panel1 Panel
-      MoveScaled(15,0,1,3)
+      MoveScaled(11,0,1,3)
     }
     { lblComp TextLabel
-      MoveScaled(21,0,10,3)
+      MoveScaled(12,0,10,3)
       Expand = True
       Alignment = Align.Left
     }
-  }
-  { btnZoom ToolButton
-    MoveScaled(0,39,4,4)
-    Visible = False
-    ToolTip = ("Change button size")
-    Ignore = True
-    Picture = Picture["icon:/small/zoom-in"]
-  }
-  { btnDeprecated ToolButton
-    MoveScaled(4,39,4,4)
-    Visible = False
-    ToolTip = ("Show deprecated controls")
-    Ignore = True
-    Picture = Picture["icon:/small/delete"]
-    Toggle = True
+    { btnZoom ToolButton
+      MoveScaled(25,0,4,4)
+      ToolTip = ("Change button size")
+      Picture = Picture["icon:/small/zoom-in"]
+    }
+    { btnDeprecated ToolButton
+      MoveScaled(29,0,4,4)
+      ToolTip = ("Show deprecated controls")
+      Picture = Picture["icon:/small/delete"]
+      Toggle = True
+    }
   }
 }
