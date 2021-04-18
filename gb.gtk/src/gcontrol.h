@@ -213,7 +213,7 @@ public:
 	bool grab();
 	
 	virtual void destroy();
-	void destroyNow() { destroy(); cleanRemovedControls(); }
+	void destroyNow() { destroy(); postDelete(); }
 	
 	void lock() { _locked++; }
 	void unlock() { _locked--; }
@@ -370,7 +370,7 @@ public:
 	void showButKeepFocus();
 	bool isTempHidden() const { return _hidden_temp; }
 	
-	static void cleanRemovedControls();
+	static void postDelete();
 
 private:
 	

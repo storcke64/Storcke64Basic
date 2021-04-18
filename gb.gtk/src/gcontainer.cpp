@@ -31,6 +31,8 @@
 #include "gmainwindow.h"
 #include "gcontainer.h"
 
+static GList *_arrange_list = NULL;
+
 static gControl *get_next_child_widget (gContainer *gtk_control, int *gtk_index)
 {
 	gControl *ctrl;
@@ -64,10 +66,7 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
 	sender->setShown(true);
-
-	if (sender->isTempHidden())
-		return;
-	sender->performArrange();
+	sender->arrangeLater();
 }
 
 static void cb_unmap(GtkWidget *widget, gContainer *sender)
@@ -281,6 +280,7 @@ void gContainer::initialize()
 	_is_container = true;
 	_user_container = false;
 	_shown = false;
+	_arrange_later = false;
 	
 	arrangement.mode = 0;
 	arrangement.spacing = false;
@@ -310,7 +310,9 @@ gContainer::gContainer(gContainer *parent) : gControl(parent)
 gContainer::~gContainer()
 {
 	int i;
-
+	
+	resetArrangeLater();
+	
 	for (i = 0; i < childCount(); i++)
 		child(i)->removeParent();
 	
@@ -745,8 +747,8 @@ GtkWidget *gContainer::getContainer()
 
 void gContainer::connectBorder()
 {
-	g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
-	g_signal_connect(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
+	g_signal_connect_after(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
+	g_signal_connect_after(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
 }
 
 bool gContainer::resize(int w, int h, bool no_decide)
@@ -927,4 +929,43 @@ void gContainer::setProxyContainer(gContainer *proxy)
 		_proxyContainer = NULL;
 	
 	updateDesignChildren();
+}
+
+void gContainer::resetArrangeLater()
+{
+	if (_arrange_later)
+	{
+		_arrange_later = false;
+		_arrange_list = g_list_remove(_arrange_list, this);
+	}
+}
+
+void gContainer::arrangeLater()
+{
+	if (!_arrange_later)
+	{
+		_arrange_later = true;
+		_arrange_list = g_list_prepend(_arrange_list, (gpointer)this);
+	}
+}
+
+void gContainer::postArrange()
+{
+	GList *iter;
+	gContainer *cont;
+
+	if (!_arrange_list) return;
+
+	for(;;)
+	{
+		iter = g_list_first(_arrange_list);
+		if (!iter)
+			break;
+		cont = (gContainer *)iter->data;
+		cont->resetArrangeLater();
+		if (!cont->isTempHidden())
+			cont->performArrange();
+	}
+
+	_arrange_list = NULL;
 }

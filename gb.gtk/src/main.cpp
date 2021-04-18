@@ -415,7 +415,7 @@ void hook_quit (void)
 		GB.Call(&func, 0, FALSE);
 
 	CWINDOW_delete_all();
-	gControl::cleanRemovedControls();
+	gControl::postDelete();
 
 	CWatcher::Clear();
 	gApplication::exit();
@@ -546,7 +546,7 @@ void MAIN_check_quit()
 
 static int hook_loop()
 {
-	gControl::cleanRemovedControls();
+	gControl::postDelete();
 	_must_check_quit = true;
 
 	for(;;)
@@ -676,6 +676,7 @@ void MAIN_do_iteration(bool do_not_block)
 		GB.CheckPost();
 	}
 
-	gControl::cleanRemovedControls();
+	gControl::postDelete();
+	gContainer::postArrange();
 }
 

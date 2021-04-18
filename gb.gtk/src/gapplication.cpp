@@ -1271,7 +1271,7 @@ void gApplication::enterPopup(gMainWindow *owner)
 		//exitGroup(oldGroup);
 	}
 	else
-		gControl::cleanRemovedControls();
+		gControl::postDelete();
 
 	_in_popup--;
 }

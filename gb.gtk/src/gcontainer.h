@@ -157,8 +157,12 @@ public:
 
 	void setShown(bool v) { _shown = v; }
 	bool isShown() const { return _shown; }
+	void arrangeLater();
+	void resetArrangeLater();
 	
 	virtual void connectBorder();
+	
+	static void postArrange();
 	
 private:
 
@@ -171,6 +175,7 @@ private:
 	unsigned _did_arrangement : 1;
 	unsigned _user_container : 1;
 	unsigned _shown : 1;
+	unsigned _arrange_later : 1;
 	unsigned char _no_arrangement;
 };
 
