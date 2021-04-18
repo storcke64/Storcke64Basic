@@ -284,7 +284,7 @@ CREATION AND DESTRUCTION
 
 ******************************************************************/
 
-void gControl::cleanRemovedControls()
+void gControl::postDelete()
 {
 	GList *iter;
 	gControl *control;
@@ -300,7 +300,7 @@ void gControl::cleanRemovedControls()
 			break;
 		control = (gControl *)iter->data;
 #if DEBUG_DESTROY
-		fprintf(stderr, "cleanRemovedControls: %p %s\n", control, control->name());
+		fprintf(stderr, "postDelete: %p %s\n", control, control->name());
 #endif
 		gtk_widget_destroy(control->border);
 	}
