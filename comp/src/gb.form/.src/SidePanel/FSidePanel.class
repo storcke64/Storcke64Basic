@@ -568,7 +568,7 @@ Private Sub TogglePanel()
     
     If Application.Animations Then
       
-      $iTarget = If($bTransparent, 0, BUTTON_H)
+      $iTarget = If($bTransparent, 1, BUTTON_H)
       
       $hTimerAnim = New Timer As "TimerAnim"
       $hTimerAnim.Delay = 20
