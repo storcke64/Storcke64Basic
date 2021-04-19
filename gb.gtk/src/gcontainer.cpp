@@ -66,7 +66,8 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
 	sender->setShown(true);
-	sender->arrangeLater();
+	if (!sender->isTempHidden())
+		sender->arrangeLater();
 }
 
 static void cb_unmap(GtkWidget *widget, gContainer *sender)
@@ -963,8 +964,7 @@ void gContainer::postArrange()
 			break;
 		cont = (gContainer *)iter->data;
 		cont->resetArrangeLater();
-		if (!cont->isTempHidden())
-			cont->performArrange();
+		cont->performArrange();
 	}
 
 	_arrange_list = NULL;
