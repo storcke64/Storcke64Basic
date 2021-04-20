@@ -3,7 +3,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Padding{Range:0;64},Picture,Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
+Public Const _Properties As String = "*,Padding{Range:0;64},Picture{Picture:NoCache},Stretch,AutoResize,Alignment{Align.*}=TopLeft,Border{Border.None;Plain;Sunken;Raised;Etched},Mode{PictureBox.Normal;Fill;Cover;Contain;Repeat}"
 Public Const _DefaultEvent As String = "MouseDown"
 Public Const _DefaultSize As String = "16,16"
 Public Const _IsContainer As Boolean = False
