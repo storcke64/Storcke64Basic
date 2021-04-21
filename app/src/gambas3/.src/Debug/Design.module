@@ -896,6 +896,7 @@ Private Sub Start(sCmd As String)
   Dim sPort As String
   Dim iPos As Integer
   Dim I As Integer
+  Dim aProg As String[]
 
   If Project.Running Then Return
   
@@ -1067,32 +1068,33 @@ Private Sub Start(sCmd As String)
       
       If Not sProg Or If Project.CheckProgram(sProg) Then
       
-        Select Case Desktop.Type
-        
-          Case Like "KDE*"
-            sProg = "konsole"
-            
-          Case "GNOME"        
-            sProg = "gnome-terminal"
-            
+        Select Case Desktop.Types[0]
+              
+          Case "KDE", "KDE4", "KDE5"
+            aProg = ["konsole"]
+          Case "GNOME", "UNITY", "UBUNTU:GNOME"
+            aProg = ["gnome-terminal"]
+          Case "MATE", "CINNAMON"
+            aProg = ["mate-terminal", "gnome-terminal"]
           Case "XFCE"
-            sProg = "Terminal"
-            
+            aProg = ["xfce4-terminal", "gnome-terminal"]
           Case "LXDE"
-            sProg = "lxterminal"
-          
-          Default
-            sProg = "xterm"
-        
+            aProg = ["lxterminal"]
+          Case "CYGWIN"
+            aProg = ["mintty.exe"] 
+          Case Else
+            aProg = New String[]
+            
         End Select
         
-        If Project.CheckProgram(sProg) Then 
-          sProg = "xterm"
-          If Project.CheckProgram(sProg) Then
-            FMain.ShowWarning(("No terminal emulator found."))
-            sProg = ""
-          Endif
-        Endif
+        aProg.Add("xterm")
+        
+        For Each sProg In aProg
+          If System.Exist(sProg) Then Break
+          sProg = ""
+        Next
+        
+        If Not sProg Then Error.Raise("No terminal program found")
         
       Endif
       
@@ -1107,14 +1109,13 @@ Private Sub Start(sCmd As String)
     Select Case sProg
     
       Case "konsole"
-        '  "--caption", sTitle
         aExec = ["konsole", "--nofork", "--hold", "--name", Project.Name & "-output", "-e", aExec.Join(" ")]
         
       Case "gnome-terminal"
         ' gnome terminal cannot hold at end
         aExec.Insert(["gnome-terminal", "--hide-menubar", "--maximize", "--title=" & sTitle, "-x"], 0)
         
-      Case "Terminal"
+      Case "Terminal", "xfce4-terminal"
         aExec.Insert(["Terminal", "--hide-menubar", "--hide-toolbars", "--title=" & sTitle, "--hold", "-x"], 0)
       
       Case "lxterminal"
