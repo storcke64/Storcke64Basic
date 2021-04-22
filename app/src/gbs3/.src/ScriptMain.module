@@ -234,27 +234,24 @@ lExecuteProject:
         $sArchivePath = sCacheDir &/ "plugins" &/ $sMd5 &/ sFileName
         Try Mkdir sCacheDir &/ "plugins" &/ $sMd5
         If Error Then
-          verbose(Error.text)
+          CompileError($sArchivePath, 0, "Unable to create plugin md5 directory:" & Error.text)
         Endif
      Else
         Try Mkdir sCacheDir &/ $sMd5
         sFileName = sName
-        $sArchivePath = File.RealPath(sCacheDir) &/ $sMd5 &/ sFilename
+        $sArchivePath = sCacheDir &/ $sMd5 &/ sFilename
      Endif
      
      Dim ArchiveCmd As String[] = [System.Path &/ "bin/gba" & System.Version, "-o", $sArchivePath, $sPrjPath]
      If $oContext.$bVerbose Then ArchiveCmd.Add("-v", 1)
      Verbose(ArchiveCmd.Join(" "))
     
-    ' Remove the old md5 info from directory and delete the old file
-    If $oContext.$bPlugin And If Exist(sCacheDir &/ sFileName) Then 
-    
-    Endif
     
     Exec ArchiveCmd To sRes
     
     verbose(sRes)
     If $oContext.$bPlugin Then
+      Try Kill sCacheDir &/ sFileName
       Try Link $sArchivePath To sCacheDir &/ sFileName
       $sExecutable = sCacheDir &/ sFileName
       $sStartupClass = ScriptPreProcess["Startup"]
