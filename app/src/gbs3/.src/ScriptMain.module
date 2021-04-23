@@ -45,6 +45,7 @@ Public Sub ScripterMain(aArgs As String[]) As Integer
   Dim sRes As String
   Dim bCompile As Boolean
   Dim sDir As String
+  Dim Sfile As String
   
  With $oContext 
   ' System.language = "fr_FR"
@@ -113,12 +114,20 @@ Public Sub ScripterMain(aArgs As String[]) As Integer
   
   If Not $oContext.$bExecuteFromArgs And If Not $oContext.$bScriptSourceStdIn Then
     ' md5sum requires the absolute path unless we are using a shell which expands it so ./ddd and ~/ can not be calculated for md5sum Process
+    If Not Exist($sPath) Then
+      If File.Dir($sPath) = "" Then $sPath = Env["PWD"] &/ $sPath
+    Endif
     $sPath = File.RealPath($sPath)
     sName = File.Name($sPath)
     
     '' Check if we are being asked to just execute a project directly
     If Exist($sPath) And If Stat($sPath).Type = gb.directory Then
-      $bExecProjectDirectory = True
+      If Exist($sPath &/ ".project") Then
+          $bExecProjectDirectory = True
+      Else 
+          Warning("Specified directory is not a project directory :" & $sPath, True)
+          Return 1
+      Endif
     Endif
     
     If Not $bExecProjectDirectory And Not Exist($sPath) Then
@@ -128,7 +137,11 @@ Public Sub ScripterMain(aArgs As String[]) As Integer
         Return 1
       Endif
     Else
-      Exec ["md5sum", $sPath] To $sMd5
+      If $bExecProjectDirectory Then
+         Exec ["md5sum", $sPath &/ ".project"] To $sMd5
+      Else 
+         Exec ["md5sum", $sPath] To $sMd5
+      Endif
     Endif
 
   Else
@@ -174,6 +187,11 @@ Public Sub ScripterMain(aArgs As String[]) As Integer
     '' if we are executing a project then set some info up
     If $bExecProjectDirectory Then
       $sPrjPath = $sPath
+      For Each Sfile As String In Dir($sPath &/ ".src", "*", gb.file)
+        Dim sourcefile As String = $sPath &/ ".src" &/ Sfile
+        $oContext.$aIncFiles.Add(SourceFile)
+        $oContext.$aIncFiles.Add(Stat(SourceFile).LastModified)
+      Next
       Goto lExecuteProject
     Endif
     
