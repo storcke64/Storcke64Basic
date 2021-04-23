@@ -3,6 +3,7 @@
 Export 
 Static Public CompileResult As Integer = 0
 Static Public CompileError As String = ""
+
 '' This allows integration of scripter into an application that uses plugins
 '' the call would be Scripter(MyScript,"-b -c etc these are other parameters")
 '' This returns the instanciated class of the plugin script
@@ -43,6 +44,34 @@ End
 '' to prevent opening a file for or input output would look like
 Static Public Sub SetKeyWordFilter(KeyManagement As Collection)
   
-  Reader.$sScriptFilter = KeyManagement
+  If IsNull(KeyManagement) Then 
+     Reader.$sScriptFilter.Clear()
+     Return
+  Endif
   
+  If Not Class.IsLoaded("RegExp") Then 
+    Try Component.Load("gb.pcre")
+    If Error Then 
+        Warning("Component gb.pcre not found, filter will be ignored")
+        Return 
+    Endif
+    Try Class.Load("RegExp")
+    If Error Then 
+      Warning("Unable to load regexp, filter will be ignored")
+      Return
+    Endif
+    Reader.$sScriptFilter = KeyManagement
+  Else 
+    Reader.$sScriptFilter = KeyManagement
+  Endif
+  
+End
+
+''Turn on verbose info during plugin compile
+Static Public Sub SetVerbose()
+If Verbose.$bVerboseOn = True Then 
+  Verbose.$bVerboseOn = False
+Else 
+  Verbose.$bVerboseOn = True
+Endif
 End

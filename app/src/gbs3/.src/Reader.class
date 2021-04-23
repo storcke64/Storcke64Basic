@@ -44,13 +44,20 @@ Static Public $sScriptFilter As New Collection
 
 Public Sub _New(cContext As Context, Optional SourceFile As String = "", Sourceprogram As String = "")
   Dim SourceBuffer As String
+  Dim TokenSource As String = SourceFile
   
-  $oContext = cContext                                                                         ' Access to global variables
-  cIncludeStack.Push(SourceFile)                                                       ' Add this file to the stack for processing
-  sDefaultFilePath = File.Dir(SourceFile)                                         ' Set the default file path to use for includes
+  If SourceFile = "" Then 
+    TokenSource = "STDIN"
+  Else 
+    TokenSource = SourceFile
+  Endif
+  
+  $oContext = cContext                                                             ' Access to global variables
+  cIncludeStack.Push(TokenSource)                                                  ' Add this file to the stack for processing
+  sDefaultFilePath = File.Dir(SourceFile)                                          ' Set the default file path to use for includes
   sSourceFile = SourceFile
   
-  If SourceProgram <> "" Then                                                           ' Updated to correctly process -e thru full process for -e < filename cases
+  If SourceProgram <> "" Then                                                      ' Updated to correctly process -e thru full process for -e < filename cases
      SourceBuffer = SourceProgram
   Else If SourceFile = "" Then 
       SourceBuffer = GetStdio()
@@ -110,9 +117,13 @@ Private Sub TokenizeFile(SourceBuffer As String)
   SourceList = Split(SourceBuffer, "\n", "", True)
   For Each sLine As String In SourceList
     
-    If bDoFilter Then ScriptKeywordFilter(sLine, $sScriptFilter, CurrentLineNumber.last, cIncludeStack.last) 'filter the script if needed
-      
     Inc CurrentLineNumber.last
+    
+    If bDoFilter Then 
+       If ScriptKeywordFilter(sLine, $sScriptFilter, CurrentLineNumber.last, cIncludeStack.last) Then 'filter the script if needed True means error
+            CompileError(cIncludeStack.last, CurrentLineNumber.last, "Compile Terminated : " & sLine)
+       Endif 
+    Endif 
     
     If Left(sLine, 3) = "#!/" Then sLine = "' " & sLine  ' eliminate the script header
     
