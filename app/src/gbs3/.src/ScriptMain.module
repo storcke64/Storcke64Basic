@@ -114,9 +114,15 @@ Public Sub ScripterMain(aArgs As String[]) As Integer
   
   If Not $oContext.$bExecuteFromArgs And If Not $oContext.$bScriptSourceStdIn Then
     ' md5sum requires the absolute path unless we are using a shell which expands it so ./ddd and ~/ can not be calculated for md5sum Process
-    If Not Exist($sPath) Then
-      If File.Dir($sPath) = "" Then $sPath = Env["PWD"] &/ $sPath
+    Dim sPathPart As String = File.Dir($sPath)
+    If Not Exist($sPath) Or If sPathPart[0] = "." Then
+      If sPathPart = "" Then
+           $sPath = Env["PWD"] &/ $sPath
+      Else If sPathPart[0] = "."
+           $sPath = Env["PWD"] &/ Right($sPath, -1)
+      Endif
     Endif
+    
     $sPath = File.RealPath($sPath)
     sName = File.Name($sPath)
     
