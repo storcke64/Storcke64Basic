@@ -1546,6 +1546,29 @@ gw = {
       /*$(id).addClass('gw-unselectable');
       setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);*/
     }
+  },
+  
+  sound:
+  {
+    pause: function(id)
+    {
+      var elt = $(id);
+      elt.pause();
+    },
+    
+    stop: function(id)
+    {
+      var elt = $(id);
+      elt.pause();
+      elt.currentTime = 0;
+    },
+    
+    play: function(id)
+    {
+      var elt = $(id);
+      gw.sound.stop(id);
+      elt.play();
+    }
   }
 }
 

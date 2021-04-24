@@ -1,0 +1,66 @@
+' Gambas class file
+
+Export
+Inherits WebControl
+
+Public Const _IsControl As Boolean = True
+Public Const _IsVirtual As Boolean = True
+Public Const _Properties As String = "*,-Class,-Width,-Height,-Visible,-Expand,-Ignore,-Enabled,Audio"
+Public Const _Group As String = "Special"
+Public Const _DefaultEvent As String = "Timer"
+
+Event Timer
+
+Property Audio As String
+
+Private $sAudio As String
+
+Public Sub _new()
+  
+End
+
+Private Function Audio_Read() As String
+
+  Return $sAudio
+
+End
+
+Private Sub Audio_Write(Value As String)
+
+  $sAudio = Value
+  WebForm._AddJavascript("$(" & JS(Me.Name) & ").src = " & JS("/" & Application.Root &/ $sAudio))
+  
+End
+
+Public Sub _BeforeRender()
+  
+End
+
+Public Sub _Render()
+  
+  Print "<audio"; Me._GetClassId(); "></audio>";
+  
+End
+
+Public Sub _AfterRender()
+  
+End
+
+Public Sub Play()
+  
+  WebForm._AddJavascript("gw.sound.play(" & JS(Me.Name) & ")")
+  
+End
+
+Public Sub Pause()
+  
+  WebForm._AddJavascript("gw.sound.pause(" & JS(Me.Name) & ")")
+  
+End
+
+Public Sub Stop()
+  
+  WebForm._AddJavascript("gw.sound.stop(" & JS(Me.Name) & ")")
+  
+End
+

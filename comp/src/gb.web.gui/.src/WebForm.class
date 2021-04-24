@@ -105,7 +105,7 @@ Private $aHeaders As String[]
 Static Public Sub _init()
   
   System.Language = Request.Language
-  $bLogEnabled = Env["GB_WEB_GUI_DEBUG"] = "1"
+  If Env["GB_WEB_GUI_DEBUG"] = "1" Or If Exist("/tmp/session.debug") Then $bLogEnabled = True
   
 End
 
@@ -669,6 +669,8 @@ Static Private Sub RenderJavascript(aLib As String[])
         Print File.Load(sFile)
       Else If Exist(".." &/ sFile) Then
         Print File.Load(".." &/ sFile)
+      Else 
+        Print "// Unable to load: "; sFile
       Endif
     Endif
     
