@@ -1566,7 +1566,8 @@ gw = {
     play: function(id)
     {
       var elt = $(id);
-      gw.sound.stop(id);
+      elt.pause();
+      elt.currentTime = 0;
       elt.play();
     }
   }

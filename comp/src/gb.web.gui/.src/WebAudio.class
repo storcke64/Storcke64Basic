@@ -5,7 +5,7 @@ Inherits WebControl
 
 Public Const _IsControl As Boolean = True
 Public Const _IsVirtual As Boolean = True
-Public Const _Properties As String = "*,-Class,-Width,-Height,-Visible,-Expand,-Ignore,-Enabled,Audio"
+Public Const _Properties As String = "*,-Class,-Width,-Height,-Visible,-Expand,-Ignore,-Enabled,Audio{WebAudio}"
 Public Const _Group As String = "Special"
 Public Const _DefaultEvent As String = "Timer"
 
@@ -28,7 +28,7 @@ End
 Private Sub Audio_Write(Value As String)
 
   $sAudio = Value
-  WebForm._AddJavascript("$(" & JS(Me.Name) & ").src = " & JS("/" & Application.Root &/ $sAudio))
+  Me.Refresh
   
 End
 
@@ -38,7 +38,7 @@ End
 
 Public Sub _Render()
   
-  Print "<audio"; Me._GetClassId(); "></audio>";
+  Print "<audio"; Me._GetClassId(); " src=\""; Html("/" & Application.Root &/ $sAudio); "\"></audio>";
   
 End
 

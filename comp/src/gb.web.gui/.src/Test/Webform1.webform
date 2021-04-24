@@ -96,6 +96,10 @@
         #MoveScaled(73,1,16,4)
         Text = ("Select first")
       }
+      { WebButton10 WebButton
+        #MoveScaled(90,1,10,4)
+        Text = ("Bip")
+      }
     }
     { WebHBox3 WebHBox
       #MoveScaled(1,8,133.75,6)
@@ -200,9 +204,10 @@
     Index = 0
   }
   { WebTimer1 WebTimer
-    #MoveScaled(62,75)
+    #MoveScaled(65,75)
   }
   { WebAudio1 WebAudio
-    #MoveScaled(79,77)
+    #MoveScaled(78,77)
+    Audio = "blip.ogg"
   }
 }
