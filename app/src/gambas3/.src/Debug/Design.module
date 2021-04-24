@@ -1078,7 +1078,7 @@ Private Sub Start(sCmd As String)
       
       If Not sProg Or If Project.CheckProgram(sProg) Then
       
-        Select Case Desktop.Types[0]
+        Select Case Desktop.Type
               
           Case "KDE", "KDE4", "KDE5"
             aProg = ["konsole"]
@@ -1090,8 +1090,8 @@ Private Sub Start(sCmd As String)
             aProg = ["xfce4-terminal", "gnome-terminal"]
           Case "LXDE"
             aProg = ["lxterminal"]
-          Case "CYGWIN"
-            aProg = ["mintty.exe"] 
+          ' Case "CYGWIN"
+          '   aProg = ["mintty.exe"] 
           Case Else
             aProg = New String[]
             
@@ -1125,8 +1125,8 @@ Private Sub Start(sCmd As String)
         ' gnome terminal cannot hold at end
         aExec.Insert(["gnome-terminal", "--hide-menubar", "--maximize", "--title=" & sTitle, "-x"], 0)
         
-      Case "Terminal", "xfce4-terminal"
-        aExec.Insert(["Terminal", "--hide-menubar", "--hide-toolbars", "--title=" & sTitle, "--hold", "-x"], 0)
+      Case "Terminal", "xfce4-terminal", "mate-terminal"
+        aExec.Insert([sProg, "--hide-menubar", "--hide-toolbars", "--title=" & sTitle, "--hold", "-x"], 0)
       
       Case "lxterminal"
         aExec.Insert(["lxterminal", "-t", sTitle, "-e"], 0)
