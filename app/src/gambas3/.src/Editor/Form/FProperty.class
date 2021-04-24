@@ -419,7 +419,7 @@ Public Function SaveProperty() As Boolean
         vVal = sVal
       Endif
 
-    Case "s", "Font", "Picture", "Constant", "List", "Path", "Image", "Animation", "WebImage", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "Menu", "Table", "WebCoord", "WebFont"
+    Case "s", "Font", "Picture", "Constant", "List", "Path", "Image", "Animation", "WebImage", "SvgImage", "ReportCoord", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "Field", "Menu", "Table", "WebCoord", "WebFont", "WebAudio"
       
       vVal = sVal
 
@@ -751,7 +751,7 @@ Private Sub ShowProperty(Optional sFocus As String)
       cmbProperty.ReadOnly = True
       InitComboWith(["False", "True"])
 
-    Case "Font", "Picture", "Path", "Color", "Image", "Animation", "WebImage", "SvgImage", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "WebFont"
+    Case "Font", "Picture", "Path", "Color", "Image", "Animation", "WebImage", "SvgImage", "ReportPadding", "ReportMargin", "ReportBoxShadow", "ReportBorder", "ReportBrush", "WebFont", "WebAudio"
 
       bButton = True
       txtProperty.ReadOnly = True
@@ -1016,12 +1016,12 @@ Public Sub txtProperty_Click()
       sDest = $hFamily.SelectImage($sType, $sOldVal)
       If Not sDest Then Goto _EXIT
       $hEditor.Text = sDest
+      
+    Case "WebAudio"
 
-    ' Case "WebImage"
-    '   
-    '   sDest = FSelectIcon.Run($sOldVal, FSelectIcon.SELECT_IMAGE + FSelectIcon.SELECT_SVGIMAGE + FSelectIcon.SELECT_PUBLIC)
-    '   If Not sDest Then Goto _EXIT
-    '   $hEditor.Text = sDest
+      sDest = $hFamily.SelectAudio($sType, $sOldVal)
+      If Not sDest Then Goto _EXIT
+      $hEditor.Text = sDest
 
     Case "Path"
       

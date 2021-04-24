@@ -507,6 +507,12 @@ Public Sub SelectImage((sPropertyType) As String, sImage As String) As String
   
 End
 
+Public Sub SelectAudio((sPropertyType) As String, sAudio As String) As String
+  
+  Return FSelectIcon.Run(sAudio, FSelectIcon.SELECT_AUDIO)
+  
+End
+
 Static Public Sub PaintContainer(X As Float, Y As Float, W As Float, H As Float)
   
   Paint.DrawRect(X, Y, W, H, Color.SetAlpha(&HFF8080, 128))

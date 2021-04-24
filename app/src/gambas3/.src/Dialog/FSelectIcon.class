@@ -6,6 +6,7 @@ Public Const SELECT_STOCK As Integer = 1
 Public Const SELECT_IMAGE As Integer = 2
 Public Const SELECT_SVGIMAGE As Integer = 4
 Public Const SELECT_PUBLIC As Integer = 8
+Public Const SELECT_AUDIO As Integer = 16
 
 Private $sIcon As String
 Private $sKey As String
@@ -39,6 +40,7 @@ Public Sub Form_Open()
   aFilter = New String[]
   If $iOption And SELECT_IMAGE Then aFilter.Insert(["*.png;*.jpg;*.jpeg;*.xpm;*.gif;*.mng", ("Image files")])
   If $iOption And SELECT_SVGIMAGE Then aFilter.Insert(["*.svg", ("SVG image files")])
+  If $iOption And SELECT_AUDIO Then aFilter.Insert(["*.mp3;*.ogg;*.oga;*.wav;*.aac;*.flac", ("Audio files")])
 
   If $iOption And SELECT_PUBLIC Then
     fchIcon.Root = Project.Dir &/ ".public"

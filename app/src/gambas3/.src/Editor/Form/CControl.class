@@ -1790,7 +1790,7 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
           
     Select Case hProp.Type
 
-      Case "s", "v", "List", "Path", "WebImage", "Table", "Menu", "ReportCoord", "Field", "WebCoord", "WebFont"
+      Case "s", "v", "List", "Path", "WebImage", "Table", "Menu", "ReportCoord", "Field", "WebCoord", "WebFont", "WebAudio"
 
         If bTranslate Then
           
