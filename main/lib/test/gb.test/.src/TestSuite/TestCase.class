@@ -58,7 +58,7 @@ Public Sub Run()
 
 Catch
 
-    Test.BailOut("Test stopped with error \"" & Error.Text & "\" caused by " & $MyTestModule.Name & "." & Me.Name & " in " & Error.Where & ".")
+    Test.BailOut("Test stopped with error \"" & Error.Text & "\" caused by " & $MyTestModule.Name & "." & Me.Name & ".")
 
 End Sub
 

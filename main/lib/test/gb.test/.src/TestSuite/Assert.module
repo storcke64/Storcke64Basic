@@ -22,13 +22,19 @@ Public Sub Ok(Result As Boolean, Optional Description As String) As Boolean
     If _IntendedFailure Then Result = Not Result
     _IntendedFailure = False
 
-DAWAI:
-
     bt = System.Backtrace
-    While bt[0] Begins "Assert." Or bt[0] Begins "Test." Or bt[0] Begins "TestCase." Or bt[0] Begins "TestSuite."
+    While bt[0] Begins "Assert." Or bt[0] Begins "Test." Or bt[0] Begins "TestCase." Or bt[0] Begins "TestSuite." Or bt[0] Begins "TapPrinter."
         bt.Remove(0)
+        If bt.Count = 0 Then
+            Goto DAWAI
+        Endif
     Wend
-    Test._Next.Line = bt[0]
+
+DAWAI:
+    If bt.Count > 0 Then
+        Test._Next.Line = bt[0]
+    Endif
+
     Test._Next.Ok = Result
     Test._Next.Description = Description
     bRes = Test._Printer.Assert(Test._Next).Ok
