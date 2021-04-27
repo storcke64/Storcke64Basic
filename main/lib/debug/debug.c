@@ -99,10 +99,10 @@ void DEBUG_break_on_next_line(void)
 
 static void signal_user(int sig)
 {
-	signal(SIGUSR1, signal_user);
+	signal(SIGUSR2, signal_user);
 
 	#ifdef DEBUG_ME
-	fprintf(stderr, "Got SIGUSR1\n");
+	fprintf(stderr, "Got SIGUSR2\n");
 	#endif
 
 	/*CAPP_got_signal();*/
@@ -267,7 +267,7 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 
 	//ARRAY_create(&_breakpoints);
 	GB.NewArray(&_breakpoints, sizeof(DEBUG_BREAK), 16);
-	signal(SIGUSR1, signal_user);
+	signal(SIGUSR2, signal_user);
 	signal(SIGPIPE, SIG_IGN);
 
 	setlinebuf(_out);
