@@ -132,9 +132,9 @@ Public Sub Pause()
   If $iState <> STATE_RUNNING Then Return
   
   If Project.UseTerminal Then
-    If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR1)
+    If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
   Else
-    Signal.Send($hProcess.Id, Signal.SIGUSR1)
+    Signal.Send($hProcess.Id, Signal.SIGUSR2)
   Endif
 
 End

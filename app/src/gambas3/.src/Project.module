@@ -344,7 +344,7 @@ Public Sub Main()
   
   If Not Settings["/ShowMenus", True] Then Env["APPMENU_DISPLAY_BOTH"] = "1"
   Env["QT_LOGGING_RULES"] = "*.debug=false"
-
+  
   UpdateTheme
   DESKTOP_FONT = Application.Font.ToString()
 
