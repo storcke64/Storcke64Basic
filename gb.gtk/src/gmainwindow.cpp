@@ -1141,11 +1141,20 @@ const char* gMainWindow::text()
 
 void gMainWindow::setText(const char *txt)
 {
-	if (_title) g_free(_title);
-	_title = g_strdup(txt);
+	if (txt != _title)
+	{
+		if (_title) 
+		{
+			g_free(_title);
+			_title = NULL;
+		}
+		
+		if (txt && *txt)
+			_title = g_strdup(txt);
+	}
 
 	if (isTopLevel())
-		gtk_window_set_title(GTK_WINDOW(border), txt);
+		gtk_window_set_title(GTK_WINDOW(border), _title ? _title : "");
 }
 
 bool gMainWindow::hasBorder()
@@ -1453,7 +1462,6 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 	}
 	else if ((!isTopLevel() && !newpr)
 	         || (isTopLevel() && isPopup()))
-	         //|| (isTopLevel() && (isPopup() ^ (type == GTK_WINDOW_POPUP))))
 	{
 		gtk_window_remove_accel_group(GTK_WINDOW(topLevel()->border), accel);
 		// TODO: test that
@@ -1473,6 +1481,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 		setBackground(bg);
 		setForeground(fg);
 		setFont(font());
+		setText(text());
 
 		move(x, y);
 		w = width();
@@ -1482,6 +1491,10 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 		resize(w, h);
 
 		hideHiddenChildren();
+		
+		gtk_widget_set_sensitive(frame, FALSE);
+		gtk_widget_set_sensitive(frame, TRUE);
+
 		_popup = false; //type == GTK_WINDOW_POPUP;
 	}
 	else
