@@ -1,5 +1,7 @@
 ' Gambas module file
 
+Public Enum TEST_SUCCESS, TEST_FAIL, TEST_ABORT
+
 Public Sub GetTestModules(Optional bWithMethods As Boolean) As String[]
 
   Dim aModules As String[]
