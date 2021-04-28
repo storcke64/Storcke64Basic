@@ -1,6 +1,6 @@
 #! /bin/sh
 
-MYDIR=$(pwd)
+MYDIR=$(cd `dirname $0` && pwd)
 
 # run Full without JIT
 gbx3 -j -T "@Full" $MYDIR
