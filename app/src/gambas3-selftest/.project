@@ -2,14 +2,15 @@
 Title=Gambas3 Selftest
 Startup=mTest
 Icon=.hidden/logo.png
-Version=1.0.2
+Version=3.16.90
+VersionFile=1
 Component=gb.image
 Component=gb.gui
 Component=gb.debug
 Component=gb.pcre
 Description="Quick & (very)dirty unit tester for Gambas itself. Does not test GUI parts."
 Authors="Jussi Lahtinen <jussi.lahtinen@gmail.com>\nChristof Thalhofer <christof@deganius.de>"
-Environment=" GB_NO_JIT=1\nGB_JIT_CFLAGS=-O0\nGB_JIT_DEBUG=1"
+Environment="GB_NO_JIT=1\nGB_JIT_CFLAGS=-O0\nGB_JIT_DEBUG=1"
 TabSize=4
 Translate=1
 Language=en_GB
