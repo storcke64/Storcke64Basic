@@ -2484,6 +2484,7 @@ void GB_Wait(int delay)
 	struct timespec rem;
 	double wait;
 	double stop, time;
+	int duration;
 
 	DEBUG_enter_event_loop();
 
@@ -2500,7 +2501,10 @@ void GB_Wait(int delay)
 
 		for(;;)
 		{
-			HOOK_DEFAULT(wait, WATCH_wait)((int)(wait * 1000 + 0.5));
+			duration = (int)(wait * 1000 + 0.5);
+			if (duration <= 0)
+				duration = 1;
+			HOOK_DEFAULT(wait, WATCH_wait)(duration);
 
 			if (DATE_timer(&time, FALSE))
 				break;
