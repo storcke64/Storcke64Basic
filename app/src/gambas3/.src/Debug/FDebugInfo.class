@@ -1555,22 +1555,32 @@ Public Sub StartTest()
   
 End
 
-Public Sub StopTest(bFail As Boolean)
+Public Sub StopTest(iResult As Integer)
 
   spnTest.Stop
   spnTest.Hide
   
-  If bFail Then
-    lblTestResult.Text = ("Test has failed.")
-    lblTestResult.Foreground = Color.DarkRed
-    picTestResult.Picture = Picture["icon:/small/emote-sad"]
-    $iTestBg = Color.Merge(Color.Red, Color.Background, 0.7)
-  Else
-    lblTestResult.Text = ("Test has succeeded.")
-    lblTestResult.Foreground = Color.DarkGreen
-    picTestResult.Picture = Picture["icon:/small/love"]
-    $iTestBg = Color.Merge(Color.Green, Color.Background, 0.7)
-  Endif
+  Select Case iResult
+  
+    Case MTest.TEST_FAIL
+      lblTestResult.Text = ("Test has failed.")
+      lblTestResult.Foreground = Color.DarkRed
+      picTestResult.Picture = Picture["icon:/small/emote-sad"]
+      $iTestBg = Color.Merge(Color.Red, Color.Background, 0.7)
+      
+    Case MTest.TEST_ABORT
+      lblTestResult.Text = ("Test has been aborted.")
+      lblTestResult.Foreground = Color.DarkYellow
+      picTestResult.Picture = Picture["icon:/small/warning"]
+      $iTestBg = Color.Merge(Color.Yellow, Color.Background, 0.7)
+      
+    Case Else
+      lblTestResult.Text = ("Test has succeeded.")
+      lblTestResult.Foreground = Color.DarkGreen
+      picTestResult.Picture = Picture["icon:/small/love"]
+      $iTestBg = Color.Merge(Color.Green, Color.Background, 0.7)
+      
+  End Select
   
   If Application.DarkTheme Then 
     lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)

@@ -439,7 +439,6 @@ Public Sub Process_Kill()
 
   Dim sMsg As String
   Dim bTest As Boolean
-  Dim bFail As Boolean
 
   bTest = $bTest
   
@@ -455,26 +454,28 @@ Public Sub Process_Kill()
 
   If $hProcess.State = Process.Crashed Then
     ' SIGKILL, SIGTERM and SIGINT are not considered as bugs in the program
+    If bTest Then FDebugInfo.StopTest(MTest.TEST_ABORT)
     Select Case $hProcess.Value
-      Case 2
+      Case Signal.SIGINT
         sMsg = ("The program has been interrupted by CTRL+C.")
-      Case 9
+      Case Signal.SIGKILL
         'sMsg = ("The program has been killed.")
-      Case 15
+      Case Signal.SIGTERM
         sMsg = ("The program has been terminated.")
       Default
-        If bTest Then FDebugInfo.StopTest(True)
-        bTest = False
         FCrash.Run($hProcess)
     End Select
     If sMsg Then FMain.ShowWarning(sMsg)
   Else If $hProcess.Value Then
-    If Not bTest Then FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
-    bFail = True
+    If bTest Then 
+      FDebugInfo.StopTest(MTest.TEST_FAIL)
+    Else
+      FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
+    Endif
+  Else
+    If bTest Then FDebugInfo.StopTest(MTest.TEST_SUCCESS)
   Endif
 
-  If bTest Then FDebugInfo.StopTest(bFail)
-  
   $hProcess = Null
 
   If Project.Profiling Then
@@ -505,8 +506,6 @@ Private Sub AfterStop()
   SetState(STATE_STOP)
   'UpdateMinimize
   Project.Running = False
-
-  $bTest = False
 
   WriteDebugSettings()
 
@@ -560,6 +559,7 @@ Public Sub Stop()
   'Try $hBrowser.Kill
   '$hBrowser = Null
   Try $hProcess.Kill
+  $hProcess.Wait(1)
   AfterStop
 
 End
@@ -745,6 +745,7 @@ Public Sub Run(Optional bTest As Boolean)
         Message.Warning(("The project has no test module."))
         Return
       Endif
+      FDebugInfo.StartTest()
     Endif
 
     Start("g")
@@ -758,17 +759,6 @@ Public Sub Run(Optional bTest As Boolean)
   $bLastCommandMayBeLong = False
 
 End
-
-Public Sub Test()
-  
-  If $iState = STATE_RUNNING Then Return
-
-  FDebugInfo.StartTest()
-  Run(True)
-  
-End
-
-
 
 ' PUBLIC SUB btnGo_Click()
 ' 
