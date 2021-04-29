@@ -1942,6 +1942,7 @@ void EXEC_do_quit(void)
 {
 	GAMBAS_DoNotRaiseEvent = TRUE;
 
+	JIT_abort();
 	HOOK(quit)();
 
 	THROW(E_ABORT);
