@@ -600,18 +600,37 @@ static void conv_data(char *data, int len, GB_VARIANT_VALUE * val, int type)
 		case SQL_TYPE_TIMESTAMP:
 		case SQL_DATETIME: // Data type for Time
 			{
-				bool bc = (len > 3) && (strcmp(&data[len - 2], "BC") == 0);
+				GB_DATE_SERIAL date = { 0 };
+				double sec;
+				int n;
 				
-				if (GB.DateFromString(data, len, &conv, TRUE))
+				conv._date.value.date = conv._date.value.time = 0;
+				
+				if (len > 0)
 				{
-					fprintf(stderr, "gb.db.odbc: unable to convert date: %.*s\n", len, data);
-					conv._date.value.date = conv._date.value.time = 0;
+					n = sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year, &date.month, &date.day, &date.hour, &date.min, &sec);
+					if (n >= 3)
+					{
+						bool bc = (len > 3) && (strcmp(&data[len - 2], "BC") == 0);
+					
+						if (n == 6)
+						{
+							date.sec = (short)sec;
+							date.msec = (short)((sec - date.sec) * 1000 + 0.5);
+						}
+						if (bc)
+							date.year = (-date.year);
+						
+						GB.MakeDate(&date, (GB_DATE *)&conv);
+					}
+					else if (GB.DateFromString(data, len, &conv, TRUE))
+					{
+						fprintf(stderr, "gb.db.odbc: unable to convert date: %.*s\n", len, data);
+					}
 				}
 				
 				val->type = GB_T_DATE;
 				val->value._date.date = conv._date.value.date;
-				if (bc)
-					val->value._date.date = (- val->value._date.date);
 				val->value._date.time = conv._date.value.time;
 				break;
 			}
