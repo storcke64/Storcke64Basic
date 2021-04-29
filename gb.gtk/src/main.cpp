@@ -417,7 +417,7 @@ void hook_quit (void)
 	CWINDOW_delete_all();
 	gControl::postDelete();
 
-	CWatcher::Clear();
+	//CWatcher::Clear();
 	gApplication::exit();
 
 	#ifdef GDK_WINDOWING_X11

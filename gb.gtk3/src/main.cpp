@@ -439,7 +439,7 @@ void hook_quit(void)
 	CWINDOW_delete_all();
 	gControl::postDelete();
 
-	CWatcher::Clear();
+	//CWatcher::Clear();
 	gApplication::exit();
 
 	PLATFORM.Exit();
