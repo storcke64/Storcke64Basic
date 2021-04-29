@@ -1,5 +1,5 @@
 build:archlinux:
-  image: archlinux/base
+  image: archlinux:base
   before_script:
     - >
        pacman -Syu --needed --noconfirm
@@ -19,7 +19,7 @@ build:archlinux:
 
 
 build:archlinux-clang:
-  image: archlinux/base
+  image: archlinux:base
   before_script:
     - >
        pacman -Syu --needed --noconfirm
