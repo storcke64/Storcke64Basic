@@ -195,7 +195,7 @@ build:ubuntu-trusty:
 
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-qt5 --disable-gtk3webview --disable-zstd
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-qt5 --disable-gtk3webview --disable-gtk3opengl --disable-zstd
     - make -j$(nproc)
     - make install
 
