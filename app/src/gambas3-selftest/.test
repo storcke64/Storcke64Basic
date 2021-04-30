@@ -1,7 +1,7 @@
 [TestSuites]
-Count=3
-TestWith=0
-Default="GambasSelftests.FastTests;TCatch;TError;TVal"
+Count=4
+TestWith=4
+Default="Timers.Timers"
 
 [TestSuites/1]
 Name="Fast"
@@ -14,4 +14,8 @@ Tests="FileReadWrite.FileReadWrite;ReadUrandom;ReadZero,GambasSelftests.FastTest
 [TestSuites/3]
 Name="Slow tests"
 Tests="FileReadWrite.FileReadWrite;ReadUrandom;ReadZero,SlowThousandsProcs.FewThousandProcesses,Timers.Timers"
+
+[TestSuites/4]
+Name="Production"
+Tests="FileReadWrite.FileReadWrite;ReadUrandom;ReadZero,GambasSelftests.FastTests;TCatch;TError;TVal,SlowThousandsProcs.FewThousandProcesses"
 
