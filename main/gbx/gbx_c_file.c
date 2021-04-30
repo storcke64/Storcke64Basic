@@ -32,7 +32,11 @@
 #include <grp.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <sys/sysmacros.h>
+#ifdef OS_BSD
+	#include <sys/types.h>
+#else
+	#include <sys/sysmacros.h>
+#endif
 #include <termios.h>
 
 #include "gb_common.h"
