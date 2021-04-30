@@ -29,12 +29,18 @@ GB_COMPONENT_PKG_CONFIG(
   'gtk+-3.0 >= 3.4' 'webkit2gtk-4.0 >= 2.20'
 )
 
+GB_COMPONENT_PKG_CONFIG(
+  gtk3opengl, GTK3OPENGL, gb.gtk3.opengl, [opengl],
+  'gtk+-3.0 >= 3.16'
+)
+
 AC_OUTPUT( \
 Makefile \
 src/Makefile \
 src/x11/Makefile \
 src/wayland/Makefile \
-src/webview/Makefile
+src/webview/Makefile \
+src/opengl/Makefile
 )
 
 GB_PRINT_MESSAGES
