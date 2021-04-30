@@ -17,7 +17,7 @@ Static Private $aSizeDec As Integer[] = [256, 128, 64, 48, 32, 24, 22, 16]
 Static Private $aSizeInc As Integer[] = [16, 22, 24, 32, 48, 64, 128, 256]
 Static Private $bDebug As Boolean
 'Static Private $bDebugLoad As Boolean
-Static Private $aRoots As String[] = ["~/.icons", "~/.local/share/icons", "/usr/share/icons"]
+Static Private $aRoots As String[] = ["~/.icons", "~/.local/share/icons", "/usr/share/icons", "/usr/local/share/icons"]
 
 Class _DefaultStock
 Class DesktopMime
@@ -150,6 +150,18 @@ Static Private Sub AddPath(sMap As String, sPath As String, Optional sPattern As
 
 End
 
+Static Private Sub AddGlobalPath(sMap As String, sRelPath As String)
+
+  Dim sDir As String
+  
+  For Each sDir In ["/usr/share/icons", "/usr/local/share/icons"]
+    AddPath(sMap, sDir &/ sRelPath)
+  Next
+  
+End
+
+
+
 Static Private Sub FindInConfigFile(aPath As String[], sPattern As String, Optional sFindFirst As String) As String[]
 
   Dim hFile As File
@@ -230,8 +242,8 @@ Static Private Sub SearchTheme(sDesktop As String)
       
       If sTheme Then GetAllThemePath("gnome", $aRoots, sTheme)
 
-      AddPath("gnome", "/usr/share/icons/gnome")
-      AddPath("gnome", "/usr/share/icons/hicolor")
+      AddGlobalPath("gnome", "gnome")
+      AddGlobalPath("gnome", "hicolor")
       'AddPath("gnome", "/usr/X11R6/share/icons/hicolor")
 
     Case "kde", "kde4", "kde5", "trinity"
@@ -286,18 +298,18 @@ Static Private Sub SearchTheme(sDesktop As String)
       If sTheme Then GetAllThemePath("gnome", $aRoots, sTheme)
       'GetAllThemePath("gnome", "/usr/X11R6/share/icons", sTheme)
 
-      AddPath("gnome", "/usr/share/icons/gnome")
+      AddGlobalPath("gnome", "gnome")
 
     Case "lxde"
 
       If Not sTheme Then
-        aFind = FindInConfigFile(["~/.config/lxsession/LXDE/desktop.conf", "/etc/xdg/lxsession/LXDE/desktop.conf", "~/.config/lxde/config", "/usr/share/lxde/config"], "sNet/IconThemeName=*")
+        aFind = FindInConfigFile(["~/.config/lxsession/LXDE/desktop.conf", "/etc/xdg/lxsession/LXDE/desktop.conf", "~/.config/lxde/config", "/usr/local/share/lxde/config", "/usr/share/lxde/config"], "sNet/IconThemeName=*")
         If aFind Then sTheme = Trim(aFind[0])
       Endif
 
       If sTheme Then GetAllThemePath("gnome", $aRoots, sTheme)
 
-      AddPath("gnome", "/usr/share/icons/gnome")
+      AddGlobalPath("gnome", "gnome")
 
     Case "gambas", "gambas-mono"
 
@@ -796,7 +808,7 @@ Static Private Function Themes_Read() As String[]
   Dim sCar As String
   Dim aDir As String[]
 
-  For Each sRoot In ["~/.icons", "~/.local/share/icons", "/usr/share/icons"]
+  For Each sRoot In ["~/.icons", "~/.local/share/icons", "/usr/share/icons", "/usr/local/share/icons"]
     If Not IsDir(sRoot) Then Continue
     For Each sDir In Dir(sRoot, "*", gb.Directory)
       sPath = sRoot &/ sDir
