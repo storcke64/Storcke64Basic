@@ -152,6 +152,24 @@ static int real_size(int len)
 
 #ifdef DEBUG_ME
 
+static void dump_pool(int pool)
+{
+	STRING *str;
+	
+	//fprintf(stderr, "pool %d = [ ", pool);
+	str = _pool[pool];
+	while (str)
+	{
+		//fprintf(stderr, "%p ", str);
+		if (((intptr_t)str) & 1)
+		{
+			BREAKPOINT();
+		}
+		str = *((STRING **)str);
+	}
+	//fprintf(stderr, " ]\n");
+}
+
 static STRING *alloc_string(int _len) \
 { \
 	STRING *str; \
@@ -224,6 +242,16 @@ void STRING_free_real(char *ptr)
 	MEMORY_count--;
 #ifdef DEBUG_ME
 	fprintf(stderr, "[%d]\n", MEMORY_count);
+		
+	int i;
+	for (i = 0; i < STRING_last_count; i++)
+	{
+		if (STRING_last[i] == ptr)
+		{
+			fprintf(stderr, "%p (%p) already free later!\n", str, ptr);
+			BREAKPOINT();
+		}
+	}
 #endif
 
 	if (pool < POOL_SIZE)
@@ -232,12 +260,13 @@ void STRING_free_real(char *ptr)
 		{
 			#ifdef DEBUG_ME
 			fprintf(stderr, "STRING_free_real: (%p / %p) %d bytes to pool %d\n", str, ptr, size, pool);
-			str->ref = 0x87654321;
-			str->len = 0x87654321;
+			/*str->ref = 0x87654321;
+			str->len = 0x87654321;*/
 			#endif
 			*((STRING **)str) = _pool[pool];
 			_pool[pool] = str;
 			_pool_count[pool]++;
+			
 			return;
 		}
 	}
@@ -366,14 +395,16 @@ char *STRING_free_later(char *ptr)
 		//if (STRING_last[_index] && STRING_length(STRING_last[_index]) >= 1024)
 		//	fprintf(stderr, "STRING_free_later: free [%d] %d\n", _index, STRING_length(STRING_last[_index]));
 
-		STRING_unref(&STRING_last[_index]);
+		char *tmp = STRING_last[_index];
+		
+		STRING_last[_index] = ptr;
+		STRING_unref(&tmp);
 
 		#ifdef DEBUG_ME
 		fprintf(stderr, "STRING_free_later: post temp: %p '%s'\n", ptr, ptr);
 		fflush(stderr);
 		#endif
 
-		STRING_last[_index] = ptr;
 		//if (STRING_length(ptr) >= 1024)
 		//	fprintf(stderr, "STRING_free_later: [%d] = %d\n", _index, STRING_length(ptr));
 
@@ -381,6 +412,31 @@ char *STRING_free_later(char *ptr)
 
 		if (_index >= STRING_last_count)
 			_index = 0;
+		
+		#ifdef DEBUG_ME
+		int i, j;
+		fprintf(stderr, "later [ ");
+		for (i = 0; i < STRING_last_count; i++)
+		{
+			if (i == _index)
+				fprintf(stderr, "^");
+			fprintf(stderr, "%p ", STRING_last[i]);
+		}
+		fprintf(stderr, "]\n");
+		
+		for (i = 0; i < STRING_last_count; i++)
+		{
+			if (STRING_last[i])
+			{
+				for (j = i + 1; j < STRING_last_count; j++)
+					if (STRING_last[i] == STRING_last[j])
+					{
+						fprintf(stderr, "%p twice !\n", STRING_last[i]);
+						BREAKPOINT();
+					}
+			}
+		}
+		#endif		
 	}
 
 	return ptr;
@@ -531,7 +587,10 @@ void STRING_ref_real(char *ptr)
 	DEBUG_where();
 	fprintf(stderr, "STRING_ref: %p ( %d -> %d )\n", ptr, str->ref, str->ref + 1);
 	if (str->ref < 0 || str->ref > 10000)
+	{
 		fprintf(stderr, "*** BAD\n");
+		BREAKPOINT();
+	}
 	fflush(stderr);
 	#endif
 
