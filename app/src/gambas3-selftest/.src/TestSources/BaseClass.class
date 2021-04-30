@@ -24,14 +24,14 @@ End
 
 Private Function test_Read() As Integer
 
-  Debug "test_Read"
+  'Debug "test_Read"
   Return iTest
 
 End
 
 Private Sub test_Write(Value As Integer)
 
-  Debug "test_Write"
+  'Debug "test_Write"
   iTest = Value
 
 End

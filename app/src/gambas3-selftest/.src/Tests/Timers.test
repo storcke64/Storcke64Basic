@@ -53,7 +53,7 @@ Public Sub Timers()
         Inc jj
         tt = Timer - tt
         If bboo = False And If (tt > 0.015 Or tt < 0.005) Then
-            Debug tt
+            'Debug tt
             bBoo = True
         Endif
     Next

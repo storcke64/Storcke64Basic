@@ -2034,7 +2034,7 @@ TestLabel3:
     pp = VarPtr(TestSingle)
     sDescription = "VarPtr Single"
     If Single@(pp) <> CSingle(33.1) Then
-        Debug Single@(pp)
+        'Debug Single@(pp)
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)
@@ -2134,7 +2134,7 @@ TestLabel3:
     ii = mTest.TestErrorManagment2(2)
     sDescription = "mTest.TestErrorManagment 4"
     If ii <> 3 Then
-        Debug ii
+        'Debug ii
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)

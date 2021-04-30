@@ -25,7 +25,7 @@ Public Sub FewThousandProcesses()
         hProcess.Wait
         'Wait 0.1
         If sTest <> "test" & "\r" & gb.NewLine Then
-            Debug sTest
+            'Debug sTest
             MyErrs.Add(System.Backtrace[0])
         Endif
 
@@ -34,7 +34,7 @@ Public Sub FewThousandProcesses()
         hProcess.Wait
         'Wait 0.1
         If sTest <> "test" & "\r" & gb.NewLine Then
-            Debug sTest
+            'Debug sTest
             MyErrs.Add(System.Backtrace[0])
         Endif
 
@@ -44,7 +44,7 @@ Public Sub FewThousandProcesses()
         'Wait 0.1
 
         If sTest <> "test" & "\r" & gb.NewLine Then
-            Debug sTest
+            'Debug sTest
             MyErrs.Add(System.Backtrace[0])
         Endif
 
@@ -54,7 +54,7 @@ Public Sub FewThousandProcesses()
         'Wait 0.1
 
         If sTest <> "test" & "\r" & gb.NewLine Then
-            Debug sTest
+            'Debug sTest
             MyErrs.Add(System.Backtrace[0])
         Endif
 
