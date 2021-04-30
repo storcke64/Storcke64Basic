@@ -1,5 +1,9 @@
 ' Gambas test file
 
+'' Not reliable in all cases, so not in "Production" testsuite
+'' 
+'' see https://lists.gambas-basic.org/pipermail/user/2021-April/073021.html
+
 Public Sub Timers()
 
     Dim bBoo As Boolean = False
@@ -53,7 +57,7 @@ Public Sub Timers()
         Inc jj
         tt = Timer - tt
         If bboo = False And If (tt > 0.015 Or tt < 0.005) Then
-            Debug tt
+            'Debug tt
             bBoo = True
         Endif
     Next
