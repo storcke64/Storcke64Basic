@@ -532,9 +532,9 @@ Public Sub JITTestPublic()
             bb = JITTestOpt(x, hCrash2.b)
 
         Case 1
-            Debug
+            'Debug
         Case -1
-            Debug
+            'Debug
 
     End Select
 
@@ -563,7 +563,7 @@ Fast Private Sub JITTestOpt2(x As Object)
 
     If bb = True Then
         ii = 0
-        Debug 1 / ii
+        'Debug 1 / ii
     Endif
 
 End
@@ -646,9 +646,9 @@ Public Function JITTestOnceMore() As Boolean
             Return JITTestOrTwice(x)
 
         Case 1
-            Debug
+            'Debug
         Case -1
-            Debug
+            'Debug
 
     End Select
 
