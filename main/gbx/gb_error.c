@@ -130,6 +130,37 @@ static const char *const _message[77] =
 	/* 76 E_SPEC        */ ".2Incorrect declaration of symbol '&1' in class '&2'"
 };
 
+static void clear_info(ERROR_INFO *info)
+{
+	if (!info->code)
+		return;
+	
+	if (info->free)
+	{
+		STRING_unref(&info->msg);
+		info->msg = NULL;
+		info->free = FALSE;
+	}
+	
+	info->code = 0;
+	info->msg = NULL;
+}
+
+static void copy_info(ERROR_INFO *src, ERROR_INFO *dst)
+{
+	clear_info(dst);
+	*dst = *src;
+	if (dst->free)
+		STRING_ref(dst->msg);
+}
+
+static void move_info(ERROR_INFO *src, ERROR_INFO *dst)
+{
+	clear_info(dst);
+	*dst = *src;
+	CLEAR(src);
+}
+
 #if DEBUG_ERROR
 void ERROR_debug(const char *msg, ...)
 {
@@ -171,16 +202,7 @@ void ERROR_unlock()
 
 void ERROR_reset(ERROR_INFO *info)
 {
-	if (!info->code)
-		return;
-
-	info->code = 0;
-	if (info->free)
-	{
-		STRING_unref(&info->msg);
-		info->free = FALSE;
-	}
-	info->msg = NULL;
+	clear_info(info);
 }
 
 static void ERROR_clear()
@@ -432,8 +454,8 @@ void ERROR_define(const char *pattern, char *arg[])
 				*msg = 0;
 			}
 
-			/*fprintf(stderr, "msg: %s\n", ERROR_current->info.msg);
-			if (strcmp(ERROR_current->info.msg, "Type mismatch: wanted WebView, got Function instead") == 0)
+			//fprintf(stderr, "msg: %p '%s'\n", ERROR_current->info.msg, ERROR_current->info.msg);
+			/*if (strcmp(ERROR_current->info.msg, "Type mismatch: wanted WebView, got Function instead") == 0)
 			{
 				BREAKPOINT();
 				STRING_watch = ERROR_current->info.msg;
@@ -661,36 +683,29 @@ bool ERROR_print(bool can_ignore)
 	return ignore;
 }
 
-static void ERROR_copy(ERROR_INFO *save, ERROR_INFO *last)
+void ERROR_save(ERROR_INFO *save, ERROR_INFO *last)
 {
-	ERROR_reset(save);
+	clear_info(save);
 	*save = ERROR_current->info;
+	CLEAR(&ERROR_current->info);
 
 	if (last)
 	{
-		ERROR_reset(last);
+		clear_info(last);
 		*last = ERROR_last;
-	}
-}
-
-void ERROR_save(ERROR_INFO *save, ERROR_INFO *last)
-{
-	ERROR_copy(save, last);
-
-	CLEAR(&ERROR_current->info);
-	if (last)
 		CLEAR(&ERROR_last);
+	}
 }
 
 void ERROR_restore(ERROR_INFO *save, ERROR_INFO *last)
 {
-	ERROR_reset(&ERROR_current->info);
+	clear_info(&ERROR_current->info);
 	ERROR_current->info = *save;
 	CLEAR(save);
 
 	if (last)
 	{
-		ERROR_reset(&ERROR_last);
+		clear_info(&ERROR_last);
 		ERROR_last = *last;
 		CLEAR(last);
 	}
@@ -698,10 +713,7 @@ void ERROR_restore(ERROR_INFO *save, ERROR_INFO *last)
 
 void ERROR_set_last(bool bt)
 {
-	ERROR_reset(&ERROR_last);
-	ERROR_last = ERROR_current->info;
-	if (ERROR_last.free)
-		STRING_ref(ERROR_last.msg);
+	copy_info(&ERROR_current->info, &ERROR_last);
 	
 	if (bt && !ERROR_backtrace)
 		ERROR_backtrace = STACK_get_backtrace();
@@ -709,10 +721,7 @@ void ERROR_set_last(bool bt)
 
 void ERROR_define_last(void)
 {
-	ERROR_reset(&ERROR_current->info);
-	ERROR_current->info = ERROR_last;
-	if (ERROR_last.free)
-		STRING_ref(ERROR_last.msg);
+	copy_info(&ERROR_last, &ERROR_current->info);
 }
 
 void ERROR_warning(const char *warning, ...)
@@ -761,7 +770,10 @@ void ERROR_hook(void)
 		if (handle_error)
 		{
 			no_rec = TRUE;
-			ERROR_copy(&save, &last);
+			
+			copy_info(&ERROR_current->info, &save);
+			copy_info(&ERROR_last, &last);
+			
 			if (ERROR_backtrace) save_bt = STACK_copy_backtrace(ERROR_backtrace);
 
 			TRY
@@ -773,7 +785,8 @@ void ERROR_hook(void)
 			}
 			END_TRY
 
-			ERROR_restore(&save, &last);
+			move_info(&save, &ERROR_current->info);
+			move_info(&last, &ERROR_last);
 			
 			STACK_free_backtrace(&ERROR_backtrace);
 			if (save_bt)
