@@ -216,8 +216,8 @@ Static Public Sub Main()
     $bSendCookie = True
     Session.Id = Args[2]
 
-    PrintLog("Catch SIGUSR2 signal")
-    Signal[Signal.SIGUSR2].Catch()
+    PrintLog("Catch SIGUSR1 signal")
+    Signal[Signal.SIGUSR1].Catch()
 
     PrintLog("Create startup form")
     _Current = Application.Startup.AutoCreate()
@@ -231,7 +231,7 @@ Static Public Sub Main()
     Try Kill sTemp &/ Session.Id
     Link "/proc" &/ CStr(Application.Id) To sTemp &/ Session.Id
 
-    PrintLog("Waiting for SIGUSR2")
+    PrintLog("Waiting for SIGUSR1")
     Return
     
   Endif
@@ -328,8 +328,8 @@ Static Public Sub Main()
     Endif
   Endif
   
-  PrintLog("CATCH SIGUSR2 SIGNAL")
-  Signal[Signal.SIGUSR2].Catch()
+  PrintLog("CATCH SIGUSR1 SIGNAL")
+  Signal[Signal.SIGUSR1].Catch()
   
   If Not sCookie Then 
     
@@ -393,8 +393,8 @@ Static Public Sub Main()
   $hWrite = Open Pipe sWrite For Write
   
   iPid = CInt(File.Name(Stat(sTemp &/ sCookie).Link))
-  PrintLog("SEND SIGUSR2 TO PROCESS " & CStr(iPid))
-  Signal.Send(iPid, Signal.SIGUSR2)
+  PrintLog("SEND SIGUSR1 TO PROCESS " & CStr(iPid))
+  Signal.Send(iPid, Signal.SIGUSR1)
     
   PrintLog("WRITE ENV")
 
@@ -409,8 +409,8 @@ Static Public Sub Main()
   '   Wend
   ' Endif
   
-  PrintLog("WAITING FOR SIGUSR2")
-  ' Now we wait SIGUSR2 from session process
+  PrintLog("WAITING FOR SIGUSR1")
+  ' Now we wait SIGUSR1 from session process
   Return
   
 NOT_FOUND:
@@ -461,8 +461,8 @@ Static Private Sub BeginResponse()
   $hWrite = Open Pipe sWrite For Write
   Output To $hWrite
   
-  PrintLog("Send SIGUSR2 to request process " & CStr($iRequestProcess))
-  Signal.Send($iRequestProcess, Signal.SIGUSR2)
+  PrintLog("Send SIGUSR1 to request process " & CStr($iRequestProcess))
+  Signal.Send($iRequestProcess, Signal.SIGUSR1)
   
 End
 
@@ -508,11 +508,11 @@ Static Public Sub Application_Signal(Num As Integer)
   
   Dim sData As String
   
-  If Num <> Signal.SIGUSR2 Then Return
+  If Num <> Signal.SIGUSR1 Then Return
   
   If Application.Daemon Then
     
-    PrintLog("Caught SIGUSR2")
+    PrintLog("Caught SIGUSR1")
   
     BeginResponse
     HandleRequest
@@ -520,7 +520,7 @@ Static Public Sub Application_Signal(Num As Integer)
   
   Else
     
-    PrintLog("CAUGHT SIGUSR2")
+    PrintLog("CAUGHT SIGUSR1")
     
     ' sTemp = File.Dir(File.Dir(Temp$())) &/ "session"
     ' sRead = sTemp &/ $sCookie & ".out"
@@ -559,7 +559,7 @@ Static Private Sub Exit()
   Try Kill sTemp &/ sCookie & ".in"
   Try Kill sTemp &/ sCookie & ".out"
   Try Kill sTemp &/ sCookie & ".lock"
-  Signal[Signal.SIGUSR2].Reset()
+  Signal[Signal.SIGUSR1].Reset()
   Quit
   
 End
