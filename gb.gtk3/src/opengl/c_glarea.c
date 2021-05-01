@@ -26,11 +26,11 @@
 #include <GL/gl.h>
 #include "c_glarea.h"
 
-//-- GLArea -----------------------------------------------------------------
-
 DECLARE_EVENT(EVENT_Open);
 DECLARE_EVENT(EVENT_Draw);
 DECLARE_EVENT(EVENT_Resize);
+
+//-------------------------------------------------------------------------
 
 static void init_control(void *_object)
 {
@@ -64,14 +64,16 @@ static gboolean cb_render(GtkGLArea *area, GdkGLContext *context, void *_object)
 	return TRUE;
 }
 
+//-------------------------------------------------------------------------
 
 BEGIN_METHOD(GLArea_new, GB_OBJECT parent)
 
 	THIS->widget = gtk_gl_area_new();
 
-	GTK.CreateControl(THIS, VARG(parent), THIS->widget);
+	GTK.CreateControl(THIS, VARG(parent), THIS->widget, CCF_NONE);
+	gtk_widget_set_can_focus(THIS->widget, TRUE);
 
-	gtk_gl_area_set_has_alpha(WIDGET, TRUE);
+	//gtk_gl_area_set_has_alpha(WIDGET, TRUE);
 	gtk_gl_area_set_has_depth_buffer(WIDGET, TRUE);
 	gtk_gl_area_set_has_stencil_buffer(WIDGET, TRUE);
 	
@@ -87,15 +89,8 @@ GB_DESC GLAreaDesc[] =
 {
   GB_DECLARE("GLArea", sizeof(CGLAREA)), GB_INHERITS("Control"),
 
-  //GB_STATIC_METHOD("_exit", NULL, GLArea_exit, NULL),
-
   GB_METHOD("_new", NULL, GLArea_new, "(Parent)Container;"),
-  //GB_METHOD("_free", NULL, GLArea_free, NULL),
-  //GB_METHOD("Update", NULL, GLArea_update, NULL),
-  //GB_METHOD("Refresh", NULL, GLArea_Refresh, NULL),
-  //GB_METHOD("Select", NULL, CGLAREA_select, NULL),
-  //GB_METHOD("Text", NULL, CGLAREA_text, "(Text)s(X)i(Y)i"),
-
+  
   GB_CONSTANT("_Group", "s", "Special"),
 
   GB_EVENT("Open", NULL, NULL, &EVENT_Open),

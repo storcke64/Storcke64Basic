@@ -30,7 +30,6 @@
 #include "gb.image.h"
 #include "gb.gtk.h"
 #include "watcher.h"
-#include "gglarea.h"
 #include "gkey.h"
 
 #include "desktop.h"
@@ -96,8 +95,6 @@ static void hook_post(void);
 static int hook_loop();
 static void hook_watch(int fd, int type, void *callback, intptr_t param);
 
-static GtkWidget *GTK_CreateGLArea(void *_object, void *parent, void (*init)(GtkWidget *));
-
 static bool _post_check = false;
 static bool _must_check_quit = false;
 
@@ -114,7 +111,7 @@ bool MAIN_platform_is_wayland = false;
 
 //-------------------------------------------------------------------------
 
-static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget)
+static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget, uint flags)
 {
 	gControl *ctrl;
 	bool recreate;
@@ -136,18 +133,12 @@ static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget)
 	ctrl->widget = ctrl->border;
 	InitControl(ctrl, ob);
 	ctrl->realize();
-	ctrl->_has_input_method = TRUE;
+	
+	if (flags & CCF_HAS_INPUT_METHOD)
+		ctrl->_has_input_method = TRUE;
 	
 	if (recreate)
 		ctrl->updateGeometry(true);
-}
-
-static GtkWidget *GTK_CreateGLArea(void *_object, void *parent, void (*init)(GtkWidget *))
-{
-	gControl *ctrl = new gGLArea(CONTAINER(parent), init);
-	InitControl(ctrl, (CWIDGET *)_object);
-	//WIDGET->onExpose = Darea_Expose;
-	return ctrl->widget;
 }
 
 static void *GTK_CreatePicture(cairo_surface_t *surf, int w, int h)
@@ -255,7 +246,7 @@ void *GB_GTK3_1[] EXPORT =
 {
 	(void *)GTK_INTERFACE_VERSION,
 	(void *)GTK_CreateControl,
-	(void *)GTK_CreateGLArea,
+	(void *)NULL,
 	(void *)GTK_CreatePicture,
 	(void *)GTK_GetDesktopScale,
 	NULL

@@ -39,6 +39,10 @@ GB_DESC *GB_CLASSES[] EXPORT =
 
 int EXPORT GB_INIT(void)
 {
+	char *env = getenv("GDK_GL");
+	if (!env || !*env)
+		putenv("GDK_GL=legacy");
+	
 	GB.GetInterface("gb.gtk3", GTK_INTERFACE_VERSION, &GTK);
 	GB.GetInterface("gb.opengl", GL_INTERFACE_VERSION, &GL);
 

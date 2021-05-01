@@ -233,7 +233,7 @@ static void create_widget(void *_object, void *parent)
 {
 	THIS->widget = webkit_web_view_new();
 	
-	GTK.CreateControl(THIS, parent, THIS->widget);
+	GTK.CreateControl(THIS, parent, THIS->widget, CCF_HAS_INPUT_METHOD);
 	
 	PATCH_CLASS(THIS->widget, WEBKIT_TYPE_WEB_VIEW)
 	

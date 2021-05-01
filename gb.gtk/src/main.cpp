@@ -103,7 +103,7 @@ bool MAIN_rtl = false;
 
 //-------------------------------------------------------------------------
 
-static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget)
+static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget, uint flags)
 {
 	gControl *ctrl;
 	bool recreate;
@@ -125,7 +125,9 @@ static void GTK_CreateControl(CWIDGET *ob, void *parent, GtkWidget *widget)
 	ctrl->widget = ctrl->border;
 	InitControl(ctrl, ob);
 	ctrl->realize();
-	ctrl->_has_input_method = TRUE;
+	
+	if (flags & CCF_HAS_INPUT_METHOD)
+		ctrl->_has_input_method = TRUE;
 	
 	if (recreate)
 		ctrl->updateGeometry(true);
