@@ -142,8 +142,6 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
   
 End
 
-
-
 Private Function CreateControl(sName As String, sClass As String, hParent As Object) As Object
 
   Dim hCtrl As Object
@@ -152,6 +150,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   Dim bVirtual As Boolean
   Dim hWindow As Window
   Dim hClass As CClassInfo
+  Dim hClassDraw As CClassInfo
 
   'PRINT "> CreateControl "; sClass
 
@@ -164,6 +163,13 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
     If DrawWith Then sClass = DrawWith
   Endif
   NoParent = Not hClass.ConstructorNeedParent()
+  
+  hClassDraw = Project.Documentation.Classes[sClass]
+  If IsMultiContainer() Then
+    If Not hClassDraw.MultiContainer Then sClass = "TabPanel"
+  Else If IsContainer() Then
+    If Not hClassDraw.Container Then sClass = "Panel"
+  Endif
 
   Select Case LCase(sClass)
 
@@ -363,6 +369,9 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
   
   hClass = Project.Documentation.Classes[sClass]
   
+  Try $bIsContainer = hClass.Container
+  Try $bIsMultiContainer = hClass.MultiContainer
+
   If hClass.Form Then
   
     If hFamily.HasMenuEditor Then
@@ -428,11 +437,6 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
   'VirtualCoord = hClass.Family <> "Form" And Not Virtual
   VirtualCoord = hFamily.VirtualCoord And Not Virtual
   
-  'Try $bIsContainer = Project.Documentation.Classes[Kind].Container
-  'Try $bIsMultiContainer = Project.Documentation.Classes[Kind].MultiContainer
-  Try $bIsContainer = hClass.Container
-  Try $bIsMultiContainer = hClass.MultiContainer
-
   InitControl()
 
   If $bIsMultiContainer Then
