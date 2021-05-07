@@ -203,6 +203,9 @@ bool TYPE_check_prefix(TYPE type, const char *prefix, int len)
 		return FALSE;
 	}
 	
+	if (len == 1 && *prefix == 'h')
+		return FALSE;
+	
 	char *class_name = TYPE_get_desc(type);
 	
 	if (strcasecmp(class_name, "collection") == 0)
