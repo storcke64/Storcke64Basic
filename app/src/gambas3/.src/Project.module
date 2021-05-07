@@ -53,6 +53,7 @@ Public ControlPublic As Boolean
 Public ModulePublic As Boolean
 Public ShowDeprecated As Boolean
 Public Warnings As Boolean
+Public CheckVariablePrefix As Boolean
 Public MajorVersion As Integer
 Public MinorVersion As Integer
 Public ReleaseVersion As Integer
@@ -2520,7 +2521,10 @@ Public Function GetCompileCommand(bAll As Boolean, bNoDebug As Boolean, bMakeExe
   sExec &= "-j" & CStr(Settings["/CompilerJobs", 1]) & " "
   'sExec = sExec & "-c " & Quote(CLASSES_FILE) & " " & Quote(Project.Dir) & " > " & OUTPUT_FILE & " 2>&1"
   If bIDE Then
-    If Project.Warnings Then sExec &= "-w "
+    If Project.Warnings Then
+      sExec &= "-w "
+      If CheckVariablePrefix Then sExec &= "-fcheck-prefix "
+    Endif
     sExec = sExec & Shell$(Project.Dir)
     sExec = sExec & " > " & OUTPUT_FILE & " 2>&1"
   Endif
@@ -3396,6 +3400,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   ModulePublic = False
   ShowDeprecated = False
   Warnings = True
+  CheckVariablePrefix = False
   KeepDebugInfo = True
   CompressFiles = True
   Localize = False
@@ -3577,6 +3582,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
       Case "warnings"
         Warnings = CInt(sVal) <> 0
+        
+      Case "checkvariableprefix"
+        CheckVariablePrefix = CInt(sVal) <> 0
 
       Case "description"
         Description = UnQuote(sVal)
@@ -3918,6 +3926,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If ModulePublic Then Print #hFile, "ModulePublic=1"
   If ShowDeprecated Then Print #hFile, "ShowDeprecated=1"
   If Not Warnings Then Print #hFile, "Warnings=0"
+  If CheckVariablePrefix Then Print #hFile, "CheckVariablePrefix=1"
   If SourcePath Then Print #hFile, "SourcePath="; SourcePath
 
   If Maintainer Then Print #hFile, "Maintainer="; Maintainer

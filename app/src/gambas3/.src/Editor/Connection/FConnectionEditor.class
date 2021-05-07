@@ -26,7 +26,7 @@ Private $cFieldInfo As New Collection
 Private $aCollations As String[]
 
 Private $bMetadata As Boolean
-Private $bTemplate As Variant
+Private $bTemplate As Boolean
 
 Private Const KEY_REQUEST As String = "$"
 Private $bInCheckCurrent As Boolean
@@ -513,7 +513,7 @@ Private Sub ReloadTable()
   Dim hCIndexField As CIndexField
   Dim sField As String
   Dim bCreate As Boolean
-  Dim hResult As Result
+  Dim rResult As Result
   Dim cDescField As Collection
   Dim cDescIndex As Collection
   
@@ -530,21 +530,21 @@ Private Sub ReloadTable()
     cDescField = New Collection
     cDescIndex = New Collection
     
-    Try hResult = $hConn.Find(MConnection.METADATA_TABLE_NAME, "sTableName = &1", $sTable)
-    If hResult And If hResult.Available Then 
+    Try rResult = $hConn.Find(MConnection.METADATA_TABLE_NAME, "sTableName = &1", $sTable)
+    If rResult And If rResult.Available Then 
       
-      For Each hResult
+      For Each rResult
         
-        Select Case hResult!iType
+        Select Case rResult!iType
           
           Case MConnection.MD_TABLE
-            $sDescription = hResult!sValue
+            $sDescription = rResult!sValue
           
           Case MConnection.MD_FIELD
-            cDescField[hResult!sKey] = hResult!sValue
+            cDescField[rResult!sKey] = rResult!sValue
             
           Case MConnection.MD_INDEX
-            cDescIndex[hResult!sKey] = hResult!sValue
+            cDescIndex[rResult!sKey] = rResult!sValue
           
         End Select
         

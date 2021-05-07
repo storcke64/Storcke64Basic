@@ -1682,12 +1682,12 @@ Private Function GetCoord(iCoord As Integer, Optional bDim As Boolean) As Float
 
 End
 
-Private Sub FormatScaledCoord(eCoord As Float) As String
+Private Sub FormatScaledCoord(fCoord As Float) As String
   
-  If eCoord = Int(eCoord) Then
-    Return CStr(Int(eCoord))
+  If fCoord = Int(fCoord) Then
+    Return CStr(Int(fCoord))
   Else
-    Return CStr(Int(eCoord)) & "." & Mid$(Format(Frac(eCoord), ".####"), 2)
+    Return CStr(Int(fCoord)) & "." & Mid$(Format(Frac(fCoord), ".####"), 2)
   Endif
   
 End

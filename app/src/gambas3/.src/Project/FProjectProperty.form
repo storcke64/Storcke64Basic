@@ -565,7 +565,7 @@
     Text = ("Options")
     Picture = Picture["icon:/large/options"]
     { Panel6 VBox
-      MoveScaled(1,2,86,60)
+      MoveScaled(1,2,86,64)
       Expand = True
       Spacing = True
       { Label7 Label
@@ -580,6 +580,7 @@
         Indent = True
         { Label1 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Tab size")
         }
         { txtTabSize SpinBox
@@ -590,6 +591,7 @@
         }
         { Label5 Label
           MoveScaled(59,0,22,4)
+          AutoResize = True
           Text = ("space(s)")
         }
       }
@@ -599,6 +601,7 @@
         Indent = True
         { Label2 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Show deprecated components and controls")
         }
         { btnShowDeprecated SwitchButton
@@ -618,6 +621,7 @@
         Indent = True
         { Label21 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Module symbols are public by default")
         }
         { btnModulePublic SwitchButton
@@ -631,6 +635,7 @@
         Indent = True
         { Label22 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Form controls are public")
         }
         { btnControlPublic SwitchButton
@@ -644,6 +649,7 @@
         Indent = True
         { Label4 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Activate warnings")
         }
         { btnWarning SwitchButton
@@ -651,18 +657,34 @@
           Animated = True
         }
       }
+      { HBox2 HBox
+        MoveScaled(1,33,83,4)
+        Spacing = True
+        Indent = True
+        { Label30 Label
+          MoveScaled(0,0,46,4)
+          Expand = True
+          Text = ("Check prefix of variables")
+        }
+        { btnCheckPrefix SwitchButton
+          MoveScaled(47,0,8,4)
+          Enabled = False
+          Animated = True
+        }
+      }
       { Label19 Label
-        MoveScaled(0,33,84,3)
+        MoveScaled(0,40,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Translation")
       }
       { HBox9 HBox
-        MoveScaled(1,37,83,4)
+        MoveScaled(1,44,83,4)
         Spacing = True
         Indent = True
         { Label24 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Project is translatable")
         }
         { btnTranslate SwitchButton
@@ -671,32 +693,34 @@
         }
       }
       { HBox8 HBox
-        MoveScaled(1,42,83,4)
+        MoveScaled(1,49,83,4)
         Spacing = True
         Indent = True
         { Label20 Label
-          MoveScaled(0,0,46,4)
+          MoveScaled(0,0,38,4)
+          Expand = True
           Text = ("Default language")
         }
         { cmbDefaultLanguage ComboBox
-          MoveScaled(47,0,36,4)
+          MoveScaled(38,0,45,4)
           Expand = True
           ReadOnly = True
           Sorted = True
         }
       }
       { Label27 Label
-        MoveScaled(0,47,84,3)
+        MoveScaled(0,54,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Version control")
       }
       { HBox6 HBox
-        MoveScaled(1,52,83,4)
+        MoveScaled(1,59,83,4)
         Spacing = True
         Indent = True
         { Label23 Label
           MoveScaled(0,0,46,4)
+          Expand = True
           Text = ("Add branch to version number")
         }
         { btnVersionAddBranch SwitchButton

@@ -533,17 +533,17 @@ End
 
 Public Sub RefreshInfo(sInfo As String)
 
-  Dim xStr As String
+  Dim sStr As String
 
-    $sInfo = sInfo
-    Me.Enabled = True
+  $sInfo = sInfo
+  Me.Enabled = True
 
-    For Each xStr In $cVal
-      $cOldVal.Add(xStr, $cVal.Key)
-    Next 
+  For Each sStr In $cVal
+    $cOldVal.Add(sStr, $cVal.Key)
+  Next 
 
-    $cVal.Clear
-    Init(sInfo, False) 
+  $cVal.Clear
+  Init(sInfo, False) 
 
 End
 

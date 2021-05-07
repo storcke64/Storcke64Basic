@@ -243,7 +243,7 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
   Dim iLevel As Integer
   Dim sEventName As String
   Dim aCoord As String[]
-  Dim eW, eH As Float
+  Dim fW, fH As Float
   Dim X, Y, W, H As Integer
   Dim bFirst As Boolean
   Dim bPublic As Boolean
@@ -528,21 +528,21 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
         Endif
         
         If aCoord.Count = 4 Then
-          eW = CFloat(aCoord[2])
-          eH = CFloat(aCoord[3])
+          fW = CFloat(aCoord[2])
+          fH = CFloat(aCoord[3])
           If $bConvert Then
-            If eW <= 3 Then Inc eW
-            If eH <= 3 Then Inc eH
+            If fW <= 3 Then Inc fW
+            If fH <= 3 Then Inc fH
           Endif
-          If eW = 0 Then
+          If fW = 0 Then
             W = 1
           Else
-            W = Round(eW * DS)
+            W = Round(fW * DS)
           Endif
-          If eH = 0 Then
+          If fH = 0 Then
             H = 1
           Else
-            H = Round(eH * DS)
+            H = Round(fH * DS)
           Endif
           Try hCtrl.MoveAndResize(X, Y, W, H)
         Else
@@ -4376,7 +4376,7 @@ Public Sub mnuFont_Show()
   Dim I As Integer
   Dim sParentFont As String
   Dim hParent As Menu
-  Dim iCount As Variant
+  Dim iCount As Integer
   
   mnuFont.Children.Clear
   

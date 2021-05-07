@@ -88,6 +88,7 @@ Public Sub Form_Open()
     btnModulePublic.Value = .ModulePublic
     btnShowDeprecated.Value = .ShowDeprecated
     btnWarning.Value = .Warnings
+    btnCheckPrefix.Value = .CheckVariablePrefix
     txtMajor.Value = .MajorVersion
     txtMinor.Value = .MinorVersion
     txtRelease.Value = .ReleaseVersion
@@ -234,6 +235,7 @@ Private Function DoApply() As Boolean
     Endif
     
     .Warnings = btnWarning.Value
+    .CheckVariablePrefix = btnCheckPrefix.Value
     .MajorVersion = txtMajor.Value
     .MinorVersion = txtMinor.Value
     .ReleaseVersion = txtRelease.Value
@@ -1473,5 +1475,11 @@ End
 Public Sub tvwEnv_Hide()
 
   UpdateEnv
+
+End
+
+Public Sub btnWarning_Click()
+
+  btnCheckPrefix.Enabled = btnWarning.Value
 
 End
