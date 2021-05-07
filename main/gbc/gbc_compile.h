@@ -73,7 +73,8 @@ typedef
 		unsigned no_old_read_syntax : 1;   // do not compile the old read syntax
 		unsigned exec : 1;                 // we are compiling for an executable
 		unsigned warnings : 1;             // if warnings must be printed
-		unsigned _reserved : 15;           // reserved
+		unsigned check_prefix : 1;         // check if variable prefix matches its datatype
+		unsigned _reserved : 14;           // reserved
 		char *output;                      // output file
 		PATTERN *pattern;                  // lexical analyze
 		int pattern_count;                 // number of patterns

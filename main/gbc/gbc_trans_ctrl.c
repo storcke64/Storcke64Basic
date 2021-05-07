@@ -899,6 +899,7 @@ void TRANS_case(void)
 
 		if (!PATTERN_is(*JOB->current, RS_COMMA))
 		{
+			//TRANS_ignore(RS_THEN);
 			pos = CODE_get_current_pos();
 			CODE_jump_if_false();
 			break;

@@ -58,38 +58,56 @@
 typedef
 	void (*BACKGROUND_TASK)(const char *);
 
+typedef
+	struct {
+		const char *option;
+		bool *variable;
+	}
+	COMPILER_FLAGS;
+	
+static bool main_debug = FALSE;
+static bool main_exec = FALSE;
+static bool main_compile_all = FALSE;
+static bool main_trans = FALSE;
+static bool main_warnings = FALSE;
+static bool main_swap = FALSE;
+
+static bool _opt_no_old_read_syntax = FALSE;
+static bool _opt_check_prefix = FALSE;
+static bool _opt_public_module = FALSE;
+static bool _opt_public_control = FALSE;
+
 #if HAVE_GETOPT_LONG
 static struct option _long_options[] =
 {
 	{ "debug", 0, NULL, 'g' },
 	{ "version", 0, NULL, 'V' },
 	{ "help", 0, NULL, 'h' },
-	{ "jobs", 1, NULL, 'j' },
 	{ "license", 0, NULL, 'L' },
 	{ "verbose", 0, NULL, 'v' },
 	{ "translate", 0, NULL, 't' },
-	{ "public-control", 0, NULL, 'p' },
-	{ "public-module", 0, NULL, 'm' },
 	{ "swap", 0, NULL, 's' },
-	{ "class", 1, NULL, 'c' },
-	/*{ "dump", 0, NULL, 'd' },*/
-	{ "root", 1, NULL, 'r' },
 	{ "all", 0, NULL, 'a' },
 	{ "translate-errors", 0, NULL, 'e' },
-	{ "no-old-read-write-syntax", 0, NULL, 1 },
+	{ "warnings", 0, NULL, 'w' },
+
+	{ "jobs", 1, NULL, 'j' },
+	{ "root", 1, NULL, 'r' },
+
+	//{ "no-old-read-write-syntax", 0, &_opt_no_old_read_syntax, 1 },
+	//{ "check-prefix", 0, &_opt_check_prefix, 1},
+	
 	{ 0 }
 };
 #endif
 
-static bool main_debug = FALSE;
-static bool main_exec = FALSE;
-static bool main_compile_all = FALSE;
-static bool main_trans = FALSE;
-static bool main_warnings = FALSE;
-static bool main_public = FALSE;
-static bool main_public_module = FALSE;
-static bool main_swap = FALSE;
-static bool main_no_old_read_syntax = FALSE;
+static COMPILER_FLAGS _compiler_flags[] = {
+	{ "no-old-read-write-syntax", &_opt_no_old_read_syntax },
+	{ "check-prefix", &_opt_check_prefix },
+	{ "public-module", &_opt_public_module },
+	{ "public-control", &_opt_public_control },
+	{ NULL }
+};
 
 //static char *main_class_file = NULL;
 
@@ -107,19 +125,21 @@ static void get_arguments(int argc, char **argv)
 	#if HAVE_GETOPT_LONG
 	int index = 0;
 	#endif
+	COMPILER_FLAGS *cf;
 
 	for(;;)
 	{
 		#if HAVE_GETOPT_LONG
-			opt = getopt_long(argc, argv, "gxvaVhj:Lwtpmser:", _long_options, &index);
+			opt = getopt_long(argc, argv, "gxvaVhj:Lwtser:f:", _long_options, &index);
 		#else
-			opt = getopt(argc, argv, "gxvaVhj:Lwtpmser:");
+			opt = getopt(argc, argv, "gxvaVhj:Lwtser:f:");
 		#endif
 		if (opt < 0) break;
 
 		switch (opt)
 		{
 			case 'V':
+				
 				#ifdef TRUNK_VERSION
 				printf(VERSION " " TRUNK_VERSION "\n");
 				#else /* no TRUNK_VERSION */
@@ -128,60 +148,54 @@ static void get_arguments(int argc, char **argv)
 				exit(0);
 
 			case 'g':
+				
 				main_debug = TRUE;
 				break;
 
 			case 'x':
+				
 				main_exec = TRUE;
 				break;
 
 			case 'v':
+				
 				COMP_verbose = TRUE;
 				break;
 
 			case 'a':
+				
 				main_compile_all = TRUE;
 				break;
 
 			case 't':
+				
 				main_trans = TRUE;
 				break;
 
 			case 'w':
+				
 				main_warnings = TRUE;
 				break;
 
-			case 'p':
-				main_public = TRUE;
-				break;
-
-			case 'm':
-				main_public_module = TRUE;
-				break;
-
 			case 's':
+				
 				main_swap = TRUE;
 				break;
 
-			//case 'c':
-			//  main_class_file = optarg;
-			//:  break;
-
 			case 'r':
+				
 				if (COMP_root)
 					ERROR_fail("option '-r' already specified.");
 				COMP_root = STR_copy(optarg);
 				break;
 
 			case 'e':
+				
 				ERROR_translate = TRUE;
 				break;
 				
-			case 1:
-				main_no_old_read_syntax = TRUE;
-				break;
-
 			case 'L':
+				
 				printf(
 					"\nGAMBAS Compiler version " VERSION "\n"
 					COPYRIGHT
@@ -189,6 +203,7 @@ static void get_arguments(int argc, char **argv)
 				exit(0);
 
 			case 'h': case '?':
+				
 				printf(
 					"\nCompile Gambas projects into architecture-independent bytecode.\n"
 					"\nUsage: gbc" GAMBAS_VERSION_STRING " [options] [<project directory>]\n\n"
@@ -199,10 +214,8 @@ static void get_arguments(int argc, char **argv)
 					"  -e  --translate-errors     display translatable error messages\n"
 					"  -g  --debug                add debugging information\n"
 					"  -h  --help                 display this help\n"
-					"  -j  --jobs                 number of background jobs (default: %d)\n"
+					"  -j  --jobs <count>         number of background jobs (default: %d)\n"
 					"  -L  --license              display license\n"
-					"  -m  --public-module        module symbols are public by default\n"
-					"  -p  --public-control       form controls are public\n"
 					"  -r  --root <directory>     gives the gambas installation directory\n"
 					"  -s  --swap                 swap endianness\n"
 					"  -t  --translate            output translation files and compile them if needed\n"
@@ -210,16 +223,18 @@ static void get_arguments(int argc, char **argv)
 					"  -V  --version              display version\n"
 					"  -w  --warnings             display warnings\n"
 					"  -x  --exec                 executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"\nCompiler flags:\n"
+					"  -f check-prefix            check the prefix of variables if warnings are enable\n"
+					"  -f public-module           module symbols are public by default\n"
+					"  -f public-control          form controls are public\n"
 					#else
 					" (no long options on this system)\n"
 					"  -a                         compile all\n"
 					"  -e                         display translatable error messages\n"
 					"  -g                         add debugging information\n"
 					"  -h                         display this help\n"
-					"  -j                         number of background jobs (default: %d)\n"
+					"  -j <count>                 number of background jobs (default: %d)\n"
 					"  -L                         display license\n"
-					"  -m                         module symbols are public by default\n"
-					"  -p                         form controls are public\n"
 					"  -r <directory>             gives the gambas installation directory\n"
 					"  -s                         swap endianness\n"
 					"  -t                         output translation files and compile them if needed\n"
@@ -227,6 +242,10 @@ static void get_arguments(int argc, char **argv)
 					"  -V                         display version\n"
 					"  -w                         display warnings\n"
 					"  -x                         executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"\nCompiler flags:\n"
+					"  -f check-prefix            check the prefix of variables if warnings are enable\n"
+					"  -f public-module           module symbols are public by default\n"
+					"  -f public-control          form controls are public\n"
 					#endif
 					"\n",
 					SYSTEM_get_cpu_count());
@@ -234,9 +253,25 @@ static void get_arguments(int argc, char **argv)
 				exit(0);
 				
 			case 'j':
+				
 				_ntask_max = atoi(optarg);
 				if (_ntask_max < 0 || _ntask_max > 16)
 					ERROR_fail("Incorrect number of jobs.");
+				break;
+				
+			case 'f':
+				
+				cf = _compiler_flags;
+				while (cf->option)
+				{
+					if (strcmp(optarg, cf->option) == 0)
+					{
+						*cf->variable = TRUE;
+						break;
+					}
+					cf++;
+				}
+				
 				break;
 
 			default:
@@ -298,9 +333,10 @@ static void compile_file(const char *file)
 	
 	JOB->exec = main_exec;
 	JOB->warnings = main_warnings;
+	JOB->check_prefix = main_warnings && _opt_check_prefix;
 	JOB->swap = main_swap;
-	JOB->public_module = main_public_module;
-	JOB->no_old_read_syntax = main_no_old_read_syntax;
+	JOB->public_module = _opt_public_module;
+	JOB->no_old_read_syntax = _opt_no_old_read_syntax;
 	//JOB->class_file = main_class_file;
 
 	if (COMP_verbose)
@@ -330,7 +366,7 @@ static void compile_file(const char *file)
 
 			case FORM_NORMAL:
 			default:
-				FORM_do(source, main_public);
+				FORM_do(source, _opt_public_control);
 				break;
 		}
 

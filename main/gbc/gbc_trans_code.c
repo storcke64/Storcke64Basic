@@ -64,6 +64,7 @@ static CLASS_SYMBOL *add_local(int sym_index, TYPE type, int value, bool used)
 	sym->local.value = value;
 	sym->local_used = used;
 	
+	CLASS_check_variable_prefix(sym, TRUE);
 	return sym;
 }
 

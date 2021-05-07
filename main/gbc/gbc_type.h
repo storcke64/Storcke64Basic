@@ -105,6 +105,9 @@ EXTERN char *TYPE_name[];
 const char *TYPE_get_short_desc(TYPE type);
 size_t TYPE_sizeof(TYPE type);
 
+char *TYPE_get_desc(TYPE type);
+bool TYPE_check_prefix(TYPE type, const char *prefix, int len);
+
 #endif
 
 

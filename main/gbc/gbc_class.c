@@ -767,6 +767,8 @@ void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)
 			sym->global_assigned = TRUE;
 		}
 	}
+	
+	CLASS_check_variable_prefix(sym, FALSE);
 }
 
 // Don't do that! The order of variables must be kept.
@@ -985,38 +987,39 @@ CLASS_SYMBOL *CLASS_get_local_symbol(int local)
 }
 
 
-char *TYPE_get_desc(TYPE type)
+void CLASS_check_variable_prefix(CLASS_SYMBOL *sym, bool local)
 {
-  static char buf[256];
-
-  TYPE_ID id;
-  int value;
-	CLASS_SYMBOL *sym;
-
-  id = TYPE_get_id(type);
-  value = TYPE_get_value(type);
-
-  if (id == T_ARRAY)
-  {
-    strcpy(buf, TYPE_name[JOB->class->array[value].type.t.id]);
-    strcat(buf, "[]");
-  }
-  else if (id == T_OBJECT)
+	char *name = sym->symbol.name;
+	int len = sym->symbol.len;
+	int len_prefix;
+	char *p;
+	TYPE type;
+	
+	if (!JOB->check_prefix)
+		return;
+	
+	type = local ? sym->local.type : sym->global.type;
+	if (TYPE_is_null(type))
+		return;
+	
+	if (len >= 1 && *name == '$')
 	{
-		if (value == -1)
-			strcpy(buf, "Object");
-		else
-		{
-			sym = CLASS_get_symbol(JOB->class, JOB->class->class[value].index);
-			sprintf(buf, "%.*s", sym->symbol.len, sym->symbol.name);
-		}
+		name++;
+		len--;
 	}
-  else
-  {
-    strcpy(buf, TYPE_name[id]);
-  }
-  
-  return buf;
+	
+	if (len <= 1)
+		return;
+	
+	len_prefix = 0;
+	p = name;
+	while (len > 0 && islower(*p))
+	{
+		p++;
+		len--;
+		len_prefix++;
+	}
+	
+	if (TYPE_check_prefix(type, name, len_prefix))
+		COMPILE_print(MSG_WARNING, -1, "variable prefix does not match its datatype: &1", SYMBOL_get_name(&sym->symbol));
 }
-
-

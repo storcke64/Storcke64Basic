@@ -260,7 +260,7 @@ void CLASS_check_properties(CLASS *class);
 
 CLASS_SYMBOL *CLASS_get_local_symbol(int local);
 
-char *TYPE_get_desc(TYPE type);
+void CLASS_check_variable_prefix(CLASS_SYMBOL *sym, bool local);
 
 // gbc_dump.c
 
