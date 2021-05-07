@@ -86,7 +86,7 @@
         }
         { PictureBox2 PictureBox
           MoveScaled(28,0,4,4)
-          Picture = Picture["icon:/small/right"]
+          Picture = Picture.Load("icon:/small/right")
           Alignment = Align.Center
         }
         { cmbLang ComboBox
@@ -264,7 +264,7 @@
       Margin = True
       { PictureBox3 PictureBox
         MoveScaled(0,0,4,4)
-        Picture = Picture["icon:/medium/info"]
+        Picture = Picture.Load("icon:/medium/info")
         AutoResize = True
         Alignment = Align.Center
       }
@@ -330,11 +330,11 @@
         Expand = True
       }
       { Panel3 VBox
-        MoveScaled(68,2,28,6)
+        MoveScaled(70,2,28,6)
         AutoResize = True
         Invert = True
         { btnImport Button
-          MoveScaled(0,0,18,4)
+          MoveScaled(3,0,18,4)
           ToolTip = ("Import a translation file")
           AutoResize = True
           Text = Shortcut(("Import"), "I")
