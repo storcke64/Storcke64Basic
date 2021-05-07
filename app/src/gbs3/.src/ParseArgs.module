@@ -183,7 +183,11 @@ gConvertProject: ' do a project to script conversion
         If i + 1 > aArgs.max Then 
           warning("Not enough parameters for Project conversion - need <source project Directory> [<dest>]", True)
         Else
-          ConvertProject(aArgs[I + 1], IIf(i + 2 <= aArgs.max, aArgs[i + 2], ""))
+          Dim ScriptDest As String = ""
+          If i + 2 <= aArgs.max Then 
+            ScriptDest = aArgs[i + 2]
+          Endif
+          ConvertProject(aArgs[I + 1], ScriptDest)
         Endif
         $bExit = True
         Break
