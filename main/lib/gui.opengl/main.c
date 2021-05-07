@@ -32,7 +32,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
   NULL
 };
 
-char *GB_INCLUDE EXPORT = "gb.qt4.opengl|gb.qt5.opengl|gb.gtk.opengl";
+char *GB_INCLUDE EXPORT = "gb.qt4.opengl|gb.qt5.opengl|gb.gtk.opengl|gb.gtk3.opengl";
 
 int EXPORT GB_INIT(void)
 {
@@ -48,6 +48,8 @@ int EXPORT GB_INIT(void)
 			comp = "gb.qt5.opengl";
 		else if (strcmp(env, "gb.gtk") == 0)
 			comp = "gb.gtk.opengl";
+		else if (strcmp(env, "gb.gtk3") == 0)
+			comp = "gb.gtk3.opengl";
 	}
 	
 	if (!comp)
