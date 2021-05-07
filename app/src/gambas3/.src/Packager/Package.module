@@ -1321,10 +1321,10 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
  
   Dim aLine As String[]
   Dim sLine As String
-  Dim debChangelog As String
+  Dim sDebChangeLog As String
   Dim sDate As String
   Dim sBits As String[]
-  Dim previousLine As String
+  Dim sPreviousLine As String
   Dim sWord As String
   Dim sNextWord As String
   Dim aWord As String[]
@@ -1337,23 +1337,23 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
       
       If sDate <> "" Then
         'Debian packages don't accept an empty changelog line for the release:
-        If previousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n" Then 
-          debChangelog = debChangelog & "  * New release version\n"
+        If sPreviousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n" Then 
+          sDebChangeLog = sDebChangeLog & "  * New release version\n"
         Endif   
-        debChangelog = debChangelog & "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n\n"
+        sDebChangeLog = sDebChangeLog & "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n\n"
       Endif
       sbits = Split(Trim$(sLine), " ")
       sDate = sbits[1] & ", " & sbits[3] & " " & sbits[2] & " " & sbits[4] & " 12:00:00 +0000"
       'sVersion = GetDebVersion()
-      previousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n"
-      debChangelog &= previousLine
+      sPreviousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n"
+      sDebChangeLog &= sPreviousLine
     
     Else 
       
       If Trim$(sLine) <> "" Then
         
         aWord = Split(Right$(sLine, -2), " ")
-        previousLine = "  * "
+        sPreviousLine = "  * "
         sLine = ""
         For Each sWord In aWord
           Repeat
@@ -1364,7 +1364,7 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
               sNextWord = ""
             Endif
             If String.Len(sLine & sWord) > 76 Then
-              previousLine &= sLine & "\n    "
+              sPreviousLine &= sLine & "\n    "
               sLine = sWord
             Else
               sLine = LTrim(sLine & " " & sWord)
@@ -1372,9 +1372,9 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
             sWord = sNextWord
           Until Not sWord
         Next
-        If sLine Then previousLine &= sLine & "\n"
+        If sLine Then sPreviousLine &= sLine & "\n"
         
-        debChangelog &= previousLine
+        sDebChangeLog &= sPreviousLine
         
       Endif
       
@@ -1382,9 +1382,9 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
     
   Next 
   
-  debChangelog &= "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n"
+  sDebChangeLog &= "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n"
   
-  Return debChangelog 
+  Return sDebChangeLog 
 
 End
 

@@ -71,7 +71,7 @@ Private Enum CHANGE_NOTHING, CHANGE_MOVE, CHANGE_RESIZE, CHANGE_ROTATE, CHANGE_P
 Private $bShowGrid As Boolean
 Private $hTextSelect As CImageSelection
 
-Private $sLastColor As Integer
+Private $iLastColor As Integer
 Private $cInfo As New Collection
 Private $bInfoTop As Boolean
 
@@ -1506,7 +1506,7 @@ Public Sub Form_KeyPress()
   
   If $sTool = "draw" Then
     If LCase(Key.Text) = "x" Then
-      FImageProperty.SetColor($sLastColor)
+      FImageProperty.SetColor($iLastColor)
     Endif
   Endif
   
@@ -1581,7 +1581,7 @@ Public Sub imvImage_MouseUp()
         
         If $sTool = "draw" Then
           If $hLastPoint And If $hImage[$hLastPoint.X, $hLastPoint.Y] <> FImageProperty.GetColor() Then
-            $sLastColor = $hImage[$hLastPoint.X, $hLastPoint.Y]
+            $iLastColor = $hImage[$hLastPoint.X, $hLastPoint.Y]
           Endif
         Endif
         

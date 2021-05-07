@@ -141,7 +141,7 @@ End
 Private Sub PaintRoundedRect(X As Integer, Y As Integer, W As Integer, H As Integer, R As Float)
 
   Dim fArcToBezier As Float = 0.55228475
-  Dim fRadiusX, fRadiusY, c1, c2 As Float
+  Dim fRadiusX, fRadiusY, C1, C2 As Float
 
   fRadiusX = R
   fRadiusY = R
@@ -150,19 +150,19 @@ Private Sub PaintRoundedRect(X As Integer, Y As Integer, W As Integer, H As Inte
   If fRadiusY > H - fRadiusY Then fRadiusY = H / 2
 
   '#approximate(quite Close )the arc using a bezier curve
-  c1 = fArcToBezier * fRadiusX
-  c2 = fArcToBezier * fRadiusY
+  C1 = fArcToBezier * fRadiusX
+  C2 = fArcToBezier * fRadiusY
 
   Paint.NewPath()
   Paint.MoveTo(x + fRadiusX, y)
   Paint.RelLineTo(w - 2 * fRadiusX, 0.0)
-  Paint.RelCurveTo(c1, 0.0, fRadiusX, c2, fRadiusX, fRadiusY)
+  Paint.RelCurveTo(C1, 0.0, fRadiusX, C2, fRadiusX, fRadiusY)
   Paint.RelLineTo(0, h - 2 * fRadiusY)
-  Paint.RelCurveTo(0.0, c2, c1 - fRadiusX, fRadiusY, -fRadiusX, fRadiusY)
+  Paint.RelCurveTo(0.0, C2, C1 - fRadiusX, fRadiusY, -fRadiusX, fRadiusY)
   Paint.RelLineTo(-w + 2 * fRadiusX, 0)
-  Paint.RelCurveTo(-c1, 0, -fRadiusX, -c2, -fRadiusX, -fRadiusY)
+  Paint.RelCurveTo(-C1, 0, -fRadiusX, -C2, -fRadiusX, -fRadiusY)
   Paint.RelLineTo(0, -h + 2 * fRadiusY)
-  Paint.RelCurveTo(0.0, -c2, fRadiusX - c1, -fRadiusY, fRadiusX, -fRadiusY)
+  Paint.RelCurveTo(0.0, -C2, fRadiusX - C1, -fRadiusY, fRadiusX, -fRadiusY)
   Paint.ClosePath()
 
 End

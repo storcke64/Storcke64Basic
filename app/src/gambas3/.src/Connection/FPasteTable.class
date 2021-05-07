@@ -7,7 +7,7 @@ Static Private $sTable As String
 
 Static Private $iCpt As Integer
 Static Private $iTotal As Integer
-Static Private $eTimer As Float
+Static Private $fTimer As Float
 
 Public Sub Run(hSrc As FConnectionEditor, sTable As String, hDest As FConnectionEditor) As Boolean
 
@@ -92,7 +92,7 @@ Private Sub CopyTable(sDestTable As String)
   Endif
 
   $iCpt = 0
-  $eTimer = Timer
+  $fTimer = Timer
 
   'DB.Debug = True
   DoCopyTable(hSrc, hDst, $sTable, sDestTable)
@@ -204,10 +204,10 @@ End
 Private Sub UpdateProgress(Optional bForce As Boolean)
 
   If Not bForce Then
-    If Timer < $eTimer Then Return
+    If Timer < $fTimer Then Return
   Endif
 
-  $eTimer = Timer + 0.25
+  $fTimer = Timer + 0.25
 
   If $iTotal Then
     pgbPaste.Value = CFloat($iCpt) / $iTotal

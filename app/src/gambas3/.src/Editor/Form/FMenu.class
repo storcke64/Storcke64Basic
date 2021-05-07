@@ -482,7 +482,7 @@ Public Sub btnDelete_Click()
 
 End
 
-Private Sub InsertMenuAt(iIndex As String, sName As String, iLevel As Integer) As CMenu
+Private Sub InsertMenuAt(iIndex As Integer, sName As String, iLevel As Integer) As CMenu
 
   Dim hCMenu As CMenu
   

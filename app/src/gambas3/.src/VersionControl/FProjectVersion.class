@@ -184,7 +184,7 @@ End
 Public Sub btnUpdate_Click()
 
   Dim bErr As Boolean
-  Dim hFile As Variant
+  Dim hFile As Object
 
   Inc Application.Busy
   GetAuthentication

@@ -6,7 +6,7 @@ Private $iCurrent As Integer
 Private $iInit As Integer
 Private $sClass As String
 Private $sFind As String
-Private $dFind As Float
+Private $fTimerFind As Float
 Private $hModule As FEditor
 Private $bNoFilter As Boolean
 
@@ -40,7 +40,7 @@ Public Sub Init(hModule As FEditor, sClass As String, aProc As String[], iCurren
   Try gvwProc[$iCurrent, 0].EnsureVisible
   
   $sFind = ""
-  $dFind = Timer
+  $fTimerFind = Timer
   
 End
 
@@ -128,9 +128,9 @@ Public Sub gvwProc_KeyPress()
     Me.Close
     Stop Event
   Else If Key.Text Then
-    If (Timer - $dFind) >= 1 Then $sFind = ""
+    If (Timer - $fTimerFind) >= 1 Then $sFind = ""
     $sFind &= String.LCase(Key.Text)
-    $dFind = Timer
+    $fTimerFind = Timer
     FindProcedure
   Else If Key.Code = Key.Up Then
     If $iCurrent > 0 Then SetCurrent($iCurrent - 1)

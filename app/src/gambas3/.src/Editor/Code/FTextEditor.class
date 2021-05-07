@@ -1093,7 +1093,7 @@ Private Sub FillProc()
   Dim iLine As Integer
   Dim sText As String
   Dim sProc, sProcNum As String
-  Dim iNum As String
+  Dim iNum As Integer
   Dim bDecl As Boolean
 
   If $cProc Then Return
