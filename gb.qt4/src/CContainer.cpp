@@ -263,7 +263,7 @@ static void resize_container(void *_object, QWidget *cont, int w, int h)
 	#if USE_CACHE
 	resize_widget(_object, w + wid->width() - cont->width(), h + wid->height() - cont->height());
 	#else
-	CWIDGET_resize(_object, w + wid->width() - cont->width(), h + wid->height() - cont->height());
+	CWIDGET_auto_resize(_object, w + wid->width() - cont->width(), h + wid->height() - cont->height());
 	#endif
 }
 

@@ -93,7 +93,7 @@ static void resize_container(gContainer *cont, int w, int h)
 	h += cont->height() - cont->containerHeight();*/
 	
 	if (w >= 0 && h >= 0)
-		cont->resize(w, h, true);
+		cont->resize(w, h);
 }
 
 
