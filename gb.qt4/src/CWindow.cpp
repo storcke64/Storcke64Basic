@@ -879,7 +879,6 @@ BEGIN_PROPERTY(Window_Text)
 		GB.Raise(THIS, EVENT_Title, 0);
 	}
 
-
 END_PROPERTY
 
 
@@ -2373,7 +2372,7 @@ void MyMainWindow::resizeEvent(QResizeEvent *e)
   	//qDebug("resizeEvent %ld %ld isHidden:%s shown:%s ", THIS->w, THIS->h, isHidden() ? "1" : "0", shown ? "1" : "0");
 	//qDebug("THIS->h = %ld  THIS->container->height() = %ld  height() = %ld", THIS->h, THIS->container->height(), height());
 
-	if (THIS->opened)
+	if (THIS->opened && (e->spontaneous() || parentWidget()))
 		raise_resize_event(THIS);
 }
 

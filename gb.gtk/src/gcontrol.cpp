@@ -1353,6 +1353,7 @@ void gControl::setFocus()
 		#if DEBUG_FOCUS
 		fprintf(stderr, "setFocus now %s\n", name());
 		#endif
+		//win->activate();
 		gtk_widget_grab_focus(widget);
 	}
 	else

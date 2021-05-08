@@ -1122,6 +1122,7 @@ static void set_focus(void *_object)
 	{
 		//qDebug("set focus on %s for %s", THIS->name, ((CWIDGET *)win)->name);
 		WIDGET->setFocus();
+		//((MyMainWindow *)(win->widget.widget))->activate();
 	}
 	else if ((CWIDGET *)win != THIS)
 	{
