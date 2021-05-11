@@ -67,6 +67,7 @@ public:
 	void init();
 	void update();
 	void checkInverted();
+	virtual void setMinimumSize();
 	
 	unsigned _mark : 1;
 	unsigned _tracking : 1;

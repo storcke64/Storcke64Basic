@@ -246,7 +246,7 @@ void gContainer::decide(gControl *child, bool *width, bool *height)
 {
 	*width = *height = FALSE;
 	
-	if (!child->_allow_show || child->isIgnore() || autoResize())
+	if (!isShown() || !child->_allow_show || child->isIgnore() || autoResize())
 		return;
 	
 	if ((arrange() == ARRANGE_VERTICAL)

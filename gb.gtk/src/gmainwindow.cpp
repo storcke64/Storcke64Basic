@@ -745,10 +745,10 @@ bool gMainWindow::emitOpen()
 	//_no_resize_event = true; // If the event loop is run during emitOpen(), some spurious configure events are received.
 
 	updateSize();
+	//performArrange();
 
 	gtk_widget_realize(border);
 
-	performArrange();
 	emit(SIGNAL(onOpen));
 	if (_closed)
 	{
