@@ -500,6 +500,8 @@ Public Sub DrawingArea_Draw()
       X2 = X + hFont.TextWidth(String.Left(sText, $iShortcutPos))
       X += hFont.TextWidth(String.Left(sText, $iShortcutPos - 1))
       Y = (Me.H - hFont.Height) / 2 + hFont.Ascent + 1
+      If Main.UseGTK() Then Inc Y
+      
       If System.RightToLeft Then
         Paint.FillRect(Paint.W - X, Y, X2 - X, 1, iFg)
       Else
