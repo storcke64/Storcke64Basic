@@ -3,6 +3,8 @@
 'Class DesktopMime
 
 Private $cArrow As New Collection
+Private $bInitGTK As Boolean
+Private $bUseGTK As Boolean
 
 Public Sub GetArrow(iType As Integer, iSize As Integer) As Image
   
@@ -272,3 +274,15 @@ Public Sub GetCacheDir() As String
   
 End
 
+Public Sub UseGTK() As Boolean
+  
+  If Not $bInitGTK Then 
+    $bInitGTK = True
+    If Component.IsLoaded("gb.gtk3") Or If Component.IsLoaded("gb.gtk") Then
+      $bUseGTK = True
+    Endif
+  Endif
+  
+  Return $bUseGTK
+  
+End
