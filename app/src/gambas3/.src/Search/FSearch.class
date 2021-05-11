@@ -55,6 +55,8 @@ Public Sub _new()
   gvwFind = FDebugInfo.GetSearchList()
   Object.Attach(gvwFind, Me, "gvwFind")
   
+  lblMessage.Padding = Desktop.Scale
+  
   ReadConfig
 
 End
@@ -73,6 +75,8 @@ Public Sub Form_Open()
   'radSourceFileOnly.Value = Settings["/FSearch/SourceOnly", False]
   
   gvwFind_Font
+  
+  lblMessage.Hide
   
 End
 
@@ -112,7 +116,7 @@ Public Sub ReadConfig()
 
 End
 
-Private Sub UpdateTitle()
+Public Sub UpdateTitle()
 
   Dim sWhere As String
 
@@ -127,7 +131,6 @@ Private Sub UpdateTitle()
   Me.Title = ("Search & Replace") & " - " & sWhere
   
 End
-
 
 Public Sub Update(Optional bForce As Boolean)
   
@@ -211,13 +214,16 @@ Public Sub cmbReplace_Activate()
 
 End
 
-Private Sub ShowMessage(sMsg As String, (hCtrl) As Control)
+Private Sub ShowMessage(sMsg As String, hCtrl As Control)
   
   If Me.Visible Then
-    Message(sMsg)
+    lblMessage.Text = sMsg
+    lblMessage.Show
   Else 
     Project.SetMessage(sMsg)
   Endif
+  
+  hCtrl.SetFocus
   
 End
 
@@ -904,6 +910,7 @@ Public Sub cmbSearch_Change()
   'If Not cmbSearch.Text Then Stop
   'FMain.UpdateSearchString(cmbSearch.Text)
   ShowString
+  lblMessage.Hide
   
 End
 
