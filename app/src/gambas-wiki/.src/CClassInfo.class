@@ -548,6 +548,7 @@ Public Sub GetDescription() As String
   Dim sCar As String
   Dim sSave As String
   Dim sFirst As String
+  Dim nTry As Integer
   
   sPath = "/comp" &/ LCase(Component &/ Name)
   
@@ -562,7 +563,8 @@ TRY_AGAIN:
       sFirst = Trim(aData[0])
       If sFirst Begins "-->" Or If sFirst Begins "==>" Then
         sPath = Trim(Mid$(sFirst, 4))
-        Goto TRY_AGAIN
+        Inc nTry
+        If nTry < 8 Then Goto TRY_AGAIN
       Endif
     Endif
     

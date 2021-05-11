@@ -158,6 +158,7 @@ Private Sub _PrintPage()
   Dim hStatDef As Stat
   Dim hClass As CClassInfo
   Dim sDefaultHelp As String
+  Dim nTry As Integer
 
   If Main.Edit Then
     sPath = Main.GetPagePath()  
@@ -246,7 +247,8 @@ Private Sub _PrintPage()
           sDefaultHelp = Main.GetDefaultHelp()
           If sDefaultHelp Begins "-->" Then
             sPath = Main.MakeAbsolute(Trim(Mid$(sDefaultHelp, 4)), sPath)
-            Goto TRY_AGAIN
+            Inc nTry
+            If nTry < 8 Then Goto TRY_AGAIN
           Else
             sData = "@{syntax}\n" & sDefaultHelp
           Endif

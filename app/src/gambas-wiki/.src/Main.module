@@ -1418,11 +1418,11 @@ Public Sub GetPackageTable() As String[]
   aResult.Add("--")
   aResult.Add("Depends on these packages")
   
-  aResult.Insert(["==", "'gambas3-devel'", "--"])
+  aResult.Insert(["==", "'gambas3-dev-tools'", "--"])
   aResult.Insert(["==", "'gambas3-runtime'", "--"])
   
-  AddProjectDependencies(aResult, "gambas3-ide", ["gambas3-devel"])
-  AddProjectDependencies(aResult, "gambas3-scripter", ["gambas3-devel"])
+  AddProjectDependencies(aResult, "gambas3-ide", ["gambas3-dev-tools"])
+  AddProjectDependencies(aResult, "gambas3-scripter", ["gambas3-dev-tools"])
   
   For Each sComp In CComponent.ListAll()
     

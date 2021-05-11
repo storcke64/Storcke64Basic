@@ -662,6 +662,7 @@ Public Sub GetDescription() As String
   Dim sData As String
   Dim sDesc As String
   Dim aDefaultHelp As String[]
+  Dim nTry As Integer
   
   sPath = "/comp" &/ LCase(Component &/ Class &/ Replace(Name, ":", "."))
   
@@ -676,7 +677,8 @@ TRY_AGAIN:
     GoSub GET_DEFAULT_HELP
     If aDefaultHelp.Count = 1 And If aDefaultHelp[0] Begins "-->" Then
       sPath = Main.MakeAbsolute(Trim(Mid$(aDefaultHelp[0], 4)), sPath)
-      Goto TRY_AGAIN
+      Inc nTry
+      If nTry < 8 Then Goto TRY_AGAIN
     Endif
     aData = ["@{help}"]
   Endif
