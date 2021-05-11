@@ -496,6 +496,7 @@ gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 	realizeScrolledWindow(textview);
 
 	setColorBase();
+	setFramePadding(gDesktop::scale() * 3 / 4);
 
 	//g_signal_connect_after(G_OBJECT(textview), "motion-notify-event", G_CALLBACK(cb_motion_notify_event), (gpointer)this);
 	g_signal_connect(G_OBJECT(textview), "key-press-event", G_CALLBACK(cb_keypress), (gpointer)this);
