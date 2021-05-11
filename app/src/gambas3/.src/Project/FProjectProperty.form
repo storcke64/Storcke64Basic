@@ -133,7 +133,7 @@
     }
   }
   { ipnProject IconPanel
-    MoveScaled(1,1,108,66)
+    MoveScaled(1,1,110,66)
     Expand = True
     Arrangement = Arrange.Vertical
     Spacing = True
@@ -143,7 +143,7 @@
     Text = ("General")
     Picture = Picture["icon:/large/gambas"]
     { Panel4 VBox
-      MoveScaled(0,0,86,65)
+      MoveScaled(0,0,88,65)
       Expand = True
       Spacing = True
       { Panel1 HBox
@@ -180,7 +180,7 @@
         }
       }
       { panGeneral HPanel
-        MoveScaled(0,10,84,54)
+        MoveScaled(0,10,87,54)
         Expand = True
         Spacing = True
         { Label16 Label
@@ -213,7 +213,7 @@
           Text = ("Version")
         }
         { HBox1 HBox
-          MoveScaled(18,10,64,4)
+          MoveScaled(18,10,69,4)
           Expand = True
           Spacing = True
           { txtMajor SpinBox
@@ -229,7 +229,7 @@
             MaxValue = 999999
           }
           { chkGetVersionFromFile CheckBox
-            MoveScaled(33,0,24,4)
+            MoveScaled(33,0,35,4)
             Expand = True
             Text = ("Get from 'VERSION' file")
           }

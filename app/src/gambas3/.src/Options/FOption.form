@@ -31,7 +31,7 @@
     }
   }
   { ipnOption IconPanel
-    MoveScaled(1,1,94,64)
+    MoveScaled(1,1,95,64)
     Arrangement = Arrange.Vertical
     Spacing = True
     Count = 10
@@ -1172,15 +1172,16 @@
       { PictureBox1 PictureBox
         MoveScaled(0,0,4,4)
         Padding = 4
-        Picture = Picture["icon:/large/brightness"]
+        Picture = Picture.Load("icon:/large/brightness")
         Mode = PictureBox.Fill
       }
       { sldBackgroundBrightness Slider
-        MoveScaled(6,0,59,4)
+        MoveScaled(5,0,59,4)
         Expand = True
         MaxValue = 255
         Step = 16
         PageStep = 16
+        Orientation = ScrollBar.Horizontal
         Value = 128
       }
     }

@@ -5772,6 +5772,8 @@ Public Sub DrawTitle(hForm As Object, Optional bNoReadOnly As Boolean)
     hForm.Title = sTitle
     If ShowFileInTitle And If hForm = ActiveForm Then UpdateTitle
   Endif
+  
+  If hForm = ActiveForm Then FSearch.UpdateTitle
 
 End
 
