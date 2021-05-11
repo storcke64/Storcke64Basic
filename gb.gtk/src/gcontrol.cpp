@@ -1604,7 +1604,7 @@ void gControl::drawBorder(cairo_t *cr)
 {
 	/*if (getFrameBorder() != BORDER_NONE)
 		fprintf(stderr, "gControl::drawBorder: %s: %d %d\n", name(), width(), height());*/
-	gt_draw_border(cr, gtk_widget_get_style_context(widget), GTK_STATE_FLAG_NORMAL, getFrameBorder(), getFrameColor(), 0, 0, width(), height(), use_base);
+	gt_draw_border(cr, gtk_widget_get_style_context(widget), gtk_widget_get_state_flags(widget), getFrameBorder(), getFrameColor(), 0, 0, width(), height(), use_base);
 }
 #else
 void gControl::drawBorder(GdkEventExpose *e)

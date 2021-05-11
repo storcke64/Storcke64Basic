@@ -333,3 +333,13 @@ void gSlider::setOrientation(int vl)
 			applyOrientation((width() < height()) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
 	}
 }
+
+void gSlider::setMinimumSize()
+{
+	gControl::setMinimumSize();
+	if (!_is_scrollbar)
+	{
+		if (_min_w > (gDesktop::scale() * 4))
+			_min_w = gDesktop::scale() * 4;
+	}
+}

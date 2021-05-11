@@ -56,6 +56,8 @@ gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 	//fprintf(stderr, "gcb_focus_in: %s\n", data->name());
 	
 	gApplication::setActiveControl(data, true);
+	if (data->frame)
+		data->refresh();
 
 	return false;
 }
@@ -69,6 +71,8 @@ gboolean gcb_focus_out(GtkWidget *widget, GdkEventFocus *event, gControl *data)
 
 	if (!gApplication::_keep_focus)
 		gApplication::setActiveControl(data, false);
+	if (data->frame)
+		data->refresh();
 	
 	return false;
 }
