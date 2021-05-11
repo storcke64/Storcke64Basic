@@ -1054,12 +1054,14 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 
 	if (rich)
 	{
-		html = gt_html_to_pango_string(text, len, false);
 		pango_layout_set_text(layout, "", 0);
-		pango_layout_set_markup(layout, html, -1);
-		pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
 		if (w > 0)
-			pango_layout_set_width(layout, (int)(w * PANGO_SCALE));
+		{
+			pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+			pango_layout_set_width(layout, (int)ceilf(w * PANGO_SCALE));
+		}
+		html = gt_html_to_pango_string(text, len, false);
+		pango_layout_set_markup(layout, html, -1);
 	}
 	else
 	{

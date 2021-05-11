@@ -766,27 +766,37 @@ bool gFont::isAllSet()
 		&& _underline_set;
 }
 
-void gFont::richTextSize(const char *txt, int len, float sw, float *w, float *h)
+void gFont::richTextSize(const char *text, int len, float sw, float *w, float *h)
 {
 	PangoLayout *ly;
-	int tw = 0, th = 0;
+	PangoRectangle ink_rect, rect = { 0 };
 	char *html;
 	
-	if (txt && len)
+	if (text && len)
 	{
 		ly = pango_layout_new(ct);
-		html = gt_html_to_pango_string(txt, len, false);
-		pango_layout_set_wrap(ly, PANGO_WRAP_WORD_CHAR);
-		pango_layout_set_markup(ly, html, -1);	
 		if (sw > 0)
-			pango_layout_set_width(ly, sw * PANGO_SCALE);
-		pango_layout_get_size(ly, &tw, &th);
+		{
+			pango_layout_set_wrap(ly, PANGO_WRAP_WORD_CHAR);
+			pango_layout_set_width(ly, (int)ceilf(sw * PANGO_SCALE));
+		}
+		html = gt_html_to_pango_string(text, len, false);
+		pango_layout_set_markup(ly, html, -1);	
+		gt_set_layout_from_font(ly, this);
+		pango_layout_get_extents(ly, &ink_rect, &rect);
 		g_free(html);
 		g_object_unref(ly);
+		rect.width = Max(rect.width, ink_rect.width);
+		rect.height = Max(rect.height, ink_rect.height);
 	}
 	
-	if (w) *w = (float)tw / PANGO_SCALE;
-	if (h) *h = (float)th / PANGO_SCALE;
+	if (w) *w = (float)rect.width / PANGO_SCALE;
+	if (h)
+	{
+		*h = (float)rect.height / PANGO_SCALE;
+		if (mustFixSpacing())
+			*h += 1;
+	}
 }
 
 void gFont::checkMustFixSpacing()
