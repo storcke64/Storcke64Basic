@@ -880,9 +880,12 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	if (len_html == 0)
 		goto RETURN_STRING;
 	
+#if PANGO_VERSION_CHECK(1, 41, 0)
+#else
 	// Sometimes the first markup is not taken into account.
 	// This is a workaround for this bug:
 	g_string_append_unichar(pango, 0xFEFF);
+#endif
 	
 	for (p = html;; p++)
 	{
@@ -993,7 +996,7 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			{
 				if ((end_token || inside_par) && p[1])
 				{
-					g_string_append(pango, "\n");
+					g_string_append_c(pango, '\n');
 					newline = true;
 				}
 				inside_par = start_token;
