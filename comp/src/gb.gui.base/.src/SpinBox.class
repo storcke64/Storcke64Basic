@@ -347,14 +347,13 @@ Public Sub View_MouseUp()
   Dim bCancel As Boolean
   
   bCancel = Raise MouseUp
-  If bCancel Then 
-    Stop Event
-    Return
+
+  If $hTimer Then
+    $hTimer.Stop
+    $hTimer = Null
   Endif
   
-  If Not $hTimer Then Return
-  $hTimer.Stop
-  $hTimer = Null
+  If bCancel Then Stop Event
   
 End
 
@@ -362,7 +361,7 @@ Public Sub TimerMouse_Timer()
 
   ChangeValue($bTimerAdd, True)
   
-  If $hTimer.Delay > 50 Then
+  If $hTimer And If $hTimer.Delay > 50 Then
     $hTimer.Delay = 50
     $hTimer.Restart
   Endif
