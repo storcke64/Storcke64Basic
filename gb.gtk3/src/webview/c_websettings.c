@@ -63,7 +63,10 @@ static bool get_flag(WebKitSettings *settings, int flag)
 		case 8: return webkit_settings_get_enable_spatial_navigation(settings);
 		case 9: return webkit_settings_get_allow_file_access_from_file_urls(settings);
 		case 10: return webkit_settings_get_enable_hyperlink_auditing(settings);
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+#else
 		case 13: return webkit_settings_get_enable_plugins(settings);
+#endif
 		case 14: return webkit_settings_get_enable_fullscreen(settings);
 		case 16: return webkit_settings_get_enable_webgl(settings);
 		case 17: return webkit_settings_get_enable_accelerated_2d_canvas(settings);
@@ -87,7 +90,10 @@ static void set_flag(WebKitSettings *settings, int flag, bool value)
 		case 8: webkit_settings_set_enable_spatial_navigation(settings, value); break;
 		case 9: webkit_settings_set_allow_file_access_from_file_urls(settings, value); break;
 		case 10: webkit_settings_set_enable_hyperlink_auditing(settings, value); break;
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+#else
 		case 13: webkit_settings_set_enable_plugins(settings, value); break;
+#endif
 		case 14: webkit_settings_set_enable_fullscreen(settings, value); break;
 		case 16: webkit_settings_set_enable_webgl(settings, value); break;
 		case 17: webkit_settings_set_enable_accelerated_2d_canvas(settings, value); break;
