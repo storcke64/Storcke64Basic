@@ -450,7 +450,7 @@ Public Sub SetPath(sPath As String)
       txtFile.Text = File.Name(sPath)
     Endif
     
-    CheckAutomaticExtension
+    CheckAutomaticExtension(True)
     
   Endif
   
@@ -579,7 +579,7 @@ Public Function GetFilter() As String[]
 
 End
 
-Private Sub CheckAutomaticExtension()
+Private Sub CheckAutomaticExtension(Optional bGetCurrentFilter As Boolean)
 
   Dim aFilter As String[]
   Dim sFilter As String
@@ -596,6 +596,7 @@ Private Sub CheckAutomaticExtension()
   If InStr(sFilter, "*") Then Return
   
   sFile = txtFile.Text
+  If bGetCurrentFilter Then $sLastExt = sFilter
   If $sLastExt And If sFile Ends $sLastExt Then sFile = Left(sFile, -Len($sLastExt))
   txtFile.Text = sFile & sFilter
   $sLastExt = sFilter
@@ -1732,7 +1733,7 @@ Private Sub AutoExt_Write(Value As Boolean)
 
   If $bAutoExt = Value Then Return
   $bAutoExt = Value
-  CheckAutomaticExtension
+  CheckAutomaticExtension(True)
 
 End
 
@@ -1767,4 +1768,10 @@ Private Sub IsCompressedFile(sFile As String, Optional bCustom As Boolean) As Bo
     Next
   Endif
   
+End
+
+Public Sub txtFile_LostFocus()
+
+  CheckAutomaticExtension(True)
+
 End
