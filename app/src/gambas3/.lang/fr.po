@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.16.90\n"
-"POT-Creation-Date: 2021-05-09 17:13 UTC\n"
+"POT-Creation-Date: 2021-05-12 18:47 UTC\n"
 "PO-Revision-Date: 2021-05-05 01:42 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
@@ -1019,7 +1019,7 @@ msgstr "Extension de l'EDI"
 #: FReportBorderChooser.form:48 FReportBoxShadowChooser.form:27
 #: FReportBrushChooser.form:36 FReportCoordChooser.form:26
 #: FReportPaddingChooser.form:75 FSave.form:29 FSaveProjectAs.form:81
-#: FSearch.class:942 FSelectComponent.form:39 FSelectExtraFile.form:43
+#: FSearch.class:949 FSelectComponent.form:39 FSelectExtraFile.form:43
 #: FSelectIcon.form:99 FSelectLibrary.form:66 FSnippet.form:57
 #: FSoftwareFarm.class:563 FTableChooser.form:68 FTestSuite.class:292
 #: FText.form:40 FTranslate.class:682 FVersionControl.form:130
@@ -1048,7 +1048,7 @@ msgid "Files"
 msgstr "Fichiers"
 
 #: CProjectTree.class:370 FHelpShortcut.form:21 FMain.form:437
-#: FSearch.class:124 FSelectIcon.form:32
+#: FSearch.class:128 FSelectIcon.form:32
 msgid "Project"
 msgstr "Projet"
 
@@ -1339,7 +1339,7 @@ msgstr "Démarrer"
 #: FDebugInfo.form:463 FEditor.form:378 FFileInfoVC.form:81
 #: FFileProperty.form:46 FForm.form:455 FImageEditor.form:395 FMain.form:412
 #: FPatch.form:88 FProjectVersion.form:322 FSystemInfo.form:44
-#: FTestSuite.form:154 FTextEditor.form:407 FTips.form:87 FTranslate.form:411
+#: FTestSuite.form:154 FTextEditor.form:407 FTips.form:87 FTranslate.form:410
 msgid "Close"
 msgstr "Fermer"
 
@@ -1527,7 +1527,7 @@ msgstr "Coller"
 
 #: FConflict.form:88 FConflictEditor.form:97 FConnectionEditor.form:267
 #: FEditor.form:115 FFieldChooser.form:127 FForm.form:148 FImageEditor.form:120
-#: FList.form:111 FOption.form:1740 FProjectVersion.form:252
+#: FList.form:111 FOption.form:1741 FProjectVersion.form:252
 #: FTextEditor.form:130
 msgid "Undo"
 msgstr "Annuler"
@@ -1921,7 +1921,7 @@ msgid "Import text file"
 msgstr "Importer un fichier texte"
 
 #: FConnectionEditor.form:170 FImportTable.form:48 FMain.form:1032
-#: FOption.form:1204 FTranslate.form:431
+#: FOption.form:1204 FTranslate.form:430
 msgid "Import"
 msgstr "Importer"
 
@@ -2051,7 +2051,7 @@ msgid "New file"
 msgstr "Nouveau fichier"
 
 #: FCreateFile.form:72 FImportTable.form:58 FMakeExecutable.form:51
-#: FMakePatch.form:65 FProjectProperty.form:808 FSearch.form:100
+#: FMakePatch.form:65 FProjectProperty.form:808 FSearch.form:107
 msgid "Options"
 msgstr "Options"
 
@@ -2355,7 +2355,7 @@ msgstr "Afficher la fenêtre de recherche"
 msgid "Search again"
 msgstr "Rechercher de nouveau"
 
-#: FDebugInfo.form:527 FSearch.class:521 FTranslate.class:644
+#: FDebugInfo.form:527 FSearch.class:527 FTranslate.class:644
 msgid "Search string cannot be found."
 msgstr "La chaîne recherchée est introuvable."
 
@@ -2765,11 +2765,11 @@ msgstr "Déplacer l'onglet"
 msgid "First"
 msgstr "Début"
 
-#: FForm.form:374 FSearch.form:190 FTips.form:75
+#: FForm.form:374 FSearch.form:197 FTips.form:75
 msgid "Previous"
 msgstr "Précédent"
 
-#: FForm.form:381 FSearch.form:184 FTips.form:81
+#: FForm.form:381 FSearch.form:191 FTips.form:81
 msgid "Next"
 msgstr "Suivant"
 
@@ -3146,7 +3146,7 @@ msgstr "Désaturer"
 msgid "Make transparent"
 msgstr "Rendre transparent"
 
-#: FImageProperty.form:416 FOption.form:1753
+#: FImageProperty.form:416 FOption.form:1754
 msgid "Invert colors for dark themes"
 msgstr "Inverser les couleurs pour les thèmes sombres"
 
@@ -3340,7 +3340,7 @@ msgstr "Importer des fichiers"
 msgid "Create symbolic links"
 msgstr "Créer des liens symboliques"
 
-#: FImportTable.class:58 FSearch.form:172 FTranslate.class:1377
+#: FImportTable.class:58 FSearch.form:179 FTranslate.class:1377
 msgid "All files"
 msgstr "Tous les fichiers"
 
@@ -3584,7 +3584,7 @@ msgstr "Recharger le projet"
 msgid "Quit"
 msgstr "Quitter"
 
-#: FMain.form:402 Project.module:6998
+#: FMain.form:402 Project.module:7000
 msgid "Save as"
 msgstr "Enregistrer sous"
 
@@ -3756,7 +3756,7 @@ msgstr "Outils"
 msgid "Find"
 msgstr "Rechercher"
 
-#: FMain.form:856 FSearch.form:75
+#: FMain.form:856 FSearch.form:82
 msgid "Replace"
 msgstr "Remplacer"
 
@@ -3948,7 +3948,7 @@ msgstr "Créer un paquet d'installation"
 msgid "Toolbox"
 msgstr "Boîte à outils"
 
-#: FMain.form:1527 FSearch.form:61
+#: FMain.form:1527 FSearch.form:68
 msgid "Search"
 msgstr "Rechercher"
 
@@ -4988,23 +4988,23 @@ msgstr "Zoom (sauf le navigateur)"
 msgid "Install Gambas font for code edition"
 msgstr "Installer la police Gambas dédiée à l'édition de code"
 
-#: FOption.form:1681
+#: FOption.form:1682
 msgid "Themes"
 msgstr "Thèmes"
 
-#: FOption.form:1698
+#: FOption.form:1699
 msgid "Icon theme"
 msgstr "Thème d'icône"
 
-#: FOption.form:1714
+#: FOption.form:1715
 msgid "Highlighting theme"
 msgstr "Thème de coloration syntaxique"
 
-#: FOption.form:1728
+#: FOption.form:1729
 msgid "Import theme"
 msgstr "Importer un thème"
 
-#: FOption.form:1734
+#: FOption.form:1735
 msgid "Export theme"
 msgstr "Exporter le thème"
 
@@ -5363,7 +5363,7 @@ msgstr "Vérifier le préfixe des variables"
 msgid "Add branch to version number"
 msgstr "Ajouter la branche au numéro de version"
 
-#: FProjectProperty.form:1009 FTranslate.form:417
+#: FProjectProperty.form:1009 FTranslate.form:416
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -5655,87 +5655,87 @@ msgstr "Nouveau nom du projet"
 msgid "Take screenshot"
 msgstr "Capture d'écran"
 
-#: FSearch.class:523
+#: FSearch.class:529
 msgid "Search string replaced once."
 msgstr "La chaîne de caractères recherchée à été remplacée une fois."
 
-#: FSearch.class:525
+#: FSearch.class:531
 msgid "Search string replaced &1 times."
 msgstr "La chaîne de caractères a été remplacée &1 fois."
 
-#: FSearch.class:630
+#: FSearch.class:636
 msgid "One match"
 msgstr "Une correspondance"
 
-#: FSearch.class:632
+#: FSearch.class:638
 msgid "&1 matches"
 msgstr "&1 correspondances"
 
-#: FSearch.class:638
+#: FSearch.class:644
 msgid "One replacement"
 msgstr "Un remplacement"
 
-#: FSearch.class:640
+#: FSearch.class:646
 msgid "&1 replacements"
 msgstr "&1 remplacements"
 
-#: FSearch.class:942
+#: FSearch.class:949
 msgid "Do you really want to replace every string?"
 msgstr "Voulez-vous vraiment remplacer l'ensemble des chaînes ?"
 
-#: FSearch.form:42
+#: FSearch.form:44
 msgid "Search & Replace"
 msgstr "Rechercher & Remplacer"
 
-#: FSearch.form:105
+#: FSearch.form:112
 msgid "Case sensitive"
 msgstr "Tenir compte de la casse"
 
-#: FSearch.form:110
+#: FSearch.form:117
 msgid "Words only"
 msgstr "Mots seulements"
 
-#: FSearch.form:115
+#: FSearch.form:122
 msgid "Regular expression"
 msgstr "Expression rationnelle"
 
-#: FSearch.form:120
+#: FSearch.form:127
 msgid "Ignore strings"
 msgstr "Ignorer les chaînes"
 
-#: FSearch.form:125
+#: FSearch.form:132
 msgid "Ignore comments"
 msgstr "Ignorer les commentaires"
 
-#: FSearch.form:141
+#: FSearch.form:148
 msgid "Search in"
 msgstr "Rechercher dans"
 
-#: FSearch.form:147
+#: FSearch.form:154
 msgid "Current function"
 msgstr "Fonction courante"
 
-#: FSearch.form:153
+#: FSearch.form:160
 msgid "Current file"
 msgstr "Fichier courant"
 
-#: FSearch.form:160
+#: FSearch.form:167
 msgid "Source files"
 msgstr "Fichiers sources"
 
-#: FSearch.form:166
+#: FSearch.form:173
 msgid "Data files"
 msgstr "Fichiers de données"
 
-#: FSearch.form:197
+#: FSearch.form:204
 msgid "Browse"
 msgstr "Parcourir"
 
-#: FSearch.form:209
+#: FSearch.form:216
 msgid "Replace all"
 msgstr "Tout remplacer"
 
-#: FSearch.form:220
+#: FSearch.form:227
 msgid "Highlight search"
 msgstr "Surligner la recherche"
 
@@ -6255,43 +6255,43 @@ msgstr "Vérifier la traduction"
 msgid "Verify"
 msgstr "Vérifier"
 
-#: FTranslate.form:312
+#: FTranslate.form:311
 msgid "Find next translated string"
 msgstr "Trouver la prochaine chaîne traduite"
 
-#: FTranslate.form:318
+#: FTranslate.form:317
 msgid "Find previous translated string"
 msgstr "Trouver la chaîne traduite précédente"
 
-#: FTranslate.form:324
+#: FTranslate.form:323
 msgid "Find previous untranslated string"
 msgstr "Trouver la chaîne précédente non traduite"
 
-#: FTranslate.form:330
+#: FTranslate.form:329
 msgid "Find next untranslated string"
 msgstr "Trouver la prochaine chaîne non traduite"
 
-#: FTranslate.form:340
+#: FTranslate.form:339
 msgid "Clear this translation"
 msgstr "Effacer cette traduction"
 
-#: FTranslate.form:346
+#: FTranslate.form:345
 msgid "This string must not be translated"
 msgstr "Cette chaîne ne doit pas être traduite"
 
-#: FTranslate.form:352
+#: FTranslate.form:351
 msgid "Copy untranslated string"
 msgstr "Copier la chaîne non traduite"
 
-#: FTranslate.form:458
+#: FTranslate.form:457
 msgid "Import all translations  recursively"
 msgstr "Importer toutes les traductions récursivement"
 
-#: FTranslate.form:464
+#: FTranslate.form:463
 msgid "Replace existing translations"
 msgstr "Remplacer les traductions existantes"
 
-#: FTranslate.form:480
+#: FTranslate.form:479
 msgid "Import a translation file"
 msgstr "Importer un fichier de traduction"
 
@@ -6323,7 +6323,7 @@ msgstr "Nouveau projet..."
 msgid "Recent projects"
 msgstr "Projets récents"
 
-#: FWelcome.class:73 Project.module:6608
+#: FWelcome.class:73 Project.module:6610
 msgid "Installed software"
 msgstr "Logiciels installés"
 
@@ -8269,43 +8269,43 @@ msgstr "Impossible de déplacer le fichier &1."
 msgid "The following files couldn't be removed:"
 msgstr "Les fichiers suivants n'ont pu être supprimés :"
 
-#: Project.module:5987
+#: Project.module:5989
 msgid "Project cleanup..."
 msgstr "Nettoyage du projet..."
 
-#: Project.module:5993
+#: Project.module:5995
 msgid "Project files conversion..."
 msgstr "Conversion des fichiers du projet..."
 
-#: Project.module:6023
+#: Project.module:6025
 msgid "Unable to convert &1"
 msgstr "Impossible de convertir &1"
 
-#: Project.module:6303
+#: Project.module:6305
 msgid "Unable to update forms."
 msgstr "Impossible de mettre à-jour les formulaires."
 
-#: Project.module:6393
+#: Project.module:6395
 msgid "The &1 program is not installed on your system."
 msgstr "Le programme &1 n'est pas installé sur votre système."
 
-#: Project.module:6395
+#: Project.module:6397
 msgid "The following programs are not installed on your system: &1."
 msgstr "Les programmes suivants ne sont pas installés sur votre système : &1."
 
-#: Project.module:6486
+#: Project.module:6488
 msgid "Unable to read component description file."
 msgstr "Impossible de lire le fichier de description du composant."
 
-#: Project.module:6547
+#: Project.module:6549
 msgid "Cannot write component description file."
 msgstr "Impossible d'écrire le fichier de description du composant."
 
-#: Project.module:6608
+#: Project.module:6610
 msgid "Project templates"
 msgstr "Modèles de projet"
 
-#: Project.module:6654
+#: Project.module:6656
 msgid "Unable to run terminal."
 msgstr "Impossible de démarrer le terminal."
 
