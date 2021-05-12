@@ -134,6 +134,8 @@ Public Sub Form_Open()
 
   Dim sLang As String
   Dim sPath As String
+  Dim sName As String
+  Dim aName As String[]
 
   Inc Application.Busy
 
@@ -149,13 +151,17 @@ Public Sub Form_Open()
   cmbLangSource.Add(("(Default)"))
   
   'For Each sLang In Language.GetAll()
+  aName = New String[]
   For Each sLang In Project.GetTranslations()
-    'If Project.HasTranslation(sLang) Then
-      cvwLang.Add(sLang, Language.ToName(sLang))
-      cmbLang.Add(Language.ToName(sLang))
-      cmbLangSource.Add(Language.ToName(sLang))
-    'Endif
+    sName = Language.ToName(sLang)
+    aName.Add(sName)
+    cvwLang.Add(sLang, sName)
   Next
+  
+  aName.Sort(gb.Natural)
+  cmbLang.List = aName
+  aName.Add(("(Default)"), 0)
+  cmbLangSource.List = aName
 
   sPath = Settings["/FTranslate/ImportPath"]
   If Not sPath Then sPath = System.User.Home
