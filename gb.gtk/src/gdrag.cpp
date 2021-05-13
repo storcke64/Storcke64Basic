@@ -257,6 +257,9 @@ char *gClipboard::getText(int *len, const char *format)
 
 	if (!gtk_clipboard_wait_for_targets(get_clipboard(), &targets, &n_tg) || n_tg <= 0)
 		return NULL;
+	
+	if (format && !strcmp(format, "text/plain"))
+		format = "text/plain;charset=utf-8";
 
 	for (i = 0; i < n_tg; i++)
 	{
@@ -264,7 +267,7 @@ char *gClipboard::getText(int *len, const char *format)
 		fmt = convert_format(gt_free_later(gdk_atom_name(target)));
 		if (!islower(fmt[0]))
 			continue;
-		if (!format && !strncasecmp(fmt, "text/", 5))
+		if (!format && !strncasecmp(fmt, "text/", 5) && strcasecmp(fmt, "text/plain"))
 			break;
 		if (format && !strcasecmp(fmt, format))
 			break;
