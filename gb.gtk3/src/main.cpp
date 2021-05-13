@@ -584,6 +584,8 @@ static int hook_loop()
 
 static void hook_wait(int duration)
 {
+	static bool _warning = FALSE;
+	
 	if (gDrawingArea::inAnyDrawEvent())
 	{
 		GB.Error("Wait is forbidden during a repaint event");
@@ -592,7 +594,11 @@ static void hook_wait(int duration)
 
 	if (duration && gKey::isValid())
 	{
-		fprintf(stderr, "gb.gtk3: warning: calling the event loop during a keyboard event handler is ignored\n");
+		if (!_warning)
+		{
+			fprintf(stderr, "gb.gtk3: warning: calling the event loop during a keyboard event handler is ignored\n");
+			_warning = TRUE;
+		}
 		return;
 	}
 
