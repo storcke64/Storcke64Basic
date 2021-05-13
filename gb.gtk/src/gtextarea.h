@@ -97,6 +97,7 @@ public:
 	virtual void updateScrollBar();
 	virtual void setMinimumSize();
 	virtual void setFont(gFont *ft);
+	virtual void setBorder(bool b);
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();

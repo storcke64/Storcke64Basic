@@ -130,7 +130,7 @@ BEGIN_PROPERTY(Clipboard_Formats)
 
 END_PROPERTY
 
-BEGIN_PROPERTY(CCLIPBOARD_type)
+BEGIN_PROPERTY(Clipboard_Type)
 
 	GB.ReturnInteger(gClipboard::getType());
 
@@ -257,7 +257,7 @@ GB_DESC CClipboardDesc[] =
   
   GB_STATIC_PROPERTY_READ("Format", "s", Clipboard_Format),
   GB_STATIC_PROPERTY_READ("Formats", "String[]", Clipboard_Formats),
-  GB_STATIC_PROPERTY_READ("Type", "i", CCLIPBOARD_type),
+  GB_STATIC_PROPERTY_READ("Type", "i", Clipboard_Type),
 	GB_STATIC_PROPERTY_READ("HasChanged", "b", Clipboard_HasChanged),
 
   GB_STATIC_METHOD("Copy", 0, Clipboard_Copy, "(Data)v[(Format)s]"),

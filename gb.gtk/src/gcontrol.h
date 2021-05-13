@@ -332,7 +332,7 @@ public:
 	virtual void updateBorder();
 	int getFrameBorder() const { return frame_border; }
 	void setFrameBorder(int border);
-	void setBorder(bool b);
+	virtual void setBorder(bool b);
 	bool hasBorder() const;
 	int getFramePadding() const { return frame_padding; }
 	void setFramePadding(int padding);
