@@ -1038,6 +1038,8 @@ static void hook_loop()
 
 static void hook_wait(int duration)
 {
+	static bool _warning = FALSE;
+	
 	if (MyDrawingArea::inAnyDrawEvent())
 	{
 		GB.Error("Wait is forbidden during a repaint event");
@@ -1049,7 +1051,13 @@ static void hook_wait(int duration)
 	if (duration > 0)
 	{
 		if (CKEY_is_valid())
-			fprintf(stderr, QT_NAME ": warning: calling the event loop during a keyboard event handler is ignored\n");
+		{
+			if (!_warning)
+			{
+				fprintf(stderr, QT_NAME ": warning: calling the event loop during a keyboard event handler is ignored\n");
+				_warning = TRUE;
+			}
+		}
 		else
 			qApp->processEvents(QEventLoop::AllEvents, duration);
 	}
