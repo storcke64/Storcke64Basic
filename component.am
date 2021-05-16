@@ -55,7 +55,10 @@ uninstall-hook:
 	@rm -rf $(DESTDIR)$(gbdatadir)/info/$(COMPONENT).list;
 	@rm -rf $(DESTDIR)$(gbdatadir)/control/$(COMPONENT);
 	@rm -rf $(DESTDIR)$(gbdatadir)/$(COMPONENT);
-	@rmdir --ignore-fail-on-non-empty $(DESTDIR)$(gbdatadir)/info $(DESTDIR)$(gbdatadir)/control $(DESTDIR)$(gbdatadir) $(DESTDIR)$(gblibdir);
+	@rmdir $(DESTDIR)$(gbdatadir)/info >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(gbdatadir)/control >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(gbdatadir) >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(gblibdir) >/dev/null 2>&1;
 
 dist-hook:
 	@if test -d $(COMPONENT); then \
