@@ -123,7 +123,7 @@ Public Sub _new(sPath As String)
   Wend
     
   Exec [System.Path &/ "bin/gba" & System.Version, "-x", sPath, ".list"] To sData
-  Classes = Split(sData, "\n", "", True)
+  Classes = CComponent.GetExportedClassesFromList(sData)
   
   Exec [System.Path &/ "bin/gba" & System.Version, "-x", sPath, ".component"] To sData
   For Each sLine In Split(sData, "\n", "", True)

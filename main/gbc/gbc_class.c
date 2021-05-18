@@ -151,8 +151,8 @@ void CLASS_delete(CLASS **class)
 		ARRAY_delete(&((*class)->structure));
 		ARRAY_delete(&((*class)->names));
 
-		if ((*class)->name != NULL)
-			STR_free((*class)->name);
+		if ((*class)->name) STR_free((*class)->name);
+		if ((*class)->export_name) STR_free((*class)->export_name);
 
 		FREE(class);
 	}
@@ -1022,4 +1022,16 @@ void CLASS_check_variable_prefix(CLASS_SYMBOL *sym, bool local)
 	
 	if (TYPE_check_prefix(type, name, len_prefix))
 		COMPILE_print(MSG_WARNING, -1, "variable prefix does not match its datatype: &1", SYMBOL_get_name(&sym->symbol));
+}
+
+
+char *CLASS_get_export_name(CLASS *class)
+{
+	if (!class->exported)
+		return NULL;
+	
+	if (class->export_name)
+		return class->export_name;
+	
+	return class->name;
 }

@@ -90,6 +90,7 @@ void ARCHIVE_load_exported_class(ARCHIVE *arch, int pass)
 	char *buffer;
 	int len;
 	char *name;
+	char *file_name;
 	CLASS *class;
 	int i;
 	COMPONENT *current;
@@ -135,6 +136,10 @@ void ARCHIVE_load_exported_class(ARCHIVE *arch, int pass)
 						fprintf(stderr, "Check %s global\n", name);
 					#endif
 
+					file_name = strchr(name, ' ');
+					if (file_name)
+						*file_name++ = 0;
+						
 					len = strlen(name);
 					optional = FALSE;
 
@@ -154,23 +159,17 @@ void ARCHIVE_load_exported_class(ARCHIVE *arch, int pass)
 
 					name[len] = 0;
 
-					/*
-					class = CLASS_look_global(name, strlen(name));
-
-					if (class)
-					{
-						#if DEBUG_COMP
-							fprintf(stderr, "...override!\n");
-						#endif
-						CLASS_load(class);
-						CLASS_check_global(class);
-					}
-					else
-						class = CLASS_find_global(name);*/
-
 					if (!optional || CLASS_look_global(name, len) == NULL)
 					{
-						class = CLASS_find_global(name);
+						class = CLASS_find_export(file_name, name);
+						
+						if (file_name)
+						{
+							ALLOC(&class->data, len + 1);
+							strcpy(class->data, file_name);
+							class->data[len] = 0;
+						}
+						
 						CLASS_check_global(class);
 
 						#if DEBUG_COMP
@@ -332,12 +331,17 @@ void ARCHIVE_load_main()
 
 void ARCHIVE_delete(ARCHIVE *arch)
 {
+	int i;
 	LIST_remove(&_archive_list, arch, &arch->list);
 
 	if (arch->arch)
 		ARCH_close(arch->arch);
 
+	for (i = 0; i < TABLE_count(arch->classes); i++)
+		IFREE(TABLE_get_symbol(arch->classes, i)->name);
+	
 	TABLE_delete(&arch->classes);
+	
 	STRING_free(&arch->domain);
 	STRING_free(&arch->version);
 	STRING_free(&arch->path);

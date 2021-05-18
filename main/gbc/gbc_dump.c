@@ -428,12 +428,10 @@ static void class_update_exported(CLASS *class)
 	bool optional;
 	bool has_static;
 	int cmp;
+	char *export_name;
 
 	if (load_file(".list") && !class->exported)
 		return;
-
-	//if (!fr && !class->exported)
-	//	return;
 
 	for(;;)
 	{
@@ -445,18 +443,27 @@ static void class_update_exported(CLASS *class)
 			cmp = 1;
 		else
 		{
+			export_name = memchr(name, ' ', len);
+			if (export_name)
+			{
+				len = export_name - name;
+				*export_name++ = 0;
+			}
+			
 			if (name[len - 1] == '?')
 			{
 				optional = TRUE;
 				name[len - 1] = 0;
 				len--;
 			}
+			
 			if (name[len - 1] == '!')
 			{
 				has_static = TRUE;
 				name[len - 1] = 0;
 				len--;
 			}
+			
 			cmp = strcmp(name, class->name);
 		}
 
@@ -468,14 +475,21 @@ static void class_update_exported(CLASS *class)
 		}
 		else if ((cmp > 0) && class->exported && !inserted)
 		{
+			export_name = CLASS_get_export_name(class);
+			
 			COMPILE_create_file(&fw, ".list#");
 			if (COMP_verbose)
-				printf("Insert '%s%s' into .list file\n", class->name, class->optional ? "?" : "");
-			fputs(class->name, fw);
+				printf("Insert '%s%s' into .list file\n", export_name, class->optional ? "?" : "");
+			fputs(export_name, fw);
 			if (class->has_static && COMPILE_version >= 0x03060090)
 				fputc('!', fw);
 			if (class->optional)
 				fputc('?', fw);
+			if (class->export_name)
+			{
+				fputc(' ', fw);
+				fputs(class->name, fw);
+			}
 			fputc('\n', fw);
 			inserted = TRUE;
 		}
@@ -523,13 +537,16 @@ static void insert_class_info(CLASS *class, FILE *fw)
 	int line;
 	const char *str;
 	int len;
+	const char *export_name;
 
+	export_name = CLASS_get_export_name(class);	
+	
 	if (COMP_verbose)
-		printf("Insert '%s' information into .info file\n", class->name);
+		printf("Insert '%s' information into .info file\n", export_name);
 
 	_finfo = fw;
 
-	fprintf(_finfo, "#%s\n", class->name);
+	fprintf(_finfo, "#%s\n", export_name);
 
 	if (class->parent != NO_SYMBOL)
 		fprintf(_finfo, "%s", get_name(JOB->class->class[class->parent].index));

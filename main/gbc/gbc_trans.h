@@ -140,6 +140,7 @@ PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current);
 
 void TRANS_want(int reserved, char *msg);
 void TRANS_want_newline(void);
+void TRANS_want_class(void);
 //int TRANS_get_class(PATTERN pattern);
 bool TRANS_is_end_function(bool is_proc, PATTERN *look);
 char *TRANS_get_num_desc(ushort num);

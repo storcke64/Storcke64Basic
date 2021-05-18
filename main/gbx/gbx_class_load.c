@@ -943,6 +943,7 @@ static void load_without_inits(CLASS *class)
 	CLASS_DESC *start;
 	char kind;
 	ARCHIVE *arch;
+	char *file_name;
 
 	//size_t alloc = MEMORY_size;
 
@@ -1002,7 +1003,8 @@ static void load_without_inits(CLASS *class)
 		fprintf(stderr, "COMPONENT_current = %s\n", COMPONENT_current ? COMPONENT_current->name : "NULL");
 	#endif
 
-	len = strlen(class->name);
+	file_name = class->data ? class->data : class->name;
+	len = strlen(file_name);
 
 	{
 		char name[len + 9];
@@ -1012,9 +1014,12 @@ static void load_without_inits(CLASS *class)
 		p = &name[8];
 
 		for (i = 0; i < len; i++)
-			*p++ = toupper(class->name[i]);
+			*p++ = toupper(file_name[i]);
 		*p = 0;
 
+		if (class->data)
+			IFREE(class->data);
+		
 		TRY
 		{
 			//class->mmapped = !STREAM_map(name, &class->data, &len_data);

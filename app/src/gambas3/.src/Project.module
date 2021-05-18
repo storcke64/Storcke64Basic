@@ -5796,6 +5796,7 @@ Public Sub IsExported(sPath As String) As Boolean
     If sLine Like "CREATE" Then Continue
     If sLine Like "CREATE *" Then Continue
     If sLine Like "EXPORT" Then Return True
+    If sLine Like "EXPORT AS *" Then Return True
     If sLine Like "EXPORT OPTIONAL" Then Return True
     Break
   Next

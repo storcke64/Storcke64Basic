@@ -216,6 +216,7 @@ typedef
 		CLASS_ARRAY *array;            // array definitions
 		CLASS_STRUCT *structure;       // structs definitions
 		char **names;                  // when some symbols must be created like object arrays
+		char *export_name;             // export name of the class
 		}
 	CLASS;
 
@@ -261,6 +262,8 @@ void CLASS_check_properties(CLASS *class);
 CLASS_SYMBOL *CLASS_get_local_symbol(int local);
 
 void CLASS_check_variable_prefix(CLASS_SYMBOL *sym, bool local);
+
+char *CLASS_get_export_name(CLASS *class);
 
 // gbc_dump.c
 

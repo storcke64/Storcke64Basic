@@ -118,6 +118,22 @@ Private Sub FindInfo(sKey As String) As String
 
 End
 
+Static Public Sub GetExportedClassesFromList(sData As String) As String[]
+
+  Dim aList As String[]
+  Dim I As Integer
+  Dim iPos As Integer
+  
+  aList = Split(sData, "\n", "", True)
+  For I = 0 To aList.Max
+    iPos = InStr(aList[I], " ")
+    If iPos Then aList[I] = Left(aList[I], iPos - 1)
+  Next
+  
+  Return aList
+  
+End
+
 Public Sub Load()
   
   Dim aLine As String[]
@@ -197,7 +213,7 @@ Public Sub Load()
     
     ' List of exported classes
     
-    Try aList = Split(File.Load(File.SetExt(sPath, "list")), "\n", "", True)
+    Try aList = GetExportedClassesFromList(File.Load(File.SetExt(sPath, "list")))
     ' TODO: remove duplicates. Normally it should be done in gbi3 program.
     If Error Then
       Error "gambas3: warning: cannot read "; File.SetExt(sPath, "list")

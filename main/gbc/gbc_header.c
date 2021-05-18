@@ -491,8 +491,7 @@ static bool header_class(TRANS_DECL *decl)
 	if (!TRANS_is(RS_CLASS))
 		return FALSE;
 
-	if (!PATTERN_is_identifier(*JOB->current))
-		THROW("Syntax error. CLASS needs an identifier");
+	TRANS_want_class();
 
 	CLEAR(decl);
 	decl->index = PATTERN_index(*JOB->current);
@@ -887,11 +886,10 @@ static bool header_inherits(void)
 
 	JOB->current++;
 
-	if (!PATTERN_is_class(*JOB->current))
-		THROW("Syntax error. INHERITS needs a class name");
+	TRANS_want_class();
 
 	if (JOB->class->parent != NO_SYMBOL)
-		THROW("Cannot inherit twice");
+		THROW("Class already has a parent");
 	
 	index = PATTERN_index(*JOB->current);
 	
@@ -910,10 +908,20 @@ static bool header_option(void)
 {
 	if (TRANS_is(RS_EXPORT))
 	{
+		if (JOB->class->exported)
+			THROW("Class is already exported");
+		
 		JOB->class->exported = TRUE;
 
 		if (TRANS_is(RS_OPTIONAL))
 			JOB->class->optional = TRUE;
+		
+		if (TRANS_is(RS_AS))
+		{
+			TRANS_want_class();
+			JOB->class->export_name = STR_copy(TABLE_get_symbol_name(JOB->class->table, PATTERN_index(*JOB->current)));
+			JOB->current++;
+		}
 
 		return TRUE;
 	}
@@ -983,7 +991,7 @@ static bool header_structure(void)
 		THROW("Structures must be public");
 	
 	if (!PATTERN_is_identifier(*JOB->current))
-		THROW("Syntax error. STRUCT needs an identifier");
+		THROW("Syntax error. STRUCT must be followed by an identifier");
 
 	structure = ARRAY_add_void(&JOB->class->structure);
 	ARRAY_create(&structure->field);

@@ -58,14 +58,17 @@
 // We are exiting...
 bool CLASS_exiting = FALSE;
 
-/* Global class table */
+// Global class table
 static TABLE _global_table;
-/* List of all classes */
+// List of all classes
 static CLASS *_classes = NULL;
-/* First created class (must be 'Class' class) */
+// First created class (must be 'Class' class)
 static CLASS *_first = NULL;
-/* This flag forces CLASS_find() to only register in the global table */
+// This flag forces CLASS_find() to register in the global table
 static bool _global = FALSE;
+// If set, do not create a new class, but register that class in the global table
+static CLASS *_global_class = NULL;
+
 
 #ifdef DEBUG
 static CLASS *Class;
@@ -386,6 +389,7 @@ void CLASS_clean_up(bool silent)
 void CLASS_exit()
 {
 	CLASS *class, *next;
+	int i;
 
 	#if DEBUG_LOAD
 	fprintf(stderr, "Unloading classes...\n");
@@ -406,6 +410,9 @@ void CLASS_exit()
 		class = next;
 	}
 
+	for (i = 0; i < TABLE_count(&_global_table); i++)
+		IFREE(TABLE_get_symbol(&_global_table, i)->name);
+	
 	TABLE_delete_static(&_global_table);
 }
 
@@ -417,7 +424,7 @@ CLASS *CLASS_look(const char *name, int len)
 	int index;
 
 	#if DEBUG_COMP
-	fprintf(stderr, "CLASS_look: %s in %s", name, _global ? "global" : "local");
+	fprintf(stderr, "CLASS_look: %s in %s", name, _global ? "global" : (_export ? "export" : "local"));
 	#endif
 
 	//if (CP && CP->component && CP->component->archive)
@@ -492,19 +499,22 @@ CLASS *CLASS_find(const char *name)
 		csym = (CLASS_SYMBOL *)TABLE_get_symbol(&_global_table, index);
 	}
 
-	ALLOC_ZERO(&class, sizeof(CLASS));
+	if (_global_class)
+		class = _global_class;
+	else
+	{
+		ALLOC_ZERO(&class, sizeof(CLASS));
+		class->next = _classes;
+		_classes = class;
+	}
+	
+	class->ref++;
 	csym->class = class;
-	class->ref = 1;
 
-	class->next = _classes;
-	_classes = class;
+	ALLOC(&csym->sym.name, len + 1);
+	strcpy(csym->sym.name, name);
 
-	ALLOC(&class->name, len + 1);
-	strcpy((char *)class->name, name);
-
-	csym->sym.name = class->name;
-
-	class->free_name = TRUE;
+	class->name = csym->sym.name;
 
 	// The first class must be the Class class!
 	if (_first == NULL)
@@ -559,6 +569,22 @@ CLASS *CLASS_find_global(const char *name)
 	return class;
 }
 
+CLASS *CLASS_find_export(const char *name, const char *global)
+{
+	CLASS *class;
+
+	if (name)
+	{
+		class = CLASS_find(name);
+		_global_class = class;
+	CLASS_find_global(global);
+		_global_class = NULL;
+	}
+	else
+		class = CLASS_find_global(global);
+	
+	return class;
+}
 
 bool CLASS_inherits(CLASS *class, CLASS *parent)
 {

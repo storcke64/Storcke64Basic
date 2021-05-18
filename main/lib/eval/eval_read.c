@@ -291,354 +291,9 @@ static void add_end()
 }
 
 
-static bool add_number()
-{
-	unsigned char car;
-	const char *start;
-	int index;
-	char sign;
-	PATTERN last_pattern;
-	bool has_digit;
-
-	start = source_ptr;
-	car = get_char();
-
-	if (car == '-' || car == '+')
-	{
-		sign = car;
-		car = next_char();
-
-		if (car == 'I' || car == 'i')
-		{
-			car = next_char();
-			if (car == 'N' || car == 'n')
-			{
-				car = next_char();
-				if (car == 'F' || car == 'f')
-				{
-					car = next_char();
-					add_pattern(RT_RESERVED, RESERVED_find_word(start, 4));
-					return FALSE;
-				}
-			}
-
-			goto NOT_A_NUMBER;
-		}
-	}
-	else
-		sign = 0;
-
-	if (car == '&')
-	{
-		car = toupper(next_char());
-
-		if (car == 'H')
-			goto READ_HEXA;
-		else if (car == 'X')
-			goto READ_BINARY;
-		else if (car == 'O')
-			goto READ_OCTAL;
-		else
-		{
-			source_ptr--;
-			goto READ_HEXA;
-		}
-	}
-	else if (car == '%')
-		goto READ_BINARY;
-	else if (isdigit(car))
-		goto READ_NUMBER;
-	else
-		goto NOT_A_NUMBER;
-
-READ_BINARY:
-
-	has_digit = FALSE;
-	for (;;)
-	{
-		car = next_char();
-		if (car != '0' && car != '1')
-			break;
-		has_digit = TRUE;
-	}
-
-	goto END_BINARY_HEXA;
-
-READ_OCTAL:
-
-	has_digit = FALSE;
-	for (;;)
-	{
-		car = next_char();
-		if (car < '0' || car > '7')
-			break;
-		has_digit = TRUE;
-	}
-
-	goto END_BINARY_HEXA;
-
-READ_HEXA:
-
-	has_digit = FALSE;
-	for (;;)
-	{
-		car = next_char();
-		if (!isxdigit(car))
-			break;
-		has_digit = TRUE;
-	}
-
-END_BINARY_HEXA:
-
-	if (!has_digit)
-		goto NOT_A_NUMBER;
-
-	if (car == '&')
-		car = next_char();
-	else if (first_car[car] == GOTO_IDENT)
-		goto NOT_A_NUMBER;
-
-	goto END;
-
-READ_NUMBER:
-
-	while (isdigit(car))
-		car = next_char();
-
-	if (car == '.')
-	{
-		do
-		{
-			car = next_char();
-		}
-		while (isdigit(car));
-	}
-
-	if (toupper(car) == 'E')
-	{
-		car = next_char();
-		if (car == '+' || car == '-')
-			car = next_char();
-
-		while (isdigit(car))
-			car = next_char();
-	}
-	else if (toupper(car) == 'I')
-	{
-		car = next_char();
-	}
-
-	goto END;
-
-END:
-
-	last_pattern = get_last_pattern();
-
-	if (sign && !PATTERN_is_null(last_pattern) && (!PATTERN_is_reserved(last_pattern) || PATTERN_is(last_pattern, RS_RBRA) || PATTERN_is(last_pattern, RS_RSQR)))
-	{
-		add_pattern(RT_RESERVED, RESERVED_find_word(&sign, 1));
-		index = TABLE_add_symbol(EVAL->table, start + 1, source_ptr - start - 1);
-		add_pattern(RT_NUMBER, index);
-	}
-	else
-	{
-		index = TABLE_add_symbol(EVAL->table, start, source_ptr - start);
-		add_pattern(RT_NUMBER, index);
-	}
-
-	return FALSE;
-
-NOT_A_NUMBER:
-
-	source_ptr = start;
-	return TRUE;
-}
+#include "gbc_read_temp.h"
 
 #if 0
-static void add_identifier(bool no_res)
-{
-	unsigned char car;
-	const char *start;
-	int len;
-	int index;
-	int type;
-	int flag;
-	PATTERN last_pattern;
-	bool not_first;
-	bool can_be_reserved;
-	bool can_be_subr;
-	bool is_type;
-	bool last_func, last_declare, last_type, last_class;
-
-	last_pattern = get_last_pattern();
-
-	if (PATTERN_is_reserved(last_pattern))
-	{
-		flag = RES_get_ident_flag(PATTERN_index(last_pattern));
-		not_first = (flag & RSF_INF) != 0;
-		last_func = (flag & RSF_ILF) != 0;
-		last_declare = (flag & RSF_ILD) != 0;
-		last_class = (flag & RSF_ILC) != 0;
-		last_type = last_class || (flag & RSF_ILT) != 0;
-		if (flag & RSF_ILDD)
-		{
-			PATTERN last_last_pattern = get_last_last_pattern();
-
-			if (PATTERN_is_reserved(last_last_pattern) && RES_get_ident_flag(PATTERN_index(last_last_pattern)) & RSF_ILD)
-				last_declare = TRUE;
-			flag &= ~RSF_ILDD; // flag == 0 means we can read a subroutine!
-		}
-	}
-	else
-	{
-		flag = 0;
-		not_first = last_func = last_declare = last_type = last_class = FALSE;
-	}
-
-	type = RT_IDENTIFIER;
-
-	start = source_ptr;
-	len = 1;
-
-	if (last_type)
-	{
-		for(;;)
-		{
-			source_ptr++;
-			len++;
-			car = get_char();
-			if (ident_car[car])
-				continue;
-			if (car == '[')
-			{
-				car = get_char_offset(1);
-				if (car == ']')
-				{
-					source_ptr++;
-					len++;
-					TABLE_add_symbol(EVAL->table, start, len - 2, NULL, NULL);
-					continue;
-				}
-			}
-
-			len--;
-			break;
-		}
-	}
-	else
-	{
-		for(;;)
-		{
-			source_ptr++;
-			car = get_char();
-			if (!ident_car[car])
-				break;
-			len++;
-		}
-	}
-
-	if (no_res)
-	{
-		if (!EVAL->analyze)
-		{
-			if (get_char() == '}')
-				source_ptr++;
-		}
-		goto IDENTIFIER;
-	}
-
-	car = get_char();
-
-	/*if (car == '}')
-		can_be_reserved = FALSE;
-	else
-		can_be_reserved = !not_first && TABLE_find_symbol(COMP_res_table, &EVAL->source[start], len, NULL, &index);*/
-
-	can_be_reserved = car != '}' && !not_first && !last_class;
-
-	if (can_be_reserved)
-	{
-		index = RESERVED_find_word(start, len);
-		can_be_reserved = (index >= 0);
-	}
-
-	if (can_be_reserved)
-	{
-		if (index == RS_ME || index == RS_NEW || index == RS_LAST || index == RS_SUPER)
-		{
-			can_be_reserved = !last_declare;
-		}
-		else if (index == RS_CLASS)
-		{
-			can_be_reserved = _begin_line && isspace(car);
-		}
-		else
-		{
-			is_type = (PATTERN_is_type(PATTERN_make(RT_RESERVED, index)) || index == RS_NEW);
-
-			/*if (last_type)
-				can_be_reserved = is_type;
-				else if (last_func)
-				can_be_reserved = FALSE;
-			else
-				can_be_reserved = !is_type && (car != ':') && (car != '.') && (car != '!') && (car != '(');*/
-
-			if (is_type && (car == '[') && (get_char_offset(1) == ']'))
-			{
-				len += 2;
-				source_ptr += 2;
-				is_type = FALSE;
-				can_be_reserved = FALSE;
-			}
-			else
-			{
-				if (index == RS_NEW)
-					is_type = TRUE;
-
-				if (last_type)
-					can_be_reserved = is_type;
-				else if (last_func)
-					can_be_reserved = FALSE;
-				else
-					can_be_reserved = !is_type && (car != ':') && (car != '.') && (car != '!') && (car != '(');
-			}
-		}
-	}
-
-	can_be_subr = flag == 0 && car != '.' && car != '!';
-
-	if (can_be_reserved)
-	{
-		type = RT_RESERVED;
-	}
-	else if (can_be_subr && TABLE_find_symbol(COMP_subr_table, start, len, NULL, &index))
-	{
-		type = RT_SUBR;
-	}
-	else
-	{
-		if (last_type)
-			type = RT_CLASS;
-		goto IDENTIFIER;
-	}
-
-	add_pattern(type, index);
-	return;
-
-IDENTIFIER:
-
-	if (!EVAL->analyze && PATTERN_is(last_pattern, RS_EXCL))
-	{
-		TABLE_add_symbol(EVAL->string, start, len, NULL, &index);
-		type = RT_STRING;
-	}
-	else
-		TABLE_add_symbol(EVAL->table, start, len, NULL, &index);
-
-	add_pattern(type, index);
-}
-#endif
-
 static void add_identifier()
 {
 	unsigned char car;
@@ -672,6 +327,9 @@ static void add_identifier()
 
 	type = RT_IDENTIFIER;
 
+	last_class = (flag & RSF_CLASS) != 0;
+	last_type = (flag & RSF_AS) != 0;
+
 	start = source_ptr;
 	for(;;)
 	{
@@ -680,10 +338,17 @@ static void add_identifier()
 			break;
 	}
 	
+	if (last_type && get_char() == ':')
+	{
+		for(;;)
+		{
+			source_ptr++;
+			if (!ident_car[get_char()])
+				break;
+		}
+	}
+	
 	len = source_ptr - start;
-
-	last_class = (flag & RSF_CLASS) != 0;
-	last_type = (flag & RSF_AS) != 0;
 
 	if (last_type)
 	{
@@ -867,7 +532,7 @@ __ADD_PATTERN:
 
 	add_pattern(type, index);
 }
-
+#endif
 
 static void add_quoted_identifier(void)
 {

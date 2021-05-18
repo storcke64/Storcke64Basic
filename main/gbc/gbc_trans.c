@@ -813,6 +813,11 @@ void TRANS_want_newline()
 		THROW_UNEXPECTED(JOB->current);
 }
 
+void TRANS_want_class()
+{
+	if (!PATTERN_is_class(*JOB->current))
+		THROW("Syntax error. Class name expected");
+}
 
 bool TRANS_is_end_function(bool is_proc, PATTERN *look)
 {

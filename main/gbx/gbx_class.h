@@ -485,6 +485,7 @@ CLASS *CLASS_replace_global(const char *name);
 CLASS *CLASS_look_global(const char *name, int len);
 CLASS *CLASS_find_global(const char *name);
 CLASS *CLASS_check_global(CLASS *class);
+CLASS *CLASS_find_export(const char *name, const char *global);
 
 void CLASS_ref(void *object);
 bool CLASS_unref(void *object, bool can_free);

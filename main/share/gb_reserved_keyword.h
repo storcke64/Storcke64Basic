@@ -40,7 +40,7 @@ COMP_INFO COMP_res_info[] =
 	{ "Variant",      RSF_TYPE,                 T_VARIANT,  8     },
 	{ "Object",       RSF_TYPE,                 T_OBJECT,   8     },
 	{ "Pointer",      RSF_TYPE,                 T_POINTER,  8     },
-	{ "Class",        RSF_IDENT,                0,          2     },
+	{ "Class",        RSF_CLASS|RSF_AS,         0,          2     },
 	{ "Function",     RSF_IDENT,                0,          4     },
 	{ "Struct",       RSF_PREV,                 0,          3     },
 	{ "Const",        RSF_IDENT,                0,          5     },

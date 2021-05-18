@@ -628,8 +628,14 @@ void COMPILE_exit(void)
 
 void COMPILE_add_class(const char *name, int len)
 {
-	unsigned char clen = len;
+	char *p;
+	unsigned char clen;
 
+	p = memchr(name, ' ', len);
+	if (p)
+		len = p - name;
+	
+	clen = (unsigned char)len;
 	if (clen != len)
 		ERROR_panic("Class name is too long");
 
