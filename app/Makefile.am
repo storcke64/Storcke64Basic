@@ -32,7 +32,7 @@ install-exec-local:
 	  echo "Installing IDE application menu..."; \
 	  $(INSTALL) -d $(DESTDIR)$(datarootdir)/desktop-directories; \
 	  xdg-desktop-menu install --novendor $(srcdir)/desktop/gambas3.desktop; \
-	  rmdir --ignore-fail-on-non-empty $(DESTDIR)$(datarootdir)/desktop-directories; \
+	  rmdir $(DESTDIR)$(datarootdir)/desktop-directories >/dev/null 2>&1; \
 	fi
 	
 	@echo "Installing the scripter..."
@@ -73,7 +73,9 @@ uninstall-local:
 	@rm -rf $(DESTDIR)$(datarootdir)/metainfo/gambas3.appdata.xml
 	@rm -rf $(DESTDIR)$(datarootdir)/appdata/gambas3.appdata.xml
 	@rm -rf $(DESTDIR)$(gbdatadir)/template
-	@rmdir --ignore-fail-on-non-empty $(DESTDIR)$(datarootdir)/metainfo $(DESTDIR)$(datarootdir)/appdata $(DESTDIR)$(gbdatadir)
+	@rmdir $(DESTDIR)$(datarootdir)/metainfo >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(datarootdir)/appdata >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(gbdatadir) >/dev/null 2>&1;
 
 dist-hook:
 	@(cd $(distdir)/src; \
