@@ -41,10 +41,12 @@
 #include "gbc_help.h"
 #include "gbc_output.h"
 
-
 static FILE *_finfo;
 static char *_buffer = NULL;
 static int _buffer_ptr = 0;
+
+static char *_list_buffer = NULL;
+static TABLE *_list_table = NULL;
 
 static const char *get_name(int index)
 {
@@ -363,6 +365,7 @@ static void close_file_and_rename(FILE *f, const char *file, const char *dest)
 	}
 }
 
+
 static bool exist_bytecode_file(char *name)
 {
 	char *output = OUTPUT_get_file(name);
@@ -370,6 +373,7 @@ static bool exist_bytecode_file(char *name)
 	STR_free(output);
 	return exist;
 }
+
 
 static void read_line(char **line, int *len)
 {
@@ -406,6 +410,7 @@ static void read_line(char **line, int *len)
 	*len = l;
 }
 
+
 static bool load_file(const char *name)
 {
 	_buffer_ptr = 0;
@@ -419,6 +424,7 @@ static bool load_file(const char *name)
 		return FALSE;
 }
 
+
 static void class_update_exported(CLASS *class)
 {
 	FILE *fw = NULL;
@@ -428,6 +434,7 @@ static void class_update_exported(CLASS *class)
 	bool optional;
 	bool has_static;
 	int cmp;
+	char *file_name = NULL;
 	char *export_name;
 
 	if (load_file(".list") && !class->exported)
@@ -443,12 +450,14 @@ static void class_update_exported(CLASS *class)
 			cmp = 1;
 		else
 		{
-			export_name = memchr(name, ' ', len);
-			if (export_name)
+			file_name = memchr(name, ' ', len);
+			if (file_name)
 			{
-				len = export_name - name;
-				*export_name++ = 0;
+				len = file_name - name;
+				*file_name++ = 0;
 			}
+			else
+				file_name = name;
 			
 			if (name[len - 1] == '?')
 			{
@@ -464,7 +473,7 @@ static void class_update_exported(CLASS *class)
 				len--;
 			}
 			
-			cmp = strcmp(name, class->name);
+			cmp = strcmp(file_name, class->name);
 		}
 
 		if (cmp == 0)
@@ -494,10 +503,13 @@ static void class_update_exported(CLASS *class)
 			inserted = TRUE;
 		}
 
+		if (file_name != name)
+			TABLE_add_symbol(_list_table, name, len);
+		
 		if (!name)
 			break;
 
-		if (exist_bytecode_file(name))
+		if (exist_bytecode_file(file_name))
 		{
 			if (COMP_verbose)
 				printf("Copy '%s' in .list file\n", name);
@@ -508,6 +520,11 @@ static void class_update_exported(CLASS *class)
 				fputc('!', fw);
 			if (optional)
 				fputc('?', fw);
+			if (file_name  != name)
+			{
+				fputc(' ', fw);
+				fputs(file_name, fw);
+			}
 			fputc('\n', fw);
 		}
 		else
@@ -517,11 +534,12 @@ static void class_update_exported(CLASS *class)
 		}
 	}
 
-	if (_buffer)
-		BUFFER_delete(&_buffer);
+	_list_buffer = _buffer;
+	_buffer = NULL;
 
 	close_file_and_rename(fw, ".list#", ".list");
 }
+
 
 static void insert_class_info(CLASS *class, FILE *fw)
 {
@@ -768,6 +786,11 @@ void CLASS_export(void)
 	CLASS *class = JOB->class;
 	int cmp;
 	const char *msg;
+	char *export_name;
+	int index;
+	SYMBOL *sym;
+	char *name;
+	char *file_name;
 
 	if (chdir(FILE_get_dir(COMP_project)))
 	{
@@ -775,6 +798,13 @@ void CLASS_export(void)
 		goto __ERROR;
 	}
 
+	TABLE_create(&_list_table, sizeof(SYMBOL), TF_IGNORE_CASE);
+	
+	if (class->exported)
+		export_name = CLASS_get_export_name(class);
+	else
+		export_name = class->name;
+	
 	class_update_exported(class);
 
 	load_file(".info");
@@ -786,12 +816,12 @@ void CLASS_export(void)
 		if (!line)
 			cmp = 1;
 		else
-			cmp = strcmp(&line[1], class->name);
+			cmp = strcmp(&line[1], export_name);
 
 		if (cmp == 0)
 		{
 			if (COMP_verbose)
-				printf("Remove '%s' information from .info file\n", class->name);
+				printf("Remove '%s' information from .info file\n", export_name);
 
 			for(;;)
 			{
@@ -815,7 +845,18 @@ void CLASS_export(void)
 
 		// copying class information
 
-		if (exist_bytecode_file(&line[1]))
+		name = &line[1];
+		if (TABLE_find_symbol(_list_table, name, strlen(name), &index))
+		{
+			sym = TABLE_get_symbol(_list_table, index);
+			file_name = &sym->name[sym->len];
+			while (!*file_name)
+				file_name++;
+		}
+		else
+			file_name = name;
+		
+		if (exist_bytecode_file(file_name))
 		{
 			if (COMP_verbose)
 				printf("Copy '%s' information in .info file\n", &line[1]);
@@ -844,6 +885,10 @@ void CLASS_export(void)
 
 	if (_buffer)
 		BUFFER_delete(&_buffer);
+	if (_list_buffer)
+		BUFFER_delete(&_list_buffer);
+	
+	TABLE_delete(&_list_table);
 
 	close_file_and_rename(fw, ".info#", ".info");
 	return;

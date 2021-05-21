@@ -65,6 +65,7 @@ char *COMP_lib_path;
 static char *COMP_classes = NULL;
 COMPILE COMP_current;
 uint COMPILE_version = GAMBAS_PCODE_VERSION;
+char *COMP_default_namespace = NULL;
 
 #define STARTUP_MAX_LINE 256
 
@@ -624,23 +625,29 @@ void COMPILE_exit(void)
 	STR_free(COMP_info_path);
 	STR_free(COMP_dir);
 	STR_free(COMP_root);
+	STR_free(COMP_default_namespace);
 }
 
-void COMPILE_add_class(const char *name, int len)
+static void add_class(const char *name, int len)
 {
-	char *p;
-	unsigned char clen;
-
-	p = memchr(name, ' ', len);
-	if (p)
-		len = p - name;
+	unsigned char clen = (unsigned char)len;
 	
-	clen = (unsigned char)len;
 	if (clen != len)
 		ERROR_panic("Class name is too long");
 
 	BUFFER_add(&COMP_classes, &clen, 1);
 	BUFFER_add(&COMP_classes, name, len);
+}
+
+void COMPILE_add_class(const char *name, int len)
+{
+	char *p;
+
+	p = memchr(name, ' ', len);
+	if (!p)
+		add_class(name, len);
+	else
+		add_class(name, p - name);
 }
 
 void COMPILE_end_class(void)
@@ -781,7 +788,7 @@ void COMPILE_create_file(FILE **fw, const char *file)
 	{
 		*fw = fopen(file, "w");
 		if (!*fw)
-			THROW("Cannot create file: &1", FILE_cat(FILE_get_dir(COMP_project), file, NULL));
+			THROW("Cannot create file: &1: &2", FILE_cat(FILE_get_dir(COMP_project), file, NULL), strerror(errno));
 	}
 }
 

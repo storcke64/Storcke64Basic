@@ -93,6 +93,7 @@ static struct option _long_options[] =
 
 	{ "jobs", 1, NULL, 'j' },
 	{ "root", 1, NULL, 'r' },
+	{ "default-namespace", 1, NULL, 'n' },
 
 	//{ "no-old-read-write-syntax", 0, &_opt_no_old_read_syntax, 1 },
 	//{ "check-prefix", 0, &_opt_check_prefix, 1},
@@ -130,9 +131,9 @@ static void get_arguments(int argc, char **argv)
 	for(;;)
 	{
 		#if HAVE_GETOPT_LONG
-			opt = getopt_long(argc, argv, "gxvaVhj:Lwtser:f:", _long_options, &index);
+			opt = getopt_long(argc, argv, "gxvaVhj:Lwtser:f:n:", _long_options, &index);
 		#else
-			opt = getopt(argc, argv, "gxvaVhj:Lwtser:f:");
+			opt = getopt(argc, argv, "gxvaVhj:Lwtser:f:n:");
 		#endif
 		if (opt < 0) break;
 
@@ -210,42 +211,44 @@ static void get_arguments(int argc, char **argv)
 					"Options:"
 					#if HAVE_GETOPT_LONG
 					"\n"
-					"  -a  --all                  compile all\n"
-					"  -e  --translate-errors     display translatable error messages\n"
-					"  -g  --debug                add debugging information\n"
-					"  -h  --help                 display this help\n"
-					"  -j  --jobs <count>         number of background jobs (default: %d)\n"
-					"  -L  --license              display license\n"
-					"  -r  --root <directory>     gives the gambas installation directory\n"
-					"  -s  --swap                 swap endianness\n"
-					"  -t  --translate            output translation files and compile them if needed\n"
-					"  -v  --verbose              verbose output\n"
-					"  -V  --version              display version\n"
-					"  -w  --warnings             display warnings\n"
-					"  -x  --exec                 executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"  -a  --all                            compile all files\n"
+					"  -e  --translate-errors               display translatable error messages\n"
+					"  -g  --debug                          add debugging information\n"
+					"  -h  --help                           display this help\n"
+					"  -j  --jobs <count>                   number of background jobs (default: %d)\n"
+					"  -L  --license                        display license\n"
+					"  -n  --default-namespace <namespace>  default namespace for exported classes\n"
+					"  -r  --root <directory>               gives the gambas installation directory\n"
+					"  -s  --swap                           swap endianness\n"
+					"  -t  --translate                      output translation files and compile them if needed\n"
+					"  -v  --verbose                        verbose output\n"
+					"  -V  --version                        display version\n"
+					"  -w  --warnings                       display warnings\n"
+					"  -x  --exec                           executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
 					"\nCompiler flags:\n"
-					"  -f check-prefix            check the prefix of variables if warnings are enable\n"
-					"  -f public-module           module symbols are public by default\n"
-					"  -f public-control          form controls are public\n"
+					"  -f check-prefix                      check the prefix of variables if warnings are enable\n"
+					"  -f public-module                     module symbols are public by default\n"
+					"  -f public-control                    form controls are public\n"
 					#else
 					" (no long options on this system)\n"
-					"  -a                         compile all\n"
-					"  -e                         display translatable error messages\n"
-					"  -g                         add debugging information\n"
-					"  -h                         display this help\n"
-					"  -j <count>                 number of background jobs (default: %d)\n"
-					"  -L                         display license\n"
-					"  -r <directory>             gives the gambas installation directory\n"
-					"  -s                         swap endianness\n"
-					"  -t                         output translation files and compile them if needed\n"
-					"  -v                         verbose output\n"
-					"  -V                         display version\n"
-					"  -w                         display warnings\n"
-					"  -x                         executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"  -a                  compile all files\n"
+					"  -e                  display translatable error messages\n"
+					"  -g                  add debugging information\n"
+					"  -h                  display this help\n"
+					"  -j <count>          number of background jobs (default: %d)\n"
+					"  -L                  display license\n"
+					"  -n <namespace>      default namespace for exported classes\n"
+					"  -r <directory>      gives the gambas installation directory\n"
+					"  -s                  swap endianness\n"
+					"  -t                  output translation files and compile them if needed\n"
+					"  -v                  verbose output\n"
+					"  -V                  display version\n"
+					"  -w                  display warnings\n"
+					"  -x                  executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
 					"\nCompiler flags:\n"
-					"  -f check-prefix            check the prefix of variables if warnings are enable\n"
-					"  -f public-module           module symbols are public by default\n"
-					"  -f public-control          form controls are public\n"
+					"  -f check-prefix     check the prefix of variables if warnings are enable\n"
+					"  -f public-module    module symbols are public by default\n"
+					"  -f public-control   form controls are public\n"
 					#endif
 					"\n",
 					SYSTEM_get_cpu_count());
@@ -272,6 +275,13 @@ static void get_arguments(int argc, char **argv)
 					cf++;
 				}
 				
+				break;
+				
+			case 'n':
+				
+				if (COMP_default_namespace)
+					ERROR_fail("option '-n' already specified.");
+				COMP_default_namespace = STR_copy(optarg);
 				break;
 
 			default:

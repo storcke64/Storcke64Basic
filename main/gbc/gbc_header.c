@@ -922,6 +922,24 @@ static bool header_option(void)
 			JOB->class->export_name = STR_copy(TABLE_get_symbol_name(JOB->class->table, PATTERN_index(*JOB->current)));
 			JOB->current++;
 		}
+		else if (TRANS_is(RS_TO))
+		{
+			if (TRANS_is(RS_DEFAULT))
+			{
+				JOB->class->export_name = NULL;
+			}
+			else
+			{
+				if (!PATTERN_is_identifier(*JOB->current))
+					THROW("Syntax error. Identifier expected for namespace");
+				JOB->class->export_name = STR_cat(TABLE_get_symbol_name(JOB->class->table, PATTERN_index(*JOB->current)), ":", JOB->class->name, NULL);
+				JOB->current++;
+			}
+		}
+		else if (COMP_default_namespace)
+		{
+			JOB->class->export_name = STR_cat(COMP_default_namespace, ":", JOB->class->name, NULL);
+		}
 
 		return TRUE;
 	}
