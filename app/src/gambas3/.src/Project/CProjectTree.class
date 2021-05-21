@@ -565,6 +565,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
   Dim hProject As CProjectInfo
   Dim sLink As String
   Dim bExported As Boolean
+  Dim bExportedNamespace As Boolean
   Dim fRapport As Float
   Dim bDoNotTranslate As Boolean
   Dim bModified As Boolean
@@ -573,6 +574,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
   Dim bCompressed As Boolean
   Dim hThumb As Image
   Dim bImage As Boolean
+  Dim sExportName As String
 
   If iSize Then
     sPrefix = "icon:/" & iSize
@@ -632,7 +634,9 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
             sModule = sExt
             sIcon = sExt
             'bStartup = File.BaseName(sPath) = $sStartup 'And Not bNoStartup
-            bExported = Project.IsExported(sPath)
+            sExportName = Project.GetExported(sPath)
+            bExported = sExportName
+            If bExported Then bExportedNamespace = sExportName <> File.BaseName(sPath)
           Endif
 
         Case "jpg", "jpeg", "xpm", "bmp", "png", "gif"
@@ -767,7 +771,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
       If bLocked Then sKey &= "k"
       If bAdded Then sKey &= "a"
       If bModified Then sKey &= "m"
-      If bExported Then sKey &= "x"
+      If bExported Then sKey &= If(bExportedNamespace, "n", "x")
       If bDoNotTranslate Then sKey &= "t"
       If bCompressed Then sKey &= "z"
       If bReadOnly Then sKey &= "r"
@@ -810,7 +814,7 @@ ADD_EMBLEM:
   If bCompressed Then hImage = Project.AddCompressedEmblem(hImage)
   
   If Not bNoEmblem Then
-    If bExported Then hImage = Project.AddEmblem(hImage, "img/32/exported.png", iEmblemSize)
+    If bExported Then hImage = Project.AddEmblem(hImage, If(bExportedNamespace, "img/32/exported-namespace.png", "img/32/exported.png"), iEmblemSize)
     'If bCompressed Then hImage = Project.AddEmblem(hImage, "img/32/compressed.png", iEmblemSize)
     If bDoNotTranslate Then hImage = Project.AddEmblem(hImage, "img/32/do-not-translate.png", iEmblemSize)
     If bAdded Then hImage = Project.AddEmblem(hImage, "img/32/added.png", iEmblemSize)

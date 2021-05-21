@@ -611,7 +611,11 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
           If aSym[1] = "AS" Then
             hModule.ExportName = aSym[2]
           Else If aSym[1] = "TO" Then
-            hModule.ExportName = aSym[2] & ":" & hModule.Name
+            If aSym[2] = "DEFAULT" Then
+              hModule.ExportName = hModule.Name
+            Else
+              hModule.ExportName = aSym[2] & ":" & hModule.Name
+            Endif
           Endif
         Else
           If Project.DefaultNamespace Then

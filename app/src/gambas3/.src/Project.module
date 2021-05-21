@@ -5801,7 +5801,7 @@ Public Sub DrawTitle(hForm As Object, Optional bNoReadOnly As Boolean)
 
 End
 
-Private Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As String
+Public Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As String
 
   Dim hFile As File
   Dim sLine As String
