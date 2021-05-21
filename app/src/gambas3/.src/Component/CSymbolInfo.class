@@ -1477,3 +1477,31 @@ Public Sub WikiGetSyntax() As String[]
   Return aResult  
 
 End
+
+Private Sub ToExportClass(cExportMap As Collection, sType As String) As String
+
+  Dim sClass As String
+
+  sClass = cExportMap[sType]
+  If sClass Then Return sClass
+  Return sType
+
+End
+
+Public Sub ConvertToExport(cExportMap As Collection)
+  
+  Dim iPos As Integer
+  Dim iPosBefore As Integer
+  
+  Type = ToExportClass(cExportMap, Type)
+  
+  Do
+    iPos = InStr(Signature, ";", iPos + 1)
+    If iPos = 0 Then Break
+    iPosBefore = RInStr(Signature, ")", iPos)
+    If iPosBefore = 0 Then Continue
+    Signature = Left(Signature, iPosBefore) & ToExportClass(cExportMap, Mid$(Signature, iPosBefore + 1, iPos - iPosBefore - 1)) & Mid$(Signature, iPos)
+    iPos = InStr(Signature, ";", iPosBefore)
+  Loop
+  
+End

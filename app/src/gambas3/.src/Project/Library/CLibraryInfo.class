@@ -11,6 +11,7 @@ Public Libraries As String[]
 Public Info As String
 Public Require As String[]
 Public CompatibleUntil As String
+Public ExportMap As Collection
 
 Private $sDesc As String
 
@@ -123,7 +124,7 @@ Public Sub _new(sPath As String)
   Wend
     
   Exec [System.Path &/ "bin/gba" & System.Version, "-x", sPath, ".list"] To sData
-  Classes = CComponent.GetExportedClassesFromList(sData)
+  Classes = CComponent.GetExportedClassesFromList(sData, ByRef ExportMap)
   
   Exec [System.Path &/ "bin/gba" & System.Version, "-x", sPath, ".component"] To sData
   For Each sLine In Split(sData, "\n", "", True)

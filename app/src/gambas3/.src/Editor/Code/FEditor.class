@@ -7,6 +7,8 @@ Public ParentComponent As String '' The component of the parent class.
 Public AutoCreatable As Boolean '' If the class has `CREATE STATIC`.
 Public NotCreatable As Boolean '' If the class has `CREATE PRIVATE`.
 Public Age As Integer '' The text age. It is incremented each time the text is modified
+Public ExportName As String '' The public name of the class when exported with 'EXPORT'.
+
 Property Read ReadOnly As Boolean '' If the editor is read-only.
 
 ' Metadata
@@ -20,7 +22,7 @@ Private $iScanTimeStamp As Integer
 
 Private Enum PROC_HIDDEN, PROC_EVENT, PROC_DYNAMIC, PROC_PRIVATE
 
-Public Const IDENT_CAR As String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_$"
+Public Const IDENT_CAR As String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_$:"
 Public Const NBR_COLOR As Integer = 15
 
 Static Public StructControlCompletion As Boolean = True
@@ -315,7 +317,10 @@ Public Sub Rename(sNewName As String, sNewPath As String)
 
   FSearch.OnFileChange(Me.Path)
   FDebugInfo.RefreshTabs(Me.Path, Me.Name)
-
+  
+  Inc Project.TimeStamp
+  ResetIfModified
+  
 End
 
 

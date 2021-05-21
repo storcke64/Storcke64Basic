@@ -562,6 +562,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   hEditor = hModule.GetEditor()
   hModule.AutoCreatable = False
   hModule.NotCreatable = False
+  hModule.ExportName = ""
 
   If bCanInherit Then
     
@@ -595,6 +596,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         Continue
         
       Case "CREATE"
+        
         If aSym.Count = 1 Or If aSym[1] = "STATIC" Then 
           hModule.AutoCreatable = True
           'DEBUG hModule.Name; " := "; hModule.AutoCreatable
@@ -603,7 +605,22 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         Endif
         
       Case "EXPORT"
+        
         bExport = True
+        If aSym.Count >= 2 Then
+          If aSym[1] = "AS" Then
+            hModule.ExportName = aSym[2]
+          Else If aSym[1] = "TO" Then
+            hModule.ExportName = aSym[2] & ":" & hModule.Name
+          Endif
+        Else
+          If Project.DefaultNamespace Then
+            hModule.ExportName = Project.DefaultNamespace & ":" & hModule.Name
+          Else
+            hModule.ExportName = hModule.Name
+          Endif
+        Endif
+        
       Default
         Break
         

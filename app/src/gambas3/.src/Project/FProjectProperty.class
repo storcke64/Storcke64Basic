@@ -89,6 +89,7 @@ Public Sub Form_Open()
     btnShowDeprecated.Value = .ShowDeprecated
     btnWarning.Value = .Warnings
     btnCheckPrefix.Value = .CheckVariablePrefix
+    txtDefaultNamespace.Text = .DefaultNamespace
     txtMajor.Value = .MajorVersion
     txtMinor.Value = .MinorVersion
     txtRelease.Value = .ReleaseVersion
@@ -207,8 +208,20 @@ Private Function DoApply() As Boolean
 
   ' Dim bRefreshForm As Boolean
   Dim bRefreshEditor As Boolean
+  Dim sDefaultNamespace As String
+  Dim I As Integer
+  Dim sCar As String
 
   If choComponent.CheckSelection() Then Return True
+
+  sDefaultNamespace = Trim(txtDefaultNamespace.Text)
+  If sDefaultNamespace Then
+    If Not IsLetter(Left(sDefaultNamespace)) Then Goto INVALID_NAMESPACE
+    For I = 2 To Len(sDefaultNamespace)
+      sCar = Mid$(sDefaultNamespace, I, 1)
+      If Not IsLetter(sCar) And If Not IsNumber(sCar) Then Goto INVALID_NAMESPACE
+    Next
+  Endif
 
   With Project
 
@@ -236,6 +249,7 @@ Private Function DoApply() As Boolean
     
     .Warnings = btnWarning.Value
     .CheckVariablePrefix = btnCheckPrefix.Value
+    .DefaultNamespace = txtDefaultNamespace.Text
     .MajorVersion = txtMajor.Value
     .MinorVersion = txtMinor.Value
     .ReleaseVersion = txtRelease.Value
@@ -290,9 +304,10 @@ Private Function DoApply() As Boolean
 
   Return
 
-BAD_GRID:
+INVALID_NAMESPACE:
 
-  Message.Error(("Snapping value is incorrect."))
+  Message.Error(("Invalid namespace identifier."))
+  txtDefaultNamespace.SetFocus
   Return True
 
 End
@@ -1145,10 +1160,10 @@ Private Sub ReadComponent()
   
   lvwRequire.Clear
   For Each sComp In $aRequire
-    lvwRequire.Add(sComp, sComp, Picture["icon:/small/ok"])
+    lvwRequire.Add(sComp, sComp, Picture["icon:/small/apply"])
   Next
   For Each sComp In $aExclude
-    lvwRequire.Add(sComp, sComp, Picture["icon:/small/close"])
+    lvwExclude.Add(sComp, sComp, Picture["icon:/small/cancel"])
   Next
   
 End
@@ -1166,30 +1181,40 @@ End
 Private Sub AddRequireExclude(sComp As String, aComp As String[])
 
   Dim sIcon As String
+  Dim hListView As ListView
   
-  If sComp = Project.Name Then Return  
-  If lvwRequire.Exist(sComp) Then Return
+  If sComp = Project.Name Then Return
   
   If aComp = $aRequire Then
-    sIcon = "ok"
+    hListView = lvwRequire
+    sIcon = "apply"
   Else
-    sIcon = "close"
+    hListView = lvwExclude
+    sIcon = "cancel"
   Endif
 
+  If $aRequire.Exist(sComp) Or If $aExclude.Exist(sComp) Then Return
+  
   aComp.Add(sComp)
-  lvwRequire.Add(sComp, sComp, Picture["icon:/small/" & sIcon])
+  hListView.Add(sComp, sComp, Picture["icon:/small/" & sIcon])
   
 End
-
 
 Public Sub btnRemove_Click()
 
   Dim sKey As String
   Dim iFind As Integer
+  Dim hListView As ListView
 
-  sKey = lvwRequire.Key
+  hListView = lvwRequire
+  sKey = hListView.Key
+  If Not sKey Then
+    hListView = lvwExclude
+    sKey = hListView.Key
+  Endif
   If Not sKey Then Return
-  lvwRequire.Remove(sKey)
+  
+  hListView.Remove(sKey)
   
   iFind = $aRequire.Find(sKey)
   If iFind >= 0 Then $aRequire.Remove(iFind)
@@ -1202,6 +1227,7 @@ End
 Public Sub btnRemoveAll_Click()
 
   lvwRequire.Clear
+  lvwExclude.Clear
   $aRequire.Clear
   $aExclude.Clear
 
@@ -1481,5 +1507,17 @@ End
 Public Sub btnWarning_Click()
 
   btnCheckPrefix.Enabled = btnWarning.Value
+
+End
+
+Public Sub lvwRequire_Select()
+
+  lvwExclude.UnSelectAll
+
+End
+
+Public Sub lvwExclude_Select()
+
+  lvwRequire.UnSelectAll
 
 End

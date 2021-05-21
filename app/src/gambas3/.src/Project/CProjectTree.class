@@ -433,7 +433,7 @@ Public Function FindPath(sClass As String) As String
 
   sPath = Sources[sClass & ".test"]
   If sPath Then Return sPath
-
+  
 End
 
 Public Sub FindKey(sClass As String) As String

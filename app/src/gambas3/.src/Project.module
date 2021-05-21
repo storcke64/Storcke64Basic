@@ -54,6 +54,7 @@ Public ModulePublic As Boolean
 Public ShowDeprecated As Boolean
 Public Warnings As Boolean
 Public CheckVariablePrefix As Boolean
+Public DefaultNamespace As String
 Public MajorVersion As Integer
 Public MinorVersion As Integer
 Public ReleaseVersion As Integer
@@ -2175,11 +2176,28 @@ Catch
 End
 
 
-Public Function FindPath(sClass As String) As String
+Public Function FindPath(sClass As String, Optional bExported As Boolean) As String
 
-  If Not Tree Then Stop
-  Return Tree.FindPath(sClass)
-
+  Dim sPath As String
+  Dim hModule As Object
+  Dim hEditor As FEditor
+  
+  'If Not Tree Then Stop
+  sPath = Tree.FindPath(sClass)
+  If sPath Then Return sPath
+  
+  If Not bExported Then Return
+  
+  For Each hModule In Files
+    Try hEditor = hModule
+    If Error Then Continue
+    If hEditor.ExportName = File.BaseName(sClass) Then Return Tree.FindPath(File.SetExt(hEditor.Name, File.Ext(sClass)))
+  Next
+  
+  For Each sPath In Tree.Sources
+    If GetExported(sPath, DefaultNamespace) = sClass Then Return sPath
+  Next
+  
 End
 
 ' Private Sub FindKey(sClass As String) As String
@@ -2518,6 +2536,7 @@ Public Function GetCompileCommand(bAll As Boolean, bNoDebug As Boolean, bMakeExe
   If ControlPublic Then sExec &= "-fpublic-control "
   If ModulePublic Then sExec &= "-fpublic-module "
   If bMakeExecutable Then sExec &= "-x "
+  If DefaultNamespace Then sExec &= "-n " & Shell$(DefaultNamespace) & " "
   sExec &= "-j" & CStr(Settings["/CompilerJobs", 1]) & " "
   'sExec = sExec & "-c " & Quote(CLASSES_FILE) & " " & Quote(Project.Dir) & " > " & OUTPUT_FILE & " 2>&1"
   If bIDE Then
@@ -3401,6 +3420,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   ShowDeprecated = False
   Warnings = True
   CheckVariablePrefix = False
+  DefaultNamespace = ""
   KeepDebugInfo = True
   CompressFiles = True
   Localize = False
@@ -3585,6 +3605,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
         
       Case "checkvariableprefix"
         CheckVariablePrefix = CInt(sVal) <> 0
+
+      Case "defaultnamespace"
+        DefaultNamespace = sVal
 
       Case "description"
         Description = UnQuote(sVal)
@@ -3927,6 +3950,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If ShowDeprecated Then Print #hFile, "ShowDeprecated=1"
   If Not Warnings Then Print #hFile, "Warnings=0"
   If CheckVariablePrefix Then Print #hFile, "CheckVariablePrefix=1"
+  If DefaultNamespace Then Print #hFile, "DefaultNameSpace="; DefaultNamespace
   If SourcePath Then Print #hFile, "SourcePath="; SourcePath
 
   If Maintainer Then Print #hFile, "Maintainer="; Maintainer
@@ -5777,10 +5801,12 @@ Public Sub DrawTitle(hForm As Object, Optional bNoReadOnly As Boolean)
 
 End
 
-Public Sub IsExported(sPath As String) As Boolean
+Private Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As String
 
   Dim hFile As File
   Dim sLine As String
+  Dim aSym As String[]
+  Dim sClass As String
 
   If Not IsModuleExt(sPath) Then sPath = File.SetExt(sPath, "class")
   If Not Exist(sPath) Then Return
@@ -5789,19 +5815,54 @@ Public Sub IsExported(sPath As String) As Boolean
   If Error Then Return
 
   For Each sLine In hFile.Lines
-    sLine = Highlight.Purge(Trim(sLine))
-    If Not sLine Then Continue
-    If Left(sLine) = "'" Then Continue
-    If sLine Like "INHERITS *" Then Continue
-    If sLine Like "CREATE" Then Continue
-    If sLine Like "CREATE *" Then Continue
-    If sLine Like "EXPORT" Then Return True
-    If sLine Like "EXPORT AS *" Then Return True
-    If sLine Like "EXPORT OPTIONAL" Then Return True
-    Break
+    aSym = Highlight.Analyze(sLine)
+    If aSym.Count = 0 Then Continue
+    
+    Select aSym[0]
+    
+      Case "INHERITS" 
+        Continue
+        
+      Case "CREATE" 
+        Continue
+        
+      Case "EXPORT"
+        
+        sClass = File.BaseName(sPath)
+        If aSym.Count = 1 Or If aSym[1] = "OPTIONAL" Then 
+          If sDefaultNameSpace Then Return sDefaultNameSpace & ":" & sClass
+          Return sClass
+        Endif
+        
+        Select Case aSym[1]
+            
+          Case "AS"
+            If aSym.Count >= 3 Then Return aSym[2]
+            
+          Case "TO"
+            If aSym.Count >= 3 Then 
+              If aSym[2] = "DEFAULT" Then Return sClass
+              Return aSym[2] & ":" & sClass
+            Endif
+            
+        End Select
+        
+      Case Else
+        If aSym[0] Begins "'" Then Continue
+        Break
+        
+    End Select
+    
   Next
 
 End
+
+Public Sub IsExported(sPath As String) As Boolean
+  
+  Return GetExported(sPath)
+  
+End
+
 
 Public Sub IsLocked(sPath As String) As Boolean
 

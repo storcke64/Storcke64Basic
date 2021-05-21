@@ -469,7 +469,7 @@ Public Sub GetHelpMarkup() As String
   
   Else
   
-    hForm = Project.LoadFile(Project.FindPath(Name))
+    hForm = Project.LoadFile(Project.FindPath(Name, True))
     Try hEdit = hForm.GetEditor()
     
     If Not hEdit Then Return  

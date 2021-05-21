@@ -44,6 +44,8 @@ Public {Library} As Boolean
 Public Path As String
 Public Help As String
 
+Public ExportMap As Collection
+
 Private $bCalcKey As Boolean
 
 Public Sub CalcSortKey()
@@ -118,16 +120,22 @@ Private Sub FindInfo(sKey As String) As String
 
 End
 
-Static Public Sub GetExportedClassesFromList(sData As String) As String[]
+Static Public Sub GetExportedClassesFromList(sData As String, ByRef cExport As Collection) As String[]
 
   Dim aList As String[]
   Dim I As Integer
   Dim iPos As Integer
+  Dim sExportName As String
   
+  cExport = New Collection
   aList = Split(sData, "\n", "", True)
   For I = 0 To aList.Max
     iPos = InStr(aList[I], " ")
-    If iPos Then aList[I] = Left(aList[I], iPos - 1)
+    If iPos Then
+      sExportName = Left(aList[I], iPos - 1)
+      cExport[Mid$(aList[I], iPos + 1)] = sExportName
+      aList[I] = sExportName
+    Endif
   Next
   
   Return aList
@@ -192,6 +200,7 @@ Public Sub Load()
     Next
     
     Help = hLibraryInfo.GetHelp()
+    ExportMap = hLibraryInfo.ExportMap
   
   Else
     
@@ -213,7 +222,7 @@ Public Sub Load()
     
     ' List of exported classes
     
-    Try aList = GetExportedClassesFromList(File.Load(File.SetExt(sPath, "list")))
+    Try aList = GetExportedClassesFromList(File.Load(File.SetExt(sPath, "list")), ByRef ExportMap)
     ' TODO: remove duplicates. Normally it should be done in gbi3 program.
     If Error Then
       Error "gambas3: warning: cannot read "; File.SetExt(sPath, "list")
@@ -362,6 +371,8 @@ Public Sub Load()
 
       GoSub READ_HELP
       hSym.Help = sHelp
+      
+      If ExportMap.Count Then hSym.ConvertToExport(ExportMap)
       
     Wend
     

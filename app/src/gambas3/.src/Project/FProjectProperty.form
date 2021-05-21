@@ -269,7 +269,7 @@
     Text = ("Information")
     Picture = Picture["icon:/large/info"]
     { Panel5 VBox
-      MoveScaled(2,1,82,65)
+      MoveScaled(1,1,82,65)
       Expand = True
       Spacing = True
       { lblInfo Label
@@ -278,7 +278,7 @@
         Text = ("Information")
       }
       { HBox15 HBox
-        MoveScaled(0,4,78,4)
+        MoveScaled(0,3,78,4)
         Spacing = True
         Indent = True
         { Label26 Label
@@ -292,7 +292,7 @@
         }
       }
       { HBox16 HBox
-        MoveScaled(0,9,71,4)
+        MoveScaled(0,8,71,4)
         Spacing = True
         Indent = True
         { Label25 Label
@@ -305,7 +305,7 @@
         }
       }
       { panCompatible HBox
-        MoveScaled(0,14,71,4)
+        MoveScaled(0,13,71,4)
         Spacing = True
         Indent = True
         { chkCompat CheckBox
@@ -329,7 +329,7 @@
         }
       }
       { HBox14 HBox
-        MoveScaled(0,19,71,4)
+        MoveScaled(0,18,71,4)
         Spacing = True
         Indent = True
         { Label13 Label
@@ -342,12 +342,12 @@
         }
       }
       { Label15 Label
-        MoveScaled(0,24,79,3)
+        MoveScaled(0,25,79,3)
         Font = Font["Bold"]
         Text = ("Required features")
       }
       { HBox7 HBox
-        MoveScaled(0,28,75,12)
+        MoveScaled(-1,28,75,12)
         Indent = True
         { panNeed Panel
           MoveScaled(1,0,37,12)
@@ -384,26 +384,38 @@
           }
         }
       }
-      { Panel12 HBox
-        MoveScaled(0,41,80,3)
-        { Label14 Label
-          MoveScaled(0,0,35,3)
-          Font = Font["Bold"]
-          Expand = True
-          Text = ("Required and excluded components")
-        }
+      { Label14 Label
+        MoveScaled(0,41,35,3)
+        Font = Font["Bold"]
+        Text = ("Required and excluded components")
       }
       { HBox10 HBox
-        MoveScaled(0,45,81,18)
+        MoveScaled(0,46,81,16)
         Expand = True
         Spacing = True
-        { lvwRequire ListView
-          MoveScaled(1,1,47,16)
+        { Panel8 Panel
+          MoveScaled(1,1,52,14)
           Expand = True
-          Sorted = True
+          Arrangement = Arrange.Horizontal
+          Border = Border.Plain
+          { lvwRequire ListView
+            MoveScaled(1,1,25,12)
+            Expand = True
+            Sorted = True
+            Border = False
+          }
+          { Separator3 Separator
+            MoveScaled(27,1,0,12)
+          }
+          { lvwExclude ListView
+            MoveScaled(29,1,22,12)
+            Expand = True
+            Sorted = True
+            Border = False
+          }
         }
         { VBox5 VBox
-          MoveScaled(59,1,20,17)
+          MoveScaled(55,0,20,16)
           Spacing = True
           { btnAddRequire Button
             MoveScaled(0,0,16,4)
@@ -565,7 +577,7 @@
     Text = ("Options")
     Picture = Picture["icon:/large/options"]
     { Panel6 VBox
-      MoveScaled(1,2,86,64)
+      MoveScaled(0,0,86,64)
       Expand = True
       Spacing = True
       { Label7 Label
@@ -672,14 +684,29 @@
           Animated = True
         }
       }
+      { HBox17 HBox
+        MoveScaled(1,38,83,4)
+        Visible = False
+        Spacing = True
+        Indent = True
+        { Label31 Label
+          MoveScaled(0,0,33,4)
+          Expand = True
+          Text = ("Export by default to")
+        }
+        { txtDefaultNamespace TextBox
+          MoveScaled(38,0,45,4)
+          Expand = True
+        }
+      }
       { Label19 Label
-        MoveScaled(0,40,84,3)
+        MoveScaled(0,42,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Translation")
       }
       { HBox9 HBox
-        MoveScaled(1,44,83,4)
+        MoveScaled(1,46,83,4)
         Spacing = True
         Indent = True
         { Label24 Label
@@ -693,11 +720,11 @@
         }
       }
       { HBox8 HBox
-        MoveScaled(1,49,83,4)
+        MoveScaled(1,51,83,4)
         Spacing = True
         Indent = True
         { Label20 Label
-          MoveScaled(0,0,38,4)
+          MoveScaled(0,0,35,4)
           Expand = True
           Text = ("Default language")
         }
@@ -709,7 +736,7 @@
         }
       }
       { Label27 Label
-        MoveScaled(0,54,84,3)
+        MoveScaled(0,55,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Version control")
