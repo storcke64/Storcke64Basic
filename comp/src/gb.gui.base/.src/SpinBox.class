@@ -370,6 +370,7 @@ End
 
 Private Function Value_Read() As Integer
 
+  If $hTextBox.HasFocus Then CheckValue
   Return $iValue
 
 End
@@ -483,7 +484,7 @@ End
 
 Private Function Text_Read() As String
 
-  Return CStr($iValue)
+  Return CStr(Value_Read())
 
 End
 
@@ -498,7 +499,6 @@ Public Sub SelectAll()
   $hTextBox.SelectAll
   
 End
-
 
 Private Function Background_Read() As Integer
 
