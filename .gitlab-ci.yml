@@ -1,5 +1,5 @@
 build:archlinux:
-  image: archlinux/archlinux:base
+  image: archlinux:base
   before_script:
     - >
        pacman -Syu --needed --noconfirm
@@ -7,6 +7,7 @@ build:archlinux:
        glew glib2 gmime gsl gst-plugins-base gstreamer gtk2 gtk3 gtkglext imlib2
        intltool libffi libgl libgnome-keyring libmariadbclient librsvg libsm
        libxcursor libxml2 libxslt libxtst mariadb make mesa ncurses pcre
+    - >
        pkg-config poppler poppler-glib postgresql postgresql-libs qt5-svg
        qt5-webkit qt5-x11extras sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_net
        sdl2_ttf sdl_mixer sdl_ttf smpeg sqlite unixodbc v4l-utils xdg-utils
