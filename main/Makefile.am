@@ -63,9 +63,9 @@ uninstall-local:
 	@echo "Uninstalling runtime symbolic link"
 	@rm -f $(DESTDIR)$(bindir)/gbr$(GAMBAS_VERSION)
 
-	@rmdir $(DESTDIR)$(gbdatadir)/info >/dev/null 2>&1;
-	@rmdir $(DESTDIR)$(gbdatadir)/control >/dev/null 2>&1;
-	@rmdir $(DESTDIR)$(gbdatadir) >/dev/null 2>&1;
+	@rmdir $(DESTDIR)$(gbdatadir)/info >/dev/null 2>&1 || true;
+	@rmdir $(DESTDIR)$(gbdatadir)/control >/dev/null 2>&1 || true;
+	@rmdir $(DESTDIR)$(gbdatadir) >/dev/null 2>&1 || true;
 
 dist-hook:
 	@rm -f $(distdir)/trunk_version.h
