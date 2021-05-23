@@ -328,7 +328,6 @@ BEGIN_PROPERTY(WebView_Url)
 		RETURN_NEW_STRING(WIDGET->url().toString());
 	else
 	{
-		//stop_view(THIS);
 		QString url = QSTRING_PROP();
 		set_link(THIS, url);
 		WIDGET->setUrl(url);
@@ -1004,8 +1003,7 @@ bool MyWebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigat
 	
 	_object = QT.GetObject(wid);
 	
-	//set_link(url.toString());
-	//fprintf(stderr, "acceptNavigationRequest: %s ==> has_stopped = %d\n", TO_UTF8(url.toString()), THIS->has_stopped);
+	//fprintf(stderr, "acceptNavigationRequest: cancel = %d / %s\n", THIS->cancel, TO_UTF8(url.toString()));
 	
 	if (THIS->cancel)
 	{
@@ -1055,6 +1053,7 @@ void WebViewSignalManager::loadStarted()
 {
 	GET_SENDER();
 
+	//fprintf(stderr, "loadStarted\n");
 	THIS->progress = 0;
 	THIS->cancel = GB.Raise(THIS, EVENT_START, 0);
 	if (!THIS->cancel)
@@ -1090,6 +1089,7 @@ void WebViewSignalManager::loadFinished(bool ok)
 	else //if (!THIS->stopping)
 		GB.Raise(THIS, EVENT_ERROR, 0);
 	
+	THIS->cancel = false;
 	GB.FreeString(&THIS->link);
 }
 
