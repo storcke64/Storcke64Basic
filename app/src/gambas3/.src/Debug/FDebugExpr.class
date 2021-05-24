@@ -765,7 +765,7 @@ Static Public Sub ReadConfig()
   
   Dim hWin As FDebugExpr
 
-  $iChangeColor = MTheme.GetColor("CurrentLine")
+  $iChangeColor = Color.Merge(MTheme.GetColor("Highlight"), Color.Background)
   $iErrorColor = MTheme.GetColor("Error")
 
   For Each hWin In $cAll

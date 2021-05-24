@@ -41,18 +41,28 @@
               MoveScaled(1,0,41,3)
               Background = Color.TextBackground
               Expand = True
-              { btnKillWatch ToolButton
+              { btnAddWatch ToolButton
                 MoveScaled(0,0,3,3)
+                ToolTip = ("Add expression")
+                Picture = Picture["icon:/tiny/add"]
+              }
+              { btnAddTrack ToolButton
+                MoveScaled(3,0,3,3)
+                ToolTip = ("Watch expression")
+                Picture = Picture["icon:/tiny/watch"]
+              }
+              { btnKillWatch ToolButton
+                MoveScaled(6,0,3,3)
                 ToolTip = ("Remove current expression")
                 Picture = Picture["icon:/tiny/remove"]
               }
-              { btnAddWatch ToolButton
-                MoveScaled(3,0,3,3)
-                ToolTip = ("Add expression")
-                Picture = Picture["icon:/tiny/watch"]
+              { btnKillAllWatch ToolButton
+                MoveScaled(9,0,3,3)
+                ToolTip = ("Remove all expressions")
+                Picture = Picture["icon:/tiny/trash"]
               }
               { cmbWatch ComboBox
-                MoveScaled(6,0,27,3)
+                MoveScaled(14,0,22,3)
                 Expand = True
                 Border = False
               }

@@ -943,6 +943,8 @@ Private Sub Start(sCmd As String)
     $sAddBreakpoint = ""
   Endif
   
+  $sCmdStart &= FDebugInfo.GetWatches()
+  
   'If Project.BreakOnError Then $sCmdStart &= "b+\n"
 
   $sCmdStart &= sCmd

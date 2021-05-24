@@ -23,6 +23,12 @@ Private $hBreakpoint As Picture
 Private $hDisabledBreakpoint As Picture
 Private $iTestBg As Integer
 
+Private $cTrack As Collection
+Private $iTrackId As Integer
+
+Private $iChangeColor As Integer
+Private $iErrorColor As Integer
+
 Public Sub _new()
   
   Dim DS As Integer = Desktop.Scale
@@ -123,7 +129,7 @@ Public Sub FillStack(aPos As String[]) As Boolean
   W = Desktop.Scale * 16
   For Each sPos In aPos
     If sPos = "?" Then
-      lvwStack.Add(iInd, "(" & ("native code") & ")")
+      lvwStack.Add(iInd, "(" & ("native code") & ")").Foreground = Color.LightForeground
     Else
       lvwStack.Add(iInd, sPos)
       W = Max(W, lvwStack.Font.TextWidth(sPos))
@@ -172,6 +178,35 @@ Private Sub AddVariableHeader(hView As ColumnView, sKey As String, sText As Stri
 
 End
 
+Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
+
+  AddVariableHeader(cvwVariable, "@", ("Watch expressions"))
+  
+  Try cvwVariable.Add("@" & sExpr, sExpr,, "@").EnsureVisible
+  
+  With cvwVariable["@" & sExpr]
+    If sVal Then
+      If Left(sVal) = "!" Then 
+        sVal = Mid$(sVal, 2)
+        .Background = $iErrorColor
+      Else
+        If .[1] <> sVal Then
+          .Background = $iChangeColor
+        Else
+          .Background = Color.Default
+        Endif
+      Endif
+      .[1] = sVal
+    Endif
+    If $cTrack.Exist(.Key) Then 
+      .Picture = Picture["icon:/" & CStr(cvwVariable.Font.H) & "/watch"]
+    Else
+      .Picture = Null
+    Endif
+  End With
+    
+End
+
 Public Sub AddResultWatch(sCmd As String, Optional sRes As String, Optional bInstant As Boolean)
   
   Dim sVal As String
@@ -203,19 +238,7 @@ Public Sub AddResultWatch(sCmd As String, Optional sRes As String, Optional bIns
     
   Else
     
-    AddVariableHeader(cvwVariable, "@", ("Watch expressions"))
-    
-    Try cvwVariable.Add("@" & sCmd, sCmd,, "@").EnsureVisible
-    
-    With cvwVariable["@" & sCmd]
-      If Left(sVal) = "!" Then 
-        sVal = Mid$(sVal, 2)
-        .Foreground = Color.Red
-      Else
-        .Foreground = Color.Default
-      Endif
-      .[1] = sVal
-    End With
+    UpdateWatch(sCmd, sVal)
     
   Endif
   
@@ -234,9 +257,7 @@ End
 
 Public Sub AddWatch(sExpr As String)
   
-  If cmbWatch.Find(sExpr) < 0 Then
-    cmbWatch.Add(sExpr)
-  Endif
+  If cmbWatch.Find(sExpr) < 0 Then cmbWatch.Add(sExpr)
   
   Design.Command("?W" & sExpr & "\t" & sExpr)
   
@@ -275,11 +296,9 @@ Public Sub btnKillWatch_Click()
   
   sKey = cvwVariable.Key
   If sKey Begins "@" Then 
-    If sKey = "@" Then
-      If Message.Question(("Do you want to clear the expression list ?"), ("Clear"), ("Cancel")) = 2 Then Return
-    Endif
+    If sKey = "@" Then Return
     cvwVariable.Remove(sKey)
-    If sKey <> "@" And If cvwVariable["@"].Children = 0 Then cvwVariable.Remove("@")
+    If cvwVariable["@"].Children = 0 Then cvwVariable.Remove("@")
   Endif
   
 End
@@ -352,6 +371,9 @@ Public Sub ReadConfig()
   For Each hChild In panWatch.Children
     If hChild Is PictureBox Or If hChild Is ToolButton Then hChild.W = hChild.H
   Next
+  
+  $iChangeColor = Color.Merge(MTheme.GetColor("Highlight"), Color.Background)
+  $iErrorColor = MTheme.GetColor("Error")
   
 End
 
@@ -925,6 +947,7 @@ Public Sub OnProjectChange()
   trmVersionControl.Clear
   trmTest.Clear
   panTestResult.Hide
+  $cTrack = New Collection
   
 End
 
@@ -1307,7 +1330,7 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
     AddVariableHeader(cvwVariable, "~", ("Local variables")) 
     
     For Each sVar In aLocal
-      cvwVariable.Add("~" & sVar, sVar, Picture["$symbol:symbol"], "~")
+      cvwVariable.Add("~" & sVar, sVar,, "~")
     Next
     
     If cvwVariable["~"].Children = 0 Then cvwVariable.Remove("~")
@@ -1350,7 +1373,14 @@ Public Sub AddVariable(sVar As String, sValue As String, Optional bAssign As Boo
     Endif
     Design.Command("&V" & sVar & "\t" & Mid$(sVar, 2))
   Else
-    hView[sVar][1] = sValue
+    With hView[sVar]
+      If .[1] <> sValue Then
+        .Background = $iChangeColor
+      Else
+        .Background = Color.Default
+      Endif
+      .[1] = sValue
+    End With
   Endif
   
 End
@@ -1611,4 +1641,71 @@ Public Sub trmTest_GotFocus()
 
   Project.SetCurrentPopup(Null)
 
+End
+
+Private Sub AddTrack(sExpr As String)
+
+  If $cTrack.Exist("@" & sExpr) Then Return
+  
+  Inc $iTrackId
+  $cTrack[$iTrackId] = sExpr
+  $cTrack["@" & sExpr] = $iTrackId
+  
+  Design.Command("w" & CStr($iTrackId) & "\t" & sExpr)
+
+End
+
+Public Sub btnAddTrack_Click()
+
+  Dim sExpr As String
+  Dim sKey As String
+  Dim iId As Integer
+
+  sExpr = Trim(cmbWatch.Text)
+  If Not sExpr Then
+    sKey = cvwVariable.Key
+    If sKey Begins "@" Then 
+      sExpr = Mid$(sKey, 2)
+      If Not sExpr Then Return
+      If $cTrack.Exist(sKey) Then
+        iId = $cTrack[sKey]
+        Design.Command("w" & CStr(iId))
+        $cTrack.Remove(iId)
+        $cTrack.Remove(sKey)
+        UpdateWatch(sExpr)
+        Return
+      Endif
+    Endif
+  Endif
+  
+  btnAddWatch_Click
+  AddTrack(sExpr)
+  UpdateWatch(sExpr)
+
+End
+
+Public Sub btnKillAllWatch_Click()
+
+  If Message.Question(("Do you want to clear the expression list ?"), ("Clear"), ("Cancel")) = 2 Then Return
+  
+  cvwVariable.Remove("@")
+  For Each $cTrack
+    If $cTrack.Key Begins "@" Then Continue
+    Design.Command("w" & $cTrack.Key)
+  Next
+
+End
+
+Public Sub GetWatches() As String
+
+  Dim sCmd As String
+  Dim sExpr As String
+  
+  For Each sExpr In $cTrack
+    If $cTrack.Key Begins "@" Then Continue
+    sCmd &= "w" & $cTrack.Key & "\t" & sExpr & "\n"
+  Next
+  
+  Return sCmd
+  
 End
