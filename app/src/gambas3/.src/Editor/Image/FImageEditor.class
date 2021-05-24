@@ -3080,7 +3080,7 @@ Public Sub mnuFormat_Show()
 End
 
 
-Public Sub mnuSaveAs_Click()
+Public Sub mnuSaveAsFormat_Click()
   
   Dim sFormat As String = Last.Tag
   
@@ -3385,5 +3385,12 @@ End
 Private Sub HasSelection() As Boolean
 
   If $hSelect And If Not $hSelect.IsVoid() Then Return True
+  
+End
+
+Public Sub mnuSaveAs_Click()
+
+  If Save() Then Return
+  Project.SaveFileAs(Path)
   
 End

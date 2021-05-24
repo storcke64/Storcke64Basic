@@ -239,6 +239,12 @@
       Picture = Picture["icon:/small/save"]
       Shortcut = "Ctrl+S"
     }
+    { mnuSaveAs Menu
+      Action = ".save-as"
+      Text = ("Save as") & "..."
+      Picture = Picture["icon:/small/save-as"]
+      Shortcut = "Ctrl+Shift+S"
+    }
     { Menu6 Menu
     }
     { mnuClose Menu
@@ -250,22 +256,22 @@
   }
   { mnuFormat Menu
     #Translate = False
-    { mnuFormatJPEG Menu mnuSaveAs
+    { mnuFormatJPEG Menu mnuSaveAsFormat
       Name = "mnuFormatJPEG"
       Text = ("Save as JPEG")
       Tag = "jpeg"
     }
-    { mnuFormatPNG Menu mnuSaveAs
+    { mnuFormatPNG Menu mnuSaveAsFormat
       Name = "mnuFormatPNG"
       Text = ("Save as PNG")
       Tag = "png"
     }
-    { mnuFormatBMP Menu mnuSaveAs
+    { mnuFormatBMP Menu mnuSaveAsFormat
       Name = "mnuFormatBMP"
       Text = ("Save as BMP")
       Tag = "bmp"
     }
-    { mnuFormatTIFF Menu mnuSaveAs
+    { mnuFormatTIFF Menu mnuSaveAsFormat
       Name = "mnuFormatTIFF"
       Action = "tiff"
       Text = ("Save as TIFF")
@@ -566,6 +572,14 @@
       AutoResize = True
       Picture = Picture["icon:/small/rotate"]
     }
+    { btnSaveAs ToolButton mnuSaveAs
+      Name = "btnSaveAs"
+      MoveScaled(142,0,4,4)
+      Visible = False
+      ToolTip = ("Save as")
+      Action = ".save-as"
+      Picture = Picture["icon:/small/save-as"]
+    }
     { Spring1 Spring
       MoveScaled(153,0,8,4)
     }
@@ -731,6 +745,11 @@
     Shortcut = "Ctrl+S"
     Picture = "icon:/small/save"
   }
+  { Action save-as
+    Text = "Save as"
+    Shortcut = "Ctrl+Shift+S"
+    Picture = "icon:/small/save-as"
+  }
   { Action select-all
     Text = "Select All"
     Shortcut = "Ctrl+A"
@@ -822,7 +841,7 @@
 { Toolbars
   { Toolbar image
     Text = "Image editor"
-    List = "save,reload,undo,redo,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,copy,cut,tool-paste,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,union,difference,intersection,exclusive,invert,duplicate,offset,crop,flip-h,flip-v,rotate-r,rotate-l,resize,rotate,locked"
+    List = "save,reload,undo,redo,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,copy,cut,tool-paste,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,union,difference,intersection,exclusive,invert,duplicate,offset,crop,flip-h,flip-v,rotate-r,rotate-l,resize,rotate,save-as,locked"
     Default = "save,reload,|,undo,redo,|,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,|,copy,cut,tool-paste,|,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,|,union,difference,invert,duplicate,offset,|,flip-h,flip-v,rotate-r,rotate-l,resize,~,locked"
   }
 }

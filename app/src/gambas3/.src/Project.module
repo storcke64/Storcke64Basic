@@ -7139,3 +7139,18 @@ Public Sub UpdateStatus(Optional bForce As Boolean)
   
 End
 
+Public Sub SaveFileAs(sPath As String)
+  
+  Dialog.Title = ("Save file as")
+  Dialog.Path = Settings["/Editor/SaveAsDir", User.Home] &/ File.Name(sPath)
+  Dialog.AutoExt = True
+  Dialog.Key = "SaveFileAs"
+  If Dialog.SaveFile() Then Return
+  
+  Settings["/Editor/SaveAsDir"] = File.Dir(Dialog.Path)
+  
+  Try Kill Dialog.Path
+  Try Copy sPath To Dialog.Path
+  If Error Then Message.Error(("Unable to save file.") & "\n\n" & Error.Text)
+  
+End

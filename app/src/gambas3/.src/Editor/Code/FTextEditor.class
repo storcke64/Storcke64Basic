@@ -1205,7 +1205,7 @@ Private Sub UpdateMenu()
 
   bVisible = Not edtEditor.ReadOnly
 
-  Action[".save,.undo,.redo,.cut,.paste,.color,.indent,.unindent,.lcase,.ucase,.sort-ascent,.sort-descent,.eol,.date,.char", Me].Visible = bVisible
+  Action[".save,.save-as,.undo,.redo,.cut,.paste,.color,.indent,.unindent,.lcase,.ucase,.sort-ascent,.sort-descent,.eol,.date,.char", Me].Visible = bVisible
   mnuAdvanced.Visible = bVisible
   mnuEndOfLine.Visible = bVisible
 
@@ -2022,5 +2022,12 @@ End
 Public Sub PaintStatus()
   
   FEditor.PaintEditorStatus($hEditor)
+  
+End
+
+Public Sub mnuSaveAs_Click()
+
+  If Save() Then Return
+  Project.SaveFileAs(Path)
   
 End
