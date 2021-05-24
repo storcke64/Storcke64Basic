@@ -106,7 +106,7 @@ Public Sub UserControl_Draw()
         Paint.Arc(W / 2, H / 2, R)
         Paint.Stroke
 
-        Paint.Background = Color.SetAlpha(iFg, &H80)
+        Paint.Background = Color.SetAlpha(iFg, &HD0)
         If $fValue = 0 Or If $fValue = 1 Then
           Paint.Arc(W / 2, H / 2, R, D, Pi(2) / 3)
         Else
