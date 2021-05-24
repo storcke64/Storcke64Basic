@@ -36,6 +36,7 @@ typedef
   struct {
     unsigned stop : 1;
     unsigned leave : 1;
+		unsigned watch : 1;
     FUNCTION *fp;
     VALUE *bp;
     VALUE *pp;
@@ -101,6 +102,7 @@ typedef
 		const char *(*GetPosition)(void *klass, void *func, void *pcode);
 		const char *(*GetCurrentPosition)(void);
 		void (*InitBreakpoints)(void *klass);
+		bool (*CheckWatches)(void);
 		struct {
 			void (*Init)(const char *path);
 			void (*Add)(void *cp, void *fp, void *pc);

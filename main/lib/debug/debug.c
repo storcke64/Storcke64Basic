@@ -50,6 +50,38 @@
 
 //#define DEBUG_ME
 
+typedef
+	struct {
+		int id;
+		FUNCTION *func;
+		PCODE *addr;
+		CLASS *class;
+		ushort line;
+		VALUE *bp;
+		FUNCTION *fp;
+		}
+	DEBUG_BREAK;
+
+typedef 
+	struct {
+		int id;
+		EXPRESSION *expr;
+		VALUE value;
+		unsigned changed : 1;
+	}
+	DEBUG_WATCH;
+
+typedef
+	struct {
+		char *pattern;
+		DEBUG_TYPE type;
+		void (*func)(char *);
+		bool loop;
+		}
+	DEBUG_COMMAND;
+
+
+
 DEBUG_INFO DEBUG_info = { 0 };
 GB_DEBUG_INTERFACE *DEBUG_interface;
 char DEBUG_buffer[DEBUG_BUFFER_MAX + 1];
@@ -57,6 +89,8 @@ char *DEBUG_fifo = NULL;
 
 static DEBUG_BREAK *_breakpoints;
 static char *_error = NULL;
+
+static DEBUG_WATCH *_watches;
 
 static EVAL_INTERFACE EVAL;
 
@@ -267,6 +301,8 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 
 	//ARRAY_create(&_breakpoints);
 	GB.NewArray(&_breakpoints, sizeof(DEBUG_BREAK), 16);
+	GB.NewArray(&_watches, sizeof(DEBUG_WATCH), 0);
+	
 	signal(SIGUSR2, signal_user);
 	signal(SIGPIPE, SIG_IGN);
 
@@ -277,18 +313,28 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 
 void DEBUG_exit(void)
 {
+	int i;
+	
 	GB.FreeArray(&_breakpoints);
+	
+	if (_watches)
+	{
+		for (i = 0; i < GB.Count(_watches); i++)
+			EVAL.Free(POINTER(&_watches[i].expr));
+		
+		GB.FreeArray(&_watches);
+	}
+	
 	GB.FreeString(&DEBUG_fifo);
 	GB.FreeString(&_error);
 
-	/* Don't do it, it blocks!
-
-	if (EXEC_fifo)
+	// Don't do it, it blocks!
+	
+	/*if (EXEC_fifo)
 	{
 		fclose(_in);
 		fclose(_out);
 	}
-
 	*/
 }
 
@@ -552,12 +598,12 @@ static void print_object()
 	}
 }
 
-static void command_quit(const char *cmd)
+static void command_quit(char *cmd)
 {
 	exit(1);
 }
 
-static void command_go(const char *cmd)
+static void command_go(char *cmd)
 {
 	GB.Component.Signal(GB_SIGNAL_DEBUG_CONTINUE, 0);
 
@@ -568,13 +614,13 @@ static void command_go(const char *cmd)
 	DEBUG_info.pp = NULL;
 }
 
-static void command_step(const char *cmd)
+static void command_step(char *cmd)
 {
 	GB.Component.Signal(GB_SIGNAL_DEBUG_FORWARD, 0);
 	DEBUG_break_on_next_line();
 }
 
-static void command_next(const char *cmd)
+static void command_next(char *cmd)
 {
 	GB.Component.Signal(GB_SIGNAL_DEBUG_FORWARD, 0);
 	DEBUG_info.stop = TRUE;
@@ -584,7 +630,7 @@ static void command_next(const char *cmd)
 	DEBUG_info.pp = PP;
 }
 
-static void command_from(const char *cmd)
+static void command_from(char *cmd)
 {
 	STACK_CONTEXT *sc = GB_DEBUG.GetStack(0); //STACK_get_current();
 
@@ -609,7 +655,7 @@ static void command_from(const char *cmd)
 }
 
 
-static void command_set_breakpoint(const char *cmd)
+static void command_set_breakpoint(char *cmd)
 {
 	char class_name[64];
 	ushort line;
@@ -627,7 +673,7 @@ static void command_set_breakpoint(const char *cmd)
 }
 
 
-static void command_unset_breakpoint(const char *cmd)
+static void command_unset_breakpoint(char *cmd)
 {
 	char class_name[64];
 	ushort line;
@@ -685,6 +731,8 @@ static void debug_info()
 {
 	const char *p;
 	char c;
+	int i;
+	DEBUG_WATCH *watch;
 	
 	fprintf(_out, "*[%d]\t", getpid());
 	
@@ -712,10 +760,19 @@ static void debug_info()
 	fprintf(_out, "\t");
 	
 	print_object();
+	fprintf(_out, "\t");
+	
+	for (i = 0; i < GB.Count(_watches); i++)
+	{
+		watch = &_watches[i];
+		if (watch->changed)
+			fprintf(_out, "%d ", watch->id);
+	}
+	
 	fprintf(_out, "\n");
 }
 
-static void command_frame(const char *cmd)
+static void command_frame(char *cmd)
 {
 	int i;
 	int frame;
@@ -762,7 +819,7 @@ static void command_frame(const char *cmd)
 	debug_info();
 }
 
-static void command_eval(const char *cmd)
+static void command_eval(char *cmd)
 {
 	EXPRESSION *expr;
 	ERROR_INFO save_error = { 0 };
@@ -861,8 +918,105 @@ __END:
 	fflush(out);
 }
 
+static int find_watch(int id)
+{
+	int i;
+	DEBUG_WATCH *watch;
+	
+	for (i = 0; i < GB.Count(_watches); i++)
+	{
+		watch = &_watches[i];
+		if (watch->id == id)
+			return i;
+	}
+	
+	return -1;
+}
 
-static void command_symbol(const char *cmd)
+static int add_watch(int id, EXPRESSION *expr, VALUE *value)
+{
+	DEBUG_WATCH *watch = (DEBUG_WATCH *)GB.Add(&_watches);
+	watch->id = id;
+	watch->expr = expr;
+	watch->value = *value;
+	return GB.Count(_watches) - 1;
+}
+
+
+static void remove_watch(int index)
+{
+	DEBUG_WATCH *watch = &_watches[index];
+	
+	EVAL.Free(POINTER(&watch->expr));
+	GB.Remove(&_watches, index, 1);
+}
+
+static void command_watch(char *cmd)
+{
+	EXPRESSION *expr;
+	int start, len;
+	int id;
+	int index;
+	VALUE *value;
+	ERROR_INFO save_error = { 0 };
+	ERROR_INFO save_last = { 0 };
+	DEBUG_INFO save_debug;
+
+	init_eval_interface();
+
+	len = strlen(cmd);
+	for (start = 0; start < len; start++)
+	{
+		if (cmd[start] == '\t')
+			break;
+	}
+	
+	cmd[start] = 0;
+	id = atoi(&cmd[1]);
+	if (id == 0)
+		return;
+	
+	expr = NULL;
+	value = NULL;
+	
+	if (len > start)
+	{
+		GB_DEBUG.SaveError(&save_error, &save_last);
+		save_debug = DEBUG_info;
+
+		start++;
+		EVAL.New(POINTER(&expr), &cmd[start], len - start);
+
+		if (EVAL.Compile(expr, FALSE))
+		{
+			fputs(expr->error, _out);
+			EVAL.Free(POINTER(&expr));
+		}
+		else
+		{
+			GB_DEBUG.EnterEval();
+			value = (VALUE *)EVAL.Run(expr, GB_DEBUG.GetValue);
+			GB_DEBUG.LeaveEval();
+		}
+
+		DEBUG_info = save_debug;
+		GB_DEBUG.RestoreError(&save_error, &save_last);
+		
+		if (!expr)
+			return;
+	}
+
+	index = find_watch(id);
+	if (index >= 0)
+		remove_watch(index);
+	if (expr)
+		add_watch(id, expr, value);
+	
+	DEBUG_info.watch = GB.Count(_watches) > 0;
+}
+
+
+static void command_symbol(char *cmd)
 {
 	int start, len;
 	ERROR_INFO save_error = { 0 };
@@ -901,7 +1055,7 @@ static void command_symbol(const char *cmd)
 }
 
 
-static void command_break_on_error(const char *cmd)
+static void command_break_on_error(char *cmd)
 {
 	GB_DEBUG.BreakOnError(cmd[1] == '+');
 }
@@ -926,6 +1080,7 @@ void DEBUG_main(bool error)
 		{ "=", TC_NONE, command_eval, TRUE },
 		{ "@", TC_NONE, command_frame, TRUE },
 		{ "b", TC_NONE, command_break_on_error, TRUE },
+		{ "w", TC_NONE, command_watch, TRUE },
 
 		{ NULL }
 	};
@@ -1162,3 +1317,102 @@ void DEBUG_welcome(void)
 	if (!_fifo)
 		fprintf(_out, DEBUG_WELCOME);
 }
+
+static bool compare_values(VALUE *a, VALUE *b)
+{
+	void *jump[] = {
+		&&__VOID, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT, 
+		&&__DATE, &&__STRING, &&__STRING, &&__POINTER, &&__VARIANT, &&__FUNCTION, &&__CLASS, &&__NULL
+	};
+	
+	/*void *vjump[] = {
+		__VOID, __VBOOLEAN, __VBYTE, __VSHORT, __VINTEGER, __VLONG, __VSINGLE, __VFLOAT, 
+		__VDATE, __VSTRING, __VSTRING, __VPOINTER, __VOID, __VOID, __VOID, __VOID
+	};*/
+	
+	if (a->type != b->type)
+		return TRUE;
+	
+	if (TYPE_is_object(a->type))
+		goto __OBJECT;
+	else
+		goto *jump[a->type];
+	
+__VOID:
+__NULL:
+	return FALSE;
+	
+__BOOLEAN:
+__BYTE:
+__SHORT:
+__INTEGER:
+	return a->_integer.value != b->_integer.value;
+	
+__LONG:
+__DATE:
+	return a->_long.value != b->_long.value;
+
+__SINGLE:
+	return a->_single.value != b->_single.value;
+	
+__FLOAT:
+	return a->_float.value != b->_float.value;
+
+__STRING:
+	return a->_string.addr != b->_string.addr || a->_string.start != b->_string.start || a->_string.len != b->_string.len;
+	
+__POINTER:
+__OBJECT:
+__CLASS:
+	return a->_pointer.value != b->_pointer.value;
+	
+__FUNCTION:
+	return a->_function.class != b->_function.class || a->_function.object != b->_function.object || a->_function.index != b->_function.index;
+	
+	
+__VARIANT:
+	return a->_variant.vtype != b->_variant.vtype || a->_variant.value.data != b->_variant.value.data;
+}
+
+bool DEBUG_check_watches(void)
+{
+	int i;
+	DEBUG_WATCH *watch;
+	VALUE *value;
+	bool changed = FALSE;
+	ERROR_INFO save_error = { 0 };
+	ERROR_INFO save_last = { 0 };
+	DEBUG_INFO save_debug;
+	
+	GB_DEBUG.SaveError(&save_error, &save_last);
+	save_debug = DEBUG_info;
+	
+	for (i = 0; i < GB.Count(_watches); i++)
+	{
+		watch = &_watches[i];
+		watch->changed = FALSE;
+		
+		GB_DEBUG.EnterEval();
+		value = (VALUE *)EVAL.Run(watch->expr, GB_DEBUG.GetValue);
+		GB_DEBUG.LeaveEval();
+		if (!value)
+			continue;
+		
+		if (compare_values(&watch->value, value))
+		{
+			watch->value = *value;
+			watch->changed = TRUE;
+			changed = TRUE;
+		}
+	}
+	
+	DEBUG_info = save_debug;
+	GB_DEBUG.RestoreError(&save_error, &save_last);
+
+	if (!changed)
+		return FALSE;
+	
+	DEBUG_main(FALSE);
+	return TRUE;
+}
+

@@ -51,6 +51,7 @@ void *GB_DEBUG_1[] EXPORT =
 	(void *)DEBUG_get_position,
 	(void *)DEBUG_get_current_position,
 	(void *)DEBUG_init_breakpoints,
+	(void *)DEBUG_check_watches,
 	(void *)PROFILE_init,
 	(void *)PROFILE_add,
 	(void *)PROFILE_exit,

@@ -4034,6 +4034,12 @@ static void _break(ushort code)
 			if (EXEC_profile_instr)
 				DEBUG.Profile.Add(CP, FP, PC);
 
+			if (DEBUG_info->watch)
+			{
+				if (DEBUG.CheckWatches())
+					return;
+			}
+			
 			code = (uchar)code;
 
 			if (code == 0)
