@@ -330,6 +330,7 @@ BEGIN_PROPERTY(WebView_Url)
 	{
 		QString url = QSTRING_PROP();
 		set_link(THIS, url);
+		THIS->cancel = false;
 		WIDGET->setUrl(url);
 	}
 
@@ -1064,12 +1065,11 @@ void WebViewSignalManager::loadProgress(int progress)
 {
 	GET_SENDER();
 
-	if (THIS->progress == progress)
+	if (THIS->cancel || THIS->progress == progress)
 		return;
 
 	THIS->progress = progress;
 	GB.Raise(THIS, EVENT_PROGRESS, 0);
-	
 	if (progress == 100)
 		GB.Raise(THIS, EVENT_FINISH, 0);
 }
@@ -1089,7 +1089,6 @@ void WebViewSignalManager::loadFinished(bool ok)
 	else //if (!THIS->stopping)
 		GB.Raise(THIS, EVENT_ERROR, 0);
 	
-	THIS->cancel = false;
 	GB.FreeString(&THIS->link);
 }
 
