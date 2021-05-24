@@ -119,9 +119,7 @@ Public Sub WebView_NewView()
   
 End
 
-Public Sub TimerUrl_Timer()
-
-  'Debug $sNextUrl
+Private Sub HandleSpecialURL()
 
   Dim hWin As Window
   
@@ -221,6 +219,7 @@ End
 Public Sub WebView_Error()   
   
   ShowWaiting(False)
+  HandleSpecialURL
   
 End
   
