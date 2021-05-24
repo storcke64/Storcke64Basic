@@ -69,7 +69,10 @@ static bool get_flag(WebKitSettings *settings, int flag)
 #endif
 		case 14: return webkit_settings_get_enable_fullscreen(settings);
 		case 16: return webkit_settings_get_enable_webgl(settings);
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+#else
 		case 17: return webkit_settings_get_enable_accelerated_2d_canvas(settings);
+#endif
 		case 21: return webkit_settings_get_print_backgrounds(settings);
 		case 26: return webkit_settings_get_media_playback_requires_user_gesture(settings);
 		case 29: return webkit_settings_get_enable_dns_prefetching(settings);
@@ -96,7 +99,10 @@ static void set_flag(WebKitSettings *settings, int flag, bool value)
 #endif
 		case 14: webkit_settings_set_enable_fullscreen(settings, value); break;
 		case 16: webkit_settings_set_enable_webgl(settings, value); break;
+#if WEBKIT_CHECK_VERSION(2, 32, 0)
+#else
 		case 17: webkit_settings_set_enable_accelerated_2d_canvas(settings, value); break;
+#endif
 		case 21: webkit_settings_set_print_backgrounds(settings, value); break;
 		case 26: webkit_settings_set_media_playback_requires_user_gesture(settings, value); break;
 		case 29: webkit_settings_set_enable_dns_prefetching(settings, value); break;

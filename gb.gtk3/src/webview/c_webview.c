@@ -86,8 +86,7 @@ static void cb_load_changed(WebKitWebView *widget, WebKitLoadEvent load_event, C
 			break;
 			
 		case WEBKIT_LOAD_FINISHED:
-			if (!THIS->error)
-				GB.Raise(THIS, EVENT_FINISH, 0);
+			GB.Raise(THIS, EVENT_FINISH, 0);
 			GB.FreeString(&THIS->link);
 			break;
 			
@@ -98,8 +97,12 @@ static void cb_load_changed(WebKitWebView *widget, WebKitLoadEvent load_event, C
 
 static gboolean cb_load_failed(WebKitWebView *widget, WebKitLoadEvent load_event, gchar *failing_uri, GError *error, CWEBVIEW *_object)
 {
-	THIS->error = TRUE;
-	GB.Raise(THIS, EVENT_ERROR, 0);
+	//fprintf(stderr, "cb_load_failed\n");
+	if (!THIS->error)
+	{
+		THIS->error = TRUE;
+		GB.Raise(THIS, EVENT_ERROR, 0);
+	}
 	return FALSE;
 }
 
@@ -141,11 +144,11 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 {
 	if (type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
 	{
-		/*const char *uri = webkit_uri_request_get_uri(
+		const char *uri = webkit_uri_request_get_uri(
 			webkit_navigation_action_get_request(
 				webkit_navigation_policy_decision_get_navigation_action(WEBKIT_NAVIGATION_POLICY_DECISION(decision))));
 
-		fprintf(stderr, "cb_decide_policy: %s\n", uri);*/
+		//fprintf(stderr, "cb_decide_policy: %s\n", uri);
 		
 		if (THIS->accept_next)
 		{
@@ -156,20 +159,11 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 		THIS->error = FALSE;
 		THIS->got_load_event = FALSE;
 		if (GB.Raise(THIS, EVENT_START, 0))
-			webkit_policy_decision_ignore(decision);
-		
-		/*if (THIS->cancel)
 		{
-			fprintf(stderr, "cb_decide_policy: IGNORE !\n");
-			THIS->cancel = FALSE;
+			//fprintf(stderr, "cancel !\n");
 			webkit_policy_decision_ignore(decision);
-		}*/
-		
-		/*GB.FreeString(&THIS->link);
-		THIS->link = GB.NewZeroString(uri);
-		cancel = GB.Raise(THIS, EVENT_NAVIGATE, 0);
-		if (cancel)
-			webkit_policy_decision_ignore(decision);*/
+			GB.RaiseLater(THIS, EVENT_ERROR);
+		}
 	}
 	
 	return FALSE;
