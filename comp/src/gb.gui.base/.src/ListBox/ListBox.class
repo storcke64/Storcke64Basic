@@ -281,15 +281,10 @@ Private Sub Sort()
     bSelect = True
   Endif
 
-  $aText.Sort
+  $aText.Sort(gb.Natural)
   $hView.Refresh
   
   If bSelect Then $hView.Row = $aText.Find(sCurrent)
-  
-  If $hSortTimer Then 
-    $hSortTimer.Stop
-    $hSortTimer = Null
-  Endif
   
 End
 
