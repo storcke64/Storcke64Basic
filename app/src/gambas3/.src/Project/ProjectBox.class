@@ -144,7 +144,6 @@ Public Sub DrawingArea_Draw()
   Dim sText As String
   Dim P As Integer
   Dim bSmall As Boolean
-  Dim hScrollView As ScrollView
   Dim WT As Integer
   Dim iCol As Integer
   Dim iBg As Integer
@@ -158,13 +157,6 @@ Public Sub DrawingArea_Draw()
   Y = 1
   W = Paint.W - 1
   H = Paint.H - 1
-  
-  If Me.Parent Is ScrollView Then
-    hScrollView = Me.Parent
-    If hScrollView.Arrangement = Arrange.Vertical And If hScrollView.ScrollH > hScrollView.ClientH Then
-      W -= P
-    Endif
-  Endif
   
   XS = X
   YS = Y
@@ -292,9 +284,9 @@ Public Sub DrawingArea_Draw()
       
     Endif
     
-  End With
+    Paint.Restore
   
-  Paint.Restore
+  End With
   
   If ShowButton And If $bHighlight Then
     X = 0
