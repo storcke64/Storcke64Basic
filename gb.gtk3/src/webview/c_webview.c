@@ -144,11 +144,11 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 {
 	if (type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION)
 	{
-		const char *uri = webkit_uri_request_get_uri(
+		/*const char *uri = webkit_uri_request_get_uri(
 			webkit_navigation_action_get_request(
 				webkit_navigation_policy_decision_get_navigation_action(WEBKIT_NAVIGATION_POLICY_DECISION(decision))));
 
-		//fprintf(stderr, "cb_decide_policy: %s\n", uri);
+		fprintf(stderr, "cb_decide_policy: %s\n", uri);*/
 		
 		if (THIS->accept_next)
 		{
