@@ -142,6 +142,15 @@ Static Public Sub GetIcon(sClass As String, sComp As String, Optional iSize As I
   
 End
 
+Private Sub IsContainerClass(hClass As Class) As Boolean
+  
+  If hClass.Name = "Container" Then Return True
+  If Not hClass.Parent Then Return
+  Return IsContainerClass(hClass.Parent)
+  
+End
+
+
 Private Function CreateControl(sName As String, sClass As String, hParent As Object) As Object
 
   Dim hCtrl As Object
@@ -164,11 +173,18 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   Endif
   NoParent = Not hClass.ConstructorNeedParent()
   
-  hClassDraw = Project.Documentation.Classes[sClass]
   If IsMultiContainer() Then
-    If Not hClassDraw.MultiContainer Then sClass = "TabPanel"
+    If sClass <> "TabPanel" And If sClass <> "TabStrip" Then
+      hClassDraw = Project.Documentation.Classes[sClass]
+      If Not hClassDraw Or If Not hClassDraw.MultiContainer Then sClass = "TabPanel"
+    Endif
   Else If IsContainer() Then
-    If Not hClassDraw.Container Then sClass = "Panel"
+    If Class.IsLoaded(sClass) Then
+      If Not IsContainerClass(Classes[sClass]) Then sClass = "Panel"
+    Else
+      hClassDraw = Project.Documentation.Classes[sClass]
+      If Not hClassDraw Or If Not hClassDraw.Container Then sClass = "Panel"
+    Endif
   Endif
 
   Select Case LCase(sClass)
