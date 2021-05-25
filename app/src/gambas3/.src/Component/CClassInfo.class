@@ -438,6 +438,7 @@ Public Sub GetSimilars() As String[]
   
   For Each sSimilar In cSimilar
     hClass = Project.Documentation.Classes[cSimilar.Key]
+    If Not hClass Then Continue
     If hClass.IsDeprecated() And If Not FToolBox.IsDeprecatedVisible() Then Continue
     aSimilar.Add(cSimilar.Key)
   Next
