@@ -281,7 +281,7 @@ Private Sub Sort()
     bSelect = True
   Endif
 
-  $aText.Sort(gb.Natural)
+  $aText.Sort(gb.Natural + gb.IgnoreCase)
   $hView.Refresh
   
   If bSelect Then $hView.Row = $aText.Find(sCurrent)
