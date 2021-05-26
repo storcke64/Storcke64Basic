@@ -236,7 +236,8 @@ Private Sub TokenizeFile(SourceBuffer As String)
              If symbols.count < 2 Then
                CompileError(cIncludeStack.last, CurrentLineNumber.last, Subst("&1 : Name Missing ", $sCurrentBlock))
             Endif 
-            If aTypes[1] = Highlight.symbol Then
+            
+            If aTypes[1] = Highlight.symbol Or If aTypes[1] = Highlight.DataType Then
                 If $bInClass Then
                     If symbols[0] == "class" And If $sCurrentBlock == "class" Or $sCurrentBlock == "module" Then
                        Warning("Found class definition inside a &1, Assuming that it is a class refrence not the beginning of a new class")
