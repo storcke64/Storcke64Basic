@@ -189,21 +189,39 @@ Public Sub gvwExpr_Data(Row As Integer, Column As Integer)
     
   Endif
 
-  If Column <> 0 Then 
-    
-    If Left(gvwExpr.Data.Text) <> "!" Then
-
-      If $cVal.Exist(Row) And If $cOldVal.Exist(Row) And If gvwExpr.Data.Text <> $cOldVal[Row] Then 
+  sVal = $cVal[Row]
+  
+  If sVal Then
+    If Left(sVal) <> "!" Then
+  
+      If $cOldVal.Exist(Row) And If sVal <> $cOldVal[Row] Then 
         gvwExpr.Data.Background = $iChangeColor 'Color.Lighter(Color.Yellow)
-        gvwExpr.Data.Font.Bold = True
       Endif
       
     Else
       
-      gvwExpr.Data.Text = Mid$(gvwExpr.Data.Text, 2)
+      gvwExpr.Data.Text = Mid$(sVal, 2)
       gvwExpr.Data.Background = $iErrorColor 'Color.Lighter(Color.Red)
       
     Endif 
+    
+  Endif
+
+  If Column <> 0 Then 
+    
+    ' If Left(gvwExpr.Data.Text) <> "!" Then
+    ' 
+    '   If $cVal.Exist(Row) And If $cOldVal.Exist(Row) And If $cVal[Row] <> $cOldVal[Row] Then 
+    '     gvwExpr.Data.Background = $iChangeColor 'Color.Lighter(Color.Yellow)
+    '     gvwExpr.Data.Font.Bold = True
+    '   Endif
+    '   
+    ' Else
+    '   
+    '   gvwExpr.Data.Text = Mid$(gvwExpr.Data.Text, 2)
+    '   gvwExpr.Data.Background = $iErrorColor 'Color.Lighter(Color.Red)
+    '   
+    ' Endif 
     
     gvwExpr.Data.Font = txtExpr.Font
 

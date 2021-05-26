@@ -197,6 +197,7 @@ Static Public Sub GetInfo() As String[]
     aText.Add(sVar & "=" & Env[sVar])
   Next
   
+  MakeAnonymous(aText)
   Return aText
 
 End
@@ -213,7 +214,6 @@ Public Sub Form_Open()
   Inc Application.Busy
   
   aText = GetInfo()
-  MakeAnonymous(aText)
   
   Project.SetEditorFont(gvwInfo)
   
@@ -257,7 +257,7 @@ Public Sub Form_Open()
 
 End
 
-Sub MakeAnonymous(aText As String[])
+Static Private Sub MakeAnonymous(aText As String[])
 
   Dim I As Integer
   Dim sText As String
@@ -266,7 +266,6 @@ Sub MakeAnonymous(aText As String[])
     sText = Replace(aText[I], System.Host, "<hostname>")
     sText = Replace(sText, User.Home, "<home>")
     aText[I] = Replace(sText, User.Name, "<user>")
-    
   Next
 
 End

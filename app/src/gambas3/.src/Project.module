@@ -329,6 +329,10 @@ Public Sub Main()
       Else
         Quit
       Endif
+    Else If sArg = "--system-information" Or If sArg = "-i" Then
+      InitVersion
+      Print FSystemInfo.GetInfo().Join("\n")
+      Quit
     Else If Left(sArg) = "-" Then
       Error "gambas3: unknown option: " & sArg
       Quit
