@@ -33,11 +33,6 @@ Public Sub _new()
   
   Dim DS As Integer = Desktop.Scale
   
-  If Not $hDisabledBreakpoint Then
-    $hBreakpoint = Picture["icon:/small/halt"]
-    $hDisabledBreakpoint = $hBreakpoint.Image.Desaturate().Gamma(0.3).Picture
-  Endif
-  
   With cvwVariable
     .Columns.Count = 2
   End With
@@ -199,7 +194,7 @@ Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
       .[1] = sVal
     Endif
     If $cTrack.Exist(.Key) Then 
-      .Picture = Picture["icon:/" & CStr(cvwVariable.Font.H) & "/watch"]
+      .Picture = $hBreakpoint 'Picture["icon:/" & CStr(cvwVariable.Font.H) & "/watch"]
     Else
       .Picture = Null
     Endif
@@ -374,6 +369,9 @@ Public Sub ReadConfig()
   
   $iChangeColor = Color.Merge(MTheme.GetColor("Highlight"), Color.Background)
   $iErrorColor = MTheme.GetColor("Error")
+
+  $hBreakpoint = Picture["img/32/breakpoint.png"].Stretch(cvwVariable.Font.H)
+  $hDisabledBreakpoint = $hBreakpoint.Image.Desaturate().Gamma(0.3).Picture
   
 End
 
@@ -1662,26 +1660,36 @@ Public Sub btnAddTrack_Click()
   Dim iId As Integer
 
   sExpr = Trim(cmbWatch.Text)
-  If Not sExpr Then
-    sKey = cvwVariable.Key
-    If sKey Begins "@" Then 
-      sExpr = Mid$(sKey, 2)
-      If Not sExpr Then Return
-      If $cTrack.Exist(sKey) Then
-        iId = $cTrack[sKey]
-        Design.Command("w" & CStr(iId))
-        $cTrack.Remove(iId)
-        $cTrack.Remove(sKey)
-        UpdateWatch(sExpr)
-        Return
-      Endif
+  If sExpr Then Goto ADD_WATCH
+  
+  sKey = cvwVariable.Key
+  If sKey Begins "@" Then 
+    sExpr = Mid$(sKey, 2)
+    If Not sExpr Then Return
+    If $cTrack.Exist(sKey) Then
+      Goto REMOVE_WATCH
+    Else
+      Goto ADD_WATCH
     Endif
   Endif
+  Return
+  
+ADD_WATCH:
   
   btnAddWatch_Click
   AddTrack(sExpr)
   UpdateWatch(sExpr)
+  Return
+  
+REMOVE_WATCH:
 
+  iId = $cTrack[sKey]
+  Design.Command("w" & CStr(iId))
+  $cTrack.Remove(iId)
+  $cTrack.Remove(sKey)
+  UpdateWatch(sExpr)
+  Return
+  
 End
 
 Public Sub btnKillAllWatch_Click()
