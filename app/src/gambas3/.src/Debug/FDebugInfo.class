@@ -920,7 +920,7 @@ Public Sub OnProjectChange()
   
   $aTask = Null
   UpdateTask
-  SetCompilation
+  SetCompilation()
   CloseSearch
   trmVersionControl.Clear
   trmTest.Clear
@@ -939,22 +939,21 @@ Public Sub ShowError(sMsg As String)
   
 End
 
-Public Sub SetCompilation(Optional sOutput As String)
+Public Sub SetCompilation(Optional aOutput As String[])
   
-  Dim aOutput As String[]
   Dim sLine As String
   Dim aLine As String[]
   Dim I As Integer
   Dim aPos As String[]
   
   gvwCompilation.Clear
-  If Not sOutput Then 
+  If Not aOutput Or If aOutput.Count = 0 Then 
     HideTab(TAB_COMPILATION)
     'GotoConsole
     Return
   Endif
   
-  aOutput = Split(Trim(sOutput), "\n").Sort(gb.Natural)
+  aOutput.Sort(gb.Natural)
   gvwCompilation.Rows.Count = aOutput.Count
   
   For Each sLine In aOutput

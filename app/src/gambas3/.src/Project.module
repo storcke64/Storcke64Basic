@@ -352,7 +352,7 @@ Public Sub Main()
 
   'Print Application.Theme
 
-  OUTPUT_FILE = Temp$()
+  OUTPUT_FILE = Temp$("output")
   EXAMPLES_DIR = System.Path &/ "share/gambas" & Split(System.Version, ".")[0] & "/examples"
 
   Application.ShowTooltips = Settings["/ShowTooltip", True]
@@ -2547,7 +2547,6 @@ End
 Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, Optional bNoMessage As Boolean, Optional bMakeExecutable As Boolean) As Boolean
 
   Dim sExec As String
-  Dim sOutput As String
   Dim sRes As String
   Dim sDir As String
   Dim sPath As String
@@ -2556,6 +2555,10 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   Dim sBefore, sAfter As String
   Dim bGotError As Boolean
   Dim fTimer As Float
+  Dim aOutput As String[]
+  Dim I As Integer
+  Dim sLine As String
+  Dim sError As String
 
   If Project.ReadOnly Then Return
   If Project.Running Then Return 'TRUE
@@ -2604,26 +2607,26 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
 
   bGotError = Process.LastValue
 
-  sOutput = Trim(File.Load(OUTPUT_FILE))
-
-  iPos = RInStr(sOutput, "\n")
-  If iPos Then
-    sRes = Mid$(sOutput, iPos + 1)
-    sOutput = Left(sOutput, iPos - 1)
-  Else
-    If sOutput <> "OK" Then
-      sRes = sOutput
+  aOutput = Split(File.Load(OUTPUT_FILE), "\n", "", True)
+  
+  I = 0
+  While I < aOutput.Count
+    sLine = aOutput[I]
+    If sLine Like "*: warning: *" Then 
+      Inc I
+      Continue
     Endif
-    sOutput = ""
-  Endif
-
-  FDebugInfo.SetCompilation(sOutput)
+    If sLine Like "*: error: *" Then sError = sLine
+    aOutput.Remove(I)
+  Wend
+  
+  FDebugInfo.SetCompilation(aOutput)
   'FDebugInfo.GotoFirstWarning()
 
-  If bGotError And If sRes Then
+  If bGotError And If sError Then
 
     UnlockIt()
-    If Not bNoMessage Then CompileError(sRes)
+    If Not bNoMessage Then CompileError(sError)
     Return True
 
   Else
