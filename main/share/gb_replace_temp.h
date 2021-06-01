@@ -64,13 +64,13 @@ int setenv(const char *name, const char *value, int overwrite)
 
 extern char **environ;
 
-void unsetenv(const char *name)
+int unsetenv(const char *name)
 {
 	size_t len;
 	char **ep;
 
 	if (name == NULL || *name == '\0' || strchr (name, '=') != NULL)
-		return;
+		return 0;
 
 	len = strlen(name);
 
@@ -88,6 +88,8 @@ void unsetenv(const char *name)
 		else
 			++ep;
 	}
+	
+	return 0;
 }
 
 #endif

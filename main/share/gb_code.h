@@ -51,6 +51,7 @@ bool CODE_popify_last(void);
 
 void CODE_begin_function(FUNCTION *func);
 void CODE_end_function(FUNCTION *func);
+FUNCTION *CODE_set_function(FUNCTION *func);
 
 bool CODE_popify_last(void);
 bool CODE_check_statement_last(void);

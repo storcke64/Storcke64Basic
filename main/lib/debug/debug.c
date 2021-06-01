@@ -494,6 +494,7 @@ void DEBUG_init_breakpoints(CLASS *class)
 	}
 }
 
+
 static void print_local()
 {
 	int i;
@@ -510,24 +511,6 @@ static void print_local()
 		lp = &fp->debug->local[i];
 		fprintf(_out, "%.*s ", lp->sym.len, lp->sym.name);
 	}
-	
-	/*else
-	{
-		cmd++;
-
-		for (i = 0; i < FP->debug->n_local; i++)
-		{
-			lp = &FP->debug->local[i];
-			if (lp->sym.len == strlen(cmd) && strncasecmp(lp->sym.name, cmd, lp->sym.len) == 0)
-			{
-				fprintf(_out, "=");
-				//fprintf(_out, "TUT\n");
-				PRINT_value(_out, &BP[lp->value], TRUE);
-				nl = FALSE;
-				break;
-			}
-		}
-	}*/
 }
 
 
@@ -727,6 +710,7 @@ void DEBUG_backtrace(FILE *out)
 	}
 }
 
+
 static void debug_info()
 {
 	const char *p;
@@ -772,6 +756,7 @@ static void debug_info()
 	fprintf(_out, "\n");
 }
 
+
 static void set_info(STACK_CONTEXT *context)
 {
 	if (context)
@@ -791,6 +776,7 @@ static void set_info(STACK_CONTEXT *context)
 		DEBUG_info.cp = CP;
 	}
 }
+
 
 static void command_frame(char *cmd)
 {
@@ -823,6 +809,7 @@ static void command_frame(char *cmd)
 	set_info(context);
 	debug_info();
 }
+
 
 static void command_eval(char *cmd)
 {
@@ -1066,148 +1053,6 @@ static void command_break_on_error(char *cmd)
 	GB_DEBUG.BreakOnError(cmd[1] == '+');
 }
 
-void DEBUG_main(bool error)
-{
-	static DEBUG_TYPE last_command = TC_NONE;
-
-	static DEBUG_COMMAND Command[] =
-	{
-		{ "q", TC_NONE, command_quit, FALSE },
-		{ "n", TC_NEXT, command_next, FALSE },
-		{ "s", TC_STEP, command_step, FALSE },
-		{ "f", TC_FROM, command_from, FALSE },
-		{ "g", TC_GO, command_go, FALSE },
-		{ "+", TC_NONE, command_set_breakpoint, TRUE },
-		{ "-", TC_NONE, command_unset_breakpoint, TRUE },
-		{ "&", TC_NONE, command_symbol, TRUE },
-		{ "?", TC_NONE, command_eval, TRUE },
-		{ "!", TC_NONE, command_eval, TRUE },
-		{ "#", TC_NONE, command_eval, TRUE },
-		{ "=", TC_NONE, command_eval, TRUE },
-		{ "@", TC_NONE, command_frame, TRUE },
-		{ "b", TC_NONE, command_break_on_error, TRUE },
-		{ "w", TC_NONE, command_watch, TRUE },
-
-		{ NULL }
-	};
-
-	static bool first = TRUE;
-	char *cmd = NULL;
-	char cmdbuf[64];
-	int len;
-	DEBUG_COMMAND *tc = NULL;
-	/*static int cpt = 0;*/
-
-	GB.FreeString(&_error);
-	if (error)
-		_error = GB.NewZeroString(GB_DEBUG.GetErrorMessage());
-
-	fflush(_out);
-
-	#ifdef DEBUG_ME
-	fprintf(stderr, "DEBUG_main {\n");
-	#endif
-
-	if (_fifo)
-	{
-		fprintf(_out, first ? "!!\n" : "!\n");
-		first = FALSE;
-	}
-
-	command_frame(NULL);
-
-	do
-	{
-		/*if (CP == NULL)
-			printf("[]:");
-		else
-			printf("[%s%s]:", DEBUG_get_current_position(), _error ? "*" : "");*/
-
-		GB.Component.Signal(GB_SIGNAL_DEBUG_BREAK, 0);
-
-		if (!_fifo)
-		{
-			fprintf(_out, "> ");
-			fflush(_out);
-		}
-
-		GB.FreeString(&cmd);
-
-		for(;;)
-		{
-			*cmdbuf = 0;
-			errno = 0;
-			if (fgets(cmdbuf, sizeof(cmdbuf), _in) == NULL && errno != EINTR)
-				break;
-			if (!*cmdbuf)
-				continue;
-			cmd = GB.AddString(cmd, cmdbuf, 0);
-			if (cmd[GB.StringLength(cmd) - 1] == '\n')
-				break;
-		}
-
-		len = GB.StringLength(cmd);
-		
-		// A null string command means an I/O error
-		if (len == 0)
-		{
-			fprintf(stderr, "warning: debugger I/O error: %s\n", strerror(errno));
-			exit(1);
-		}
-		
-		if (len > 0 && cmd[len - 1] == '\n')
-		{
-			len--;
-			cmd[len] = 0;
-		}
-		
-		#ifdef DEBUG_ME
-		fprintf(stderr, "--> %s\n", cmd);
-		#endif
-
-		if (len == 0)
-		{
-			if (last_command == TC_NONE)
-				continue;
-
-			for (tc = Command; tc->pattern; tc++)
-			{
-				if (tc->type == last_command)
-				{
-					(*tc->func)(cmd);
-					break;
-				}
-			}
-		}
-		else
-		{
-			for (tc = Command; tc->pattern; tc++)
-			{
-				if (strncasecmp(tc->pattern, cmd, strlen(tc->pattern)) == 0)
-				{
-					if (tc->type != TC_NONE)
-						last_command = tc->type;
-					(*tc->func)(cmd);
-					break;
-				}
-			}
-		}
-
-		if (tc->pattern == NULL)
-			WARNING("Unknown command: %s", cmd);
-
-		fflush(_out);
-	}
-	while (last_command == TC_NONE || tc->pattern == NULL || tc->loop);
-
-	GB.FreeString(&cmd);
-
-	#ifdef DEBUG_ME
-	fprintf(stderr, "} DEBUG_main\n");
-	#endif
-}
-
-
 
 void DEBUG_breakpoint(int id)
 {
@@ -1437,5 +1282,147 @@ bool DEBUG_check_watches(void)
 	
 	DEBUG_main(FALSE);
 	return TRUE;
+}
+
+
+void DEBUG_main(bool error)
+{
+	static DEBUG_TYPE last_command = TC_NONE;
+
+	static DEBUG_COMMAND Command[] =
+	{
+		{ "q", TC_NONE, command_quit, FALSE },
+		{ "n", TC_NEXT, command_next, FALSE },
+		{ "s", TC_STEP, command_step, FALSE },
+		{ "f", TC_FROM, command_from, FALSE },
+		{ "g", TC_GO, command_go, FALSE },
+		{ "+", TC_NONE, command_set_breakpoint, TRUE },
+		{ "-", TC_NONE, command_unset_breakpoint, TRUE },
+		{ "&", TC_NONE, command_symbol, TRUE },
+		{ "?", TC_NONE, command_eval, TRUE },
+		{ "!", TC_NONE, command_eval, TRUE },
+		{ "#", TC_NONE, command_eval, TRUE },
+		{ "=", TC_NONE, command_eval, TRUE },
+		{ "@", TC_NONE, command_frame, TRUE },
+		{ "b", TC_NONE, command_break_on_error, TRUE },
+		{ "w", TC_NONE, command_watch, TRUE },
+
+		{ NULL }
+	};
+
+	static bool first = TRUE;
+	char *cmd = NULL;
+	char cmdbuf[64];
+	int len;
+	DEBUG_COMMAND *tc = NULL;
+	/*static int cpt = 0;*/
+
+	GB.FreeString(&_error);
+	if (error)
+		_error = GB.NewZeroString(GB_DEBUG.GetErrorMessage());
+
+	fflush(_out);
+
+	#ifdef DEBUG_ME
+	fprintf(stderr, "DEBUG_main {\n");
+	#endif
+
+	if (_fifo)
+	{
+		fprintf(_out, first ? "!!\n" : "!\n");
+		first = FALSE;
+	}
+
+	command_frame(NULL);
+
+	do
+	{
+		/*if (CP == NULL)
+			printf("[]:");
+		else
+			printf("[%s%s]:", DEBUG_get_current_position(), _error ? "*" : "");*/
+
+		GB.Component.Signal(GB_SIGNAL_DEBUG_BREAK, 0);
+
+		if (!_fifo)
+		{
+			fprintf(_out, "> ");
+			fflush(_out);
+		}
+
+		GB.FreeString(&cmd);
+
+		for(;;)
+		{
+			*cmdbuf = 0;
+			errno = 0;
+			if (fgets(cmdbuf, sizeof(cmdbuf), _in) == NULL && errno != EINTR)
+				break;
+			if (!*cmdbuf)
+				continue;
+			cmd = GB.AddString(cmd, cmdbuf, 0);
+			if (cmd[GB.StringLength(cmd) - 1] == '\n')
+				break;
+		}
+
+		len = GB.StringLength(cmd);
+		
+		// A null string command means an I/O error
+		if (len == 0)
+		{
+			fprintf(stderr, "warning: debugger I/O error: %s\n", strerror(errno));
+			exit(1);
+		}
+		
+		if (len > 0 && cmd[len - 1] == '\n')
+		{
+			len--;
+			cmd[len] = 0;
+		}
+		
+		#ifdef DEBUG_ME
+		fprintf(stderr, "--> %s\n", cmd);
+		#endif
+
+		if (len == 0)
+		{
+			if (last_command == TC_NONE)
+				continue;
+
+			for (tc = Command; tc->pattern; tc++)
+			{
+				if (tc->type == last_command)
+				{
+					(*tc->func)(cmd);
+					break;
+				}
+			}
+		}
+		else
+		{
+			for (tc = Command; tc->pattern; tc++)
+			{
+				if (strncasecmp(tc->pattern, cmd, strlen(tc->pattern)) == 0)
+				{
+					if (tc->type != TC_NONE)
+						last_command = tc->type;
+					(*tc->func)(cmd);
+					break;
+				}
+			}
+		}
+
+		if (tc->pattern == NULL)
+			WARNING("Unknown command: %s", cmd);
+
+		fflush(_out);
+	}
+	while (last_command == TC_NONE || tc->pattern == NULL || tc->loop);
+
+	GB.FreeString(&cmd);
+
+	#ifdef DEBUG_ME
+	fprintf(stderr, "} DEBUG_main\n");
+	#endif
 }
 

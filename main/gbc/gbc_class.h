@@ -101,6 +101,7 @@ typedef
 		uint64_t byref;                // Byref mask
 		PARAM *local;                  // Datatypes of local variables
 		PARAM *param;                  // Datatypes of arguments
+		PARAM *stat;                   // Datatypes of static local variables
 
 		PATTERN *start;                // Starts compilation from there
 		
@@ -119,6 +120,9 @@ typedef
 		ushort last_code2;             // Last last compiled bytecode position
 		ushort finally;                // FINALLY position
 		ushort catch;                  // CATCH position
+		
+		short code_stack_usage;        // save state of code generation
+		short code_stack;		
 		}
 	FUNCTION;
 
@@ -232,13 +236,17 @@ void CLASS_delete(CLASS **class);
 
 CLASS_SYMBOL *CLASS_declare(CLASS *class, int index, int type, bool global);
 void CLASS_check_unused_global(CLASS *class);
-void CLASS_begin_init_function(CLASS *class, int type);
+FUNCTION *CLASS_set_current_init_function(CLASS *class, int type);
 
 int CLASS_add_function(CLASS *class, TRANS_FUNC *decl);
 void CLASS_add_event(CLASS *class, TRANS_EVENT *decl);
 void CLASS_add_property(CLASS *class, TRANS_PROPERTY *prop);
 void CLASS_add_extern(CLASS *class, TRANS_EXTERN *decl);
+
 void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl);
+void CLASS_add_static_declaration(CLASS *class, int index, TYPE type, CLASS_SYMBOL *sym, bool local);
+void CLASS_init_global_declaration(CLASS *class, TRANS_DECL *decl, CLASS_SYMBOL *sym, bool local);
+
 int CLASS_add_constant(CLASS *class, TRANS_DECL *decl);
 int CLASS_add_class(CLASS *class, int index);
 int CLASS_add_class_unused(CLASS *class, int index);
@@ -258,8 +266,6 @@ int CLASS_add_symbol(CLASS *class, const char *name);
 
 void CLASS_sort_declaration(CLASS *class);
 void CLASS_check_properties(CLASS *class);
-
-CLASS_SYMBOL *CLASS_get_local_symbol(int local);
 
 void CLASS_check_variable_prefix(CLASS_SYMBOL *sym, bool local);
 

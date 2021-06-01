@@ -263,13 +263,18 @@ static void trans_identifier(int index, bool point, PATTERN next)
 #if DEBUG
 	fprintf(stderr, "trans_identifier: %.*s\n", sym->symbol.len, sym->symbol.name);
 #endif
+	fprintf(stderr, "trans_identifier: %.*s %s\n", sym->symbol.len, sym->symbol.name, (!TYPE_is_null(sym->local.type) ? "local" : "global"));
 	
 	_last_symbol_used = NULL;
 	//fprintf(stderr, "_last_symbol_used = NULL\n");
 	
 	if (!TYPE_is_null(sym->local.type) && !point)
 	{
-		CODE_push_local(sym->local.value);
+		if (TYPE_is_static(sym->local.type))
+			CODE_push_global(sym->global.value, TRUE, FALSE);
+		else
+			CODE_push_local(sym->local.value);
+		
 		push_type(sym->local.type);
 		sym->local_used = TRUE;
 		_last_symbol_used = sym;

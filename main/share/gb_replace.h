@@ -33,7 +33,7 @@ int setenv(const char *name, const char *value, int overwrite);
 #endif
 
 #ifndef HAVE_UNSETENV
-void unsetenv(const char *name);
+int unsetenv(const char *name);
 #endif
 
 #ifndef HAVE_GETDOMAINNAME

@@ -4027,7 +4027,7 @@ static void _break(ushort code)
 		/*TC = PC + 1;
 		TP = SP;*/
 
-		//fprintf(stderr, "%s\n", DEBUG_get_current_position());
+		//fprintf(stderr, "%s %d\n", DEBUG_get_current_position(), DEBUG_info->watch);
 
 		if (CP && CP->component == NULL)
 		{

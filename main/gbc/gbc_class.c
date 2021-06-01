@@ -82,6 +82,7 @@ void CLASS_create(CLASS **result)
 static void delete_function(FUNCTION *func)
 {
 	ARRAY_delete(&func->local);
+	ARRAY_delete(&func->stat);
 	if (func->code)
 		FREE(&func->code);
 
@@ -273,6 +274,7 @@ int CLASS_add_function(CLASS *class, TRANS_FUNC *decl)
 	func->name = NO_SYMBOL;
 
 	ARRAY_create(&func->local);
+	ARRAY_create(&func->stat);
 	//ARRAY_create_inc(&func->code, 512);
 	func->code = NULL;
 	func->ncode = 0;
@@ -687,13 +689,62 @@ int CLASS_add_array(CLASS *class, TRANS_ARRAY *array)
 }
 
 
-void CLASS_begin_init_function(CLASS *class, int type)
+FUNCTION *CLASS_set_current_init_function(CLASS *class, int type)
 {
 	FUNCTION *func = &class->function[type];
-	CODE_begin_function(func);
 	JOB->func = func;
+	return CODE_set_function(func);
 }
 
+
+void CLASS_add_static_declaration(CLASS *class, int index, TYPE type, CLASS_SYMBOL *sym, bool local)
+{
+	VARIABLE *var;
+	int count = ARRAY_count(class->stat);
+	
+	if (count >= MAX_CLASS_SYMBOL)
+		THROW("Too many static variables");
+	
+	if (local)
+		sym->local.value = count;
+	else
+		sym->global.value = count;
+	
+	var = ARRAY_add(&class->stat);
+
+	var->type = type;
+	var->index = index;
+
+	class->has_static = TRUE;
+}
+
+
+void CLASS_init_global_declaration(CLASS *class, TRANS_DECL *decl, CLASS_SYMBOL *sym, bool local)
+{
+	FUNCTION *prev_func;
+	bool is_static;
+	
+	if (!TRANS_has_init_var(decl))
+		return;
+	
+	is_static = TYPE_is_static(decl->type);
+	prev_func = CLASS_set_current_init_function(class, is_static ? FUNC_INIT_STATIC : FUNC_INIT_DYNAMIC);
+
+	FUNCTION_add_all_pos_line();
+	TRANS_init_var(decl);
+	if (local)
+	{
+		CODE_pop_global(sym->local.value, is_static);
+		sym->local_assigned = TRUE;
+	}
+	else
+	{
+		CODE_pop_global(sym->global.value, is_static);
+		sym->global_assigned = TRUE;
+	}
+	
+	CODE_set_function(prev_func);
+}
 
 void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)
 {
@@ -724,26 +775,8 @@ void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)
 	}
 	else if (TYPE_is_static(decl->type))
 	{
-		count = ARRAY_count(class->stat);
-		if (count >= MAX_CLASS_SYMBOL)
-			THROW("Too many static variables");
-		
-		sym->global.value = count;
-		var = ARRAY_add(&class->stat);
-
-		var->type = decl->type;
-		var->index = decl->index;
-
-		CLASS_begin_init_function(class, FUNC_INIT_STATIC);
-
-		if (TRANS_has_init_var(decl))
-		{
-			FUNCTION_add_all_pos_line();
-			TRANS_init_var(decl);
-			CODE_pop_global(sym->global.value, TRUE);
-			sym->global_assigned = TRUE;
-		}
-		class->has_static = TRUE;
+		CLASS_add_static_declaration(class, decl->index, decl->type, sym, FALSE);
+		CLASS_init_global_declaration(class, decl, sym, FALSE);
 	}
 	else
 	{
@@ -757,7 +790,9 @@ void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)
 		var->type = decl->type;
 		var->index = decl->index;
 
-		CLASS_begin_init_function(class, FUNC_INIT_DYNAMIC);
+		CLASS_init_global_declaration(class, decl, sym, FALSE);
+		
+		/*CLASS_begin_init_function(class, FUNC_INIT_DYNAMIC);
 
 		if (TRANS_has_init_var(decl))
 		{
@@ -765,7 +800,7 @@ void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)
 			TRANS_init_var(decl);
 			CODE_pop_global(sym->global.value, FALSE);
 			sym->global_assigned = TRUE;
-		}
+		}*/
 	}
 	
 	CLASS_check_variable_prefix(sym, FALSE);
@@ -975,15 +1010,6 @@ void CLASS_check_properties(CLASS *class)
 				prop->write = NO_SYMBOL;
 		}
 	}
-}
-
-
-CLASS_SYMBOL *CLASS_get_local_symbol(int local)
-{
-	PARAM *param;
-	
-	param = &JOB->func->local[local];
-	return (CLASS_SYMBOL *)TABLE_get_symbol(JOB->class->table, param->index);
 }
 
 

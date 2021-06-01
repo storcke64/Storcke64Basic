@@ -46,23 +46,31 @@ static CLASS_SYMBOL *add_local(int sym_index, TYPE type, int value, bool used)
 	PARAM *loc;
 	bool warnings = JOB->warnings;
 
-	if (value > MAX_LOCAL_SYMBOL)
-		THROW("Too many local variables");
-
-	loc = ARRAY_add(&_func->local);
-	loc->index = sym_index;
-	loc->type = type;
-	loc->value = value;
-
 	if (used)
 		JOB->warnings = FALSE;
 	sym = CLASS_declare(JOB->class, sym_index, TK_VARIABLE, FALSE);
 	if (used)
 		JOB->warnings = warnings;
 
+	if (TYPE_is_static(type))
+	{
+		CLASS_add_static_declaration(JOB->class, sym_index, type, sym, TRUE);
+		loc = ARRAY_add(&_func->stat);
+	}
+	else
+	{
+		if (value > MAX_LOCAL_SYMBOL)
+			THROW("Too many local variables");
+
+		sym->local.value = value;
+		sym->local_used = used;
+		loc = ARRAY_add(&_func->local);
+	}
+
+	loc->index = sym_index;
+	loc->type = type;
+	loc->value = sym->local.value;
 	sym->local.type = type;
-	sym->local.value = value;
-	sym->local_used = used;
 	
 	CLASS_check_variable_prefix(sym, TRUE);
 	return sym;
@@ -84,30 +92,33 @@ static void create_local_from_param()
 	JOB->line++;
 }
 
+static void check_local(CLASS_SYMBOL *sym)
+{
+	if (!sym->local_used)
+	{
+		if (sym->local.value < 0)
+			COMPILE_print(MSG_WARNING, sym->local.line, "unused argument: &1", SYMBOL_get_name(&sym->symbol));
+		else
+			COMPILE_print(MSG_WARNING, sym->local.line, "unused variable: &1", SYMBOL_get_name(&sym->symbol));
+	}
+	else if (!sym->local_assigned)
+	{
+		if (sym->local.value >= 0)
+			COMPILE_print(MSG_WARNING, sym->local.line, "uninitialized variable: &1", SYMBOL_get_name(&sym->symbol));
+	}
+
+	TYPE_clear(&sym->local.type);
+}
+
 static void remove_local()
 {
 	int i;
-	CLASS_SYMBOL *sym;
 
 	for (i = 0; i < ARRAY_count(_func->local); i++)
-	{
-		sym = CLASS_get_symbol(JOB->class, _func->local[i].index);
-
-		if (!sym->local_used)
-		{
-			if (sym->local.value < 0)
-				COMPILE_print(MSG_WARNING, sym->local.line, "unused argument: &1", SYMBOL_get_name(&sym->symbol));
-			else
-				COMPILE_print(MSG_WARNING, sym->local.line, "unused variable: &1", SYMBOL_get_name(&sym->symbol));
-		}
-		else if (!sym->local_assigned)
-		{
-			if (sym->local.value >= 0)
-				COMPILE_print(MSG_WARNING, sym->local.line, "uninitialized variable: &1", SYMBOL_get_name(&sym->symbol));
-		}
-
-		TYPE_clear(&sym->local.type);
-	}
+		check_local(CLASS_get_symbol(JOB->class, _func->local[i].index));
+	
+	for (i = 0; i < ARRAY_count(_func->stat); i++)
+		check_local(CLASS_get_symbol(JOB->class, _func->stat[i].index));
 }
 
 
@@ -120,12 +131,14 @@ static bool TRANS_local(void)
 	int f;
 	bool no_warning;
 	bool save_warnings;
+	bool is_static;
 
-	if (!TRANS_is(RS_DIM))
+	if (TRANS_is(RS_DIM))
+		is_static = FALSE;
+	else if (TRANS_is(RS_STATIC))
+		is_static = TRUE;
+	else
 		return FALSE;
-	/*JOB->current++;
-	else if (!TRANS_check_declaration())
-		return FALSE;*/
 
 	for(;;)
 	{
@@ -158,6 +171,9 @@ static bool TRANS_local(void)
 
 		if (!TRANS_type(f, &decl))
 			THROW(E_SYNTAX);
+		
+		if (is_static)
+			TYPE_set_flag(&decl.type, TF_STATIC);
 
 		for(;;)
 		{
@@ -181,16 +197,26 @@ static bool TRANS_local(void)
 				JOB->warnings = save_warnings;
 			}
 
-			_func->nlocal++;
-
-			if (TRANS_init_var(&decl))
+			if (is_static)
 			{
-				CODE_pop_local(_func->nlocal - 1);
-				sym->local_assigned = TRUE;
+				CLASS_init_global_declaration(JOB->class, &decl, sym, TRUE);
+				
+				if (COMP_verbose)
+					printf("STATIC %s AS %s\n", TABLE_get_symbol_name(JOB->class->table, sym_index), TYPE_get_desc(decl.type));
 			}
+			else
+			{
+				_func->nlocal++;
 
-			if (COMP_verbose)
-				printf("LOCAL %s AS %s\n", TABLE_get_symbol_name(JOB->class->table, sym_index), TYPE_get_desc(decl.type));
+				if (TRANS_init_var(&decl))
+				{
+					CODE_pop_local(sym->local.value);
+					sym->local_assigned = TRUE;
+				}
+
+				if (COMP_verbose)
+					printf("DIM %s AS %s\n", TABLE_get_symbol_name(JOB->class->table, sym_index), TYPE_get_desc(decl.type));
+			}
 
 			if (!PATTERN_is(*pattern, RS_COMMA))
 				break;
@@ -234,7 +260,7 @@ int TRANS_loop_local(bool allow_arg)
 		}
 	}
 	
-	if (TYPE_is_null(sym->local.type))
+	if (TYPE_is_null(sym->local.type) || TYPE_is_static(sym->local.type))
 	{
 		if (TYPE_is_null(sym->global.type))
 			THROW("Unknown identifier: &1", TABLE_get_symbol_name(JOB->class->table, sym_index));
@@ -400,12 +426,6 @@ static void translate_body()
 			if (TRANS_is_end_function(is_proc, &look[1]))
 				break;
 
-		/*if (PATTERN_is_newline(look[0]))
-		{
-			JOB->current++;
-			JOB->line++;
-			continue;
-		}*/
 		if (TRANS_newline())
 			continue;
 
@@ -416,7 +436,7 @@ static void translate_body()
 			just_got_select = FALSE;
 		}
 
-		if (PATTERN_is(look[0], RS_DIM))
+		if (PATTERN_is(look[0], RS_DIM) || PATTERN_is(look[0], RS_STATIC))
 		{
 			TRANS_local();
 		}

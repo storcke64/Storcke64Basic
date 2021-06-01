@@ -21,7 +21,7 @@
 
 ***************************************************************************/
 
-//#define DEBUG
+#define DEBUG
 
 #define write_Zxxx(code, val)  write_short(code | ((short)val & 0x0FFF))
 #define write_Z8xx(code, val)  write_short(code | ((short)val & 0x07FF))
@@ -55,7 +55,7 @@ static bool _ignore_next_stack_usage = FALSE;
 #define cur_func EVAL
 #else
 static FUNCTION *cur_func = NULL;
-static int last_line = 0;
+//static int last_line = 0;
 #endif
 
 static void alloc_code(void)
@@ -191,15 +191,32 @@ void CODE_end_function()
 
 #else
 
+FUNCTION *CODE_set_function(FUNCTION *func)
+{
+	FUNCTION *prev = cur_func;
+	
+	if (cur_func)
+	{
+		cur_func->code_stack = CODE_stack;
+		cur_func->code_stack_usage = CODE_stack_usage;
+	}
+	
+	cur_func = func;
+	CODE_stack = cur_func->code_stack;
+	CODE_stack_usage = cur_func->code_stack_usage;
+	
+	return prev;
+}
+
 void CODE_begin_function(FUNCTION *func)
 {
-	cur_func = func;
-	CODE_stack = 0;
-	CODE_stack_usage = 0;
-	if (func->start == NULL)
+	func->code_stack = func->code_stack_usage = 0;
+	CODE_set_function(func);
+
+	/*if (func->start == NULL)
 		last_line = (-1);
 	else
-		last_line = 0;
+		last_line = 0;*/
 }
 
 void CODE_end_function(FUNCTION *func)

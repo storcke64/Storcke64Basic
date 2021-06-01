@@ -1075,7 +1075,7 @@ static bool header_use(void)
 	if (!TRANS_is(RS_USE))
 		return FALSE;
 
-	CLASS_begin_init_function(JOB->class, FUNC_INIT_STATIC);
+	CLASS_set_current_init_function(JOB->class, FUNC_INIT_STATIC);
 
 	for(;;)
 	{

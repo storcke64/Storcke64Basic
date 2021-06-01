@@ -1091,9 +1091,20 @@ static void output_debug_method()
 		{
 			TABLE_create(&table, sizeof(OUTPUT_SYMBOL), TF_IGNORE_CASE);
 
-			for (j = 0; j < func->nlocal + func->nparam; j++)
+			//for (j = 0; j < func->nlocal + func->nparam; j++)
+			for (j = 0; j < ARRAY_count(func->local); j++)
 			{
 				param = &func->local[j];
+				
+				name = get_symbol_name(_class->table, param->index, &len);
+				index = TABLE_add_symbol(table, name, len);
+				osym = (OUTPUT_SYMBOL *)TABLE_get_symbol(table, index);
+				osym->value = param->value;/*TYPE_long(param->type);*/
+			}
+
+			for (j = 0; j < ARRAY_count(func->stat); j++)
+			{
+				param = &func->stat[j];
 				
 				name = get_symbol_name(_class->table, param->index, &len);
 				index = TABLE_add_symbol(table, name, len);

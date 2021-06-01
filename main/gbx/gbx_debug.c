@@ -176,12 +176,21 @@ bool DEBUG_get_value(const char *sym, int len, GB_VARIANT *ret)
 
 	if (DEBUG_info->fp)
 	{
+		int n_local = DEBUG_info->fp->n_param + DEBUG_info->fp->n_local;
+		
 		for (i = 0; i < DEBUG_info->fp->debug->n_local; i++)
 		{
 			lp = &DEBUG_info->fp->debug->local[i];
 			if (len == lp->sym.len && strncasecmp(sym, lp->sym.name, len) == 0)
 			{
-				if (lp->value >= 0)
+				if (i >= n_local)
+				{
+					var = &DEBUG_info->cp->load->stat[lp->value];
+					addr = (char *)DEBUG_info->cp->stat + var->pos;
+					ref = DEBUG_info->cp;
+					VALUE_class_read(DEBUG_info->cp, &value, addr, var->type, ref);
+				}
+				else if (lp->value >= 0)
 					value = DEBUG_info->bp[lp->value];
 				else
 					value = DEBUG_info->pp[lp->value];
