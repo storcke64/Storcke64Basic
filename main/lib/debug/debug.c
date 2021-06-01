@@ -772,6 +772,26 @@ static void debug_info()
 	fprintf(_out, "\n");
 }
 
+static void set_info(STACK_CONTEXT *context)
+{
+	if (context)
+	{
+		DEBUG_info.bp = context->bp;
+		DEBUG_info.pp = context->pp;
+		DEBUG_info.fp = context->fp;
+		DEBUG_info.op = context->op;
+		DEBUG_info.cp = context->cp;
+	}
+	else
+	{
+		DEBUG_info.bp = BP;
+		DEBUG_info.pp = PP;
+		DEBUG_info.fp = FP;
+		DEBUG_info.op = OP;
+		DEBUG_info.cp = CP;
+	}
+}
+
 static void command_frame(char *cmd)
 {
 	int i;
@@ -795,27 +815,12 @@ static void command_frame(char *cmd)
 				
 				frame--;
 				if (!frame)
-				{
-					DEBUG_info.bp = context->bp;
-					DEBUG_info.pp = context->pp;
-					DEBUG_info.fp = context->fp;
-					DEBUG_info.op = context->op;
-					DEBUG_info.cp = context->cp;
 					break;
-				}
 			}
 		}
 	}
 
-	if (!context)
-	{
-		DEBUG_info.bp = BP;
-		DEBUG_info.pp = PP;
-		DEBUG_info.fp = FP;
-		DEBUG_info.op = OP;
-		DEBUG_info.cp = CP;
-	}
-
+	set_info(context);
 	debug_info();
 }
 
@@ -938,7 +943,8 @@ static int add_watch(int id, EXPRESSION *expr, VALUE *value)
 	DEBUG_WATCH *watch = (DEBUG_WATCH *)GB.Add(&_watches);
 	watch->id = id;
 	watch->expr = expr;
-	watch->value = *value;
+	if (value)
+		watch->value = *value;
 	return GB.Count(_watches) - 1;
 }
 
@@ -1325,10 +1331,10 @@ static bool compare_values(VALUE *a, VALUE *b)
 		&&__DATE, &&__STRING, &&__STRING, &&__POINTER, &&__VARIANT, &&__FUNCTION, &&__CLASS, &&__NULL
 	};
 	
-	/*void *vjump[] = {
-		__VOID, __VBOOLEAN, __VBYTE, __VSHORT, __VINTEGER, __VLONG, __VSINGLE, __VFLOAT, 
-		__VDATE, __VSTRING, __VSTRING, __VPOINTER, __VOID, __VOID, __VOID, __VOID
-	};*/
+	void *vjump[] = {
+		&&__VOID, &&__VBOOLEAN, &&__VBYTE, &&__VSHORT, &&__VINTEGER, &&__VLONG, &&__VSINGLE, &&__VFLOAT, 
+		&&__VDATE, &&__VSTRING, &&__VSTRING, &&__VPOINTER, &&__VOID, &&__VOID, &&__VOID, &&__VOID
+	};
 	
 	if (a->type != b->type)
 		return TRUE;
@@ -1369,10 +1375,25 @@ __CLASS:
 __FUNCTION:
 	return a->_function.class != b->_function.class || a->_function.object != b->_function.object || a->_function.index != b->_function.index;
 	
-	
 __VARIANT:
-	return a->_variant.vtype != b->_variant.vtype || a->_variant.value.data != b->_variant.value.data;
+	if (a->_variant.vtype != b->_variant.vtype)
+		return TRUE;
+	
+	if (TYPE_is_object(a->_variant.vtype))
+		goto __VOBJECT;
+	else
+		goto *vjump[a->_variant.vtype];
+	
+__VBOOLEAN: return a->_variant.value._boolean != b->_variant.value._boolean;
+__VBYTE: return a->_variant.value._byte != b->_variant.value._byte;
+__VSHORT: return a->_variant.value._short != b->_variant.value._short;
+__VINTEGER: return a->_variant.value._integer != b->_variant.value._integer;
+__VDATE: __VLONG: return a->_variant.value._long != b->_variant.value._long;
+__VSINGLE: return a->_variant.value._single!= b->_variant.value._single;
+__VFLOAT: return a->_variant.value._float != b->_variant.value._float;
+__VPOINTER: __VOBJECT: __VSTRING: return a->_variant.value._string != b->_variant.value._string;
 }
+
 
 bool DEBUG_check_watches(void)
 {
@@ -1383,6 +1404,8 @@ bool DEBUG_check_watches(void)
 	ERROR_INFO save_error = { 0 };
 	ERROR_INFO save_last = { 0 };
 	DEBUG_INFO save_debug;
+	
+	set_info(NULL);
 	
 	GB_DEBUG.SaveError(&save_error, &save_last);
 	save_debug = DEBUG_info;
