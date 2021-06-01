@@ -614,10 +614,15 @@ static void trans_call(const char *name, int nparam)
 
 void TRANS_code(void)
 {
-	int i;
+	int i, j, n;
 
-	for (i = 0; i < ARRAY_count(JOB->class->function); i++)
+	// We must compile initialization functions at the end, because static local variables can modify them.
+	
+	n = ARRAY_count(JOB->class->function);
+	for (j = 0; j < n; j++)
 	{
+		i = (j + FUNC_INIT_MAX + 1) % n;
+		
 		_func = &JOB->class->function[i];
 		
 		CODE_begin_function(_func);

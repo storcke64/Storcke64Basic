@@ -30,6 +30,7 @@
 
 #define FUNC_INIT_STATIC    0
 #define FUNC_INIT_DYNAMIC   1
+#define FUNC_INIT_MAX       1
 
 typedef
 	struct {
@@ -236,7 +237,9 @@ void CLASS_delete(CLASS **class);
 
 CLASS_SYMBOL *CLASS_declare(CLASS *class, int index, int type, bool global);
 void CLASS_check_unused_global(CLASS *class);
-FUNCTION *CLASS_set_current_init_function(CLASS *class, int type);
+
+FUNCTION *CLASS_set_current_function(FUNCTION *func);
+#define CLASS_set_current_init_function(_class, _type) CLASS_set_current_function(&(_class)->function[_type])
 
 int CLASS_add_function(CLASS *class, TRANS_FUNC *decl);
 void CLASS_add_event(CLASS *class, TRANS_EVENT *decl);

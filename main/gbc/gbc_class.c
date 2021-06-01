@@ -689,9 +689,8 @@ int CLASS_add_array(CLASS *class, TRANS_ARRAY *array)
 }
 
 
-FUNCTION *CLASS_set_current_init_function(CLASS *class, int type)
+FUNCTION *CLASS_set_current_function(FUNCTION *func)
 {
-	FUNCTION *func = &class->function[type];
 	JOB->func = func;
 	return CODE_set_function(func);
 }
@@ -743,7 +742,7 @@ void CLASS_init_global_declaration(CLASS *class, TRANS_DECL *decl, CLASS_SYMBOL 
 		sym->global_assigned = TRUE;
 	}
 	
-	CODE_set_function(prev_func);
+	CLASS_set_current_function(prev_func);
 }
 
 void CLASS_add_declaration(CLASS *class, TRANS_DECL *decl)

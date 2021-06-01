@@ -388,12 +388,6 @@ static void compile_file(const char *file)
 	COMPILE_load();
 	BUFFER_add(&JOB->source, "\n\0", 2);
 
-	#if 0
-	fprintf(stderr, "-----------------\n");
-	fputs(JOB->source, stderr);
-	fprintf(stderr, "-----------------\n");
-	#endif
-
 	JOB->step = JOB_STEP_READ;
 	READ_do();
 
