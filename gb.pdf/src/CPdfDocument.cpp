@@ -766,8 +766,10 @@ BEGIN_PROPERTY(PDFINDEX_is_open)
 
 	if (VPROP(GB_INTEGER))
 		item->open();
+#ifndef POPPLER_VERSION_21_06_0
 	else
 		item->close();
+#endif
 
 END_PROPERTY
 
