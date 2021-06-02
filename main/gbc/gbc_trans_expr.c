@@ -270,7 +270,7 @@ static void trans_identifier(int index, bool point, PATTERN next)
 	if (!TYPE_is_null(sym->local.type) && !point)
 	{
 		if (TYPE_is_static(sym->local.type))
-			CODE_push_global(sym->global.value, TRUE, FALSE);
+			CODE_push_global(sym->local.value, TRUE, FALSE);
 		else
 			CODE_push_local(sym->local.value);
 		
