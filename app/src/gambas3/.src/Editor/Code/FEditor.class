@@ -1597,7 +1597,7 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean) As 
         If aSym[0] = "END" Then Break
       Endif
       If aSym.Count >= 4 Then
-        If aSym[0] = "DIM" Then
+        If aSym[0] = "DIM" Or If aSym[0] = "STATIC" Then
           If ReadLocalSymbolType(aSym, 1, sSymbol, $hVirtualSymbol) Then
             With $hVirtualSymbol
               '.Name = aSym[1]
@@ -1605,6 +1605,7 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean) As 
               .Kind = "l"
               .LineNumber = iLine + 1
               .NotPublic = True
+              .IsStatic = aSym[0] = "STATIC"
               '.Type = sType
             End With
             $hSymbol = $hVirtualSymbol
@@ -3657,7 +3658,7 @@ Private Sub AddLocalVariable(sName As String, sType As String)
     
     If sLine And If Left(sLine) <> "'" Then
       Highlight.Analyze(sLine)
-      If Highlight.Symbols[0] = "DIM" Then
+      If Highlight.Symbols[0] = "DIM" Or If Highlight.Symbols[0] = "STATIC" Then
         iIndent = GetIndent($hEditor[I].Text)
       Else If GetIndent($hEditor[I].Text) <= iIndent Then
         Break
