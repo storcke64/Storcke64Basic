@@ -1419,19 +1419,16 @@ Public Sub ReadBreakpoints()
 
   Dim iInd As Integer
   Dim sBreakpoint As String
-  Dim bDisabled As Boolean
+  Dim aDisabled As Integer[]
   
   ClearBreakpoints
 
+  aDisabled = Project.Config["/Breakpoints/Disabled"]
+  If Not aDisabled Then aDisabled = New Integer[]
+
   For iInd = 1 To Project.Config["/Breakpoints/Count", 0]
     sBreakpoint = Project.Config["/Breakpoints/Breakpoint[" & CStr(iInd) & "]"]
-    If Left(sBreakpoint) = "!" Then
-      sBreakpoint = Mid$(sBreakpoint, 2)
-      bDisabled = True
-    Else
-      bDisabled = False
-    Endif
-    SetBreakpoint(sBreakpoint, True, bDisabled)
+    SetBreakpoint(sBreakpoint, True, aDisabled.Exist(iInd))
     'SetBreakpointFromString(sBreakpoint, True, bDisabled)
   Next
   
@@ -1511,17 +1508,19 @@ Public Sub WriteBreakpoints()
   
   Dim iCount As Integer
   Dim sBreakpoint As String
+  Dim aDisable As New Integer[]
 
   'IF NOT Project.Config THEN RETURN
 
   Project.Config.Clear("/Breakpoints")
 
   For Each sBreakpoint In $aBreakpoint
-    If $cDisabledBreakpoint.Exist(sBreakpoint) Then sBreakpoint = "!" & sBreakpoint
     Inc iCount
     Project.Config["/Breakpoints/Breakpoint[" & CStr(iCount) & "]"] = sBreakpoint
+    If $cDisabledBreakpoint.Exist(sBreakpoint) Then aDisable.Add(iCount)
   Next
 
+  Project.Config["/Breakpoints/Disabled"] = aDisable
   Project.Config["/Breakpoints/Count"] = iCount
 
 End

@@ -293,6 +293,7 @@ Public Sub btnKillWatch_Click()
   If sKey Begins "@" Then 
     If sKey = "@" Then Return
     cvwVariable.Remove(sKey)
+    RemoveTrack(Mid$(sKey, 2))
     If cvwVariable["@"].Children = 0 Then cvwVariable.Remove("@")
   Endif
   
@@ -445,6 +446,8 @@ Public Sub WriteWatchSettings()
   Dim iInd As Integer
   Dim sFlag As String
   Dim iCount As Integer
+  Dim sExpr As String
+  Dim aTrack As New Integer[]
   
   sFlag = "/Watches"
   iInd = 0
@@ -459,11 +462,15 @@ Public Sub WriteWatchSettings()
     cvwVariable.MoveChild()
     While cvwVariable.Available
       Inc iInd
-      Project.Config[sFlag &/ "Watch[" & CStr(iInd) & "]"] = cvwVariable.item.Text
+      sExpr = cvwVariable.item.Text
+      Project.Config[sFlag &/ "Watch[" & CStr(iInd) & "]"] = sExpr
+      If $cTrack.Exist("@" & sExpr) Then aTrack.Add(iInd)
       cvwVariable.MoveNext()
     Wend
     
   Endif
+  
+  If aTrack.Count Then Project.Config[sFlag &/ "Track"] = aTrack
   
 End
 
@@ -473,16 +480,20 @@ Public Sub ReadWatchSettings()
   Dim iInd As Integer
   Dim sFlag As String
   Dim sExpr As String
+  Dim aTrack As Integer[]
   
   sFlag = "/Watches"
   iInd = 0
   iCount = Project.Config[sFlag &/ "Count", "0"]
+  aTrack = Project.Config[sFlag &/ "Track"]
+  If Not aTrack Then aTrack = New Integer[]
   
   Try cvwVariable.Remove("@")
   
   For iInd = 1 To iCount
     sExpr = Project.Config[sFlag &/ "Watch[" & CStr(iInd) & "]"]
     AddResultWatch(sExpr)
+    If aTrack.Exist(iInd) Then AddTrack(sExpr)
   Next
   
 End
@@ -1652,6 +1663,20 @@ Private Sub AddTrack(sExpr As String)
 
 End
 
+Private Sub RemoveTrack(sExpr As String)
+  
+  Dim iId As Integer
+  
+  sExpr = "@" & sExpr
+  If Not $cTrack.Exist(sExpr) Then Return
+  
+  iId = $cTrack[sExpr]
+  Design.Command("w" & CStr(iId))
+  $cTrack.Remove(iId)
+  $cTrack.Remove(sExpr)
+  
+End
+
 Public Sub btnAddTrack_Click()
 
   Dim sExpr As String
@@ -1682,10 +1707,7 @@ ADD_WATCH:
   
 REMOVE_WATCH:
 
-  iId = $cTrack[sKey]
-  Design.Command("w" & CStr(iId))
-  $cTrack.Remove(iId)
-  $cTrack.Remove(sKey)
+  RemoveTrack(sExpr)
   UpdateWatch(sExpr)
   Return
   
@@ -1701,6 +1723,12 @@ Public Sub btnKillAllWatch_Click()
     Design.Command("w" & $cTrack.Key)
   Next
 
+End
+
+Public Sub IsWatch(sExpr As String) As Boolean
+  
+  Return $cTrack.Exist(sExpr)
+  
 End
 
 Public Sub GetWatches() As String
