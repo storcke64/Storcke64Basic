@@ -3,7 +3,8 @@
 Public Sub Main()
 
 
-  Dialog.SelectFont
+  Dialog.Key = "test-the-key"
+  Dialog.OpenFile()
 
 
 End
