@@ -122,7 +122,18 @@ TYPE JIT_ctype_to_type(CLASS *class, CTYPE ctype)
 
 static void JIT_begin(void)
 {
+	char *p;
+	
 	JIT_prefix = STR_lower(JIT_class->name);
+	
+	p = JIT_prefix;
+	while (*p)
+	{
+		if (*p == ':')
+			*p = '$';
+		p++;
+	}
+	
 	_buffer = NULL;
 	_buffer_decl = NULL;
 	JIT_print("\n//////// %s\n\n", JIT_class->name);
