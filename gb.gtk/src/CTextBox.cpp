@@ -36,6 +36,7 @@
 DECLARE_EVENT(EVENT_Change);
 DECLARE_EVENT(EVENT_Activate);
 DECLARE_EVENT(EVENT_Click);
+DECLARE_EVENT(EVENT_Cursor);
 
 
 static void cb_change(gTextBox *sender)
@@ -48,6 +49,12 @@ static void cb_activate(gTextBox *sender)
 {
 	CWIDGET *_object = GetObject((gControl*)sender);
 	GB.Raise(THIS, EVENT_Activate, 0);
+}
+
+static void cb_cursor(gTextBox *sender)
+{
+	CWIDGET *_object = GetObject((gControl*)sender);
+	GB.Raise(THIS, EVENT_Cursor, 0);
 }
 
 /***************************************************************************
@@ -68,6 +75,7 @@ BEGIN_METHOD(TextBox_new, GB_OBJECT parent)
 	InitControl(new gTextBox(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	TEXTBOX->onChange = cb_change;
 	TEXTBOX->onActivate = cb_activate;
+	TEXTBOX->onCursor = cb_cursor;
 	
 END_METHOD
 
@@ -275,6 +283,7 @@ BEGIN_METHOD(ComboBox_new, GB_OBJECT parent)
 	COMBOBOX->onClick = cb_click;
 	COMBOBOX->onChange = cb_change;
 	COMBOBOX->onActivate = cb_activate;
+	COMBOBOX->onCursor = cb_cursor;
 
 END_METHOD
 
@@ -476,6 +485,7 @@ GB_DESC CTextBoxDesc[] =
 
 	GB_EVENT("Change", 0, 0, &EVENT_Change),
 	GB_EVENT("Activate", 0, 0, &EVENT_Activate),
+	GB_EVENT("Cursor", 0, 0, &EVENT_Cursor),
 	
 	TEXTBOX_DESCRIPTION,
 
@@ -531,6 +541,7 @@ GB_DESC CComboBoxDesc[] =
 	
 	GB_EVENT("Change", 0, 0, &EVENT_Change),
 	GB_EVENT("Activate", 0, 0, &EVENT_Activate),
+	GB_EVENT("Cursor", 0, 0, &EVENT_Cursor),
 	GB_EVENT("Click", 0, 0, &EVENT_Click),
 
 	COMBOBOX_DESCRIPTION,

@@ -107,9 +107,18 @@ static void cb_change_delete(GtkEditable *editable, gint start_pos, gint end_pos
 	}
 }
 
-static void cb_activate(GtkEntry *editable,gTextBox *data)
+static void cb_activate(GtkEntry *editable, gTextBox *data)
 {
 	data->emit(SIGNAL(data->onActivate));
+}
+
+static void cb_cursor(GtkWidget *entry, GParamSpec *param, gTextBox *data)
+{
+	if (data->_last_position != data->position())
+	{
+		data->_last_position = data->position();
+		data->emit(SIGNAL(data->onCursor));
+	}
 }
 
 gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
@@ -121,6 +130,7 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	_has_border = true;
 	_has_native_popup = true;
 	_text_area_visible = true;
+	_last_position = 0;
 
 	if (!combo)
 	{
@@ -137,6 +147,7 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	
 	onChange = NULL;
 	onActivate = NULL;
+	onCursor = NULL;
 }
 
 gTextBox::~gTextBox()
@@ -163,6 +174,7 @@ void gTextBox::initEntry()
 	g_signal_connect_after(G_OBJECT(entry), "insert-text", G_CALLBACK(cb_change_insert), (gpointer)this);
 	g_signal_connect_after(G_OBJECT(entry), "delete-text", G_CALLBACK(cb_change_delete), (gpointer)this);
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(cb_activate), (gpointer)this);
+	g_signal_connect(G_OBJECT(entry), "notify::cursor-position", G_CALLBACK(cb_cursor), (gpointer)this);
 	//g_signal_connect(getInputMethod(), "commit", G_CALLBACK(cb_im_commit), (gpointer)this);
 }
 
@@ -173,16 +185,21 @@ char* gTextBox::text()
 
 void gTextBox::setText(const char *vl)
 {
+	int save;
+	
 	if (!vl) vl = "";
 	
 	if (!entry || !strcmp(vl, text()))
 		return;
-		
+	
+	save = _last_position;
 	lock();
 	gtk_entry_set_text(GTK_ENTRY(entry), vl);
 	gtk_editable_set_position(GTK_EDITABLE(entry), -1);
 	unlock();
 	emit(SIGNAL(onChange));
+	_last_position = save;
+	cb_cursor(entry, NULL, this);
 }
 
 #ifdef GTK3

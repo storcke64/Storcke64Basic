@@ -73,6 +73,7 @@ public:
 //"Signals"
 	void (*onChange)(gTextBox *sender);
 	void (*onActivate)(gTextBox *sender);
+	void (*onCursor)(gTextBox *sender);
 
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
@@ -92,6 +93,8 @@ public:
 	unsigned _changed : 1;
 	unsigned _has_border : 1;
 	unsigned _text_area_visible : 1;
+	
+	int _last_position;
 
 #ifndef GTK3
 	char *_placeholder;

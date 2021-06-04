@@ -38,6 +38,7 @@
 DECLARE_EVENT(EVENT_Change);
 DECLARE_EVENT(EVENT_Activate);
 DECLARE_EVENT(EVENT_Click);
+DECLARE_EVENT(EVENT_Cursor);
 
 #define MAX_LEN 32767
 
@@ -83,6 +84,7 @@ BEGIN_METHOD(TextBox_new, GB_OBJECT parent)
 
 	QObject::connect(wid, SIGNAL(textChanged(const QString &)), &CTextBox::manager, SLOT(onChange()));
 	QObject::connect(wid, SIGNAL(returnPressed()), &CTextBox::manager, SLOT(onActivate()));
+	QObject::connect(wid, SIGNAL(cursorPositionChanged(int, int)), &CTextBox::manager, SLOT(onCursor()));
 	//QObject::connect(wid, SIGNAL(selectionChanged()), &CTextBox::manager, SLOT(onSelectionChanged()));
 
 	wid->setAlignment(Qt::AlignLeft);
@@ -457,6 +459,7 @@ static void combo_set_editable(void *_object, bool ed)
 		COMBOBOX->setCompleter(0);
 		//CWidget::installFilter(COMBOBOX);
 		QObject::connect(COMBOBOX->lineEdit(), SIGNAL(returnPressed()), &CTextBox::manager, SLOT(onActivate()));
+		QObject::connect(COMBOBOX->lineEdit(), SIGNAL(cursorPositionChanged(int, int)), &CTextBox::manager, SLOT(onCursor()));
 		//QObject::connect(COMBOBOX->lineEdit(), SIGNAL(selectionChanged()), &CTextBox::manager, SLOT(onSelectionChanged()));
 
 		if (CWIDGET_is_design(THIS))
@@ -834,6 +837,12 @@ void CTextBox::onClick()
 }
 
 
+void CTextBox::onCursor()
+{
+	RAISE_EVENT(EVENT_Cursor);
+}
+
+
 /*void CTextBox::onSelectionChanged(void)
 {
 	GET_SENDER();
@@ -907,6 +916,7 @@ GB_DESC CTextBoxDesc[] =
 
 	GB_EVENT("Change", NULL, NULL, &EVENT_Change),
 	GB_EVENT("Activate", NULL, NULL, &EVENT_Activate),
+	GB_EVENT("Cursor", NULL, NULL, &EVENT_Cursor),
 
 	TEXTBOX_DESCRIPTION,
 
@@ -969,6 +979,7 @@ GB_DESC CComboBoxDesc[] =
 	GB_EVENT("Change", NULL, NULL, &EVENT_Change),
 	GB_EVENT("Activate", NULL, NULL, &EVENT_Activate),
 	GB_EVENT("Click", NULL, NULL, &EVENT_Click),
+	GB_EVENT("Cursor", NULL, NULL, &EVENT_Cursor),
 
 	COMBOBOX_DESCRIPTION,
 

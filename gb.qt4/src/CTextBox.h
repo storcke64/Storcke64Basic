@@ -104,6 +104,7 @@ public slots:
 	void onChange(void);
 	void onActivate(void);
 	void onClick(void);
+	void onCursor(void);
 	//void onSelectionChanged(void);
 
 };
