@@ -2900,7 +2900,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				// Automatic focus for wheel events
 				set_focus(control);
 				
-#ifdef QT5
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 				p.setX(ev->position().x());
 				p.setY(ev->position().y());
 #else
@@ -2913,7 +2913,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				CMOUSE_clear(true);
 				MOUSE_info.x = p.x();
 				MOUSE_info.y = p.y();
-#ifdef QT5
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 				MOUSE_info.screenX = ev->globalPosition().x();
 				MOUSE_info.screenY = ev->globalPosition().y();
 #else
