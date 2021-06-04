@@ -2676,8 +2676,13 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			//POINTER_info.screenX = tevent->globalX();
 			//POINTER_info.screenY = tevent->globalY();
 			//MOUSE_info.modifier = tevent->modifiers();
+#ifdef QT5
+			POINTER_info.tx = tevent->globalPosF().x();
+			POINTER_info.ty = tevent->globalPosF().y();
+#else
 			POINTER_info.tx = tevent->hiResGlobalX();
 			POINTER_info.ty = tevent->hiResGlobalY();
+#endif
 			POINTER_info.pressure = tevent->pressure();
 			POINTER_info.rotation = tevent->rotation();
 			POINTER_info.xtilt = tevent->xTilt();
@@ -2852,7 +2857,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				GB.FreeString(&CKEY_info.text);
 				//qDebug("IMEnd: %s", imevent->text().latin1());
 				CKEY_info.text = NEW_STRING(imevent->commitString());
-				CKEY_info.state = 0;
+				CKEY_info.state = Qt::KeyboardModifiers();
 				CKEY_info.code = 0;
 	
 				if (EXT(control) && EXT(control)->proxy_for)
@@ -2895,16 +2900,26 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				// Automatic focus for wheel events
 				set_focus(control);
 				
+#ifdef QT5
+				p.setX(ev->position().x());
+				p.setY(ev->position().y());
+#else
 				p.setX(ev->x());
 				p.setY(ev->y());
+#endif
 
 				p = ((QWidget *)widget)->mapTo(QWIDGET(control), p);
 
 				CMOUSE_clear(true);
 				MOUSE_info.x = p.x();
 				MOUSE_info.y = p.y();
+#ifdef QT5
+				MOUSE_info.screenX = ev->globalPosition().x();
+				MOUSE_info.screenY = ev->globalPosition().y();
+#else
 				MOUSE_info.screenX = ev->globalX();
 				MOUSE_info.screenY = ev->globalY();
+#endif
 				MOUSE_info.state = ev->buttons();
 				MOUSE_info.modifier = ev->modifiers();
 				MOUSE_info.orientation = ev->orientation();
