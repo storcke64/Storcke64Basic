@@ -63,6 +63,11 @@ Private Sub SetExtension(sPath As String) As String
   Dim bGotIt As Boolean
   
   aFilter = Dialog.Filter
+  If Not aFilter Then
+    If Dialog.Path Then Return File.SetExt(sPath, File.Ext(Dialog.Path))
+    Return sPath
+  Endif
+  
   For iInd = 0 To aFilter.Max Step 2
     Try sExt = Scan(Split(aFilter[iInd], ";")[0], "\\*.*")[0]
     If Not sExt Then Continue
