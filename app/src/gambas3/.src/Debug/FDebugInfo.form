@@ -65,8 +65,9 @@
                 MoveScaled(13,0,1,3)
               }
               { cmbWatch ComboBox
-                MoveScaled(15,0,22,3)
+                MoveScaled(16,0,22,3)
                 Expand = True
+                Placeholder = ("Enter an expression")
                 Border = False
               }
             }
@@ -97,7 +98,7 @@
             }
             { cvwObject ColumnView cvwVariable
               Name = "cvwObject"
-              MoveScaled(34,2,24,14)
+              MoveScaled(33,2,24,14)
               Expand = True
               Header = False
               Border = False

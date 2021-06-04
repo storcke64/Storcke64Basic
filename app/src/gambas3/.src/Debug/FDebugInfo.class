@@ -203,7 +203,9 @@ Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
       .Picture = Null
     Endif
   End With
-    
+
+  UpdateWatchButtons
+
 End
 
 Public Sub AddResultWatch(sCmd As String, Optional sRes As String, Optional bInstant As Boolean)
@@ -273,7 +275,7 @@ End
 
 Private Sub GetWatchExpression() As String
   
-  If cmbWatch.Foreground = Color.Default Then Return Trim(cmbWatch.Text)
+  Return Trim(cmbWatch.Text)
   
 End
 
@@ -308,11 +310,12 @@ Public Sub btnKillWatch_Click()
     If cvwVariable["@"].Children = 0 Then cvwVariable.Remove("@")
   Endif
   
+  UpdateWatchButtons
+  
 End
 
 Public Sub cmbWatch_Click()
   
-  cmbWatch.Foreground = Color.Default
   cmbWatch_Activate
   
 End
@@ -1555,9 +1558,19 @@ Public Sub btnVcClear_Click()
 
 End
 
+Private Sub UpdateWatchButtons()
+
+  btnAddWatch.Enabled = cmbWatch.Length > 0
+  btnKillWatch.Enabled = cvwVariable.Key Like "@?*"
+  btnAddTrack.Enabled = btnAddWatch.Enabled Or btnKillWatch.Enabled
+  btnKillAllWatch.Enabled = cvwVariable.Exist("@")
+
+End
+
 Public Sub cvwVariable_Select()
 
   Balloon.Hide(Last)
+  UpdateWatchButtons
 
 End
 
@@ -1724,6 +1737,7 @@ Public Sub btnKillAllWatch_Click()
     If $cTrack.Key Begins "@" Then Continue
     Design.Command("w" & $cTrack.Key)
   Next
+  UpdateWatchButtons
 
 End
 
@@ -1772,37 +1786,50 @@ End
 ' 
 ' End
 
+' Public Sub cmbWatch_Change()
+' 
+'   If cmbWatch.Foreground <> Color.Default Then Return
+'   
+'   If Not cmbWatch.Text Then
+'     cmbWatch.Foreground = Color.LightForeground
+'     Project.SetSmallFont(cmbWatch)
+'     cmbWatch.Font.Italic = True
+'     cmbWatch.Text = ("Enter an expression")
+'   Endif
+' 
+' End
+' 
+' Public Sub cmbWatch_KeyPress()
+' 
+'   If cmbWatch.Foreground <> Color.Default Then
+'     If Key.Text And If Asc(Key.Text) >= 32 And If Asc(Key.Text) <> 127 Then
+'       cmbWatch.Text = ""
+'       cmbWatch.Font = cvwVariable.Font
+'       cmbWatch.Foreground = Color.Default
+'       Return
+'     Endif
+'     Stop Event
+'   Endif
+' 
+' End
+' 
+' Public Sub cmbWatch_Cursor()
+' 
+'   If cmbWatch.Foreground <> Color.Default Then
+'     cmbWatch.Pos = 0
+'   Endif
+' 
+' End
+
 Public Sub cmbWatch_Change()
 
-  If cmbWatch.Foreground <> Color.Default Then Return
-  
-  If Not cmbWatch.Text Then
-    cmbWatch.Foreground = Color.LightForeground
+  If cmbWatch.Length = 0 Then
     Project.SetSmallFont(cmbWatch)
     cmbWatch.Font.Italic = True
-    cmbWatch.Text = ("Enter an expression")
+  Else
+    cmbWatch.Font = cvwVariable.Font
   Endif
-
-End
-
-Public Sub cmbWatch_KeyPress()
-
-  If cmbWatch.Foreground <> Color.Default Then
-    If Key.Text And If Asc(Key.Text) >= 32 And If Asc(Key.Text) <> 127 Then
-      cmbWatch.Text = ""
-      cmbWatch.Font = cvwVariable.Font
-      cmbWatch.Foreground = Color.Default
-      Return
-    Endif
-    Stop Event
-  Endif
-
-End
-
-Public Sub cmbWatch_Cursor()
-
-  If cmbWatch.Foreground <> Color.Default Then
-    cmbWatch.Pos = 0
-  Endif
+  
+  UpdateWatchButtons
 
 End
