@@ -37,8 +37,8 @@
 
 DECLARE_EVENT(EVENT_Change);
 DECLARE_EVENT(EVENT_Activate);
-DECLARE_EVENT(EVENT_Click);
 DECLARE_EVENT(EVENT_Cursor);
+DECLARE_EVENT(EVENT_Click);
 
 #define MAX_LEN 32767
 
@@ -978,8 +978,8 @@ GB_DESC CComboBoxDesc[] =
 
 	GB_EVENT("Change", NULL, NULL, &EVENT_Change),
 	GB_EVENT("Activate", NULL, NULL, &EVENT_Activate),
-	GB_EVENT("Click", NULL, NULL, &EVENT_Click),
 	GB_EVENT("Cursor", NULL, NULL, &EVENT_Cursor),
+	GB_EVENT("Click", NULL, NULL, &EVENT_Click),
 
 	COMBOBOX_DESCRIPTION,
 
