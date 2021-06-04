@@ -807,7 +807,9 @@ Public Sub SetSettings(aVar As Variant[])
   Endif
 
   btnPreview.Value = fvwChoose.ShowPreview
+  Object.Lock(btnDetail)
   btnDetail.Value = fvwChoose.ShowDetailed
+  Object.Unlock(btnDetail)
 
   UpdateShowHidden
   ShowBookmark($bShowBookmark)
