@@ -1268,9 +1268,10 @@ bool DEBUG_check_watches(void)
 		
 		if (compare_values(&watch->value, value))
 		{
+			if (watch->value.type != T_VOID)
+				changed = TRUE;
 			watch->value = *value;
 			watch->changed = TRUE;
-			changed = TRUE;
 		}
 	}
 	
