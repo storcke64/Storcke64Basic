@@ -176,6 +176,7 @@ End
 Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
 
   AddVariableHeader(cvwVariable, "@", ("Watch expressions"))
+  cvwVariable["@"].MoveLast
   
   Try cvwVariable.Add("@" & sExpr, sExpr,, "@").EnsureVisible
   
@@ -183,11 +184,14 @@ Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
     If sVal Then
       If Left(sVal) = "!" Then 
         sVal = Mid$(sVal, 2)
-        .Background = $iErrorColor
+        .Foreground = $iErrorColor
+        .Background = Color.Default
       Else
         If .[1] <> sVal Then
+          .Foreground = Color.Default
           .Background = $iChangeColor
         Else
+          .Foreground = Color.Default
           .Background = Color.Default
         Endif
       Endif
@@ -267,11 +271,18 @@ Public Sub InstantWatch(sExpr As String, hForm As FEditor)
   
 End
 
+Private Sub GetWatchExpression() As String
+  
+  If cmbWatch.Foreground = Color.Default Then Return Trim(cmbWatch.Text)
+  
+End
+
+
 Public Sub cmbWatch_Activate()
   
   Dim sExpr As String
   
-  sExpr = Trim(cmbWatch.Text)
+  sExpr = GetWatchExpression()
   If Not sExpr Then Return
   
   AddWatch(sExpr)
@@ -301,7 +312,8 @@ End
 
 Public Sub cmbWatch_Click()
   
-  btnAddWatch_Click
+  cmbWatch.Foreground = Color.Default
+  cmbWatch_Activate
   
 End
 
@@ -348,7 +360,7 @@ Public Sub ReadConfig()
   InitFont(cvwVariable, fSize)
   InitFont(cvwObject, fSize)
   
-  cmbWatch.Font = cvwVariable.Font
+  cmbWatch_Change
   
   FDebugButton.ReadConfig
   
@@ -623,15 +635,6 @@ End
 Public Sub tbvObject_Select()
   
   Balloon.Hide(Last)
-  
-End
-
-Public Sub btnShow_Click()
-  
-  Dim sText As String = Trim(cmbWatch.Text)
-  
-  If Not sText Then Return
-  WatchExpression(sText)
   
 End
 
@@ -1682,7 +1685,7 @@ Public Sub btnAddTrack_Click()
   Dim sExpr As String
   Dim sKey As String
 
-  sExpr = Trim(cmbWatch.Text)
+  sExpr = GetWatchExpression()
   If sExpr Then Goto ADD_WATCH
   
   sKey = cvwVariable.Key
@@ -1735,11 +1738,71 @@ Public Sub GetWatches() As String
   Dim sCmd As String
   Dim sExpr As String
   
-  For Each sExpr In $cTrack
-    If $cTrack.Key Begins "@" Then Continue
-    sCmd &= "w" & $cTrack.Key & "\t" & sExpr & "\n"
-  Next
+  If cvwVariable.MoveTo("@") Then Return
+  If cvwVariable.MoveChild() Then Return
+  
+  Repeat
+    sExpr = cvwVariable.Item.Text
+    sCmd &= "?W" & sExpr & "\t" & sExpr & "\n"
+    If $cTrack.Exist("@" & sExpr) Then sCmd &= "w" & $cTrack["@" & sExpr] & "\t" & sExpr & "\n"
+  Until cvwVariable.MoveNext()
   
   Return sCmd
   
+End
+
+' Public Sub cmbWatch_GotFocus()
+' 
+'   If cmbWatch.Foreground <> Color.Default Then
+'     cmbWatch.Font = cvwVariable.Font
+'     cmbWatch.Text = ""
+'     cmbWatch.Foreground = Color.Default
+'   Endif
+' 
+' End
+' 
+' Public Sub cmbWatch_LostFocus()
+' 
+'   If Not Trim(cmbWatch.Text) Then
+'     cmbWatch.Text = ("Enter an expression")
+'     Project.SetSmallFont(cmbWatch)
+'     cmbWatch.Font.Italic = True
+'     cmbWatch.Foreground = Color.LightForeground
+'   Endif
+' 
+' End
+
+Public Sub cmbWatch_Change()
+
+  If cmbWatch.Foreground <> Color.Default Then Return
+  
+  If Not cmbWatch.Text Then
+    cmbWatch.Foreground = Color.LightForeground
+    Project.SetSmallFont(cmbWatch)
+    cmbWatch.Font.Italic = True
+    cmbWatch.Text = ("Enter an expression")
+  Endif
+
+End
+
+Public Sub cmbWatch_KeyPress()
+
+  If cmbWatch.Foreground <> Color.Default Then
+    If Key.Text And If Asc(Key.Text) >= 32 And If Asc(Key.Text) <> 127 Then
+      cmbWatch.Text = ""
+      cmbWatch.Font = cvwVariable.Font
+      cmbWatch.Foreground = Color.Default
+      Return
+    Endif
+    Stop Event
+  Endif
+
+End
+
+Public Sub cmbWatch_Cursor()
+
+  If cmbWatch.Foreground <> Color.Default Then
+    cmbWatch.Pos = 0
+  Endif
+
 End

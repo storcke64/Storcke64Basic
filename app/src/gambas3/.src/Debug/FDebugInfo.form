@@ -61,8 +61,11 @@
                 ToolTip = ("Remove all expressions")
                 Picture = Picture["icon:/tiny/trash"]
               }
+              { Panel10 Panel
+                MoveScaled(13,0,1,3)
+              }
               { cmbWatch ComboBox
-                MoveScaled(14,0,22,3)
+                MoveScaled(15,0,22,3)
                 Expand = True
                 Border = False
               }
@@ -72,10 +75,9 @@
             }
             { btnShowMe ToolButton
               MoveScaled(56,0,4,3)
-              #Translate = False
               Font = Font["-1"]
-              ToolTip = "Display ME"
-              Text = "ME"
+              ToolTip = ("Display ME")
+              Text = ("ME")
             }
             { Separator3 Separator
               MoveScaled(63,0,0,3)
