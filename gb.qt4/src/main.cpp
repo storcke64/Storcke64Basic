@@ -423,7 +423,7 @@ static bool QT_EventFilter(QEvent *e)
 			GB.FreeString(&CKEY_info.text);
 			//qDebug("IMEnd: %s", imevent->text().latin1());
 			CKEY_info.text = GB.NewZeroString(QT_ToUtf8(imevent->commitString()));
-			CKEY_info.state = 0;
+			CKEY_info.state = Qt::KeyboardModifiers();
 			CKEY_info.code = 0;
 		}
 	}
