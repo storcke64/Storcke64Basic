@@ -436,3 +436,14 @@ bool COMPONENT_is_loaded(const char *name)
 	comp = COMPONENT_find(name);
 	return comp && comp->loaded;
 }
+
+void COMPONENT_before_fork(void)
+{
+	COMPONENT *comp;
+
+	LIST_for_each(comp, _component_list)
+	{
+		if (comp->library)
+			LIBRARY_before_fork(comp->library);
+	}
+}

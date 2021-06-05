@@ -74,4 +74,6 @@ void LIBRARY_get_interface(LIBRARY *lib, int version, void *iface);
 void LIBRARY_exec(LIBRARY *lib, int argc, char **argv);
 void LIBRARY_after_init(LIBRARY *lib);
 
+void LIBRARY_before_fork(LIBRARY *lib);
+
 #endif

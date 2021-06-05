@@ -46,6 +46,7 @@ typedef
 #define LIB_GAMBAS       "GB"
 #define LIB_JIT          "JIT"
 #define LIB_MAIN         "GB_MAIN"
+#define LIB_FORK         "GB_FORK"
 
 #ifdef DONT_USE_LTDL
  #if defined(OS_MACOSX)

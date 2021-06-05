@@ -337,9 +337,7 @@ void LIBRARY_unload(LIBRARY *lib)
 	if (lib->handle == NULL)
 		return;
 
-	/* Pas de lib�ation des classes pr�harg� ! */
-
-	/* V�ification qu'aucune classe de la librairie n'est instanci� ! */
+	// Do not free pre-loaded classes
 
 	gambas_exit = lt_dlsym(lib->handle, LIB_EXIT);
 	if (gambas_exit != NULL)
@@ -361,5 +359,14 @@ void LIBRARY_unload(LIBRARY *lib)
 #ifdef DEBUG
 	printf("Unloading library %s\n", lib->name);
 #endif
+}
+
+
+void LIBRARY_before_fork(LIBRARY *lib)
+{
+	void (*func)();
+	
+	func = get_symbol(lib, LIB_FORK, FALSE);
+	if (func) (*func)();
 }
 
