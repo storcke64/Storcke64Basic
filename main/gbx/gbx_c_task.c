@@ -41,6 +41,7 @@
 #include "gbx_string.h"
 #include "gbx_signal.h"
 #include "gbx_event.h"
+#include "gbx_component.h"
 
 #include "gbx_c_file.h"
 #include "gbx_c_task.h"
@@ -291,6 +292,8 @@ static bool start_task(CTASK *_object)
 
 	if (has_error && pipe(fd_err) != 0)
 		goto __ERROR;
+
+	COMPONENT_before_fork();
 
 	// Block SIGCHLD
 

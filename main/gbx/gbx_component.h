@@ -86,4 +86,6 @@ bool COMPONENT_get_info(const char *key, void **value);
 
 void COMPONENT_exec(const char *name, int argc, char **argv);
 
+void COMPONENT_before_fork(void);
+
 #endif
