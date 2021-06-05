@@ -150,7 +150,6 @@ Private Sub FillWithExample()
     Next
   
     ApplyFilter($hFilter.Text)
-    $hList.Margin = True
     $hList.Arrangement = $iArrange
     $hFilter.Enabled = True
   

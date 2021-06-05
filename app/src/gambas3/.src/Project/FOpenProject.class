@@ -8,6 +8,7 @@ Static Public InAnotherWindow As Boolean
 Private $iSort As Integer
 'Private $bControl As Boolean
 Private $hRecent As CProjectList
+Private $hSoft As CProjectList
 Private $hExample As CProjectList
 
 Public Sub Run(Optional bAnother As Boolean) As String
@@ -27,9 +28,10 @@ End
 Public Sub _new()
   
   $hRecent = New CProjectList(lstRecent, txtFilter, CProjectList.TYPE_RECENT, Arrange.Row) As "ProjectItem"
+  $hSoft = New CProjectList(lstSoft, txtFilterSoft, CProjectList.TYPE_SOFTWARE, Arrange.Row) As "ProjectItem"
   $hExample = New CProjectList(lstExample, txtFilterExample, CProjectList.TYPE_EXAMPLE, Arrange.Row) As "ProjectItem"
   
-  tabProject[2].Visible = False
+  'tabProject[2].Visible = False
   
   txtFilter.Text = Settings["FWelcome/Filter"]
   
@@ -42,6 +44,8 @@ Public Sub btnOpen_Click()
      $sPath = pchProject.Path
   Else If tabProject.Text = ("Recent") Then
     If Not $sPath Then $sPath = $hRecent.GetFirst()
+  Else If tabProject.Text = ("Installed software") Then
+    If Not $sPath Then $sPath = $hSoft.GetFirst()
   Else If tabProject.Text = ("Examples") Then
     If Not $sPath Then $sPath = $hExample.GetFirst()
   Endif
@@ -95,21 +99,34 @@ End
 
 Public Sub tabProject_Click()
 
-  If tabProject.Text = ("Recent") Then 
-    $hRecent.Fill
-    
-    ' sorting as stored in Settings
-    $hRecent.SetSort($iSort)
-    
-    $hRecent.ApplyFilter(txtFilter.Text)
-    txtFilter.Editor.SelectAll()
-    txtFilter.SetFocus
-  Else If tabProject.Text = ("Examples") Then 
-    $hExample.Fill
-    $hExample.ApplyFilter(txtFilterExample.Text)
-    txtFilterExample.Editor.SelectAll()
-    txtFilterExample.SetFocus
-  Endif  
+  Select Case tabProject.Text
+
+    Case ("Recent") 
+      
+      $hRecent.Fill
+      
+      ' sorting as stored in Settings
+      $hRecent.SetSort($iSort)
+      
+      $hRecent.ApplyFilter(txtFilter.Text)
+      txtFilter.Editor.SelectAll()
+      txtFilter.SetFocus
+  
+    Case ("Installed software")
+      
+      $hSoft.Fill
+      $hSoft.ApplyFilter(txtFilterSoft.Text)
+      txtFilterSoft.Editor.SelectAll()
+      txtFilterSoft.SetFocus
+      
+    Case ("Examples")
+      
+      $hExample.Fill
+      $hExample.ApplyFilter(txtFilterExample.Text)
+      txtFilterExample.Editor.SelectAll()
+      txtFilterExample.SetFocus
+      
+  End Select
 
 End
 

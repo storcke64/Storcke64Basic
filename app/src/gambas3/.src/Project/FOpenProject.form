@@ -12,7 +12,7 @@
     MoveScaled(1,1,110,69)
     Expand = True
     Arrangement = Arrange.Vertical
-    Count = 3
+    Count = 4
     Index = 0
     Text = ("Open")
     Picture = Picture["icon:/small/open"]
@@ -68,7 +68,7 @@
         }
       }
       { lstRecent ScrollView
-        MoveScaled(2,12,73,43)
+        MoveScaled(2,10,73,43)
         Background = Color.TextBackground
         Expand = True
         Arrangement = Arrange.Row
@@ -102,6 +102,40 @@
         }
       }
       { lstExample ScrollView
+        MoveScaled(4,10,73,43)
+        Background = Color.TextBackground
+        Expand = True
+        Arrangement = Arrange.Row
+        Spacing = True
+        Border = False
+        ScrollBar = Scroll.Vertical
+      }
+    }
+    Index = 3
+    Text = ("Installed software")
+    Picture = Picture["icon:/small/download"]
+    { Panel1 VBox
+      MoveScaled(3,4,92,60)
+      Background = Color.TextBackground
+      Expand = True
+      Spacing = True
+      Margin = True
+      { HBox1 HBox
+        MoveScaled(2,2,78,4)
+        { Panel6 Panel
+          MoveScaled(1,0,25,4)
+          Expand = True
+          Arrangement = Arrange.Fill
+          Border = Border.Plain
+          { txtFilterSoft ButtonBox
+            MoveScaled(0,0,24,4)
+            Foreground = Color.LightForeground
+            Picture = Picture["icon:/small/clear"]
+            Border = False
+          }
+        }
+      }
+      { lstSoft ScrollView
         MoveScaled(4,13,73,43)
         Background = Color.TextBackground
         Expand = True
