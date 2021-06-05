@@ -52,6 +52,7 @@
 #include <QDesktopWidget>
 #include <QPaintDevice>
 #include <QLibraryInfo>
+#include <QThreadPool>
 
 #include "gb.image.h"
 #include "gb.form.font.h"
@@ -1261,6 +1262,11 @@ int EXPORT GB_INFO(const char *key, void **value)
 		return FALSE;
 }
 #endif
+
+void EXPORT GB_FORK(void)
+{
+	delete QThreadPool::globalInstance();
+}
 
 /*#ifndef NO_X_WINDOW
 extern Time	qt_x_time;
