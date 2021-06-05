@@ -733,6 +733,8 @@ Private Sub MakeSupportPackage(sSys As String)
 
   Dim sSupport As String
   Dim aPackage As String[]
+  Dim sMsg As String
+  
   'slackware doesn't use support packages
   If sSys = "slackware" Then Return
   
@@ -740,13 +742,17 @@ Private Sub MakeSupportPackage(sSys As String)
   
     sSupport = GTK_SUPPORT
     aPackage = GTK_SUPPORT_PACKAGES
-    AddLog("\n============ " & Subst(("Making &1 support package..."), "GTK+"))
+    sMsg = Subst(("Making &1 support package..."), "GTK+")
+    AddLog("\n============ " & sMsg)
+    FMakeInstall.ShowMessage(sMsg)
     GoSub MAKE_PACKAGE
   
     If Not Project.Components.Exist("gb.gui.opengl") Then
       sSupport = GTK3_SUPPORT
       aPackage = GTK3_SUPPORT_PACKAGES
-      AddLog("\n============ " & Subst(("Making &1 support package..."), "GTK+3"))
+      sMsg = Subst(("Making &1 support package..."), "GTK+3")
+      AddLog("\n============ " & sMsg)
+      FMakeInstall.ShowMessage(sMsg)
       GoSub MAKE_PACKAGE
     Endif
     
@@ -754,12 +760,16 @@ Private Sub MakeSupportPackage(sSys As String)
 
   sSupport = QT4_SUPPORT
   aPackage = QT4_SUPPORT_PACKAGES
-  AddLog("\n============ " & Subst(("Making &1 support package..."), "QT4"))
+  sMsg = Subst(("Making &1 support package..."), "QT4")
+  AddLog("\n============ " & sMsg)
+  FMakeInstall.ShowMessage(sMsg)
   GoSub MAKE_PACKAGE
 
   sSupport = QT5_SUPPORT
   aPackage = QT5_SUPPORT_PACKAGES
-  AddLog("\n============ " & Subst(("Making &1 support package..."), "QT5"))
+  sMsg = Subst(("Making &1 support package..."), "QT5")
+  AddLog("\n============ " & sMsg)
+  FMakeInstall.ShowMessage(sMsg)
   GoSub MAKE_PACKAGE
   
   Return
@@ -793,9 +803,12 @@ End
 Private Function MakePackage(sSys As String) As Boolean
 
   Dim sErr As String
+  Dim sMsg As String
   
   AddLog("\n" & String(78, "=") & "\n")
-  AddLog(String.UCase(Subst(("Creating package for &1."), FMakeInstall.GetSystemName(sSys))))
+  sMsg = Subst(("Creating package for &1."), FMakeInstall.GetSystemName(sSys))
+  AddLog(String.UCase(sMsg))
+  FMakeInstall.ShowMessage(sMsg)
   AddLog("\n")
 
   InitMake(sSys)

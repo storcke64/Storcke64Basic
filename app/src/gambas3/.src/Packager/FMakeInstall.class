@@ -587,6 +587,7 @@ Public Sub wizInstall_Change()
   End Select
   
   btnCreateNow.Visible = wizInstall.Index <> TAB_CREATE
+  btnOpenFolder.Visible = wizInstall.Index = TAB_CREATE
 
 End
 
@@ -1228,21 +1229,29 @@ Public Sub txtFileDest_Click()
 
 End
 
+Private Sub SetMessage(sMsg As String, iColor As Integer)
+  
+  panError.Arrangement = Arrange.None
+  txtError.Text = Replace(sMsg, "\n", "<br>")
+  txtError.Foreground = iColor
+  spnCreatePackage.H = Desktop.Scale
+  panError.H = txtError.H + Desktop.Scale * 2
+  panError.Arrangement = Arrange.Horizontal
+  panError.Show
+  
+End
+
+
+
 Public Sub ShowError(sMsg As String)
 
-  txtError.Text = Replace(sMsg, "\n", "<br>")
-  txtError.Foreground = Color.Red
-  spnCreatePackage.H = Desktop.Scale
-  panError.Show
+  SetMessage(sMsg, Color.Red)
   
 End
 
 Public Sub ShowMessage(sMsg As String)
   
-  txtError.Text = Replace(sMsg, "\n", "<br>")
-  txtError.Foreground = Color.TextForeground
-  spnCreatePackage.H = Desktop.Scale
-  panError.Show
+  SetMessage(sMsg, Color.TextForeground)
   
 End
 
@@ -1281,6 +1290,7 @@ End
 Public Sub Form_Arrange()
 
   btnCreateNow.Move(Desktop.Scale, Me.ClientH - Desktop.Scale - btnCreateNow.H)
+  btnOpenFolder.Move(Desktop.Scale, Me.ClientH - Desktop.Scale - btnOpenFolder.H)
 
 End
 
@@ -1377,3 +1387,9 @@ Private Sub UpdateFileCombo()
   
 End
 
+
+Public Sub btnOpenFolder_Click()
+
+  Desktop.Open(Project.Config["/Package/Dir"])
+
+End
