@@ -49,6 +49,7 @@
 #include "gbx_exec.h"
 #include "gbx_extern.h"
 #include "gbx_object.h"
+#include "gbx_jit.h"
 #include "gbx_c_process.h"
 #include "gbx_c_system.h"
 
@@ -357,6 +358,15 @@ BEGIN_PROPERTY(Jit_Time)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Jit_Enabled)
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(!JIT_disabled);
+	else
+		JIT_disabled = !VPROP(GB_BOOLEAN);
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 #endif
@@ -421,6 +431,7 @@ GB_DESC NATIVE_Jit[] =
 	GB_DECLARE_STATIC("Jit"),
 	
 	GB_STATIC_PROPERTY_READ("Time", "f", Jit_Time),
+	GB_STATIC_PROPERTY("Enabled", "b", Jit_Enabled),
 	
 	GB_END_DECLARE
 };

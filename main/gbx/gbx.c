@@ -84,7 +84,7 @@ static void init(const char *file, int argc, char **argv)
 {
 	COMPONENT_init();
 	FILE_init();
-
+	JIT_init();
 	EXEC_init();
 	CLASS_init();
 	CFILE_init();

@@ -49,6 +49,7 @@ void *JIT_get_class_ref(int index);
 void JIT_call_unknown(PCODE *pc, VALUE **psp);
 
 void JIT_abort(void);
+void JIT_init(void);
 void JIT_exit(void);
 
 bool JIT_can_compile(ARCHIVE *arch);

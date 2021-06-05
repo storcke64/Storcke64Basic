@@ -58,6 +58,13 @@ static void find_method(GB_FUNCTION *func, const char *method, const char *sign,
 		ERROR_panic("Unable to find JIT.&1() method", method);
 }
 
+void JIT_init(void)
+{
+	char *var = getenv("GB_NO_JIT");
+	if (var && var[0] && !(var[0] == '0' && var[1] == 0))
+		JIT_disabled = TRUE;
+}
+
 void JIT_abort(void)
 {
 	GB_FUNCTION func;
@@ -102,13 +109,6 @@ void JIT_compile(ARCHIVE *arch)
 		GB_VALUE *ret;
 		
 		_component_loaded = TRUE;
-		
-		var =  getenv("GB_NO_JIT");
-		if (var && var[0] && !(var[0] == '0' && var[1] == 0))
-		{
-			JIT_disabled = TRUE;
-			return;
-		}
 		
 		var = getenv("GB_JIT_DEBUG");
 		if (var && var[0] && !(var[0] == '0' && var[1] == 0))
@@ -203,6 +203,7 @@ static bool create_function(CLASS *class, int index)
 	int len;
 	char *name;
 	int jit_index;
+	char c;
 	
 	arch = class->component ? class->component->archive : NULL;
 	
@@ -220,7 +221,6 @@ static bool create_function(CLASS *class, int index)
 	}
 	
 	func = &class->load->func[index];
-	func->fast_linked = TRUE;
 	
 	if (!arch)
 		lib = _jit_library;
@@ -234,7 +234,12 @@ static bool create_function(CLASS *class, int index)
 	len = sprintf(COMMON_buffer, "jit_%s_%d", name, index);
 	
 	for (i = 0; i < len; i++)
-		COMMON_buffer[i] = tolower(COMMON_buffer[i]);
+	{
+		c = tolower(COMMON_buffer[i]);
+		if (c == ':')
+			c = '$';
+		COMMON_buffer[i] = c;
+	}
 	
 	addr = dlsym(lib, COMMON_buffer);
 	if (!addr)
@@ -256,6 +261,7 @@ static bool create_function(CLASS *class, int index)
 	jit->code = func->code;
 	
 	func->code = (PCODE *)(intptr_t)jit_index;
+	func->fast_linked = TRUE;
 
 	return FALSE;
 }
@@ -270,6 +276,9 @@ bool JIT_exec(bool ret_on_stack)
 	char nparam = EXEC.nparam;
 	VALUE ret;
 	FUNCTION *func = EXEC.func;
+	
+	if (JIT_disabled)
+		return TRUE;
 	
 	if (UNLIKELY(nparam < func->npmin))
 		THROW(E_NEPARAM);
