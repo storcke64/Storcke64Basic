@@ -366,7 +366,10 @@ void LIBRARY_before_fork(LIBRARY *lib)
 {
 	void (*func)();
 	
-	func = get_symbol(lib, LIB_FORK, FALSE);
-	if (func) (*func)();
+	if (lib->handle)
+	{
+		func = get_symbol(lib, LIB_FORK, FALSE);
+		if (func) (*func)();
+	}
 }
 
