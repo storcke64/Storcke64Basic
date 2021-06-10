@@ -71,12 +71,36 @@ void gMouse::move(int x, int y)
 
 int gMouse::button()
 {
-	return _isValid ? _button : 0;
+	int button = 0;
+	
+	if (_isValid)
+	{
+		button = _button;
+		if (_button >= 4)
+			button -= 4;
+	}
+	
+	return button;
 }
 
 int gMouse::state()
 {
-	return _isValid ? _state : 0;
+	int state = 0;
+	
+	if (_isValid)
+	{
+		if ((_state & GDK_BUTTON1_MASK) || _button == 1) state |= MOUSE_LEFT;
+		if ((_state & GDK_BUTTON2_MASK) || _button == 2) state |= MOUSE_MIDDLE;
+		if ((_state & GDK_BUTTON3_MASK) || _button == 3) state |= MOUSE_RIGHT;
+		if ((_state & GDK_BUTTON4_MASK) || _button == 8) state |= MOUSE_BUTTON4;
+		if ((_state & GDK_BUTTON5_MASK) || _button == 9) state |= MOUSE_BUTTON5;
+		if (_state & GDK_SHIFT_MASK) state |= MOUSE_SHIFT;
+		if (_state & GDK_CONTROL_MASK) state |= MOUSE_CTRL;
+		if (_state & GDK_MOD1_MASK) state |= MOUSE_ALT;
+		if (_state & GDK_MOD2_MASK) state |= MOUSE_META;
+	}
+	
+	return state;
 }
 
 bool gMouse::left()
@@ -207,18 +231,6 @@ void gMouse::setMouse(int x, int y, int sx, int sy, int button, int state)
 	_button = button;
 	_screen_x = sx;
 	_screen_y = sy;
-
-	/*switch(button)
-	{
-		case 1: _button = 1; break;
-		case 2: _button = 4; break;
-		case 3: _button = 2; break;
-		default:
-			_button = 0;
-			if (_state & GDK_BUTTON1_MASK) _button += 1;
-			if (_state & GDK_BUTTON2_MASK) _button += 4;
-			if (_state & GDK_BUTTON3_MASK) _button += 2;
-	}*/
 }
 
 static GdkDevice *get_event_device(GdkEvent *event)

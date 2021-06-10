@@ -262,8 +262,20 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Mouse_Button)
 
+	int i;
+	
 	CHECK_VALID();
-	GB.ReturnInteger((int)MOUSE_info.button);
+	
+	for (i = 0; i < 5; i++)
+	{
+		if ((int)MOUSE_info.button & (1 << i))
+		{
+			GB.ReturnInteger(i + 1);
+			return;
+		}
+	}
+	
+	GB.ReturnInteger(0);
 
 END_PROPERTY
 
