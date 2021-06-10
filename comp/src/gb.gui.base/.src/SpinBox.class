@@ -93,7 +93,7 @@ Public Sub View_Arrange()
   
   If $bBorder Then 
     BW = Style.BoxFrameWidth
-    BH = Style.BoxFrameHeight
+    BH = Min(3, Style.BoxFrameHeight)
   Endif
   
   'Debug Style.BoxFrameWidth;; Style.BoxFrameHeight

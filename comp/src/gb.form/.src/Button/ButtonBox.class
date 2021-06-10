@@ -141,16 +141,29 @@ End
 
 Public Sub Background_Draw()
   
-  'Dim FW, FH As Integer
-  Dim iBg As Integer = Color.Default
+  Dim iCol As Integer
+  Dim iState As Integer
   
-  If Me.Background <> Color.Default Then iBg = Me.Background
+  iCol = $hTextBox.Background
+  If iCol = Color.Default Then
+    'If $hTextBox.ReadOnly Then
+    '  iCol = Color.Background
+    'Else
+      iCol = Color.TextBackground
+    'Endif
+  Endif
   
-  If $bBorder Then 
-    Style.PaintBox(0, 0, Me.W, Me.H, Style.StateOf($hTextBox), iBg)
+  If $bBorder Then  
+    
+    iState = Style.StateOf($hBackground)
+    If $hTextBox.HasFocus Then iState = iState Or Style.HasFocus
+    If $hBackground.Hovered Then iState = iState Or Style.Hovered
+    Style.PaintBox(0, 0, Paint.W, Paint.H, iState, iCol)
+    
   Else
-    If iBg = Color.Default Then iBg = Color.TextBackground
-    Paint.FillRect(0, 0, Me.W, Me.H, iBg)
+    
+    Paint.FillRect(0, 0, Paint.W, Paint.H, iCol)
+
   Endif
   
 End
@@ -219,8 +232,10 @@ Public Sub Background_Arrange()
   Dim aCtrl As New Control[]
   Dim X, H As Integer
   
-  FW = If($bBorder, Style.FrameWidth, 0)
-  FH = If($bBorder, Style.FrameWidth, 0)
+  If $bBorder Then
+    FW = Style.BoxFrameWidth
+    FH = Min(3, Style.BoxFrameHeight)
+  Endif
   
   For Each hCtrl In $hBackground.Children
     If hCtrl Is ToolButton And If hCtrl.Visible Then aCtrl.Add(hCtrl)
