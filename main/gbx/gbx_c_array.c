@@ -1686,30 +1686,38 @@ BEGIN_METHOD_VOID(CARRAY_reverse)
 END_METHOD
 
 
-BEGIN_METHOD(Array_Read, GB_OBJECT file; GB_INTEGER start; GB_INTEGER length)
+BEGIN_METHOD(Array_Read, GB_OBJECT stream; GB_INTEGER start; GB_INTEGER length)
 
 	int count = THIS->count;
 	int start = VARGOPT(start, 0);
 	int length = VARGOPT(length, count);
+	void *stream = VARG(stream);
+	
+	if (GB_CheckObject(stream))
+		return;
 
 	if (check_start_length(count, &start, &length))
 		return;
 
-	STREAM_read(CSTREAM_TO_STREAM(VARG(file)), get_data(THIS, start), length * THIS->size);
+	STREAM_read(CSTREAM_TO_STREAM(stream), get_data(THIS, start), length * THIS->size);
 
 END_METHOD
 
 
-BEGIN_METHOD(Array_Write, GB_OBJECT file; GB_INTEGER start; GB_INTEGER length)
+BEGIN_METHOD(Array_Write, GB_OBJECT stream; GB_INTEGER start; GB_INTEGER length)
 
 	int count = THIS->count;
 	int start = VARGOPT(start, 0);
 	int length = VARGOPT(length, count);
+	void *stream = VARG(stream);
+	
+	if (GB_CheckObject(stream))
+		return;
 
 	if (check_start_length(count, &start, &length))
 		return;
 
-	STREAM_write(CSTREAM_TO_STREAM(VARG(file)), get_data(THIS, start), length * THIS->size);
+	STREAM_write(CSTREAM_TO_STREAM(stream), get_data(THIS, start), length * THIS->size);
 
 END_METHOD
 
