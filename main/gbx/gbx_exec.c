@@ -138,7 +138,7 @@ __NONE:
 }
 
 
-void UNBORROW(VALUE *value)
+void EXEC_unborrow(VALUE *value)
 {
 	static const void *jump[16] = {
 		&&__NONE, &&__NONE, &&__NONE, &&__NONE, &&__NONE, &&__NONE, &&__NONE, &&__NONE, &&__NONE,

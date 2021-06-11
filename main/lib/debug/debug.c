@@ -365,7 +365,7 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 
 	if (brk->addr || !CLASS_is_loaded(brk->class))
 	{
-		WARNING("_breakpoints is pending");
+		WARNING("breakpoint is pending");
 		return TRUE;
 	}
 
@@ -392,7 +392,7 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 
 	if (*addr & 0xFF)
 	{
-		WARNING("_breakpoints already set");
+		WARNING("breakpoint already set");
 		//fprintf(_out, "_breakpoints already set\n");
 		return FALSE;
 	}
@@ -406,7 +406,7 @@ static bool init_breakpoint(DEBUG_BREAK *brk)
 	fprintf(stderr, "init_breakpoint: %s.%d\n", brk->class->name, brk->line);
 	#endif
 
-	INFO("_breakpoints set: %s.%d", brk->class->name, brk->line);
+	INFO("breakpoint set: %s.%d", brk->class->name, brk->line);
 	return FALSE;
 }
 
@@ -464,7 +464,7 @@ static bool unset_breakpoint(CLASS *class, ushort line)
 			fprintf(stderr, "unset_breakpoint: %s.%d\n", class->name, line);
 			#endif
 
-			INFO("_breakpoints removed");
+			INFO("breakpoint removed");
 			return FALSE;
 		}
 	}
@@ -818,6 +818,7 @@ static void command_eval(char *cmd)
 	ERROR_INFO save_last = { 0 };
 	DEBUG_INFO save_debug;
 	VALUE *val;
+	VALUE result;
 	int start, len;
 	FILE *out;
 	const char *name;
@@ -862,6 +863,9 @@ static void command_eval(char *cmd)
 	if (!val)
 		goto __ERROR;
 
+	result = *val;
+	GB.BorrowValue((GB_VALUE *)&result);
+	
 	switch(*cmd)
 	{		  
 		case '?':
@@ -881,9 +885,13 @@ static void command_eval(char *cmd)
 			{
 				ret = GB_DEBUG.SetValue(name, len, val);
 				if (ret == GB_DEBUG_SET_ERROR)
+				{
+					GB.ReleaseValue((GB_VALUE *)&result);
 					goto __ERROR;
+				}
 				else if (ret == GB_DEBUG_SET_READ_ONLY)
 				{
+					GB.ReleaseValue((GB_VALUE *)&result);
 					fprintf(out, "!%.*s is read-only", len, name);
 					goto __END;
 				}
@@ -892,6 +900,7 @@ static void command_eval(char *cmd)
 			break;
 	}
 
+	GB.ReleaseValue((GB_VALUE *)&result);
 	goto __END;
 
 __ERROR:

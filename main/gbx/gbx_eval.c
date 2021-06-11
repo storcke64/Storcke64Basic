@@ -82,9 +82,7 @@ static void EVAL_exec()
 	END_ERROR
 
 	EXEC_function_loop();
-
-	TEMP = *RP;
-	UNBORROW(&TEMP);
+	EXEC_move_ret_to_temp();
 }
 
 bool EVAL_expression(EXPRESSION *expr, EVAL_FUNCTION func)
@@ -120,7 +118,6 @@ bool EVAL_expression(EXPRESSION *expr, EVAL_FUNCTION func)
 
 	for (i = 0; i < nvar; i++)
 	{
-
 		SP->type = T_VARIANT;
 		SP->_variant.vtype = T_NULL;
 		SP++;

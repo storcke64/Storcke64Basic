@@ -115,7 +115,7 @@ char *OBJECT_where_am_i(const char *file, int line, const char *func);
 
 #define OBJECT_ref(_object) \
 ({ \
-	OBJECT *_ob = (_object); \
+	OBJECT *_ob = (OBJECT *)(_object); \
 	if (OBJECT_class(_ob) == FREE_MARK) \
 	{ \
 		fprintf(stderr, "%s: **** ALREADY FREED **** %p\n", OBJECT_ref_where, _ob); \
@@ -129,7 +129,7 @@ char *OBJECT_where_am_i(const char *file, int line, const char *func);
 
 #define OBJECT_ref_check(_object) \
 { \
-	if (_object) OBJECT_ref(_object);
+	if (_object) OBJECT_ref(_object); \
 }
 
 

@@ -352,7 +352,7 @@ const void *const GAMBAS_JitApi[] =
 	(void *)JIT_get_class_ref,
 	(void *)EXEC_subr_table,
 	(void *)STRING_char_table,
-	(void *)UNBORROW,
+	(void *)EXEC_unborrow,
 	(void *)EXEC_new,
 	(void *)EXEC_push_array,
 	(void *)EXEC_pop_array,
@@ -622,10 +622,8 @@ void *GB_GetProperty(void *object, const char *name)
 			//EXEC.func = &class->load->func[(long)desc->property.read];
 
 			EXEC_function_keep();
-
-			TEMP = *RP;
-			UNBORROW(RP);
-			RP->type = T_VOID;
+			
+			EXEC_move_ret_to_temp();
 		}
 	}
 
@@ -1190,11 +1188,7 @@ GB_VALUE *GB_Call(GB_FUNCTION *func, int nparam, int release)
 		if (release)
 			EXEC_release_return_value();
 		else
-		{
-			UNBORROW(RP);
-			TEMP = *RP;
-			RP->type = T_VOID;
-		}
+			EXEC_move_ret_to_temp();
 	}
 
 	return (GB_VALUE *)&TEMP;

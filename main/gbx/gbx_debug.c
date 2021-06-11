@@ -412,10 +412,7 @@ int DEBUG_get_object_access_type(void *object, CLASS *class, int *count)
 			//EXEC.func = &class->load->func[(int)desc->property.read];
 
 			EXEC_function_keep();
-
-			TEMP = *RP;
-			UNBORROW(RP);
-			RP->type = T_VOID;
+			EXEC_move_ret_to_temp();
 		}
 
 		if (access != GB_DEBUG_ACCESS_NORMAL)

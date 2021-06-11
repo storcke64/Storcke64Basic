@@ -249,7 +249,7 @@ void EXEC_do_quit(void);
 void EXEC_dup(int n);
 
 void EXEC_borrow(TYPE type, VALUE *val);
-void UNBORROW(VALUE *val);
+void EXEC_unborrow(VALUE *val);
 void EXEC_release(TYPE type, VALUE *val);
 void RELEASE_many(VALUE *val, int n);
 
@@ -292,6 +292,20 @@ do { \
 			EXEC_release(type, _v); \
 	} \
 } while (0)
+
+#if DEBUG_REF
+
+#define UNBORROW(_value) \
+do { \
+	fprintf(stderr, "@%s\n", OBJECT_where_am_i(__FILE__, __LINE__, __func__)); \
+	EXEC_unborrow(_value); \
+} while (0)
+
+#else
+
+#define UNBORROW EXEC_unborrow
+
+#endif
 
 #define RELEASE_STRING(_value) \
 do { \
@@ -340,11 +354,17 @@ do { \
 	SP++; \
 })
 
-
 #define COPY_VALUE(_dst, _src) VALUE_copy(_dst, _src)
 
 #define EXEC_set_native_error(_err) (ERROR_current->info.native = (_err))
 #define EXEC_has_native_error() (ERROR_current->info.native)
+
+#define EXEC_move_ret_to_temp() \
+({ \
+	TEMP = *RP; \
+	UNBORROW(RP); \
+	RP->type = T_VOID; \
+})
 
 bool EXEC_check_operator_single(VALUE *P1, uchar op);
 int EXEC_check_operator(VALUE *P1, VALUE *P2, uchar op);

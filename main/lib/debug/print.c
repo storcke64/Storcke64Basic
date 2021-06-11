@@ -1,23 +1,23 @@
 /***************************************************************************
 
-  print.c
+	print.c
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2, or (at your option)
-  any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2, or (at your option)
+	any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-  MA 02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+	MA 02110-1301, USA.
 
 ***************************************************************************/
 
@@ -108,8 +108,12 @@ static void print_object(void *object)
 	//char *key;
 	//VALUE value;
 	//long len;
-
-	fprintf(_where, "(%s %p)", OBJECT_class(object)->name, object);
+	CLASS *class = OBJECT_class(object);
+	
+	if (*class->name == '$')
+		fprintf(_where, "(Struct %s %p) [%ld]", &class->name[1], object, OBJECT_count(object));
+	else
+		fprintf(_where, "(%s %p) [%ld]", class->name, object, OBJECT_count(object));
 
 /*
 	if (GB.Is(object, GB.FindClass("Collection")))
@@ -160,120 +164,123 @@ static void print_object(void *object)
 
 static void print_value(VALUE *value)
 {
-  static void *jump[16] = {
-    &&__VOID, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT, &&__DATE,
-    &&__STRING, &&__STRING, &&__POINTER, &&__VARIANT, &&__FUNCTION, &&__CLASS, &&__NULL
-    };
+	static void *jump[16] = {
+		&&__VOID, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT, &&__DATE,
+		&&__STRING, &&__STRING, &&__POINTER, &&__VARIANT, &&__FUNCTION, &&__CLASS, &&__NULL
+		};
 
-  VALUE conv;
-  char *addr;
-  int len;
+	VALUE conv;
+	char *addr;
+	int len;
 
-  //*more = FALSE;
+	//*more = FALSE;
 
-  if (_level >= 4)
-  {
-  	fprintf(_where, "...");
-  	return;
+	if (_level >= 4)
+	{
+		fprintf(_where, "...");
+		return;
 	}
 
 	_level++;
 
 __CONV:
 
-  if (TYPE_is_object(value->type))
-    goto __OBJECT;
-  else
-    goto *jump[value->type];
+	if (TYPE_is_object(value->type))
+		goto __OBJECT;
+	else
+		goto *jump[value->type];
 
 __NULL:
 
 	fprintf(_where, "NULL");
-  goto __RETURN;
+	goto __RETURN;
 
 __BOOLEAN:
 
 	fprintf(_where, value->_boolean.value ? "TRUE" : "FALSE");
-  goto __RETURN;
+	goto __RETURN;
 
 __BYTE:
 __SHORT:
 __INTEGER:
 
-  fprintf(_where, "%d", value->_integer.value);
-  goto __RETURN;
+	fprintf(_where, "%d", value->_integer.value);
+	goto __RETURN;
 
 __LONG:
 
-  fprintf(_where, "%" PRId64, value->_long.value);
-  goto __RETURN;
+	fprintf(_where, "%" PRId64, value->_long.value);
+	goto __RETURN;
 
 __DATE:
 
-  GB_DEBUG.FormatDate(GB.SplitDate((GB_DATE *)value), LF_STANDARD, NULL, 0, &addr, &len);
-  goto __PRINT;
+	GB_DEBUG.FormatDate(GB.SplitDate((GB_DATE *)value), LF_STANDARD, NULL, 0, &addr, &len);
+	goto __PRINT;
 
 __SINGLE:
 
-  GB_DEBUG.FormatNumber(value->_single.value, LF_SHORT_NUMBER, NULL, 0, &addr, &len, TRUE);
-  goto __PRINT;
+	GB_DEBUG.FormatNumber(value->_single.value, LF_SHORT_NUMBER, NULL, 0, &addr, &len, TRUE);
+	goto __PRINT;
 	
 __FLOAT:
 
-  GB_DEBUG.FormatNumber(value->_float.value, LF_STANDARD, NULL, 0, &addr, &len, TRUE);
+	GB_DEBUG.FormatNumber(value->_float.value, LF_STANDARD, NULL, 0, &addr, &len, TRUE);
 	
 __PRINT:
 	
-  fprintf(_where, "%.*s", (int)len, addr);
-  goto __RETURN;
+	fprintf(_where, "%.*s", (int)len, addr);
+	goto __RETURN;
 
 __STRING:
 
 	print_string(value->_string.addr + value->_string.start, value->_string.len);
-  goto __RETURN;
+	goto __RETURN;
 
 __OBJECT:
 
-  if (!value->_object.object)
-    goto __NULL;
+	if (!value->_object.object)
+		goto __NULL;
 
-  //*more = !CLASS_is_native(OBJECT_class(value->_object.object));
+	//*more = !CLASS_is_native(OBJECT_class(value->_object.object));
 
 	print_object(value->_object.object);
-  goto __RETURN;
+	goto __RETURN;
 
 __VARIANT:
 
-  conv = *value;
-  value = &conv;
-  GB.Conv((GB_VALUE *)value, (GB_TYPE)value->_variant.vtype);
-  //VARIANT_undo(value);
-  goto __CONV;
+	conv = *value;
+	value = &conv;
+	GB.Conv((GB_VALUE *)value, (GB_TYPE)value->_variant.vtype);
+	//VARIANT_undo(value);
+	goto __CONV;
 
 __VOID:
 
 	fprintf(_where, "VOID");
-  goto __RETURN;
+	goto __RETURN;
 
 __CLASS:
 
-  {
-    CLASS *class = value->_class.class;
-    //*more = (!CLASS_is_native(class) && class->load->n_stat > 0);
+	{
+		CLASS *class = value->_class.class;
+		//*more = (!CLASS_is_native(class) && class->load->n_stat > 0);
 
-    fprintf(_where, "(%s)", class->name);
-    goto __RETURN;
-  }
+		fprintf(_where, "(%s)", class->name);
+		goto __RETURN;
+	}
 
 __POINTER:
 
-  fprintf(_where, "(%p)", value->_pointer.value);
-  goto __RETURN;
+	if (!value->_pointer.value)
+		goto __NULL;
+	
+	fprintf(_where, "(%p)", value->_pointer.value);
+	goto __RETURN;
 
 __FUNCTION:
 
-  fprintf(_where, "FUNCTION");
-  goto __RETURN;
+	fprintf(_where, "FUNCTION");
+	goto __RETURN;
 
 __RETURN:
 	_level--;
@@ -282,20 +289,20 @@ __RETURN:
 
 void PRINT_value(FILE *where, VALUE *value, bool format)
 {
-  char *pval;
-  int lpval;
+	char *pval;
+	int lpval;
 
-  if (format)
-  {
-  	_where = where;
-  	_level = 0;
-    print_value(value);
-    //fputc('\n', _where);
+	if (format)
+	{
+		_where = where;
+		_level = 0;
+		print_value(value);
+		//fputc('\n', _where);
 	}
-  else
-  {
-    GB_DEBUG.ToString((GB_VALUE *)value, &pval, &lpval);
-    fwrite(pval, sizeof(char), lpval, where);
+	else
+	{
+		GB_DEBUG.ToString((GB_VALUE *)value, &pval, &lpval);
+		fwrite(pval, sizeof(char), lpval, where);
 	}
 }
 
@@ -311,7 +318,9 @@ void PRINT_symbol(FILE *where, const char *sym, int len)
 		return;
 	}
 	
+	GB.BorrowValue(&value);
 	print_value((VALUE *)&value);
+	GB.ReleaseValue(&value);
 }
 
 static void print_key(char *key, int len)
@@ -338,9 +347,9 @@ void PRINT_object(FILE *where, VALUE *value)
 	
 	if (value->type == T_VARIANT)
 	{
-	  conv = *value;
-  	value = &conv;
-  	GB.Conv((GB_VALUE *)value, (GB_TYPE)value->_variant.vtype);
+		conv = *value;
+		value = &conv;
+		GB.Conv((GB_VALUE *)value, (GB_TYPE)value->_variant.vtype);
 	}
 	
 	if (value->type < T_OBJECT && value->type != T_CLASS)
@@ -438,7 +447,7 @@ void PRINT_object(FILE *where, VALUE *value)
 		if (cd->len == 0 || (cd->len == 1 && key[0] == '.'))
 			continue;
 	
-	  switch(CLASS_DESC_get_type(cd->desc))
+		switch(CLASS_DESC_get_type(cd->desc))
 		{
 			case CD_STATIC_VARIABLE:
 			case CD_STATIC_PROPERTY:
