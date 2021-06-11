@@ -1514,7 +1514,6 @@ void VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void 
 	VALUE_class_read_inline(class, value, addr, ctype, ref);
 }
 
-
 void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)
 {
 	if (ctype.id == T_OBJECT)
@@ -1526,17 +1525,68 @@ void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)
 		OBJECT_REF_CHECK(value->_object.object);
 		OBJECT_UNREF(*((void **)addr));
 		*((void **)addr) = value->_object.object;
-		//VALUE_write(value, addr, (ctype.value >= 0) ? (TYPE)class->load->class_ref[ctype.value] : T_OBJECT);
 	}
 	else if (ctype.id == TC_STRUCT)
 	{
-		TYPE type = (TYPE)class->load->class_ref[ctype.value];
-		VALUE_conv(value, type);
-		THROW_ILLEGAL();
+		int i;
+		CLASS *sclass;
+		CLASS_DESC *desc;
+		void *src;
+		char *saddr;
+		VALUE temp;
+		int offset;
+		
+		sclass = class->load->class_ref[ctype.value];
+		VALUE_conv(value, (TYPE)sclass);
+		src = value->_object.object;
+		
+		for (i = 0; i < sclass->n_desc; i++)
+		{
+			desc = sclass->table[i].desc;
+			ctype = desc->variable.ctype;
+			offset = desc->variable.offset;
+			
+			if (((CSTRUCT *)src)->ref)
+				saddr = (char *)((CSTATICSTRUCT *)src)->addr;
+			else
+				saddr = (char *)src + sizeof(CSTRUCT);
+		
+			VALUE_class_read(desc->variable.class, &temp, &saddr[offset], ctype, src);
+			BORROW(&temp);
+			VALUE_class_write(sclass, &temp, &addr[offset], ctype);
+			RELEASE(&temp);
+		}	
 	}
 	else if (ctype.id == TC_ARRAY)
 	{
-		THROW_ILLEGAL();
+		CLASS_ARRAY *adesc = class->load->array[ctype.value];
+		CLASS *aclass = CARRAY_get_array_class(class, adesc->ctype);
+		int acount = CARRAY_get_static_count(adesc);
+		int i, count;
+		CARRAY *src;
+		VALUE temp;
+		char *saddr;
+		
+		VALUE_conv(value, (TYPE)aclass);
+		src = (CARRAY *)value->_object.object;
+		
+		ctype = adesc->ctype;
+		
+		count = src->count;
+		if (count > acount)
+			count = acount;
+		
+		saddr = CARRAY_get_data(src, 0);
+		
+		for (i = 0; i < count; i++)
+		{
+			VALUE_class_read(class, &temp, saddr, ctype, src);
+			BORROW(&temp);
+			VALUE_class_write(class, &temp, addr, ctype);
+			RELEASE(&temp);
+			saddr += src->size;
+			addr += src->size;
+		}
 	}
 	else
 	{

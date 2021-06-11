@@ -1813,6 +1813,7 @@ static void array_of_struct_put(CARRAY *_object, void *data, void *object)
 	CLASS_DESC *desc;
 	char *addr;
 	VALUE temp;
+	CTYPE ctype;
 	
 	for (i = 0; i < class->n_desc; i++)
 	{
@@ -1823,10 +1824,15 @@ static void array_of_struct_put(CARRAY *_object, void *data, void *object)
 		else
 			addr = (char *)object + sizeof(CSTRUCT) + desc->variable.offset;
 	
-		VALUE_class_read(desc->variable.class, &temp, (void *)addr, desc->variable.ctype, object);
-
+		ctype = desc->variable.ctype;
+		if (ctype.id == TC_ARRAY || ctype.id == TC_STRUCT)
+			THROW(E_ILLEGAL);
+		
+		VALUE_class_read(desc->variable.class, &temp, (void *)addr, ctype, object);
+		BORROW(&temp);
 		addr = (char *)data + desc->variable.offset;
 		VALUE_write(&temp, (void *)addr, desc->variable.type);
+		RELEASE(&temp);
 	}
 }
 
