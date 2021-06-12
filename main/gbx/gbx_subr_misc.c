@@ -315,6 +315,8 @@ void SUBR_eval(ushort code)
 	if (!EVAL.Run(eval, get_value))
 		goto _ERROR;
 
+	*RP = TEMP;
+	TEMP.type = T_VOID;
 	goto _FREE;
 
 _ERROR:

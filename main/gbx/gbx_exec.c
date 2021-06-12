@@ -994,7 +994,7 @@ void EXEC_function_loop()
 
 				ERROR_set_last(TRUE);
 
-				if (EXEC_debug && !FP->fast && !STACK_has_error_handler())
+				if (EXEC_debug && !FP->fast_linked && !STACK_has_error_handler())
 				{
 					ERROR_hook();
 					
@@ -1018,11 +1018,11 @@ void EXEC_function_loop()
 					
 					// We can only leave stack frames for non-JIT functions.
 					ERROR_lock();
-					while (PC != NULL && EC == NULL && !FP->fast)
+					while (PC != NULL && EC == NULL && !FP->fast_linked)
 						EXEC_leave_drop();
 					ERROR_unlock();
 
-					if (FP && FP->fast)
+					if (FP && FP->fast_linked)
 						PROPAGATE();
 					
 					// If we got the void stack frame, then we remove it and raise the error again
