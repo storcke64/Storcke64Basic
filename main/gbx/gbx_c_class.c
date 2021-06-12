@@ -794,12 +794,20 @@ END_METHOD
 
 BEGIN_METHOD(Object_SizeOf, GB_OBJECT object)
 
+	CLASS *class;
 	void *object = VARG(object);
 
 	if (check_null(object))
 		return;
 
-	GB_ReturnInteger(CLASS_sizeof(OBJECT_class(object)));
+	class = OBJECT_class(object);
+	if (CLASS_is_array(class) && CARRAY_is_static((CARRAY *)object))
+	{
+		CARRAY *array = (CARRAY *)object;
+		GB_ReturnInteger(array->count * array->size);
+	}
+	else
+		GB_ReturnInteger(CLASS_sizeof(class));
 
 END_METHOD
 

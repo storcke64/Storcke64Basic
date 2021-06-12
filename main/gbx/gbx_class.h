@@ -438,6 +438,7 @@ EXTERN CLASS *CLASS_PointerArray;
 #define CLASS_is_native(_class) ((_class)->is_native)
 #define CLASS_is_struct(_class) ((_class)->is_struct)
 #define CLASS_is_array(_class) ((_class)->is_array)
+#define CLASS_is_array_of_struct(_class) ((_class)->is_array_of_struct)
 
 #define FUNCTION_is_static(func) ((func)->type & TF_STATIC)
 //#define FUNCTION_is_native(_desc) (((uintptr_t)(_desc)->exec >> 16) != 0)

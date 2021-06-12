@@ -88,6 +88,8 @@ int CARRAY_get_static_count(CLASS_ARRAY *desc);
 size_t CARRAY_get_static_size(CLASS *class, CLASS_ARRAY *desc);
 void CARRAY_release_static(CLASS *class, CLASS_ARRAY *desc, void *data);
 
+#define CARRAY_is_static(_array) ((_array)->ref != NULL)
+
 #define CARRAY_get_data_unsafe(_array, _index) \
 ({ \
 	int __index = (_index); \
