@@ -33,12 +33,12 @@ Private $oContext As Context                                                    
 Private $sEntryPoint As String = "MAIN"                                   'Defines the default type of entry point for the generated program
 
 Private $cBlockTypes As Collection = ["MODULE": ["END", "MODULE"],
-                                                                          "CLASS": ["END", "CLASS"],
-                                                                          "FORM": ["END", "FORM"],
-                                                                          "CONNECTION": ["END", "CONNECTION"],
-                                                                          "WEBFORM": ["END", "WEBFORM"],
-                                                                          "WEBPAGE": ["END", "WEBPAGE"]
-                                                                         ]
+                                     "CLASS": ["END", "CLASS"],
+                                     "FORM": ["END", "FORM"],
+                                     "CONNECTION": ["END", "CONNECTION"],
+                                     "WEBFORM": ["END", "WEBFORM"],
+                                     "WEBPAGE": ["END", "WEBPAGE"]
+                                     ]
 Private $sCurrentBlock As String = ""
 Static Public $sScriptFilter As New Collection
 
@@ -100,6 +100,20 @@ Private Sub GetFile(SourceFile As String) As String
 End
 
 Private $cKeywords As Collection = ["PRIVATE": True, "PUBLIC": True, "STATIC": True, "SUB": True, "FUNCTION": True, "PROCEDURE": True, "STRUCT": True, "ENUM": True, "CLASSREF": True]
+Private $cFuncDef As Collection = ["SUB": True, "FUNCTION": True, "PROCUDURE": True]
+Private $cAllowedInSub As Collection = ["STATIC": True]
+
+Private Sub IsFunction(Symbols As String[]) As Boolean
+  Dim Counter As Integer = 0
+  For Each s As String In Symbols
+    If counter > 2 Then Break
+    If $cFuncDef[s] Then 
+       Return True
+    Endif
+    Inc counter
+  Next
+  Return False
+End
 
 Private Sub TokenizeFile(SourceBuffer As String)
   Dim SourceList As String[]
@@ -107,8 +121,10 @@ Private Sub TokenizeFile(SourceBuffer As String)
   Dim MainPos As Integer = 1
   Dim sline As String
   Dim bDoFilter As Boolean = ($sScriptFilter.count > 0)
-  
+  Dim bInSub As Boolean = False
   $cKeywords.default = False
+  $cFuncDef.default = False
+  $cAllowedInSub.default = False
   
   If $oContext.$bPlugin Then $sEntryPoint = "_Call"
   
@@ -170,10 +186,20 @@ Private Sub TokenizeFile(SourceBuffer As String)
           Goto ContinueRecord
           
         Else If Not $bInClass And If $cKeywords[symbols[0]] Then
+            If Not bInsub Then 
+              If isFunction(Symbols) Then 
+                bInSub = True
+              Endif
+            Else If $cAllowedInSub[symbols[0]] Then
+              aWarnings.Add("Warning : Defined In Sub : " & symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+              Goto ContinueRecord
+            Endif
+            
             aWarnings.Add("Warning : Defined without " & $sEntryPoint & " : " & symbols[0] & ":" & File.name(cIncludeStack.last) & "." & CurrentLineNumber.last & " : " & sline)
+
             bPublicOrSubDef = True
             GlobalItemPosition.Add(ProgramLines.count)
-             Goto ContinueRecord
+            Goto ContinueRecord
              
         Else If Not $bInClass And If symbols[0] = "FAST" Then
           
@@ -213,7 +239,15 @@ Private Sub TokenizeFile(SourceBuffer As String)
             Else
                 CompileError(cIncludeStack.last, CurrentLineNumber.last, "USE statement without component or library definitions")
             Endif 
-            
+        
+         '' Check for the end of a SUB/FUNCTION/Procedure  definition
+        Else If symbols[0] = "END" And symbols.count = 1 Then 
+          If Not bInSub Then 
+            CompileError(cIncludeStack.last, CurrentLineNumber.last, "Syntax error : Unexpected : " & sLine)
+          Else 
+            bInSub = False
+          Endif
+          
           '' Check for the end of a class definition 
         Else If symbols[0] = "END" And symbols.count = 2 Then      
           
