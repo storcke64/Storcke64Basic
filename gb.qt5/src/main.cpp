@@ -1263,10 +1263,12 @@ int EXPORT GB_INFO(const char *key, void **value)
 }
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 void EXPORT GB_FORK(void)
 {
 	delete QThreadPool::globalInstance();
 }
+#endif
 
 /*#ifndef NO_X_WINDOW
 extern Time	qt_x_time;
