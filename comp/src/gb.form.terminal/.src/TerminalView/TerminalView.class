@@ -339,7 +339,7 @@ End
 
 Public Sub ResizeTimer_Timer()
   
-  If $hProcess Then $hProcess.Term.Resize($hScreen.Width, $hScreen.Height)
+  If $hProcess Then Try $hProcess.Term.Resize($hScreen.Width, $hScreen.Height)
   $hResizeTimer.Stop
 
 End
