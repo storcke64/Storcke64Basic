@@ -386,7 +386,15 @@ END_METHOD
 
 BEGIN_PROPERTY(Class_Size)
 
-	GB_ReturnInteger(CLASS_sizeof(OBJECT(CLASS)));
+	GB_ReturnInteger(OBJECT(CLASS)->size);
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Class_DataSize)
+
+	CLASS *class = OBJECT(CLASS);
+	GB_ReturnInteger(CLASS_sizeof(class) - (class->size - class->off_event));
 
 END_PROPERTY
 
@@ -975,6 +983,7 @@ GB_DESC NATIVE_Class[] =
 	GB_METHOD("New", "o", Class_New, "[(Arguments)Array;]"),
 	GB_METHOD("Exist", "b", Class_Exist, "(Symbol)s"),
 	GB_PROPERTY_READ("Size", "i", Class_Size),
+	GB_PROPERTY_READ("DataSize", "i", Class_DataSize),
 	GB_PROPERTY_READ("StaticSize", "i", Class_StaticSize),
 
 	GB_CONSTANT("Variable", "i", 1),
