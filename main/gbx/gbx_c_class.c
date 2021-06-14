@@ -384,7 +384,7 @@ BEGIN_METHOD(Class_New, GB_OBJECT params)
 END_METHOD
 
 
-BEGIN_PROPERTY(Class_Size)
+/*BEGIN_PROPERTY(Class_Size)
 
 	GB_ReturnInteger(OBJECT(CLASS)->size);
 
@@ -403,7 +403,7 @@ BEGIN_PROPERTY(Class_StaticSize)
 
 	GB_ReturnInteger(OBJECT(CLASS)->size_stat);
 
-END_PROPERTY
+END_PROPERTY*/
 
 
 //---- Symbol -------------------------------------------------------------
@@ -982,9 +982,9 @@ GB_DESC NATIVE_Class[] =
 	GB_METHOD("AutoCreate", "o", Class_AutoCreate, NULL),
 	GB_METHOD("New", "o", Class_New, "[(Arguments)Array;]"),
 	GB_METHOD("Exist", "b", Class_Exist, "(Symbol)s"),
-	GB_PROPERTY_READ("Size", "i", Class_Size),
+	/*GB_PROPERTY_READ("Size", "i", Class_Size),
 	GB_PROPERTY_READ("DataSize", "i", Class_DataSize),
-	GB_PROPERTY_READ("StaticSize", "i", Class_StaticSize),
+	GB_PROPERTY_READ("StaticSize", "i", Class_StaticSize),*/
 
 	GB_CONSTANT("Variable", "i", 1),
 	GB_CONSTANT("Property", "i", 2),
