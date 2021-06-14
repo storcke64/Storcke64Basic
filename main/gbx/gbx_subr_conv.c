@@ -113,12 +113,19 @@ void SUBR_type(ushort code)
 {
   TYPE type;
 	int val;
+	CLASS *class;
 
   SUBR_ENTER_PARAM(1);
 
 	if (code & 0x3F)
 	{
-		val = TYPE_sizeof_memory(SUBR_get_integer(PARAM));
+		if (PARAM->type == T_CLASS)
+		{
+			class = PARAM->_class.class;
+			val = CLASS_sizeof(class) - (class->size - class->off_event);
+		}
+		else
+			val = TYPE_sizeof_memory(SUBR_get_integer(PARAM));
 	}
 	else
   {
