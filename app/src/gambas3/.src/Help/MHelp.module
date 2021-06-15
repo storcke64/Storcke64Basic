@@ -925,6 +925,7 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Dim iPos2 As Integer
   Dim sQuery As String
   Dim sPath As String
+  Dim sDir As String
   
   Wiki.Root = GetOfflineDir()
   Wiki.InfoDir = CComponent.GetInfoDir()
@@ -957,7 +958,8 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Wiki.Path = "/" &/ Mid$(sUrl, 8)
   Wiki.AnalyzePath()
   
-  sPath = GetOfflineDir() &/ "data" &/ Wiki.Lang &/ Wiki.Path &/ "page.html"
+  sDir = GetOfflineDir() &/ "data" &/ Wiki.Lang &/ Wiki.Path
+  sPath = sDir &/ "page.html"
   
   If Not IsDir(File.Dir(sPath)) Then
     If Wiki.Class And If Wiki.HasDefaultHelp() Then
@@ -965,6 +967,10 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
     Endif
   Endif
   
+  If Not IsDir(sDir) Then
+    sPath = File.SetExt(Temp$("help"), "html")
+  Endif
+
   hFile = Open sPath For Create
   Output To #hFile
   

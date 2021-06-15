@@ -122,7 +122,7 @@ Public Sub Open(hForm As FEditor, iCol As Integer, hSymbol As CSymbolInfo, iArg 
   btnHelp.Visible = $bUseHelp
   
   sName = hSymbol.Name
-  If Left$(sName) = "_" Then sName = hSymbol.Class
+  If Left$(sName) = "_" Then sName = CSymbolInfo.GetType(hSymbol.Class)
   sSign = "<b>" & sName & "</b>" & sSign 
   
   lblNewSignature.W = Max(64, $hEditor.W - 64)

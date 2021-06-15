@@ -689,6 +689,8 @@ Static Public Function GetType(sType As String, Optional bBalise As Boolean) As 
     'ELSE
     sType = "Object"
     'ENDIF
+  Else If sType Begins "$" Then
+    sType = Mid$(sType, 2)
   Endif
 
   If bBalise Then
@@ -839,7 +841,11 @@ Public Function GetHelpURL(Optional bShowFile As Boolean) As String
       sPath &/= LCase(sComp)
       ' We keep the class case for custom object arrays
       If Class Ends "[]" And If Not hComp[Class] Then
-        sPath &/= Class
+        If Class Begins "$" Then
+          sPath &/= Mid$(Class, 2)
+        Else
+          sPath &/= Class
+        Endif
       Else
         sPath &/= LCase(Class) 'Left(Class) & Replace(Mid(Class, 2), "_", "."))
       Endif
@@ -1122,6 +1128,14 @@ Private Function GetClassVariableName(sClass As String) As String
 
   Dim sRes As String
 
+  If sClass Begins "*" And If Wiki.SubstClass Then
+    If sClass = "*" Then 
+      sClass = Left(Wiki.SubstClass, -2)
+    Else If sClass = "*[]" Then
+      sClass = Wiki.SubstClass
+    Endif
+  Endif
+
   If Len(sClass) = 1 Then
     sClass = $cTypeName[sClass]
     If InStr("aeiou", LCase(Left$(sClass))) Then
@@ -1164,10 +1178,19 @@ End
 
 Private Function GetSyntaxType(sType As String) As String
 
+  If Wiki.SubstClass And If sType Begins "*" Then
+    If sType = "*" Then
+      sType = Left(Wiki.SubstClass, -2)
+    Else If sType = "*[]"
+      sType = Wiki.SubstClass
+    Endif
+  Endif
+
   If Len(sType) = 1 Then
     sType = $cTypeName[sType]
   Else
     If Right$(sType) = ";" Then sType = Left$(sType, -1)
+    If sType Begins "$" Then sType = Mid$(sType, 2)
     sType = Wiki.GetClassLinkFromName(sType)
     'sType = "<a href=\"" & Application.Root &/ "comp" & "\">" & sType & "</a>"
   Endif

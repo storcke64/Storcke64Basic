@@ -1475,6 +1475,9 @@ Static Public Function ReadSymbolType(aSym As String[], iIndex As Integer, Optio
   Endif
 
   If bArray Then 
+    If bEmbed Then
+      If sType = UCase(sType) Then sType = Left(sType) & LCase(Mid$(sType, 2))
+    Endif
     If bEmbed And If bStruct Then
       Return "$" & sType & "[]"
     Else
