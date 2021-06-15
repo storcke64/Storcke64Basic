@@ -247,14 +247,13 @@ static void style_separator(QPainter *p, int x, int y, int w, int h, int vertica
 }
 
 
-static void style_button(QPainter *p, int x, int y, int w, int h, int value, int state, int flat)
+static void style_button(QPainter *p, int x, int y, int w, int h, int value, int state, int flat, GB_COLOR color)
 {
 	if (flat)
 	{
 		QStyleOptionToolButton opt;
-		
-		init_option(opt, x, y, w, h, state);
-		
+		init_option(opt, x, y, w, h, state, color, QPalette::Button);
+	
 		//opt.state |= QStyle::State_Raised;
 		
 		if (value)
@@ -273,8 +272,7 @@ static void style_button(QPainter *p, int x, int y, int w, int h, int value, int
 	else
 	{
 		QStyleOptionButton opt;
-	
-		init_option(opt, x, y, w, h, state);
+		init_option(opt, x, y, w, h, state, color, QPalette::Button);
 		
 		opt.state |= QStyle::State_Raised;
 		
@@ -435,10 +433,10 @@ BEGIN_METHOD(Style_PaintSeparator, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_
 
 END_METHOD
 
-BEGIN_METHOD(Style_PaintButton, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h; GB_BOOLEAN value; GB_INTEGER state; GB_BOOLEAN flat)
+BEGIN_METHOD(Style_PaintButton, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h; GB_BOOLEAN value; GB_INTEGER state; GB_BOOLEAN flat; GB_INTEGER color)
 
 	GET_COORD();
-	style_button(p, x, y, w, h, VARG(value), VARGOPT(state, GB_DRAW_STATE_NORMAL), VARGOPT(flat, FALSE));
+	style_button(p, x, y, w, h, VARG(value), VARGOPT(state, GB_DRAW_STATE_NORMAL), VARGOPT(flat, FALSE), VARGOPT(color, GB_COLOR_DEFAULT));
 
 END_METHOD
 
@@ -547,7 +545,7 @@ GB_DESC StyleDesc[] =
 	GB_STATIC_METHOD("PaintCheck", NULL, Style_PaintCheck, "(X)i(Y)i(Width)i(Height)i(Value)i[(Flag)i]"),
 	GB_STATIC_METHOD("PaintOption", NULL, Style_PaintOption, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i]"),
 	GB_STATIC_METHOD("PaintSeparator", NULL, Style_PaintSeparator, "(X)i(Y)i(Width)i(Height)i[(Vertical)b(Flag)i]"),
-	GB_STATIC_METHOD("PaintButton", NULL, Style_PaintButton, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i(Flat)b]"),
+	GB_STATIC_METHOD("PaintButton", NULL, Style_PaintButton, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i(Flat)b(Color)i]"),
 	GB_STATIC_METHOD("PaintPanel", NULL, Style_PaintPanel, "(X)i(Y)i(Width)i(Height)i(Border)i[(Flag)i]"),
 	GB_STATIC_METHOD("PaintHandle", NULL, Style_PaintHandle, "(X)i(Y)i(Width)i(Height)i[(Vertical)b(Flag)i]"),
 	GB_STATIC_METHOD("PaintBox", NULL, Style_PaintBox, "(X)i(Y)i(Width)i(Height)i[(Flag)i(Color)i]"),

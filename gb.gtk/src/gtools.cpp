@@ -227,6 +227,13 @@ void gt_to_css_color(char *css, gColor color)
 	}
 }
 
+void gt_add_css_color(char **pcss, gColor color)
+{
+	char buffer[64];
+	gt_to_css_color(buffer, color);
+	g_stradd(pcss, buffer);
+}
+
 #endif
 
 gColor gt_frgba_to_color(double r, double g, double b, double a)

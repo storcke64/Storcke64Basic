@@ -57,7 +57,11 @@ static GtkStyleContext *get_style(GType type = G_TYPE_NONE)
 
 	if (type == GTK_TYPE_BUTTON)
 	{
-		if (!_button) _button = gtk_button_new();
+		if (!_button) 
+		{
+			_button = gtk_button_new();
+			gtk_widget_set_name(_button, "se");
+		}
 		widget = _button;
 	}
 	else if (type == GTK_TYPE_CHECK_BUTTON)
@@ -511,7 +515,44 @@ static void style_separator(int x, int y, int w, int h, int vertical, int state)
 	}
 }
 
-static void style_button(int x, int y, int w, int h, int value, int state, int flat)
+
+#ifdef GTK3
+static void paint_background(STYLE_T *style, int state, GB_COLOR color, int x, int y, int w, int h)
+{
+	set_state(style, state);
+
+	if (color != GB_COLOR_DEFAULT)
+	{
+		char *css = NULL;
+		g_stradd(&css, "#se:not(:selected) { background-color:");
+		gt_add_css_color(&css, color);
+		g_stradd(&css, "; background-image:none; }\n");
+		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css, -1, NULL);
+		gtk_style_context_add_provider(style, _css, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+#if GTK_CHECK_VERSION(3, 12, 0)
+#else
+		gtk_style_context_invalidate(style);
+#endif
+		gtk_render_background(style, _cr, x, y, w, h);
+		gtk_style_context_remove_provider(style, GTK_STYLE_PROVIDER(_css));
+#if GTK_CHECK_VERSION(3, 12, 0)
+#else
+		gtk_style_context_invalidate(style);
+#endif
+	}
+	else
+		gtk_render_background(style, _cr, x, y, w, h);
+
+	gtk_render_frame(style, _cr, x, y, w, h);
+
+	if (color != GB_COLOR_DEFAULT)
+		gtk_style_context_remove_provider(style, _css);
+}
+#endif
+
+
+static void style_button(int x, int y, int w, int h, int value, int state, int flat, GB_COLOR color)
 {
 	STYLE_T *style = get_style(GTK_TYPE_BUTTON);
 
@@ -579,6 +620,8 @@ static void style_button(int x, int y, int w, int h, int value, int state, int f
 #endif
 
 	if (flat && (state & GB_DRAW_STATE_HOVER) == 0)
+		return;
+	
 	{
 		/*gtk_paint_flat_box(style, _dr,
 			st, value ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
@@ -590,26 +633,98 @@ static void style_button(int x, int y, int w, int h, int value, int state, int f
 				get_area(d), _widget, "button",
 				x, y, w, h);*/
 	}
-	else
-	{
+
 #ifdef GTK3
-		set_state(style, state);
-		gtk_render_background(style, _cr, x, y, w, h);
-		gtk_render_frame(style, _cr, x, y, w, h);
-		if (state & GB_DRAW_STATE_FOCUS)
-			paint_focus(style, x, y, w, h);
+	
+	paint_background(style, state, color, x, y, w, h);
+	
+	if (state & GB_DRAW_STATE_FOCUS)
+		paint_focus(style, x, y, w, h);
+	
 #else
+	
 	GtkStateType st = get_state(state);
+
+	if (color == GB_COLOR_DEFAULT)
+	{
 		gtk_paint_box(style, _dr,
 			st, value ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
 			get_area(), _widget, "button",
 			x, y, w, h);
+	}
+	else
+	{
+		GtkStyle *style2 = gtk_style_copy(style);
+		for (int i = 0; i < 5; i++)
+		{
+			fill_gdk_color(&style2->bg[i], color);
+			fill_gdk_color(&style2->base[i], color);
+		}
+		style2 = attach_style(style2);
+
+		gtk_paint_box(style2, _dr,
+			st, value ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+			get_area(), _widget, "button",
+			x, y, w, h);
+
+		g_object_unref(G_OBJECT(style2));
+	}
+	
 	if (state & GB_DRAW_STATE_FOCUS)
 		paint_focus(style, xf, yf, wf, hf, st, "button");
+
 #endif
+}
+
+
+static void style_box(int x, int y, int w, int h, int state, GB_COLOR color)
+{
+	STYLE_T *style = get_style(GTK_TYPE_ENTRY);
+
+	if (gApplication::_fix_oxygen)
+	{
+		x -= 3;
+		w += 6;
 	}
 
+#ifdef GTK3
+
+	paint_background(style, state, color, x, y, w, h);
+
+#else
+
+	if (gApplication::_fix_breeze)
+		state &= ~GB_DRAW_STATE_HOVER;
+
+	GtkStateType st = get_state(state);
+
+	if (color == GB_COLOR_DEFAULT)
+	{
+		gtk_paint_box (style, _dr, st, GTK_SHADOW_NONE, get_area(), _widget, "entry", x, y, w, h);
+		gtk_paint_shadow(style, _dr, st, GTK_SHADOW_NONE, get_area(), NULL, "entry", x, y, w, h);
+	}
+	else
+	{
+		GtkStyle *style2 = gtk_style_copy(style);
+		for (int i = 0; i < 5; i++)
+		{
+			fill_gdk_color(&style2->bg[i], color);
+			fill_gdk_color(&style2->base[i], color);
+		}
+		style2 = attach_style(style2);
+
+		gtk_paint_box (style2, _dr, st,
+			GTK_SHADOW_IN, get_area(), _widget, "entry", x, y, w, h);
+
+		g_object_unref(G_OBJECT(style2));
+	}
+
+	if (state & GB_DRAW_STATE_FOCUS)
+		paint_focus(style, x, y, w, h, st, "entry");
+
+#endif
 }
+
 
 static void style_panel(int x, int y, int w, int h, int border, int state)
 {
@@ -675,92 +790,6 @@ static void style_handle(int x, int y, int w, int h, int vertical, int state)
 #endif
 }
 
-static void style_box(int x, int y, int w, int h, int state, GB_COLOR color)
-{
-	STYLE_T *style = get_style(GTK_TYPE_ENTRY);
-
-	if (gApplication::_fix_oxygen)
-	{
-		x -= 3;
-		w += 6;
-	}
-
-#ifdef GTK3
-
-	set_state(style, state);
-
-	if (color != GB_COLOR_DEFAULT)
-	{
-		char *css = NULL;
-		char buffer[256];
-
-		g_stradd(&css, "#se:not(:selected) { background-color:");
-		gt_to_css_color(buffer, color);
-		g_stradd(&css, buffer);
-		g_stradd(&css, "; background-image:none; }\n");
-		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css, -1, NULL);
-		gtk_style_context_add_provider(style, _css, GTK_STYLE_PROVIDER_PRIORITY_USER);
-
-#if GTK_CHECK_VERSION(3, 12, 0)
-#else
-		gtk_style_context_invalidate(style);
-#endif
-		gtk_render_background(style, _cr, x, y, w, h);
-		gtk_style_context_remove_provider(style, GTK_STYLE_PROVIDER(_css));
-#if GTK_CHECK_VERSION(3, 12, 0)
-#else
-		gtk_style_context_invalidate(style);
-#endif
-	}
-	else
-		gtk_render_background(style, _cr, x, y, w, h);
-
-	gtk_render_frame(style, _cr, x, y, w, h);
-
-	if (color != GB_COLOR_DEFAULT)
-		gtk_style_context_remove_provider(style, _css);
-
-#else
-
-	if (gApplication::_fix_breeze)
-		state &= ~GB_DRAW_STATE_HOVER;
-
-	GtkStateType st = get_state(state);
-
-	if (color == GB_COLOR_DEFAULT)
-	{
-		//fprintf(stderr, "paint_box: default color\n");
-		gtk_paint_box (style, _dr, st, GTK_SHADOW_NONE, get_area(), _widget, "entry", x, y, w, h);
-		gtk_paint_shadow(style, _dr, st, GTK_SHADOW_NONE, get_area(), NULL, "entry", x, y, w, h);
-		/*color = gDesktop::bgColor();
-		if (_widget)
-		{
-			gControl *control = gt_get_control(_widget);
-			if (control)
-				color = control->realBackground();
-		}*/
-	}
-	else
-	{
-		GtkStyle *style2 = gtk_style_copy(style);
-		for (int i = 0; i < 5; i++)
-		{
-			fill_gdk_color(&style2->bg[i], color);
-			fill_gdk_color(&style2->base[i], color);
-		}
-		style2 = attach_style(style2);
-
-		gtk_paint_box (style2, _dr, st,
-			GTK_SHADOW_IN, get_area(), _widget, "entry", x, y, w, h);
-
-		g_object_unref(G_OBJECT(style2));
-	}
-
-	if (state & GB_DRAW_STATE_FOCUS)
-		paint_focus(style, x, y, w, h, st, "entry");
-
-#endif
-}
 
 //-------------------------------------------------------------------------
 
@@ -887,10 +916,10 @@ BEGIN_METHOD(Style_PaintSeparator, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_
 
 END_METHOD
 
-BEGIN_METHOD(Style_PaintButton, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h; GB_BOOLEAN value; GB_INTEGER state; GB_BOOLEAN flat)
+BEGIN_METHOD(Style_PaintButton, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h; GB_BOOLEAN value; GB_INTEGER state; GB_BOOLEAN flat; GB_INTEGER color)
 
 	BEGIN_DRAW();
-	style_button(x, y, w, h, VARG(value), VARGOPT(state, GB_DRAW_STATE_NORMAL), VARGOPT(flat, FALSE));
+	style_button(x, y, w, h, VARG(value), VARGOPT(state, GB_DRAW_STATE_NORMAL), VARGOPT(flat, FALSE), VARGOPT(color, GB_COLOR_DEFAULT));
 	END_DRAW();
 
 END_METHOD
@@ -983,7 +1012,7 @@ GB_DESC StyleDesc[] =
 	GB_STATIC_METHOD("PaintCheck", NULL, Style_PaintCheck, "(X)i(Y)i(Width)i(Height)i(Value)i[(Flag)i]"),
 	GB_STATIC_METHOD("PaintOption", NULL, Style_PaintOption, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i]"),
 	GB_STATIC_METHOD("PaintSeparator", NULL, Style_PaintSeparator, "(X)i(Y)i(Width)i(Height)i[(Vertical)b(Flag)i]"),
-	GB_STATIC_METHOD("PaintButton", NULL, Style_PaintButton, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i(Flat)b]"),
+	GB_STATIC_METHOD("PaintButton", NULL, Style_PaintButton, "(X)i(Y)i(Width)i(Height)i(Value)b[(Flag)i(Flat)b(Color)i]"),
 	GB_STATIC_METHOD("PaintPanel", NULL, Style_PaintPanel, "(X)i(Y)i(Width)i(Height)i(Border)i[(Flag)i]"),
 	GB_STATIC_METHOD("PaintHandle", NULL, Style_PaintHandle, "(X)i(Y)i(Width)i(Height)i[(Vertical)b(Flag)i]"),
 	GB_STATIC_METHOD("PaintBox", NULL, Style_PaintBox, "(X)i(Y)i(Width)i(Height)i[(Flag)i(Color)i]"),

@@ -257,6 +257,7 @@ static void gambas_handle_event(GdkEvent *event)
 		goto __HANDLE_EVENT;
 
 	widget = gtk_get_event_widget(event);
+	
 	if (!widget)
 		goto __HANDLE_EVENT;
 	

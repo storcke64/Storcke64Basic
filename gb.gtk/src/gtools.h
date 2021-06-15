@@ -180,6 +180,7 @@ gColor gt_frgba_to_color(double r, double g, double b, double a);
 void gt_from_color(gColor color, GdkRGBA *rgba);
 gColor gt_to_color(GdkRGBA *rgba);
 void gt_to_css_color(char *css, gColor color);
+void gt_add_css_color(char **pcss, gColor color);
 #endif
 
 // Draw a control border
