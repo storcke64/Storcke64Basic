@@ -1037,7 +1037,7 @@ gw = {
       {
         /*elt.style.left = (Math.max(0, c.x + c.cx - e.clientX)) + 'px';
         elt.style.top = (Math.max(0, c.y + c.cy - e.clientY)) + 'px';*/
-        elt.style.transform = 'translate(' + (Math.max(0, c.x + c.cx - e.clientX)) + 'px,' + (Math.max(0, c.y + c.cy - e.clientY)) + 'px)';
+        elt.style.transform = 'translate(' + (Math.max(0, c.x + c.cx - e.clientX)) + 'px,' + (Math.min(window.innerHeight - elt.firstElementChild.offsetHeight, Math.max(0, c.y + c.cy - e.clientY))) + 'px)';
         return;
       }
     
