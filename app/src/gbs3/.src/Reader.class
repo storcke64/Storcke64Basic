@@ -99,7 +99,8 @@ Private Sub GetFile(SourceFile As String) As String
   
 End
 
-Private $cKeywords As Collection = ["PRIVATE": True, "PUBLIC": True, "STATIC": True, "SUB": True, "FUNCTION": True, "PROCEDURE": True, "STRUCT": True, "ENUM": True, "CLASSREF": True]
+Private $cKeywords As Collection = ["PRIVATE": True, "PUBLIC": True, "STATIC": True, "SUB": True, "FUNCTION": True, "PROCEDURE": True, "STRUCT": True, "ENUM": True, "CLASSREF": True,
+                                    "EXTERN": True, "CONST": True]
 Private $cFuncDef As Collection = ["SUB": True, "FUNCTION": True, "PROCUDURE": True]
 Private $cAllowedInSub As Collection = ["STATIC": True]
 
