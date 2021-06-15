@@ -166,8 +166,8 @@ static bool TRANS_local(void)
 		}
 
 		f = TT_DO_NOT_CHECK_AS | TT_CAN_ARRAY | TT_CAN_NEW;
-		//if (!many)
-		//	f |= TT_CAN_SQUARE;
+		if (is_static)
+			f |= TT_CAN_EMBED;
 
 		if (!TRANS_type(f, &decl))
 			THROW(E_SYNTAX);
