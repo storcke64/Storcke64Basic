@@ -977,6 +977,8 @@ Public Sub ShowError(sMsg As String)
   If Not Me.Visible Then
     sMsg = Replace(sMsg, "\n", "<br>")
     Message.Error(sMsg)
+  Else
+    FDebugButton.SelectButton(TAB_DEBUG)
   Endif
   
 End

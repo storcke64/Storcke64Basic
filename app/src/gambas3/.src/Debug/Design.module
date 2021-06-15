@@ -82,6 +82,7 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
   Endif
   
   FDebugInfo.ShowError($sError)
+  $hTimerShowConsole.Stop
   
 End
 

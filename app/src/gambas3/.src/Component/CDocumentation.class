@@ -1065,7 +1065,7 @@ Public Function GetClassSymbols(sClass As String, Optional sComponent As String)
       If Right(sClass, 2) = "[]" Then
         'GetClassSymbols(Left(sClass, -2))
         hClass = CreateClass(sClass, "", "*")
-        hClass.CopyFrom(Classes["*[]"], "*", Left(sClass, -2))
+        hClass.CopyFrom(Classes[If(sClass Begins "$", "$*[]", "*[]")], "*", Left(sClass, -2))
         $hClass = hClass
         Return hClass.Symbols
       Endif

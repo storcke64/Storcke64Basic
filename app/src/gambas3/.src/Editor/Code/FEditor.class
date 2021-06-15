@@ -1440,6 +1440,8 @@ Static Public Function ReadSymbolType(aSym As String[], iIndex As Integer, Optio
 
   Dim sType As String
   Dim bArray As Boolean
+  Dim bEmbed As Boolean
+  Dim bStruct As Boolean
 
   If sSymbol Then
     If UCase(aSym[iIndex]) <> UCase(sSymbol) Then Return
@@ -1454,12 +1456,16 @@ Static Public Function ReadSymbolType(aSym As String[], iIndex As Integer, Optio
     If aSym[iIndex] <> "]" Then Return
     Inc iIndex
     bArray = True
+    bEmbed = True
   Endif
 
   If aSym[iIndex] <> "AS" Then Return
   Inc iIndex
   If aSym[iIndex] = "NEW" Then Inc iIndex
-  If aSym[iIndex] = "STRUCT" Then Inc iIndex
+  If aSym[iIndex] = "STRUCT" Then 
+    bStruct = True
+    Inc iIndex
+  Endif
 
   sType = aSym[iIndex]
   sType = UCase(Left(sType)) & Mid$(sType, 2)
@@ -1468,7 +1474,13 @@ Static Public Function ReadSymbolType(aSym As String[], iIndex As Integer, Optio
     If aSym[iIndex + 1] = "[" Then bArray = True
   Endif
 
-  If bArray Then Return sType & "[]"
+  If bArray Then 
+    If bEmbed And If bStruct Then
+      Return "$" & sType & "[]"
+    Else
+      Return sType & "[]"
+    Endif
+  Endif
 
   sType = CSymbolInfo.NameToType(sType)
   Return sType
