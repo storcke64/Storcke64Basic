@@ -71,6 +71,7 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
   Dim sPath As String
   
   If Not $sError Then Return
+  
   If hEditor Then
     If hEditor.Name == $sPosClass And If hEditor.GetEditor().Line = ($iPosLine - 1) Then
       hEditor.ShowErrorMessage($sError, "error")
@@ -78,9 +79,9 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
       sPath = Project.FindForm(hEditor.Name)
       FMain.ShowError($sError, sPath)
     Endif
-  Else
-    FDebugInfo.ShowError($sError)
   Endif
+  
+  FDebugInfo.ShowError($sError)
   
 End
 

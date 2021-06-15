@@ -13,7 +13,7 @@
     }
   }
   { wizDebug Wizard
-    MoveScaled(2,5,122,41)
+    MoveScaled(2,5,122,44)
     Arrangement = Arrange.Vertical
     Count = 8
     ShowTitle = False
@@ -21,51 +21,51 @@
     Border = False
     Index = 0
     Text = ("Debugging")
-    { panDebug HBox
-      MoveScaled(1,2,112,36)
+    { panDebug VBox
+      MoveScaled(0,3,112,40)
       Expand = True
       { splDebug HSplit
-        MoveScaled(6,1,94,34)
+        MoveScaled(1,1,94,32)
         Expand = True
         { lvwStack ListView
-          MoveScaled(0,0,14,33)
+          MoveScaled(0,0,14,31)
           Mouse = Mouse.Pointing
           Border = False
         }
         { Panel7 VBox
-          MoveScaled(16,1,74,32)
+          MoveScaled(15,1,74,30)
           { panWatch HBox
-            MoveScaled(1,1,71,3)
+            MoveScaled(1,1,71,4)
             Drop = True
             { Panel5 HBox
-              MoveScaled(1,0,41,3)
+              MoveScaled(1,0,47,4)
               Background = Color.TextBackground
               Expand = True
               { btnAddWatch ToolButton
-                MoveScaled(0,0,3,3)
+                MoveScaled(0,0,4,4)
                 ToolTip = ("Add expression")
-                Picture = Picture["icon:/tiny/add"]
+                Picture = Picture["icon:/small/add"]
               }
               { btnAddTrack ToolButton
-                MoveScaled(3,0,3,3)
+                MoveScaled(4,0,4,4)
                 ToolTip = ("Watch expression")
-                Picture = Picture["icon:/tiny/watch"]
+                Picture = Picture["icon:/small/watch"]
               }
               { btnKillWatch ToolButton
-                MoveScaled(6,0,3,3)
+                MoveScaled(8,0,4,4)
                 ToolTip = ("Remove current expression")
-                Picture = Picture["icon:/tiny/remove"]
+                Picture = Picture["icon:/small/remove"]
               }
               { btnKillAllWatch ToolButton
-                MoveScaled(9,0,3,3)
+                MoveScaled(12,0,4,4)
                 ToolTip = ("Remove all expressions")
-                Picture = Picture["icon:/tiny/trash"]
+                Picture = Picture["icon:/small/trash"]
               }
               { Panel10 Panel
-                MoveScaled(13,0,1,3)
+                MoveScaled(17,0,1,3)
               }
               { cmbWatch ComboBox
-                MoveScaled(16,0,22,3)
+                MoveScaled(20,0,22,4)
                 Expand = True
                 Placeholder = ("Enter an expression")
                 Border = False
@@ -83,12 +83,15 @@
             { Separator3 Separator
               MoveScaled(63,0,0,3)
             }
+            { Panel4 Panel
+              MoveScaled(66,0,4,4)
+            }
           }
           { Separator4 Separator
-            MoveScaled(4,11,30,0)
+            MoveScaled(2,7,30,0)
           }
           { splVariable HSplit
-            MoveScaled(3,12,67,19)
+            MoveScaled(1,8,67,19)
             Expand = True
             { cvwVariable ColumnView
               MoveScaled(4,2,27,15)
@@ -106,8 +109,25 @@
           }
         }
       }
-      { Panel4 Panel
-        MoveScaled(107,1,4,4)
+      { sepError Separator
+        MoveScaled(35,34,17,0)
+        Visible = False
+      }
+      { panError HBox
+        MoveScaled(1,35,103,4)
+        Visible = False
+        Spacing = True
+        { picError PictureBox
+          MoveScaled(0,0,4,4)
+          Picture = Picture.Load("icon:/medium/error")
+          Stretch = True
+          Alignment = Align.Center
+        }
+        { lblError TextLabel
+          MoveScaled(6,0,73,4)
+          Expand = True
+          Alignment = Align.Normal
+        }
       }
     }
     Index = 1

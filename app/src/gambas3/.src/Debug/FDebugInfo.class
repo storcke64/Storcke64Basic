@@ -341,11 +341,8 @@ End
 
 Public Sub ReadConfig()
   
-  'Dim hButton As ToolButton
   Dim hCtrl As Control
   Dim hFont As Font
-  Dim H As Integer
-  Dim hChild As Control
   Dim fSize As Float
   
   Settings.Read(panDebug)
@@ -364,6 +361,10 @@ Public Sub ReadConfig()
   InitFont(cvwObject, fSize)
   
   cmbWatch_Change
+  Project.SetEditorFont(lblError)
+  panError.H = lblError.Font.Height + Desktop.Scale
+  picError.W = panError.H
+  picError.Padding = Desktop.Scale \ 2
   
   FDebugButton.ReadConfig
   
@@ -376,12 +377,11 @@ Public Sub ReadConfig()
     Project.SetSmallFont(hCtrl)
   Next
   
-  H = Max(Stock.GetSize("tiny"), cmbWatch.Font.H) * 1.4
-  
-  panWatch.H = H
-  For Each hChild In panWatch.Children
-    If hChild Is PictureBox Or If hChild Is ToolButton Then hChild.W = hChild.H
-  Next
+  'H = Max(Stock.GetSize("small"), cmbWatch.Font.H) * 1.4
+  'panWatch.H = H
+  ' For Each hChild In panWatch.Children
+  '   If hChild Is PictureBox Or If hChild Is ToolButton Then hChild.W = hChild.H
+  ' Next
   
   $iChangeColor = Color.Merge(MTheme.GetColor("Highlight"), Color.Background)
   $iErrorColor = MTheme.GetColor("Error")
@@ -968,9 +968,13 @@ End
 
 Public Sub ShowError(sMsg As String)
   
-  If Me.Visible Then
-    Balloon(sMsg, lvwStack, Picture["icon:/32/error"], 8, 8)
-  Else
+  lblError.Text = sMsg
+  lblError.Foreground = MTheme.GetColor("Foreground")
+  panError.Background = MTheme.GetColor("Error")
+  panError.Show
+  sepError.Show
+
+  If Not Me.Visible Then
     sMsg = Replace(sMsg, "\n", "<br>")
     Message.Error(sMsg)
   Endif
@@ -1432,6 +1436,8 @@ Public Sub OnProjectDebug()
   $sLastLocal = ""
   $sLastObject = ""
   If Settings["/ShowDebugPanelAutomatically", True] Then FDebugButton.SelectButton(TAB_CONSOLE)
+  panError.Hide
+  sepError.Hide
   
 End
 
@@ -1765,69 +1771,13 @@ Public Sub GetWatches() As String
   
 End
 
-' Public Sub cmbWatch_GotFocus()
-' 
-'   If cmbWatch.Foreground <> Color.Default Then
-'     cmbWatch.Font = cvwVariable.Font
-'     cmbWatch.Text = ""
-'     cmbWatch.Foreground = Color.Default
-'   Endif
-' 
-' End
-' 
-' Public Sub cmbWatch_LostFocus()
-' 
-'   If Not Trim(cmbWatch.Text) Then
-'     cmbWatch.Text = ("Enter an expression")
-'     Project.SetSmallFont(cmbWatch)
-'     cmbWatch.Font.Italic = True
-'     cmbWatch.Foreground = Color.LightForeground
-'   Endif
-' 
-' End
-
-' Public Sub cmbWatch_Change()
-' 
-'   If cmbWatch.Foreground <> Color.Default Then Return
-'   
-'   If Not cmbWatch.Text Then
-'     cmbWatch.Foreground = Color.LightForeground
-'     Project.SetSmallFont(cmbWatch)
-'     cmbWatch.Font.Italic = True
-'     cmbWatch.Text = ("Enter an expression")
-'   Endif
-' 
-' End
-' 
-' Public Sub cmbWatch_KeyPress()
-' 
-'   If cmbWatch.Foreground <> Color.Default Then
-'     If Key.Text And If Asc(Key.Text) >= 32 And If Asc(Key.Text) <> 127 Then
-'       cmbWatch.Text = ""
-'       cmbWatch.Font = cvwVariable.Font
-'       cmbWatch.Foreground = Color.Default
-'       Return
-'     Endif
-'     Stop Event
-'   Endif
-' 
-' End
-' 
-' Public Sub cmbWatch_Cursor()
-' 
-'   If cmbWatch.Foreground <> Color.Default Then
-'     cmbWatch.Pos = 0
-'   Endif
-' 
-' End
-
 Public Sub cmbWatch_Change()
 
   If cmbWatch.Length = 0 Then
-    Project.SetSmallFont(cmbWatch)
-    cmbWatch.Font.Italic = True
+    cmbWatch.Font = lvwStack.Font
+    'cmbWatch.Font.Italic = True
   Else
-    cmbWatch.Font = cvwVariable.Font
+    Project.SetEditorFont(cmbWatch)
   Endif
   
   UpdateWatchButtons
