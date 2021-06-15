@@ -60,6 +60,7 @@ Public Sub _new()
   tabProperty.Index = 0
   
   txtSearchProject._AddButton(btnUseInheritance)
+  txtSearchProject._AddButton(btnOpenStartup)
   
   'FSearch.Load
   FOption.Load
@@ -3177,5 +3178,15 @@ End
 Public Sub mnuFilterDoNotTranslate_Click()
 
   DoFilter(Project.FILTER_DO_NOT_TRANSLATE)
+
+End
+
+Public Sub btnOpenStartup_Click()
+
+  Dim hFile As FEditor
+
+  hFile = Project.OpenFile(Project.FindPath(Project.Startup))
+  Try hFile.Goto(hFile.GetFunctionLine("Main"), 0)
+  
 
 End

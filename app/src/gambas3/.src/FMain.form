@@ -1298,8 +1298,13 @@
           ToolTip = ("Dispose class files according to inheritance")
           Toggle = True
         }
+        { btnOpenStartup ToolButton
+          MoveScaled(4,0,4,4)
+          ToolTip = ("Open startup class")
+          Picture = Picture["icon:/small/home"]
+        }
         { txtSearchProject ButtonBox
-          MoveScaled(5,1,22,3)
+          MoveScaled(13,1,14,3)
           Foreground = Color.LightForeground
           Expand = True
           Picture = Picture["icon:/small/close"]
