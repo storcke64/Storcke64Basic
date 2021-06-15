@@ -41,6 +41,9 @@ Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
   'If Not cReader.bModuleStartup Then 
     If cReader.IsMainDefined() Then
       $oContext.$sFinalProgram = cReader.GetProgram()
+      Verbose("Before Compile--------------------------------------------------")
+      Verbose(MakeListing.GenListing($oContext, $oContext.$sFinalProgram))
+      Verbose("_____________________________________________")
     Else If cReader.HasPublicOrSub() Then
       cReader.DisplayWarnings()
       If $oContext.$bAllowLazyScript Then

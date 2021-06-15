@@ -1,8 +1,8 @@
 ' Gambas module file
 
-Private aDefWords As Collection = ["PUBLIC": True, "STATIC": True, "STRUCT": True, "FAST": True, "UNSAFE": True, "PRIVATE": True, "ENUM": True]
+Private aDefWords As Collection = ["PUBLIC": True, "STATIC": True, "STRUCT": True, "FAST": True, "UNSAFE": True, "PRIVATE": True, "ENUM": True, "EXTERN": True, "CONST": True]
 Private aDefFunc As Collection = ["SUB": True, "PROCEDURE": True, "FUNCTION": True]
-Private aSpecial As Collection = ["STRUCT": True, "ENUM": True]
+Private aSpecial As Collection = ["STRUCT": True, "ENUM": True, "EXTERN": True, "CONST": True]
 
 Private $iAdjustedOffset As Integer
 
@@ -45,12 +45,21 @@ Public Sub _call(oContext As Context, Program As Reader) As String
          If s = "ENUM" Then
             Dim DefEnum As String = ProcessVariable(Program, i - $iAdjustedOffset)
             If Upper(DefEnum) Begins "ENUM" Then DefEnum = "Public " & DefEnum
-            DefOutPut &= DefEnum & "\n"
+            oContext.$sProgramHeader &= DefEnum & "\n"
+            Break
+          Else If s = "CONST" Then
+            Dim DefConst As String = ProcessVariable(Program, i - $iAdjustedOffset)
+            If Upper(DefCONST) Begins "CONST" Then DefConst = "Public " & DefConst
+            oContext.$sProgramHeader &= DefConst & "\n"
+            Break
+         Else If s = "EXTERN" Then
+            Dim DefExtern As String = AdjustProgram(Program, i - $iAdjustedOffset, i - $iAdjustedOffset)
+            oContext.$sExternals &= DefExtern & "\n"
             Break
          Else
             Dim DefStruct As String = ProcessBlock(Program, i - $iAdjustedOffset, ["END", "STRUCT"])
             If Upper(DefStruct) Begins "STRUCT" Then DefStruct = "Public " & DefStruct
-            DefOutPut &= DefStruct & "\n"
+            oContext.$sStructures &= DefStruct & "\n"
             Break
          Endif
       Endif
@@ -59,7 +68,7 @@ Public Sub _call(oContext As Context, Program As Reader) As String
   
   MainOutPut &= Program.ProgramLines.Join("\n") & "\nEND\n"
   Verbose("Before Compile--------------------------------------------------")
-  Verbose(MakeListing.GenListing(oContext, DefOutput & MainOutPut))
+  Verbose(MakeListing.GenListing(oContext, oContext.$sProgramHeader & oContext.$sStructures & oContext.$sExternals & DefOutput & MainOutPut))
   Verbose("_____________________________________________")
   Return DefOutput & MainOutPut
   
