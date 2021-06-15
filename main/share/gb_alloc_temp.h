@@ -136,7 +136,7 @@ void MEMORY_exit(void)
 	fclose(MEMORY_log);
 #else
   if (MEMORY_count)
-		ERROR_warning("%d allocation(s) non freed.\n", MEMORY_count);
+		ERROR_warning("%d allocation(s) non freed.", MEMORY_count);
 #endif
 }
 
