@@ -14,6 +14,7 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
   $oContext.$sStructures = ""
   $oContext.$sProgramHeader = ""
   $oContext.$sCompilerOptions = ""
+  $oContext.$sExternals = ""
 
   If $oContext.$bCreateProject Then 
     Dim sPathInfo As String = File.Dir(sPath)
@@ -102,6 +103,7 @@ Public Sub _Call($oContext As Context, sPath As String, Optional sProjectLocatio
   If $oContext.$sPreambleHeader <> "" Then Print #$hOutFile, $oContext.$sPreambleHeader
   If $oContext.$sCompilerOptions <> "" Then Print #$hOutFile, $oContext.$sCompilerOptions
   If $oContext.$sStructures <> "" Then Print #$hOutFile, $oContext.$sStructures
+  If $oContext.$sExternals <> "" Then Print #$hOutFile, $oContext.$sExternals
   If $oContext.$sProgramHeader <> "" Then Print #$hOutFile, $oContext.$sProgramHeader
   If $oContext.$bPlugin Then Print #$hOutFile, PluginInfo()
   If $oContext.$sFinalProgram <> "" Then Print #$hOutFile, $oContext.$sFinalProgram

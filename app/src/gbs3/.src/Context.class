@@ -13,12 +13,13 @@ Public $bArchiveOutput As Boolean = False         ' Indicates that the user want
 
 Public $bScriptSourceStdIn As Boolean = False  ' If file name is - or no filename is provided  input from file.in(stdin)
 
-Public $sPreambleHeader As String                        ' contains comments and such to be put before the file
+Public $sPreambleHeader As String                         ' contains comments and such to be put before the file
 Public $sProgramHeader As String                          ' Contains statements and variable definitions needed before pubic sub main is defined
+Public $sExternals As String                              ' Contains all the externals defined in a script
 Public $sCompilerOptions As String                        ' Contains all the compiler options -- fast, unsafe etc
-Public $sStructures As String                                     ' Public structs that are global and outside and before the public sub main definition
-Public $sFinalProgram As String                               ' The final program Assembled from the script file to be written before compile is invoked
-Public $bClassAsStartup As Boolean = False         ' This indicates that the startup is a class not a module we create
+Public $sStructures As String                             ' Public structs that are global and outside and before the public sub main definition
+Public $sFinalProgram As String                           ' The final program Assembled from the script file to be written before compile is invoked
+Public $bClassAsStartup As Boolean = False                ' This indicates that the startup is a class not a module we create
 
 Public $bBuildOnly As Boolean                               ' add support to have scripter build the project only and print out the source files
 'Public $bPrecompiler As Boolean                          ' precompiler is enabled on the command line programs {i}var1 = 3 -> Dim Var1 as integer : var1 = 3
