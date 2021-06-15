@@ -868,7 +868,7 @@ Public Sub IsDialogButtonVisible() As Boolean
   
 End
 
- Private Sub CheckFile() As Boolean ' FIXME: If 'As Boolean' is forgotten, and 'Return True' is removed, we can get an interpreter crash
+Private Sub CheckFile() As Boolean ' FIXME: If 'As Boolean' is forgotten, and 'Return True' is removed, we can get an interpreter crash
   
   Dim sPath As String
   Dim sFile As String

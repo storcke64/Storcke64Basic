@@ -25,6 +25,7 @@ Property MenuOnly As Boolean
 Property Value As Boolean
 Property AutoResize As Boolean
 Property Border As Boolean
+Property Background As Integer
 
 Private $hDrawingArea As DrawingArea
 Private $hPicture As Picture
@@ -42,6 +43,7 @@ Private $bArrow As Boolean
 Private $bAutoResize As Boolean
 Private $bMenuOnly As Boolean
 Private $hLastFocus As Control
+Private $iBg As Integer = Color.Default 
 
 Static Private $hCurrent As MenuButton
 Static Private $hCurrentMenu As Menu
@@ -415,13 +417,11 @@ Public Sub DrawingArea_Draw()
   iFlag = Style.StateOf($hDrawingArea)
   
   If $hCurrent Then
-    If $hCurrent = Me Then iFlag = iFlag Or Draw.Hover
+    If $hCurrent = Me Then iFlag = iFlag Or Style.Hovered
   Else
-    If $bInside Then iFlag = iFlag Or Draw.Hover
+    If $bInside And If $hDrawingArea.HasFocus Then iFlag = iFlag Or Style.Hovered
   Endif
-  'If $bInside And If Me.Enabled And If Not Me.Design Then iFlag += Draw.Hover
-  'If Not Me.Enabled Then iFlag += Draw.Disabled
-  If $hDrawingArea.HasFocus Then iFlag += Draw.Hover
+  If $hDrawingArea.HasFocus Then iFlag = iFlag Or Style.HasFocus
   
   bDrawArrow = $bArrow And (Me.W > DS * 4)
   
@@ -433,12 +433,15 @@ Public Sub DrawingArea_Draw()
   If bMenu Then
     Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Color.SelectedBackground)
   Else 
-    'Paint.FillRect(1, 1, Me.W - 2, Me.H - 2, Style.BackgroundOf(Me))
     If $bInsideArrow Or If $bMenuOnly Then
-      Style.PaintButton(0, 0, Me.W, Me.H, False, iFlag, bFlat)
+      Style.PaintButton(0, 0, Me.W, Me.H, False, iFlag, bFlat, $iBg)
     Else
-      Style.PaintButton(0, 0, Me.W, Me.H, $bPressed, iFlag, bFlat)
+      Style.PaintButton(0, 0, Me.W, Me.H, $bPressed, iFlag, bFlat, $iBg)
     Endif
+  Endif
+  
+  If $bPressed And If Not bMenu Then 
+    Paint.Translate(1, 1)
   Endif
   
   If $hPicture Then
@@ -459,15 +462,15 @@ Public Sub DrawingArea_Draw()
   
   If bDrawArrow Then
     If System.RightToLeft Then
-      Style.PaintArrow(DS, 0, DS, Me.H, Align.Bottom, iFlag)
+      Style.PaintArrow(DS, 0, DS, Me.H, Align.Bottom)
     Else
-      Style.PaintArrow(Me.W - DS * 2, 0, DS, Me.H, Align.Bottom, iFlag)
+      Style.PaintArrow(Me.W - DS * 2, 0, DS, Me.H, Align.Bottom)
     Endif
   Endif
   
   If $sActualText Then 
     
-    iFg = Style.ForegroundOf(Me)
+    iFg = Style.ForegroundOf($hDrawingArea)
     If Not Me.Enabled Then iFg = Color.Merge(Color.ButtonBackground, iFg)
     If bMenu Then iFg = Color.SelectedForeground
     Paint.Background = iFg
@@ -475,6 +478,7 @@ Public Sub DrawingArea_Draw()
     sText = $sActualText
     
     X = DS
+    Y = 0
     W = Me.W - DS * 2
     
     If Not $hPicture And If Not bDrawArrow Then
@@ -491,8 +495,8 @@ Public Sub DrawingArea_Draw()
       Endif
     Endif
     
-    Paint.ClipRect = Rect(X, 0, W, Me.H)
-    Paint.DrawText(sText, X, 0, W, Me.H, iAlign)
+    Paint.ClipRect = Rect(X, Y, W, Me.H)
+    Paint.DrawText(sText, X, Y, W, Me.H, iAlign)
     
     If $iShortcutPos Then
       hFont = Paint.Font
@@ -581,4 +585,17 @@ Public Sub _RestoreLastFocus()
   '   Debug "NULL"
   Endif
   
+End
+
+Private Function Background_Read() As Integer
+
+  Return $iBg
+
+End
+
+Private Sub Background_Write(Value As Integer)
+
+  $iBg = Value
+  $hDrawingArea.Refresh
+
 End

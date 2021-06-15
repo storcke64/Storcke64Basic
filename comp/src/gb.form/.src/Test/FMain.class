@@ -1,6 +1,5 @@
 ' Gambas class file
 
-
 Public Sub TreeView1_Menu()
 
   Debug
@@ -11,6 +10,7 @@ Public Sub Form_Open()
 
   Component.Load("gb.form.dialog")
   Debug Style.Name
+  Me.Test
 
 End
 
