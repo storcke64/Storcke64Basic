@@ -78,8 +78,11 @@
           Menu = "mnuTranslation"
           MenuOnly = True
         }
+        { Panel2 Panel
+          MoveScaled(6,0,1,4)
+        }
         { cmbLangSource ComboBox
-          MoveScaled(6,0,21,4)
+          MoveScaled(7,0,21,4)
           Expand = True
           ReadOnly = True
         }
@@ -190,45 +193,58 @@
         { panTransToolbar HBox
           MoveScaled(1,15,82,4)
           { btnNextTranslated ToolButton
-            MoveScaled(1,0,4,4)
+            MoveScaled(0,0,4,4)
             ToolTip = ("Find next translated string")
             Picture = Picture["icon:/small/down"]
           }
           { btnPreviousTranslated ToolButton
-            MoveScaled(5,0,4,4)
+            MoveScaled(4,0,4,4)
             ToolTip = ("Find previous translated string")
             Picture = Picture["icon:/small/up"]
           }
+          { Separator10 Separator
+            MoveScaled(9,0,0,4)
+          }
+          { btnFirstUntranslated ToolButton
+            MoveScaled(9.125,0,4,4)
+            ToolTip = ("Find first untranslated string")
+            Picture = Picture["icon:/small/start"]
+          }
           { btnPreviousUntranslated ToolButton
-            MoveScaled(9,0,4,4)
+            MoveScaled(13,0,4,4)
             ToolTip = ("Find previous untranslated string")
             Picture = Picture["icon:/small/rewind"]
           }
           { btnNextUntranslated ToolButton
-            MoveScaled(13,0,4,4)
+            MoveScaled(17,0,4,4)
             ToolTip = ("Find next untranslated string")
             Picture = Picture["icon:/small/forward"]
           }
+          { btnLastUntranslated ToolButton
+            MoveScaled(21,0,4,4)
+            ToolTip = ("Find last untranslated string")
+            Picture = Picture["icon:/small/end"]
+          }
           { Separator9 Separator
-            MoveScaled(19,0,0,4)
+            MoveScaled(28,0,0,4)
           }
           { btnClear ToolButton
-            MoveScaled(21,0,4,4)
+            MoveScaled(30,0,4,4)
             ToolTip = ("Clear this translation")
             Picture = Picture["icon:/small/delete"]
           }
           { btnDoNotTranslate ToolButton
-            MoveScaled(25,0,4,4)
+            MoveScaled(34,0,4,4)
             ToolTip = ("This string must not be translated")
             Picture = Picture["icon:/small/warning"]
           }
           { btnCopy ToolButton
-            MoveScaled(29,0,4,4)
+            MoveScaled(38,0,4,4)
             ToolTip = ("Copy untranslated string")
             Picture = Picture["icon:/small/copy"]
           }
           { btnAutoTrans ToolButton
-            MoveScaled(34,0,23,4)
+            MoveScaled(43,0,23,4)
             AutoResize = True
             Text = ("Automatic translation")
             Picture = Picture["icon:/small/fill"]

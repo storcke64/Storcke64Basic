@@ -1167,6 +1167,9 @@ Private Sub DisplayTrans()
   
   btnNextUntranslated.Enabled = cvwTranslate.Count - $nTrans
   btnPreviousUntranslated.Enabled = btnNextUntranslated.Enabled
+  btnFirstUntranslated.Enabled = btnNextUntranslated.Enabled
+  btnLastUntranslated.Enabled = btnNextUntranslated.Enabled
+  
   btnNextTranslated.Enabled = $nTrans > 0
   btnPreviousTranslated.Enabled = btnNextTranslated.Enabled
 
@@ -1790,4 +1793,49 @@ Public Sub mnuAutoTrans_Click()
   
   Dec Application.Busy
   
+End
+
+Public Sub btnFirstUntranslated_Click()
+
+  With cvwTranslate
+
+    .MoveFirst()
+
+    While .Available
+
+      If Not .Item[1] Then
+        .Item.EnsureVisible
+        .Item.Selected = True
+        Return
+      Endif
+
+      .MoveNext()
+
+    Wend
+
+  End With
+
+End
+
+Public Sub btnLastUntranslated_Click()
+
+  With cvwTranslate
+
+    .MoveLast()
+
+    While .Available
+
+      If Not .Item[1] Then
+        .Item.EnsureVisible
+        .Item.Selected = True
+        Return
+      Endif
+
+      .MovePrevious()
+
+    Wend
+
+  End With
+  
+
 End
