@@ -8,6 +8,7 @@ Private $sClass As String
 Private $sFind As String
 Private $fTimerFind As Float
 Private $hModule As FEditor
+Private $bStatic As Boolean
 Private $bNoFilter As Boolean
 
 Static Public Sub Popup(hModule As FEditor, sClass As String, aProc As String[], iCurrent As Integer, X As Integer, Y As Integer, W As Integer, H As Integer) As Integer
@@ -32,6 +33,10 @@ Public Sub Init(hModule As FEditor, sClass As String, aProc As String[], iCurren
   
   panFilter.Visible = $sClass
   sepFilter.Visible = $sClass
+  If $sClass Then
+    $bStatic = File.Ext($hModule.Path) = "module"
+    btnShowStatic.Visible = Not $bStatic
+  Endif
   
   FilterProc
   
@@ -216,15 +221,13 @@ Public Sub gvwProc_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
   
   If hSymbol And If hSymbol.NotPublic Then Paint.Background = Color.Merge(Paint.Background, Color.TextBackground, 0.3)
   
+  If $sClass = Project.Startup And If sName = "Main" Then
+    Paint.Font.Underline = True
+  Endif
+  
   If $aFilter[Row] = $iInit Then Paint.DrawTextShadow(sName, X + 2, Y, Width - 4, Height, Align.Left)
   Paint.DrawText(sName, X + 2, Y, Width - 4, Height, Align.Left)
   
-  ' If Row = $iInit Then
-  '   Paint.Rectangle(X + 0.5, Y + 0.5, Width - 1, Height - 1)
-  '   Paint.Background = Color.SelectedBackground
-  '   Paint.Stroke
-  ' Endif
-
 End
 
 Private Sub FilterProc()
@@ -253,7 +256,7 @@ Private Sub FilterProc()
   Endif
   
   If panFilter.Visible Then
-    bShowStatic = btnShowStatic.Value
+    bShowStatic = $bStatic Or btnShowStatic.Value
     bShowPublic = btnShowPublic.Value
     bShowPrivate = btnShowPrivate.Value
     bShowEvent = btnShowEvent.Value

@@ -1827,7 +1827,7 @@ Private Sub GetExpressionStart(aExpr As String[], aType As Integer[]) As Integer
 
 End
 
-Public Function GetExpressionType(aExpr As String[], aType As Integer[], bPointAfter As Boolean) As String
+Public Function GetExpressionType(aExpr As String[], aType As Integer[], bPointAfter As Boolean, Optional sAfter As String) As String
 
   Dim iInd As Integer
   Dim aWait As New String[]
@@ -1918,6 +1918,7 @@ Public Function GetExpressionType(aExpr As String[], aType As Integer[], bPointA
           Return
         Endif
       Else
+        If sAfter = "[" Then Return sType
         Return
       Endif
     Else If sPattern = ")" Then
@@ -2093,7 +2094,7 @@ Private Function GetExpressionSignature(aExpr As String[], aType As Integer[]) A
   $hSymbol = Null
   $iArgSignature = 0
 
-  For iInd = aExpr.Count - 1 To 0 Step -1
+  For iInd = aExpr.Count - 1 DownTo 0
 
     sPattern = aExpr[iInd]
     If sPattern = ")" Then
@@ -2126,8 +2127,8 @@ Private Function GetExpressionSignature(aExpr As String[], aType As Integer[]) A
 
   aExpr.Remove(iInd, -1)
   aType.Remove(iInd, -1)
-
-  sType = GetExpressionType(aExpr, aType, False)
+  
+  sType = GetExpressionType(aExpr, aType, False, sPattern)
   'IF NOT $hSymbol THEN
   If sType Then
     If sPattern = "(" Then
