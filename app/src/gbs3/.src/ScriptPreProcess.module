@@ -70,7 +70,7 @@ End
 '' #Script name="xxxx"
 '' #Script startup="MySub" 
 '' #Script Version ="0.2.3" , ...
-'' #Script ....
+'' #Script Property=AppSet:"2.0.0.1"
 
 Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Integer, sPath As String)
 
@@ -81,13 +81,14 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   ' If hasOptions Then ' options have already been defined
   '   ScriptMain.CompileError("Options", LineNumber, "Project Options already defined")
   ' Endif
+  
   If aSymbols.count < 2 Then Return
  
   For i = 1 To aSymbols.Max
     If aSymbols[i] = "," Then Continue
-    
     KeyIndex = KeyWords[Upper(aSymbols[i])]
     Inc i
+    
     If aSymbols[i] <> "=" Or If aTypes[i + 1] <> Highlight.string And aTypes[i + 1] <> Highlight.symbol Then
        CompileError(sPath, LineNumber, "Invalid #Script PreProcess Command Format :" & aSymbols.Join(" "))
        Return
