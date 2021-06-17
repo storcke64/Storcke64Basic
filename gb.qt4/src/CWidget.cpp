@@ -677,6 +677,120 @@ void CWIDGET_set_inverted(void *_object, bool v)
 }
 
 
+/*gControl *gControl::nextFocus()
+{
+	gControl *ctrl;
+	
+	if (isContainer())
+	{
+		ctrl = ((gContainer *)this)->firstChild();
+		if (ctrl)
+			return ctrl;
+	}
+	
+	ctrl = this;
+	
+	while (!ctrl->next())
+	{
+		ctrl = ctrl->parent();
+		if (ctrl->isTopLevel())
+			return ctrl->nextFocus();
+	}
+	
+	return ctrl->next();
+}*/
+
+
+void *CWIDGET_get_next_focus(void *_object)
+{
+	void *ob, *next;
+	
+	//fprintf(stderr, "next: %s\n", CWIDGET_get_name(THIS));
+	ob = CCONTAINER_get_first_child(THIS);
+	if (ob)
+	{
+		//fprintf(stderr, "=> %s\n", CWIDGET_get_name(ob));
+		return ob;
+	}
+	
+	ob = THIS;
+	
+	for(;;)
+	{
+		//fprintf(stderr, "... %s\n", CWIDGET_get_name(ob));
+		next = CWIDGET_get_next_previous(ob, true);
+		if (next)
+		{
+			//fprintf(stderr, "=> %s\n", CWIDGET_get_name(next));
+			return next;
+		}
+		
+		ob = CWIDGET_get_parent(ob);
+		if (!ob)
+			return NULL;
+		if (!CWIDGET_get_parent(ob))
+		{
+			ob = CWIDGET_get_next_focus(ob);
+			//fprintf(stderr, "=> %s\n", CWIDGET_get_name(ob));
+			return ob;
+		}
+	}
+}
+
+/*gControl *gControl::previousFocus()
+{
+	gControl *ctrl = previous();
+	
+	if (!ctrl)
+	{
+		if (!isTopLevel())
+			return parent()->previousFocus();
+		
+		ctrl = this;
+	}
+	
+	while (ctrl->isContainer() && ((gContainer *)ctrl)->childCount())
+		ctrl = ((gContainer *)ctrl)->lastChild();
+
+	return ctrl;
+}*/
+
+void *CWIDGET_get_previous_focus(void *_object)
+{
+	void *ob, *ctrl;
+	
+	//fprintf(stderr, "previous: %s\n", CWIDGET_get_name(THIS));
+	ctrl = CWIDGET_get_next_previous(THIS, false);
+	
+	if (!ctrl)
+	{
+		ob = CWIDGET_get_parent(THIS);
+		if (ob)
+		{
+			ob = CWIDGET_get_previous_focus(ob);
+			//fprintf(stderr, "=> %s\n", CWIDGET_get_name(ob));
+			return ob;
+		}
+		
+		ctrl = THIS;
+	}
+	
+	for(;;)
+	{
+		/*if (!CWIDGET_is_visible(ctrl))
+			return ctrl;*/
+		//fprintf(stderr, "... %s\n", CWIDGET_get_name(ctrl));
+		ob = CCONTAINER_get_last_child(ctrl);
+		if (!ob)
+		{
+			//fprintf(stderr, "=> %s\n", CWIDGET_get_name(ctrl));
+			return ctrl;
+		}
+		ctrl = ob;
+	}
+}
+
+
 //---------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(Control_new)
@@ -1002,35 +1116,45 @@ BEGIN_METHOD(Control_Move_under, GB_OBJECT control)
 END_METHOD
 
 
-static QWidget *get_next(QWidget *w)
+void *CWIDGET_get_next_previous(void *_object, bool next)
 {
 	QWidget *parent;
 	QObjectList children;
 	int i;
-	QObject *current = NULL;
+	void *current;
 
-	parent = w->parentWidget();
-	if (parent)
+	parent = WIDGET->parentWidget();
+	if (!parent)
+		return NULL;
+	
+	children = WIDGET->parentWidget()->children();
+	i = children.indexOf(WIDGET);
+	for(;;)
 	{
-		children = w->parentWidget()->children();
-		i = children.indexOf(w) + 1;
-		if (i > 0 && i < children.count())
-			current = children.at(i);
+		if (next)
+		{
+			i++;
+			if (i >= children.count())
+				return NULL;
+		}
+		else
+		{
+			i--;
+			if (i < 0)
+				return NULL;
+		}
+		
+		current = CWidget::getRealExisting(children.at(i));
+		if (current)
+			return current;
 	}
-
-	return (QWidget *)current;
 }
 
 BEGIN_PROPERTY(Control_Next)
 
 	if (READ_PROPERTY)
 	{
-		QWidget *next = get_next(WIDGET);
-
-		if (next)
-			GB.ReturnObject(CWidget::getRealExisting(next));
-		else
-			GB.ReturnNull();
+		GB.ReturnObject(CWIDGET_get_next_previous(THIS, true));
 	}
 	else
 	{
@@ -1055,29 +1179,11 @@ BEGIN_PROPERTY(Control_Previous)
 
 	if (READ_PROPERTY)
 	{
-		QWidget *parent;
-		QObjectList children;
-		int i;
-		QObject *current = NULL;
-
-		parent = WIDGET->parentWidget();
-		if (parent)
-		{
-			children = WIDGET->parentWidget()->children();
-			i = children.indexOf(WIDGET);
-			if (i > 0)
-				current = children.at(i - 1);
-		}
-
-		if (current)
-			GB.ReturnObject(CWidget::getRealExisting(current));
-		else
-			GB.ReturnNull();
+		GB.ReturnObject(CWIDGET_get_next_previous(THIS, false));
 	}
 	else
 	{
 		CWIDGET *ob = (CWIDGET *)VPROP(GB_OBJECT);
-		QWidget *w;
 
 		if (!ob)
 		{
@@ -1088,13 +1194,9 @@ BEGIN_PROPERTY(Control_Previous)
 			if (GB.CheckObject(ob))
 				return;
 
-			w = get_next(ob->widget);
-			if (w)
-			{
-				//w = get_next(w);
-				//if (w)
-					WIDGET->stackUnder(w);
-			}
+			ob = (CWIDGET *)CWIDGET_get_next_previous(ob, true);
+			if (ob)
+				WIDGET->stackUnder(QWIDGET(ob));
 		}
 		arrange_parent(THIS);
 	}
@@ -1110,7 +1212,8 @@ BEGIN_METHOD_VOID(Control_Refresh) //, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w;
 
 END_METHOD
 
-static void set_focus(void *_object)
+
+void CWIDGET_set_focus(void *_object)
 {
 	CWINDOW *win;
 
@@ -1135,7 +1238,7 @@ static void set_focus(void *_object)
 
 BEGIN_METHOD_VOID(Control_SetFocus)
 
-	set_focus(THIS);
+	CWIDGET_set_focus(THIS);
 
 END_METHOD
 
@@ -2898,7 +3001,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			if (GB.CanRaise(control, EVENT_MouseWheel))
 			{
 				// Automatic focus for wheel events
-				set_focus(control);
+				CWIDGET_set_focus(control);
 				
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 				p.setX(ev->position().x());

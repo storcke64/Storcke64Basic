@@ -140,6 +140,9 @@ int CCONTAINER_get_border_width(char border);
 
 void CCONTAINER_update_design(void *_object);
 
+void *CCONTAINER_get_first_child(void *_object);
+void *CCONTAINER_get_last_child(void *_object);
+
 void CUSERCONTROL_send_change_event();
 
 class MyFrame : public QWidget

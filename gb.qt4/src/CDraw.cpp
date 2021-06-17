@@ -120,7 +120,7 @@ static int get_text_width(QPainter *dp, QString &s)
 	int w, width = 0;
 	int i;
 
-	text_sl = s.split('\n', QString::KeepEmptyParts);
+	text_sl = s.split('\n', Qt::KeepEmptyParts);
 
 	text_w.resize(text_sl.count());
 
