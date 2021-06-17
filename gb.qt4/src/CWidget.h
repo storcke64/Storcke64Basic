@@ -196,6 +196,7 @@ DECLARE_PROPERTY(Control_Mouse);
 void CWIDGET_new(QWidget *w, void *_object, bool no_show = false, bool no_filter = false, bool no_tag = false);
 void CWIDGET_init_name(CWIDGET *_object);
 void CWIDGET_set_name(CWIDGET *_object, const char *name);
+#define CWIDGET_get_name(_object) (((CWIDGET *)_object)->name)
 int CWIDGET_check(void *object);
 
 QString CWIDGET_Utf8ToQString(GB_STRING *str);
@@ -255,6 +256,11 @@ void CWIDGET_check_hovered();
 void CWIDGET_set_design(CWIDGET *_object, bool ignore = false);
 
 void CWIDGET_set_inverted(void *_object, bool v);
+
+void *CWIDGET_get_next_previous(void *_object, bool next);
+void CWIDGET_set_focus(void *_object);
+void *CWIDGET_get_next_focus(void *_object);
+void *CWIDGET_get_previous_focus(void *_object);
 
 #ifndef DO_NOT_DECLARE_EVENTS
 #ifndef __CWIDGET_CPP

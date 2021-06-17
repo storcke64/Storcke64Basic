@@ -572,6 +572,42 @@ void CCONTAINER_update_design(void *_object)
 	}
 }
 
+void *CCONTAINER_get_first_child(void *_object)
+{
+	if (!GB.Is(THIS, CLASS_Container))
+		return NULL;
+	
+	QObjectList list = GB.Is(THIS, CLASS_Window) ? CONTAINER->children() : WIDGET->children();
+	void *ob;
+	
+	for (int i = 0; i < list.count(); i++)
+	{
+		ob = CWidget::getRealExisting(list.at(i));
+		if (ob)
+			return ob;
+	}
+
+	return NULL;
+}
+
+void *CCONTAINER_get_last_child(void *_object)
+{
+	if (!GB.Is(THIS, CLASS_Container))
+		return NULL;
+
+	QObjectList list = GB.Is(THIS, CLASS_Window) ? CONTAINER->children() : WIDGET->children();
+	void *ob;
+			
+	for (int i = list.count() - 1; i >= 0; i--)
+	{
+		ob = CWidget::getRealExisting(list.at(i));
+		if (ob)
+			return ob;
+	}
+	
+	return NULL;
+}
+
 
 /***************************************************************************
 
