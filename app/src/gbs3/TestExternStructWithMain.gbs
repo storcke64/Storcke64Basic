@@ -32,6 +32,7 @@ Public c[20] As Struct Hello
 
 Sub test()
     'Static xx As Struct Hello
+    Static Bogon As Integer = 0
     Print "Test Sub"
 End
 

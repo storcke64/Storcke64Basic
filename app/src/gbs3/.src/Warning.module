@@ -1,5 +1,7 @@
 ' Gambas module file
 
+Export 
+
 Public $bWarningOn As Boolean = False
 
 Public Sub _Call(sMsg As String, Optional bIsError As Boolean = False)

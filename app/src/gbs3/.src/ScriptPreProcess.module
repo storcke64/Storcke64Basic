@@ -1,13 +1,21 @@
 ' Gambas module file
 
-'' This function will process any compiler options provided
-'' verify if they are valid and format info to be added to the project file
-'' Or other #Script commands
-'' in the script file add the following format
+Export 
+
+''' This function will process any compiler options provided
+''' verify if they are valid and format info to be added to the project file
+''' Or other #Script commands
+''' in the script file add the following format
+''' For plugins all Project information entries become
+''' read properties of the plugin generated class 
+''' This interface may be called from user callbacks to add properties to the propery table
 
 ''  #Script      type="Library"
 ''  #Script      Vendor="mycompany"
 ''  #SCript      Version="1.0.3"
+
+''  Only for Plugins define any extra properties needed
+''  #Script      Property=MyProp:MyPropValue
 
 
 Public isLibrary As Boolean = False
@@ -21,14 +29,16 @@ Public hasOptions As Boolean = False
 Public PublicFiles As New String[] 
 
 Public ProjectInfo As Collection
-Public Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eUseHttpServer, ePublic, eError, eScript
+Public PropertyRW As New String[]
+
+Public Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eUseHttpServer, ePublic, eProperty, eError, eScript
 ' On  Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP
 Public KeyWords As Collection = ["TYPE": eType, "VERSION": eVersion, "DESCRIPTION": eDescription, 
                                  "MAINTAINER": eMaintainer, "AUTHORS": eAuthor, "AUTHOR": eAuthor, 
                                  "VENDOR": eVendor, "LICENSE": eLicense,
                                  "INSTALL": eInstall, "TITLE": eTitle, "NAME": eName, "ERROR": eError,
                                  "SCRIPT": eScript, "STARTUP": eStartup, "USEHTTPSERVER": eUseHttpServer,
-                                 "PUBLIC": ePublic]
+                                 "PUBLIC": ePublic, "PROPERTY": eProperty]
                                  
 Public CompTypes As Collection = ["LIBRARY": 0, "COMPONENT": 1, "PROGRAM": 2]
 'Private processLine As String[]
@@ -78,14 +88,14 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     
     KeyIndex = KeyWords[Upper(aSymbols[i])]
     Inc i
-    If aSymbols[i] <> "=" Or If aTypes[i + 1] <> Highlight.string Then
+    If aSymbols[i] <> "=" Or If aTypes[i + 1] <> Highlight.string And aTypes[i + 1] <> Highlight.symbol Then
        CompileError(sPath, LineNumber, "Invalid #Script PreProcess Command Format :" & aSymbols.Join(" "))
        Return
     Endif
     Inc i
     
     On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP, 
-                                        SYMUSEHTTPSERVER, SYMPUBLIC
+                                        SYMUSEHTTPSERVER, SYMPUBLIC, SYMPROPERTY
     Continue
 
   SYNOTFOUND:
@@ -164,6 +174,14 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     Endif
     PublicFiles.Add(sPublicFilePath)
     Continue 
+    
+  SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value 
+    If aSymbols[i + 1] <> ":" Or If aTypes[i + 2] <> Highlight.String Then 
+      CompileError(sPath, LineNumber, "Invalid Plugin Property Declaration")
+    Endif
+    PropertyRW.Add(aSymbols[i])
+    ProjectInfo[aSymbols[i]] = UnQuote(aSymbols[i + 2])
+    i += 2
     
   SYMIGNORED:
 

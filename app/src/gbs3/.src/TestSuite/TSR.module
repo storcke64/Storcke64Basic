@@ -13,6 +13,14 @@ Private ShellScript As String = "#!/bin/bash\n"
                                
 Private $InitDone As Boolean
 
+Public Sub TeardownTestEnvironment()
+  
+  ScriptMain._ResetAll()
+  ScriptMain.$oContext.$bTestmode = False
+  
+End
+
+
 Public Sub CreateTestEnvironment()
 
   If $InitDone Then Return

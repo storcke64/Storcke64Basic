@@ -10,6 +10,7 @@ End
 Public Sub _Teardown()
   
   CComponent.Clear()
+  TSR.TeardownTestEnvironment()
   
 End
 
