@@ -34,6 +34,7 @@ Public Sub DoAPlugin()
   Assert.Equals(TestPlugin2.Name, "AnotherTest", "Verify that Plugin Properties Where Created - Plugin Name")
   Assert.Equals(TestPlugin2.Title, "Plugin tester Too", "Verify that Plugin Properties Where Created - Title")
   Assert.Equals(TestPlugin2.Description, "This plugin is a test for the scripter too", "Verify that Plugin Properties Where Created - Description")
+  'Test of special plugin property
   Assert.Equals(TestPlugin2.MyProp, "Added Plugin Special prop", "Verify that Plugin User Defined Properties Where Created - MyProp")
   
  
