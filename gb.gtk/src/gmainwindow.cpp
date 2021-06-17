@@ -483,6 +483,7 @@ void gMainWindow::initWindow()
 
 	have_cursor = true; //parent() == 0 && !_xembed;
 	setCanFocus(true);
+	setNoTabFocus(true);
 }
 
 
@@ -813,15 +814,17 @@ void gMainWindow::setVisible(bool vl)
 	if (!vl)
 		_hidden = true;
 
-	if (!isTopLevel())
-	{
-		gContainer::setVisible(vl);
-		return;
-	}
-
 	if (vl == isVisible())
 		return;
 	
+	if (!isTopLevel())
+	{
+		gContainer::setVisible(vl);
+		if (vl)
+			setActiveWindow(this);
+		return;
+	}
+
 	if (vl)
 	{
 		//bool arr = !isVisible();
