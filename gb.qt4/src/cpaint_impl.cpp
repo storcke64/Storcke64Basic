@@ -283,7 +283,11 @@ static int Begin(GB_PAINT *d)
 		if (init_painting(d, target))
 			return TRUE;
 		// Paint.W / $hPrinter.PaperWidth * 25.4  / $hPrinter.Resolution
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 		QSizeF size = printer->printer->pageLayout().pageSize().size(QPageSize::Millimeter);
+#else		
+		QSizeF size = printer->printer->paperSize(QPrinter::Millimeter);
+#endif
 		//qDebug("d->area.width = %g / paper width = %g / resolution = %d", d->area.width, (floor((double)size.width() * 1E6) / 1E6), printer->printer->resolution());
 		d->fontScale = 25.4 * d->area.width / (floor((double)size.width() * 1E6) / 1E6) / printer->printer->resolution();
 		
