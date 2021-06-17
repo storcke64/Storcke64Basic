@@ -2916,7 +2916,7 @@ void MyMainWindow::activate(void)
 
 bool MyMainWindow::focusNextPrevChild(bool next)
 {
-	void *current;
+	void *current, *initial;
 	QWidget *w;
 	
 	current = CWidget::getRealExisting(focusWidget());
@@ -2925,10 +2925,12 @@ bool MyMainWindow::focusNextPrevChild(bool next)
 	
 	//uint focus_flag = QGuiApplication::styleHints()->tabFocusBehavior() == Qt::TabFocusAllControls ? Qt::TabFocus : Qt::StrongFocus;
 	
+	initial = current;
+	
 	for(;;)
 	{
 		current = next ? CWIDGET_get_next_focus(current) : CWIDGET_get_previous_focus(current);
-		if (!current)
+		if (!current || current == initial)
 			return QWidget::focusNextPrevChild(next);
 		
 		w = QWIDGET(current);
