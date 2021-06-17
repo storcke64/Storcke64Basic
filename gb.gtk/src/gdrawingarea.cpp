@@ -129,14 +129,6 @@ static void cb_size(GtkWidget *wid, GtkAllocation *a, gDrawingArea *data)
 	data->updateCache();
 }
 
-/*static gboolean cb_button_press(GtkWidget *wid, GdkEventButton *event, gDrawingArea *data)
-{
-	if (data->canFocus())
-		data->setFocus();
-
-	return false;
-}*/
-
 void gDrawingArea::create(void)
 {
 	int i;

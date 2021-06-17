@@ -1272,8 +1272,8 @@ bool gControl::canFocus() const
 	#if DEBUG_FOCUS
 	fprintf(stderr, "canFocus: %s ?\n", name());
 	#endif
-	if (_proxy)
-		return _proxy->canFocus();
+	/*if (_proxy)
+		return _proxy->canFocus();*/
 	
 	#if DEBUG_FOCUS
 	fprintf(stderr, "canFocus: %s -> %d\n", name(), gtk_widget_get_can_focus(widget));
@@ -1288,8 +1288,8 @@ bool gControl::canFocus() const
 
 bool gControl::canFocusOnClick() const
 {
-	if (_proxy)
-		return _proxy->canFocusOnClick();
+	/*if (_proxy)
+		return _proxy->canFocusOnClick();*/
 	if (!GTK_IS_BUTTON(widget))
 		return true;
 	return gt_get_focus_on_click(widget);
@@ -1303,9 +1303,9 @@ void gControl::setCanFocus(bool vl)
 	if (isDesign() || vl == canFocus())
 		return;
 
-	if (_proxy)
+	/*if (_proxy)
 		_proxy->setCanFocus(vl);
-	else
+	else*/
 	{
 		#if DEBUG_FOCUS
 		fprintf(stderr, "setCanFocus: %s %p %d\n", name(), this, vl);
@@ -1354,6 +1354,7 @@ void gControl::setFocus()
 		fprintf(stderr, "setFocus now %s\n", name());
 		#endif
 		//win->activate();
+		
 		gtk_widget_grab_focus(widget);
 	}
 	else
@@ -2879,11 +2880,16 @@ gControl *gControl::nextFocus()
 {
 	gControl *ctrl;
 	
+	//fprintf(stderr, "next: %s\n", name());
+	
 	if (isContainer())
 	{
 		ctrl = ((gContainer *)this)->firstChild();
 		if (ctrl)
+		{
+			//fprintf(stderr, "==> %s\n", ctrl->name());
 			return ctrl;
+		}
 	}
 	
 	ctrl = this;
@@ -2891,11 +2897,18 @@ gControl *gControl::nextFocus()
 	while (!ctrl->next())
 	{
 		ctrl = ctrl->parent();
+		//fprintf(stderr, "... %s\n", ctrl->name());
 		if (ctrl->isTopLevel())
-			return ctrl->nextFocus();
+		{
+			ctrl = ctrl->nextFocus();
+			//fprintf(stderr, "==> %s\n", ctrl->name());
+			return ctrl;
+		}
 	}
 	
-	return ctrl->next();
+	ctrl = ctrl->next();
+	//fprintf(stderr, "==> %s\n", ctrl->name());
+	return ctrl;
 }
 
 gControl *gControl::previousFocus()
