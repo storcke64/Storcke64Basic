@@ -955,7 +955,11 @@ static int get_text_width(QPainter *dp, QString &s)
 	int w, width = 0;
 	int i;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	text_sl = s.split('\n', Qt::KeepEmptyParts);
+#else
+	text_sl = s.split('\n', QString::KeepEmptyParts);
+#endif
 
 	text_w.resize(text_sl.count());
 
