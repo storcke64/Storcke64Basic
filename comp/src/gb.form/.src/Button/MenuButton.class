@@ -320,6 +320,7 @@ End
 
 Public Sub DrawingArea_GotFocus()
 
+  If $hButton Then $hButton.Enabled = False
   _SetLastFocus  
   $hDrawingArea.Refresh
   
@@ -327,6 +328,7 @@ End
 
 Public Sub DrawingArea_LostFocus()
   
+  If $hButton Then $hButton.Enabled = True
   $hDrawingArea.Refresh
   
 End
@@ -421,7 +423,7 @@ Public Sub DrawingArea_Draw()
   Else
     If $bInside And If $hDrawingArea.HasFocus Then iFlag = iFlag Or Style.Hovered
   Endif
-  If $hDrawingArea.HasFocus Then iFlag = iFlag Or Style.HasFocus
+  If $hDrawingArea.HasFocus Then iFlag = iFlag Or Style.HasFocus Or Style.Hovered
   
   bDrawArrow = $bArrow And (Me.W > DS * 4)
   
