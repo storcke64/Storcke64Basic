@@ -856,28 +856,26 @@ static void push_function(int func, int index)
 static void push_static_variable(CLASS *class, CTYPE ctype, char *addr)
 {
 	TYPE type = JIT_ctype_to_type(class, ctype);
-	char class_name[32];
+	const char *klass;
+	char buffer[32];
 
 	if (class == JIT_class)
-		strcpy(class_name, "CP");
+		klass = "CP";
 	else
-		sprintf(class_name, "CLASS(%p)", class);
+	{
+		sprintf(buffer, "CLASS(%p)", class);
+		klass = buffer;
+	}
 	
 	switch(ctype.id)
 	{
 		case TC_STRUCT:
-			if (class == JIT_class)
-				push(type, "GET_S(CP, %p, CLASS(%p))", addr, (CLASS *)type);
-			else
-				push(type, "GET_S(CLASS(%p), %p, CLASS(%p))", class, addr, (CLASS *)type);
+			push(type, "GET_S(%s, %p, CLASS(%p))", klass, addr, (CLASS *)type);
 			break;
 			
 		case TC_ARRAY:
 			//declare(&_decl_ra, "void *ra = NULL");
-			if (class == JIT_class)
-				push(type, "GET_A(CP, CP, %p, CLASS(%p), %p)", addr, (CLASS *)type, class->load->array[ctype.value]);
-			else
-				push(type, "GET_A(CLASS(%p), %p, %p, CLASS(%p), %p)", class, class, addr, (CLASS *)type, class->load->array[ctype.value]);
+			push(type, "GET_A(%s, %s, %p, CLASS(%p), %p)", klass, klass, addr, (CLASS *)type, class->load->array[ctype.value]);
 			break;
 			
 		case T_OBJECT:
@@ -1088,12 +1086,16 @@ static void push_unknown(int index)
 static void pop_static_variable(CLASS *class, CTYPE ctype, char *addr)
 {
 	TYPE type = JIT_ctype_to_type(class, ctype);
-	char *klass;
+	const char *klass;
+	char buffer[32];
 
 	if (class == JIT_class)
 		klass = "CP";
 	else
-		klass = STR_print("CLASS(%p)", class);
+	{
+		sprintf(buffer, "CLASS(%p)", class);
+		klass = buffer;
+	}
 	
 	_no_release = TRUE;
 	
@@ -1112,7 +1114,6 @@ static void pop_static_variable(CLASS *class, CTYPE ctype, char *addr)
 				pop(type, "SET_%s(%p, %%s)", JIT_get_type(type), addr);
 	}
 
-	
 	_no_release = FALSE;
 }
 
@@ -1120,13 +1121,16 @@ static void pop_static_variable(CLASS *class, CTYPE ctype, char *addr)
 static void pop_dynamic_variable(CLASS *class, CTYPE ctype, int pos, char *addr)
 {
 	TYPE type = JIT_ctype_to_type(class, ctype);
-
-	char *klass;
+	const char *klass;
+	char buffer[32];
 
 	if (class == JIT_class)
 		klass = "CP";
 	else
-		klass = STR_print("CLASS(%p)", class);
+	{
+		sprintf(buffer, "CLASS(%p)", class);
+		klass = buffer;
+	}
 
 	_no_release = TRUE;
 	
