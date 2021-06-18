@@ -112,7 +112,11 @@ Public Sub _Compile(sArch As String) As Boolean
     If Not _ClassStat.HasFast Then Continue 
     sFile = _ClassStat.Name
     If $bDebug Then Error "gb.jit: translating class "; sFile
-    Print #hFile, __Jit.Translate(sFile, sArch)
+    If $bDebug Then
+      Print #hFile, Replace(__Jit.Translate(sFile, sArch), ";", ";\n")
+    Else 
+      Print #hFile, __Jit.Translate(sFile, sArch)
+    Endif
   Next
   
   Close #hFile

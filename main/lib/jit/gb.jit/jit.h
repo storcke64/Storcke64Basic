@@ -355,12 +355,9 @@ enum
 #define GET_o(_addr, _type) GET_OBJECT((*(char **)(_addr)), _type)
 #define GET_v(_addr) GET_VARIANT((*(GB_VARIANT_VALUE *)(_addr)))
 #define GET_S(_ref, _addr, _type) GET_OBJECT(JIT.static_struct((_ref), (_type), (_addr)), _type)
-
 #define GET_A(_class, _ref, _addr, _type, _desc) ({ \
   SP = sp; \
-  GB.Unref(&ra); \
-  ra = JIT.static_array((_class), (_ref), (void *)(_desc), (_addr)); \
-  GET_OBJECT(ra, _type); \
+  GET_OBJECT(JIT.static_array((_class), (_ref), (void *)(_desc), (_addr)), _type); \
 })
 
 #define SET_b(_addr, _val) (GET_b(_addr) = ((_val) ? -1 : 0))
@@ -375,6 +372,13 @@ enum
 #define SET_s(_addr, _val) ({ GB_VALUE temp = (GB_VALUE)(_val); GB.StoreString((GB_STRING *)&temp, (char **)(_addr)); })
 #define SET_o(_addr, _val) ({ GB_VALUE temp = (GB_VALUE)(_val); GB.StoreObject((GB_OBJECT *)&temp, (void **)(_addr)); })
 #define SET_v(_addr, _val) ({ GB_VALUE temp = (GB_VALUE)(_val); GB.StoreVariant((GB_VARIANT *)&temp, (GB_VARIANT_VALUE *)(_addr)); })
+#define SET_SA(_class, _addr, _ctype, _val) ({ \
+  GB_VALUE temp = (GB_VALUE)(_val); \
+  int ctype = (_ctype); \
+  GB.BorrowValue(&temp); \
+  JIT.value_class_write((_class), &temp, (_addr), *(JIT_CTYPE *)&ctype); \
+  GB.ReleaseValue(&temp); \
+})
 
 #define GET_ARRAY_UNSAFE(_type, _array, _index) ({ \
   GB_ARRAY_IMPL *_a = (_array).value; \

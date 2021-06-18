@@ -853,6 +853,87 @@ static void push_function(int func, int index)
 }
 
 
+static void push_static_variable(CLASS *class, CTYPE ctype, char *addr)
+{
+	TYPE type = JIT_ctype_to_type(class, ctype);
+	char class_name[32];
+
+	if (class == JIT_class)
+		strcpy(class_name, "CP");
+	else
+		sprintf(class_name, "CLASS(%p)", class);
+	
+	switch(ctype.id)
+	{
+		case TC_STRUCT:
+			if (class == JIT_class)
+				push(type, "GET_S(CP, %p, CLASS(%p))", addr, (CLASS *)type);
+			else
+				push(type, "GET_S(CLASS(%p), %p, CLASS(%p))", class, addr, (CLASS *)type);
+			break;
+			
+		case TC_ARRAY:
+			//declare(&_decl_ra, "void *ra = NULL");
+			if (class == JIT_class)
+				push(type, "GET_A(CP, CP, %p, CLASS(%p), %p)", addr, (CLASS *)type, class->load->array[ctype.value]);
+			else
+				push(type, "GET_A(CLASS(%p), %p, %p, CLASS(%p), %p)", class, class, addr, (CLASS *)type, class->load->array[ctype.value]);
+			break;
+			
+		case T_OBJECT:
+			if (class == JIT_class)
+			{
+				if (TYPE_is_pure_object(type))
+					push(type, "GET_o(%p, CLASS(%p))", addr, (CLASS *)type);
+				else
+					push(type, "GET_o(%p, GB_T_OBJECT)", addr);
+			}
+			else
+			{
+				if (TYPE_is_pure_object(type))
+					push(type, "({ JIT.load_class(%p); GET_o(%p, CLASS(%p)); })", class, addr, (CLASS *)type);
+				else
+					push(type, "({ JIT.load_class(%p); GET_o(%p, GB_T_OBJECT); })", class, addr);
+			}
+			break;
+			
+		default:
+			if (class == JIT_class)
+				push(type, "GET_%s(%p)", JIT_get_type(type), addr);
+			else
+				push(type, "({ JIT.load_class(%p); GET_%s(%p); })", class, JIT_get_type(type), addr);
+	}
+}
+
+
+static void push_dynamic_variable(CLASS *class, CTYPE ctype, int pos, char *addr)
+{
+	TYPE type = JIT_ctype_to_type(class, ctype);
+	
+	switch(ctype.id)
+	{
+		case TC_STRUCT:
+			push(type, "GET_S(%s, %s + %d, CLASS(%p))", addr, addr, pos, (CLASS *)type);
+			break;
+			
+		case TC_ARRAY:
+			//declare(&_decl_ra, "void *ra = NULL");
+			push(type, "GET_A(%p, %s, %s + %d, CLASS(%p), %p)", class, addr, addr, pos, (CLASS *)type, class->load->array[ctype.value]);
+			break;
+			
+		case T_OBJECT:
+			if (TYPE_is_pure_object(type))
+				push(type, "GET_o(%s + %d, CLASS(%p))", addr, pos, (CLASS *)type);
+			else
+				push(type, "GET_o(%s + %d, GB_T_OBJECT)", addr, pos);
+			break;
+			
+		default:
+			push(type, "GET_%s(%s + %d)", JIT_get_type(type), addr, pos);
+	}
+}
+
+
 static void push_unknown(int index)
 {
 	TYPE type = T_UNKNOWN;
@@ -874,7 +955,7 @@ static void push_unknown(int index)
 		CLASS_DESC *desc;
 		void *addr;
 		int pos;
-		TYPE utype;
+		CTYPE ctype;
 		char *sym;
 		char *get_addr;
 		bool static_class;
@@ -910,21 +991,12 @@ static void push_unknown(int index)
 			{
 				case CD_STATIC_VARIABLE:
 					
-					utype = JIT_ctype_to_type(class, desc->variable.ctype);
-					
 					pop_stack(1);
 					
+					ctype = desc->variable.ctype;
 					addr = (char *)desc->variable.class->stat + desc->variable.offset;
 					
-					if (TYPE_is_object(utype))
-					{
-						if (TYPE_is_pure_object(utype))
-							push(utype, "({ JIT.load_class(%p); GET_o(%p, CLASS(%p)); })", class, addr, (CLASS *)utype);
-						else
-							push(utype, "({ JIT.load_class(%p); GET_o(%p, GB_T_OBJECT); })", class, addr);
-					}
-					else
-						push(utype, "({ JIT.load_class(%p); GET_%s(%p); })", class, JIT_get_type(utype), addr);
+					push_static_variable(class, ctype, addr);
 					
 					return;
 					
@@ -932,7 +1004,7 @@ static void push_unknown(int index)
 					
 					// TODO: automatic class
 					
-					utype = JIT_ctype_to_type(class, desc->variable.ctype);
+					ctype = desc->variable.ctype;
 					
 					expr = peek(-1, (TYPE)class);
 					
@@ -947,15 +1019,7 @@ static void push_unknown(int index)
 						
 					pop_stack(1);
 					
-					if (TYPE_is_object(utype))
-					{
-						if (TYPE_is_pure_object(utype))
-							push(utype, "GET_o(%s + %d, CLASS(%p))", get_addr, pos, (CLASS *)utype);
-						else
-							push(utype, "GET_o(%s + %d, GB_T_OBJECT)", get_addr, pos);
-					}
-					else
-						push(utype, "GET_%s(%s + %d)", JIT_get_type(utype), get_addr, pos);
+					push_dynamic_variable(class, ctype, pos, get_addr);
 					
 					STR_free(get_addr);
 					
@@ -1021,6 +1085,70 @@ static void push_unknown(int index)
 }
 
 
+static void pop_static_variable(CLASS *class, CTYPE ctype, char *addr)
+{
+	TYPE type = JIT_ctype_to_type(class, ctype);
+	char *klass;
+
+	if (class == JIT_class)
+		klass = "CP";
+	else
+		klass = STR_print("CLASS(%p)", class);
+	
+	_no_release = TRUE;
+	
+	switch(ctype.id)
+	{
+		case TC_STRUCT:
+		case TC_ARRAY:
+			
+			if (check_swap(type, "SET_SA(%s, %p, %d, %%s)", klass, addr, ctype))
+				pop(type, "SET_SA(%s, %p, %d, %%s)", klass, addr, ctype);
+			
+			break;
+			
+		default:
+			if (check_swap(type, "SET_%s(%p, %%s)", JIT_get_type(type), addr))
+				pop(type, "SET_%s(%p, %%s)", JIT_get_type(type), addr);
+	}
+
+	
+	_no_release = FALSE;
+}
+
+
+static void pop_dynamic_variable(CLASS *class, CTYPE ctype, int pos, char *addr)
+{
+	TYPE type = JIT_ctype_to_type(class, ctype);
+
+	char *klass;
+
+	if (class == JIT_class)
+		klass = "CP";
+	else
+		klass = STR_print("CLASS(%p)", class);
+
+	_no_release = TRUE;
+	
+	switch(ctype.id)
+	{
+		case TC_STRUCT:
+		case TC_ARRAY:
+			
+			if (check_swap(type, "SET_SA(%s, %s + %d, %d, %%s)", klass, addr, pos, ctype))
+				pop(type, "SET_SA(%s, %s + %d, %d, %%s)", klass, addr, pos, ctype);
+			
+			break;
+			
+		default:
+			if (check_swap(type, "SET_%s(%s + %d, %%s)", JIT_get_type(type), addr, pos))
+				pop(type, "SET_%s(%s + %d, %%s)", JIT_get_type(type), addr, pos);
+	}
+	
+	_no_release = FALSE;
+}
+
+
 static void pop_unknown(int index)
 {
 	CLASS *class;
@@ -1036,7 +1164,7 @@ static void pop_unknown(int index)
 		CLASS_DESC *desc;
 		void *addr;
 		int pos;
-		TYPE utype;
+		CTYPE ctype;
 		const char *sym;
 		char *get_addr;
 		
@@ -1050,16 +1178,12 @@ static void pop_unknown(int index)
 			{
 				case CD_STATIC_VARIABLE:
 					
-					utype = JIT_ctype_to_type(class, desc->variable.ctype);
-					
 					pop_stack(1);
 					
+					ctype = desc->variable.ctype;
 					addr = (char *)desc->variable.class->stat + desc->variable.offset;
 					
-					_no_release = TRUE;
-					if (check_swap(utype, "SET_%s(%p, %%s)", JIT_get_type(utype), addr))
-						pop(utype, "SET_%s(%p, %%s)", JIT_get_type(utype), addr);
-					_no_release = FALSE;
+					pop_static_variable(class, ctype, addr);
 					
 					return;
 					
@@ -1067,7 +1191,7 @@ static void pop_unknown(int index)
 					
 					// TODO: automatic class
 					
-					utype = JIT_ctype_to_type(class, desc->variable.ctype);
+					ctype = desc->variable.ctype;
 					
 					expr = peek(-1, (TYPE)class);
 					
@@ -1082,10 +1206,7 @@ static void pop_unknown(int index)
 					
 					pos = desc->variable.offset;
 					
-					_no_release = TRUE;
-					if (check_swap(utype, "SET_%s(%s + %d, %%s)", JIT_get_type(utype), get_addr, pos))
-						pop(utype, "SET_%s(%s + %d, %%s)", JIT_get_type(utype), get_addr, pos);
-					_no_release = FALSE;
+					pop_dynamic_variable(class, ctype, pos, get_addr);
 					
 					STR_free(get_addr);
 					
@@ -1132,7 +1253,7 @@ static void push_array(ushort code)
 
 		//JIT_print("  // %s %d\n", class->name, class->is_array);
 		
-		if (class->is_array)
+		if (class->is_array && !class->is_array_of_struct)
 		{
 			type = class->array_type;
 			
@@ -1198,7 +1319,7 @@ static void pop_array(ushort code)
 	{
 		CLASS *class = (CLASS *)type;
 		
-		if (class->is_array)
+		if (class->is_array && !class->is_array_of_struct)
 		{
 			type = class->array_type;
 		
@@ -2869,43 +2990,19 @@ _PUSH_STATIC:
 
 	index = GET_7XX();
 	ctype = class->load->stat[index].type;
-	type = JIT_ctype_to_type(class, ctype);
 	addr = &class->stat[class->load->stat[index].pos];
 
-	switch(ctype.id)
-	{
-		case TC_STRUCT:
-			push(type, "GET_S(CP, %p, CLASS(%p))", addr, (CLASS *)type);
-			break;
-			
-		case TC_ARRAY:
-			declare(&_decl_ra, "void *ra = NULL");
-			push(type, "GET_A(CP, CP, %p, CLASS(%p), %p)", addr, (CLASS *)type, JIT_class->load->array[ctype.value]);
-			break;
-			
-		case T_OBJECT:
-			if (TYPE_is_pure_object(type))
-				push(type, "GET_o(%p, CLASS(%p))", addr, (CLASS *)type);
-			else
-				push(type, "GET_o(%p, GB_T_OBJECT)", addr);
-			break;
-			
-		default:
-			push(type, "GET_%s(%p)", JIT_get_type(type), addr);
-	}
-
+	push_static_variable(JIT_class, ctype, addr);
+	
 	goto _MAIN;
 
 _POP_STATIC:
 
 	index = GET_7XX();
-	type = JIT_ctype_to_type(class, class->load->stat[index].type);
+	ctype = class->load->stat[index].type;
 	addr = &class->stat[class->load->stat[index].pos];
 
-	_no_release = TRUE;
-	if (check_swap(type, "SET_%s(%p, %%s)", JIT_get_type(type), addr))
-		pop(type, "SET_%s(%p, %%s)", JIT_get_type(type), addr);
-	_no_release = FALSE;
+	pop_static_variable(JIT_class, ctype, addr);
 	
 	goto _MAIN;
 
@@ -2914,42 +3011,18 @@ _PUSH_DYNAMIC:
 	index = GET_7XX();
 	pos = class->load->dyn[index].pos;
 	ctype = class->load->dyn[index].type;
-	type = JIT_ctype_to_type(class, ctype);
 	
-	switch(ctype.id)
-	{
-		case TC_STRUCT:
-			push(type, "GET_S(OP, &OP[%d], CLASS(%p))", pos, (CLASS *)type);
-			break;
-			
-		case TC_ARRAY:
-			declare(&_decl_ra, "void *ra = NULL");
-			push(type, "GET_A(CP, OP, &OP[%d], CLASS(%p), %p)", pos, (CLASS *)type, JIT_class->load->array[ctype.value]);
-			break;
-			
-		case T_OBJECT:
-			if (TYPE_is_pure_object(type))
-				push(type, "GET_o(&OP[%d], CLASS(%p))", pos, (CLASS *)type);
-			else
-				push(type, "GET_o(&OP[%d], GB_T_OBJECT)", pos);
-			break;
-			
-		default:
-			push(type, "GET_%s(&OP[%d])", JIT_get_type(type), pos);
-	}
-
+	push_dynamic_variable(JIT_class, ctype, pos, "OP");
+	
 	goto _MAIN;
 
 _POP_DYNAMIC:
 
 	index = GET_7XX();
-	type = JIT_ctype_to_type(class, class->load->dyn[index].type);
 	pos = class->load->dyn[index].pos;
+	ctype = class->load->dyn[index].type;
 	
-	_no_release = TRUE;
-	if (check_swap(type, "SET_%s(&OP[%d], %%s)", JIT_get_type(type), pos))
-		pop(type, "SET_%s(&OP[%d], %%s)", JIT_get_type(type), pos);
-	_no_release = FALSE;
+	pop_dynamic_variable(JIT_class, ctype, pos, "OP");
 	
 	goto _MAIN;
 
