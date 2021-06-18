@@ -12,6 +12,7 @@ End
 Public Sub _Teardown()
   
   CComponent.Clear()
+  TSR.TeardownTestEnvironment()
   
 End
 
@@ -92,6 +93,7 @@ Public Sub FullReadCompileCheck()
   
   ScriptMain._ResetAll()
   ScriptMain.$oContext.$bBuildOnly = True
+  ScriptMain.$oContext.$bTestMode = True
   
   workdir = Temp()
   Mkdir workdir

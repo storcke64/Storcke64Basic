@@ -1,5 +1,7 @@
 ' Gambas module file
 
+Export
+
 '' Apply the keyword filter to the passed in source line
 '' This is an initial implentation, should maybe allow some sort of
 '' call to plugins or such, but for now just a bunch of 
@@ -8,18 +10,17 @@
 '' Therefore never returns unless all is well
 '' This is a seperate module so as not to load the gb.prc module if not used by the scripter
 '' This is expensive the first time a plugin script is processed but of course does not
-'' effect the cached plugins that have be created, as they are not processed
-
+'' effect the cached plugins that have been created, as they are not processed again
+Class RegExp
 Public Sub _Call(sLine As String, KeywordPatternTable As Collection, iLine As Integer, sPath As String) As Boolean
   
   For Each Pattern As String In KeywordPatternTable
     Verbose(Subst("Script Apply Filter : &1 > &2::&3", Quote(KeywordPatternTable.key), Quote(Pattern), Quote(sLine)))
-    If RegExp.Match(sLine, Pattern) Then 
-      Verbose(Subst("Plugin Match : &1:&2:&3", sPath, iLine, sLine))
-      warning("Plugin: " & KeywordPatternTable.key, True)
-      Return True
+    If RegExp.Match(sLine, Pattern, RegExp.caseless) Then 
+      Verbose(Subst("Script Filter Match : '&1' : '&2' : '&3'", sPath, iLine, sLine))
+      warning("Script Filter: " & KeywordPatternTable.key, True)
+      Return True 
     Endif
-    
   Next
   
   Return False

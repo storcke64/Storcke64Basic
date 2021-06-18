@@ -18,6 +18,7 @@ Public $sLastCompileError As String      ' The text of the last eorror message
 Public Sub _ResetAll()
   
   $oContext._ResetAll()
+  ScriptPreProcess.reset()
   $aAppArgs.Clear()
   $sPath = ""
   $sPrjPath = ""
@@ -256,9 +257,11 @@ lExecuteProject:
         Next
         
         $sArchivePath = sCacheDir &/ "plugins" &/ $sMd5 &/ sFileName
-        Try Mkdir sCacheDir &/ "plugins" &/ $sMd5
-        If Error Then
-          CompileError($sArchivePath, 0, "Unable to create plugin md5 directory:" & Error.text)
+        If Not Exist(sCacheDir &/ "plugins" &/ $sMd5) Then 
+            Try Mkdir sCacheDir &/ "plugins" &/ $sMd5
+            If Error Then
+                CompileError($sArchivePath, 0, "Unable to create plugin md5 directory:" & Error.text)
+            Endif
         Endif
      Else
         Try Mkdir sCacheDir &/ $sMd5
@@ -275,6 +278,7 @@ lExecuteProject:
     Exec ArchiveCmd To sRes
     
     verbose(sRes)
+    
     If $oContext.$bPlugin Then
       Try Kill sCacheDir &/ sFileName
       Try Link $sArchivePath To sCacheDir &/ sFileName
@@ -311,7 +315,7 @@ lExecuteProject:
       Warning(("Script had Segmentation fault, Code=" & Process.LastValue), True)
     Endif
 
-    If $oContext.$bTestMode Then
+    If $oContext.$bTestMode Or If $bRunAsPlugin Then
       Return Process.LastValue
     Else
       Quit Process.LastValue
@@ -327,7 +331,8 @@ lExecuteProject:
 
 Catch
 
-  Error Error.Text; " : "; Error.where          ' added for debugging
+  $sLastCompileError = "-2:" & Error.Text & ":" & Error.where
+  Error $sLastCompileError        ' added for debugging
  
   If UseLibComp.HasComponents Then  '' added because get circular ref from ccomponent otherwise on exit
     CComponent.All.Clear()
@@ -338,7 +343,6 @@ Catch
   Else
     Quit -2
   Endif
-  
   
   End With
   
