@@ -21,6 +21,18 @@ Export
 ''' "Dog()":"Animals.add(&1,{quote(str(now))})" In Program dog("Red") expanded to Animals.add("red","2/2/2 19:00:00")
 
 Public Sub _call(AliasList As Collection)
+  If Not Class.IsLoaded("RegExp") Then 
+    Try Component.Load("gb.pcre")
+    If Error Then 
+        Warning("Component gb.pcre not found, filter will be ignored")
+        Return 
+    Endif
+    Try Class.Load("RegExp")
+    If Error Then 
+      Warning("Unable to load regexp, filter will be ignored")
+      Return
+    Endif
+  Endif
   
   Reader.$sScriptAlias = AliasList
   

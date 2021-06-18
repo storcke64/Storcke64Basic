@@ -11,7 +11,7 @@ Export
 '' This is a seperate module so as not to load the gb.prc module if not used by the scripter
 '' This is expensive the first time a plugin script is processed but of course does not
 '' effect the cached plugins that have been created, as they are not processed again
-
+Class RegExp
 Public Sub _Call(sLine As String, KeywordPatternTable As Collection, iLine As Integer, sPath As String) As Boolean
   
   For Each Pattern As String In KeywordPatternTable

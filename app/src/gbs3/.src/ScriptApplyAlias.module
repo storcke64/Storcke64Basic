@@ -2,13 +2,15 @@
 
 Export 
 
-Public MyReg As New Regexp
-Public MyParams As New String[20]
+Class Regexp
 
 Public Sub _Call(Data As String, aliaslist As Collection) As String[]
+  Dim MyReg As New Regexp
+  Dim MyParams As New String[20]
+
   Dim s As Variant
   Dim used As New String[]
-  Dim MyParmsDummy As New String[20]
+  Dim MyParmsDummy As New String[20]   ' Appended to ensure there are enough parameters
   Dim ReadQueue As New String[]
   
 DoAliasAgain:

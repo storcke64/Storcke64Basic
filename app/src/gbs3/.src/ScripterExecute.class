@@ -2,7 +2,7 @@
 
 Export
 
-Static $sLastError As String = ""
+Static Public $sLastError As String = ""
 
 
 Static Public Sub _call(ScriptName As String, ScriptSource As String, Optional CompileParameters As String[] = [], ScriptParameters As String[] = []) As Variant
