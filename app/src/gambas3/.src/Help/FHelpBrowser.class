@@ -10,6 +10,7 @@ Private mnuLang As Menu
 Private $bFirstTime As Boolean
 Private $bOffline As Boolean
 Private $hTask As CHelpSearchTask
+Private $aSearch As String[]
 
 Public Sub _new()
   
@@ -363,7 +364,8 @@ Public Sub btnSearch_Click()
     sText = Trim(txtSearch.Text)
     If sText Then
       $hTask = New CHelpSearchTask As "TaskSearch"
-      $hTask.Search = sText
+      $aSearch = Split(sText, " ", Chr$(34), True)
+      $hTask.Search = $aSearch
       btnSearch.Picture = Picture["icon:/small/stop"]
       txtSearch.Enabled = False
       lstResult.Clear
@@ -422,7 +424,7 @@ End
 Public Sub lstResult_Select()
 
   tvwClasses.UnSelectAll
-  MHelp.MakeOffline(webHelp, MHelp.GetURL(lstResult.Key))
+  MHelp.MakeOffline(webHelp, MHelp.GetURL(lstResult.Key),, $aSearch.Join())
 
 End
 

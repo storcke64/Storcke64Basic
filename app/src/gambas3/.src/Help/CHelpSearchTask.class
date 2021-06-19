@@ -2,7 +2,7 @@
 
 Inherits Task
 
-Public Search As String
+Public Search As String[]
 Public Buffer As String
 
 Private $aImageExt As String[] = ["png", "jpg", "jpeg", "gif", "webm", "mov", "mp4", "mp3"]
@@ -16,6 +16,8 @@ Public Sub Main()
   Dim sFile As String
   Dim sExt As String
   Dim sLink As String
+  Dim aSearch As String[]
+  Dim sSearch As String
   
   Application.Priority = 10
   
@@ -28,12 +30,15 @@ Public Sub Main()
     
     Try sData = File.Load(sDir &/ "~page")
     If Not Error Then
-      If String.InStr(sData, Search, 1, gb.IgnoreCase) Then
-        sLink = Mid$(sDir, Len(sRoot) + 1)
-        If Not sLink Then sLink = "/"
-        Print sLink
-        Flush
-      Endif
+      For Each sSearch In Search
+        If String.InStr(sData, sSearch, 1, gb.IgnoreCase) Then
+          sLink = Mid$(sDir, Len(sRoot) + 1)
+          If Not sLink Then sLink = "/"
+          Print sLink
+          Flush
+          Break
+        Endif
+      Next
     Endif
     
     For Each sFile In Dir(sDir, "*", gb.Directory)

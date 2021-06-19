@@ -916,7 +916,7 @@ Public Sub GetOfflineState() As Integer
 End
 
 
-Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader As Boolean) As Boolean
+Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader As Boolean, Optional sHighlight As String) As Boolean
   
   Dim sFile As String
   Dim sHtml As String
@@ -937,7 +937,7 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   
   If Not $bInitOffline Then
     
-    For Each sFile In ["up.png", "critical.png", "info.png", "tip.png", "vb.png", "warning.png", "error-bg.png"]
+    For Each sFile In ["up.png", "critical.png", "info.png", "tip.png", "vb.png", "warning.png", "error-bg.png", "highlight.js"]
       Try Kill GetOfflineDir() &/ sFile
       Copy "help/wiki" &/ sFile To GetOfflineDir() &/ sFile
     Next
@@ -1012,7 +1012,10 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Output To Default
   Close #hFile
 
-  hWebView.Url = "file://" & URL.Encode(sPath)
+  sUrl = "file://" & URL.Encode(sPath)
+  If sHighlight Then sUrl &= "?s=" & URL.Encode(sHighlight)
+
+  hWebView.Url = sUrl
   
 Catch
   
