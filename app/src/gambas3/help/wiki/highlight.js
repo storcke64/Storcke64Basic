@@ -37,8 +37,6 @@ function highlight_body(searches)
 {
   var text = document.body.innerHTML;
   
-  alert(searches.length);
-  
   for (var i = 0; i < searches.length; i++)
     text = highlight_text(text, searches[i]);
     
