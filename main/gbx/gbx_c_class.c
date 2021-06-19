@@ -298,6 +298,9 @@ BEGIN_PROPERTY(Class_Symbols)
 		cds = CLASS_get_next_sorted_symbol(class, &index);
 		if (!cds)
 			break;
+		if (cds->name[0] == '.' && !cds->name[1])
+			continue;
+		
 		*((char **)GB_ArrayAdd(array)) = STRING_new(cds->name, cds->len);
 	}
 
@@ -312,10 +315,10 @@ BEGIN_METHOD(Class_get, GB_STRING name)
 	CLASS_DESC_SYMBOL *cd = NULL;
 	const char *name = GB_ToZeroString(ARG(name));
 
-	if (name != NULL)
+	if (name && name[0] && (name[0] != '.' || name[1] == 0))
 		cd = CLASS_get_symbol(class, name);
 
-	if (cd == NULL)
+	if (!cd)
 	{
 		error(E_NSYMBOL, class, name);
 		return;
