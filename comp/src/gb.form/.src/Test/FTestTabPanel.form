@@ -10,7 +10,6 @@
     #Translate = False
     Foreground = Color.Orange
     Expand = True
-    Border = False
     Closable = True
     CloseButton = True
     Moveable = True
@@ -34,7 +33,7 @@
     Index = 0
   }
   { Panel1 HBox
-    MoveScaled(7,47,66,4)
+    MoveScaled(7,47,80,4)
     { Button1 Button
       MoveScaled(0,0,16,4)
       Text = ("Border")
@@ -47,9 +46,13 @@
       MoveScaled(34,0,16,4)
       Text = ("Padding")
     }
+    { Button4 Button
+      MoveScaled(51,0,16,4)
+      Text = ("TabBar")
+    }
   }
   { Timer1 #Timer
-    #MoveScaled(75,45)
+    #MoveScaled(78,38)
     Enabled = True
     Delay = 100
   }

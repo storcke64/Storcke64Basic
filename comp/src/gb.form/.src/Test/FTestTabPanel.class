@@ -83,3 +83,9 @@ Public Sub Button3_Click()
   TabPanel2.TabBarPaddingEnd = 16 - TabPanel2.TabBarPaddingEnd
 
 End
+
+Public Sub Button4_Click()
+
+  TabPanel2.ShowTabBar = Not TabPanel2.ShowTabBar
+
+End

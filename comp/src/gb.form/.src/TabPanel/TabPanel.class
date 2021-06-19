@@ -30,6 +30,7 @@ Property CloseButton As Boolean
 Property Read TabBarSize As Integer
 Property TabBarPaddingStart As Integer
 Property TabBarPaddingEnd As Integer
+Property ShowTabBar As Boolean
 
 Private $hTabBar As DrawingArea
 Private $hTabBarContainer As DrawingArea
@@ -65,6 +66,7 @@ Private $iTabBarContainerH As Integer
 Private $hTabBarLeft As DrawingArea
 Private $hTabBarRight As DrawingArea
 Private $bUpdateLayout As Boolean
+Private $bShowTabBar As Boolean
 
 Public Sub _new()
 
@@ -248,11 +250,12 @@ Private Sub UpdateLayout()
   
   If $bUpdateLayout Then Return
   $bUpdateLayout = True
+  
+  $bShowTabBar = $hTabBar.Visible
 
   W = Me.W
   H = TabBarSize_Read()
   $hTabBar.Height = H + 1
-  
   
   Y = If(Align.Top, 0, $hTabBar.Y)
   
@@ -266,7 +269,7 @@ Private Sub UpdateLayout()
         $hClosePanel.Move(X + W, Y, H, H + 1)
       Endif
       $hCloseAll.Move(0, 0, H, H)
-      $hClosePanel.Show
+      $hClosePanel.Visible = $bShowTabBar
       $hClosePanel.Raise
     Else
       $hClosePanel.Hide
@@ -506,20 +509,22 @@ End
 
 Private Sub UpdateCurrentContainer()
   
+  Dim D As Integer
+  
   If $iCurrent < 0 Then Return
   
   If $bBorder Then
+    If Not $hTabBar.Visible Then D = 1
     If $iOrientation = Align.Top Then
-      $aCont[$iCurrent].Move(1, 0, $hPanel.W - 2, $hPanel.H - 1)
+      $aCont[$iCurrent].Move(1, D, $hPanel.W - 2, $hPanel.H - D)
     Else
-      $aCont[$iCurrent].Move(1, 1, $hPanel.W - 2, $hPanel.H - 1)
+      $aCont[$iCurrent].Move(1, 1, $hPanel.W - 2, $hPanel.H - D)
     Endif
   Else
     $aCont[$iCurrent].Move(0, 0, $hPanel.W, $hPanel.H)
   Endif
   
 End
-
 
 Private Sub UpdateContainer()
 
@@ -687,17 +692,21 @@ End
 Public Sub Panel_Draw()
   
   If $bBorder Then
-    Draw.Foreground = Color.LightForeground
-    Select Case $iOrientation
-      Case Align.Top
-        Draw.Line(0, 0, 0, $hPanel.H - 1)
-        Draw.Line(0, $hPanel.H - 1, $hPanel.W - 1, $hPanel.H - 1)
-        Draw.Line($hPanel.W - 1, $hPanel.H - 1, $hPanel.W - 1, 0)
-      Case Align.Bottom
-        Draw.Line(0, $hPanel.H - 1, 0, 0)
-        Draw.Line(0, 0, $hPanel.W - 1, 0)
-        Draw.Line($hPanel.W - 1, 0, $hPanel.W - 1, $hPanel.H - 1)
-    End Select
+    If $hTabBar.Visible Then
+      Draw.Foreground = Color.LightForeground
+      Select Case $iOrientation
+        Case Align.Top
+          Draw.Line(0, 0, 0, $hPanel.H - 1)
+          Draw.Line(0, $hPanel.H - 1, $hPanel.W - 1, $hPanel.H - 1)
+          Draw.Line($hPanel.W - 1, $hPanel.H - 1, $hPanel.W - 1, 0)
+        Case Align.Bottom
+          Draw.Line(0, $hPanel.H - 1, 0, 0)
+          Draw.Line(0, 0, $hPanel.W - 1, 0)
+          Draw.Line($hPanel.W - 1, 0, $hPanel.W - 1, $hPanel.H - 1)
+      End Select
+    Else 
+      Paint.DrawRect(0, 0, $hPanel.W, $hPanel.H, Color.LightForeground)
+    Endif
   Endif
   
 End
@@ -984,9 +993,11 @@ Private Sub CloseButton_Write(Value As Boolean)
     Me._Container = hSave
     
   Else
+    
     $hClosePanel.Delete
     $hClosePanel = Null
     $hCloseAll = Null
+    
   Endif
   
   TabBar_Arrange
@@ -1079,6 +1090,20 @@ End
 
 Private Function TabBarSize_Read() As Integer
 
-  Return $hTabBar.Font.Height + Desktop.Scale * 1.75
+  If $hTabBar.Visible Then Return $hTabBar.Font.Height + Desktop.Scale * 1.75
+
+End
+
+Private Function ShowTabBar_Read() As Boolean
+
+  Return $hTabBar.Visible
+
+End
+
+Private Sub ShowTabBar_Write(Value As Boolean)
+
+  If $hTabBar.Visible = Value Then Return 
+  $hTabBar.Visible = Value
+  UpdateLayout
 
 End
