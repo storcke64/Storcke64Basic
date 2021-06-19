@@ -46,9 +46,9 @@ End
 
 Public Sub Main()
 
-  git stashDim hHighlighter As TextHighlighter
-  Dim sLine As String
-  Dim L As Integer
+  Dim hHighlighter As TextHighlighter
+  'Dim sLine As String
+ ' Dim L As Integer
 
   hHighlighter = TextHighlighter["webpage"]
   

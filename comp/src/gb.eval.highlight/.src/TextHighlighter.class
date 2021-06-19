@@ -311,6 +311,104 @@ Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[])
   
 End
 
+Private Sub ColorToConsole(TxtColor As Integer) As String
+  
+  Dim Red As Integer
+  Dim Green As Integer
+  Dim Blue As Integer
+  
+  red = Shr((TxtColor And &hff0000), 16)
+  green = Shr((TxtColor And &h00ff00), 8)
+  Blue = TxtColor And &h0000FF
+  Return "" & red & ";" & green & ";" & blue
+End
+
+Public Sub ToConsole(Text As String, Optional Styles As TextHighlighterStyle[]) As String
+
+  Dim aResult As New String[]
+  Dim sLine As String
+  Dim aHighlight As Byte[]
+  Dim Y As Integer
+  Dim I As Integer
+  Dim sHTML As String
+  Dim aText As String[]
+  Dim iState As Integer
+  Dim hStyle As TextHighlighterStyle
+  Dim bAlt As Boolean
+  Dim iLen As Integer
+  Dim P As Integer
+  Dim sLineHtml As String
+  Dim iColor As Integer
+  Dim sOldStyle As String
+  Dim sStyle As String
+  
+  If Not Styles Then Styles = TextHighlighter.DefaultStyle
+  
+  TextHighlighter.State = Highlight.Normal
+  TextHighlighter.Tag = 0
+  TextHighlighter.Alternate = False
+  TextHighlighter.Limit = False
+  
+  aText = Split(Text, "\n")
+  
+  iColor = 0 ' this is black but 0 in terminal means default settings for terminal
+  aResult.Add("\x1b[0m")
+  sOldStyle = "color:#000000;"
+  
+  For Y = 0 To aText.Max
+    
+    aHighlight = New Byte[]
+    
+    TextHighlighter._Highlight = aHighlight
+    TextHighlighter.TextAfter = ""
+    TextHighlighter.Line = Y
+    
+    sLine = aText[Y]
+    Me.Run(sLine)
+    If Y = 0 Then TextHighlighter.Limit = False
+    
+    If TextHighlighter.TextAfter Then sLine = TextHighlighter.TextAfter
+
+    sLineHtml = ""
+    P = 1
+    
+    For I = 0 To aHighlight.Max Step 2
+      
+      iState = aHighlight[I] And 31
+      Try hStyle = Styles[iState]
+      If Error Then hStyle = Styles[0]
+      bAlt = aHighlight[I] >= 128
+      iLen = aHighlight[I + 1]
+      
+      sHtml = String.Mid$(sLine, P, iLen)
+      P += iLen
+      
+      If hStyle.Bold Then sHtml = "\x1b[1m" & sHtml & "\x1b[22m" ' "\x1b[21m" some terminal don't regognize this
+      If hStyle.Underline Then sHtml = "\x1b[4m" & sHtml & "\x1b[24m"
+      
+      sStyle = ""
+      If bAlt Then sStyle &= "\x1b[48;2;" & ColorToConsole(Styles[Highlight.Alternate]) & "m"      ' background color
+      If hStyle.Color Then sStyle &= "\x1b[38;2;" & ColorToConsole(hStyle.Color) & "m"             ' forground color
+      
+      If sStyle <> sOldStyle Then
+        sOldStyle = sStyle
+        sHtml = "\x1b[39m\x1b[49m" & sStyle & sHtml
+      Endif
+      
+      sLineHtml &= sHtml
+      
+    Next
+    
+    aResult.Add(sLineHtml & "\n")
+    
+  Next
+  
+  aResult.Add("\x1b[0m")
+  Return aResult.Join("")
+  
+ End
+
+
 ' Public Sub Paint(Text As String, X As Integer, Y As Integer, Optional Styles As TextHighlighterStyle[]) As String
 '   
 '   Dim sLine As String
