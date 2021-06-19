@@ -599,7 +599,7 @@ Public Sub btnOfflineHelp_Click()
 
   Settings["/UseOfflineHelp"] = btnOfflineHelp.Value
   UpdateOfflineHelp
-  FHelpBrowser.GotoHome
+  FHelpBrowser.ReadConfig
 
 End
 

@@ -8,6 +8,8 @@ Static Private $aLang As String[] = ["en", "fr", "de", "es", "it", "nl", "pl", "
 Private $bPrint As Boolean
 Private mnuLang As Menu
 Private $bFirstTime As Boolean
+Private $bOffline As Boolean
+Private $hTask As CHelpSearchTask
 
 Public Sub _new()
   
@@ -50,7 +52,15 @@ End
 
 Public Sub ReadConfig()
   
+  $bOffLine = Settings["/UseOfflineHelp"]
+
   Project.SetSmallFont(panToolbar)
+  If $bOffLine Then
+    tabClass.ShowTabBar = True
+  Else
+    tabClass.ShowTabBar = False
+    tabClass.Index = 0
+  Endif
   
 End
 
@@ -200,7 +210,7 @@ End
 
 Public Sub btnShowPanel_Click()
   
-  tvwClasses.Visible = btnShowPanel.Value
+  tabClass.Visible = btnShowPanel.Value
   If btnShowPanel.Value Then FillTree
   'If splHelp.Layout[0] = 0 Then splHelp.Layout = [1, 2]
 
@@ -271,6 +281,7 @@ Public Sub tvwClasses_Select()
   Dim aKey As String[]
   Dim sKey As String
 
+  lstResult.UnSelectAll
   sKey = tvwClasses.Current.Key
   If Not sKey Or If sKey = "$" Then Return
   
@@ -335,3 +346,88 @@ Public Sub OnProjectChange()
   
 End
 
+
+Public Sub tabClass_Click()
+
+  If tabClass.Index = 1 Then txtSearch.SetFocus
+
+End
+
+Public Sub btnSearch_Click()
+
+  Dim sText As String
+  
+  If $hTask Then
+    $hTask.Stop 
+  Else
+    sText = Trim(txtSearch.Text)
+    If sText Then
+      $hTask = New CHelpSearchTask As "TaskSearch"
+      $hTask.Search = sText
+      btnSearch.Picture = Picture["icon:/small/stop"]
+      txtSearch.Enabled = False
+      lstResult.Clear
+      spnSearch.Show
+      spnSearch.Raise
+      spnSearch.Start
+    Endif
+  Endif
+
+End
+
+Public Sub txtSearch_Activate()
+
+  btnSearch.Value = True
+
+End
+
+Public Sub TaskSearch_Read(Data As String)
+
+  Dim sLine As String
+  Dim iPos As Integer
+  Dim sTitle As String
+
+  Data = $hTask.Buffer & Data
+  iPos = RInStr(Data, "\n")
+  If iPos = 0 Then
+    $hTask.Buffer = Data
+    Return
+  Endif
+  
+  $hTask.Buffer = Mid$(Data, iPos + 1)
+
+  Inc Project.NoWait  
+  For Each sLine In Split(Left(Data, iPos - 1), "\n")
+    sTitle = Wiki.GetPageTitle(sLine)
+    If sTitle Then 
+      lstResult.Add(sLine, sTitle)
+    Else 
+      lstResult.Add(sLine, sLine).Foreground = Color.LightForeground
+    Endif
+  Next
+  Dec Project.NoWait  
+  
+End
+
+Public Sub TaskSearch_Kill()
+  
+  $hTask = Null
+  btnSearch.Picture = Picture["icon:/small/find"]
+  txtSearch.Enabled = True
+  spnSearch.Hide
+  
+End
+
+
+Public Sub lstResult_Select()
+
+  tvwClasses.UnSelectAll
+  MHelp.MakeOffline(webHelp, MHelp.GetURL(lstResult.Key))
+
+End
+
+Public Sub tabClass_Arrange()
+
+  spnSearch.Move(lstResult.X + (lstResult.W - spnSearch.W) \ 2, lstResult.Y + (lstResult.H - spnSearch.H) \ 2)
+
+End

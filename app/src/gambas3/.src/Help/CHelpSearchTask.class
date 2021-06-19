@@ -1,0 +1,47 @@
+' Gambas class file
+
+Inherits Task
+
+Public Search As String
+Public Buffer As String
+
+Private $aImageExt As String[] = ["png", "jpg", "jpeg", "gif", "webm", "mov", "mp4", "mp3"]
+
+Public Sub Main()
+  
+  Dim aDir As New String[]
+  Dim sDir As String
+  Dim sData As String
+  Dim sRoot As String
+  Dim sFile As String
+  Dim sExt As String
+  Dim sLink As String
+  
+  Application.Priority = 10
+  
+  sRoot = MHelp.GetOfflineDir() &/ "data" &/ MHelp.GetLanguage()
+  aDir.Add(sRoot)
+  
+  While aDir.Count
+    
+    sDir = aDir.Pop()
+    
+    Try sData = File.Load(sDir &/ "~page")
+    If Not Error Then
+      If String.InStr(sData, Search, 1, gb.IgnoreCase) Then
+        sLink = Mid$(sDir, Len(sRoot) + 1)
+        If Not sLink Then sLink = "/"
+        Print sLink
+        Flush
+      Endif
+    Endif
+    
+    For Each sFile In Dir(sDir, "*", gb.Directory)
+      sExt = File.Ext(sFile)
+      If $aImageExt.Exist(sExt) Then Continue
+      aDir.Add(sDir &/ sFile, 0)
+    Next
+    
+  Wend
+  
+End

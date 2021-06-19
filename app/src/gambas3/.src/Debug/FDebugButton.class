@@ -126,7 +126,7 @@ Public Sub SetMessage(Optional sText As String, bAdd As Boolean)
     lblMessage.Text = $sMessage
     lblMessage.Show
     dwgStatus.Hide
-    Wait
+    If Project.NoWait = 0 Then Wait
   Else 
     lblMessage.Hide
     dwgStatus.Show

@@ -92,14 +92,53 @@
     Arrangement = Arrange.Fill
     { splHelp HSplit
       MoveScaled(2,2,80,29)
-      { tvwClasses TreeView
-        MoveScaled(9,1,16,22)
-        Visible = False
-        Expand = True
+      { tabClass TabPanel
+        MoveScaled(1,1,37,26)
+        Arrangement = Arrange.Vertical
         Border = False
+        Count = 2
+        Index = 0
+        Text = ("Classes")
+        { tvwClasses TreeView
+          MoveScaled(2,3,16,17)
+          Expand = True
+          Border = False
+        }
+        Index = 1
+        Text = ("Search")
+        { Panel2 HBox
+          MoveScaled(0,1,34,4)
+          Background = Color.TextBackground
+          { txtSearch ButtonBox
+            MoveScaled(0,0,24,4)
+            Expand = True
+            Border = False
+            Button = False
+            ClearButton = True
+          }
+          { btnSearch ToolButton
+            MoveScaled(24,0,4,4)
+            Picture = Picture["icon:/small/find"]
+          }
+        }
+        { Separator5 Separator
+          MoveScaled(7,7,14,0)
+        }
+        { lstResult ListView
+          MoveScaled(3,11,25,10)
+          Expand = True
+          Border = False
+        }
+        { spnSearch Spinner
+          MoveScaled(19,9,7,7)
+          Visible = False
+          Ignore = True
+          Type = Spinner.Circle
+        }
+        Index = 0
       }
       { !webHelp HelpView
-        MoveScaled(29,1,28,16)
+        MoveScaled(45,4,28,16)
         #Public = True
       }
     }

@@ -587,13 +587,12 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
     If Not hSym And If sClass Ends "[]" Then
       Try hSym = Documentation.Get(sComponent)["*[]"].Symbols[sSymbol]
     Endif
-    If Not hSym Then Return sSymbol & " ?"
-    If InStr("e:", hSym.Kind) Then
-      Return Mid$(hSym.Name, 2)
-    Else
-      Return hSym.Name
-    Endif
   Endif
+  '   If Not hSym Then Return sSymbol & " ?"
+  '   sName = hSym.Name
+  '   If InStr("e:", hSym.Kind) Then sName = Mid$(sName, 2)
+  '   Return hSym.Class & "." & sName & " (" & hSym.Component & ")"
+  ' Endif
   
   If Not hSym Then Return sClass & "." & sSymbol & " (" & sComponent & ")?"
 
