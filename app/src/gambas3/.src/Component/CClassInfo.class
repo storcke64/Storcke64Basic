@@ -768,18 +768,21 @@ Private Function GetSymbolType(aSym As String[]) As String
   Dim sRes As String
   Dim hSym As CSymbolInfo
   Dim sName As String
+  Dim sTitle As String
 
   If aSym.Count = 0 Then Return
 
   For Each sName In aSym
     hSym = Symbols[sName]
     sName = Replace(sName, ":", ".")
+    sTitle = sName
+    If hSym.IsEvent Then sTitle = Mid$(sTitle, 2)
     If hSym.Class <> Name Or If hSym.Component <> Component Then
-      sRes &= "[" & sName & "](/comp" &/ LCase(hSym.Component &/ hSym.Class &/ sName) & ")&nbsp;&nbsp;\n"
+      sRes &= "[" & sTitle & "](/comp" &/ LCase(hSym.Component &/ hSym.Class &/ sName) & ")&nbsp;&nbsp;\n"
     Else If hSym.Class <> Wiki.Class Or If hSym.Component <> Wiki.Component Then
-      sRes &= "<span class=\"inherit\">~[" & sName & "](/comp" &/ LCase(hSym.Component &/ hSym.Class &/ sName) & ")~</span>&nbsp;&nbsp;\n"
+      sRes &= "<span class=\"inherit\">~[" & sTitle & "](/comp" &/ LCase(hSym.Component &/ hSym.Class &/ sName) & ")~</span>&nbsp;&nbsp;\n"
     Else
-      sRes &= "<span class=\"inherit\">~[" & sName & "](./" & LCase(sName) & ")~</span>&nbsp;&nbsp;\n"
+      sRes &= "<span class=\"inherit\">~[" & sTitle & "](./" & LCase(sName) & ")~</span>&nbsp;&nbsp;\n"
     Endif
   Next
 
