@@ -868,7 +868,7 @@ Private Function Selection_Read() As String[]
   hView.MoveFirst
   While hView.Available
     If hView.Item.Selected Then
-      aSel.Add(hView.Item.Text)
+      aSel.Add(Mid$(hView.Item.Key, 2))
     Endif
     hView.MoveNext
   Wend
