@@ -5,12 +5,12 @@ Export
 
 Public Sub WebComboBox1_Click()
 
-  Message("Click #1")
+  Message(Last.Name & " = " & Last.Index)
 
 End
 
 Public Sub WebComboBox2_Click()
 
-  Message("Click #2")
+  Message(Last.Name & " = " & Last.Index)
 
 End
