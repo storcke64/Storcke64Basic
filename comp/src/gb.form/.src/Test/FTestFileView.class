@@ -1,2 +1,8 @@
 ' Gambas class file
 
+
+Public Sub Button1_Click()
+
+  Print FileView1.Selection.Join("\n")
+
+End

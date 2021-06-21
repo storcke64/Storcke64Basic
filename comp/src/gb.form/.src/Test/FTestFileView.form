@@ -2,12 +2,18 @@
 
 { Form Form
   MoveScaled(0,0,64,64)
-  Arrangement = Arrange.Fill
+  Arrangement = Arrange.Vertical
   Margin = True
   { FileView1 FileView
-    MoveScaled(2,5,58,53)
+    MoveScaled(2,2,58,53)
+    Expand = True
     Mode = Select.Multiple
     ShowDetailed = True
+    ShowHidden = True
     ShowDirectory = True
+  }
+  { Button1 Button
+    MoveScaled(14,57,16,4)
+    Text = ("Selection")
   }
 }
