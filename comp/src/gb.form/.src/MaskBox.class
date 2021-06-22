@@ -330,9 +330,7 @@ Public Sub TextBox_KeyPress()
   Dim bChange As Boolean
   
   If Not $sMaskOrg Then Return
-  If Me.ReadOnly Then
-    Return
-  Endif
+  If Me.ReadOnly Then Return
   
   sText = UnmaskText(Me.Text)
   sTextOrg = sText
@@ -371,7 +369,7 @@ Public Sub TextBox_KeyPress()
         bBefore = IsRightAlign(iPos) 
       Endif
     
-    Case Key.Tab, Key.BackTab, Key.Up, Key.Down, Key.Enter, Key.Return
+    Case Key.Tab, Key.BackTab, Key.Up, Key.Down, Key.Enter, Key.Return, Key.ControlKey, Key.AltKey, Key.ShiftKey, Key.AltGrKey
       Return
     
     Case Else
