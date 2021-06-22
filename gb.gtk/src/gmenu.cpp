@@ -861,19 +861,14 @@ void gMenu::doPopup(bool move, int x, int y)
 	GdkWindow *win;
 	GdkRectangle rect;
 	GdkEvent *event;
-	bool free = false;
 	
 	gt_disable_warnings(true);
 	
-	event = gApplication::lastEvent();
-	if (!event)
-	{
-		event = gdk_event_new(GDK_BUTTON_PRESS);
-		event->button.time = GDK_CURRENT_TIME;
-		event->button.window = gtk_widget_get_window(gtk_widget_get_toplevel(GTK_WIDGET(menu)));
-		gdk_event_set_device(event, gMouse::getPointer());
-		free = true;
-	}
+	event = gdk_event_new(GDK_BUTTON_PRESS);
+	event->button.time = gApplication::lastEventTime(); //GDK_CURRENT_TIME;
+	event->button.button = 1;
+	event->button.window = gtk_widget_get_window(gtk_widget_get_toplevel(GTK_WIDGET(menu)));
+	gdk_event_set_device(event, gMouse::getPointer());
 	
 	if (move)
 	{
@@ -893,11 +888,8 @@ void gMenu::doPopup(bool move, int x, int y)
 
 	gt_disable_warnings(false);
 	
-	if (free)
-	{
-		event->button.window = NULL;
-		gdk_event_free(event);
-	}
+	event->button.window = NULL;
+	gdk_event_free(event);
 	
 #else
 	
