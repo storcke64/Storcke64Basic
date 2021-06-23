@@ -267,7 +267,7 @@ static void startup_print(FILE *fs, const char *key, const char *def)
 		fprintf(fs, "%s\n", def);
 }
 
-static char *find_version_in_file(void)
+/*static char *find_version_in_file(void)
 {
 	char *dir, *pdir;
 	FILE *fv;
@@ -307,7 +307,7 @@ static char *find_version_in_file(void)
 		len--;
 	line[len] = 0;
 	return STR_copy(line);
-}
+}*/
 
 static void startup_print_version(FILE *fs)
 {
@@ -322,7 +322,7 @@ static void startup_print_version(FILE *fs)
 		if (read_line(fp, line, sizeof(line)))
 			break;
 
-		if (line_begins_with(line, "VersionFile=", 12))
+		/*if (line_begins_with(line, "VersionFile=", 12))
 		{
 			if (line[12] == '1')
 			{
@@ -330,7 +330,7 @@ static void startup_print_version(FILE *fs)
 				break;
 			}
 		}
-		else if (line_begins_with(line, "Version=", 8))
+		else*/ if (line_begins_with(line, "Version=", 8))
 		{
 			version = STR_copy(&line[8]);
 		}
