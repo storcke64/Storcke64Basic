@@ -11,6 +11,7 @@ Public Const _Similar As String = "TextBox"
 Public Const _DrawWith As String = "TextBox"
 
 Event Filter(Char As String)
+Event Validate
 
 Property Mask As String
 Property Filter As String
@@ -22,6 +23,10 @@ Private $hObserver As Observer
 Private Const MASK_CHARACTER As String = "90A6?"
 Private Const MASK_DEFAULT As String = "_0___"
 Private Const UNMASKED_CHAR As String = "\xFF"
+
+Private $sSaveText As String
+Private $iSavePos As Integer
+Private $iSaveLength As Integer
 
 Private $sMaskOrg As String
 
@@ -36,8 +41,6 @@ Private $bShowDefault As Boolean
 Private $sFilter As String
 
 Public Sub _new()
-  
-  $hObserver = New Observer(Me) As "TextBox"
   
 End
 
@@ -100,6 +103,7 @@ Private Sub UpdateMaskAndSeparator(sMask As String)
   Dim sDefault As String
   Dim iPosFocus As Integer
 
+  iPosFocus = -1
   iLen = String.Len(sMask)
 
   For iPos = 1 To iLen
@@ -166,6 +170,8 @@ Private Sub Mask_Write(Value As String)
   UpdateMaskAndSeparator(Value)
   
   If Not $sMaskOrg Then Return
+  
+  If Not $hObserver Then $hObserver = New Observer(Me) As "TextBox"
   
   If Not IsValid(Me.Text) Then
     Clear()
@@ -300,6 +306,8 @@ Private Sub GotoCursor(iPos As Integer) As Boolean
   Dim sText As String = Me.Text
   Dim sCar As String
   
+  If iPos < 0 Then Return
+  
   If IsRightAlign(iPos) Then
     While iPos < Me.Length
       sCar = String.Mid$(sText, iPos + 1, 1)
@@ -374,11 +382,25 @@ Public Sub TextBox_KeyPress()
     
     Case Else
       
-      If Key.Code = Key["A"] And If Key.Control Then
-        Me.SelectAll
-        Stop Event
-        Return
-      Endif
+      If Key.Control Then Return
+        
+      '   If Key.Code = Key["V"] Then
+      '     sPaste = Clipboard.Paste("text/plain")
+      '     If sPaste Then 
+      '       sText = Me.Text
+      '       If Me.Selected Then
+      '         sText = String.Left(sText, Me.Selection.Start) & sPaste & String.Mid(sText, Me.Selection.Start + Me.Selection.Length + 1)
+      '       Else
+      '         sText = String.Left(sText, Me.Pos) & sPaste & String.Mid(sText, Me.Pos + 1)
+      '       Endif
+      '       If Not IsValid(sText) Then Stop Event
+      '     Else 
+      '       Stop Event
+      '     Endif
+      '   Endif
+      '   
+      '   Return
+      ' Endif
       
       If Key.Text Then
         
@@ -562,55 +584,72 @@ Public Sub TextBox_LostFocus()
   
 End
 
-Public Sub TextBox_Menu()
-  
-  If Not $sMaskOrg Then Return
-  Stop Event
-  
-End
+' Public Sub TextBox_Menu()
+'   
+'   If Not $sMaskOrg Then Return
+'   Stop Event
+'   
+' End
 
 Public Sub TextBox_Change()
   
-  Dim I As Integer
-  Dim sText As String
-  Dim sCar As String
-  Dim sNewText As String
-  Dim iPos As Integer
-  Dim iDec As Integer
+  ' Dim I As Integer
+  ' Dim sText As String
+  ' Dim sCar As String
+  ' Dim sNewText As String
+  ' Dim iPos As Integer
+  ' Dim iDec As Integer
+  'Dim bCanRaise As Boolean
   Dim bStop As Boolean
-  Dim bCanRaise As Boolean
   
-  bCanRaise = Object.CanRaise(Me, "Filter")
+  ' bCanRaise = Object.CanRaise(Me, "Filter")
+  ' 
+  ' If $sFilter Or If bCanRaise Then
+  '   
+  '   sText = Me.Text
+  '   iPos = Me.Pos    
+  '   For I = 1 To String.Len(sText)
+  '     sCar = String.Mid$(sText, I, 1)
+  '     If $sFilter And If sCar Like $sFilter Then
+  '       sNewText &= sCar
+  '       Continue
+  '     Endif
+  '     If bCanRaise Then
+  '       bStop = Raise Filter(sCar)
+  '       If Not bStop Then
+  '         sNewText &= sCar
+  '         Continue
+  '       Endif
+  '     Endif
+  '     
+  '     If I <= iPos Then Inc iDec
+  '     
+  '   Next
+  '   
+  '   If sNewText <> sText Then
+  '     Object.Lock(Me)
+  '     Me.Text = sNewText
+  '     Me.Pos = iPos - iDec
+  '     Object.Unlock(Me)
+  '   Endif
+  '   
+  ' Endif
+
+  If Not IsValid(Me.Text) Then 
+    bStop = True  
+  Else 'If Object.CanRaise(Me, "Validate") Then
+    bStop = Raise Validate
+  Endif
   
-  If $sFilter Or If bCanRaise Then
-    
-    sText = Me.Text
-    iPos = Me.Pos    
-    For I = 1 To String.Len(sText)
-      sCar = String.Mid$(sText, I, 1)
-      If $sFilter And If sCar Like $sFilter Then
-        sNewText &= sCar
-        Continue
-      Endif
-      If bCanRaise Then
-        bStop = Raise Filter(sCar)
-        If Not bStop Then
-          sNewText &= sCar
-          Continue
-        Endif
-      Endif
-      
-      If I <= iPos Then Inc iDec
-      
-    Next
-    
-    If sNewText <> sText Then
-      Object.Lock(Me)
-      Me.Text = sNewText
-      Me.Pos = iPos - iDec
-      Object.Unlock(Me)
-    Endif
-    
+  If bStop Then
+    Object.Lock(Me)
+    Me.Text = $sSaveText
+    Me.Select($iSavePos, $iSaveLength)
+    Object.Unlock(Me)
+  Else
+    $sSaveText = Me.Text
+    $iSavePos = Me.Pos
+    $iSaveLength = Me.Selection.Length
   Endif
   
   If $sMaskOrg Then 
