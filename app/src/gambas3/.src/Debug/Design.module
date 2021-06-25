@@ -1094,7 +1094,10 @@ Private Sub Start(sCmd As String)
           sProg = ""
         Next
         
-        If Not sProg Then Error.Raise("No terminal program found")
+        If Not sProg Then 
+          FMain.ShowErrorWith(("Unable to start project."), ("No terminal emulator found."))
+          Return
+        Endif
         
       Endif
       
@@ -1170,7 +1173,7 @@ Private Sub Start(sCmd As String)
   'PRINT "Debug.Start -> OK"
 
   'Signal
-
+  
 End
 
 ' Public Sub Browser_Kill()

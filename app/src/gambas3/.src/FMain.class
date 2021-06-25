@@ -2198,6 +2198,12 @@ Public Sub ShowError(sMsg As String, Optional sKey As String)
   
 End
 
+Public Sub ShowErrorWith(sTitle As String, sMsg As String, Optional sKey As String)
+  
+  ShowMessage("<b>" & sTitle & "</b>\n\n" & sMsg, "error", sKey)
+  
+End
+
 Public Sub ShowWarning(sMsg As String, Optional sKey As String)
   
   ShowMessage(sMsg, "warning", sKey)
