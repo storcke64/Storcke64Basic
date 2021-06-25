@@ -40,6 +40,7 @@ Desktop
 
 bool gDesktop::_colors_valid = false;
 gColor gDesktop::_colors[NUM_COLORS];
+gColor gDesktop::_colors_disabled[NUM_COLORS];
 gFont *gDesktop::_desktop_font = NULL;
 int gDesktop::_desktop_scale = 0;
 #ifdef GTK3
@@ -204,9 +205,12 @@ void gDesktop::onThemeChange()
 
 #ifdef GTK3
 
-static gColor get_color(GType type, bool fg, GtkStateFlags state)
+static gColor get_color(GType type, bool fg, GtkStateFlags state, bool disabled)
 {
 	GtkStyleContext *style = gt_get_style(type, state == STATE_SELECTED ? "selection" : NULL, (type == GTK_TYPE_TOOLTIP && !fg) ? GTK_STYLE_CLASS_BACKGROUND : NULL);
+	
+	if (disabled)
+		state = (GtkStateFlags)(state | STATE_INSENSITIVE);
 	
 	gtk_style_context_set_state(style, state);
 	
@@ -237,11 +241,14 @@ static gColor get_color(GType type, bool fg, GtkStateFlags state)
 
 #else
 
-static gColor get_color(GType type, bool fg, GtkStateType state)
+static gColor get_color(GType type, bool fg, GtkStateType state, bool disabled)
 {
 	GtkStyle *st = gt_get_style(type);
 	GdkColor *color;
 
+	if (disabled)
+		state = STATE_INSENSITIVE;
+	
 	if (type == GTK_TYPE_ENTRY)
 	{
 		if (fg)
@@ -262,42 +269,44 @@ static gColor get_color(GType type, bool fg, GtkStateType state)
 
 #endif
 
-void gDesktop::calcColors()
+void gDesktop::calc_colors(gColor colors[], bool disabled)
 {
-	_colors[BACKGROUND] = get_color(GTK_TYPE_WINDOW, false, STATE_NORMAL);
-	_colors[FOREGROUND] = get_color(GTK_TYPE_WINDOW, true, STATE_NORMAL);
-	_colors[TEXT_BACKGROUND] = get_color(GTK_TYPE_ENTRY, false, STATE_NORMAL);
-	_colors[TEXT_FOREGROUND] = get_color(GTK_TYPE_ENTRY, true, STATE_NORMAL);
-	_colors[SELECTED_BACKGROUND] = get_color(GTK_TYPE_ENTRY, false, STATE_SELECTED);
-	_colors[SELECTED_FOREGROUND] = get_color(GTK_TYPE_ENTRY, true, STATE_SELECTED);
-	_colors[BUTTON_BACKGROUND] = get_color(GTK_TYPE_BUTTON, false, STATE_NORMAL);
-	_colors[BUTTON_FOREGROUND] = get_color(GTK_TYPE_BUTTON, true, STATE_NORMAL);
-	_colors[TOOLTIP_BACKGROUND] = get_color(GTK_TYPE_TOOLTIP, false, STATE_NORMAL);
-	_colors[TOOLTIP_FOREGROUND] = get_color(GTK_TYPE_TOOLTIP, true, STATE_NORMAL);
+	colors[BACKGROUND] = get_color(GTK_TYPE_WINDOW, false, STATE_NORMAL, disabled);
+	colors[FOREGROUND] = get_color(GTK_TYPE_WINDOW, true, STATE_NORMAL, disabled);
+	colors[TEXT_BACKGROUND] = get_color(GTK_TYPE_ENTRY, false, STATE_NORMAL, disabled);
+	colors[TEXT_FOREGROUND] = get_color(GTK_TYPE_ENTRY, true, STATE_NORMAL, disabled);
+	colors[SELECTED_BACKGROUND] = get_color(GTK_TYPE_ENTRY, false, STATE_SELECTED, disabled);
+	colors[SELECTED_FOREGROUND] = get_color(GTK_TYPE_ENTRY, true, STATE_SELECTED, disabled);
+	colors[BUTTON_BACKGROUND] = get_color(GTK_TYPE_BUTTON, false, STATE_NORMAL, disabled);
+	colors[BUTTON_FOREGROUND] = get_color(GTK_TYPE_BUTTON, true, STATE_NORMAL, disabled);
+	colors[TOOLTIP_BACKGROUND] = get_color(GTK_TYPE_TOOLTIP, false, STATE_NORMAL, disabled);
+	colors[TOOLTIP_FOREGROUND] = get_color(GTK_TYPE_TOOLTIP, true, STATE_NORMAL, disabled);
 	#ifdef GTK3
 		#if GTK_CHECK_VERSION(3, 12, 0)
-			_colors[LINK_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, STATE_LINK);
-			_colors[VISITED_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, (STATE_T)((int)STATE_LINK + (int)STATE_VISITED));
+			colors[LINK_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, STATE_LINK, disabled);
+			colors[VISITED_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, (STATE_T)((int)STATE_LINK + (int)STATE_VISITED), disabled);
 		#else
-			_colors[LINK_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, STATE_NORMAL);
-			_colors[VISITED_FOREGROUND] = IMAGE.DarkerColor(_colors[LINK_FOREGROUND]);
+			colors[LINK_FOREGROUND] = get_color(GTK_TYPE_LINK_BUTTON, true, STATE_NORMAL, disabled);
+			colors[VISITED_FOREGROUND] = IMAGE.DarkerColor(_colors[LINK_FOREGROUND]);
 		#endif
 	#else
-		_colors[LINK_FOREGROUND] = IMAGE.LighterColor(_colors[SELECTED_BACKGROUND]);
-		_colors[VISITED_FOREGROUND] = IMAGE.DarkerColor(_colors[LINK_FOREGROUND]);
+		colors[LINK_FOREGROUND] = IMAGE.LighterColor(_colors[SELECTED_BACKGROUND]);
+		colors[VISITED_FOREGROUND] = IMAGE.DarkerColor(_colors[LINK_FOREGROUND]);
 	#endif
-	_colors[LIGHT_BACKGROUND] = IMAGE.MergeColor(_colors[SELECTED_BACKGROUND], _colors[SELECTED_FOREGROUND], 0.3);
-	_colors[LIGHT_FOREGROUND] = IMAGE.MergeColor(_colors[BACKGROUND], _colors[FOREGROUND], 0.3);
-	
-	_colors_valid = true;
+	colors[LIGHT_BACKGROUND] = IMAGE.MergeColor(_colors[SELECTED_BACKGROUND], _colors[SELECTED_FOREGROUND], 0.3);
+	colors[LIGHT_FOREGROUND] = IMAGE.MergeColor(_colors[BACKGROUND], _colors[FOREGROUND], 0.3);
 }
 
-gColor gDesktop::getColor(int color)
+gColor gDesktop::getColor(int color, bool disabled)
 {
 	if (!_colors_valid)
-		calcColors();
+	{
+		calc_colors(_colors, false);
+		calc_colors(_colors_disabled, true);
+		_colors_valid = true;
+	}
 	
-	return _colors[color];
+	return disabled ? _colors_disabled[color] : _colors[color];
 }
 
 void gDesktop::screenResolution(int screen, double *x, double *y)

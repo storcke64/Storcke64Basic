@@ -1156,3 +1156,8 @@ void gTextArea::setBorder(bool b)
 	gControl::setBorder(b);
 	setFramePadding(hasBorder() ? gDesktop::scale() * 3 / 4 : 0);
 }
+
+gColor gTextArea::defaultBackground() const
+{
+	return gDesktop::getColor(gDesktop::TEXT_BACKGROUND, !isEnabled());
+}

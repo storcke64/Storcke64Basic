@@ -748,3 +748,11 @@ bool gButton::setInverted(bool v)
 		gt_widget_set_inverted(_label, false);
 	return false;
 }
+
+gColor gButton::defaultBackground() const
+{
+	if (type == Check || type == Radio)
+		return gControl::defaultBackground();
+	else
+		return gDesktop::getColor(gDesktop::BUTTON_BACKGROUND, !isEnabled());
+}

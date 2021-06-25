@@ -2128,6 +2128,11 @@ void gControl::setName(char *name)
 	if (name) _name = g_strdup(name);
 }
 
+gColor gControl::defaultBackground() const
+{
+	return gDesktop::getColor(gDesktop::BACKGROUND, !isEnabled());
+}
+
 #ifdef GTK3
 
 GtkWidget *gControl::getStyleSheetWidget()
@@ -2196,7 +2201,6 @@ void gControl::updateStyleSheet(bool dirty)
 		}
 	}
 	
-	
 	if (!isReallyVisible() || !_style_dirty)
 		return;
 
@@ -2238,10 +2242,8 @@ gColor gControl::realBackground(bool no_default)
 {
 	if (_bg != COLOR_DEFAULT)
 		return _bg;
-	else if (pr)
-		return pr->realBackground(no_default);
 	else
-		return no_default ? gDesktop::getColor(gDesktop::BACKGROUND) : COLOR_DEFAULT;
+		return no_default ? defaultBackground() : COLOR_DEFAULT;
 }
 
 void gControl::setRealBackground(gColor color)
@@ -2294,10 +2296,8 @@ gColor gControl::realBackground(bool no_default)
 {
 	if (_bg_set)
 		return use_base ? get_gdk_base_color(widget, isEnabled()) : get_gdk_bg_color(widget, isEnabled());
-	else if (pr)
-		return pr->realBackground(no_default);
 	else
-		return no_default ? gDesktop::getColor(gDesktop::BACKGROUND) : COLOR_DEFAULT;
+		return no_default ? defaultBackground() : COLOR_DEFAULT;
 }
 
 static void set_background(GtkWidget *widget, gColor color, bool use_base)

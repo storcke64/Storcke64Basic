@@ -67,6 +67,8 @@ public:
 	virtual bool setInverted(bool v);
 	
 	virtual void setRealForeground(gColor color);
+	gColor defaultBackground() const;
+	
 	//virtual void setRealBackground(gColor color);
 
 //"Method"

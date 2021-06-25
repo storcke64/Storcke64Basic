@@ -82,6 +82,8 @@ public:
 	
 	virtual void setMinimumSize();
 	virtual void setFont(gFont *ft);
+	
+	virtual gColor defaultBackground() const;
 
 #ifdef GTK3
 	virtual void onEnterEvent();

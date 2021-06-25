@@ -24,6 +24,7 @@
 #include "widgets.h"
 #include "gapplication.h"
 #include "gkey.h"
+#include "gdesktop.h"
 #include "gtextbox.h"
 
 #ifdef GTK3
@@ -559,3 +560,8 @@ void gTextBox::onLeaveEvent()
 		gdk_window_hide(TEXT_AREA(entry));
 }
 #endif
+
+gColor gTextBox::defaultBackground() const
+{
+	return gDesktop::getColor(gDesktop::TEXT_BACKGROUND, !isEnabled());
+}
