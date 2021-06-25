@@ -139,6 +139,7 @@ GB_DESC CKeyDesc[] =
   GB_CONSTANT("ControlKey", "i", GDK_Control_L),
   GB_CONSTANT("MetaKey", "i", GDK_Meta_L),
   GB_CONSTANT("AltKey", "i", GDK_Alt_L),
+  GB_CONSTANT("AltGrKey", "i", GDK_ISO_Level3_Shift),
   GB_CONSTANT("CapsLock", "i", GDK_Caps_Lock),
   GB_CONSTANT("NumLock", "i", GDK_Num_Lock),
   GB_CONSTANT("ScrollLock", "i", GDK_Scroll_Lock),
