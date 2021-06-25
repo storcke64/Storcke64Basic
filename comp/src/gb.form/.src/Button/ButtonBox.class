@@ -144,14 +144,7 @@ Public Sub Background_Draw()
   Dim iCol As Integer
   Dim iState As Integer
   
-  iCol = $hTextBox.Background
-  If iCol = Color.Default Then
-    'If $hTextBox.ReadOnly Then
-    '  iCol = Color.Background
-    'Else
-      iCol = Color.TextBackground
-    'Endif
-  Endif
+  iCol = Style.BackgroundOf($hTextBox)
   
   If $bBorder Then  
     
