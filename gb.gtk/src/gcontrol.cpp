@@ -1498,6 +1498,7 @@ void gControl::restack(bool raise)
 	if (_visible)
 		showButKeepFocus();
 
+	updateGeometry(true);
 	pr->performArrange();
 	pr->refresh();
 }
