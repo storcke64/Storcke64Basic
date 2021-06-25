@@ -769,6 +769,10 @@ Public Sub ScrollArea_Draw()
           hCursor = Rect(X, Y, Max(0, W - 1), Max(0, H - 1))
           If J = $hColumns.Max Then Inc hCursor.Right
         Endif
+        If $bGrid Then 
+          Dec hCursor.W
+          Dec hCursor.H
+        Endif
         'If I = $hRows.Max Then Dec hCursor.Bottom
         ' Paint.Begin(Draw.Device)
         ' Paint.ClipRect = hClip
@@ -807,8 +811,8 @@ Public Sub ScrollArea_Draw()
       ' Paint.Background = Color.LightBackground 'iGrid 'Color.LightForeground
       ' Paint.LineCap = Paint.LineCapSquare
       ' Paint.LineWidth = 1.5
-      Paint.DrawRect(hCursor.X, hCursor.Y, hCursor.W, hCursor.H, Color.LightBackground, 1.5)
-      Paint.Stroke
+      Paint.DrawRect(hCursor.X, hCursor.Y, hCursor.W + 1, hCursor.H + 1, Color.LightBackground, Desktop.Scale \ 4)
+      'Paint.Stroke
     Endif
   Endif
   
