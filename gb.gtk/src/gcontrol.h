@@ -139,6 +139,7 @@ public:
 	gColor foreground() const { return _fg; }
 	virtual void setBackground(gColor color = COLOR_DEFAULT);
 	virtual void setForeground(gColor color = COLOR_DEFAULT);
+	virtual gColor defaultBackground() const;
 	gColor realBackground(bool no_default = false);
 	gColor realForeground(bool no_default = false);
 	virtual void setRealBackground(gColor color);

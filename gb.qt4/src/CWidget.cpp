@@ -1509,6 +1509,8 @@ GB_COLOR CWIDGET_get_real_background(CWIDGET *_object)
 	if (bg != COLOR_DEFAULT)
 		return bg;
 
+	return WIDGET->palette().color(WIDGET->backgroundRole()).rgb() & 0xFFFFFF;
+	
 	CWIDGET *parent = (CWIDGET *)CWIDGET_get_parent(THIS);
 	
 	if (parent)

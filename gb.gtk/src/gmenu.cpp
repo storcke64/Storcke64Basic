@@ -149,8 +149,8 @@ static gboolean cb_map(GtkWidget *menu, gMenu *data)
 	data->_mapping = true;
 	
 	data->hideSeparators();
-	gtk_widget_hide(menu);
-	gtk_widget_show(menu);
+	/*gtk_widget_hide(menu);
+	gtk_widget_show(menu);*/
 	//gtk_menu_reposition(GTK_MENU(menu));
 	
 	data->_mapping = false;

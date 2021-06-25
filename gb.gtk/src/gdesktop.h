@@ -74,7 +74,7 @@ public:
 	
 	static void screenResolution(int screen, double *x, double *y);
 	
-	static gColor getColor(int color);
+	static gColor getColor(int color, bool disabled = false);
 	
 	static void onThemeChange();
 	
@@ -84,8 +84,9 @@ private:
 	static gFont *_desktop_font;
 	static bool _colors_valid;
 	static gColor _colors[NUM_COLORS];
+	static gColor _colors_disabled[NUM_COLORS];
 	
-	static void calcColors();
+	static void calc_colors(gColor colors[], bool disabled);
 	
 #ifdef GTK3
 	static GtkStyleProvider *_css;

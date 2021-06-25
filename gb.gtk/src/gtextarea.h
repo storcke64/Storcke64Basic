@@ -98,6 +98,7 @@ public:
 	virtual void setMinimumSize();
 	virtual void setFont(gFont *ft);
 	virtual void setBorder(bool b);
+	virtual gColor defaultBackground() const;
 #ifdef GTK3
 	virtual GtkWidget *getStyleSheetWidget();
 	virtual const char *getStyleSheetColorNode();
