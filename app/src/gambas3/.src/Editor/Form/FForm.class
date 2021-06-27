@@ -4506,16 +4506,20 @@ Private Sub FindLocation(hResult As CSearchResult)
   Dim sText As String
   Dim iPos2 As Integer
   
-  sText = GetText()
+  If hResult.OnDisk Then
+    sText = File.Load(Path)
+  Else
+    sText = GetText()
+  Endif
   
-  iPos = RInStr(sText, "\n", hResult.Pos) + 1
+  iPos = RInStr(sText, "\n", hResult.Pos + 1) + 1
 
   iPos2 = InStr(sText, "\n", iPos + 1)
   If iPos2 = 0 Then iPos2 = Len(sText) + 1
 
   sLine = Mid$(sText, iPos, iPos2 - iPos)
   
-  hResult.Column = hResult.Pos - iPos + 1
+  hResult.Column = String.Len(Left$(sLine, hResult.Pos - iPos)) + 1 'hResult.Pos - iPos + 1
   hResult.Text = sLine
   
   sLine = Trim(sLine)

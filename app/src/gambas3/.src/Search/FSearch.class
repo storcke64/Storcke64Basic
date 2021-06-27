@@ -37,6 +37,7 @@ Private Enum SEARCH_STRING, SEARCH_REPLACE, SEARCH_AFTER_REPLACE, SEARCH_UPDATE
 Private $hTask As CSearchTask
 Private $sTaskBuffer As String
 Private $sTaskPath As String
+Private $bTaskOnDisk As Boolean
 Private $aResult As New CSearchResult[]
 Private $iTaskIndex As Integer
 Private $sTaskFullPath As String
@@ -1426,6 +1427,12 @@ Public Sub timFillList_Timer()
       Else
         $iTaskIndex = -1
       Endif
+      hFile = Project.Files[$sTaskFullPath]
+      If hFile And If hFile.IsModified() Then
+        $bTaskOnDisk = False
+      Else 
+        $bTaskOnDisk = True
+      Endif
       hFile = Null
       
     Else
@@ -1436,6 +1443,7 @@ Public Sub timFillList_Timer()
       hResult = New CSearchResult
       hResult.Path = $sTaskPath
       hResult.File = hFile.Name
+      hResult.OnDisk = $bTaskOnDisk
       
       If hResult.InitFromLine(sLine) Then 
         Error "gambas3: warning: incorrect search result: "; sLine
@@ -1507,6 +1515,7 @@ Private Sub Search(iMode As Integer, Optional aPath As String[])
   
   $sTaskBuffer = ""
   $sTaskPath = ""
+  $bTaskOnDisk = False
   $iTaskIndex = -1
   $bTaskUpdate = iMode = SEARCH_UPDATE
 
