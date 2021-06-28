@@ -33,7 +33,7 @@ Private $bFile As Boolean
 Private $hBookmarkList As CBookmarkList
 Private $hCurrentBookmark As CBookmark
 Private $bShowBookmark As Boolean
-Private $hWatch As Watcher
+'Private $hWatch As Watcher
 'Private $bPressed As Boolean
 
 Private $sLast As String
@@ -90,7 +90,7 @@ Public Sub _new(Optional bFile As Boolean)
 
   'btnParent.Picture = Main.GetArrow(Align.Left, 16).Picture
   
-  $hWatch = New Watcher(fvwChoose) As "FileView"
+  '$hWatch = New Watcher(fvwChoose) As "FileView"
 
   FillMenu
 
@@ -244,6 +244,9 @@ Private Sub UpdateView()
   btnDetail.Visible = $bView
   btnPreview.Visible = $bView
 
+  FillMenu
+  UpdateZoom
+  
 End
 
 Public Sub btnView_Click()
@@ -1203,18 +1206,19 @@ Public Sub btnZoomIn_Click()
 
 End
 
-Public Sub FileView_Show()
-  
-  FillMenu
-  UpdateZoom
-  
-End
-
-Public Sub FileView_Hide()
-  
-  FileView_Show
-  
-End
+' Public Sub FileView_Show()
+'   
+'   Debug
+'   FillMenu
+'   UpdateZoom
+'   
+' End
+' 
+' Public Sub FileView_Hide()
+'   
+'   FileView_Show
+'   
+' End
 
 Public Sub mnuRename_Click()
   
