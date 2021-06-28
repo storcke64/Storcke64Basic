@@ -88,25 +88,32 @@ Private Sub Text_Write(Value As String)
   $iShortcutPos = 0
   
   Do
+    
     iPos = String.InStr($sText, "&", iPos + 1)
     If iPos = 0 Then Break
     If String.Mid$($sText, iPos + 1, 1) = "&" Then
       Inc iPos
       Continue
     Endif
+    
     If Not $hButton Then
       $hButton = New Button(Me) As "Button"
       $hButton.Ignore = True
       $hButton.Border = False
+      $hButton.AutoResize = True
       'S = Desktop.Scale * 3
-      $hButton.Move(0, 0, 1, 1)
       $hButton.Lower()
     Endif
+    
     $hButton.Text = String.Mid$($sText, iPos, 2)
     $hButton.Enabled = Not Me.Design
     $iShortcutPos = iPos
     $sActualText = String.Left($sText, iPos - 1) & String.Mid($sText, iPos + 1)
+    
+    $hButton.Y = -$hButton.H
+    
     Break
+    
   Loop
   
   $sActualText = Replace($sActualText, "&&", "&")
@@ -318,6 +325,7 @@ End
 
 Public Sub DrawingArea_GotFocus()
 
+  If $hButton And If Not Me.Design Then $hButton.Enabled = False
   _SetLastFocus  
   $hDrawingArea.Refresh
   
@@ -325,6 +333,7 @@ End
 
 Public Sub DrawingArea_LostFocus()
   
+  If $hButton And If Not Me.Design Then $hButton.Enabled = True
   $hDrawingArea.Refresh
   
 End
