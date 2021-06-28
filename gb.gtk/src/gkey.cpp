@@ -496,7 +496,7 @@ __KEY_TRY_PROXY:
 	if (!handled)
 	{
 		control = control->parent();
-		if (control)
+		if (control && !control->isWindow())
 			goto __KEY_TRY_PROXY;
 	}
 	
