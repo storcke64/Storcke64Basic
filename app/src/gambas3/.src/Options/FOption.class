@@ -1828,7 +1828,12 @@ Public Sub gvwLayout_Select()
   Endif
 
   sName = $aLayout[gvwLayout.Row * 2]
-  btnDeleteLayout.Enabled = Exist(GetLayoutPath(sName)) 
+  If sName Then
+    btnDeleteLayout.Enabled = Exist(GetLayoutPath(sName)) 
+  Else 
+    btnDeleteLayout.Enabled = False
+  Endif 
+  
   LoadLayout(sName)
 
 End

@@ -377,6 +377,8 @@ Public Sub ReadConfig()
     Project.SetSmallFont(hCtrl)
   Next
   
+  btnChanges.Picture = Picture["img/32/modified.png"].Stretch(Stock.GetSize("small"))
+  
   'H = Max(Stock.GetSize("small"), cmbWatch.Font.H) * 1.4
   'panWatch.H = H
   ' For Each hChild In panWatch.Children
@@ -1783,5 +1785,11 @@ Public Sub cmbWatch_Change()
   Endif
   
   UpdateWatchButtons
+
+End
+
+Public Sub btnChanges_Click()
+
+  FFileInfoVC.Run(Project.Dir)
 
 End

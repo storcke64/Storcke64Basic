@@ -285,26 +285,31 @@
         ToolTip = ("Clear console")
         Picture = Picture["icon:/small/clear"]
       }
+      { btnChanges ToolButton
+        MoveScaled(9,0,17,4)
+        AutoResize = True
+        Text = ("Modifications.") & "..."
+      }
       { btnVcCommit ToolButton
-        MoveScaled(9,0,12,4)
+        MoveScaled(28,0,12,4)
         AutoResize = True
         Text = ("Commit") & "..."
         Picture = Picture["icon:/small/upload"]
       }
       { btnVcUpdate ToolButton
-        MoveScaled(20,0,15,4)
+        MoveScaled(41,0,15,4)
         AutoResize = True
         Text = ("Synchronize")
         Picture = Picture["icon:/small/download"]
       }
       { btnVcRevert ToolButton
-        MoveScaled(34,0,20,4)
+        MoveScaled(57,0,9,4)
         AutoResize = True
         Text = ("Revert all changes") & "..."
         Picture = Picture["icon:/small/undo"]
       }
       { btnVcAddAll ToolButton
-        MoveScaled(54,0,27,4)
+        MoveScaled(68,0,13,4)
         AutoResize = True
         Text = ("Add everything to repository")
         Picture = Picture["icon:/small/add"]
