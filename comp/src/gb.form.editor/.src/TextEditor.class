@@ -889,8 +889,6 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
     
     If P + iLen >= iNextBreak Then
       
-      bBreak = True
-      
       iRest = P + iLen - iNextBreak
       iLen = iNextBreak - P
       
@@ -902,9 +900,11 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
         iNextBreak = Len(sText) + 1
       Endif
       
+      If iLen <= 0 Then Goto NEXT_PATTERN
+      
       If iRest Then I -= 2
       
-      If iLen = 0 Then Goto NEXT_PATTERN
+      bBreak = True
       
     Endif
     
