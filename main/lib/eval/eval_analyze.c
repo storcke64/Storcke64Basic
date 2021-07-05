@@ -372,7 +372,7 @@ static void analyze(EVAL_ANALYZE *result)
 		
 		if (type == RT_SPACE)
 		{
-			if (!EVAL->rewrite || _colors_len == 0 || PATTERN_is_end(pattern[1]))
+			if (!EVAL->rewrite || _colors_len == 0 || PATTERN_is_end(pattern[1]) || PATTERN_is_comment(pattern[1]))
 			{
 				len = PATTERN_index(*pattern);
 				add_data(RT_SPACE, len);
@@ -457,7 +457,7 @@ static void analyze(EVAL_ANALYZE *result)
 
 			case RT_COMMENT:
 				//state = Commentary;
-				space_before = *symbol != ' ';
+				space_before = FALSE; //*symbol != ' ';
 				i = get_symbol_indent(symbol, len);
 				if (i <= (len - 2) && symbol[i + 1] == '\'')
 					type = RT_HELP;
@@ -557,7 +557,7 @@ static void analyze(EVAL_ANALYZE *result)
 				break;
 		}
 
-		if (space_before && old_type != RT_END && EVAL->rewrite)
+		if (EVAL->rewrite && space_before && old_type != RT_END)
 		{
 			add_result_char(result, ' ');
 			add_data(preprocessor ? RT_PREPROCESSOR : RT_SPACE, 1);

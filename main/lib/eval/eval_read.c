@@ -849,35 +849,9 @@ static void add_comment()
 	int len;
 	int index;
 	int type;
-	bool space = FALSE;
 
 	start = source_ptr;
 	len = 1;
-
-	for(;;)
-	{
-		if (start == EVAL->source)
-			break;
-
-		start--;
-		car = *start;
-		if (car == '\n')
-			break;
-
-		if (car > ' ')
-		{
-			start++;
-			space = TRUE;
-			break;
-		}
-		len++;
-	}
-
-	if (!space)
-	{
-		start = source_ptr;
-		len = 1;
-	}
 
 	for(;;)
 	{
