@@ -478,7 +478,7 @@ Public Sub GetHelpMarkup() As String
     For I = 0 To hEdit.Count - 1
       sLine = Trim(hEdit[I].Text)
       If sLine Begins "''' " Then
-        sMarkup &= Trim(Mid$(sLine, 4)) & "\n"
+        sMarkup &= RTrim(Mid$(sLine, 5)) & "\n"
       Else
         If sMarkup Then Break
         If Not sLine Then Continue
@@ -536,7 +536,8 @@ Public Sub GetHelpHTML() As String
   ' sHelp &= "\n" & WikiGetSymbols().Join("\n")
   ' Return WikiMarkdown.ToHTML(sHelp)
 
-  sHelp = Markup.Convert(GetHelpMarkup())
+  'sHelp = Markup.Convert(GetHelpMarkup())
+  sHelp = Markdown.ToHTML(GetHelpMarkup())
   
   hClassInfo = Documentation.GetClassDescription(sClass)
   cClassSymbols = hClassInfo.Symbols 'CComponent.GetClassSymbols(sClass)

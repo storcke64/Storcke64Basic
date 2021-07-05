@@ -1013,7 +1013,7 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Close #hFile
 
   sUrl = "file://" & URL.Encode(sPath)
-  If sHighlight Then sUrl &= "?s=" & URL.Encode(sHighlight)
+  If sHighlight Then sUrl &= "?ht=" & URL.Encode(sHighlight)
 
   hWebView.Url = sUrl
   

@@ -51,7 +51,7 @@ function highlight_check()
   for (i = 0; i < query.length; i++)
   {
     pair = query[i].split('=');
-    if (pair[0] == 's' && pair.length == 2)
+    if (pair[0] == 'ht' && pair.length == 2)
     {
       highlight_body(decodeURIComponent(pair[1].replace(/[+]/g, '%20')).split(','));
       break;
