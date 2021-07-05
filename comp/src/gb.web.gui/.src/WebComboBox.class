@@ -77,7 +77,9 @@ Public Sub _Render()
     Print "<div class=\"gw-combobox-arrow\">";
   Endif
   
-  Print "<select id=\""; Me.Name; ":select\" autocomplete=\"off\""; Me._GetUpdateWaitJS("oninput", "index", "this.selectedIndex"); 
+  Print "<select id=\""; Me.Name; ":select\" autocomplete=\"off\""; 
+  Print Me._GetUpdateWaitJS("oninput", "index", "this.selectedIndex"); 
+  Print Me._GetUpdateWaitJS("onclick", "index", "this.selectedIndex"); 
   If Not Me.Enabled Then Print " disabled";
   Print ">"
   
