@@ -1875,16 +1875,14 @@ bool LOCAL_format_date(const DATE_SERIAL *date, int fmt_type, const char *fmt, i
 	{
 		c = fmt[pos];
 		
-		if (quote)
+		if (c == '\\')
 		{
-			COMMON_put_char(c);
-			quote = FALSE;
-			continue;
-		}
-		else if (c == '\\')
-		{
+			pos++;
+			c = fmt[pos];
+			if (!c)
+				break;
+			c = 1; // something not null that cannot be a token
 			quote = TRUE;
-			continue;
 		}
 		
 		if (c == token)
@@ -1926,7 +1924,7 @@ bool LOCAL_format_date(const DATE_SERIAL *date, int fmt_type, const char *fmt, i
 		else
 		{
 			if (c != ' ' || token == 0 || COMMON_pos > 0)
-				COMMON_put_char(c);
+				COMMON_put_char(quote ? fmt[pos] : c);
 		}
 		
 		token = 0;
