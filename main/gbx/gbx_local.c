@@ -57,7 +57,8 @@
 //#define DEBUG_LANG
 //#define DEBUG_DATE
 
-static void add_string(const char *src, int len, int *before);
+static void add_string(const char *src, int len, bool quote);
+static void add_string_thousand(const char *src, int len, int *before);
 
 /* System encoding*/
 char *LOCAL_encoding = NULL;
@@ -188,25 +189,55 @@ static void add_thousand_sep(int *before)
 			if (COMMON_pos > 0 && (COMMON_get_current()[-1] == ' '))
 				COMMON_put_char(' ');
 			else
-				add_string(thsep, lthsep, NULL);
+				add_string(thsep, lthsep, FALSE);
 		}
 	}
 
 	(*before)--;
 }
 
-static void add_string(const char *src, int len, int *before)
+static void add_string(const char *src, int len, bool quote)
 {
+	char c;
+	
 	if (len <= 0)
 		len = strlen(src);
 
 	while (len > 0)
 	{
-		COMMON_put_char(*src++);
+		c = *src++;
 		len--;
 
-		if (before)
-			add_thousand_sep(before);
+		if (quote && c == '\\')
+		{
+			if (len > 0)
+			{
+				c = *src++;
+				len--;
+			}
+			else
+				break;
+		}
+		
+		COMMON_put_char(c);
+	}
+}
+
+static void add_string_thousand(const char *src, int len, int *before)
+{
+	char c;
+	
+	if (len <= 0)
+		len = strlen(src);
+
+	while (len > 0)
+	{
+		c = *src++;
+		len--;
+
+		COMMON_put_char(c);
+
+		add_thousand_sep(before);
 	}
 }
 
@@ -224,7 +255,7 @@ static void add_unicode(uint unicode)
 	if (COMMON_pos >= len && strncmp(&COMMON_buffer[COMMON_pos - len], str, len) == 0)
 		return;
 	
-	add_string(str, len, NULL);
+	add_string(str, len, FALSE);
 }
 
 static void add_currency(const char *sym)
@@ -1201,7 +1232,7 @@ bool LOCAL_format_number(double number, int fmt_type, const char *fmt, int len_f
 
 	pos = i;
 	if (pos > 0)
-		add_string(fmt, pos, NULL);
+		add_string(fmt, pos, TRUE);
 
 	// Search if there is a percent format character
 	
@@ -1472,7 +1503,7 @@ _FORMAT:
 			add_digit_char(' ', before - Max(before_zero, number_exp), thousand_ptr);
 			add_zero(before_zero - number_exp, thousand_ptr);
 
-			add_string(buf_addr, Min(number_exp, ndigit), thousand_ptr);
+			add_string_thousand(buf_addr, Min(number_exp, ndigit), thousand_ptr);
 
 			if (number_exp > ndigit)
 				add_zero(number_exp - ndigit, thousand_ptr);
@@ -1517,7 +1548,7 @@ _FORMAT:
 			n = Min(ndigit, after);
 			if (n > 0)
 			{
-				add_string(buf_addr, n, NULL);
+				add_string(buf_addr, n, FALSE);
 				after -= n;
 				after_zero -= n;
 			}
@@ -1549,15 +1580,15 @@ _FORMAT:
 				COMMON_put_char('0');
 				exp_zero--;
 			}
-			add_string(buf_addr, n, NULL);
+			add_string(buf_addr, n, FALSE);
 		}
 	}
 	else // isfinite
 	{
 		if (isnan(number))
-			add_string("NaN", 3, NULL);
+			add_string("NaN", 3, FALSE);
 		else if (isinf(number))
-			add_string("Inf", 3, NULL);
+			add_string("Inf", 3, FALSE);
 	}
 
 	// currency (after)
@@ -1586,7 +1617,7 @@ _FORMAT:
 	// format suffix
 
 	if (pos < len_fmt)
-		add_string(&fmt[pos], len_fmt - pos, NULL);
+		add_string(&fmt[pos], len_fmt - pos, TRUE);
 
 	// return the result
 
@@ -1640,7 +1671,7 @@ static void add_number(int value, int pad)
 		n++;
 	}
 
-	add_string(&temp[i], n, NULL);
+	add_string(&temp[i], n, FALSE);
 }
 
 static bool add_date_time_token(DATE_SERIAL *date, char token, int count)
@@ -1718,7 +1749,7 @@ static bool add_date_time_token(DATE_SERIAL *date, char token, int count)
 					while (buf[n - 1] == '0')
 						n--;
 					buf[n] = 0;
-					add_string(buf, n, NULL);
+					add_string(buf, n, FALSE);
 				}
 			}
 			break;
