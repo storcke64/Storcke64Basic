@@ -375,7 +375,7 @@ void gKey::setActiveControl(gControl *control)
 
 #if DEBUG_IM
 		fprintf(stderr,"\n------------------------\n");
-		fprintf(stderr, "gtk_im_context_focus_in: _im_has_input_method = %d\n", _im_has_input_method);
+		fprintf(stderr, "gtk_im_context_focus_in: %s _im_has_input_method = %d\n", control ? control->name() : "-", _im_has_input_method);
 #endif
 	}
 }
