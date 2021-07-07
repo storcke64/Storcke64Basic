@@ -319,11 +319,8 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	GtkWidget *focus;
 
 	focus = gtk_window_get_focus(window);
-	if (focus)
+	if (focus && gtk_widget_get_realized(focus))
 	{
-		if (!gtk_widget_get_realized(focus))
-			return handled;
-		
 		if (GTK_IS_ENTRY(focus) || GTK_IS_TEXT_VIEW(focus))
 		{
 			propagated = TRUE;
@@ -338,7 +335,7 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	if (handled)
 		return TRUE;
 
-	if (!propagated)
+	if (!propagated && gtk_widget_get_realized(focus))
 	{
 		handled = gtk_window_propagate_key_event(window, event);
 		if (handled)
