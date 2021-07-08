@@ -13,28 +13,28 @@ Public Sub Button1_Click()
 
 End
 
-Public Sub MaskBox1_Validate()
-
-  Dim aAdr As String[]
-  Dim I As Integer
-  Dim sAdr As String
-  Dim iAdr As Integer
-  Dim bValid As Boolean
-
-  aAdr = Split(Last.Text, ".")
-  If aAdr.Count = 4 Then
-    For I = 0 To aAdr.Max
-      bValid = False
-      sAdr = Trim(aAdr[I])
-      If sAdr Then 
-        Try iAdr = CInt(sAdr)
-        If Error Then Break
-        If iAdr < 0 Or If iAdr > 255 Then Break
-      Endif
-      bValid = True
-    Next
-  Endif
-
-  If Not bValid Then Stop Event
-
-End
+' Public Sub MaskBox1_Validate()
+' 
+'   Dim aAdr As String[]
+'   Dim I As Integer
+'   Dim sAdr As String
+'   Dim iAdr As Integer
+'   Dim bValid As Boolean
+' 
+'   aAdr = Split(Last.Text, ".")
+'   If aAdr.Count = 4 Then
+'     For I = 0 To aAdr.Max
+'       bValid = False
+'       sAdr = Trim(aAdr[I])
+'       If sAdr Then 
+'         Try iAdr = CInt(sAdr)
+'         If Error Then Break
+'         If iAdr < 0 Or If iAdr > 255 Then Break
+'       Endif
+'       bValid = True
+'     Next
+'   Endif
+' 
+'   If Not bValid Then Stop Event
+' 
+' End
