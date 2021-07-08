@@ -298,7 +298,7 @@ Private Sub CheckUnique()
 
   I = 1
   While I < lstData.Count
-    iPos = lstData.Find(lstData[I])
+    iPos = lstData.Find(lstData[I].Text)
     If iPos <> I Then
       lstData.Remove(I)
     Else
