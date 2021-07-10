@@ -525,8 +525,6 @@ static void run_process(CPROCESS *process, int mode, void *cmd, CARRAY *env)
 	// for virtual terminal
 	int fd_master = -1;
 	char *slave = NULL;
-	//struct termios termios_stdin;
-	//struct termios termios_check;
 	struct termios termios_master;
 	const char *exec;
 
@@ -610,17 +608,14 @@ static void run_process(CPROCESS *process, int mode, void *cmd, CARRAY *env)
 		fprintf(stderr, "run_process: slave = %s\n", slave);
 		#endif
 		
-		if (mode & PM_TERM)
-		{
-			if (tcgetattr(fd_master, &termios_master))
-				goto __ABORT_ERRNO;
+		if (tcgetattr(fd_master, &termios_master))
+			goto __ABORT_ERRNO;
 
-			cfmakeraw(&termios_master);
-			//termios_master.c_lflag &= ~ECHO;
+		cfmakeraw(&termios_master);
+		//termios_master.c_lflag &= ~ECHO;
 
-			if (tcsetattr(fd_master, TCSANOW, &termios_master))
-				goto __ABORT_ERRNO;
-		}
+		if (tcsetattr(fd_master, TCSANOW, &termios_master))
+			goto __ABORT_ERRNO;
 	}
 	else
 	{
@@ -724,12 +719,7 @@ static void run_process(CPROCESS *process, int mode, void *cmd, CARRAY *env)
 		bool pwd;
 		int ch_i, ch_n;
 
-		//bool stdin_isatty = isatty(STDIN_FILENO);
-
 		sigprocmask(SIG_SETMASK, &old, NULL);
-
-		if (mode & PM_SHELL)
-			setpgid(0, 0);
 
 		if (mode & PM_TERM)
 		{
@@ -796,6 +786,9 @@ static void run_process(CPROCESS *process, int mode, void *cmd, CARRAY *env)
 					abort_child(CHILD_CANNOT_PLUG_OUTPUT);
 			}
 		}
+
+		if (mode & PM_SHELL)
+			setpgid(0, 0);
 
 		pwd = FALSE;
 
