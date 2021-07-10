@@ -238,7 +238,7 @@ bool gKey::mustIgnoreEvent(GdkEventKey *event)
 	if (!_im_has_input_method)
 		return false;
 	else
-		return (event->type == GDK_KEY_PRESS) && (event->keyval == 0 || !event->string || (uchar)*event->string >= 32);
+		return (event->type == GDK_KEY_PRESS) && (event->keyval == 0 || !event->string || ((uchar)*event->string >= 32 && ((event->keyval & 0xFF00) != 0xFF00)));
 }
 
 void gcb_im_commit(GtkIMContext *context, const char *str, gControl *control)

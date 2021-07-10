@@ -902,7 +902,25 @@ void gMainWindow::setVisible(bool vl)
 			focus->setFocus();
 			focus = NULL;
 		}
-
+		else
+		{
+			gControl *ctrl = this;
+			
+			for(;;)
+			{
+				ctrl = ctrl->nextFocus();
+				
+				if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus())
+				{
+					ctrl->setFocus();
+					break;
+				}
+				
+				if (ctrl == this)
+					break;
+			}
+		}
+			
 		if (isSkipTaskBar())
 			_activate = true;
 
