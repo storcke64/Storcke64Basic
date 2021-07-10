@@ -1290,6 +1290,8 @@ bool gControl::canFocusOnClick() const
 {
 	/*if (_proxy)
 		return _proxy->canFocusOnClick();*/
+	if (isWindow())
+		return false;
 	if (!GTK_IS_BUTTON(widget))
 		return true;
 	return gt_get_focus_on_click(widget);
