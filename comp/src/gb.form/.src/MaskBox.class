@@ -81,20 +81,49 @@ End
 Private Sub GetFirstCharacterPos() As Integer
   
   Dim iPos As Integer
+  Dim sText As String
+  Dim sCar As String
   
   For iPos = 0 To $aMask.Max
-    If $aMask[iPos] Then Return iPos
+    If $aMask[iPos] Then Break
   Next
+
+  If IsRightAlign(iPos) Then
+    sText = UnmaskText(Super.Text)
+    While iPos < Me.Length
+      sCar = String.Mid$(sText, iPos + 1, 1)
+      If sCar <> UNMASKED_CHAR Then Break
+      Inc iPos
+    Wend
+  Endif
+  
+  Return iPos
   
 End
 
 Private Sub GetLastCharacterPos() As Integer
   
   Dim iPos As Integer
+  Dim sText As String
+  Dim sCar As String
   
   For iPos = $aMask.Max DownTo 0
-    If $aMask[iPos] Then Return iPos + 1
+    If $aMask[iPos] Then
+      Inc iPos
+      Break
+    Endif
   Next
+  
+  If Not IsRightAlign(iPos) Then
+    sText = UnmaskText(Super.Text)
+    While iPos > 0
+      sCar = String.Mid$(sText, iPos + 1, 1)
+      If sCar <> UNMASKED_CHAR Then Break
+      Dec iPos
+    Wend
+  Endif
+  
+  Return iPos
   
 End
 
@@ -290,10 +319,10 @@ Private Sub MaskText(sText As String) As String
       
     Else If sMask = "[0-9]" Then
       
-      If sCar = $sPrompt And If bNumber Then
+      If sCar = UNMASKED_CHAR And If bNumber Then
         sCar = "0"
       Else If sCar = "0" And If Not bNumber Then
-        sCar = $sPrompt
+        sCar = UNMASKED_CHAR
       Endif
       
       If Not bNumber And If IsDigit(sCar) And If sCar <> "0" Then bNumber = True
@@ -311,20 +340,13 @@ End
 
 Private Sub GotoCursor(iPos As Integer) As Boolean
   
-  Dim sText As String = Super.Text
-  Dim sCar As String
+  Dim iFirst As Integer
+  Dim iLast As Integer
   
-  If iPos < 0 Then iPos = GetFirstCharacterPos()
-  
-  If IsRightAlign(iPos) Then
-    While iPos < Me.Length
-      sCar = String.Mid$(sText, iPos + 1, 1)
-      If sCar <> $sPrompt And If sCar <> "0" Then 
-        Break
-      Endif
-      Inc iPos
-    Wend
-  Endif
+  iFirst = GetFirstCharacterPos()
+  If iPos < iFirst Then iPos = iFirst
+  iLast = GetLastCharacterPos()
+  If iPos > iLast Then iPos = iLast
   
   If Me.Pos <> iPos Then
     Me.Pos = iPos
@@ -333,11 +355,10 @@ Private Sub GotoCursor(iPos As Integer) As Boolean
   
 End
 
-
 Public Sub TextBox_KeyPress()
   
   Dim sText, sTextOrg As String
-  Dim iOldPos, iPos, iPosPrev, iPosNext As Integer
+  Dim iPos, iPosPrev, iPosNext As Integer
   Dim iMove As Integer
   Dim sCar As String
   Dim sInsert As String
@@ -372,14 +393,14 @@ Public Sub TextBox_KeyPress()
       iPos = GetLastCharacterPos()
       
     Case Key.Delete
-      If iPos < Me.Length
+      If iPos < GetLastCharacterPos()
         iMove = 0
         bDelete = True
         bBefore = IsRightAlign(iPos + 1) 
       Endif
       
     Case Key.BackSpace
-      If iPos > 0 Then
+      If iPos > GetFirstCharacterPos() Then
         iMove = -1
         bDelete = True
         bBefore = IsRightAlign(iPos)
@@ -472,34 +493,41 @@ Public Sub TextBox_KeyPress()
     Endif
   Endif
   
+  iPos += iMove
+  
   If iMove Then
     
-    iOldPos = iPos
-    Do
-      iPos += iMove
-      If iPos < 0 Then
-        iPos = GetFirstCharacterPos()
-        Break
-      Endif
-      If iPos >= Me.Length Then
-        iPos = GetLastCharacterPos()
-        Break
-      Endif
-      If iMove > 0 Or If bDelete Then
-        If $aMask[iPos] Then Break
-      Endif
-      If iMove < 0 And If iPos > 0 And If $aMask[iPos - 1] Then Break
-    Loop
+    ' iOldPos = iPos
+    ' Do
+    '   iPos += iMove
+    '   If iPos < 0 Then
+    '     iPos = GetFirstCharacterPos()
+    '     Break
+    '   Endif
+    '   If iPos >= Me.Length Then
+    '     iPos = GetLastCharacterPos()
+    '     Break
+    '   Endif
+    '   If iMove > 0 Or If bDelete Then
+    '     If $aMask[iPos] Then Break
+    '   Endif
+    '   If iMove < 0 And If iPos > 0 And If $aMask[iPos - 1] Then Break
+    ' Loop
     
-    If IsRightAlign(iPos) Then 
-      Do
-        If (iPos + iMove) < 0 Then Break
-        If (iPos + iMove) > Me.Length Then Break
-        sCar = String.Mid$(sText, iPos + 1, 1)
-        If sCar <> UNMASKED_CHAR And If sCar <> "0" Then Break
-        iPos += iMove
-      Loop
-    Endif
+    ' If IsRightAlign(iPos) Then 
+    '   Do
+    '     If (iPos + iMove) < 0 Then Break
+    '     If (iPos + iMove) > Me.Length Then Break
+    '     ' sCar = String.Mid$(sText, iPos + 1, 1)
+    '     ' If iMove > 0 Then
+    '     '   If sCar <> UNMASKED_CHAR Then Break
+    '     ' Else 
+    '     '   If sCar <> "0" Then Break
+    '     ' Endif
+    '     iPos += iMove
+    '     Break
+    '   Loop
+    ' Endif
     
   Endif
   
@@ -728,7 +756,7 @@ Private Sub IsValid(sText As String) As Boolean
   
   If $sMaskOrg Then
   
-    If String.Len(sText) > $aMask.Count Then Return False
+    If String.Len(sText) <> $aMask.Count Then Return False
     
     For I = 1 To String.Len(sText)
       
@@ -810,6 +838,13 @@ Private Function Text_Read() As String
 End
 
 Private Sub Text_Write(Value As String)
+
+  If $sMaskOrg Then
+    Value = Replace(Value, " ", $sPrompt)
+    If String.Len(Value) < $aMask.Count Then
+      Value &= String.Mid$(MakeDefault(), String.Len(Value) + 1)
+    Endif
+  Endif
 
   Super.Text = Value
 
