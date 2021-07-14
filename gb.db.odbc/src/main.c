@@ -121,12 +121,8 @@ ODBC_TABLES;
 * Adapted to obey Gambas' DB.IsDebug().
 * Mostly from http://www.easysoft.com/developer/interfaces/odbc/diagnostics_error_status_codes.html
 */
-void reportODBCError(const char *fn,
-		     SQLHANDLE handle,
-		     SQLSMALLINT type
-		    )
+static void reportODBCError(const char *fn, SQLHANDLE handle, SQLSMALLINT type)
 {
-
 	SQLINTEGER      i = 0;
 	SQLINTEGER      native;
 	SQLTCHAR        state[7];
@@ -136,7 +132,7 @@ void reportODBCError(const char *fn,
 
 	if (DB.IsDebug())
 	{
-		DB.Debug("gb.db.odbc", fn);
+		DB.Debug("gb.db.odbc","ERROR: %s", fn);
 		do
 		{
 			ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
@@ -210,7 +206,7 @@ void throwODBCError(const char *failedODBCFunctionName,
 int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 {
 	SQLRETURN retcode;              //ODBC call return values
-	int formerRecIdx = 0;           //Where we were when this all started.
+	int formerRecIdx = -1;           //Where we were when this all started.
 	SQLINTEGER myRecCnt = -1;       //Default for when there's no cursor.
 	SQLINTEGER firstRecNo = 0;		//20161111 holder for 1st recno.
 	SQLINTEGER lastRecNo = 0;		//20161111 holder for last recno.
@@ -246,7 +242,7 @@ int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 	if (formerRecIdx < 0)
 	{
 		DB.Debug("gb.db.odbc", "GetRecordCount: Current record returned %d, returning -1 as count", formerRecIdx);
-		return ((int) myRecCnt);
+		goto __RETURN_COUNT;
 	}
 
 	//Try to get (back?) to the first record, abort if not possible.
@@ -301,6 +297,11 @@ int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 		reportODBCError("SQLFetchScroll SQL_FETCH_LAST", stmtHandle, SQL_HANDLE_STMT);
 	}
 
+	myRecCnt = (lastRecNo - firstRecNo + 1);
+	DB.Debug("gb.db.odbc", "GetRecordCount: Record count=%d", (int) myRecCnt);
+
+__RETURN_COUNT:
+	
 	//Tell ODBC we will be reading data now.
 	//SQL_ATTR_RETRIEVE_DATA = [SQL_RD_ON] | SQL_RD_OFF
 	retcode = SQLSetStmtAttr(stmtHandle, SQL_ATTR_RETRIEVE_DATA, (SQLPOINTER) SQL_RD_ON, 0);
@@ -308,9 +309,6 @@ int GetRecordCount(SQLHANDLE stmtHandle, SQLINTEGER cursorScrollable)
 	{
 		reportODBCError("SQLSetStmtAttr SQL_ATTR_RETRIEVE_DATA", stmtHandle, SQL_HANDLE_STMT);
 	}
-
-	myRecCnt = (lastRecNo - firstRecNo + 1);
-	DB.Debug("gb.db.odbc", "GetRecordCount: Record count=%d", (int) myRecCnt);
 
 	return ((int) myRecCnt);
 
@@ -1159,7 +1157,7 @@ fflush(stderr);
 
 	if (res->Function_exist == SQL_TRUE)		//Does driver support SQLFetchScroll?
 	{
-		if (res->Cursor_Scrollable == SQL_TRUE)	//Does the query support scrolling?
+		if (res->Cursor_Scrollable == SQL_TRUE && !next)	//Does the query support scrolling?
 		{
 			retcode2 = SQLFetchScroll(
 				res->odbcStatHandle, 
@@ -1315,14 +1313,8 @@ fflush(stderr);
 			*field->data = 0; // If SQLGetData returns nothing
 			len_read = 0;
 			
-			SQLGetData(
-				res->odbcStatHandle,
-				i + 1,
-				SQL_C_CHAR, 
-				field->data,
-				field->len,
-				&len_read
-			);
+			if (!SQL_SUCCEEDED(SQLGetData(res->odbcStatHandle, i + 1, SQL_C_CHAR, field->data, field->len, &len_read)))
+				reportODBCError("SQLGetData", res->odbcStatHandle, SQL_HANDLE_STMT);
 			
 			DB.Debug("gb.db.odbc", "query_fill: %s (%d) = %.*s", field->name, field->type, (int)len_read, field->data);
 			
@@ -1572,9 +1564,9 @@ fflush(stderr);
 	}
 
 	retcode = SQLSetStmtAttr(odbcres->odbcStatHandle, SQL_ATTR_CURSOR_SCROLLABLE, (SQLPOINTER) SQL_SCROLLABLE, 0);
-	//DB.Debug("gb.db.odbc", "do_query() SQLSetStmtAttr(SQL_ATTR_CURSOR_SCROLLABLE)=%d", odbcres->Cursor_Scrollable);
 	odbcres->Cursor_Scrollable = ((retcode != SQL_SUCCESS) && (retcode != SQL_SUCCESS_WITH_INFO)) ? SQL_FALSE : SQL_TRUE;
 	odbcres->Function_exist = handle->drvrCanFetchScroll;
+	DB.Debug("gb.db.odbc", "do_query() Cursor_Scrollable = %d, drvrCanFetchScroll %d", odbcres->Cursor_Scrollable, handle->drvrCanFetchScroll);
 
 	/* Execute the query */
 	retcode = SQLExecDirect(odbcres->odbcStatHandle, (SQLCHAR *) query, SQL_NTS);
