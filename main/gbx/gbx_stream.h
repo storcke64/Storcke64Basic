@@ -103,6 +103,14 @@ typedef
 typedef
 	struct {
 		STREAM_COMMON common;
+		int fd;
+		unsigned can_write : 1;
+		}
+	STREAM_PIPE;
+
+typedef
+	struct {
+		STREAM_COMMON common;
 		FILE *file;
 		}
 	STREAM_BUFFER;
@@ -155,7 +163,7 @@ typedef
 		STREAM_RESERVED _reserved;
 		STREAM_DIRECT direct;
 		STREAM_BUFFER buffer;
-		STREAM_DIRECT pipe;
+		STREAM_PIPE pipe;
 		STREAM_MEMORY memory;
 		STREAM_ARCH arch;
 		STREAM_PROCESS process;

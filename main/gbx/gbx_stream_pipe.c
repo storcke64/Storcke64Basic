@@ -56,19 +56,19 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 
 	switch (mode & GB_ST_MODE)
 	{
-		case GB_ST_READ: fmode |= O_RDONLY | O_NONBLOCK; break;
+		case GB_ST_READ: fmode |= O_RDWR; break;
 		case GB_ST_WRITE: fmode |= O_WRONLY; break;
 		case GB_ST_READ_WRITE: fmode |= O_RDWR; break;
-		default: fmode |= O_RDONLY;
+		default: fmode |= O_RDWR;
 	}
 
-	RESTART_SYSCALL(fd = open(path, fmode)) 
+	RESTART_SYSCALL(fd = open(path, fmode | O_NONBLOCK)) 
 		return TRUE;
 
 	if ((mode & GB_ST_MODE) == GB_ST_READ)
 		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
 		
-	stream->direct.size = 0;
+	stream->pipe.can_write = mode & GB_ST_WRITE;
 
 	FD = fd;
 	return FALSE;
@@ -93,6 +93,12 @@ static int stream_read(STREAM *stream, char *buffer, int len)
 
 static int stream_write(STREAM *stream, char *buffer, int len)
 {
+	if (!stream->pipe.can_write)
+	{
+		errno = EBADF;
+		return -1;
+	}
+	
 	return write(FD, buffer, len);
 }
 
