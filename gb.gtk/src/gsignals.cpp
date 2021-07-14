@@ -93,12 +93,13 @@ gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data
 		
 		for(;;)
 		{
-			//fprintf(stderr, "cb_focus: %s / %d %d\n", ctrl->name(), ctrl->isEnabled(), ctrl->canFocus());
-			
 			if (direction == GTK_DIR_TAB_FORWARD)
 				ctrl = ctrl->nextFocus();
 			else
 				ctrl = ctrl->previousFocus();
+			
+			if (!ctrl)
+				break;
 			
 			if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus() && !ctrl->isNoTabFocus())
 			{

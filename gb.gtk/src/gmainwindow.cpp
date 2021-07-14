@@ -909,6 +909,8 @@ void gMainWindow::setVisible(bool vl)
 			for(;;)
 			{
 				ctrl = ctrl->nextFocus();
+				if (!ctrl)
+					break;
 				
 				if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus())
 				{

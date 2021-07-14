@@ -2882,6 +2882,7 @@ GtkIMContext *gControl::getInputMethod()
 gControl *gControl::nextFocus()
 {
 	gControl *ctrl;
+	gControl *next_ctrl;
 	
 	//fprintf(stderr, "next: %s\n", name());
 	
@@ -2897,21 +2898,18 @@ gControl *gControl::nextFocus()
 	
 	ctrl = this;
 	
-	while (!ctrl->next())
+	for(;;)
 	{
+		next_ctrl = ctrl->next();
+		if (next_ctrl)
+			return next_ctrl;
+		
 		ctrl = ctrl->parent();
-		//fprintf(stderr, "... %s\n", ctrl->name());
-		if (ctrl->isTopLevel())
-		{
-			ctrl = ctrl->nextFocus();
-			//fprintf(stderr, "==> %s\n", ctrl->name());
-			return ctrl;
-		}
+		if (!ctrl)
+			return NULL;
+		/*if (!ctrl->parent())
+			return ctrl->nextFocus();*/
 	}
-	
-	ctrl = ctrl->next();
-	//fprintf(stderr, "==> %s\n", ctrl->name());
-	return ctrl;
 }
 
 gControl *gControl::previousFocus()
