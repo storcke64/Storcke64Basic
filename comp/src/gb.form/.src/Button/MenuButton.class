@@ -530,11 +530,11 @@ Public Sub DrawingArea_KeyPress()
   If Key.Code = Key.Space Then 
     $bPressed = True
     $hDrawingArea.Refresh
-  Else If Key.Code = Key.Tab Then
-    If $hButton Then
-      Try Me.Next.SetFocus
-      Stop Event
-    Endif
+  ' Else If Key.Code = Key.Tab Then
+  '   If $hButton Then
+  '     Try Me.Next.SetFocus
+  '     Stop Event
+  '   Endif
   Endif
   
 End
