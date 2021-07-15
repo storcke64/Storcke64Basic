@@ -169,10 +169,12 @@ Public Sub Load()
   Loaded = True
   
   'Debug "Loading: "; Key;; "("; Documentation.Name; ")"
-  If Key <> CComponent.PROJECT_NAME Then 
-    Project.SetMessage(Subst(("Loading information on component &1..."), Key))
-  Else
-    Project.SetMessage(("Loading information on project..."))
+  If Not Name Then
+    If Key <> CComponent.PROJECT_NAME Then 
+      Project.SetMessage(Subst(("Loading information on component &1..."), Key))
+    Else
+      Project.SetMessage(("Loading information on project..."))
+    Endif
   Endif
   
   'If Key = Project.Name Then Goto HAS_BEEN_LOADED
@@ -242,7 +244,7 @@ Public Sub Load()
     If sClass Then cClass[sClass] = True
   Next
   
-  Inc Application.Busy
+  If Project.NoWait = 0 Then Inc Application.Busy
   
   Repeat
     
@@ -435,7 +437,7 @@ Public Sub Load()
   
   ClassList.Sort
   
-  Dec Application.Busy
+  If Project.NoWait = 0 Then Dec Application.Busy
   
 HAS_BEEN_LOADED:
   

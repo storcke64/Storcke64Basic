@@ -20,6 +20,7 @@ Public Sub Main()
   Dim sTitle As String
   
   Application.Priority = 10
+  Inc Project.NoWait
   
   sRoot = MHelp.GetOfflineDir() &/ "data" &/ MHelp.GetLanguage()
   aDir.Add(sRoot)
