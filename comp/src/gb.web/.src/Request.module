@@ -17,6 +17,7 @@ Property TempDir As String
 Property MaxFileSize As Long
 Property Read ContentType As String
 Property Read ContentLength As Integer
+Property Scheme As String
 
 Property Read Get As _Request_Get
 Property Read Post As _Request_Post
@@ -34,6 +35,8 @@ Private $bDebug As Boolean
 Private $sTempDir As String
 Private $iMaxFileSize As Long = 128 * 1048576
 Private $sLanguage As String
+Private $sScheme As String
+Private $bSchemeInit As Boolean
 
 Private Sub Decode()
 
@@ -316,5 +319,29 @@ Private Function ContentLength_Read() As Integer
 
   Try Return CInt(CGI["CONTENT_LENGTH"])
   Return -1
+
+End
+
+Private Function Scheme_Read() As String
+
+  If Not $bSchemeInit Then
+
+    If CGI["REQUEST_SCHEME"] = "https" Or If CGI["X_FORWARDED_PROTO"] = "https" Then
+      $sScheme = "https"
+    Endif
+    
+    $bSchemeInit = True
+    
+  Endif
+  
+  If $sScheme Then Return $sScheme
+  Return "http"
+
+End
+
+Private Sub Scheme_Write(Value As String)
+
+  $sScheme = Value
+  $bSchemeInit = Value
 
 End
