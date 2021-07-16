@@ -82,7 +82,8 @@ static void callback_read(int fd, int type, CSTREAM *stream)
 	if (!STREAM_read_ahead(CSTREAM_TO_STREAM(stream)))
 		GB_Raise(stream, EVENT_Read, 0);
 	else
-		WATCH_little_sleep();
+		GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)stream);
+		//WATCH_little_sleep();
 }
 
 static void callback_write(int fd, int type, CSTREAM *stream)
@@ -136,7 +137,7 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	
 	CLEAR(&stream);
 	stream.type = &STREAM_buffer;
-	stream.common.available_now = !tty;
+	//stream.common.available_now = !tty;
 	stream.common.no_read_ahead = tty;
 	stream.common.standard = TRUE;
 	stream.buffer.file = file;
@@ -173,7 +174,7 @@ void CFILE_init_watch(void)
 	{
 		//fprintf(stderr, "watch stdin\n");
 		//CFILE_in->watch_fd = STDIN_FILENO;
-		GB_Watch(STDIN_FILENO, GB_WATCH_READ, (void *)callback_read, (intptr_t)CFILE_in);
+		GB_Watch(fileno(stdin), GB_WATCH_READ, (void *)callback_read, (intptr_t)CFILE_in);
 	}
 }
 

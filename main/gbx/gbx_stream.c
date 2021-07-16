@@ -1966,6 +1966,9 @@ bool STREAM_eof(STREAM *stream)
 		if (extra->buffer && extra->buffer_pos < extra->buffer_len)
 			return FALSE;
 	}
+	
+	if (stream->common.eof)
+		return TRUE;
 
 	if (stream->type->eof)
 		return ((*(stream->type->eof))(stream));
