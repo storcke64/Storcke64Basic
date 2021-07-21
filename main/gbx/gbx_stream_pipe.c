@@ -56,7 +56,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 
 	switch (mode & GB_ST_MODE)
 	{
-		case GB_ST_READ: fmode |= O_RDWR; break;
+		case GB_ST_READ: fmode |= O_RDONLY; break;
 		case GB_ST_WRITE: fmode |= O_WRONLY; break;
 		case GB_ST_READ_WRITE: fmode |= O_RDWR; break;
 		default: fmode |= O_RDWR;
@@ -68,7 +68,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 	if ((mode & GB_ST_MODE) == GB_ST_READ)
 		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
 		
-	stream->pipe.can_write = mode & GB_ST_WRITE;
+	stream->pipe.can_write = ((mode & GB_ST_MODE) & GB_ST_WRITE) != 0;
 
 	FD = fd;
 	return FALSE;
