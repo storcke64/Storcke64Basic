@@ -78,15 +78,17 @@ Private Sub MakeDefault() As String
   
 End
 
-Private Sub GetFirstCharacterPos() As Integer
+Private Sub GetFirstCharacterPos(Optional iPos As Integer) As Integer
   
-  Dim iPos As Integer
   Dim sText As String
   Dim sCar As String
+  Dim I As Integer
   
-  For iPos = 0 To $aMask.Max
-    If $aMask[iPos] Then Break
+  For I = iPos To $aMask.Max
+    If $aMask[I] Then Break
   Next
+  
+  iPos = I
 
   If IsRightAlign(iPos) Then
     sText = UnmaskText(Super.Text)
@@ -101,18 +103,22 @@ Private Sub GetFirstCharacterPos() As Integer
   
 End
 
-Private Sub GetLastCharacterPos() As Integer
+Private Sub GetLastCharacterPos(Optional iPos As Integer) As Integer
   
-  Dim iPos As Integer
   Dim sText As String
   Dim sCar As String
+  Dim I As Integer
   
-  For iPos = $aMask.Max DownTo 0
-    If $aMask[iPos] Then
-      Inc iPos
+  If IsMissing(iPos) Then iPos = $aMask.Max
+  
+  For I = iPos DownTo 0
+    If $aMask[I] Then
+      Inc I
       Break
     Endif
   Next
+  
+  iPos = I
   
   If Not IsRightAlign(iPos) Then
     sText = UnmaskText(Super.Text)
@@ -283,6 +289,40 @@ Private Sub IsRightAlign(iPos As Integer) As Boolean
   
 End
 
+Private Sub IsFull(sText As String, iPos As Integer) As Boolean
+  
+  Dim iStart As Integer
+  Dim iEnd As Integer
+  Dim I As Integer
+  
+  iStart = GetPreviousSeparator(iPos)
+  iEnd = GetNextSeparator(iPos)
+  
+  For I = iStart + 1 To iEnd - 1
+    If String.Mid$(sText, I + 1, 1) = UNMASKED_CHAR Then Return
+  Next
+  
+  Return True
+  
+End
+
+Private Sub IsVoid(sText As String, iPos As Integer) As Boolean
+  
+  Dim iStart As Integer
+  Dim iEnd As Integer
+  Dim I As Integer
+  
+  iStart = GetPreviousSeparator(iPos)
+  iEnd = GetNextSeparator(iPos)
+  
+  For I = iStart + 1 To iEnd - 1
+    If String.Mid$(sText, I + 1, 1) <> UNMASKED_CHAR Then Return
+  Next
+  
+  Return True
+  
+End
+
 Private Sub UnmaskText(sText As String) As String
   
   Dim iPos As Integer
@@ -317,7 +357,7 @@ Private Sub MaskText(sText As String) As String
       
       bNumber = False
       
-    Else If sMask = "[0-9]" Then
+    Else If sMask = "[0-9]" And If IsRightAlign(iPos) Then
       
       If sCar = UNMASKED_CHAR And If bNumber Then
         sCar = "0"
@@ -478,9 +518,13 @@ Public Sub TextBox_KeyPress()
   Endif
   
   If sInsert Then
+    
     If Not bBefore Then
+      
       sText = String.Left(sText, iPos) & sInsert & String.Mid$(sText, iPos + 2)
+      
     Else
+      
       iPosNext = iPos
       While iPos > 0
         If Not $aMask[iPos - 1] Then Break
@@ -490,47 +534,37 @@ Public Sub TextBox_KeyPress()
         sText = String.Left(sText, iPos) & String.Mid$(sText, iPos + 2, iPosNext - iPos - 1) & sInsert & String.Mid$(sText, iPosNext + 1)
       Endif
       iPos = iPosNext
+      
     Endif
+    
   Endif
   
   iPos += iMove
   
-  If iMove Then
+  If sInsert And If IsFull(sText, iPos - 1) Then
     
-    ' iOldPos = iPos
-    ' Do
-    '   iPos += iMove
-    '   If iPos < 0 Then
-    '     iPos = GetFirstCharacterPos()
-    '     Break
-    '   Endif
-    '   If iPos >= Me.Length Then
-    '     iPos = GetLastCharacterPos()
-    '     Break
-    '   Endif
-    '   If iMove > 0 Or If bDelete Then
-    '     If $aMask[iPos] Then Break
-    '   Endif
-    '   If iMove < 0 And If iPos > 0 And If $aMask[iPos - 1] Then Break
-    ' Loop
+    iPos = GetNextSeparator(iPos)
+
+    While iPos < $aMask.Count
+      If $aMask[iPos] Then Break
+      Inc iPos
+    Wend
     
-    ' If IsRightAlign(iPos) Then 
-    '   Do
-    '     If (iPos + iMove) < 0 Then Break
-    '     If (iPos + iMove) > Me.Length Then Break
-    '     ' sCar = String.Mid$(sText, iPos + 1, 1)
-    '     ' If iMove > 0 Then
-    '     '   If sCar <> UNMASKED_CHAR Then Break
-    '     ' Else 
-    '     '   If sCar <> "0" Then Break
-    '     ' Endif
-    '     iPos += iMove
-    '     Break
-    '   Loop
-    ' Endif
+    iPos = GetFirstCharacterPos(iPos)
+    
+  Else If Key.Code = Key.BackSpace And If IsVoid(sText, iPos) Then
+    
+    iPos = GetPreviousSeparator(iPos)
+
+    While iPos >= 0
+      If $aMask[iPos] Then Break
+      Dec iPos
+    Wend
+    
+    iPos = GetLastCharacterPos(iPos)
     
   Endif
-  
+      
   If bDelete Then
     iPosNext = GetNextSeparator(iPos)
     If iPosNext > iPos Then
