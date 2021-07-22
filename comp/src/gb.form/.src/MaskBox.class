@@ -200,7 +200,12 @@ Private Sub UpdateMaskAndSeparator(sMask As String)
   $sSeparator = sSeparator
   $sAlign = sAlign
   $sDefault = sDefault
-  $iPosFocus = iPosFocus
+  
+  If iPosFocus < 0 Then
+    $iPosFocus = GetFirstCharacterPos()
+  Else
+    $iPosFocus = iPosFocus
+  Endif
   'If $sMaskChar Then $sDefault = Replace($sDefault, "_", $sMaskChar)
   
 End
@@ -218,8 +223,6 @@ Private Sub Mask_Write(Value As String)
     Clear()
   Endif
   
-  Me.Pos = GetFirstCharacterPos()
-
 End
 
 ' Private Sub IsMaskCharacter(sCar As String) As Boolean
@@ -563,6 +566,11 @@ Public Sub TextBox_KeyPress()
     
     iPos = GetLastCharacterPos(iPos)
     
+    If iPos < 0 Then 
+      Stop Event 
+      Return
+    Endif
+    
   Endif
       
   If bDelete Then
@@ -652,8 +660,8 @@ End
 Public Sub TextBox_LostFocus()
   
   If Not $sMaskOrg Then Return
+  $iPosFocus = Me.Pos
   TextBox_Change
-  GotoCursor($iPosFocus)
   
 End
 
