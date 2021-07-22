@@ -441,9 +441,10 @@ static void hook_main(int *argc, char ***argv)
 		return;
 
 	env = getenv("GB_X11_INIT_THREADS");
-		if (env && atoi(env))
-	XInitThreads();
+	if (env && atoi(env))
+		XInitThreads();
 
+	gtk_init(argc, argv);
 	gApplication::init(argc, argv);
 	gApplication::setDefaultTitle(GB.Application.Title());
 	gDesktop::init();

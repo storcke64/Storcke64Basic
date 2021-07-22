@@ -821,6 +821,43 @@ static void add_space(GString *str)
 		g_string_append_c(str, ' ');
 }
 
+static void add_paragraph_break(GString *str)
+{
+	int i;
+	char c;
+	bool markup = false;
+	int nl = 0;
+	
+	for (i = str->len - 1; i >= 0; i--)
+	{
+		c = str->str[i];
+		if (markup)
+		{
+			if (c == '<')
+				markup = false;
+			continue;
+		}
+		if (c == '>')
+		{
+			markup = true;
+			continue;
+		}
+		if (c != '\n')
+			break;
+		nl++;
+		if (nl >= 2)
+			break;
+	}
+	
+	if (nl == 2 || i < 0)
+		return;
+	
+	while (nl < 2)
+	{
+		g_string_append_c(str, '\n');
+		nl++;
+	}
+}
 
 static void add_attr(GString *pango, const char *attr, const char *value)
 {
@@ -868,9 +905,8 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 	int size = 3; // medium
 	char size_stack[size_stack_len];
 	int size_stack_ptr = 0;
-	bool newline = true;
-	bool inside_par = false;
 	int i;
+	int mode_pre = 0;
 	
 	//fprintf(stderr, "gt_html_to_pango_string: %.*s\n", len_html, html);
 	
@@ -915,7 +951,6 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			if (!p_markup)
 			{
 				g_string_append(pango, "&gt;");
-				newline = false;
 				continue;
 			}
 
@@ -961,12 +996,15 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 				if (!strcasecmp(*pt, token))
 				{
 					if (start_token && !end_token)
+					{
+						add_paragraph_break(pango);
 						g_string_append_printf(pango, "<span %s><b>", pt[1]);
+					}
 					else if (end_token && !start_token)
 					{
-						g_string_append_printf(pango, "</b></span>\n");
-						g_string_append(pango, "<span size=\"smaller\">\n</span>");
-						newline = true;
+						g_string_append_printf(pango, "</b></span>");
+						add_paragraph_break(pango);
+						//g_string_append(pango, "<span size=\"smaller\">\n</span>");
 					}
 					goto __FOUND_TOKEN;
 				}
@@ -987,19 +1025,13 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 				if (start_token)
 				{
 					g_string_append_c(pango, '\n');
-					newline = true;
 				}
 				goto __FOUND_TOKEN;
 			}
 			
 			if (!strcasecmp(token, "p"))
 			{
-				if ((end_token || inside_par) && p[1])
-				{
-					g_string_append_c(pango, '\n');
-					newline = true;
-				}
-				inside_par = start_token;
+				add_paragraph_break(pango);
 				goto __FOUND_TOKEN;
 			}
 			
@@ -1087,6 +1119,23 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 				goto __FOUND_TOKEN;
 			}
 			
+			if (!strcasecmp(token, "pre"))
+			{
+				if (start_token && !end_token)
+				{
+					add_paragraph_break(pango);
+					g_string_append(pango, "<tt>");
+					mode_pre++;
+				}
+				else if (end_token && !start_token)
+				{
+					mode_pre--;
+					g_string_append(pango, "</tt>");
+					add_paragraph_break(pango);
+				}
+				goto __FOUND_TOKEN;
+			}
+			
 			g_string_append(pango, "&lt;");
 			if (end_token) g_string_append(pango, "/");
 			while (p_markup < p)
@@ -1095,26 +1144,12 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 				p_markup++;
 			}
 			g_string_append(pango, "&gt;");
-			newline = false;
 
 		__FOUND_TOKEN:
 		
 			GB.Unref(POINTER(&attr_array));
 			p_markup = NULL;
 			continue;	
-		}
-		
-		if (c == '\n' && !newline_are_break)
-		{
-			if (!newline)
-				add_space(pango);
-			continue;
-		}
-		
-		if (c == '\r')
-		{
-			add_space(pango);
-			continue;
 		}
 		
 		if (c == '&')
@@ -1183,21 +1218,33 @@ char *gt_html_to_pango_string(const char *html, int len_html, bool newline_are_b
 			
 			g_string_append(pango, "&amp;");
 			p = entity_start - 1;
-			newline = false;
 			continue;
 		}
 	
 		if (!p_markup)
 		{
+			if (c == '\n' && !newline_are_break && mode_pre == 0)
+			{
+				add_space(pango);
+				continue;
+			}
+			
+			if (c == '\r')
+			{
+				add_space(pango);
+				continue;
+			}
+		
 			if (c == ' ')
 			{
-				if (!newline)
+				if (mode_pre)
+					g_string_append_unichar(pango, 160);
+				else
 					add_space(pango);
 				continue;
 			}
 			
 			g_string_append(pango, html_entity(*p));
-			newline = false;
 		}
 	}
 	

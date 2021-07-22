@@ -1022,8 +1022,6 @@ void gApplication::init(int *argc, char ***argv)
 	
 	appEvents = 0;
 
-	gtk_init(argc, argv);
-
 	#ifdef GTK3
 	_app = gtk_application_new(NULL, G_APPLICATION_FLAGS_NONE);
 	g_object_set(G_OBJECT(_app), "register-session", TRUE, NULL);
