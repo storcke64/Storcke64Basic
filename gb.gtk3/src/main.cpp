@@ -473,10 +473,12 @@ static void hook_main(int *argc, char ***argv)
 			fprintf(stderr, "gb.gtk3: warning: unknown platform: %s\n", env);
 	}
 	
-	gApplication::init(argc, argv);
+	gtk_init(argc, argv);
 
 	load_platform();
 	PLATFORM.Init();
+
+	gApplication::init(argc, argv);
 
 	gApplication::setDefaultTitle(GB.Application.Title());
 	gDesktop::init();
