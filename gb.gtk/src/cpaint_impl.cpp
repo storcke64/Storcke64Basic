@@ -1119,18 +1119,24 @@ static void get_text_extents(GB_PAINT *d, bool rich, const char *text, int len, 
 
 	if (rich)
 	{
-		html = gt_html_to_pango_string(text, len, false);
+		pango_layout_set_text(layout, "", 0);
 		pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+		html = gt_html_to_pango_string(text, len, false);
 		pango_layout_set_markup(layout, html, -1);
 	}
 	else
+	{
+		pango_layout_set_markup(layout, "", 0);
 		pango_layout_set_text(layout, text, len);
-
-	update_layout(d);
-	//gt_add_layout_from_font(layout, dx->font, d->resolutionY);
+	}
 
 	if (width > 0)
 		pango_layout_set_width(layout, width * PANGO_SCALE);
+	else
+		pango_layout_set_width(layout, -1);
+
+	update_layout(d);
+	//gt_add_layout_from_font(layout, dx->font, d->resolutionY);
 
 	pango_layout_get_extents(layout, &rect, NULL);
 

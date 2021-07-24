@@ -782,7 +782,7 @@ void gFont::richTextSize(const char *text, int len, float sw, float *w, float *h
 		}
 		html = gt_html_to_pango_string(text, len, false);
 		pango_layout_set_markup(ly, html, -1);	
-		gt_set_layout_from_font(ly, this);
+		gt_add_layout_from_font(ly, this);
 		pango_layout_get_extents(ly, &ink_rect, &rect);
 		g_free(html);
 		g_object_unref(ly);
