@@ -807,6 +807,7 @@ Private Sub IsValid(sText As String) As Boolean
       If sMask Then
         If sCar <> GetDefaultCharacter(I - 1) And If sCar Not Like sMask Then Return False
       Else
+        If sCar = $sPrompt Then sCar = " "
         If sCar <> String.Mid$($sSeparator, I, 1) Then Return False
       Endif
       
