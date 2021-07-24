@@ -101,6 +101,10 @@ Private Function SearchPathVariable(sFileConfig As String, sDirectory As String)
   Dim hFile As File
   Dim sLine As String
   Dim aLine As String[]
+  Dim sAltDirectory As String
+  Dim bFullPath As Boolean
+  
+  sAltDirectory = "XDG_" & sDirectory & "_DIR"
   
   hFile = Open sFileConfig For Input
   While Not Eof(hFile)
@@ -108,6 +112,11 @@ Private Function SearchPathVariable(sFileConfig As String, sDirectory As String)
     sLine = Trim(sLine)
     If Not sLine Then Continue
     If Left(sLine) = "#" Then Continue
+    If sLine Begins sAltDirectory Then 
+      sDirectory = sAltDirectory
+      bFullPath = True
+      Break
+    Endif
     If sLine Begins sDirectory Then Break
     sLine = ""
   Wend
@@ -117,6 +126,7 @@ Private Function SearchPathVariable(sFileConfig As String, sDirectory As String)
     sLine = aLine[0]
     If Left(sLine) = Chr$(34) Then sLine = Mid$(sLine, 2, -1)
     If sLine Begins "$HOME/" Then sLine = Replace(sLine, "$HOME", System.User.Home)
+    If Not bFullPath Then sLine = User.Home &/ sLine
     Return sLine
   Endif
 
@@ -190,7 +200,7 @@ Public Sub GetDesktopPath(Optional sType As String = "DESKTOP") As String
   
   sFileConfig = SearchPathConfig(sXdgConfigHome, sXdgConfigDirs)
   If sFileConfig Then
-    sDir = SearchPathVariable(sFileConfig, "XDG_" & UCase(sType) & "_DIR") 
+    sDir = SearchPathVariable(sFileConfig, UCase(sType)) 
   Else 
     sDir = System.User.Home &/ "Desktop"
   Endif
@@ -223,9 +233,7 @@ Public Sub Main()
   ' hMime = DesktopMime.FromFile("/bin/ls")
   ' Print hMime.Type
   
-  Print Desktop.Count
-  Print Desktop.Showing
-  Desktop.Showing = True
+  Print Desktop.Path
   
 End
 
