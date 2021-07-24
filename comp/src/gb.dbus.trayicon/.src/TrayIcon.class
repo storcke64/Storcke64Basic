@@ -32,7 +32,7 @@ Private $hMenu As DBusStatusIconMenu
 Private $hIcon As Picture
 Private $sMenu As String
 Private $sText As String
-Private $bIconDirty As Boolean
+Private $iIconId As Integer
 Private $vTag As Variant
 
 Public Sub _new()
@@ -177,17 +177,24 @@ End
 
 Private Sub Picture_Write(Value As Picture)
 
+  If $hIcon = Value Then Return 
+  
   $hIcon = Value
   
   If $bAppIndicator Then 
-    $bIconDirty = True
+    
+    Try Kill _GetIconThemePath() &/ GetIconFile()
+    Inc $iIconId
     If $bVisible Then
       Hide
       Show
     Endif
   Endif
   
-  If $bVisible Or If $bAppIndicator Then DBus[GetServiceName()].Raise($hObject, "org.kde.StatusNotifierItem.NewIcon")
+  If $bVisible Or If $bAppIndicator Then 
+    DBus[GetServiceName()].Raise($hObject, "org.kde.StatusNotifierItem.NewIcon")
+    'DBus[GetServiceName()].Raise($hObject, "org.freedesktop.DBus.Properties.PropertiesChanged", ["org.kde.StatusNotifierItem", Object.New("Collection"), ["IconPixmap"]])
+  Endif
 
 End
 
@@ -254,6 +261,13 @@ Private Sub Text_Write(Value As String)
 
 End
 
+Private Sub GetIconFile() As String
+  
+  Return "icon-" & CStr($iId) & ":" & CStr($iIconId) & ".png"
+  
+End
+
+
 Public Sub _GetIconName() As String
   
   Dim hPict As Picture
@@ -263,13 +277,12 @@ Public Sub _GetIconName() As String
   If $bAppIndicator Then
     
     sPath = _GetIconThemePath()
-    sName = "icon-" & CStr($iId) & ".png"
+    sName = GetIconFile()
     
-    If Not Exist(sPath &/ sName) Or If $bIconDirty Then
+    If Not Exist(sPath &/ sName) Then
       hPict = $hIcon
       If Not hPict Then hPict = Picture["default.png"]
       hPict.Save(sPath &/ sName)
-      $bIconDirty = False
     Endif
     
     Return File.BaseName(sName)
