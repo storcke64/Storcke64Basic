@@ -297,10 +297,12 @@ End
 
 Public Sub btnPrint_Click()
   
-  Printer1.OutputFile = "~/print.pdf"
-  $bPrint = False
-  If Printer1.Configure() Then Return
-  webHelp.Current.Print(Printer1)
+  ' Printer1.OutputFile = "~/print.pdf"
+  ' $bPrint = False
+  ' If Printer1.Configure() Then Return
+  ' webHelp.Current.Print(Printer1)
+  
+  webHelp.ExecJavascript("window.print();")
   
 End
 
