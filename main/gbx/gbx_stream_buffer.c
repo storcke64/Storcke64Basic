@@ -113,34 +113,6 @@ static int stream_read(STREAM *stream, char *buffer, int len)
 	}
 	
 	return eff;
-
-	/*
-	while (len > 0)
-	{
-		len_read = Min(len, MAX_IO);
-		eff_read = fread(buffer, 1, len_read, FD);
-
-		if (eff_read > 0)
-		{
-			STREAM_eff_read += eff_read;
-			len -= eff_read;
-			buffer += eff_read;
-		}
-
-		if (eff_read < len_read)
-		{
-			if (feof(FD))
-			{
-				errno = 0;
-				return TRUE;
-			}
-			if (ferror(FD) && errno != EINTR)
-				return TRUE;
-		}
-	}
-
-	return FALSE;
-	*/
 }
 
 
@@ -159,26 +131,6 @@ static int stream_write(STREAM *stream, char *buffer, int len)
 		return TRUE;
 
 	return fwrite(buffer, 1, len, FD);
-
-	/*while (len > 0)
-	{
-		len_write = Min(len, MAX_IO);
-		eff_write = fwrite(buffer, 1, len_write, FD);
-
-		if (eff_write < len_write)
-		{
-			if (ferror(FD) && errno != EINTR)
-				return TRUE;
-		}
-
-		len -= eff_write;
-		buffer += eff_write;
-	}
-
-	if (EXEC_debug)
-		return stream_flush(stream);
-	else
-		return FALSE;*/
 }
 
 
@@ -203,7 +155,9 @@ static int stream_tell(STREAM *stream, int64_t *pos)
 
 static int stream_eof(STREAM *stream)
 {
-	int c;
+	return !FD || feof(FD);
+	
+	/*int c;
 
 	if (!FD)
 		return TRUE;
@@ -213,7 +167,7 @@ static int stream_eof(STREAM *stream)
 		return TRUE;
 
 	ungetc(c, FD);
-	return FALSE;
+	return FALSE;*/
 }
 
 

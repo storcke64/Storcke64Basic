@@ -755,7 +755,7 @@ bool STREAM_read_ahead(STREAM *stream)
 		ALLOC(&extra->buffer, STREAM_BUFFER_SIZE);
 
 	eff = fill_buffer(stream, extra->buffer, TRUE);
-
+	
 	extra->buffer_pos = 0;
 	extra->buffer_len = eff;
 

@@ -77,13 +77,21 @@ static SIGNAL_CALLBACK *_SIGWINCH_callback = NULL;
 static GB_FUNCTION _term_resize_func;
 
 
-static void callback_read(int fd, int type, CSTREAM *stream)
+static void callback_read(int fd, int type, CSTREAM *_object)
 {
-	if (!STREAM_read_ahead(CSTREAM_TO_STREAM(stream)))
-		GB_Raise(stream, EVENT_Read, 0);
+	STREAM *stream = CSTREAM_TO_STREAM(_object);
+	int64_t lof;
+	
+	STREAM_read_ahead(stream);
+	STREAM_lof(stream, &lof);
+	
+	if (lof > 0)
+		GB_Raise(_object, EVENT_Read, 0);
 	else
-		GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)stream);
-		//WATCH_little_sleep();
+	{
+		GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)_object);
+		stream->common.eof = TRUE;
+	}
 }
 
 static void callback_write(int fd, int type, CSTREAM *stream)
@@ -141,6 +149,7 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	stream.common.no_read_ahead = tty;
 	stream.common.standard = TRUE;
 	stream.buffer.file = file;
+	//stream.direct.fd = fileno(file);
 	STREAM_check_blocking(&stream);
 	return (CFILE *)OBJECT_REF(CFILE_create(&stream, mode));
 }
