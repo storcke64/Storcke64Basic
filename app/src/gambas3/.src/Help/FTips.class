@@ -9,7 +9,7 @@ Static Public Sub _init()
   Dim hFic As File
   Dim sLig As String
 
-  hFic = Open "tips/tips.en"
+  hFic = Open "tips/tips.en.txt"
 
   While Not Eof(hFic)
     Line Input #hFic, sLig
@@ -61,7 +61,7 @@ Private Function GetNextTip(Optional bPrev As Boolean) As String
   iPos = RInStr(sLang, ".")
   If iPos Then sLang = Left(sLang, iPos - 1)
 
-  sFile = "tips/tips." & sLang
+  sFile = "tips/tips." & sLang & ".txt"
   If Not Exist(sFile) Then
     iPos = InStr(sLang, "_")
     If iPos Then
@@ -70,13 +70,13 @@ Private Function GetNextTip(Optional bPrev As Boolean) As String
     Endif
   Endif
   If Not Exist(sFile) Then
-    sFile = "tips/tips.en"
+    sFile = "tips/tips.en.txt"
   Endif
 
   sTip = File.Load(sFile)
   iPos = InStr(sTip, "[" & $aOrder[$iTip - 1] & "]")
   If iPos = 0 Then
-    sTip = File.Load("tips/tips.en")
+    sTip = File.Load("tips/tips.en.txt")
   Endif
   iPos = InStr(sTip, "[" & $aOrder[$iTip - 1] & "]")
   If iPos = 0 Then Return

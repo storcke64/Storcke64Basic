@@ -73,11 +73,12 @@
       #Translate = False
       ToolTip = "Gambas web site"
       AutoResize = True
-      Text = "http://gambas.sourceforge.net"
+      Text = "Gambas web site"
       Picture = Picture["icon:/small/gambas"]
     }
     { btnPrint ToolButton
       MoveScaled(84,0,8,4)
+      Visible = False
       AutoResize = True
       Text = ("Print")
       Picture = Picture["icon:/small/print"]
