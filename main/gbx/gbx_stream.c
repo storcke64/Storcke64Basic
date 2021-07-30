@@ -107,7 +107,7 @@ bool STREAM_in_archive(const char *path)
 	return FALSE;
 }
 
-int STREAM_get_readable(STREAM *stream, int *len)
+bool STREAM_get_readable(STREAM *stream, int *len)
 {
 	int fd;
 	off_t off;
@@ -124,7 +124,7 @@ int STREAM_get_readable(STREAM *stream, int *len)
 	if (!stream->common.no_fionread)
 	{
 		if (ioctl(fd, FIONREAD, len) >= 0)
-			return 0;
+			return FALSE;
 
 		stream->common.no_fionread = TRUE;
 	}
@@ -145,7 +145,7 @@ int STREAM_get_readable(STREAM *stream, int *len)
 
 				off = lseek(fd, off, SEEK_SET);
 				if (off >= 0)
-					return 0;
+					return FALSE;
 			}
 		}
 
@@ -153,7 +153,7 @@ int STREAM_get_readable(STREAM *stream, int *len)
 	}
 
 	//fprintf(stderr, "STREAM_get_readable: lseek: %d\n", *len);
-	return (-1);
+	return TRUE;
 }
 
 bool STREAM_default_eof(STREAM *stream)
@@ -168,10 +168,13 @@ bool STREAM_default_eof(STREAM *stream)
 	if (STREAM_is_blocking(stream) && !stream->common.available_now)
 		wait_for_fd_ready_to_read(STREAM_handle(stream));
 
-	if (STREAM_get_readable(stream, &ilen))
-		return TRUE;
-
-	return (ilen == 0);
+	if (!STREAM_get_readable(stream, &ilen))
+	{
+		fprintf(stderr, "STREAM_get_readable -> %d\n", ilen);
+		return (ilen == 0);
+	}
+	
+	return FALSE; // Unable to get the remaining size.
 }
 
 // STREAM_open *MUST* initialize completely the stream structure
@@ -1918,14 +1921,10 @@ __ERROR:
 }
 
 
-void STREAM_lof(STREAM *stream, int64_t *len)
+bool STREAM_lof_safe(STREAM *stream, int64_t *len)
 {
-	int fd;
 	int ilen;
 	STREAM_EXTRA *extra;
-
-	if (STREAM_is_closed(stream))
-		THROW(E_CLOSED);
 
 	*len = 0;
 
@@ -1935,9 +1934,10 @@ void STREAM_lof(STREAM *stream, int64_t *len)
 			goto ADD_BUFFER;
 	}
 
-	fd = STREAM_handle(stream);
-	if ((fd >= 0) && (STREAM_get_readable(stream, &ilen) == 0))
-		*len = ilen;
+	if (STREAM_get_readable(stream, &ilen))
+		return TRUE;
+	
+	*len = ilen;
 
 ADD_BUFFER:
 
@@ -1949,6 +1949,18 @@ ADD_BUFFER:
 		if (extra->buffer)
 			*len += extra->buffer_len - extra->buffer_pos;
 	}
+	
+	return FALSE;
+}
+
+
+void STREAM_lof(STREAM *stream, int64_t *len)
+{
+	if (STREAM_is_closed(stream))
+		THROW(E_CLOSED);
+
+	if (STREAM_lof_safe(stream, len))
+		THROW(E_USIZE);
 }
 
 

@@ -231,7 +231,6 @@ STREAM_CLASS stream = \
 #define STREAM_BUFFER_SIZE 1024
 
 bool STREAM_in_archive(const char *path);
-//int STREAM_get_readable(int fd, long *len);
 
 void STREAM_open(STREAM *stream, const char *path, int mode);
 
@@ -254,6 +253,7 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value);
 void STREAM_write_eol(STREAM *stream);
 void STREAM_flush(STREAM *stream);
 int STREAM_handle(STREAM *stream);
+bool STREAM_lof_safe(STREAM *stream, int64_t *len);
 void STREAM_lof(STREAM *stream, int64_t *len);
 bool STREAM_eof(STREAM *stream);
 bool STREAM_default_eof(STREAM *stream);
@@ -272,7 +272,7 @@ void STREAM_blocking(STREAM *stream, bool block);
 #define STREAM_is_blocking(_stream) ((_stream)->common.blocking)
 void STREAM_check_blocking(STREAM *stream);
 
-int STREAM_get_readable(STREAM *stream, int *len);
+bool STREAM_get_readable(STREAM *stream, int *len);
 
 void STREAM_exit(void);
 

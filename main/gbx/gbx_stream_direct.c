@@ -67,6 +67,9 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		default: fmode |= O_RDONLY;
 	}
 
+	stream->direct.has_size = FALSE;
+	stream->direct.use_size = FALSE;
+	
 	if (path[0] == '.' && isdigit(path[1]))
 	{
 		if ((mode & GB_ST_CREATE) || (mode & GB_ST_APPEND))
@@ -116,14 +119,13 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		{
 			stream->common.available_now = FALSE;
 			stream->common.no_read_ahead = TRUE;
+			stream->direct.has_size = TRUE;
 			fcntl(fd, F_SETFL, O_NONBLOCK);
 		}
 		else
 			stream->common.available_now = TRUE;
 	}
 
-	stream->direct.has_size = FALSE;
-	
 	FD = fd;
 	return FALSE;
 }

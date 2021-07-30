@@ -80,12 +80,11 @@ static GB_FUNCTION _term_resize_func;
 static void callback_read(int fd, int type, CSTREAM *_object)
 {
 	STREAM *stream = CSTREAM_TO_STREAM(_object);
-	int64_t lof;
+	int64_t len;
 	
 	STREAM_read_ahead(stream);
-	STREAM_lof(stream, &lof);
 	
-	if (lof > 0)
+	if (STREAM_lof_safe(stream, &len) || len > 0)
 		GB_Raise(_object, EVENT_Read, 0);
 	else
 	{
