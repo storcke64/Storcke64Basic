@@ -493,6 +493,16 @@ Public Sub Main()
   
   Try Mkdir Root
 
+  ' Protocol
+  
+  If CGI["HTTP_X_CGI"] = "https" Or If CGI["REQUEST_SCHEME"] = "https" Or If CGI["X_CGI"] = "https" Then 
+    Application.Protocol = "https"
+  Else If CGI["HTTP_CF_VISITOR"] Then
+    If InStr(CGI["HTTP_CF_VISITOR"], "\"scheme\":\"https\"") Then
+      Application.Protocol = "https"
+    Endif
+  Endif
+
   ' All pages are stored in a "data" directory stored in the root directory.
   ' If the "data" directory does not exist, the wiki is initialized with a default root page.
 
@@ -1229,6 +1239,12 @@ Public Sub GetChanges() As String[]
     
     aCol = Split(aLine[I], "|")
     If aCol.Count < 3 Then Continue
+    
+    ' Fix a Gambas Format$() bug
+    If aCol[0] Begins "/" Then
+      aCol[0] = Mid$(aCol[0], 2, 2) & "/" & Mid$(aCol[0], 5, 2) & "/" & Mid$(aCol[0], 7, 4) & " " & Mid$(aCol[0], 13, 2) & ":" & Mid$(aCol[0], 16, 2) & ":" & Mid$(aCol[0], 18, 2)
+    Endif
+    
     aResult.Add("<tr><td>" & Left(Trim(aCol[0]), 19) & "</td><td>" & Trim(aCol[1]) & "</td>")
     
     sLink = Trim(aCol[2])
@@ -1564,11 +1580,16 @@ Private Sub SearchWiki(sText As String)
 
   Dim sDir As String
   Dim sFile As String
-  Dim sPath As String
   Dim aFind As String[]
   Dim sData As String
-  Dim iPos As Integer
-  Dim sCar As String
+  Dim sRoot As String
+  Dim aDir As New String[]
+  Dim aImageExt As String[]
+  Dim aSearch As String[]
+  Dim sSearch As String
+  Dim sLink As String
+  Dim sExt As String
+  Dim sTitle As String
 
   sText = Trim(sText)
   If Not sText Then Return
@@ -1576,41 +1597,37 @@ Private Sub SearchWiki(sText As String)
   Session["search-query"] = sText
   'sText = String.RemoveDiacritics(sText)
   
+  aImageExt = ["png", "jpg", "jpeg", "gif", "webm", "mov", "mp4", "mp3"]
+  aSearch = Split(sText, " ", Chr$(34), True)
   aFind = New String[]
-  sDir = Root &/ "data" &/ Lang 
-  For Each sFile In RDir(sDir, "*", gb.Directory)
+  
+  sRoot = Root &/ "data" &/ Lang 
+  aDir.Add(sRoot)
+  
+  While aDir.Count
     
-    sPath = GetPagePathFrom(sFile)
-    If Not Exist(sPath) Then Continue
+    sDir = aDir.Pop()
+    sLink = Mid$(sDir, Len(sRoot) + 1)
+    sTitle = GetPageTitle(sLink)
+    Try sData = File.Load(sDir &/ "~page")
+    If Not Error Then
+      For Each sSearch In aSearch
+        If String.InStr(sTitle, sSearch, 1, gb.IgnoreCase) Or If String.InStr(sData, sSearch, 1, gb.IgnoreCase) Then
+          sLink = Mid$(sDir, Len(sRoot) + 1)
+          If Not sLink Then sLink = "/"
+          aFind.Add(sLink)
+          Break
+        Endif
+      Next
+    Endif
     
-    sData = File.Load(sPath)
-    iPos = 0
+    For Each sFile In Dir(sDir, "*", gb.Directory)
+      sExt = File.Ext(sFile)
+      If aImageExt.Exist(sExt) Then Continue
+      aDir.Add(sDir &/ sFile, 0)
+    Next
     
-    Do
-      
-      iPos = InStr(sData, sText, iPos + 1, gb.IgnoreCase)
-      If iPos = 0 Then Break
-      
-      If iPos > 1 Then
-        sCar = Mid$(sData, iPos - 1, 1)
-        If IsLetter(sCar) Or If IsDigit(sCar) Or If Not IsAscii(sCar) Then Goto NEXT_SEARCH
-      Endif
-      
-      If iPos < Len(sData) Then
-        sCar = Mid$(sData, iPos + Len(sText), 1)
-        If IsLetter(sCar) Or If IsDigit(sCar) Or If Not IsAscii(sCar) Then Goto NEXT_SEARCH
-      Endif
-      
-      Break
-      
-    NEXT_SEARCH:
-      iPos += Len(sText)
-      
-    Loop
-    
-    If iPos Then aFind.Add("/" & sFile)
-    
-  Next
+  Wend
   
   Session["search-result"] = aFind
   

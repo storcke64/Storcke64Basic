@@ -686,9 +686,7 @@ DIV.welcome {
   color: #3398C3;
   /*padding: 0.5em 1em;*/
   /*border-radius: 1em;*/
-  font-size: 150%;
   line-height: normal;
-  letter-spacing: 1px;
 }
 
 DIV.news {
@@ -697,8 +695,8 @@ DIV.news {
   border-radius: 0.6em;*/
   margin-top: 2em;
   margin-bottom: 1em;
-  border-top: solid 0.4em #3398C3;
-  padding-left: 8em;
+  border-top: solid 1px #3398C3;
+  padding-left: 5em;
   padding-right: 2em;
 }
 
@@ -710,17 +708,17 @@ DIV.news > H3 {
 DIV.date {
   position: relative;
   float: left;
-  display: table;
-  font-weight: bold;
-  border: solid 0.4em #3398C3;
-  border-radius: 100%;
-  margin-top: -1.5em;
-  margin-left: -7em;
-  width: 5em;
+  display: flex;
+  flex-direction: column;
+  border: solid 1px #3398C3;
+  margin-top: -1px;
+  margin-left: -5em;
+  width: 4em;
   height: 5em;
   background: white;
   color: #3398C3;
-  line-height: 1.2em;
+  padding: 0.25em 0;
+  box-sizing: border-box;
 }
 
 DIV.release {
@@ -728,11 +726,29 @@ DIV.release {
   color: white;
 }
 
-DIV.date P {
-  display: table-cell;
-  vertical-align: middle;
+DIV.date > * {
+  display: block;
   text-align: center;
-  line-height: initial;
+}
+
+DIV.date > M {
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+DIV.date > D {
+  font-size: 200%;
+  flex-grow: 1;
+  line-height: 100%;
+}
+
+DIV.date > Y {
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 75%;
+  font-weight: bold;
 }
 
 DIV.result {
@@ -758,6 +774,10 @@ DIV.code PRE {
 }
 
 IMG.screenshot {
+  box-shadow: 0 0 0.5em rgba(0,0,0,0.25);
+}
+
+VIDEO.screenshot {
   box-shadow: 0 0 0.5em rgba(0,0,0,0.25);
 }
 

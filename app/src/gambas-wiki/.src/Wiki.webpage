@@ -15,11 +15,11 @@
   <title><%_PrintTitle%> - <%=("Gambas Documentation")%></title>
   <script type="text/javascript" src="<%/%>/playground.js?l=<%=Request["l"]%>"></script>
   <%If Request["ht"]%>
-  <script type="text/javascript" src="<%/%>/hilitor.js"></script>
+  <script type="text/javascript" src="<%/%>/highlight.js"></script>
   <%Endif%>
 </head>
 
-<body<%If Main.Edit Then%> style="overflow:hidden;"<%Endif%><%If Request["ht"]%> onload="highlight_text()"<%Endif%>>
+<body<%If Main.Edit Then%> style="overflow:hidden;"<%Endif%><%If Request["ht"]%> onload="highlight_check()"<%Endif%>>
 
 <%If Request.Exist("nt")%>
 <style type="text/css">
