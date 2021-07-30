@@ -1,0 +1,56 @@
+' Gambas class file
+
+Export
+
+Static Property Read Shift As Boolean
+Static Property Read Control As Boolean
+Static Property Read Alt As Boolean
+Static Property Read Meta As Boolean
+Static Property Read Normal As Boolean
+Static Property Read Code As String
+
+Static Public _Event As Collection
+
+Static Private Function Shift_Read() As Boolean
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  Return _Event["shiftKey"]
+
+End
+
+Static Private Function Control_Read() As Boolean
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  Return _Event["controlKey"]
+
+End
+
+Static Private Function Alt_Read() As Boolean
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  Return _Event["altKey"]
+
+End
+
+Static Private Function Meta_Read() As Boolean
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  Return _Event["metaKey"]
+
+End
+
+Static Private Function Normal_Read() As Boolean
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  If Shift_Read() Or If Control_Read() Or If Alt_Read() Or If Meta_Read() Then Return
+  Return True
+
+End
+
+Static Private Function Code_Read() As String
+
+  If Not _Event Then Error.Raise("No keyboard data")
+  Return _Event["key"]
+
+End
+

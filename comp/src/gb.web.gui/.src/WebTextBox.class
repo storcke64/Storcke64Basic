@@ -86,7 +86,9 @@ Public Sub _Render()
   If $bShowClear Then Print " style=\"padding-right:2.25em;\"";
   Print " type=\""; If($bPassword, "password", "text"); "\""; Me._GetUpdateJS("onblur", "text", "this.value"); 'Me._GetUpdateJS("oninput", "text", "this.value"); '
   If Object.CanRaise(Me, "Change") Then Print " oninput=\"gw.textbox.onchange("; JS(Me.Name); ");\"";
-  If Object.CanRaise(Me, "Activate") Then Print " onkeypress=\"gw.textbox.onactivate("; JS(Me.Name); ",event);\""; 'WebForm._AddJavascript("gw.textbox.onactivate(" & JS(Me.Name) & ")")
+  If Object.CanRaise(Me, "Activate") Then Print " onkeypress=\"gw.textbox.onactivate("; JS(Me.Name); ",event);\"";
+  'WebForm._AddJavascript("gw.textbox.onactivate(" & JS(Me.Name) & ")")
+  Print Me._GetKeyPressHandler();
   
   If Not Me.Enabled Then Print " disabled";
   If $bReadOnly Then Print " readonly";

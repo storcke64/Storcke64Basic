@@ -230,3 +230,9 @@ Public Sub WebButton10_Click()
   WebAudio1.Play()
 
 End
+
+Public Sub WebSpinBox1_Change()
+
+  lblSpinBox.Text = "-> " & CStr(WebSpinBox1.Value)
+
+End

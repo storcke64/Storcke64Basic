@@ -15,6 +15,8 @@ Public Const _DefaultEvent As String = "Render"
 '' This event is raised just after the rendering of the control, so that you can add your own HTML contents.
 Event Render
 
+Event KeyPress
+
 '' Return the server control identifier.
 Property Read Id As Integer
 
@@ -281,6 +283,13 @@ Private Sub Tag_Write(Value As Variant)
 
 End
 
+Public Sub _GetKeyPressHandler() As String
+  
+  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onkeypress(" & JS($sName) & ", event)\""
+  
+End
+
+
 Public Sub _GetClassId(Optional sClass As String) As String
 
   Dim sResult As String
@@ -292,6 +301,7 @@ Public Sub _GetClassId(Optional sClass As String) As String
   If $bHidden Then sClass &= " gw-hidden"
   sResult = " class=\"" & Html(sClass) & "\" id=\"" & Html($sName) & "\""
   If $sTooltip Then sResult &= " title=\"" & Html($sTooltip) & "\""
+  
   Return sResult
   
 End
@@ -1145,3 +1155,15 @@ Public Sub _Redraw()
   '_Refresh = False
   
 End
+
+Public Sub _RaiseKeyPress(cEvent As Variant)
+  
+  Dim cSave As Collection
+  
+  cSave = Key._Event
+  Key._Event = cEvent
+  Object.Raise(Me, "KeyPress")
+  Key._Event = cSave
+  
+End
+

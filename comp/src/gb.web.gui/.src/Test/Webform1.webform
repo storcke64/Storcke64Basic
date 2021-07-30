@@ -79,25 +79,32 @@
         Image = "icon:/small/apply"
       }
       { WebLabel1 WebLabel
-        #MoveScaled(13,1,30,4)
+        #MoveScaled(13,1,18,4)
         Expand = True
         Font = "bold,1.5em"
         Border = True
       }
+      { WebSpinBox1 WebSpinBox
+        #MoveScaled(32,1,10,4)
+      }
+      { lblSpinBox WebLabel
+        #MoveScaled(43,1,17,4)
+        Border = True
+      }
       { WebButton6 WebButton
-        #MoveScaled(44,1,16,4)
+        #MoveScaled(61,1,16,4)
         Text = ("Remove tab 2")
       }
       { WebButton2 WebButton
-        #MoveScaled(61,1,11,4)
+        #MoveScaled(78,1,11,4)
         Text = ("Logout")
       }
       { WebButton9 WebButton
-        #MoveScaled(73,1,16,4)
+        #MoveScaled(90,1,16,4)
         Text = ("Select first")
       }
       { WebButton10 WebButton
-        #MoveScaled(90,1,10,4)
+        #MoveScaled(107,1,10,4)
         Text = ("Bip")
       }
     }

@@ -52,7 +52,11 @@ End
 
 Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   
-  If sProp = "value" Then Try Me.Value = vValue
+  If sProp = "value" Then
+    Inc Me._NoRefresh
+    Try Me.Value = vValue
+    Dec Me._NoRefresh
+  Endif
   
 End
 

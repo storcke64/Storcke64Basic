@@ -28,6 +28,12 @@ IFRAME {
   border: none;
 }
 
+:focus { 
+  outline: none; 
+}
+
+::-moz-focus-inner { border: 0; }
+
 /*UL, OL {
   padding-left: 2em;
   margin-bottom: 0;

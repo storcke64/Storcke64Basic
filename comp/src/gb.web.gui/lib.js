@@ -1570,6 +1570,38 @@ gw = {
       elt.currentTime = 0;
       elt.play();
     }
+  },
+  
+  onkeypress: function(event)
+  {
+    console.log('onkeypress: ' + event);
+    
+    if (!event.bubbles)
+      return;
+  
+    var elt = document.activeElement;
+    var id = '';
+    
+    while (elt)
+    {
+      id = elt.id;
+      if (id && id.indexOf(':') < 0)
+        break;
+      elt = elt.parentNode;
+      id = '';
+    }
+    
+    gw.send(['keypress', id, 
+      {
+        'altKey': event.altKey,
+        'ctrlKey': event.ctrlKey,
+        'key': event.key,
+        'metaKey': event.meta,
+        'shiftKey': event.shiftKey
+      }],
+      null);
   }
 }
+
+document.onkeydown = gw.onkeypress;
 

@@ -532,7 +532,7 @@ Static Public Sub Application_Signal(Num As Integer)
     While Not Eof($hRead)
       sData = Read #$hRead, -4096
       Print sData;
-      PrintLog("READ RESPONSE ==> " & Replace(sData, "\n", "\nREAD RESPONSE ==> "))
+      If $bLogEnabled Then PrintLog("READ RESPONSE ==> " & Replace(sData, "\n", "\nREAD RESPONSE ==> "))
     Wend
     
     Quit
@@ -740,8 +740,9 @@ Public Sub _BeforeRender()
   
   Print "<div class=\"gw-form";
   If Me.Class Then Print " "; Me.Class;
-  Print "\" id=\""; Me.Name; "\""
+  Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
+  Print Me._GetKeyPressHandler();
   Print ">"
   
 End
@@ -924,7 +925,16 @@ Public Sub _HandleMessage()
       Else
         hCtrl = Me
       Endif
+      
       hCtrl._UpdateProperty(aCmd[2], aCmd[3])
+      
+    Case "keypress"
+      
+      If aCmd[1] Then
+        hCtrl = WebControl.FromName(aCmd[1])
+        If hCtrl Then hCtrl._RaiseKeyPress(aCmd[2])
+      Endif
+      Me._RaiseKeyPress(aCmd[2])
       
     Case "finish"
       
