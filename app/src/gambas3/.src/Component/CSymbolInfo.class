@@ -659,6 +659,8 @@ Public Function GetDescription(Optional bBalise As Boolean) As String
 
   If Kind = ":" Then
     sDesc &= " " & Mid$(Name, 2) & " "
+  Else If Name = "_call" Then
+    sDesc &= " " & Class & " "
   Else
     sDesc &= " " & Name & " "
   Endif
