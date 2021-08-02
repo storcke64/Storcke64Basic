@@ -309,6 +309,14 @@ Private Sub IsFull(sText As String, iPos As Integer) As Boolean
   
 End
 
+Private Sub IsSeparator(iPos As Integer) As Boolean
+  
+  If iPos < 0 Or If iPos >= $aMask.Count Then Return True
+  If Not $aMask[iPos] Then Return True
+  
+End
+
+
 Private Sub IsVoid(sText As String, iPos As Integer) As Boolean
   
   Dim iStart As Integer
@@ -544,7 +552,7 @@ Public Sub TextBox_KeyPress()
   
   iPos += iMove
   
-  If sInsert And If IsFull(sText, iPos - 1) Then
+  If sInsert And If IsFull(sText, iPos - 1) And If IsSeparator(iPos) Then
     
     iPos = GetNextSeparator(iPos)
 

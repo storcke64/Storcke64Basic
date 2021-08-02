@@ -1,14 +1,9 @@
 ' Gambas class file
 
 Public Sub _new()
-  
-    Dim d As Date
-    d = Date(2021, 1, 1, 12, 45)
 
-    'DateBox1.Mode = DateChooser.DateTime
-    DateBox3.Value = d
-
-    'Message("DateBox1 should display the date " & d & " but does not")   
+  DateBox2.Value = Date(Now)
+  DateBox2.SetFocus
   
 End
 
