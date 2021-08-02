@@ -14,6 +14,7 @@ Event Change
 Event Activate
 Event Clear
 Event Filter
+Event Validate
 
 Property Picture As Picture
 Property Text As String
@@ -210,6 +211,16 @@ Public Sub TextBox_Activate()
   Raise Activate
   
 End
+
+Public Sub TextBox_Validate()
+
+  Dim bStop As Boolean
+  
+  bStop = Raise Validate
+  If bStop Then Stop Event
+  
+End
+
 
 Public Sub TextBox_Change()
   
