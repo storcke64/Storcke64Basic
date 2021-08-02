@@ -530,6 +530,10 @@ Private Function GetRealValue(hProp As CPropertyInfo, vVal As Variant) As Varian
       Else
         vRealVal = Picture.Load(File.Dir(Project.Path) &/ vRealVal)
       Endif
+      
+    Case "Image"
+      
+      vRealVal = Image.Load(File.Dir(Project.Path) &/ vRealVal)
 
     Case "Animation"
 
