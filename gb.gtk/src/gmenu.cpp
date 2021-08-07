@@ -861,13 +861,25 @@ void gMenu::doPopup(bool move, int x, int y)
 	GdkWindow *win;
 	GdkRectangle rect;
 	GdkEvent *event;
+	GdkEvent *last_event;
 	
 	gt_disable_warnings(true);
 	
 	event = gdk_event_new(GDK_BUTTON_PRESS);
 	event->button.time = gApplication::lastEventTime(); //GDK_CURRENT_TIME;
-	event->button.button = 1;
-	event->button.window = gtk_widget_get_window(window()->border);
+	
+	last_event = gApplication::lastEvent();
+	if (last_event && last_event->type == GDK_BUTTON_PRESS)
+	{
+		event->button.button = last_event->button.button;
+		event->button.window = last_event->button.window;
+	}
+	else
+	{
+		event->button.button = 1;
+		event->button.window = gtk_widget_get_window(window()->border);
+	}
+	
 	gdk_event_set_device(event, gMouse::getPointer());
 	
 	if (move)
