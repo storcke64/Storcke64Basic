@@ -555,7 +555,11 @@ __FOUND_WIDGET:
 
 			control = save_control;
 
-			bool menu = false;
+#if GTK_CHECK_VERSION(3, 4, 0)
+			bool menu = gdk_event_triggers_context_menu(event);
+#else
+			bool menu = (event->button.button == 3) && (event->type == GDK_BUTTON_PRESS);
+#endif
 
 			if (event->type != GDK_BUTTON_RELEASE)
 			{
@@ -573,73 +577,51 @@ __FOUND_WIDGET:
 
 		__BUTTON_TRY_PROXY:
 		
-			if (!control->isDesign() && !control->isEnabled())
-				goto __HANDLE_EVENT;
-
 			cancel = false;
 
-			if (control->onMouseEvent)
+			if (control->isDesign() || control->isEnabled())
 			{
-				if (event->type == GDK_BUTTON_PRESS || control->canRaise(control, type))
+				if (control->onMouseEvent)
 				{
-					control->getScreenPos(&xc, &yc);
-					xs = (int)event->button.x_root;
-					ys = (int)event->button.y_root;
-					x = xs - xc;
-					y = ys - yc;
-
-					gMouse::validate();
-					gMouse::setEvent(event);
-					//gMouse::setValid(1,(int)event->x,(int)event->y,event->button,event->state,data->screenX(),data->screenY());
-					gMouse::setMouse(x, y, xs, ys, event->button.button, event->button.state);
-					switch ((int)event->type)
+					if (event->type == GDK_BUTTON_PRESS || control->canRaise(control, type))
 					{
-						case GDK_BUTTON_PRESS:
-							gMouse::setControl(control);
-							gMouse::setStart(x, y);
-							cancel = control->onMouseEvent(control, gEvent_MousePress);
-							break;
+						control->getScreenPos(&xc, &yc);
+						xs = (int)event->button.x_root;
+						ys = (int)event->button.y_root;
+						x = xs - xc;
+						y = ys - yc;
 
-						case GDK_2BUTTON_PRESS:
-							cancel = control->onMouseEvent(control, gEvent_MouseDblClick);
-							break;
+						gMouse::validate();
+						gMouse::setEvent(event);
+						//gMouse::setValid(1,(int)event->x,(int)event->y,event->button,event->state,data->screenX(),data->screenY());
+						gMouse::setMouse(x, y, xs, ys, event->button.button, event->button.state);
+						switch ((int)event->type)
+						{
+							case GDK_BUTTON_PRESS:
+								gMouse::setControl(control);
+								gMouse::setStart(x, y);
+								cancel = control->onMouseEvent(control, gEvent_MousePress);
+								break;
 
-						case GDK_BUTTON_RELEASE:
-							gMouse::setControl(NULL);
-							cancel = control->onMouseEvent(control, gEvent_MouseRelease);
-							break;
+							case GDK_2BUTTON_PRESS:
+								cancel = control->onMouseEvent(control, gEvent_MouseDblClick);
+								break;
+
+							case GDK_BUTTON_RELEASE:
+								gMouse::setControl(NULL);
+								cancel = control->onMouseEvent(control, gEvent_MouseRelease);
+								break;
+						}
+
+						gMouse::invalidate();
 					}
-
-					gMouse::invalidate();
 				}
 			}
 
-			/*if (type == gEvent_MousePress && control->isTopLevel())
-			{
-				gMainWindow *win = ((gMainWindow *)control);
-				if (win->isPopup())
-				{
-					control->getScreenPos(&xc, &yc);
-					xs = (int)event->button.x_root;
-					ys = (int)event->button.y_root;
-					x = xs - xc;
-					y = ys - yc;
-
-					if (x < 0 || y < 0 || x >= win->width() || y >= win->height())
-						win->close();
-				}
-			}
-			else*/ if (type == gEvent_MouseRelease && control->_grab)
+			if (type == gEvent_MouseRelease && control->_grab)
 			{
 				gApplication::exitLoop(control);
 			}
-
-#if GTK_CHECK_VERSION(3, 4, 0)
-			if (gdk_event_triggers_context_menu(event))
-#else
-			if (event->button.button == 3 && event->type == GDK_BUTTON_PRESS)
-#endif
-				menu = true;
 
 			if (!cancel)
 			{
