@@ -248,7 +248,7 @@ __OPEN:
 	stream->common.redirected = FALSE;
 	stream->common.no_read_ahead = FALSE;
 	stream->common.null_terminated = FALSE;
-	stream->common.no_read_check = FALSE;
+	stream->common.check_read = FALSE;
 
 	if ((*(sclass->open))(stream, path, mode, NULL))
 		THROW_SYSTEM(errno, path);

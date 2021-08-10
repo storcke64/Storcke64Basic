@@ -69,6 +69,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
 		
 	stream->pipe.can_write = ((mode & GB_ST_MODE) & GB_ST_WRITE) != 0;
+	stream->common.check_read = TRUE;
 
 	FD = fd;
 	return FALSE;

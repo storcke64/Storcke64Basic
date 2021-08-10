@@ -79,27 +79,41 @@ static GB_FUNCTION _term_resize_func;
 
 static void callback_read(int fd, int type, CSTREAM *_object)
 {
-	STREAM *stream = CSTREAM_TO_STREAM(_object);
+	STREAM *stream = CSTREAM_TO_STREAM(THIS);
 	int64_t len;
 	
-	if (!stream->common.no_read_check)
+	if (!GB_CanRaise(THIS, EVENT_Read))
+		goto __DISABLE_WATCH;
+	
+	STREAM_read_ahead(stream);
+	
+	if (stream->common.check_read)
 	{
-		STREAM_read_ahead(stream);
 		if (!STREAM_lof_safe(stream, &len) && len == 0)
 		{
-			//fprintf(stderr, "callback_read: close watch\n");
-			GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)_object);
 			stream->common.eof = TRUE;
-			return;
+			goto __DISABLE_WATCH;
 		}
 	}
-		
-	GB_Raise(_object, EVENT_Read, 0);
+	
+	if (!stream->common.eof)
+		GB_Raise(THIS, EVENT_Read, 0);
+	else
+		WATCH_little_sleep();
+	
+	return;
+
+__DISABLE_WATCH:
+
+	GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)THIS);
 }
 
-static void callback_write(int fd, int type, CSTREAM *stream)
+static void callback_write(int fd, int type, CSTREAM *_object)
 {
-	GB_Raise(stream, EVENT_Write, 0);
+	if (GB_CanRaise(THIS, EVENT_Write))
+		GB_Raise(THIS, EVENT_Write, 0);
+	else
+		GB_Watch(fd, GB_WATCH_WRITE, NULL, (intptr_t)THIS);
 }
 
 static void cb_term_resize(int signum, intptr_t data)
@@ -150,6 +164,7 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	stream.type = &STREAM_buffer;
 	stream.common.no_read_ahead = tty;
 	stream.common.standard = TRUE;
+	stream.common.check_read = TRUE;
 	stream.buffer.file = file;
 	//stream.direct.fd = fileno(file);
 	STREAM_check_blocking(&stream);

@@ -81,7 +81,6 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 	{
 		stream->common.available_now = FALSE;
 		stream->common.no_read_ahead = TRUE;
-		stream->common.no_read_check = TRUE;
 	}
 	else
 		stream->common.available_now = TRUE;

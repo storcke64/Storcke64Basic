@@ -492,13 +492,6 @@ void SUBR_instr(ushort code)
 	pp = PARAM[1]._string.addr + PARAM[1]._string.start;
 
 	pos = STRING_search(ps, ls, pp, lp, is, right, nocase);
-	/*pos2 = STRING_search2(ps, ls, pp, lp, is, right, nocase);
-	
-	if (pos != pos2)
-	{
-		for(;;)
-			usleep(1000);
-	}*/
 
 __FOUND:
 

@@ -47,6 +47,7 @@
 static int stream_open(STREAM *stream, const char *path, int mode, CPROCESS *process)
 {
 	stream->process.process = process;
+	stream->common.check_read = TRUE;
 	STREAM_blocking(stream, FALSE);
 	return FALSE;
 }
