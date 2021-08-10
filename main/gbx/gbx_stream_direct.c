@@ -93,6 +93,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		
 		stream->direct.watch = TRUE;
 		stream->common.no_read_ahead = TRUE;
+		stream->common.no_read_check = TRUE;
 	}
 	else
 	{
@@ -119,6 +120,7 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		{
 			stream->common.available_now = FALSE;
 			stream->common.no_read_ahead = TRUE;
+			stream->common.no_read_check = TRUE;
 			stream->direct.has_size = TRUE;
 			fcntl(fd, F_SETFL, O_NONBLOCK);
 		}

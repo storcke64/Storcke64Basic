@@ -77,9 +77,18 @@ static int stream_open(STREAM *stream, const char *path, int mode)
 		return TRUE;
 	}
 
+	if (!S_ISREG(info.st_mode))
+	{
+		stream->common.available_now = FALSE;
+		stream->common.no_read_ahead = TRUE;
+		stream->common.no_read_check = TRUE;
+	}
+	else
+		stream->common.available_now = TRUE;
+	
+	
 	//fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
 
-	stream->common.available_now = TRUE;
 	FD = file;
 	return FALSE;
 }

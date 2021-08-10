@@ -82,15 +82,19 @@ static void callback_read(int fd, int type, CSTREAM *_object)
 	STREAM *stream = CSTREAM_TO_STREAM(_object);
 	int64_t len;
 	
-	STREAM_read_ahead(stream);
-	
-	if (STREAM_lof_safe(stream, &len) || len > 0)
-		GB_Raise(_object, EVENT_Read, 0);
-	else
+	if (!stream->common.no_read_check)
 	{
-		GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)_object);
-		stream->common.eof = TRUE;
+		STREAM_read_ahead(stream);
+		if (!STREAM_lof_safe(stream, &len) && len == 0)
+		{
+			//fprintf(stderr, "callback_read: close watch\n");
+			GB_Watch(fd, GB_WATCH_READ, NULL, (intptr_t)_object);
+			stream->common.eof = TRUE;
+			return;
+		}
 	}
+		
+	GB_Raise(_object, EVENT_Read, 0);
 }
 
 static void callback_write(int fd, int type, CSTREAM *stream)
@@ -144,7 +148,6 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	
 	CLEAR(&stream);
 	stream.type = &STREAM_buffer;
-	//stream.common.available_now = !tty;
 	stream.common.no_read_ahead = tty;
 	stream.common.standard = TRUE;
 	stream.buffer.file = file;

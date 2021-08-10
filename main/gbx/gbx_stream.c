@@ -169,10 +169,7 @@ bool STREAM_default_eof(STREAM *stream)
 		wait_for_fd_ready_to_read(STREAM_handle(stream));
 
 	if (!STREAM_get_readable(stream, &ilen))
-	{
-		fprintf(stderr, "STREAM_get_readable -> %d\n", ilen);
 		return (ilen == 0);
-	}
 	
 	return FALSE; // Unable to get the remaining size.
 }
@@ -251,6 +248,7 @@ __OPEN:
 	stream->common.redirected = FALSE;
 	stream->common.no_read_ahead = FALSE;
 	stream->common.null_terminated = FALSE;
+	stream->common.no_read_check = FALSE;
 
 	if ((*(sclass->open))(stream, path, mode, NULL))
 		THROW_SYSTEM(errno, path);
