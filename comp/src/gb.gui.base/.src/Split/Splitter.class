@@ -385,7 +385,7 @@ Public Sub Resize_MouseMove()
   
   If $bVertical Then
     
-    X = Min(Max(Mouse.ScreenY, $XMin + $iMinSize), $XMax - $iMinSize)
+    X = Min(Max(Mouse.ScreenY + SW - Mouse.StartY, $XMin + $iMinSize), $XMax - $iMinSize)
     
     aChildren[I].H = X - $XMin - SW
     aChildren[I + 1].Move(0, X - Me.ScreenY, Me.W, $XMax - X - SW)
@@ -400,7 +400,7 @@ Public Sub Resize_MouseMove()
     
   Else
     
-    X = Min(Max(Mouse.ScreenX, $XMin + $iMinSize), $XMax - $iMinSize)
+    X = Min(Max(Mouse.ScreenX + SW - Mouse.StartX, $XMin + $iMinSize), $XMax - $iMinSize)
     
     If System.RightToLeft Then
       I2 = I
