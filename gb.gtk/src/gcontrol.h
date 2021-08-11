@@ -324,7 +324,7 @@ public:
 	void realizeScrolledWindow(GtkWidget *wid, bool doNotRealize = false);
 	void registerControl();
 	void updateGeometry(bool force = false);
-	bool mustUpdateCursor() { return mouse() != -1 || have_cursor; }
+	bool mustUpdateCursor() { return mouse() != -1 || have_cursor || !parent(); }
 	
 	bool hasInputMethod() { return _has_input_method; }
 	virtual GtkIMContext *getInputMethod();

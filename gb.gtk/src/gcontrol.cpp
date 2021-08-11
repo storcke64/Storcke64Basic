@@ -1035,18 +1035,11 @@ void gControl::updateCursor(GdkCursor *cursor)
 {
 	if (GDK_IS_WINDOW(gtk_widget_get_window(border)) && _inside)
 	{
-		#if DEBUG_ENTER_LEAVE
-		fprintf(stderr, "updateCursor: %s %p\n", name(), cursor);
-		#endif
-		if (!cursor && parent() && gtk_widget_get_window(parent()->border) == gtk_widget_get_window(border))
-			parent()->updateCursor(parent()->getGdkCursor());
-		else
-		{
-			#if DEBUG_ENTER_LEAVE
-			fprintf(stderr, "updateCursor: gdk_window_set_cursor: window = %p\n", gtk_widget_get_window(border));
-			#endif
+		if (cursor || isWindow())
 			gdk_window_set_cursor(gtk_widget_get_window(border), cursor);
-		}
+		
+		if (!cursor && parent())
+			parent()->updateCursor(parent()->getGdkCursor());
 	}
 }
 
