@@ -158,11 +158,11 @@ CFILE *CFILE_create(STREAM *stream, int mode)
 static CFILE *create_default_stream(FILE *file, int mode)
 {
 	STREAM stream;
-	bool tty = isatty(fileno(file));
+	//bool tty = isatty(fileno(file));
 	
 	CLEAR(&stream);
 	stream.type = &STREAM_buffer;
-	stream.common.no_read_ahead = tty;
+	stream.common.no_read_ahead = TRUE;
 	stream.common.standard = TRUE;
 	stream.common.check_read = TRUE;
 	stream.buffer.file = file;

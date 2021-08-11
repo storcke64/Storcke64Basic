@@ -163,19 +163,20 @@ static int stream_tell(STREAM *stream, int64_t *pos)
 
 static int stream_eof(STREAM *stream)
 {
-	return !FD || feof(FD);
-	
-	/*int c;
+	int c;
 
-	if (!FD)
+	if (!FD || feof(FD) || stream->common.eof)
 		return TRUE;
-
+	
+	if (stream->common.no_read_ahead)
+		return FALSE;
+	
 	c = fgetc(FD);
 	if (c == EOF)
 		return TRUE;
 
 	ungetc(c, FD);
-	return FALSE;*/
+	return FALSE;
 }
 
 
