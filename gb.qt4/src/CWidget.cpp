@@ -2570,7 +2570,9 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick)
 		{
 			GB.GetTime(&timer, TRUE);
-			if (abs(mevent->globalX() - MOUSE_click_x) < 4 && abs(mevent->globalY() - MOUSE_click_y) < 4 && ((timer - MOUSE_timer) * 1000) < QApplication::doubleClickInterval())
+			if (((timer - MOUSE_timer) * 1000) < QApplication::doubleClickInterval() 
+				  && abs(mevent->globalX() - MOUSE_click_x) < MAIN_scale
+				  && abs(mevent->globalY() - MOUSE_click_y) < MAIN_scale)
 				MOUSE_click_count++;
 			else
 			{
@@ -3027,8 +3029,23 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 #endif
 				MOUSE_info.state = ev->buttons();
 				MOUSE_info.modifier = ev->modifiers();
+				
+#ifdef QT5
+				QPoint delta = ev->angleDelta();
+				if (delta.x())
+				{
+					MOUSE_info.orientation = Qt::Horizontal;
+					MOUSE_info.delta = delta.x();
+				}
+				else
+				{
+					MOUSE_info.orientation = Qt::Vertical;
+					MOUSE_info.delta = delta.y();
+				}
+#else
 				MOUSE_info.orientation = ev->orientation();
 				MOUSE_info.delta = ev->delta();
+#endif
 
 				cancel = GB.Raise(control, EVENT_MouseWheel, 0);
 
