@@ -48,8 +48,6 @@
 #include "x11.h"
 #endif
 
-#include "desktop.h"
-
 #ifdef QT5
 	#define DESKTOP_INFO() (QGuiApplication::screens().front()->availableGeometry())
 	#define SCREEN_INFO(_id) (QGuiApplication::screens().at(_id)->geometry())
@@ -173,12 +171,6 @@ END_METHOD
 BEGIN_PROPERTY(Desktop_Scale)
 
 	GB.ReturnInteger(MAIN_scale);
-
-END_PROPERTY
-
-BEGIN_PROPERTY(Desktop_Type)
-
-	GB.ReturnConstZeroString(DESKTOP_get_type());
 
 END_PROPERTY
 
@@ -564,7 +556,6 @@ GB_DESC DesktopDesc[] =
 	
 	GB_STATIC_METHOD("Screenshot", "Picture", Desktop_Screenshot, "[(X)i(Y)i(Width)i(Height)i]"),
 	
-	GB_STATIC_PROPERTY_READ("Type", "s", Desktop_Type),
 	GB_STATIC_PROPERTY_READ("Platform", "s", Desktop_Platform),
 
 	GB_END_DECLARE

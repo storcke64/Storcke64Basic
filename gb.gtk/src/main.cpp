@@ -33,7 +33,6 @@
 #include "gkey.h"
 
 #include "x11.h"
-#include "desktop.h"
 #include "CScreen.h"
 #include "CStyle.h"
 #include "CDraw.h"

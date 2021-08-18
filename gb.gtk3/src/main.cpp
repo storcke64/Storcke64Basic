@@ -32,7 +32,6 @@
 #include "watcher.h"
 #include "gkey.h"
 
-#include "desktop.h"
 #include "CScreen.h"
 #include "CStyle.h"
 #include "CDraw.h"

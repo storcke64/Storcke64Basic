@@ -91,7 +91,6 @@
 #include "cpaint_impl.h"
 #include "ctrayicon.h"
 
-#include "desktop.h"
 #include "gb.qt.platform.h"
 
 #include "fix_style.h"

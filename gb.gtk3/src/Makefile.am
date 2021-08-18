@@ -73,5 +73,4 @@ gb_gtk3_la_SOURCES = \
 	gclipboard.h \
 	gdrag.h gdrag.cpp \
 	gtools.h kentities.h \
-	gprinter.h gprinter.cpp \
-	desktop.h desktop.c
+	gprinter.h gprinter.cpp
