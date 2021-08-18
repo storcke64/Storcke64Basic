@@ -44,6 +44,7 @@ Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault A
     Default
       
       lblTitle.Hide
+      Me.Title = sTitle
       
   End Select
 
