@@ -994,15 +994,17 @@ void gMainWindow::center()
 {
 	if (!isTopLevel()) return;
 
-	GdkRectangle rect;
-	int x, y;
+#ifdef GTK3
 
-	if (!isTopLevel()) return;
-
-	#ifdef GTK3
 	if (MAIN_platform_is_wayland)
 		gtk_window_set_position(GTK_WINDOW(border), GTK_WIN_POS_CENTER_ON_PARENT);
-	#endif
+	else
+		gtk_window_set_position(GTK_WINDOW(border), GTK_WIN_POS_CENTER_ALWAYS);
+	
+#else
+
+	GdkRectangle rect;
+	int x, y;
 
 	gDesktop::availableGeometry(screen(), &rect);
 
@@ -1010,6 +1012,8 @@ void gMainWindow::center()
 	y = rect.y + (rect.height - height()) / 2;
 
 	move(x, y);
+	
+#endif
 }
 
 bool gMainWindow::isModal() const
@@ -1037,8 +1041,8 @@ void gMainWindow::showModal()
 	save = _current;
 	_current = this;
 
+	center();
 	show();
-  center();
 	gtk_grab_add(border);
 	gApplication::enterLoop(this);
 
