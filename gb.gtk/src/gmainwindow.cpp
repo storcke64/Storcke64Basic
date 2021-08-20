@@ -998,22 +998,19 @@ void gMainWindow::center()
 
 	if (MAIN_platform_is_wayland)
 		gtk_window_set_position(GTK_WINDOW(border), GTK_WIN_POS_CENTER_ON_PARENT);
-	else
-		gtk_window_set_position(GTK_WINDOW(border), GTK_WIN_POS_CENTER_ALWAYS);
 	
-#else
+#endif
 
 	GdkRectangle rect;
 	int x, y;
-
+	
+	gtk_widget_realize(border);
 	gDesktop::availableGeometry(screen(), &rect);
-
+	
 	x = rect.x + (rect.width - width()) / 2;
 	y = rect.y + (rect.height - height()) / 2;
 
 	move(x, y);
-	
-#endif
 }
 
 bool gMainWindow::isModal() const
