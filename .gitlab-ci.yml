@@ -64,7 +64,7 @@ build:debian-oldstable:
        libssl-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-gtk3webview --disable-zstd
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-keyring
     - make -j$(nproc)
     - make install
 
@@ -89,7 +89,7 @@ build:debian-stable:
        qtwebengine5-dev libwebkit2gtk-4.0-dev git libssl-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-keyring
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-keyring --disable-sqlite2 --disable-qt4 --disable-qtwebkit
     - make -j$(nproc)
     - make install
 
