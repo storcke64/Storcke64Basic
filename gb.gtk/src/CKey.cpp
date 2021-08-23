@@ -104,6 +104,23 @@ BEGIN_PROPERTY(Key_Normal)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Key_Shortcut)
+
+	static GB_FUNCTION func;
+	static bool init = FALSE;
+	
+	if (!init)
+	{
+		init = TRUE;
+		GB.GetFunction(&func, (void *)GB.FindClass("Shortcut"), "FromKey", NULL, "s");
+	}
+	
+	if (GB_FUNCTION_IS_VALID(&func))
+		GB.Call(&func, 0, FALSE);
+	else
+		GB.ReturnNull();
+
+END_PROPERTY
 
 GB_DESC CKeyDesc[] =
 {
@@ -180,6 +197,8 @@ GB_DESC CKeyDesc[] =
   GB_STATIC_PROPERTY_READ("Meta", "b", Key_Meta),
   GB_STATIC_PROPERTY_READ("Normal", "b", Key_Normal),
 
+  GB_STATIC_PROPERTY_READ("Shortcut", "s", Key_Shortcut),
+  
   GB_END_DECLARE
 };
 
