@@ -285,7 +285,7 @@ End
 
 Public Sub _GetKeyPressHandler() As String
   
-  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onkeypress(" & JS($sName) & ", event)\""
+  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onkeydown(" & JS($sName) & ", event)\""
   
 End
 

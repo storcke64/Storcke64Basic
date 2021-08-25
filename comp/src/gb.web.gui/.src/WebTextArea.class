@@ -78,6 +78,7 @@ End
 Public Sub _AfterRender()
   
   Print "</textarea>"
+  WebForm._AddJavascript("gw.textarea.moveEnd(" & JS(Me.Name) & ")")
   
 End
 

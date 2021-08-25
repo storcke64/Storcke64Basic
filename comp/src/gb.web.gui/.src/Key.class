@@ -8,8 +8,11 @@ Static Property Read Alt As Boolean
 Static Property Read Meta As Boolean
 Static Property Read Normal As Boolean
 Static Property Read Code As String
+Static Property Read Text As String
+Static Property Read Shortcut As String
 
 Static Public _Event As Collection
+Static Private $cTrans As Collection
 
 Static Private Function Shift_Read() As Boolean
 
@@ -21,7 +24,7 @@ End
 Static Private Function Control_Read() As Boolean
 
   If Not _Event Then Error.Raise("No keyboard data")
-  Return _Event["controlKey"]
+  Return _Event["ctrlKey"]
 
 End
 
@@ -47,10 +50,67 @@ Static Private Function Normal_Read() As Boolean
 
 End
 
+Static Private Sub TranslateCode(sCode As String) As String
+  
+  Dim sTrans As String
+  
+  If Not $cTrans Then
+    $cTrans = [
+      "Alt": "AltKey",
+      "AltGraph": "AltGrKey",
+      "Control": "ControlKey",
+      "Meta": "MetaKey",
+      "Shift": "ShiftKey",
+      "ArrowDown": "Down",
+      "ArrowUp": "Up",
+      "ArrowLeft": "Left",
+      "ArrowRight": "Right",
+      " ": "Space"
+      ]
+  Endif
+  
+  sTrans = $cTrans[sCode]
+  If Not sTrans Then sTrans = sCode
+  Return sTrans
+  
+End
+
+
 Static Private Function Code_Read() As String
 
+  Dim sCode As String
+  
   If Not _Event Then Error.Raise("No keyboard data")
-  Return _Event["key"]
+  sCode = TranslateCode(_Event["key"])
+  If String.Len(sCode) = 1 Then sCode = String.UCase(sCode)
+  Return sCode
 
 End
 
+Static Private Function Shortcut_Read() As String
+
+  Dim sShortcut As String
+  Dim sCode As String
+  
+  If Not _Event Then Error.Raise("No keyboard data")
+  
+  sCode = Code_Read()
+  
+  If Key.Control And If sCode <> "ControlKey" Then sShortcut &= "Ctrl+"
+  If Key.Shift And If sCode <> "ShiftKey" Then sShortcut &= "Shift+"
+  If Key.Alt And If sCode <> "AltKey" Then sShortcut &= "Alt+"
+  If Key.Meta And If sCode <> "MetaKey" Then sShortcut &= "Meta+"
+  
+  Return sShortcut & sCode
+
+End
+
+Static Private Function Text_Read() As String
+
+  Dim sCode As Variant
+  
+  If Not _Event Then Error.Raise("No keyboard data")
+  sCode = _Event["key"]
+  If String.Len(sCode) = 1 Then Return sCode
+
+End

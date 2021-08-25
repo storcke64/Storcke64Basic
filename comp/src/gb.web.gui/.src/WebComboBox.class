@@ -69,7 +69,7 @@ Public Sub _Render()
   If Not $bReadOnly Then
     Print "<input id=\""; Me.Name; ":entry\" class=\"gw-combobox-text\" type=\"text\" value=\""; Html(Text_Read()); "\""; Me._GetUpdateJS("onchange", "text", "this.value"); Me._GetUpdateJS("onblur", "text", "this.value"); 
     If Object.CanRaise(Me, "Activate") Then
-      Print " onkeypress=\"gw.textbox.onactivate("; JS(Me.Name); ",event);\""; 'WebForm._AddJavascript("gw.textbox.onactivate(" & JS(Me.Name) & ");")
+      Print " onkeydown=\"gw.textbox.onactivate("; JS(Me.Name); ",event);\""; 'WebForm._AddJavascript("gw.textbox.onactivate(" & JS(Me.Name) & ");")
     Endif
     If Not Me.Enabled Then Print " disabled";
     If $sPlaceHolder Then Print " placeholder=\""; Html($sPlaceHolder); "\"";

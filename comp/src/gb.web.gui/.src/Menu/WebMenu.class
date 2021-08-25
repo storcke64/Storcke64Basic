@@ -4,7 +4,7 @@ Export
 Inherits WebContainer
 
 Public Const _Group As String = "Container"
-Public Const _Properties As String = "*,-Arrangement,-Margin,-Spacing,-Border,Text,Image{WebImage}"
+Public Const _Properties As String = "*,-Arrangement,-Margin,-Spacing,-Border,Text,Image{WebImage},Shortcut"
 Public Const _DefaultArrangement As String = "V"
 Public Const _DefaultEvent As String = "Click"
 
@@ -55,6 +55,7 @@ End
 
 Private Sub Shortcut_Write(Value As String)
 
+  If $sShortcut = Value Then Return
   $sShortcut = Value
   Me.Refresh
 
@@ -68,6 +69,7 @@ End
 
 Private Sub Text_Write(Value As String)
 
+  If $sText = Value Then Return
   $sText = Value
   Me.Refresh
 

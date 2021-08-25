@@ -2,11 +2,11 @@
 
 Export
 
-' Static Public Sub _init()
-'   
-'   WebForm.Debug = True
-'   
-' End
+Static Public Sub _init()
+  
+  WebForm.Debug = True
+  
+End
 ' 
 ' 
 Public Sub WebComboBox1_Click()
@@ -23,13 +23,13 @@ End
 
 Public Sub WebForm_KeyPress()
   
-  WebForm.Print(Last.Name & ": " & JSON.ToString(Key._Event))
+  WebTextArea1.Text &= Last.Name & ": " & JSON.ToString(Key._Event) & " " & Key.Shortcut & " '" & Key.Text & "'\n"
   
 End
-
-
-Public Sub WebTextBox1_KeyPress()
-
-  WebForm.Print(Last.Name & ": " & JSON.ToString(Key._Event))
-
-End
+' 
+' 
+' Public Sub WebTextBox1_KeyPress()
+' 
+'   WebTextArea1.Text &= Last.Name & ": " & JSON.ToString(Key._Event) & " " & Key.Shortcut & "\n"
+' 
+' End

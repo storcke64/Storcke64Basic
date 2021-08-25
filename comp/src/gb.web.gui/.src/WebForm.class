@@ -1382,3 +1382,38 @@ Public Sub _GetHeaders() As String[]
   Return $aHeaders
   
 End
+
+Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boolean
+
+  Dim hChild As WebControl
+  Dim hMenu As WebMenu
+
+  For Each hChild In hParent.Children
+    hMenu = hChild
+    If String.UCase(hMenu.Shortcut) = sShortcut Then
+      Object.Raise(hChild, "Click")
+      Return True
+    Else If TriggerShortcut(hChild, sShortcut) Then
+      Return True
+    Endif
+  Next
+
+End
+
+Public Sub _RaiseKeyPress(cEvent As Variant)
+  
+  Dim cSave As Collection
+  Dim sShortcut As String
+  
+  Super._RaiseKeyPress(cEvent)
+  
+  If Not $hMenuBar.HasChildren() Then Return
+  
+  cSave = Key._Event
+  Key._Event = cEvent
+  sShortcut = Key.Shortcut
+  Key._Event = cSave
+  
+  TriggerShortcut($hMenuBar, String.UCase(sShortcut))
+  
+End

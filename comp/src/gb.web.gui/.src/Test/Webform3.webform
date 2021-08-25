@@ -2,6 +2,7 @@
 
 { WebForm WebForm
   #MoveScaled(0,0,64,91)
+  Height = "100%"
   Arrangement = Arrange.Vertical
   Margin = True
   Spacing = True
@@ -20,5 +21,10 @@
   }
   { WebTextBox1 WebTextBox
     #MoveScaled(1,40,62,4)
+  }
+  { WebTextArea1 WebTextArea
+    #MoveScaled(1,45,62,16)
+    Expand = True
+    ReadOnly = True
   }
 }

@@ -40,6 +40,8 @@ Public Sub panMenu_Render()
       
       If hMenu.HasChildren() Then
         Print "<div class=\"gw-menuitem-arrow\" id=\""; Html(hMenu.Name); "\""; Me._GetUpdateJS("onmouseover", "#popup", JS(hMenu.Name)); "></div>";
+      Else If hMenu.Shortcut Then
+        Print "<div class=\"gw-menuitem-shortcut\">"; Html(hMenu.Shortcut); "</div>";
       Endif
       Print "</div>";
       

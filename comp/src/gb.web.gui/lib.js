@@ -1429,11 +1429,16 @@ gw = {
       return $(id + ':entry').value;
     },
     
+    moveEnd: function(id)
+    {
+      gw.setSelection($(id + ':entry'), [-1, -1]);
+    },
+    
     setText: function(id, text)
     {
       gw.command(function() {
         $(id + ':entry').value = text;
-        gw.setSelection($(id + ':entry'), [text.length, text.length]);
+        gw.textbox.moveEnd(id);
         gw.update(id, 'text', text);
         });
     },
@@ -1462,7 +1467,22 @@ gw = {
     copy: function(id)
     {
       gw.copy($(id));
-    }
+    },
+    
+    moveEnd: function(id)
+    {
+      gw.setSelection($(id), [-1, -1]);
+      $(id).scrollTop = $(id).scrollHeight;
+    },
+    
+    setText: function(id, text)
+    {
+      gw.command(function() {
+        $(id).value = text;
+        gw.textarea.moveEnd(id);
+        gw.update(id, 'text', text);
+        });
+    },
   },
   
   button:
@@ -1572,9 +1592,9 @@ gw = {
     }
   },
   
-  onkeypress: function(event)
+  onkeydown: function(event)
   {
-    console.log('onkeypress: ' + event);
+    console.log('onkeydown: ' + event);
     
     if (!event.bubbles)
       return;
@@ -1603,5 +1623,5 @@ gw = {
   }
 }
 
-document.onkeydown = gw.onkeypress;
+document.onkeydown = gw.onkeydown;
 
