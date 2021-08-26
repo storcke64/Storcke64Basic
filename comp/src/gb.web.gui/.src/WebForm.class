@@ -745,6 +745,8 @@ Public Sub _BeforeRender()
   Print Me._GetKeyPressHandler();
   Print ">"
   
+  DisableShortcuts()
+  
 End
 
 Public Sub Render()
@@ -1383,6 +1385,39 @@ Public Sub _GetHeaders() As String[]
   
 End
 
+Private Sub FindShortcut(hParent As WebContainer, cShortcut As Collection)
+  
+  Dim hChild As WebControl
+  Dim hMenu As WebMenu
+  Dim sShortcut As String
+
+  For Each hChild In hParent.Children
+    hMenu = hChild
+    If Not hMenu.Enabled Then Continue
+    sShortcut = hMenu.Shortcut
+    If sShortcut Then 
+      sShortcut = Key._ShortcutToDOM(sShortcut)
+      cShortcut[sShortcut] = True
+    Endif
+    If hMenu.HasChildren() Then FindShortcut(hChild, cShortcut)
+  Next
+  
+End
+
+
+Private Sub DisableShortcuts()
+
+  Dim cShortcut As Collection
+  
+  cShortcut = New Collection
+  FindShortcut($hMenuBar, cShortcut)
+  If cShortcut.Count = 0 Then Return
+  
+  _AddJavascript("gw.shortcuts = " & JS(cShortcut))
+  
+End
+
+
 Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boolean
 
   Dim hChild As WebControl
@@ -1390,10 +1425,11 @@ Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boo
 
   For Each hChild In hParent.Children
     hMenu = hChild
+    If Not hMenu.Enabled Then Continue
     If String.UCase(hMenu.Shortcut) = sShortcut Then
       Object.Raise(hChild, "Click")
       Return True
-    Else If TriggerShortcut(hChild, sShortcut) Then
+    Else If hMenu.HasChildren() And If TriggerShortcut(hChild, sShortcut) Then
       Return True
     Endif
   Next

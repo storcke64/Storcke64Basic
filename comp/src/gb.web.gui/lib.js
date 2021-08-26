@@ -1592,10 +1592,20 @@ gw = {
     }
   },
   
+  makeShortcut: function(event)
+  {
+    var shortcut = '';
+    
+    if (event.ctrlKey && event.key != 'Control') shortcut += 'CTRL+';
+    if (event.shiftKey && event.key != 'Shift') shortcut += 'SHIFT+';
+    if (event.altKey && event.key != 'Alt') shortcut += 'ALT+';
+    if (event.meta && event.key != 'Meta') shortcut += 'META+';
+    shortcut += event.key.toUpperCase();
+    return shortcut;
+  },
+  
   onkeydown: function(event)
   {
-    console.log('onkeydown: ' + event);
-    
     if (!event.bubbles)
       return;
   
@@ -1620,8 +1630,14 @@ gw = {
         'shiftKey': event.shiftKey
       }],
       null);
+      
+    if (gw.shortcuts)
+    {
+      var shortcut = gw.makeShortcut(event);
+      console.log('shortcut -> ' + shortcut);
+      if (gw.shortcuts[shortcut])
+        event.preventDefault();
+    }
   }
 }
-
-document.onkeydown = gw.onkeydown;
 
