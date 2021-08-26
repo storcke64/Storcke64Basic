@@ -1798,7 +1798,7 @@ static int table_create(DB_DATABASE *db, const char *table, DB_FIELD *fields, ch
 
 			if (fp->def.type != GB_T_NULL)
 			{
-				DB.Query.Add(" NOT NULL DEFAULT");
+				DB.Query.Add(" NOT NULL DEFAULT ");
 				DB.FormatVariant(&_driver, &fp->def, DB.Query.AddLength);
 			}
 			else if (DB.StringArray.Find(primary, fp->name) >= 0)
