@@ -11,7 +11,7 @@ Class _DefaultStock
 
 Public Const _IsForm As Boolean = True
 Public Const _HiddenControls As String = "WebControl,WebForm,Timer,WebMenu"
-Public Const _Properties As String = "*,Title,Resizable,Persistent"
+Public Const _Properties As String = "*,Title,Resizable,Persistent,Shortcuts"
 Public Const _DefaultEvent As String = "Open"
 
 Static Property Debug As Boolean Use $bDebug
@@ -57,6 +57,8 @@ Property Read PopupParent As WebControl
 '' Closing a non-persistent form automatically destroys it.
 Property Persistent As Boolean
 
+Property Shortcuts As String[]
+
 Static Public _DisableRefresh As Integer
 Static Public _HasRefresh As Boolean
 Static Public _InMessage As Integer
@@ -99,6 +101,8 @@ Private $hContents As WebContainer
 Private $aJavascriptFiles As String[]
 Private $aJavascriptExternFiles As String[]
 Private $aHeaders As String[]
+
+Private $aShortcuts As String[]
 
 'Private $bOpened As Boolean
 
@@ -1404,19 +1408,28 @@ Private Sub FindShortcut(hParent As WebContainer, cShortcut As Collection)
   
 End
 
-
-Private Sub DisableShortcuts()
+Private Sub DisableShortcuts() 
 
   Dim cShortcut As Collection
+  Dim sShortcut As String
   
   cShortcut = New Collection
+  
   FindShortcut($hMenuBar, cShortcut)
+  
+  If $aShortcuts Then
+    For Each sShortcut In $aShortcuts
+      sShortcut = Trim(sShortcut)
+      If Not sShortcut Then Continue
+      cShortcut[sShortcut] = True
+    Next
+  Endif
+  
   If cShortcut.Count = 0 Then Return
   
   _AddJavascript("gw.shortcuts = " & JS(cShortcut))
   
 End
-
 
 Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boolean
 
@@ -1452,4 +1465,17 @@ Public Sub _RaiseKeyPress(cEvent As Variant)
   
   TriggerShortcut($hMenuBar, String.UCase(sShortcut))
   
+End
+
+Private Function Shortcuts_Read() As String[]
+
+  If Not $aShortcuts Then $aShortcuts = New String[]
+  Return $aShortcuts
+
+End
+
+Private Sub Shortcuts_Write(Value As String[])
+
+  $aShortcuts = Value
+
 End

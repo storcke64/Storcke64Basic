@@ -1641,3 +1641,4 @@ gw = {
   }
 }
 
+document.onkeydown = gw.onkeydown;
