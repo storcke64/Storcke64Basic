@@ -727,7 +727,10 @@ static void set_character_set(DB_DATABASE *db)
 	if (search_result(res, "character_set_client", &row))
 		return;
 	
-	db->charset = GB.NewZeroString(row[1]);
+	if (strncasecmp(row[1], "utf8", 4) == 0)
+		db->charset = GB.NewString("utf8", 4);
+	else
+		db->charset = GB.NewZeroString(row[1]);
 	//fprintf(stderr, "charset is '%s'\n", db->charset);
 	mysql_free_result(res);
 }
