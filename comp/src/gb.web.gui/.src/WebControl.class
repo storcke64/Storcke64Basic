@@ -1156,6 +1156,20 @@ Public Sub _Redraw()
   
 End
 
+Public Sub RenderToString() As String
+
+  Dim hStr As File
+  Dim sStr As String
+  
+  hStr = Open String For Write 
+  Output To hStr
+  Try _Redraw
+  Output To Default
+  sStr = Close hStr
+  Return sStr
+  
+End
+
 Public Sub _RaiseKeyPress(cEvent As Variant)
   
   Dim cSave As Collection
