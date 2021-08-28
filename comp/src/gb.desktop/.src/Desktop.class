@@ -15,7 +15,6 @@ Static Property Read RootWindow As Integer
 Static Property Showing As Boolean
 Static Property Read Passwords As _Desktop_Passwords
 Static Property Read Path As String
-Static Property Read Types As String[]
 
 Static Property Read DataDir As String
 Static Property Read ConfigDir As String
@@ -30,7 +29,6 @@ Static Private $cExt As Collection
 Static Private $aImgExt As String[]
 Static Private $bRemoteDisplay As Boolean
 Static Private $bRemoteDisplayChecked As Boolean
-Static Private $aDesktopType As String[]
 Static Private $bPlatformLoaded As Boolean
 
 Static Private Sub LoadPlatform() As String
@@ -144,7 +142,7 @@ Static Public Sub OpenTerminal(Optional {Dir} As String) ', Optional Command As 
   Dim sProg As String
   Dim sDesktop As String
 
-  sDesktop = Main.GetDesktop()
+  sDesktop = Desktop.Type
 
   Select Case sDesktop
 
@@ -348,7 +346,7 @@ Static Public Sub RunAsRoot(Command As String)
 
   Dim sExec As String
   
-  Select Case Main.GetDesktop()
+  Select Case Desktop.Type
     
     Case "KDE", "KDE4", "KDE5"
       sExec = "kdesudo"
@@ -574,21 +572,3 @@ Static Private Function RemoteDisplay_Read() As Boolean
   Return $bRemoteDisplay
   
 End
-
-Static Private Function Types_Read() As String[]
-
-  If Not $aDesktopType Then 
-    $aDesktopType = Split(Desktop.Type, ":")
-    $aDesktopType.ReadOnly = True
-  Endif
-  
-  Return $aDesktopType
-
-End
-
-Static Public Sub Is(Type As String) As Boolean
-  
-  Return Types_Read().Exist(Type, gb.IgnoreCase)
-  
-End
-
