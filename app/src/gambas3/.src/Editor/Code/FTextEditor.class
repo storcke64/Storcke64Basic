@@ -95,7 +95,6 @@ Public Sub GetEditor() As TextEditor
   
 End
 
-
 Public Sub LoadFile() As Boolean
   
   Dim sExt As String
@@ -703,17 +702,23 @@ Public Sub Reload()
 
   Dim sText As String
   Dim sPath As String
+  Dim sStart As String
   
   sPath = Path
   
   sText = File.Load(sPath)
   
   If $bNoHighlight Then
-    If LTrim(sText) Like "<!DOCTYPE*" Or If LTrim(sText) Like "<html*" Then
+    sStart = Left(LTrim(sText), 64)
+    If sStart Like "<!DOCTYPE*" Or If sStart Like "<html*" Then
       edtEditor.Mode = "html"
       $bNoHighlight = False
       $bShowComment = True
       '$bShowPretty = True
+    ' Else If sStart Like "#!*/bin/sh\n*" Or If sStart Like "#!*/bin/bash\n*" Then
+    '   edtEditor.Mode = "sh"
+    '   $bNoHighlight = False
+    '   $bShowComment = True
     Else
       edtEditor.Mode = ""
     Endif

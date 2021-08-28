@@ -73,6 +73,8 @@ Public Sub Form_Open()
   
   lblPicture.Text = $sImageProp
   
+  dwgShortcut.Padding = Style.FrameWidth
+  
   $bFreeze = True
   gvwMenu.UnSelectAll
   $bFreeze = False
@@ -308,10 +310,17 @@ Public Sub gvwMenu_Change()
 
   If $bFreeze Then Return
   If gvwMenu.Row < 0 Then Return
-  SetCurrent(gvwMenu.Row)
+  If SetCurrent(gvwMenu.Row) Then Stop Event
 
 End
 
+Private Sub ShowWarning(sMsg As String, hCtrl As Control)
+
+  lblMessage.Text = sMsg
+  panMessage.Show
+  hCtrl.SetFocus
+
+End
 
 Private Sub WriteMenu() As Boolean
 
@@ -324,11 +333,13 @@ Private Sub WriteMenu() As Boolean
   '  RETURN
   'ENDIF
 
-  If $bFreeze Then Return
-
+  If $bFreeze Then Return True
+  
   iInd = $iCurrent
 
   If iInd < 0 Or iInd > $aMenu.Max Then Return 
+  
+  panMessage.Hide
 
   With $aMenu[iInd]
     
@@ -337,20 +348,17 @@ Private Sub WriteMenu() As Boolean
     sName = Trim(txtName.Text)
 
     If Not sName Then
-      Balloon.Warning(("Please enter a menu name."), txtName)
-      txtName.SetFocus
+      ShowWarning(("Please enter a menu name."), txtName)
       Return True
     Endif
 
     If CControl.CheckName(sName) Then
-      Balloon.Warning(("Bad menu name !"), txtName)
-      txtName.SetFocus
+      ShowWarning(("Bad menu name !"), txtName)
       Return True
     Endif
 
     If CControl.CheckName(txtGroup.Text) Then
-      Balloon.Warning(("Bad group name !"), txtGroup)
-      txtGroup.SetFocus
+      ShowWarning(("Bad group name !"), txtGroup)
       Return True
     Endif
 
@@ -671,22 +679,31 @@ End
 
 Public Sub cmbShortcut_Click()
   WriteMenu
+  If cmbShortcut.Index = 0 Then
+    ApplyToSelection("Shortcut", "")
+  Else
+    ApplyToSelection("Shortcut", cmbShortcut.Text)
+  Endif
 End
 
 Public Sub chkCtrl_Click()
   WriteMenu
+  ApplyToSelection("Ctrl", chkCtrl.Value)
 End
 
 Public Sub chkAlt_Click()
   WriteMenu
+  ApplyToSelection("Alt", chkCtrl.Value)
 End
 
 Public Sub chkShift_Click()
   WriteMenu
+  ApplyToSelection("Shift", chkCtrl.Value)
 End
 
 Public Sub txtCaption_Change()
   WriteMenu
+  ApplyToSelection("Caption", Trim(txtCaption.Text))
 End
 
 
@@ -826,9 +843,11 @@ Private Sub UpdateEvent()
 
 End
 
-Private Sub SetCurrent(iCurrent As Integer)
+Private Sub SetCurrent(iCurrent As Integer) As Boolean
 
-  If iCurrent <> $iCurrent Then WriteMenu
+  If iCurrent <> $iCurrent Then 
+    If WriteMenu() Then Return True
+  Endif
   
   gvwMenu.Rows.UnselectAll
   If iCurrent < 0 Or iCurrent >= $aMenu.Count Then 
@@ -848,12 +867,27 @@ Private Sub SetCurrent(iCurrent As Integer)
 
 End
 
-Public Sub btnPicture_Click()
+Private Sub ApplyToSelection(sProp As String, vValue As Variant)
 
-  Dim sPict As String
-
-  sPict = $hFamily.SelectImage("Image", txtPicture.Text)
-  If sPict Then SetPicture(sPict)
+  Dim aSel As Integer[]
+  Dim iInd As Integer
+  Dim sComp As String
+  
+  aSel = gvwMenu.Rows.Selection
+  If aSel.Count < 2 Then Return
+  
+  For Each iInd In aSel
+    
+    If iInd = $iCurrent Then Continue
+    
+    sComp = $aMenu[iInd].ToString()
+    Object.SetProperty($aMenu[iInd], sProp, vValue)
+    If sComp <> $aMenu[iInd].ToString() Then
+      SetModified
+      gvwMenu.Rows[iInd].Refresh
+    Endif
+    
+  Next
   
 End
 
@@ -861,20 +895,12 @@ End
 Private Sub SetPicture(sPict As String)
   
   txtPicture.Text = sPict
-  WriteMenu
   
 Catch
 
   Message.Error(Error.Text)
   
 End
-
-Public Sub btnKillPicture_Click()
-
-  SetPicture("")
-
-End
-
 
 Public Sub btnSave_Click()
 
@@ -1068,7 +1094,15 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
       ' Paint.Dash = Null
     Endif
     
-    If Column <> 0 Then Return
+    If Column <> 0 Then 
+      
+      If Not .Caption And If .Level Then
+        GoSub PAINT_DASH
+      Endif
+      
+      Return
+      
+    Endif
 
     iCol = GetMenuColor($aMenu[Row])
     
@@ -1097,13 +1131,7 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
       sText = "  " & .Name & "  "
       
       If Width > Desktop.Scale * 2 Then
-        Paint.Dash = [1]
-        Paint.MoveTo(X, CInt(Y + Height / 2) + 0.5)
-        Paint.RelLineTo(Width - Desktop.Scale * 2, 0)
-        Paint.Background = Color.LightForeground
-        Paint.LineWidth = 1
-        Paint.Stroke
-        Paint.Dash = Null
+        GoSub PAINT_DASH
       Endif
       
       X += D
@@ -1121,6 +1149,23 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
     Paint.DrawText(sText, X, Y, Width, Height, Align.Normal)
     
   End With
+  
+  Return
+  
+PAINT_DASH:
+
+  Paint.Dash = [1]
+  Paint.MoveTo(X, CInt(Y + Height / 2) + 0.5)
+  If Column = 1 Then
+    Paint.RelLineTo(Width - Desktop.Scale * 2, 0)
+  Else
+    Paint.RelLineTo(Width, 0)
+  Endif
+  Paint.Background = Color.LightForeground
+  Paint.LineWidth = 1
+  Paint.Stroke
+  Paint.Dash = Null
+  Return
 
 End
 
@@ -1160,31 +1205,36 @@ End
 
 Public Sub chkVisible_Click()
 
-  WriteMenu
+  If WriteMenu() Then Return
+  ApplyToSelection("Visible", chkVisible.Value)
 
 End
 
 Public Sub chkEnabled_Click()
 
-  WriteMenu
+  If WriteMenu() Then Return
+  ApplyToSelection("Enabled", chkEnabled.Value)
 
 End
 
 Public Sub chkToggle_Click()
 
-  WriteMenu
+  If WriteMenu() Then Return
+  ApplyToSelection("Toggle", chkToggle.Value)
 
 End
 
 Public Sub chkRadio_Click()
 
-  WriteMenu
+  If WriteMenu() Then Return
+  ApplyToSelection("Radio", chkRadio.Value)
 
 End
 
 Public Sub chkChecked_Click()
 
-  WriteMenu
+  If WriteMenu() Then Return
+  ApplyToSelection("Checked", chkChecked.Value)
 
 End
 
@@ -1224,4 +1274,55 @@ Public Sub btnEvent_Click()
     If Not Me.Closed Then OpenEventHandlerFor = ""
   Endif
   
+End
+
+Public Sub chkTranslate_Click()
+
+  If WriteMenu() Then Return
+  ApplyToSelection("Translate", chkTranslate.Value)
+
+End
+
+Public Sub txtAction_Change()
+
+  If WriteMenu() Then Return
+  ApplyToSelection("Action", Trim(txtAction.Text))
+
+End
+
+Public Sub txtPicture_Change()
+
+  If WriteMenu() Then Return
+  ApplyToSelection("Picture", txtPicture.Text)
+
+End
+
+Public Sub txtTag_Change()
+
+  If WriteMenu() Then Return
+  ApplyToSelection("Tag", txtTag.Text)
+
+End
+
+Public Sub txtGroup_Change()
+
+  If WriteMenu() Then Return
+  ApplyToSelection("Group", Trim(txtGroup.Text))
+
+End
+
+Public Sub txtPicture_Click()
+
+  Dim sPict As String
+
+  sPict = $hFamily.SelectImage("Image", txtPicture.Text)
+  If sPict Then txtPicture.Text = sPict
+  
+End
+
+
+Public Sub dwgShortcut_Draw()
+
+  Style.PaintBox(0, 0, Paint.W, Paint.H)
+
 End
