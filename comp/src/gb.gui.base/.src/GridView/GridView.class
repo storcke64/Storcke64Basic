@@ -1448,6 +1448,9 @@ End
 Public Sub MoveTo(Row As Integer, Column As Integer)
   
   Dim S, L As Integer
+  Dim iOldRow As Integer
+  Dim iOldCol As Integer
+  Dim bCancel As Boolean
   
   If Column < 0 Then Column = $iCol
   
@@ -1460,6 +1463,9 @@ Public Sub MoveTo(Row As Integer, Column As Integer)
     Return
   Endif
   
+  iOldRow = $iRow
+  iOldCol = $iCol
+  
   $iRow = Row
   $iCol = Column
   
@@ -1468,7 +1474,13 @@ Public Sub MoveTo(Row As Integer, Column As Integer)
   If $iRow >= 0 And If $iCol >= 0 Then _EnsureVisible($iRow, $iCol)
   $hView.Refresh
 
-  Raise Change
+  bCancel = Raise Change
+  If bCancel Then
+    $iRow = iOldRow
+    $iCol = iOldCol
+    Return
+  Endif
+  
   If $iMode = Select.Single Then 
     Raise Select
   Else If $bMoveSelect Or If $bMoveUnSelect Then
