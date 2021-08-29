@@ -57,9 +57,13 @@ Public Sub Button_Click()
   If Dialog.SelectDirectory() Then Return
   
   $hButtonBox.Text = Dialog.Path
-  '$hButtonBox.Foreground = Color.Foreground
-  
   Raise Click
+  
+End
+
+Public Sub Button_Change()
+  
   Raise Change
   
 End
+
