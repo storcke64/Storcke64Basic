@@ -1,0 +1,39 @@
+' Gambas class file
+
+Export
+
+Inherits _DBusConnection
+
+Private $sName As String
+Private $nConnect As Integer
+
+Public Sub Open() As String
+  
+  Dim sName As String
+  
+  If Not $sName Then
+    sName = DBus.Name
+    If Me._RequestName(sName, True) Then 
+      If DBus.Unique Then
+        Error.Raise("Unique application is already registered")
+      Else
+        Error.Raise("Application is already registered")
+      Endif
+    Endif
+    $sName = sName
+  Endif
+  Inc $nConnect
+  Return $sName
+  
+End
+
+Public Sub Close()
+  
+  Dec $nConnect
+  If $nConnect > 0 Then Return
+  If Not $sName Then Return
+  Me._ReleaseName($sName)
+  $sName = ""
+  
+End
+

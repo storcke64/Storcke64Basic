@@ -126,7 +126,7 @@ Public Sub _Register(hConnection As DBusConnection, sFullPath As String, Optiona
   Inc $iRegister
   
   If Not $sName Then 
-    $sName = DBus._RegisterApplication(hConnection)
+    $sName = hConnection.Open()
     If Not DBus.Unique Then $sName = Left($sName, -Len(CStr(Application.Id)) - 1)
   Endif
   
@@ -210,7 +210,7 @@ Public Sub _Unregister(hConnection As DBusConnection)
   $sPath = ""
   
   If _ObjectCache.Count = 0 Then 
-    DBus._UnregisterApplication(hConnection)
+    hConnection.Close()
     $sName = ""
   Endif
   

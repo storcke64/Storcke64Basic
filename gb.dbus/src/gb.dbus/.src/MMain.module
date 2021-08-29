@@ -155,6 +155,8 @@ End
 
 Public Sub Main()
 
-  Print DBus["org.freedesktop.DBus"]._Introspect("/a")
+  'Print DBus["org.freedesktop.DBus"]._Introspect("/a")
+  
+  'DBus["system://org.freedesktop.login1"]["/org/freedesktop/login1", "org.freedesktop.login1.Manager"].PowerOff(True)
 
 End

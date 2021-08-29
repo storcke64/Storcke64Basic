@@ -10,7 +10,6 @@ Static Property Read Null As Object
 Static Property Unique As Boolean
 
 Static Private $sAppName As String
-Static Private $iRegisterCount As Integer
 Static Private $bUnique As Boolean
 
 Static Public Sub _get((Application) As String) As DBusApplication
@@ -67,36 +66,36 @@ Static Public Sub _Normalize(sName As String, Optional bKeepCase As Boolean, Opt
 End
 
 
-Static Public Sub _RegisterApplication(hConnection As DBusConnection) As String
-  
-  Dim sName As String
-  
-  If IsNull(hConnection.Tag) Then
-    sName = Name_Read()
-    If hConnection._RequestName(sName, True) Then 
-      If $bUnique Then
-        Error.Raise("Unique application is already registered")
-      Else
-        Error.Raise("Application is already registered")
-      Endif
-    Endif
-    hConnection.Tag = sName
-  Endif
-  Inc $iRegisterCount
-  Return hConnection.Tag
-  
-End
-
-Static Public Sub _UnregisterApplication(hConnection As DBusConnection)
-  
-  Dec $iRegisterCount
-  If $iRegisterCount > 0 Then Return
-  If Not hConnection.Tag Then Return
-  hConnection._ReleaseName(hConnection.Tag)
-  hConnection.Tag = ""
-  
-End
-
+' Static Public Sub _RegisterApplication(hConnection As DBusConnection) As String
+'   
+'   Dim sName As String
+'   
+'   If IsNull(hConnection.Tag) Then
+'     sName = Name_Read()
+'     If hConnection._RequestName(sName, True) Then 
+'       If $bUnique Then
+'         Error.Raise("Unique application is already registered")
+'       Else
+'         Error.Raise("Application is already registered")
+'       Endif
+'     Endif
+'     hConnection.Tag = sName
+'   Endif
+'   Inc $iRegisterCount
+'   Return hConnection.Tag
+'   
+' End
+' 
+' Static Public Sub _UnregisterApplication(hConnection As DBusConnection)
+'   
+'   Dec $iRegisterCount
+'   If $iRegisterCount > 0 Then Return
+'   If Not hConnection.Tag Then Return
+'   hConnection._ReleaseName(hConnection.Tag)
+'   hConnection.Tag = ""
+'   
+' End
+' 
 Static Private Function Name_Read() As String
 
   Dim sName As String
