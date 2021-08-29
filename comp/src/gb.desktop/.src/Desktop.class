@@ -360,14 +360,18 @@ Static Public Sub RunAsRoot(Command As String)
       If Not System.Exist(sExec) Then sExec = "gksu"
    End Select
     
-   If Not System.Exist(sExec) Then 
-     sExec = "pkexec"
-     sEnv = ["DISPLAY=" & Env["DISPLAY"], "XAUTHORITY=" & Env["XAUTHORITY"]]
+   If Not System.Exist(sExec) Then
+     If Sytem.Exist("pkexec") Then
+       Dim sCom As String[] = Split(Command, " ", "\"")
+       sCom.Insert(["pkexec", "env", "DISPLAY=" & Env["DISPLAY"], "XAUTHORITY=" & Env["XAUTHORITY"]], 0)
+       Exec sCom
+       Return
+     Endif
    Endif
 
   If Not System.Exist(sExec) Then Error.Raise("No graphical sudo program found")
   
-  Exec [sExec, Command] With sEnv
+  Exec [sExec, Command]
 
 End
 
