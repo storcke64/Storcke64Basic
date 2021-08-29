@@ -344,7 +344,7 @@ Static Public Sub RunAsRoot(Command As String)
 
   'Main.RunXdgUtil("xdg-su", ["-c", Command])
 
-   Dim sExec As String, sEnv As New String[]
+   Dim sExec As String
   
   Select Case Desktop.Type
     
