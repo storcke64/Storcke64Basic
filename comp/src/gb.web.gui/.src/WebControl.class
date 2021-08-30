@@ -956,6 +956,17 @@ Private Sub Tooltip_Write(Value As String)
 
 End
 
+Public Sub _GetLink(sLink As String) As String
+  
+  If sLink Begins "http://" Or If sLink Begins "https://" Then
+    Return sLink 'Application.Protocol &/ Mid$(sLink, InStr(sLink, ":"))
+  Else
+    Return "/" &/ Application.Root &/ sLink
+  Endif
+  
+End
+
+
 Public Sub _GetImageLink(sImage As String) As String
 
   ' If Left(sImage) = "/" Then
@@ -966,8 +977,8 @@ Public Sub _GetImageLink(sImage As String) As String
   
   If sImage Begins "icon:/" Then
     Return "/" &/ Application.Root &/ "icon:" & Replace(Mid$(sImage, 7), "/", ":")
-  Else
-    Return "/" &/ Application.Root &/ sImage
+  Else 
+    Return _GetLink(sImage)
   Endif
   
 End

@@ -270,7 +270,7 @@ END_METHOD
 
 GB_DESC CDBusConnectionDesc[] =
 {
-  GB_DECLARE("DBusConnection", sizeof(CDBUSCONNECTION)), GB_NOT_CREATABLE(),
+  GB_DECLARE("_DBusConnection", sizeof(CDBUSCONNECTION)), GB_NOT_CREATABLE(),
 
 	GB_STATIC_METHOD("_exit", NULL, DBusConnection_exit, NULL),
 	GB_METHOD("_free", NULL, DBusConnection_free, NULL),

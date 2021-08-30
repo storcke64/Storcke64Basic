@@ -12,8 +12,10 @@ Public Const _DefaultEvent As String = "Timer"
 Event Timer
 
 Property Audio As String
+Property Loop As Boolean
 
 Private $sAudio As String
+Private $bLoop As Boolean
 
 Public Sub _new()
   
@@ -38,7 +40,9 @@ End
 
 Public Sub _Render()
   
-  Print "<audio"; Me._GetClassId(); " src=\""; Html("/" & Application.Root &/ $sAudio); "\"></audio>";
+  Print "<audio"; Me._GetClassId(); " src=\""; Html(Me._GetLink($sAudio)); "\"";
+  If $bLoop Then Print " loop=\"1\"";
+  Print "></audio>";
   
 End
 
@@ -64,3 +68,16 @@ Public Sub Stop()
   
 End
 
+
+Private Function Loop_Read() As Boolean
+
+  Return $bLoop
+
+End
+
+Private Sub Loop_Write(Value As Boolean)
+
+  $bLoop = Value
+  Me.Refresh
+
+End

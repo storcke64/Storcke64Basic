@@ -4,7 +4,7 @@
   #MoveScaled(0,0,138,91)
   Height = "100%"
   Arrangement = Arrange.Vertical
-  Shortcuts = ["F12", "F11"]
+  Shortcuts = ["F11"]
   { WebMenu1 WebMenu
     Text = ("WebMenu1")
     { WebMenu3 WebMenu
@@ -149,6 +149,7 @@
       #MoveScaled(1,15,133.75,40)
       Expand = True
       Mode = Select.Multiple
+      ShowRowNumber = True
       Sortable = True
     }
     Index = 1
@@ -172,7 +173,6 @@
       #MoveScaled(1,14,133.75,31)
       Height = "14em"
       List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("<i>Élément 5</i>"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("<span style=\"color:red;\">Élément 9</span>"), ("Élément 10"), ("Élément 11"), ("Élément 12")]
-      Mode = Select.Multiple
       UseHTML = True
     }
     { WebTextArea1 WebTextArea
@@ -207,7 +207,7 @@
     }
     { WebImage1 WebImage
       #MoveScaled(1,8,133.75,6)
-      Image = "favicon.png"
+      Image = "message/question.png"
     }
     { lblTime WebLabel
       #MoveScaled(1,15,133.75,4)
