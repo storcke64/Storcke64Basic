@@ -25,6 +25,8 @@ End
 
 Public Sub WebForm_Open()
 
+  WebImage1.Image = "https://radio.erfm.fr/static/erfm.png"
+
   ReloadTable
 
   WebTimer1_Timer

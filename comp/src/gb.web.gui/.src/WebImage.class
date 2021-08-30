@@ -73,8 +73,8 @@ Public Sub _RenderStyleSheet()
     
   Endif
     
-  Me._AddStyleSheet("display:flex;")
-  Me._AddStyleSheet("flex-flow:column;")
+  'Me._AddStyleSheet("display:flex;")
+  'Me._AddStyleSheet("flex-flow:column;")
   
   Me._EndStyleSheet
   
@@ -83,7 +83,7 @@ End
 Public Sub _Render()
   
   If $sImage And If $iMode = Normal Then
-    Print "<img"; Me._GetClassId(); " style=\"visibility:hidden\" src=\""; Me._GetImageLink($sImage); "\">";
+    Print "<img"; Me._GetClassId(); " style=\"visibility:hidden;\" src=\""; Me._GetImageLink($sImage); "\">";
   Endif
   
 End
