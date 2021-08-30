@@ -29,6 +29,20 @@
 #include "gdesktop.h"
 #include "gcolor.h"
 
+GB_COLOR _link_foreground = COLOR_DEFAULT;
+GB_COLOR _visited_foreground = COLOR_DEFAULT;
+GB_COLOR _tooltip_foreground = COLOR_DEFAULT;
+GB_COLOR _tooltip_background = COLOR_DEFAULT;
+
+
+static void handle_color(void *_param, GB_COLOR color, GB_COLOR *var)
+{
+	if (READ_PROPERTY)
+		GB.ReturnInteger(*var == COLOR_DEFAULT ? color : *var);
+	else
+		*var = VPROP(GB_INTEGER);
+}
+
 BEGIN_PROPERTY(Color_Background)
 
 	GB.ReturnInteger(gDesktop::getColor(gDesktop::BACKGROUND));
@@ -91,25 +105,25 @@ END_PROPERTY
 
 BEGIN_PROPERTY(Color_TooltipBackground)
 
-	GB.ReturnInteger(gDesktop::getColor(gDesktop::TOOLTIP_BACKGROUND));
+	handle_color(_param, gDesktop::getColor(gDesktop::TOOLTIP_BACKGROUND), &_tooltip_background);
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_TooltipForeground)
 
-	GB.ReturnInteger(gDesktop::getColor(gDesktop::TOOLTIP_FOREGROUND));
+	handle_color(_param, gDesktop::getColor(gDesktop::TOOLTIP_FOREGROUND), &_tooltip_foreground);
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_LinkForeground)
 
-	GB.ReturnInteger(gDesktop::getColor(gDesktop::LINK_FOREGROUND));
+	handle_color(_param, gDesktop::getColor(gDesktop::LINK_FOREGROUND), &_link_foreground);
 
 END_PROPERTY
 
 BEGIN_PROPERTY(Color_VisitedForeground)
 
-	GB.ReturnInteger(gDesktop::getColor(gDesktop::VISITED_FOREGROUND));
+	handle_color(_param, gDesktop::getColor(gDesktop::VISITED_FOREGROUND), &_visited_foreground);
 
 END_PROPERTY
 
@@ -122,16 +136,17 @@ GB_DESC CColorDesc[] =
   GB_STATIC_PROPERTY_READ("LightBackground", "i", Color_LightBackground),
   GB_STATIC_PROPERTY_READ("TextBackground", "i", Color_TextBackground),
   GB_STATIC_PROPERTY_READ("ButtonBackground", "i", Color_ButtonBackground),
-  GB_STATIC_PROPERTY_READ("TooltipBackground", "i", Color_TooltipBackground),
 
   GB_STATIC_PROPERTY_READ("Foreground", "i", Color_Foreground),
   GB_STATIC_PROPERTY_READ("SelectedForeground", "i", Color_SelectedForeground),
   GB_STATIC_PROPERTY_READ("LightForeground", "i", Color_LightForeground),
   GB_STATIC_PROPERTY_READ("TextForeground", "i", Color_TextForeground),
   GB_STATIC_PROPERTY_READ("ButtonForeground", "i", Color_ButtonForeground),
-  GB_STATIC_PROPERTY_READ("TooltipForeground", "i", Color_TooltipForeground),
-  GB_STATIC_PROPERTY_READ("LinkForeground", "i", Color_LinkForeground),
-  GB_STATIC_PROPERTY_READ("VisitedForeground", "i", Color_VisitedForeground),
+  
+  GB_STATIC_PROPERTY("TooltipBackground", "i", Color_TooltipBackground),
+  GB_STATIC_PROPERTY("TooltipForeground", "i", Color_TooltipForeground),
+  GB_STATIC_PROPERTY("LinkForeground", "i", Color_LinkForeground),
+  GB_STATIC_PROPERTY("VisitedForeground", "i", Color_VisitedForeground),
 
   GB_END_DECLARE
 };

@@ -169,7 +169,7 @@ GB_DESC CKeyDesc[] =
   GB_CONSTANT("Escape", "i", Qt::Key_Escape),
   GB_CONSTANT("Tab", "i", Qt::Key_Tab),
   GB_CONSTANT("BackTab", "i", Qt::Key_Backtab),
-  GB_CONSTANT("BackSpace", "i", Qt::Key_Backspace),
+  GB_CONSTANT("Backspace", "i", Qt::Key_Backspace),
   GB_CONSTANT("Return", "i", Qt::Key_Return),
   GB_CONSTANT("Enter", "i", Qt::Key_Enter),
   GB_CONSTANT("Ins", "i", Qt::Key_Insert),
