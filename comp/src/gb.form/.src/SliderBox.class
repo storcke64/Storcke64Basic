@@ -49,6 +49,7 @@ End
 Private Sub Value_Write(Value As Integer)
 
   $hSlider.Value = Value
+  $hSpinBox.Value = Value
 
 End
 
