@@ -357,8 +357,8 @@ Private Sub WriteMenu() As Boolean
       Return True
     Endif
 
-    If CControl.CheckName(txtGroup.Text) Then
-      ShowWarning(("Bad group name !"), txtGroup)
+    If CControl.CheckName(cmbGroup.Text) Then
+      ShowWarning(("Bad group name !"), cmbGroup)
       Return True
     Endif
 
@@ -372,7 +372,7 @@ Private Sub WriteMenu() As Boolean
 
     .Caption = Trim(txtCaption.Text)
     .Action = Trim(txtAction.Text)
-    .Group = Trim(txtGroup.Text)
+    .Group = Trim(cmbGroup.Text)
     .Visible = chkVisible.Value
     .Enabled = chkEnabled.Value
     .Checked = chkChecked.Value
@@ -414,7 +414,7 @@ Private Sub ReadMenu()
       txtName.Text = .Name
       txtCaption.Text = .Caption
       txtAction.Text = .Action
-      txtGroup.Text = .Group
+      cmbGroup.Text = .Group
       chkVisible.Value = .Visible
       chkEnabled.Value = .Enabled
       chkChecked.Value = .Checked
@@ -1304,10 +1304,10 @@ Public Sub txtTag_Change()
 
 End
 
-Public Sub txtGroup_Change()
+Public Sub cmbGroup_Change()
 
   If WriteMenu() Then Return
-  ApplyToSelection("Group", Trim(txtGroup.Text))
+  ApplyToSelection("Group", Trim(cmbGroup.Text))
 
 End
 
@@ -1324,5 +1324,30 @@ End
 Public Sub dwgShortcut_Draw()
 
   Style.PaintBox(0, 0, Paint.W, Paint.H)
+
+End
+
+Private Sub GetGroupList() As String[]
+
+  Dim aGroup As New String[]
+  Dim sGroup As String
+  Dim hMenu As CMenu
+
+  For Each hMenu In $aMenu
+    sGroup = hMenu.Group
+    If Not sGroup Then Continue
+    If aGroup.ExistSorted(sGroup) Then Continue 
+    aGroup.Add(sGroup)
+    aGroup.Sort()
+  Next
+  
+  aGroup.Add("", 0)
+  Return aGroup
+  
+End
+
+Public Sub cmbGroup_GotFocus()
+
+  cmbGroup.List = GetGroupList()
 
 End
