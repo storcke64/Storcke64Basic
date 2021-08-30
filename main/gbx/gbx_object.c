@@ -510,7 +510,7 @@ OBJECT *OBJECT_active_parent(void *object)
 {
 	OBJECT *parent = OBJECT_parent(object);
 
-	if (!parent || OBJECT_is_locked((OBJECT *)object) || OBJECT_is_locked(parent))
+	if (!parent || OBJECT_is_locked((OBJECT *)object)) // || OBJECT_is_locked(parent))
 		return NULL;
 
 	return parent;
