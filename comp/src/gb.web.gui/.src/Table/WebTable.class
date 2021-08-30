@@ -3,7 +3,7 @@
 Export
 Inherits WebControl
 
-Public Const _Properties As String = "*,Border=True,Mode{Select.*}=None,ShowCheck=True,ShowHeader=True,Sortable"
+Public Const _Properties As String = "*,Border=True,Mode{Select.*}=None,ShowCheck=True,ShowHeader=True,ShowRowNumber,Sortable"
 Public Const _Group As String = "View"
 Public Const _DrawWith As String = "GridView"
 Public Const _DefaultSize As String = "24,24"
@@ -26,6 +26,7 @@ Property ScrollX As Integer
 Property ScrollY As Integer
 Property ShowCheck As Boolean
 Property ShowHeader As Boolean
+Property ShowRowNumber As Boolean
 Property Sortable As Boolean
 Property SortColumn As Integer
 Property SortOrder As Integer
@@ -48,6 +49,7 @@ Private $iEnsureVisible As Integer = -1
 Private $bSortable As Boolean
 Private $iSortColumn As Integer = -1
 Private $bSortDescent As Boolean
+Private $bShowRowNumber As Boolean
 
 Public Sub _new()
   
@@ -70,6 +72,10 @@ Private Sub PrintRow(iRow As Integer)
   Dim hData As WebTableData
   Dim sStyle As String
   Dim NX As Integer
+  
+  If $bShowRowNumber Then
+    Print "<td class=\"gw-table-index\">"; iRow + 1; "</td>";
+  Endif
   
   If $iMode And If Not $bNoCheck Then
     'Print "<td onmousedown=\"gw.table.check("; JS(Me.Name); ","; CStr(iRow); 
@@ -604,6 +610,20 @@ Private Sub SortOrder_Write(Value As Integer)
   If $bSortDescent = (Value = gb.Descent) Then Return
   $bSortDescent = Value = gb.Descent
   Raise Sort
+  Me.Refresh
+
+End
+
+Private Function ShowRowNumber_Read() As Boolean
+
+  Return $bShowRowNumber
+
+End
+
+Private Sub ShowRowNumber_Write(Value As Boolean)
+
+  If $bShowRowNumber = Value Then Return
+  $bShowRowNumber = Value
   Me.Refresh
 
 End

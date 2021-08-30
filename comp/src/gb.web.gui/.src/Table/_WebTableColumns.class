@@ -56,6 +56,8 @@ Public Sub _Render()
   
   Print "<thead><tr>";
   
+  If hTable.ShowRowNumber Then Print "<th></th>";
+  
   iMode = hTable.Mode
   If iMode And If hTable.ShowCheck Then
     If iMode = Select.Multiple Then
