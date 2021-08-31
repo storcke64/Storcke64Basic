@@ -375,12 +375,12 @@ Static Public Sub RunAsRoot(Command As String, Optional (Wait) As Boolean, Optio
       For Each sEnv As String In sPassEnvs
         If Env[sEnv] Then sCom.Add(sEnv & "=" & Env[sEnv])
       Next
+    sCom.Insert(Split(Command, " ", "\""))
 
   Else 
     If Username Then sCom.Insert(["-u", Username])
+    sCom.Add(Command)
   Endif
-
-  sCom.Insert(If(sExec = "pkexec", Split(Command, " ", "\""), Command))
 
   If (wait) Then Exec sCom Wait Else Exec sCom
 
