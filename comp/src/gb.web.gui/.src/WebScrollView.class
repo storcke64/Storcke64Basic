@@ -35,7 +35,7 @@ Public Sub _Render()
   Dim sHeaderH As String
   Dim sHeaderV As String
   
-  Print "<div onscroll=\"gw.table.onScroll("; JS(Me.Name); ",false";
+  Print "<div onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ",false";
   If Object.CanRaise(Me, "Scroll") Then Print ",100";
   Print ")\"";
   $hCont._StartStyleSheet
@@ -84,7 +84,7 @@ Public Sub _Render()
     WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS($sEnsureVisible) & ")")
     $sEnsureVisible = ""
   Else
-    WebForm._AddJavascript("gw.table.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _Render")
+    WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _Render")
   Endif
   
 End
@@ -101,7 +101,7 @@ Private Sub ScrollX_Write(Value As Integer)
   If $iScrollX = Value Then Return
   $iScrollX = Value
 
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.table.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _ScrollX")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _ScrollX")
 
 End
 
@@ -116,7 +116,7 @@ Private Sub ScrollY_Write(Value As Integer)
   If $iScrollY = Value Then Return
   $iScrollY = Value
 
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.table.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ") // _ScrollY")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ") // _ScrollY")
 
 End
 
@@ -126,7 +126,7 @@ Public Sub Scroll(X As Integer, Y As Integer)
   $iScrollX = X
   $iScrollY = Y
   
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.table.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
   
 End
 
