@@ -382,7 +382,7 @@ Static Public Sub RunAsRoot(Command As String, Optional (Wait) As Boolean, Optio
     sCom.Add(Command)
   Endif
 
-  If (wait) Then Exec sCom Wait Else Exec sCom
+  If (Wait) Then Exec sCom Wait Else Exec sCom
 
 End
 
