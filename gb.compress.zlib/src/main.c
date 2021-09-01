@@ -188,9 +188,10 @@ static void u_String(char **target,unsigned int *lent,char *source,unsigned int 
 		.avail_in = len,
 		.next_in = (Bytef *) source,
 	};
-	unsigned long pos = 0;
+	
+	size_t pos = 0;
 
-	*lent = 2 * len;
+	*lent = 2; // * len;
 	GB.Alloc((void **) target, *lent);
 
 	stream.avail_out = *lent;
@@ -204,6 +205,8 @@ static void u_String(char **target,unsigned int *lent,char *source,unsigned int 
 			break;
 		case Z_BUF_ERROR:
 			pos = (unsigned long) (stream.next_out - (unsigned long) *target);
+			if (stream.avail_in == 0) // BM: No idea why zlib returns Z_BUF_ERROR and not Z_STREAM_END in that case.
+				goto out;
 			*lent += *lent / 2;
 			GB.Realloc((void **) target, *lent);
 			stream.avail_out = *lent - pos;
