@@ -111,7 +111,7 @@ Private Sub PrintRow(iRow As Integer)
     Print "<td";
     hCol._PrintAlignment()
     sStyle = ""
-    If $bNoHeader And If iCol = 0 Then
+    If $bNoHeader And If iRow = 0 Then
       If hCol.Expand Then 
         Print " width=\""; 100 \ NX; "%\"";
       Else If hCol.Width Then
@@ -128,8 +128,9 @@ Private Sub PrintRow(iRow As Integer)
       Print Html(hData.Text);
     Endif
     
+    Print "</td>";
+    
   Next
-  
 
 End
 
@@ -178,11 +179,11 @@ Public Sub _Render()
   
   If $hColumns.Count = 0 Then Return
 
-  Print "<div class=\"gw-table-contents\" onscroll=\"gw.table.onScroll("; JS(Me.Name); ",true);\">";
+  Print "<div class=\"gw-table-contents\" onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ",true);\">";
   'If $bFixed Then
   '  Print "<table style=\"table-layout:fixed;\">"
   'Else
-    Print "<table id=\""; Me.Name; ":table\" width=\"100%\">"
+    Print "<table id=\""; Me.Name; ":table\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">"
   'Endif
 
   If Not $bNoHeader Then $hColumns._Render()
@@ -210,7 +211,7 @@ Public Sub _Render()
       WebForm._AddJavascript("gw.table.ensureVisible(" & JS(Me.Name) & "," & CStr($iEnsureVisible) & ")")
       $iEnsureVisible = -1
     Else
-      WebForm._AddJavascript("gw.table.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
+      WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
     Endif
   Endif
   
@@ -354,7 +355,7 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
       aProp = Split(Mid$(sProp, 2), ":")
       iRow = CInt(aProp[0])
       If aProp.Count = 2 Then
-        iLength = CInt(aProp[1])
+        iLength = CInt(aProp[1]) - iRow + 1
       Else
         iLength = 1
       Endif

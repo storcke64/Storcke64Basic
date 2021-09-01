@@ -24,7 +24,7 @@ Private $bNotSortable As Boolean
 
 Private Sub Refresh()
 
-  Dim hTable As WebTable
+  Dim hTable As WebControl
   
   hTable = Object.Parent(Object.Parent(Me))
   hTable.Refresh

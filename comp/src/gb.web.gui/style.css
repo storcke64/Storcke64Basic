@@ -653,7 +653,7 @@ P:first-child,UL:first-child,OL:first-child {
 }
 
 .gw-table > DIV > TABLE {
-  border-collapse: collapse;
+  /*border-collapse: collapse;*/
 }
 
 .gw-table > DIV > TABLE > THEAD > TR > TH {
@@ -960,4 +960,92 @@ TABLE.gw-calendar > TBODY > TR > TD.gw-date-current {
 
 .gw-listbox > DIV {
   padding: 0.25em 0.5em;
+}
+
+.gw-tree {
+  position: relative;
+  min-height: 4em;
+  border: solid 1px #C0C0C0;
+  cursor: default;
+}
+
+.gw-tree.gw-noborder {
+  border: none;
+}
+
+.gw-tree-contents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+.gw-tree-item {
+  position: relative;
+  display: flex;
+}
+
+.gw-tree-arrow {
+  width: 1em;
+  height: 1em;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+}
+
+.gw-tree-image {
+  height: 1em;
+  margin-right: 0.25em;
+}
+
+.gw-tree-expanded {
+  background-image: url('//gw-arrow-down.png');
+}
+
+.gw-tree-collapsed {
+  background-image: url('//gw-arrow-right.png');
+}
+
+.gw-tree > DIV > TABLE {
+  /*border-collapse: collapse;*/
+}
+
+.gw-tree > DIV > TABLE > THEAD > TR > TH {
+  text-align: left;
+  background-color: #E0E0E0;
+  padding: 0.25em 0.5em;
+  vertical-align: top;
+  border-bottom: solid 1px #C0C0C0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+TH.gw-tree-check {
+  padding: 0 0.5em;
+  vertical-align: middle;
+}
+
+.gw-tree > DIV > TABLE > THEAD > TR > TH:last-child {
+  border-right: none;
+}
+
+.gw-tree > DIV > TABLE > TBODY > TR > TD {
+  padding: 0.1em 0.5em;
+  vertical-align: top;
+  /*border-bottom: solid 1px #F0F0F0;*/
+}
+
+TD.gw-table-check {
+  padding: 0 0.5em;
+  vertical-align: middle;
+}
+
+.gw-tree > DIV > TABLE > TBODY > TR:hover {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAFUlEQVQYlWNkYGDgYcADmPBJDh8FABV4ABwe4TuyAAAAAElFTkSuQmCC');
 }

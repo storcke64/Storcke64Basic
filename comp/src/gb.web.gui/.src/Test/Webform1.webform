@@ -72,7 +72,7 @@
     Arrangement = Arrange.Vertical
     Margin = True
     Spacing = True
-    Count = 3
+    Count = 4
     Index = 0
     Text = ("Tab 1")
     { WebHBox1 WebHBox
@@ -212,6 +212,14 @@
     { lblTime WebLabel
       #MoveScaled(1,15,133.75,4)
       Font = "4em"
+    }
+    Index = 3
+    Text = ("Tab 4")
+    { WebTree1 WebTree
+      #MoveScaled(1,1,133.75,49)
+      Expand = True
+      ShowCheck = True
+      ShowHeader = True
     }
     Index = 0
   }

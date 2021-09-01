@@ -16,10 +16,30 @@ End
 
 Public Sub _new()
   
+  Dim sFile As String
+  Dim sParent As String
+  Dim hStat As Stat
+
   WebTable1.AddColumn("Name")
   WebTable1.AddColumn("Size", "8em", Align.Right)
   WebTable1.AddColumn("Last modified", "12em", Align.Right)
-  
+
+  WebTree1.Columns[0].Text = "File"
+  WebTree1.AddColumn("Date")
+  WebTree1.AddColumn("Size",, Align.Right)
+
+  For Each sFile In RDir("~/Images").Sort()
+    
+    hStat = Stat("~/Images" &/ sFile)
+    sParent = File.Dir(sFile)
+    With WebTree1.Add(sFile, File.Name(sFile), If(hStat.Type = gb.Directory, "icon:/medium/directory", "icon:/medium/file"), sParent)
+      .[1] = Format(hStat.LastModified, gb.GeneralDate)
+      .[2] = Format(hStat.Size, ",0")
+    End With
+    If sParent Then WebTree1[sParent].Expanded = True
+    
+  Next
+
 End
 
 

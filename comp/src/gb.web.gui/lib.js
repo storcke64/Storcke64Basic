@@ -106,7 +106,7 @@ gw = {
       
     document.getElementsByTagName("head")[0].appendChild(elt);
     gw.loaded[lib] = src;
-    console.log('load: ' + src);
+    gw.log('load: ' + src);
   },
   
   setInnerHtml: function(id, html)
@@ -122,7 +122,7 @@ gw = {
     if ($(id))
       $(id).outerHTML = html;
     else
-      console.log('setOuterHtml: ' + id + '? ' + html);
+      gw.log('setOuterHtml: ' + id + '? ' + html);
   },
   
   removeElement: function(id)
@@ -1127,18 +1127,22 @@ gw = {
     
     checkRange: function(id, start, end, checked)
     {
-      var i;
-      if (end < start)
+      if ($(id).hasClass('gw-table'))
       {
-        i = start;
-        start = end;
-        end = i;
-      }
-      
-      for (i = start; i <= end; i++)
-        $(id + ':' + i).checked = checked;
+        if (end < start)
+        {
+          var i = start;
+          start = end;
+          end = i;
+        }
         
-      gw.update(id, '!' + start + ':' + (end - start + 1), checked);
+        for (i = start; i <= end; i++)
+          $(id + ':' + i).checked = checked;
+      }
+      else
+        $(id + ':' + start).checked = checked;
+        
+      gw.update(id, '!' + start + ':' + end, checked);
     },
   
     check: function(id, row, event)
@@ -1169,6 +1173,37 @@ gw = {
       gw.update(id, '?' + row, false);
     },*/
     
+    ensureVisible: function(id, row)
+    {
+      var sw = $(id).firstChild;
+      gw.scrollview.scroll(id, sw.scrollLeft, $(id + ':' + row).offsetTop - sw.clientHeight / 2);
+    }
+  },
+  
+  tree:
+  {
+    expand: function(id, key, open, event)
+    {
+      gw.update(id, '^' + key, open);
+      if (event) event.stopPropagation();
+    },
+  },
+  
+  scrollview:
+  {
+    setHeaders: function(id, hid, vid)
+    {
+      $(id).gw_headerh = hid;
+      $(id).gw_headerv = vid;
+    },
+
+    ensureVisible: function(id, child)
+    {
+      var sw = $(id).firstChild;
+      child = $(child);
+      gw.scrollview.scroll(id, child.offsetLeft - (sw.clientWidth - child.offsetWidth) / 2, child.offsetTop - (sw.clientHeight - child.offsetHeight) / 2);
+    },
+    
     onScroll: function(id, more, timeout)
     {
       var elt = $(id);
@@ -1184,7 +1219,7 @@ gw = {
       
       elt.gw_last_scroll = [sw.scrollLeft, sw.scrollTop];
       
-      console.log('gw.table.onScroll: ' + id + ' ' + sw.scrollLeft + ',' + sw.scrollTop);
+      gw.log('gw.scrollview.onScroll: ' + id + ' ' + sw.scrollLeft + ',' + sw.scrollTop);
       
       if (more)
       {
@@ -1224,7 +1259,7 @@ gw = {
         { 
           var pos = [sw.scrollLeft, sw.scrollTop];
           
-          console.log('gw.table.onScroll (timer): ' + id + ' ' + sw.scrollLeft + ',' + sw.scrollTop);
+          gw.log('gw.control.onScroll (timer): ' + id + ' ' + sw.scrollLeft + ',' + sw.scrollTop);
           clearTimeout(elt.gw_scroll); 
           
           gw.update(elt.id, '#scroll', pos, function() 
@@ -1235,14 +1270,14 @@ gw = {
             });
             
           //elt.gw_scroll = undefined;
-        }, timeout || 250);
+        }, 250);
     },
     
     scroll: function(id, x, y)
     {
       var sw = $(id).firstChild
       
-      console.log("gw.table.scroll: " + id + ": " + x + " " + y);
+      gw.log("gw.control.scroll: " + id + ": " + x + " " + y);
       
       if (x != sw.scrollLeft)
       {
@@ -1256,28 +1291,6 @@ gw = {
       }
       if (x != sw.scrollLeft || y != sw.scrollTop)
         gw.update(id, '#scroll', [sw.scrollLeft, sw.scrollTop]); 
-    },
-    
-    ensureVisible: function(id, row)
-    {
-      var sw = $(id).firstChild;
-      gw.table.scroll(id, sw.scrollLeft, $(id + ':' + row).offsetTop - sw.clientHeight / 2);
-    }
-  },
-  
-  scrollview:
-  {
-    setHeaders: function(id, hid, vid)
-    {
-      $(id).gw_headerh = hid;
-      $(id).gw_headerv = vid;
-    },
-
-    ensureVisible: function(id, child)
-    {
-      var sw = $(id).firstChild;
-      child = $(child);
-      gw.table.scroll(id, child.offsetLeft - (sw.clientWidth - child.offsetWidth) / 2, child.offsetTop - (sw.clientHeight - child.offsetHeight) / 2);
     }
   },
   
@@ -1634,7 +1647,7 @@ gw = {
     if (gw.shortcuts)
     {
       var shortcut = gw.makeShortcut(event);
-      console.log('shortcut -> ' + shortcut);
+      gw.log('shortcut -> ' + shortcut);
       if (gw.shortcuts[shortcut])
         event.preventDefault();
     }

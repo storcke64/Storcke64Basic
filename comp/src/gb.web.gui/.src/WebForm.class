@@ -463,6 +463,7 @@ Static Private Sub BeginResponse()
   
   PrintLog("Open write " & sWrite)
   $hWrite = Open Pipe sWrite For Write
+  $hWrite.Blocking = True
   Output To $hWrite
   
   PrintLog("Send SIGUSR1 to request process " & CStr($iRequestProcess))
