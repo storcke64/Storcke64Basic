@@ -542,8 +542,14 @@ End
 
 Private Sub ShowHeader_Write(Value As Boolean)
 
-  If Value = ShowHeader_Read() Then Return
-  Header_Write(Horizontal)
+  If Value Then
+    If $iHeader And Horizontal Then Return
+    $iHeader += Horizontal
+  Else
+    If ($iHeader And Horizontal) = 0 Then Return
+    $iHeader -= Horizontal
+  Endif
+  Me.Refresh
 
 End
 
