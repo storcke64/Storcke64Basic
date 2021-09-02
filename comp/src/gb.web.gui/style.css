@@ -695,9 +695,19 @@ P:first-child,UL:first-child,OL:first-child {
 
 .gw-table-index {
   text-align: right;
-  border-right: solid 1px #F0F0F0;
+  border-right: solid 1px #C0C0C0;
   font-size: smaller;
   font-weight: bold;
+  background-color: #E0E0E0;
+  padding: 0.25em 0.5em;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+TH.gw-table-index {
+  z-index: 2 !important;
 }
 
 /*.gw-table > DIV > TABLE > TBODY > TR > TD:last-child {
@@ -985,6 +995,12 @@ TABLE.gw-calendar > TBODY > TR > TD.gw-date-current {
 .gw-tree-item {
   position: relative;
   display: flex;
+  align-items: center;
+}
+
+.gw-tree-header {
+  display: inline;
+  vertical-align: top;
 }
 
 .gw-tree-arrow {
@@ -1026,11 +1042,6 @@ TABLE.gw-calendar > TBODY > TR > TD.gw-date-current {
   box-sizing: border-box;
 }
 
-TH.gw-tree-check {
-  padding: 0 0.5em;
-  vertical-align: middle;
-}
-
 .gw-tree > DIV > TABLE > THEAD > TR > TH:last-child {
   border-right: none;
 }
@@ -1048,4 +1059,9 @@ TD.gw-table-check {
 
 .gw-tree > DIV > TABLE > TBODY > TR:hover {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAFUlEQVQYlWNkYGDgYcADmPBJDh8FABV4ABwe4TuyAAAAAElFTkSuQmCC');
+}
+
+.gw-tree-check {
+  margin: 0;
+  margin-right: 0.25em;
 }

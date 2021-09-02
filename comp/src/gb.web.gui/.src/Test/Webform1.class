@@ -256,3 +256,9 @@ Public Sub WebSpinBox1_Change()
   lblSpinBox.Text = "-> " & CStr(WebSpinBox1.Value)
 
 End
+
+Public Sub WebTree1_Activate()
+
+  Message(WebTree1.Item.Text)
+
+End

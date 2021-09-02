@@ -74,24 +74,26 @@ Public Sub _Render()
     If sStyle Then Print " style=\""; sStyle; "\"";
     Print ">";
     
-    If I = 0 And If iMode And If hTree.ShowCheck Then
-      If iMode = Select.Multiple Then
-        Print "<input type=\"checkbox\"";
+    If I = 0 Then
+      If iMode = Select.Multiple And If hTree.ShowCheck Then
+        Print "<input class=\"gw-tree-check\" type=\"checkbox\"";
         Print hTree._GetUpdateJS("onchange", "!!", "this.checked");
         If hTree._IsEverythingSelected() Then Print " checked";
         Print ">";
       Endif
+      Print "<div class=\"gw-tree-header\">"; Html(hCol.Text); "</div>";
+    Else
+      If hCol.Text Then
+        Print "<div";
+        hCol._PrintAlignment()
+        Print ">";
+        Print Html(hCol.Text);
+        Print "</div>";
+      Else 
+        Print "&nbsp;";
+      Endif
     Endif
     
-    If hCol.Text Then
-      Print "<div";
-      hCol._PrintAlignment()
-      Print ">";
-      Print Html(hCol.Text);
-      Print "</div>";
-    Else 
-      Print "&nbsp;";
-    Endif
     Print "</th>"
   Next
   

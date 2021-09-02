@@ -56,15 +56,15 @@ Public Sub _Render()
   
   Print "<thead><tr>";
   
-  If hTable.ShowRowNumber Then Print "<th></th>";
+  If hTable.Header And WebTable.Vertical Then Print "<th class=\"gw-table-index\"></th>";
   
   iMode = hTable.Mode
   If iMode And If hTable.ShowCheck Then
     If iMode = Select.Multiple Then
       Print "<th class=\"gw-table-check\">";
       Print "<input type=\"checkbox\"";
-      Print GetTable()._GetUpdateJS("onchange", "!!", "this.checked");
-      If GetTable()._IsEverythingSelected() Then Print " checked";
+      Print hTable._GetUpdateJS("onchange", "!!", "this.checked");
+      If hTable._IsEverythingSelected() Then Print " checked";
       Print "></th>"
     Else
       Print "<th></th>"

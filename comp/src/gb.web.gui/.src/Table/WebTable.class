@@ -3,15 +3,17 @@
 Export
 Inherits WebControl
 
-Public Const _Properties As String = "*,Border=True,Mode{Select.*}=None,ShowCheck=True,ShowHeader=True,ShowRowNumber,Sortable"
+Public Const _Properties As String = "*,Border=True,Mode{Select.*}=None,ShowCheck=True,Header{WebTable.None;Horizontal;Vertical;Both}=Horizontal,ShowRow,Sortable"
 Public Const _Group As String = "View"
 Public Const _DrawWith As String = "GridView"
 Public Const _DefaultSize As String = "24,24"
 Public Const _DefaultEvent As String = "Data"
 
+Public Enum None, Horizontal, Vertical, Both
+
 Event Data(Row As Integer, Column As Integer, Data As WebTableData)
 Event Select
-Event DblClick
+Event Activate
 Event Sort
 
 Property Read Columns As _WebTableColumns
@@ -25,8 +27,8 @@ Property Step As Integer
 Property ScrollX As Integer
 Property ScrollY As Integer
 Property ShowCheck As Boolean
+Property Header As Integer
 Property ShowHeader As Boolean
-Property ShowRowNumber As Boolean
 Property Sortable As Boolean
 Property SortColumn As Integer
 Property SortOrder As Integer
@@ -44,12 +46,11 @@ Private $iScrollX As Integer
 Private $iScrollY As Integer
 Private $bNoScrolling As Boolean
 Private $bNoCheck As Boolean
-Private $bNoHeader As Boolean
 Private $iEnsureVisible As Integer = -1
 Private $bSortable As Boolean
 Private $iSortColumn As Integer = -1
 Private $bSortDescent As Boolean
-Private $bShowRowNumber As Boolean
+Private $iHeader As Integer = Horizontal
 
 Public Sub _new()
   
@@ -72,8 +73,11 @@ Private Sub PrintRow(iRow As Integer)
   Dim hData As WebTableData
   Dim sStyle As String
   Dim NX As Integer
+  Dim bNoHeader As Boolean
   
-  If $bShowRowNumber Then
+  bNoHeader = ($iHeader And Horizontal) = 0
+  
+  If $iHeader And Vertical Then
     Print "<td class=\"gw-table-index\">"; iRow + 1; "</td>";
   Endif
   
@@ -94,7 +98,7 @@ Private Sub PrintRow(iRow As Integer)
     Print "</td>";
   Endif
   
-  If $bNoHeader Then
+  If bNoHeader Then
     For iCol = 0 To $hColumns.Count - 1
       If $hColumns[iCol].Expand Then Inc NX
     Next
@@ -111,7 +115,7 @@ Private Sub PrintRow(iRow As Integer)
     Print "<td";
     hCol._PrintAlignment()
     sStyle = ""
-    If $bNoHeader And If iRow = 0 Then
+    If bNoHeader And If iRow = 0 Then
       If hCol.Expand Then 
         Print " width=\""; 100 \ NX; "%\"";
       Else If hCol.Width Then
@@ -156,7 +160,7 @@ Private Sub PrintBody(iStart As Integer, iEnd As Integer)
       If $iMode <> Select.Single Then Print ",event";
       Print ");\"";
       
-      Print Me._GetEventJS("ondblclick", "DblClick");
+      Print Me._GetEventJS("ondblclick", "Activate");
       
     Endif
     Print ">";
@@ -186,7 +190,7 @@ Public Sub _Render()
     Print "<table id=\""; Me.Name; ":table\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">"
   'Endif
 
-  If Not $bNoHeader Then $hColumns._Render()
+  If $iHeader And Horizontal Then $hColumns._Render()
   
   If $iDisplay < 0 Then
     iCount = $iCount
@@ -532,14 +536,14 @@ End
 
 Private Function ShowHeader_Read() As Boolean
 
-  Return Not $bNoHeader
+  Return $iHeader <> 0
 
 End
 
 Private Sub ShowHeader_Write(Value As Boolean)
 
-  $bNoHeader = Not Value
-  Me.Refresh
+  If Value = ShowHeader_Read() Then Return
+  Header_Write(Horizontal)
 
 End
 
@@ -615,16 +619,18 @@ Private Sub SortOrder_Write(Value As Integer)
 
 End
 
-Private Function ShowRowNumber_Read() As Boolean
 
-  Return $bShowRowNumber
+Private Function Header_Read() As Integer
+
+  Return $iHeader
 
 End
 
-Private Sub ShowRowNumber_Write(Value As Boolean)
+Private Sub Header_Write(Value As Integer)
 
-  If $bShowRowNumber = Value Then Return
-  $bShowRowNumber = Value
+  Value = Value And 3
+  If $iHeader = Value Then Return
+  $iHeader = Value
   Me.Refresh
 
 End
