@@ -56,6 +56,7 @@ End
 Private Sub Shortcut_Write(Value As String)
 
   If $sShortcut = Value Then Return
+  Me._RegisterShortcut(Value, $sShortcut)
   $sShortcut = Value
   Me.Refresh
 

@@ -1432,39 +1432,40 @@ Private Sub DisableShortcuts()
   
 End
 
-Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boolean
+Private Sub TriggerShortcut(sShortcut As String)
 
-  Dim hChild As WebControl
-  Dim hMenu As WebMenu
+  Dim aShortcut As Integer[]
+  Dim iId As Integer
+  Dim hCtrl As WebControl
 
-  For Each hChild In hParent.Children
-    hMenu = hChild
-    If Not hMenu.Enabled Then Continue
-    If String.UCase(hMenu.Shortcut) = sShortcut Then
-      Object.Raise(hChild, "Click")
-      Return True
-    Else If hMenu.HasChildren() And If TriggerShortcut(hChild, sShortcut) Then
-      Return True
+  aShortcut = WebControl._Shortcuts[String.UCase(sShortcut)]
+  If Not aShortcut Then Return
+  
+  For Each iId In aShortcut
+    hCtrl = WebControl.FromId(iId)
+    If hCtrl.IsHidden() Then Continue
+    If Not hCtrl.Enabled Then Continue
+    If hCtrl Is WebMenu Then
+      Object.Raise(hCtrl, "Click")
+      Return
     Endif
   Next
 
 End
 
-Public Sub _RaiseKeyPress(cEvent As Variant)
+Public Sub _RaiseKeyPress(cEvent As Variant) As Boolean
   
   Dim cSave As Collection
   Dim sShortcut As String
   
-  Super._RaiseKeyPress(cEvent)
-  
-  If Not $hMenuBar.HasChildren() Then Return
+  If Super._RaiseKeyPress(cEvent) Then Return True
   
   cSave = Key._Event
   Key._Event = cEvent
   sShortcut = Key.Shortcut
   Key._Event = cSave
   
-  TriggerShortcut($hMenuBar, String.UCase(sShortcut))
+  TriggerShortcut(sShortcut)
   
 End
 

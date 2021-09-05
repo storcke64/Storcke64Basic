@@ -87,6 +87,8 @@ Static Private $aStyleSheet As String[]
 
 Static Public _NextName As String
 
+Static Public _Shortcuts As New Collection
+
 Public _Refresh As Boolean
 Public _EventName As String
 Public _Proxy As String
@@ -1181,14 +1183,41 @@ Public Sub ToHTML() As String
   
 End
 
-Public Sub _RaiseKeyPress(cEvent As Variant)
+Public Sub _RaiseKeyPress(cEvent As Variant) As Boolean
   
   Dim cSave As Collection
+  Dim bCancel As Boolean
   
   cSave = Key._Event
   Key._Event = cEvent
-  Object.Raise(Me, "KeyPress")
+  bCancel = Raise KeyPress
   Key._Event = cSave
+  Return bCancel
   
 End
 
+Public Sub _RegisterShortcut(sShortcut As String, sPrevious As String)
+
+  Dim aShortcut As Integer[]
+  Dim iPos As Integer
+  
+  If sPrevious Then
+    sPrevious = String.UCase(sPrevious)
+    aShortcut = _Shortcuts[sPrevious]
+    If aShortcut Then
+      iPos = aShortcut.Find($iId)
+      If iPos Then aShortcut.Remove(iPos)
+    Endif
+  Endif
+  
+  If sShortcut Then
+    sShortcut = String.UCase(sShortcut)
+    aShortcut = _Shortcuts[sShortcut]
+    If Not aShortcut Then 
+      aShortcut = New Integer[]
+      _Shortcuts[sShortcut] = aShortcut
+    Endif
+    aShortcut.Add($iId)
+  Endif
+
+End
