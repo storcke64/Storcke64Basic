@@ -96,7 +96,6 @@ Public Sub Form_Open()
   'tvwProject_LostFocus
   
   frmWelcome = New FWelcome(dwgWelcome)
-  frmWelcome.Hide
   
   Project.UseInheritance = Settings["/UseInheritance", True] 
   btnUseInheritance.Value = Project.UseInheritance
@@ -105,10 +104,9 @@ Public Sub Form_Open()
   
 End
 
-Public Sub Welcome()
+Public Sub HideWelcome()
   
-  frmWelcome.Show
-  frmWelcome.SetFocus
+  frmWelcome.Hide
   
 End
 
