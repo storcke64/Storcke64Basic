@@ -1192,6 +1192,7 @@ Public Sub _RaiseKeyPress(cEvent As Variant) As Boolean
   Key._Event = cEvent
   bCancel = Raise KeyPress
   Key._Event = cSave
+  WebForm.Print("_RaiseKeyPress: " & Str(bCancel))
   Return bCancel
   
 End
@@ -1220,4 +1221,18 @@ Public Sub _RegisterShortcut(sShortcut As String, sPrevious As String)
     aShortcut.Add($iId)
   Endif
 
+End
+
+Public Sub _GetTopLevel() As WebForm
+
+  Dim hForm As WebForm
+  Dim hParent As WebContainer
+  
+  hForm = Me.Form
+  Do
+    hParent = hForm.Parent
+    If Not hParent Or If hForm._Window Then Return hForm
+    hForm = hForm.Form
+  Loop
+  
 End

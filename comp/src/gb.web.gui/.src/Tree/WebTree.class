@@ -1164,9 +1164,10 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     If $iMode <> Select.Single Then Print ",event";
     Print ");\"";
     
-    Print Me._GetUpdateJS("ondblclick", "%" & JS(sKeyBase64));
-    
   Endif
+    
+  Print Me._GetUpdateJS("ondblclick", "%" & JS(sKeyBase64));
+    
   If Not bVisible Then Print " style=\"display:none;\"";
   Print ">";
   
@@ -1297,6 +1298,7 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   Dim hItem As _WebTreeItem
   Dim sKey As String
   Dim sCursor As String
+  Dim bCancel As Boolean
   
   If sProp Begins "^" Then
     
@@ -1335,10 +1337,16 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
     
   Else If sProp Begins "%" Then
     
-    sCursor = $sCursor
-    $sCursor = FromBase64(Mid$(sProp, 2))
-    Raise Activate
-    $sCursor = sCursor
+    If Object.CanRaise(Me, "Activate") Then
+      sCursor = $sCursor
+      $sCursor = FromBase64(Mid$(sProp, 2))
+      bCancel = Raise Activate
+      $sCursor = sCursor
+    Endif
+    If Not bCancel Then
+      hItem = $cItem[FromBase64(Mid$(sProp, 2))]
+      If hItem.Children Then hItem.Expanded = Not hItem.Expanded
+    Endif
   
   Else If sProp = "#scroll" Then
     

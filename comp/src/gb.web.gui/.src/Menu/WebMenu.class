@@ -44,6 +44,7 @@ Private Sub Image_Write(Value As String)
 
   $sImage = Value
   Me.Refresh
+  If $sImage Then WebForm._AddPreload(Me._GetImageLink($sImage))
 
 End
 
