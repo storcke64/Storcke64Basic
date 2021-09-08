@@ -30,8 +30,8 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
     Endif
     
     Dim ScriptFile As String = "#!/usr/bin/env gbs3 \n'Auto Generated Script " & CStr(Now) & " Version (" & Application.version & ")\n"
-    Dim ScriptName As String = Split(sourceProject, "/").last
-
+    Dim ScriptName As String = Split(sourceProject, "/", "\"\"", True).last
+    Verbose("Create Script : " & ScriptName & ".gbs")
      
     If DestPath <> "" Then ' we have the destination directory
         If Not Exist(DestPath) Then
@@ -42,7 +42,8 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
     Else
         DestPath = Env["PWD"] &/ ScriptName & ".gbs"
     Endif
-
+    Verbose("Full output path : " & DestPath)
+    
     Dim aProjectFile As String[] 
     Try aProjectFile = Split(File.Load(sourceProject &/ ".project"), "\n", "\"\"", True, True)
     If Error Then
@@ -75,6 +76,8 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
         Endif
     Next
     
+    Verbose("Project Information :\n_____________________________________________\n" & ScriptFile & "____________________________________\n")
+    
     For Each sourceDir As String In cSources
       sPath = SourceProject &/ sourceDir
       If Not Exist(sPath) Then 
@@ -86,7 +89,7 @@ Public Sub _call(sInputProjectDir As String, Optional sOutputScriptDir As String
             Dim Program As String 
             Try Program = File.Load(sPath &/ s)
              If Error Then
-                        Warning("Unable to generate Script using  file:" & Error.text & " : " & sPath &/ s, True)
+                       Warning("Unable to generate Script using  file:" & Error.text & " : " & sPath &/ s, True)
                        Return
             Endif
             
