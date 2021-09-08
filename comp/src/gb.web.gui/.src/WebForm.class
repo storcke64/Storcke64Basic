@@ -1443,14 +1443,44 @@ Private Sub FindShortcut(hParent As WebContainer, cShortcut As Collection)
   
 End
 
+Private Sub PurgeShortcuts()
+
+  Dim aShortcut As Integer[]
+  Dim I As Integer
+  Dim bRefresh As Boolean
+  
+  ' Remove shortcuts from deleted controls
+  
+  For Each aShortcut In WebControl._Shortcuts
+    I = 0
+    While I < aShortcut.Count
+      If WebControl.FromId(aShortcut[I]) Then
+        Inc I
+      Else 
+        aShortcut.Remove(I)
+        bRefresh = True
+      Endif
+    Wend
+  Next
+  
+  If bRefresh Then Me.Refresh
+  
+End
+
+
 Private Sub DisableShortcuts() 
 
   Dim cShortcut As New Collection
   Dim sShortcut As String
+  Dim aShortcut As String[]
 
-  For Each WebControl._Shortcuts
-    sShortcut = WebControl._Shortcuts.Key
-    cShortcut[sShortcut] = True
+  PurgeShortcuts()
+
+  For Each aShortcut In WebControl._Shortcuts
+    If aShortcut.Count Then
+      sShortcut = WebControl._Shortcuts.Key
+      cShortcut[sShortcut] = True
+    Endif
   Next
 
   If $aShortcuts Then
@@ -1474,29 +1504,38 @@ Private Sub TriggerShortcut(sShortcut As String) As Boolean
   Dim hCtrl As WebControl
   Dim hButton As WebButton
 
+  PurgeShortcuts()
+
   sShortcut = String.UCase(sShortcut)
   aShortcut = WebControl._Shortcuts[sShortcut]
   If aShortcut Then
+    
     For Each iId In aShortcut
+      
       hCtrl = WebControl.FromId(iId)
-      If hCtrl.IsHidden() Then Continue
+      If Not hCtrl Then Continue
+      
+      If hCtrl.IsHidden() Then Continue 
       If Not hCtrl.Enabled Then Continue
+      
       If hCtrl Is WebMenu Then
         Object.Raise(hCtrl, "Click")
         Return True
       Endif
+      
     Next
+    
   Endif
   
-  WebForm.Print("TriggerShortcut: " & Me.Name & ": " & sShortcut & " / " & $iDefault & " / " & $iCancel)
+  'WebForm.Print("TriggerShortcut: " & Me.Name & ": " & sShortcut & " / " & $iDefault & " / " & $iCancel)
   
   If $iDefault And If sShortcut = "ENTER" Then
     hButton = WebControl.FromId($iDefault)
-    hButton.Click()
+    If hButton Then hButton.Click()
     Return True
   Else If $iCancel And If sShortcut = "ESCAPE" Then
     hButton = WebControl.FromId($iCancel)
-    hButton.Click()
+    If hButton Then hButton.Click()
     Return True
   Endif
 
