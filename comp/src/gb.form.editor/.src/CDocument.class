@@ -873,6 +873,7 @@ Private Sub HighlightLine(Y As Integer) As Boolean
     With Info(PY)
       TextHighlighter.State = .State
       TextHighlighter.Tag = .Tag
+      TextHighlighter.Alternate = .Alternate
     End With
     
   Endif

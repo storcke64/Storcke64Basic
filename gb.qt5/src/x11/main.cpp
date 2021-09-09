@@ -320,8 +320,7 @@ static void window_remap(QWidget *window)
 
 static void window_set_properties(QWidget *window, int which, QT_WINDOW_PROP *prop)
 {
-	//X11_flush();
-	qApp->sync();
+	X11_flush();
 
 	if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
 	{
@@ -345,7 +344,7 @@ static void window_set_properties(QWidget *window, int which, QT_WINDOW_PROP *pr
 	if (which & PROP_STICKY)
 		X11_window_set_desktop(window->effectiveWinId(), window->isVisible(), prop->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
 
-	qApp->sync();
+	X11_flush();
 }
 
 static void window_set_user_time(QWidget *window, int timestamp)

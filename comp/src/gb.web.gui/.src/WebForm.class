@@ -63,6 +63,7 @@ Static Public _DisableRefresh As Integer
 Static Public _HasRefresh As Boolean
 Static Public _InMessage As Integer
 Static Public _CurrentPopup As WebForm
+Static Public _CurrentModal As WebForm
 
 Static Private _Current As WebForm
 
@@ -79,6 +80,7 @@ Static Private $iEventLoopLevel As Integer
 
 Static Private $aJavascript As New String[]
 Static Private $aJavascriptBefore As New String[]
+Static Private $cPreload As New Collection
 
 Public _Loaded As Boolean
 Public _Window As Integer
@@ -103,6 +105,8 @@ Private $aJavascriptExternFiles As String[]
 Private $aHeaders As String[]
 
 Private $aShortcuts As String[]
+Private $iDefault As Integer
+Private $iCancel As Integer
 
 'Private $bOpened As Boolean
 
@@ -747,7 +751,8 @@ Public Sub _BeforeRender()
   If Me.Class Then Print " "; Me.Class;
   Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
-  Print Me._GetKeyPressHandler();
+  'Print Me._GetKeyPressHandler();
+  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onkeydown(" & JS(Me.Name) & ", event)\"";
   Print ">"
   
   DisableShortcuts()
@@ -757,6 +762,7 @@ End
 Public Sub Render()
 
   Dim sImage As String
+  Dim aPreload As String[]
   
   Response.Buffered = True
   Response.Begin
@@ -770,11 +776,20 @@ Public Sub Render()
   
   Print "<body"; Me._GetEventJS("onload", "open"); ">"
   
-  Print "<div id=\"gw-preload\" style=\"display:none;\">";
   For Each sImage In ["error.png", "info.png", "question.png", "warning.png"]
-    Print "<img src=\""; Application.Root &/ "message" &/ sImage; "\">";
+    _AddPreload(Application.Root &/ "message" &/ sImage)
   Next
-  Print "</div>"
+  
+  For Each sImage In ["gw-arrow-down.png", "gw-arrow-left.png", "gw-arrow-right.png", "gw-arrow-up.png", "gw-close.png"]
+    _AddPreload(Application.Root &/ sImage)
+  Next
+  
+  aPreload = New String[]
+  For Each $cPreload
+    aPreload.Add($cPreload.Key)
+  Next
+  
+  $aJavascript.Add("gw.image.preload(" & JS(aPreload) & ")")
   
   Print "<div id=\"gw-modal\" onclick=\"gw.window.onDownModal();\" onmouseover=\"gw.window.onDownModal(true);\"></div>"
   Print "<div id=\"gw-lock\">"
@@ -887,6 +902,23 @@ Private Sub Resizable_Write(Value As Boolean)
 
 End
 
+Private Sub HandleKeyPress(sName As String, vEvent As Variant)
+
+  Dim hCtrl As WebControl
+  Dim hForm As WebForm
+  
+  If sName Then
+    hCtrl = WebControl.FromName(sName)
+    If hCtrl Then hCtrl._RaiseKeyPress(vEvent)
+  Else
+    hForm = _CurrentPopup
+    If Not hForm Then hForm = _CurrentModal
+    If Not hForm Then hForm = Me
+    hForm._RaiseKeyPress(vEvent)
+  Endif
+
+End
+
 Public Sub _HandleMessage()
 
   Dim hCtrl As WebControl
@@ -937,11 +969,7 @@ Public Sub _HandleMessage()
       
     Case "keypress"
       
-      If aCmd[1] Then
-        hCtrl = WebControl.FromName(aCmd[1])
-        If hCtrl Then hCtrl._RaiseKeyPress(aCmd[2])
-      Endif
-      Me._RaiseKeyPress(aCmd[2])
+      HandleKeyPress(aCmd[1], aCmd[2])
       
     Case "finish"
       
@@ -1135,7 +1163,7 @@ Private Sub RunEventLoop()
   Inc $iEventLoopLevel
   iLevel = $iEventLoopLevel
   PrintLog("RunEventLoop -> " & $iEventLoopLevel)
-
+  
   Raise Open
 
   If $iEventLoopLevel = iLevel Then
@@ -1167,6 +1195,7 @@ Public Sub ShowModal(Optional Parent As WebControl) As Variant
   
   Dim hWindow As WebWindow
   Dim vReturn As Variant
+  Dim hPrevious As WebForm
   
   If Me.Parent Then Error.Raise("Form is embedded")
   If _Window = 0 Then DoShow()
@@ -1178,7 +1207,12 @@ Public Sub ShowModal(Optional Parent As WebControl) As Variant
     If Parent Then hWindow.ParentControl = Parent.Name
   Endif
   
+  hPrevious = _CurrentModal
+  _CurrentModal = Me
+  
   RunEventLoop
+  
+  _CurrentModal = hPRevious
   
   vReturn = $vEventLoopReturn
   $vEventLoopReturn = Null
@@ -1409,15 +1443,46 @@ Private Sub FindShortcut(hParent As WebContainer, cShortcut As Collection)
   
 End
 
+Private Sub PurgeShortcuts()
+
+  Dim aShortcut As Integer[]
+  Dim I As Integer
+  Dim bRefresh As Boolean
+  
+  ' Remove shortcuts from deleted controls
+  
+  For Each aShortcut In WebControl._Shortcuts
+    I = 0
+    While I < aShortcut.Count
+      If WebControl.FromId(aShortcut[I]) Then
+        Inc I
+      Else 
+        aShortcut.Remove(I)
+        bRefresh = True
+      Endif
+    Wend
+  Next
+  
+  If bRefresh Then Me.Refresh
+  
+End
+
+
 Private Sub DisableShortcuts() 
 
-  Dim cShortcut As Collection
+  Dim cShortcut As New Collection
   Dim sShortcut As String
-  
-  cShortcut = New Collection
-  
-  FindShortcut($hMenuBar, cShortcut)
-  
+  Dim aShortcut As String[]
+
+  PurgeShortcuts()
+
+  For Each aShortcut In WebControl._Shortcuts
+    If aShortcut.Count Then
+      sShortcut = WebControl._Shortcuts.Key
+      cShortcut[sShortcut] = True
+    Endif
+  Next
+
   If $aShortcuts Then
     For Each sShortcut In $aShortcuts
       sShortcut = Trim(sShortcut)
@@ -1432,39 +1497,63 @@ Private Sub DisableShortcuts()
   
 End
 
-Private Sub TriggerShortcut(hParent As WebContainer, sShortcut As String) As Boolean
+Private Sub TriggerShortcut(sShortcut As String) As Boolean
 
-  Dim hChild As WebControl
-  Dim hMenu As WebMenu
+  Dim aShortcut As Integer[]
+  Dim iId As Integer
+  Dim hCtrl As WebControl
+  Dim hButton As WebButton
 
-  For Each hChild In hParent.Children
-    hMenu = hChild
-    If Not hMenu.Enabled Then Continue
-    If String.UCase(hMenu.Shortcut) = sShortcut Then
-      Object.Raise(hChild, "Click")
-      Return True
-    Else If hMenu.HasChildren() And If TriggerShortcut(hChild, sShortcut) Then
-      Return True
-    Endif
-  Next
+  PurgeShortcuts()
+
+  sShortcut = String.UCase(sShortcut)
+  aShortcut = WebControl._Shortcuts[sShortcut]
+  If aShortcut Then
+    
+    For Each iId In aShortcut
+      
+      hCtrl = WebControl.FromId(iId)
+      If Not hCtrl Then Continue
+      
+      If hCtrl.IsHidden() Then Continue 
+      If Not hCtrl.Enabled Then Continue
+      
+      If hCtrl Is WebMenu Then
+        Object.Raise(hCtrl, "Click")
+        Return True
+      Endif
+      
+    Next
+    
+  Endif
+  
+  'WebForm.Print("TriggerShortcut: " & Me.Name & ": " & sShortcut & " / " & $iDefault & " / " & $iCancel)
+  
+  If $iDefault And If sShortcut = "ENTER" Then
+    hButton = WebControl.FromId($iDefault)
+    If hButton Then hButton.Click()
+    Return True
+  Else If $iCancel And If sShortcut = "ESCAPE" Then
+    hButton = WebControl.FromId($iCancel)
+    If hButton Then hButton.Click()
+    Return True
+  Endif
 
 End
 
-Public Sub _RaiseKeyPress(cEvent As Variant)
+Public Sub _RaiseKeyPress(cEvent As Variant) As Boolean
   
   Dim cSave As Collection
   Dim sShortcut As String
   
-  Super._RaiseKeyPress(cEvent)
-  
-  If Not $hMenuBar.HasChildren() Then Return
+  If Super._RaiseKeyPress(cEvent) Then Return True
   
   cSave = Key._Event
   Key._Event = cEvent
   sShortcut = Key.Shortcut
   Key._Event = cSave
   
-  TriggerShortcut($hMenuBar, String.UCase(sShortcut))
+  Return TriggerShortcut(sShortcut)
   
 End
 
@@ -1479,4 +1568,42 @@ Private Sub Shortcuts_Write(Value As String[])
 
   $aShortcuts = Value
 
+End
+
+Public Sub _GetDefault() As Integer
+  
+  Return $iDefault
+  
+End
+
+Public Sub _SetDefault(hCtrl As WebControl)
+  
+  If hCtrl Then
+    $iDefault = hCtrl.Id
+  Else 
+    $iDefault = 0
+  Endif
+  
+End
+
+Public Sub _GetCancel() As Integer
+  
+  Return $iCancel
+  
+End
+
+Public Sub _SetCancel(hCtrl As WebControl)
+  
+  If hCtrl Then
+    $iCancel = hCtrl.Id
+  Else 
+    $iCancel = 0
+  Endif
+  
+End
+
+Static Public Sub _AddPreload(sLink As String)
+  
+  $cPreload[sLink] = True
+  
 End

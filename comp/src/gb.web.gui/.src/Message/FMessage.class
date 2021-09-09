@@ -14,19 +14,33 @@ End
 
 Public Sub SetButton(sButton1 As String, Optional sButton2 As String, sButton3 As String)
   
+  Dim hLast As WebButton
+  
   If sButton1 Then
     btnButton1.Text = sButton1
+    btnButton1.Default = True
+    hLast = btnButton1
   Endif
   
   If sButton2 Then
     btnButton2.Text = sButton2
     btnButton2.Show
+    hLast = btnButton2
   Endif
   
   If sButton3 Then
     btnButton3.Text = sButton3
     btnButton3.Show
+    hLast = btnButton3
   Endif
+  
+  If Not hLast Then
+    btnButton1.Text = ("OK")
+    btnButton1.Default = True
+    hLast = btnButton1
+  Endif
+  
+  If hLast Then hLast.Cancel = True
   
 End
 

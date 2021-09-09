@@ -200,7 +200,6 @@ End
 
 Public Sub Remove((Key) As String)
   
-  Dim iRow As Integer
   Dim hItem As _WebTreeItem
   
   'If $hRenameBox Then Cancel()
@@ -211,17 +210,7 @@ Public Sub Remove((Key) As String)
   
   If Not hItem Then Error.Raise("Unknown item: " & Key)
   
-  _SaveSelection
-  
-  iRow = _ItemToRow(hItem)
-  
   RemoveRec(Key)
-  
-  _AddCount(0)
-  
-  'If iRow >= 0 Then UpdateRowHeight(Null, iRow, -1)
-  
-  _RestoreSelection
   _RefreshView
   
 End
@@ -745,22 +734,23 @@ End
 Public Sub SelectAll()
 
   If $iMode <> Select.Multiple Then Return
-  $hSelection.SelectAll()
+  If $hSelection.SelectAll() Then Return
   Raise Select
+  Me.Refresh
   
 End
 
 Public Sub UnselectAll()
   
   If $iMode = Select.Multiple Then
-    $hSelection.UnSelectAll()
+    If $hSelection.UnSelectAll() Then Return
     Raise Select
   Else If $iMode = Select.Single Then
-    If $sKey Then
-      $sKey = ""
-      Raise Select
-    Endif
+    If Not $sKey Then Return
+    $sKey = ""
+    Raise Select
   Endif
+  Me.Refresh
   
 End
 
@@ -1174,9 +1164,10 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     If $iMode <> Select.Single Then Print ",event";
     Print ");\"";
     
-    Print Me._GetEventJS("ondblclick", "DblClick");
-    
   Endif
+    
+  Print Me._GetUpdateJS("ondblclick", "%" & JS(sKeyBase64));
+    
   If Not bVisible Then Print " style=\"display:none;\"";
   Print ">";
   
@@ -1198,17 +1189,17 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     'Print "<td onmousedown=\"gw.table.check("; JS(Me.Name); ","; CStr(iRow); 
     'If $iMode <> Select.Single Then Print ",event"; 
     'Print ")\">";
-    Print "<div class=\"gw-tree-check\">";
+    'Print "<div class=\"gw-tree-check\">";
     If $iMode = Select.Single Then
       Print "<input type=\"radio\" name=\""; Me.Name; "\""; 
     Else
       Print "<input type=\"checkbox\""; 
     Endif
-    Print " id=\""; Me.Name & ":" & Base64(sKey); "\"";
+    Print " id=\""; Me.Name & ":" & Base64(sKey); "\" class=\"gw-tree-check\"";
     'Print Me._GetUpdateJS("onchange", "!" & CStr(iRow), "this.checked");
     If _IsSelected(sKey) Then Print " checked";
     Print ">";
-    Print "</div>";
+    'Print "</div>";
   Endif
 
   If hItem.Image Then
@@ -1306,6 +1297,8 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   Dim aProp As String[]
   Dim hItem As _WebTreeItem
   Dim sKey As String
+  Dim sCursor As String
+  Dim bCancel As Boolean
   
   If sProp Begins "^" Then
     
@@ -1341,6 +1334,19 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
       _SetSelected(sKey, True)
     Endif
     Dec Me._NoRefresh
+    
+  Else If sProp Begins "%" Then
+    
+    If Object.CanRaise(Me, "Activate") Then
+      sCursor = $sCursor
+      $sCursor = FromBase64(Mid$(sProp, 2))
+      bCancel = Raise Activate
+      $sCursor = sCursor
+    Endif
+    If Not bCancel Then
+      hItem = $cItem[FromBase64(Mid$(sProp, 2))]
+      If hItem.Children Then hItem.Expanded = Not hItem.Expanded
+    Endif
   
   Else If sProp = "#scroll" Then
     

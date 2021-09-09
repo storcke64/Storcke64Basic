@@ -1,10 +1,10 @@
 ' Gambas class file
 
-Export
+'Export
 
 Static Public Sub _init()
   
-  WebForm.Debug = True
+  'WebForm.Debug = True
   
 End
 ' 
@@ -26,10 +26,15 @@ Public Sub WebForm_KeyPress()
   WebTextArea1.Text &= Last.Name & ": " & JSON.ToString(Key._Event) & " " & Key.Shortcut & " '" & Key.Text & "'\n"
   
 End
-' 
-' 
-' Public Sub WebTextBox1_KeyPress()
-' 
-'   WebTextArea1.Text &= Last.Name & ": " & JSON.ToString(Key._Event) & " " & Key.Shortcut & "\n"
-' 
-' End
+
+Public Sub WebTextBox1_KeyPress()
+
+  WebTextArea1.Text &= Last.Name & ": " & JSON.ToString(Key._Event) & " " & Key.Shortcut & "\n"
+
+End
+
+Public Sub WebForm_Open()
+
+  WebForm.Debug = True
+
+End

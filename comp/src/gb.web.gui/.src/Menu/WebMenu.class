@@ -44,6 +44,7 @@ Private Sub Image_Write(Value As String)
 
   $sImage = Value
   Me.Refresh
+  If $sImage Then WebForm._AddPreload(Me._GetImageLink($sImage))
 
 End
 
@@ -56,6 +57,7 @@ End
 Private Sub Shortcut_Write(Value As String)
 
   If $sShortcut = Value Then Return
+  Me._RegisterShortcut(Value, $sShortcut)
   $sShortcut = Value
   Me.Refresh
 

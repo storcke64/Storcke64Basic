@@ -256,3 +256,9 @@ Public Sub WebSpinBox1_Change()
   lblSpinBox.Text = "-> " & CStr(WebSpinBox1.Value)
 
 End
+
+Public Sub WebMenu17_Click()
+
+  Message(Last.Text)
+
+End

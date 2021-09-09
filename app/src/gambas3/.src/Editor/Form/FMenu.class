@@ -1137,7 +1137,7 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
       X += D
       Width -= D
       Paint.Font.Italic = True
-      Paint.FillRect(X, Y + Height / 2, Paint.TextSize(sText).Width, 1, If(Row = gvwMenu.Row, Color.SelectedBackground, Color.TextBackground))
+      Paint.FillRect(X, Y + Height / 2, Paint.TextSize(sText).Width, 1, If(Row = gvwMenu.Row, Color.LightBackground, Color.TextBackground))
       
     Else
       
@@ -1183,7 +1183,7 @@ Public Sub gvwMenu_Data(Row As Integer, Column As Integer)
     
     gvwMenu.Data.Foreground = GetMenuColor($aMenu[Row])
     
-    If Row = gvwMenu.Row Then gvwMenu.Data.Background = Color.SelectedBackground
+    If Row = gvwMenu.Row Then gvwMenu.Data.Background = Color.LightBackground
   
     If .Level = 0 Then
       gvwMenu.Data.Font.Bold = True

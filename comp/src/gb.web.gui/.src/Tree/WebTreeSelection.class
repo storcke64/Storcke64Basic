@@ -31,22 +31,6 @@ Private Sub GetParent() As WebTree
   
 End
 
-Public Sub Select(iStart As Integer, Optional iLength As Integer = 1)
-
-  Dim hParent As WebTree = GetParent()
-  Dim I As Integer
-  Dim hItem As _WebTreeItem
-  
-  For I = iStart To iStart + iLength - 1
-    
-    hItem = hParent._RowToItem(I)
-    If Not hItem Then Break
-    Keys[hItem.Key] = True
-    
-  Next
-  
-End
-
 Public Sub SelectItem(sKey As String, bSelected As Boolean)
   
   If bSelected Then
@@ -57,33 +41,19 @@ Public Sub SelectItem(sKey As String, bSelected As Boolean)
   
 End
 
-Public Sub UnSelect(iStart As Integer, Optional iLength As Integer = 1)
+Public Sub UnSelectAll() As Boolean
   
-  Dim hParent As WebTree = GetParent()
-  Dim I As Integer
-  Dim hItem As _WebTreeItem
-  
-  For I = iStart To iStart + iLength - 1
-    
-    hItem = hParent._RowToItem(I)
-    If Not hItem Then Break
-    Keys.Remove(hItem.Key)
-    
-  Next
-  
-End
-
-Public Sub UnSelectAll()
-  
+  If Keys.Count = 0 Then Return True
   Keys.Clear
   'Dump
   
 End
 
-Public Sub SelectAll()
+Public Sub SelectAll() As Boolean
 
   Dim sKey As String
   
+  If IsEverythingSelected() Then Return True
   Keys.Clear
   For Each sKey In GetParent().Keys
     Keys[sKey] = True

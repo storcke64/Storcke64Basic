@@ -5,7 +5,7 @@
 Export
 Inherits WebControl
 
-Public Const _Properties As String = "*,Border=True,Text,Image{WebImage},Immediate,ShowArrow"
+Public Const _Properties As String = "*,Border=True,Text,Image{WebImage},Immediate,ShowArrow,Default,Cancel"
 'Public Const _DrawWith As String '= "Button"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "16,4"
@@ -32,6 +32,9 @@ Property Immediate As Boolean
 
 '' Return or set if the button displays an arrow
 Property ShowArrow As Boolean
+
+Property Default As Boolean
+Property Cancel As Boolean
 
 Private $sText As String
 Private $sImage As String
@@ -83,8 +86,12 @@ End
 Public Sub _BeforeRender()
   
   Dim vSave As Variant
+  Dim sClass As String
   
-  Print "<div"; Me._GetClassId(); 
+  sClass = "gw-button"
+  If Me.Default Then sClass &= " gw-button-default"
+  
+  Print "<div"; Me._GetClassId(sClass); 
   If Me.Enabled Then
     If $bImmediate Then
       Print " onclick=\"";
@@ -167,5 +174,38 @@ Private Sub ShowArrow_Write(Value As Boolean)
   If $bShowArrow = Value Then Return
   $bShowArrow = Value
   Me.Refresh
+
+End
+
+Private Function Default_Read() As Boolean
+
+  Return Me._GetTopLevel()._GetDefault() = Me.Id
+
+End
+
+Private Sub Default_Write(Value As Boolean)
+
+  If Value Then
+    Me._GetTopLevel()._SetDefault(Me)
+  Else If Default_Read() Then
+    Me._GetTopLevel()._SetDefault(Null)
+  Endif
+
+End
+
+Private Function Cancel_Read() As Boolean
+
+  Return Me._GetTopLevel()._GetCancel() = Me.Id
+  
+
+End
+
+Private Sub Cancel_Write(Value As Boolean)
+
+  If Value Then
+    Me._GetTopLevel()._SetCancel(Me)
+  Else If Default_Read() Then
+    Me._GetTopLevel()._SetCancel(Null)
+  Endif
 
 End

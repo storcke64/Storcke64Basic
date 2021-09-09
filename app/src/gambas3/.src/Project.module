@@ -426,7 +426,9 @@ Public Sub Main()
   FMain.Show
   
   If sPath Then 
+    
     If File.IsRelative(sPath) Then sPath = Application.Dir &/ sPath
+    
     If IsDir(sPath) Then
       Project.Open(sPath)
       For Each sPath In aOpenFile
@@ -437,17 +439,19 @@ Public Sub Main()
     Else
       FMain.ShowWarning(("File not found!") & "\n\n<tt>" & sPath & "</tt>")
     Endif
+    
     If Not Project.Dir Then
       FMain.Close
       Dec Application.Busy
       Return
     Endif
+    
+    FMain.HideWelcome
+    
   Endif
 
   RefreshActivate
   
-  If Not sPath Then FMain.Welcome
-
   Dec Application.Busy
 
   If Settings["/ShowTipOnStartup", True] Then

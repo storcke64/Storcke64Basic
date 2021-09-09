@@ -776,6 +776,7 @@ gw = {
         $(gw.windows[i]).style.zIndex = 11 + i * 2;
         
       gw.window.updateTitleBars();
+      $(id).focus();
         
       if (send)
         gw.update('', '#windows', gw.windows);
@@ -1581,6 +1582,21 @@ gw = {
     }
   },
   
+  image:
+  {
+    preload: function(images)
+    {
+      var image;
+      var i;
+      
+      for (i = 0; i < images.length; i++)
+      {
+        image = new Image();
+        image.src = images[i];
+      }
+    }
+  },
+  
   sound:
   {
     pause: function(id)
@@ -1617,23 +1633,8 @@ gw = {
     return shortcut;
   },
   
-  onkeydown: function(event)
+  sendKeyPress: function(event, id)
   {
-    if (!event.bubbles)
-      return;
-  
-    var elt = document.activeElement;
-    var id = '';
-    
-    while (elt)
-    {
-      id = elt.id;
-      if (id && id.indexOf(':') < 0)
-        break;
-      elt = elt.parentNode;
-      id = '';
-    }
-    
     gw.send(['keypress', id, 
       {
         'altKey': event.altKey,
@@ -1643,15 +1644,39 @@ gw = {
         'shiftKey': event.shiftKey
       }],
       null);
+  },
+  
+  onkeydown: function(id, event)
+  {
+    if (!event.bubbles)
+      return;
       
-    if (gw.shortcuts)
+    var elt = $(id);
+    while (elt)
     {
-      var shortcut = gw.makeShortcut(event);
-      gw.log('shortcut -> ' + shortcut);
-      if (gw.shortcuts[shortcut])
-        event.preventDefault();
+      id = elt.id;
+      if (id && id.indexOf(':') < 0)
+        break;
+      elt = elt.parentNode;
+      id = '';
     }
-  }
+  
+    gw.sendKeyPress(event, id);
+  },
+  
+  onshortcut: function(event)
+  {
+    if (event.bubbles && gw.shortcuts)
+    {
+      gw.sendKeyPress(event, '');
+      var shortcut = gw.makeShortcut(event);
+      if (gw.shortcuts[shortcut])
+      {
+        gw.log('shortcut -> ' + shortcut);
+        event.preventDefault();
+      }
+    }
+  },
 }
 
-document.onkeydown = gw.onkeydown;
+document.onkeydown = gw.onshortcut;
