@@ -111,7 +111,7 @@ static int stream_read(STREAM *stream, char *buffer, int len)
 	int eff;
 	
 	if (!FD)
-		return TRUE;
+		return 0;
 
 	eff = (int)fread(buffer, 1, len, FD);
 	if (eff < len)
@@ -135,10 +135,19 @@ static int stream_flush(STREAM *stream)
 
 static int stream_write(STREAM *stream, char *buffer, int len)
 {
+	int eff;
+	
 	if (!FD)
-		return TRUE;
+		return 0;
 
-	return fwrite(buffer, 1, len, FD);
+	eff = (int)fwrite(buffer, 1, len, FD);
+	if (eff < len)
+	{
+		if (ferror(FD) == 0)
+			errno = 0;
+	}
+	
+	return eff;
 }
 
 
