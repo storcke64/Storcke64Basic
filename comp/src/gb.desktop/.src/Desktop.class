@@ -340,11 +340,14 @@ Static Private Function RootWindow_Read() As Integer
 
 End
 
-Static Public Sub RunAsRoot(Command As String)
+Static Public Sub RunAsRoot(Command As String, Optional (Wait) As Boolean, Optional Username As String)
 
   'Main.RunXdgUtil("xdg-su", ["-c", Command])
 
-  Dim sExec As String
+  Dim sExec As String = "pkexec"
+  Dim sCom As String[]
+
+ If Not System.Exist(sExec) Then
   
   Select Case Desktop.Type
     
@@ -358,12 +361,28 @@ Static Public Sub RunAsRoot(Command As String)
       sExec = "gksudo"
       ' gksu with an argument raise a gksudo
       If Not System.Exist(sExec) Then sExec = "gksu"
-    
-  End Select
+   End Select
+
+ Endif
     
   If Not System.Exist(sExec) Then Error.Raise("No graphical sudo program found")
-  
-  Exec [sExec, Command]
+  sCom = [sExec]
+
+  If sExec = "pkexec" Then
+    If Username Then sCom.Insert(["--user", Username])
+    Dim sPassEnvs As String[] = ["DISPLAY", "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS", "WAYLAND_DISPLAY"]
+    sCom.Add("env")
+      For Each sEnv As String In sPassEnvs
+        If Env[sEnv] Then sCom.Add(sEnv & "=" & Env[sEnv])
+      Next
+    sCom.Insert(Split(Command, " ", "\""))
+
+  Else 
+    If Username Then sCom.Insert(["-u", Username])
+    sCom.Add(Command)
+  Endif
+
+  If (Wait) Then Exec sCom Wait Else Exec sCom
 
 End
 
