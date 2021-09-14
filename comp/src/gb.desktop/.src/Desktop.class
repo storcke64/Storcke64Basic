@@ -340,50 +340,61 @@ Static Private Function RootWindow_Read() As Integer
 
 End
 
-Static Public Sub RunAsRoot(Command As String, Optional (Wait) As Boolean, Optional Username As String)
-
-  'Main.RunXdgUtil("xdg-su", ["-c", Command])
+Static Public Sub RunAs(UserName As String, Command As String, Optional (Wait) As Boolean)
 
   Dim sExec As String = "pkexec"
-  Dim sCom As String[]
+  Dim aCmd As String[]
 
- If Not System.Exist(sExec) Then
-  
-  Select Case Desktop.Type
-    
-    Case "KDE", "KDE4", "KDE5"
-      sExec = "kdesudo"
-      ' newer SuSE have no kdesudo, but a kdesu
-      If Not System.Exist(sExec) Then sExec = "kdesu"
-    Case "LXDE"
-      sExec = "lxde-sudo"
-    Case Else
-      sExec = "gksudo"
-      ' gksu with an argument raise a gksudo
-      If Not System.Exist(sExec) Then sExec = "gksu"
-   End Select
-
- Endif
+  If Not System.Exist(sExec) Then
+   
+    Select Case Desktop.Type
+      
+      Case "KDE", "KDE4", "KDE5"
+        sExec = "kdesudo"
+        ' newer SuSE have no kdesudo, but a kdesu
+        If Not System.Exist(sExec) Then sExec = "kdesu"
+        
+      Case "LXDE"
+        sExec = "lxde-sudo"
+        
+      Case Else
+        sExec = "gksudo"
+        ' gksu with an argument raise a gksudo
+        If Not System.Exist(sExec) Then sExec = "gksu"
+        
+    End Select
+ 
+  Endif
     
   If Not System.Exist(sExec) Then Error.Raise("No graphical sudo program found")
-  sCom = [sExec]
+  
+  aCmd = [sExec]
 
   If sExec = "pkexec" Then
-    If Username Then sCom.Insert(["--user", Username])
-    Dim sPassEnvs As String[] = ["DISPLAY", "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS", "WAYLAND_DISPLAY"]
-    sCom.Add("env")
-      For Each sEnv As String In sPassEnvs
-        If Env[sEnv] Then sCom.Add(sEnv & "=" & Env[sEnv])
-      Next
-    sCom.Insert(Split(Command, " ", "\""))
+    
+    If Username Then aCmd.Insert(["--user", Username])
+    
+    aCmd.Add("env")
+    For Each sEnv As String In ["DISPLAY", "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS", "WAYLAND_DISPLAY"]
+      If Env[sEnv] Then aCmd.Add(sEnv & "=" & Env[sEnv])
+    Next
+    aCmd.Insert(Split(Command, " ", "\""))
 
-  Else 
-    If Username Then sCom.Insert(["-u", Username])
-    sCom.Add(Command)
+  Else
+    
+    If Username Then aCmd.Insert(["-u", Username])
+    aCmd.Add(Command)
+    
   Endif
 
-  If (Wait) Then Exec sCom Wait Else Exec sCom
+  If (Wait) Then Exec aCmd Wait Else Exec aCmd
 
+End
+
+Static Public Sub RunAsRoot(Command As String, Optional (Wait) As Boolean)
+  
+  RunAs("", Command, {Wait})
+  
 End
 
 Static Public Sub GetFileIcon(Path As String, Size As Integer, Optional Preview As Boolean) As Picture
