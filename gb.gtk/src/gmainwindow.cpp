@@ -235,6 +235,10 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 
 	data->bufW = event->width - data->_csd_w;
 	data->bufH = event->height - data->_csd_h;
+	
+	#ifdef DEBUG_RESIZE
+	fprintf(stderr, "-> %d %d\n", data->bufW, data->bufH);
+	#endif
 		
 	data->emitResize();
 
@@ -2055,17 +2059,18 @@ void gMainWindow::calcCsdSize()
 	}
 		
 	gtk_widget_get_allocation(border, &ba);
-	gtk_widget_get_allocation(frame, &wa);
-	
-	if (wa.width == 1 && wa.height == 1)
+	if (ba.width <= 1 && ba.height <= 1)
 		return;
 
-	//fprintf(stderr, "border: %d %d layout: %d %d\n", ba.width, ba.height, wa.width, wa.height);
+	gtk_widget_get_allocation(frame, &wa);
+	if (wa.width <= 1 && wa.height <= 1)
+		return;
 	
 	_csd_w = ba.width - wa.width;
 	_csd_h = ba.height - wa.height;
 	#ifdef DEBUG_RESIZE
-	fprintf(stderr, "calcCsdSize: %s: csd = %d %d\n", name(), _csd_w, _csd_h);
+	fprintf(stderr, "calcCsdSize: border: %d %d layout: %d %d\n", ba.width, ba.height, wa.width, wa.height);
+	fprintf(stderr, "calcCsdSize: --> %s: csd = %d %d\n", name(), _csd_w, _csd_h);
 	#endif
 	
 	if (!isResizable())
