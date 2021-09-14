@@ -644,7 +644,7 @@ int gControl::screenY()
 	return pr->screenY() + y() + pr->clientY() - pr->scrollY();
 }
 
-static void send_configure (gControl *control)
+static void send_configure(gControl *control)
 {
 	GtkWidget *widget;
 	GdkEvent *event;
