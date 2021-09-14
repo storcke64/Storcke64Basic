@@ -108,8 +108,8 @@ Private $hMouseTimer As Timer
 Private $bTermUseMouse As Boolean
 
 Private $hProcess As Process
-Private $hPipeIn As Stream 			  ' Added this BG to support pipe io to and from the ScreenTop
-Private $hPipeOut As Stream 			' added this BG to support pipe io to and from the screen 
+Private $hPipeIn As Stream      ' Added this BG to support pipe io to and from the ScreenTop
+Private $hPipeOut As Stream    ' added this BG to support pipe io to and from the screen 
 Private $oPreprocess As Object    ' Added to allow call back to handle data before the terminal does
 
 Private $fStart As Float
