@@ -71,6 +71,7 @@ Static Public Sub SolvePath(sPath As String, Optional bKeepPath As Boolean) As S
   Else
     sSolve = sPath
     If sSolve Not Ends ".gambas" Then sSolve &= ".gambas"
+    If File.IsRelative(sSolve) Then sSolve = File.RealPath(Project.Dir &/ sSolve)
   Endif
   
   'sSolve = File.SetExt(sSolve, "gambas")
@@ -105,6 +106,7 @@ Public Sub _new(sPath As String)
   Path = sPath
     
   If Not sPath Or If Not Exist(sPath) Then 
+    Error "gambas3: warning: library not found: "; Name
     NotFound = True
     Return
   Endif
