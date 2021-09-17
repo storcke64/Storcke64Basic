@@ -2,6 +2,8 @@
 
 Public Startup As String
 
+Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM
+
 Private Const STATE_LAST As Integer = -1
 Private Const STATE_STOP As Integer = 0
 Private Const STATE_RUNNING As Integer = 1

@@ -2705,21 +2705,28 @@ Private Function CheckRunning(Optional bCompileAll As Boolean) As Boolean
 
 End
 
-Public Sub Run(Optional bCompileAll As Boolean, Optional iDebug As Integer, Optional sStartup As String)
+Public Sub Run(Optional bCompileAll As Boolean, Optional iAction As Integer, Optional sStartup As String)
 
   If CheckRunning(bCompileAll) Then Return
 
-  If iDebug = 1 Then
-    Design.Step
-  Else If iDebug = 2 Then
-    Design.Forward
-  Else If iDebug = 3 Then
-    Design.ReturnFrom
-  Else
-    If sStartup Then Design.Startup = sStartup
-    Design.Run
-    Design.Startup = ""
-  Endif
+  Select Case iAction
+    
+    Case Design.ACTION_STEP
+      Design.Step
+      
+    Case Design.ACTION_FORWARD
+      Design.Forward
+    
+    Case Design.ACTION_RETURN_FROM
+      Design.ReturnFrom
+      
+    Case Else
+      If sStartup Then Design.Startup = sStartup
+      If iAction = Design.ACTION_RUN Then Project.CurrentArgument = Null
+      Design.Run
+      Design.Startup = ""
+    
+  End Select
 
 End
 

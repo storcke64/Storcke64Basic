@@ -1062,7 +1062,7 @@ End
 
 Public Sub mnuRunThat_Click()
   
-  Project.Run(False, 0, File.BaseName(GetCurrent()))
+  Project.Run(False, Design.ACTION_RUN, File.BaseName(GetCurrent()))
 
 End
 
@@ -1457,9 +1457,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "project"
       panProject.Hidden = Not Action[Key].Value
     Case "start"
-      Project.Run(False)
+      Project.Run(False, Design.ACTION_RUN)
     Case "run-with"
-      If Not FArguments.Run() Then Project.Run(False)
+      If Not FArguments.Run() Then Project.Run(False, Design.ACTION_RUN_WITH)
     Case "test"
       Project.Test()
     Case "test-suite"
@@ -1469,11 +1469,11 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "stop"
       Design.Stop
     Case "forward"
-      Project.Run(False, 2)
+      Project.Run(False, Design.ACTION_FORWARD)
     Case "step"
-      Project.Run(False, 1)
+      Project.Run(False, Design.ACTION_STEP)
     Case "return"
-      Project.Run(False, 3)
+      Project.Run(False, Design.ACTION_RETURN_FROM)
     Case "new-project"
       NewProject
     Case "open-project"

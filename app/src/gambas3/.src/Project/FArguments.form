@@ -16,8 +16,9 @@
     Spacing = True
     { btnUndo Button
       MoveScaled(1,0,16,4)
-      Text = ("Reset")
-      Picture = Picture["icon:/small/undo"]
+      Visible = False
+      AutoResize = True
+      Text = ("No arguments")
     }
     { Spring1 Spring
       MoveScaled(19,1,6,2)

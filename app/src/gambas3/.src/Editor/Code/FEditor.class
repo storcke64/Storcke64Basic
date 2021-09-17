@@ -3878,7 +3878,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.SetReadOnly(Path, Action[Key, Me].Value)
       
     Case ".run-me"
-      Project.Run(False, 0, Me.Name)
+      Project.Run(False, Design.ACTION_RUN, Me.Name)
       
     Case ".wrap"
       $hEditor.Wrap = mnuWrap.Value

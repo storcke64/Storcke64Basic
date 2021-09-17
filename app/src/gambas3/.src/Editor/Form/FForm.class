@@ -3344,7 +3344,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
     '   RemoveFromContainer
 
     Case ".run-me"
-      Project.Run(False, 0, Me.Name)
+      Project.Run(False, Design.ACTION_RUN, Me.Name)
       
     Case ".diff"
       UpdateDiffMode
