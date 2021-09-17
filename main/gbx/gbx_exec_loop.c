@@ -4013,12 +4013,14 @@ static void _break(ushort code)
 	if (EXEC_trace)
 	{
 		double timer;
-		char *addr;
-		int len;
+		int i;
 		
 		DATE_timer(&timer, TRUE);
-		LOCAL_format_number(timer, LF_GENERAL_NUMBER, NULL, 0, &addr, &len, FALSE);
-		fprintf(stderr, "[%d.%06d] %s\n", (int)timer, (int)(timer * 1000000) % 1000000, DEBUG_get_current_position());
+		fprintf(stderr, "[%d.%06d] ", (int)timer, (int)(timer * 1000000) % 1000000);
+		for (i = 0; i < STACK_frame_count; i++)
+			fputs(". ", stderr);
+		fputs(DEBUG_get_current_position(), stderr);
+		fputc('\n', stderr);
 		fflush(stderr);
 	}
 	

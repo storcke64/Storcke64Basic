@@ -194,7 +194,7 @@ static void unload_class(CLASS *class)
 
 #define SWAP_FIELD(_v, _s, _d, _f) (_v = _s->_f, _s->_f = _d->_f, _d->_f = _v)
 
-static void class_replace_global(CLASS *class)
+static CLASS *class_keep_global(CLASS *class)
 {
 	CLASS_DESC_SYMBOL *cds;
 	CLASS *parent;
@@ -208,9 +208,6 @@ static void class_replace_global(CLASS *class)
 	int nprefix;
 	int i;
 
-	if (!CLASS_is_loaded(class))
-		return;
-		
 	name = class->name;
 	len = strlen(name);
 
@@ -254,6 +251,58 @@ static void class_replace_global(CLASS *class)
 	}
 
 	CLASS_inheritance(class, old_class);
+	return class;
+}
+
+CLASS *class_replace_global(CLASS *class)
+{
+	char *old_name;
+	CLASS *new_class;
+	char *swap_name;
+	bool swap_free_name;
+	int index;
+	CLASS_SYMBOL *csym;
+	const char *name = class->name;
+	int len = strlen(class->name);
+	
+	if (!CLASS_is_loaded(class))
+		return class;
+		
+	if (class->count == 0)
+		return class_keep_global(class);
+
+	//fprintf(stderr, "class_replace_global: %s already has %d objects!\n", class->name, class->count);
+	
+	ALLOC(&old_name, len + 2);
+	old_name[0] = '^';
+	strcpy(&old_name[1], name);
+	
+	new_class = CLASS_find_global(old_name);
+	
+	if (TABLE_find_symbol(&_global_table, name, len, &index))
+  {
+		csym = (CLASS_SYMBOL *)TABLE_get_symbol(&_global_table, index);
+		csym->class = new_class;
+	}
+
+	if (TABLE_find_symbol(&_global_table, old_name, len + 1, &index))
+  {
+		csym = (CLASS_SYMBOL *)TABLE_get_symbol(&_global_table, index);
+		csym->class = class;
+	}
+
+	FREE(&old_name);
+	
+	SWAP_FIELD(swap_name, class, new_class, name);
+	SWAP_FIELD(swap_free_name, class, new_class, free_name);
+
+	CLASS_inheritance(new_class, class);
+	
+	CLASS_update_global(class, new_class);
+	
+	//fprintf(stderr, "class_replace_global: %s -> %s\n", class->name, new_class->name);
+	
+	return new_class;
 }
 
 static void release_class(CLASS *class)
@@ -1428,7 +1477,7 @@ CLASS *CLASS_check_global(CLASS *class)
 		/*if (class->has_child)
 			THROW(E_CLASS, class->name, "Overriding an already inherited class is forbidden", "");*/
 
-		class_replace_global(class);
+		class = class_replace_global(class);
 	}
 
 	return class;

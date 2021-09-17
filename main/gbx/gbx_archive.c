@@ -170,7 +170,7 @@ void ARCHIVE_load_exported_class(ARCHIVE *arch, int pass)
 							class->data[len] = 0;
 						}
 						
-						CLASS_check_global(class);
+						class = CLASS_check_global(class);
 
 						#if DEBUG_COMP
 							fprintf(stderr, "Add to load: %p %s\n", class, name);

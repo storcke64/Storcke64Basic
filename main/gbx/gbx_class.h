@@ -525,6 +525,7 @@ CLASS *CLASS_find_load_from(const char *name, const char *from);
 /* class_init.c */
 
 void CLASS_init_native(void);
+void CLASS_update_global(CLASS *old_class, CLASS *new_class);
 
 /* class_load.c */
 

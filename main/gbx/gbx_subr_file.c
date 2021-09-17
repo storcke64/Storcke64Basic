@@ -316,7 +316,6 @@ void SUBR_print(ushort code)
 	for (i = 1; i < NPARAM; i++)
 	{
 		PARAM++;
-		//PRINT_value(PARAM);
 		VALUE_to_local_string(PARAM, &addr, &len);
 		if (len == 1 && *addr == '\n')
 			STREAM_write_eol(_stream);
