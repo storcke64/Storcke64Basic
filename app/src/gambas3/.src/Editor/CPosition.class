@@ -43,6 +43,30 @@ Static Private Sub AddPosition(hPos As CPosition)
   
 End
 
+Static Private Sub MakePos(hForm As Object) As CPosition
+
+  Dim hPos As CPosition
+  Dim hEditor As TextEditor
+  
+  If Not hForm Then Return
+  
+  hPos = New CPosition
+  hPos.Path = hForm.Path
+
+  Try hEditor = hForm.GetEditor()
+  If hEditor Then
+    hPos.Line = hEditor.Line
+    hPos.Column = hEditor.Column
+    Try hPos.Method = hForm.GetProcAt(hPos.Line)
+  Else 
+    hPos.Line = -1
+    hPos.Column = -1
+  Endif
+  
+  Return hPos
+  
+End
+
 
 Static Public Sub SaveCurrent(hForm As Object, Optional bForce As Boolean)
 
@@ -65,7 +89,7 @@ Static Public Sub SaveCurrent(hForm As Object, Optional bForce As Boolean)
       
       hPos.Line = hEditor.LastLine
       hPos.Column = hEditor.LastColumn
-      Try hPos.Method = hForm.GetProcAt(hPos.LastLine)
+      Try hPos.Method = hForm.GetProcAt(hPos.Line)
       AddPosition(hPos)
       
       hPos = hPos.Copy()
@@ -91,7 +115,15 @@ End
 
 Static Public Sub MovePrevious()
   
+  Dim hCurrent As CPosition
+  
   If $iCurrent <= 0 Then Return
+
+  hCurrent = MakePos(Project.ActiveForm)
+  If hCurrent And If Not hCurrent.IsEqual($aPositions[$iCurrent]) Then
+    $aPositions[$iCurrent].Move()
+    Return
+  Endif
   
   Dec $iCurrent
   $aPositions[$iCurrent].Move()

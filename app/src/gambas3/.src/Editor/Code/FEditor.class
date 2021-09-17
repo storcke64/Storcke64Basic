@@ -196,7 +196,6 @@ Public Function Save() As Boolean
 
   $hCompletion.Hide
   HideSignature
-  HideMessage
   
   Save.Begin(Path)
 
@@ -398,14 +397,12 @@ End
 Public Sub Editors_Cursor()
 
   If RefreshLineInfo() Then
-    HideMessage
     $hCompletion.Hide
     HideSignature
   Endif
 
   If $hEditor.Line = $hEditor.StopLine Then Design.CheckErrorMessage(Me)
 
-  CPosition.SaveCurrent(Me)
   Project.UpdateStatus(True)
 
 End
@@ -480,10 +477,6 @@ End
 Public Sub Form_GotFocus()
 
   $hEditor.SetFocus
-
-End
-
-Public Sub Form_Deactivate()
 
 End
 
@@ -2264,7 +2257,6 @@ Public Sub Editors_Scroll()
 
   $hCompletion.Position()
   FSignature.Position(Me)
-  HideMessage
 
 End
 
@@ -2525,6 +2517,12 @@ Public Sub OnProjectDebug()
 
 End
 
+Public Sub OnProjectCompile()
+  
+  $hEditor.HideMessageLabel
+  
+End
+
 Public Sub OnShowString(sStr As String, bIgnoreCase As Boolean, bWordOnly As Boolean)
 
   edtEditor.HighlightString(sStr, bIgnoreCase, bWordOnly)
@@ -2641,19 +2639,10 @@ Public Sub Editors_LostFocus()
   
 End
 
-Public Sub Editors_MouseDown()
-  
-  CPosition.Disable
-  
-End
-
 Public Sub Editors_MouseUp()
 
   Dim sText As String
   
-  CPosition.Enable
-  CPosition.SaveCurrent(Me)
-
   If Mouse.Control Then 
     If Mouse.Left Then
       FindDefinition
@@ -2737,15 +2726,6 @@ Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
   $hEditor.SetFocus
   Wait
   $hEditor.ShowMessageLabel(sMsg, Highlight.Breakpoint)
-
-End
-
-Private Sub HideMessage()
-
-  If Balloon.Control = $hEditor Then
-    Balloon.Hide
-  Endif
-  'timWatch_Timer
 
 End
 

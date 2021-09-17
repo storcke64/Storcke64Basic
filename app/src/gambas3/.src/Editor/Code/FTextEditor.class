@@ -940,21 +940,6 @@ Public Sub Editors_Cursor()
 
 End
 
-Public Sub Editors_MouseDown()
-  
-  CPosition.Disable
-  
-End
-
-Public Sub Editors_MouseUp()
-  
-  CPosition.Enable
-  CPosition.SaveCurrent(Me)
-  
-End
-
-
-
 Public Sub mnuLowerCase_Click()
   
   If $hEditor.ReadOnly Then Return

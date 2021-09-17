@@ -2276,6 +2276,7 @@ Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn
   If Not hForm Then Return
 
   CPosition.Disable
+  
   Try ShowFile(hForm)
   If Error Then
     CPosition.Enable
@@ -2591,6 +2592,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   Dim I As Integer
   Dim sLine As String
   Dim sError As String
+  Dim hForm As Object
 
   If Project.ReadOnly Then Return
   If Project.Running Then Return 'TRUE
@@ -2600,7 +2602,11 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   sDir = Project.Dir
 
   FProperty.SaveProperty
-  Save(True) 
+  Save(True)
+  
+  For Each hForm In Workspace.Windows
+    Try hForm.OnProjectCompile()
+  Next
 
   If HasConflict Then
     UnlockIt()
@@ -3065,7 +3071,7 @@ Public Sub Activate(hForm As Object)
   FImageProperty.OnProjectActivate
 
   Try ActiveForm.SetFocus
-  CPosition.SaveCurrent(ActiveForm)
+  CPosition.SaveCurrent(ActiveForm, True)
 
   'If hForm Then FMain.HideDebug(sType = "FConnectionEditor")
 

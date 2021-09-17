@@ -822,22 +822,8 @@ End
 Public Sub Editors_Cursor()
 
   RefreshLineInfo()
-  CPosition.SaveCurrent(Me)
   Project.UpdateStatus(True)
 
-End
-
-Public Sub Editors_MouseDown()
-  
-  CPosition.Disable
-  
-End
-
-Public Sub Editors_MouseUp()
-  
-  CPosition.Enable
-  CPosition.SaveCurrent(Me)
-  
 End
 
 Public Sub mnuLowerCase_Click()
