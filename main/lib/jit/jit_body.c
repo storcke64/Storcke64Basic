@@ -2092,39 +2092,63 @@ static void push_subr_len(ushort code)
 }
 
 
-/*static void push_subr_left(ushort code)
+static void push_subr_left_right(ushort code, const char *func)
 {
-	char *expr = NULL;
+	uint narg = code & 0x3F;
 	TYPE type;
-	char *expr_str, *expr_len = NULL;
+	char *expr_str;
+	char *expr_len = NULL;
 	
-	declare_sp();
+	check_stack(narg);
 	
-	JIT_print("  static ushort s%d = 0x%04X;\n", _subr_count, code);
-	
-	check_stack(1);
-	
-	if (_stack_current >= 2)
+	if (narg == 2)
 	{
-		expr_len = peek(-1, T_INTEGER);
+		expr_len = STR_copy(peek(-1, T_INTEGER));
 		pop_stack(1);
 	}
 	
 	type = get_type(-1);
-	expr_str = peek(-1, T_CSTRING);
+	expr_str = STR_copy(peek(-1, T_STRING));
 	pop_stack(1);
 	
-	STR_add(&expr, "(PUSH_t(%s)", expr_str);
+	push(type, "%s(%s, %s)", func, expr_str, expr_len ? expr_len : "1");
+	
+	STR_free(expr_len);
 	STR_free(expr_str);
-	if (expr_len)
-	{
-		STR_add(&expr, ",PUSH_i(%s)", expr_len);
-		STR_free(expr_len);
-	}
+}
 
-	push(type, "%s,CALL_SUBR_CODE(s%d),POP_t())", expr, _subr_count, code);
-	_subr_count++;
-}*/
+
+static void push_subr_mid(ushort code)
+{
+	uint narg = code & 0x3F;
+	char *expr_len = NULL;
+	char *expr_start, *expr_str;
+	TYPE type;
+
+	check_stack(narg);
+
+	if (narg == 3)
+	{
+		expr_len = STR_copy(peek(-1, T_INTEGER));
+		pop_stack(1);
+	}
+	
+	expr_start = STR_copy(peek(-1, T_INTEGER));
+	pop_stack(1);
+	
+	type = get_type(-1);
+	expr_str = STR_copy(peek(-1, T_STRING));
+	pop_stack(1);
+	
+	if (expr_len)
+		push(type, "SUBR_MID(%s, %s, %s, %d)", expr_str, expr_start, expr_len, _pc);
+	else
+		push(type, "SUBR_MID_END(%s, %s, %d)", expr_str, expr_start, _pc);
+
+	STR_free(expr_len);
+	STR_free(expr_start);
+	STR_free(expr_str);
+}
 
 
 static void push_call(ushort code)
@@ -2667,9 +2691,9 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* 3D LIKE            */  &&_SUBR_CODE,
 		/* 3E &/              */  &&_SUBR_CODE,
 		/* 3F Is              */  &&_SUBR_CODE,
-		/* 40 Left$           */  &&_SUBR_CODE,
-		/* 41 Mid$            */  &&_SUBR_CODE,
-		/* 42 Right$          */  &&_SUBR_CODE,
+		/* 40 Left$           */  &&_SUBR_LEFT,
+		/* 41 Mid$            */  &&_SUBR_MID,
+		/* 42 Right$          */  &&_SUBR_RIGHT,
 		/* 43 Len             */  &&_SUBR_LEN,
 		/* 44 Space$          */  &&_SUBR,
 		/* 45 String$         */  &&_SUBR,
@@ -3457,6 +3481,21 @@ _SUBR_ISNAN:
 _SUBR_CONV:
 	
 	push_subr_conv(code);
+	goto _MAIN;
+
+_SUBR_LEFT:
+
+	push_subr_left_right(code, "SUBR_LEFT");
+	goto _MAIN;
+
+_SUBR_MID:
+
+	push_subr_mid(code);
+	goto _MAIN;
+	
+_SUBR_RIGHT:
+
+	push_subr_left_right(code, "SUBR_RIGHT");
 	goto _MAIN;
 	
 _SUBR_LEN:

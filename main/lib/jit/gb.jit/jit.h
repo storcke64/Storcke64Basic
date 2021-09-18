@@ -7,6 +7,10 @@
 #define TRUE 1
 #define FALSE 0
 
+#define MAX(a, b) ({ __typeof__(a) _a = (a), _b = (b); _a > _b ? _a : _b; })
+#define MIN(a, b) ({ __typeof__(a) _a = (a), _b = (b); _a < _b ? _a : _b; })
+#define MIN_MAX(v, a, b) ({ __typeof__(v) _v = (v), _a = (a), _b = (b); _v < _a ? _a : (_v > _b ? _b : _v); })
+
 // __attribute__((noreturn)) makes gcc dizzy and slow as hell
 #define NORETURN 
 
@@ -584,3 +588,59 @@ enum
   (_v >= 0) ? floor(_v) : -floor(fabs(_v)); \
 })
 
+#define GET_STRING(_addr, _start, _len) ({ \
+  GB_STRING temp; \
+  temp.type = GB_T_STRING; \
+  temp.value.addr = (char *)(_addr); \
+  temp.value.start = (_start); \
+  temp.value.len = (_len); \
+  temp; })
+
+#define SUBR_LEFT(_str, _len) ({ \
+  GB_STRING temp =  (_str); \
+  int len = (_len); \
+  if (len < 0) \
+    len += (_str).value.len; \
+  if (len < 0) \
+    temp.value.len = 0; \
+  else if (len < temp.value.len) \
+    temp.value.len = len; \
+  temp; })
+
+#define SUBR_RIGHT(_str, _len) ({ \
+  GB_STRING temp =  (_str); \
+  int len = (_len); \
+  if (len < 0) \
+    len += (_str).value.len; \
+  int new_len = MIN_MAX(len, 0, temp.value.len); \
+  temp.value.start += temp.value.len - new_len; \
+  temp.value.len = new_len; \
+  temp; })
+
+#define SUBR_MID_END(_str, _pos, _pc) ({ \
+  GB_STRING temp =  (_str); \
+  int pos = (_pos) - 1; \
+  if (_pos < 0) THROW_PC(E_ARG, _pc); \
+  temp.value.len -= pos; \
+  if (temp.value.len <= 0) \
+    temp.value.len = 0; \
+  else \
+    temp.value.start += pos; \
+  temp; })
+
+#define SUBR_MID(_str, _pos, _len, _pc) ({ \
+  GB_STRING temp =  (_str); \
+  int pos = (_pos) - 1; \
+  if (pos < 0) THROW_PC(E_ARG, _pc); \
+  int len = (_len); \
+  if (len < 0) \
+    len = MAX(0, temp.value.len - pos + len); \
+  len = MIN_MAX(len, 0, temp.value.len - pos); \
+  if (len <= 0) \
+    temp.value.len = 0; \
+  else \
+  { \
+    temp.value.start += pos; \
+    temp.value.len = len; \
+  } \
+  temp; })
