@@ -1278,10 +1278,9 @@ Public Sub GetParentClass(sPath As String) As String
       If Comp(sLine, File.BaseName(sPath), gb.IgnoreCase) = 0 Then sLine = ""
       Return sLine
     Endif
-    If sLine Like "CREATE" Then Continue
-    If sLine Like "EXPORT" Then Continue
-    If sLine Like "CREATE *" Then Continue
-    If sLine Like "EXPORT *" Then Continue
+    If sLine Like "CREATE" Or If sLine Like "CREATE *" Then Continue
+    If sLine Like "EXPORT" Or If sLine Like "EXPORT *" Then Continue
+    If sLine Like "FAST" Or If sLine Like "FAST *" Then Continue
     Break
   Next
 
@@ -3046,6 +3045,7 @@ Public Sub Activate(hForm As Object)
     'IF NOT ActiveForm THEN RETURN
   Endif
 
+  CPosition.SaveCurrent(ActiveForm, True)
   ActiveForm = hForm
 
   If Not ActiveForm Then
@@ -5845,10 +5845,7 @@ Public Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As
     
     Select aSym[0]
     
-      Case "INHERITS" 
-        Continue
-        
-      Case "CREATE" 
+      Case "INHERITS", "CREATE", "FAST"
         Continue
         
       Case "EXPORT"
