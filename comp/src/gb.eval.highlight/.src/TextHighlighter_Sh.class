@@ -31,7 +31,7 @@ Static Public Sub _init()
   Next
 
   For Each sStr In ["{", "}", "$", "#", "[", "]", "-gt", "-lt", "-ge", "-ne", "-le", "-eq", "<<<", 
-  ".", "+", "<<", "=", ">>", "==", "-", ">>", "~", "+=", "(", ",", "!=", "*", "-=", "&=", ";;",
+  ".", "+", "<<", "=", ">>", "==", "-", "~", "+=", "(", ",", "!=", "*", "-=", "&=", ";;",
   ")", "<", "%", "&", "];", "@", "!", ";", ">", "|", "?", "^", ":", "<=", "/", "`"]
 
     $cOperator[sStr] = True
@@ -291,8 +291,75 @@ Public Sub RunWith(sText As String, cKeyword As Collection, cOperator As Collect
   
 End
 
+' Private Sub RunWith2(Text As String)
+' 
+'   Dim iState As Integer
+'   Dim iTag As Integer
+'   Dim iLenText As Integer
+'   Dim iPos As Integer
+'   Dim sCar As String
+'  
+'   iLenText = String.Len(Text)
+'   
+'   iState = TextHighlighter.State
+'   iTag = TextHighlighter.Tag
+'   
+'   Select Case iState
+'     
+'     Case Highlight.String
+'       Goto READ_STRING
+'       
+'     Default 
+'       Goto READ_NORMAL
+'     
+'   End Select
+'   
+' 
+' READ_NORMAL:
+'       
+'   GoSub READ_CHAR
+'   If Not sCar Then Goto END_LINE
+'   
+'   If InStr(IDENT_CAR, sCar) Then Goto READ_IDENT
+'   
+'   If InStr(DIGIT_CAR, sCar) Then Goto READ_NUMBER
+'   
+'   If sCar = "\"" Then
+'     iState = Highlight.String
+'     iTag = Asc(sCar)
+'     Goto READ_STRING
+'   Endif
+'   
+'   If sCar = "'" Then 
+'     iState = Highlight.String
+'     iTag = Asc(sCar)
+'     Goto READ_STRING
+'   Endif
+'   
+'   If sCar = "`" Then Goto READ_BACKQUOTE
+'   If sCar = "#" Then Goto READ_COMMENT
+'   
+' END_LINE:
+' 
+'   TextHighlighter.State = iState
+'   TextHighlighter.Tag = iTag
+'   Return
+' 
+' READ_CHAR:
+' 
+'   Inc iPos
+'   If iPos > iLenText Then
+'     sCar = ""
+'   Else
+'     sCar = String.Mid$(Text, iPos, 1)
+'   Endif
+'   Return
+' 
+' End
+
 Public Sub Run(Text As String)
  
   RunWith(Text, $cKeyword, $cOperator, $cType)
   
 End
+
