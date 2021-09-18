@@ -59,7 +59,6 @@
 
 #define STREAM_FD STREAM_handle(THE_STREAM)
 
-CFILE *CFILE_in, *CFILE_out, *CFILE_err;
 mode_t CFILE_default_dir_auth = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
 DECLARE_EVENT(EVENT_Read);
@@ -75,6 +74,8 @@ static ushort _term_width = 0;
 static ushort _term_height = 0;
 static SIGNAL_CALLBACK *_SIGWINCH_callback = NULL;
 static GB_FUNCTION _term_resize_func;
+
+static CFILE *_std[3] = { NULL };
 
 
 static void callback_read(int fd, int type, CSTREAM *_object)
@@ -119,8 +120,8 @@ static void callback_write(int fd, int type, CSTREAM *_object)
 static void cb_term_resize(int signum, intptr_t data)
 {
 	_term_width = _term_height = 0;
-	if (CFILE_in)
-		GB_Raise(CFILE_in, EVENT_Resize, 0);
+	if (_std[CFILE_IN])
+		GB_Raise(_std[CFILE_IN], EVENT_Resize, 0);
 }
 
 static void watch_stream(CSTREAM *_object, int mode, bool on)
@@ -171,18 +172,12 @@ static CFILE *create_default_stream(FILE *file, int mode)
 	return (CFILE *)OBJECT_REF(CFILE_create(&stream, mode));
 }
 
-void CFILE_init(void)
-{
-	CFILE_in = create_default_stream(stdin, GB_ST_READ);
-	CFILE_out = create_default_stream(stdout, GB_ST_WRITE);
-	CFILE_err = create_default_stream(stderr, GB_ST_WRITE);
-}
-
 void CFILE_exit(void)
 {
-	OBJECT_UNREF(CFILE_in);
-	OBJECT_UNREF(CFILE_out);
-	OBJECT_UNREF(CFILE_err);
+	int i;
+	
+	for (i = 0; i <= 2; i++)
+	 OBJECT_UNREF(_std[i]);
 	
 	if (_term_init)
 		SIGNAL_unregister(SIGWINCH, _SIGWINCH_callback);
@@ -194,15 +189,40 @@ void CFILE_init_watch(void)
 	bool has_read_func = GB_GetFunction(&_read_func, PROJECT_class, "Application_Read", "", "") == 0;
 	
 	if (has_term_func || has_read_func)
-		OBJECT_attach((OBJECT *)CFILE_in, (OBJECT *)PROJECT_class, "Application");
+		OBJECT_attach((OBJECT *)CFILE_get_standard_stream(CFILE_IN), (OBJECT *)PROJECT_class, "Application");
 	
 	if (has_read_func)
 	{
 		//fprintf(stderr, "watch stdin\n");
 		//CFILE_in->watch_fd = STDIN_FILENO;
-		GB_Watch(fileno(stdin), GB_WATCH_READ, (void *)callback_read, (intptr_t)CFILE_in);
+		GB_Watch(fileno(stdin), GB_WATCH_READ, (void *)callback_read, (intptr_t)CFILE_get_standard_stream(CFILE_IN));
 	}
 }
+
+CFILE *CFILE_get_standard_stream(int num)
+{
+	if (!_std[num])
+	{
+		switch(num)
+		{
+			case CFILE_IN:
+				_std[CFILE_IN] = create_default_stream(stdin, GB_ST_READ);
+				break;
+				
+			case CFILE_OUT:
+				_std[CFILE_OUT] = create_default_stream(stdout, GB_ST_WRITE);
+				break;
+				
+			case CFILE_ERR:
+				_std[CFILE_ERR] = create_default_stream(stderr, GB_ST_WRITE);
+				break;
+		}
+	}
+	
+	return _std[num];
+}
+
+//---------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(File_free)
 
@@ -213,21 +233,21 @@ END_METHOD
 
 BEGIN_PROPERTY(File_In)
 
-	GB_ReturnObject(CFILE_in);
+	GB_ReturnObject(CFILE_get_standard_stream(CFILE_IN));
 
 END_PROPERTY
 
 
 BEGIN_PROPERTY(File_Out)
 
-	GB_ReturnObject(CFILE_out);
+	GB_ReturnObject(CFILE_get_standard_stream(CFILE_OUT));
 
 END_PROPERTY
 
 
 BEGIN_PROPERTY(File_Err)
 
-	GB_ReturnObject(CFILE_err);
+	GB_ReturnObject(CFILE_get_standard_stream(CFILE_ERR));
 
 END_PROPERTY
 

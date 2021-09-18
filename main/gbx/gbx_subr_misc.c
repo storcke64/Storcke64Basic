@@ -254,6 +254,7 @@ void EVAL_string(char *expr)
 {
 	int len;
 	EXPRESSION *eval;
+	STREAM *stream;
 
 	init_eval();
 	len = strlen(expr);
@@ -280,9 +281,10 @@ _FREE:
 	EVAL.Free((void **)(void *)&eval);
 
 	VALUE_to_local_string(&TEMP, &expr, &len);
-	STREAM_write(CSTREAM_TO_STREAM(CFILE_out), expr, len);
-	STREAM_write_eol(CSTREAM_TO_STREAM(CFILE_out));
-	STREAM_flush(CSTREAM_TO_STREAM(CFILE_out));
+	stream = CSTREAM_TO_STREAM(CFILE_get_standard_stream(CFILE_OUT));
+	STREAM_write(stream, expr, len);
+	STREAM_write_eol(stream);
+	STREAM_flush(stream);
 }
 
 void SUBR_eval(ushort code)

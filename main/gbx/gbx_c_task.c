@@ -94,7 +94,7 @@ static void has_forked(void)
 	EXEC_Hook.post = NULL;
 	//EXEC_Hook.quit = NULL;
 	
-	stream = CSTREAM_TO_STREAM(CFILE_out);
+	stream = CSTREAM_TO_STREAM(CFILE_get_standard_stream(CFILE_OUT));
 
 	stream->common.eol = 0;
 	STREAM_blocking(stream, TRUE);

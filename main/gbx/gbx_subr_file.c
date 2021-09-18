@@ -95,20 +95,20 @@ static STREAM *get_default(intptr_t val)
 		case 0:
 			if (_default_in)
 				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_in)->stream);
-			else if (CFILE_in)
-				stream = CSTREAM_TO_STREAM(CFILE_in);
+			else
+				stream = CSTREAM_TO_STREAM(CFILE_get_standard_stream(CFILE_IN));
 			break;
 		case 1:
 			if (_default_out)
 				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_out)->stream);
-			else if (CFILE_out)
-				stream = CSTREAM_TO_STREAM(CFILE_out);
+			else
+				stream = CSTREAM_TO_STREAM(CFILE_get_standard_stream(CFILE_OUT));
 			break;
 		case 2:
 			if (_default_err)
 				stream = CSTREAM_TO_STREAM(((CSTREAM_NODE *)_default_err)->stream);
-			else if (CFILE_err)
-				stream = CSTREAM_TO_STREAM(CFILE_err);
+			else
+				stream = CSTREAM_TO_STREAM(CFILE_get_standard_stream(CFILE_ERR));
 			break;
 	}
 

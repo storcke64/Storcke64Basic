@@ -87,7 +87,6 @@ static void init(const char *file, int argc, char **argv)
 	JIT_init();
 	EXEC_init();
 	CLASS_init();
-	CFILE_init();
 	WATCH_init();
 	MATH_init();
 	PROJECT_init(file);
