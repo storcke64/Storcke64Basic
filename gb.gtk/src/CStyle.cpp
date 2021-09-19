@@ -408,11 +408,10 @@ static void render_toggle(int x, int y, int w, int h, int value, int state, bool
 	GdkRectangle area;
 
 	if (!cell)
-	{
 		cell = gtk_cell_renderer_toggle_new();
-		gtk_cell_renderer_toggle_set_radio(GTK_CELL_RENDERER_TOGGLE(cell), radio);
-	}
 
+	gtk_cell_renderer_toggle_set_radio(GTK_CELL_RENDERER_TOGGLE(cell), radio);
+	
 	g_object_set(G_OBJECT(cell), "active", value < 0, NULL);
 	g_object_set(G_OBJECT(cell), "inconsistent", value > 0, NULL);
 
@@ -430,7 +429,7 @@ static void style_check(int x, int y, int w, int h, int value, int state)
 #ifdef GTK3
 
 	get_style(GTK_TYPE_CHECK_BUTTON);
-	render_toggle(x, y, w, h, value, state, FALSE);
+	render_toggle(x, y, w, h, value, state, false);
 
 #else
 
