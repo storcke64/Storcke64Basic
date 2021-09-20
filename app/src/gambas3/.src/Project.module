@@ -1033,6 +1033,9 @@ Public Function CloseProject() As Boolean
 
     Endif
 
+    ActiveForm = Null
+    CPosition.Clear
+    
     If Not $bTesting Then
       Workspace.Lock
       CloseAllWindows
@@ -1048,9 +1051,7 @@ Public Function CloseProject() As Boolean
 
     '$cSourceDir.Clear
 
-    CPosition.Clear
     Files.Clear
-    ActiveForm = Null
 
     If $hLock Then
       Unlock #$hLock
