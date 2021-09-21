@@ -68,7 +68,7 @@ Static Private Sub MakePos(hForm As Object) As CPosition
 End
 
 
-Static Public Sub SaveCurrent(hForm As Object, Optional bForce As Boolean)
+Static Public Sub SaveCurrent(hForm As Object, Optional (bForce) As Boolean)
 
   Dim hEditor As TextEditor
   Dim hPos As CPosition
@@ -82,10 +82,6 @@ Static Public Sub SaveCurrent(hForm As Object, Optional bForce As Boolean)
     hPos.Path = .Path
     Try hEditor = hForm.GetEditor()
     If hEditor Then
-      
-      If Not bForce Then
-        If Abs(hEditor.Line - hEditor.LastLine) <= 1 Then Return
-      Endif
       
       hPos.Line = hEditor.LastLine
       hPos.Column = hEditor.LastColumn
@@ -117,13 +113,15 @@ Static Public Sub MovePrevious()
   
   Dim hCurrent As CPosition
   
-  If $iCurrent <= 0 Then Return
+  If $iCurrent < 0 Then Return
 
   hCurrent = MakePos(Project.ActiveForm)
   If hCurrent And If Not hCurrent.IsEqual($aPositions[$iCurrent]) Then
     $aPositions[$iCurrent].Move()
     Return
   Endif
+  
+  If $iCurrent = 0 Then Return
   
   Dec $iCurrent
   $aPositions[$iCurrent].Move()
@@ -158,8 +156,11 @@ Public Sub Move()
   Dim hForm As Object
   
   Inc $iDisable
+  Wait
   Try hForm = Project.OpenFile(Path)
-  If hForm And If {Line} >= 0 Then hForm.Goto({Line}, Column)
+  If hForm Then
+    If {Line} >= 0 Then hForm.Goto({Line}, Column)
+  Endif
   Dec $iDisable
   
 End
