@@ -304,6 +304,12 @@ BEGIN_METHOD_VOID(ComboBox_Popup)
 
 END_METHOD
 
+BEGIN_METHOD_VOID(ComboBox_Close)
+
+	COMBOBOX->popdown();
+
+END_METHOD
+
 
 BEGIN_METHOD(ComboBox_get, GB_INTEGER index)
 
@@ -510,6 +516,7 @@ GB_DESC CComboBoxDesc[] =
 	GB_METHOD("_new", 0, ComboBox_new, "(Parent)Container;"),
 	GB_METHOD("_get", ".ComboBox.Item", ComboBox_get, "(Index)i"),
 	GB_METHOD("Popup", 0, ComboBox_Popup, 0),
+	GB_METHOD("Close", 0, ComboBox_Close, 0),
 	GB_METHOD("Clear", 0, TextBox_Clear, 0),
 	GB_METHOD("Insert", 0, TextBox_Insert, "(Text)s"),
 	GB_METHOD("Add", 0, ComboBox_Add, "(Item)s[(Index)i]"),

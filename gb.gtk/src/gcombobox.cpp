@@ -374,6 +374,11 @@ void gComboBox::popup()
 	gtk_combo_box_popup(GTK_COMBO_BOX(widget));
 }
 
+void gComboBox::popdown()
+{
+	gtk_combo_box_popdown(GTK_COMBO_BOX(widget));
+}
+
 #ifdef GTK3
 
 GtkWidget *gComboBox::getStyleSheetWidget()

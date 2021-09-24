@@ -53,6 +53,7 @@ public:
 
 //"Methods"
 	void popup();
+	void popdown();
 	void add(const char *vl, int pos = -1);
 	virtual void clear();
 	int find(const char *ptr);
