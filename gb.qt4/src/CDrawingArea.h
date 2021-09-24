@@ -84,9 +84,6 @@ public:
 	void setFrozen(bool f);
 	bool isFrozen() const { return _frozen; }
 
-	void setAllowFocus(bool f);
-	bool isAllowFocus() const { return focusPolicy() != Qt::NoFocus; }
-
 	void redraw(QRect &r, bool frame = false);
 
 	bool hasNoBackground() const { return _no_background; }

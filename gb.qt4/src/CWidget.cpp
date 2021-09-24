@@ -2341,14 +2341,19 @@ void CWIDGET_handle_focus(CWIDGET *control, bool on)
 	handle_focus_change();
 }
 
-static bool raise_key_event_to_parent_window(void *control, int event)
+static bool raise_key_event_to_parent_window(CWIDGET *control, int event)
 {
 	for(;;)
 	{
-		control = CWIDGET_get_parent(control);
-		if (!control)
+		if (!control || control->flag.deleted || !QWIDGET(control))
 			break;
-		control = CWidget::getWindow((CWIDGET *)control);
+
+		control = (CWIDGET *)CWIDGET_get_parent(control);
+		
+		if (!control || control->flag.deleted || !QWIDGET(control))
+			break;
+		
+		control = (CWIDGET *)CWidget::getWindow(control);
 		if (GB.Raise(control, event, 0))
 			return true;
 	}

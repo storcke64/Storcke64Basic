@@ -92,7 +92,7 @@ MyDrawingArea::MyDrawingArea(QWidget *parent) : MyContainer(parent)
 	setAttribute(Qt::WA_OpaquePaintEvent, false);
 	setAttribute(Qt::WA_StaticContents, false);
 
-	setAllowFocus(false);
+	setFocusPolicy(Qt::NoFocus);
 }
 
 
@@ -113,20 +113,6 @@ void MyDrawingArea::setVisible(bool visible)
 			parentWidget()->update();
 	}
 #endif
-}
-
-void MyDrawingArea::setAllowFocus(bool f)
-{
-	if (f)
-	{
-		void *_object = CWidget::getReal(this);
-		setFocusPolicy(GB.CanRaise(THIS, EVENT_MouseWheel) ? Qt::WheelFocus : Qt::StrongFocus);
-		setAttribute(Qt::WA_InputMethodEnabled, true);
-	}
-	else
-	{
-		setFocusPolicy(Qt::NoFocus);
-	}
 }
 
 void MyDrawingArea::setFrozen(bool f)
