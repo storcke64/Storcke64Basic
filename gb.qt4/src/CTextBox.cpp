@@ -561,6 +561,12 @@ BEGIN_METHOD_VOID(ComboBox_Popup)
 
 END_METHOD
 
+BEGIN_METHOD_VOID(ComboBox_Close)
+
+	COMBOBOX->hidePopup();
+
+END_METHOD
+
 
 BEGIN_PROPERTY(ComboBox_Text)
 
@@ -957,6 +963,7 @@ GB_DESC CComboBoxDesc[] =
 	GB_PROPERTY_READ("Selected", "b", ComboBox_Selected),
 
 	GB_METHOD("Popup", NULL, ComboBox_Popup, NULL),
+	GB_METHOD("Close", NULL, ComboBox_Close, NULL),
 	GB_METHOD("Clear", NULL, ComboBox_Clear, NULL),
 	GB_METHOD("Insert", NULL, TextBox_Insert, "(Text)s"),
 
