@@ -42,7 +42,6 @@ Private $bPressed As Boolean
 Private $bArrow As Boolean
 Private $bAutoResize As Boolean
 Private $bMenuOnly As Boolean
-Private $hLastFocus As Control
 Private $iBg As Integer = Color.Default 
 
 Static Private $hCurrent As MenuButton
@@ -51,7 +50,7 @@ Static Private $hCurrentMenu As Menu
 Public Sub _new()
   
   $hDrawingArea = New DrawingArea(Me) As "DrawingArea"
-  $hDrawingArea.Focus = True
+  '$hDrawingArea.Focus = True
   
   $bBorder = True
   $bArrow = True
@@ -138,7 +137,6 @@ End
 
 Public Sub Button_GotFocus()
   
-  _SetLastFocus
   $hDrawingArea.SetFocus
   'Button_Click
   
@@ -187,10 +185,13 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
   
   Dim hMenu As Menu
   Dim hWatch As Timer
+  Dim hFocus As Control
   
   hWatch = New Timer As "WatchTimer"
   hWatch.Delay = 50
   hWatch.Start
+  
+  hFocus = Application.ActiveControl
   
   While hCurrent
     
@@ -201,8 +202,8 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
     $hCurrent = hCurrent
     $hCurrentMenu = hMenu
     
-    hCurrent._SetLastFocus()
-    hCurrent.SetFocus ' Should refresh old and new menus
+    'hCurrent.SetFocus ' Should refresh old and new menus
+    hCurrent.Refresh
     
     hMenu.Popup(hCurrent.ScreenX, hCurrent.ScreenY + hCurrent.H)
 
@@ -214,14 +215,11 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
   hWatch.Stop
   hWatch = Null
   
-  If Object.IsValid($hCurrent) Then
-    $hCurrent.Refresh
-    $hCurrent._RestoreLastFocus()
-  Endif
-  
   $hCurrent = Null
   $hCurrentMenu = Null
   
+  Try hCurrent.Refresh
+  Try hFocus.SetFocus
   
 End
 
@@ -232,7 +230,7 @@ Private Sub Arrow_Click()
   If Not $sMenu Or If Not Main.FindMenu(Me, $sMenu) Then
     $hCurrent = Me
     $hCurrentMenu = Null
-    Me.SetFocus
+    'Me.SetFocus
     Me.Refresh
     Raise Click
     $hCurrent = Null
@@ -327,14 +325,15 @@ End
 
 Public Sub DrawingArea_GotFocus()
 
+  If Me.Design Then Return
   If $hButton And If Not Me.Design Then $hButton.Enabled = False
-  _SetLastFocus  
   $hDrawingArea.Refresh
   
 End
 
 Public Sub DrawingArea_LostFocus()
   
+  If Me.Design Then Return
   If $hButton And If Not Me.Design Then $hButton.Enabled = True
   $hDrawingArea.Refresh
   
@@ -369,7 +368,7 @@ Public Sub DrawingArea_MouseDown()
     $bInsideArrow = $sMenu ' if the arrow is hidden, the all button will popup the menu
   Endif
   
-  $hDrawingArea.SetFocus
+  '$hDrawingArea.SetFocus
   $hDrawingArea.Refresh
   
   If $bInsideArrow Or $bMenuOnly Then
@@ -565,34 +564,6 @@ End
 Public Sub DrawingArea_Font()
   
   UpdateSize
-  
-End
-
-Public Sub _SetLastFocus()
-  
-  If $hLastFocus Then
-    'Debug " already set"
-    Return
-  Endif
-  $hLastFocus = Application.PreviousControl
-  ' If $hLastFocus Then
-  '   Debug $hLastFocus.Name
-  ' Else
-  '   Debug "NULL"
-  ' Endif
-  
-End
-
-
-Public Sub _RestoreLastFocus()
-  
-  If $hLastFocus Then
-    'Debug $hLastFocus.Name
-    If $hDrawingArea.HasFocus Then Try $hLastFocus.SetFocus
-    $hLastFocus = Null
-  ' Else
-  '   Debug "NULL"
-  Endif
   
 End
 

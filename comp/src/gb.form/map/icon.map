@@ -18,6 +18,7 @@ battery                 devices/battery
 bicycle                 #
 brightness              #
 blue                    [breeze*]actions/colors-chromablue
+bluetooth               preferences/preferences-system-bluetooth;apps/bluetooth
 blur                    #
 book                    [-breeze*]actions/address-book-new;apps/accessories-dictionary
 bookmark                places/bookmarks;actions/bookmark-new;places/user-bookmarks
@@ -136,6 +137,7 @@ join-bevel              actions/stroke-join-bevel
 join-miter              actions/stroke-join-miter
 join-round              actions/stroke-join-round
 js                      $(mime)/application-javascript
+json                    $(mime)/application-json
 jump                    actions/go-jump
 key                     [breeze*]$(mime)/application-pgp-keys;apps/password-manager;apps/keyring-manager;actions/pgp-keys
 keyboard                preferences/preferences-desktop-keyboard;apps/preferences-desktop-keyboard

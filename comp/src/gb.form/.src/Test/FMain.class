@@ -6,11 +6,10 @@ Public Sub TreeView1_Menu()
 
 End
 
-Public Sub Form_Open()
+Static Public Sub Main()
 
-  Component.Load("gb.form.dialog")
-  Debug Style.Name
-  Me.Test
+  Color.LinkForeground = Color.Red
+  FMain.Show
 
 End
 
