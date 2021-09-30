@@ -1221,8 +1221,9 @@ Public Sub btnInstallFont_Click()
   Dim sConf As String
   Dim sData As String
   Dim sFont As String
+  Dim sSearch As String
 
-  If Message.Question(("Do you really want to install the Gambas font into your personal font directory?"), ("Install"), ("Cancel")) <> 1 Then Return
+  If Message.Question(("Do you really want to install the Gambas fonts into your personal font directory?"), ("Install"), ("Cancel")) <> 1 Then Return
   
   If Not Exist(sDir) Then Mkdir sDir
   
@@ -1241,10 +1242,15 @@ Public Sub btnInstallFont_Click()
   Endif
   
   sData = File.Load(sConf)
-  If InStr(sData, "<patelt name=\"family\"><string>Gambas</string></patelt>") = 0 Then
-    sData = Replace(sData, "</fontconfig>", RTrim(File.Load("font/font.allow")) & "\n</fontconfig>")
-    File.Save(sConf, sData)
-  Endif
+  sSearch = Replace(sData, " ", "")
+  sSearch = Replace(sSearch, "\r", "")
+  sSearch = Replace(sSearch, "\n", "")
+  For Each sFont In ["Gambas", "GambasRound"]
+    If InStr(sSearch, "<pateltname=\"family\"><string>" & sFont & "</string></patelt>") = 0 Then
+      sData = Replace(sData, "</fontconfig>", RTrim(Replace(File.Load("font/font.allow"), "$(font)", sFont)) & "\n</fontconfig>")
+    Endif
+  Next
+  File.Save(sConf, sData)
   
   NeedRestart(btnInstallFont)
 

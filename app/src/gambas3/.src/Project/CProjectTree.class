@@ -663,17 +663,14 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
         Case "svg", "svgz"
           sIcon = sPrefix &/ "vector"
 
-        Case "htm", "html", "css"
+        Case "htm", "html"
           sIcon = sPrefix &/ "html"
           
-        Case "js"
-          sIcon = sPrefix &/ "script"
+        Case "js", "json", "css", "xml", "pdf"
+          sIcon = sPrefix &/ sExt
 
         Case "txt", "text"
           sIcon = sPrefix &/ "text"
-
-        Case "pdf"
-          sIcon = sPrefix &/ "pdf"
 
         Case "connection"
           If Exist(File.SetExt(sPath, "template")) Then bExported = True

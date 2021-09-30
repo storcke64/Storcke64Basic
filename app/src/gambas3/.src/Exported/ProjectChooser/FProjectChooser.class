@@ -18,7 +18,7 @@ Public Sub Form_Open()
   
   $sLast = ""
   
-  dchProject.UncompressFilter = ["*.tar.gz.gmail.txt"]
+  dchProject.UncompressFilter = ["*.tar.gz.gmail.txt", "*.zip.gmail.txt", "*.tar.bz2.gmail.txt", "tar.xz.gmail.txt"]
   dchProject.Bookmarks = Project.GetBookmarks()
   dchProject.ShowFile = True
   dchProject_Change
