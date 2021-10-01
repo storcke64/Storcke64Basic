@@ -51,6 +51,7 @@ copy                    actions/edit-copy
 cpp                     $(mime)/text-x-c++src
 crop                    actions/image-crop;actions/transform-crop
 css                     $(mime)/text-css
+csv                     $(mime)/text-csv
 cut                     actions/edit-cut
 database                [breeze*]places/network-server-database;apps/office-database
 delete                  actions/edit-delete
@@ -146,6 +147,7 @@ language                [-breeze*]actions/im-google-talk;apps/preferences-deskto
 last                    actions/go-last
 layout                  actions/document-page-setup
 left                    actions/go-previous
+library                 $(mime)/application-x-sharedlib
 lightness               #
 link                    emblems/emblem-symbolic-link
 linux                   #
