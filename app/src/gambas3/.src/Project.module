@@ -3117,6 +3117,7 @@ Private Sub GetVersion(Optional bWriteProject As Boolean) As Boolean
   Dim iMinor As Integer
   Dim iRelease As Integer
   Dim sOldVer As String
+  Dim iPos As Integer
 
   If Not VersionFile Then Return True
 
@@ -3130,6 +3131,9 @@ Private Sub GetVersion(Optional bWriteProject As Boolean) As Boolean
   Loop
 
   sVer = Trim(File.Load(sDir &/ "VERSION"))
+  
+  iPos = InStr(sVer, " ")
+  If iPos Then sVer = Left$(sVer, iPos - 1)
 
   aVer = Split(Trim(sVer), ".")
 
@@ -3438,8 +3442,6 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   MinorVersion = 0
   ReleaseVersion = 1
   VersionAddBranch = False
-  'SnapToGrid = TRUE
-  'ShowGrid = TRUE
   ControlPublic = False
   ModulePublic = False
   ShowDeprecated = False
@@ -3475,14 +3477,11 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   RunAfterMakingExec = ""
   DefaultLanguage = ""
   VersionFile = False
-  'Stack = 0
-  'StackTrace = False
   UseTerminal = False
   RedirectStderr = False
   UseHttpServer = False
   Profiling = False
   ProfileIndex = 0
-  'BreakOnError = False
   Maintainer = ""
   Vendor = ""
   VendorPrefix = ""
@@ -3574,7 +3573,10 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
       Case "version"
         iPos = InStr(sVal, " ")
-        If iPos Then sVal = Left(sVal, iPos - 1)
+        If iPos Then
+          sVal = Left(sVal, iPos - 1)
+          VersionAddBranch = True
+        Endif
         aVer = Split(sVal, ".")
         Try MajorVersion = Val(aVer[0])
         Try MinorVersion = Val(aVer[1])
@@ -3584,7 +3586,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
         VersionFile = CInt(sVal) <> 0
 
       Case "versionaddbranch"
-        VersionAddBranch = CInt(sVal) <> 0
+        ' ignore now
 
       Case "localize", "translate"
         Localize = CInt(sVal) <> 0
@@ -3930,12 +3932,13 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   sVer = FormatVersion()
   If VersionAddBranch Then
     VersionControl.GetBranches(ByRef sBranch)
-    If sBranch Then sVer &= " (" & sBranch & ")"
+    If Not sBranch Then sBranch = "?"
+    sVer &= " (" & sBranch & ")"
   Endif
   
   Print #hFile, "Version="; sVer
   If VersionFile Then Print #hFile, "VersionFile=1"
-  If VersionAddBranch Then Print #hFile, "VersionAddBranch=1"
+  'If VersionAddBranch Then Print #hFile, "VersionAddBranch=1"
 
   For Each hComp In Documentation.Components
     If Components.Find(hComp.Key) >= 0 Then
