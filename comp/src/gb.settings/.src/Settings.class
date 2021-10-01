@@ -611,6 +611,8 @@ Static Private Sub WriteValue(vVal As Variant)
           Inc iPos
         Next
         $sStr &= "}"
+      Else 
+        Error.Raise("Only arrays and collection can be written to a settings file")
       Endif
     
   End Select
