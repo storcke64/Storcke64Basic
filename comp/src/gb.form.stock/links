@@ -11,6 +11,7 @@ application-vnd.oasis.opendocument.graphics -> office-draw
 application-vnd.oasis.opendocument.presentation -> office-presentation
 application-vnd.oasis.opendocument.spreadsheet -> office-calc
 application-vnd.oasis.opendocument.text -> office
+application-vnd.openxmlformats-officedocument.presentationml.presentation -> office-presentation
 application-vnd.rar -> archive
 application-vnd.stardivision.calc -> office-calc
 application-vnd.stardivision.writer -> office
@@ -25,10 +26,12 @@ application-x-extension-html -> html
 application-x-font-ttf -> font
 application-x-gambas3 -> gambas
 application-x-generic -> file
-application-x-generic -> program
+application-x-gnumeric -> office-calc
+application-x-object -> file
 application-x-raw-disk-image -> harddisk
 application-x-rpm -> package
-application-x-sharedlib -> exec
+application-x-sharedlib -> library
+application-x-shared-library-la -> library
 application-x-trash -> trash
 application-x-wine-extension-ini -> text
 application-x-xz-compressed-tar -> archive
@@ -41,7 +44,7 @@ image-x-generic -> image
 package-x-generic -> archive
 text-calendar -> calendar
 text-css -> css
-text-csv -> table
+text-csv -> csv
 text-html -> html
 text-plain -> text
 text-xml -> xml
