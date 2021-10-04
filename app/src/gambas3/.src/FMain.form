@@ -436,8 +436,10 @@
       Visible = False
     }
     { mnuHideMenu Menu
-      Text = ("Hide menubar")
+      Text = ("Show menubar")
       Picture = Picture["icon:/small/menu"]
+      Toggle = True
+      Checked = True
       Shortcut = "Ctrl+Alt+M"
     }
     { Menu3 Menu
@@ -1094,12 +1096,6 @@
       ToolTip = ("Run until current line")
       Action = "until"
       Picture = Picture["icon:/small/jump"]
-    }
-    { btnShowMenu ToolButton
-      MoveScaled(98,0,4,4)
-      Visible = False
-      ToolTip = ("Show menubar")
-      Picture = Picture["icon:/small/menu"]
     }
     { Panel3 Panel
       MoveScaled(102,0,1,4)

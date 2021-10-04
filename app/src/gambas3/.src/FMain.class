@@ -1204,6 +1204,7 @@ Public Sub ReadConfig()
   wrkProject.CloseWithMouse = Settings["/CloseWithMiddleClick", False]
 
   Me.Menus.Visible = Settings["/ShowMenus", True]
+  UpdateShowMenubar
   
   UpdateWorkspaceButtons
   UpdatePropertyButtons
@@ -1280,8 +1281,8 @@ Public Sub UpdateMenu()
   Endif
   Action["gui"].Visible = bVisible
   
-  btnShowMenu.Visible = Not Me.Menus.Visible
-  btnShowMenu.Raise
+  'btnShowMenu.Visible = Not Me.Menus.Visible
+  'btnShowMenu.Raise
   
 End
 
@@ -2091,14 +2092,21 @@ Public Sub mnuClearDebugWindows_Click()
   
 End
 
+Private Sub UpdateShowMenubar()
+
+  mnuHideMenu.Checked = Me.Menus.Visible
+
+End
+
 Public Sub mnuHideMenu_Click()
   
   If Me.Menus.Visible Then
     Me.Menus.Hide
     'sepMenu.Hide
-    btnShowMenu.Show
+    'btnShowMenu.Show
     Settings["/ShowMenus"] = Me.Menus.Visible
     'Message.Optional(Subst(("To show the menu bar again, hit the following keys:<p><b>&1</b>"), mnuHideMenu.Shortcut), ("OK"), "HideMenu", "menu", Settings["/AlwaysDisplayOptionalMessages"])
+    UpdateShowMenubar
   Else
     btnShowMenu_Click
   Endif
@@ -2109,8 +2117,9 @@ Public Sub btnShowMenu_Click()
   
   Me.Menus.Show
   'sepMenu.Show
-  btnShowMenu.Hide
+  'btnShowMenu.Hide
   Settings["/ShowMenus"] = Me.Menus.Visible
+  UpdateShowMenubar
   
 End
 
