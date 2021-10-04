@@ -2098,38 +2098,42 @@ Private Sub ArrangeContainer(hParent As Container, sArr As String, Optional bInv
 
   $hUndo.Begin
 
-  For Each hCtrl In aCtrl
-    If bRec Then
-      Try hCont = hCtrl
-      If Not Error Then
-        ArrangeContainer(hCtrl, sArr, bInvert)
-      Endif
-    Endif
-    sKey = GetSortKey(hCtrl, sArr, bInvert)
-    cSortKey[hCtrl.Name] = sKey
-    aPos.Add(sKey)
-    If sLastKey And If sKey < sLastKey Then
-      bModify = True
-    Endif
-    sLastKey = sKey
-  Next
+  If sArr <> "F" Then
 
-  If aPos.Count Then 
-
-    aPos.Sort(gb.Descent)
-  
-    For Each sPos In aPos
-      For Each hCtrl In aCtrl
-        If cSortKey[hCtrl.Name] = sPos Then
-          hCtrl.Lower
-          Break
+    For Each hCtrl In aCtrl
+      If bRec Then
+        Try hCont = hCtrl
+        If Not Error Then
+          ArrangeContainer(hCtrl, sArr, bInvert)
         Endif
-      Next
+      Endif
+      sKey = GetSortKey(hCtrl, sArr, bInvert)
+      cSortKey[hCtrl.Name] = sKey
+      aPos.Add(sKey)
+      If sLastKey And If sKey < sLastKey Then
+        bModify = True
+      Endif
+      sLastKey = sKey
     Next
   
-    FFormStack.RefreshAll
+    If aPos.Count Then 
   
-    If bModify Then Modify
+      aPos.Sort(gb.Descent)
+    
+      For Each sPos In aPos
+        For Each hCtrl In aCtrl
+          If cSortKey[hCtrl.Name] = sPos Then
+            hCtrl.Lower
+            Break
+          Endif
+        Next
+      Next
+    
+      FFormStack.RefreshAll
+    
+      If bModify Then Modify
+      
+    Endif
     
   Endif
   
