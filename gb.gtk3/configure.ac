@@ -29,6 +29,15 @@ GB_COMPONENT_PKG_CONFIG(
   'gtk+-3.0 >= 3.4' 'webkit2gtk-4.0 >= 2.20'
 )
 
+if test "$have_gtk3webview" != "yes"; then
+  
+GB_COMPONENT_PKG_CONFIG(
+  gtk3webview, GTK3WEBVIEW, gb.gtk3.webview, [webview],
+  'gtk+-3.0 >= 3.4' 'webkit2gtk-4.1 >= 2.20'
+)
+
+fi
+
 GB_COMPONENT_PKG_CONFIG(
   gtk3opengl, GTK3OPENGL, gb.gtk3.opengl, [opengl],
   'gtk+-3.0 >= 3.16'
