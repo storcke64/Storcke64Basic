@@ -344,6 +344,7 @@ Public Sub ReadConfig()
   Dim hCtrl As Control
   Dim hFont As Font
   Dim fSize As Float
+  Dim hImage As Image
   
   Settings.Read(panDebug)
   wizDebug.TextFont = Project.GetSmallFont()
@@ -390,6 +391,13 @@ Public Sub ReadConfig()
 
   $hBreakpoint = Picture["img/32/breakpoint.png"].Stretch(cvwVariable.Font.H)
   $hDisabledBreakpoint = $hBreakpoint.Image.Desaturate().Gamma(0.3).Picture
+  
+  lblError.Foreground = MTheme.GetColor("Normal")
+  panError.Background = MTheme.GetColor("Breakpoint")
+  
+  hImage = Image.Load("img/32/error.png")
+  hImage.Colorize(lblError.Foreground)
+  picError.Picture = hImage.Picture
   
 End
 
@@ -971,8 +979,6 @@ End
 Public Sub ShowError(sMsg As String)
   
   lblError.Text = sMsg
-  lblError.Foreground = MTheme.GetColor("Foreground")
-  panError.Background = MTheme.GetColor("Error")
   panError.Show
   sepError.Show
 

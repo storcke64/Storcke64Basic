@@ -10,6 +10,7 @@ Private $iEndLine As Integer
 Private $iEndColumn As Integer
 
 Private $hLabel As TextLabel
+Private $iLabelStyle As Integer
 'Private $hLabelTimer As Timer
 Private $hObserver As Observer
 
@@ -50,6 +51,8 @@ Public Sub ReadConfig(Optional bPreview As Boolean)
   Me.ShowBraces = True
   Me.CloseBraces = Settings["/Editor/CloseBraces", 1]
   Me.CloseStrings = Settings["/Editor/CloseStrings", 1]
+  
+  UpdateMessageLabel
   
   'Me.KeywordsUseUpperCase = Settings["/Editor/KeywordsUseUpperCase"]
   
@@ -237,6 +240,21 @@ Private Sub MoveMessageLabel()
   
 End
 
+Private Sub UpdateMessageLabel()
+
+  If Not $hLabel Then Return
+
+  If $iLabelStyle = Highlight.Normal Then
+    $hLabel.Background = Me.Styles[Highlight.Background].Color
+    $hLabel.Foreground = Me.Styles[$iLabelStyle].Color
+    $hLabel.Border = Border.Plain
+  Else
+    $hLabel.Background = Me.Styles[$iLabelStyle].Color 'Me.Styles[Highlight.Normal].Color
+    $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
+    $hLabel.Border = Border.None
+  Endif
+
+End
 
 Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom As Boolean)
 
@@ -259,17 +277,11 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     
   Endif
   
+  $iLabelStyle = iStyle
+  UpdateMessageLabel
+  
   ' $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
   ' $hLabel.Background = Color.Merge(Me.Styles[iStyle].Color, Me.Styles[Highlight.Background].Color, 0.3)
-  If iStyle = Highlight.Normal Then
-    $hLabel.Background = Me.Styles[Highlight.Background].Color
-    $hLabel.Foreground = Me.Styles[iStyle].Color
-    $hLabel.Border = Border.Plain
-  Else
-    $hLabel.Background = Me.Styles[iStyle].Color 'Me.Styles[Highlight.Normal].Color
-    $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
-    $hLabel.Border = Border.None
-  Endif
   $hLabel.Text = Replace(Replace(sStr, "<p>", " "), "<br>", " ")
 
   $bLabelBottom = bBottom
