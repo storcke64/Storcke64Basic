@@ -1036,14 +1036,17 @@ Public Sub OnProjectActivate()
   OnToolChange(hCurrent.GetTool())
   
   ShowGridOption(hCurrent.HasGrid())
-  vGrid = hCurrent.GetGrid()
-  If vGrid Then
-    $bDoNotUpdateGrid = True
-    txtGridRes.Value = vGrid[0]
-    txtGridSnap.Value = vGrid[1]
-    chkGridSnap.Value = vGrid[2]
-    chkGridDiag.Value = vGrid[3]
-    $bDoNotUpdateGrid = False
+  
+  If Not btnLockGrid.Value Then
+    vGrid = hCurrent.GetGrid()
+    If vGrid Then
+      $bDoNotUpdateGrid = True
+      txtGridRes.Value = vGrid[0]
+      txtGridSnap.Value = vGrid[1]
+      chkGridSnap.Value = vGrid[2]
+      chkGridDiag.Value = vGrid[3]
+      $bDoNotUpdateGrid = False
+    Endif
   Endif
   
   Me.Enabled = Not hCurrent.ReadOnly
@@ -1301,6 +1304,13 @@ Public Sub txtGridSnap_Change()
   UpdateGrid
 
 End
+
+Public Sub IsGridLocked() As Boolean
+  
+  Return btnLockGrid.Value
+  
+End
+
 
 Public Sub GetGridDiagonal() As Boolean
   

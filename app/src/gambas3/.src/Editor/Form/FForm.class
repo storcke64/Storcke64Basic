@@ -91,7 +91,8 @@ Private $hFamily As CFamily
 
 Private $hUndo As New CUndo
 
-Private $hCtrlFrame As Control
+Private $hCtrlFrame As CControl
+Private $hCtrlFramePattern As Image
 Private $hDropTarget As CControl
 Private $iLockArrangement As Integer
 
@@ -1611,10 +1612,14 @@ Private Sub DrawFrame(hCtrl As Control, Optional X As Integer, Y As Integer, W A
   Endif
   
   If Not bInside Then
-    X -= S
-    Y -= S
-    W += 2 * S
-    H += 2 * S
+    If W <= 2 * S 
+      X -= S
+      W += 2 * S
+    Endif
+    If H <= 2 * S Then
+      Y -= S
+      H += 2 * S
+    Endif
   Else
     S *= 2
   Endif
@@ -1689,7 +1694,7 @@ Private Sub DrawControlFrame(hCCtrl As CControl)
     
   Else 
     
-    $hCtrlFrame = hCtrl
+    $hCtrlFrame = hCCtrl
     DrawFrame(hCtrl)
     
   Endif
@@ -3950,10 +3955,37 @@ End
 
 Public Sub panSelect_Draw()
 
+  Dim S As Integer
+  Dim iCol As Integer
+  
   If $iMode = MODE_SELECT Then
+    
     Paint.FillRect(0, 0, Paint.W, Paint.H, Color.RGB(0, 0, 0, 208))
+    
   Else
-    Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha(Color.TextForeground, 216))
+    
+    iCol = Color.SetAlpha(Color.TextForeground, 128)
+    
+    If $hCtrlFrame And If $hCtrlFrame.IsMultiContainer() Then
+      
+      If Not $hCtrlFramePattern Then
+        S = Min(Paint.W, Paint.H)
+        $hCtrlFramePattern = New Image(S * 3, S * 3, Color.Transparent)
+        Paint.Begin($hCtrlFramePattern)
+        Paint.FillRect(0, 0, S * 2, S * 2, iCol)
+        Paint.End
+      Endif
+  
+      Paint.Brush = Paint.Image($hCtrlFramePattern)
+      Paint.Rectangle(0, 0, Paint.W, Paint.H)
+      Paint.Fill()
+      
+    Else
+      
+      Paint.FillRect(0, 0, Paint.W, Paint.H, iCol)
+      
+    Endif
+    
   Endif
   
 End
@@ -4136,7 +4168,7 @@ Public Sub CheckHovered(Optional hCtrl As Control)
   
   If hCtrl = panSelectN Or If hCtrl = panSelectS Or If hCtrl = panSelectW Or If hCtrl = panSelectE Then
     'Debug "in ghost frame"
-    If $hCtrlFrame Then hCtrl = $hCtrlFrame
+    If $hCtrlFrame Then hCtrl = $hCtrlFrame.Control
   Endif
   
   Do

@@ -626,9 +626,18 @@
           Value = 8
         }
       }
-      { chkGridDiag CheckBox
-        MoveScaled(1,9,40,4)
-        Text = ("Draw diagonals")
+      { Panel10 HBox
+        MoveScaled(1,9,57,4)
+        { chkGridDiag CheckBox
+          MoveScaled(0,0,32,4)
+          Expand = True
+          Text = ("Draw diagonals")
+        }
+        { btnLockGrid ToolButton
+          MoveScaled(49,0,4,4)
+          Picture = Picture["icon:/small/lock"]
+          Toggle = True
+        }
       }
     }
   }

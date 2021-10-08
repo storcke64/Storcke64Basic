@@ -2830,10 +2830,13 @@ Public Sub btnGrid_Click()
   imvImage.Refresh
   FImageProperty.ShowGridOption($bShowGrid)
   
-  If $bShowGrid And If Not $bFirstGrid Then 
+  If $bShowGrid Then
+    If FImageProperty.IsGridLocked() Then
+    Else If Not $bFirstGrid Then 
+      iSize = Min($hImage.Width, $hImage.Height) \ 2
+      FImageProperty.SetGridResolution(iSize)
+    Endif
     $bFirstGrid = True
-    iSize = Min($hImage.Width, $hImage.Height) \ 2
-    FImageProperty.SetGridResolution(iSize)
   Endif
 
 End
