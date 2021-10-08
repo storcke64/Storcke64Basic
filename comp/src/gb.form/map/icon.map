@@ -36,6 +36,9 @@ camera                  devices/camera-photo
 cancel                  actions/dialog-cancel
 car                     places/poi-car
 cdrom                   devices/media-optical
+column-after            actions/edit-table-insert-column-right
+column-before           actions/edit-table-insert-column-left
+column-remove           actions/edit-table-delete-column
 clear                   actions/edit-clear-locationbar-rtl;actions/edit-clear
 clock                   apps/clock;actions/chronometer
 clone                   actions/edit-clone;actions/edit-duplicate
@@ -165,6 +168,7 @@ menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
 microphone              devices/audio-input-microphone
 monitor                 apps/utilities-system-monitor
 mouse                   devices/input-mouse
+mount                   actions/media-mount
 move                    actions/transform-move
 multimedia              categories/applications-multimedia
 muted                   status/audio-volume-muted
@@ -229,6 +233,9 @@ right                   actions/go-next
 rotate                  actions/transform-rotate
 rotate-left             actions/object-rotate-left
 rotate-right            actions/object-rotate-right
+row-after               actions/edit-table-insert-row-below
+row-before              actions/edit-table-insert-row-above
+row-remove              actions/edit-table-delete-row
 rss                     actions/rss;apps/akregator
 saturation              #
 save                    actions/document-save
@@ -269,7 +276,9 @@ text-italic             actions/format-text-italic
 text-left               actions/format-justify-left
 text-lower              actions/format-text-lowercase
 text-middle             actions/format-align-vertical-center
+text-outline            #
 text-right              actions/format-justify-right
+text-shadow             #
 text-smaller            actions/format-font-size-less;actions/font-size-less
 text-strike             actions/format-text-strikethrough
 text-sub                actions/format-text-subscript;actions/text-subscript
