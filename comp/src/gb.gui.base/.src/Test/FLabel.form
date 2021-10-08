@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,96,110)
+  MoveScaled(0,0,103,110)
   Font = Font["Times New Roman,+10"]
   Arrangement = Arrange.Vertical
   Spacing = True
@@ -21,11 +21,13 @@
   { Label5 Label
     MoveScaled(6,23,72,13)
     Background = Color.Pink
+    Foreground = Color.SelectedBackground
     Alignment = Align.Center
     Text = ("This is a Label test line\nwith another one")
   }
   { Label1 Label
     MoveScaled(6,38,72,9)
+    Enabled = False
     Font = Font["Italic"]
     Background = Color.Pink
     Alignment = Align.Right

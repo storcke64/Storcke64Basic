@@ -215,6 +215,8 @@ Public Sub UserControl_Draw()
   Else If Align.IsCenter($iAlign) Then
     X = (Me.W - hExt.W) / 2
   Endif
+  
+  If Not Me.Enabled Then Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
 
   If $bRichText Then
     Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
