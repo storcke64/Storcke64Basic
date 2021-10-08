@@ -56,6 +56,8 @@ AC_DEFUN([GB_PRINT_MESSAGES],
     echo
   fi
   
+  rm -f $srcdir/warnings.log.before;
+  
   if test -e FAILED && test "x${GAMBAS_CONFIG_FAILURE}" != "x"; then
      AC_MSG_ERROR([Failed to configure $3])
   fi
@@ -966,6 +968,8 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
   dnl   [  --with-$1-libraries     where the $3 libraries are located. ],
   dnl   [  gb_lib_$1="$withval" ])
 
+  cp warnings.log warnings.log.before
+  
   have_$1=no
   
   if test "$gb_enable_$1" = "yes" && test ! -e DISABLED && test ! -e DISABLED.$3; then
@@ -1009,7 +1013,7 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
     fi
 
     if test "$gb_enable_$1" = "yes"; then
-      AC_MSG_RESULT(no)
+      AC_MSG_RESULT(failed)
     fi
 
     for pkgcmp in $5
@@ -1038,9 +1042,9 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
     $2_DIR=""
     if test "$gb_in_component_search" != "yes"; then
       if test x"$6" = x; then
-	GB_WARNING([$3 is disabled])
+        GB_MESSAGE([$3 is disabled])
       else
-	GB_WARNING([$6])
+        GB_MESSAGE([$6])
       fi
     fi
 
@@ -1050,6 +1054,34 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
   AC_SUBST($2_LIB)
   AC_SUBST($2_LDFLAGS)
   AC_SUBST($2_DIR)
+])
+
+
+## ---------------------------------------------------------------------------
+## GB_COMPONENT_PKG_CONFIG_AGAIN
+## Try again a component detection macro based on pkg-config
+##
+##   $1 = Component key in lower case (ex: pgsql)
+##   $2 = Component key in upper case (ex: PGSQL)
+##   $3 = Component name (ex: gb.db.postgresql)
+##   $4 = Sub-directory name
+##   $5 = pkg-config module(s) name(s) with optional required version(s)
+##   $6 = Try again message
+##   $7 = Warning message (optional)
+##
+## ---------------------------------------------------------------------------
+
+AC_DEFUN([GB_COMPONENT_PKG_CONFIG_AGAIN],
+[
+  if test "$have_$1" != "yes"; then
+
+    AC_MSG_WARN([$6...])
+    rm DISABLED.$3 FAILED;
+    cp warnings.log.before warnings.log;
+
+    GB_COMPONENT_PKG_CONFIG($1, $2, $3, $4, $5, $7)
+
+  fi
 ])
 
 
