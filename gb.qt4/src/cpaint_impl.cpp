@@ -131,18 +131,19 @@ static bool init_painting(GB_PAINT *d, QPaintDevice *device)
 	if (MAIN_right_to_left)
 		PAINTER(d)->setLayoutDirection(Qt::RightToLeft);
 
-	pen = PAINTER(d)->pen();
-	pen.setCapStyle(Qt::FlatCap);
-	pen.setJoinStyle(Qt::MiterJoin);
-	pen.setMiterLimit(10.0);
-	pen.setWidthF(1.0);
-	PAINTER(d)->setPen(pen);
-	
 	if (GB.Is(d->device, CLASS_Control))
 		col = CWIDGET_get_real_foreground((CWIDGET *)d->device);
 	else
 		col = 0;
 	
+	pen = PAINTER(d)->pen();
+	pen.setCapStyle(Qt::FlatCap);
+	pen.setJoinStyle(Qt::MiterJoin);
+	pen.setMiterLimit(10.0);
+	pen.setWidthF(1.0);
+	pen.setColor(CCOLOR_make(col));
+	PAINTER(d)->setPen(pen);
+
 	PAINTER(d)->setBrush(CCOLOR_make(col));
 	
 	return FALSE;
