@@ -265,6 +265,31 @@ BEGIN_METHOD_VOID(Collection_Copy)
 END_METHOD
 
 
+BEGIN_PROPERTY(Collection_Keys)
+
+	GB_ARRAY keys;
+	GB_COLLECTION_ITER iter;;
+	char *key;
+	int len;
+	int i;
+
+	GB_ArrayNew(&keys, GB_T_STRING, CCOLLECTION_get_count(THIS));
+
+	CLEAR(&iter);
+
+	for(i = 0;; i++)
+	{
+		if (GB_CollectionEnum(THIS, &iter, NULL, &key, &len))
+			break;
+
+		*((char **)GB_ArrayGet(keys, i)) = STRING_new(key, len);
+	}
+
+	GB_ReturnObject(keys);
+
+END_METHOD
+
+
 BEGIN_PROPERTY(Collection_Default)
 
 	if (READ_PROPERTY)
@@ -318,6 +343,7 @@ GB_DESC NATIVE_Collection[] =
 	GB_PROPERTY_READ("Last", "s", Collection_Last),
 	GB_PROPERTY("Key", "s", Collection_Key),
 	GB_PROPERTY("Default", "v", Collection_Default),
+	GB_PROPERTY_READ("Keys", "String[]", Collection_Keys),
 
 	GB_METHOD("Add", NULL, Collection_Add, "(Value)v(Key)s"),
 	GB_METHOD("Exist", "b", Collection_Exist, "(Key)s"),
@@ -401,7 +427,7 @@ bool GB_CollectionEnum(GB_COLLECTION col, GB_COLLECTION_ITER *iter, GB_VARIANT *
 	VARIANT *val;
 	HASH_TABLE *hash_table = ((CCOLLECTION *)col)->hash_table;
 
-	if (!value || !key)
+	if (!key)
 	{
 		CLEAR(iter);
 		return FALSE;
@@ -411,9 +437,12 @@ bool GB_CollectionEnum(GB_COLLECTION col, GB_COLLECTION_ITER *iter, GB_VARIANT *
 	if (!val)
 		return TRUE;
 
-	value->type = T_VARIANT;
-	value->value.type = val->type;
-	value->value.value.data = val->value.data;
+	if (value)
+	{
+		value->type = T_VARIANT;
+		value->value.type = val->type;
+		value->value.value.data = val->value.data;
+	}
 
 	HASH_TABLE_get_last_key(hash_table, key, len);
 	return FALSE;
