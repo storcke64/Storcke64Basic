@@ -3,6 +3,9 @@
 Static Public Paths As String[]
 Static Public AutoExt As Boolean
 
+Static Public FilterIndex As Integer
+Static Public FilterIndexSet As Boolean
+
 Private $bMulti As Boolean
 Private $bReadOnly As Boolean
 Private $bAutoExt As Boolean
@@ -35,6 +38,11 @@ Public Sub Form_Open()
   fchChoose.Multi = $bMulti
   'fchChoose.Root = "/"
   fchChoose.Filter = Dialog.Filter
+  If FilterIndexSet Then
+    fchChoose.FilterIndex = FilterIndex
+    FilterIndexSet = False
+  Endif 
+  
   fchChoose.ShowHidden = Dialog.ShowHidden
 
   If Component.IsLoaded("gb.settings") Then
@@ -115,6 +123,13 @@ Public Sub fchChoose_Activate()
     '   Endif 
     ' Endif
 
+  Endif
+  
+  If Dialog.Filter Then
+    FilterIndex = fchChoose.FilterIndex
+    If FilterIndex >= (Dialog.Filter.Count \ 2) Then FilterIndex = -1
+  Else 
+    FilterIndex = -1
   Endif
 
   Me.Close(True)

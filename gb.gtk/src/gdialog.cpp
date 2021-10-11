@@ -33,6 +33,9 @@ static char **_paths = NULL;
 static char *_title = NULL;
 static gFont *_font = NULL;
 static bool _show_hidden = false;
+static GPtrArray *_filter = NULL;
+static int _filter_index = -1;
+static bool _filter_index_set = false;
 
 static int run_dialog(GtkDialog *window)
 {
@@ -67,7 +70,6 @@ static int run_dialog(GtkDialog *window)
 
 //-------------------------------------------------------------------------
 
-GPtrArray *gDialog::_filter = NULL;
 
 static void free_path(void)
 {
@@ -100,21 +102,30 @@ static void set_filters(GtkFileChooser* ch)
 	char *filter;
 	char **patterns;
 	GtkFileFilter *ft;
-	GSList *lft;
+	GtkFileFilter *select = NULL;
+	int index;
 	
 	filters = gDialog::filter(&nfilters);
 	if (!nfilters)
     return;
     
-  nfilters--;
-	
-	for (i = 0; i < nfilters; i += 2)
+	if (_filter_index_set)
+	{
+		_filter_index_set = false;
+		index = _filter_index;
+	}
+	else
+		index = -1;
+
+	for (i = 0; i < nfilters / 2; i ++)
   {
-		filter = filters[i];
+		filter = filters[i * 2];
+		if (filter && !strcmp(filter, "*"))
+			continue;
 		
 		ft = gtk_file_filter_new();
 		
-		name = g_string_new(filters[i + 1]);
+		name = g_string_new(filters[i * 2 + 1]);
 		g_string_append_printf(name, " (%s)", filter);
 		gtk_file_filter_set_name(ft, name->str);
 		g_string_free(name, true);
@@ -126,14 +137,44 @@ static void set_filters(GtkFileChooser* ch)
     g_strfreev(patterns);
 	
 		gtk_file_chooser_add_filter(ch, ft);
+		
+		if (i == index)
+			select = ft;
 	}
 	
-	lft = gtk_file_chooser_list_filters(ch);
-	if (lft)
+	ft = gtk_file_filter_new();
+	
+	name = g_string_new(GB.Translate("All files"));
+	g_string_append(name, " (*)");
+	gtk_file_filter_set_name(ft, name->str);
+	g_string_free(name, true);
+		
+	gtk_file_filter_add_pattern(ft, "*");
+	gtk_file_chooser_add_filter(ch, ft);
+	
+	if (!select)
+		select = ft;
+	
+	gtk_file_chooser_set_filter(ch, select);
+}
+
+static void find_filter(GtkFileChooser*ch)
+{
+	GtkFileFilter *ft = gtk_file_chooser_get_filter(ch);
+	GSList *lft;
+	
+	if (ft)
 	{
-		gtk_file_chooser_set_filter(ch, (GtkFileFilter *)lft->data);
-		g_slist_free(lft);
+		lft = gtk_file_chooser_list_filters(ch);
+		if (lft)
+		{
+			_filter_index = g_slist_index(lft, (gconstpointer)ft);
+			if (_filter_index >= 0 && _filter_index < ((int)g_slist_length(lft) - 1))
+				return;
+		}
 	}
+	
+	_filter_index = -1;
 }
 	
 static bool run_file_dialog(GtkFileChooserDialog *msg)
@@ -177,6 +218,8 @@ static bool run_file_dialog(GtkFileChooserDialog *msg)
 		
 		g_slist_free(names);
 	}
+	
+	find_filter((GtkFileChooser *)msg);
 	
 	gtk_widget_destroy(GTK_WIDGET(msg));
 	gDialog::setTitle(NULL);
@@ -543,3 +586,13 @@ bool gDialog::selectColor()
 }
 #endif
 
+int gDialog::filterIndex()
+{
+	return _filter_index;
+}
+
+void gDialog::setFilterIndex(int index)
+{
+	_filter_index = index;
+	_filter_index_set = true;
+}
