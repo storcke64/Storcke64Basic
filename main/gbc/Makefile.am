@@ -29,7 +29,7 @@ gbc3_SOURCES = \
  gbc_header.h gbc_header.c \
  gbc_help.h gbc_help.c \
  gbc_output.h gbc_output.c \
- gbc_trans.h gbc_trans_expr.c gbc_trans_tree.c gbc_trans_ctrl.c gbc_trans_subr.c \
+ gbc_trans.h gbc_trans_expr.c gbc_trans_tree.c gbc_trans_ctrl.c gbc_trans_subr.c gbc_trans_const.c \
  gbc_reserved.c \
  gb_buffer.c \
  gbc_dump.c gbc_code.c gbc_trans.c gbc_trans_code.c \

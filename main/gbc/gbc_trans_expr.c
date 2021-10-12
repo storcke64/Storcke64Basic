@@ -21,7 +21,7 @@
 
 ***************************************************************************/
 
-#define _TRANS_EXPR_C
+#define __GBC_TRANS_EXPR_C
 
 #include <stdlib.h>
 #include <string.h>
@@ -38,11 +38,6 @@
 //#define DEBUG 1
 
 //static bool _accept_statement = FALSE;
-
-static int *_tree_pos = NULL;
-static int _tree_length = 0;
-static int _tree_index = 0;
-static int _tree_line;
 
 static bool _must_drop_vargs = FALSE;
 
@@ -624,7 +619,7 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 	
 	for (i = 0; i < count; i++)
 	{
-		_tree_index = i;
+		TRANS_tree_set_index(i);
 		prev_pattern = pattern;
 		pattern = tree[i];
 		next_pattern = tree[i + 1];
@@ -755,6 +750,7 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 		;
 	}
 	
+	TRANS_tree_set_index(-1);
 	_last_type = pop_type();
 }
 
@@ -881,6 +877,7 @@ void TRANS_new(void)
 static void trans_expression(bool check_statement)
 {
 	TRANS_TREE *tree;
+	int tree_length;
 
 	if (!check_statement)
 	{
@@ -901,16 +898,13 @@ static void trans_expression(bool check_statement)
 		}
 	}
 
-	_tree_line = JOB->line;
-	TRANS_tree(check_statement, &tree, &_tree_length, &_tree_pos);
+	TRANS_tree(check_statement, &tree, &tree_length);
 
 	JOB->step = JOB_STEP_TREE;
-	trans_expr_from_tree(tree, _tree_length);
+	trans_expr_from_tree(tree, tree_length);
 	JOB->step = JOB_STEP_CODE;
 
 	FREE(&tree);
-	_tree_pos = NULL;
-	_tree_length = 0;
 	
 	if (check_statement)
 	{
@@ -923,35 +917,10 @@ static void trans_expression(bool check_statement)
 	}
 }
 
-int TRANS_get_column(int *pline)
-{
-	int i;
-	int line;
-	int col;
-	
-	if (!_tree_pos)
-	{
-		*pline = -1;
-		return -1;
-	}
-	
-	line = _tree_line;
-	col = _tree_pos[0];
-	for (i = 1; i <= _tree_index; i++)
-	{
-		col = _tree_pos[i];
-		if (col < 0)
-			line++;
-	}
-	
-	*pline = line;
-	return abs(col);
-}
-
 
 void TRANS_ignore_expression()
 {
-	TRANS_tree(FALSE, NULL, NULL, NULL);
+	TRANS_tree(FALSE, NULL, NULL);
 }
 
 
@@ -963,7 +932,7 @@ TYPE TRANS_variable_get_type()
 	int index;
 	CLASS_SYMBOL *sym;
 
-	TRANS_tree(FALSE, &tree, &count, NULL);
+	TRANS_tree(FALSE, &tree, &count);
 
 	if (count == 1 && PATTERN_is_identifier(*tree))
 	{

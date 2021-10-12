@@ -131,7 +131,6 @@
 #define C_FILE                  0x3E00
 #define C_IS                    0x3F00
 
-
 #define CODE_FIRST_SUBR 0x40
 #define CODE_LAST_SUBR  0x9F
 
@@ -148,10 +147,13 @@
 #define CODE_RINSTR      (CODE_FIRST_SUBR + 12)
 #define CODE_ABS         (CODE_FIRST_SUBR + 20)
 #define CODE_MAX         (CODE_FIRST_SUBR + 30)
+#define CODE_BCLR        (CODE_FIRST_SUBR + 36)
 #define CODE_CONV        (CODE_FIRST_SUBR + 39)
 #define CODE_BIN         (CODE_FIRST_SUBR + 40)
 #define CODE_HEX         (CODE_FIRST_SUBR + 41)
 #define CODE_DEBUG       (CODE_FIRST_SUBR + 54)
+
+#define C_BCLR           (CODE_BCLR << 8)
 
 typedef
   ushort PCODE;

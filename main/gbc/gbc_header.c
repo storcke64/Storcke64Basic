@@ -21,7 +21,7 @@
 
 ***************************************************************************/
 
-#define _TRANS_HEADER_C
+#define __GBC_HEADER_C
 
 #include <stdlib.h>
 #include <string.h>
@@ -581,7 +581,7 @@ static bool header_declaration(TRANS_DECL *decl)
 			THROW(E_SYNTAX_MISSING, "'='");
 
 		JOB->current = decl->init;
-		JOB->current = TRANS_get_constant_value(decl, JOB->current);
+		TRANS_get_constant_value(decl);
 	}
 
 	//JOB->current = look;
@@ -623,7 +623,7 @@ static bool header_enumeration(TRANS_DECL *decl)
 
 		if (TRANS_is(RS_EQUAL))
 		{
-			JOB->current = TRANS_get_constant_value(decl, JOB->current);
+			TRANS_get_constant_value(decl);
 			value = decl->value + 1;
 		}
 		else

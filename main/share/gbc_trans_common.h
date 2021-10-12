@@ -60,7 +60,7 @@ typedef
 	struct {
 		int index;                  // index in symbol table
 		TYPE type;                  // data type
-		int value;                  // value
+		int value;                  // value or pattern index
 		TRANS_ARRAY array;          // array dimensions
 		PATTERN *init;              // initialization code
 		int64_t lvalue;             // The value of a LONG constant

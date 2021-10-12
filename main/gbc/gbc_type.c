@@ -50,6 +50,7 @@ const char *TYPE_name[] =
 };
 
 
+#if 0
 size_t TYPE_sizeof(TYPE type)
 {
   TYPE_ID id = TYPE_get_id(type);
@@ -111,7 +112,7 @@ size_t TYPE_sizeof(TYPE type)
       ERROR_panic("TYPE_sizeof: bad type id");
   }
 }
-
+#endif
 
 
 const char *TYPE_get_short_desc(TYPE type)

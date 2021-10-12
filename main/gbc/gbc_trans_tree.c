@@ -42,6 +42,7 @@ static TRANS_TREE _tree[MAX_EXPR_PATTERN];
 static int _tree_pos[MAX_EXPR_PATTERN];
 static int _tree_length = 0;
 static int _tree_line = 0;
+static int _tree_index = -1;
 
 static void analyze_expr(short priority, short op_main);
 static void analyze_array();
@@ -651,7 +652,7 @@ static void analyze_expr(short priority, short op_main)
 	nparam = (op_main == RS_NONE || op_main == RS_UNARY) ? 0 : 1;
 
 	if (PATTERN_is(*_current, RS_NEW))
-		THROW("Cannot use NEW operator there");
+		THROW("Cannot use NEW operator here");
 
 READ_OPERAND:
 
@@ -798,7 +799,7 @@ END:
 }
 
 
-void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count, int **result_pos)
+void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count)
 {
 	#ifdef DEBUG
 	int i;
@@ -838,9 +839,37 @@ void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count, int **res
 		add_pattern(NULL_PATTERN);
 		ALLOC(result, sizeof(PATTERN) * _tree_length);
 		memcpy(*result, _tree, sizeof(PATTERN) * _tree_length);
-		if (result_pos)
-			*result_pos = _tree_pos;
 		*count = _tree_length - 1;
 	}
+}
+
+int TRANS_get_column(int *pline)
+{
+	int i;
+	int line;
+	int col;
+	
+	if (_tree_index < 0)
+	{
+		*pline = -1;
+		return -1;
+	}
+	
+	line = _tree_line;
+	col = _tree_pos[0];
+	for (i = 1; i <= _tree_index; i++)
+	{
+		col = _tree_pos[i];
+		if (col < 0)
+			line++;
+	}
+	
+	*pline = line;
+	return abs(col);
+}
+
+void TRANS_tree_set_index(int index)
+{
+	_tree_index = index;
 }
 

@@ -193,6 +193,14 @@ COMP_INFO COMP_res_info[] =
 	{ "Or",           RSF_OP2SM,                OP_OR,        0,   2,   RST_AND,        C_OR          },
 	{ "Not",          RSF_OP1,                  OP_NOT,       0,   10,  RST_NOT,        C_NOT         },
 	{ "Xor",          RSF_OP2SM,                OP_XOR,       0,   2,   RST_AND,        C_XOR         },
+	{ "Shl",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 5     }, 
+	{ "Asl",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 5     }, 
+	{ "Shr",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 6     }, 
+	{ "Asr",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 6     }, 
+	{ "Rol",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 7     }, 
+	{ "Ror",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 8     }, 
+	{ "Lsl",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 9     }, 
+	{ "Lsr",          RSF_OP2,                  OP_SHL,       0,   2,   RST_BCLR,       C_BCLR, 10    }, 
 	{ "\\",           RSF_OP2S,                 OP_DIV,       0,   6,   T_INTEGER,      C_QUO         },
 	{ "Div",          RSF_OP2S,                 OP_DIV,       0,   6,   T_INTEGER,      C_QUO         },
 	{ "%",            RSF_OP2S,                 OP_MOD,       0,   6,   RST_MOD,        C_REM         },
@@ -362,7 +370,7 @@ SUBR_INFO COMP_subr_info[] =
 	{ "IsPunct",           35,  9, T_BOOLEAN,      1     },
 	{ "IsAlnum",           35, 10, T_BOOLEAN,      1     },
 
-	{ "BClr",              36,  1, RST_BCLR,       2     },
+	{ "BClr",              36,  1, RST_BCLR,       2     },   // CODE_BCLR
 	{ "BSet",              36,  2, RST_BCLR,       2     },
 	{ "BTst",              36,  3, RST_BCLR,       2     },
 	{ "BChg",              36,  4, RST_BCLR,       2     },

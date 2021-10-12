@@ -69,8 +69,7 @@ void SUBR_bit(ushort code)
 
 	n = nbits[type];
 
-  VALUE_conv_integer(&PARAM[1]);
-  bit = PARAM[1]._integer.value;
+  bit = SUBR_get_integer(&PARAM[1]);
 
   if ((bit < 0) || (bit >= n))
     THROW(E_ARG);

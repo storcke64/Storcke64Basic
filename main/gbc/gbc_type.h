@@ -103,7 +103,7 @@ EXTERN char *TYPE_name[];
 /*PUBLIC long TYPE_get_class(TYPE type);*/
 //TYPE TYPE_make(TYPE_ID id, short value, int flag);
 const char *TYPE_get_short_desc(TYPE type);
-size_t TYPE_sizeof(TYPE type);
+//size_t TYPE_sizeof(TYPE_ID type);
 
 char *TYPE_get_desc(TYPE type);
 bool TYPE_check_prefix(TYPE type, const char *prefix, int len);

@@ -122,6 +122,16 @@ enum {
 
 #define TS_NO_SUBR ((void (*)())-1)
 
+typedef
+	struct {
+		TYPE_ID type;
+		union {
+			int _integer;
+			int64_t _long;
+		} value;
+	}
+	TRANS_CONST_VALUE;
+	
 #ifndef __GBC_TRANS_C
 EXTERN short TRANS_in_assignment;
 EXTERN short TRANS_in_left_value;
@@ -136,7 +146,7 @@ void TRANS_reset(void);
 bool TRANS_type(int flag, TRANS_DECL *result);
 bool TRANS_get_number(int index, TRANS_NUMBER *result);
 bool TRANS_check_declaration(void);
-PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current);
+void TRANS_get_constant_value(TRANS_DECL *decl);
 
 void TRANS_want(int reserved, char *msg);
 void TRANS_want_newline(void);
@@ -148,7 +158,7 @@ char *TRANS_get_num_desc(ushort num);
 #define TRANS_is(_reserved) (PATTERN_is(*JOB->current, (_reserved)) ? JOB->current++, TRUE : FALSE)
 #define TRANS_ignore(_reserved) (void)TRANS_is(_reserved)
 
-/* trans_code.c */
+// gbc_trans_code.c
 
 void TRANS_code(void);
 #define TRANS_has_init_var(_decl) ((_decl)->is_new || (_decl)->init)
@@ -158,7 +168,7 @@ void TRANS_init_optional(TRANS_PARAM *param);
 #define TRANS_add_label(_pos) (TRANS_labels ? *ARRAY_add(&TRANS_labels) = (_pos) : 0)
 int TRANS_loop_local(bool allow_arg);
 
-/* trans_expr.c */
+// gbc_trans_expr.c
 
 void TRANS_expression(bool check);
 void TRANS_ignore_expression(void);
@@ -170,16 +180,21 @@ void TRANS_new(void);
 TYPE TRANS_variable_get_type(void);
 void TRANS_class(int index);
 bool TRANS_string(PATTERN pattern);
-int TRANS_get_column(int *line);
 
-/* trans_tree.c */
+// gbc_trans_const.c
+
+TRANS_CONST_VALUE *TRANS_const(void);
+
+// gbc_trans_tree.c
 
 #define RS_UNARY (-1)
 
 //TRANS_TREE *TRANS_tree(bool check_statement);
-void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count, int **result_pos);
+void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count);
+void TRANS_tree_set_index(int index);
+int TRANS_get_column(int *line);
 
-/* trans_ctrl.c */
+// gbc_trans_ctrl.c
 
 void TRANS_control_init(void);
 void TRANS_control_exit(void);
@@ -213,7 +228,7 @@ void TRANS_end_with(void);
 void TRANS_raise(void);
 void TRANS_stop(void);
 
-/* trans_subr.c */
+// gbc_trans_subr.c
 
 void TRANS_subr(int subr, int nparam);
 

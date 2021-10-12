@@ -60,11 +60,6 @@ static short get_nparam(PATTERN *tree, int *index)
 		}
 	}
 
-	/*
-		G�e le cas o on a cod�un subr sans mettre de parenth�es
-		=> nparam = 0
-	*/
-
 	return 0;
 }
 

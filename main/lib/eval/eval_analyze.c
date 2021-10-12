@@ -459,7 +459,7 @@ static void analyze(EVAL_ANALYZE *result)
 				//state = Commentary;
 				space_before = FALSE; //*symbol != ' ';
 				i = get_symbol_indent(symbol, len);
-				if (i <= (len - 2) && symbol[i + 1] == '\'')
+				if ((len >= 2) && (i <= (len - 2)) && (symbol[i + 1] == '\''))
 					type = RT_HELP;
 				else
 				{

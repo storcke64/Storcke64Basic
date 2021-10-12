@@ -368,8 +368,9 @@ __END:
 
 static PATTERN *trans_embedded_array(PATTERN *look, int mode, TRANS_DECL *result)
 {
-	TRANS_NUMBER tnum;
+	TRANS_CONST_VALUE *const_value;
 	int i;
+	int size;
 
 	if (!(mode & TT_CAN_EMBED))
 	{
@@ -390,18 +391,20 @@ static PATTERN *trans_embedded_array(PATTERN *look, int mode, TRANS_DECL *result
 			if (i >= MAX_ARRAY_DIM)
 				THROW("Too many dimensions");
 
-			if (!PATTERN_is_number(*look))
-				THROW(E_SYNTAX);
-			if (TRANS_get_number(PATTERN_index(*look), &tnum))
-				THROW(E_SYNTAX);
-			if (tnum.type != T_INTEGER)
-				THROW(E_SYNTAX);
-			if (tnum.ival < 1 || tnum.ival > (2 << 22)) /* 4 Mo, ca devrait suffire... ;-) */
+			JOB->current = look;
+			const_value = TRANS_const();
+			look = JOB->current;
+			
+			if (const_value->type != T_INTEGER)
+				THROW("Bad subscript range");
+			
+			size = const_value->value._integer;
+			
+			if (size < 1 || size > (2 << 22)) /* 4 Mo, ca devrait suffire... ;-) */
 				THROW("Bad subscript range");
 
-			result->array.dim[i] = tnum.ival;
+			result->array.dim[i] = size;
 			result->array.ndim++;
-			look++;
 
 			if (PATTERN_is(*look, RS_RSQR))
 				break;
@@ -687,27 +690,28 @@ bool TRANS_check_declaration(void)
 }
 
 
-PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current)
+void TRANS_get_constant_value(TRANS_DECL *decl)
 {
 	int index;
 	TRANS_NUMBER number = {0};
 	int type;
 	PATTERN value;
+	TRANS_CONST_VALUE *const_value;
 
 	type = TYPE_get_id(decl->type);
 
-	value = *current++;
-	index = PATTERN_index(value);
-	
 	if (type == T_STRING)
 	{
+		value = *JOB->current++;
+		index = PATTERN_index(value);
+	
 		if (PATTERN_is(value, RS_LBRA))
 		{
-			value = *current++;
+			value = *JOB->current++;
 			if (!PATTERN_is_string(value))
 				THROW("Constant string expected");
 			index = PATTERN_index(value);
-			value = *current++;
+			value = *JOB->current++;
 			if (!PATTERN_is(value, RS_RBRA))
 				THROW("Missing right brace");
 			if (index != VOID_STRING_INDEX)
@@ -724,53 +728,64 @@ PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current)
 	}
 	else
 	{
-		if (PATTERN_is_string(value))
-			THROW("Syntax error");
-			
-		if (type != T_BOOLEAN && type <= T_FLOAT)
-		{
-			if (TRANS_get_number(index, &number))
-				THROW("Type mismatch");
-		}
-	
 		switch(type)
 		{
 			case T_BOOLEAN:
+				
+				const_value = TRANS_const();
+	
+				if (const_value->type == T_INTEGER)
+					decl->value = const_value->value._integer ? -1 : 0;
+				else if (const_value->type == T_LONG)
+					decl->value = const_value->value._long ? -1 : 0;
+				else
+					THROW("Type mismatch");
 	
 				decl->is_integer = TRUE;
+				break;
 	
-				if (PATTERN_is(value, RS_TRUE))
-					decl->value = -1L;
-				else if (PATTERN_is(value, RS_FALSE))
-					decl->value = 0L;
+			case T_BYTE: case T_SHORT: case T_INTEGER:
+	
+				const_value = TRANS_const();
+				
+				if (const_value->type == T_INTEGER)
+				{
+					if (((type == T_BYTE) && (const_value->value._integer < 0 || const_value->value._integer > 255))
+							|| ((type == T_SHORT) && (const_value->value._integer < -32768L || const_value->value._integer > 32767L)))
+						THROW("Out of range");
+					
+					decl->value = const_value->value._integer;
+				}
+				else if (const_value->type == T_LONG)
+					THROW("Out of range");
+				else
+					THROW("Type mismatch");
+				
+				decl->is_integer = TRUE;
+				break;
+	
+			case T_LONG:
+	
+				const_value = TRANS_const();
+
+				decl->is_integer = FALSE;
+				if (const_value->type == T_INTEGER)
+					decl->lvalue = const_value->value._integer;
+				else if (const_value->type == T_LONG)
+					decl->lvalue = const_value->value._long;
 				else
 					THROW("Type mismatch");
 	
 				break;
 	
-			case T_BYTE: case T_SHORT: case T_INTEGER:
-	
-				decl->is_integer = TRUE;
-	
-				if (number.type != T_INTEGER)
-				{
-					if (number.type == T_LONG)
-						THROW("Out of range");
-					else
-						THROW("Type mismatch");
-				}
-	
-				if (((type == T_BYTE) && (number.ival < 0 || number.ival > 255))
-						|| ((type == T_SHORT) && (number.ival < -32768L || number.ival > 32767L)))
-					THROW("Out of range");
-	
-				decl->value = number.ival;
-	
-				//fprintf(stderr, "TRANS_get_constant_value: INT: %ld\n", decl->value);
-				break;
-	
 			case T_FLOAT: case T_SINGLE:
 	
+				value = *JOB->current++;
+				index = PATTERN_index(value);
+				
+				if (TRANS_get_number(index, &number))
+					THROW("Type mismatch");
+		
 				if (type == T_SINGLE && !finite((float)number.dval))
 					THROW("Out of range");
 	
@@ -778,25 +793,11 @@ PATTERN *TRANS_get_constant_value(TRANS_DECL *decl, PATTERN *current)
 				decl->value = index;
 				break;
 	
-			case T_LONG:
-	
-				if (number.type == T_FLOAT)
-					THROW("Type mismatch");
-	
-				decl->is_integer = FALSE;
-				decl->value = index;
-				decl->lvalue = number.lval;
-	
-				//fprintf(stderr, "TRANS_get_constant_value: LONG: %lld\n", decl->lvalue);
-				break;
-	
 			default:
 	
 				THROW("Bad constant type");
 		}
 	}
-	
-	return current;
 }
 
 

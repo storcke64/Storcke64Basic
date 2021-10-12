@@ -263,6 +263,14 @@ typedef
 		RS_OR,
 		RS_NOT,
 		RS_XOR,
+		RS_SHL,
+		RS_ASL,
+		RS_SHR,
+		RS_ASR,
+		RS_ROL,
+		RS_ROR,
+		RS_LSL,
+		RS_LSR,
 		RS_BSLASH,
 		RS_DIV,
 		RS_PERCENT,
@@ -317,6 +325,14 @@ enum
 	OP_OR    ,
 	OP_NOT   ,
 	OP_XOR   ,
+	OP_SHL   ,
+	OP_ASL   ,
+	OP_SHR   ,
+	OP_ASR   ,
+	OP_ROL   ,
+	OP_ROR   ,
+	OP_LSL   ,
+	OP_LSR   ,
 	OP_DIV   ,
 	OP_MOD   ,
 	OP_IS    ,
@@ -360,6 +376,7 @@ EXTERN int SUBR_VarPtr;
 EXTERN int SUBR_IsMissing;
 EXTERN int SUBR_Mid;
 EXTERN int SUBR_MidS;
+EXTERN int SUBR_SizeOf;
 
 #endif
 
