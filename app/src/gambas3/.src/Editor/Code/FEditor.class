@@ -3397,6 +3397,8 @@ Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean)
     hResult.Location = sWhere
   Endif
   
+  If Not bJustCheck Then CPosition.SaveCurrent(Me)
+  
   Return bResult
 
 End

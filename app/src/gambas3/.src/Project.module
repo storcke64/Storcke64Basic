@@ -7179,3 +7179,24 @@ Public Sub SaveFileAs(sPath As String)
   If Error Then Message.Error(("Unable to save file.") & "\n\n" & Error.Text)
   
 End
+
+Public Sub GetTranslationEngines() As String[]
+
+  Dim sResult As String
+  Dim sEngine As String
+  Dim aEngine As New String[]
+  
+  Exec ["trans", "-S"] To sResult
+  
+  For Each sEngine In Split(Trim(sResult), "\n")
+    If sEngine Begins "* " Then sEngine = Mid$(sEngine, 2)
+    sEngine = Trim(sEngine)
+    If sEngine Then aEngine.Add(sEngine)
+  Next
+  
+  If Not aEngine.Exist("google") Then aEngine.Add("google")
+  
+  Return aEngine.Sort()
+  
+End
+

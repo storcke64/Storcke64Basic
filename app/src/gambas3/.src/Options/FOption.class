@@ -1604,24 +1604,9 @@ End
 
 Private Sub FillAutoTransEngines()
 
-  Dim sResult As String
-  Dim sEngine As String
-  Dim aEngine As New String[]
-  
   If cmbAutoTrans.Count Then Return
   
-  Exec ["trans", "-S"] To sResult
-  
-  For Each sEngine In Split(Trim(sResult), "\n")
-    If sEngine Begins "* " Then sEngine = Mid$(sEngine, 2)
-    sEngine = Trim(sEngine)
-    If sEngine Then aEngine.Add(sEngine)
-  Next
-  
-  If Not aEngine.Exist("google") Then aEngine.Add("google")
-  aEngine.Sort()
-  
-  cmbAutoTrans.List = aEngine
+  cmbAutoTrans.List = Project.GetTranslationEngines()
 
   cmbAutoTrans.Text = Settings["/AutomaticTranslation/Engine", "google"]
   If cmbAutoTrans.Index < 0 Then cmbAutoTrans.Text = "google"

@@ -866,11 +866,17 @@ End
 
 Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean) As Boolean
   
+  Dim bResult As Boolean
+  
   If bJustCheck Then
     hResult.Location = GetProcAt(hResult.Line)
   Endif
 
-  Return $hEditor.SetPosition(hResult, bJustCheck)
+  bResult = $hEditor.SetPosition(hResult, bJustCheck)
+  
+  If Not bJustCheck Then CPosition.SaveCurrent(Me)
+  
+  Return bResult
   
 End
 

@@ -145,6 +145,8 @@ Public Sub Form_Open()
 
   $bStatValid = False
 
+  FillTranslationEngines
+
   cvwLang.Clear
   cmbLang.Clear
   cmbLangSource.Clear
@@ -1838,4 +1840,33 @@ Public Sub btnLastUntranslated_Click()
   End With
   
 
+End
+
+Private Sub FillTranslationEngines()
+
+  Dim aEngines As String[]
+  Dim sEngine As String
+  Dim hMenu As Menu
+  Dim sCurrent As String
+
+  sCurrent = Settings["/AutomaticTranslation/Engine", "google"]
+
+  aEngines = Project.GetTranslationEngines()
+  If Not aEngines.Exist(sCurrent) Then sCurrent = "google"
+  
+  mnuTranslator.Children.Clear
+  
+  For Each sEngine In aEngines
+    hMenu = New Menu(mnuTranslator) As "mnuTranslator_Click"
+    hMenu.Text = sEngine
+    hMenu.Radio = True
+    If sEngine = sCurrent Then hMenu.Value = True
+  Next
+
+End
+
+Public Sub mnuTranslator_Click()
+  
+  Settings["/AutomaticTranslation/Engine"] = Last.Text
+  
 End

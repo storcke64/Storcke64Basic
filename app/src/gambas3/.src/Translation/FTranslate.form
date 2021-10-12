@@ -28,6 +28,12 @@
       Text = ("Automatic translation") & "..."
       Picture = Picture["icon:/small/fill"]
     }
+    { mnuTranslator Menu
+      Text = ("Translation engine")
+      { Menu3 Menu
+        Text = ("Menu3")
+      }
+    }
     { Menu2 Menu
     }
     { mnuCopy Menu
@@ -244,7 +250,7 @@
             Picture = Picture["icon:/small/copy"]
           }
           { btnAutoTrans ToolButton
-            MoveScaled(43,0,23,4)
+            MoveScaled(43,0,26,4)
             AutoResize = True
             Text = ("Automatic translation")
             Picture = Picture["icon:/small/fill"]

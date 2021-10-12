@@ -3853,7 +3853,10 @@ Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean)
   Else
     aName = Split(hResult.Location, ".")
     Try SelectControl(aName[0])
-    If Not Error Then FProperty.FocusOn(aName[1])
+    If Not Error Then 
+      FProperty.FocusOn(aName[1])
+      CPosition.SaveCurrent(Me)
+    Endif
   Endif
 
 End
