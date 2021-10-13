@@ -2949,6 +2949,17 @@ Public Sub OnVersionControlChange()
   VersionControl.InitControlProjectMenu(mnuVersionControlWith)
   mnuVersionControlWith.Visible = mnuVersionControlWith.Children.Count
   
+  If VersionControl.Enabled Then
+    panBranchColor.Show
+    txtSearchProject.Button = False
+  Else
+    panBranchColor.Hide
+    txtSearchProject.Button = True
+  Endif
+  
+  dwgBranchColor.Visible = VersionControl.Enabled
+  dwgBranchColor.Refresh
+  
 End
 
 Public Sub mnuVcBranchSet_Click()
@@ -3200,5 +3211,32 @@ Public Sub btnOpenStartup_Click()
   hFile = Project.OpenFile(Project.FindPath(Project.Startup))
   Try hFile.Goto(hFile.GetFunctionLine("Main"), 0)
   
+
+End
+
+Public Sub dwgBranchColor_Draw()
+
+  Dim DS As Integer
+  Dim sBranch As String
+
+  DS = Desktop.Scale \ 2
+  
+  sBranch = VersionControl.GetCurrentBranch()
+  
+  Paint.Rectangle(DS, DS, Paint.W - DS, Paint.H - DS * 2, DS * 4)
+  Paint.Background = VersionControl.GetBranchColor(sBranch)
+  If Application.DarkTheme Then Paint.Background = Color.Invert(Paint.Background, True)
+  Paint.Fill
+  
+  Paint.Background = Color.TextBackground
+  Paint.Font.Bold = True
+  sBranch = Paint.TrimText(sBranch, Paint.W - DS * 5)
+  Paint.DrawText(sBranch, DS, DS, Paint.W - DS, Paint.H - DS * 2, Align.Center)
+  
+End
+
+Public Sub btnCloseTree_Click()
+
+  txtSearchProject_Click
 
 End

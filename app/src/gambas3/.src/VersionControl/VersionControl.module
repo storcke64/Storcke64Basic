@@ -28,7 +28,13 @@ Private $sLastResult As String
 Public LANG_ENV As String[] = ["LC_ALL=C.UTF-8", "LANG=C.UTF-8", "LANGUAGE=C.UTF-8"]
 Public Const DELIM_CHANGE As String = ("This line and the following will be ignored")
 Public Enum ACCEPT_OURS = 1, ACCEPT_THEIRS = 2
+
 Private $bCancel As Boolean
+
+Private $sCurrentBranch As String
+Private $cBranchColor As New Collection
+
+Private $aBranchColor As Integer[] = [&HFF0000, &HFF007F, &HFF00FF, &H7F00FF, &H0000FF, &H007FFF, &H00E0E0, &H00E000, &HE0E000, &HFFBF00, &HFF7F00, &HC00000, &HC00060, &HC000C0, &H00A0A0, &H00A000, &HA0A000, &HC09000, &HC05C00]
 
 Private Sub OnVersionControlChange()
 
@@ -74,6 +80,7 @@ Public Sub Refresh()
     Endif
   Endif
   
+  $sCurrentBranch = ""
   $bAuth = False
   CheckPaths
   OnVersionControlChange
@@ -595,6 +602,13 @@ Private Function Output_Read() As String
 
 End
 
+Public Sub GetCurrentBranch() As String
+  
+  If Not $sCurrentBranch Then $sCurrentBranch = $hVC.GetCurrentBranch()
+  Return $sCurrentBranch
+    
+End
+
 Public Sub GetBranches(ByRef sCurrent As String) As String[]
   
   Return $hVC.GetBranches(ByRef sCurrent)
@@ -646,7 +660,8 @@ Public Sub SetBranch(sBranch As String)
 
   Inc Application.Busy  
   $hVC.SetBranch(sBranch)
-  GetBranches(ByRef sCurrent)
+  $sCurrentBranch = ""
+  sCurrent = GetCurrentBranch()
   If sCurrent = sBranch Then Project.Reload
   Dec Application.Busy
   
@@ -654,7 +669,7 @@ Public Sub SetBranch(sBranch As String)
     ShowError(Subst(("Unable to switch to branch `&1`."), sBranch))
   Endif
   
-  Project.UpdateTitle
+  Refresh()
   
 End
 
@@ -711,3 +726,61 @@ Public Sub NeedMove() As Boolean
   
 End
 
+Public Sub GetBranchColor(sBranch As String) As Integer
+  
+  Dim iColor As Integer
+  Dim I As Integer
+  Dim iHash As Integer
+  Dim iPos As Integer
+  
+  Try iColor = $cBranchColor[sBranch]
+  If Error Then
+    
+    ' static size_t fnv1a_hash(const char* cp)
+    ' {
+    '     size_t hash = 0x811c9dc5;
+    '     while (*cp) {
+    '         hash ^= (unsigned char) *cp++;
+    '         hash *= 0x01000193;
+    '     }
+    '     return hash;
+    ' }
+    
+    sBranch = LCase(sBranch)
+    
+    Select Case sBranch
+      
+      Case "master"
+        iColor = &H606060
+        
+      Case Else 
+        
+        iHash = 5381
+        For I = 1 To Len(sBranch)
+          iPos = Asc(sBranch, I) - Asc("a") + 1
+          If iPos < 1 Or If iPos > 26 Then iPos = 27
+          iHash += iPos
+          iHash = (iHash * 33) Mod $aBranchColor.Count
+        Next
+        
+        iColor = $aBranchColor[iHash]
+      
+    End Select
+    
+    $cBranchColor[sBranch] = iColor
+    
+  Endif
+  
+  
+  Return iColor
+  
+End
+
+Public Sub GetBranchFromDir(sDir As String) As String
+
+  Dim sResult As String
+  
+  Try sResult = Trim(VersionControl.Shell("cd " & Shell(sDir) & " && git branch --show-current"))
+  If sResult Then Return sResult
+  
+End

@@ -29,7 +29,6 @@ Private $aComponents As New String[]
 
 Private $sTranslatedTitle As String
 Private $sTranslatedDescription As String
-Private $bVersionAddBranch As Boolean
 Private $dDate As Date
 
 Private Sub GetProjectPath(sPath As String) As String
@@ -127,17 +126,12 @@ Private Sub ReadProject()
             Type = Project.TYPE_COMPONENT
         End Select
         
-      Case "versionaddbranch"
-        $bVersionAddBranch = CInt(sVal)
-        
     End Select
   
   Next
   
-  If $bVersionAddBranch Then
-    sBranch = CVersionControlGit.GetCurrentBranch($sPath)
-    If sBranch Then $sVersion &= " (" & sBranch & ")"
-  Endif
+  sBranch = VersionControl.GetBranchFromDir($sPath)
+  If sBranch Then $sVersion &= " (" & sBranch & ")"
 
   Close #hFile
   

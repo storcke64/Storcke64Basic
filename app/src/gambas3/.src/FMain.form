@@ -1287,8 +1287,22 @@
       Orientation = Align.Left
       Separator = True
       Transparent = True
+      { panBranchColor HBox
+        MoveScaled(2,1,27,4)
+        Padding = 1
+        { dwgBranchColor DrawingArea
+          MoveScaled(0,0,15,4)
+          Visible = False
+          Expand = True
+        }
+        { btnCloseTree ToolButton
+          MoveScaled(20,0,4,4)
+          Picture = Picture["icon:/small/close"]
+        }
+      }
       { panSearchProject HBox
-        MoveScaled(1,0,28,5)
+        MoveScaled(1,7,28,5)
+        Padding = 1
         { btnUseInheritance ToolButton
           MoveScaled(0,0,4,4)
           ToolTip = ("Dispose class files according to inheritance")
@@ -1312,7 +1326,7 @@
         }
       }
       { Separator4 Separator
-        MoveScaled(0,6,9,0)
+        MoveScaled(0,13,9,0)
       }
       { tvwProject TreeView
         MoveScaled(1,18,20,45)
@@ -1321,7 +1335,7 @@
         Border = False
       }
       { timSearchProject #Timer
-        #MoveScaled(22,13)
+        #MoveScaled(22,18)
         Delay = 500
       }
     }

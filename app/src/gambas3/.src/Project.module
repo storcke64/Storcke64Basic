@@ -1756,7 +1756,7 @@ Public Sub UpdateTitle()
       If sTitle Then sTitle &= " - "
       sTitle &= Name & " " & FormatVersion()
       
-      VersionControl.GetBranches(ByRef sBranch)
+      sBranch = VersionControl.GetCurrentBranch()
       If sBranch Then sTitle &= " (" & sBranch & ")"
       
       If ReadOnly Then sTitle &= " [" & ("read-only") & "]"
@@ -3931,7 +3931,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   GetVersion()
   sVer = FormatVersion()
   If VersionAddBranch Then
-    VersionControl.GetBranches(ByRef sBranch)
+    sBranch = VersionControl.GetCurrentBranch()
     If Not sBranch Then sBranch = "?"
     sVer &= " (" & sBranch & ")"
   Endif
@@ -7186,7 +7186,7 @@ Public Sub GetTranslationEngines() As String[]
   Dim sEngine As String
   Dim aEngine As New String[]
   
-  Exec ["trans", "-S"] To sResult
+  Try Exec ["trans", "-S"] To sResult
   
   For Each sEngine In Split(Trim(sResult), "\n")
     If sEngine Begins "* " Then sEngine = Mid$(sEngine, 2)
@@ -7199,4 +7199,3 @@ Public Sub GetTranslationEngines() As String[]
   Return aEngine.Sort()
   
 End
-
