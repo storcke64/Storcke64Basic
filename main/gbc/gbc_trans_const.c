@@ -75,11 +75,6 @@ static short get_nparam(PATTERN *tree, int count, int *pindex)
 		*pindex = index;
 	}
 
-	/*
-		Gère le cas où on a codé un subr sans mettre de parenthèses
-		=> nparam = 0
-	*/
-
 	return (short)nparam;
 }
 
@@ -403,7 +398,7 @@ static void trans_operation(short op, short nparam)
 static void trans_const_from_tree(TRANS_TREE *tree, int count)
 {
 	static void *jump[] = {
-		&&__CONTINUE, &&__CONTINUE, &&__RESERVED, &&__IDENTIFIER, &&__NUMBER, &&__STRING, &&__TSTRING, &&__CONTINUE, &&__SUBR, &&__CLASS, &&__CONTINUE, &&__CONTINUE
+		&&__CONTINUE, &&__CONTINUE, &&__RESERVED, &&__IDENTIFIER, &&__INTEGER, &&__NUMBER, &&__STRING, &&__TSTRING, &&__CONTINUE, &&__SUBR, &&__CLASS, &&__CONTINUE, &&__CONTINUE
 	};
 	
 	int i, op;
@@ -420,11 +415,16 @@ static void trans_const_from_tree(TRANS_TREE *tree, int count)
 	
 	for (i = 0; i < count; i++)
 	{
-		TRANS_tree_set_index(i);
+		TRANS_tree_index = i;
 		pattern = tree[i];
 
 		goto *jump[PATTERN_type(pattern)];
 		
+	__INTEGER:
+		
+		push_integer(PATTERN_signed_index(pattern));
+		continue;
+
 	__NUMBER:
 		
 		push_number(PATTERN_index(pattern));
@@ -469,7 +469,7 @@ static void trans_const_from_tree(TRANS_TREE *tree, int count)
 		;
 	}
 	
-	TRANS_tree_set_index(-1);
+	TRANS_tree_index = -1;
 }
 
 TRANS_CONST_VALUE *TRANS_const(void)
@@ -485,7 +485,7 @@ TRANS_CONST_VALUE *TRANS_const(void)
 	trans_const_from_tree(tree, tree_length);
 	JOB->step = JOB_STEP_CODE;
 
-	FREE(&tree);
+	//FREE(&tree);
 	
 	if (_stack_ptr != 1)
 		THROW(E_SYNTAX);

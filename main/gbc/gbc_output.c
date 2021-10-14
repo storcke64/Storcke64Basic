@@ -556,10 +556,23 @@ static void output_constant(void)
 				break;
 
 			case T_SINGLE: case T_FLOAT:
-
-				sym = TABLE_get_symbol(_class->table, constant->value);
-				write_int(get_string(sym->name, sym->len));
-				write_int(sym->len);
+				
+				if (constant->is_integer)
+				{
+					char buffer[8];
+					int len;
+					len = sprintf(buffer, "%d", constant->value);
+					//fprintf(stderr, "output_constant: integer: %.*s\n", len, buffer);
+					write_int(get_string(buffer, len));
+					write_int(len);
+				}
+				else
+				{
+					sym = TABLE_get_symbol(_class->table, constant->value);
+					//fprintf(stderr, "output_constant: float: %.*s\n", sym->len, sym->name);
+					write_int(get_string(sym->name, sym->len));
+					write_int(sym->len);
+				}
 				break;
 
 			case T_STRING: case T_CSTRING:

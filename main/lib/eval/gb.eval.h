@@ -62,16 +62,6 @@ typedef
 #define EVAL_NORMAL       0
 #define EVAL_USE_CONTEXT  1
 
-enum {
-	RT_DATATYPE = 13,
-	RT_ERROR = 14,
-	RT_HELP = 15,
-	RT_PREPROCESSOR = 16,
-	RT_ESCAPE = 17,
-	RT_LABEL = 18,
-	RT_CONSTANT = 19
-	};
-
 typedef
 	enum
 	{

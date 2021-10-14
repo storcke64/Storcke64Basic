@@ -26,7 +26,7 @@
 
 #include "gb_pcode.h"
 
-#ifndef __CODE_C
+#ifndef __GB_CODE_C
 EXTERN short CODE_stack_usage;
 EXTERN unsigned char CODE_disabled;
 #endif
@@ -49,6 +49,11 @@ bool CODE_popify_last(void);
 
 #include "gb_common_swap.h"
 
+#ifndef __GB_CODE_C
+EXTERN FUNCTION *CODE_current_func;
+EXTERN bool CODE_break_is_allowed;
+#endif
+
 void CODE_begin_function(FUNCTION *func);
 void CODE_end_function(FUNCTION *func);
 FUNCTION *CODE_set_function(FUNCTION *func);
@@ -62,7 +67,7 @@ bool CODE_check_fast_cat(void);
 bool CODE_check_varptr(void);
 bool CODE_check_ismissing(void);
 
-void CODE_allow_break(void);
+#define CODE_allow_break() (CODE_break_is_allowed = TRUE)
 //void CODE_break(void);
 
 void CODE_pop_local(short num);
@@ -101,9 +106,14 @@ void CODE_catch(void);
 
 void CODE_pop_ctrl(short num);
 
-#endif /* PROJECT_COMP */
+#endif /* PROJECT_EXEC */
 
+#ifdef PROJECT_EXEC
 ushort CODE_get_current_pos(void);
+#else
+#define CODE_get_current_pos() (CODE_current_func->ncode)
+#endif
+
 ushort CODE_set_current_pos(ushort pos);
 void CODE_ignore_next_stack_usage(void);
 

@@ -62,7 +62,7 @@ char *COMP_project;
 char *COMP_project_name;
 char *COMP_info_path;
 char *COMP_lib_path;
-static char *COMP_classes = NULL;
+char *COMP_classes = NULL;
 COMPILE COMP_current;
 uint COMPILE_version = GAMBAS_PCODE_VERSION;
 char *COMP_default_namespace = NULL;
@@ -656,19 +656,6 @@ void COMPILE_end_class(void)
 	BUFFER_add(&COMP_classes, &clen, 1);
 }
 
-void COMPILE_enum_class(char **name, int *len)
-{
-	char *p = *name;
-
-	if (!p)
-		p = COMP_classes;
-	else
-		p += p[-1];
-
-	*len = *p;
-	*name = p + 1;
-}
-
 int COMPILE_lock_file(const char *name)
 {
 	const char *path;
@@ -791,4 +778,5 @@ void COMPILE_create_file(FILE **fw, const char *file)
 			THROW("Cannot create file: &1: &2", FILE_cat(FILE_get_dir(COMP_project), file, NULL), strerror(errno));
 	}
 }
+
 

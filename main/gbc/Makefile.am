@@ -11,10 +11,10 @@ gbc3_LDADD = @C_LIB@ @MATH_LIB@
 gbc3_CFLAGS = -DGAMBAS_PATH="\"$(bindir)\"" $(AM_CFLAGS_OPT)
 
 gbi3_LDADD = @C_LIB@ @DL_LIB@
-gbi3_CFLAGS = -DGAMBAS_PATH="\"$(bindir)\"" $(AM_CFLAGS)
+gbi3_CFLAGS = -DGAMBAS_PATH="\"$(bindir)\"" $(AM_CFLAGS_OPT)
 
 gba3_LDADD = @C_LIB@
-gba3_CFLAGS = -DGAMBAS_PATH="\"$(bindir)\"" $(AM_CFLAGS)
+gba3_CFLAGS = -DGAMBAS_PATH="\"$(bindir)\"" $(AM_CFLAGS_OPT)
 
 gbcm3_LDADD = @C_LIB@
 

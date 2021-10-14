@@ -28,6 +28,7 @@
 #define write_ZZxx(code, val)  write_short(code | ((short)val & 0x00FF))
 
 #ifndef PROJECT_EXEC
+
 #define LAST_CODE \
 { \
 	if (JOB->debug && !JOB->nobreak) \
@@ -36,13 +37,16 @@
 	cur_func->last_code = cur_func->ncode; \
 }
 #define CURRENT_CLASS JOB->class
+
 #else
+
 #define LAST_CODE \
 { \
 	cur_func->last_code2 = cur_func->last_code; \
 	cur_func->last_code = cur_func->ncode; \
 }
 #define CURRENT_CLASS EVAL
+
 #endif
 
 short CODE_stack_usage;
@@ -55,6 +59,7 @@ static bool _ignore_next_stack_usage = FALSE;
 #define cur_func EVAL
 #else
 static FUNCTION *cur_func = NULL;
+FUNCTION *CODE_current_func = NULL;
 //static int last_line = 0;
 #endif
 
@@ -82,16 +87,11 @@ static void alloc_code(void)
 
 #ifdef PROJECT_COMP
 
-static bool _allow_break = FALSE;
-
-void CODE_allow_break(void)
-{
-	_allow_break = TRUE;
-}
+bool CODE_break_is_allowed = FALSE;
 
 static void CODE_break(void)
 {
-	if (!_allow_break)
+	if (!CODE_break_is_allowed)
 		return;
 
 	/*if (last_line < 0)
@@ -112,7 +112,7 @@ static void CODE_break(void)
 	#endif
 
 	write_short(C_BREAK);
-	_allow_break = FALSE;
+	CODE_break_is_allowed = FALSE;
 }
 
 #endif
@@ -154,10 +154,12 @@ static void CODE_undo()
 	cur_func->last_code2 = (-1);
 }
 
+#ifdef PROJECT_EXEC
 ushort CODE_get_current_pos(void)
 {
 	return cur_func->ncode;
 }
+#endif
 
 ushort CODE_set_current_pos(ushort pos)
 {
@@ -202,6 +204,8 @@ FUNCTION *CODE_set_function(FUNCTION *func)
 	}
 	
 	cur_func = func;
+	CODE_current_func = func;
+	
 	CODE_stack = cur_func->code_stack;
 	CODE_stack_usage = cur_func->code_stack_usage;
 	

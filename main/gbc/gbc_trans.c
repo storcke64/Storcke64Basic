@@ -783,13 +783,21 @@ void TRANS_get_constant_value(TRANS_DECL *decl)
 				value = *JOB->current++;
 				index = PATTERN_index(value);
 				
-				if (TRANS_get_number(index, &number))
-					THROW("Type mismatch");
-		
-				if (type == T_SINGLE && !finite((float)number.dval))
-					THROW("Out of range");
+				if (PATTERN_is_integer(value))
+				{
+					decl->is_integer = TRUE;
+				}
+				else
+				{
+					if (TRANS_get_number(index, &number))
+						THROW("Type mismatch");
+					
+					if (type == T_SINGLE && !finite((float)number.dval))
+						THROW("Out of range");
+					
+					decl->is_integer = FALSE;
+				}
 	
-				decl->is_integer = FALSE;
 				decl->value = index;
 				break;
 	

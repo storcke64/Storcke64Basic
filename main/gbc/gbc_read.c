@@ -61,9 +61,10 @@ static bool _no_quote = FALSE;
 static bool _prep = FALSE;
 static int _prep_index;
 
+static PATTERN _last_pattern;
+
 static char ident_car[256];
 static char first_car[256];
-char READ_digit_car[256];
 static char noop_car[256];
 static char canres_car[256];
 
@@ -93,8 +94,8 @@ static void READ_init(void)
 		for (i = 0; i < 255; i++)
 		{
 			ident_car[i] = (i != 0) && ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9') || strchr("$_?@", i));
-			READ_digit_car[i] = (i >= '0' && i <= '9');
-			noop_car[i] = ident_car[i] || READ_digit_car[i] || i <= ' ';
+			//READ_digit_car[i] = (i >= '0' && i <= '9');
+			noop_car[i] = ident_car[i] || (i >= '0' && i <= '9') || i <= ' ';
 			canres_car[i] = (i != ':') && (i != '.') && (i != '!') && (i != '(');
 			
 			if (i == 0)
@@ -135,12 +136,10 @@ static void READ_exit(void)
 
 	local = FALSE;
 	
-	for(;;)
+	COMPILE_enum_class_start(name, len);
+	
+	while (len)
 	{
-		COMPILE_enum_class(&name, &len);
-		if (!len)
-			break;
-
 		if (len == 1 && *name == '-')
 		{
 			local = TRUE;
@@ -173,6 +172,8 @@ static void READ_exit(void)
 				JOB->class->class[index].has_static = has_static;
 			}
 		}
+		
+		COMPILE_enum_class_next(name, len);
 	}
 
 	if (COMP_verbose)
@@ -230,6 +231,10 @@ char *READ_get_pattern(PATTERN *pattern)
 				snprintf(COMMON_buffer, COMMON_BUF_MAX, "%s%s%s", before, str, after);
 			else
 				strcpy(COMMON_buffer, str);
+			break;
+			
+		case RT_INTEGER:
+			snprintf(COMMON_buffer, COMMON_BUF_MAX, "%s%d%s", before, PATTERN_signed_index(*pattern), after);
 			break;
 
 		case RT_NUMBER:
@@ -396,7 +401,7 @@ static void add_pattern(int type, int index)
 
 static inline void add_pattern(int type, int index)
 {
-	comp->pattern[comp->pattern_count] = PATTERN_make(type, index);
+	comp->pattern[comp->pattern_count] = _last_pattern = PATTERN_make(type, index);
 	comp->pattern_pos[comp->pattern_count] = source_ptr - _line_start;
 	comp->pattern_count++;
 }
@@ -411,7 +416,8 @@ static PATTERN get_last_last_pattern()
 		return NULL_PATTERN;
 }
 
-#define get_last_pattern() (comp->pattern[comp->pattern_count - 1])
+#define get_last_pattern() (_last_pattern)
+//(comp->pattern[comp->pattern_count - 1])
 
 static void jump_to_next_prep(void)
 {
@@ -769,6 +775,7 @@ void READ_do(void)
 	_line_start = source_ptr;
 	_begin_line = TRUE;
 	_prep = FALSE;
+	_last_pattern = NULL_PATTERN;
 
 	//while (source_ptr < source_length)
 	for(;;)

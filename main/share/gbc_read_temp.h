@@ -38,6 +38,8 @@ static bool add_number()
 	char sign;
 	PATTERN last_pattern;
 	bool has_digit;
+	bool is_integer = FALSE;
+	int len;
 
 	start = source_ptr;
 	car = get_char();
@@ -67,7 +69,9 @@ static bool add_number()
 	else
 		sign = 0;
 
-	if (car == '&')
+	if (isdigit(car))
+		goto READ_NUMBER;
+	else if (car == '&')
 	{
 		car = toupper(next_char());
 
@@ -85,8 +89,6 @@ static bool add_number()
 	}
 	else if (car == '%')
 		goto READ_BINARY;
-	else if (isdigit(car))
-		goto READ_NUMBER;
 	else
 		goto NOT_A_NUMBER;
 
@@ -144,8 +146,11 @@ READ_NUMBER:
 	while (isdigit(car))
 		car = next_char();
 
+	is_integer = TRUE;
+	
 	if (car == '.')
 	{
+		is_integer = FALSE;
 		do
 		{
 			car = next_char();
@@ -153,8 +158,9 @@ READ_NUMBER:
 		while (isdigit(car));
 	}
 
-	if (toupper(car) == 'E')
+	if (car == 'E' || car == 'e')
 	{
+		is_integer = FALSE;
 		car = next_char();
 		if (car == '+' || car == '-')
 			car = next_char();
@@ -162,8 +168,9 @@ READ_NUMBER:
 		while (isdigit(car))
 			car = next_char();
 	}
-	else if (toupper(car) == 'I')
+	else if (car == 'I' || car == 'i')
 	{
+		is_integer = FALSE;
 		car = next_char();
 	}
 
@@ -176,12 +183,21 @@ END:
 	if (sign && !PATTERN_is_null(last_pattern) && (!PATTERN_is_reserved(last_pattern) || PATTERN_is(last_pattern, RS_RBRA) || PATTERN_is(last_pattern, RS_RSQR)))
 	{
 		add_pattern(RT_RESERVED, RESERVED_find_word(&sign, 1));
-		index = TABLE_add_symbol(SYMBOL_TABLE, start + 1, source_ptr - start - 1);
-		add_pattern(RT_NUMBER, index);
+		start++;
+	}
+	
+	len = source_ptr - start;
+	
+	if (is_integer && len <= 6)
+	{
+		char buffer[8];
+		memcpy(buffer, start, len);
+		buffer[len] = 0;
+		add_pattern(RT_INTEGER, (atoi(buffer) & 0xFFFFFF));
 	}
 	else
 	{
-		index = TABLE_add_symbol(SYMBOL_TABLE, start, source_ptr - start);
+		index = TABLE_add_symbol(SYMBOL_TABLE, start, len);
 		add_pattern(RT_NUMBER, index);
 	}
 	
@@ -294,6 +310,7 @@ static void add_identifier()
 	
 	if (can_be_reserved)
 	{
+		//fprintf(stderr, "can_be_reserved: %.*s\n", len, start);
 		index = RESERVED_find_word(start, len);
 		can_be_reserved = (index >= 0);
 	}

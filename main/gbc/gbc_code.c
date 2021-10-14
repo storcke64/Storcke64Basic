@@ -22,6 +22,7 @@
 ***************************************************************************/
 
 #define __GBC_CODE_C
+#define __GB_CODE_C
 
 #define PROJECT_COMP
 #define CODE_DUMP

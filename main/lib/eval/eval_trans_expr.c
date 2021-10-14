@@ -64,6 +64,12 @@ static short get_nparam(PATTERN *tree, int *index)
 }
 
 
+static void push_integer(int index)
+{
+	CODE_push_number(index);
+}
+
+
 static void push_number(int index)
 {
 	TRANS_NUMBER number;
@@ -265,6 +271,9 @@ static void trans_expr_from_tree(PATTERN *tree)
 			next_pattern = tree[i + 1];
 		else
 			next_pattern = NULL_PATTERN;*/
+
+		if (PATTERN_is_integer(pattern))
+			push_integer(PATTERN_signed_index(pattern));
 
 		if (PATTERN_is_number(pattern))
 			push_number(PATTERN_index(pattern));

@@ -29,13 +29,9 @@
 #include <ctype.h>
 
 #undef isdigit
-#define isdigit(_c) (READ_digit_car[(uchar)(_c)])
+#define isdigit(_c) ((_c) >= '0' && (_c) <= '9')
 #undef isspace
 #define isspace(_c) (((uchar)(_c)) <= ' ')
-
-#ifndef __GBC_READ_C
-extern char READ_digit_car[];
-#endif
 
 void READ_do(void);
 void READ_dump_pattern(PATTERN *pattern);

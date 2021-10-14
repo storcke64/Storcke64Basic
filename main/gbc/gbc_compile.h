@@ -106,6 +106,7 @@ EXTERN char *COMP_info_path;
 EXTERN FORM_FAMILY COMP_form_families[];
 EXTERN uint COMPILE_version;
 EXTERN char *COMP_default_namespace;
+EXTERN char *COMP_classes;
 
 #endif
 
@@ -121,7 +122,6 @@ void COMPILE_end(void);
 void COMPILE_export_class(char *name);
 void COMPILE_add_class(const char *name, int len);
 void COMPILE_end_class(void);
-void COMPILE_enum_class(char **name, int *len);
 void COMPILE_print(int type, int line, const char *msg, ...);
 void COMPILE_create_file(FILE **fw, const char *file);
 void COMPILE_add_component(const char *name);
@@ -131,5 +131,19 @@ void COMPILE_unlock_file(int fd);
 void COMPILE_remove_lock(const char *name);
 
 #define COMPILE_get_column(_pattern) (JOB->pattern_pos[(_pattern) - JOB->pattern])
+
+#define COMPILE_enum_class_start(_name, _len) \
+({ \
+	_name = COMP_classes; \
+	_len = *_name; \
+	_name++; \
+})
+
+#define COMPILE_enum_class_next(_name, _len) \
+({ \
+	_name += _name[-1]; \
+	_len = *_name; \
+	_name++; \
+})
 
 #endif

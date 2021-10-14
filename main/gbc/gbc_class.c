@@ -508,6 +508,7 @@ int CLASS_add_constant(CLASS *class, TRANS_DECL *decl)
 	desc->value = decl->value;
 	if (TYPE_get_id(decl->type) == T_LONG)
 		desc->lvalue = decl->lvalue;
+	desc->is_integer = decl->is_integer;
 
 	desc->line = JOB->line;
 

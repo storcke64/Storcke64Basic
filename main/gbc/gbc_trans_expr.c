@@ -100,7 +100,7 @@ static void drop_type(int n)
 
 #endif
 
-static short get_nparam(PATTERN *tree, int count, int *pindex, uint64_t *byref)
+static short get_nparam(PATTERN *tree, int count, int *pindex)
 {
 	PATTERN pattern;
 	int nparam = 0;
@@ -115,42 +115,61 @@ static short get_nparam(PATTERN *tree, int count, int *pindex, uint64_t *byref)
 			nparam = PATTERN_index(pattern);
 		}
 
-		if (byref)
+		while (index < count)
 		{
-			int shift = 0;
-			*byref = 0;
-			while (index < count)
-			{
-				pattern = tree[index + 1];
-				if (!PATTERN_is_param(pattern))
-					break;
-				index++;
-				*byref |= (uint64_t)PATTERN_index(pattern) << shift;
-				shift += 16;
-			}
-		}
-		else
-		{
-			while (index < count)
-			{
-				pattern = tree[index + 1];
-				if (!PATTERN_is_param(pattern))
-					break;
-				index++;
-			}
+			pattern = tree[index + 1];
+			if (!PATTERN_is_param(pattern))
+				break;
+			index++;
 		}
 
 		*pindex = index;
 	}
 
-	/*
-		Gère le cas où on a codé un subr sans mettre de parenthèses
-		=> nparam = 0
-	*/
+	// Handle the case of a subroutine without parenthesis
+	return (short)nparam;
+}
+
+static short get_nparam_byref(PATTERN *tree, int count, int *pindex, uint64_t *byref)
+{
+	PATTERN pattern;
+	int nparam = 0;
+	int index = *pindex;
+	int shift;
+
+	if (index < count)
+	{
+		pattern = tree[index + 1];
+		if (PATTERN_is_param(pattern))
+		{
+			index++;
+			nparam = PATTERN_index(pattern);
+		}
+
+		shift = 0;
+		*byref = 0;
+		while (index < count)
+		{
+			pattern = tree[index + 1];
+			if (!PATTERN_is_param(pattern))
+				break;
+			index++;
+			*byref |= (uint64_t)PATTERN_index(pattern) << shift;
+			shift += 16;
+		}
+
+		*pindex = index;
+	}
 
 	return (short)nparam;
 }
 
+
+static void push_integer(int index)
+{
+	CODE_push_number(index);
+	push_type_id(T_INTEGER);
+}
 
 static void push_number(int index)
 {
@@ -601,7 +620,7 @@ static void trans_call(short nparam, uint64_t byref)
 static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 {
 	static void *jump[] = {
-		&&__CONTINUE, &&__CONTINUE, &&__RESERVED, &&__IDENTIFIER, &&__NUMBER, &&__STRING, &&__TSTRING, &&__CONTINUE, &&__SUBR, &&__CLASS, &&__CONTINUE, &&__CONTINUE
+		&&__CONTINUE, &&__CONTINUE, &&__RESERVED, &&__IDENTIFIER, &&__INTEGER, &&__NUMBER, &&__STRING, &&__TSTRING, &&__CONTINUE, &&__SUBR, &&__CLASS, &&__CONTINUE, &&__CONTINUE
 	};
 	
 	int i, op;
@@ -619,12 +638,17 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 	
 	for (i = 0; i < count; i++)
 	{
-		TRANS_tree_set_index(i);
+		TRANS_tree_index = i;
 		prev_pattern = pattern;
 		pattern = tree[i];
 		next_pattern = tree[i + 1];
 
 		goto *jump[PATTERN_type(pattern)];
+		
+	__INTEGER:
+		
+		push_integer(PATTERN_signed_index(pattern));
+		continue;
 		
 	__NUMBER:
 		
@@ -653,7 +677,7 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 
 	__SUBR:
 	
-		nparam = get_nparam(tree, count, &i, NULL);
+		nparam = get_nparam(tree, count, &i);
 		trans_subr(PATTERN_index(pattern), nparam);
 		continue;
 		
@@ -736,12 +760,12 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 			op = PATTERN_index(pattern);
 			if (op == RS_LBRA)
 			{
-				nparam = get_nparam(tree, count, &i, &byref);
+				nparam = get_nparam_byref(tree, count, &i, &byref);
 				trans_call(nparam, byref);
 			}
 			else
 			{
-				nparam = get_nparam(tree, count, &i, NULL);
+				nparam = get_nparam(tree, count, &i);
 				trans_operation((short)op, nparam, prev_pattern);
 			}
 		}
@@ -750,7 +774,7 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 		;
 	}
 	
-	TRANS_tree_set_index(-1);
+	TRANS_tree_index = -1;
 	_last_type = pop_type();
 }
 
@@ -904,7 +928,7 @@ static void trans_expression(bool check_statement)
 	trans_expr_from_tree(tree, tree_length);
 	JOB->step = JOB_STEP_CODE;
 
-	FREE(&tree);
+	//FREE(&tree);
 	
 	if (check_statement)
 	{
@@ -951,7 +975,7 @@ TYPE TRANS_variable_get_type()
 		}
 	}
 
-	FREE(&tree);
+	//FREE(&tree);
 
 	return type;
 }

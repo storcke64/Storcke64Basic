@@ -36,13 +36,14 @@
 #define BYREF_TEST(_byref, _n) (_byref & ((uintptr_t)1 << _n))
 #define BYREF_SET(_byref, _n) _byref |= ((uintptr_t)1 << _n)
 
+int TRANS_tree_index = -1;
+
 static short _level;
 static PATTERN *_current;
 static TRANS_TREE _tree[MAX_EXPR_PATTERN];
 static int _tree_pos[MAX_EXPR_PATTERN];
 static int _tree_length = 0;
 static int _tree_line = 0;
-static int _tree_index = -1;
 
 static void analyze_expr(short priority, short op_main);
 static void analyze_array();
@@ -129,7 +130,7 @@ static void add_reserved_pattern(int reserved)
 }
 
 
-static void add_operator_output(short op, short nparam, uint64_t byref)
+static void add_operator(short op, short nparam)
 {
 	PATTERN pattern;
 
@@ -159,8 +160,19 @@ static void add_operator_output(short op, short nparam, uint64_t byref)
 	add_pattern(pattern);
 
 	add_pattern(PATTERN_make(RT_PARAM, nparam));
+}
 
-	if (op == RS_LBRA && byref)
+static void add_operator_output(short nparam, uint64_t byref)
+{
+	PATTERN pattern;
+
+	pattern = PATTERN_make(RT_RESERVED, RS_LBRA);
+
+	add_pattern(pattern);
+
+	add_pattern(PATTERN_make(RT_PARAM, nparam));
+
+	if (byref)
 	{
 		while (byref)
 		{
@@ -169,8 +181,6 @@ static void add_operator_output(short op, short nparam, uint64_t byref)
 		}
 	}
 }
-
-#define add_operator(_op, _nparam) add_operator_output(_op, _nparam, 0)
 
 
 static void add_subr(PATTERN subr_pattern, short nparam)
@@ -413,7 +423,7 @@ static void analyze_single(int op)
 	}
 
 	/* NULL, TRUE, FALSE, ME, PARENT, LAST, ERROR */
-	/* number, string or symbol */
+	/* integer, number, string or symbol */
 
 	else if (PATTERN_is(*_current, RS_NULL)
 					|| PATTERN_is(*_current, RS_ME)
@@ -490,7 +500,7 @@ static void analyze_call()
 	{
 		check_last_first(1);
 	}
-	else if (PATTERN_is_string(last_pattern) || PATTERN_is_number(last_pattern))
+	else if (PATTERN_is_string(last_pattern) || PATTERN_is_integer(last_pattern) || PATTERN_is_number(last_pattern))
 		THROW(E_SYNTAX);
 
 	/* N.B. Le cas où last_pattern = "." n'a pas de test spécifique */
@@ -579,7 +589,7 @@ static void analyze_call()
 	
 		if (PATTERN_is_null(subr_pattern))
 		{
-			add_operator_output(RS_LBRA, nparam_post, byref);
+			add_operator_output(nparam_post, byref);
 			
 			save = _current;
 			
@@ -837,8 +847,9 @@ void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count)
 	if (result)
 	{
 		add_pattern(NULL_PATTERN);
-		ALLOC(result, sizeof(PATTERN) * _tree_length);
-		memcpy(*result, _tree, sizeof(PATTERN) * _tree_length);
+		//ALLOC(result, sizeof(PATTERN) * _tree_length);
+		//memcpy(*result, _tree, sizeof(PATTERN) * _tree_length);
+		*result = _tree;
 		*count = _tree_length - 1;
 	}
 }
@@ -849,7 +860,7 @@ int TRANS_get_column(int *pline)
 	int line;
 	int col;
 	
-	if (_tree_index < 0)
+	if (TRANS_tree_index < 0)
 	{
 		*pline = -1;
 		return -1;
@@ -857,7 +868,7 @@ int TRANS_get_column(int *pline)
 	
 	line = _tree_line;
 	col = _tree_pos[0];
-	for (i = 1; i <= _tree_index; i++)
+	for (i = 1; i <= TRANS_tree_index; i++)
 	{
 		col = _tree_pos[i];
 		if (col < 0)
@@ -866,10 +877,5 @@ int TRANS_get_column(int *pline)
 	
 	*pline = line;
 	return abs(col);
-}
-
-void TRANS_tree_set_index(int index)
-{
-	_tree_index = index;
 }
 

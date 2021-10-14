@@ -137,6 +137,7 @@ static int convState(int state)
 		case RT_RESERVED: return HIGHLIGHT_KEYWORD;
 		case RT_IDENTIFIER: return HIGHLIGHT_SYMBOL;
 		case RT_CLASS: return HIGHLIGHT_DATATYPE;
+		case RT_INTEGER: return HIGHLIGHT_NUMBER;
 		case RT_NUMBER: return HIGHLIGHT_NUMBER;
 		case RT_STRING: return HIGHLIGHT_STRING;
 		case RT_SUBR: return HIGHLIGHT_SUBR;

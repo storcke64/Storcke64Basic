@@ -43,14 +43,13 @@ static bool _begin_line = FALSE;
 
 static char ident_car[256];
 static char first_car[256];
-static char digit_car[256];
 static char noop_car[256];
 static char canres_car[256];
 
 #undef isspace
 #define isspace(_c) (((uchar)_c) <= ' ')
 #undef isdigit
-#define isdigit(_c) (digit_car[_c])
+#define isdigit(_c) ((_c) >= '0' && (_c) <= '9')
 
 enum
 {
@@ -76,8 +75,7 @@ static void READ_init(void)
 		for (i = 0; i < 255; i++)
 		{
 			ident_car[i] = (i != 0) && ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9') || strchr("$_?@", i));
-			digit_car[i] = (i >= '0' && i <= '9');
-			noop_car[i] = ident_car[i] || digit_car[i] || i <= ' ';
+			noop_car[i] = ident_car[i] || isdigit(i) || i <= ' ';
 			canres_car[i] = (i != ':') && (i != '.') && (i != '!') && (i != '(');
 
 			if (i == 0)
@@ -129,6 +127,10 @@ PUBLIC char *READ_get_pattern(PATTERN *pattern)
 				snprintf(_buffer, BUF_MAX, "%s%s%s", before, str, after);
 			else
 				strcpy(_buffer, str);
+			break;
+
+		case RT_INTEGER:
+			snprintf(_buffer, BUF_MAX, "%s%d%s", before, PATTERN_signed_index(*pattern), after);
 			break;
 
 		case RT_NUMBER:
@@ -205,6 +207,8 @@ PUBLIC void READ_dump_pattern(PATTERN *pattern)
 
 	if (type == RT_RESERVED)
 		printf("RESERVED     %s\n", READ_get_pattern(pattern));
+	else if (type == RT_INTEGER)
+		printf("INTEGER      %s\n", READ_get_pattern(pattern));
 	else if (type == RT_NUMBER)
 		printf("NUMBER       %s\n", READ_get_pattern(pattern));
 	else if (type == RT_IDENTIFIER)

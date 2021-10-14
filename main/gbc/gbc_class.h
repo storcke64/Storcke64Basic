@@ -80,6 +80,7 @@ typedef
 		int value;
 		int line;
 		int64_t lvalue;
+		unsigned is_integer : 1;
 		}
 	CONSTANT;
 

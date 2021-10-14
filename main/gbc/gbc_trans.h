@@ -189,6 +189,10 @@ TRANS_CONST_VALUE *TRANS_const(void);
 
 #define RS_UNARY (-1)
 
+#ifndef __GBC_TRANS_TREE
+extern int TRANS_tree_index;
+#endif
+
 //TRANS_TREE *TRANS_tree(bool check_statement);
 void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count);
 void TRANS_tree_set_index(int index);

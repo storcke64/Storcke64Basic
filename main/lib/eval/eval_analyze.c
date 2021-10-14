@@ -138,6 +138,11 @@ static void get_symbol(PATTERN pattern, const char **symbol, int *len)
 			}
 			return;
 			
+		case RT_INTEGER:
+			*len = sprintf(keyword, "%d", PATTERN_signed_index(pattern));
+			*symbol = keyword;
+			return;
+			
 		case RT_NUMBER:
 		case RT_IDENTIFIER:
 			sym = TABLE_get_symbol(EVAL->table, index);
@@ -437,6 +442,7 @@ static void analyze(EVAL_ANALYZE *result)
 					space_before = TRUE;
 				break;
 
+			case RT_INTEGER:
 			case RT_NUMBER:
 				//state = Number;
 				if (old_type != RT_OPERATOR)

@@ -362,7 +362,7 @@ static void analyze_call()
 
 		check_last_first(1);
 	}
-	else if (PATTERN_is_string(last_pattern) || PATTERN_is_number(last_pattern))
+	else if (PATTERN_is_string(last_pattern) || PATTERN_is_integer(last_pattern) || PATTERN_is_number(last_pattern))
 		THROW(E_SYNTAX);
 
 	/* N.B. Le cas où last_pattern = "." n'a pas de test spécifique */
