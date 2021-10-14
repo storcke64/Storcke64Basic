@@ -29,7 +29,7 @@ Static Public Sub Create(Path As String, Optional Separator As String = ",", Opt
   
 End
 
-Public Sub _new(Path As String, Optional Separator As String = ",", Optional Escape As String = "\"", Optional Charset As String)
+Public Sub _new(Path As String, Optional Separator As String = ",", Optional Escape As String = "\"", Optional Charset As String, Optional NoDiacritics As Boolean)
   
   Dim sLine As String
   Dim iInd As Integer
@@ -79,6 +79,9 @@ Public Sub _new(Path As String, Optional Separator As String = ",", Optional Esc
       sField = Replace(sField, "  ", " ")
     Wend
     sField = String.LCase(sField)
+    
+    If NoDiacritics Then sField = String.RemoveDiacritics(sField)
+    
     If Not sField Then sField = "#" & CStr(iInd)
     $aField[iInd] = sField
   Next
