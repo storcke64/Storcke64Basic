@@ -1315,7 +1315,6 @@ BEGIN_PROPERTY(Control_NoTabFocus)
 		bool v = VPROP(GB_BOOLEAN);
 		Qt::FocusPolicy policy;
 			
-		
 		if (THIS->flag.noTabFocus == v)
 			return;
 
