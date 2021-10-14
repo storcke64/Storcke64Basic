@@ -7,7 +7,7 @@ Class Stock
 Static Private $cCache As New Collection
 Static Private $cPictToKey As Collection
 
-Static Private Sub GetKey(sPath As String) As String
+Static Private Sub GetKey(sPath As String, Optional sSize As String) As String
   
   Dim sKey As String
   
@@ -34,6 +34,8 @@ Static Private Sub GetKey(sPath As String) As String
     sKey = sPath
     
   Endif
+  
+  If sSize Then sKey &= ":" & sSize
   
   Return sKey
   
@@ -70,7 +72,7 @@ Static Public Sub Load(Path As String) As Picture
   
 End
 
-Static Public Sub _get(Path As String) As Picture
+Static Public Sub _get(Path As String, Optional Size As String) As Picture
   
   Dim sKey As String
   Dim hPict As Picture
@@ -78,10 +80,11 @@ Static Public Sub _get(Path As String) As Picture
   Dim sBaseName As String
   Dim sDarkPath As String
   Dim bMoveUp As Boolean
+  Dim iSize As Integer
   
   If Not Path Then Return
   
-  sKey = GetKey(Path)
+  sKey = GetKey(Path, Size)
   hPict = $cCache[sKey]
   If hPict Then Return hPict
   
@@ -133,6 +136,15 @@ Static Public Sub _get(Path As String) As Picture
     If Error Then
       'Error "gb.gui: warning: unable to load icon "; Path; ": "; System.Backtrace.Join(" ")
       Return Null
+    Endif
+  Endif
+  
+  If Size Then
+    Try iSize = CInt(Size)
+    If Not Error Then
+      hPict = hPict.Stretch(iSize)
+    Else 
+      Try hPict = hPict.Stretch(Stock.GetSize(Size))
     Endif
   Endif
   
