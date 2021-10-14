@@ -1243,8 +1243,6 @@ End
 
 Public Sub GetFileIcon(sPath As String, Optional iSize As Integer) As Picture
 
-  Dim hPict As Picture
-  
   If IsConflict(sPath) Then 
     If iSize = 0 Then iSize = 16
     Return Picture["icon:/32/conflict", iSize]
@@ -5937,7 +5935,7 @@ Public Sub GetLinesOfCode(ByRef nFunc As Integer) As Integer
     
     For iPos = 0 To aLine.Max
       sCar = Left(LTrim(aLine[iPos]))
-      If sCar = "'" Or If sCar = "#" Then Inc iComment
+      If sCar = "'" Or If sCar = "#" Or If Not sCar Then Inc iComment
     Next
     
     iCount += aLine.Count - iComment
