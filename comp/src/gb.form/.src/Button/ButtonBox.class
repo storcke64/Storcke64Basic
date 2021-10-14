@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,Action,Text,Alignment{Align.Normal;Left;Center;Right}=Normal,Picture,ReadOnly,Border=True,Button=True,ClearButton,Filter,FilterMenu{Menu}"
+Public Const _Properties As String = "*,Action,Text,Alignment{Align.Normal;Left;Center;Right}=Normal,Picture,ReadOnly,Placeholder,Border=True,Button=True,ClearButton,Filter,FilterMenu{Menu}"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "24,4"
 Public Const _Similar As String = "TextBox"
@@ -28,6 +28,7 @@ Property Alignment As Integer
 Property ClearButton As Boolean
 Property Filter As Boolean
 Property FilterMenu As String
+Property Placeholder As String
 
 'Private $hPanel As Panel
 Private $hBackground As DrawingArea
@@ -400,4 +401,16 @@ Public Sub FilterNow()
   'If Not $hTimer.Enabled Then Return
   FilterTimer_Timer
   
+End
+
+Private Function Placeholder_Read() As String
+
+  Return $hTextBox.Placeholder
+
+End
+
+Private Sub Placeholder_Write(Value As String)
+
+  $hTextBox.Placeholder = Value
+
 End

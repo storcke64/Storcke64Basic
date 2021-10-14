@@ -7,14 +7,35 @@ Inherits UserControl
 Public Const _Properties As String = "*,Border,Label,Padding{Range:0;63},Margin=False,Type={Spinner.*}"
 Public Const _DefaultSize As String = "8,8"
 
-Public Enum {Line}, Dot, Circle
+'' Spinner type drawing lines.
+Public Const {Line} As Integer = 0
+
+'' Spinner type drawing dots.
+Public Const Dot As Integer = 1
+
+'' Spinner type drawing a ring.
+Public Const Circle As Integer = 2
 
 Property Border As Boolean
 Property Label As Boolean
 Property Value As Float
 Property Enabled As Boolean
 Property Padding As Integer
+
+'' @{since 3.16}
+''
+'' Return or set if there is an inner margin between the spinner and the control border.
+
 Property Margin As Boolean
+
+'' @{since 3.16}
+''
+'' Return or set the Spinner type.
+''
+'' The following types are implemented: [../line], [../dot], [../circle].
+''
+'' The default type is [../line].
+
 Property Type As Integer
 
 Private $fStartTime As Float

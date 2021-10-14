@@ -1,5 +1,6 @@
 access                  preferences/preferences-desktop-accessibility;apps/preferences-desktop-accessibility
 add                     actions/list-add
+added                   emblems/vcs-added;emblem/added
 agenda                  apps/agenda;actions/view-calendar-agenda
 align-bottom            actions/align-vertical-bottom
 align-center            actions/align-horizontal-center
@@ -48,6 +49,7 @@ color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/prefer
 color-picker            actions/color-picker
 component               categories/applications-utilities;apps/nepomuk
 computer                devices/computer
+conflict                emblems/vcs-conflicting;emblems/emblem-cvs-conflict
 connect                 actions/network-connect
 contrast                #
 copy                    actions/edit-copy
@@ -166,6 +168,7 @@ md                      $(mime)/text-x-markdown
 media-player            devices/multimedia-player
 menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
 microphone              devices/audio-input-microphone
+modified                emblems/vcs-locally-modified;emblems/emblem-csv-modified
 monitor                 apps/utilities-system-monitor
 mouse                   devices/input-mouse
 mount                   actions/media-mount
