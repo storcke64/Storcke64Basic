@@ -284,10 +284,11 @@
         ToolTip = ("Clear console")
         Picture = Picture["icon:/small/clear"]
       }
-      { btnChanges ToolButton
+      { btnVcChanges ToolButton
         MoveScaled(9,0,17,4)
         AutoResize = True
         Text = ("Modifications.") & "..."
+        Picture = Picture["icon:/small/modified"]
       }
       { btnVcCommit ToolButton
         MoveScaled(28,0,12,4)
@@ -298,7 +299,7 @@
       { btnVcUpdate ToolButton
         MoveScaled(41,0,15,4)
         AutoResize = True
-        Text = ("Synchronize")
+        Text = ("Synchronize") & "..."
         Picture = Picture["icon:/small/download"]
       }
       { btnVcRevert ToolButton

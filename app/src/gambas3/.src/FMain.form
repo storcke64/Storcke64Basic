@@ -205,7 +205,6 @@
       { mnuVcAddAll Menu mnuAddVersionAll
         Name = "mnuVcAddAll"
         Text = ("Add everything to repository")
-        Picture = Picture["img/32/added.png"]
       }
       { mnuVcBranch Menu
         Action = "vc-branch"
@@ -721,15 +720,15 @@
       }
       { mnuFilterAdd Menu
         Text = ("Show added files")
-        Picture = Picture["img/32/added.png"]
+        Picture = Picture["icon:/small/added"]
       }
       { mnuFilterModified Menu
         Text = ("Show modified files")
-        Picture = Picture["img/32/modified.png"]
+        Picture = Picture["icon:/small/modified"]
       }
       { mnuFilterConflict Menu
         Text = ("Show files in conflict")
-        Picture = Picture["img/32/conflict.png"]
+        Picture = Picture["icon:/small/conflict"]
       }
       { mnuFilterDoNotTranslate Menu
         Text = ("Show untranslatable files")
@@ -748,7 +747,6 @@
     }
     { mnuAddVersionAll Menu
       Text = ("Add everything to repository")
-      Picture = Picture["img/32/added.png"]
     }
     { mnuDoNotTranslate Menu
       Action = "do-not-translate"
@@ -820,7 +818,6 @@
     { mnuAddVersionConnection Menu mnuAddVersion
       Name = "mnuAddVersionConnection"
       Text = Shortcut(("Add to repository"), "A")
-      Picture = Picture["img/32/added.png"]
     }
     { mnuInfoConnection Menu
       Text = Shortcut(("Properties"), "P") & "..."
@@ -1291,34 +1288,51 @@
         MoveScaled(2,1,27,4)
         Padding = 1
         { dwgBranchColor DrawingArea
-          MoveScaled(0,0,15,4)
+          MoveScaled(0,0,8,4)
           Visible = False
+          Mouse = Mouse.Pointing
           Expand = True
         }
+        { btnVcChanges ToolButton
+          MoveScaled(10,0,4,4)
+          ToolTip = ("Modifications.") & "..."
+          Picture = Picture["icon:/small/modified"]
+        }
+        { btnVcCommit ToolButton
+          MoveScaled(14,0,4,4)
+          ToolTip = ("Commit") & "..."
+          Picture = Picture["icon:/small/upload"]
+        }
+        { btnVcUpdate ToolButton
+          MoveScaled(18,0,4,4)
+          ToolTip = ("Synchronize") & "..."
+          Picture = Picture["icon:/small/download"]
+        }
         { btnCloseTree ToolButton
-          MoveScaled(20,0,4,4)
+          MoveScaled(22,0,4,4)
           Picture = Picture["icon:/small/close"]
         }
       }
       { panSearchProject HBox
         MoveScaled(1,7,28,5)
         Padding = 1
+        { btnOpenStartup ToolButton
+          MoveScaled(1,0,4,4)
+          ToolTip = ("Open startup class")
+          Picture = Picture["icon:/small/home"]
+        }
         { btnUseInheritance ToolButton
-          MoveScaled(0,0,4,4)
+          MoveScaled(5,0,4,4)
           ToolTip = ("Dispose class files according to inheritance")
           Picture = Picture["icon:/small/inheritance"]
           Toggle = True
-        }
-        { btnOpenStartup ToolButton
-          MoveScaled(4,0,4,4)
-          ToolTip = ("Open startup class")
-          Picture = Picture["icon:/small/home"]
         }
         { txtSearchProject ButtonBox
           MoveScaled(13,1,14,3)
           Foreground = Color.LightForeground
           Expand = True
           Picture = Picture["icon:/small/close"]
+          Placeholder = ("Project filter")
           Border = False
           ClearButton = True
           Filter = True
@@ -1335,7 +1349,7 @@
         Border = False
       }
       { timSearchProject #Timer
-        #MoveScaled(22,18)
+        #MoveScaled(22,17)
         Delay = 500
       }
     }

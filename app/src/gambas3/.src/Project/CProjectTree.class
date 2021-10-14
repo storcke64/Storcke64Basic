@@ -814,9 +814,9 @@ ADD_EMBLEM:
     If bExported Then hImage = Project.AddEmblem(hImage, If(bExportedNamespace, "img/32/exported-namespace.png", "img/32/exported.png"), iEmblemSize)
     'If bCompressed Then hImage = Project.AddEmblem(hImage, "img/32/compressed.png", iEmblemSize)
     If bDoNotTranslate Then hImage = Project.AddEmblem(hImage, "img/32/do-not-translate.png", iEmblemSize)
-    If bAdded Then hImage = Project.AddEmblem(hImage, "img/32/added.png", iEmblemSize)
-    If bModified Then hImage = Project.AddEmblem(hImage, "img/32/modified.png", iEmblemSize)
-    If bConflict Then hImage = Project.AddEmblem(hImage, "img/32/conflict.png", iEmblemSize)
+    If bAdded Then hImage = Project.AddEmblem(hImage, "icon:/32/added", iEmblemSize)
+    If bModified Then hImage = Project.AddEmblem(hImage, "icon:/32/modified", iEmblemSize)
+    If bConflict Then hImage = Project.AddEmblem(hImage, "icon:/32/conflict", iEmblemSize)
     If bLocked Or If bReadOnly Then hImage = Project.AddEmblem(hImage, "icon:/32/lock", iEmblemSize)
   Endif
   

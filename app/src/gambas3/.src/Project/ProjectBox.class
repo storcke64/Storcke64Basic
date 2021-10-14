@@ -147,6 +147,10 @@ Public Sub DrawingArea_Draw()
   Dim WT As Integer
   Dim iCol As Integer
   Dim iBg As Integer
+  Dim XB, WB As Integer
+  Dim YB As Integer
+  Dim HB As Integer
+  Dim hExt As PaintExtents
   
   If Not $hProjectInfo Then Return
   
@@ -255,13 +259,22 @@ Public Sub DrawingArea_Draw()
     Else If bSmall Then
     
       Paint.Font.Bold = False
+      
       sText = " • " & .Version
-      'Paint.Background = Color.Red
-      'Paint.DrawTextShadow(sText, X + WT, Y, Paint.W, Paint.H, Align.TopLeft, 4)
+      hExt = Paint.TextExtents(sText)
+      HT = Paint.Font.Height
       Paint.DrawText(sText, X + WT, Y, Paint.W, Paint.H, Align.TopLeft)
 
-      HT = Paint.Font.Height
+      If .Branch Then
+        
+        XB = X + hExt.Width + P
+        YB = Y - 2
+        HB = Ceil(hExt.H) + 4
 
+        GoSub DRAW_BRANCH
+
+      Endif
+      
       sText = .GetTranslatedDescription()
       If Not sText Then sText = .GetTranslatedTitle()
       Paint.Font = Font["-1"]
@@ -274,9 +287,22 @@ Public Sub DrawingArea_Draw()
       
       Paint.Font.Bold = False
       
+      Y += 6
+      
       sText = .Version
-      'Paint.DrawTextShadow(sText, X + 1, Y + Paint.Font.Height + 1, Paint.W, Paint.H, Align.TopLeft, 4)
-      Paint.DrawText(sText, X, Y + Paint.Font.Height, Paint.W, Paint.H, Align.TopLeft)
+      hExt = Paint.TextExtents(sText)
+      HT = Paint.Font.H
+      Paint.DrawText(sText, X, Y + HT, Paint.W, hExt.H, Align.Left)
+      
+      If .Branch Then
+        
+        XB = X + hExt.Width + P
+        YB = Y + HT - 2
+        HB = Ceil(hExt.H) + 4
+
+        GoSub DRAW_BRANCH
+
+      Endif
       
       X -= ICON_SIZE + P
       
@@ -323,6 +349,24 @@ Public Sub DrawingArea_Draw()
   '   Paint.FillRect(0, 0, Paint.W, Paint.H, Color.SetAlpha(Color.SelectedBackground, 128))
   ' Endif
   ' 
+  Return
+  
+DRAW_BRANCH:
+
+  Paint.Font.Grade = -2
+  WB = Paint.TextSize($hProjectInfo.Branch).Width + P * 2
+  
+  Paint.Rectangle(XB, YB, WB, HB, P * 2)
+  Paint.Background = VersionControl.GetBranchColor($hProjectInfo.Branch)
+  Paint.Fill
+  Paint.Background = Color.TextBackground
+  Paint.DrawText($hProjectInfo.Branch, XB, YB, WB, HB, Align.Center)
+  Paint.Background = Color.TextForeground
+  
+  Paint.Font.Grade = 0
+        
+  Return
+  
 End
 
 Public Sub DrawingArea_Enter()
@@ -453,6 +497,7 @@ Public Sub Match(sFilter As String) As Boolean
     If .Name Like sFilter Then Return True
     If String.LCase(.GetTranslatedTitle()) Like sFilter Then Return True
     If .Version Like sFilter Then Return True
+    If .Branch Like sFilter Then Return True
     If $bShowAuthors And If String.LCase(.Authors.Join(" ")) Like sFilter Then Return True
     If String.LCase(Group) Like sFilter Then Return True
     If String.LCase(.GetTranslatedDescription()) Like sFilter Then Return True

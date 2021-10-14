@@ -292,7 +292,7 @@
           ToolTip = ("Show modifications")
           Action = ".diff"
           AutoResize = True
-          Picture = Picture["img/32/modified.png"]
+          Picture = Picture["icon:/small/modified"]
           Toggle = True
         }
         { btnDiffPrevious ToolButton
@@ -661,7 +661,7 @@
   }
   { Action diff
     Text = "Show modifications"
-    Picture = "img/32/modified.png"
+    Picture = "icon:/small/modified"
   }
   { Action diff-next
     Text = "Next modification"

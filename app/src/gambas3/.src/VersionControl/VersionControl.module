@@ -132,6 +132,21 @@ Public Sub Shell(sCmd As String, Optional bSilent As Boolean, Optional aEnv As S
 End
 
 
+' Public Sub Exec(aCmd As String[], Optional bSilent As Boolean, Optional aEnv As String[]) As String
+'   
+'   Dim sResult As String
+'   
+'   If Not bSilent Then Insert(aCmd.Join(" ") & "\n")
+'   Exec aCmd With aEnv To sResult
+'   If Process.LastValue Then 
+'     $sLastResult = sResult
+'     Insert(sResult)
+'   Endif
+'   Return sResult
+'   
+' End
+
+
 Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As Boolean, Optional aEnv As String[]) As Integer
 
   ' Dim sPassword As String
@@ -771,16 +786,23 @@ Public Sub GetBranchColor(sBranch As String) As Integer
     
   Endif
   
-  
+  If Application.DarkTheme Then iColor = Color.Invert(iColor, True)
   Return iColor
   
 End
 
 Public Sub GetBranchFromDir(sDir As String) As String
 
-  Dim sResult As String
+  Repeat
+    If IsDir(sDir &/ ".git") Then
+      Return Trim(Split(File.Load(sDir &/ ".git/HEAD"), "/").Last)
+    Endif
+    sDir = File.Dir(sDir)
+  Until sDir = "/"
   
-  Try sResult = Trim(VersionControl.Shell("cd " & Shell(sDir) & " && git branch --show-current"))
-  If sResult Then Return sResult
+Catch
+  
+  'Try sResult = Trim(VersionControl.Exec(["git", "branch", "--show-current"], True, ["PWD=" & sDir]))
+  'If sResult Then Return sResult
   
 End

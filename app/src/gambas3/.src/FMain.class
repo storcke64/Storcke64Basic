@@ -57,8 +57,8 @@ Public Sub _new()
   FFormStack.Load(tabProperty)
   tabProperty.Index = 0
   
-  txtSearchProject._AddButton(btnUseInheritance)
   txtSearchProject._AddButton(btnOpenStartup)
+  txtSearchProject._AddButton(btnUseInheritance)
   
   'FSearch.Load
   FOption.Load
@@ -1190,6 +1190,7 @@ End
 Public Sub ReadConfig()
   
   Dim H As Integer
+  Dim hChild As Control
   
   Project.SetNormalFont(tvwProject)
   Project.SetNormalFont(tlbMain)
@@ -1199,6 +1200,11 @@ Public Sub ReadConfig()
   $iTabBarHeight = H  
   
   panSearchProject.H = H
+  panBranchColor.H = H
+  
+  For Each hChild In panBranchColor.Children
+    If hChild Is ToolButton Then hChild.W = H - 2
+  Next
 
   wrkProject.Font = tabProperty.TextFont
   wrkProject.CloseWithMouse = Settings["/CloseWithMiddleClick", False]
@@ -3210,7 +3216,6 @@ Public Sub btnOpenStartup_Click()
 
   hFile = Project.OpenFile(Project.FindPath(Project.Startup))
   Try hFile.Goto(hFile.GetFunctionLine("Main"), 0)
-  
 
 End
 
@@ -3223,20 +3228,49 @@ Public Sub dwgBranchColor_Draw()
   
   sBranch = VersionControl.GetCurrentBranch()
   
-  Paint.Rectangle(DS, DS, Paint.W - DS, Paint.H - DS * 2, DS * 4)
+  Paint.Rectangle(DS \ 2, DS \ 2, Paint.W - DS, Paint.H - DS, DS * 4)
   Paint.Background = VersionControl.GetBranchColor(sBranch)
-  If Application.DarkTheme Then Paint.Background = Color.Invert(Paint.Background, True)
   Paint.Fill
   
   Paint.Background = Color.TextBackground
   Paint.Font.Bold = True
   sBranch = Paint.TrimText(sBranch, Paint.W - DS * 5)
-  Paint.DrawText(sBranch, DS, DS, Paint.W - DS, Paint.H - DS * 2, Align.Center)
+  Paint.DrawText(sBranch, DS \ 2, DS \ 2, Paint.W - DS, Paint.H - DS, Align.Center)
   
 End
 
 Public Sub btnCloseTree_Click()
 
   txtSearchProject_Click
+
+End
+
+Public Sub txtSearchProject_Clear()
+
+  txtSearchProject.SetFocus
+
+End
+
+Public Sub btnVcCommit_Click()
+
+  FDebugInfo.btnVcCommit_Click
+
+End
+
+Public Sub btnVcUpdate_Click()
+
+  FDebugInfo.btnVcCommit_Update
+
+End
+
+Public Sub dwgBranchColor_MouseDown()
+
+  mnuVcBranch.Popup(dwgBranchColor.ScreenX + Desktop.Scale, dwgBranchColor.ScreenY + dwgBranchColor.H)
+
+End
+
+Public Sub btnVcChanges_Click()
+
+  FDebugInfo.btnVcChanges_Click
 
 End

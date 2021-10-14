@@ -10,6 +10,7 @@ Property Read Icon As String
 Property Read Startup As String
 Property Read Components As String[]
 Property Read Deleted As Boolean Use $bDeleted
+Property Read Branch As String Use $sBranch
 
 Public Type As Integer
 Public Translate As Boolean
@@ -50,7 +51,6 @@ Private Sub ReadProject()
   Dim iPos As Integer
   Dim sKey As String
   Dim sVal As String
-  Dim sBranch As String
   Dim dDate As Date
   Dim sPath As String
   
@@ -130,8 +130,7 @@ Private Sub ReadProject()
   
   Next
   
-  sBranch = VersionControl.GetBranchFromDir($sPath)
-  If sBranch Then $sVersion &= " (" & sBranch & ")"
+  $sBranch = VersionControl.GetBranchFromDir($sPath)
 
   Close #hFile
   
