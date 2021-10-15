@@ -3740,7 +3740,7 @@ Private Sub ShowPosition_Write(Value As Boolean)
       $hView._Container = Null
       $hLabelFrame = New Panel($hView)
       $hView._Container = hSave
-      $hLabelFrame.Background = Color.SetAlpha($hStyles[Highlight.Background].Color, 64)
+      $hLabelFrame.Background = Color.Merge($hStyles[Highlight.Background].Color, $hStyles[Highlight.Normal].Color, 0.1)
       $hLabelFrame.Ignore = True
       $hLabel = New Label($hLabelFrame) ' TODO: NULL + gb.gtk => crash!
       $hLabel.AutoResize = True

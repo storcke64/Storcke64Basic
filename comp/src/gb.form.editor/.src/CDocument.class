@@ -674,7 +674,8 @@ Public Sub Undo()
 
     Repeat
     
-      hCmd = $aUndo.Pop()
+      Try hCmd = $aUndo.Pop()
+      If Error Then Break
       
       'Print "Undo: ";
       'hCmd.Print
@@ -757,7 +758,8 @@ Public Sub Redo()
   
     Repeat
     
-      hCmd = $aRedo.Pop()
+      Try hCmd = $aRedo.Pop()
+      If Error Then Break
       
       'Print "Redo: ";
       'hCmd.Print
