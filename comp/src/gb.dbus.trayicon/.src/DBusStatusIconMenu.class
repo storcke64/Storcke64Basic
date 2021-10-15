@@ -112,8 +112,6 @@ Public Sub com_canonical_dbusmenu_GetLayout(ParentId As Integer, RecursionDepth 
   
 End
 
-
-
 Private Sub GetParent() As TrayIcon
 
   Return Object.Parent(Me)
@@ -232,7 +230,7 @@ Public Sub _UpdateMenu(hMenu As Menu) As Boolean
   
   $sProp = sProp
   Inc $iRevision
-  If DBus.IsRegistered(Me) Then DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), 0])
+  'If DBus.IsRegistered(Me) Then DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), 0])
   
 End
 
@@ -249,7 +247,9 @@ End
 
 Public Sub com_canonical_dbusmenu_AboutToShow(ParentId As Integer) As Boolean
   
-  Return GetParent()._AboutToShow($aProp[ParentId]["menu"])
+  GetParent()._AboutToShow($aProp[ParentId]["menu"])
+  'DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), ParentId])
+  Return True
   
 End
 
