@@ -110,3 +110,10 @@ Static Public Sub LoadSvgImage(sKey As String, Optional sStock As String) As Svg
   Return SvgImage.Load(sPath & ".svg")
   
 End
+
+Static Public Sub InstallIconTheme()
+  
+  MakeIconTheme.Run()
+  
+End
+
