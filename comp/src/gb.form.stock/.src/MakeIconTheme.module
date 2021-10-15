@@ -37,6 +37,7 @@ Public Sub Run()
   Dim hImage As Image
   Dim sMakeLink As String
   Dim sLink As String
+  Dim cTarget As Collection
 
   sRoot = "~/.local/share/icons/Gambas"
 
@@ -94,14 +95,19 @@ Public Sub Run()
       If Not Exist(sIconPath) Then Continue
       
       sMakeLink = ""
+      cTarget = New Collection
       
       For Each sTarget In aTarget
         If sTarget = "#" Then Continue
         
         If sTarget Begins "[" Then
+          If sTarget Begins "[-" Then Continue
           iPos = InStr(sTarget, "]")
           sTarget = Mid(sTarget, iPos + 1)
         Endif
+        
+        If cTarget.Exist(sTarget) Then Continue
+        cTarget[sTarget] = True
         
         iPos = InStr(sTarget, "/")
         sTargetDir = Left(sTarget, iPos - 1)

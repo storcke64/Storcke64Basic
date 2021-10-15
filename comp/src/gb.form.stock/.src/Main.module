@@ -202,7 +202,7 @@ Public Sub Main()
   Dim sDir As String
   Dim sPngQuant As String
 
-  'MakeInternet
+  MakeIconTheme.Run()
 
   Quit
   sPngQuant = System.Find("pngquant")
