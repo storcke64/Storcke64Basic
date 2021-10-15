@@ -793,16 +793,7 @@ End
 
 Public Sub GetBranchFromDir(sDir As String) As String
 
-  Repeat
-    If IsDir(sDir &/ ".git") Then
-      Return Trim(Split(File.Load(sDir &/ ".git/HEAD"), "/").Last)
-    Endif
-    sDir = File.Dir(sDir)
-  Until sDir = "/"
-  
-Catch
-  
-  'Try sResult = Trim(VersionControl.Exec(["git", "branch", "--show-current"], True, ["PWD=" & sDir]))
-  'If sResult Then Return sResult
-  
+  sDir = CVersionControlGit.FindRoot(sDir)
+  If sDir Then Return Trim(Split(File.Load(sDir &/ "HEAD"), "/").Last)
+
 End

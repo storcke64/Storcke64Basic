@@ -86,7 +86,7 @@ Public Sub btnOK_Click()
 Catch
   
   Application.Busy = 0
-  Message.Error(("Unable to send bug report.") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Unable to send bug report."))
   $bWorking = False
 
 End

@@ -597,7 +597,7 @@ Public Sub Compress(sPath As String) As Boolean
 Catch 
   
   Dec Application.Busy
-  FMain.ShowError("<b>" & ("Unable to compress file.") & "</b><p>" & Error.Text & "\n" & Error.Backtrace.Join(" "), sPath)
+  FMain.ShowError("<b>" & ("Unable to compress file.") & "</b><p>" & Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>", sPath)
   Return True
   
 End

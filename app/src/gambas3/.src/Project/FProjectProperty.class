@@ -306,7 +306,7 @@ Private Function DoApply() As Boolean
 
 INVALID_NAMESPACE:
 
-  Message.Error(("Invalid namespace identifier."))
+  Message.Warning(("Invalid namespace identifier."))
   txtDefaultNamespace.SetFocus
   Return True
 

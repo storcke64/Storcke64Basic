@@ -185,7 +185,7 @@ Public Sub fchExisting_Activate()
 Catch 
 
   FMain.NoMessage = 0
-  FMain.ShowError(("Cannot import file.") & "\n\n" & Error.Text & "\n" & Error.Where)
+  FMain.ShowErrorWith(("Cannot import file."))
 
 End
 

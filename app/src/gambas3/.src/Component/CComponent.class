@@ -159,7 +159,6 @@ Public Sub Load()
   Dim cClass As New Collection
   Dim aList As String[]
   Dim hLibraryInfo As CLibraryInfo
-  Dim sErr As String
   Dim iLine As Integer
   Dim sHelp As String
   Dim cCycle As Collection
@@ -469,9 +468,8 @@ READ_HELP:
   
 Catch
   
-  sErr = Error.Where & "\n\n" & Error.Text
   Dec Application.Busy
-  FMain.ShowError(sErr)
+  FMain.ShowErrorWith(("Unable to load component."))
   
 End
 

@@ -36,19 +36,18 @@ Private Sub RunShell(sCmd As String, Optional bSilent As Boolean) As String
   
 End
 
-Private Sub FindRoot() As String
+Static Public Sub FindRoot(Optional sDir As String) As String
 
-  Dim sDir As String
   Dim sPath As String
   Dim sData As String
 
-  sDir = Project.Dir
+  If Not sDir Then sDir = Project.Dir
   While Len(sDir) > 1
     sPath = sDir &/ ".git"
     If Exist(sPath) Then
-      If Exist(sPath &/ "HEAD") Then Return sDir
+      If Exist(sPath &/ "HEAD") Then Return sDir &/ ".git"
       Try sData = File.Load(sPath)
-      If sData Begins "gitdir:" Then Return sDir
+      If sData Begins "gitdir:" Then Return LTrim(Mid$(sData, 8, -1))
     Endif
     sDir = File.Dir(sDir)
   Wend
@@ -76,7 +75,7 @@ Public Sub Check() As Boolean
       If Not $bCanControl Then
         sRoot = FindRoot()
         If sRoot Then
-          $sRoot = sRoot
+          $sRoot = File.Dir(sRoot)
           $bHasRemote = RunShell("git remote show")
           Return True
         Endif

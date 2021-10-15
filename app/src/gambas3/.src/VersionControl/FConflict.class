@@ -94,7 +94,7 @@ Private Sub LoadFile(sPath As String)
 Catch
   
   Application.Busy = 0
-  Message.Error(("Unable to load file:") & "\n<tt>" & sPath & "</tt>\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Unable to load file:") & "\n<tt>" & Html(sPath) & "</tt>")
     
 End
 
@@ -228,7 +228,7 @@ Public Sub btnSolve_Click()
   Next
 
   If VersionControl.Resolve($sPath) Then 
-    Message.Error(("Unable to resolve the conflict."))
+    FMain.ShowErrorWith(("Unable to resolve the conflict."))
     Return
   Endif
   

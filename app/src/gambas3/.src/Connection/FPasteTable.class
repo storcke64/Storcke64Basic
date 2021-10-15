@@ -70,7 +70,6 @@ Private Sub CopyTable(sDestTable As String)
   Dim hSrc As Connection
   Dim hDst As Connection
   Dim rSrc As Result
-  Dim sMsg As String
 
   Inc Application.Busy
 
@@ -100,16 +99,12 @@ Private Sub CopyTable(sDestTable As String)
 
 Finally
 
-  'DB.Debug = False
-  sMsg = Error.Text
   Application.Busy = 0
-  'Try hSrc.Close
-  'Try hDst.Close
 
 Catch
 
-  Message.Error(sMsg)
-
+  FMain.ShowErrorWith(("Unable to copy table."))
+  
 End
 
 
@@ -194,7 +189,7 @@ Private Sub DoCopyTable(hSrc As Connection, hDst As Connection, sSrc As String, 
 
 Catch
 
-  sMsg = Subst("Cannot copy table &1.", sSrc) & "\n\n" & Error.Text
+  sMsg = Subst("Cannot copy table &1.", sSrc) & " " & Error.Text
   Try hDst.Rollback
   Try hDst.Tables.Remove(sDst)
   Error.Raise(sMsg)

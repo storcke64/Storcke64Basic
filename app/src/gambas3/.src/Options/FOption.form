@@ -1254,7 +1254,7 @@
       }
     }
     { svwTheme ScrollView
-      MoveScaled(1,27,64,29)
+      MoveScaled(2,23,64,29)
       Foreground = Color.TextForeground
       Expand = True
       Arrangement = Arrange.Vertical
@@ -1262,6 +1262,19 @@
       Padding = 4
       Border = False
       ScrollBar = Scroll.Vertical
+    }
+    { HBox8 HBox
+      MoveScaled(0,62,66,4)
+      Spacing = True
+      Indent = True
+      { Spring5 Spring
+        MoveScaled(8,0,5,4)
+      }
+      { btnInstallIconTheme Button
+        MoveScaled(27,0,39,4)
+        AutoResize = True
+        Text = ("Install Gambas icon theme") & "..."
+      }
     }
     Index = 0
   }

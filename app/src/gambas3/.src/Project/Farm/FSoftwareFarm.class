@@ -563,7 +563,7 @@ Public Sub btnDownload_Click()
   If Message.Question(Subst(("Do you really want to download <b>&1</b>?"), sName), ("Download"), ("Cancel")) = 1 Then
     sErr = $hSoft.Install(True) 
     If sErr Then
-      If sErr <> "*" Then Message.Error(Subst(("Unable to download <b>&1</b>:"), sName) & "\n\n" & sErr)
+      If sErr <> "*" Then FMain.ShowErrorWith(Subst(("Unable to download <b>&1</b>:"), sName), sErr)
     Else
       Message(Subst(("<b>&1</b> has been successfully downloaded."), sName))
       Reload
@@ -583,7 +583,7 @@ Public Sub btnInstall_Click()
       If Message.Question(Subst(("Do you really want to upgrade to <b>&1</b>?"), sName), ("Upgrade"), ("Cancel")) = 1 Then
         sErr = $hSoft.Install() 
         If sErr Then
-          If sErr <> "*" Then Message.Error(Subst(("Unable to upgrade to <b>&1</b>:"), sName) & "\n\n" & sErr)
+          If sErr <> "*" Then FMain.ShowErrorWith(Subst(("Unable to upgrade to <b>&1</b>:"), sName), sErr)
         Else
           Message(Subst("<b>&1</b> has been successfully upgraded.", sName))
           Goto REFRESH
@@ -593,7 +593,7 @@ Public Sub btnInstall_Click()
       If Message.Question(Subst(("Do you really want to uninstall <b>&1</b>?"), sName), ("Uninstall"), ("Cancel")) = 1 Then
         sErr = $hSoft.Uninstall() 
         If sErr Then
-          Message.Error(Subst(("Unable to uninstall <b>&1</b>:"), sName) & "\n\n" & sErr)
+          FMain.ShowErrorWith(Subst(("Unable to uninstall <b>&1</b>:"), sName), sErr)
         Else
           Message(Subst(("<b>&1</b> has been successfully uninstalled."), sName))
           Goto REFRESH
@@ -604,7 +604,7 @@ Public Sub btnInstall_Click()
     If Message.Question(Subst(("Do you really want to install <b>&1</b>?"), sName), ("Install"), ("Cancel")) = 1 Then
       sErr = $hSoft.Install() 
       If sErr Then
-        If sErr <> "*" Then Message.Error(Subst(("Unable to install <b>&1</b>:"), sName) & "\n\n" & sErr)
+        If sErr <> "*" Then FMain.ShowErrorWith(Subst(("Unable to install <b>&1</b>:"), sName), sErr)
       Else
         Message(Subst(("<b>&1</b> has been successfully installed."), sName))
         Goto REFRESH
@@ -626,7 +626,7 @@ Public Sub btnVote_Click()
 
   sErr = $hSoft.ToggleVote() 
   If sErr Then
-    Message.Error(("Unable to modify your vote.") & "\n\n" & sErr)
+    FMain.ShowErrorWith(("Unable to modify your vote."), sErr)
   Else
     Reload
   Endif
@@ -666,7 +666,7 @@ Public Sub btnRemove_Click()
   
   sErr = $hSoft.Delete()   
   If sErr Then
-    Message.Error(Subst(("Unable to remove <b>&1</b>:"), sName) & "\n\n" & sErr)
+    FMain.ShowErrorWith(Subst(("Unable to remove <b>&1</b>:"), sName), sErr)
   Else
     Message(Subst("<b>&1</b> has been successfully removed.", sName))
   Endif

@@ -348,7 +348,7 @@ Catch
   
   Application.Busy = iBusy
   Me.Enabled = False
-  FMain.ShowError(("Unable to connect to database.") & "<p>" & Error.Text)
+  FMain.ShowErrorWith(("Unable to connect to database."))
   Return True
   
 End
@@ -641,7 +641,7 @@ Catch
   
   splTable.Enabled = False
   Dec Application.Busy
-  Message.Error(Subst(("Unable to load table '&1'."), $sTable) & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(Subst(("Unable to load table '&1'."), $sTable))
   
 End
 
@@ -1612,7 +1612,7 @@ Finally
   
 Catch
   
-  Message.Error(Subst(("Cannot write table '&1'."), $sTable) & "\n\n" & sError)
+  Message.ShowErrorWith(Subst(("Cannot write table '&1'."), $sTable), sError)
   Return True
   
 End
@@ -1723,7 +1723,7 @@ Public Sub btnKill_Click()
   
 Catch
   
-  Message(Subst(("Cannot delete table '&1'."), $sTable) & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(Subst(("Cannot delete table '&1'."), $sTable))
   
 End
 

@@ -206,7 +206,7 @@ Public Sub WaitFor(Optional sGood As String, sBad As String, Optional bNoWindow 
   bFail = HasFailed()
   
   If bFail Then
-    If sBad And If ErrorText Then Message.Error(sBad & "\n\n" & ErrorText)
+    If sBad And If ErrorText Then FMain.ShowErrorWith(sBad, ErrorText)
   Else
     If sGood Then Message(sGood)
   Endif

@@ -277,7 +277,7 @@ Public Sub mnuDeleteFile_Click()
   
 Catch
   
-  FMain.ShowError(("Cannot delete file or directory") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Cannot delete file or directory"))
   
 End
 
@@ -1783,7 +1783,7 @@ Private Sub AddDataFiles(aFile As String[], bLink As Boolean)
 Catch
   
   Application.Busy = 0
-  ShowError(("Unable to drop file into the project.") & "\n\n" & Error.Text, $sKey)
+  ShowErrorWith(("Unable to drop file into the project."),, $sKey)
   
 End
 
@@ -2211,7 +2211,13 @@ Public Sub ShowError(sMsg As String, Optional sKey As String)
   
 End
 
-Public Sub ShowErrorWith(sTitle As String, sMsg As String, Optional sKey As String)
+Public Sub ShowErrorWith(sTitle As String, Optional sMsg As String, Optional sKey As String)
+  
+  If Not sMsg Or If sMsg = "*" Then 
+    sMsg = Tr(Error.Text)
+    If sMsg Not Ends "." Then sMsg &= "."
+    If sMsg = "*" Then Try sMsg &= "\n<font size=\"-1\"><tt>\n" & Error.Backtrace.Join(" ") & "</tt></font>"
+  Endif
   
   ShowMessage("<b>" & sTitle & "</b>\n\n" & sMsg, "error", sKey)
   

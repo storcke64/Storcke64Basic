@@ -312,7 +312,7 @@ Public Sub btnOK_Click()
 Catch 
 
   FMain.NoMessage = 0
-  FMain.ShowError(("Cannot add file.") & "\n\n" & Error.Text & "\n" & Error.Where)
+  FMain.ShowErrorWith(("Cannot add file."))
   
 End
 

@@ -552,7 +552,7 @@ Public Sub ProjectItem_RemoveClick()
     If Message.Question(("Do you really want to uninstall this software?"), ("Uninstall"), ("Cancel")) = 1 Then
       sErr = CSoftware.UninstallFromPath(hItem.Path)
       If sErr Then
-        Message.Error(("Unable to uninstall software:") & "\n\n" & sErr)
+        FMain.ShowErrorWith(("Unable to uninstall software:"), sErr)
       Else
         Clear
         Fill

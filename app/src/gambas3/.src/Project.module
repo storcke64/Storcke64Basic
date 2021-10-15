@@ -566,7 +566,7 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
     sExec = Application.Path &/ File.Name(Args[0])
     If Not Exist(sExec) Then sExec &= ".gambas"
     If Not Exist(sExec) Then
-      Message.Error(Subst(("Unable to find Gambas IDE executable in directory:\n\n&1"), Application.Path))
+      Message.Warning(Subst(("Unable to find Gambas IDE executable in directory:\n\n&1"), Application.Path))
       Return
     Endif
     If sOpenFile Then
@@ -585,10 +585,10 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
   sVer = CheckProjectVersion(sDir &/ PROJECT_FILE)
   If sVer Then
     If sVer = "?" Then
-      Message.Error(("This is not a Gambas project."))
+      Message.Warning(("This is not a Gambas project."))
       Return True
     Else If sVer = "1.0" Then
-      Message.Error(("This is a Gambas 1.0 project. Use Gambas 2 to convert it."))
+      Message.Warning(("This is a Gambas 1.0 project. Use Gambas 2 to convert it."))
       Return True
     Else If sVer = "2.0" Then
       If Message.Warning(Subst(("This is a Gambas 2.0 project.\n\nDo you want to convert it?"), sVer), ("Convert"), ("Cancel")) = 2 Then
@@ -615,7 +615,7 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
   Endif
 
   If bConvert And If ReadOnly Then
-    Message.Error(("This project is read-only.") & " " & ("It cannot be converted."))
+    Message.Warning(("This project is read-only.") & " " & ("It cannot be converted."))
     Return True
   Endif
   
@@ -672,7 +672,7 @@ _INIT_AGAIN:
   If bConvert Then
 
     If ReadOnly Then
-      Message.Error(("This project is read-only.") & " " & ("It cannot be converted."))
+      Message.Warnig(("This project is read-only.") & " " & ("It cannot be converted."))
       Return True
     Endif
 
@@ -758,7 +758,7 @@ _INIT_AGAIN:
     For I = 0 To aClass.Max
       aClass[I] = "<li><tt>" & Html(aClass[I]) & "</tt></li>"
     Next
-    Message.Error(("Cannot open project file :") & "\n" & sDir & "\n\n" & ("This project has duplicated class files!") & "<ul>" & aClass.Join("") & "</ul>")
+    Message.Error("<b>" & ("Cannot open project file :") & "</b>\n" & sDir & "\n\n" & ("This project has duplicated class files!") & "<ul>" & aClass.Join("") & "</ul>")
     Goto _CANCEL
   Endif
   
@@ -884,7 +884,7 @@ Catch
   GoSub _STOP_CONVERT
 
   If Error.Text Then
-    Message.Error(("Cannot open project file :") & "\n" & sDir & "\n\n<tt>" & Error.Text & "\n" & Error.Backtrace.Join(" ") & "</tt>")
+    Message.Error("<b>" & ("Cannot open project file :") & "</b>\n" & sDir & "\n\n<tt>" & Error.Text & "\n" & Error.Backtrace.Join(" ") & "</tt>")
   Endif
 
 _CANCEL:
@@ -2173,7 +2173,7 @@ Public Function LoadFile(sPath As String, Optional bNoErrorIfUnknown As Boolean)
 
 Catch
 
-  sErr = Error.Text & "\n" & Error.Backtrace.Join(" ")
+  sErr = Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>"
   If hForm Then Try hForm.Delete
   'Dec Application.Busy
   Try Files[sPath] = Null
@@ -3002,7 +3002,7 @@ Public Function InsertDirectory(sDir As String, Optional bNoVerCtrl As Boolean) 
     If Len(sPath) > Len(Project.Dir) And If Not Exist(sPath) Then
       Try Mkdir sPath
       If Error Then
-        Message.Error(Error.Text)
+        FMain.ShowErrorWith(("Unable to create directory."))
         Return True
       Endif
       If Not bNoVerCtrl Then VersionControl.AddDir(sPath)
@@ -3832,7 +3832,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
   If aMissing.Count Then
     sMsg = Subst(("Some components are missing: &1"), aMissing.Join(", "))
-    If Message.Error(sMsg, ("Continue"), ("Cancel")) = 2 Then
+    If Message.Warning(sMsg, ("Continue"), ("Cancel")) = 2 Then
       Error.Raise("")
     Endif
   Endif
@@ -4892,7 +4892,7 @@ UNSUPPORTED:
 Catch
 
   Dec Application.Busy
-  Message.Error(("Unable to create source archive.") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Unable to create source archive."))
   Return True
 
 End
@@ -5210,7 +5210,7 @@ Public Sub CopyFile(sSrc As String, sDst As String)
 
 Catch
 
-  Message.Error(Subst(("Cannot copy file &1."), sSrc) & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(Subst(("Cannot copy file &1."), sSrc))
 
 End
 
@@ -5337,7 +5337,7 @@ Public Sub MoveFile(sSrc As String, sDst As String, Optional bOther As Boolean)
 
 Catch
 
-  FMain.ShowError(Subst(("Cannot move file &1."), File.Name(sSrc)) & "\n\n" & Error.Text & "\n" & Error.Backtrace.Join(" "), sSrc)
+  FMain.ShowError(Subst(("Cannot move file &1."), File.Name(sSrc)) & "\n\n" & Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>", sSrc)
 
 End
 
@@ -6105,7 +6105,7 @@ Catch
 
   FConvert.StopAll
   Application.Busy = 0
-  Message.Error("<b>" & Subst(("Unable to convert &1"), File.Name(sPath)) & "</b><p>" & Error.Text & "<br>" & Error.Where)
+  FMain.ShowErrorWith(Subst(("Unable to convert &1"), File.Name(sPath)))
   Return True
 
 End
@@ -6385,7 +6385,7 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
 Catch
 
   Application.Busy = 0
-  Message.Error(("Unable to update forms.") & "<p><tt>" & Error.Text & "<br><br>" & Error.Where & "</tt>")
+  FMain.ShowErrorWith(("Unable to update forms."))
 
 End
 
@@ -6568,7 +6568,7 @@ Public Sub ReadComponentFile() As Collection
   
 Catch
   
-  Message.Error(("Unable to read component description file.") & "\n\n" & Error.Text & "\n" & Error.Where)
+  FMain.ShowErrorWith(("Unable to read component description file."))
   
 End
 
@@ -6629,7 +6629,7 @@ Public Sub WriteComponentFile(cComp As Collection) As Boolean
   
 Catch 
 
-  Message.Error(("Cannot write component description file.") & "\n\n" & Error.Text & "\n" & Error.Where)
+  FMain.ShowErrorWith(("Cannot write component description file."))
   Return True
   
 End
@@ -6736,7 +6736,7 @@ End
 Public Sub OpenTerminal(sDir As String)
   
   Try Desktop.OpenTerminal(sDir)
-  If Error Then Message.Error(("Unable to run terminal.") & "\n\n" & Error.Text)
+  If Error Then FMain.ShowErrorWith(("Unable to run terminal."))
   
 End
 
@@ -7172,7 +7172,7 @@ Public Sub SaveFileAs(sPath As String)
   
   Try Kill Dialog.Path
   Try Copy sPath To Dialog.Path
-  If Error Then Message.Error(("Unable to save file.") & "\n\n" & Error.Text)
+  If Error Then FMain.ShowErrorWith(("Unable to save file."))
   
 End
 

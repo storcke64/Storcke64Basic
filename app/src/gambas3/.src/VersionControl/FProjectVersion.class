@@ -102,7 +102,7 @@ Public Sub btnCommit_Click()
   If iPos Then sChange = Left(sChange, iPos - 1)
   
   If Not Trim(sChange) Then
-    Balloon.Warning(("Please enter the journal."), btnCommit)
+    FMain.ShowWarning(("Please enter the journal."))
     Return
   Endif
 
@@ -113,7 +113,7 @@ Public Sub btnCommit_Click()
   Dec Application.Busy
   
   If bRes Then
-    Message.Error(("The project could not be committed."))
+    FMain.ShowErrorWith(("The project could not be committed."))
   Endif
 
 End
@@ -193,7 +193,7 @@ Public Sub btnUpdate_Click()
   Dec Application.Busy
 
   If bErr Then  
-    Message.Error(("Unable to update project from repository."))
+    FMain.ShowErrorWith(("Unable to update project from repository."))
   Else
     Message.Info(("Project has been updated from repository successfully."))
   Endif

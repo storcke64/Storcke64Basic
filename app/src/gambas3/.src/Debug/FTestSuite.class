@@ -84,7 +84,7 @@ Private Sub LoadSuites()
   
 Catch
   
-  Message.Error(("Unable to load test suites.") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Unable to load test suites."))
 
 End
 
@@ -279,7 +279,7 @@ Private Sub SaveSuites()
 
 Catch
   
-  Message.Error(("Unable to save test suites.") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Unable to save test suites."))
 
 End
 

@@ -334,7 +334,7 @@ Finally
 
 Catch
 
-  sMsg = Error.Text & "\n\n" & Error.Backtrace.Join(" ") & "\n\n" & Trim($sErrMerge)
+  sMsg = Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>\n\n" & Trim($sErrMerge)
   ErrorMessage(Subst(("Cannot read translation file for language '&1'"), Language.ToName(sLang)), sMsg)
   $bIgnore = False
   Return True
@@ -574,7 +574,7 @@ Finally
 
 Catch
 
-  Message.Error(("Cannot save translation.") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Cannot save translation."))
 
 End
 
@@ -1075,7 +1075,7 @@ Public Sub btnImport_Click()
 Catch
 
   Application.Busy = 0
-  Message.Error(("Cannot import translation file.") & "\n\n" & Error.Text & $sErrMerge)
+  FMain.ShowErrorWith(("Cannot import translation file."), Error.Text & $sErrMerge)
 
 End
 

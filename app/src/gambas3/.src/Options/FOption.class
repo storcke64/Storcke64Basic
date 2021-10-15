@@ -517,9 +517,9 @@ Public Sub btnCloseWithMiddleClick_Click()
 
 End
 
-Private Sub NeedRestart(hCtrl As Control)
+Private Sub NeedRestart()
   
-  Balloon.Warning(("You need to restart the application to see your changes."), hCtrl)  
+  Message.Warning(("You need to restart the application to see your changes."))
   
 End
 
@@ -570,7 +570,7 @@ End
 Public Sub btnUtility_Click()
 
   Settings["/UseUtilityWindows"] = btnUtility.Value
-  NeedRestart(btnUtility)
+  NeedRestart()
 
 End
 
@@ -850,8 +850,6 @@ End
 
 Public Sub btnClearCache_Click()
 
-  Dim sErr As String
-  
   If Message.Question(("Do you really want to clear the documentation cache?"), ("Clear"), ("Cancel")) <> 1 Then Return
   Inc Application.Busy
   WebSettings.Cache.Clear()
@@ -859,9 +857,8 @@ Public Sub btnClearCache_Click()
   
 Catch
   
-  sErr = Error.Text
   Application.Busy = 0
-  Message.Error(("Unable to clear documentation cache.") & "\n\n" & sErr)
+  FMain.ShowErrorWith(("Unable to clear documentation cache."))
 
 End
 
@@ -1225,6 +1222,8 @@ Public Sub btnInstallFont_Click()
 
   If Message.Question(("Do you really want to install the Gambas fonts into your personal font directory?"), ("Install"), ("Cancel")) <> 1 Then Return
   
+  Inc Application.Busy
+  
   If Not Exist(sDir) Then Mkdir sDir
   
   'For Each sFont In ["GambasMedium-12.bdf", "GambasBold-12.bdf", "GambasMedium-13.bdf", "GambasBold-13.bdf", "GambasMedium-16.bdf", "GambasBold-16.bdf"]
@@ -1252,8 +1251,16 @@ Public Sub btnInstallFont_Click()
   Next
   File.Save(sConf, sData)
   
-  NeedRestart(btnInstallFont)
+  NeedRestart()
 
+Finally
+  
+  Dec Application.Busy
+
+Catch
+
+  FMain.ShowErrorWith(("Unable to install font."))
+  
 End
 
 Public Sub Background_MouseDown()
@@ -1511,7 +1518,7 @@ End
 
 Public Sub DownloadHelp_Error((Key) As String)
   
-  Message.Error(("Cannot download '&1'.") & "\n\n&2", $hDownloadHelp[Key].Url, $hDownloadHelp[Key].ErrorText)
+  FMain.ShowErrorWith(Subst(("Cannot download '&1'."), $hDownloadHelp[Key].Url), $hDownloadHelp[Key].ErrorText)
   $hDownloadHelp = Null  
   UpdateDocumentationState
   
@@ -1855,3 +1862,20 @@ End
 '   VersionControl.Refresh
 ' 
 ' End
+
+Public Sub btnInstallIconTheme_Click()
+
+  If Message.Question(("Do you really want to install the Gambas icon theme into your personal icon theme directory?"), ("Install"), ("Cancel")) <> 1 Then Return
+  
+  Inc Application.Busy
+  _DefaultStock.InstallIconTheme()
+  
+Finally
+  
+  Dec Application.Busy
+
+Catch
+
+  FMain.ShowErrorWith(("Unable to install icon theme."))
+  
+End

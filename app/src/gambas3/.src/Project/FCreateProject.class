@@ -142,7 +142,7 @@ Private Sub CreateProject() As Boolean
 
 Catch
 
-  Message.Error(("Cannot create project!") & "\n\n" & Error.Text)
+  FMain.ShowErrorWith(("Cannot create project!"))
   Return True
   
 End

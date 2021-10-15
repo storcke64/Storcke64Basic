@@ -1101,7 +1101,7 @@ Private Sub Start(sCmd As String)
         Next
         
         If Not sProg Then 
-          FMain.ShowErrorWith(("Unable to start project."), ("No terminal emulator found."))
+          Message.Warning(("Unable to start project."), ("No terminal emulator found."))
           Return
         Endif
         

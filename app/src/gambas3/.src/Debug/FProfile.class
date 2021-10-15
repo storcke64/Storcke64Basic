@@ -441,7 +441,7 @@ Fast Public Sub Init(sPath As String)
 Catch
   
   Dec Application.Busy
-  Message.Error(Subst(("Unable to load profile file: &1"), File.Name(sPath)) & "\n\n" & Error.Where & ": " & Error.Text)
+  FMain.ShowErrorWith(Subst(("Unable to load profile file: &1"), File.Name(sPath)))
   
 End
 
@@ -1125,7 +1125,7 @@ Public Sub btnSave_Click()
   Settings["/FProfile/Path"] = File.Dir(Dialog.Path)
   Try Copy Path To Dialog.Path
   If Error Then
-    Message.Error(("Unable to save profile.") & "\n\n" & Error.Text)
+    FMain.ShowErrorWith(("Unable to save profile."))
   Endif
 
 End
