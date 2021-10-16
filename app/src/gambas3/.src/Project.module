@@ -1165,14 +1165,13 @@ Public Sub AddCompressedEmblem(hSource As Image) As Image
   Dim hImage As Image
   Dim iCol As Integer
 
+  hImage = hSource.Copy()
   If Application.DarkTheme Then
-    iCol = Color.SetAlpha(Color.TextForeground, 128)
+    hImage.Brightness(0.5)
   Else
-    iCol = Color.SetAlpha(Color.TextForeground, 220)
+    hImage.Brightness(-0.25)
   Endif
 
-  hImage = hSource.Copy()
-  hImage.PaintRect(0, 0, hImage.W, hImage.H, iCol)
   Return hImage
 
 End
