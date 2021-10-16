@@ -108,8 +108,11 @@ flip-v                  actions/object-flip-vertical
 floppy                  devices/media-floppy
 folder-document         places/folder-document;places/folder-documents
 folder-download         places/folder-download;places/folder-downloads
+folder-home             places/user-home
 folder-image            places/folder-pictures;places/folder-images
 folder-music            places/folder-music
+folder-network          places/folder-network
+folder-recent           places/folder-recent
 folder-video            places/folder-video;places/folder-videos
 font                    [-breeze*]actions/format-text-superscript;apps/preferences-desktop-font
 formula                 actions/formula
@@ -314,6 +317,7 @@ video                   $(mime)/video-x-generic
 view-detail             actions/view-list-details
 view-icon               actions/view-list-icons
 view-normal             actions/view-close
+view-preview            actions/view-preview
 view-split-h            actions/view-split-left-right
 view-split-v            actions/view-split-top-bottom
 view-tree               actions/view-list-tree
