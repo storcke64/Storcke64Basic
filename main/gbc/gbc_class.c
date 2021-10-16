@@ -119,44 +119,46 @@ void CLASS_delete(CLASS **class)
 {
 	int i;
 
-	if (*class)
-	{
-		TABLE_delete(&((*class)->table));
-		TABLE_delete(&((*class)->string));
+	if (!*class)
+		return;
+	
+	CLASS_set_current_function(NULL);
+	
+	TABLE_delete(&((*class)->table));
+	TABLE_delete(&((*class)->string));
 
-		for (i = 0; i < ARRAY_count((*class)->function); i++)
-			delete_function(&((*class)->function[i]));
+	for (i = 0; i < ARRAY_count((*class)->function); i++)
+		delete_function(&((*class)->function[i]));
 
-		for (i = 0; i < ARRAY_count((*class)->event); i++)
-			delete_event(&((*class)->event[i]));
+	for (i = 0; i < ARRAY_count((*class)->event); i++)
+		delete_event(&((*class)->event[i]));
 
-		for (i = 0; i < ARRAY_count((*class)->ext_func); i++)
-			delete_extfunc(&((*class)->ext_func[i]));
+	for (i = 0; i < ARRAY_count((*class)->ext_func); i++)
+		delete_extfunc(&((*class)->ext_func[i]));
 
-		for (i = 0; i < ARRAY_count((*class)->structure); i++)
-			delete_structure(&((*class)->structure[i]));
+	for (i = 0; i < ARRAY_count((*class)->structure); i++)
+		delete_structure(&((*class)->structure[i]));
 
-		for (i = 0; i < ARRAY_count((*class)->names); i++)
-			FREE(&((*class)->names[i]));
+	for (i = 0; i < ARRAY_count((*class)->names); i++)
+		FREE(&((*class)->names[i]));
 
-		ARRAY_delete(&((*class)->function));
-		ARRAY_delete(&((*class)->event));
-		ARRAY_delete(&((*class)->prop));
-		ARRAY_delete(&((*class)->ext_func));
-		ARRAY_delete(&((*class)->constant));
-		ARRAY_delete(&((*class)->class));
-		ARRAY_delete(&((*class)->unknown));
-		ARRAY_delete(&((*class)->stat));
-		ARRAY_delete(&((*class)->dyn));
-		ARRAY_delete(&((*class)->array));
-		ARRAY_delete(&((*class)->structure));
-		ARRAY_delete(&((*class)->names));
+	ARRAY_delete(&((*class)->function));
+	ARRAY_delete(&((*class)->event));
+	ARRAY_delete(&((*class)->prop));
+	ARRAY_delete(&((*class)->ext_func));
+	ARRAY_delete(&((*class)->constant));
+	ARRAY_delete(&((*class)->class));
+	ARRAY_delete(&((*class)->unknown));
+	ARRAY_delete(&((*class)->stat));
+	ARRAY_delete(&((*class)->dyn));
+	ARRAY_delete(&((*class)->array));
+	ARRAY_delete(&((*class)->structure));
+	ARRAY_delete(&((*class)->names));
 
-		if ((*class)->name) STR_free((*class)->name);
-		if ((*class)->export_name) STR_free((*class)->export_name);
+	if ((*class)->name) STR_free((*class)->name);
+	if ((*class)->export_name) STR_free((*class)->export_name);
 
-		FREE(class);
-	}
+	FREE(class);
 }
 
 

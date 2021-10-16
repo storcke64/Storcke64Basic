@@ -62,11 +62,13 @@ static bool _swap;
 static FILE *_file;
 
 static int _pos;
-static char _buffer[OUTPUT_BUFFER_SIZE + 8];
+static char _buffer[OUTPUT_BUFFER_SIZE + 16];
 static const char * const _mbuffer = &_buffer[OUTPUT_BUFFER_SIZE];
 static char *_pbuffer;
 
 static OUTPUT_CHANGE *_change = NULL;
+
+static char *_const_buffer = NULL;
 
 static const char *get_symbol_name(TABLE *table, int index, int *len)
 {
@@ -91,6 +93,7 @@ static void output_init(void)
 	_pos = 0;
 	_pbuffer = _buffer;
 	ARRAY_create(&_change);
+	BUFFER_create(&_const_buffer);
 }
 
 
@@ -98,6 +101,7 @@ static void output_exit(void)
 {
 	TABLE_delete(&StringTable);
 	ARRAY_delete(&_change);
+	BUFFER_delete(&_const_buffer);
 }
 
 
@@ -162,7 +166,7 @@ static void write_byte(unsigned char val)
 static void write_short(ushort val)
 {
 	#ifdef DEBUG_MORE
-	printf("%ld : i %u 0x%X\n", get_pos(), val, val);
+	printf("%ld : h %u 0x%X\n", get_pos(), val, val);
 	#endif
 
 	if (_swap)
@@ -180,7 +184,7 @@ static void write_short(ushort val)
 static void write_int(uint val)
 {
 	#ifdef DEBUG_MORE
-	printf("%ld : l %lu 0x%lX\n", get_pos(), val, val);
+	printf("%ld : i %lu 0x%lX\n", get_pos(), val, val);
 	#endif
 
 	if (_swap)
@@ -523,7 +527,6 @@ static void output_desc(void)
 }
 
 
-
 static void output_constant(void)
 {
 	int i, n;
@@ -561,9 +564,13 @@ static void output_constant(void)
 				{
 					char buffer[8];
 					int len;
+					offset_t pos;
+					
 					len = sprintf(buffer, "%d", constant->value);
+					
+					pos = BUFFER_add(&_const_buffer, buffer, len);
 					//fprintf(stderr, "output_constant: integer: %.*s\n", len, buffer);
-					write_int(get_string(buffer, len));
+					write_int(get_string(&_const_buffer[pos], len));
 					write_int(len);
 				}
 				else

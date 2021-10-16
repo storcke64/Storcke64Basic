@@ -206,8 +206,11 @@ FUNCTION *CODE_set_function(FUNCTION *func)
 	cur_func = func;
 	CODE_current_func = func;
 	
-	CODE_stack = cur_func->code_stack;
-	CODE_stack_usage = cur_func->code_stack_usage;
+	if (func)
+	{
+		CODE_stack = cur_func->code_stack;
+		CODE_stack_usage = cur_func->code_stack_usage;
+	}
 	
 	return prev;
 }
