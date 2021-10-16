@@ -112,7 +112,9 @@ folder-home             places/user-home
 folder-image            places/folder-pictures;places/folder-images
 folder-music            places/folder-music
 folder-network          places/folder-network
-folder-recent           places/folder-recent
+folder-recent           places/folder-recent;actions/folder-open-recent
+folder-remote           places/folder-remote
+folder-root             places/folder-root
 folder-video            places/folder-video;places/folder-videos
 font                    [-breeze*]actions/format-text-superscript;apps/preferences-desktop-font
 formula                 actions/formula
@@ -124,16 +126,18 @@ gamma                   #
 gnu                     #
 green                   [breeze*]actions/colors-chromagreen
 grid                    actions/view-grid;actions/games-config-board
-group                   [-breeze*]actions/user-group-new;apps/system-users
+group                   actions/object-group;actions/edit-group
 h                       $(mime)/text-x-chdr
 halt                    actions/process-stop
 house                   places/poi-building
 harddisk                devices/drive-harddisk
+harddisk-root           devices/drive-harddisk-root
 hardware                devices/audio-card
 headset                 devices/audio-headset
-help                    [breeze*]apps/system-help;apps/help-browser
+help                    apps/system-help;categories/system-help;apps/help-browser
 home                    actions/go-home
 html                    $(mime)/text-html
+hibernate               apps/system-hibernate;apps/system-suspend-hibernate;actions/system-hibernate;actions/system-suspend-hibernate
 hue                     #
 identity                apps/user-info;preferences/preferences-desktop-user;apps/preferences-desktop-user
 image                   $(mime)/image-x-generic
@@ -165,6 +169,8 @@ lightness               #
 link                    emblems/emblem-symbolic-link
 linux                   #
 lock                    actions/object-locked;status/object-locked
+lock-screen             apps/system-lock-screen;actions/system-lock-screen
+logout                  apps/system-log-out;actions/system-log-out
 lower                   actions/object-ordre-lower
 love                    actions/love
 mail                    apps/evolution-mail;actions/mail-mark-unread
@@ -236,7 +242,7 @@ remove                  actions/list-remove
 rename                  actions/edit-rename
 replace                 actions/edit-find-replace
 resize                  actions/transform-scale
-restart                 actions/system-restart;actions/system-reboot
+restart                 apps/system-restart;apps/system-reboot;actions/system-restart;actions/system-reboot
 restaurant              places/poi-restaurant
 revert                  actions/document-revert
 rewind                  actions/media-seek-backward
@@ -262,6 +268,7 @@ server                  [breeze*!16]places/server-database;places/network-server
 share                   actions/document-share;actions/send-to
 shortcut                apps/accessories-character-map
 shuffle                 actions/media-playlist-shuffle
+shutdown                apps/system-shutdown;actions/system-shutdown
 sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
 spell-check             actions/tools-check-spelling
@@ -271,7 +278,9 @@ statistics              actions/view-statistics
 stop                    actions/media-playback-stop
 sum                     #
 sun                     status/weather-clear
+suspend                 apps/system-suspend;actions/system-suspend
 system                  devices/computer
+switch-user             apps/system-switch-user;actions/system-switch-user
 table                   [breeze*]actions/table
 tablet                  devices/input-tablet
 tag                     actions/tag
@@ -303,8 +312,10 @@ town                    places/poi-town
 train                   places/poi-railway-station
 transparency            #
 trash                   [breeze*!16]places/user-trash;places/user-trash
-usb                     devices/media-removable;devices/drive-removable-media
+trash-full              [breeze*!16]places/user-trash-full;places/user-trash-full
+usb                     devices/media-removable;devices/drive-removable-media;devices/drive-removable;devices/drive-removable-media-usb
 undo                    actions/edit-undo
+ungroup                 actions/object-ungroup
 unindent                actions/format-indent-less
 union                   #
 unlock                  actions/object-unlocked
@@ -312,6 +323,7 @@ unselect                actions/edit-select-none
 up                      actions/go-up
 upload                  [breeze*]actions/cloud-upload
 user                    [breeze*]actions/user-identity;stock/stock_person;status/avatar-default
+user-group              [-breeze*]actions/user-group-new;apps/system-users
 vector                  $(mime)/image-x-svg+xml;$(mime)/x-office-drawing
 video                   $(mime)/video-x-generic
 view-detail             actions/view-list-details
