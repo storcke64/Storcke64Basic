@@ -205,6 +205,7 @@
       { mnuVcAddAll Menu mnuAddVersionAll
         Name = "mnuVcAddAll"
         Text = ("Add everything to repository")
+        Picture = Picture["icon:/small/added"]
       }
       { mnuVcBranch Menu
         Action = "vc-branch"
@@ -1288,15 +1289,20 @@
         MoveScaled(2,1,27,4)
         Padding = 1
         { dwgBranchColor DrawingArea
-          MoveScaled(0,0,8,4)
+          MoveScaled(0,0,5,4)
           Visible = False
           Mouse = Mouse.Pointing
           Expand = True
         }
         { btnVcChanges ToolButton
-          MoveScaled(10,0,4,4)
+          MoveScaled(6,0,4,4)
           ToolTip = ("Modifications.") & "..."
           Picture = Picture["icon:/small/modified"]
+        }
+        { btnVcAddAll ToolButton
+          MoveScaled(10,0,4,4)
+          ToolTip = ("Add everything to repository")
+          Picture = Picture["icon:/small/added"]
         }
         { btnVcCommit ToolButton
           MoveScaled(14,0,4,4)
