@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,Action,Text,Alignment{Align.Normal;Left;Center;Right}=Normal,Picture,ReadOnly,Placeholder,Border=True,Button=True,ClearButton,Filter,FilterMenu{Menu}"
+Public Const _Properties As String = "*,Action,Text,Alignment{Align.Normal;Left;Center;Right}=Normal,Picture,ReadOnly,Placeholder,Password,Border=True,Button=True,ClearButton,Filter,FilterMenu{Menu}"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "24,4"
 Public Const _Similar As String = "TextBox"
@@ -29,6 +29,7 @@ Property ClearButton As Boolean
 Property Filter As Boolean
 Property FilterMenu As String
 Property Placeholder As String
+Property Password As Boolean
 
 'Private $hPanel As Panel
 Private $hBackground As DrawingArea
@@ -412,5 +413,17 @@ End
 Private Sub Placeholder_Write(Value As String)
 
   $hTextBox.Placeholder = Value
+
+End
+
+Private Function Password_Read() As Boolean
+
+  Return $hTextBox.Password
+
+End
+
+Private Sub Password_Write(Value As Boolean)
+
+  $hTextBox.Password = Value
 
 End
