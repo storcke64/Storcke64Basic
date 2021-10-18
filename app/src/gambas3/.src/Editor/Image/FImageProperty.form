@@ -179,15 +179,15 @@
         ScrollBar = Scroll.Vertical
       }
       Index = 3
-      Text = ("Shapes")
-      { gvwShape GridView
-        MoveScaled(1,4,46,19)
-        Mouse = Mouse.Pointing
+      Text = ("Selections")
+      { svwSelection ScrollView
+        MoveScaled(5,6,47,34)
+        Background = Color.TextBackground
         Expand = True
+        Arrangement = Arrange.Row
+        Spacing = True
+        Margin = True
         Border = False
-        Mode = Select.Single
-        Grid = False
-        ScrollBar = Scroll.Vertical
       }
       Index = 0
     }

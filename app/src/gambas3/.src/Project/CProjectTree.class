@@ -807,8 +807,8 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
 
 ADD_EMBLEM:
 
-  If bLink Then hImage = Project.AddLinkEmblem(hImage)
-  If bCompressed Then hImage = Project.AddCompressedEmblem(hImage)
+  If bLink Then hImage = AddLinkEmblem(hImage)
+  If bCompressed Then hImage = AddCompressedEmblem(hImage)
   
   If Not bNoEmblem Then
     If bExported Then hImage = Project.AddEmblem(hImage, If(bExportedNamespace, "img/32/exported-namespace.png", "img/32/exported.png"), iEmblemSize)
@@ -1106,4 +1106,54 @@ Public Sub DefineStartup(sClass As String) As String
   
   Return $sStartup
   
+End
+
+Private Sub AddLinkEmblem(hSource As Image) As Image
+
+  Dim hImage As Image
+  Dim iSize As Integer
+
+  iSize = Min(hSource.H, hSource.W) \ 2
+  
+  hImage = hSource.Copy()
+  
+  Paint.Begin(hImage)
+  
+  Paint.MoveTo(hImage.W, hImage.H)
+  Paint.RelLineTo(0, -iSize)
+  Paint.RelLineTo(-iSize, iSize)
+  Paint.RelLineTo(iSize, 0)
+  Paint.Background = Color.Black
+  'Paint.Background = Color.SetAlpha(Color.TextForeground, 64)
+  Paint.Operator = Paint.OperatorDestOut
+  Paint.Fill
+  
+  iSize *= 0.85
+  
+  Paint.MoveTo(hImage.W, hImage.H)
+  Paint.RelLineTo(0, -iSize)
+  Paint.RelLineTo(-iSize, iSize)
+  Paint.RelLineTo(iSize, 0)
+  Paint.Background = Color.SetAlpha(Color.TextForeground, 64)
+  Paint.Operator = Paint.OperatorOver
+  Paint.Fill
+  
+  Paint.End
+  Return hImage
+
+End
+
+Private Sub AddCompressedEmblem(hSource As Image) As Image
+
+  Dim hImage As Image
+  
+  hImage = hSource.Copy()
+  If Application.DarkTheme Then
+    hImage.Brightness(0.5)
+  Else
+    hImage.Brightness(-0.25)
+  Endif
+
+  Return hImage
+
 End

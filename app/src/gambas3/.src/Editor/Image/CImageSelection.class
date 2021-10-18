@@ -832,6 +832,8 @@ Static Public Sub FromString(sName As String, sShape As String) As CImageSelecti
   Dim I As Integer
   Dim bMagnet As Boolean
   Dim bPoint As Boolean
+  Dim hExt As RectF
+  Dim S As Float
   
   For Each sLine In Split(sShape, " ", "", True)
     aPoints = Split(sLine, ";", "", True)
@@ -863,6 +865,12 @@ Static Public Sub FromString(sName As String, sShape As String) As CImageSelecti
   Next
   
   hSel.Name = sName
+  
+  hExt = hSel.GetExtents()
+  S = Max(hExt.W, hExt.H)
+  hSel.Scale(1 / S, 1 / S)
+  hExt = hSel.GetExtents()
+  hSel.Translate(-hExt.X + (1 - hExt.W) / 2, -hExt.Y + (1 - hExt.H) / 2)
   
   Return hSel
   
@@ -1106,6 +1114,102 @@ Public Sub Operation(iOp As Integer)
     hShape = New CImageShape
     hShape.Points = aPolygons[I]
     AddShape(hShape)
+  Next
+  
+End
+
+Public Sub Normalize(W As Float, H As Float)
+
+  Dim hMatrix As New PaintMatrix
+  Dim hExt As RectF = GetExtents()
+  
+  If Not hExt Then Return
+  
+  hMatrix.Scale(1 / W, 1 / H)
+  Apply(hMatrix)
+  
+End
+
+Public Sub Save() As String
+
+  Dim hSave As File
+  Dim sStr As String
+  Dim I As Integer
+  Dim hShape As CImageShape
+  Dim aPoints As PointF[]
+  Dim J As Integer
+  
+  hSave = Open String For Write 
+  
+  Print #hSave, "[";
+  
+  For I = 0 To Shapes.Max
+    
+    hShape = Shapes[I]
+    
+    If I Then Print #hSave, ",";
+    Print #hSave, "{";
+    
+    Print #hSave, "\"points\":[";
+    aPoints = hShape.Points
+    For J = 0 To aPoints.Max
+      If J Then Print #hSave, ",";
+      Print #hSave, "["; CStr(aPoints[J].X); ","; CStr(aPoints[J].Y); "]";
+    Next
+    
+    Print #hSave, "],\"magnets\":[";
+    
+    aPoints = hShape.Magnets
+    For J = 0 To aPoints.Max
+      If J Then Print #hSave, ",";
+      Print #hSave, "["; CStr(aPoints[J].X); ","; CStr(aPoints[J].Y); "]";
+    Next
+    
+    Print #hSave, "],\"grid\":"; hShape.Grid;
+    
+    Print #hSave, "}";
+    
+  Next
+  
+  Print #hSave, "]";
+  
+  sStr = Close #hSave
+  Return sStr
+  
+End
+
+Public Sub Load(sSave As String)
+
+  Dim aSave As Collection[]
+  Dim I As Integer
+  Dim cShape As Collection
+  Dim aPoints As Float[][]
+  Dim hShape As CImageShape
+  Dim J As Integer
+  
+  aSave = JSON.FromString(sSave)
+  
+  Clear()
+  
+  For I = 0 To aSave.Max
+    
+    cShape = aSave[I]
+    
+    hShape = New CImageShape
+    Shapes.Add(hShape)
+    
+    aPoints = cShape["points"]
+    For J = 0 To aPoints.Max
+      hShape.Add(PointF(aPoints[J][0], aPoints[J][1]))
+    Next
+    
+    aPoints = cShape["magnets"]
+    For J = 0 To aPoints.Max
+      hShape.AddMagnet(PointF(aPoints[J][0], aPoints[J][1]))
+    Next
+    
+    hShape.Grid = cShape["grid"]
+    
   Next
   
 End

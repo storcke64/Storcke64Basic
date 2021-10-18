@@ -2157,6 +2157,11 @@ Public Sub imvImage_Menu()
   Dim iGrid As Integer
   Dim hMenu As Menu
 
+  If $bPress Then 
+    Stop Event
+    Return 
+  Endif
+
   Me.SetFocus
   
   If $hSelect And If $hSelect.Current >= 0 Then
@@ -2776,9 +2781,19 @@ Public Sub mnuClose_Click()
   
 End
 
-Public Sub PasteShape(hShape As CImageSelection)
+Public Sub btnSaveSelection_Click()
+
+  Dim hCopy As CImageSelection
   
-  Dim S As Float
+  If $hSelect Then
+    hCopy = $hSelect.Copy()
+    hCopy.Normalize($hImage.W, $hImage.H)
+    FImageProperty.SaveSelection(hCopy)
+  Endif
+
+End
+
+Public Sub PasteSelection(hShape As CImageSelection)
   
   If btnEditSelection.Value Then
     SetTool("change")
@@ -2786,22 +2801,14 @@ Public Sub PasteShape(hShape As CImageSelection)
     btnEditSelection.Value = True
   Endif
   
-  BeginUndo
-  
-  CreateSelection
-  
   hShape = hShape.Copy()
-  With hShape.GetExtents()
-    S = Min(imvImage.ScrollW / imvImage.Zoom * 0.25 / .W, imvImage.ScrollH / imvImage.Zoom * 0.25 / .H)
-    hShape.Translate($hImage.W / 2, $hImage.H / 2)
-    hShape.Scale(S, S)
-  End With
-  
+  hShape.Normalize(1 / $hImage.W, 1 / $hImage.H)
+
+  CreateSelection
+  AddUndo($hSelect.Copy())
   $hSelect.Select($hSelect.AddSelection(hShape))
   
   RefreshSelection
-  
-  EndUndo
   
 End
 
@@ -3397,3 +3404,4 @@ Public Sub mnuSaveAs_Click()
   Project.SaveFileAs(Path)
   
 End
+

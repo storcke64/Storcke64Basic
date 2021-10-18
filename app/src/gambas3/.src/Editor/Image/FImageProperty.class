@@ -3,7 +3,6 @@
 Private $aDefaultColor As Integer[] = [Color.Black, Color.White, Color.DarkGray, Color.Gray, Color.LightGray, Color.Blue, Color.Cyan, Color.Green, Color.Yellow, Color.Orange, Color.Red, Color.Magenta]
 
 Private $aGradient As New CReportBrush[]
-Private $aShape As CImageSelection[]
 
 Private $aClipboard As New CImageClipboard[]
 
@@ -64,12 +63,6 @@ Public Sub _new()
   gvwClipboard.Columns[2].Width = Desktop.Scale * 4
   gvwClipboard.Rows.H = Desktop.Scale * 8
   
-  gvwShape.Columns.Count = 3
-  gvwShape.Columns[0].Width = Desktop.Scale * 12
-  gvwShape.Columns[1].Expand = True
-  gvwShape.Columns[2].Width = Desktop.Scale * 4
-  gvwShape.Rows.H = Desktop.Scale * 8
-  
   $aGradient.Add(CReportBrush["LinearGradient(0,0.5,1,0.5,[#000000,#FFFFFF],[0,1])"])
   $aGradient.Add(CReportBrush["LinearGradient(0,0.5,1,0.5,[#000000,#FFFFFFFF],[0,1])"])
   
@@ -112,10 +105,19 @@ Public Sub Form_Open()
   
   ReadConfig
   
+  InitSelection
+  
   AddClipboard(Null, "")
   'UpdateClipboard
   
 End
+
+Public Sub Form_Close()
+  
+  SaveAllSelections
+  
+End
+
 
 Private Sub RememberColor(iColor As Integer)
   
@@ -934,14 +936,6 @@ Public Sub GetClipboard() As Image
  
 End
 
-Public Sub GetShape() As CImageSelection
-  
-  If tabBrush.Index <> 3 Then Return
-  Try Return $aShape[gvwShape.Row]
-  
-End
-
-
 Public Sub slbValue_Change()
 
   UpdateBalance
@@ -1197,89 +1191,56 @@ End
 
 Public Sub tabBrush_Click()
 
-  If tabBrush.Text = ("Shapes") Then
-    If Not $aShape Then InitShapes
-  Else If tabBrush.Text = ("Clipboard") Then
+  If tabBrush.Text = ("Clipboard") Then
     RefreshClipboard
     UpdateClipboard
   Endif
 
 End
 
-Public Sub gvwShape_Data(Row As Integer, Column As Integer)
-
-  Select Case Column
-    
-    Case 1
-      
-      gvwShape.Data.Text = $aShape[Row].Name
-    
-    ' Case 2
-    '   
-    '   With gvwShape.Data
-    '     .Picture = Picture["icon:/small/delete"]
-    '     .Alignment = Align.Center
-    '     .Padding = Desktop.Scale
-    '   End With
-    
-  End Select
-
-End
-
-Public Sub gvwShape_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Row As Integer, Column As Integer)
-
-  Dim hShape As CImageSelection = $aShape[Row]
-  Dim S As Float
-
-  If Column = 0 Then
-    
-    X += 4
-    Y += 4
-    Width -= 8
-    Height -= 8
-    Paint.Rectangle(X, Y, Width, Height)
-    Paint.Clip
-    
-    With hShape.GetExtents()
-      
-      S = Min((Width - 16) / .W, (Height - 16) / .H)
-    
-      Paint.Background = Color.Black
-      Paint.LineWidth = 2 / S
-      Paint.LineCap = Paint.LineCapRound
-      Paint.Translate(X - .X * S + (Width - .W * S) / 2, Y - .Y * S + (Height - .H * S) / 2)
-      Paint.Scale(S, S)
-      
-    End With
-    
-    $aShape[Row].Paint(Null, CImageSelection.ACTION_STROKE)
-    
-  Endif
-
-End
 
 
-Public Sub gvwShape_Activate()
+Private Sub AddSelection(hImageSelection As CImageSelection, Optional bNoDelete As Boolean)
 
-  Project.ActiveForm.PasteShape($aShape[gvwShape.Row])
+  Dim hSelBox As ImageSelectionBox
 
-End
-
-Private Sub InitShapes()
-
-  $aShape = New CImageSelection[]
+  hSelBox = New ImageSelectionBox(svwSelection, hImageSelection, bNoDelete) As "ImageSelection"
   
-  $aShape.Add(CImageSelection.FromString(("Arrow"), "-0.5,0.5*;1,0.5* 0.8,0.3*;1,0.5*;0.8,0.7*"))
-  '$aShape.Add(CImageSelection.FromString(("Double arrow"), "-0.5,0.5*;1,0.5*  0.8,0.3*;1,0.5*;0.8,0.7*"))
-  $aShape.Add(CImageSelection.FromString(("Arrow #2"), "0,1;0,2;4,2;4,3;6,1.5*;4,0;4,1;0,1;0.5,1.5+"))
-  $aShape.Add(CImageSelection.FromString(("Triangle"), "0,0*;0,1*;0.86602540378444,0.5*;0,0;0.28867513459481,0.5+;0,0.5+;0.43301270189222,0.75+;0.43301270189222,0.25+"))
-  $aShape.Add(CImageSelection.FromString(("Square triangle"), "0,0*;1,0*;0,1*;0,0;1,0+;0,1+;0.333333333333,0.333333333333+;0.5,0+;0.5,0.5+;0,0.5+"))
-  $aShape.Add(CImageSelection.FromString(("Pentagon"), "1,0*;0.3090169944,0.9510565163*;-0.8090169944,0.5877852523*;-0.8090169944,-0.5877852523*;0.3090169944,-0.9510565163*;1,0"))
-  $aShape.Add(CImageSelection.FromString(("Hexagon"), "1,0*;0.5,0.8660254038*;-0.5,0.8660254038*;-1,0*;-0.5,-0.8660254038*;0.5,-0.8660254038*;1,0*"))
-  
-  gvwShape.Rows.Count = $aShape.Count
-
 End
+
+Public Sub ImageSelection_Add()
+
+  Dim hImageEditor As FImageEditor
+  
+  Try hImageEditor = Project.ActiveForm
+  If Not hImageEditor Then Return
+  
+  hImageEditor.PasteSelection(Last.Shape)
+  
+End
+
+Private Sub InitSelection()
+
+  If svwSelection.Children.Count Then Return
+
+  AddSelection(CImageSelection.FromString(("Arrow"), "-0.5,0.5*;1,0.5* 0.8,0.3*;1,0.5*;0.8,0.7*"), True)
+  AddSelection(CImageSelection.FromString(("Arrow #2"), "0,1;0,2;4,2;4,3;6,1.5*;4,0;4,1;0,1;0.5,1.5+"), True)
+  AddSelection(CImageSelection.FromString(("Triangle"), "0,0*;0,1*;0.86602540378444,0.5*;0,0;0.28867513459481,0.5+;0,0.5+;0.43301270189222,0.75+;0.43301270189222,0.25+"), True)
+  AddSelection(CImageSelection.FromString(("Square triangle"), "0,0*;1,0*;0,1*;0,0;1,0+;0,1+;0.333333333333,0.333333333333+;0.5,0+;0.5,0.5+;0,0.5+"), True)
+  AddSelection(CImageSelection.FromString(("Pentagon"), "1,0*;0.3090169944,0.9510565163*;-0.8090169944,0.5877852523*;-0.8090169944,-0.5877852523*;0.3090169944,-0.9510565163*;1,0"), True)
+  AddSelection(CImageSelection.FromString(("Hexagon"), "1,0*;0.5,0.8660254038*;-0.5,0.8660254038*;-1,0*;-0.5,-0.8660254038*;0.5,-0.8660254038*;1,0*"), True)
+  
+  LoadAllSelections()
+  
+End
+
+Public Sub SaveSelection(hImageSelection As CImageSelection)
+  
+  AddSelection(hImageSelection)
+  tabBrush.Index = 3
+  
+End
+
 
 Private Sub UpdateGrid()
 
@@ -1557,5 +1518,41 @@ End
 Public Sub panEffect_BeforeArrange()
 
   panEffect.Parent.H = panEffect.H + Desktop.Scale * 2
+
+End
+
+Private Sub SaveAllSelections()
+
+  Dim hSelBox As ImageSelectionBox
+  Dim aSave As New String[]
+
+  For Each hSelBox In svwSelection.Children
+    
+    If hSelBox.NoDelete Then Continue
+    aSave.Add(hSelBox.Shape.Save())
+    
+  Next
+  
+  Settings["/FImageProperty/Selections"] = aSave
+
+End
+
+Private Sub LoadAllSelections()
+
+  Dim aSave As String[]
+  Dim sSave As String
+  Dim hSel As CImageSelection
+  
+  aSave = Settings["/FImageProperty/Selections"]
+  If Not aSave Then Return
+  For Each sSave In aSave
+    hSel = New CImageSelection
+    Try hSel.Load(sSave)
+    If Error Then 
+      Error "gambas3: warning: unable to load saved selection: "; Error.Text
+      Continue
+    Endif
+    AddSelection(hSel)
+  Next
 
 End
