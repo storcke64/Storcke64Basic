@@ -112,6 +112,7 @@ void DEBUG_init(void)
 	const char *dir;
 	const char *fifo_name;
 	int pid;
+	int fd_lock;
 	
 	if (!EXEC_debug)
 	{
@@ -127,6 +128,13 @@ void DEBUG_init(void)
 		pid = atoi(FILE_get_name(dir));
 		if (!pid)
 			return;
+		
+		sprintf(COMMON_buffer, DEBUG_FIFO_PATTERN, getuid(), pid, "lock");
+		fd_lock = open(COMMON_buffer, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
+		if (fd_lock < 1)
+			return;
+		
+		STREAM_lock_all_fd(fd_lock); // On program end, that file will be automatically closed, and the lock released.
 		
 		EXEC_debug = TRUE;
 		EXEC_fifo = TRUE;

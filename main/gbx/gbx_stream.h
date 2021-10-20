@@ -264,6 +264,7 @@ void STREAM_load(const char *path, char **buffer, int *len);
 bool STREAM_map(const char *path, char **paddr, int *plen);
 void STREAM_unmap(char *addr, int len);
 
+int STREAM_lock_all_fd(int fd);
 bool STREAM_lock_all(STREAM *stream);
 
 #define STREAM_is_closed(_stream) ((_stream)->type == NULL)

@@ -1872,11 +1872,38 @@ int STREAM_handle(STREAM *stream)
 		return (-1);
 }
 
+int STREAM_lock_all_fd(int fd)
+{
+	int64_t pos;
+	
+	pos = lseek(fd, 0, SEEK_CUR);
+	if (pos < 0)
+		return errno;
+
+	if (lseek(fd, 0, SEEK_SET) < 0)
+		return errno;
+
+	#ifdef F_TLOCK
+
+		if (lockf(fd, F_TLOCK, 0))
+			return errno;
+
+	#else
+
+		return ENOTSUP;
+
+	#endif
+
+	if (lseek(fd, pos, SEEK_SET) < 0)
+		return errno;
+
+	return 0;
+}
 
 bool STREAM_lock_all(STREAM *stream)
 {
-	int64_t pos;
 	int fd;
+	int err;
 
 	if (STREAM_is_closed(stream))
 		THROW(E_CLOSED);
@@ -1884,37 +1911,15 @@ bool STREAM_lock_all(STREAM *stream)
 	fd = STREAM_handle(stream);
 	if (fd < 0)
 		return TRUE;
+	
+	err = STREAM_lock_all_fd(fd);
+	
+	if (err == 0)
+		return FALSE;
+	if (err == EAGAIN)
+		return TRUE;
 
-	pos = lseek(fd, 0, SEEK_CUR);
-	if (pos < 0)
-		goto __ERROR;
-
-	if (lseek(fd, 0, SEEK_SET) < 0)
-		goto __ERROR;
-
-	#ifdef F_TLOCK
-
-		if (lockf(fd, F_TLOCK, 0))
-		{
-			if (errno == EAGAIN)
-				return TRUE;
-			else
-				goto __ERROR;
-		}
-
-	#else
-
-		ERROR_warning("locking is not implemented");
-
-	#endif
-
-	if (lseek(fd, pos, SEEK_SET) < 0)
-		goto __ERROR;
-
-	return FALSE;
-
-__ERROR:
-	THROW_SYSTEM(errno, NULL);
+	THROW_SYSTEM(err, NULL);
 	return TRUE;
 }
 
