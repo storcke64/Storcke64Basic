@@ -352,7 +352,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
         aCommand = aResult.Extract(iPos, -1)
         
         If Left(sClass) <> " " Then
-          aResult.Add("<div><div class=\"" & sClass & "\">")
+          aResult.Add("<div class=\"table\"><div class=\"" & sClass & "\">")
           If sClass Begins "code " Then
             aTemp = ProcessCode(sClass, aCommand)
           Else
