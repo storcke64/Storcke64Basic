@@ -788,21 +788,22 @@ static void command_eval(char *cmd)
 
 	init_eval_interface();
 
-	out = *cmd == '!' ? stdout : _out;
+	//out = *cmd == '!' ? stdout : _out;
+	out = _out;
 
 	len = strlen(cmd);
 	for (start = 0; start < len; start++)
 	{
 		if (cmd[start] == '\t')
 			break;
-		if (*cmd != '!')
+		//if (*cmd != '!')
 			fputc(cmd[start], _out);
 	}
 	
 	if (start >= len)
 		return;
 
-	if (*cmd != '!')
+	//if (*cmd != '!')
 		fprintf(_out, "\t");
 
 	GB_DEBUG.SaveError(&save_error, &save_last);
@@ -813,7 +814,7 @@ static void command_eval(char *cmd)
 
 	if (EVAL.Compile(expr, *cmd == '='))
 	{
-		if (*cmd != '!')
+		//if (*cmd != '!')
 			fprintf(_out, "!");
 		fputs(expr->error, out);
 		goto __END;
@@ -867,8 +868,7 @@ static void command_eval(char *cmd)
 
 __ERROR:
 
-	if (*cmd != '!')
-		fprintf(out, "!");
+	fprintf(out, "!");
 	fputs(GB_DEBUG.GetErrorMessage(), out);
 
 __END:

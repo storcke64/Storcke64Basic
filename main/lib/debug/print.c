@@ -302,7 +302,8 @@ void PRINT_value(FILE *where, VALUE *value, bool format)
 	else
 	{
 		GB_DEBUG.ToString((GB_VALUE *)value, &pval, &lpval);
-		fwrite(pval, sizeof(char), lpval, where);
+		print_string(pval, lpval);
+		//fwrite(pval, sizeof(char), lpval, where);
 	}
 }
 
