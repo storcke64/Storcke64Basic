@@ -135,6 +135,19 @@
       Picture = Picture["icon:/small/make-all"]
       Shortcut = "Alt+F7"
     }
+    { Menu47 Menu
+    }
+    { mnuTest Menu
+      Action = "test"
+      Text = ("Test")
+      Picture = Picture["icon:/small/ok"]
+      Shortcut = "F4"
+    }
+    { mnuTestsuites Menu
+      Action = "test-suite"
+      Text = ("Test suites") & "..."
+      Shortcut = "Shift+F4"
+    }
     { mnuSepCompile Menu
     }
     { mnuTranslate Menu
@@ -256,18 +269,10 @@
       Action = "run-with"
       Text = ("Run with") & "..."
     }
-    { Menu47 Menu
-    }
-    { mnuTest Menu
-      Action = "test"
-      Text = ("Test")
-      Picture = Picture["icon:/small/ok"]
-      Shortcut = "F4"
-    }
-    { mnuTestsuites Menu
-      Action = "test-suite"
-      Text = ("Test suites") & "..."
-      Shortcut = "Shift+F4"
+    { mnuRemoteDebug Menu
+      Action = "run-remote"
+      Text = ("Run remotely")
+      Picture = Picture["icon:/small/connect"]
     }
     { Menu14 Menu
     }
@@ -1262,6 +1267,13 @@
       Text = ("Run with") & "..."
       Picture = Picture["icon:/small/play"]
     }
+    { btnRunRemote ToolButton
+      MoveScaled(104,4,4,4)
+      Visible = False
+      ToolTip = ("Run remotely")
+      Action = "run-remote"
+      Picture = Picture["icon:/small/connect"]
+    }
   }
   { sepMessage Separator
     MoveScaled(58,9,38,0)
@@ -1824,6 +1836,11 @@
     Shortcut = ""
     Picture = "icon:/small/eject"
   }
+  { Action run-remote
+    Text = "Run remotely"
+    Shortcut = ""
+    Picture = "icon:/small/connect"
+  }
   { Action run-that
     Text = "Run this class"
     Shortcut = ""
@@ -1945,7 +1962,7 @@
 { Toolbars
   { Toolbar main
     Text = ""
-    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with"
+    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with,run-remote"
     Default = "new-project,open-project,save-project,save-project-as,project-property,option,|,exec,translate,|,compile,compile-all,test,start,pause,stop,step,forward,return,until,-,find-project,go-back,go-forward,version-control"
   }
 }

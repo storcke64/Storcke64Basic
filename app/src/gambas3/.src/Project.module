@@ -2664,6 +2664,9 @@ Public Sub Run(Optional bCompileAll As Boolean, Optional iAction As Integer, Opt
     Case Design.ACTION_RETURN_FROM
       Design.ReturnFrom
       
+    Case Design.ACTION_RUN_REMOTE
+      Design.RunRemote
+      
     Case Else
       If sStartup Then Design.Startup = sStartup
       If iAction = Design.ACTION_RUN Then Project.CurrentArgument = Null

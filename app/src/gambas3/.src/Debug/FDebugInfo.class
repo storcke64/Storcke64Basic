@@ -1458,6 +1458,21 @@ Public Sub OnProjectDebugState()
   
 End
 
+Public Sub StartWaitForRemote()
+
+  splDebug.Hide
+  panRemoteDebug.Show
+  spnRemoteDebug.Start
+  
+End
+
+Public Sub StopWaitForRemote()
+  
+  spnRemoteDebug.Stop
+  panRemoteDebug.Hide
+  splDebug.Show
+  
+End
 
 Public Sub ShowDebugging()
   

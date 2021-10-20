@@ -2,7 +2,7 @@
 
 Public Startup As String
 
-Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM
+Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM, ACTION_RUN_REMOTE
 
 Private Const STATE_LAST As Integer = -1
 Private Const STATE_STOP As Integer = 0
@@ -14,6 +14,7 @@ Private $bTest As Boolean
 Private $iState As Integer
 Private $hProcess As Process
 Private $hObserver As Observer
+'Private $bRunRemote As Boolean
 
 Private $sPosClass As String
 Private $iPosLine As Integer
@@ -50,6 +51,10 @@ Private $hBrowser As Process
 Private $iProcessId As Integer
 
 Private $hTimerShowConsole As Timer
+
+Private $bRemote As Boolean
+Private $sRemoteLink As String
+Private $hTimerRemote As Timer
 
 Public Sub Init()
  
@@ -98,15 +103,15 @@ Private Sub SetState(iState As Integer)
   
   'bDebug = $iState <> STATE_STOP And $iState <> STATE_STARTING
 
+  Action["run-remote"].Enabled = iState = STATE_STOP
   Action["pause"].Enabled = iState = STATE_RUNNING
   bEnable = iState <> STATE_RUNNING And iState <> STATE_STARTING
   Action["forward"].Enabled = bEnable
   Action["step"].Enabled = bEnable
   Action["return"].Enabled = bEnable And iState <> STATE_STOP
   Action["start"].Enabled = bEnable
-
+  Action["until"].Enabled = bEnable
   Action["stop"].Enabled = iState <> STATE_STOP
-  'btnInfo.Enabled = btnStop.Enabled
 
   If iState = $iState Then Return
   
@@ -135,11 +140,10 @@ Public Sub Pause()
 
   If $iState <> STATE_RUNNING Then Return
   
-  If Project.UseTerminal Then
-    If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
-  Else
-    Signal.Send($hProcess.Id, Signal.SIGUSR2)
-  Endif
+  ' If Project.UseTerminal Then
+  '   If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
+  ' Else
+  If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
 
 End
 
@@ -535,6 +539,14 @@ Private Sub AfterStop()
   
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
+  
+  If $bRemote Then
+    $hTimerRemote.Stop
+    $hTimerRemote = Null
+    Try Kill $sRemoteLink
+    FDebugInfo.StopWaitForRemote
+    $bRemote = False
+  Endif
 
   ' FOR EACH hForm IN $cShow
   '   'TRY PRINT "Design.AfterStop: SHOW "; hForm.Name
@@ -562,8 +574,10 @@ Public Sub Stop()
 
   'Try $hBrowser.Kill
   '$hBrowser = Null
-  Try $hProcess.Kill
-  $hProcess.Wait(1)
+  If $hProcess Then
+    Try $hProcess.Kill
+    $hProcess.Wait(1)
+  Endif
   AfterStop
 
 End
@@ -1182,6 +1196,102 @@ Private Sub Start(sCmd As String)
   
 End
 
+Public Sub RunRemote()
+
+  Dim hForm As Object
+  Dim sBreakpoint As String
+  Dim sDir As String
+  Dim hStat As Stat
+
+  If Project.Running Then Return
+  
+  sDir = File.Dir(Temp$())
+  
+  $sRemoteLink = "/tmp/gambas-" & Project.Name & ".debug"
+  
+  Try hStat = Stat($sRemoteLink)
+  If hStat And If IsDir(hStat.Link) Then
+    FMain.ShowErrorWith(("Unable to start remote debugging."), ("Another remote debugging is active."))
+    Return
+  Endif
+  
+  Try Kill $sRemoteLink
+  Try Link sDir To $sRemoteLink
+  If Error Then 
+    FMain.ShowErrorWith(("Unable to start remote debugging."))
+    Return
+  Endif
+
+  $bConsole = Action["console"].Value  
+
+  ClearOutput
+
+  $iProcessId = 0
+  $sCmdStart = ""
+
+  ReadDebugSettings()
+
+  For Each sBreakpoint In $aBreakpoint
+    If $cDisabledBreakpoint.Exist(sBreakpoint) Then Continue
+    $sCmdStart &= MakeBreakpoint(sBreakpoint, True) & "\n"
+  Next
+
+  If $sAddBreakpoint Then
+    $sCmdStart &= $sAddBreakpoint & "\n"
+    $sAddBreakpoint = ""
+  Endif
+  
+  $sCmdStart &= FDebugInfo.GetWatches()
+  
+  $sCmdStart &= "g"
+
+  $bRemote = True
+  $bStart = True
+  Project.Running = True
+
+  For Each hForm In Project.Workspace.Windows
+    Try hForm.OnProjectDebug
+  Next
+  FOutput.OnProjectDebug
+  FMain.OnProjectDebug
+  FSearch.OnProjectDebug
+
+  FMain.ShowDebug(True, True)
+  
+  FDebugInfo.UpdateView
+  FDebugInfo.OnProjectDebug
+  FDebugInfo.StartWaitForRemote
+  FDebugInfo.ShowDebugging
+  
+  SetState(STATE_STARTING)
+  
+  Try Debug.Start
+  If Error Then 
+    FMain.ShowErrorWith(("Unable to start debugger."))
+    Return
+  Endif
+
+  $hTimerRemote = New Timer As "TimerRemote"
+  $hTimerRemote.Delay = 500
+  $hTimerRemote.Start
+  ' 
+  ' 'If Project.Profiling Then FProfile.CleanProfileFiles
+  ' 
+  ' SetState(STATE_STARTING)
+  ' Balloon.Hide
+  ' 
+  ' 
+End
+
+Public Sub TimerRemote_Timer()
+  
+  If $iProcessId Then
+    If Not Exist("/proc" &/ CStr($iProcessId)) Then Stop()
+  Endif
+  
+End
+
+
 ' Public Sub Browser_Kill()
 '   
 '   Stop()
@@ -1214,7 +1324,7 @@ Public Sub Command(sCmd As String, Optional iNewState As Integer = STATE_LAST)
   'IF NOT Project.Running THEN RETURN
 
   'WAIT
-  If Not $hProcess Then Return
+  If Not $hProcess And If Not $bRemote Then Return
 
   'IF bResult THEN
   '  $cCommand.Add(sPrefix & sCmd)
@@ -1242,6 +1352,7 @@ Private Sub Signal()
   'PRINT "Signal"
 
   If $bStart Then
+    If $bRemote Then FDebugInfo.StopWaitForRemote
     'PRINT "START Debug.Write: "; $sCmdStart
     WriteCommand($sCmdStart)
     $bStart = False
@@ -1322,6 +1433,8 @@ End
 Public Sub Send(sStr As String)
 
   If $iState <> STATE_RUNNING Then Return
+  If Not $hProcess Then Return
+  
   Write #$hProcess, sStr
   Flush #$hProcess
 

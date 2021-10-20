@@ -1467,6 +1467,8 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.Run(False, Design.ACTION_RUN)
     Case "run-with"
       If Not FArguments.Run() Then Project.Run(False, Design.ACTION_RUN_WITH)
+    Case "run-remote"
+      Project.Run(False, Design.ACTION_RUN_REMOTE)
     Case "test"
       Project.Test()
     Case "test-suite"

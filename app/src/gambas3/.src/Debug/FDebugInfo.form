@@ -22,7 +22,7 @@
     Index = 0
     Text = ("Debugging")
     { panDebug VBox
-      MoveScaled(0,3,112,40)
+      MoveScaled(0,3,119,40)
       Expand = True
       { splDebug HSplit
         MoveScaled(1,1,94,32)
@@ -107,6 +107,27 @@
               Border = False
             }
           }
+        }
+      }
+      { panRemoteDebug Panel
+        MoveScaled(86,7,32,33)
+        Visible = False
+        Expand = True
+        Arrangement = Arrange.Vertical
+        Centered = True
+        Spacing = True
+        Margin = True
+        { spnRemoteDebug Spinner
+          MoveScaled(10,8,14,6)
+          Type = Spinner.Circle
+        }
+        { Label1 TextLabel
+          MoveScaled(4,15,24,4)
+          Font = Font["Bold"]
+          Foreground = Color.LightForeground
+          AutoResize = True
+          Text = ("Waiting for remote process") & "..."
+          Alignment = Align.Center
         }
       }
       { sepError Separator
@@ -312,7 +333,7 @@
         MoveScaled(68,0,13,4)
         AutoResize = True
         Text = ("Add everything to repository")
-        Picture = Picture["icon:/small/add"]
+        Picture = Picture["icon:/small/added"]
       }
       { Spring1 Spring
         MoveScaled(82,0,4,4)
