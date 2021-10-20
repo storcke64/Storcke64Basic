@@ -712,6 +712,8 @@ static void trans_exec_shell(bool shell)
 	int mode = TS_EXEC_NONE;
 	bool wait;
 	bool as = TRUE;
+	PATTERN *dest = NULL;
+	PATTERN *save;
 
 	TRANS_expression(FALSE);
 
@@ -740,25 +742,6 @@ static void trans_exec_shell(bool shell)
 	}
 	else
 	{
-		/*if (TRANS_is(RS_ERROR))
-		{
-			mode = TS_EXEC_STRING + TS_EXEC_ERROR;
-			TRANS_want(RS_TO, "TO expected");
-		}
-		else if (TRANS_is(RS_TO))
-		{
-			mode = TS_EXEC_STRING;
-		}
-		
-		if (mode & TS_EXEC_STRING)
-		{
-			if (TRANS_in_assignment)
-				THROW("Syntax error. Cannot use this syntax in assignment");
-			
-			wait = TRUE;
-			as = FALSE;
-		}*/
-		
 		if (TRANS_is(RS_TO))
 		{
 			if (TRANS_in_assignment)
@@ -767,6 +750,12 @@ static void trans_exec_shell(bool shell)
 			mode = TS_EXEC_STRING;
 			wait = TRUE;
 			as = FALSE;
+			
+			dest = JOB->current;
+			TRANS_ignore_expression();
+			
+			if (TRANS_is(RS_WITH) && TRANS_is(RS_ERROR))
+				mode += TS_EXEC_ERROR;
 		}
 	}
 	
@@ -780,8 +769,13 @@ static void trans_exec_shell(bool shell)
 
 	TRANS_subr(shell ? TS_SUBR_SHELL : TS_SUBR_EXEC, 4);
 
-	if (mode & TS_EXEC_STRING)
+	if (dest)
+	{
+		save = JOB->current;
+		JOB->current = dest;
 		TRANS_reference();
+		JOB->current = save;
+	}
 	else if (!TRANS_in_assignment)
 		CODE_drop();
 }
