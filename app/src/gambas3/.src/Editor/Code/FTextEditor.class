@@ -1168,6 +1168,7 @@ End
 Private Sub GotoProc(iLine As Integer)
   
   $hEditor.GotoCenter(0, iLine)
+  CPosition.SaveCurrent(Me)
   
 End
 

@@ -1292,8 +1292,17 @@ End
 
 Public Sub TimerRemote_Timer()
   
+  Dim sPath As String
+  Dim hLock As File
+  
   If $iProcessId Then
-    If Not Exist("/proc" &/ CStr($iProcessId)) Then Stop()
+    sPath = File.SetExt($sFifo, "lock")
+    Try hLock = Lock sPath
+    If Not Error Then 
+      Stop()
+      Unlock hLock
+      Try Kill sPath
+    Endif
   Endif
   
 End

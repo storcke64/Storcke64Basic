@@ -2976,6 +2976,7 @@ Public Sub GotoFunction(iLine As Integer)
   iCol = String.Len($hEditor[iLine].Text) - String.Len(LTrim($hEditor[iLine].Text))
 
   Me.GotoCenter(iLine, iCol) ', True)
+  CPosition.SaveCurrent(Me)
   $hEditor.SetFocus
 
 End
