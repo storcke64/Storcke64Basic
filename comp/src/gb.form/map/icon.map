@@ -13,6 +13,7 @@ align-width             actions/object-rows
 apply                   actions/dialog-apply;actions/dialog-ok-apply
 archive                 $(mime)/package-x-generic;apps/utilities-file-archiver
 attach                  status/mail-attachment;actions/mail-attachment
+android                 $(mime)/application-vnd.android.package-archive
 audio                   $(mime)/audio-x-generic
 average                 #
 battery                 devices/battery
@@ -342,6 +343,7 @@ watch                   [breeze*]actions/visibility;actions/view-visible
 webcam                  devices/camera-web
 wifi                    devices/network-wireless
 window                  actions/window
+windows                 $(mime)/application-x-ms-dos-executable
 wizard                  actions/tools-wizard
 worship                 places/poi-place-of-worship
 wrap                    actions/text-wrap
