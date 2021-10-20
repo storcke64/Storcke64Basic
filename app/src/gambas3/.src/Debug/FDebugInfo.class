@@ -1449,12 +1449,28 @@ Public Sub OnProjectDebug()
   panError.Hide
   sepError.Hide
   
+  If Design.IsRemote() Then
+    btnDebugProcess.Picture = Picture["icon:/small/connect"]
+  Else
+    btnDebugProcess.Picture = Picture["icon:/small/exec"]
+  Endif
+  
+  btnDebugProcess.Text = ""
+  
 End
+
+Public Sub UpdateProcessId(iId As Integer)
+  
+  btnDebugProcess.Text = Subst(("Process &1"), iId)
+  
+End
+
 
 Public Sub OnProjectDebugState()
   
   panBreakpoint.Enabled = Not Design.IsRunning()
   gvwBreakpoint.Enabled = panBreakpoint.Enabled
+  Action[".break"].Enabled = panBreakpoint.Enabled
   
 End
 

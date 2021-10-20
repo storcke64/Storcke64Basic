@@ -344,6 +344,24 @@ Public Sub txtEnter_Activate()
 
 End
 
+Public Sub InsertResult(sResult As String)
+  
+  If sResult Begins "!" Then
+    
+    txtEnter.Text = Mid$(sResult, 2)
+    txtEnter.Foreground = Color.Red
+    $bGotError = True
+    
+  Else
+    
+    Insert(UnQuote(sResult))
+    Insert("\n")
+    
+  Endif
+  
+End
+
+
 Public Sub txtEnter_KeyPress()
 
   If $bGotError Then

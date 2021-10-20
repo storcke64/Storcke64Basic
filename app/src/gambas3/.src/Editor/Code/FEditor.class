@@ -1152,6 +1152,7 @@ Public Function CanSetBreakpoint(iLine As Integer) As Boolean
   Dim iPos As Integer
 
   If Project.IsFake() Then Return
+  If Design.IsRunning() Then Return
   If iLine < 0 Or If iLine >= $hEditor.Count Then Return
 
   '$hEditor[iLine].Refresh

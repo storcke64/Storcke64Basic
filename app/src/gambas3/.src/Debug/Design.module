@@ -292,7 +292,10 @@ Public Sub Debug_Read(Data As String)
       '   [3] Local variables
       '   [4] Current object
     
-      If $iProcessId = 0 Then Try $iProcessId = CInt(Scan(aData[0], "?[[]*]")[0])
+      If $iProcessId = 0 Then
+        Try $iProcessId = CInt(Scan(aData[0], "?[[]*]")[0])
+        FDebugInfo.UpdateProcessID($iProcessId)
+      Endif
     
       aPos = Split(Trim(aData[2]), " ")
   
@@ -362,12 +365,12 @@ Public Sub Debug_Read(Data As String)
       
       Select Case Left(sVar)
       
-        Case "L"
-          FDebugInfo.AddLocal(Mid$(sVar, 2), aData[1])
- 
-        Case "O"
-          FDebugInfo.AddObject(Mid$(sVar, 2), aData[1])
-          
+        ' Case "L"
+        '   FDebugInfo.AddLocal(Mid$(sVar, 2), aData[1])
+        ' 
+        ' Case "O"
+        '   FDebugInfo.AddObject(Mid$(sVar, 2), aData[1])
+        '   
         Case "V"
           FDebugInfo.AddVariable(Mid$(sVar, 2), aData[1])
 
@@ -379,8 +382,12 @@ Public Sub Debug_Read(Data As String)
           
         Case "X"
           FDebugExpr.AddResult(Mid$(sVar, 2), aData[1])
- 
+          
       End Select
+      
+    Case "!"
+      
+      FOutput.InsertResult(aData[1])
       
     Case "="
       
@@ -1414,7 +1421,7 @@ End
 
 Public Function IsRunning() As Boolean
 
-  Return $iState = STATE_RUNNING
+  Return $iState = STATE_RUNNING Or $iState = STATE_STARTING
 
 End
 
@@ -1475,6 +1482,8 @@ Public Sub SetBreakpoint(sBreakpoint As String, bOn As Boolean, Optional bDisabl
   
   'Debug sClass; "."; iLine;; bOn
   
+  If IsRunning() Then Return
+
   iPos = $aBreakpoint.Find(sBreakpoint)
   If iPos >= 0 Then 
     $aBreakpoint.Remove(iPos)
@@ -1492,8 +1501,6 @@ Public Sub SetBreakpoint(sBreakpoint As String, bOn As Boolean, Optional bDisabl
 
   FDebugInfo.RefreshBreakpointView
   
-  If $iState = STATE_RUNNING Then Return
-
   ' Update editor
   
   sPath = Project.FindPath(aBreak[0])
@@ -1698,3 +1705,8 @@ Public Sub RenameClass(sOld As String, sNew As String)
   
 End
 
+Public Sub IsRemote() As Boolean
+  
+  Return $bRemote
+  
+End
