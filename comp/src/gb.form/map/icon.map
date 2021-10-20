@@ -55,6 +55,7 @@ connect                 actions/network-connect
 contrast                #
 copy                    actions/edit-copy
 cpp                     $(mime)/text-x-c++src
+cpu                     devices/cpu
 crop                    actions/image-crop;actions/transform-crop
 css                     $(mime)/text-css
 csv                     $(mime)/text-csv
@@ -122,7 +123,7 @@ formula                 actions/formula
 forward                 actions/media-seek-forward
 fullscreen              actions/view-fullscreen
 gambas                  #
-game                    categories/applications-games;apps/preferences-desktop-gaming
+game                    categories/applications-games;apps/preferences-desktop-gaming;devices/input-gaming;devices/joystick
 gamma                   #
 gnu                     #
 green                   [breeze*]actions/colors-chromagreen
@@ -160,7 +161,7 @@ js                      $(mime)/application-javascript
 json                    $(mime)/application-json
 jump                    actions/go-jump
 key                     [breeze*]$(mime)/application-pgp-keys;apps/password-manager;apps/keyring-manager;actions/pgp-keys
-keyboard                preferences/preferences-desktop-keyboard;apps/preferences-desktop-keyboard
+keyboard                preferences/preferences-desktop-keyboard;apps/preferences-desktop-keyboard;devices/input-keyboard
 lamp                    actions/help-hint
 language                [-breeze*]actions/im-google-talk;apps/preferences-desktop-locale
 last                    actions/go-last
@@ -191,7 +192,7 @@ mount                   actions/media-mount
 move                    actions/transform-move
 multimedia              categories/applications-multimedia
 muted                   status/audio-volume-muted
-network                 status/network-connect;places/network-workgroup
+network                 status/network-connect;places/network-workgroup;devices/network-wired
 new                     actions/document-new
 new-appointment         actions/appointment-new
 new-dir                 actions/folder-new
