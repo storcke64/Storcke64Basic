@@ -131,21 +131,26 @@ Public Sub Shell(sCmd As String, Optional bSilent As Boolean, Optional aEnv As S
   
 End
 
-
-' Public Sub Exec(aCmd As String[], Optional bSilent As Boolean, Optional aEnv As String[]) As String
-'   
-'   Dim sResult As String
-'   
-'   If Not bSilent Then Insert(aCmd.Join(" ") & "\n")
-'   Exec aCmd With aEnv To sResult
-'   If Process.LastValue Then 
-'     $sLastResult = sResult
-'     Insert(sResult)
-'   Endif
-'   Return sResult
-'   
-' End
-
+Public Sub Exec(aCmd As String[], Optional bSilent As Boolean, Optional aEnv As String[]) As String
+  
+  Dim sResult As String
+  Dim sArg As String
+  
+  If Not bSilent Then
+    For Each sArg In aCmd
+      If InStr(sArg, " ") Then sArg = Quote(sArg)
+      Insert(sArg)
+    Next
+    Insert("\n")
+  Endif
+  Exec aCmd With aEnv To sResult
+  If Process.LastValue Then 
+    $sLastResult = sResult
+    Insert(sResult)
+  Endif
+  Return sResult
+  
+End
 
 Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As Boolean, Optional aEnv As String[]) As Integer
 

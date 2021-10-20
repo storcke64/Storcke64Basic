@@ -46,7 +46,7 @@ Public Sub Check() As Boolean
   Dim sResult As String
   Dim sDir As String
   
-  Shell "readlink -f " & Shell$(Project.Dir) To $sRealDir
+  Exec ["readlink", "-f", Project.Dir] To $sRealDir
   $sRealDir = Trim($sRealDir)
 
   Init()
@@ -56,24 +56,25 @@ Public Sub Check() As Boolean
     $bCanControl = False
     
     If $bSvn17 Then
-      sResult = VersionControl.Shell("svn status " & Shell$(SvnPath$($sRealDir) &/ ".project") & " 2>&1")
+      'sResult = VersionControl.Shell("svn status " & Shell$(SvnPath$($sRealDir) &/ ".project") & " 2>&1")
+      Exec ["svn", "status", SvnPath$($sRealDir) &/ ".project"] To sResult With Error
       If Process.LastValue = 0 And If sResult Not Like "svn:*W155007*:*" And If sResult Not Like "svn:*W155010*:*" Then Return True
     Else
-      If Exist($sRealDir &/ ".svn") Then Return True
+      If IsDir($sRealDir &/ ".svn") Then Return True
     Endif
     
     If $bSvn17 Then
       sDir = $sRealDir
       Do
         sDir = File.Dir(sDir)
-        If Exist(sDir &/ ".svn") Then 
+        If IsDir(sDir &/ ".svn") Then 
           $bCanControl = True
           Break
         Endif
         If sDir = "/" Then Break
       Loop
     Else
-      $bCanControl = Exist($sRealDir &/ "../.svn")
+      $bCanControl = IsDir($sRealDir &/ "../.svn")
     Endif
     
   Endif

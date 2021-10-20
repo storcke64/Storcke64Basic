@@ -63,7 +63,8 @@ Public Sub Check() As Boolean
   
   If $bHasGit Then
     
-    sResult = RunShell("git status --porcelain .project")
+    'sResult = RunShell("git status --porcelain .project")
+    Exec ["git", "status", "--porcelain", Project.Dir &/ ".project"] To sResult
     
     If Process.LastValue Then
       $bCanInit = True
@@ -76,7 +77,9 @@ Public Sub Check() As Boolean
         sRoot = FindRoot()
         If sRoot Then
           $sRoot = File.Dir(sRoot)
-          $bHasRemote = RunShell("git remote show")
+          '$bHasRemote = RunShell("git remote show")
+          Exec ["git", "remote", "show"] To sResult
+          $bHasRemote = Trim(sResult)
           Return True
         Endif
       Endif
