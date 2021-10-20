@@ -123,23 +123,6 @@ static void project_startup(char *name, int len)
 }
 
 
-static void project_stack(char *name, int len)
-{
-	int size;
-
-	name[len] = 0;
-	size = atoi(name);
-
-	if (size >= 1 && size <= 64)
-		STACK_size = size * 1024L * sizeof(VALUE);
-}
-
-static void project_stacktrace(char *name, int len)
-{
-	//ERROR_backtrace = !(len == 1 && *name == '0');
-	// Backtrace is always printed now.
-}
-
 static void project_library_path(char *name, int len)
 {
 	if (!EXEC_debug)
@@ -195,10 +178,8 @@ void PROJECT_analyze_startup(char *addr, int len, PROJECT_COMPONENT_CALLBACK cb)
 			project_startup(p, l);
 		if (get_line(&addr, end, &p, &l))
 			project_title(p, l);
-		if (get_line(&addr, end, &p, &l))
-			project_stack(p, l);
-		if (get_line(&addr, end, &p, &l))
-			project_stacktrace(p, l);
+		get_line(&addr, end, &p, &l); // Deprecated "Stack"
+		get_line(&addr, end, &p, &l); // Deprecated "StackTrace"
 		if (get_line(&addr, end, &p, &l))
 			project_version(p, l);
 	}

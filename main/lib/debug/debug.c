@@ -97,7 +97,7 @@ static EVAL_INTERFACE EVAL;
 static int _fdr;
 static int _fdw;
 static FILE *_out;
-static FILE *_in;
+static FILE *_in = NULL;
 static bool _fifo;
 
 #define EXEC_current (*(STACK_CONTEXT *)GB_DEBUG.GetExec())
@@ -231,45 +231,15 @@ static bool calc_position_from_line(CLASS *class, ushort line, FUNCTION **functi
 DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_name)
 {
 	char path[DEBUG_FIFO_PATH_MAX];
-	char name[16];
-	//int i;
-
-	//if (!EXEC_debug)
-	//  return;
 
 	DEBUG_interface = debug;
 	_fifo = fifo;
 
 	if (_fifo)
 	{
-		if (!fifo_name)
-		{
-			sprintf(name, "%d", getppid());
-			fifo_name = name;
-		}
-		
 		DEBUG_fifo = GB.NewZeroString(fifo_name);
 		
-		snprintf(path, sizeof(path), "/tmp/gambas.%d/%s.out", getuid(), fifo_name);
-		
-		/*for (i = 0; i < 20; i++)
-		{
-			_fdr = open(path, O_RDONLY | O_NONBLOCK);
-			if (_fdr >= 0)
-				break;
-			usleep(10000);
-		}
-		if (_fdr < 0)
-			return NULL;*/
-		
-		_fdr = open(path, O_RDONLY | O_CLOEXEC);
-		if (_fdr < 0)
-		{
-			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
-			return NULL;
-		}
-		
-		snprintf(path, sizeof(path), "/tmp/gambas.%d/%s.in", getuid(), fifo_name);
+		snprintf(path, sizeof(path), "%sin", fifo_name);
 		
 		_fdw = open(path, O_WRONLY | O_CLOEXEC);
 		if (_fdw < 0)
@@ -278,24 +248,16 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 			return NULL;
 		}
 		
-		_in = fdopen(_fdr, "r");
 		_out = fdopen(_fdw, "w");
 
-		if (!_in || !_out)
+		if (!_out)
 		{
 			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
 			return NULL;
 		}
-			//ERROR_panic("Cannot open fifos");
-
-		setlinebuf(_in);
-		//setvbuf(_in, NULL, _IONBF, 0);
-		setlinebuf(_out);
-		//setvbuf(_out, NULL, _IONBF, 0);
 	}
 	else
 	{
-		_in = stdin;
 		_out = stdout;
 	}
 
@@ -1295,6 +1257,37 @@ bool DEBUG_check_watches(void)
 }
 
 
+static void open_read_fifo()
+{
+	char path[DEBUG_FIFO_PATH_MAX];
+
+	if (_fifo)
+	{
+		snprintf(path, sizeof(path), "%sout", DEBUG_fifo);
+		
+		_fdr = open(path, O_RDONLY | O_CLOEXEC);
+		if (_fdr < 0)
+		{
+			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
+			return;
+		}
+		
+		_in = fdopen(_fdr, "r");
+
+		if (!_in)
+		{
+			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
+			return;
+		}
+
+		setlinebuf(_in);
+	}
+	else
+	{
+		_in = stdin;
+	}
+}
+
 void DEBUG_main(bool error)
 {
 	static DEBUG_TYPE last_command = TC_NONE;
@@ -1344,6 +1337,9 @@ void DEBUG_main(bool error)
 	}
 
 	command_frame(NULL);
+	
+	if (!_in)
+		open_read_fifo();
 
 	do
 	{

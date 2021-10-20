@@ -109,13 +109,38 @@ const char *DEBUG_get_current_position(void)
 
 void DEBUG_init(void)
 {
+	const char *dir;
+	const char *fifo_name;
+	int pid;
+	
 	if (!EXEC_debug)
-		return;
+	{
+		sprintf(COMMON_buffer, DEBUG_WAIT_LINK, PROJECT_name);
+
+		dir = FILE_readlink(COMMON_buffer);
+		if (!dir)
+			return;
+		
+		if (unlink(COMMON_buffer))
+			return;
+		
+		pid = atoi(FILE_get_name(dir));
+		if (!pid)
+			return;
+		
+		EXEC_debug = TRUE;
+		EXEC_fifo = TRUE;
+		
+		sprintf(COMMON_buffer, DEBUG_FIFO_PATTERN, getuid(), pid, "");
+		fifo_name = COMMON_buffer;
+	}
+	else
+		fifo_name = EXEC_fifo_name;
 
 	COMPONENT_load(COMPONENT_create("gb.debug"));
 	LIBRARY_get_interface_by_name("gb.debug", DEBUG_INTERFACE_VERSION, &DEBUG);
 
-	DEBUG_info = DEBUG.Init((GB_DEBUG_INTERFACE *)(void *)GAMBAS_DebugApi, EXEC_fifo, EXEC_fifo_name);
+	DEBUG_info = DEBUG.Init((GB_DEBUG_INTERFACE *)(void *)GAMBAS_DebugApi, EXEC_fifo, fifo_name);
 
 	if (!DEBUG_info)
 		ERROR_panic("Cannot initialize debug mode");
