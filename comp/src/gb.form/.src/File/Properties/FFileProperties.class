@@ -212,7 +212,7 @@ Private Sub UpdateSize(Optional sDirSize As String)
     Try nDir = CInt(aDirSize[2])
   Endif
   
-  sSize = Main.GetFileSize($iSize)
+  sSize = Main.FormatSize($iSize)
   If $iSize >= 1000 Then sSize &= " (" & Subst(("&1 B"), Format($iSize, "#,###")) & ")"
   
   If sDirSize Then

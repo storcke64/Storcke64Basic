@@ -482,7 +482,7 @@ Private Sub RefreshView()
               GoSub ADD_PREVIEW
             Endif
           Endif
-          $hColumnView[sKey][1] = "  " & Main.GetFileSize(.Size)
+          $hColumnView[sKey][1] = "  " & Main.FormatSize(.Size)
           $hColumnView[sKey][2] = "  " & Str(.Time)
           If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
         Else
@@ -1252,8 +1252,10 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   
   If $iIconSize < (H * 4) Then Return
   
-  Try hStat = Stat($sDir &/ Mid$(Key, 2))
+  Try hStat = DirCache[$sDir].GetInfo(Mid$(Key, 2))
+  'Try hStat = Stat($sDir &/ Mid$(Key, 2))
   If Error Then Return
+  
   
   Paint.Background = Color.Merge(Style.ForegroundOf(Last), Style.BackgroundOf(Last), 0.3)
   
@@ -1266,7 +1268,7 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Paint.Font = $hInfoFont
   
   Y += Desktop.Scale
-  Paint.DrawText(Main.GetFileSize(hStat.Size), X, Y, Width, Height, Align.TopNormal)
+  Paint.DrawText(Main.FormatSize(hStat.Size), X, Y, Width, Height, Align.TopNormal)
   
   If $iIconSize < (H * 5) Then Return
   

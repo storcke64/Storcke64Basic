@@ -816,7 +816,8 @@ Static Private Function Themes_Read() As String[]
     Next
   Next
 
-  aTheme.Insert(["Gambas", "Gambas-Mono"])
+  If Not aTheme.Exist("Gambas") Then aTheme.Add("Gambas")
+  If Not aTheme.Exist("Gambas-Mono") Then aTheme.Add("Gambas-Mono")
   aTheme.Sort(gb.IgnoreCase)
   Return aTheme
 
