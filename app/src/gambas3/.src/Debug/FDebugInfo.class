@@ -1449,19 +1449,70 @@ Public Sub OnProjectDebug()
   panError.Hide
   sepError.Hide
   
-  If Design.IsRemote() Then
-    btnDebugProcess.Picture = Picture["icon:/small/connect"]
-  Else
-    btnDebugProcess.Picture = Picture["icon:/small/exec"]
-  Endif
-  
-  btnDebugProcess.Text = ""
+  ' If Design.IsRemote() Then
+  '   btnDebugProcess.Picture = Picture["icon:/small/connect"]
+  ' Else
+  '   btnDebugProcess.Picture = Picture["icon:/small/exec"]
+  ' Endif
+  ' 
+  ' btnDebugProcess.Text = ""
   
 End
 
-Public Sub UpdateProcessId(iId As Integer)
+' Public Sub UpdateProcessId(iId As Integer)
+'   
+'   btnDebugProcess.Text = Subst(("Process &1"), iId)
+'   
+' End
+
+Public Sub UpdateProcessId()
   
-  btnDebugProcess.Text = Subst(("Process &1"), iId)
+  If Design.IsRemote() Then
+    picProcess.Picture = Picture["icon:/small/connect"]
+  Else
+    picProcess.Picture = Picture["icon:/small/exec"]
+  Endif
+  
+  If Design.ProcessId = 0 Then
+    
+    lblProcessId.Hide
+    
+  Else
+    
+    lblProcessId.Show
+    lblProcessId.Text = Subst(("Process &1"), Design.ProcessId)
+    UpdateProcessInfo
+    
+  Endif
+  
+End
+
+
+Public Sub UpdateProcessInfo()
+  
+  If Design.ProcessId = 0 Then
+    
+    panProcessFiles.Hide
+    panProcessMemoryRead.Hide
+    
+  Else
+    
+    If Design.ProcessFiles < 0 Then
+      panProcessFiles.Hide
+    Else
+      panProcessFiles.Show
+      lblProcessFiles.Text = CStr(Design.ProcessFiles)
+    Endif
+    
+    If Design.ProcessMemory < 0 Then
+      panProcessMemory.Hide
+    Else
+      panProcessMemory.Show
+      lblProcessMemory.Text = File.FormatSize(Design.ProcessMemory, True) 
+    Endif
+    
+    
+  Endif
   
 End
 
@@ -1831,3 +1882,4 @@ Public Sub btnVcChanges_Click()
   FFileInfoVC.Run(Project.Dir)
 
 End
+

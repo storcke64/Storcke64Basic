@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,125,50)
+  MoveScaled(0,0,141,50)
   Text = ("Debug")
   Persistent = True
   Arrangement = Arrange.Fill
@@ -13,7 +13,7 @@
     }
   }
   { wizDebug Wizard
-    MoveScaled(2,5,122,44)
+    MoveScaled(1,2,137,44)
     Arrangement = Arrange.Vertical
     Count = 8
     ShowTitle = False
@@ -22,53 +22,85 @@
     Index = 0
     Text = ("Debugging")
     { panDebug VBox
-      MoveScaled(0,3,119,40)
+      MoveScaled(0,3,137,40)
       Expand = True
-      { panRemoteDebug Panel
-        MoveScaled(96,3,22,18)
-        Visible = False
-        Background = Color.TextBackground
-        Expand = True
-        Arrangement = Arrange.Vertical
-        Centered = True
-        Spacing = True
-        Margin = True
-        { spnRemoteDebug Spinner
-          MoveScaled(4,2,13,6)
-          Type = Spinner.Circle
-        }
-        { Label1 TextLabel
-          MoveScaled(2,10,18,5)
-          Foreground = Color.LightForeground
-          AutoResize = True
-          Text = ("Waiting for remote process") & "..."
-          Alignment = Align.Center
-        }
-      }
       { splDebug HSplit
-        MoveScaled(1,1,94,32)
+        MoveScaled(1,1,127,32)
         Expand = True
         { Panel16 VBox
-          MoveScaled(1,1,22,30)
+          MoveScaled(1,1,53,30)
           { HBox1 HBox
-            MoveScaled(2,1,18,4)
-            { btnDebugProcess ToolButton
-              MoveScaled(2,0,8,4)
+            MoveScaled(1,5,44,4)
+            Font = Font["-2"]
+            Spacing = True
+            { Panel17 HBox
+              MoveScaled(0,0,9,4)
               AutoResize = True
+              { picProcess PictureBox
+                MoveScaled(0,0,4,4)
+                Alignment = Align.Center
+              }
+              { lblProcessId Label
+                MoveScaled(4,0,4,4)
+                AutoResize = True
+              }
+            }
+            { panProcessMemoryRead HBox
+              MoveScaled(10,0,9,4)
+              Visible = False
+              ToolTip = ("Read-only memory")
+              AutoResize = True
+              { picProcessMemoryRead PictureBox
+                MoveScaled(0,0,4,4)
+                Picture = Picture.Load("icon:/small/cdrom")
+                Alignment = Align.Center
+              }
+              { lblProcessMemoryRead Label
+                MoveScaled(4,0,4,4)
+                AutoResize = True
+              }
+            }
+            { panProcessMemory HBox
+              MoveScaled(20,0,9,4)
+              ToolTip = ("Allocated memory")
+              AutoResize = True
+              { picProcessMemory PictureBox
+                MoveScaled(0,0,4,4)
+                Picture = Picture.Load("icon:/small/statistics")
+                Alignment = Align.Center
+              }
+              { lblProcessMemory Label
+                MoveScaled(4,0,4,4)
+                AutoResize = True
+              }
+            }
+            { panProcessFiles HBox
+              MoveScaled(32,0,9,4)
+              ToolTip = ("Open file descriptors")
+              AutoResize = True
+              { picProcessFiles PictureBox
+                MoveScaled(0,0,4,4)
+                Picture = Picture.Load("icon:/small/script")
+                Alignment = Align.Center
+              }
+              { lblProcessFiles Label
+                MoveScaled(4,0,4,4)
+                AutoResize = True
+              }
             }
           }
           { Separator8 Separator
-            MoveScaled(4,7,11,0)
+            MoveScaled(4,10,11,0)
           }
           { lvwStack ListView
-            MoveScaled(1,8,18,20)
+            MoveScaled(1,16,18,12)
             Mouse = Mouse.Pointing
             Expand = True
             Border = False
           }
         }
         { Panel7 VBox
-          MoveScaled(28,1,63,30)
+          MoveScaled(61,2,63,30)
           { panWatch HBox
             MoveScaled(1,1,61,4)
             Drop = True
@@ -161,6 +193,27 @@
           MoveScaled(6,0,73,4)
           Expand = True
           Alignment = Align.Normal
+        }
+      }
+      { panRemoteDebug Panel
+        MoveScaled(113,34,20,18)
+        Visible = False
+        Background = Color.TextBackground
+        Expand = True
+        Arrangement = Arrange.Vertical
+        Centered = True
+        Spacing = True
+        Margin = True
+        { spnRemoteDebug Spinner
+          MoveScaled(4,2,13,6)
+          Type = Spinner.Circle
+        }
+        { Label1 TextLabel
+          MoveScaled(1,10,18,5)
+          Foreground = Color.LightForeground
+          AutoResize = True
+          Text = ("Waiting for remote process") & "..."
+          Alignment = Align.Center
         }
       }
     }

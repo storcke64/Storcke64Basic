@@ -2,6 +2,10 @@
 
 Public Startup As String
 
+Public ProcessId As Integer
+Public ProcessFiles As Integer
+Public ProcessMemory As Long
+
 Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM, ACTION_RUN_REMOTE
 
 Private Const STATE_LAST As Integer = -1
@@ -48,13 +52,13 @@ Private $sProfilePath As String
 Private $sPipeError As String
 Private $hPipeError As File
 Private $hBrowser As Process
-Private $iProcessId As Integer
 
 Private $hTimerShowConsole As Timer
 
 Private $bRemote As Boolean
 Private $sRemoteLink As String
 Private $hTimerRemote As Timer
+Private $hTimerWatch As Timer
 
 Public Sub Init()
  
@@ -120,6 +124,12 @@ Private Sub SetState(iState As Integer)
   FOutput.OnProjectDebugState
   FDebugInfo.OnProjectDebugState
   
+  If $hTimerWatch Then
+    If $iState = STATE_RUNNING Then
+      'TimerWatch_Timer
+      $hTimerWatch.Restart
+    Endif
+  Endif
   '$hTimerDebugPanel.Restart
   
 End
@@ -143,7 +153,7 @@ Public Sub Pause()
   ' If Project.UseTerminal Then
   '   If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
   ' Else
-  If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
+  If ProcessId Then Signal.Send(ProcessId, Signal.SIGUSR2)
 
 End
 
@@ -292,9 +302,17 @@ Public Sub Debug_Read(Data As String)
       '   [3] Local variables
       '   [4] Current object
     
-      If $iProcessId = 0 Then
-        Try $iProcessId = CInt(Scan(aData[0], "?[[]*]")[0])
-        FDebugInfo.UpdateProcessID($iProcessId)
+      If ProcessId = 0 Then
+        Try ProcessId = CInt(Scan(aData[0], "?[[]*]")[0])
+        If ProcessId Then
+          ProcessFiles = -1
+          ProcessMemory = -1
+          $hTimerWatch = New Timer As "TimerWatch"
+          $hTimerWatch.Delay = 1000
+          $hTimerWatch.Start
+          TimerWatch_Timer
+          FDebugInfo.UpdateProcessId()
+        Endif
       Endif
     
       aPos = Split(Trim(aData[2]), " ")
@@ -565,6 +583,11 @@ Private Sub AfterStop()
   'Project.SetMessage(("OK"))
 
   FMain.ActivateCurrentWindow
+
+  If $hTimerWatch Then
+    $hTimerWatch.Stop
+    $hTimerWatch = Null
+  Endif
 
   '$hTimerShowConsole.Stop
   
@@ -935,7 +958,7 @@ Private Sub Start(sCmd As String)
 
   'PRINT "EXEC "; "gbx -gs " & File.Dir(Project.Path) & " -- " & Project.Arguments
 
-  $iProcessId = 0
+  ProcessId = 0
   $sCmdStart = ""
   ' FDebugInfo.ClearBreakpoint
 
@@ -1233,7 +1256,7 @@ Public Sub RunRemote()
 
   ClearOutput
 
-  $iProcessId = 0
+  ProcessId = 0
   $sCmdStart = ""
 
   ReadDebugSettings()
@@ -1295,7 +1318,7 @@ Public Sub TimerRemote_Timer()
   Dim sPath As String
   Dim hLock As File
   
-  If $iProcessId Then
+  If ProcessId Then
     sPath = File.SetExt($sFifo, "lock")
     Try hLock = Lock sPath
     If Not Error Then 
@@ -1379,6 +1402,8 @@ Private Sub Signal()
     Return
   Endif
 
+  If $hTimerWatch Then TimerWatch_Timer
+  
   ' If $bUpdateBreakOnError Then
   '   $bUpdateBreakOnError = False
   '   BreakOnError
@@ -1717,5 +1742,42 @@ End
 Public Sub IsRemote() As Boolean
   
   Return $bRemote
+  
+End
+
+Public Sub TimerWatch_Timer()
+
+  Dim sDir As String
+  Dim aMaps As String[]
+  Dim sMap As String
+  Dim iPos As Integer
+  
+  If $iState <> STATE_RUNNING Then 
+    Stop Event
+    Return
+  Endif
+  
+  sDir = "/proc" &/ CStr(ProcessId)
+  If Not IsDir(sDir) Then
+    $hTimerWatch.Stop
+    Return
+  Endif
+  
+  Try ProcessFiles = Dir(sDir &/ "fd").Count
+  If Error Then ProcessFiles = -1
+  
+  aMaps = Split(Trim(File.Load(sDir &/ "smaps_rollup")), "\n")
+  
+  ProcessMemory = 0
+  For Each sMap In aMaps
+    If sMap Begins "Pss:" Then
+      sMap = LTrim(Mid$(sMap, 5))
+      iPos = InStr(sMap, " ")
+      ProcessMemory = CInt(Left(sMap, iPos - 1)) * 1024
+      Break
+    Endif
+  Next
+  
+  FDebugInfo.UpdateProcessInfo()
   
 End
