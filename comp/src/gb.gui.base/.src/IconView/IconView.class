@@ -107,6 +107,8 @@ Private $fFindTime As Float
 Private $iLock As Integer
 Private $hArrangeTimer As Timer
 
+Private $cTrimTextCache As New Collection
+
 Public Sub _new()
   
   $hView = New ScrollArea(Me) As "ScrollArea"
@@ -534,6 +536,8 @@ Public Sub ScrollArea_Arrange()
   Dim W, H As Integer
   Dim nRow As Integer
   Dim DS As Integer
+  Dim iOldGridHeight As Integer
+  Dim iOldGridWidth As Integer
   
   If $iLock Then Return
   
@@ -549,6 +553,9 @@ Public Sub ScrollArea_Arrange()
   Endif
   
   ExitRename
+  
+  iOldGridHeight = $iGridHeight
+  iOldGridWidth = $iGridWidth
   
   If $bHorizontal Then
     
@@ -593,6 +600,8 @@ Public Sub ScrollArea_Arrange()
     $hView.ResizeContents(Max(W, $nColumn * $iGridWidth + $iPad * 2), nRow * $iGridHeight + $iPad * 2)
 
   Endif
+  
+  If iOldGridWidth <> $iGridWidth Or If iOldGridHeight <> $iGridHeight Then $cTrimTextCache.Clear
   
 End
 
@@ -1620,12 +1629,20 @@ Public Sub ScrollArea_Font()
 
   Dim hItem As _IconView_Item
   
+  $cTrimTextCache.Clear
+  
   For Each hItem In $aItems
     hItem._Invalidate
   Next
   
   ScrollArea_Arrange
 
+End
+
+Public Sub _GetTrimTextCache() As Collection
+  
+  Return $cTrimTextCache
+  
 End
 
 Private Function Keys_Read() As String[]

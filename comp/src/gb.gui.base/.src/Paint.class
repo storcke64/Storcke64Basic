@@ -167,7 +167,7 @@ Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Flo
     If bMarkup Then Continue
     sPrevLeft = sLeft
     sLeft = HtmlLeft(RichText, I)
-    If Paint.Font.RichTextHeight(sLeft, W) > H Then Break
+    If Paint.Font.RichTextHeight(AddThreeDots(sLeft), W) > H Then Break
   Next
   
   If I = 1 Then Return

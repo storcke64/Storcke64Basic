@@ -357,7 +357,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
       HT = hRect.H + DS \ 2
 
       If H > HT Then 
-        sText = Paint.TrimRichText(sText, W, HT)
+        sText = MyTrimRichText(sText, W, HT)
         $bEllipsized = True
       Else
         $bEllipsized = False
@@ -413,7 +413,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
       HT = hRect.H - (Y - hRect.Y)
 
       If H > HT Then 
-        sText = Paint.TrimRichText(sText, hRect.W, HT)
+        sText = MyTrimRichText(sText, hRect.W, HT)
         $bEllipsized = True
       Else
         $bEllipsized = False
@@ -794,3 +794,26 @@ Private Sub Tag_Write(Value As Variant)
   $vTag = Value
 
 End
+
+Private Sub MyTrimRichText(RichText As String, W As Float, Optional H As Float) As String
+
+  Dim sResult As String
+  Dim cCache As Collection
+  
+  cCache = GetIconView()._GetTrimTextCache()
+  sResult = cCache[RichText]
+  If Not sResult Then
+    sResult = Paint.TrimRichText(RichText, W, H)
+    cCache[RichText] = sResult
+    If cCache.Count > 256 Then 
+      For Each cCache
+        cCache.Remove(cCache.Key)
+        Break
+      Next
+    Endif
+  Endif
+  
+  Return sResult
+  
+End
+
