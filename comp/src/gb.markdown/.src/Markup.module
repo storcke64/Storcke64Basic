@@ -250,7 +250,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
             If iLine < aLine.Max And If GetIndent(aLine[iLine + 1]) >= hMarkupList.iIndent Then
               bJustList = False
             Endif
-            aResult[aResult.Max - 1] = "<p></p>\n" & aResult[aResult.Max - 1]
+            'aResult[aResult.Max - 1] = "<p></p>\n" & aResult[aResult.Max - 1]
           Endif
           aResult.Remove(aResult.Max)
         Else
@@ -273,7 +273,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
             If iLine < aLine.Max And If GetIndent(aLine[iLine + 1]) >= hMarkupList.iIndent Then
               bJustList = False
             Endif
-            aResult[aResult.Max - 1] = "<p></p>\n" & aResult[aResult.Max - 1]
+            'aResult[aResult.Max - 1] = "<p></p>\n" & aResult[aResult.Max - 1]
           Endif
           aResult.Remove(aResult.Max)
         Else

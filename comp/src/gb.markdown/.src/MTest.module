@@ -2,9 +2,6 @@
 
 Public Sub Main()
 
-Dim X As Integer
-For X = 32 To 127
-  Print Chr$(X);
-Next
+  File.Save("~/test.html", Markdown.ToHTML(File.Load("test2.txt")))
 
 End
