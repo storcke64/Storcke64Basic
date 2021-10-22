@@ -5289,7 +5289,7 @@ Public Sub MoveFile(sSrc As String, sDst As String, Optional bOther As Boolean)
 
 Catch
 
-  FMain.ShowError(Subst(("Cannot move file &1."), File.Name(sSrc)) & "\n\n" & Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>", sSrc)
+  FMain.ShowErrorWith(Subst(("Cannot move file &1."), File.Name(sSrc)))
 
 End
 

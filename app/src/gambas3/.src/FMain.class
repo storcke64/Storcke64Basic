@@ -1719,22 +1719,27 @@ End
 
 Public Sub tvwProject_DragMove()
   
+  'Debug Drag.X;; Drag.Y;; Drag.Action
+   
   If Not tvwProject.FindAt(Drag.X, Drag.Y) Then 
     
     $sKey = tvwProject.Item.Key
     
     If Project.IsLocked($sKey) Then Goto STOP_EVENT
+    
     If Drag.Format = MMime.DATA And If Drag.Source Then 
       If Not IsDataKey($sKey) Then Goto STOP_EVENT
     Else If Drag.Format = MMime.CLASS And If Drag.Source Then
       If $sKey <> Project.KEY_SOURCE Then
         If Not Project.IsSourcePath($sKey, True) Then Goto STOP_EVENT
       Endif
+      If Drag.Action <> Drag.Move Then Goto STOP_EVENT
     Else If Drag.Format = MMime.URI Then
       If Not IsDataKey($sKey) Then Goto STOP_EVENT
     Else
       Goto STOP_EVENT
     Endif
+    
     With tvwProject[$sKey] 
       If .Children Then 
         If Not timOpen.Enabled Or $sKey <> $sKeyDrag Then 
@@ -1794,7 +1799,7 @@ Public Sub tvwProject_Drop()
   Dim aFile As String[]
   Dim sSrc As String = Drag.Data
   
-  'Debug Drag.Format;; Drag.Data
+  'Debug Drag.Action;; Drag.Format;; Drag.Data
   '
   $hProjectTree.FillDir($sKey)
   
@@ -1828,6 +1833,8 @@ End
 Public Sub tvwProject_MouseDrag()
   
   Dim sKey As String
+  
+  'Debug Mouse.StartX;; Mouse.StartY
   
   If Not Mouse.Left Then Return
   
@@ -2132,6 +2139,8 @@ Public Sub btnShowMenu_Click()
 End
 
 Public Sub tvwProject_Drag()
+  
+  'Debug
   
 End
 
