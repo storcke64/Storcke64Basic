@@ -293,6 +293,7 @@ Static Public Sub DndFrame_DragMove()
   Dim hCtrl As Control
   Dim X As Integer
   Dim Y As Integer
+  Dim bStopEvent As Boolean
 
   'Debug
 
@@ -306,9 +307,7 @@ Static Public Sub DndFrame_DragMove()
 
   While hCtrl Is Container 
     hCont = hCtrl
-    '$aFrame[0].Hide
-    'hCtrl = hCont.FindChild(Drag.X - hCont.ClientX, Drag.Y - hCont.ClientY)
-    '$aFrame[0].Show
+
     hCtrl = FindChild(hCont, Drag.X - hCont.ClientX, Drag.Y - hCont.ClientY)
     
     If Not hCtrl Then
@@ -319,7 +318,8 @@ Static Public Sub DndFrame_DragMove()
     Drag.X -= hCtrl.X + hCont.ClientX
     Drag.Y -= hCtrl.Y + hCont.ClientY
     If hCtrl.Drop Then
-      Object.Raise(hCtrl, "Drag")
+      bStopEvent = Object.Raise(hCtrl, "Drag")
+      If bStopEvent Then Break
     Else
       If hCtrl Is Container Then Continue
       Drag.X += hCtrl.X + hCont.ClientX
@@ -330,17 +330,24 @@ Static Public Sub DndFrame_DragMove()
     Break
     
   Wend
-  
-  Object.Raise(hCtrl, "DragMove")
+
+  If Not bStopEvent Then 
+    While hCtrl <> $hFrameCtrl
+      If hCtrl.Drop Then Break
+      hCtrl = hCtrl.Parent
+    Wend
+    bStopEvent = Object.Raise(hCtrl, "DragMove")
+  Endif
   
   Drag.X = X
   Drag.Y = Y
+  
+  If bStopEvent Then Stop Event
   
 End
 
 Static Public Sub DndFrame_Drop()
 
-  'Debug
   Drag.X += $iFrameX
   Drag.Y += $iFrameY
   Drag._Target = $hFrameCtrl
