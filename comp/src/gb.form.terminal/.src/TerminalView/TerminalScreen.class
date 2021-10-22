@@ -1209,7 +1209,7 @@ Public Sub HasLink() As Boolean
   
 End
 
-Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bDarkBackground As Boolean)
+Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHideCursor As Boolean, hFont As Image, bDarkBackground As Boolean, iCursorStyle As Integer)
   
   Dim hView As TerminalView = GetView()
   Dim L, L1, L2 As Integer
@@ -1233,7 +1233,14 @@ Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHide
     ' Cursor
     
     If L = $Y And If Not bHideCursor And If Not HideCursor Then
-      Paint.FillRect($X * CW, Y, CW, LH, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 64))
+      Select Case iCursorStyle
+        Case TerminalView.CursorUnderline
+          Paint.FillRect($X * CW, Y + LH - 2, CW, 2, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 32))
+        Case TerminalView.CursorText
+          Paint.FillRect($X * CW, Y, 2, LH, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 32))
+        Case Else
+          Paint.FillRect($X * CW, Y, CW, LH, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 64))
+      End Select
     Endif
     
     ' Selection

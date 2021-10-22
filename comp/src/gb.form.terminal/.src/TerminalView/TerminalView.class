@@ -4,7 +4,7 @@ Inherits UserControl
 
 Export
 
-Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,ShowScrollBar,ShowLink,ReadOnly,WindowCommands"
+Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,CursorStyle{TerminalView.CursorBlock;CursorUnderline;CursorText}=CursorBlock,ShowScrollBar,ShowLink,ReadOnly,WindowCommands"
 Public Const _DrawWith As String = "-"
 Public Const _Group As String = "View"
 
@@ -83,6 +83,15 @@ Property WindowCommands As Boolean Use $bWindowCommands
 Property ShowLink As Boolean Use $bShowLink
 '' Return an object that represents the information about the link under the mouse cursor.
 Property Read Link As TerminalLink
+'' Return or set how the terminal cursor is drawn
+Property CursorStyle As Integer
+
+'' Constant for drawing the cursor with a block.
+Public Const CursorBlock As Integer = 0
+'' Constant for drawing the cursor with an underline.
+Public Const CursorUnderline As Integer = 1
+'' Constant for drawing the cursor with a vertical line.
+Public Const CursorText As Integer = 2
 
 Static Private $cShortcut As Collection
 
@@ -121,6 +130,7 @@ Private $sType As String
 
 Private $hCursorTimer As Timer
 Private $bBlink As Boolean
+Private $iCursorStyle As Integer
 
 Private $sBuffer As String
 Private $hOutputTimer As Timer
@@ -500,7 +510,7 @@ Public Sub View_Draw()
   
   bDarkBackground = Color[Style.BackgroundOf($hView)].Luminance < Color[Style.ForegroundOf($hView)].Luminance 
   'Debug bInvertColor
-  $hScreen.Paint(GetScrollY(), $LH, $CW, $iAscent, $bHideCursor, $hCacheFont, bDarkBackground)
+  $hScreen.Paint(GetScrollY(), $LH, $CW, $iAscent, $bHideCursor, $hCacheFont, bDarkBackground, $iCursorStyle)
   
   If $bTermUseMouse Then
     Paint.FillRect($iMouseX * $CW, $iMouseY * $LH, $CW, $LH, Color.SetAlpha(Color.SelectedBackground, 64))
@@ -1853,4 +1863,17 @@ Public Sub _Bell()
   Endif
   $hTimerBell.Start
   
+End
+
+Private Function CursorStyle_Read() As Integer
+
+  Return $iCursorStyle
+
+End
+
+Private Sub CursorStyle_Write(Value As Integer)
+
+  If Value < 0 Or If Value > 2 Then Value = CursorBlock
+  $iCursorStyle = Value
+
 End
