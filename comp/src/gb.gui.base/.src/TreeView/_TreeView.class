@@ -1099,6 +1099,13 @@ Public Sub GridView_Select()
   
 End
 
+Public Sub GridView_Change()
+  
+  $hView.Rows[$hView.Row].EnsureVisible()
+  
+End
+
+
 ' Public Sub ResizeRows_Timer()
 '   
 '   Dim iRow As Integer

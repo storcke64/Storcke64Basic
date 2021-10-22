@@ -794,7 +794,7 @@ Private Sub GetActualScroll(ByRef SX As Integer, ByRef SY As Integer)
   
 End
 
-Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer) As Boolean
+Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer, Optional Direction As Integer = Scroll.Both) As Boolean
   
   Dim PW, PH, CX, CY, CW, CH As Integer
   Dim XX, YY, WW, HH As Float
@@ -862,6 +862,9 @@ Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer)
 
   CX = -CX
   CY = -CY
+  
+  If (Direction And Scroll.Horizontal) = 0 Then CX = $iScrollX
+  If (Direction And Scroll.Vertical) = 0 Then CY = $iScrollY
 
   If Application.Animations And If Not $bNoAnimation Then
     If $iTargetX = CX And If $iTargetY = CY Then Return True

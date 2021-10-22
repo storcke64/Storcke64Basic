@@ -1470,14 +1470,13 @@ Public Sub MoveTo(Row As Integer, Column As Integer)
   $iCol = Column
   
   If $iRow >= 0 And If $iCol < 0 Then $iCol = 0
+  _EnsureVisible($iRow, $iCol)
   
-  If $iRow >= 0 And If $iCol >= 0 Then _EnsureVisible($iRow, $iCol)
-  $hView.Refresh
-
   bCancel = Raise Change
   If bCancel Then
     $iRow = iOldRow
     $iCol = iOldCol
+    _EnsureVisible($iRow, $iCol)
     Return
   Endif
   
@@ -1502,6 +1501,9 @@ Public Sub MoveTo(Row As Integer, Column As Integer)
     $hRows.Select($iRow, 1)
   Endif
   
+  Me[iOldRow, iOldCol].Refresh()
+  Me[$iRow, $iCol].Refresh()
+
 End
 
 Private Function Row_Read() As Integer
@@ -1542,7 +1544,7 @@ End
 Public Sub _EnsureVisible(iRow As Integer, iCol As Integer)
   
   If Not $hTimerEnsureVisible Then $hTimerEnsureVisible = New Timer As "TimerEnsureVisible"
-  If $iRowEV < 0 Then $hTimerEnsureVisible.Trigger
+  If $iRowEV < 0 And If $iColEV < 0 Then $hTimerEnsureVisible.Trigger
   
   $iRowEV = iRow
   $iColEV = iCol
@@ -1554,12 +1556,25 @@ End
 Public Sub TimerEnsureVisible_Timer()
   
   Dim iRowEV As Integer = $iRowEV
+  Dim iColEV As Integer = $iColEV
   Dim F As Integer = _GetFrameWidth()
+  Dim iDir As Integer
+  
+  iDir = Scroll.Both
+  If iRowEV < 0 Then
+    iDir -= Scroll.Vertical
+    iRowEV = 0
+  Endif
+  If iColEV < 0 Then 
+    iDir -= Scroll.Horizontal
+    iColEV = 0
+  Endif
   
   $iRowEV = -1
+  $iColEV = -1
 
-  With $hColumns[$iColEV]
-    $hView.EnsureVisible(.X, $hRows._GetRowY(iRowEV) + F, Min($hView.ClientW - $hRows.W, .Width + $hRows.Width), $hRows._GetRowHeight(iRowEV) + $hColumns.Height + F)
+  With $hColumns[iColEV]
+    $hView.EnsureVisible(.X, $hRows._GetRowY(iRowEV) + F, Min($hView.ClientW - $hRows.W, .Width + $hRows.Width), $hRows._GetRowHeight(iRowEV) + $hColumns.Height + F, iDir)
   End With
   
 Catch

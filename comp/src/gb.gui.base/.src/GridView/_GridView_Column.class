@@ -167,3 +167,9 @@ Private Sub Tag_Write(Value As Variant)
   $vTag = Value
 
 End
+
+Public Sub EnsureVisible()
+  
+  GetView()._EnsureVisible(-1, _Column)
+  
+End
