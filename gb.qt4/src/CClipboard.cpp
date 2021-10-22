@@ -41,6 +41,7 @@
 #include <QWidget>
 #include <QTextCodec>
 
+#include "gb.form.const.h"
 #include "CWidget.h"
 #include "CImage.h"
 #include "CClipboard.h"
@@ -48,6 +49,7 @@
 CDRAG_INFO CDRAG_info = { 0 };
 bool CDRAG_dragging = false;
 void *CDRAG_destination = 0;
+static char CDRAG_action = DRAG_MOVE;
 
 static CPICTURE *_picture = 0;
 static int _picture_x = -1;
@@ -515,9 +517,10 @@ void *CDRAG_drag(CWIDGET *source, GB_VARIANT_VALUE *data, GB_STRING *fmt)
 	
 	GB.Unref(POINTER(&CDRAG_destination));
 	CDRAG_destination = 0;
+	CDRAG_action = DRAG_MOVE;
 	
 	//qDebug("start drag");
-	drag->exec();
+	drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction);
 
 	source->flag.dragging = false;
 	//qDebug("end drag");
@@ -540,18 +543,38 @@ _BAD_FORMAT:
 }
 
 
+static void update_action(QDropEvent *e)
+{
+	Qt::KeyboardModifiers mod = e->keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
+	
+	if (mod == Qt::ControlModifier)
+	{
+		e->setDropAction(Qt::CopyAction);
+		CDRAG_action = DRAG_COPY;
+	}
+	else if (mod == Qt::ShiftModifier)
+	{
+		e->setDropAction(Qt::LinkAction);
+		CDRAG_action = DRAG_LINK;
+	}
+	else
+	{
+		e->setDropAction(Qt::MoveAction);
+		CDRAG_action = DRAG_MOVE;
+	}
+}
+
+
 bool CDRAG_drag_enter(QWidget *w, CWIDGET *control, QDropEvent *e)
 {
 	bool cancel;
 
-	// Hack for QScrollView
-	/*if (CWIDGET_test_flag(control, WF_SCROLLVIEW) && qobject_cast<MyListView *>(QWIDGET(control)))
-		((MyListView *)QWIDGET(control))->contentsDragEnterEvent((QDragEnterEvent *)e);*/
-
+	update_action(e);
+	
 	if (!GB.CanRaise(control, EVENT_Drag))
 	{
 		if (GB.CanRaise(control, EVENT_DragMove) || GB.CanRaise(control, EVENT_Drop))
-			e->acceptProposedAction();
+			e->accept();
 		else
 		{
 			if (qobject_cast<QLineEdit *>(w) || qobject_cast<QTextEdit *>(w))
@@ -574,7 +597,7 @@ bool CDRAG_drag_enter(QWidget *w, CWIDGET *control, QDropEvent *e)
 	if (cancel)
 		e->ignore();
 	else
-		e->acceptProposedAction();
+		e->accept();
 	return cancel;
 }
 
@@ -608,27 +631,11 @@ bool CDRAG_drag_move(QWidget *w, CWIDGET *control, QDropEvent *e)
 
 	//qDebug("CDRAG_drag_move: (%s %p) %p", GB.GetClassName(control), control, qobject_cast<MyListView *>(QWIDGET(control)));
 
-	// Hack for QScrollView
-	
-	/*if (CWIDGET_test_flag(control, WF_SCROLLVIEW) && qobject_cast<MyListView *>(QWIDGET(control)))
-	{
-		accepted = e->isAccepted();
-		((MyListView *)QWIDGET(control))->contentsDragMoveEvent((QDragMoveEvent *)e);
-		if (accepted)
-			e->acceptProposedAction();
-		else
-			e->ignore();
-	}*/
+	update_action(e);
 
 	if (!GB.CanRaise(control, EVENT_DragMove))
-	{
-		/*if (GB.CanRaise(control, EVENT_Drop))
-			e->accept();
-		else
-			e->ignore();*/
 		return true;
-	}
-
+	
 	//fprintf(stderr, "CDRAG_drag_move: %s %s\n", GB.GetClassName(control), control->name);
 	
 	CDRAG_clear(true);
@@ -643,9 +650,11 @@ bool CDRAG_drag_move(QWidget *w, CWIDGET *control, QDropEvent *e)
 	if (cancel)
 		e->ignore();
 	else
-		e->acceptProposedAction();
+		e->accept();
 
 	CDRAG_clear(false);
+	
+	fprintf(stderr, "action = %d\n", e->dropAction());
 	return cancel;
 }
 
@@ -653,6 +662,7 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 {
 	QPoint p;
 
+	fprintf(stderr, "action = %d\n", e->dropAction());
 	//hide_frame();
 
 	if (!GB.CanRaise(control, EVENT_Drop))
@@ -805,21 +815,7 @@ END_METHOD
 BEGIN_PROPERTY(Drag_Action)
 
 	CHECK_VALID();
-
-	switch(CDRAG_info.event->dropAction())
-	{
-		case Qt::LinkAction:
-			GB.ReturnInteger(1);
-			break;
-
-		case Qt::MoveAction:
-			GB.ReturnInteger(2);
-			break;
-
-		default:
-			GB.ReturnInteger(0);
-			break;
-	}
+	GB.ReturnInteger(CDRAG_action);
 
 END_PROPERTY
 
@@ -896,9 +892,9 @@ GB_DESC CDragDesc[] =
 	GB_CONSTANT("Text", "i", MIME_TEXT),
 	GB_CONSTANT("Image", "i", MIME_IMAGE),
 
-	GB_CONSTANT("Copy", "i", 0),
-	GB_CONSTANT("Link", "i", 1),
-	GB_CONSTANT("Move", "i", 2),
+	GB_CONSTANT("Copy", "i", DRAG_COPY),
+	GB_CONSTANT("Link", "i", DRAG_LINK),
+	GB_CONSTANT("Move", "i", DRAG_MOVE),
 
 	GB_STATIC_PROPERTY("Icon", "Picture", Drag_Icon),
 	GB_STATIC_PROPERTY("IconX", "i", Drag_IconX),

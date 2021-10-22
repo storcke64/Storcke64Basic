@@ -148,7 +148,7 @@ static void cb_drag_data_get(GtkWidget *widget, GdkDragContext *context, GtkSele
 static void cb_drag_end(GtkWidget *widget,GdkDragContext *ct,gControl *data)
 {
 	#if DEBUG_DND
-	fprintf(stderr, "sg_drag_end: %s\n", data->name());
+	fprintf(stderr, "\nsg_drag_end: %s\n", data->name());
 	#endif
 	
 	gDrag::end();
@@ -168,7 +168,7 @@ static void cb_drag_leave(GtkWidget *widget, GdkDragContext *context, guint time
 		return;
 	
 	#if DEBUG_DND
-	fprintf(stderr, "cb_drag_leave: %s\n", data->name());
+	fprintf(stderr, "\ncb_drag_leave: %s\n", data->name());
 	#endif
 
 	gDrag::setCurrent(NULL);
@@ -178,41 +178,54 @@ static void cb_drag_leave(GtkWidget *widget, GdkDragContext *context, guint time
 static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
 {
 	bool retval = true;
+	
+	GdkModifierType mask;
+	GdkDragAction dnd_action;
 	int action;
 	gControl *source;
 	
+#ifdef GTK3
+	
+	GdkDevice *pointer;
+	
+	#if GDK_MAJOR_VERSION > 3 || (GDK_MAJOR_VERSION == 3 && GDK_MINOR_VERSION >= 20)
+	pointer = gdk_seat_get_pointer(gdk_display_get_default_seat(gdk_display_get_default()));
+	#else
+	pointer = gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default()));
+	#endif
+	
+	gdk_window_get_device_position(gtk_widget_get_window(widget), pointer, NULL, NULL, &mask);
+	
+#else
+
+	gdk_window_get_pointer(gtk_widget_get_window (widget), NULL, NULL, &mask);
+	
+#endif
+	
+	mask = (GdkModifierType)(mask & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_META_MASK));
+	
+	if (mask == GDK_CONTROL_MASK)
+	{
+		dnd_action = GDK_ACTION_COPY;
+		action = DRAG_COPY;
+	}
+	else if (mask == GDK_SHIFT_MASK)
+	{
+		dnd_action = GDK_ACTION_LINK;
+		action = DRAG_LINK;
+	}
+	else
+	{
+		dnd_action = GDK_ACTION_MOVE;
+		action = DRAG_MOVE;
+	}
+	
 	#if DEBUG_DND
-	fprintf(stderr, "cb_drag_motion: %s\n", data->name());
+	fprintf(stderr, "\ncb_drag_motion: %s / %d / %d\n", data->name(), action, gdk_drag_context_get_selected_action(context));
 	#endif	
 	
 	gApplication::checkHoveredControl(data);
-	
-	/*if (_drag_time != context->start_time) 
-	{ 
-		g_debug("cb_drag_motion: cancel!\n");
-		gDrag::cancel();
-		data->_drop_0 = true; 
-		data->_drop_1 = false; 
-		data->_drop_2 = false; 
-	}*/
-	
-#if GTK_CHECK_VERSION(2, 22, 0)
-	switch (gdk_drag_context_get_suggested_action(context))
-#else
-	switch (context->suggested_action)
-#endif
-	{
-  	case GDK_ACTION_MOVE: 
-  		action = gDrag::Move; 
-  		break;
-  	case GDK_ACTION_LINK: 
-  		action = gDrag::Link; 
-  		break;
-		case GDK_ACTION_COPY:
-		default:
-			action = gDrag::Copy;
-	}
-	
+
 	source = gApplication::controlItem(gtk_drag_get_source_widget(context));
 	gDrag::setDropData(action, x, y, source, NULL);
 	
@@ -251,13 +264,9 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	if (retval) 
 	{
 		#if DEBUG_DND
-		fprintf(stderr, "cb_drag_motion: accept\n");
+		fprintf(stderr, "cb_drag_motion: accept %d / %d\n", action, gdk_drag_context_get_selected_action(context));
 		#endif
-#if GTK_CHECK_VERSION(2, 22, 0)
-		gdk_drag_status(context, gdk_drag_context_get_suggested_action(context), time);
-#else
-		gdk_drag_status(context, context->suggested_action, time);
-#endif
+		gdk_drag_status(context, dnd_action, time);
 		return true;
 	}
 	
@@ -274,7 +283,7 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	gControl *source;
 
 	#if DEBUG_DND
-	fprintf(stderr, "cb_drag_drop: %s\n", data->name());
+	fprintf(stderr, "\ncb_drag_drop: %s\n", data->name());
 	#endif
 	
 	/*if (!gDrag::isCurrent(data))

@@ -1548,31 +1548,15 @@ Drag & Drop
 
 void gControl::setAcceptDrops(bool vl)
 {
-	//GtkWidget *w;
-	//GtkTargetEntry entry[7];
-
-	/* BM: ??
-	if (!pr) w=frame;
-	else w=widget;
-	*/
-
 	if (vl == _accept_drops)
 		return;
 
 	_accept_drops = vl;
 
 	if (vl)
-	{
 		gtk_drag_dest_set(border, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-		//if (widget != border)
-		//	gtk_drag_dest_set(widget, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-	}
 	else
-	{
 		gtk_drag_dest_unset(border);
-		//if (widget != border)
-		//	gtk_drag_dest_unset(widget);
-	}
 }
 
 /*********************************************************************

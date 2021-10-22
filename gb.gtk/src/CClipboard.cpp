@@ -579,9 +579,9 @@ GB_DESC CDragDesc[] =
   GB_CONSTANT("Text", "i", gDrag::Text),
   GB_CONSTANT("Image", "i", gDrag::Image),
 
-  GB_CONSTANT("Copy", "i", 0),
-  GB_CONSTANT("Link", "i", 1),
-  GB_CONSTANT("Move", "i", 2),
+  GB_CONSTANT("Copy", "i", DRAG_COPY),
+  GB_CONSTANT("Link", "i", DRAG_LINK),
+  GB_CONSTANT("Move", "i", DRAG_MOVE),
 
   GB_STATIC_PROPERTY("Icon", "Picture", Drag_Icon),
   GB_STATIC_PROPERTY("IconX", "i", Drag_IconX),

@@ -372,9 +372,9 @@ gControl *gDrag::drag(gControl *source, GtkTargetList *list)
 	button = gMouse::left() ? 1 : gMouse::middle() ? 2 : gMouse::right() ? 3 : 0;
 
 #if GTK_CHECK_VERSION(3, 10, 0)
-	ct = gtk_drag_begin_with_coordinates(source->border, list, GDK_ACTION_COPY, button, gApplication::lastEvent(), -1, -1);
+	ct = gtk_drag_begin_with_coordinates(source->border, list, GDK_ACTION_MOVE, button, gApplication::lastEvent(), -1, -1);
 #else
-	ct = gtk_drag_begin(source->border, list, GDK_ACTION_COPY, button, gApplication::lastEvent());
+	ct = gtk_drag_begin(source->border, list, GDK_ACTION_MOVE, button, gApplication::lastEvent());
 #endif
 	if (!ct)
 		return NULL;
@@ -486,7 +486,7 @@ void gDrag::setDropData(int action, int x, int y, gControl *source, gControl *de
 void gDrag::setDropText(char *text, int len)
 {
 	#if DEBUG_ME
-		fprintf(stderr, "gDrag::setDropText: text = '%s' %d\n", text, len);
+		fprintf(stderr, "gDrag::setDropText: text = '%s' %d\n", text ? text : "(null)", len);
 	#endif
 
 	g_free(_text);
@@ -547,7 +547,7 @@ GdkDragContext *gDrag::enable(GdkDragContext *context, gControl *control, guint3
 	GdkDragContext *old = _context;
 
 	#if DEBUG_ME
-		fprintf(stderr, "gDrag::enable\n");
+		fprintf(stderr, "gDrag::enable: %p -> %p\n", old, context);
 	#endif
 
 	_enabled++;
@@ -562,7 +562,7 @@ GdkDragContext *gDrag::disable(GdkDragContext *context)
 	GdkDragContext *old = _context;
 
 	#if DEBUG_ME
-		fprintf(stderr, "gDrag::disable\n");
+		fprintf(stderr, "gDrag::disable: %p -> %p\n", old, context);
 	#endif
 
 	_context = context;

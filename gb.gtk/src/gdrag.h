@@ -24,6 +24,8 @@
 #ifndef __GDRAG_H
 #define __GDRAG_H
 
+#include "gb.form.const.h"
+
 class gPicture;
 class gControl;
 
@@ -35,11 +37,6 @@ public:
 		Nothing = 0,
 		Text = 1,
 		Image = 2
-	};
-	enum {
-		Copy = 0,
-		Move = 1,
-		Link = 2
 	};
 	
 	static void exit();

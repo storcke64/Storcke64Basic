@@ -116,5 +116,10 @@ enum {
 	ORIENTATION_VERTICAL = 2
 };
 
+enum {
+	DRAG_MOVE = 0,
+	DRAG_COPY = 1,
+	DRAG_LINK = 2
+};
 
 #endif
