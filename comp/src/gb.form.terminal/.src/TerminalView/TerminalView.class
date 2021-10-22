@@ -4,7 +4,7 @@ Inherits UserControl
 
 Export
 
-Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,CursorStyle{TerminalView.CursorBlock;CursorUnderline;CursorText}=CursorBlock,ShowScrollBar,ShowLink,ReadOnly,WindowCommands"
+Public Const _Properties As String = "*,Border=True,AutoResize=True,Limit=1000,Blink,CursorStyle{TerminalView.Block;Underline;VerticalLine}=Block,ShowScrollBar,ShowLink,ReadOnly,WindowCommands"
 Public Const _DrawWith As String = "-"
 Public Const _Group As String = "View"
 
@@ -87,11 +87,11 @@ Property Read Link As TerminalLink
 Property CursorStyle As Integer
 
 '' Constant for drawing the cursor with a block.
-Public Const CursorBlock As Integer = 0
+Public Const Block As Integer = 0
 '' Constant for drawing the cursor with an underline.
-Public Const CursorUnderline As Integer = 1
+Public Const Underline As Integer = 1
 '' Constant for drawing the cursor with a vertical line.
-Public Const CursorText As Integer = 2
+Public Const VerticalLine As Integer = 2
 
 Static Private $cShortcut As Collection
 
@@ -1873,7 +1873,7 @@ End
 
 Private Sub CursorStyle_Write(Value As Integer)
 
-  If Value < 0 Or If Value > 2 Then Value = CursorBlock
+  If Value < 0 Or If Value > 2 Then Value = Block
   $iCursorStyle = Value
 
 End

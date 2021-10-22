@@ -1234,9 +1234,9 @@ Public Sub Paint(SY As Integer, LH As Integer, CW As Float, LA As Integer, bHide
     
     If L = $Y And If Not bHideCursor And If Not HideCursor Then
       Select Case iCursorStyle
-        Case TerminalView.CursorUnderline
+        Case TerminalView.Underline
           Paint.FillRect($X * CW, Y + LH - 2, CW, 2, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 32))
-        Case TerminalView.CursorText
+        Case TerminalView.VerticalLine
           Paint.FillRect($X * CW, Y, 2, LH, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 32))
         Case Else
           Paint.FillRect($X * CW, Y, CW, LH, Color.SetAlpha(Color.Merge(Color.SelectedBackground, hView.Foreground), 64))
