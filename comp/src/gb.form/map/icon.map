@@ -62,7 +62,7 @@ csv                     $(mime)/text-csv
 cut                     actions/edit-cut
 database                [breeze*]places/network-server-database;apps/office-database
 delete                  actions/edit-delete
-desktop                 places/user-desktop;;preferences/preferences-desktop-theme;apps/preferences-desktop-theme;preferences/preferences-theme;apps/preferences-theme;preferences/preferences-desktop-theme-global;apps/preferences-desktop-theme-global;preferences/preferences-desktop;apps/preferences-desktop
+desktop                 places/user-desktop;;preferences/preferences-theme;apps/preferences-theme;preferences/preferences-desktop;apps/preferences-desktop
 development             categories/applications-development
 difference              #
 directory               places/folder
@@ -223,6 +223,7 @@ people                  [breeze*]actions/user-group-new;preferences/system-users
 percent                 actions/format-number-percent
 phone                   [-breeze*]devices/smartphone;devices/phone;;preferences/preferences-kde-connect
 pin                     actions/pin;actions/view-pin
+pointer                 actions/tools-pointer;;preferences/preferences-desktop-cursors;apps/preferences-desktop-cursors
 play                    actions/media-playback-start
 plane                   places/poi-airport
 plugin                  preferences/preferences-plugin;apps/preferences-plugin;categories/applications-puzzles;apps/preferences-system-sharing
@@ -310,6 +311,7 @@ text-super              actions/format-text-superscript;actions/text-superscript
 text-top                actions/format-align-vertical-top
 text-underline          actions/format-text-underline
 text-upper              actions/format-text-uppercase
+theme                   preferences/preferences-desktop-theme;preferences/preferences-desktop-theme-global;;apps/preferences-desktop-theme;apps/preferences-desktop-theme-global
 tools                   [elementary]categories/applications-development;[breeze*]categories/applications-system;actions/applications-system;categories/applications-system
 top                     actions/go-top
 town                    places/poi-town
@@ -332,7 +334,7 @@ user-group              [-breeze*]actions/user-group-new;apps/system-users
 vector                  $(mime)/image-x-svg+xml;$(mime)/x-office-drawing
 video                   $(mime)/video-x-generic
 view-detail             actions/view-list-details
-view-icon               actions/view-list-icons
+view-icon               actions/view-list-icons;;preferences/preferences-desktop-icons
 view-normal             actions/view-close
 view-preview            actions/view-preview
 view-split-h            actions/view-split-left-right
