@@ -654,7 +654,6 @@ bool CDRAG_drag_move(QWidget *w, CWIDGET *control, QDropEvent *e)
 
 	CDRAG_clear(false);
 	
-	fprintf(stderr, "action = %d\n", e->dropAction());
 	return cancel;
 }
 
@@ -662,7 +661,6 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 {
 	QPoint p;
 
-	fprintf(stderr, "action = %d\n", e->dropAction());
 	//hide_frame();
 
 	if (!GB.CanRaise(control, EVENT_Drop))
