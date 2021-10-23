@@ -173,7 +173,7 @@ Public Sub Run()
     ' Print #hFile, "MainToolbarSizes=16,22,32,48"
     ' Print #hFile, "PanelDefault=22"
     ' Print #hFile, "PanelSizes=16,22,32,48,64,128,256"
-    ' Print #hFile, "FollowsColorScheme=true"
+    Print #hFile, "FollowsColorScheme=true"
     Print #hFile
     
     For Each sDir In aDirectories
