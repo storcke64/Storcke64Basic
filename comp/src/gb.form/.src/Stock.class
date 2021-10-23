@@ -460,6 +460,8 @@ Static Private Sub LoadIcon(sTemplate As String, sFile As String, iSize As Integ
 
   For Each sFile In Split(sFile, ";")
 
+    If Not sFile Then Break
+
     If Left(sFile) = "[" Then
       iPos = InStr(sFile, "]")
       If iPos Then
