@@ -80,10 +80,10 @@ Public Sub Run()
       If iPos = 0 Then Continue
       
       sIcon = Left(sLine, iPos - 1)
-      aTarget = Split(Trim(Mid(sLine, iPos + 1)), ";")
+      aTarget = Split(Trim(Mid(sLine, iPos + 1)), ";", "", True)
       If cMime.Exist(sIcon) Then aTarget.Insert(cMime[sIcon])
   
-      For Each sSize In ["16", "32", "128"]
+      For Each sSize In ["16", "32", "48", "64", "128"]
         
         If sSize = "16" Then
           sIconPath = sStyle &/ "32" &/ sIcon & ".png"
@@ -91,6 +91,12 @@ Public Sub Run()
           hImage = Image.Load(sIconPath).Stretch(16, 16)
           sIconPath = Temp$("image") & ".png"
           hImage.Save(sIconPath)
+        ' Else If sSize = "48" Or If sSize = "64" Then
+        '   sIconPath = sStyle &/ "128" &/ sIcon & ".png"
+        '   If Not Exist(sIconPath) Then Continue
+        '   hImage = Image.Load(sIconPath).Stretch(CInt(sSize), CInt(sSize))
+        '   sIconPath = Temp$("image") & ".png"
+        '   hImage.Save(sIconPath)
         Else
           sIconPath = sStyle &/ sSize &/ sIcon & ".png"
         Endif
@@ -154,20 +160,20 @@ Public Sub Run()
     Print #hFile, "Comment="; String.UCaseFirst(sStyle); " Icon Theme"
     Print #hFile, "Inherits=";
     If sStyle = "gambas" Then
-      Print #hFile, "Papirus"
+      Print #hFile, "Papirus,breeze,gnome,hicolor"
     Else
       Print #hFile, "HighContrast"
     Endif
     Print #hFile, "Directories="; aDirectories.Sort(gb.Natural).Join(",")
     Print #hFile
-    Print #hFile, "DesktopDefault=48"
-    Print #hFile, "ToolbarDefault=16"
-    Print #hFile, "ToolbarSizes=16,22,32,48"
-    Print #hFile, "MainToolbarDefault=16"
-    Print #hFile, "MainToolbarSizes=16,22,32,48"
-    Print #hFile, "PanelDefault=22"
-    Print #hFile, "PanelSizes=16,22,32,48,64,128,256"
-    Print #hFile, "FollowsColorScheme=true"
+    ' Print #hFile, "DesktopDefault=48"
+    ' Print #hFile, "ToolbarDefault=16"
+    ' Print #hFile, "ToolbarSizes=16,22,32,48"
+    ' Print #hFile, "MainToolbarDefault=16"
+    ' Print #hFile, "MainToolbarSizes=16,22,32,48"
+    ' Print #hFile, "PanelDefault=22"
+    ' Print #hFile, "PanelSizes=16,22,32,48,64,128,256"
+    ' Print #hFile, "FollowsColorScheme=true"
     Print #hFile
     
     For Each sDir In aDirectories
@@ -179,6 +185,8 @@ Public Sub Run()
       Select Case sName
         Case "mimetypes"
           Print #hFile, "Context=MimeTypes"
+        Case "apps", "preferences", "applets"
+          Print #hFile, "Context=Applications"
         Case Else
           Print #hFile, "Context="; UCase(Left(sName)); Mid(sName, 2)
       End Select
