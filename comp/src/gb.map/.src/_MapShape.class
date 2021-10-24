@@ -255,7 +255,7 @@ Public Sub Draw()
         If hShape.Image Then
           'Draws centralized
           If hShape.Color <> -1 Then hShape.Image.Colorize(hShape.Color)
-          Paint.DrawImage(hShape.Image, pt.X - hMap.PixelBox.X - hShape.Image.Height / 2, pt.Y - hMap.PixelBox.Y - hShape.Image.width / 2)
+          Paint.DrawImage(hShape.Image, pt.X - hMap.PixelBox.X - hShape.Image.Width / 2, pt.Y - hMap.PixelBox.Y - hShape.Image.Height / 2)
         Else
           'Draws with default "red point" icon offset
           Paint.DrawImage(Me.Image, pt.X - hMap.PixelBox.X - 16, pt.Y - hMap.PixelBox.Y - 32)
