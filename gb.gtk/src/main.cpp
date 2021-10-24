@@ -505,7 +505,7 @@ gboolean hook_timer_function(GB_TIMER *timer)
 				next = 10;
 			id->timeout = next;
 			g_timer_start(t);
-			id->source = g_timeout_add(next, (GSourceFunc)hook_timer_function,(gpointer)timer);
+			id->source = g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, next, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
 			//timer->id = (intptr_t)g_timeout_add(next, (GSourceFunc)hook_timer_function,(gpointer)timer);
 			//fprintf(stderr, "elapsed = %d  delay = %d  next = %d\n", elapsed, timer->delay, next);
 		}
@@ -530,7 +530,7 @@ static void hook_timer(GB_TIMER *timer,bool on)
 		MyTimerId *id = g_new(MyTimerId, 1);
 		id->timer = g_timer_new();
 		id->timeout = timer->delay;
-		id->source = (intptr_t)g_timeout_add(timer->delay,(GSourceFunc)hook_timer_function,(gpointer)timer);
+		id->source = (intptr_t)g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, timer->delay, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
 		timer->id = (intptr_t)id;
 		return;
 	}

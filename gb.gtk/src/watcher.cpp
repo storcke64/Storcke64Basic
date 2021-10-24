@@ -131,7 +131,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			data->channel_read = g_io_channel_unix_new(fd);
 			g_io_channel_set_encoding(data->channel_read, NULL, NULL);
 			g_io_channel_set_buffered(data->channel_read, FALSE);
-			data->id_read = g_io_add_watch_full(data->channel_read, G_PRIORITY_DEFAULT, G_IO_IN, watch_adaptor, (void*)data, NULL);
+			data->id_read = g_io_add_watch_full(data->channel_read, G_PRIORITY_DEFAULT_IDLE, G_IO_IN, watch_adaptor, (void*)data, NULL);
 #if DEBUG_ME
 			fprintf(stderr, "add watch on fd %d for read (%p)\n", fd, data->channel_read);
 #endif
@@ -143,7 +143,7 @@ void CWatcher::Add(int fd, int type, void *callback, intptr_t param)
 			data->channel_write = g_io_channel_unix_new(fd);
 			g_io_channel_set_encoding(data->channel_write, NULL, NULL);
 			g_io_channel_set_buffered(data->channel_write, FALSE);
-			data->id_write = g_io_add_watch_full(data->channel_write, G_PRIORITY_DEFAULT, G_IO_OUT, watch_adaptor, (void*)data, NULL);
+			data->id_write = g_io_add_watch_full(data->channel_write, G_PRIORITY_DEFAULT_IDLE, G_IO_OUT, watch_adaptor, (void*)data, NULL);
 #if DEBUG_ME
 			fprintf(stderr, "add watch on fd %d for write (%p)\n", fd, data->channel_write);
 #endif
