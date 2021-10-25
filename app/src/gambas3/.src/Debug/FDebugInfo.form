@@ -22,7 +22,7 @@
     Index = 0
     Text = ("Debugging")
     { panDebug VBox
-      MoveScaled(0,3,137,40)
+      MoveScaled(0,3,134,40)
       Expand = True
       { splDebug HSplit
         MoveScaled(1,1,127,32)
@@ -446,6 +446,7 @@
       Border = False
       Limit = 65536
       Blink = True
+      CursorStyle = TerminalView.Underline
       ShowLink = True
       ReadOnly = True
     }

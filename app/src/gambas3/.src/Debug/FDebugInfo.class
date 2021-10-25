@@ -1273,6 +1273,31 @@ Public Sub btnRemoveAllBreakpoint_Click()
   
 End
 
+Private Sub RefreshVariable()
+
+  Dim sRoot As String
+  Dim hTree As ColumnView
+
+  For Each sRoot In ["^", "~"]
+    
+    hTree = If(sRoot = "^", cvwObject, hTree)
+
+    If Not hTree.MoveTo(sRoot) Then
+      If hTree.Item.Expanded Then
+        If Not hTree.MoveChild() Then
+          Repeat
+            With hTree.Item
+              Design.Command("&V" & .Key & "\t" & .Text)
+            End With
+          Until hTree.MoveNext()
+        Endif
+      Endif
+    Endif
+    
+  Next
+
+End
+
 Public Sub DefineVariable(sLocal As String, sObject As String)
   
   Dim aLocal As String[]
@@ -1370,14 +1395,7 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
   
   If wizDebug.Index <> TAB_DEBUG Then Return
   
-  For Each sVar In aObject
-    If Right(sVar) = ":" Then Continue
-    Design.Command("&V^" & sVar & "\t" & sVar)
-  Next
-  
-  For Each sVar In aLocal
-    Design.Command("&V~" & sVar & "\t" & sVar)
-  Next
+  RefreshVariable
   
 End
 
@@ -1883,3 +1901,9 @@ Public Sub btnVcChanges_Click()
 
 End
 
+
+Public Sub cvwVariable_Expand()
+
+  RefreshVariable
+
+End

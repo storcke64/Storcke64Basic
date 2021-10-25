@@ -60,6 +60,8 @@ Private $sRemoteLink As String
 Private $hTimerRemote As Timer
 Private $hTimerWatch As Timer
 
+Private $sBuffer As String
+
 Public Sub Init()
  
   $sFifo = Debug.Begin()
@@ -270,9 +272,16 @@ Public Sub Debug_Read(Data As String)
   Dim sVar As String
   Dim sError As String
   Dim sWhere As String
+  Dim iPos As Integer
 
-  If Not Data Then Return 
+  'Debug Quote(Data)
+  $sBuffer &= Data
+  iPos = InStr($sBuffer, "\n") 
+  If iPos = 0 Then Return
   
+  Data = Left($sBuffer, iPos - 1)
+  $sBuffer = Mid$($sBuffer, iPos + 1)
+
   If Data = "!" Then 
     Signal
     Return 
@@ -282,7 +291,6 @@ Public Sub Debug_Read(Data As String)
     Return
   Endif
   
-  'Debug Data
   aData = Split(Data, "\t")
   
   Select Left$(aData[0])

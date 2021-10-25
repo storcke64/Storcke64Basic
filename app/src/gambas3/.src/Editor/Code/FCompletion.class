@@ -1124,8 +1124,7 @@ End
 Public Sub gvwComp_Select()
 
   If Not $bShowHelp Then Return
-  timHelp.Stop
-  timHelp.Start
+  timHelp.Restart
   
 Catch
   
