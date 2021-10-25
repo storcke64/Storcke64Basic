@@ -241,18 +241,23 @@ DEBUG_INFO *DEBUG_init(GB_DEBUG_INTERFACE *debug, bool fifo, const char *fifo_na
 		
 		snprintf(path, sizeof(path), "%sin", fifo_name);
 		
-		_fdw = open(path, O_WRONLY | O_CLOEXEC);
-		if (_fdw < 0)
+		for(;;)
 		{
-			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
-			return NULL;
+			_fdw = open(path, O_WRONLY | O_CLOEXEC);
+			if (_fdw >= 0)
+				break;
+			if (errno != EAGAIN && errno != EINTR)
+			{
+				fprintf(stderr, "gb.debug: unable to open input fifo: %s: %s\n", strerror(errno), path);
+				return NULL;
+			}
 		}
 		
 		_out = fdopen(_fdw, "w");
 
 		if (!_out)
 		{
-			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
+			fprintf(stderr, "gb.debug: unable to create stream on input fifo: %s: %s\n", strerror(errno), path);
 			return NULL;
 		}
 	}
@@ -715,7 +720,7 @@ static void debug_info()
 			fprintf(_out, "%d ", watch->id);
 	}
 	
-	fprintf(_out, "\n");
+	fputc('\n', _out);
 }
 
 
@@ -877,7 +882,7 @@ __END:
 	DEBUG_info = save_debug; //.cp = NULL;
 	GB_DEBUG.RestoreError(&save_error, &save_last);
 	
-	fprintf(out, "\n");
+	fputc('\n', out);
 	fflush(out);
 }
 
@@ -1011,7 +1016,7 @@ static void command_symbol(char *cmd)
 	start++;
 	PRINT_symbol(_out, &cmd[start], len - start);
 	
-	fprintf(_out, "\n");
+	fputc('\n', _out);
 	fflush(_out);
 	
 	DEBUG_info = save_debug;
@@ -1265,18 +1270,24 @@ static void open_read_fifo()
 	{
 		snprintf(path, sizeof(path), "%sout", DEBUG_fifo);
 		
-		_fdr = open(path, O_RDONLY | O_CLOEXEC);
-		if (_fdr < 0)
+		for(;;)
 		{
-			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
-			return;
+			_fdr = open(path, O_RDONLY | O_CLOEXEC);
+			if (_fdr >= 0)
+				break;
+			if (errno != EAGAIN && errno != EINTR)
+			{
+				fprintf(stderr, "gb.debug: unable to open output fifo: %s: %s\n", strerror(errno), path);
+				return;
+			}
+			usleep(20000);
 		}
 		
 		_in = fdopen(_fdr, "r");
 
 		if (!_in)
 		{
-			fprintf(stderr, "gb.debug: %s: %s\n", strerror(errno), path);
+			fprintf(stderr, "gb.debug: unable to open stream on output fifo: %s: %s\n", strerror(errno), path);
 			return;
 		}
 

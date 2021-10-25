@@ -50,7 +50,7 @@ static int _level;
 
 static void print_value(VALUE *value);
 
-static void print_string(const char *s, int len)
+static void print_string(const char *s, int len, bool limited)
 {
 	int i;
 	uchar c;
@@ -59,7 +59,7 @@ static void print_string(const char *s, int len)
 
 	for (i = 0; i < len; i++)
 	{
-		if (i > (DEBUG_OUTPUT_MAX_SIZE - 8))
+		if (limited && i > (DEBUG_OUTPUT_MAX_SIZE - 8))
 		{
 			fprintf(_where, "...");
 			break;
@@ -233,7 +233,7 @@ __PRINT:
 
 __STRING:
 
-	print_string(value->_string.addr + value->_string.start, value->_string.len);
+	print_string(value->_string.addr + value->_string.start, value->_string.len, TRUE);
 	goto __RETURN;
 
 __OBJECT:
@@ -292,18 +292,17 @@ void PRINT_value(FILE *where, VALUE *value, bool format)
 	char *pval;
 	int lpval;
 
+	_where = where;
+	
 	if (format)
 	{
-		_where = where;
 		_level = 0;
 		print_value(value);
-		//fputc('\n', _where);
 	}
 	else
 	{
 		GB_DEBUG.ToString((GB_VALUE *)value, &pval, &lpval);
-		print_string(pval, lpval);
-		//fwrite(pval, sizeof(char), lpval, where);
+		print_string(pval, lpval, FALSE);
 	}
 }
 
@@ -327,7 +326,7 @@ void PRINT_symbol(FILE *where, const char *sym, int len)
 static void print_key(char *key, int len)
 {
 	fprintf(_where, " ");
-	print_string(key, len);
+	print_string(key, len, TRUE);
 }
 
 void PRINT_object(FILE *where, VALUE *value)

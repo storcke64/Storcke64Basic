@@ -49,6 +49,27 @@ static CDEBUG *_debug_object = NULL;
 static char *_buffer = NULL;
 static int _buffer_left;
 
+#if 0
+static void callback_read(int fd, int type, intptr_t param)
+{
+	int n;
+	
+	fcntl(_fdr, F_SETFL, fcntl(_fdr, F_GETFL) | O_NONBLOCK);
+
+	n = read(_fdr, _buffer, 4096);
+	if (n > 0)
+	{
+		GB.Raise(_debug_object, EVENT_Read, 1, GB_T_STRING, _buffer, n);
+	}
+	else
+	{
+		if (n == 0 || (errno != EINTR && errno != EAGAIN))
+			GB.Watch(fd, GB_WATCH_NONE, (void *)callback_read, 0);
+	}
+	
+	fcntl(_fdr, F_SETFL, fcntl(_fdr, F_GETFL) & ~O_NONBLOCK);
+}
+#endif
 
 static void callback_read(int fd, int type, intptr_t param)
 {
@@ -85,7 +106,7 @@ static void callback_read(int fd, int type, intptr_t param)
 			if (_buffer[i] == '\n')
 			{
 				/*fprintf(stderr, "CDEBUG_read: <<< %.*s >>>\n", i - p, &_buffer[p]);*/
-				GB.Raise(_debug_object, EVENT_Read, 1, GB_T_STRING, i <= p ? NULL : &_buffer[p], i - p);
+				GB.Raise(_debug_object, EVENT_Read, 1, GB_T_STRING, i <= p ? NULL : &_buffer[p], i - p + 1);
 				if (!_buffer)
 					break;
 				p = i + 1;
@@ -113,6 +134,7 @@ static void callback_read(int fd, int type, intptr_t param)
 	fcntl(_fdr, F_SETFL, fcntl(_fdr, F_GETFL) & ~O_NONBLOCK);
 }
 
+
 static char *fifo_path(char *path, const char *direction)
 {
 	sprintf(path, DEBUG_FIFO_PATTERN, getuid(), getpid(), direction ? direction : "");
@@ -126,10 +148,12 @@ static void open_write_fifo()
 	
 	fifo_path(path, "out");
 	
-	for (i = 0; i < 1; i++)
+	for(i = 0; i < 4; i++)
 	{
 		_fdw = open(path, O_WRONLY);
 		if (_fdw >= 0)
+			break;
+		if (errno != EAGAIN && errno != EINTR)
 			break;
 		usleep(20000);
 	}
