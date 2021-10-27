@@ -75,6 +75,8 @@ Public Sub _new()
   
   splDebug.MinSize = Desktop.Scale * 24
   
+  lblError.Padding = Desktop.Scale \ 2
+  
   ReadConfig
   'UpdateLocal
   
@@ -363,8 +365,6 @@ Public Sub ReadConfig()
   
   cmbWatch_Change
   Project.SetEditorFont(lblError)
-  panError.H = lblError.Font.Height + Desktop.Scale
-  picError.W = panError.H
   picError.Padding = Desktop.Scale \ 2
   
   FDebugButton.ReadConfig
@@ -977,10 +977,12 @@ Public Sub OnProjectChange()
 End
 
 Public Sub ShowError(sMsg As String)
-  
-  lblError.Text = sMsg
+
   panError.Show
   sepError.Show
+
+  lblError.Text = sMsg
+  panDebug_Arrange
 
   If Not Me.Visible Then
     sMsg = Replace(sMsg, "\n", "<br>")
@@ -1280,7 +1282,7 @@ Private Sub RefreshVariable()
 
   For Each sRoot In ["^", "~"]
     
-    hTree = If(sRoot = "^", cvwObject, hTree)
+    hTree = If(sRoot = "^", cvwObject, cvwVariable)
 
     If Not hTree.MoveTo(sRoot) Then
       If hTree.Item.Expanded Then
@@ -1464,6 +1466,8 @@ Public Sub OnProjectDebug()
   $sLastLocal = ""
   $sLastObject = ""
   If Settings["/ShowDebugPanelAutomatically", True] Then FDebugButton.SelectButton(TAB_CONSOLE)
+  lblError.Text = ""
+  lblError.Adjust
   panError.Hide
   sepError.Hide
   
@@ -1905,5 +1909,13 @@ End
 Public Sub cvwVariable_Expand()
 
   RefreshVariable
+
+End
+
+Public Sub panDebug_Arrange()
+
+  lblError.H = lblError.Font.H + Desktop.Scale
+  lblError.Adjust
+  panError.H = lblError.H
 
 End
