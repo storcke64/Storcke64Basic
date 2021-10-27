@@ -1,0 +1,9 @@
+' Gambas class file
+
+Inherits _HtmlDocument
+
+Public Sub CreateFont(sName As String, iSize As Integer, bBold As Boolean, bItalic As Boolean, bUnderline As Boolean, bStrikeout As Boolean) As _HtmlDocumentFont
+  
+  hFont = New _HtmlDocumentFont
+  
+End

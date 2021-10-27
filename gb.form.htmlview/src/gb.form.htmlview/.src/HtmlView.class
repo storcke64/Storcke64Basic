@@ -1,0 +1,13 @@
+' Gambas class file
+
+Export
+
+Inherits UserControl
+
+Private $hDoc As _HtmlDocument
+
+Public Sub _new()
+  
+  $hDoc = New _HtmlDocument
+  
+End
