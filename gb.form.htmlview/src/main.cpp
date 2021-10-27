@@ -29,15 +29,14 @@
 #include "main.h"
 
 extern "C" {
+
 const GB_INTERFACE *GB_PTR EXPORT;
-extern GB_INTERFACE DRAW;
-extern GB_INTERFACE GEOM;
-extern GB_INTERFACE IMAGE;
-}
+GB_INTERFACE DRAW;
+GB_INTERFACE GEOM;
+GB_INTERFACE IMAGE;
 
 GB_DESC *GB_CLASSES[] EXPORT =
 {
-	HtmlDocumentFontDesc,
 	HtmlDocumentDesc,
 	NULL
 };
@@ -57,3 +56,4 @@ void EXPORT GB_EXIT()
 {
 }
 
+}

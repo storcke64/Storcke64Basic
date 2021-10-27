@@ -2,8 +2,57 @@
 
 Inherits _HtmlDocument
 
-Public Sub CreateFont(sName As String, iSize As Integer, bBold As Boolean, bItalic As Boolean, bUnderline As Boolean, bStrikeout As Boolean) As _HtmlDocumentFont
+Event _Fake
+
+Property Read DefaultFont As Font
+
+Private Sub GetView() As HtmlView
   
-  hFont = New _HtmlDocumentFont
+  Return Object.Parent(Me)
+  
+End
+
+
+' Public Sub CreateFont(sName As String, iSize As Integer, bBold As Boolean, bItalic As Boolean, bUnderline As Boolean, bStrikeout As Boolean) As _HtmlDocumentFont
+' 
+'   Dim hDocFont As _HtmlDocumentFont
+'   Dim hFont As Font
+'   
+'   hFont = New Font
+'   hFont.Name = sName
+'   hFont.Size = iSize
+'   hFont.Bold = bBold
+'   hFont.Italic = bItalic
+'   hFont.Underline = bUnderline
+'   hFont.Strikeout = bStrikeout
+'   
+'   hDocFont = New _HtmlDocumentFont
+'   hDocFont.Font = hFont
+'   hDocFont.Ascent = hFont.Ascent
+'   hDocFont.Descent = hFont.Descent
+'   hDocFont.Height = hFont.Height
+'   hDocFont.XHeight = hFont.TextHeight("x")
+'   
+'   Return hDocFont
+'   
+' End
+
+Private Function DefaultFont_Read() As Font
+
+  Return GetView().Font
+
+End
+
+Public Sub DrawText(sText As String, hFont As Font, iCol As Integer, X As Integer, Y As Integer)
+  
+  Paint.Background = iCol
+  Paint.Font = hFont
+  Paint.DrawText(sText, X, Y + hFont.Ascent)
+  
+End
+
+Public Sub PtToPx(iPt As Integer) As Integer
+  
+  Return iPt * Desktop.Resolution / 72
   
 End

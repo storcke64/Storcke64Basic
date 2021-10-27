@@ -43,10 +43,11 @@ private:
 	
 	litehtml::context *m_html_context;
 	litehtml::document::ptr m_html;
-	int m_render_w;
-	
 	bool _valid;
-	GB_FUNCTION _func_create_font;
+	int m_client_w;
+	int m_client_h;
+	
+	GB_FUNCTION _func_draw_text;
 
 public:
 	
@@ -57,8 +58,10 @@ public:
 	
 	bool isValid() const { return _valid; }
 	bool load(const char *html);
-	void refresh();
-	void draw(int x, int y, int w, int h, int sx, int sy, int cw, int ch);
+	bool render(int w, int h);
+	void draw(int x, int y, int w, int h);
+	int getWidth() const;
+	int getHeight() const;
 	
 protected:
 	
@@ -98,11 +101,12 @@ html_document::html_document(litehtml::context *html_context, void *object)
 {
 	m_html_context = html_context;
 	m_html = NULL;
-	m_render_w = 0;
+	m_client_w = 0;
+	m_client_h = 0;
 	_object = object;
 	_valid = false;
 	
-	GB.GetFunction(&_func_create_font, THIS, "CreateFont", "sibbbb", "_HtmlDocumentFont")
+	GB.GetFunction(&_func_draw_text, THIS, "DrawText", "sFont;iii", NULL)
 	|| (_valid = true);
 	
 }
@@ -111,7 +115,18 @@ html_document::~html_document()
 {
 }
 
-void html_document::draw(int x, int y, int w, int h, int sx, int sy, int cw, int ch)
+bool html_document::render(int w, int h)
+{
+	if (!m_html)
+		return true;
+	
+	m_html->render(w);
+	m_client_w = w;
+	m_client_h = h;
+	return false;
+}
+
+void html_document::draw(int x, int y, int w, int h)
 {
 	if (!m_html)
 		return;
@@ -122,49 +137,77 @@ void html_document::draw(int x, int y, int w, int h, int sx, int sy, int cw, int
 	pos.width = w;
 	pos.height = h;
 	
-	if (cw != m_render_w)
-	{
-		m_html->render(cw);
-		m_render_w = cw;
-	}
+	m_client_h = h;
 	
 	m_html->draw((litehtml::uint_ptr)this, 0, 0, &pos);
 }
 
-void html_document::refresh()
+int html_document::getWidth() const
 {
-	m_render_w = 0;
+	return m_html ? m_html->width() : 0;
+}
+
+int html_document::getHeight() const
+{
+	return m_html ? m_html->height() : 0;
 }
 
 bool html_document::load(const char *html)
 {
-	m_html = litehtml::document::createFromString(html, this, m_html_context);
+	m_html = litehtml::document::createFromUTF8(html, this, m_html_context);
+	m_client_w = 0;
+	m_client_h = 0;
 	return (m_html == NULL);
 }
 
 litehtml::uint_ptr html_document::create_font(const litehtml::tchar_t* faceName, int size, int weight, litehtml::font_style italic, unsigned int decoration, litehtml::font_metrics* fm)
 {
+	GB_FUNCTION func;
 	GB_VALUE *ret;
-	CHTMLDOCUMENTFONT *html_font;
+	GB_VALUE val;
 	void *font;
 	
-	GB.Push(6,
-		GB_T_STRING, faceName, strlen(faceName),
-		GB_T_INTEGER, size,
-		GB_T_BOOLEAN, weight >= 550,
-		GB_T_BOOLEAN, italic == litehtml::fontStyleItalic,
-		GB_T_BOOLEAN, !!(decoration & litehtml::font_decoration_linethrough),
-		GB_T_BOOLEAN, !!(decoration & litehtml::font_decoration_underline)
-	);
+	font = GB.New(GB.FindClass("Font"), NULL, NULL);
 	
-	ret = GB.Call(&_func_create_font, 6, FALSE);
-	html_font = (CHTMLDOCUMENTFONT *)ret->_object.value;
+	val.type = GB_T_CSTRING;
+	val._string.value.addr = (char *)faceName;
+	val._string.value.start = 0;
+	val._string.value.len = strlen(faceName);
+	GB.SetProperty(font, "Name", &val);
 	
-	fm->ascent = html_font->ascent;
-	fm->descent = html_font->descent;
-	fm->height = html_font->height;
-	fm->x_height = html_font->x_height;
-	font = html_font->font;
+	val.type = GB_T_FLOAT;
+	val._float.value = size;
+	GB.SetProperty(font, "Size", &val);
+	
+	val.type = GB_T_BOOLEAN;
+	val._boolean.value = weight >= 550;
+	GB.SetProperty(font, "Bold", &val);
+	
+	val.type = GB_T_BOOLEAN;
+	val._boolean.value = italic == litehtml::fontStyleItalic;
+	GB.SetProperty(font, "Italic", &val);
+	
+	val.type = GB_T_BOOLEAN;
+	val._boolean.value = !!(decoration & litehtml::font_decoration_underline);
+	GB.SetProperty(font, "Underline", &val);
+	
+	val.type = GB_T_BOOLEAN;
+	val._boolean.value = !!(decoration & litehtml::font_decoration_linethrough);
+	GB.SetProperty(font, "Strikeout", &val);
+	
+	ret = GB.GetProperty(font, "Ascent");
+	fm->ascent = ret->_integer.value;
+	
+	ret = GB.GetProperty(font, "Descent");
+	fm->descent = ret->_integer.value;
+	
+	ret = GB.GetProperty(font, "Height");
+	fm->height = ret->_integer.value;
+	
+	GB.GetFunction(&func, font, "TextHeight", "s", "i");
+	GB.Push(1, GB_T_STRING, "x", 1);
+	ret = GB.Call(&func, 1, FALSE);
+	fm->x_height = ret->_integer.value;
 	
 	GB.Ref(font);
 	return (litehtml::uint_ptr)font;
@@ -177,22 +220,53 @@ void html_document::delete_font(litehtml::uint_ptr hFont)
 
 int html_document::text_width(const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
+	GB_VALUE *ret;
+	GB_FUNCTION func;
+	GB.GetFunction(&func, hFont, "TextWidth", "s", "i");
+	GB.Push(1, GB_T_STRING, text, strlen(text));
+	ret = GB.Call(&func, 1, FALSE);
+	return ret->_integer.value;
 }
 
 void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* text, litehtml::uint_ptr hFont, litehtml::web_color color, const litehtml::position& pos)
 {
+	GB.Push(5,
+		GB_T_STRING, text, strlen(text),
+		GB_T_OBJECT, hFont,
+		GB_T_INTEGER, GB_COLOR_MAKE(color.red, color.green, color.blue, color.alpha),
+		GB_T_INTEGER, pos.x,
+		GB_T_INTEGER, pos.y);
+	GB.Call(&_func_draw_text, 5, TRUE);
 }
 
 int html_document::pt_to_px(int pt)
 {
+	GB_VALUE *ret;
+	GB_FUNCTION func;
+	GB.GetFunction(&func, THIS, "PtToPx", "i", "i");
+	GB.Push(1, GB_T_INTEGER, pt);
+	ret = GB.Call(&func, 1, FALSE);
+	return ret->_integer.value;
 }
 
 int html_document::get_default_font_size() const
 {
+	GB_VALUE *ret;
+	
+	ret = GB.GetProperty(THIS, "DefaultFont");
+	void *font = ret->_object.value;
+	ret = GB.GetProperty(font, "Size");
+	return (int)ret->_float.value;
 }
 
 const litehtml::tchar_t* html_document::get_default_font_name() const
 {
+	GB_VALUE *ret;
+	
+	ret = GB.GetProperty(THIS, "DefaultFont");
+	void *font = ret->_object.value;
+	ret = GB.GetProperty(font, "Name");
+	return GB.ToZeroString((GB_STRING *)ret);
 }
 
 void html_document::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::list_marker& marker)
@@ -253,10 +327,15 @@ void html_document::del_clip()
 
 void html_document::get_client_rect(litehtml::position& client) const
 {
+	client.x = 0;
+	client.y = 0;
+	client.width = m_client_w;
+	client.height = m_client_h;
 }
 
 std::shared_ptr<litehtml::element> html_document::create_element(const litehtml::tchar_t *tag_name, const litehtml::string_map &attributes, const std::shared_ptr<litehtml::document> &doc)
 {
+	return NULL;
 }
 
 void html_document::get_media_features(litehtml::media_features& media) const
@@ -302,66 +381,31 @@ BEGIN_METHOD(HtmlDocument_Load, GB_STRING html)
 
 END_METHOD
 
-BEGIN_METHOD(HtmlDocument_Draw, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h; GB_INTEGER sx; GB_INTEGER sy; GB_INTEGER cw; GB_INTEGER ch)
+BEGIN_METHOD(HtmlDocument_Render, GB_INTEGER w; GB_INTEGER h)
 
-	THIS->doc->draw(VARG(x), VARG(y), VARG(w), VARG(h), VARG(sx), VARG(sy), VARG(cw), VARG(ch));
-
-END_METHOD
-
-BEGIN_METHOD_VOID(HtmlDocument_Refresh)
-
-	THIS->doc->refresh();
+	THIS->doc->render(VARG(w), VARG(h));
 
 END_METHOD
 
-//-------------------------------------------------------------------------
+BEGIN_METHOD(HtmlDocument_Draw, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h)
 
-BEGIN_METHOD_VOID(HtmlDocumentFont_free)
-
-	GB.Unref(&THIS_FONT->font);
+	THIS->doc->draw(VARG(x), VARG(y), VARG(w), VARG(h));
 
 END_METHOD
 
-BEGIN_PROPERTY(HtmlDocumentFont_Font)
+BEGIN_PROPERTY(HtmlDocument_Width)
 
-	if (READ_PROPERTY)
-		GB.ReturnObject(THIS_FONT->font);
-	else
-		GB.StoreObject(PROP(GB_OBJECT), &THIS_FONT->font);
+	GB.ReturnInteger(THIS->doc->getWidth());
 
 END_PROPERTY
 
-#define IMPLEMENT_FONT_PROPERTY(_name, _prop) \
-BEGIN_PROPERTY(HtmlDocumentFont_##_name) \
- \
-	if (READ_PROPERTY) \
-		GB.ReturnInteger(THIS_FONT->_prop); \
-	else \
-		THIS_FONT->_prop = VPROP(GB_INTEGER); \
- \
+BEGIN_PROPERTY(HtmlDocument_Height)
+
+	GB.ReturnInteger(THIS->doc->getHeight());
+
 END_PROPERTY
 
-IMPLEMENT_FONT_PROPERTY(Ascent, ascent)
-IMPLEMENT_FONT_PROPERTY(Descent, descent)
-IMPLEMENT_FONT_PROPERTY(Height, height)
-IMPLEMENT_FONT_PROPERTY(XHeight, x_height)
-
 //-------------------------------------------------------------------------
-
-GB_DESC HtmlDocumentFontDesc[] = 
-{
-	GB_DECLARE("_HtmlDocumentFont", sizeof(CHTMLDOCUMENTFONT)),
-	
-	GB_METHOD("_free", NULL, HtmlDocumentFont_free, NULL),
-						 
-	GB_PROPERTY("Font", "Font", HtmlDocumentFont_Font),
-	GB_PROPERTY("Ascent", "i", HtmlDocumentFont_Ascent),
-	GB_PROPERTY("Descent", "i", HtmlDocumentFont_Descent),
-	GB_PROPERTY("Height", "i", HtmlDocumentFont_Height),
-	GB_PROPERTY("XHeight", "i", HtmlDocumentFont_XHeight),
-	
-	GB_END_DECLARE
-};
 
 GB_DESC HtmlDocumentDesc[] = 
 {
@@ -371,8 +415,13 @@ GB_DESC HtmlDocumentDesc[] =
 	GB_METHOD("_free", NULL, HtmlDocument_free, NULL),
 	
 	GB_METHOD("Load", NULL, HtmlDocument_Load, "(Html)s"),
-	GB_METHOD("Draw", NULL, HtmlDocument_Draw, "(X)i(Y)i(Width)i(Height)i(ScrollX)i(ScrollY)i(ClientW)i(ClientH)i"),
-	GB_METHOD("Refresh", NULL, HtmlDocument_Refresh, NULL),
+	GB_METHOD("Render", NULL, HtmlDocument_Render, "(Width)i(Height)i"),
+	GB_METHOD("Draw", NULL, HtmlDocument_Draw, "(X)i(Y)i(Width)i(Height)i"),
+	
+	GB_PROPERTY_READ("Width", "i", HtmlDocument_Width),
+	GB_PROPERTY_READ("W", "i", HtmlDocument_Width),
+	GB_PROPERTY_READ("Height", "i", HtmlDocument_Height),
+	GB_PROPERTY_READ("H", "i", HtmlDocument_Height),
 						 
 	GB_END_DECLARE
 };

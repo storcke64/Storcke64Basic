@@ -41,30 +41,17 @@ class html_document;
 typedef
 	struct {
 		GB_BASE ob;
-		void *font;
-		int ascent;
-		int descent;
-		int height;
-		int x_height;
-	}
-	CHTMLDOCUMENTFONT;
-	
-typedef
-	struct {
-		GB_BASE ob;
 		html_document *doc;
 	}
 	CHTMLDOCUMENT;
 
 #ifndef __C_HTMLDOCUMENT_CPP
 
-extern GB_DESC HtmlDocumentFontDesc[];
 extern GB_DESC HtmlDocumentDesc[];
 
 #else
 
 #define THIS ((CHTMLDOCUMENT *)_object)
-#define THIS_FONT ((CHTMLDOCUMENTFONT *)_object)
 
 #endif
 

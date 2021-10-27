@@ -4,10 +4,30 @@ Export
 
 Inherits UserControl
 
-Private $hDoc As _HtmlDocument
+Public Const _Properties As String = "*"
+
+Private $hDoc As HtmlDocument
+Private $hView As ScrollArea
 
 Public Sub _new()
   
-  $hDoc = New _HtmlDocument
+  $hView = New ScrollArea(Me) As "View"
+  
+  $hDoc = New HtmlDocument As "HtmlDocument"
+  $hDoc.Load(File.Load("test.html"))
+  
+End
+
+Public Sub View_Resize()
+  
+  $hDoc.Render($hView.ClientW, $hView.ClientH)
+  $hView.ResizeContents($hDoc.W, $hDoc.H)
+  
+End
+
+Public Sub View_Draw()
+
+  Paint.Translate(-$hView.ScrollX, -$hView.ScrollY)
+  $hDoc.Draw($hView.ScrollX, $hView.ScrollY, $hView.ClientW, $hView.ClientH)
   
 End
