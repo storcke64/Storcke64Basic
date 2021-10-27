@@ -593,7 +593,7 @@ Public Sub GetItemsFromBounds(hBounds As MapBounds) As _ShapeItem[]
   Dim aShapes As New _ShapeItem[]
   Dim i As Integer
   
-  If MapPoint.Distance(hBounds.TopLeft, hBounds.BottomRight) > 1000000 Then Stop 
+  'If MapPoint.Distance(hBounds.TopLeft, hBounds.BottomRight) > 1000000 Then Stop 
   For i = 0 To $aShapes.Max
     hShape = $aShapes[i]
     If hBounds.Contain(hShape.Bounds) Then
