@@ -41,7 +41,7 @@ Private $hImage As Image                  '' Stores user defined default by Prop
 Public Sub _new(Parent As Object)
 
   Object.Attach(Me, Parent, "Layer")
- ' $hImgPoint = Image.Load("point.png")
+  ' $hImgPoint = Image.Load("point.png")
 
 End
 
@@ -58,7 +58,7 @@ Public Sub _Load()
       If pt2.x - pt1.x < 2 And If pt2.y - pt1.y < 2 Then Continue
     Endif
     With $aShapes[i].Bounds
-      If .Lon2 > hMap.Bounds.Lon Then 
+      If .Lon2 > hMap.Bounds.Lon Then
         If .lon < hMap.Bounds.lon2
           If .lat2 < hMap.Bounds.Lat Then
             If .Lat > hMap.Bounds.Lat2 Then
@@ -334,6 +334,7 @@ End
 Public Function _get(Key As String) As _ShapeItem
 
   Dim iRet As Integer
+
   iRet = $aShapeNames.Find(key)
   If iRet = -1 Then
     Return Null
@@ -345,9 +346,9 @@ End
 
 ' '' Returns associated Map
 ' Private Function GetMap() As Map
-'   
+'
 '   Return Object.Parent(Me)
-'   
+'
 ' End
 
 Private Function Color_Read() As Integer
@@ -365,28 +366,30 @@ End
 '' Wrapper to MapPoint.GetCenter() since I dont want to break anything :-D
 '' - See MapPoint.GetCenter()
 Static Public Function GetCenter(hPoints As MapPoint[]) As MapPoint
+
   Return MapPoint.GetCenter(hPoints)      'just a jump...
-'   'TODO: testar essa função, comportamento estranho. considerar mover para dentro da classe MapPoint
-'   Dim tmpA, A, Gx, Gy As Float
-'   Dim j As Integer
-'   'calcul du centre
-'   A = 0
-'   gx = 0
-'   Gy = 0
-'   For k As Integer = 0 To hPoints.Max
-'     j = IIf(k + 1 <= hPoints.Max, k + 1, 0)
-'     tmpA = (hPoints[k].Lon * hPoints[j].Lat) - (hPoints[j].Lon * hPoints[k].Lat)
-'     A += tmpA
-'     Gx += tmpA * (hPoints[k].Lon + hPoints[j].Lon)
-'     Gy += tmpA * (hPoints[k].Lat + hPoints[j].Lat)
-'   Next
-'   A = A / 2
-'   gx = gx / (6 * A) 
-'   gy = gy / (6 * A) 
-' 
-'   Return MapPoint(GY, GX)
-' Catch
-' 
+  '   'TODO: testar essa função, comportamento estranho. considerar mover para dentro da classe MapPoint
+  '   Dim tmpA, A, Gx, Gy As Float
+  '   Dim j As Integer
+  '   'calcul du centre
+  '   A = 0
+  '   gx = 0
+  '   Gy = 0
+  '   For k As Integer = 0 To hPoints.Max
+  '     j = IIf(k + 1 <= hPoints.Max, k + 1, 0)
+  '     tmpA = (hPoints[k].Lon * hPoints[j].Lat) - (hPoints[j].Lon * hPoints[k].Lat)
+  '     A += tmpA
+  '     Gx += tmpA * (hPoints[k].Lon + hPoints[j].Lon)
+  '     Gy += tmpA * (hPoints[k].Lat + hPoints[j].Lat)
+  '   Next
+  '   A = A / 2
+  '   gx = gx / (6 * A)
+  '   gy = gy / (6 * A)
+  '
+  '   Return MapPoint(GY, GX)
+  ' Catch
+  '
+
 End
 
 Private Function GetPointBounds(hMapPoints As MapPoint[]) As MapBounds
@@ -418,6 +421,7 @@ End
 Public Function Remove(Key As String) As Boolean
 
   Dim iRet As Integer
+
   iRet = $aShapeNames.Find(key)
   If iRet = -1 Then Return False
   $aShapeNames.Remove(iRet)
@@ -510,7 +514,7 @@ End
 
 Public Sub Item_Select()
 
-  If $sLastKey <> Last.key Then 
+  If $sLastKey <> Last.key Then
     Try _get($sLastKey).Selected = False       'Try Me._get($sLastKey).Selected = False
     $sLastKey = Last.Key
   Endif
@@ -528,7 +532,7 @@ Public Function Find(hMp As MapPoint) As _ShapeItem
   Dim hShape As _ShapeItem
   Dim hMap As Map = Me._GetMap()
   'Optimize by just looking in the view zone
-  If hMap.Bounds.InBounds(hMp) Then 
+  If hMap.Bounds.InBounds(hMp) Then
     For i As Integer = 0 To $aInView.Max
       hShape = $aInView[i]
       If hShape.Type = _Point Then
@@ -579,5 +583,24 @@ End
 Private Sub FillColor_Write(Value As Integer)
 
   $iFillColor = Value
+
+End
+
+
+Public Sub GetItemsFromBounds(hBounds As MapBounds) As _ShapeItem[]
+
+  Dim hShape As _ShapeItem
+  Dim aShapes As New _ShapeItem[]
+  Dim i As Integer
+  
+  'If MapPoint.Distance(hBounds.TopLeft, hBounds.BottomRight) > 1000000 Then Stop 
+  For i = 0 To $aShapes.Max
+    hShape = $aShapes[i]
+    If hBounds.Contain(hShape.Bounds) Then
+      aShapes.Add(hShape)
+    Endif
+  Next
+
+Return aShapes
 
 End
