@@ -39,6 +39,7 @@ SUBDIRS = \
  @httpd_dir@ \
  @openssl_dir@ \
  @openal_dir@ \
+ @htmlview_dir@ \
  comp \
  app \
  .
