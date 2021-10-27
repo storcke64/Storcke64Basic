@@ -85,7 +85,7 @@ End
 Public Function Contain(Bound As MapBounds) As Boolean
   
   If Bound.Lon > $mpTopLeft.Lon And If Bound.Lon2 < $mpBottomRight.Lon Then
-    If Bound.Lat > $mpTopLeft.Lat And If Bound.Lat2 < $mpBottomRight.Lat Then
+    If Bound.Lat < $mpTopLeft.Lat And If Bound.Lat2 > $mpBottomRight.Lat Then
       Return True
     Endif
   Endif
