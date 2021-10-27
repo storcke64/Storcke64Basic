@@ -26,13 +26,12 @@
 #ifndef __C_HTMLDOCUMENT_H
 #define __C_HTMLDOCUMENT_H
 
-#include "html.h"
-#include "document.h"
-#include "html_tag.h"
-#include "stylesheet.h"
-#include "stylesheet.h"
-#include "element.h"
-#include "html_tag.h"
+#include "litehtml/html.h"
+#include "litehtml/document.h"
+#include "litehtml/html_tag.h"
+#include "litehtml/stylesheet.h"
+#include "litehtml/element.h"
+#include "litehtml/html_tag.h"
 
 #include "main.h"
 

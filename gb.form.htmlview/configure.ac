@@ -9,9 +9,9 @@ GB_COMPONENT(
   FORM_HTMLVIEW,
   gb.form.htmlview,
   [src],
-  [GB_FIND(html.h gumbo.h, /usr/local/lib /usr/local /usr/lib /usr, include/litehtml litehtml/include litehtml*/include include/litehtml* include)],
-  [GB_FIND(libgumbo.$SHLIBEXT liblitehtml.$SHLIBEXT, /usr/local /usr, lib)],
-  [ -llitehtml -lgumbo],
+  [GB_FIND(gumbo.h, /usr/local/lib /usr/local /usr/lib /usr, include/gumbo gumbo/include gumbo*/include include/gumbo* include)],
+  [GB_FIND(libgumbo.$SHLIBEXT, /usr/local /usr, lib)],
+  [-lgumbo],
   [ ])
 AC_OUTPUT( Makefile src/Makefile )
 GB_PRINT_MESSAGES
