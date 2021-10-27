@@ -5,14 +5,45 @@ EXTRA_DIST = master.css master.css.h
 
 gblib_LTLIBRARIES = gb.form.htmlview.la
 
-gb_form_htmlview_la_LIBADD = @FORM_HTMLVIEW_LIB@
-gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@ @FORM_HTMLVIEW_LDFLAGS@
-gb_form_htmlview_la_CXXFLAGS = $(AM_CXX_FLAGS)
-gb_form_htmlview_la_CPPFLAGS = @FORM_HTMLVIEW_INC@
+gb_form_htmlview_la_LIBADD =
+gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
+gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS)
+gb_form_htmlview_la_CPPFLAGS =
 
 gb_form_htmlview_la_SOURCES = \
 	main.cpp main.h \
 	c_htmldocument.cpp c_htmldocument.h \
+	\
+	gumbo/attribute.c \
+	gumbo/attribute.h \
+	gumbo/char_ref.c \
+	gumbo/char_ref.h \
+	gumbo/error.c \
+	gumbo/error.h \
+	gumbo/gumbo.h \
+	gumbo/insertion_mode.h \
+	gumbo/parser.c \
+	gumbo/parser.h \
+	gumbo/string_buffer.c \
+	gumbo/string_buffer.h \
+	gumbo/string_piece.c \
+	gumbo/string_piece.h \
+	gumbo/tag.c \
+	gumbo/tag_enum.h \
+	gumbo/tag_gperf.h \
+	gumbo/tag_sizes.h \
+	gumbo/tag_strings.h \
+	gumbo/tokenizer.c \
+	gumbo/tokenizer.h \
+	gumbo/tokenizer_states.h \
+	gumbo/token_type.h \
+	gumbo/utf8.c \
+	gumbo/utf8.h \
+	gumbo/util.c \
+	gumbo/util.h \
+	gumbo/vector.c \
+	gumbo/vector.h \
+	\
 	litehtml/attributes.h \
 	litehtml/background.cpp \
 	litehtml/background.h \
