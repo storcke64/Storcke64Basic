@@ -3,17 +3,14 @@ include $(top_srcdir)/component.am
 
 EXTRA_DIST = master.css master.css.h
 
+noinst_LTLIBRARIES = libgumbo.la
 gblib_LTLIBRARIES = gb.form.htmlview.la
 
-gb_form_htmlview_la_LIBADD =
-gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
-gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS) -std=c++11
-gb_form_htmlview_la_CPPFLAGS =
+libgumbo_la_LIBADD =
+libgumbo_la_LDFLAGS = -module @LD_FLAGS@
+libgumbo_la_CFLAGS = -I$(top_srcdir)/share $(AM_CFLAGS_OPT)
 
-gb_form_htmlview_la_SOURCES = \
-	main.cpp main.h \
-	c_htmldocument.cpp c_htmldocument.h \
-	\
+libgumbo_la_SOURCES = \
 	gumbo/attribute.c \
 	gumbo/attribute.h \
 	gumbo/char_ref.c \
@@ -42,7 +39,16 @@ gb_form_htmlview_la_SOURCES = \
 	gumbo/util.c \
 	gumbo/util.h \
 	gumbo/vector.c \
-	gumbo/vector.h \
+	gumbo/vector.h
+
+gb_form_htmlview_la_LIBADD = libgumbo.la
+gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
+gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS) -std=c++11
+gb_form_htmlview_la_CPPFLAGS =
+
+gb_form_htmlview_la_SOURCES = \
+	main.cpp main.h \
+	c_htmldocument.cpp c_htmldocument.h \
 	\
 	litehtml/attributes.h \
 	litehtml/background.cpp \
