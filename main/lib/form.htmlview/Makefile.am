@@ -7,7 +7,7 @@ gblib_LTLIBRARIES = gb.form.htmlview.la
 
 gb_form_htmlview_la_LIBADD =
 gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
-gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS)
+gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS) -std=c++11
 gb_form_htmlview_la_CPPFLAGS =
 
 gb_form_htmlview_la_SOURCES = \
