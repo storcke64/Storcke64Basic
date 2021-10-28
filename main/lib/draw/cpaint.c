@@ -107,6 +107,14 @@ bool PAINT_is_painted(void *device)
 	return PAINT_from_device(device) != NULL;
 }
 
+void PAINT_set_background(GB_COLOR color)
+{
+	if (!THIS)
+		return;
+	
+	PAINT->Background(THIS, TRUE, &color);
+	GB.StoreObject(NULL, POINTER(&THIS->brush));
+}
 
 bool PAINT_open(GB_PAINT *paint)
 {
@@ -682,9 +690,7 @@ BEGIN_PROPERTY(Paint_Background)
 	}
 	else
 	{
-		value = (uint)VPROP(GB_INTEGER);
-		PAINT->Background(THIS, TRUE, &value);
-		GB.StoreObject(NULL, POINTER(&THIS->brush));
+		PAINT_set_background(VPROP(GB_INTEGER));
 	}
 
 END_METHOD

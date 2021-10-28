@@ -40,6 +40,7 @@ GB_PAINT *PAINT_get_current();
 void *PAINT_get_current_device();
 GB_PAINT *PAINT_from_device(void *device);
 bool PAINT_is_painted(void *device);
+void PAINT_set_background(GB_COLOR color);
 
 bool PAINT_begin(void *device);
 void PAINT_end();

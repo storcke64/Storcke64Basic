@@ -73,6 +73,7 @@ typedef
 			void (*Begin)(void *);
 			void (*End)();
 			bool (*IsPainted)(void *);
+			void (*SetBackground)(GB_COLOR color);
 			}
 			Paint;
 		}
