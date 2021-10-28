@@ -1,14 +1,12 @@
 COMPONENT = gb.form.htmlview
 include $(top_srcdir)/component.am
 
-EXTRA_DIST = master.css master.css.h
-
 noinst_LTLIBRARIES = libgumbo.la
 gblib_LTLIBRARIES = gb.form.htmlview.la
 
 libgumbo_la_LIBADD =
 libgumbo_la_LDFLAGS = -module @LD_FLAGS@
-libgumbo_la_CFLAGS = -I$(top_srcdir)/share $(AM_CFLAGS_OPT)
+libgumbo_la_CFLAGS = -std=c99 -I$(top_srcdir)/share $(AM_CFLAGS_OPT)
 
 libgumbo_la_SOURCES = \
 	gumbo/attribute.c \
@@ -43,7 +41,7 @@ libgumbo_la_SOURCES = \
 
 gb_form_htmlview_la_LIBADD = libgumbo.la
 gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
-gb_form_htmlview_la_CXXFLAGS = -I$(top_srcdir)/share $(AM_CXX_FLAGS) -std=c++11
+gb_form_htmlview_la_CXXFLAGS = -std=c++11 -I$(top_srcdir)/share $(AM_CXX_FLAGS)
 gb_form_htmlview_la_CPPFLAGS =
 
 gb_form_htmlview_la_SOURCES = \
