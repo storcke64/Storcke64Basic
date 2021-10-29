@@ -405,6 +405,7 @@ static void set_painter_font(QPainter *p, QFont f)
 {
 	p->setFont(f);	
 	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
+		
 	if (f != p->font())
 	{
 		f.fromString(f.toString());

@@ -1062,52 +1062,47 @@ GdkCursor *gControl::getGdkCursor()
 	{
 		switch(m)
 		{
-			case GDK_BLANK_CURSOR: name = "none"; break;
-			case GDK_LEFT_PTR: name = "default"; break;
-			case GDK_CROSSHAIR: name = "crosshair"; break;
-			case GDK_WATCH: name = "wait"; break;
-			case GDK_XTERM: name = "text"; break;
-			case GDK_FLEUR: name = "move"; break;
-			case GDK_SB_H_DOUBLE_ARROW: name = "ew-resize"; break;
-			case GDK_SB_V_DOUBLE_ARROW: name = "ns-resize"; break;
-			case GDK_TOP_SIDE: name = "n-resize"; break;
-			case GDK_BOTTOM_SIDE: name = "s-resize"; break;
-			case GDK_LEFT_SIDE: name = "w-resize"; break;
-			case GDK_RIGHT_SIDE: name = "e-resize"; break;
-			case GDK_TOP_LEFT_CORNER: name = "nw-resize"; break;
-			case GDK_BOTTOM_RIGHT_CORNER: name = "se-resize"; break;
-			case GDK_TOP_RIGHT_CORNER: name = "ne-resize"; break;
-			case GDK_BOTTOM_LEFT_CORNER: name = "sw-resize"; break;
-			case GDK_LAST_CURSOR+1: name = "nwse-resize"; break;
-			case GDK_LAST_CURSOR+2: name = "nesw-resize"; break;
-			case GDK_HAND2: name = "pointer"; break;
+			case CURSOR_NONE: name = "none"; break;
+			case CURSOR_ARROW: name = "default"; break;
+			case CURSOR_HELP: name = "help"; break;
+			case CURSOR_POINTER: name = "pointer"; break;
+			case CURSOR_CONTEXT_MENU: name = "context-menu"; break;
+			case CURSOR_PROGRESS: name = "progress"; break;
+			case CURSOR_WAIT: name = "wait"; break;
+			case CURSOR_CELL: name = "cell"; break;
+			case CURSOR_CROSSHAIR: name = "crosshair"; break;
+			case CURSOR_TEXT: name = "text"; break;
+			case CURSOR_VERTICAL_TEXT: name = "vertical-text"; break;
+			case CURSOR_ALIAS: name = "alias"; break;
+			case CURSOR_COPY: name = "copy"; break;
+			case CURSOR_NO_DROP: name = "no-drop"; break;
+			case CURSOR_MOVE: name = "move"; break;
+			case CURSOR_NOT_ALLOWED: name = "not-allowed"; break;
+			case CURSOR_GRAB: name = "grab"; break;
+			case CURSOR_GRABBING: name = "grabbing"; break;
+			case CURSOR_ALL_SCROLL: name = "all-scroll"; break;
+			case CURSOR_COL_RESIZE: name = "col-resize"; break;
+			case CURSOR_ROW_RESIZE: name = "row-resize"; break;
+			case CURSOR_N_RESIZE: name = "n-resize"; break;
+			case CURSOR_E_RESIZE: name = "e-resize"; break;
+			case CURSOR_S_RESIZE: name = "s-resize"; break;
+			case CURSOR_W_RESIZE: name = "w-resize"; break;
+			case CURSOR_NE_RESIZE: name = "ne-resize"; break;
+			case CURSOR_NW_RESIZE: name = "nw-resize"; break;
+			case CURSOR_SW_RESIZE: name = "sw-resize"; break;
+			case CURSOR_SE_RESIZE: name = "se-resize"; break;
+			case CURSOR_EW_RESIZE: name = "ew-resize"; break;
+			case CURSOR_NS_RESIZE: name = "ns-resize"; break;
+			case CURSOR_NESW_RESIZE: name = "nesw-resize"; break;
+			case CURSOR_NWSE_RESIZE: name = "nwse-resize"; break;
+			case CURSOR_ZOOM_IN: name = "zoom-in"; break;
+			case CURSOR_ZOOM_OUT: name = "zoom-out"; break;
 			default: name = "default";
 		}
 
 		cr = gdk_cursor_new_from_name(gdk_display_get_default(), name);
 		if (!cr)
 			cr = gdk_cursor_new_for_display(gdk_display_get_default(), (GdkCursorType)m);
-
-		/*
-		if (m < GDK_LAST_CURSOR)
-		{
-			cr = gdk_cursor_new_for_display(gdk_display_get_default(), (GdkCursorType)m);
-		}
-		else
-		{
-			if (m == (GDK_LAST_CURSOR+1)) //FDiag
-			{
-				pix = gdk_pixbuf_new_from_xpm_data(_cursor_fdiag);
-				cr = gdk_cursor_new_from_pixbuf(gdk_display_get_default(), pix, 8, 8);
-				g_object_unref(pix);
-			}
-			else if (m == (GDK_LAST_CURSOR+2)) //BDiag
-			{
-				pix = gdk_pixbuf_new_from_xpm_data(_cursor_bdiag);
-				cr = gdk_cursor_new_from_pixbuf(gdk_display_get_default(), pix, 8, 8);
-				g_object_unref(pix);
-			}
-		}*/
 	}
 
 	return cr;
@@ -1121,11 +1116,11 @@ void gControl::setMouse(int m)
 		return;
 	}
 
-	if (m == CURSOR_CUSTOM)
+	/*if (m == CURSOR_CUSTOM)
 	{
 		if (!curs || !curs->cur)
 			m = CURSOR_DEFAULT;
-	}
+	}*/
 
 	_mouse = m;
 

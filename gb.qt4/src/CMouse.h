@@ -91,16 +91,6 @@ typedef
 		}
 	CCURSOR;
 
-#define CMOUSE_DEFAULT (-1)
-#define CMOUSE_CUSTOM  (-2)
-
-
-// ### QT_WIDGET_PROPERTIES must be modified with this constant
-
-#define MOUSE_CONSTANTS \
-	"Mouse,Default,Blank,Arrow,Cross,Wait,Text,SizeAll,SizeH,SizeV,SizeN,SizeS,SizeW,SizeE,SizeNWSE," \
-	"SizeNESW,SplitH,SplitV,Pointing"
-
 void CMOUSE_clear(int valid);
 void CMOUSE_reset_translate(void);
 void CMOUSE_set_control(void *control);

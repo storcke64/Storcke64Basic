@@ -115,9 +115,9 @@ static void set_mouse(QWidget *w, int mouse, void *cursor)
 	QObject *child;
 	int i;
 
-	if (mouse == CMOUSE_DEFAULT)
+	if (mouse == CURSOR_DEFAULT)
 		w->unsetCursor();
-	else if (mouse == CMOUSE_CUSTOM)
+	else if (mouse == CURSOR_CUSTOM)
 	{
 		if (cursor)
 			w->setCursor(*((CCURSOR *)cursor)->cursor);
@@ -125,7 +125,51 @@ static void set_mouse(QWidget *w, int mouse, void *cursor)
 			w->unsetCursor();
 	}
 	else
-		w->setCursor(QCursor((Qt::CursorShape)mouse));
+	{
+		Qt::CursorShape shape;
+		
+		switch(mouse)
+		{
+			case CURSOR_NONE: shape = Qt::BlankCursor; break;
+			case CURSOR_ARROW: shape = Qt::ArrowCursor; break;
+			case CURSOR_HELP: shape = Qt::WhatsThisCursor; break;
+			case CURSOR_POINTER: shape = Qt::PointingHandCursor; break;
+			//case CURSOR_CONTEXT_MENU: shape = ; break;
+			case CURSOR_PROGRESS: shape = Qt::BusyCursor; break;
+			case CURSOR_WAIT: shape = Qt::WaitCursor; break;
+			case CURSOR_CELL: shape = Qt::CrossCursor; break;
+			case CURSOR_CROSSHAIR: shape = Qt::CrossCursor; break;
+			case CURSOR_TEXT: shape = Qt::IBeamCursor; break;
+			case CURSOR_VERTICAL_TEXT: shape = Qt::IBeamCursor; break;
+			case CURSOR_ALIAS: shape = Qt::DragLinkCursor; break;
+			case CURSOR_COPY: shape = Qt::DragCopyCursor; break;
+			case CURSOR_NO_DROP: shape = Qt::ForbiddenCursor; break;
+			case CURSOR_MOVE: shape = Qt::SizeAllCursor; break;
+			case CURSOR_NOT_ALLOWED: shape = Qt::ForbiddenCursor; break;
+			case CURSOR_GRAB: shape = Qt::OpenHandCursor; break;
+			case CURSOR_GRABBING: shape = Qt::ClosedHandCursor; break;
+			case CURSOR_ALL_SCROLL: shape = Qt::SizeAllCursor; break;
+			case CURSOR_COL_RESIZE: shape = Qt::SplitHCursor; break;
+			case CURSOR_ROW_RESIZE: shape = Qt::SplitVCursor; break;
+			case CURSOR_N_RESIZE: shape = Qt::SizeVerCursor; break;
+			case CURSOR_E_RESIZE: shape = Qt::SizeHorCursor; break;
+			case CURSOR_S_RESIZE: shape = Qt::SizeVerCursor; break;
+			case CURSOR_W_RESIZE: shape = Qt::SizeHorCursor; break;
+			case CURSOR_NE_RESIZE: shape = Qt::SizeBDiagCursor; break;
+			case CURSOR_NW_RESIZE: shape = Qt::SizeFDiagCursor; break;
+			case CURSOR_SW_RESIZE: shape = Qt::SizeBDiagCursor; break;
+			case CURSOR_SE_RESIZE: shape = Qt::SizeFDiagCursor; break;
+			case CURSOR_EW_RESIZE: shape = Qt::SizeHorCursor; break;
+			case CURSOR_NS_RESIZE: shape = Qt::SizeVerCursor; break;
+			case CURSOR_NESW_RESIZE: shape = Qt::SizeBDiagCursor; break;
+			case CURSOR_NWSE_RESIZE: shape = Qt::SizeFDiagCursor; break;
+			//case CURSOR_ZOOM_IN: shape = "zoom-in"; break;
+			//case CURSOR_ZOOM_OUT: shape = "zoom-out"; break;
+			default: shape = Qt::ArrowCursor;
+		}
+		
+		w->setCursor(QCursor(shape));
+	}
 
 	children = w->children();
 
@@ -134,7 +178,7 @@ static void set_mouse(QWidget *w, int mouse, void *cursor)
 		child = children.at(i);
 		
 		if (child->isWidgetType() && !CWidget::getReal(child))
-			set_mouse((QWidget *)child, CMOUSE_DEFAULT, 0);
+			set_mouse((QWidget *)child, CURSOR_DEFAULT, 0);
 	}
 }
 
@@ -146,7 +190,7 @@ void CWIDGET_set_design(CWIDGET *_object, bool ignore)
 	//fprintf(stderr, "CWIDGET_set_design: %s %d\n", THIS->name, ignore);
 	
 	CWidget::removeFocusPolicy(WIDGET);
-	set_mouse(WIDGET, CMOUSE_DEFAULT, 0);
+	set_mouse(WIDGET, CURSOR_DEFAULT, 0);
 	
 	THIS->flag.design = true;
 	THIS->flag.design_ignore = ignore;
@@ -1264,27 +1308,22 @@ END_METHOD
 BEGIN_PROPERTY(Control_Mouse)
 
 	QWidget *wid;
-	int shape;
 
 	HANDLE_PROXY(_object);
 	
 	wid = QWIDGET(_object);
 	
 	if (READ_PROPERTY)
-	{
-		if (wid->testAttribute(Qt::WA_SetCursor))
-		{
-			shape = wid->cursor().shape();
-			if (shape == Qt::BitmapCursor)
-				GB.ReturnInteger(CMOUSE_CUSTOM);
-			else
-				GB.ReturnInteger(shape);
-		}
-		else
-			GB.ReturnInteger(CMOUSE_DEFAULT);
-	}
+		GB.ReturnInteger(THIS_EXT ? THIS_EXT->mouse : CURSOR_DEFAULT);
 	else
-		set_mouse(wid, VPROP(GB_INTEGER), THIS_EXT ? THIS_EXT->cursor : NULL);
+	{
+		int mouse = VPROP(GB_INTEGER);
+		
+		if (mouse != CURSOR_DEFAULT || THIS_EXT)
+			ENSURE_EXT(THIS)->mouse = mouse;
+		
+		set_mouse(wid, mouse, THIS_EXT ? THIS_EXT->cursor : NULL);
+	}
 
 END_METHOD
 
@@ -1298,7 +1337,8 @@ BEGIN_PROPERTY(Control_Cursor)
 	else
 	{
 		GB.StoreObject(PROP(GB_OBJECT), &(ENSURE_EXT(THIS)->cursor));
-		set_mouse(WIDGET, CMOUSE_CUSTOM, THIS_EXT->cursor);
+		set_mouse(WIDGET, CURSOR_CUSTOM, THIS_EXT->cursor);
+		ENSURE_EXT(THIS)->mouse = CURSOR_CUSTOM;
 	}
 
 END_PROPERTY
@@ -1324,7 +1364,7 @@ BEGIN_PROPERTY(Control_NoTabFocus)
 		{
 			policy = WIDGET->focusPolicy();
 			
-			ENSURE_EXT(THIS)->focusPolicy = (int)policy;
+			ENSURE_EXT(THIS)->focusPolicy = (char)policy;
 		
 			switch (policy)
 			{

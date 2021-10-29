@@ -44,8 +44,9 @@ typedef
 		void *proxy;
 		void *proxy_for;
 		char *action;
-		int focusPolicy;
 		void *container_for;
+		char focusPolicy;
+		char mouse;
 	}
 	CWIDGET_EXT;
 
