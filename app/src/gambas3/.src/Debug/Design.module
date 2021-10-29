@@ -1774,17 +1774,18 @@ Public Sub TimerWatch_Timer()
   Try ProcessFiles = Dir(sDir &/ "fd").Count
   If Error Then ProcessFiles = -1
   
-  aMaps = Split(Trim(File.Load(sDir &/ "smaps_rollup")), "\n")
-  
   ProcessMemory = 0
-  For Each sMap In aMaps
-    If sMap Begins "Pss:" Then
-      sMap = LTrim(Mid$(sMap, 5))
-      iPos = InStr(sMap, " ")
-      ProcessMemory = CInt(Left(sMap, iPos - 1)) * 1024
-      Break
-    Endif
-  Next
+  Try aMaps = Split(Trim(File.Load(sDir &/ "smaps_rollup")), "\n")
+  If aMaps Then
+    For Each sMap In aMaps
+      If sMap Begins "Pss:" Then
+        sMap = LTrim(Mid$(sMap, 5))
+        iPos = InStr(sMap, " ")
+        ProcessMemory = CInt(Left(sMap, iPos - 1)) * 1024
+        Break
+      Endif
+    Next
+  Endif
   
   FDebugInfo.UpdateProcessInfo()
   
