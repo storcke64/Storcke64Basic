@@ -6,15 +6,31 @@ Inherits UserControl
 
 Public Const _Properties As String = "*"
 
+Event Title(Title As String)
+
+Property Html As String
+
 Private $hDoc As HtmlDocument
 Private $hView As ScrollArea
+
+Private $bCssLoaded As Boolean
+
+Private $iLastX As Integer
+Private $iLastY As Integer
 
 Public Sub _new()
   
   $hView = New ScrollArea(Me) As "View"
+  $hView.Tracking = True
   
   $hDoc = New HtmlDocument As "HtmlDocument"
-  $hDoc.Load(File.Load("test.html"))
+  View_Font
+  
+End
+
+Public Sub View_Font()
+  
+  $hDoc.SetDefaultFont($hView.Font)
   
 End
 
@@ -29,5 +45,62 @@ Public Sub View_Draw()
 
   Paint.Translate(-$hView.ScrollX, -$hView.ScrollY)
   $hDoc.Draw($hView.ScrollX, $hView.ScrollY, $hView.ClientW, $hView.ClientH)
+  
+End
+
+Public Sub View_MouseMove()
+  
+  $iLastX = Mouse.X
+  $iLastY = Mouse.Y
+  $hDoc.OnMouseMove($iLastX + $hView.ScrollX, $iLastY + $hView.ScrollY)
+  
+End
+
+Public Sub View_Scroll()
+  
+  $hDoc.OnMouseMove($iLastX + $hView.ScrollX, $iLastY + $hView.ScrollY)
+  
+End
+
+Private Function Html_Read() As String
+
+  Return $hDoc.Html
+
+End
+
+Private Sub Html_Write(Value As String)
+
+  If Not $bCssLoaded Then LoadCss()
+  $hDoc.Html = Value
+
+End
+
+Public Sub LoadCss(Optional Css As String)
+  
+  $hDoc.LoadCss(File.Load("master.css") & Css)
+  $bCssLoaded = True
+  
+End
+
+Public Sub _SetTitle(sTitle As String)
+  
+  Raise Title(sTitle)
+  
+End
+
+Public Sub _RefreshView(X As Integer, Y As Integer, W As Integer, H As Integer)
+  
+  $hView.RefreshRect(X, Y, W, H)
+  
+End
+
+Public Sub _SetCursor(sCursor As String)
+  
+  Select sCursor
+    Case "auto"
+      $hView.Mouse = Mouse.Default
+    Case "pointer"
+      $hView.Mouse = Mouse.Pointing
+  End Select
   
 End

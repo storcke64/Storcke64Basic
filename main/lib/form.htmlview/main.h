@@ -30,13 +30,14 @@
 #include "gb.draw.h"
 #include "gb.geom.h"
 #include "gb.image.h"
+#include "gb.paint.h"
 
 #ifndef __MAIN_CPP
 extern "C" {
 extern const GB_INTERFACE *GB_PTR;
-extern GB_INTERFACE DRAW;
-extern GB_INTERFACE GEOM;
-extern GB_INTERFACE IMAGE;
+extern DRAW_INTERFACE DRAW;
+extern GEOM_INTERFACE GEOM;
+extern IMAGE_INTERFACE IMAGE;
 }
 #endif
 

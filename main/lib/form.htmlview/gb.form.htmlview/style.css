@@ -1,0 +1,419 @@
+/*HTML, BODY {
+  height: 100%;
+  }*/
+
+BODY {
+  padding: 0;
+  margin: 0;
+}
+
+INPUT {
+  border: solid gray 1px;
+  background: white;
+  color: black;
+}
+
+INPUT[type=file] {
+  border: none;
+  background: initial;
+}
+
+INPUT[type=submit] {
+  border: solid gray 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: smaller;
+  padding: 0.25em 0.5em;
+  transition: background-color 0.5s ease;
+  margin-left: 0.5em;
+}
+
+INPUT[type=submit]:hover {
+  background-color: #E8E8E8;
+}
+
+INPUT[type=submit]:first-child {
+  margin-left: 0;
+}
+
+#login {
+  width: 8em;
+}
+
+#password {
+  width: 8em;
+}
+
+A {
+  text-decoration: none;
+}
+
+P {
+  margin-bottom: 0;
+  margin-top: 0.75em;
+}
+
+P:first-child,UL:first-child,OL:first-child {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+H1,H2,H3,H4,H5,H6 {
+  margin-bottom: 0;
+}
+
+H1:first-child {
+  margin-top: 0;
+}
+
+H1,H2 {
+  letter-spacing: 1px;
+}
+
+CODE {
+  background: #F0F0F0;
+  padding: 0;
+  display: inline;
+}
+
+PRE {
+  background: #F0F0F0;
+  display: inline-block;
+  padding: 0.5em 1em;
+  margin: 0;
+  margin-top: 0.75em;
+  border: solid #C0C0C0 1px;
+  white-space: pre-wrap;
+}
+
+PRE > CODE {
+  padding: 0;
+}
+
+HR {
+  margin-top: 0.75em;
+  margin-left: -1em;
+  margin-right: -1em;
+  padding: 0px;
+  height: 1px;
+  border: none;
+  border-top: solid #C0C0C0 1px;
+}
+
+PRE HR {
+  margin-bottom: -0.75em;
+}
+
+TABLE.table, TABLE.error {
+  border-bottom: solid #A0A0A0 1px;
+  border-right: solid #A0A0A0 1px;
+  padding: 0px;
+  margin-top: 0.75em;
+  border-spacing: 0;
+  empty-cells: show;
+}
+
+TABLE.table TR > TD, TABLE.error TR > TD {
+  border-top: solid #A0A0A0 1px;
+  border-left:  solid #A0A0A0 1px;
+  padding: 0.5em 1em;
+  vertical-align: top;
+}
+
+TABLE.table > TR > TH, TABLE.error TR > TH {
+  border-top: solid #A0A0A0 1px;
+  border-left:  solid #A0A0A0 1px;
+  padding: 0.5em 1em;
+  text-align: left;
+}
+
+/*TABLE.example {
+  border: none;
+  border-left: solid #A0A0A0 1em;
+}
+
+TABLE.example TR {
+  border: none;
+}
+
+TABLE.example TD {
+  border: none;
+  padding-left: 1em;
+}
+
+TABLE.example TH {
+  border: none;
+  padding-left: 1em;
+}*/
+
+.header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  background: white;
+  border-bottom: gray solid 1px;
+  padding: 0.5em;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.header-v {
+  position: fixed;
+  left: 0;
+  right: 0;
+  background: white;
+  border-bottom: gray solid 1px;
+  padding: 0 1em;
+  height: 2em;
+}
+
+.title {
+  display: inline-block;
+}
+
+.title A {
+  color: white;
+}
+
+.title-v {
+  font-size: 75%;
+}
+
+.title-v A {
+  color: gray;
+}
+
+.login {
+  position: absolute;
+  display: inline-block;
+  right: 0.5em;
+  top: 0.5em;
+}
+
+.label-login {
+  display: inline-block;
+  font-weight: bold; 
+  margin-left: 1em;
+}
+
+.page {
+  padding: 1em;
+  padding-top: 4em;
+}
+
+.unknown {
+  color: red;
+  font-style: italic;
+}
+
+DIV.error {
+  background: red;
+  color: white;
+  font-family: monospace;
+  padding: 0 0.5em;
+}
+
+DIV.message {
+  color: red;
+  font-style: italic;
+}
+
+.command {
+  display: inline-block;
+  margin-left: 1em;
+}
+
+#lang {
+  margin-left: 1em;
+}
+
+.up {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2px;
+}
+
+.edit-frame {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  top: 3em;
+  bottom: 0;
+  padding: 1em;
+}
+
+.edit {
+  border: none;
+  background: none;
+  width: 100%;
+  height: 100%;
+  color: black;
+}
+
+DIV.table {
+  margin-top: 0.75em;
+  }
+  
+DIV.table:first-child {
+  margin-top: 0;
+}
+
+DIV.border {
+  margin-top: 0.75em;
+  display: inline-block;
+  border: solid #A0A0A0 1px;
+  padding: 0;
+}
+
+DIV.box {
+  margin-top: 0.75em;
+  display: inline-block;
+  border: solid #A0A0A0 1px;
+  padding: 1em;
+}
+
+DIV.info {
+  margin-top: 0.75em;
+  display: inline-block;
+  /*border: solid #A0A0A0 1px;*/
+  padding: 0.5em;
+  padding-left: 4em;
+  background: url('/wiki/info.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #EFF7FF;
+  border: solid 1px rgba(0,0,0,0.1);
+}
+
+DIV.warning {
+  margin-top: 0.75em;
+  display: inline-block;
+  padding: 0.5em;
+  padding-left: 4em;
+  background: url('/wiki/warning.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #FFF6EF;
+  border: solid 1px rgba(0,0,0,0.1);
+}
+
+DIV.tip {
+  margin-top: 0.75em;
+  display: inline-block;
+  padding: 0.5em;
+  padding-left: 4em;
+  background: url('/wiki/tip.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #EFFFEF;
+  border: solid 1px rgba(0,0,0,0.1);
+}
+
+DIV.critical {
+  margin-top: 0.75em;
+  display: inline-block;
+  padding: 0.5em;
+  padding-left: 4em;
+  background: url('/wiki/critical.png') 0.5em 0.5em no-repeat;
+  min-height: 2em;
+  background-color: #FFEFEF;
+  border: solid 1px rgba(0,0,0,0.1);
+}
+
+DIV.seealso {
+  display: inline-block;
+  border: none;
+  padding: 0;
+}
+
+DIV.example {
+  border-left: solid 0.5em #E0E0E0;
+  padding: 0.5em;
+  margin-top: 0.75em;
+}
+
+DIV.example-title {
+  color: #404040;
+  font-weight: bold;
+}
+
+TEXTAREA {
+  font-family: monospace;
+}
+
+TABLE.index {
+  border: none;
+  padding: 0;
+  margin-top: 0.75em;
+}
+
+TABLE.index TD {
+  border: none;
+  padding: 0 1em;
+  vertical-align: baseline;
+}
+
+DIV.index {
+  display: inline-block;
+  border: solid 1px #C0C0C0;
+  font-size: 85%;
+  padding: 1em 4em 1em 0;
+  margin-top: 0.75em;
+}
+
+.état {
+  border: solid 1px gray !important;
+  padding: 0.25em 1em;
+  margin-bottom: 1em;
+}
+
+TABLE.columns {
+  border: none;
+  margin-top: 0.75em;
+  empty-cells: show;
+}
+
+TABLE.columns TR > TD {
+  vertical-align: top;
+  padding-right: 4em;
+}
+
+TABLE.border {
+  border: solid 1px gray;
+  margin-top: 0.75em;
+  empty-cells: show;
+  padding: 0.25em;
+}
+
+TD > H1 {
+  margin-top: 0;
+}
+
+TD > H2 {
+  margin-top: 0;
+}
+
+TD > H3 {
+  margin-top: 0;
+}
+
+.letter {
+  font-weight: bold;
+  vertical-align: baseline;
+  color: white;
+  background-color: #606060;
+  padding: 0 0.25em;
+  margin-right: 0.25em;
+  text-align: center;
+}
+
+TABLE.no-border {
+  margin: 0;
+  margin-top: 0.75em;
+  border: none;
+}
+
+TABLE.no-border TR > TD {
+  border: none;
+}
+
+TABLE.no-border TR > TH {
+  border: none;
+}

@@ -26,6 +26,8 @@ namespace litehtml
 		list_style_type	marker_type;
 		web_color		color;
 		position		pos;
+		int				index;
+		uint_ptr		font;
 	};
 
 	// call back interface to draw text, images and other elements
@@ -61,7 +63,10 @@ namespace litehtml
 
 		virtual void				get_media_features(litehtml::media_features& media) const = 0;
 		virtual void				get_language(litehtml::tstring& language, litehtml::tstring & culture) const = 0;
-		virtual litehtml::tstring	resolve_color(const litehtml::tstring& color) const  { return litehtml::tstring(); }
+		virtual litehtml::tstring resolve_color(const litehtml::tstring& /*color*/) const { return litehtml::tstring(); }
+
+	protected:
+		~document_container() = default;
 	};
 
 	void trim(tstring &s);

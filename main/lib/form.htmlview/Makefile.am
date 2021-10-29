@@ -1,6 +1,8 @@
 COMPONENT = gb.form.htmlview
 include $(top_srcdir)/component.am
 
+EXTRA_DIST=gumbo/LICENSE litehtml/README.md litehtml/LICENSE
+
 noinst_LTLIBRARIES = libgumbo.la
 gblib_LTLIBRARIES = gb.form.htmlview.la
 
@@ -54,6 +56,8 @@ gb_form_htmlview_la_SOURCES = \
 	litehtml/borders.h \
 	litehtml/box.cpp \
 	litehtml/box.h \
+	litehtml/codepoint.cpp \
+	litehtml/codepoint.h \
 	litehtml/context.cpp \
 	litehtml/context.h \
 	litehtml/css_length.cpp \
@@ -87,6 +91,8 @@ gb_form_htmlview_la_SOURCES = \
 	litehtml/el_font.h \
 	litehtml/el_image.cpp \
 	litehtml/el_image.h \
+	litehtml/el_li.cpp \
+	litehtml/el_li.h \
 	litehtml/el_link.cpp \
 	litehtml/el_link.h \
 	litehtml/el_para.cpp \
@@ -115,14 +121,23 @@ gb_form_htmlview_la_SOURCES = \
 	litehtml/iterators.h \
 	litehtml/media_query.cpp \
 	litehtml/media_query.h \
+	litehtml/num_cvt.cpp \
+	litehtml/num_cvt.h \
 	litehtml/os_types.h \
+	litehtml/src.txt \
 	litehtml/style.cpp \
 	litehtml/style.h \
 	litehtml/stylesheet.cpp \
 	litehtml/stylesheet.h \
 	litehtml/table.cpp \
 	litehtml/table.h \
+	litehtml/tstring_view.cpp \
+	litehtml/tstring_view.h \
 	litehtml/types.h \
+	litehtml/url.cpp \
+	litehtml/url.h \
+	litehtml/url_path.cpp \
+	litehtml/url_path.h \
 	litehtml/utf8_strings.cpp \
 	litehtml/utf8_strings.h \
 	litehtml/web_color.cpp \

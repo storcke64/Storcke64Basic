@@ -40,7 +40,11 @@ class html_document;
 typedef
 	struct {
 		GB_BASE ob;
+		char *html;
+		litehtml::context *context;
 		html_document *doc;
+		char *default_font_name;
+		int default_font_size;
 	}
 	CHTMLDOCUMENT;
 

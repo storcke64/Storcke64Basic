@@ -21,11 +21,94 @@
 #include "el_div.h"
 #include "el_font.h"
 #include "el_tr.h"
+#include "el_li.h"
 #include <math.h>
 #include <stdio.h>
 #include <algorithm>
-#include "gumbo/gumbo.h"
+#include "gumbo.h"
 #include "utf8_strings.h"
+
+#if defined(USE_ICU)
+
+#include "unicode/brkiter.h"
+#include "unicode/udata.h"
+
+using namespace icu;
+
+#endif
+
+namespace litehtml {
+namespace {
+
+// Split a Gumbo text node into one or more litehtml text elements.  Each text
+// element contains a single indivisible string of text (e.g., a word).  This
+// approach simplifies the renderer as the parser computes and caches the text
+// extents while the renderer only has to draw each individual element.
+
+#if defined(USE_ICU)
+
+void split_text_node(document* document, elements_vector& elements, const char* text)
+{
+	UErrorCode code = U_ZERO_ERROR;
+	BreakIterator* break_iterator = BreakIterator::createLineInstance(Locale::getEnglish(), code);
+
+	break_iterator->setText(text);
+
+	int32_t start = break_iterator->first();
+	for (int32_t end = break_iterator->next(); end != BreakIterator::DONE; start = end, end = break_iterator->next()) {
+		std::string str(text + start, end - start);
+		elements.push_back(std::make_shared<el_text>(litehtml_from_utf8(str.c_str()), document->shared_from_this()));
+	}
+}
+
+#else
+
+void split_text_node(document* document, elements_vector& elements, const char* text)
+{
+	std::wstring str_in = (const wchar_t*)utf8_to_wchar(text);
+	std::wstring str;
+	ucode_t c;
+	for (size_t i = 0; i < str_in.length(); i++)
+	{
+		c = (ucode_t) str_in[i];
+		if (c <= ' ' && (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'))
+		{
+			if (!str.empty())
+			{
+				elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), document->shared_from_this()));
+				str.clear();
+			}
+			str += c;
+			elements.push_back(std::make_shared<el_space>(litehtml_from_wchar(str.c_str()), document->shared_from_this()));
+			str.clear();
+		}
+		// CJK character range
+		else if (c >= 0x4E00 && c <= 0x9FCC)
+		{
+			if (!str.empty())
+			{
+				elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), document->shared_from_this()));
+				str.clear();
+			}
+			str += c;
+			elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), document->shared_from_this()));
+			str.clear();
+		}
+		else
+		{
+			str += c;
+		}
+	}
+	if (!str.empty())
+	{
+		elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), document->shared_from_this()));
+	}
+}
+
+#endif
+
+} // namespace
+} // namespace litehtml
 
 litehtml::document::document(litehtml::document_container* objContainer, litehtml::context* ctx)
 {
@@ -60,7 +143,7 @@ litehtml::document::ptr litehtml::document::createFromUTF8(const char* str, lite
 
 	// Create litehtml::elements.
 	elements_vector root_elements;
-	doc->create_node(output->root, root_elements);
+	doc->create_node(output->root, root_elements, true);
 	if (!root_elements.empty())
 	{
 		doc->m_root = root_elements.back();
@@ -115,7 +198,7 @@ litehtml::document::ptr litehtml::document::createFromUTF8(const char* str, lite
 		doc->m_root->parse_styles();
 
 		// Now the m_tabular_elements is filled with tabular elements.
-		// We have to check the tabular elements for missing table elements 
+		// We have to check the tabular elements for missing table elements
 		// and create the anonymous boxes in visual table layout
 		doc->fix_tables_layout();
 
@@ -226,7 +309,7 @@ litehtml::uint_ptr litehtml::document::get_font( const tchar_t* name, int size, 
 
 	if(!size)
 	{
-		size = container()->get_default_font_size();
+		size = m_container->get_default_font_size();
 	}
 
 	tchar_t strSize[20];
@@ -292,7 +375,7 @@ void litehtml::document::draw( uint_ptr hdc, int x, int y, const position* clip 
 int litehtml::document::cvt_units( const tchar_t* str, int fontSize, bool* is_percent/*= 0*/ ) const
 {
 	if(!str)	return 0;
-	
+
 	css_length val;
 	val.fromString(str);
 	if(is_percent && val.units() == css_units_percentage && !val.is_predefined())
@@ -345,6 +428,10 @@ int litehtml::document::cvt_units( css_length& val, int fontSize, int size ) con
 		break;
 	case css_units_vmax:
 		ret = (int)((double)std::max(m_media.height, m_media.width) * (double)val.val() / 100.0);
+		break;
+	case css_units_rem:
+		ret = (int) ((double) m_root->get_font_size() * (double) val.val());
+		val.set_value((float) ret, css_units_px);
 		break;
 	default:
 		ret = (int) val.val();
@@ -404,9 +491,9 @@ bool litehtml::document::on_mouse_over( int x, int y, int client_x, int client_y
 		}
 		cursor = m_over_element->get_cursor();
 	}
-	
+
 	m_container->set_cursor(cursor ? cursor : _t("auto"));
-	
+
 	if(state_was_changed)
 	{
 		return m_root->find_styles_changes(redraw_boxes, 0, 0);
@@ -552,6 +639,9 @@ litehtml::element::ptr litehtml::document::create_element(const tchar_t* tag_nam
 		} else if(!t_strcmp(tag_name, _t("font")))
 		{
 			newTag = std::make_shared<litehtml::el_font>(this_doc);
+		} else if(!t_strcmp(tag_name, _t("li")))
+		{
+			newTag = std::make_shared<litehtml::el_li>(this_doc);
 		} else
 		{
 			newTag = std::make_shared<litehtml::html_tag>(this_doc);
@@ -640,8 +730,9 @@ void litehtml::document::add_media_list( media_query_list::ptr list )
 	}
 }
 
-void litehtml::document::create_node(GumboNode* node, elements_vector& elements)
+void litehtml::document::create_node(void* gnode, elements_vector& elements, bool parseTextNode)
 {
+	GumboNode* node = (GumboNode*)gnode;
 	switch (node->type)
 	{
 	case GUMBO_NODE_ELEMENT:
@@ -671,14 +762,18 @@ void litehtml::document::create_node(GumboNode* node, elements_vector& elements)
 					ret = create_element(litehtml_from_utf8(strA.c_str()), attrs);
 				}
 			}
+			if (!strcmp(tag, "script"))
+			{
+				parseTextNode = false;
+			}
 			if (ret)
 			{
 				elements_vector child;
 				for (unsigned int i = 0; i < node->v.element.children.length; i++)
 				{
 					child.clear();
-					create_node(static_cast<GumboNode*> (node->v.element.children.data[i]), child);
-					std::for_each(child.begin(), child.end(), 
+					create_node(static_cast<GumboNode*> (node->v.element.children.data[i]), child, parseTextNode);
+					std::for_each(child.begin(), child.end(),
 						[&ret](element::ptr& el)
 						{
 							ret->appendChild(el);
@@ -691,43 +786,13 @@ void litehtml::document::create_node(GumboNode* node, elements_vector& elements)
 		break;
 	case GUMBO_NODE_TEXT:
 		{
-			std::wstring str;
-			std::wstring str_in = (const wchar_t*) (utf8_to_wchar(node->v.text.text));
-			ucode_t c;
-			for (size_t i = 0; i < str_in.length(); i++)
-			{
-				c = (ucode_t) str_in[i];
-				if (c <= ' ' && (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'))
-				{
-					if (!str.empty())
-					{
-						elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), shared_from_this()));
-						str.clear();
-					}
-					str += c;
-					elements.push_back(std::make_shared<el_space>(litehtml_from_wchar(str.c_str()), shared_from_this()));
-					str.clear();
-				}
-				// CJK character range
-				else if (c >= 0x4E00 && c <= 0x9FCC)
-				{
-					if (!str.empty())
-					{
-						elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), shared_from_this()));
-						str.clear();
-					}
-					str += c;
-					elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), shared_from_this()));
-					str.clear();
-				}
-				else
-				{
-					str += c;
-				}
-			}
-			if (!str.empty())
-			{
-				elements.push_back(std::make_shared<el_text>(litehtml_from_wchar(str.c_str()), shared_from_this()));
+			const char* text = node->v.text.text;
+
+			if (!parseTextNode) {
+				elements.push_back(std::make_shared<el_text>(litehtml_from_utf8(text), shared_from_this()));
+				break;
+			} else {
+				split_text_node(this, elements, text);
 			}
 		}
 		break;
@@ -775,8 +840,15 @@ void litehtml::document::fix_tables_layout()
 		case display_table_footer_group:
 		case display_table_row_group:
 		case display_table_header_group:
-			fix_table_parent(el_ptr, display_table, _t("table"));
-			fix_table_children(el_ptr, display_table_row, _t("table-row"));
+			{
+				element::ptr parent = el_ptr->parent();
+				if (parent)
+				{
+					if (parent->get_display() != display_inline_table)
+						fix_table_parent(el_ptr, display_table, _t("table"));
+				}
+				fix_table_children(el_ptr, display_table_row, _t("table-row"));
+			}
 			break;
 		case display_table_row:
 			fix_table_parent(el_ptr, display_table_row_group, _t("table-row-group"));
@@ -926,5 +998,56 @@ void litehtml::document::fix_table_parent(element::ptr& el_ptr, style_display di
 			first = parent->m_children.erase(first, last + 1);
 			parent->m_children.insert(first, annon_tag);
 		}
+	}
+}
+
+void litehtml::document::append_children_from_string(element& parent, const tchar_t* str)
+{
+	append_children_from_utf8(parent, litehtml_to_utf8(str));
+}
+
+void litehtml::document::append_children_from_utf8(element& parent, const char* str)
+{
+	// parent must belong to this document
+	if (parent.get_document().get() != this)
+	{
+		return;
+	}
+
+	// parse document into GumboOutput
+	GumboOutput* output = gumbo_parse((const char*) str);
+
+	// Create litehtml::elements.
+	elements_vector child_elements;
+	create_node(output->root, child_elements, true);
+
+	// Destroy GumboOutput
+	gumbo_destroy_output(&kGumboDefaultOptions, output);
+
+	// Let's process created elements tree
+	for (litehtml::element::ptr child : child_elements)
+	{
+		// Add the child element to parent
+		parent.appendChild(child);
+
+		// apply master CSS
+		child->apply_stylesheet(m_context->master_css());
+
+		// parse elements attributes
+		child->parse_attributes();
+
+		// Apply parsed styles.
+		child->apply_stylesheet(m_styles);
+
+		// Parse applied styles in the elements
+		child->parse_styles();
+
+		// Now the m_tabular_elements is filled with tabular elements.
+		// We have to check the tabular elements for missing table elements
+		// and create the anonymous boxes in visual table layout
+		fix_tables_layout();
+
+		// Fanaly initialize elements
+		child->init();
 	}
 }
