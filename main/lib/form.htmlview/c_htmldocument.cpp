@@ -271,8 +271,8 @@ void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* t
 	
 	begin_clip();
 	PAINT->MoveTo(CURRENT, (float)pos.x, (float)(pos.y + get_font_ascent((void *)hFont)));
-	PAINT->Font(CURRENT, TRUE, (void **)&hFont);
 	set_color(color);
+	PAINT->Font(CURRENT, TRUE, (void **)&hFont);
 	PAINT->Text(CURRENT, text, strlen(text), -1, -1, GB_DRAW_ALIGN_DEFAULT, TRUE);
 	end_clip();
 }

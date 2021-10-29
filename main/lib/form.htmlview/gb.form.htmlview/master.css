@@ -221,12 +221,12 @@ td[nowrap], th[nowrap] {
 }
 
 tt, code, kbd, samp {
-    font-family: monospace
+    font-family: $(monospace)
 }
 
 pre, xmp, plaintext, listing {
     display: block;
-    font-family: monospace;
+    font-family: $(monospace);
     white-space: pre;
     margin: 1em 0
 }

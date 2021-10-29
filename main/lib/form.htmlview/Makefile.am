@@ -43,7 +43,7 @@ libgumbo_la_SOURCES = \
 
 gb_form_htmlview_la_LIBADD = libgumbo.la
 gb_form_htmlview_la_LDFLAGS = -module @LD_FLAGS@
-gb_form_htmlview_la_CXXFLAGS = -std=c++11 -I$(top_srcdir)/share $(AM_CXX_FLAGS)
+gb_form_htmlview_la_CXXFLAGS = -std=c++11 -I$(top_srcdir)/share -I$(srcdir)/gumbo $(AM_CXX_FLAGS)
 gb_form_htmlview_la_CPPFLAGS =
 
 gb_form_htmlview_la_SOURCES = \

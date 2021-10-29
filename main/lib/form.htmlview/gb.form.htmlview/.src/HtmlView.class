@@ -76,8 +76,12 @@ Private Sub Html_Write(Value As String)
 End
 
 Public Sub LoadCss(Optional Css As String)
+
+  Dim sMaster As String
   
-  $hDoc.LoadCss(File.Load("master.css") & Css)
+  sMaster = File.Load("master.css")
+  sMaster = Replace(sMaster, "$(monospace)", "Cousine")
+  $hDoc.LoadCss(sMaster & Css)
   $bCssLoaded = True
   
 End
