@@ -41,6 +41,8 @@ void *PAINT_get_current_device();
 GB_PAINT *PAINT_from_device(void *device);
 bool PAINT_is_painted(void *device);
 void PAINT_set_background(GB_COLOR color);
+void PAINT_translate(float tx, float ty);
+void PAINT_scale(float sx, float sy);
 
 bool PAINT_begin(void *device);
 void PAINT_end();

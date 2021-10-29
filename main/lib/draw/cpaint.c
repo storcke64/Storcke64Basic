@@ -232,7 +232,7 @@ void PAINT_end()
 	GB.Free(POINTER(&paint));
 }
 
-void PAINT_translate(double tx, double ty)
+void PAINT_translate(float tx, float ty)
 {
 	GB_TRANSFORM transform;
 
@@ -241,7 +241,21 @@ void PAINT_translate(double tx, double ty)
 
 	MPAINT->Create(&transform);
 	PAINT->Matrix(THIS, FALSE, transform);
-	MPAINT->Translate(transform, (float)tx, (float)ty);
+	MPAINT->Translate(transform, tx, ty);
+	PAINT->Matrix(THIS, TRUE, transform);
+	MPAINT->Delete(&transform);
+}
+
+void PAINT_scale(float sx, float sy)
+{
+	GB_TRANSFORM transform;
+	
+	if (sx == 1.0 && sy == 1.0)
+		return;
+	
+	MPAINT->Create(&transform);
+	PAINT->Matrix(THIS, FALSE, transform);
+	MPAINT->Scale(transform, sx, sy);
 	PAINT->Matrix(THIS, TRUE, transform);
 	MPAINT->Delete(&transform);
 }
@@ -1368,16 +1382,11 @@ END_METHOD
 
 BEGIN_METHOD(Paint_Scale, GB_FLOAT sx; GB_FLOAT sy)
 
-	GB_TRANSFORM transform;
+	CHECK_DEVICE();
 	double sx = VARG(sx);
 	double sy = VARGOPT(sy, sx);
 
-	CHECK_DEVICE();
-	MPAINT->Create(&transform);
-	PAINT->Matrix(THIS, FALSE, transform);
-	MPAINT->Scale(transform, (float)sx, (float)sy);
-	PAINT->Matrix(THIS, TRUE, transform);
-	MPAINT->Delete(&transform);
+	PAINT_scale(sx, sy);
 
 END_METHOD
 

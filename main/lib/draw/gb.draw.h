@@ -74,6 +74,8 @@ typedef
 			void (*End)();
 			bool (*IsPainted)(void *);
 			void (*SetBackground)(GB_COLOR color);
+			void (*Translate)(float x, float y);
+			void (*Scale)(float sx, float sy);
 			}
 			Paint;
 		}

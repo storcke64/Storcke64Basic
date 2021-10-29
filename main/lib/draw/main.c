@@ -55,6 +55,8 @@ void *GB_DRAW_1[] EXPORT =
 	(void *)PAINT_end,
 	(void *)PAINT_is_painted,
 	(void *)PAINT_set_background,
+	(void *)PAINT_translate,
+	(void *)PAINT_scale,
 	NULL
 };
 
