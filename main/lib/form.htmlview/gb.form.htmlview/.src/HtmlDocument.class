@@ -10,10 +10,9 @@ Private Sub GetView() As HtmlView
 
 End
 
-Public Sub _ImportCss(sUrl As String, sBase As String) As String
+Public Sub _LoadCss(sUrl As String, sBase As String) As String
   
-  Debug sUrl;; sBase
-  If File.Name(sUrl) = "style.css" Then Return File.Load("style.css")
+  Return GetView()._LoadCss(sUrl, sBase)
   
 End
 

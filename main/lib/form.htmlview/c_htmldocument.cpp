@@ -92,6 +92,9 @@ private:
 	int m_scroll_x;
 	int m_scroll_y;
 	clip_box::vector m_clips;
+	GB_FUNCTION _func_load_image;
+	GB_FUNCTION _func_set_cursor;
+	GB_FUNCTION _func_load_css;
 	
 public:
 	
@@ -108,6 +111,7 @@ public:
 	void draw(int x, int y, int w, int h);
 	int getWidth() const;
 	int getHeight() const;
+	int pt_to_px_const(int pt) const;
 	
 	void rounded_rectangle(const litehtml::position &pos, const litehtml::border_radiuses &radius, bool keep = false, bool back = false);
 	void begin_clip();
@@ -161,6 +165,10 @@ html_document::html_document(litehtml::context *html_context, void *object)
 	m_scroll_y = 0;
 	_object = object;
 	_valid = true;
+	
+	GB.GetFunction(&_func_load_image, THIS, "_LoadImage", "ss", "Image");
+	GB.GetFunction(&_func_set_cursor, THIS, "_SetCursor", "s", NULL);
+	GB.GetFunction(&_func_load_css, THIS, "_LoadCSS", "ss", "s");
 }
 
 html_document::~html_document()
@@ -217,17 +225,32 @@ litehtml::uint_ptr html_document::create_font(const litehtml::tchar_t* faceName,
 	GB_VALUE *ret;
 	GB_VALUE val;
 	void *font;
+	int len;
+	
+	len = strlen(faceName);
+	
+	if (len >=2 && faceName[0] == '\'' && faceName[len - 1] == '\'')
+	{
+		faceName++;
+		len -=2;
+	}
+	
+	if (strncasecmp(faceName, "monospace", len) == 0 && THIS->monospace_font_name)
+	{
+		faceName = THIS->monospace_font_name;
+		len = GB.StringLength(THIS->monospace_font_name);
+	}
 	
 	font = GB.New(GB.FindClass("Font"), NULL, NULL);
 	
 	val.type = GB_T_CSTRING;
 	val._string.value.addr = (char *)faceName;
 	val._string.value.start = 0;
-	val._string.value.len = strlen(faceName);
+	val._string.value.len = len;
 	GB.SetProperty(font, "Name", &val);
 	
 	val.type = GB_T_FLOAT;
-	val._float.value = size;
+	val._float.value = size * 1200 / pt_to_px(1200);
 	GB.SetProperty(font, "Size", &val);
 	
 	val.type = GB_T_BOOLEAN;
@@ -295,23 +318,28 @@ void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* t
 	end_clip();
 }
 
-int html_document::pt_to_px(int pt)
+int html_document::pt_to_px_const(int pt) const
 {
 	GET_CURRENT();
 	if (CURRENT)
-		return pt * CURRENT->resolutionX / 72;
+		return (int)(0.4 + pt * CURRENT->resolutionX / 72.0);
 	else
-		return pt * THIS->resolution / 72;
+		return (int)(0.4 + pt * THIS->resolution / 72.0);
+}
+
+int html_document::pt_to_px(int pt)
+{
+	return pt_to_px_const(pt);
 }
 
 int html_document::get_default_font_size() const
 {
-	return THIS->default_font_size ? THIS->default_font_size : 16;
+	return pt_to_px_const(THIS->default_font_size ? THIS->default_font_size : 12);
 }
 
 const litehtml::tchar_t* html_document::get_default_font_name() const
 {
-	return THIS->default_font_name ? THIS->default_font_name : "Sans";
+	return THIS->default_font_name ? THIS->default_font_name : "sans-serif";
 }
 
 void html_document::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::list_marker& marker)
@@ -352,24 +380,14 @@ void html_document::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::lis
 	end_clip();
 }
 
-void html_document::load_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl, bool redraw_on_ready)
-{
-	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "_LoadImage", "ss", "Image"))
-		return;
-	GB.Push(2, GB_T_STRING, src, 0, GB_T_STRING, baseurl, 0);
-	GB.Call(&func, 2, TRUE);
-}
-
 GB_IMG *html_document::get_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl)
 {
-	GB_FUNCTION func;
 	GB_IMG *img;
 	
-	if (GB.GetFunction(&func, THIS, "_LoadImage", "ss", "Image"))
+	if (!GB_FUNCTION_IS_VALID(&_func_load_image))
 		return NULL;
 	GB.Push(2, GB_T_STRING, src, 0, GB_T_STRING, baseurl, 0);
-	return (GB_IMG *)((GB_OBJECT *)GB.Call(&func, 2, FALSE))->value;
+	return (GB_IMG *)((GB_OBJECT *)GB.Call(&_func_load_image, 2, FALSE))->value;
 }
 
 void html_document::get_image_size(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl, litehtml::size& sz)
@@ -381,6 +399,11 @@ void html_document::get_image_size(const litehtml::tchar_t* src, const litehtml:
 		sz.width = img->width;
 		sz.height = img->height;
 	}
+}
+
+void html_document::load_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl, bool redraw_on_ready)
+{
+	get_image(src, baseurl);
 }
 
 void html_document::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint& bg)
@@ -628,11 +651,10 @@ void html_document::on_anchor_click(const litehtml::tchar_t* url, const litehtml
 
 void html_document::set_cursor(const litehtml::tchar_t* cursor)
 {
-	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "_SetCursor", "s", NULL))
+	if (!GB_FUNCTION_IS_VALID(&_func_set_cursor))
 		return;
 	GB.Push(1, GB_T_STRING, cursor, strlen(cursor));
-	GB.Call(&func, 1, TRUE);
+	GB.Call(&_func_set_cursor, 1, TRUE);
 }
 
 void html_document::transform_text(litehtml::tstring& text, litehtml::text_transform tt)
@@ -673,12 +695,12 @@ void html_document::transform_text(litehtml::tstring& text, litehtml::text_trans
 void html_document::import_css(litehtml::tstring& text, const litehtml::tstring& url, litehtml::tstring& baseurl)
 {
 	GB_VALUE *ret;
-	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "_ImportCSS", "ss", "s"))
+	
+	if (!GB_FUNCTION_IS_VALID(&_func_load_css))
 		return;
 	
 	GB.Push(2, GB_T_STRING, url.data(), url.length(), GB_T_STRING, baseurl.data(), baseurl.length());
-	ret = GB.Call(&func, 2, FALSE);
+	ret = GB.Call(&_func_load_css, 2, FALSE);
 	text.assign(ret->_string.value.addr + ret->_string.value.start, ret->_string.value.len);
 }
 
@@ -962,6 +984,7 @@ BEGIN_METHOD_VOID(HtmlDocument_free)
 	GB.FreeString(&THIS->link);
 	GB.FreeString(&THIS->base);
 	GB.FreeString(&THIS->html);
+	GB.FreeString(&THIS->monospace_font_name);
 	GB.FreeString(&THIS->default_font_name);
 	delete THIS->doc;
 	delete THIS->context;
@@ -982,25 +1005,33 @@ END_PROPERTY
 
 BEGIN_METHOD(HtmlDocument_Render, GB_INTEGER w; GB_INTEGER h)
 
-	THIS->doc->render(VARG(w), VARG(h));
+	if (THIS->doc)
+		THIS->doc->render(VARG(w), VARG(h));
 
 END_METHOD
 
 BEGIN_METHOD(HtmlDocument_Draw, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER h)
 
-	THIS->doc->draw(VARG(x), VARG(y), VARG(w), VARG(h));
+	if (THIS->doc)
+		THIS->doc->draw(VARG(x), VARG(y), VARG(w), VARG(h));
 
 END_METHOD
 
 BEGIN_PROPERTY(HtmlDocument_Width)
 
-	GB.ReturnInteger(THIS->doc->getWidth());
+	if (THIS->doc)
+		GB.ReturnInteger(THIS->doc->getWidth());
+	else
+		GB.ReturnInteger(0);
 
 END_PROPERTY
 
 BEGIN_PROPERTY(HtmlDocument_Height)
 
-	GB.ReturnInteger(THIS->doc->getHeight());
+	if (THIS->doc)
+		GB.ReturnInteger(THIS->doc->getHeight());
+	else
+		GB.ReturnInteger(0);
 
 END_PROPERTY
 
@@ -1041,6 +1072,12 @@ BEGIN_METHOD(HtmlDocument_SetDefaultFont, GB_OBJECT font)
 	
 	ret = GB.GetProperty(font, "Name");
 	GB.StoreString((GB_STRING *)ret, &THIS->default_font_name);
+
+END_METHOD
+
+BEGIN_METHOD(HtmlDocument_SetMonospaceFont, GB_STRING name)
+
+	GB.StoreString(ARG(name), &THIS->monospace_font_name);
 
 END_METHOD
 
@@ -1103,6 +1140,7 @@ GB_DESC HtmlDocumentDesc[] =
 	GB_PROPERTY("Html", "s", HtmlDocument_Html),
 	GB_METHOD("LoadCss", NULL, HtmlDocument_LoadCss, "(Css)s"),
 	GB_METHOD("SetDefaultFont", NULL, HtmlDocument_SetDefaultFont, "(Font)Font;"),
+	GB_METHOD("SetMonospaceFont", NULL, HtmlDocument_SetMonospaceFont, "(Name)s"),
 	GB_METHOD("SetMedia", NULL, HtmlDocument_SetMedia, "(ScreenWidth)i(ScreenHeight)i(Resolution)i"),
 	GB_METHOD("Reload", NULL, HtmlDocument_Reload, NULL),
 	

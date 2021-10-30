@@ -44,6 +44,7 @@ typedef
 		litehtml::context *context;
 		html_document *doc;
 		char *default_font_name;
+		char *monospace_font_name;
 		int default_font_size;
 		int screen_width;
 		int screen_height;

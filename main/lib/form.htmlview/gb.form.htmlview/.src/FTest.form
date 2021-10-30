@@ -1,11 +1,28 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,64,92)
-  Arrangement = Arrange.Fill
+  MoveScaled(0,0,121,92)
+  Arrangement = Arrange.Vertical
   Margin = True
+  { HBox1 HBox
+    MoveScaled(6,2,49,4)
+    { btnZoomIn ToolButton
+      MoveScaled(0,0,4,4)
+      Picture = Picture["icon:/small/zoom-in"]
+    }
+    { btnZoomOut ToolButton
+      MoveScaled(4,0,4,4)
+      Picture = Picture["icon:/small/zoom-out"]
+    }
+    { btnZoomNormal ToolButton
+      MoveScaled(8,0,4,4)
+      Picture = Picture["icon:/small/zoom-normal"]
+    }
+  }
   { HtmlView1 HtmlView
-    MoveScaled(8,8,38,30)
-    Background = Color.White
+    MoveScaled(9,24,38,30)
+    Background = Color.TextBackground
+    Expand = True
+    MonospaceFont = Font["Liberation Mono"]
   }
 }

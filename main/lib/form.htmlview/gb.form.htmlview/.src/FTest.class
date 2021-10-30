@@ -1,10 +1,13 @@
 ' Gambas class file
 
+Private $iZoom As Integer = 0
 
 Public Sub Form_Open()
 
-  'HtmlView1.LoadCss(File.Load("style.css"))
-  HtmlView1.Html = File.Load("test3.html")
+  HtmlView1.LoadCss(File.Load("~/gambas/git/master/app/src/gambas3/help/wiki/style-offline-htmlview.css"))
+  'HtmlView1.Html = File.Load("test6.html")
+  HtmlView1.Load("~/.local/share/gambas3/wiki/data/en/page.html")
+  'HtmlView1.Load("test3.html")
 
 End
 
@@ -16,6 +19,30 @@ End
 
 Public Sub HtmlView1_Link(Url As String)
 
-  Debug Url
+  If Url Begins "wiki://" Then
+    Try HtmlView1.Load("~/.local/share/gambas3/wiki/data/en" &/ Mid$(Url, 8) &/ "page.html")
+    If Error Then Error Error.Text
+  Endif
+
+End
+
+Public Sub btnZoomIn_Click()
+
+  $iZoom = Min(10, $iZoom + 1)
+  HtmlView1.Zoom = 2 ^ ($iZoom / 4)
+
+End
+
+Public Sub btnZoomOut_Click()
+
+  $iZoom = Max(-10, $iZoom - 1)
+  HtmlView1.Zoom = 2 ^ ($iZoom / 4)
+
+End
+
+Public Sub btnZoomNormal_Click()
+
+  $iZoom = 0
+  HtmlView1.Zoom = 1
 
 End
