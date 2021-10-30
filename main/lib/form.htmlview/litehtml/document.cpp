@@ -1051,3 +1051,4 @@ void litehtml::document::append_children_from_utf8(element& parent, const char* 
 		child->init();
 	}
 }
+

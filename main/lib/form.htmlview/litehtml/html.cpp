@@ -167,3 +167,96 @@ void litehtml::join_string(tstring& str, const string_vector& tokens, const tstr
 
 	str = ss.str();
 }
+
+double litehtml::strtod(const char *nptr, char **endptr)
+{
+	tstring num;
+	tstring dec;
+	const char *p;
+	double val = 0;
+	bool neg;
+	double f;
+	int i;
+	
+	p = nptr;
+	
+	if (*p == '+')
+	{
+		neg = false;
+		p++;
+	}
+	else if (*p == '-')
+	{
+		neg = true;
+		p++;
+	}
+	
+	while (*p)
+	{
+		if (*p == '.' || !t_isdigit(*p))
+			break;
+		num += *p++;
+	}
+	
+	f = 1.0;
+	for (i = num.length() - 1; i >= 0; i--)
+	{
+		val += (num[i] - '0') * f;
+		f *= 10.0;
+	}
+	
+	if (*p == '.')
+	{
+		p++;
+		while(*p)
+		{
+			if (!t_isdigit(*p))
+				break;
+			dec += *p++;
+		}
+		
+		f = 1.0;
+		for (i = 0; i < dec.length(); i++)
+		{
+			f /= 10.0;
+			val += (dec[i] - '0') * f;
+		}
+	}
+	
+	if (endptr)
+		*endptr = (char *)p;
+	
+	return neg ? (-val) : val;
+}
+
+bool litehtml::strcaseeq(const char *s1, const char *s2)
+{
+  int i;
+  int c;
+
+  for (i = 0;; i++)
+  {
+		c = t_tolower(s1[i]);
+    if (c != t_tolower(s2[i]))
+			return false;
+		else if (c == 0)
+			return true;
+  }
+}
+
+bool litehtml::strncaseeq(const char *s1, const char *s2, size_t n)
+{
+  int i;
+	int c;
+
+  for (i = 0; i < n; i++)
+  {
+		c = t_tolower(s1[i]);
+    if (c != t_tolower(s2[i]))
+			return false;
+  }
+
+  return true;
+}
+
+

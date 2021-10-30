@@ -4,10 +4,11 @@ Private $iZoom As Integer = 0
 
 Public Sub Form_Open()
 
-  HtmlView1.LoadCss(File.Load("~/gambas/git/master/app/src/gambas3/help/wiki/style-offline-htmlview.css"))
+  Application.Animations = True
+  'HtmlView1.LoadCss(File.Load("~/gambas/git/master/app/src/gambas3/help/wiki/style-offline-htmlview.css"))
   'HtmlView1.Html = File.Load("test6.html")
-  HtmlView1.Load("~/.local/share/gambas3/wiki/data/en/page.html")
-  'HtmlView1.Load("test3.html")
+  'HtmlView1.Load("~/.local/share/gambas3/wiki/data/en/page.html")
+  HtmlView1.Load("test3.html")
 
 End
 

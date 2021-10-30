@@ -36,10 +36,13 @@ Public Sub _new()
   
   $hView = New ScrollArea(Me) As "View"
   $hView.Tracking = True
+  $hView.Focus = True
   
   $hDoc = New HtmlDocument As "HtmlDocument"
   $hDoc.SetMedia(Desktop.Width, Desktop.Height, Desktop.Resolution)
   View_Font
+  
+  Me.Proxy = $hView
   
 End
 
@@ -303,4 +306,69 @@ Private Sub MonospaceFont_Write(Value As Font)
   $hDoc.SetMonospaceFont(Value.Name)
   Reload()
 
+End
+
+Public Sub View_KeyPress()
+
+  If Key.Code = Key.Up Then
+    
+    If Key.Control Then
+      $hView.Scroll($hView.ScrollX, 0)
+    Else If Key.Shift Then
+      $hView.Scroll($hView.ScrollX, $hView.ScrollY - 1)
+    Else
+      $hView.Scroll($hView.ScrollX, $hView.ScrollY - $hView.ClientH / 10)
+    Endif
+      
+  Else If Key.Code = Key.Down Then
+    
+    If Key.Control Then
+      $hView.Scroll($hView.ScrollX, $hView.ScrollH)
+    Else If Key.Shift Then
+      $hView.Scroll($hView.ScrollX, $hView.ScrollY + 1)
+    Else
+      $hView.Scroll($hView.ScrollX, $hView.ScrollY + $hView.ClientH / 10)
+    Endif
+    
+  Else If Key.Code = Key.Left Then
+      
+    If Key.Control Then
+      $hView.Scroll(0, $hView.ScrollY)
+    Else If Key.Shift Then
+      $hView.Scroll($hView.ScrollX - 1, $hView.ScrollY)
+    Else
+      $hView.Scroll($hView.ScrollX - $hView.ClientW / 10, $hView.ScrollY)
+    Endif
+      
+  Else If Key.Code = Key.Right Then
+      
+    If Key.Control Then
+      $hView.Scroll($hView.ScrollH, $hView.ScrollY)
+    Else If Key.Shift Then
+      $hView.Scroll($hView.ScrollX + 1, $hView.ScrollY)
+    Else
+      $hView.Scroll($hView.ScrollX + $hView.ClientW / 10, $hView.ScrollY)
+    Endif
+    
+  Else If Key.Code = Key.PageUp Then
+    
+    $hView.Scroll($hView.ScrollX, $hView.ScrollY - $hView.ClientH)
+    
+  Else If Key.Code = Key.PageDown Then
+    
+    $hView.Scroll($hView.ScrollX, $hView.ScrollY + $hView.ClientH)
+    
+  Else If Key.Code = Key.Home Then
+    
+    $hView.Scroll($hView.ScrollX, 0)
+    
+  Else If Key.Code = Key.End Then
+    
+    $hView.Scroll($hView.ScrollX, $hView.ScrollH)
+      
+  Else
+    
+  Endif
+    
+  
 End
