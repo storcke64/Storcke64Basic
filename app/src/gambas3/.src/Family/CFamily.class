@@ -76,9 +76,9 @@ End
 '' Return TRUE if the control is not managed: then a default frame with the control icon and the control name will be drawn.
 Public Sub DrawControl(hCtrl As CControl) As Boolean
 
-  If hCtrl.IsContainer() And If hCtrl["Border"] Then
+  If TypeOf(hCtrl["Border"]) = gb.Boolean And If hCtrl["Border"] Then
     Paint.DrawRect(Paint.X, Paint.Y, Paint.W, Paint.H, Color.LightForeground)
-  Else
+  Else If hCtrl Is Container Then
     PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
   Endif
   PaintIcon(hCtrl)

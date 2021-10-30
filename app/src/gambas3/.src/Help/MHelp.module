@@ -361,7 +361,7 @@ End
 '' - `TYPE_KEYWORD` for a language keyword.
 '' - `TYPE_SPECIAL` for a special method.
 
-Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As String, Optional sClass As String, Optional sMore As String, Optional hEditor As FEditor)
+Public Sub InitWebViewWith(hView As Control, iType As Integer, sSymbol As String, Optional sClass As String, Optional sMore As String, Optional hEditor As FEditor)
   
   Dim hSymbol As CSymbolInfo
   Dim hClass As CClassInfo
@@ -371,11 +371,17 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
   Dim iPos As Integer
   Dim sTemp As String
   Dim bHelpBrowser As Boolean
+  Dim hWebView As WebView
+  Dim hHtmlView As HtmlView
   
-  If Not hWebView Then 
+  If Not hView Then 
     If Not Class.IsLoaded("FHelpBrowser") Or If Not FHelpBrowser.Visible Then Return
     bHelpBrowser = True
     hWebView = FHelpBrowser.GetBrowser()
+  Else If hView Is WebView Then
+    hWebView = hView
+  Else If hView Is HtmlView Then
+    hHtmlView = hView
   Endif
   
   If iType = TYPE_NATIVE Then
@@ -455,8 +461,12 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
     sTemp &/= Replace(sUrl, "/", "|") & ".html"
     File.Save(sTemp, sHtml)
 
-    hWebView.Clear
-    hWebView.Url = "file://" & sTemp
+    If hWebView Then
+      hWebView.Clear
+      hWebView.Url = "file://" & sTemp
+    Else 
+      hHtmlView.Load(sTemp)
+    Endif
     
   Else If sUrl Then
     
@@ -469,14 +479,22 @@ Public Sub InitWebViewWith(hWebView As WebView, iType As Integer, sSymbol As Str
     sUrl = URL.SetQuery(sUrl, "nl")
     If sMore Then sUrl &= "&" & sMore
     
-    If sUrl <> hWebView.Url Then
-      hWebView.Clear
-      hWebView.Url = sUrl
+    If hWebView Then
+      If sUrl <> hWebView.Url Then
+        hWebView.Clear
+        hWebView.Url = sUrl
+      Endif
+    Else 
+      
+      If HandleSpecialUrl(hView, sUrl) Then
+        SetHtml(hView, "<html><body>" & Subst(("<tt>&1</tt> not found."), Html(sUrl)) & "</body></html>")
+      Endif
+      
     Endif
     
   Else
     
-    hWebView.SetHtml("<html><body><h2><i>" & ("No help found.") & "</i></h2></body></html>")
+    SetHtml(hView, "<html><body><h2><i>" & ("No help found.") & "</i></h2></body></html>")
     
   Endif
   
@@ -730,7 +748,7 @@ End
 
 '' Manage 'the gambas://' links
 
-Public Sub ManageSpecialLink(hWebView As WebView, sUrl As String)
+Public Sub ManageSpecialLink(hView As Object, sUrl As String)
   
   Dim sClass As String
   Dim sSymbol As String
@@ -765,20 +783,20 @@ Public Sub ManageSpecialLink(hWebView As WebView, sUrl As String)
         FMain.Show
       Else
         If aValues.Count = 4 Then
-          InitWebViewWith(hWebView, TYPE_CLASS, aValues[3])
+          InitWebViewWith(hView, TYPE_CLASS, aValues[3])
         Else
-          InitWebViewWith(hWebView, TYPE_SYMBOL, aValues[4], aValues[3])
+          InitWebViewWith(hView, TYPE_SYMBOL, aValues[4], aValues[3])
         Endif
       Endif 
       
     Else If aValues[2] = "library" Then
       
       If aValues.Count = 4 Then
-        InitWebViewWith(hWebView, TYPE_COMPONENT, aValues[3])
+        InitWebViewWith(hView, TYPE_COMPONENT, aValues[3])
       Else If aValues.Count = 5 Then
-        InitWebViewWith(hWebView, TYPE_CLASS, aValues[3] &/ aValues[4])
+        InitWebViewWith(hView, TYPE_CLASS, aValues[3] &/ aValues[4])
       Else If aValues.Count = 6
-        InitWebViewWith(hWebView, TYPE_SYMBOL, aValues[5], aValues[3] &/ aValues[4])
+        InitWebViewWith(hView, TYPE_SYMBOL, aValues[5], aValues[3] &/ aValues[4])
       Endif
       
     Endif
@@ -787,7 +805,7 @@ Public Sub ManageSpecialLink(hWebView As WebView, sUrl As String)
     
     sSymbol = aValues[3]
     sClass = File.Name(File.Dir(sUrl))
-    InitWebViewWith(hWebView, TYPE_SYMBOL, sSymbol, sClass)
+    InitWebViewWith(hView, TYPE_SYMBOL, sSymbol, sClass)
     
   Endif 
   
@@ -915,8 +933,19 @@ Public Sub GetOfflineState() As Integer
   
 End
 
+Private Sub SetHtml(hView As Object, sHtml As String)
+  
+  If hView Is WebView Then
+    hView.SetHtml(sHtml)
+  Else 
+    hView.Html = sHtml
+  Endif
+  
+End
 
-Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader As Boolean, Optional sHighlight As String) As Boolean
+
+
+Public Sub MakeOffline(hView As Object, sUrl As String, Optional bNoHeader As Boolean, Optional sHighlight As String) As Boolean
   
   Dim sFile As String
   Dim sHtml As String
@@ -931,7 +960,7 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Wiki.InfoDir = CComponent.GetInfoDir()
   
   If Not IsDir(Wiki.Root) Then
-    hWebView.SetHtml("<h2>" & ("Documentation is not available.") & "</h2>")
+    SetHtml(hView, "<h2>" & ("Documentation is not available.") & "</h2>")
     Return
   Endif
   
@@ -1012,10 +1041,13 @@ Public Sub MakeOffline(hWebView As WebView, sUrl As String, Optional bNoHeader A
   Output To Default
   Close #hFile
 
-  sUrl = "file://" & URL.Encode(sPath)
-  If sHighlight Then sUrl &= "?ht=" & URL.Encode(sHighlight)
-
-  hWebView.Url = sUrl
+  If hView Is WebView Then
+    sUrl = "file://" & URL.Encode(sPath)
+    If sHighlight Then sUrl &= "?ht=" & URL.Encode(sHighlight)
+    hView.Url = sUrl
+  Else 
+    hView.Load(sPath)
+  Endif
   
 Catch
   
@@ -1039,5 +1071,24 @@ End
 Public Sub OnDocumentationUpdate()
   
   $bInitOffline = False
+  
+End
+
+Private Sub HandleSpecialURL(hView As Control, sUrl As String) As Boolean
+
+  If sUrl Begins "gambas://" Then 
+    
+    ManageSpecialLink(hView, sUrl)
+    
+  Else If sUrl Begins "wiki://" Then
+    
+    If MakeOffline(hView, sUrl, True) Then
+      Return True
+    Endif
+  Else 
+    
+    Return True
+    
+  Endif
   
 End

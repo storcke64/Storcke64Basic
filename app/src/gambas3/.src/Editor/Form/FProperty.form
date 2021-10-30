@@ -87,7 +87,7 @@
     }
   }
   { spnHelp SidePanel
-    MoveScaled(15,46,36,17)
+    MoveScaled(13,48,36,17)
     Arrangement = Arrange.Vertical
     Orientation = Align.Bottom
     Separator = True
@@ -108,10 +108,11 @@
     { Separator1 Separator
       MoveScaled(16,5,10,0)
     }
-    { webHelp HelpView
-      MoveScaled(2,7,16,9)
+    { hvwHelp HtmlView
+      MoveScaled(5,6,19,9)
+      Background = Color.TextBackground
       Expand = True
-      NoHeader = True
+      Border = False
     }
   }
 }

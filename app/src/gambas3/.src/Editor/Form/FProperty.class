@@ -43,6 +43,8 @@ Public Sub _new()
   $iBgSet = Color.Merge(Color.TextBackground, Color.LightForeground, 0.25)
   $iBgModified = Color.Merge(Color.TextBackground, Color.LightBackground, 0.25)
   
+  hvwHelp.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
+
 End
 
 Public Sub Form_Open()
@@ -1195,7 +1197,7 @@ Public Sub ReadConfig()
   
   Project.SetNormalFont(grdProperty)
 
-  webHelp.Zoom = Settings["/Help/Zoom", 80] / 100
+  hvwHelp.Zoom = Settings["/Help/Zoom", 80] / 100
   
   txtProperty.Font = grdProperty.Font
   cmbProperty.Font = grdProperty.Font
@@ -1347,10 +1349,10 @@ Public Sub spnHelp_Hide()
 
 End
 
-Private Sub GetWebView() As HelpView
+Private Sub GetWebView() As HtmlView
   
   If spnHelp.Hidden Then Return
-  Return webHelp
+  Return hvwHelp
   
 End
 

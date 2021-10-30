@@ -51,6 +51,7 @@ Public Sub _new()
   
   gvwComp.Columns.Count = 1
   ScrollArea(gvwComp.Children[0]).NoAnimation = True
+  hvwHelp.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
 
 End
 
@@ -269,9 +270,9 @@ Public Sub Open(hCompletion As CCompletion, sMode As String, Optional sClass As 
   
   If $bShowHelp Then
     sepHelp.Show
-    webHelp.Enabled = False
+    hvwHelp.Enabled = False
     timEnable.Start
-    webHelp.Show
+    hvwHelp.Show
     panResizeTop.Show
     panResizeBottom.Show
     $iMinW = W + 4 + 128
@@ -281,7 +282,7 @@ Public Sub Open(hCompletion As CCompletion, sMode As String, Optional sClass As 
     Me.Resize(Max($iMinW, Me.W), Max(Me.H, Max($iMinH, Min(10 * gvwComp.Rows[0].H, gvwComp.ScrollH) + 2)))
   Else
     sepHelp.Hide
-    webHelp.Hide
+    hvwHelp.Hide
     panResizeTop.Hide
     panResizeBottom.Hide
     gvwComp.Expand = True
@@ -1116,7 +1117,7 @@ Public Sub timHelp_Timer()
     iType = CInt(Left($aKey[gvwComp.Row]))
     sClass = $sClass
     If Not sClass Then sClass = $sEventClass
-    MHelp.InitWebViewWith(webHelp, iType, sSymbol, sClass, "noimage", hModule)
+    MHelp.InitWebViewWith(hvwHelp, iType, sSymbol, sClass, "noimage", hModule)
   Endif
 
 End
@@ -1130,7 +1131,7 @@ Catch
   
 End
 
-Public Sub webHelp_GotFocus()
+Public Sub hvwHelp_GotFocus()
 
   gvwComp.SetFocus
 
@@ -1214,14 +1215,14 @@ End
 
 Public Sub timEnable_Timer()
 
-  webHelp.Enabled = True
+  hvwHelp.Enabled = True
   timEnable.Stop
 
 End
 
 Public Sub ReadConfig()
   
-  webHelp.Zoom = Settings["/Help/Zoom", 80] / 100
-  If $hEditor Then Me.Font = $hEditor.Font
+  hvwHelp.Zoom = Settings["/Help/Zoom", 80] / 100
+  If $hEditor Then gvwComp.Font = $hEditor.Font
   
 End
