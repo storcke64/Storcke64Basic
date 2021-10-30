@@ -4,12 +4,18 @@
 Public Sub Form_Open()
 
   'HtmlView1.LoadCss(File.Load("style.css"))
-  HtmlView1.Html = File.Load("test2.html")
+  HtmlView1.Html = File.Load("test3.html")
 
 End
 
 Public Sub HtmlView1_Title(Title As String)
 
   Me.Title = Title
+
+End
+
+Public Sub HtmlView1_Link(Url As String)
+
+  Debug Url
 
 End

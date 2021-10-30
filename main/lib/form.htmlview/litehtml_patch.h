@@ -1,6 +1,6 @@
 /***************************************************************************
 
-  c_htmldocument.h
+  litehtml_patch.h
 
   gb.form.htmlview component
 
@@ -22,45 +22,29 @@
   MA 02110-1301, USA.
 
 ***************************************************************************/
+ 
+#ifndef __LITEHTML_PATCH_H
+#define __LITEHTML_PATCH_H
 
-#ifndef __C_HTMLDOCUMENT_H
-#define __C_HTMLDOCUMENT_H
+#define NO_GAMBAS_CASE_REPLACEMENT
+#include "gambas.h"
+extern "C" const GB_INTERFACE *GB_PTR;
+#define GB (*GB_PTR)
 
-#include "litehtml/html.h"
-#include "litehtml/document.h"
-#include "litehtml/html_tag.h"
-#include "litehtml/stylesheet.h"
-#include "litehtml/element.h"
-#include "litehtml/html_tag.h"
+#undef t_strcasecmp
+#define t_strcasecmp GB.StrCaseCmp
 
-#include "main.h"
+#undef t_strncasecmp
+#define t_strncasecmp GB.StrNCaseCmp
 
-class html_document;
+#undef t_tolower
+#define t_tolower GB.ToLower
 
-typedef
-	struct {
-		GB_BASE ob;
-		char *html;
-		litehtml::context *context;
-		html_document *doc;
-		char *default_font_name;
-		int default_font_size;
-		int screen_width;
-		int screen_height;
-		int resolution;
-		char *link;
-		char *base;
-	}
-	CHTMLDOCUMENT;
+#undef t_isdigit
+#define t_isdigit(_c) ((_c) >= '0' && (_c) <= '9')
 
-#ifndef __C_HTMLDOCUMENT_CPP
-
-extern GB_DESC HtmlDocumentDesc[];
-
-#else
-
-#define THIS ((CHTMLDOCUMENT *)_object)
-
-#endif
+#undef t_strtod
+#define t_strtod my_strtod
+extern "C" double my_strtod(const char *nptr, char **endptr);
 
 #endif

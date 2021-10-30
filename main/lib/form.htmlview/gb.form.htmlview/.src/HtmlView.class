@@ -4,11 +4,14 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*"
+Public Const _Properties As String = "*,Border=True"
 
 Event Title(Title As String)
+Event Link(Url As String)
 
+Property Base As String
 Property Html As String
+Property Border As Boolean
 
 Private $hDoc As HtmlDocument
 Private $hView As ScrollArea
@@ -17,6 +20,9 @@ Private $bCssLoaded As Boolean
 
 Private $iLastX As Integer
 Private $iLastY As Integer
+Private $sBase As String
+
+Static Private $cImage As New Collection
 
 Public Sub _new()
   
@@ -24,6 +30,7 @@ Public Sub _new()
   $hView.Tracking = True
   
   $hDoc = New HtmlDocument As "HtmlDocument"
+  $hDoc.SetMedia(Desktop.Width, Desktop.Height, Desktop.Resolution)
   View_Font
   
 End
@@ -34,9 +41,18 @@ Public Sub View_Font()
   
 End
 
-Public Sub View_Resize()
+Public Sub View_Arrange()
+
+  Dim W As Integer
+  Dim H As Integer
   
-  $hDoc.Render($hView.ClientW, $hView.ClientH)
+  W = $hView.W - Style.ScrollbarSize
+  H = $hView.H - Style.ScrollbarSize
+  If $hView.Border Then 
+     W -= 2
+     H -= 2
+  Endif
+  $hDoc.Render(W, H)
   $hView.ResizeContents($hDoc.W, $hDoc.H)
   
 End
@@ -55,6 +71,23 @@ Public Sub View_MouseMove()
   $hDoc.OnMouseMove($iLastX + $hView.ScrollX, $iLastY + $hView.ScrollY)
   
 End
+
+Public Sub View_MouseDown()
+  
+  $iLastX = Mouse.X
+  $iLastY = Mouse.Y
+  $hDoc.OnMouseDown($iLastX + $hView.ScrollX, $iLastY + $hView.ScrollY)
+  
+End
+
+Public Sub View_MouseUp()
+  
+  $iLastX = Mouse.X
+  $iLastY = Mouse.Y
+  $hDoc.OnMouseUp($iLastX + $hView.ScrollX, $iLastY + $hView.ScrollY)
+  
+End
+
 
 Public Sub View_Scroll()
   
@@ -80,7 +113,7 @@ Public Sub LoadCss(Optional Css As String)
   Dim sMaster As String
   
   sMaster = File.Load("master.css")
-  sMaster = Replace(sMaster, "$(monospace)", "Cousine")
+  sMaster = Replace(sMaster, "$(monospace)", "Liberation Mono")
   $hDoc.LoadCss(sMaster & Css)
   $bCssLoaded = True
   
@@ -100,11 +133,68 @@ End
 
 Public Sub _SetCursor(sCursor As String)
   
-  Select sCursor
-    Case "auto"
-      $hView.Mouse = Mouse.Default
-    Case "pointer"
-      $hView.Mouse = Mouse.Pointing
-  End Select
+  For Each sCursor In Split(sCursor)
+    If sCursor = "auto" Then
+      $hView.Mouse = Cursor.Default
+      Break 
+    Else If sCursor Like "url(*" Then
+      $hView.Mouse = Cursor.Default
+      Break 
+    Else
+      Try $hView.Mouse = Object.GetProperty(Cursor, Replace(sCursor, "-", ""))
+      If Not Error Then Break
+    Endif 
+  Next
   
+End
+
+Private Function Base_Read() As String
+
+  Return $sBase
+
+End
+
+Private Sub Base_Write(Value As String)
+
+  $sBase = Value
+  $hDoc.Reload()
+
+End
+
+Public Sub HtmlDocument_Link(sLink As String)
+  
+  Raise Link(sLink)
+  
+End
+
+Public Sub HtmlDocument_Title(sTitle As String)
+  
+  Raise Title(sTitle)
+  
+End
+
+Public Sub _LoadImage(sUrl As String, sBase As String) As Image
+  
+  Dim hImage As Image
+  
+  hImage = $cImage[sUrl]
+  If Not hImage Then
+    If sUrl = "desert.jpg" Then hImage = Image.Load("desert.jpg")
+    If hImage Then $cImage[sUrl] = hImage
+  Endif
+  
+  Return hImage
+  
+End
+
+Private Function Border_Read() As Boolean
+
+  Return $hView.Border
+
+End
+
+Private Sub Border_Write(Value As Boolean)
+
+  $hView.Border = Value
+
 End

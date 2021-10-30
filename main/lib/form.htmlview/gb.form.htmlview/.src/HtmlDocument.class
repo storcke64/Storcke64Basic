@@ -10,27 +10,28 @@ Private Sub GetView() As HtmlView
 
 End
 
-Public Sub ImportCss(sUrl As String, sBase As String) As String
+Public Sub _ImportCss(sUrl As String, sBase As String) As String
   
   Debug sUrl;; sBase
   If File.Name(sUrl) = "style.css" Then Return File.Load("style.css")
   
 End
 
-Public Sub SetTitle(sTitle As String)
-  
-  GetView()._SetTitle(sTitle)
-  
-End
-
-Public Sub SetCursor(sCursor As String)
+Public Sub _SetCursor(sCursor As String)
   
   GetView()._SetCursor(sCursor)
   
 End
 
-Public Sub Refresh(X As Integer, Y As Integer, W As Integer, H As Integer)
+Public Sub _Refresh(X As Integer, Y As Integer, W As Integer, H As Integer)
   
   GetView()._RefreshView(X, Y, W, H)
   
 End
+
+Public Sub _LoadImage(sUrl As String, sBase As String) As Image
+  
+  Return GetView()._LoadImage(sUrl, sBase)
+  
+End
+

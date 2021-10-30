@@ -89,4 +89,6 @@ namespace litehtml
 #endif
 }
 
+#include "litehtml_patch.h"
+
 #endif  // LH_OS_TYPES_H

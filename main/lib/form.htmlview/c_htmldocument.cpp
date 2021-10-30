@@ -31,6 +31,9 @@
 #define PAINT _paint->desc
 #define CURRENT _paint
 
+DECLARE_EVENT(EVENT_Link);
+DECLARE_EVENT(EVENT_Title);
+
 //-------------------------------------------------------------------------
 
 static int convert_color(const litehtml::web_color &color)
@@ -44,6 +47,10 @@ static int get_font_ascent(void *font)
 	return ret->_integer.value;
 }
 
+static bool same_color(const litehtml::web_color &color1, const litehtml::web_color &color2)
+{
+	return color1.red == color2.red && color1.green == color2.green && color1.blue == color2.blue && color1.alpha == color2.alpha;
+}
 
 //-------------------------------------------------------------------------
 
@@ -73,7 +80,6 @@ struct clip_box
 	}
 };
 
-
 class html_document : public litehtml::document_container
 {
 private:
@@ -83,9 +89,13 @@ private:
 	bool _valid;
 	int m_client_w;
 	int m_client_h;
+	int m_scroll_x;
+	int m_scroll_y;
 	clip_box::vector m_clips;
 	
 public:
+	
+	enum { MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE };
 	
 	void *_object;
 	
@@ -103,7 +113,9 @@ public:
 	void begin_clip();
 	void end_clip();
 	void set_color(const litehtml::web_color &color) { DRAW.Paint.SetBackground(convert_color(color)); }
-	void on_mouse_move(int x, int y);
+	void on_mouse(int event, int x, int y);
+	void on_media_change();
+	GB_IMG *get_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl);
 	
 protected:
 	
@@ -145,6 +157,8 @@ html_document::html_document(litehtml::context *html_context, void *object)
 	m_html = NULL;
 	m_client_w = 0;
 	m_client_h = 0;
+	m_scroll_x = 0;
+	m_scroll_y = 0;
 	_object = object;
 	_valid = true;
 }
@@ -158,9 +172,10 @@ bool html_document::render(int w, int h)
 	if (!m_html)
 		return true;
 	
-	m_html->render(w);
 	m_client_w = w;
 	m_client_h = h;
+  m_html->media_changed();
+	m_html->render(w);
 	return false;
 }
 
@@ -170,12 +185,10 @@ void html_document::draw(int x, int y, int w, int h)
 		return;
 	
 	litehtml::position pos;
-	pos.x = x;
-	pos.y = y;
+	pos.x = m_scroll_x = x;
+	pos.y = m_scroll_y = y;
 	pos.width = w;
 	pos.height = h;
-	
-	m_client_h = h;
 	
 	m_html->draw((litehtml::uint_ptr)this, 0, 0, &pos);
 }
@@ -257,11 +270,16 @@ void html_document::delete_font(litehtml::uint_ptr hFont)
 
 int html_document::text_width(const litehtml::tchar_t* text, litehtml::uint_ptr hFont)
 {
+	static GB_FUNCTION _func = { 0 };
 	GB_VALUE *ret;
-	GB_FUNCTION func;
-	GB.GetFunction(&func, (void *)hFont, "TextWidth", "s", "i");
+	
+	if (!_func.object)
+		GB.GetFunction(&_func, (void *)hFont, "TextWidth", "s", "i");
+	else
+		_func.object = (void *)hFont;
+	
 	GB.Push(1, GB_T_STRING, text, strlen(text));
-	ret = GB.Call(&func, 1, FALSE);
+	ret = GB.Call(&_func, 1, FALSE);
 	return ret->_integer.value;
 }
 
@@ -280,15 +298,10 @@ void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* t
 int html_document::pt_to_px(int pt)
 {
 	GET_CURRENT();
-	
-	return pt * CURRENT->resolutionX / 72;
-	
-	/*GB_VALUE *ret;
-	GB_FUNCTION func;
-	GB.GetFunction(&func, THIS, "PtToPx", "i", "i");
-	GB.Push(1, GB_T_INTEGER, pt);
-	ret = GB.Call(&func, 1, FALSE);
-	return ret->_integer.value;*/
+	if (CURRENT)
+		return pt * CURRENT->resolutionX / 72;
+	else
+		return pt * THIS->resolution / 72;
 }
 
 int html_document::get_default_font_size() const
@@ -341,10 +354,33 @@ void html_document::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::lis
 
 void html_document::load_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl, bool redraw_on_ready)
 {
+	GB_FUNCTION func;
+	if (GB.GetFunction(&func, THIS, "_LoadImage", "ss", "Image"))
+		return;
+	GB.Push(2, GB_T_STRING, src, 0, GB_T_STRING, baseurl, 0);
+	GB.Call(&func, 2, TRUE);
+}
+
+GB_IMG *html_document::get_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl)
+{
+	GB_FUNCTION func;
+	GB_IMG *img;
+	
+	if (GB.GetFunction(&func, THIS, "_LoadImage", "ss", "Image"))
+		return NULL;
+	GB.Push(2, GB_T_STRING, src, 0, GB_T_STRING, baseurl, 0);
+	return (GB_IMG *)((GB_OBJECT *)GB.Call(&func, 2, FALSE))->value;
 }
 
 void html_document::get_image_size(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl, litehtml::size& sz)
 {
+	GB_IMG *img = get_image(src, baseurl);
+	
+	if (img)
+	{
+		sz.width = img->width;
+		sz.height = img->height;
+	}
 }
 
 void html_document::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint& bg)
@@ -366,24 +402,89 @@ void html_document::draw_background(litehtml::uint_ptr hdc, const litehtml::back
 	}
 	else
 		PAINT->Clip(CURRENT, FALSE);
+	
+	if (!bg.image.empty())
+	{
+		GB_IMG *image = get_image(bg.image.c_str(), bg.baseurl.c_str());
+		int x, y;
+		
+		if (image)
+		{
+			if (bg.attachment == litehtml::background_attachment_fixed)
+				DRAW.Paint.Translate(m_scroll_x, m_scroll_y);
+			
+			switch(bg.repeat)
+			{
+				case litehtml::background_repeat_no_repeat:
+					
+					PAINT->DrawImage(CURRENT, image, bg.position_x, bg.position_y, bg.image_size.width, bg.image_size.height, 1.0, NULL);
+					break;
+
+				case litehtml::background_repeat_repeat_x:
+						
+					x = -((bg.position_x - bg.clip_box.x + bg.image_size.width - 1) / bg.image_size.width * bg.image_size.width);
+					while (x < bg.clip_box.width)
+					{
+						PAINT->DrawImage(CURRENT, image, bg.position_x + x, bg.position_y, bg.image_size.width, bg.image_size.height, 1.0, NULL);
+						x += bg.image_size.width;
+					}
+					break;
+
+				case litehtml::background_repeat_repeat_y:
+						
+					y = -((bg.position_y - bg.clip_box.y + bg.image_size.height - 1) / bg.image_size.height * bg.image_size.height);
+					while (y < bg.clip_box.height)
+					{
+						PAINT->DrawImage(CURRENT, image, bg.position_x, bg.position_y + y, bg.image_size.width, bg.image_size.height, 1.0, NULL);
+						y += bg.image_size.height;
+					}
+					break;
+
+				case litehtml::background_repeat_repeat:
+						
+					x = -((bg.position_x - bg.clip_box.x + bg.image_size.width - 1) / bg.image_size.width * bg.image_size.width);
+					while (x < bg.clip_box.width)
+					{
+						y = -((bg.position_y - bg.clip_box.y + bg.image_size.height - 1) / bg.image_size.height * bg.image_size.height);
+						while (y < bg.clip_box.height)
+						{
+							PAINT->DrawImage(CURRENT, image, bg.position_x + x, bg.position_y + y, bg.image_size.width, bg.image_size.height, 1.0, NULL);
+							y += bg.image_size.height;
+						}
+						x += bg.image_size.width;
+					}
+					break;
+			}
+		}
+	}
 
 	end_clip();
 }
-
 
 void html_document::draw_borders(litehtml::uint_ptr hdc, const litehtml::borders& borders, const litehtml::position& draw_pos, bool root)
 {
 	litehtml::position inner_pos;
 	litehtml::border_radiuses inner_radius;
 	bool btop, bright, bbottom, bleft;
+	int btw, brw, bbw, blw;
 	
-	btop = borders.top.width > 0 && borders.top.style > litehtml::border_style_hidden; // && borders.top.color.alpha > 0;
-	bright = borders.right.width > 0 && borders.right.style > litehtml::border_style_hidden; // && borders.right.color.alpha > 0;
-	bbottom = borders.bottom.width > 0 && borders.bottom.style > litehtml::border_style_hidden; // && borders.bottom.color.alpha > 0;
-	bleft = borders.left.width > 0 && borders.left.style > litehtml::border_style_hidden; // && borders.left.color.alpha > 0;
+	btw = borders.top.width;
+	brw = borders.right.width;
+	bbw = borders.bottom.width;
+	blw = borders.left.width;
+	
+	btop = btw > 0 && borders.top.style > litehtml::border_style_hidden; // && borders.top.color.alpha > 0;
+	bright = brw > 0 && borders.right.style > litehtml::border_style_hidden; // && borders.right.color.alpha > 0;
+	bbottom = bbw > 0 && borders.bottom.style > litehtml::border_style_hidden; // && borders.bottom.color.alpha > 0;
+	bleft = blw > 0 && borders.left.style > litehtml::border_style_hidden; // && borders.left.color.alpha > 0;
 	
 	if (!btop && !bright && !bbottom && !bleft)
 		return;
+	
+	/*if (!btop) btw = 0;
+	if (!bright) brw = 0;
+	if (!bbottom) bbw = 0;
+	if (!bleft) blw = 0;*/
 	
 	GET_CURRENT();
 	
@@ -396,45 +497,123 @@ void html_document::draw_borders(litehtml::uint_ptr hdc, const litehtml::borders
 	inner_radius.bottom_left_y = inner_radius.bottom_left_x;
 	inner_radius.bottom_right_y = inner_radius.bottom_right_x;
 	
-	inner_radius.top_left_x -= borders.left.width;
-	inner_radius.top_left_y -= borders.top.width;
-	inner_radius.top_right_x -= borders.right.width;
-	inner_radius.top_right_y -= borders.top.width;
-	inner_radius.bottom_left_x -= borders.left.width;
-	inner_radius.bottom_left_y -= borders.bottom.width;
-	inner_radius.bottom_right_x -= borders.right.width;
-	inner_radius.bottom_right_y -= borders.bottom.width;
+	inner_radius.top_left_x -= blw;
+	inner_radius.top_left_y -= btw;
+	inner_radius.top_right_x -= brw;
+	inner_radius.top_right_y -= btw;
+	inner_radius.bottom_left_x -= blw;
+	inner_radius.bottom_left_y -= bbw;
+	inner_radius.bottom_right_x -= brw;
+	inner_radius.bottom_right_y -= bbw;
 	inner_radius.fix_values();
 	
 	inner_pos = draw_pos;
 	
-	inner_pos.x += borders.left.width;
-	inner_pos.width -= borders.left.width + borders.right.width;
-	inner_pos.y += borders.top.width;
-	inner_pos.height -= borders.top.width + borders.bottom.width;
+	inner_pos.x += blw;
+	inner_pos.width -= blw + brw;
+	inner_pos.y += btw;
+	inner_pos.height -= btw + bbw;
 	
-	rounded_rectangle(draw_pos, borders.radius);
-	if (inner_pos.width > 0 && inner_pos.height > 0)
-		rounded_rectangle(inner_pos, inner_radius, true, true);
+	if (same_color(borders.left.color, borders.right.color) && same_color(borders.left.color, borders.top.color) && same_color(borders.left.color, borders.bottom.color))
+	{
+		rounded_rectangle(draw_pos, borders.radius);
+		if (inner_pos.width > 0 && inner_pos.height > 0)
+			rounded_rectangle(inner_pos, inner_radius, true, true);
 	
-	set_color(borders.top.color);
-	PAINT->Fill(CURRENT, FALSE);
+		set_color(borders.left.color);
+		PAINT->Fill(CURRENT, FALSE);
+	}
+	else
+	{
+		if (bleft)
+		{
+			PAINT->Save(CURRENT);
+			PAINT->MoveTo(CURRENT, draw_pos.x, draw_pos.y);
+			PAINT->LineTo(CURRENT, draw_pos.x + blw * 2, draw_pos.y + btw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + blw * 2, draw_pos.y + draw_pos.height - bbw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x, draw_pos.y + draw_pos.height);
+			PAINT->LineTo(CURRENT, draw_pos.x, draw_pos.y);
+			PAINT->Clip(CURRENT, FALSE);
+			
+			rounded_rectangle(draw_pos, borders.radius);
+			if (inner_pos.width > 0 && inner_pos.height > 0)
+				rounded_rectangle(inner_pos, inner_radius, true, true);
+		
+			set_color(borders.left.color);
+			PAINT->Fill(CURRENT, FALSE);
+			PAINT->Restore(CURRENT);
+		}
+		
+		if (bright)
+		{
+			PAINT->Save(CURRENT);
+			PAINT->MoveTo(CURRENT, draw_pos.x + draw_pos.width, draw_pos.y);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width - brw * 2, draw_pos.y + btw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width - brw * 2, draw_pos.y + draw_pos.height - bbw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width, draw_pos.y + draw_pos.height);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width, draw_pos.y);
+			PAINT->Clip(CURRENT, FALSE);
+			
+			rounded_rectangle(draw_pos, borders.radius);
+			if (inner_pos.width > 0 && inner_pos.height > 0)
+				rounded_rectangle(inner_pos, inner_radius, true, true);
+		
+			set_color(borders.right.color);
+			PAINT->Fill(CURRENT, FALSE);
+			PAINT->Restore(CURRENT);
+		}
+		
+		if (btop)
+		{
+			PAINT->Save(CURRENT);
+			PAINT->MoveTo(CURRENT, draw_pos.x - 1, draw_pos.y);
+			PAINT->LineTo(CURRENT, draw_pos.x - 1 + blw * 2, draw_pos.y + btw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width + 1 - brw * 2, draw_pos.y + btw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width + 1, draw_pos.y);
+			PAINT->LineTo(CURRENT, draw_pos.x - 1, draw_pos.y);
+			PAINT->Clip(CURRENT, FALSE);
+			
+			rounded_rectangle(draw_pos, borders.radius);
+			if (inner_pos.width > 0 && inner_pos.height > 0)
+				rounded_rectangle(inner_pos, inner_radius, true, true);
+		
+			set_color(borders.top.color);
+			PAINT->Fill(CURRENT, FALSE);
+			PAINT->Restore(CURRENT);
+		}
+		
+		if (bbottom)
+		{
+			PAINT->Save(CURRENT);
+			PAINT->MoveTo(CURRENT, draw_pos.x - 1, draw_pos.y + draw_pos.height);
+			PAINT->LineTo(CURRENT, draw_pos.x - 1 + blw * 2, draw_pos.y + draw_pos.height - bbw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width + 1 - brw * 2, draw_pos.y + draw_pos.height - bbw * 2);
+			PAINT->LineTo(CURRENT, draw_pos.x + draw_pos.width + 1, draw_pos.y + draw_pos.height);
+			PAINT->LineTo(CURRENT, draw_pos.x - 1, draw_pos.y + draw_pos.height);
+			PAINT->Clip(CURRENT, FALSE);
+			
+			rounded_rectangle(draw_pos, borders.radius);
+			if (inner_pos.width > 0 && inner_pos.height > 0)
+				rounded_rectangle(inner_pos, inner_radius, true, true);
+		
+			set_color(borders.bottom.color);
+			PAINT->Fill(CURRENT, FALSE);
+			PAINT->Restore(CURRENT);
+		}
+	}
 	
 	end_clip();
 }
 
-
 void html_document::set_caption(const litehtml::tchar_t* caption)
 {
-	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "SetTitle", "s", NULL))
-		return;
-	GB.Push(1, GB_T_STRING, caption, strlen(caption));
-	GB.Call(&func, 1, TRUE);
+	GB.Raise(THIS, EVENT_Title, 1, GB_T_STRING, caption, strlen(caption));
 }
 
 void html_document::set_base_url(const litehtml::tchar_t* base_url)
 {
+	GB.FreeString(&THIS->base);
+	THIS->base = GB.NewZeroString(base_url);
 }
 
 void html_document::link(const std::shared_ptr<litehtml::document>& doc, const litehtml::element::ptr& el)
@@ -443,12 +622,14 @@ void html_document::link(const std::shared_ptr<litehtml::document>& doc, const l
 
 void html_document::on_anchor_click(const litehtml::tchar_t* url, const litehtml::element::ptr& el)
 {
+	GB.FreeString(&THIS->link);
+	THIS->link = GB.NewZeroString(url);
 }
 
 void html_document::set_cursor(const litehtml::tchar_t* cursor)
 {
 	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "SetCursor", "s", NULL))
+	if (GB.GetFunction(&func, THIS, "_SetCursor", "s", NULL))
 		return;
 	GB.Push(1, GB_T_STRING, cursor, strlen(cursor));
 	GB.Call(&func, 1, TRUE);
@@ -456,13 +637,44 @@ void html_document::set_cursor(const litehtml::tchar_t* cursor)
 
 void html_document::transform_text(litehtml::tstring& text, litehtml::text_transform tt)
 {
+	static GB_FUNCTION func_capitalize = { 0 };
+	static GB_FUNCTION func_upper = { 0 };
+	static GB_FUNCTION func_lower = { 0 };
+	
+	GB_FUNCTION *func;
+	GB_VALUE *ret;
+	
+	switch(tt)
+	{
+		case litehtml::text_transform_capitalize:
+			if (!GB_FUNCTION_IS_VALID(&func_capitalize))
+				GB.GetFunction(&func_capitalize, (void *)GB.FindClass("String"), "UCaseFirst", "s", "s");
+			func = &func_capitalize;
+			break;
+			
+    case litehtml::text_transform_uppercase:
+			if (!GB_FUNCTION_IS_VALID(&func_upper))
+				GB.GetFunction(&func_upper, (void *)GB.FindClass("String"), "Upper", "s", "s");
+			func = &func_upper;
+			break;
+			
+    case litehtml::text_transform_lowercase:
+			if (!GB_FUNCTION_IS_VALID(&func_lower))
+				GB.GetFunction(&func_lower, (void *)GB.FindClass("String"), "Lower", "s", "s");
+			func = &func_lower;
+			break;
+	}
+	
+	GB.Push(1, GB_T_STRING, text.data(), text.length());
+	ret = GB.Call(func, 1, FALSE);
+	text.assign(ret->_string.value.addr + ret->_string.value.start, ret->_string.value.len);
 }
 
 void html_document::import_css(litehtml::tstring& text, const litehtml::tstring& url, litehtml::tstring& baseurl)
 {
 	GB_VALUE *ret;
 	GB_FUNCTION func;
-	if (GB.GetFunction(&func, THIS, "ImportCSS", "ss", "s"))
+	if (GB.GetFunction(&func, THIS, "_ImportCSS", "ss", "s"))
 		return;
 	
 	GB.Push(2, GB_T_STRING, url.data(), url.length(), GB_T_STRING, baseurl.data(), baseurl.length());
@@ -661,10 +873,21 @@ std::shared_ptr<litehtml::element> html_document::create_element(const litehtml:
 
 void html_document::get_media_features(litehtml::media_features& media) const
 {
+	media.type = litehtml::media_type_screen;
+	media.width = m_client_w;
+	media.height = m_client_h;
+	media.device_width = THIS->screen_width;
+	media.device_height = THIS->screen_height;
+	media.color = 8;
+	media.monochrome = 0;
+	media.color_index = 256;
+	media.resolution = THIS->resolution ? THIS->resolution : 96;
 }
 
 void html_document::get_language(litehtml::tstring& language, litehtml::tstring & culture) const
 {
+	language = "en";
+	culture = "";
 }
 
 litehtml::tstring	html_document::resolve_color(const litehtml::tstring& color) const
@@ -672,14 +895,34 @@ litehtml::tstring	html_document::resolve_color(const litehtml::tstring& color) c
 	return litehtml::tstring();
 }
 
-void html_document::on_mouse_move(int x, int y)
+void html_document::on_mouse(int event, int x, int y)
 {
 	litehtml::position::vector redraw_boxes;
+	bool ret;
 	
-	if (m_html->on_mouse_over(x, y, x, y, redraw_boxes))
+	switch (event)
+	{
+		case MOUSE_DOWN:
+			ret = m_html->on_lbutton_down(x, y, x, y, redraw_boxes);
+			break;
+		
+		case MOUSE_UP:
+			GB.FreeString(&THIS->link);
+			ret = m_html->on_lbutton_up(x, y, x, y, redraw_boxes);
+			break;
+		
+		case MOUSE_MOVE:
+			ret = m_html->on_mouse_over(x, y, x, y, redraw_boxes);
+			break;
+			
+		default:
+			ret = false;
+	}
+	
+	if (ret)
 	{
 		GB_FUNCTION func;
-		if (GB.GetFunction(&func, THIS, "Refresh", "iiii", NULL))
+		if (GB.GetFunction(&func, THIS, "_Refresh", "iiii", NULL))
 			return;
 	
 		for(auto& pos : redraw_boxes)
@@ -688,6 +931,14 @@ void html_document::on_mouse_move(int x, int y)
 			GB.Call(&func, 4, TRUE);
 		}
 	}
+	
+	if (event == MOUSE_UP && THIS->link)
+		GB.Raise(THIS, EVENT_Link, 1, GB_T_STRING, THIS->link, GB.StringLength(THIS->link));
+}
+
+void html_document::on_media_change()
+{
+	m_html->media_changed();
 }
 
 //-------------------------------------------------------------------------
@@ -708,6 +959,8 @@ END_METHOD
 
 BEGIN_METHOD_VOID(HtmlDocument_free)
 
+	GB.FreeString(&THIS->link);
+	GB.FreeString(&THIS->base);
 	GB.FreeString(&THIS->html);
 	GB.FreeString(&THIS->default_font_name);
 	delete THIS->doc;
@@ -791,12 +1044,49 @@ BEGIN_METHOD(HtmlDocument_SetDefaultFont, GB_OBJECT font)
 
 END_METHOD
 
+BEGIN_METHOD(HtmlDocument_OnMouseDown, GB_INTEGER x; GB_INTEGER y)
+
+	if (THIS->doc)
+		THIS->doc->on_mouse(html_document::MOUSE_DOWN, VARG(x), VARG(y));
+	
+END_METHOD
+
+BEGIN_METHOD(HtmlDocument_OnMouseUp, GB_INTEGER x; GB_INTEGER y)
+
+	if (THIS->doc)
+		THIS->doc->on_mouse(html_document::MOUSE_UP, VARG(x), VARG(y));
+	
+END_METHOD
+
 BEGIN_METHOD(HtmlDocument_OnMouseMove, GB_INTEGER x; GB_INTEGER y)
 
 	if (THIS->doc)
-		THIS->doc->on_mouse_move(VARG(x), VARG(y));
+		THIS->doc->on_mouse(html_document::MOUSE_MOVE, VARG(x), VARG(y));
 	
 END_METHOD
+
+BEGIN_METHOD(HtmlDocument_SetMedia, GB_INTEGER screen_width; GB_INTEGER screen_height; GB_INTEGER resolution)
+
+	THIS->screen_width = VARG(screen_width);
+	THIS->screen_height = VARG(screen_height);
+	THIS->resolution = VARG(resolution);
+	
+	if (THIS->doc)
+		THIS->doc->on_media_change();
+
+END_METHOD
+
+BEGIN_PROPERTY(HtmlDocument_Link)
+
+	GB.ReturnString(THIS->link);
+
+END_PROPERTY
+
+BEGIN_PROPERTY(HtmlDocument_Base)
+
+	GB.ReturnString(THIS->base);
+
+END_PROPERTY
 
 //-------------------------------------------------------------------------
 
@@ -813,14 +1103,22 @@ GB_DESC HtmlDocumentDesc[] =
 	GB_PROPERTY("Html", "s", HtmlDocument_Html),
 	GB_METHOD("LoadCss", NULL, HtmlDocument_LoadCss, "(Css)s"),
 	GB_METHOD("SetDefaultFont", NULL, HtmlDocument_SetDefaultFont, "(Font)Font;"),
+	GB_METHOD("SetMedia", NULL, HtmlDocument_SetMedia, "(ScreenWidth)i(ScreenHeight)i(Resolution)i"),
 	GB_METHOD("Reload", NULL, HtmlDocument_Reload, NULL),
 	
+	GB_METHOD("OnMouseDown", NULL, HtmlDocument_OnMouseDown, "ii"),
+	GB_METHOD("OnMouseUp", NULL, HtmlDocument_OnMouseUp, "ii"),
 	GB_METHOD("OnMouseMove", NULL, HtmlDocument_OnMouseMove, "ii"),
 	
 	GB_PROPERTY_READ("Width", "i", HtmlDocument_Width),
 	GB_PROPERTY_READ("W", "i", HtmlDocument_Width),
 	GB_PROPERTY_READ("Height", "i", HtmlDocument_Height),
 	GB_PROPERTY_READ("H", "i", HtmlDocument_Height),
+	GB_PROPERTY_READ("Link", "s", HtmlDocument_Link),
+	GB_PROPERTY_READ("Base", "s", HtmlDocument_Base),
 						 
+	GB_EVENT("Link", NULL, "s", &EVENT_Link),
+	GB_EVENT("Title", NULL, "s", &EVENT_Title),
+	
 	GB_END_DECLARE
 };

@@ -29,11 +29,32 @@
 #include "main.h"
 
 extern "C" {
-
+	
 const GB_INTERFACE *GB_PTR EXPORT;
 DRAW_INTERFACE DRAW;
 GEOM_INTERFACE GEOM;
 IMAGE_INTERFACE IMAGE;
+
+double my_strtod(const char *nptr, char **endptr)
+{
+	GB_VALUE ret;
+	
+	if (endptr)
+	{
+		static bool _warning = false;
+		if (!_warning)
+		{
+			fprintf(stderr, "gb.form.htmlview: warning: m_strtod() 'endptr' argument not implemented\n");
+			_warning = true;
+		}
+	}
+	
+	if (GB.NumberFromString(GB_NB_READ_FLOAT, nptr, strlen(nptr), &ret))
+		return 0.0;
+	else
+		return ret._float.value;
+}
+
 
 GB_DESC *GB_CLASSES[] EXPORT =
 {
