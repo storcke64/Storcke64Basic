@@ -144,7 +144,6 @@ lib/clipper/Makefile \
 lib/inotify/Makefile \
 lib/jit/Makefile \
 lib/test/Makefile \
-lib/form.htmlview/Makefile \
 ])
 AC_OUTPUT
 
