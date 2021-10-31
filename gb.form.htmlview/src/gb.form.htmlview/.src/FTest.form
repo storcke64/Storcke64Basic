@@ -18,6 +18,14 @@
       MoveScaled(8,0,4,4)
       Picture = Picture["icon:/small/zoom-normal"]
     }
+    { btnBack ToolButton
+      MoveScaled(12,0,4,4)
+      Picture = Picture["icon:/small/left"]
+    }
+    { btnForward ToolButton
+      MoveScaled(16,0,4,4)
+      Picture = Picture["icon:/small/right"]
+    }
   }
   { HtmlView1 HtmlView
     MoveScaled(9,24,38,30)

@@ -74,8 +74,8 @@ namespace litehtml
 	#define t_strcmp			strcmp
 	#define t_strncmp			strncmp
 
-	#define t_strcasecmp	!litehtml::strcaseeq
-	#define t_strncasecmp	!litehtml::strncaseeq
+	#define t_strcasecmp	litehtml::strcasecmp
+	#define t_strncasecmp	litehtml::strncasecmp
 	#define t_itoa(value, buffer, size, radix)	snprintf(buffer, size, "%d", value)
 
 	#define t_strtol			strtol

@@ -229,34 +229,38 @@ double litehtml::strtod(const char *nptr, char **endptr)
 	return neg ? (-val) : val;
 }
 
-bool litehtml::strcaseeq(const char *s1, const char *s2)
+int litehtml::strcasecmp(const char *s1, const char *s2)
 {
-  int i;
-  int c;
+	int i, d, c;
 
-  for (i = 0;; i++)
-  {
-		c = t_tolower(s1[i]);
-    if (c != t_tolower(s2[i]))
-			return false;
+	for (i = 0;; i++)
+	{
+		c = t_tolower((unsigned char)s1[i]);
+		d = c - t_tolower((unsigned char)s2[i]);
+		if (d < 0)
+			return -1;
+		else if (d > 0)
+			return 1;
 		else if (c == 0)
-			return true;
-  }
+			return 0;
+	}
 }
 
-bool litehtml::strncaseeq(const char *s1, const char *s2, size_t n)
+int litehtml::strncasecmp(const char *s1, const char *s2, size_t n)
 {
-  int i;
-	int c;
+	int i, d, c;
 
-  for (i = 0; i < n; i++)
-  {
-		c = t_tolower(s1[i]);
-    if (c != t_tolower(s2[i]))
-			return false;
-  }
+	for (i = 0; i < n; i++)
+	{
+		c = t_tolower((unsigned char)s1[i]);
+		d = c - t_tolower((unsigned char)s2[i]);
+		if (d < 0)
+			return -1;
+		else if (d > 0)
+			return 1;
+	}
 
-  return true;
+	return 0;
 }
 
 

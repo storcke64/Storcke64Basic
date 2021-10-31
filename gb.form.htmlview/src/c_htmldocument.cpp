@@ -98,7 +98,7 @@ private:
 	
 public:
 	
-	enum { MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE };
+	enum { MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_LEAVE };
 	
 	void *_object;
 	
@@ -117,9 +117,10 @@ public:
 	void begin_clip();
 	void end_clip();
 	void set_color(const litehtml::web_color &color) { DRAW.Paint.SetBackground(convert_color(color)); }
-	void on_mouse(int event, int x, int y);
+	void on_mouse(int event, int x = 0, int y = 0);
 	void on_media_change();
 	GB_IMG *get_image(const litehtml::tchar_t* src, const litehtml::tchar_t* baseurl);
+	int find_anchor(const litehtml::tstring& anchor);
 	
 protected:
 	
@@ -262,11 +263,11 @@ litehtml::uint_ptr html_document::create_font(const litehtml::tchar_t* faceName,
 	GB.SetProperty(font, "Italic", &val);
 	
 	val.type = GB_T_BOOLEAN;
-	val._boolean.value = !!(decoration & litehtml::font_decoration_underline);
+	val._boolean.value = decoration & litehtml::font_decoration_underline ? -1 : 0;
 	GB.SetProperty(font, "Underline", &val);
 	
 	val.type = GB_T_BOOLEAN;
-	val._boolean.value = !!(decoration & litehtml::font_decoration_linethrough);
+	val._boolean.value = decoration & litehtml::font_decoration_linethrough ? -1 : 0;
 	GB.SetProperty(font, "Strikeout", &val);
 	
 	fm->ascent = get_font_ascent(font);
@@ -937,6 +938,10 @@ void html_document::on_mouse(int event, int x, int y)
 			ret = m_html->on_mouse_over(x, y, x, y, redraw_boxes);
 			break;
 			
+		case MOUSE_LEAVE:
+			ret = m_html->on_mouse_leave(redraw_boxes);
+			break;
+			
 		default:
 			ret = false;
 	}
@@ -962,6 +967,31 @@ void html_document::on_media_change()
 {
 	m_html->media_changed();
 }
+
+int html_document::find_anchor(const litehtml::tstring& anchor)
+{
+	litehtml::element::ptr el;
+	litehtml::tstring selector;
+	
+	if(!m_html || anchor.empty())
+		return -1;
+	
+	selector.assign("#");
+	selector.append(anchor);
+	el = m_html->root()->select_one(selector);
+	if (!el)
+	{
+		selector.assign("[name=");
+		selector.append(anchor);
+		selector.append("]");
+		el = m_html->root()->select_one(selector);
+	}
+	if (!el)
+		return -1;
+	
+	return el->get_placement().y;
+}
+
 
 //-------------------------------------------------------------------------
 
@@ -1102,6 +1132,13 @@ BEGIN_METHOD(HtmlDocument_OnMouseMove, GB_INTEGER x; GB_INTEGER y)
 	
 END_METHOD
 
+BEGIN_METHOD_VOID(HtmlDocument_OnLeave)
+
+	if (THIS->doc)
+		THIS->doc->on_mouse(html_document::MOUSE_LEAVE);
+	
+END_METHOD
+
 BEGIN_METHOD(HtmlDocument_SetMedia, GB_INTEGER screen_width; GB_INTEGER screen_height; GB_INTEGER resolution)
 
 	THIS->screen_width = VARG(screen_width);
@@ -1125,6 +1162,19 @@ BEGIN_PROPERTY(HtmlDocument_Base)
 
 END_PROPERTY
 
+BEGIN_METHOD(HtmlDocument_FindAnchor, GB_STRING anchor)
+
+	if (THIS->doc)
+	{
+		litehtml::tstring anchor;
+		anchor.assign(STRING(anchor), LENGTH(anchor));
+		GB.ReturnInteger(THIS->doc->find_anchor(anchor));
+	}
+	else
+		GB.ReturnInteger(-1);
+
+END_METHOD
+
 //-------------------------------------------------------------------------
 
 GB_DESC HtmlDocumentDesc[] = 
@@ -1143,10 +1193,12 @@ GB_DESC HtmlDocumentDesc[] =
 	GB_METHOD("SetMonospaceFont", NULL, HtmlDocument_SetMonospaceFont, "(Name)s"),
 	GB_METHOD("SetMedia", NULL, HtmlDocument_SetMedia, "(ScreenWidth)i(ScreenHeight)i(Resolution)i"),
 	GB_METHOD("Reload", NULL, HtmlDocument_Reload, NULL),
+	GB_METHOD("FindAnchor", "i", HtmlDocument_FindAnchor, "(Anchor)s"),
 	
 	GB_METHOD("OnMouseDown", NULL, HtmlDocument_OnMouseDown, "ii"),
 	GB_METHOD("OnMouseUp", NULL, HtmlDocument_OnMouseUp, "ii"),
 	GB_METHOD("OnMouseMove", NULL, HtmlDocument_OnMouseMove, "ii"),
+	GB_METHOD("OnLeave", NULL, HtmlDocument_OnLeave, NULL),
 	
 	GB_PROPERTY_READ("Width", "i", HtmlDocument_Width),
 	GB_PROPERTY_READ("W", "i", HtmlDocument_Width),

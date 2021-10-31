@@ -77,8 +77,8 @@ namespace litehtml
 	void split_string(const tstring& str, string_vector& tokens, const tstring& delims, const tstring& delims_preserve = _t(""), const tstring& quote = _t("\""));
 	void join_string(tstring& str, const string_vector& tokens, const tstring& delims);
 	double strtod(const char *nptr, char **endptr);
-	bool strcaseeq(const char *s1, const char *s2);
-	bool strncaseeq(const char *s1, const char *s2, size_t n);
+	int strcasecmp(const char *s1, const char *s2);
+	int strncasecmp(const char *s1, const char *s2, size_t n);
 	
 	inline int isdigit(int c)
 	{

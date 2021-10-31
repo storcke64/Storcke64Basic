@@ -16,6 +16,7 @@ Property Border As Boolean
 Property Dir As String
 Property Zoom As Float
 Property MonospaceFont As Font
+Property Url As String
 
 Private $hDoc As HtmlDocument
 Private $hView As ScrollArea
@@ -31,6 +32,12 @@ Static Private $hFail As Image
 Private $sDir As String
 Private $fZoom As Float = 1
 Private $hMonospaceFont As Font
+
+Private $aBack As New String[]
+Private $aForward As New String[]
+Private $sUrl As String
+Private $iNoHistory As Integer
+Private $bLoaded As Boolean
 
 Public Sub _new()
   
@@ -170,9 +177,30 @@ Public Sub _SetCursor(sCursor As String)
   
 End
 
+Private Sub GotoLink(sLink As String) As Boolean
+
+  Dim sUrl As String
+  Dim iPos As Integer
+  
+  If sLink Begins "#" Then
+    sUrl = $sUrl
+    iPos = RInStr(sUrl, "#")
+    If iPos Then sUrl = Left(sUrl, iPos - 1)
+    Me.Url = sUrl & sLink
+    Return
+  Endif
+  
+  $bLoaded = False
+  Try Load(sLink)
+  If Error Then Raise Link(sLink)
+  
+  Return Not $bLoaded
+
+End
+
 Public Sub HtmlDocument_Link(sLink As String)
   
-  Raise Link(sLink)
+  GotoLink(sLink)
   
 End
 
@@ -238,13 +266,28 @@ Private Sub Dir_Write(Value As String)
 
 End
 
-Public Sub Load(Path As String)
+Public Sub Back()
   
-  $sDir = File.Dir(Path)
-  Me.Html = File.Load(Path)
-  $hView.Scroll(0, 0)
+  If $aBack.Count > 1 Then
+    $aForward.Add($aBack.Pop())
+    Inc $iNoHistory
+    Url_Write($aBack.Last)
+    Dec $iNoHistory
+  Endif
   
 End
+
+Public Sub Forward()
+  
+  If $aForward.Count Then
+    $aBack.Add($aForward.Pop())
+    Inc $iNoHistory
+    Url_Write($aBack.Last)
+    Dec $iNoHistory
+  Endif
+  
+End
+
 
 Public Sub _LoadCss(sUrl As String, sBase As String) As String
 
@@ -366,9 +409,59 @@ Public Sub View_KeyPress()
     
     $hView.Scroll($hView.ScrollX, $hView.ScrollH)
       
-  Else
-    
   Endif
-    
+  
+End
+
+Private Function Url_Read() As String
+
+  Return $sUrl
+
+End
+
+Private Sub Url_Write(Value As String)
+
+  If GotoLink(Value) Then Return
+  
+  $sUrl = Value
+
+  If $iNoHistory = 0 Then 
+    $aBack.Add(Value)
+    $aForward.Clear
+  Endif
+  
+End
+
+Public Sub Load(Path As String)
+
+  Dim iPos As Integer
+  Dim sAnchor As String
+  Dim Y As Integer
+  Dim sSaveDir As String
+
+  iPos = RInStr(Path, "#")
+  If iPos Then
+    sAnchor = Mid$(Path, iPos + 1)
+    Path = Left(Path, iPos - 1)
+  Endif
+
+  sSaveDir = $sDir 
+  $sDir = File.Dir(Path)
+  Try Me.Html = File.Load(Path)
+  If Error Then 
+    $sDir = sSaveDir
+    Error.Raise(Error.Text)
+  Endif
+  
+  $bLoaded = True
+  
+  Y = Max(0, $hDoc.FindAnchor(sAnchor))
+  $hView.Scroll(0, Y * $fZoom)
+  
+End
+
+Public Sub View_Leave()
+  
+  $hDoc.OnLeave()
   
 End
