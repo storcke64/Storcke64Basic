@@ -13,12 +13,11 @@ Private $hSymbol As CSymbolInfo
 Private $iArrow As Integer
 Private $iCol As Integer
 
-Public Sub _new()
+Public Sub ReadConfig()
   
-  webHelp.Zoom = 0.7
+  hvwHelp.Zoom = Settings["/Help/Zoom", 80] / 100
   
 End
-
 
 Private Sub UpdateSignature(Optional hForm As FEditor)
   
@@ -27,7 +26,7 @@ Private Sub UpdateSignature(Optional hForm As FEditor)
 
   panSignature.H = lblNewSignature.H
   If $bShowHelp And $bUseHelp Then
-    MHelp.InitWebViewWith(webHelp, MHelp.TYPE_SYMBOL, $hSymbol.Name, $hSymbol.Class, "noimage")
+    MHelp.InitWebViewWith(hvwHelp, MHelp.TYPE_SYMBOL, $hSymbol.Name, $hSymbol.Class, "noimage")
     sepHelp.Show
     panHelp.Show
     panResizeTop.Show
@@ -115,6 +114,7 @@ Public Sub Open(hForm As FEditor, iCol As Integer, hSymbol As CSymbolInfo, iArg 
   sSign = hSymbol.GetSignature(True, iArg)
   If Not sSign Then Return
   
+  ReadConfig
   lblSignature.Font = $hEditor.Font
   lblNewSignature.Font = $hEditor.Font
   $bShowHelp = False 
@@ -138,16 +138,16 @@ Public Sub Open(hForm As FEditor, iCol As Integer, hSymbol As CSymbolInfo, iArg 
   UpdateSignature(hForm)
   
   ' If $bShowHelp Then
-  '   MHelp.InitWebViewWith(webHelp, MHelp.TYPE_SYMBOL, hSymbol.Name, hSymbol.Class, "noimage")
+  '   MHelp.InitWebViewWith(hvwHelp, MHelp.TYPE_SYMBOL, hSymbol.Name, hSymbol.Class, "noimage")
   '   sepHelp.Show
-  '   webHelp.Show
+  '   hvwHelp.Show
   '   panRight.Show
   '   $iMinW = Max(128, lblNewSignature.W + 2 + panRight.W + btnHelp.W)
   '   $iMinH = Desktop.Scale * 24
   '   Me.Resize(Max(Me.W, $iMinW), Max(Me.H, $iMinH))
   ' Else
   '   sepHelp.Hide
-  '   webHelp.Hide
+  '   hvwHelp.Hide
   '   panRight.Hide
   '   Me.Resize(lblNewSignature.W + 2 + btnHelp.W, lblSignature.H + 2)
   ' Endif
@@ -239,9 +239,10 @@ Public Sub VisibleFrom(hEditor As TextEditor) As Boolean
   
 End
 
-Public Sub webHelp_GotFocus()
+Public Sub hvwHelp_GotFocus()
 
   Try $hEditor.SetFocus
+  'HideFrom($hEditor)
 
 End
 

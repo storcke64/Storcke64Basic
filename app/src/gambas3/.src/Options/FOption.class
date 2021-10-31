@@ -317,6 +317,7 @@ Private Sub RefreshEditor()
   FDebugInfo.ReadConfig
   FDebugExpr.ReadConfig
   FCompletion.ReadConfig
+  FSignature.ReadConfig
 
 End
 
@@ -1406,6 +1407,7 @@ Public Sub cmbHelpZoom_Click()
   Settings["/Help/Zoom"] = GetPercentSize(cmbHelpZoom)
   FProperty.ReadConfig
   FCompletion.ReadConfig
+  FSignature.ReadConfig
 
 End
 

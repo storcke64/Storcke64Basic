@@ -480,10 +480,12 @@ Public Sub InitWebViewWith(hView As Control, iType As Integer, sSymbol As String
     If sMore Then sUrl &= "&" & sMore
     
     If hWebView Then
+      
       If sUrl <> hWebView.Url Then
         hWebView.Clear
         hWebView.Url = sUrl
       Endif
+      
     Else 
       
       If HandleSpecialUrl(hView, sUrl) Then
@@ -1074,7 +1076,7 @@ Public Sub OnDocumentationUpdate()
   
 End
 
-Private Sub HandleSpecialURL(hView As Control, sUrl As String) As Boolean
+Public Sub HandleSpecialURL(hView As Control, sUrl As String) As Boolean
 
   If sUrl Begins "gambas://" Then 
     

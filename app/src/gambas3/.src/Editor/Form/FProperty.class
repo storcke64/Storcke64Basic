@@ -43,8 +43,6 @@ Public Sub _new()
   $iBgSet = Color.Merge(Color.TextBackground, Color.LightForeground, 0.25)
   $iBgModified = Color.Merge(Color.TextBackground, Color.LightBackground, 0.25)
   
-  hvwHelp.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
-
 End
 
 Public Sub Form_Open()

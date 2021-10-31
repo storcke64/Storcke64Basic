@@ -61,7 +61,7 @@ Static Private $sDefaultStyleSheet As String
 
 Private Enum PREVIEW_NONE, PREVIEW_HTML, PREVIEW_MARKDOWN
 
-Private $hPreview As HelpView
+Private $hPreview As HelpBrowser
 Private $iShowPreview As Integer
 Private $hTimerPreview As Timer
 Private $sTempPreview As String
@@ -1949,7 +1949,7 @@ Private Sub UpdatePreview()
   If btnPreview.Value Then
     
     If Not $hPreview Then
-      $hPreview = New HelpView(panPreview) As "Preview"
+      $hPreview = New HelpBrowser(panPreview) As "Preview"
       $hPreview.Settings[WebSettings.Javascript] = True
       $hPreview.Settings[WebSettings.AutoLoadImages] = btnLoadImages.Value
       $hPreview.Expand = True

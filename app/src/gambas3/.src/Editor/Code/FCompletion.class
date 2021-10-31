@@ -51,7 +51,6 @@ Public Sub _new()
   
   gvwComp.Columns.Count = 1
   ScrollArea(gvwComp.Children[0]).NoAnimation = True
-  hvwHelp.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
 
 End
 
