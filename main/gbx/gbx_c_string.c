@@ -970,8 +970,6 @@ GB_DESC StringDesc[] =
 	GB_STATIC_METHOD("UCase$", "s", String_Upper, "(String)s"),
 	GB_STATIC_METHOD("UCaseFirst", "s", String_UCaseFirst, "(String)s"),
 	GB_STATIC_METHOD("UCaseFirst$", "s", String_UCaseFirst, "(String)s"),
-	GB_STATIC_METHOD("Capitalize", "s", String_UCaseFirst, "(String)s"),
-	GB_STATIC_METHOD("Capitalize$", "s", String_UCaseFirst, "(String)s"),
 	GB_STATIC_METHOD("Lower", "s", String_Lower, "(String)s"),
 	GB_STATIC_METHOD("Lower$", "s", String_Lower, "(String)s"),
 	GB_STATIC_METHOD("LCase", "s", String_Lower, "(String)s"),
