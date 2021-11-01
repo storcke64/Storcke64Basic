@@ -75,7 +75,7 @@ End
 Public Function InBounds(P As MapPoint) As Boolean
   
   If p.Lon > $mpTopLeft.Lon And If p.Lon < $mpBottomRight.Lon Then
-    If p.Lat > $mpTopLeft.Lat And If p.Lat < $mpBottomRight.Lat Then
+    If p.Lat < $mpTopLeft.Lat And If p.Lat > $mpBottomRight.Lat Then
       Return True
     Endif
   Endif

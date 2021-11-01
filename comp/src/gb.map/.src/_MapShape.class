@@ -527,16 +527,20 @@ Private Function Key_Read() As String
 
 End
 
-Public Function Find(hMp As MapPoint) As _ShapeItem
+Public Function Find(hMp As MapPoint, Optional Radius As Float) As _ShapeItem
 
   Dim hShape As _ShapeItem
   Dim hMap As Map = Me._GetMap()
+  Dim fRadius As Float = 5
+  
+  If Not IsMissing(Radius) Then fRadius = Max(0, Min(100, Radius))
+  
   'Optimize by just looking in the view zone
   If hMap.Bounds.InBounds(hMp) Then
     For i As Integer = 0 To $aInView.Max
-      hShape = $aInView[i]
+      hShape = $aShapes[$aInView[i]]
       If hShape.Type = _Point Then
-        If hShape.Near(hMp, hMap.Zoom, 10) Then Return hShape
+        If hShape.Near(hMp, hMap.Zoom, Radius) Then Return hShape
       Else
         If hShape.Contains(hMp) Then Return hShape
       Endif
@@ -545,7 +549,7 @@ Public Function Find(hMp As MapPoint) As _ShapeItem
     For i As Integer = 0 To $aShapes.Max
       hShape = $aShapes[i]
       If hShape.Type = _Point Then
-        If hShape.Near(hMp, hMap.Zoom, 10) Then Return hShape
+        If hShape.Near(hMp, hMap.Zoom, Radius) Then Return hShape
       Else
         If hShape.Contains(hMp) Then Return hShape
       Endif
