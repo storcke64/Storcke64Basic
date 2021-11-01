@@ -45,18 +45,15 @@ End
 
 Public Function Near(hMapPoint As MapPoint, iZoom As Integer, Padding As Integer) As Boolean
 
-  Dim hTLPoint, hBRPoint As Point
+  Dim hTLPoint As Point
   Dim hPoint As Point = Geo.MapPointToPixel(hMapPoint, iZoom)
 
-  hTLPoint = Geo.MapPointToPixel($hBounds.TopLeft, iZoom)
+  hTLPoint = Geo.MapPointToPixel(Me.Center, iZoom)
   hTLPoint.X -= Padding
   hTLPoint.Y -= Padding
 
-  hBRPoint = Geo.MapPointToPixel($hBounds.BottomRight, iZoom)
-  hBRPoint.X += Padding
-  hBRPoint.Y += Padding
 
-  Return Rect(hTLPoint.X, hTLPoint.Y, hBRPoint.x, hBRPoint.Y).Contains(hPoint.X, hPoint.Y)
+  Return Rect(hTLPoint.X, hTLPoint.Y, Padding * 2, Padding * 2).Contains(hPoint.X, hPoint.Y)
 
 End
 
