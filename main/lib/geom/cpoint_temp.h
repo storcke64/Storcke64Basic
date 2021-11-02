@@ -190,6 +190,10 @@ BEGIN_METHOD(__name##_new, __gtype x; __gtype y; __gtype w; __gtype h)          
     __this->x = VARG(x);                                                                                                      \
     __this->y = VARG(y);                                                                                                      \
   }                                                                                                                           \
+  else if (!MISSING(x) || !MISSING(y))                                                                                        \
+  {                                                                                                                           \
+    GB.Error("Not enough arguments");                                                                                         \
+  }                                                                                                                           \
                                                                                                                               \
 END_METHOD                                                                                                                    \
                                                                                                                               \

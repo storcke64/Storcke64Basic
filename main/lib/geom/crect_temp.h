@@ -54,6 +54,10 @@ BEGIN_METHOD(__name##_new, __gtype x; __gtype y; __gtype w; __gtype h)          
     __this->h = VARG(h);                                                                                                      \
     __struct##_normalize(__this);                                                                                             \
   }                                                                                                                           \
+  else if (!MISSING(x) || !MISSING(y) || !MISSING(w) || !MISSING(h))                                                          \
+  {                                                                                                                           \
+    GB.Error("Not enough arguments");                                                                                         \
+  }                                                                                                                           \
                                                                                                                               \
 END_METHOD                                                                                                                    \
                                                                                                                               \
