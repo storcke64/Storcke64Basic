@@ -41,6 +41,9 @@ The following pieces of code were borrowed and adapted:
   Steinberger / Pixabay, and is published under the MIT license.
   See https://github.com/Pixabay/JavaScript-autoComplete for more details.
 
+- The 'gb.form.htmlview' component embeds the 'litehtml' library from Yuri 
+  Kobets. See http://www.litehtml.com for more details.
+  
 If I forget some borrowed code in the list above, just tell me.
 
 Enjoy Gambas!
