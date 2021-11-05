@@ -191,9 +191,12 @@ Property DisabledBreakpoints As Integer[]
 
 Property Bookmarks As Integer[]
 
-'' Return a virtual object that allows to define the editor highlighting style
+'' Return a virtual object that allows to define the editor highlighting style.
+''
+'' @{since 3.17}
+'' This property is now deprecated. Use the [../theme] property instead.
 
-Property Read Styles As _TextEditor_Styles
+Property Read Styles As TextHighlighterStyle[]
 
 '' Return or set the main view of a editor.
 ''
@@ -287,6 +290,10 @@ Property CloseBraces As Boolean
 
 Property CloseStrings As Boolean
 
+'' Return or set the theme used for highlighting. Replace the [../styles] property.
+
+Property Theme As TextHighlighterTheme
+
 Private Const MATCH_STRING As String = "()[]{}"
 
 Static Private $cShortcut As Collection
@@ -307,12 +314,14 @@ Private $hFind As FFind
 Private $hDoc As CDocument
 Private $hRows As _TextEditor_Rows
 
-Private $hStyles As _TextEditor_Styles
-Private $bStyleChanged As Boolean
+Private $hTheme As TextHighlighterTheme
+Private $aThemeStyles As TextHighlighterStyle[]
+Private $bThemeChanged As Boolean
 
 Private $iLargestLine As Integer
 Private $iWidth As Integer
 Private $LH As Integer
+Private $LP As Integer
 Private $BW As Integer ' bold width
 Private $MW As Integer
 Private $iWidthLineNumber As Integer
@@ -496,9 +505,13 @@ Public Sub _new()
   $hTimerCacheLine.Delay = 5000
   
   $hRows = New _TextEditor_Rows As "Rows"
-  $hStyles = New _TextEditor_Styles As "Styles"
   
   '$hPanel.Background = $hStyles[Highlight.Background].Color
+  
+  $hTheme = New TextHighlighterTheme As "Theme"
+  $hTheme["Background"].Color = Color.TextBackground
+  $hTheme["Normal"].Color = Color.TextForeground
+  $hTheme["Selection"].Color = Color.LightBackground
   
   _SetDocument(Null)
   
@@ -513,7 +526,7 @@ End
 
 Private Sub CalcBoldWidth()
   
-  If Color[$hStyles[Highlight.Background].Color].Luminance < Color[$hStyles[Highlight.Normal].Color].Luminance Then
+  If Color[$hTheme["Background"].Color].Luminance < Color[$hTheme["Normal"].Color].Luminance Then
     $BW = 1 + $LH \ 4
   Else
     $BW = 1 + $LH \ 6
@@ -531,7 +544,8 @@ Private Sub CalcSizes()
   '$hFontBold = $hView.Font.Copy()
   '$hFontBold.Bold = True
   
-  $LH = $hFont.Height + 2
+  $LP = Max(1, $hFont.Height / 8)
+  $LH = $hFont.Height + Max(2, $hFont.Height / 4)
   CalcBoldWidth
   $hRows.Height = $LH
   
@@ -588,7 +602,7 @@ End
 
 Private Sub Init()
   
-  $bStyleChanged = True
+  $bThemeChanged = True
   $X = 0
   $Y = 0
   $XY = New Point
@@ -736,7 +750,7 @@ Private Sub DrawText(sText As String, SX As Integer, X As Integer, Y As Integer)
   Dim YT As Integer
   Dim XX, YY As Float
   
-  YT = Y + $iAscent
+  YT = Y + $iAscent + $LP
   
   Do
     
@@ -816,10 +830,10 @@ End
 ' End
 '
 
-Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As Byte[], X As Integer, Y As Integer, H As Integer, aLayout As Integer[], iNextState As Integer)
+Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As Byte[], X As Integer, Y As Integer, H As Integer, aLayout As Integer[], (iNextState) As Integer)
   
   Dim I As Integer
-  Dim hStyle As TextEditorStyle
+  Dim hStyle As TextHighlighterStyle
   Dim bAlt As Boolean
   Dim iLen As Integer
   Dim P As Integer
@@ -828,7 +842,7 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
   Dim iState As Integer
   Dim XMin As Integer
   Dim XMax As Integer
-  Dim aStyle As TextEditorStyle[]
+  Dim aStyle As TextHighlighterStyle[]
   Dim hImage As Image
   
   Dim XX, YY, XB, LB, DB As Integer
@@ -841,14 +855,18 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
   Dim W As Integer
   Dim iLayoutCount As Integer
   Dim iCol As Integer
-  Dim iBg As Integer
+  Dim YT As Integer
+  
+  'Dim iBg As Integer
   
   'Dim hTemp As Image
   
   XMin = X + $hView.ScrollX
   XMax = XMin + $hView.ClientW
-  aStyle = $hStyles._GetStyles()
-  iBg = aStyle[iNextState].Background
+  
+  aStyle = GetStyles()
+  
+  'iBg = aStyle[iNextState].Background
   
   XX = X
   YY = Y
@@ -869,7 +887,7 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
       If XX > XMax Then Break
     Endif
     
-    iState = aColor[I] And 31
+    iState = aColor[I] And 63
     hStyle = aStyle[iState]
     bAlt = aColor[I] >= 128
     If iRest Then
@@ -880,8 +898,7 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
     Endif
     
     If bBreak Then
-      If iBg <> Color.Default Then Paint.FillRect(XX, YY, Paint.W, H, iBg)
-      PaintMultiLine(X, YY, Paint.W - $MW, H, iLayout = 1, False)
+      PaintMultiLine(Row, P, X, YY, Paint.W - $MW, H, iLayout = 1, False)
       XX = X + LinePos(Row, P).X
       YY += H
       bBreak = False
@@ -908,15 +925,15 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
       
     Endif
     
-    hPos = LinePos(Row, P + iLen)
+    hPos = LinePos(Row, P + iLen + CInt(bBreak))
     X2 = X + hPos.X 'LineWidth(Row, P + iLen)
     
     If Not aLayout Then
       If X2 < XMin Then Goto NEXT_PATTERN
     Endif
     
-    iBg = hStyle.Background
-    If iBg <> Color.Default Then Paint.FillRect(XX, YY, X2 - XX, H, iBg)
+    'iBg = hStyle.Background
+    'If iBg <> Color.Default Then Paint.FillRect(XX, YY, X2 - XX, H, iBg)
     If bAlt Then Paint.FillRect(XX, YY, X2 - XX, H, Color.SetAlpha(aStyle[Highlight.Alternate].Color, 160))
     
     sStr = String.Mid$(sText, P + 1, iLen)
@@ -985,6 +1002,8 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
       Paint.RelLineTo(X2 - XX, 0)
       Paint.Stroke
       Paint.Dash = Null
+    Else If hStyle.Strikeout Then
+      Paint.FillRect(XX, YY + H \ 2, X2 - XX, 1, Color.SetAlpha(hStyle.Color, 128))
     Endif
     
     ' If $YM >= 0 Then
@@ -1007,9 +1026,9 @@ Fast Private Sub DrawHighlightedText(Row As Integer, sText As String, aColor As 
     
   Endif
 
-  If aLayout Then PaintMultiLine(X, YY, Paint.W - $MW, H, False, True)
+  If aLayout Then PaintMultiLine(Row, -1, X, YY, Paint.W - $MW, H, False, True)
   
-  If iBg <> Color.Default Then Paint.FillRect(XX, YY, Paint.W, H, iBg)
+  'If iBg <> Color.Default Then Paint.FillRect(XX, YY, Paint.W, H, iBg)
   
   Return
   
@@ -1017,12 +1036,13 @@ DRAW_TEXT:
   
   iCol = hStyle.Color
   Paint.Background = iCol
+  YT = YY + $iAscent + $LP
   If hStyle.Bold Then
     LB = $BW
     XB = XX
     DB = 2 * Max(1, LB \ 4)
     While LB >= DB
-      Paint.DrawText(sStr, XB, YY + $iAscent) 'DrawText(sStr, SX, X + 1, Y)
+      Paint.DrawText(sStr, XB, YT) 'DrawText(sStr, SX, X + 1, Y)
       XB += DB \ 2
       LB -= DB
     Wend
@@ -1032,10 +1052,10 @@ DRAW_TEXT:
       Else
         XB -= DB \ 4
       Endif
-      Paint.DrawText(sStr, XB, YY + $iAscent) 'DrawText(sStr, SX, X + 1, Y)
+      Paint.DrawText(sStr, XB, YT) 'DrawText(sStr, SX, X + 1, Y)
     Endif
   Else
-    Paint.DrawText(sStr, XX, YY + $iAscent) 'DrawText(sStr, SX, X, Y)
+    Paint.DrawText(sStr, XX, YT) 'DrawText(sStr, SX, X, Y)
   Endif
   
   Return
@@ -1099,27 +1119,38 @@ Private Sub GetTabSizeAround(Row As Integer) As Integer
   
 End
 
-Private Sub PaintMultiLine(X As Integer, Y As Integer, Width As Integer, Height As Integer, (bStart) As Boolean, bEnd As Boolean)
+Private Sub PaintMultiLine(Row As Integer, P As Integer, X As Integer, Y As Integer, Width As Integer, Height As Integer, (bStart) As Boolean, bEnd As Boolean)
 
-  ' Dim D As Float
-  ' Dim LW As Integer
+  Dim bDrawBg As Boolean
+  Dim X1, Y1, X2, Y2 As Integer
   
-  'If Not Wrap_Read() Then Return
   If Not $cLineLayout Then Return
 
   If Not bEnd Then
     
     If Not $hMultiLineImage Then
-      $hMultiLineImage = New Image($LH \ 2, $LH, $iBackground)
+      $hMultiLineImage = New Image($LH \ 2, $LH, Color.Transparent)
       Paint.Begin($hMultiLineImage)
       Paint.Arrow(0, 0, $LH \ 3, $LH, Align.Right)
       Paint.Background = Color.SetAlpha($iForeground, 64)
-      Paint.LineWidth = $LH / 16
+      Paint.LineWidth = $LH / 12
       Paint.Stroke
       Paint.End
     Endif
     
     X += Width - Height \ 2
+    
+    Paint.FillRect(X, Y, Height \ 2, Height, $iBackground)
+    
+    GetSelection(ByRef X1, ByRef Y1, ByRef X2, ByRef Y2)
+    If P < 0 Then P = $hDoc.LineLength[Row]
+    If Row >= Y1 And If Row <= Y2 Then
+      bDrawBg = True
+      If Row = Y1 And If P <= X1 Then bDrawBg = False
+      If Row = Y2 And If P > X2 Then bDrawBg = False
+    Endif
+    
+    If bDrawBg Then Paint.FillRect(X, Y, Height \ 2, Height, Color.SetAlpha($iSelectedBackground, 32))
     Paint.DrawImage($hMultiLineImage, X, Y, Height \ 2, Height)
 
   Endif
@@ -1186,7 +1217,7 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
   H = $LH
 
   If Row < 0 Then 
-    Paint.FillRect(X, Y, Width, Height, Color.SetAlpha($hStyles[Highlight.Removed].Color, 224))
+    Paint.FillRect(X, Y, Width, Height, Color.SetAlpha($hTheme["Removed"].Color, 224))
     Paint.Rectangle($MW, Y, Width - $MW, Height)
     Paint.Clip
     Paint.Translate($MW, 0)
@@ -1202,17 +1233,17 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
   HH = H
   If aLayout Then HH += aLayout.Count * H
   
-  If $hDoc.IsDiffRemoved(Row) Then Paint.FillRect(X, Y + HH, Width, Height - HH, Color.SetAlpha($hStyles[Highlight.Removed].Color, 224))
+  If $hDoc.IsDiffRemoved(Row) Then Paint.FillRect(X, Y + HH, Width, Height - HH, Color.SetAlpha($hTheme["Removed"].Color, 224))
 
   ' If Row = $Y And If aLayout Then
   '   Paint.FillRect(X, Y, Width, Height, $iMarginColor)
   ' Endif
   
   If Row = $iStopLine Then
-    Paint.FillRect(X, Y, Width, HH, $hStyles[Highlight.Current].Color)
+    Paint.FillRect(X, Y, Width, HH, $hTheme["CurrentLine"].Color)
   Endif
   
-  If $hDoc.DiffAdded And If $hDoc.IsDiffAdded(Row) Then Paint.FillRect(X, Y, Width, HH, Color.SetAlpha($hStyles[Highlight.Added].Color, 224))
+  If $hDoc.DiffAdded And If $hDoc.IsDiffAdded(Row) Then Paint.FillRect(X, Y, Width, HH, Color.SetAlpha($hTheme["Added"].Color, 224))
   
   Paint.Rectangle($MW, Y, Width - $MW, Height)
   Paint.Clip
@@ -1274,16 +1305,6 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
       
       iCol = Color.SetAlpha($iSelectedBackground, 32)
       
-      ' If Y1 = Y2 Then
-      '   Paint.FillRect(X + X1X, Y, X2X - X1X, Height, iCol)
-      ' Else If Row = Y1 Then
-      '   Paint.FillRect(X + X1X, Y, Width - X1X, Height, iCol)
-      ' Else If Row = Y2 Then
-      '   Paint.FillRect(X, Y, X2X, Height, iCol)
-      ' Else
-      '   Paint.FillRect(X, Y, Width, Height, iCol)
-      ' Endif
-      
       If Y1 < Row Then
         XY1X = 0
         XY1Y = 0
@@ -1331,13 +1352,13 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
       XS = X + LineStartPos(Row)
       For I = 0 To aLayout.Max
         DrawText(String.Mid$(sText, P, aLayout[I]), X, XX, YY)
-        PaintMultiLine(X, YY, Width - $MW, H, I = 0, False)
+        P += aLayout[I]
+        PaintMultiLine(Row, P, X, YY, Width - $MW, H, I = 0, False)
         YY += H
         XX = XS
-        P += aLayout[I]
       Next
       DrawText(String.Mid$(sText, P), X, XX, YY)
-      PaintMultiLine(X, YY, Width - $MW, H, False, True)
+      PaintMultiLine(Row, -1, X, YY, Width - $MW, H, False, True)
       
     Else
       
@@ -1442,7 +1463,7 @@ TOP_DIFF:
   
   If $hDoc.IsDiffRemoved(Row) Then
       
-    Paint.Background = $hStyles[Highlight.Removed].Color
+    Paint.Background = $hTheme["Removed"].Color
     
     aDiffLayout = $cDiffLayout[Row]
     aText = $hDoc.DiffRemoved[Row]
@@ -1463,7 +1484,7 @@ TOP_DIFF:
         For I = 0 To aLayout.Max
           If YY > -H Then
             DrawText(RTrim(String.Mid$(sText, P, aLayout[I])), X, XX, YY)
-            PaintMultiLine(X, YY, Width - $MW, H, I = 0, False)
+            PaintMultiLine(Row, P + aLayout[I], X, YY, Width - $MW, H, I = 0, False)
           Endif
           YY += H
           If YY >= Height Then Break
@@ -1472,7 +1493,7 @@ TOP_DIFF:
         Next
         If YY > -H And If YY < Height Then
           DrawText(String.Mid$(sText, P), X, XX, YY)
-          PaintMultiLine(X, YY, Width - $MW, H, False, True)
+          PaintMultiLine(Row, -1, X, YY, Width - $MW, H, False, True)
         Endif
         YY += H
           
@@ -1532,13 +1553,13 @@ Public Sub _PaintRow(Row As Integer, X As Integer, Y As Integer)
       XS = X + LineStartPos(Row)
       For I = 0 To aLayout.Max
         DrawText(String.Mid$(sText, P, aLayout[I]), X, XX, YY)
-        PaintMultiLine(X, YY, Paint.W - X, H, I = 0, False)
+        P += aLayout[I]
+        PaintMultiLine(Row, X, P, YY, Paint.W - X, H, I = 0, False)
         YY += H
         XX = XS
-        P += aLayout[I]
       Next
       DrawText(String.Mid$(sText, P), X, XX, YY)
-      PaintMultiLine(X, YY, Paint.W - X, H, False, True)
+      PaintMultiLine(Row, -1, X, YY, Paint.W - X, H, False, True)
       
     Else
       
@@ -1605,7 +1626,7 @@ Private Sub DrawMargin(X As Integer, Y As Integer, Width As Integer, Height As I
         Paint.LineTo(X1, Y + Height - 2)
         Paint.LineTo(X, Y + Height - 2)
         Paint.LineTo(X, Y + 2)
-        Paint.Background = $hStyles[Highlight.Selection].Color
+        Paint.Background = $hTheme["Selection"].Color
         Paint.Fill
       Endif
       
@@ -1617,9 +1638,9 @@ Private Sub DrawMargin(X As Integer, Y As Integer, Width As Integer, Height As I
       If $hDoc.HasBreakpoint(Row) Then
         Paint.Ellipse(0, 0, S, S)
         If $hDoc.IsBreakpointDisabled(Row) Then
-          Paint.Background = Color.SetAlpha($hStyles[Highlight.Normal].Color, 228)
+          Paint.Background = Color.SetAlpha($hTheme["Normal"].Color, 228)
         Else
-          Paint.Background = Color.SetAlpha($hStyles[Highlight.Breakpoint].Color, 128)
+          Paint.Background = Color.SetAlpha($hTheme["Breakpoint"].Color, 128)
         Endif
         Paint.Fill(True)
         Paint.Stroke
@@ -1672,7 +1693,7 @@ Private Sub DrawMargin(X As Integer, Y As Integer, Width As Integer, Height As I
       Paint.Background = iCol
       sStr = CStr(iRow)
       Paint.Font = $hFont
-      Paint.DrawText(sStr, X, Y, $iWidthLineNumber - 4, H, Align.Right)
+      Paint.DrawText(sStr, X, Y + $LP, $iWidthLineNumber - 4, H, Align.Right)
       ' If Row = $Y Then
       '   Paint.Background = Color.SetAlpha(iCol, 128)
       '   Paint.DrawText(sStr, X + 1, Y, $iWidthLineNumber - 4, H, Align.Right)
@@ -3223,17 +3244,17 @@ End
 
 Private Sub GetSelection(ByRef X1 As Integer, ByRef Y1 As Integer, ByRef X2 As Integer, ByRef Y2 As Integer)
   
-  X1 = $X
-  Y1 = $Y
-  X2 = $SX
-  Y2 = $SY
+  X1 = $SX
+  Y1 = $SY
+  X2 = $X
+  Y2 = $Y
   
   If Y1 > Y2 Then
     Swap X1, X2
     Swap Y1, Y2
   Endif
   
-  If X1 > X2 Then
+  If Y1 = Y2 And If X1 > X2 Then
     Swap X1, X2
   Endif
   
@@ -3415,19 +3436,19 @@ End
 
 Private Sub CheckStyle()
   
-  If $bStyleChanged Then
-    $iBackground = $hStyles[Highlight.Background].Color
-    $iForeground = $hStyles[Highlight.Normal].Color
-    $iSelectedBackground = $hStyles[Highlight.Selection].Color
-    $iLimitColor = Color.Gradient($iBackground, $hStyles[Highlight.Comment].Color)
+  If $bThemeChanged Then
+    $iBackground = $hTheme["Background"].Color
+    $iForeground = $hTheme["Normal"].Color
+    $iSelectedBackground = $hTheme["Selection"].Color
+    $iLimitColor = Color.Gradient($iBackground, $hTheme["Comment"].Color)
     $iIndentColor = Color.SetAlpha($iLimitColor, 160)
-    $iMatchColor = $hStyles[Highlight.Highlight].Color
+    $iMatchColor = $hTheme["Highlight"].Color
     '$iIndentColor = Color.Gradient($iBackground, $iForeground)
     $iMarginColor = Color.SetAlpha($iForeground, 192)
     $iCurrentColor = Color.SetAlpha($iForeground, 248)
     CalcBoldWidth
     $hMultiLineImage = Null
-    $bStyleChanged = False
+    $bThemeChanged = False
   Endif
   
 End
@@ -3740,12 +3761,12 @@ Private Sub ShowPosition_Write(Value As Boolean)
       $hView._Container = Null
       $hLabelFrame = New Panel($hView)
       $hView._Container = hSave
-      $hLabelFrame.Background = Color.Merge($hStyles[Highlight.Background].Color, $hStyles[Highlight.Normal].Color, 0.1)
+      $hLabelFrame.Background = Color.Merge($hTheme["Background"].Color, $hTheme["Normal"].Color, 0.1)
       $hLabelFrame.Ignore = True
       $hLabel = New Label($hLabelFrame) ' TODO: NULL + gb.gtk => crash!
       $hLabel.AutoResize = True
       $hLabel.Font = Font[Me.Parent.Font.ToString()] ' TODO: Setting font directly sets nothing
-      $hLabel.Foreground = $hStyles[Highlight.Normal].Color
+      $hLabel.Foreground = $hTheme["Normal"].Color
       $hLabel.Show
     Endif
     UpdatePosition
@@ -3893,9 +3914,9 @@ Private Sub ShowBraces_Write(Value As Boolean)
   
 End
 
-Private Function Styles_Read() As _TextEditor_Styles
+Private Function Styles_Read() As TextHighlighterStyle[]
   
-  Return $hStyles
+  Return GetStyles()
   
 End
 
@@ -5767,20 +5788,20 @@ End
 '
 ' End
 '
-Public Sub Styles__Change()
+Public Sub Theme_Change()
   
-  If $bStyleChanged Then Return
+  If $bThemeChanged Then Return
   
-  $bStyleChanged = True
+  $bThemeChanged = True
   $hMultiLineImage = Null
   
   ClearCacheText
   If $hLabelFrame Then
-    $hLabelFrame.Background = $hStyles[Highlight.Background].Color
-    $hLabel.Foreground = $hStyles[Highlight.Normal].Color
+    $hLabelFrame.Background = $hTheme["Background"].Color
+    $hLabel.Foreground = $hTheme["Normal"].Color
   Endif
   If $bShowPreview Then
-    $hSideBar.Background = $hStyles[Highlight.Background].Color
+    $hSideBar.Background = $hTheme["Background"].Color
     SyncSideBarViewerStyles
     $hTimerSideBarRefresh.Trigger
   Endif
@@ -5939,12 +5960,12 @@ Private Sub DrawBarImage3()
   FX = (Paint.w - 4) / 100 'Max(4, Min(8, F))
   
   iAlpha = 255 - 128 \ F
-  iColComment = Color.SetAlpha($hStyles[Highlight.Comment].Color, iAlpha)
-  iColNormal = Color.SetAlpha($hStyles[Highlight.Normal].Color, iAlpha)
+  iColComment = Color.SetAlpha($hTheme["Comment"].Color, iAlpha)
+  iColNormal = Color.SetAlpha($hTheme["Normal"].Color, iAlpha)
   iColModified = Color.SetAlpha(Color.Merge($iBackground, Color.Red, 0.4), 128)
   iColSaved = Color.SetAlpha(Color.Merge($iBackground, Color.Green, 0.4), 128)
   
-  $hImageSideBar = New Image(Paint.Width - 1, H, $hStyles[Highlight.Background].Color)
+  $hImageSideBar = New Image(Paint.Width - 1, H, $hTheme["Background"].Color)
   Paint.Begin($hImageSideBar)
   
   For I = 0 To N Step F
@@ -6326,7 +6347,7 @@ Private Sub ShowPreview_Write(Value As Boolean)
     
     $hSideBar = New DrawingArea($hPanel) As "SideBar"
     $hSideBar.Width = Desktop.Scale * 8
-    $hSideBar.Background = $hStyles[Highlight.Background].Color
+    $hSideBar.Background = $hTheme["Background"].Color
     $hSideBar.Tracking = True
     
     UpdateSideBarFont
@@ -6354,7 +6375,7 @@ End
 
 Private Sub SyncSideBarViewerStyles()
   
-  $hSideBarViewer.Styles._SetStyles($hStyles._GetStyles())
+  $hSideBarViewer.Theme = $hTheme
   
   With $hSideBarViewer
     .ShowExpand = Me.ShowExpand
@@ -6747,4 +6768,32 @@ Public Function GetSelectedLines() As String[]
 
   Return $hDoc.Lines.Copy(Y1, Y2 - Y1)
 
+End
+
+Private Function Theme_Read() As TextHighlighterTheme
+
+  Return $hTheme
+
+End
+
+Private Sub Theme_Write(Value As TextHighlighterTheme)
+
+  If Not Value Then
+    $hTheme = New TextHighlighterTheme
+  Else
+    $hTheme = Value.copy()
+  Endif
+  
+  Object.Attach($hTheme, Me, "Theme")
+  
+  $aThemeStyles = Null
+  Theme_Change
+
+End
+
+Private Sub GetStyles() As TextHighlighterStyle[]
+  
+  If Not $aThemeStyles Then $aThemeStyles = $hTheme.Styles
+  Return $aThemeStyles
+  
 End

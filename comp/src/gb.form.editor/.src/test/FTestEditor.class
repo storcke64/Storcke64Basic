@@ -15,9 +15,13 @@ Private Sub Reload()
   'TextEditor1.Load("~/gambas/3.0/test/test-git/CHANGELOG", True)
   'Dim I As Integer
   
-  TextEditor1.Load("~/gambas/3.0/issues/2135/20210315-200320104-FMain.class", True)
-  'TextEditor1.Load("~/er/git/erfm/client/index.html")
-  TextEditor1.Mode = "gambas"
+  'TextEditor1.Load("~/gambas/git/master/app/src/gambas3/.src/Project.module", True)
+  'TextEditor1.Load("~/asap/omogen/omogen/src/kernel/guygle.cgi/javascript/form.js")
+  'TextEditor1.Load("~/asap/omogen/omogen/src/kernel/guygle.cgi/style/style.css")
+  'TextEditor1.Load("~/asap/omogen/omogen/src/kernel/guygle.cgi/.src/Site/Dialog.webpage")
+  'TextEditor1.Load("~/asap/omogen/omogen/src/kernel/guygle.exec/about.html")
+  TextEditor1.Load("Text1")
+  TextEditor1.Mode = "diff"
   'TextEditor1.Load("~/asap/omogen/git/master/gambas/omogen-sanef-fox/.public/scheduler.js")
   'TextEditor1.Mode = "javascript"
   
@@ -28,6 +32,14 @@ Private Sub Reload()
   'TextEditor1.Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Green, 224)
   
   'Button5_Click
+  
+  ' Print TextHighlighter.DefaultStyles.Join("\n")
+  ' 
+  ' For Each sType As String In TextHighlighter.List
+  '   With TextHighlighter[sType]
+  '     Print .FullName; "."; .Styles.Join("\n" & .FullName & ".")
+  '   End With
+  ' Next
   
 End
 
