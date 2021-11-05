@@ -957,6 +957,14 @@ Public Sub _RaiseCompare(sKey As String, sOtherKey As String) As Integer
   
 End
 
+Private Sub EnsureSort()
+
+  If $hSortTimer Then 
+    $hSortTimer.Stop
+    Sort_Timer
+  Endif
+
+End
 
 Private Sub SortItem(hItem As _TreeView_Item)
   
@@ -1193,6 +1201,7 @@ Public Sub MoveFirst() As Boolean
   
   Dim sKey As String
   
+  EnsureSort()
   Try sKey = $hRoot._GetChildren()[0]
   Return SetCursor(sKey)
   
@@ -1203,6 +1212,7 @@ Public Sub MoveLast() As Boolean
   Dim aChildren As String[]
   Dim sKey As String
   
+  EnsureSort()
   aChildren = $hRoot._GetChildren()
   Try sKey = aChildren[aChildren.Max]
   Return SetCursor(sKey)
@@ -1213,6 +1223,7 @@ Public Sub MoveBack() As Boolean
 
   Dim sKey As String
   
+  EnsureSort()
   sKey = $sSaveCursor
   $sSaveCursor = ""
   Return SetCursor(sKey)
@@ -1221,12 +1232,14 @@ End
 
 Public Sub MoveCurrent() As Boolean
   
+  EnsureSort()
   Return SetCursor(Key_Read())
   
 End
 
 Public Sub MoveTo((Key) As String) As Boolean
   
+  EnsureSort()
   If Not $cItem.Exist(Key) Then Key = ""
   Return SetCursor(Key)
   
@@ -1237,6 +1250,7 @@ Public Sub MoveAbove() As Boolean
   Dim sKey As String
   Dim hItem As _TreeView_Item
   
+  EnsureSort()
   hItem = $cItem[$sCursor]
   Try sKey = GetPreviousItem(hItem).Key
   Return SetCursor(sKey)
@@ -1248,6 +1262,7 @@ Public Sub MoveBelow() As Boolean
   Dim sKey As String
   Dim hItem As _TreeView_Item
   
+  EnsureSort()
   hItem = $cItem[$sCursor]
   Try sKey = GetNextItem(hItem).Key
   Return SetCursor(sKey)
@@ -1258,6 +1273,7 @@ Public Sub MoveChild() As Boolean
   
   Dim sKey As String
   
+  EnsureSort()
   Try sKey = $cItem[$sCursor]._GetChildren()[0]
   Return SetCursor(sKey)
   
@@ -1281,12 +1297,14 @@ End
 
 Public Sub MoveNext() As Boolean
   
+  EnsureSort()
   Return SetCursor(GetSibling($sCursor, 1))
   
 End
 
 Public Sub MovePrevious() As Boolean
   
+  EnsureSort()
   Return SetCursor(GetSibling($sCursor, -1))
   
 End
@@ -1295,6 +1313,7 @@ Public Sub MoveParent() As Boolean
   
   Dim sKey As String
   
+  EnsureSort()
   Try sKey = $cItem[$sCursor].ParentKey
   Return SetCursor(sKey)
   
