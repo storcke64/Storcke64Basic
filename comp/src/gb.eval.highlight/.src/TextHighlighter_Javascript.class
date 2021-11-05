@@ -3,6 +3,8 @@
 Inherits TextHighlighter
 
 Public Const Name As String = "javascript"
+Public Const FullName As String = "Javascript"
+Public Const _Styles As String = "Operator,Preprocessor,Normal,Comment,Documentation,String,Number,Datatype,Symbol,Error"
 
 Private Const IDENT_CAR As String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$"
 Private Const DIGIT_CAR As String = "0123456789.+-eE"
@@ -59,9 +61,9 @@ Public Sub Run(sText As String)
   iTag = TextHighlighter.Tag
   iLenText = String.Len(sText)
   bLastExpr = True
-  If iState = Highlight.Operator Then 
+  If iState = State.Operator Then 
     bLastExpr = False
-  Else If iState = Highlight.String Then 
+  Else If iState = State.String Then 
     sQuoteChar = "`"
   Endif
   
@@ -76,19 +78,19 @@ Public Sub Run(sText As String)
       Return
     Endif
   
-    If iState = Highlight.Normal Then
+    If iState = State.Normal Then
     
       If sCar = "/" Then
         sCar = String.Mid$(sText, iPos + 1, 1)
         If sCar = "/" Then
-          iState = Highlight.Comment
+          iState = State.Comment
           bSingleLineComment = True
         Else If sCar = "*" Then
           sCar = String.Mid$(sText, iPos + 2, 1)
           If sCar = "*" Then
-            iState = Highlight.Help
+            iState = State.Documentation
           Else
-            iState = Highlight.Comment
+            iState = State.Comment
           Endif
           bSingleLineComment = False
         Else If Not bLastExpr And If String.Mid$(sText, iPos + 1, 1) <> " " Then ' Regular expression
@@ -119,16 +121,16 @@ Public Sub Run(sText As String)
             sIdent &= sCar
           Wend
           
-          TextHighlighter.Add(Highlight.DataType, String.Len(sIdent))
-          iState = Highlight.Normal
+          TextHighlighter.Add(State.Datatype, String.Len(sIdent))
+          iState = State.Normal
           Continue
         Else
-          TextHighlighter.Add(Highlight.Operator)
+          TextHighlighter.Add(State.Operator)
           Continue
         Endif
         
       Else If InStr("\"'`", sCar) Then
-        iState = Highlight.String
+        iState = State.String
         sQuoteChar = sCar
       Else If Asc(sCar) <= 32 Then 
       
@@ -160,8 +162,8 @@ Public Sub Run(sText As String)
           Wend
         Endif
       
-        TextHighlighter.Add(Highlight.Number, String.Len(sIdent))
-        iState = Highlight.Normal
+        TextHighlighter.Add(State.Number, String.Len(sIdent))
+        iState = State.Normal
         bLastExpr = True
         Continue
         
@@ -180,16 +182,16 @@ Public Sub Run(sText As String)
         Wend
         
         If $cKeyword.Exist(sIdent) Then
-          iState = Highlight.Keyword
+          iState = State.Keyword
           If sIdent = "function" Then bTestShowLimit = True
           bLastExpr = $cKeyword[sIdent] = 1
         Else
-          iState = Highlight.Symbol
+          iState = State.Symbol
           bLastExpr = True
         Endif
         
         TextHighlighter.Add(iState, String.Len(sIdent))
-        iState = Highlight.Normal
+        iState = State.Normal
         Continue
       
       Else
@@ -210,33 +212,33 @@ Public Sub Run(sText As String)
         bLastExpr = False
 
         If $cOperator.Exist(sIdent) Then
-          iState = Highlight.Operator
+          iState = State.Operator
           If sIdent = ")" Or If sIdent = "]" Then bLastExpr = True
         Else
-          iState = Highlight.Error
+          iState = State.Error
         Endif
         
         TextHighlighter.Add(iState, String.Len(sIdent))
-        iState = Highlight.Normal
+        iState = State.Normal
         
         'Dec iPos
         Continue
       
       Endif
       
-    Else If iState = Highlight.Comment Or If iState = Highlight.Help Then
+    Else If iState = State.Comment Or If iState = State.Documentation Then
     
       If Not bSingleLineComment Then
         sCar = String.Mid$(sText, iPos, 2)
         If sCar = "*/" Then
           TextHighlighter.Add(iState, 2)
           Inc iPos
-          iState = Highlight.Normal
+          iState = State.Normal
           Continue
         Endif
       Endif
       
-    Else If iState = Highlight.String Then
+    Else If iState = State.String Then
     
       If sCar = "\\" Then
         sCar = String.Mid$(sText, iPos + 1, 1)
@@ -255,7 +257,7 @@ Public Sub Run(sText As String)
         Endif
       Else If sCar = sQuoteChar Then
         TextHighlighter.Add(iState)
-        iState = Highlight.Normal
+        iState = State.Normal
         bLastExpr = True
         Continue
       Endif
@@ -266,13 +268,13 @@ Public Sub Run(sText As String)
     
   Next
   
-  If iState = Highlight.Comment And If bSingleLineComment Then
-    iState = Highlight.Normal
+  If iState = State.Comment And If bSingleLineComment Then
+    iState = State.Normal
   Endif
   
-  If iState <> Highlight.Comment And If iState <> Highlight.Help Then
-    If iState <> Highlight.String Or If sQuoteChar <> "`" Then
-      iState = Highlight.Normal
+  If iState <> State.Comment And If iState <> State.Documentation Then
+    If iState <> State.String Or If sQuoteChar <> "`" Then
+      iState = State.Normal
     Endif
   Endif
   

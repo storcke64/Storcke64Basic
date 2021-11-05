@@ -3,6 +3,8 @@
 Inherits TextHighlighter
 
 Public Const Name As String = "diff"
+Public Const FullName As String = "Diff"
+Public Const _Styles As String = "File,Header,Position,Added,Removed"
 
 Public Sub Run(sText As String)
   
@@ -11,23 +13,23 @@ Public Sub Run(sText As String)
   TextHighlighter.Limit = False
   
   If sText Begins "Index:" Or If sText Begins "diff" Then
-    iState = Highlight.Keyword
+    iState = State.Header
     TextHighlighter.Limit = True
   Else If sText Begins "===" Then
-    iState = Highlight.Keyword
+    iState = State.Header
   Else If sText Begins "+++" Then
-    iState = Highlight.Operator
+    iState = State.File
   Else If sText Begins "---" Then 
-    iState = Highlight.Operator
+    iState = State.File
   Else If sText Begins "+" Then
-    iState = Highlight.Number
+    iState = State.Added
   Else If sText Begins "-" Then
-    iState = Highlight.String
+    iState = State.Removed
   Else If sText Begins "@" Then
-    iState = Highlight.Comment
+    iState = State.Position
     TextHighlighter.Limit = True
   Else
-    iState = Highlight.Normal
+    iState = State.Normal
   Endif
 
   TextHighlighter.Add(iState, String.Len(sText))

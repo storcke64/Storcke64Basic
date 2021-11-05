@@ -46,29 +46,10 @@ End
 
 Public Sub Main()
 
-  Dim hHighlighter As TextHighlighter
-  ' Dim sLine As String
-  ' Dim L As Integer
-
-  hHighlighter = TextHighlighter["webpage"]
-  
-  '#Include "toto\n"
-  
-  ' For Each sLine In Split(File.Load("~/gambas/git/master/comp/src/gb.form.editor/.src/TextEditor.class"), "\n")
-  '   Print L
-  '   Highlight.Analyze(sLine, True)
-  '   Inc L
-  ' Next
-
-  ' Highlight.Analyze("  #If Test", True)
+  ' Dim hHighlighter As TextHighlighter
   ' 
-  ' Print
-  ' Print Highlight.Symbols.Join("\n")
+  ' hHighlighter = TextHighlighter["webpage"]
+  ' 
+  ' Print hHighlighter.ToHTML(File.Load("~/gambas/git/master/app/src/gambas-wiki/.src/Wiki.webpage"))
   
-  Print hHighlighter.ToHTML(File.Load("~/gambas/git/master/app/src/gambas-wiki/.src/Wiki.webpage"))
-  
-  ' TextHighlighter._Highlight = New Byte[]
-  ' hHighlighter.Run("Label:")
-  ' Print TextHighlighter._Highlight.Count
-
 End

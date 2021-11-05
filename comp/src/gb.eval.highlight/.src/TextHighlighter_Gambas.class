@@ -3,6 +3,8 @@
 Inherits TextHighlighter
 
 Public Const Name As String = "gambas"
+Public Const FullName As String = "Gambas"
+Public Const _Styles As String = "Keyword,Function,Operator,Symbol,Number,String,Breakpoint,Current,Datatype,Preprocessor,Escape,Label,Constant"
 
 Class Highlight
 
@@ -83,3 +85,4 @@ Public Sub Run(Text As String)
   If TextHighlighter.CanRewrite Then TextHighlighter.TextAfter = Highlight.TextAfter
 
 End
+

@@ -8,11 +8,19 @@ Create Private
 Class Paint
 Class Color
 
-Static Public Const Name As String = ""
+Public Const Name As String = ""
+Public Const FullName As String = ""
+Public Const _Styles As String = "Background,Normal,Selection,Alternate,Highlight,CurrentLine,Added,Removed,Error,Comment,Documentation"
+
+Static Property Read List As String[]
 
 Static Property Read DefaultStyle As TextHighlighterStyle[]
 
+Property Read Styles As String[]
+
+
 Static Public _Highlight As Byte[]
+
 Static Public (Line) As Integer
 Static Public State As Integer
 Static Public Tag As Integer
@@ -23,6 +31,8 @@ Static Public Comment As Boolean
 Static Public CanRewrite As Boolean
 
 Static Private $aStyle As TextHighlighterStyle[]
+
+Private $aStyles As String[]
 
 Fast Static Public Sub Add((State) As Integer, Optional Count As Integer = 1)
 
@@ -83,7 +93,7 @@ Public Sub GetKeywords() As String[]
   
 End
 
-Public Sub ToHTML(Text As String, Optional Styles As TextHighlighterStyle[]) As String
+Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
 
   Dim aResult As New String[]
   Dim sLine As String
@@ -101,8 +111,9 @@ Public Sub ToHTML(Text As String, Optional Styles As TextHighlighterStyle[]) As 
   Dim iColor As Integer
   Dim sOldStyle As String
   Dim sStyle As String
+  Dim aStyles As TextHighlighterStyle[]
   
-  If Not Styles Then Styles = TextHighlighter.DefaultStyle
+  aStyles = GetStyles(Theme)
   
   TextHighlighter.State = Highlight.Normal
   TextHighlighter.Tag = 0
@@ -135,8 +146,8 @@ Public Sub ToHTML(Text As String, Optional Styles As TextHighlighterStyle[]) As 
     For I = 0 To aHighlight.Max Step 2
       
       iState = aHighlight[I] And 31
-      Try hStyle = Styles[iState]
-      If Error Then hStyle = Styles[0]
+      Try hStyle = aStyles[iState]
+      If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
       iLen = aHighlight[I + 1]
       
@@ -144,11 +155,16 @@ Public Sub ToHTML(Text As String, Optional Styles As TextHighlighterStyle[]) As 
       P += iLen
       
       If hStyle.Bold Then sHtml = "<b>" & sHtml & "</b>"
-      If hStyle.Underline Then sHtml = "<u>" & sHtml & "</u>"
+      If hStyle.Underline Then 
+        sHtml = "<u>" & sHtml & "</u>"
+      Else If hStyle.Strikeout Then
+        sHtml = "<s>" & sHtml & "</s>"
+      Endif
       
       sStyle = ""
-      If bAlt Then sStyle &= "background:#" & Hex$(Styles[Highlight.Alternate], 6) & ";"
+      If bAlt Then sStyle &= "background:#" & Hex$(aStyles[Highlight.Alternate], 6) & ";"
       If hStyle.Color Then sStyle &= "color:#" & Hex$(hStyle.Color, 6) & ";"
+      If hStyle.Dotted Then sStyle &= "text-decoration:underline dotted;"
       
       If sStyle <> sOldStyle Then
         sOldStyle = sStyle
@@ -215,7 +231,7 @@ Static Private Function DefaultStyle_Read() As TextHighlighterStyle[]
 
 End
 
-Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[]) As String
+Public Sub ToRichText(Text As String, Optional Theme As Variant) As String
 
   Dim aResult As New String[]
   Dim sLine As String
@@ -233,8 +249,9 @@ Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[])
   Dim iColor As Integer
   Dim sOldStyle As String
   Dim sStyle As String
+  Dim aStyles As TextHighlighterStyle[]
   
-  If Not Styles Then Styles = TextHighlighter.DefaultStyle
+  aStyles = GetStyles(Theme)
   
   TextHighlighter.State = Highlight.Normal
   TextHighlighter.Tag = 0
@@ -267,8 +284,8 @@ Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[])
     For I = 0 To aHighlight.Max Step 2
       
       iState = aHighlight[I] And 31
-      Try hStyle = Styles[iState]
-      If Error Then hStyle = Styles[0]
+      Try hStyle = aStyles[iState]
+      If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
       iLen = aHighlight[I + 1]
       
@@ -276,7 +293,11 @@ Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[])
       P += iLen
       
       If hStyle.Bold Then sHtml = "<b>" & sHtml & "</b>"
-      If hStyle.Underline Then sHtml = "<u>" & sHtml & "</u>"
+      If hStyle.Underline Or If hStyle.Dotted Then
+        sHtml = "<u>" & sHtml & "</u>"
+      Else If hStyle.Strikeout Then
+        sHtml = "<s>" & sHtml & "</s>"
+      Endif
       
       sStyle = ""
       'If bAlt Then sStyle &= "background:#E0E0E0;"
@@ -311,19 +332,15 @@ Public Sub ToRichText(Text As String, Optional Styles As TextHighlighterStyle[])
   
 End
 
-Private Sub ColorToConsole(TxtColor As Integer) As String
+Private Sub ColorToConsole(iColor As Integer) As String
   
-  Dim Red As Integer
-  Dim Green As Integer
-  Dim Blue As Integer
+  With Color[iColor]
+    Return .Red & ";" & .Green & ";" & .Blue
+  End With
   
-  red = Shr((TxtColor And &hff0000), 16)
-  green = Shr((TxtColor And &h00ff00), 8)
-  Blue = TxtColor And &h0000FF
-  Return "" & red & ";" & green & ";" & blue
 End
 
-Public Sub ToANSI(Text As String, Optional Styles As TextHighlighterStyle[]) As String
+Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
 
   Dim aResult As New String[]
   Dim sLine As String
@@ -341,8 +358,9 @@ Public Sub ToANSI(Text As String, Optional Styles As TextHighlighterStyle[]) As 
   Dim iColor As Integer
   Dim sOldStyle As String
   Dim sStyle As String
+  Dim aStyles As TextHighlighterStyle[]
   
-  If Not Styles Then Styles = TextHighlighter.DefaultStyle
+  aStyles = GetStyles(Theme)
   
   TextHighlighter.State = Highlight.Normal
   TextHighlighter.Tag = 0
@@ -375,19 +393,20 @@ Public Sub ToANSI(Text As String, Optional Styles As TextHighlighterStyle[]) As 
     For I = 0 To aHighlight.Max Step 2
       
       iState = aHighlight[I] And 31
-      Try hStyle = Styles[iState]
-      If Error Then hStyle = Styles[0]
+      Try hStyle = aStyles[iState]
+      If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
       iLen = aHighlight[I + 1]
       
       sANSI = String.Mid$(sLine, P, iLen)
       P += iLen
       
-      If hStyle.Bold Then sANSI = "\e[1m" & sANSI & "\e[22m"                                                             ' "\e[21m" some terminal don't regognize this
+      If hStyle.Bold Then sANSI = "\e[1m" & sANSI & "\e[22m"                    ' "\e[21m" some terminal don't regognize this
       If hStyle.Underline Then sANSI = "\e[4m" & sANSI & "\e[24m"
+      ' TODO: Implement strikeout
       
       sStyle = ""
-      If bAlt Then sStyle &= "\e[48;2;" & ColorToConsole(Styles[Highlight.Alternate]) & "m"      ' background color
+      If bAlt Then sStyle &= "\e[48;2;" & ColorToConsole(aStyles[Highlight.Alternate]) & "m"      ' background color
       If hStyle.Color Then sStyle &= "\e[38;2;" & ColorToConsole(hStyle.Color) & "m"                   ' forground color
       
       If sStyle <> sOldStyle Then
@@ -788,7 +807,21 @@ Public Sub ToANSI(Text As String, Optional Styles As TextHighlighterStyle[]) As 
 ' 
 ' 
 
-Public Sub Paint(Text As String, X As Float, Y As Float, Optional Styles As TextHighlighterStyle[])
+Private Sub GetStyles(hTheme As Variant) As TextHighlighterStyle[]
+
+  If Not hTheme Then hTheme = New TextHighlighterTheme
+
+  If hTheme Is TextHighlighterTheme Then
+    Return hTheme.Styles
+  Else If hTheme Not Is TextHighlighterStyle[] Then
+    Return hTheme
+  Else 
+    Error.Raise("TextHighlighterTheme or TextHighlighterStyle[] expected")
+  Endif
+
+End
+
+Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Variant)
   
   Dim sLine As String
   Dim aHighlight As Byte[]
@@ -807,6 +840,9 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Styles As Text
   Dim LH, BW As Integer
   Dim LB As Integer
   Dim X0 As Float
+  Dim aStyles As TextHighlighterStyle[]
+  
+  aStyles = GetStyles(Theme)
   
   fCharWidth = Paint._EstimateFixedFontCharWidth(Paint.Font)
   LH = Paint.Font.Height + 1
@@ -814,8 +850,6 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Styles As Text
   
   Y += Paint.Font.Ascent
   X0 = X
-  
-  If Not Styles Then Styles = TextHighlighter.DefaultStyle
   
   TextHighlighter.State = Highlight.Normal
   TextHighlighter.Tag = 0
@@ -843,8 +877,8 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Styles As Text
     For I = 0 To aHighlight.Max Step 2
       
       iState = aHighlight[I] And 31
-      Try hStyle = Styles[iState]
-      If Error Then hStyle = Styles[0]
+      Try hStyle = aStyles[iState]
+      If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
       iLen = aHighlight[I + 1]
       
@@ -885,3 +919,27 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Styles As Text
   
 End
 
+Static Private Function List_Read() As String[]
+
+  Dim sFile As String
+  Dim aList As String[]
+
+  aList = New String[]
+  For Each sFile In Dir(".gambas", "TEXTHIGHLIGHTER_*")
+    aList.Add(LCase(Mid$(sFile, InStr(sFile, "_") + 1)))
+  Next
+  
+  Return aList.Sort(gb.IgnoreCase + gb.Language)
+
+End
+
+Private Function Styles_Read() As String[]
+
+  If Not $aStyles Then
+    $aStyles = Split(Me._Styles)
+    $aStyles.ReadOnly = True
+  Endif
+  
+  Return $aStyles
+
+End
