@@ -119,17 +119,16 @@ Public Sub Save(Path As String)
 
   Dim hStyle As TextHighlighterStyle
   Dim hFile As File
-  Dim sStr As String
   
   hFile = Open Path For Output Create
   
   Print #hFile, "[Gambas Highlighting Theme 1.0]"
   
   For Each hStyle In $cStyles
-    Print #hFile, hStyle.Name; "="; Quote(hStyle.ToString())
+    Print #hFile, hStyle.Key; "="; Quote(hStyle.ToString())
   Next
   
-  sStr = Close #hFile
+  Close #hFile
   
 End
 
