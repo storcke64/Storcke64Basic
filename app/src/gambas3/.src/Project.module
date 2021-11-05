@@ -6412,6 +6412,14 @@ End
 
 Public Sub AddRecentFile(hForm As Object)
   
+  Dim iPos As Integer
+  
+  Do
+    iPos = RecentFiles.Find(hForm.Path)
+    If iPos < 0 Then Break
+    RecentFiles.Remove(iPos)
+  Loop 
+  
   RecentFiles.Add(hForm.Path)
   If RecentFiles.Count > 20 Then RecentFiles.Remove(0, RecentFiles.Count - 20)
   

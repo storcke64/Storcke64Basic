@@ -185,6 +185,7 @@ Public Sub tabVersionControl_Click()
       edtJournal.SetFocus
       
     Case 1
+      Try edtDiff.SetFocus
       
     Case 2
       If edtHistory.IsVoid() Then edtHistory.FillWithHistory(Project.Dir)

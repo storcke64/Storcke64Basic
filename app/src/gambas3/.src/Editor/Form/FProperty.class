@@ -584,6 +584,7 @@ Private Sub ShowProperty(Optional sFocus As String)
   Dim sHTML As String
   Dim iRow As Integer
   Dim bWarning As Boolean
+  Dim sWarning As String
 
   If Project.Running Then Return
   If Not $hForm Then Return
@@ -663,17 +664,13 @@ Private Sub ShowProperty(Optional sFocus As String)
 
   If sHelp Then
     If sHelp <> "?" Then
-      sHTML = MHelp.LoadCustom("property-help.html")
-      sHTML = Replace(sHTML, "$(class)", "Control")
-      sHTML = Replace(sHTML, "$(name)", grdProperty[grdProperty.Row, 0].Text)
-      sHTML = Replace(sHTML, "$(help)", Html(sHelp))
-      sHTML = Replace(sHTML, "$(type)", sHelpType)
-      sHTML = Replace(sHTML, "$(lctype)", sHelpLcType)
-      If bWarning Then 
-        sHTML = Replace(sHTML, "$(warning)", ("This property is virtual: it is only implemented in the IDE, and has no existence at runtime."))
-      Else
-        sHTML = Replace(sHTML, "$(warning)", "")
-      Endif
+      If bWarning Then sWarning = ("This property is virtual: it is only implemented in the IDE, and has no existence at runtime.")
+      sHTML = MHelp.MakePage("help/property-help.html", ["class": "Control", "name": grdProperty[grdProperty.Row, 0].Text, "help": Html(sHelp), "type": sHelpType, "lctype": sHelpLcType, "warning": sWarning])
+      ' sHTML = Replace(sHTML, "$(class)", "Control")
+      ' sHTML = Replace(sHTML, "$(name)", grdProperty[grdProperty.Row, 0].Text)
+      ' sHTML = Replace(sHTML, "$(help)", Html(sHelp))
+      ' sHTML = Replace(sHTML, "$(type)", sHelpType)
+      ' sHTML = Replace(sHTML, "$(lctype)", sHelpLcType)
     Endif
     
     MHelp.InitWebViewWithHtml(GetWebView(), sHTML)

@@ -535,9 +535,6 @@ Public Sub GetHelpHTML() As String
     Return
   Endif
 
-  sHtml = MHelp.LoadCustom("component-help.html")
-  sHtml = Replace(sHtml, "$(help)", sHelp)
-  
   sDesc = ""
   
   For Each sClass In ClassList
@@ -547,12 +544,13 @@ Public Sub GetHelpHTML() As String
     
   Next
 
-  sHtml = Replace(sHtml, "$(classes)", sDesc)
-  sHtml = Replace(sHtml, "$(title)", Key)
+  sHtml = MHelp.MakePage("help/component-help.html", ["help": sHelp, "classes": sDesc, "title": Key])
+  ' sHtml = Replace(sHtml, "$(help)", sHelp)
+  ' sHtml = Replace(sHtml, "$(classes)", sDesc)
+  ' sHtml = Replace(sHtml, "$(title)", Key)
+  ' sHtml = Replace(sHtml, "$(hide-title)", "")
   
   sHtml = Replace(sHtml, "''Classes''", ("Classes"))
-  
-  sHtml = Replace(sHtml, "$(hide-title)", "")
   
   Return sHtml
   

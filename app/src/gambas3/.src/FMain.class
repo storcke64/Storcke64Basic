@@ -365,7 +365,7 @@ Private Sub UpdateRecentFile(hParent As Menu)
   For Each sPath In Project.RecentFiles.Sort()
     
     If Not Exist(sPath) Then Continue
-    If Project.Files.Exist(sPath) And If wrkProject.Exist(Project.Files[sPath]) Then Continue
+    If Not Project.Files.Exist(sPath) Then Continue 'And If wrkProject.Exist(Project.Files[sPath]) Then Continue
     
     hMenu = New Menu(hParent) As "mnuOpenRecentFile"
     hMenu.Text = File.Name(sPath)

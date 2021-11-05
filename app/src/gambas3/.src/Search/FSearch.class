@@ -23,7 +23,6 @@ Private $cGrepCache As New Collection
 Private $cRefreshBrowse As New Collection
 Private $hFont As Font
 Private $CW As Float
-Private $hStyle As TextHighlighterStyle[]
 
 Private gvwFind As GridView
 
@@ -108,7 +107,6 @@ Public Sub ReadConfig()
   Wend
   $CW = Paint._EstimateFixedFontCharWidth($hFont)
   
-  $hStyle = MTheme.GetStyles()
   For I = 0 To $aResult.Max
     $aResult[I].RichText = ""
   Next
@@ -1045,8 +1043,8 @@ Public Sub gvwFind_Draw(X As Integer, Y As Integer, (Width) As Integer, Height A
       X -= Max(0, XX - $hFont.TextWidth("0") * 40)
     Endif
 
-    Paint.FillRect(X + XX, Y, WW, Height, $hStyle[Highlight.Highlight].Color)
-    TextHighlighter[hResult.Highlight].Paint(sText, X, Y, $hStyle)
+    Paint.FillRect(X + XX, Y, WW, Height, MTheme.GetColor("Highlight"))
+    TextHighlighter[hResult.Highlight].Paint(sText, X, Y, MTheme.Theme)
     
   Else
     
@@ -1063,9 +1061,9 @@ Public Sub gvwFind_Draw(X As Integer, Y As Integer, (Width) As Integer, Height A
       WW = $hFont.TextWidth(String.Left(sText, iCol + hResult.Length)) - XX
     Endif
     
-    Paint.FillRect(X + XX, Y, WW, Height, $hStyle[Highlight.Highlight].Color)
+    Paint.FillRect(X + XX, Y, WW, Height, MTheme.GetColor("Highlight"))
     
-    Paint.Background = $hStyle[Highlight.Normal].Color
+    Paint.Background = MTheme.GetColor("Normal")
     Paint.DrawText(sText, X, Y + $hFont.Ascent)
     
   Endif
@@ -1153,7 +1151,7 @@ Public Sub gvwFind_Data(Row As Integer, Column As Integer)
     End Select
 
     If Column = 4 Then
-      iCol = $hStyle[Highlight.Background].Color
+      iCol = MTheme.GetColor("Background")
       'If hResult.Dark Then iCol = Color.Merge(iCol, $hStyle[Highlight.Normal].Color, 0.05)
       .Background = iCol
     Else
@@ -1343,12 +1341,6 @@ Public Sub chkRegularExpression_Click()
 
   ShowString
 
-End
-
-Public Sub GetHighlightStyle() As TextHighlighterStyle[]
-  
-  Return $hStyle
-  
 End
 
 Public Sub IsSearching() As Boolean

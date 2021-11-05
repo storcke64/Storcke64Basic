@@ -502,24 +502,16 @@ Public Sub InitWebViewWith(hView As Control, iType As Integer, sSymbol As String
   
 End
 
-Public Sub InitWebViewWithHtml(hWebView As WebView, sHtml As String)
+Public Sub InitWebViewWithHtml(hView As Control, sHtml As String)
   
-  Dim sTemp As String
-  
-  If Not hWebView Then 
+  If Not hView Then 
     If Not Class.IsLoaded("FHelpBrowser") Or If Not FHelpBrowser.Visible Then Return
-    hWebView = FHelpBrowser.GetBrowser()
+    hView = FHelpBrowser.GetBrowser()
   Endif
   
-  hWebView.Stop
-  'hWebView.History.Clear
+  Try hView.Stop
+  SetHtml(hView, sHtml)
   
-  sTemp = File.Dir(Temp$()) &/ "help"
-  Try Mkdir sTemp
-  sTemp &/= "_custom.html"
-  File.Save(sTemp, sHtml)
-  hWebView.Url = "file://" & sTemp
-    
 End
 
 
@@ -945,18 +937,89 @@ Private Sub SetHtml(hView As Object, sHtml As String)
   
 End
 
+Public Sub MakePage(sPath As String, Optional cSubst As Collection) As String
 
+  Dim sStr As String
+  Dim hFile As File
+  Dim sHtml As String
+  Dim iPos As Integer
+  Dim iPos2 As Integer
+  Dim sKey As String
+  
+  hFile = Open String For Write
+  Output To #hFile
+  
+  sHtml = File.Load(sPath)
+  iPos = 0
+  
+  Do
+    
+    iPos2 = InStr(sHtml, "$(", iPos + 1)
+    If iPos2 = 0 Then
+      Print Mid$(sHtml, iPos + 1);
+      Break
+    Endif
+    
+    Print Mid$(sHtml, iPos + 1, iPos2 - iPos - 1);
+    iPos = InStr(sHtml, ")", iPos2 + 2)
+    If iPos = 0 Then Break
+    
+    sKey = Mid$(sHtml, iPos2 + 2, iPos - iPos2 - 2)
+    Select Case sKey
+      Case "root"
+        InitOffline
+        Print GetOfflineDir();
+      Case "parent"
+        Wiki.PrintParent
+      Case "link"
+        Wiki.PrintLink
+      Case "page"
+        Wiki.PrintPage
+      Case Else 
+        If cSubst And If cSubst.Exist(sKey) Then
+          Print cSubst[sKey];
+        Endif
+    End Select
+    
+  Loop
+  
+  Output To Default
+  sStr = Close #hFile
+  Return sStr
+  
+
+End
+
+Private Sub InitOffline()
+
+  Dim sDir As String
+  Dim sFile As String
+  
+  If Not $bInitOffline Then
+    
+    sDir = GetOfflineDir()
+    Shell.MkDir(sDir)
+    
+    For Each sFile In ["up.png", "critical.png", "info.png", "tip.png", "vb.png", "warning.png", "error-bg.png", "highlight.js"]
+      Try Kill sDir &/ sFile
+      Copy "help/wiki" &/ sFile To sDir &/ sFile
+    Next
+  
+    File.Save(sDir &/ "style.css", Replace(File.Load("help/wiki/style.css") & "\n" & File.Load("help/wiki/style-offline.css"), "<%/%>", sDir))
+    
+    $bInitOffline = True
+    
+  Endif
+  
+End
 
 Public Sub MakeOffline(hView As Object, sUrl As String, Optional bNoHeader As Boolean, Optional sHighlight As String) As Boolean
   
-  Dim sFile As String
-  Dim sHtml As String
-  Dim hFile As File
   Dim iPos As Integer
-  Dim iPos2 As Integer
   Dim sQuery As String
   Dim sPath As String
   Dim sDir As String
+  Dim cSubst As Collection
   
   Wiki.Root = GetOfflineDir()
   Wiki.InfoDir = CComponent.GetInfoDir()
@@ -966,18 +1029,7 @@ Public Sub MakeOffline(hView As Object, sUrl As String, Optional bNoHeader As Bo
     Return
   Endif
   
-  If Not $bInitOffline Then
-    
-    For Each sFile In ["up.png", "critical.png", "info.png", "tip.png", "vb.png", "warning.png", "error-bg.png", "highlight.js"]
-      Try Kill GetOfflineDir() &/ sFile
-      Copy "help/wiki" &/ sFile To GetOfflineDir() &/ sFile
-    Next
-  
-    File.Save(GetOfflineDir() &/ "style.css", Replace(File.Load("help/wiki/style.css"), "<%/%>", GetOfflineDir()) & "\n" & File.Load("help/wiki/style-offline.css"))
-    
-    $bInitOffline = True
-    
-  Endif
+  InitOffline
   
   iPos = InStr(sUrl, "?")
   If iPos Then
@@ -1002,46 +1054,8 @@ Public Sub MakeOffline(hView As Object, sUrl As String, Optional bNoHeader As Bo
     sPath = File.SetExt(Temp$("help"), "html")
   Endif
 
-  hFile = Open sPath For Create
-  Output To #hFile
-  
-  sHtml = File.Load("help/wiki/page.html")
-  iPos = 0
-  
-  Do
-    
-    iPos2 = InStr(sHtml, "$(", iPos + 1)
-    If iPos2 = 0 Then
-      Print Mid$(sHtml, iPos + 1);
-      Break
-    Endif
-    
-    Print Mid$(sHtml, iPos + 1, iPos2 - iPos - 1);
-    iPos = InStr(sHtml, ")", iPos2 + 2)
-    If iPos = 0 Then Break
-    
-    Select Case Mid$(sHtml, iPos2 + 2, iPos - iPos2 - 2)
-      Case "root"
-        Print GetOfflineDir();
-      Case "parent"
-        Wiki.PrintParent
-      Case "link"
-        Wiki.PrintLink
-      Case "page"
-        Wiki.PrintPage
-      Case "noheader"
-        If bNoHeader Then 
-          Print "<style type=\"text/css\">"
-          Print ".header { display: none; }"
-          Print ".page { top: 0; }"
-          Print "</style>"
-        Endif
-    End Select
-    
-  Loop
-  
-  Output To Default
-  Close #hFile
+  If bNoHeader Then cSubst = ["noheader": "<style type=\"text/css\">" ".header { display: none; }" ".page { top: 0; }" "</style>"]
+  File.Save(sPath, MakePage("help/wiki/page.html", cSubst))
 
   If hView Is WebView Then
     sUrl = "file://" & URL.Encode(sPath)
@@ -1059,16 +1073,16 @@ Catch
   
 End
 
-Public Sub LoadCustom(sPage As String) As String
-
-  Dim sHtml As String
-
-  sHtml = File.Load("help" &/ sPage)
-  sHtml = Replace(sHtml, "$(style)", File.Load("help/wiki/style.css") & File.Load("help/wiki/style-custom.css"))
-  
-  Return sHtml
-
-End
+' Public Sub LoadCustom(sPage As String) As String
+' 
+'   Dim sHtml As String
+' 
+'   sHtml = File.Load("help" &/ sPage)
+'   sHtml = Replace(sHtml, "$(style)", File.Load("help/wiki/style.css") & File.Load("help/wiki/style-custom.css"))
+'   
+'   Return sHtml
+' 
+' End
 
 Public Sub OnDocumentationUpdate()
   

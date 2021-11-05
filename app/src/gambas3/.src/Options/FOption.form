@@ -29,6 +29,10 @@
     { mnuDotted Menu
       Text = ("Dotted")
     }
+    { mnuStrikeout Menu
+      Text = ("Strikeout")
+      Picture = Picture["icon:/small/text-strike"]
+    }
   }
   { ipnOption IconPanel
     MoveScaled(1,1,95,67)
@@ -1253,8 +1257,23 @@
         Animated = True
       }
     }
+    { HBox10 HBox
+      MoveScaled(0,21,66,4)
+      Spacing = True
+      { Label21 Label
+        MoveScaled(0,0,28,4)
+        Font = Font["Bold"]
+        AutoResize = True
+        Text = ("Highlighting configuration for")
+      }
+      { cmbHighlight ComboBox
+        MoveScaled(29,0,28,4)
+        Expand = True
+        ReadOnly = True
+      }
+    }
     { svwTheme ScrollView
-      MoveScaled(2,23,64,29)
+      MoveScaled(2,28,64,29)
       Foreground = Color.TextForeground
       Expand = True
       Arrangement = Arrange.Vertical

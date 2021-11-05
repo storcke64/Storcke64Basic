@@ -74,6 +74,7 @@ Public Sub _new()
   'wizDebug[TAB_SEARCH].Closable = True
   
   splDebug.MinSize = Desktop.Scale * 24
+  splDebug.Layout = [1, 3]
   
   lblError.Padding = Desktop.Scale \ 2
   

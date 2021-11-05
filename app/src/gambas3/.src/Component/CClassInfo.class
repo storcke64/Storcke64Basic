@@ -715,37 +715,14 @@ Public Sub GetHelpHTML() As String
   sTitle = sClass
   If sWhere Then sTitle = "<a href=\"" & sWhere & "\">" & sTitle & "</a>"
   
-  sHtml = MHelp.LoadCustom("class-help.html")
-  sHtml = Replace(sHtml, "$(help)", sHelp)
+  sHtml = MHelp.MakePage("help/class-help.html", ["help": sHelp, "title": sTitle, "symbols": sSymbols])
   
-  If sInfo Then 
-    sHtml = Replace(sHtml, "<!--$(info)-->", sInfo)
-  Endif
+  ' sHtml = Replace(sHtml, "$(title)", sTitle)
+  ' sHtml = Replace(sHtml, "$(symbols)", sSymbols)
+  ' sHtml = Replace(sHtml, "$(hide-title)", "")
   
-  ' If hClassInfo.Parent Then 
-  '   
-  '   sParent = hClassInfo.Parent
-  '   
-  '   hParentClass = CComponent.Classes[hClassInfo.ParentComponent &/ sParent]
-  '   If Not hParentClass Then hParentClass = CComponent.GetClassDescription(sParent)
-  '   
-  '   sHtml = SubstPart(sHtml, "ShowInherits", True)
-  '   sHtml = SubstPart(sHtml, "ShowParConst", aParentConst.Count > 0)
-  '   sHtml = Replace(sHtml, "$(ParConst)", aParentConst.Join(" "))
-  '   
-  '   sHtml = Replace(sHtml, "$(Inherits)", Subst(("This class inherits &1."), Subst("<a href=\"&1\">&2</a>", Html(hParentClass.GetHelpURL()), sParent)))
-  '   sHtml = Replace(sHtml, "$(ParSymbols)", sParSymbols)
-  '   
-  ' Else
-  '   
-  '   sHtml = SubstPart(sHtml, "ShowInherits", False)
-  '   
-  ' Endif
-  
-  sHtml = Replace(sHtml, "$(title)", sTitle)
-  sHtml = Replace(sHtml, "$(symbols)", sSymbols)
+  If sInfo Then sHtml = Replace(sHtml, "<!--$(info)-->", sInfo)
   sHtml = SubstPart(sHtml, "ShowSymbols", bHasSymbol)
-  sHtml = Replace(sHtml, "$(hide-title)", "")
   
   Return sHtml
 

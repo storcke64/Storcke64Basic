@@ -9,14 +9,17 @@ Static Private $aMessageBoxStyle As String[] = ["default", "flat"]
 Static Private $aMessageBoxStyleName As String[] = [("Default"), ("Flat")]
 Static Private $cLayoutName As Collection
 
-Private $cLast As Collection
-Private $cCurrent As Collection
 Private $bNoChange As Boolean
 Private $aConfig As Variant[][]
 Private $sStyle As String
 Private $hDraw As DrawingArea
 Private $hDownloadHelp As DownloadManager
 Private $aLayout As String[]
+
+Private $hLastTheme As TextHighlighterTheme
+Private $hTheme As TextHighlighterTheme
+Private $aHighlightTypes As String[]
+Private $aHighlightNames As String[]
 
 Private Sub ReadConfig()
   
@@ -78,10 +81,8 @@ End
 Public Sub _new()
 
   Dim iInd As Integer
-  Dim hHBox As HBox
-  Dim hColor As DrawingArea
-  Dim hButton As ToolButton
   Dim aColors As Integer[]
+  Dim I As Integer
 
   gvwLayout.Columns.Count = 1
 
@@ -98,8 +99,9 @@ Public Sub _new()
   
   cmbMessageBoxStyle.List = $aMessageBoxStyleName.Copy().Sort(gb.Language)
   
-  $cLast = MTheme.ReadSettings(Settings, "/Highlight", True)
-  $cCurrent = MTheme.Copy($cLast)
+  $hLastTheme = New TextHighlighterTheme
+  Settings.Read($hLastTheme, "/Editor/Styles")
+  $hTheme = $hLastTheme.Copy()
   
   $aConfig = [
     [txtEditorFont, "/Editor/Font", ""],
@@ -158,7 +160,7 @@ Public Sub _new()
   
   ReadConfig
   
-  cmbIconTheme.Index = Max(0, cmbIconTheme.List.Find(Settings["/Theme"]))
+  cmbIconTheme.Index = Max(0, cmbIconTheme.List.Find(Settings["/Theme", MTheme.DEFAULT_THEME]))
   cmbBrowser.Index = $aBrowser.Find(Settings["/Browser"]) + 1
   cmbTerminal.Index = $aTerminal.Find(Settings["/Terminal"]) + 1
 
@@ -167,7 +169,7 @@ Public Sub _new()
   SetPercentSize(cmbDebuggerFontSize, Settings["/DebuggerFontSize", 80])    
   SetPercentSize(cmbHelpZoom, Settings["/Help/Zoom", 80])
   
-  iInd = $aTheme.Find(Settings["/Editor/Theme"])
+  iInd = $aTheme.Find(Settings["/Editor/Theme", MTheme.DEFAULT_THEME])
   If iInd >= 0 Then
     cmbTheme.Text = $aThemeName[iInd]
   Else
@@ -185,25 +187,6 @@ Public Sub _new()
   
   $bNoChange = False
   
-  For iInd = 0 To MTheme.ColorKeys.Max
-  
-    hHBox = New HBox(svwTheme)
-    hHBox.Tag = MTheme.ColorKeys[iInd]
-    hHBox.Height = 4 * Desktop.Scale
-    'hHBox.Spacing = 4
-    hColor = New DrawingArea(hHBox) As "dwgStyle"
-    hColor.Expand = True
-    hColor.Border = Border.Plain
-    hColor.Arrangement = Arrange.Horizontal
-    hColor.Invert = True
-    hButton = New ToolButton(hColor) As "btnStyle"
-    hButton.Picture = Picture["icon:/small/color"]
-    hButton.Resize(Desktop.Scale * 4, Desktop.Scale * 4)
-    
-  Next
-  
-  RefreshStyle
-  
   gvwSnippet.Columns.Count = 2
   gvwSnippet.Columns[0].Width = Desktop.Scale * 8
   gvwSnippet.Font = Project.GetEditorFont()
@@ -219,6 +202,17 @@ Public Sub _new()
   
   btnAutoTrans_Click
   
+  $aHighlightTypes = TextHighlighter.List
+  $aHighlightNames = New String[$aHighlightTypes.Count]
+  For I = 0 To $aHighlightTypes.Max
+    $aHighlightNames[I] = TextHighlighter[$aHighlightTypes[I]].FullName
+  Next
+  
+  cmbHighlight.List = $aHighlightNames
+  cmbHighlight.Add(("All"), 0)
+  cmbHighlight.Index = 0
+  ReloadStyles
+  
   Me.Utility = Settings["/UseUtilityWindows", 1]
   
 End
@@ -232,16 +226,18 @@ End
 Public Sub cmbTheme_Click()
 
   Dim iTheme As Integer
+  Dim sTheme As String
 
   iTheme = $aThemeName.Find(cmbTheme.Text)
 
   If iTheme < 0 Then 
-    Settings["/Editor/Theme"] = ""
-    Return
+    sTheme = MTheme.DEFAULT_THEME
+  Else 
+    sTheme = $aTheme[iTheme]
   Endif
-
-  Settings["/Editor/Theme"] = $aTheme[iTheme]
-  $cCurrent = MTheme.ReadFile($aTheme[iTheme])
+  
+  Settings["/Editor/Theme"] = sTheme
+  $hTheme = TextHighlighterTheme.Load("theme" &/ sTheme)
   RefreshEditor
   
 End
@@ -270,7 +266,7 @@ Public Sub btnExport_Click()
   If Dialog.SaveFile() Then Return
   Settings["/FOption/ThemePath"] = Dialog.Path
   
-  MTheme.WriteFile(Dialog.Path, $cCurrent)
+  $hTheme.Save(Dialog.Path)
   
 End
 
@@ -299,7 +295,8 @@ Private Sub RefreshEditor()
   Settings["/Editor/Font"] = txtEditorFont.Value
   
   RefreshStyle
-  MTheme.WriteSettings(Settings, "Highlight", $cCurrent)
+  
+  MTheme.Theme = $hTheme
   
   Project.InitWebView
   Project.RefreshBreakpointPicture
@@ -335,7 +332,7 @@ End
 
 Public Sub btnUndo_Click()
 
-  $cCurrent = MTheme.Copy($cLast)
+  $hTheme = $hLastTheme.Copy()
   cmbTheme.Index = 0
   RefreshEditor
 
@@ -505,9 +502,13 @@ Public Sub btnImport_Click()
   
   Settings["/FOption/ThemePath"] = Dialog.Path 
   
-  $cCurrent = MTheme.ReadFile(Dialog.Path)
+  $hTheme = TextHighlighterTheme.Load(Dialog.Path)
   cmbTheme.Index = 0
   RefreshEditor
+  
+Catch 
+  
+  FMain.ShowErrorWith(("Unable to load theme file."))
 
 End
 
@@ -634,7 +635,7 @@ Public Sub dwgStyle_Draw()
   
   Dim hDraw As DrawingArea = Last
   Dim sKey As String = hDraw.Parent.Tag
-  Dim hStyle As CStyle = CStyle[$cCurrent[sKey]]
+  Dim hStyle As TextHighlighterStyle = $hTheme[sKey]
   Dim sName As String
   Dim iForeground As Integer
   Dim iBackground As Integer
@@ -646,31 +647,32 @@ Public Sub dwgStyle_Draw()
   Dim LB As Integer
   Dim XB As Integer
 
-  sName = MTheme.ColorNames[MTheme.ColorKeys.Find(sKey)]
+  sName = hStyle.Name
   If Application.DarkTheme Then bInvert = Settings["/Editor/InvertTheme", True]
   If bInvert Then 
-    iBg = CStyle[$cCurrent["Background"]].Foreground
+    iBg = $hTheme["Background"].Color
     If Color[iBg].Value < 128 Then bInvert = False
   Endif
 
   Paint.Font = Project.GetEditorFont()
   
-  If MTheme.IsBackgroundStyle(sKey) Then
-    iBackground = hStyle.Foreground
-    iForeground = CStyle[$cCurrent["Normal"]].Foreground
+  If hStyle.Background Then
     If bInvert Then 
-      iBackground = MTheme.InvertColor(iBackground, sKey)
-      iForeground = MTheme.InvertColor(iForeground, "Normal")
+      iBackground = hStyle.InvertedColor
+      iForeground = $hTheme["Normal"].InvertedColor
+    Else
+      iBackground = hStyle.Color
+      iForeground = $hTheme["Normal"].Color
     Endif
   Else
-    iBackground = CStyle[$cCurrent["Background"]].Foreground
-    iForeground = hStyle.Foreground
     If bInvert Then 
-      iBackground = MTheme.InvertColor(iBackground, "Background")
-      iForeground = MTheme.InvertColor(iForeground, sKey)
+      iBackground = $hTheme["Background"].InvertedColor
+      iForeground = hStyle.InvertedColor
+    Else
+      iBackground = $hTheme["Background"].Color
+      iForeground = hStyle.Color
     Endif
   Endif
-  
   
   Paint.FillRect(0, 0, hDraw.W, hDraw.H, iBackground)
   D = Desktop.Scale
@@ -707,6 +709,8 @@ Public Sub dwgStyle_Draw()
     Paint.MoveTo(D, Y - 0.5)
     Paint.RelLineTo(W, 0)
     Paint.Stroke
+  Else If hStyle.Strikeout Then
+    Paint.FillRect(D, hDraw.H \ 2, W, 1, Color.SetAlpha(iForeground, 128))
   Endif
   
 End
@@ -721,11 +725,12 @@ End
 
 Public Sub mnuPopup_Show()
   
-  With CStyle[$cCurrent[$sStyle]]
+  With $hTheme[$sStyle]
   
     mnuBold.Checked = .Bold
     mnuUnderline.Checked = .Underline
     mnuDotted.Checked = .Dotted
+    mnuStrikeout.Checked = .Strikeout
 
   End With 
   
@@ -733,15 +738,13 @@ End
 
 Private Sub UpdateStyle()
   
-  Dim hStyle As New CStyle($cCurrent[$sStyle])
-  
-  With hStyle
+  With $hTheme[$sStyle]
     .Bold = mnuBold.Checked
     .Underline = mnuUnderline.Checked
     .Dotted = mnuDotted.Checked
+    .Strikeout = mnuStrikeout.Checked
   End With
   
-  $cCurrent[$sStyle] = hStyle.ToString()
   cmbTheme.Index = 0
   RefreshEditor
   
@@ -757,6 +760,10 @@ End
 Public Sub mnuUnderline_Click()
   
   mnuUnderline.Checked = Not mnuUnderline.Checked
+  If mnuUnderline.Checked Then
+    mnuDotted.Checked = False
+    mnuStrikeout.Checked = False
+  Endif
   UpdateStyle
   
 End
@@ -764,19 +771,32 @@ End
 Public Sub mnuDotted_Click()
   
   mnuDotted.Checked = Not mnuDotted.Checked
+  If mnuDotted.Checked Then
+    mnuUnderline.Checked = False
+    mnuStrikeout.Checked = False
+  Endif
+  UpdateStyle
+  
+End
+
+Public Sub mnuStrikeout_Click()
+
+  mnuStrikeout.Checked = Not mnuStrikeout.Checked
+  If mnuStrikeout.Checked Then
+    mnuDotted.Checked = False
+    mnuUnderline.Checked = False
+  Endif
   UpdateStyle
   
 End
 
 Public Sub mnuColor_Click()
   
-  Dim hStyle As New CStyle($cCurrent[$sStyle])
-  Dim iColor As Integer = hStyle.Foreground
+  Dim iColor As Integer = $hTheme[$sStyle].Color
   
   If FColorChooser.Run("&H" & Hex$(iColor, 6) & "&") Then Return
   
-  hStyle.Foreground = FColorChooser.Value
-  $cCurrent[$sStyle] = hStyle.ToString()
+  $hTheme[$sStyle].Color = FColorChooser.Value
   cmbTheme.Index = 0
   RefreshEditor
   
@@ -1881,3 +1901,57 @@ Catch
   FMain.ShowErrorWith(("Unable to install icon theme."))
   
 End
+
+Private Sub ReloadStyles()
+
+  Dim aStyles As String[]
+  Dim hHBox As HBox
+  Dim hColor As DrawingArea
+  Dim hButton As ToolButton
+  Dim sStyle As String
+  Dim aNames As String[]
+  Dim I As Integer
+  
+  svwTheme.Children.Clear
+  
+  If cmbHighlight.Index = 0 Then
+    aStyles = TextHighlighter.Styles
+  Else 
+    aStyles = TextHighlighter[$aHighlightTypes[$aHighlightNames.Find(cmbHighlight.Text)]].Styles
+  Endif
+  
+  aNames = New String[aStyles.Count]
+  For I = 0 To aStyles.Max
+    aNames[I] = Highlight.GetStyleName(aStyles[I])
+  Next
+  
+  aStyles.SortUsing(aNames)
+
+  For Each sStyle In aStyles
+  
+    hHBox = New HBox(svwTheme)
+    hHBox.Tag = sStyle
+    hHBox.Height = 4 * Desktop.Scale
+    'hHBox.Spacing = 4
+    hColor = New DrawingArea(hHBox) As "dwgStyle"
+    hColor.Expand = True
+    hColor.Border = Border.Plain
+    hColor.Arrangement = Arrange.Horizontal
+    hColor.Invert = True
+    
+    hButton = New ToolButton(hColor) As "btnStyle"
+    hButton.Picture = Picture["icon:/small/color"]
+    hButton.Resize(Desktop.Scale * 4, Desktop.Scale * 4)
+    
+  Next
+  
+  RefreshStyle
+
+End
+
+Public Sub cmbHighlight_Click()
+
+  ReloadStyles
+
+End
+

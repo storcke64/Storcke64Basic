@@ -1054,14 +1054,9 @@ Public Function GetHelpHTML() As String
     If Error Then sHelp = "<b>" & Error.Text & "</b>"
   Endif
   
-  sHTML = MHelp.LoadCustom("symbol-help.html")
-  sHTML = Replace(sHTML, "$(hide-title)", "")
-  sHTML = Replace(sHTML, "$(class)", {Class})
-  sHTML = Replace(sHTML, "$(name)", Name)
-  
   'If Me.IsStatic() Then sHTML &= "<font color=\"blue\">STATIC </font>"
 
-  sSyntax &= Me.GetDescription(False)
+  sSyntax = Me.GetDescription(False)
   ' sSyntax = Replace(Replace(sSyntax, "</b>", ""), "<b>", "")
   ' 
   Highlight.Analyze(sSyntax, True)
@@ -1095,14 +1090,17 @@ Public Function GetHelpHTML() As String
     End Select
   Next
   
-  sHTML = Replace(sHTML, "$(syntax)", sSyntax)
-  sHTML = Replace(sHTML, "$(help)", sHelp)
-
   If Not Component Or If Component = CComponent.PROJECT_NAME Then sTitle = "<a href=\"" & "gambas://project/" & {Class} & "#" & Me.LineNumber & "?showfile" & "\">"
   sTitle &= {Class} & "." & Name
   If Not Component Or If Component = CComponent.PROJECT_NAME Then sTitle &= "</a>"
 
-  sHTML = Replace(sHTML, "$(title)", sTitle)
+  sHTML = MHelp.MakePage("help/symbol-help.html", ["class": {Class}, "name": Name, "syntax": sSyntax, "help": sHelp, "title": sTitle])
+  ' sHTML = Replace(sHTML, "$(hide-title)", "")
+  ' sHTML = Replace(sHTML, "$(class)", {Class})
+  ' sHTML = Replace(sHTML, "$(name)", Name)
+  ' sHTML = Replace(sHTML, "$(syntax)", sSyntax)
+  ' sHTML = Replace(sHTML, "$(help)", sHelp)
+  ' sHTML = Replace(sHTML, "$(title)", sTitle)
 
   Return sHTML
 
