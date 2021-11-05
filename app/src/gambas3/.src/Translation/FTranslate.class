@@ -327,6 +327,8 @@ Private Sub SetLang(Optional sLang As String) As Boolean
 
   DisplayTrans
   
+  Me.Title = ("Project translation") & " - " & cmbLang.Text & " - " & $sLang & ".po"
+  
 Finally
 
   ResizeTable
