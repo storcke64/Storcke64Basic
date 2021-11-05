@@ -125,6 +125,7 @@ END_METHOD
 BEGIN_METHOD_VOID(Timer_Stop)
 
 	enable_timer(THIS, FALSE);
+	THIS->triggered = FALSE;
 
 END_METHOD
 
@@ -175,6 +176,9 @@ END_PROPERTY
 
 static void trigger_timer(void *_object)
 {
+	if (!THIS->triggered)
+		return;
+	
 	THIS->triggered = FALSE;
 	GB_Raise(THIS, EVENT_Timer, 0);
 	OBJECT_UNREF(_object);
