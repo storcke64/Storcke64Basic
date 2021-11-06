@@ -323,6 +323,7 @@ Private $iWidth As Integer
 Private $LH As Integer
 Private $LP As Integer
 Private $BW As Integer ' bold width
+Private $BA As Integer
 Private $MW As Integer
 Private $iWidthLineNumber As Integer
 Private $iWidthModified As Integer
@@ -526,10 +527,11 @@ End
 
 Private Sub CalcBoldWidth()
   
+  $BW = 1 + $LH \ 6
   If Color[$hTheme["Background"].Color].Luminance < Color[$hTheme["Normal"].Color].Luminance Then
-    $BW = 1 + $LH \ 4
+    $BA = 64
   Else
-    $BW = 1 + $LH \ 6
+    $BA = 128
   Endif
   
 End
@@ -1048,7 +1050,7 @@ DRAW_TEXT:
     Wend
     If LB Then
       If DB < 4 Then
-        Paint.Background = Color.SetAlpha(iCol, 128)
+        Paint.Background = Color.SetAlpha(iCol, $BA)
       Else
         XB -= DB \ 4
       Endif
