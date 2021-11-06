@@ -176,11 +176,12 @@ END_PROPERTY
 
 static void trigger_timer(void *_object)
 {
-	if (!THIS->triggered)
-		return;
+	if (THIS->triggered)
+	{
+		THIS->triggered = FALSE;
+		GB_Raise(THIS, EVENT_Timer, 0);
+	}
 	
-	THIS->triggered = FALSE;
-	GB_Raise(THIS, EVENT_Timer, 0);
 	OBJECT_UNREF(_object);
 }
 
