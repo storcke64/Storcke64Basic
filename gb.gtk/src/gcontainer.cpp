@@ -66,7 +66,7 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
 	sender->setShown(true);
-	if (!sender->isTempHidden())
+	if (!gApplication::_disable_mapping_events)
 		sender->arrangeLater();
 }
 

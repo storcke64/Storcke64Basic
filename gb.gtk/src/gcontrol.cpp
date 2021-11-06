@@ -367,7 +367,7 @@ void gControl::initAll(gContainer *parent)
 	_is_drawingarea = false;
 	_has_native_popup = false;
 	_eat_return_key = false;
-	_hidden_temp = false;
+	//_hidden_temp = false;
 	_allow_show = false;
 
 	onFinish = NULL;
@@ -712,9 +712,10 @@ void gControl::hideButKeepFocus()
 {
 	//fprintf(stderr, "gControl::hideButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
-	_hidden_temp = true;
 	gApplication::_keep_focus = true;
+	gApplication::_disable_mapping_events = true;
 	gtk_widget_hide(border);
+	gApplication::_disable_mapping_events = false;
 	gApplication::_keep_focus = false;
 }
 
@@ -725,7 +726,11 @@ void gControl::showButKeepFocus()
 	//fprintf(stderr, "gControl::showButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
 	if (_allow_show)
+	{
+		gApplication::_disable_mapping_events = true;
 		gtk_widget_show(border);
+		gApplication::_disable_mapping_events = false;
+	}
 	
 	focus = gApplication::_active_control;
 	if (focus)
@@ -736,7 +741,7 @@ void gControl::showButKeepFocus()
 		gApplication::_active_control = focus;
 	}
 
-	_hidden_temp = false;
+	//_hidden_temp = false;
 }
 
 bool gControl::resize(int w, int h, bool no_decide)

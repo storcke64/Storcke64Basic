@@ -135,6 +135,7 @@ public:
 	static void (*onEnterEventLoop)();
 	static void (*onLeaveEventLoop)();
 	static bool _keep_focus;
+	static bool _disable_mapping_events;
 };
 
 #endif

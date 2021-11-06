@@ -304,7 +304,6 @@ public:
 	unsigned _has_native_popup : 1;        // I have a native popup menu
 	unsigned _eat_return_key : 1;          // If the control eats the return key
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
-	unsigned _hidden_temp : 1;             // Temporarily hidden (must not raise watchers)
 	unsigned _allow_show : 1;              // Allowed to be visible (after the first resize)
 	
 #ifdef GTK3
@@ -369,7 +368,6 @@ public:
 	
 	void hideButKeepFocus();
 	void showButKeepFocus();
-	bool isTempHidden() const { return _hidden_temp; }
 	
 	static void postDelete();
 
