@@ -90,7 +90,7 @@ P {
 }
 
 H1,H2,H3,H4,H5,H6 {
-  margin-bottom: 0;
+  margin-bottom: 0.75rem;
 }
 
 H1,H2 {
@@ -364,21 +364,18 @@ DIV.table {
   }
   
 DIV.box {
-  margin-top: 0.75em;
   display: inline-block;
   border: solid #D8D8D8 1px;
   padding: 0.5em;
 }
 
 DIV.image {
-  margin-top: 0.75em;
   display: inline-block;
   border: solid #606060 1px;
   box-shadow: 0 0 0.25em black;
 }
 
 DIV.info {
-  margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
   padding-left: 3.5em;
@@ -389,7 +386,6 @@ DIV.info {
 }
 
 DIV.warning {
-  margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
   padding-left: 3.5em;
@@ -400,7 +396,6 @@ DIV.warning {
 }
 
 DIV.tip {
-  margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
   padding-left: 3.5em;
@@ -411,7 +406,6 @@ DIV.tip {
 }
 
 DIV.vb {
-  margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
   padding-left: 3.5em;
@@ -422,7 +416,6 @@ DIV.vb {
 }
 
 DIV.critical {
-  margin-top: 0.75em;
   display: inline-block;
   padding: 0.5em;
   padding-left: 3.5em;
@@ -433,7 +426,6 @@ DIV.critical {
 }
 
 DIV.example, DIV.seealso {
-  display: inline-block;
   border: none;
   padding: 0;
 }
@@ -478,7 +470,6 @@ DIV.index {
 }*/
 
 DIV.syntax {
-  margin-top: 0.75em;
   display: inline-block;
   border: solid #D8D8D8 1px;
   background-color: #F8F8F8;
@@ -755,6 +746,7 @@ DIV.result {
   border: solid 1px #D8D8D8;
   border-top: none;
   background-color: #F8F8F8;
+  margin-top: -0.75rem;
 }
 
 DIV.result PRE {
