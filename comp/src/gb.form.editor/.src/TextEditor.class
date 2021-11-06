@@ -807,7 +807,7 @@ Private Sub DrawMatch(X As Integer, Y As Integer, H As Integer, XM As Integer, Y
   XY = LinePos(YM, XM)
   WW = TextWidth($hDoc.Lines[YM], XM + 1, 1)
   
-  If Not bOther Then
+  If Not bOther Or If Not $bShowCursor Then
     Paint.FillRect(X + XY.X, Y + XY.Y + H - 2, WW, 2, $iMatchColor)
   Else
     Paint.FillRect(X + XY.X, Y + XY.Y, WW, H, $iMatchColor)
@@ -1445,7 +1445,7 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
   
   If Row = $Y And If Not $bHideCursor Then
     If $bShowCursor Or If Not Me.HasFocus Then
-      If $bOverwrite Then
+      If $bOverwrite And If Not $bReadOnly Then
         sCar = String.Mid$($hDoc.Lines[$Y], $X + 1, 1)
         If sCar = "\t" Then
           WC = $iTabWidth
@@ -2174,7 +2174,7 @@ Public Sub View_KeyPress()
       Goto STOP_EVENT
       
     Case Key.Insert
-      Me.Overwrite = Not $bOverwrite
+      If Not $bReadOnly Then Me.Overwrite = Not $bOverwrite
       Goto STOP_EVENT
       
   End Select
@@ -3742,7 +3742,7 @@ Private Sub UpdatePosition()
   
   If $hLabel And If $hLabel.Visible Then
     
-    If $bOverwrite Then sText &= "  Overwrite"
+    If $bOverwrite And If Not $bReadOnly Then sText &= "  " & Tr$("Overwrite")
     sText &= "  " & CStr($X + 1) & " : " & CStr($Y + 1)
     $hLabel.Text = "  " & Trim(sText) & "  "
     $hLabelFrame.Move($hView.ClientW - $hLabel.W, $hView.ClientH - $hLabel.H, $hLabel.W, $hLabel.H)
