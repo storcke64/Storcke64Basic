@@ -4,7 +4,7 @@ Inherits TextHighlighter
 
 Public Const Name As String = "javascript"
 Public Const FullName As String = "Javascript"
-Public Const _Styles As String = "Operator,Preprocessor,Normal,Comment,Documentation,String,Number,Datatype,Symbol,Error"
+Public Const _Styles As String = "Operator,Preprocessor,Normal,Comment,Documentation,String,Number,Datatype,Symbol,Error,Escape"
 
 Private Const IDENT_CAR As String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$"
 Private Const DIGIT_CAR As String = "0123456789.+-eE"

@@ -9,7 +9,7 @@ Property Read Styles As TextHighlighterStyle[]
 
 Private $cStyles As New Collection
 
-
+Static Private $cCopy As Collection = ["Class": "Datatype", "Id": "Keyword", "Element": "Function", "Property": "Symbol", "Pseudo": "Keyword", "Rule": "Preprocessor", "Important": "Number", "File": "Comment", "Header": "Documentation", "Position": "Keyword", "Markup": "Keyword", "Attribute": "Function", "Value": "String", "Entity": "Datatype", "WebMarkup": "Preprocessor", "WebComment": "Documentation", "WebArgument": "Preprocessor"]
 
 Public Sub _new()
   
@@ -95,9 +95,18 @@ Public Sub _Load(Path As String)
   Dim iPos As Integer
   Dim sName As String
   Dim hStyle As TextHighlighterStyle
+  Dim cStyleSet As New Collection
+  Dim sCopy As String
+  Dim bOldTheme As Boolean
   
   aTheme = Split(File.Load(Path), "\n")
-  If aTheme[0] <> "[Gambas Highlighting Theme 1.0]" And If aTheme[0] <> "[Theme]" Then Goto RAISE_ERROR
+  If aTheme[0] <> "[Gambas Highlighting Theme 1.0]" Then
+    If aTheme[0] = "[Theme]" Then 
+      bOldTheme = True
+    Else
+      Goto RAISE_ERROR
+    Endif
+  Endif
   
   For I = 1 To aTheme.Max
     sLine = Trim(aTheme[I])
@@ -106,10 +115,17 @@ Public Sub _Load(Path As String)
     If iPos = 0 Then Goto RAISE_ERROR
     sName = Trim(Left(sLine, iPos - 1))
     If Not sName Or If Not IsAlnum(sName) Then Goto RAISE_ERROR
-    
+    If bOldTheme Then
+      If sName = "Help" Then sName = "Documentation"
+    Endif
     hStyle = TextHighlighterStyle.FromString(UnQuote(Trim(Mid$(sLine, iPos + 1))))
     Me[sName] = hStyle
+    cStyleSet[sName] = True
     
+  Next
+  
+  For Each sCopy In $cCopy
+    If Not cStyleSet.Exist($cCopy.Key) Then Me[$cCopy.Key] = Me[sCopy]
   Next
   
   Return
