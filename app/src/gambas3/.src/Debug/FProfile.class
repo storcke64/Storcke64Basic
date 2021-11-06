@@ -634,7 +634,7 @@ Public Sub ReadConfig()
   edtSource.ShowModified = False
   edtSource.ShowLineNumber = False
   edtSource.ShowExpand = False
-  panSepSource.Background = edtSource.Styles[Highlight.Background].Color
+  panSepSource.Background = edtSource.Theme["Background"].Color
   
   UpdateSource
     

@@ -285,8 +285,6 @@ Private Sub RefreshStyle()
   
 End
 
-
-
 Private Sub RefreshEditor()
   
   Dim hFile As Object
@@ -798,6 +796,7 @@ Public Sub mnuColor_Click()
   If FColorChooser.Run("&H" & Hex$(iColor, 6) & "&") Then Return
   
   $hTheme[$sStyle].Color = FColorChooser.Value
+  cmbTheme.Index = 0
   RefreshEditor
   
 End

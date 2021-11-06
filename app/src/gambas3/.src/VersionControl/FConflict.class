@@ -145,7 +145,7 @@ Public Sub Form_Open()
   hTabPanel.Index = hTabPanel.Count - 1
 
   edtConflict.ReadConfig
-  edtConflict.Styles[Highlight.Comment].Bold = True
+  edtConflict.Theme["Comment"].Bold = True
 
   hMenu = New Menu(mnuOpen) As "mnuOpen"
   hMenu.Text = File.Name($sPath)

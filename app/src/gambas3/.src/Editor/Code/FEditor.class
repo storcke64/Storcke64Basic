@@ -2677,7 +2677,7 @@ Public Sub ShowWatchResult(sStr As String)
     bError = True
   Endif
 
-  $hEditor.ShowMessageLabel(Html(sStr), If(bError, Highlight.Breakpoint, Highlight.Normal))
+  $hEditor.ShowMessageLabel(Html(sStr), If(bError, "Breakpoint", "Normal"))
 
 End
 
@@ -2726,7 +2726,7 @@ Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
 
   $hEditor.SetFocus
   Wait
-  $hEditor.ShowMessageLabel(sMsg, Highlight.Breakpoint)
+  $hEditor.ShowMessageLabel(sMsg, "Breakpoint")
 
 End
 

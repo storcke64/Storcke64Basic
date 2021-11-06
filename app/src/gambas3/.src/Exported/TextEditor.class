@@ -10,7 +10,7 @@ Private $iEndLine As Integer
 Private $iEndColumn As Integer
 
 Private $hLabel As TextLabel
-Private $iLabelStyle As Integer
+Private $sLabelStyle As String
 'Private $hLabelTimer As Timer
 Private $hObserver As Observer
 
@@ -244,19 +244,19 @@ Private Sub UpdateMessageLabel()
 
   If Not $hLabel Then Return
 
-  If $iLabelStyle = Highlight.Normal Then
-    $hLabel.Background = Me.Styles[Highlight.Background].Color
-    $hLabel.Foreground = Me.Styles[$iLabelStyle].Color
+  If $sLabelStyle = "Normal" Then
+    $hLabel.Background = Me.Theme["Background"].Color
+    $hLabel.Foreground = Me.Theme[$sLabelStyle].Color
     $hLabel.Border = Border.Plain
   Else
-    $hLabel.Background = Me.Styles[$iLabelStyle].Color 'Me.Styles[Highlight.Normal].Color
-    $hLabel.Foreground = Me.Styles[Highlight.Normal].Color
+    $hLabel.Background = Me.Theme[$sLabelStyle].Color 'Me.Styles[Highlight.Normal].Color
+    $hLabel.Foreground = Me.Theme["Normal"].Color
     $hLabel.Border = Border.None
   Endif
 
 End
 
-Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom As Boolean)
+Public Sub ShowMessageLabel(sStr As String, sStyle As String, Optional bBottom As Boolean)
 
   Dim hParent As Container
 
@@ -277,7 +277,7 @@ Public Sub ShowMessageLabel(sStr As String, iStyle As Integer, Optional bBottom 
     
   Endif
   
-  $iLabelStyle = iStyle
+  $sLabelStyle = sStyle
   UpdateMessageLabel
   
   ' $hLabel.Foreground = Me.Styles[Highlight.Normal].Color

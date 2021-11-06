@@ -976,7 +976,7 @@ Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
 
   $hEditor.SetFocus
   Wait
-  $hEditor.ShowMessageLabel(sMsg, Highlight.Breakpoint)
+  $hEditor.ShowMessageLabel(sMsg, "Breakpoint")
 
 End
 
