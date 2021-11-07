@@ -40,8 +40,6 @@
 #define __MAIN_C
 
 #include <libpq-fe.h>
-#include <postgres.h>
-#include <pg_type.h>
 
 #ifdef fprintf
 	#undef fprintf
@@ -82,6 +80,22 @@ static char _buffer[32];
 static DB_DRIVER _driver;
 static int _last_error;
 /*static int _print_query = FALSE;*/
+
+// PostgreSQL datatypes
+
+enum { OID_BOOL, OID_INT2, OID_INT4, OID_INT8, OID_NUMERIC, OID_FLOAT4, OID_FLOAT8, OID_ABSTIME,
+	OID_RELTIME, OID_DATE, OID_TIME, OID_TIMESTAMP, OID_DATETIME, OID_TIMESTAMPTZ, OID_BYTEA, OID_CHAR,
+	OID_BPCHAR, OID_VARCHAR, OID_TEXT, OID_NAME, OID_CASH,
+	OID_COUNT };
+
+const char *_oid_names[] = {
+	"bool", "int2", "int4", "int8", "numeric", "float4", "float8", "abstime", 
+	"reltime", "date", "time", "timestamp", "datetime", "timestamptz", "bytea", "char",
+	"bpchar", "varchar", "text", "name", "cash", NULL
+};
+
+int _oid[OID_COUNT] = { 0 };
+
 
 // Get the SQL expression returning the default value of a field
 
@@ -348,51 +362,27 @@ static int unquote_blob(const char *data, int len, DB_FORMAT_CALLBACK add)
 
 static GB_TYPE conv_type(Oid type)
 {
-	switch(type)
-	{
-		case BOOLOID:
-			return GB_T_BOOLEAN;
+	if (type == _oid[OID_BOOL])
+		return GB_T_BOOLEAN;
+	
+	if (type == _oid[OID_INT2] || type == _oid[OID_INT4])
+		return GB_T_INTEGER;
 
-		case INT2OID:
-		case INT4OID:
-			return GB_T_INTEGER;
+	if (type == _oid[OID_INT8])
+		return GB_T_LONG;
 
-		case INT8OID:
-			return GB_T_LONG;
-
-		case NUMERICOID:
-		case FLOAT4OID:
-		case FLOAT8OID:
+	if (type == _oid[OID_NUMERIC] || type == _oid[OID_FLOAT4] || type == _oid[OID_FLOAT8])
 			return GB_T_FLOAT;
 
-#ifdef ABSTIMEOID
-		case ABSTIMEOID:
-		case RELTIMEOID:
-#endif
-		case DATEOID:
-		case TIMEOID:
-		case TIMESTAMPOID:
-#ifdef DATETIMEOID
-		case DATETIMEOID:
-#endif
-#ifdef TIMESTAMPTZOID
-		case TIMESTAMPTZOID:
-#endif
-			return GB_T_DATE;
+	if (type == _oid[OID_ABSTIME] || type == _oid[OID_RELTIME] || type == _oid[OID_DATE]
+	    || type == _oid[OID_TIME] || type == _oid[OID_TIMESTAMP] || type == _oid[OID_DATETIME]
+	    || type == _oid[OID_TIMESTAMPTZ])
+		return GB_T_DATE;
 
-		case BYTEAOID:
-			return DB_T_BLOB;
+	if (type == _oid[OID_BYTEA])
+		return DB_T_BLOB;
 
-		case CHAROID:
-		case BPCHAROID:
-		case VARCHAROID:
-		case TEXTOID:
-		case NAMEOID:
-		case CASHOID:
-		default:
-			return GB_T_STRING;
-
-	}
+	return GB_T_STRING;
 }
 
 
@@ -412,134 +402,85 @@ static void conv_data(const char *data, int len, GB_VARIANT_VALUE *val, Oid type
 	double sec;
 	bool bc;
 
-	switch (type)
+	if (type == _oid[OID_BOOL])
 	{
-		case BOOLOID:
-
-			val->type = GB_T_BOOLEAN;
-			val->value._boolean = conv_boolean(data) ? -1 : 0;
-			break;
-
-		case INT2OID:
-		case INT4OID:
-
-			GB.NumberFromString(GB_NB_READ_INTEGER, data, strlen(data), &conv);
-
-			val->type = GB_T_INTEGER;
-			val->value._integer = conv._integer.value;
-
-			break;
-
-		case INT8OID:
-
-			GB.NumberFromString(GB_NB_READ_LONG, data, strlen(data), &conv);
-
-			val->type = GB_T_LONG;
-			val->value._long = conv._long.value;
-
-			break;
-
-		case NUMERICOID:
-		case FLOAT4OID:
-		case FLOAT8OID:
-
-			GB.NumberFromString(GB_NB_READ_FLOAT, data, strlen(data), &conv);
-
-			val->type = GB_T_FLOAT;
-			val->value._float = conv._float.value;
-
-			break;
-
-		#ifdef ABSTIMEOID
-		case ABSTIMEOID:
-		case RELTIMEOID:
-		#endif
-		case DATEOID:
-		case TIMEOID:
-		case TIMESTAMPOID:
-		#ifdef DATETIMEOID
-		case DATETIMEOID:
-		#endif
-		#ifdef TIMESTAMPTZOID
-		case TIMESTAMPTZOID:
-		#endif
-
-			memset(&date, 0, sizeof(date));
-
-			if (len > 3 && strcmp(&data[len - 2], "BC") == 0)
-				bc = TRUE;
-			else
-				bc = FALSE;
-
-			switch(type)
-			{
-				#ifdef ABSTIMEOID
-				case ABSTIMEOID:
-				case RELTIMEOID:
-				#endif
-				case DATEOID:
-
-					sscanf(data, "%4d-%2d-%2d", &date.year, &date.month, &date.day);
-					break;
-
-				case TIMEOID:
-
-					sscanf(data, "%2d:%2d:%lf", &date.hour, &date.min, &sec);
-					date.sec = (short)sec;
-					date.msec = (short)((sec - date.sec) * 1000 + 0.5);
-					break;
-
-				case TIMESTAMPOID:
-				#ifdef DATETIMEOID
-				case DATETIMEOID:
-				#endif
-				#ifdef TIMESTAMPTZOID
-				case TIMESTAMPTZOID:
-				#endif
-
-					sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year, &date.month, &date.day, &date.hour, &date.min, &sec);
-					date.sec = (short)sec;
-					date.msec = (short)((sec - date.sec) * 1000 + 0.5);
-					break;
-			}
-
-			if (bc)
-				date.year = (-date.year);
-
-			// 4713-01-01 BC is used for null dates
-
-			if (date.year == -4713 && date.month == 1 && date.day == 1)
-				date.year = date.month = date.day = 0;
-
-			GB.MakeDate(&date, (GB_DATE *)&conv);
-
-			val->type = GB_T_DATE;
-			val->value._date.date = conv._date.value.date;
-			val->value._date.time = conv._date.value.time;
-
-			break;
-
-		case BYTEAOID:
-			// The BLOB are read by the blob_read() driver function
-			// You must set NULL there.
-			val->type = GB_T_NULL;
-			break;
-
-		case CHAROID:
-		case BPCHAROID:
-		case VARCHAROID:
-		case TEXTOID:
-		case NAMEOID:
-		case CASHOID:
-		default:
-
-			val->type = GB_T_CSTRING;
-			val->value._string = (char *)data;
-			//val->_string.len = len;
-
-			break;
+		val->type = GB_T_BOOLEAN;
+		val->value._boolean = conv_boolean(data) ? -1 : 0;
 	}
+	else if (type == _oid[OID_INT2] && type == _oid[OID_INT4])
+	{
+		GB.NumberFromString(GB_NB_READ_INTEGER, data, strlen(data), &conv);
 
+		val->type = GB_T_INTEGER;
+		val->value._integer = conv._integer.value;
+	}
+	else if (type == _oid[OID_INT8])
+	{
+		GB.NumberFromString(GB_NB_READ_LONG, data, strlen(data), &conv);
+
+		val->type = GB_T_LONG;
+		val->value._long = conv._long.value;
+	}
+	else if (type == _oid[OID_NUMERIC] || type == _oid[OID_FLOAT4] || type == _oid[OID_FLOAT8])
+	{
+		GB.NumberFromString(GB_NB_READ_FLOAT, data, strlen(data), &conv);
+
+		val->type = GB_T_FLOAT;
+		val->value._float = conv._float.value;
+	}
+	else if (type == _oid[OID_ABSTIME] || type == _oid[OID_RELTIME] || type == _oid[OID_DATE]
+	         || type == _oid[OID_TIME] || type == _oid[OID_TIMESTAMP] || type == _oid[OID_DATETIME]
+	         || type == _oid[OID_TIMESTAMPTZ])
+	{
+		memset(&date, 0, sizeof(date));
+
+		if (len > 3 && strcmp(&data[len - 2], "BC") == 0)
+			bc = TRUE;
+		else
+			bc = FALSE;
+
+		if (type == _oid[OID_ABSTIME] || type == _oid[OID_RELTIME] || type == _oid[OID_DATE])
+		{
+			sscanf(data, "%4d-%2d-%2d", &date.year, &date.month, &date.day);
+		}
+		else if (type == _oid[OID_TIME])
+		{
+			sscanf(data, "%2d:%2d:%lf", &date.hour, &date.min, &sec);
+			date.sec = (short)sec;
+			date.msec = (short)((sec - date.sec) * 1000 + 0.5);
+		}
+		else
+		{
+			sscanf(data, "%4d-%2d-%2d %2d:%2d:%lf", &date.year, &date.month, &date.day, &date.hour, &date.min, &sec);
+			date.sec = (short)sec;
+			date.msec = (short)((sec - date.sec) * 1000 + 0.5);
+		}
+
+		if (bc)
+			date.year = (-date.year);
+
+		// 4713-01-01 BC is used for null dates
+
+		if (date.year == -4713 && date.month == 1 && date.day == 1)
+			date.year = date.month = date.day = 0;
+
+		GB.MakeDate(&date, (GB_DATE *)&conv);
+
+		val->type = GB_T_DATE;
+		val->value._date.date = conv._date.value.date;
+		val->value._date.time = conv._date.value.time;
+	}
+	else if (type == _oid[OID_BYTEA])
+	{
+		// The BLOB are read by the blob_read() driver function
+		// You must set NULL there.
+		val->type = GB_T_NULL;
+	}
+	else
+	{
+		val->type = GB_T_CSTRING;
+		val->value._string = (char *)data;
+	}
 }
 
 
@@ -587,7 +528,7 @@ static int do_query(DB_DATABASE *db, const char *error, PGresult **pres, const c
 	else
 		query = qtemp;
 
-	DB.Debug("gb.db.postgresql", "%p: %s", conn, query);
+	DB.Debug("gb.db.postgresql", "%p: %s", db, query);
 
 	res = PQexec(conn, query);
 	ret = check_result(res, error);
@@ -707,6 +648,31 @@ static void fill_field_info(DB_DATABASE *db, DB_FIELD *info, PGresult *res, int 
 		info->collation = GB.NewZeroString(PQgetvalue(res, row, col + 5));
 }
 
+// Load datatypes
+
+static bool init_datatypes(DB_DATABASE *db)
+{
+	const char *oid;
+	const char *query = "select oid from pg_type where typname = '&1'";
+	PGresult *res;
+	int i;
+	
+	for(i = 0;; i++)
+	{
+		oid = _oid_names[i];
+		if (!oid)
+			break;
+		if (do_query(db, "Unable to initialize datatypes", &res, query, 1, oid))
+			return TRUE;
+		if (PQntuples(res) == 1)
+			_oid[i] = atoi(PQgetvalue(res, 0, 0));
+
+		DB.Debug("gb.db.postgresql", "%p: --> %d", db, _oid[i]);
+		PQclear(res);
+	}
+	
+	return FALSE;
+}
 
 
 /*****************************************************************************
@@ -807,6 +773,14 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 		}
 	}
 
+	// datatypes
+	
+	if (init_datatypes(db))
+	{
+		PQfinish(conn);
+		return TRUE;
+	}
+
 	/* flags */
 
 	db->flags.no_table_type = TRUE;
@@ -827,7 +801,7 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	}
 	else
 		db->charset = NULL;
-
+	
 	return FALSE;
 }
 
