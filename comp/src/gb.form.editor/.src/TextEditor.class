@@ -1241,9 +1241,7 @@ Private Sub DrawLine(X As Integer, Y As Integer, Width As Integer, Height As Int
   '   Paint.FillRect(X, Y, Width, Height, $iMarginColor)
   ' Endif
   
-  If Row = $iStopLine Then
-    Paint.FillRect(X, Y, Width, HH, $hTheme["CurrentLine"].Color)
-  Endif
+  If Row = $iStopLine Then Paint.FillRect(X, Y, Width, HH, $hTheme["Current"].Color)
   
   If $hDoc.DiffAdded And If $hDoc.IsDiffAdded(Row) Then Paint.FillRect(X, Y, Width, HH, Color.SetAlpha($hTheme["Added"].Color, 224))
   
