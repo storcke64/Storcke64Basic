@@ -64,7 +64,8 @@ void SUBR_bit(ushort code)
 	if (type <= T_BOOLEAN || type > T_LONG)
 	  THROW(E_TYPE, "Number", TYPE_get_name(type));
 	
-  val = type == T_LONG ? PARAM->_long.value : (int64_t)PARAM->_integer.value;
+	VALUE_conv(PARAM, T_LONG);
+  val = PARAM->_long.value;
 
 	n = nbits[type];
 
