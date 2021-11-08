@@ -483,13 +483,19 @@ __INTEGER_XOR:
 	P1->type = T_INTEGER; P1->_integer.value ^= P2->_integer.value; goto *jump_end;
 
 __LONG_AND:
-	P1->type = T_LONG; P1->_long.value &= P2->_long.value; goto *jump_end;
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+	P1->_long.value &= P2->_long.value; goto *jump_end;
 
 __LONG_OR:
-	P1->type = T_LONG; P1->_long.value |= P2->_long.value; goto *jump_end;
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+	P1->_long.value |= P2->_long.value; goto *jump_end;
 
 __LONG_XOR:
-	P1->type = T_LONG; P1->_long.value ^= P2->_long.value; goto *jump_end;
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+	P1->_long.value ^= P2->_long.value; goto *jump_end;
 
 __UNKNOWN:
 
