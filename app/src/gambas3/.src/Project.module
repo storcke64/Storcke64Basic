@@ -2537,6 +2537,8 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   Dim sLine As String
   Dim sError As String
   Dim hForm As Object
+  Dim aTransLog As String[]
+  Dim sFile As String
 
   If Project.ReadOnly Then Return
   If Project.Running Then Return 'TRUE
@@ -2638,6 +2640,17 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
   Endif
 
   UnlockIt()
+  
+  If Localize Then 
+    
+    aTransLog = Dir(Project.Dir &/ ".lang", "*.log")
+    For Each sFile In aTransLog
+      sError &= RTrim(File.Load(Project.Dir &/ ".lang" &/ sFile)) & "\n\n"
+    Next
+    sError = Trim(sError)
+    If sError Then FCommandError.Run(("The translation tools return the following errors:"), sError, ("Translation errors"))
+    
+  Endif  
 
 End
 
@@ -6969,49 +6982,49 @@ Catch
   
 End
 
-Public Sub CompileTranslation(bForce As Boolean, Optional sLang As String)
-  
-  Dim sPath As String
-  Dim sTrans As String
-  Dim aLang As String[]
-  Dim dTrans As Date
-  Dim dPath As Date
-  
-  If sLang Then
-    aLang = [sLang]
-  Else
-    aLang = Language.GetAll(True)
-  Endif
-  
-  ' If Not sLang Then
-  '   iPos = Project.Environment.Find("LANG=*", gb.Like)
-  '   If iPos >= 0 Then
-  '     sLang = Mid$(Project.Environment[iPos], 6)
-  '   Else
-  '     sLang = System.Language
-  '   Endif
-  '   sLang = Language.Find(sLang)
-  ' Endif
-
-  For Each sLang In aLang
-  
-    sTrans = Language.GetPath(sLang, "po")
-    Try dTrans = Stat(sTrans).LastModified
-    If Error Then Continue
-    
-    sPath = Language.GetPath(sLang, "mo")
-    
-    If Not bForce Then
-      Try dPath = Stat(sPath).LastModified
-      If dPath And If dPath >= dTrans Then Continue
-    Endif
-    
-    Try Kill sPath
-    Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
-    
-  Next
-  
-End
+' Public Sub CompileTranslation(bForce As Boolean, Optional sLang As String)
+'   
+'   Dim sPath As String
+'   Dim sTrans As String
+'   Dim aLang As String[]
+'   Dim dTrans As Date
+'   Dim dPath As Date
+'   
+'   If sLang Then
+'     aLang = [sLang]
+'   Else
+'     aLang = Language.GetAll(True)
+'   Endif
+'   
+'   ' If Not sLang Then
+'   '   iPos = Project.Environment.Find("LANG=*", gb.Like)
+'   '   If iPos >= 0 Then
+'   '     sLang = Mid$(Project.Environment[iPos], 6)
+'   '   Else
+'   '     sLang = System.Language
+'   '   Endif
+'   '   sLang = Language.Find(sLang)
+'   ' Endif
+' 
+'   For Each sLang In aLang
+'   
+'     sTrans = Language.GetPath(sLang, "po")
+'     Try dTrans = Stat(sTrans).LastModified
+'     If Error Then Continue
+'     
+'     sPath = Language.GetPath(sLang, "mo")
+'     
+'     If Not bForce Then
+'       Try dPath = Stat(sPath).LastModified
+'       If dPath And If dPath >= dTrans Then Continue
+'     Endif
+'     
+'     Try Kill sPath
+'     Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
+'     
+'   Next
+'   
+' End
 
 Public Sub InitTooltip(hTooltip As Control)
   

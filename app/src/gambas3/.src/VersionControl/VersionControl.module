@@ -724,7 +724,7 @@ End
 
 Public Sub ShowError(sErr As String)
   
-  FVersionError.Run(sErr, $sLastResult)
+  FCommandError.Run(sErr, $sLastResult)
   
 End
 

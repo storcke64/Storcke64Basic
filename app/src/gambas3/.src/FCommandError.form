@@ -6,16 +6,17 @@
   Spacing = True
   Margin = True
   { HBox2 HBox
-    MoveScaled(1,1,39,7)
+    MoveScaled(1,1,39,5)
     Spacing = True
     { PictureBox1 PictureBox
-      MoveScaled(0,0,7,7)
-      Picture = Picture["icon:/huge/error"]
-      Stretch = True
+      MoveScaled(0,0,5,5)
+      Picture = Picture.Load("icon:/huge/warning")
+      Mode = PictureBox.Contain
     }
     { lblError TextLabel
-      MoveScaled(11,1,25,5)
+      MoveScaled(9,1,25,3)
       Expand = True
+      Alignment = Align.Normal
     }
   }
   { trmDetail TerminalView
@@ -34,7 +35,7 @@
     Spacing = True
     { btnOK Button
       MoveScaled(9,0,16,4)
-      Text = ("OK")
+      Text = ("Close")
       Default = True
       Cancel = True
     }

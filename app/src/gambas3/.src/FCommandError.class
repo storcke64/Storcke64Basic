@@ -2,13 +2,15 @@
 
 Static Private $sText As String
 Static Private $sDetail As String
+Static Private $sTitle As String
 
-Public Sub Run(sText As String, sDetail As String) 
+Public Sub Run(sText As String, sDetail As String, Optional sTitle As String) 
 
   Dim iBusy As Integer
   
   $sText = sText
   $sDetail = Trim(sDetail)
+  $sTitle = sTitle
 
   iBusy = Application.Busy
   Application.Busy = 0
@@ -26,6 +28,8 @@ End
 Public Sub Form_Open()
 
   Dim DS As Integer = Desktop.Scale
+  
+  If $sTitle Then Me.Title = $sTitle
   
   lblError.Text = Html($sText)
   
