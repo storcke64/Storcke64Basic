@@ -425,50 +425,44 @@ static PATTERN *trans_embedded_array(PATTERN *look, int mode, TRANS_DECL *result
 }
 
 
-static int TRANS_get_class(PATTERN pattern, bool array)
+int TRANS_get_class(int index)
 {
-	int index = PATTERN_index(pattern);
 	int index_array;
 	//CLASS_REF *cref;
 
 	if (!CLASS_exist_class(JOB->class, index))
 	{
-		if (array)
+		CLASS_SYMBOL *sym = CLASS_get_symbol(JOB->class, index);
+		int i;
+		char c;
+		
+		//fprintf(stderr, "TRANS_get_class: %.*s\n", sym->symbol.len, sym->symbol.name);
+		
+		for (i = sym->symbol.len - 1; i >= 0; i--)
 		{
-			// Maybe a compound class?
-			
-			CLASS_SYMBOL *sym = CLASS_get_symbol(JOB->class, index);
-			int i;
-			char c;
-			
-			//fprintf(stderr, "TRANS_get_class: %.*s\n", sym->symbol.len, sym->symbol.name);
-			
-			for (i = sym->symbol.len - 1; i >= 0; i--)
+			c = sym->symbol.name[i];
+			if (c == '[')
 			{
-				c = sym->symbol.name[i];
-				if (c == '[')
+				//fprintf(stderr, "TRANS_get_class: find %.*s\n", i, sym->symbol.name);
+				if (TABLE_find_symbol(JOB->class->table, sym->symbol.name, i, &index_array))
 				{
-					//fprintf(stderr, "TRANS_get_class: find %.*s\n", i, sym->symbol.name);
-					if (TABLE_find_symbol(JOB->class->table, sym->symbol.name, i, &index_array))
+					index_array = TRANS_get_class(index_array);
+					
+					if (JOB->class->class[index_array].exported)
+						index = CLASS_add_class_exported(JOB->class, index);
+					else
+						index = CLASS_add_class(JOB->class, index);
+					
+					JOB->class->class[index].type = TYPE_make(T_OBJECT, index_array, 0);
+					
+					/*cref = &JOB->class->class[index];
+					if (TYPE_is_null(cref->array))
 					{
-						index_array = TRANS_get_class(PATTERN_make(RT_CLASS, index_array), TRUE);
-						
-						if (JOB->class->class[index_array].exported)
-							index = CLASS_add_class_exported(JOB->class, index);
-						else
-							index = CLASS_add_class(JOB->class, index);
-						
-						JOB->class->class[index].type = TYPE_make(T_OBJECT, index_array, 0);
-						
-						/*cref = &JOB->class->class[index];
-						if (TYPE_is_null(cref->array))
-						{
-							cref->array.t.id = T_OBJECT;
-							cref->array.t.value = index_array;
-						}*/
-						
-						return index;
-					}
+						cref->array.t.id = T_OBJECT;
+						cref->array.t.value = index_array;
+					}*/
+					
+					return index;
 				}
 			}
 		}
@@ -567,7 +561,7 @@ bool TRANS_type(int mode, TRANS_DECL *result)
 		if (!PATTERN_is_class(*look))
 			THROW_UNEXPECTED(look);
 		
-		value = TRANS_get_class(*look, TRUE);
+		value = TRANS_get_class(PATTERN_index(*look));
 		is_array = check_structure(&value);
 		
 		if (!is_array)
@@ -595,7 +589,7 @@ bool TRANS_type(int mode, TRANS_DECL *result)
 		else
 		{
 			id = T_OBJECT;
-			value = TRANS_get_class(*look, TRUE);
+			value = TRANS_get_class(PATTERN_index(*look));
 		}
 		
 		if (PATTERN_is(look[1], RS_LSQR))

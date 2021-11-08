@@ -573,7 +573,6 @@ int CLASS_add_class_exported_unused(CLASS *class, int index)
 	return add_class(class, index, FALSE, TRUE);
 }
 
-
 bool CLASS_exist_class(CLASS *class, int index)
 {
 	return CLASS_get_symbol(class, index)->class > 0;

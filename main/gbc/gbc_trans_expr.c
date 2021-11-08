@@ -254,15 +254,7 @@ bool TRANS_string(PATTERN pattern)
 
 static void trans_class(int index)
 {
-	const char *name;
-
-	if (!CLASS_exist_class(JOB->class, index))
-	{
-		name = TABLE_get_symbol_name(JOB->class->table, index);
-		THROW("Unknown identifier: &1", name);
-	}
-	
-	CODE_push_class(CLASS_add_class(JOB->class, index));
+	CODE_push_class(TRANS_get_class(index));
 	push_type_id(T_OBJECT);
 }
 

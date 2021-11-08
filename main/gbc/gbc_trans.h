@@ -147,6 +147,7 @@ bool TRANS_type(int flag, TRANS_DECL *result);
 bool TRANS_get_number(int index, TRANS_NUMBER *result);
 bool TRANS_check_declaration(void);
 void TRANS_get_constant_value(TRANS_DECL *decl);
+int TRANS_get_class(int index);
 
 void TRANS_want(int reserved, char *msg);
 void TRANS_want_newline(void);
