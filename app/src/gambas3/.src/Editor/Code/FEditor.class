@@ -1571,7 +1571,7 @@ End
 '' +Return value
 '' The datatype of the symbol is returned, or [NULL] if the symbol is not found.
 
-Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean) As String
+Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Optional bSubr As Boolean) As String
 
   Dim iLine As Integer
   Dim iInd As Integer
@@ -1581,6 +1581,8 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean) As 
   'sSymbol = UCase(sSymbol)
   $bLastStatic = False
   $hSymbol = Null
+
+  If bSubr Then Goto LOOK_FOR_SUBR
 
   If sSymbol = "ME" Then
     Return Me.Name
@@ -1674,6 +1676,8 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean) As 
   Endif
 
   ' Look for subroutines
+
+LOOK_FOR_SUBR:
 
   If Not bPoint Then
     $hSymbol = Project.Documentation.GetClassSymbols(".")[sSymbol]
@@ -1879,9 +1883,9 @@ Public Function GetExpressionType(aExpr As String[], aType As Integer[], bPointA
     If IsTypeSymbol(sPattern, aType[iInd]) Then
       If Not sType Then
         If iInd >= (aExpr.Count - 1) Then
-          sType = GetSymbolType(sPattern, bPointAfter)
+          sType = GetSymbolType(sPattern, bPointAfter, aType[iInd] = Highlight.Function)
         Else
-          sType = GetSymbolType(sPattern, aExpr[iInd + 1] = ".")
+          sType = GetSymbolType(sPattern, aExpr[iInd + 1] = ".", aType[iInd] = Highlight.Function)
         Endif
         If $hSymbol Then
           '$bLastStatic = FALSE
