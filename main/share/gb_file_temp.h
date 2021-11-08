@@ -1114,6 +1114,16 @@ time_t FILE_get_time(const char *path)
 		return (time_t)-1L;
 }
 
+size_t FILE_get_size(const char *path)
+{
+	struct stat info;
+
+	if (stat(path, &info) == 0)
+		return info.st_size;
+	else
+		return -1;
+}
+
 bool FILE_copy(const char *src, const char *dst)
 {
 	int src_fd;

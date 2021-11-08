@@ -662,7 +662,8 @@ static void exit_files(void)
 
 static void compile_lang(const char *file_po)
 {
-	const char *file_mo;
+	const char *file_log;
+	char *file_mo;
 	time_t time_po, time_mo;
 	char *cmd;
 	int ret;
@@ -671,8 +672,8 @@ static void compile_lang(const char *file_po)
 	
 	if (time_po == ((time_t)-1))
 		return;
-		
-	file_mo = FILE_set_ext(file_po, "mo");
+	
+	file_mo = (char *)FILE_set_ext(file_po, "mo");
 		
 	if (!main_compile_all)
 	{
@@ -681,6 +682,9 @@ static void compile_lang(const char *file_po)
 			return;
 	}
 	
+	file_mo = STR_copy(file_mo);
+	file_log = FILE_set_ext(file_po, "log");
+	unlink(file_log);
 	unlink(file_mo);
 	
 	// Shell "msgfmt -o " & Shell$(sPath) & " " & Shell(sTrans) Wait
@@ -690,14 +694,18 @@ static void compile_lang(const char *file_po)
 		fprintf(stderr, "running: %s\n", cmd);
 	}
 	else
-		cmd = STR_print("msgfmt -o %s %s >/dev/null 2>&1", file_mo, file_po);
+		cmd = STR_print("msgfmt -o %s %s > %s 2>&1", file_mo, file_po, file_log);
 	
 	ret = system(cmd);
 	
 	if (!WIFEXITED(ret) || WEXITSTATUS(ret))
 		ERROR_warning("unable to compile translation file with 'msgfmt': %s", file_po);
 	
+	if (FILE_get_size(file_log) == 0)
+		unlink(file_log);
+	
 	STR_free(cmd);
+	STR_free(file_mo);
 }
 
 
