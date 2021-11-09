@@ -161,7 +161,7 @@ End
 
 Fast Private Sub Relayout(W As Integer)
 
-  Dim aAttr As Integer[]
+  Dim aAttr As Long[]
   Dim aLines As String[]
   Dim I As Integer
   Dim hLine As CTerminalLine
@@ -175,7 +175,7 @@ Fast Private Sub Relayout(W As Integer)
   hView = GetView()
 
   'fTimer = Timer
-  aAttr = New Integer[]
+  aAttr = New Long[]
   aLines = New String[]
   
   D = Lines.Count - 10000
@@ -897,7 +897,7 @@ Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Int
   Dim hLine As CTerminalLine
   Dim I, J, K As Integer
   'Dim sText As String
-  Dim aAttr As Integer[]
+  Dim aAttr As Long[]
   Dim hAttr As New TerminalAttr
   Dim iFg As Integer = hView.Foreground
   Dim iBg As Integer = hView.Background
@@ -933,28 +933,34 @@ Private Sub DrawLine(hView As TerminalView, L As Integer, X As Integer, Y As Int
     If P > iMaxLen Then Break
     
     hAttr._FillFrom(aAttr[I])
-    iLen = Min((Lsr(aAttr[I], 8) And 255), iMaxLen - P) + 1
+    iLen = Min((Lsr(aAttr[I], 9) And 127), iMaxLen - P) + 1
     
-    iBg = hAttr.Background
-    If iBg >= 0 Then
-      If iBg < 16 And If bDarkBackground Then
-        iBg = $aDarkColor[iBg]
+    iBg = hAttr.BackgroundRGB
+    If iBg < 0 Then
+      iBg = hAttr.Background
+      If iBg >= 0 Then
+        If iBg < 16 And If bDarkBackground Then
+          iBg = $aDarkColor[iBg]
+        Else
+          iBg = $aColor[iBg]
+        Endif
       Else
-        iBg = $aColor[iBg]
+        iBg = hView.Background
       Endif
-    Else
-      iBg = hView.Background
     Endif
     
-    iFg = hAttr.Foreground
-    If iFg >= 0 Then
-      If iFg < 16 And If bDarkBackground Then
-        iFg = $aDarkColor[iFg]
+    iFg = hAttr.ForegroundRGB
+    If iFg < 0 Then
+      iFg = hAttr.Foreground
+      If iFg >= 0 Then
+        If iFg < 16 And If bDarkBackground Then
+          iFg = $aDarkColor[iFg]
+        Else
+          iFg = $aColor[iFg]
+        Endif
       Else
-        iFg = $aColor[iFg]
+        iFg = hView.Foreground
       Endif
-    Else
-      iFg = hView.Foreground
     Endif
     
     If hAttr.Reverse Then Swap iBg, iFg
@@ -2459,5 +2465,11 @@ End
 Private Sub Bell()
   
   GetView()._Bell()
+  
+End
+
+Public Sub FindColor(iColor As Integer) As Integer
+  
+  Return $aColor.Find(iColor)
   
 End

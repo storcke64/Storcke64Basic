@@ -205,6 +205,9 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
   Dim N As Integer
   Dim I As Integer
   Dim sOutput As String
+  Dim hAttr As TerminalAttr
+  Dim iColor As Integer
+  Dim iIndex As Integer
   
   sStr = Mid$(sData, iPos, iLen)
   
@@ -232,6 +235,7 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
         
         Case "m" ' Set attribute (frequent, so test it first)
           
+          hAttr = hScreen.Attr
           GoSub GET_ARGS
           If aArg Then
             For I = 0 To aArg.Max
@@ -243,64 +247,86 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
               
               Select Case iArg
                 Case 0
-                  hScreen.Attr.Reset()
+                  hAttr.Reset()
                 Case 30 To 37
-                  hScreen.Attr.Foreground = iArg - 30
+                  hAttr.Foreground = iArg - 30
+                  hAttr.ForegroundRGB = -1
                 Case 90 To 97
-                  hScreen.Attr.Foreground = iArg - 90 + 8
+                  hAttr.Foreground = iArg - 90 + 8
+                  hAttr.ForegroundRGB = -1
                 Case 39
-                  hScreen.Attr.Foreground = -1
+                  hAttr.Foreground = -1
+                  hAttr.ForegroundRGB = -1
                 Case 40 To 47
-                  hScreen.Attr.Background = iArg - 40
+                  hAttr.Background = iArg - 40
+                  hAttr.BackgroundRGB = -1
                 Case 100 To 107
-                  hScreen.Attr.Background = iArg - 40 + 8
+                  hAttr.Background = iArg - 40 + 8
+                  hAttr.BackgroundRGB = -1
                 Case 49
-                  hScreen.Attr.Background = -1
+                  hAttr.Background = -1
+                  hAttr.BackgroundRGB = -1
                 Case 1
-                  hScreen.Attr.Bold = True
+                  hAttr.Bold = True
                   'hScreen.Attr.Reverse = True
                 Case 2
-                  hScreen.Attr.Dim = True
+                  hAttr.Dim = True
                 Case 4
-                  hScreen.Attr.Underscore = True
+                  hAttr.Underscore = True
                 Case 5
-                  hScreen.Attr.Blink = True
+                  hAttr.Blink = True
                 Case 7
-                  hScreen.Attr.Reverse = True
+                  hAttr.Reverse = True
                 Case 21
-                  hScreen.Attr.Bold = False
+                  hAttr.Bold = False
                 Case 22
-                  hScreen.Attr.Dim = False
+                  hAttr.Dim = False
                 Case 24
-                  hScreen.Attr.Underscore = False
+                  hAttr.Underscore = False
                 Case 25
-                  hScreen.Attr.Blink = False
+                  hAttr.Blink = False
                 Case 27
-                  hScreen.Attr.Reverse = False
+                  hAttr.Reverse = False
                 Case 90 To 97
-                  hScreen.Attr.Foreground = iArg - 90
+                  hAttr.Foreground = iArg - 90
                 Case 100 To 107
-                  hScreen.Attr.Background = iArg - 100
+                  hAttr.Background = iArg - 100
                 Case 38
-                  If (aArg.max - i) >= 2 And If aArg[I + 1] = "5" Then
-                    Try hScreen.Attr.Foreground = CInt(aArg[I + 2])
-                    I += 2
-                  Endif
-                  'TODO: Implement support for RGB Colors
-                  ' If (aArg.max - i) >= 4 And If aArg[i + 1] = "2" Then
-                  '   Try hScreen.Attr.Background = Color.RGB(CInt(aArg[i + 2]), CInt(aArg[i + 3]), CInt(aArg[i + 4))
-                  '   i += 4
-                  ' Endif
-                Case 48
                   If (aArg.max - I) >= 2 And If aArg[I + 1] = "5" Then
-                    Try hScreen.Attr.Background = CInt(aArg[I + 2])
+                    Try hAttr.Foreground = CInt(aArg[I + 2])
                     I += 2
+                  Else If (aArg.Max - I) >= 4 And If aArg[I + 1] = "2" Then
+                    Try iColor = Color.RGB(CInt(aArg[I + 2]), CInt(aArg[I + 3]), CInt(aArg[I + 4]))
+                    If Not Error Then
+                      ' iIndex = hScreen.FindColor(iColor)
+                      ' If iIndex >= 0
+                      '   hAttr.Foreground = iIndex
+                      '   hAttr.ForegroundRGB = -1
+                      ' Else
+                        hAttr.Foreground = -1
+                        hAttr.ForegroundRGB = iColor
+                      ' Endif
+                    Endif
+                    I += 4
                   Endif
-                  'TODO: Implement support for RGB Colors
-                  ' If (aArg.max - i) >= 4 And If aArg[i + 1] = "2" Then
-                  '   Try hScreen.Attr.ForeGround = Color.RGB(CInt(aArg[i + 2]), CInt(aArg[i + 3]), CInt(aArg[i + 4))
-                  '   i += 4
-                  ' Endif
+                Case 48
+                  If (aArg.Max - I) >= 2 And If aArg[I + 1] = "5" Then
+                    Try hAttr.Background = CInt(aArg[I + 2])
+                    I += 2
+                  Else If (aArg.Max - I) >= 4 And If aArg[I + 1] = "2" Then
+                    Try iColor = Color.RGB(CInt(aArg[I + 2]), CInt(aArg[I + 3]), CInt(aArg[I + 4]))
+                    If Not Error Then
+                      iIndex = hScreen.FindColor(iColor)
+                      ' If iIndex >= 0
+                      '   hAttr.Background = iIndex
+                      '   hAttr.BackgroundRGB = -1
+                      ' Else
+                        hAttr.Background = -1
+                        hAttr.BackgroundRGB = iColor
+                      ' Endif
+                    Endif
+                    I += 4
+                  Endif
                   
                 Case 3
                   ' Italic on
@@ -315,7 +341,7 @@ Private Sub Escape(hView As TerminalView, hScreen As TerminalScreen, hOutput As 
               End Select
             Next
           Else
-            hScreen.Attr.Reset
+            hAttr.Reset
           Endif
           
         Case "@"

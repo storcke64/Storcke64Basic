@@ -5,27 +5,25 @@ Fast Unsafe
 Public Text As String
 Public Length As Integer
 
-Private Attr As New Integer[]
+Private Attr As New Long[]
 
 Public NewLine As Boolean
 
 Private $bCompressed As Boolean
 
-Private Enum FLAG_BG, FLAG_FG, FLAG_BOLD, FLAG_DIM, FLAG_REV, FLAG_UND, FLAG_BLK
-
 Private Sub Uncompress()
 
   Dim I As Integer
-  Dim iAttr As Integer
+  Dim iAttr As Long
   Dim iCount As Integer
-  Dim aAttr As New Integer[]
-  Dim aTemp As Integer[]
+  Dim aAttr As New Long[]
+  Dim aTemp As Long[]
 
   For I = 0 To Attr.Max
     iAttr = Attr[I]
-    iCount = (Lsr(iAttr, 8) And 255) + 1
-    iAttr = iAttr And &HFFFF00FF
-    aTemp = New Integer[iCount]
+    iCount = (Lsr(iAttr, 9) And 127) + 1
+    iAttr = iAttr And &HFFFFFFFFFFFF01FF
+    aTemp = New Long[iCount]
     aTemp.Fill(iAttr)
     aAttr.Insert(aTemp)
   Next
@@ -40,33 +38,36 @@ End
 Private Sub Compress(bFull As Boolean)
   
   Dim I As Integer
-  Dim iAttr As Integer
-  Dim iOldAttr As Integer
+  Dim iAttr As Long
+  Dim iOldAttr As Long
   Dim iCount As Integer
-  Dim aAttr As New Integer[]
+  Dim aAttr As New Long[]
   
   For I = 0 To Attr.Max
     
     iAttr = Attr[I]
-    If iAttr = iOldAttr And If iCount < 256 Then
+    If iAttr = iOldAttr And If iCount < 128 Then
       Inc iCount
       Continue
     Endif
     
-    If iCount Then aAttr.Add(iOldAttr Or Lsl(iCount - 1, 8))
+    If iCount Then 
+      aAttr.Add(iOldAttr Or Lsl(iCount - 1, 9))
+    Endif
     iCount = 1
     iOldAttr = iAttr
     
   Next
   
-  If iCount Then aAttr.Add(iOldAttr Or Lsl(iCount - 1, 8))
+  If iCount Then aAttr.Add(iOldAttr Or Lsl(iCount - 1, 9))
   
   If bFull And If Attr.Count < Length Then
     iCount = Length - Attr.Count
-    aAttr.Add(Lsl(iCount - 1, 8))
+    aAttr.Add(Lsl(iCount - 1, 9))
   Endif
   
   $bCompressed = True
+  
   Attr = aAttr
   
 End
@@ -100,18 +101,11 @@ End
 ' 
 Public Sub SetAttr(hAttr As TerminalAttr, X As Integer, L As Integer, bInsert As Boolean)
   
-  Dim iAttr As Integer
-  Dim aAttr As Integer[]
-  Dim aTemp As Integer[]
+  Dim iAttr As Long
+  Dim aAttr As Long[]
+  Dim aTemp As Long[]
   
-  If hAttr.Background <> Color.Default Then iAttr = BSet(iAttr, FLAG_BG) + Lsl(hAttr.Background And 255, 16)
-  If hAttr.Foreground <> Color.Default Then iAttr = BSet(iAttr, FLAG_FG) + Lsl(hAttr.Foreground And 255, 24)
-  
-  If hAttr.Bold Then iAttr = BSet(iAttr, FLAG_BOLD)
-  If hAttr.Dim Then iAttr = BSet(iAttr, FLAG_DIM)
-  If hAttr.Reverse Then iAttr = BSet(iAttr, FLAG_REV)
-  If hAttr.Underscore Then iAttr = BSet(iAttr, FLAG_UND)
-  If hAttr.Blink Then iAttr = BSet(iAttr, FLAG_BLK)
+  iAttr = hAttr._ToValue()
   
   If $bCompressed Then Uncompress()
   
@@ -122,7 +116,7 @@ Public Sub SetAttr(hAttr As TerminalAttr, X As Integer, L As Integer, bInsert As
   Else
     If bInsert Then
       If aAttr.Count < X Then aAttr.Resize(X)
-      aTemp = New Integer[L]
+      aTemp = New Long[L]
       aTemp.Fill(iAttr)
       aAttr.Insert(aTemp, X)
     Else
@@ -133,14 +127,14 @@ Public Sub SetAttr(hAttr As TerminalAttr, X As Integer, L As Integer, bInsert As
   
 End
 
-Public Sub GetAttr() As Integer[]
+Public Sub GetAttr() As Long[]
   
   If Not $bCompressed Then Compress(False)
   Return Attr
   
 End
 
-Public Sub GetFullAttr() As Integer[]
+Public Sub GetFullAttr() As Long[]
   
   If $bCompressed Then Uncompress()
   Compress(True)
@@ -148,28 +142,28 @@ Public Sub GetFullAttr() As Integer[]
   
 End
 
-Public Sub InitAttr(aInit As Integer[])
+Public Sub InitAttr(aInit As Long[])
 
   Dim L As Integer
   Dim I As Integer
-  Dim iAttr As Integer
+  Dim iAttr As Long
   Dim iCount As Integer
   Dim C As Integer
-  Dim aAttr As Integer[]
-  Dim aTemp As Integer[]
+  Dim aAttr As Long[]
+  Dim aTemp As Long[]
   
   L = Length
-  aAttr = New Integer[]
+  aAttr = New Long[]
 
   For I = 0 To aInit.Max
     
     If L = 0 Then Break
     
     iAttr = aInit[0]
-    iCount = (Lsr(iAttr, 8) And 255) + 1
+    iCount = (Lsr(iAttr, 9) And 127) + 1
     C = Min(L, iCount)
-    iAttr = iAttr And &HFFFF00FF
-    aTemp = New Integer[C]
+    iAttr = iAttr And &HFFFFFFFFFFFF01FF
+    aTemp = New Long[C]
     aTemp.Fill(iAttr)
     aAttr.Insert(aTemp)
     
@@ -178,7 +172,7 @@ Public Sub InitAttr(aInit As Integer[])
       aInit.Remove(0)
     Else
       iCount -= C
-      aInit[0] = iAttr Or Lsl(iCount - 1, 8)
+      aInit[0] = iAttr Or Lsl(iCount - 1, 9)
     Endif
     
   Next
