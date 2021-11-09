@@ -926,7 +926,7 @@ Public Function ManageKey() As Boolean
           
           If InStr("([.!", Key.Text) > 0 Then
           
-            InsertItem
+            InsertItem(True)
             Return
             
           Else If InStr("=+-*/^", Key.Text) Then
