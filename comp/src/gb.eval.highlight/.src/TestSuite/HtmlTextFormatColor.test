@@ -8,7 +8,7 @@ Public Sub ColorHTMLPage()
  Dim program As String = File.Load("UnitTest/TestProgram")
  Dim hProgram As String = hText.ToHTML(program)
 'file.save("~/HTMLTestResults", hProgram)                                                       'enable this and import result,  when changes to toHTML
-Assert.Equals(hProgram, File.Load("UnitTest/HTMLTestResults"))
+Assert.Equals(Trim(hProgram), Trim(File.Load("UnitTest/HTMLTestResults")))
 
 End ' Gambas test file
 

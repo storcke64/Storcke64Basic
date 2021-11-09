@@ -123,7 +123,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
   aText = Split(Text, "\n")
   
   iColor = 0
-  aResult.Add("<pre><span style=\"color:black;\">")
+  aResult.Add("<pre><span style=\"color:#000000;\">")
   sOldStyle = "color:#000000;"
   
   For Y = 0 To aText.Max
@@ -332,7 +332,7 @@ Public Sub ToRichText(Text As String, Optional Theme As Variant) As String
   
 End
 
-Private Sub ColorToConsole(iColor As Integer) As String
+Static Private Sub ColorToConsole(iColor As Integer) As String
   
   With Color[iColor]
     Return .Red & ";" & .Green & ";" & .Blue
@@ -356,8 +356,7 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
   Dim P As Integer
   Dim sLineANSI As String
   Dim iColor As Integer
-  Dim sOldStyle As String
-  Dim sStyle As String
+  Dim bOldAlt As Boolean
   Dim aStyles As TextHighlighterStyle[]
   
   aStyles = GetStyles(Theme)
@@ -367,11 +366,9 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
   TextHighlighter.Alternate = False
   TextHighlighter.Limit = False
   
-  aText = Split(Text, "\n")
+  iColor = Color.Default 
   
-  iColor = 0 ' this is black but 0 in terminal means default settings for terminal
-  aResult.Add("\e[0m")
-  sOldStyle = "color:#000000;"
+  aText = Split(Text, "\n")
   
   For Y = 0 To aText.Max
     
@@ -401,17 +398,22 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
       sANSI = String.Mid$(sLine, P, iLen)
       P += iLen
       
-      If hStyle.Bold Then sANSI = "\e[1m" & sANSI & "\e[22m"                    ' "\e[21m" some terminal don't regognize this
+      If hStyle.Bold Then sANSI = "\e[1m" & sANSI & "\e[21m\e[22m"                    ' "\e[21m" some terminal don't regognize this
       If hStyle.Underline Then sANSI = "\e[4m" & sANSI & "\e[24m"
       ' TODO: Implement strikeout
       
-      sStyle = ""
-      If bAlt Then sStyle &= "\e[48;2;" & ColorToConsole(aStyles[Highlight.Alternate]) & "m"      ' background color
-      If hStyle.Color Then sStyle &= "\e[38;2;" & ColorToConsole(hStyle.Color) & "m"                   ' forground color
+      If bAlt <> bOldAlt Then
+        bOldAlt = bAlt
+        If bAlt Then
+          sANSI = "\e[48;2;" & ColorToConsole(aStyles[Highlight.Alternate]) & "m" & sANSI
+        Else
+          sANSI = "\e[49m" & sANSI
+        Endif
+      Endif
       
-      If sStyle <> sOldStyle Then
-        sOldStyle = sStyle
-        sANSI = "\e[39m\e[49m" & sStyle & sANSI
+      If hStyle.Color <> iColor Then
+        iColor = hStyle.Color
+        sANSI = "\e[38;2;" & ColorToConsole(iColor) & "m" & sANSI
       Endif
       
       sLineANSI &= sANSI
@@ -807,7 +809,7 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
 ' 
 ' 
 
-Private Sub GetStyles(hTheme As Variant) As TextHighlighterStyle[]
+Static Private Sub GetStyles(hTheme As Variant) As TextHighlighterStyle[]
 
   If Not hTheme Then hTheme = New TextHighlighterTheme
 
