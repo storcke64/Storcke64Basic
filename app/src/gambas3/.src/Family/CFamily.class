@@ -76,11 +76,21 @@ End
 '' Return TRUE if the control is not managed: then a default frame with the control icon and the control name will be drawn.
 Public Sub DrawControl(hCtrl As CControl) As Boolean
 
-  If TypeOf(hCtrl["Border"]) = gb.Boolean And If hCtrl["Border"] Then
-    Paint.DrawRect(Paint.X, Paint.Y, Paint.W, Paint.H, Color.LightForeground)
-  Else If hCtrl Is Container Then
-    PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+  If hCtrl.IsContainer() Then
+    PaintContainer(hCtrl)
+  Else If hCtrl.HasProperty("Border") Then
+    If hCtrl["Border"] Then
+      Paint.DrawRect(Paint.X, Paint.Y, Paint.W, Paint.H, Color.LightForeground)
+    Else
+      Paint.Dash = [1]
+      'Paint.DrawRect(Paint.X, Paint.Y, Paint.W, Paint.H, Color.LightForeground)
+      Paint.Background = Color.LightForeground
+      Paint.Rectangle(Paint.X, Paint.Y, Paint.W, Paint.H)
+      Paint.Stroke
+      Paint.Dash = Null
+    Endif
   Endif
+
   PaintIcon(hCtrl)
   
 End
@@ -514,9 +524,25 @@ Public Sub SelectAudio((sPropertyType) As String, sAudio As String) As String
   
 End
 
-Static Public Sub PaintContainer(X As Float, Y As Float, W As Float, H As Float)
+Static Public Sub PaintContainer(hCCtrl As CControl, Optional X As Float = Paint.X, Y As Float = Paint.Y, W As Float = Paint.W, H As Float = Paint.H)
   
-  Paint.DrawRect(X, Y, W, H, Color.SetAlpha(&HFF8080, 128))
+  Dim iCol As Integer
+  
+  If W < 1 Or If H < 1 Then Return
+  
+  If hCCtrl And If hCCtrl.HasProperty("Border") And If hCCtrl.GetPropertyReal("Border") Then
+    Paint.DrawRect(X, Y, W, H, Color.LightForeground)
+    If W < 3 Or If H < 3 Then Return
+    Inc X
+    Inc Y
+    W -= 2
+    H -= 2
+    iCol = &HFF8080
+  Else
+    iCol = Color.SetAlpha(&HFF8080, 128)
+  Endif
+  
+  Paint.DrawRect(X, Y, W, H, iCol)
   
 End
 
@@ -677,12 +703,15 @@ Static Public Sub PaintIcon(hCtrl As CControl)
 
   Dim DS As Integer
   Dim hPict As Picture
+  Dim W As Float
   
+  Paint.Background = Color.TextForeground
   DS = Desktop.Scale
   hPict = Picture[".control" &/ LCase(hCtrl.Kind)]
   If hPict Then
-    Paint.DrawPicture(hPict, DS, DS, DS * 4, DS * 4)
-    Paint.DrawText(hCtrl.Name, DS * 6, DS, Paint.W, Paint.H, Align.TopLeft)
+    W = DS * 4 * hPict.Width / hPict.Height
+    Paint.DrawPicture(hPict, DS, DS, W, DS * 4)
+    Paint.DrawText(hCtrl.Name, CInt(W + DS * 2), DS, Paint.W, Paint.H, Align.TopLeft)
   Else
     Paint.DrawText(hCtrl.Name, DS, DS, Paint.W, Paint.H, Align.TopLeft)
   Endif

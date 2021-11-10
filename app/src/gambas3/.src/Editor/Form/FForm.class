@@ -2696,7 +2696,7 @@ Public Sub Control_Draw(...)
       'Paint.FillRect(0, 0, DS * 2, DS * 2, Color.Red)
       Paint.Fill
     Endif
-
+    
     $hFamily.DrawControl(hCCtrl)
 
   Endif

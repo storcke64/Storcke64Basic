@@ -478,7 +478,6 @@ Public Sub HasProperty(sProp As String) As Boolean
   
 End
 
-
 Private Function GetRealValue(hProp As CPropertyInfo, vVal As Variant) As Variant
   
   Dim vRealVal As Variant
@@ -620,10 +619,10 @@ Public Function SetProperty(sProp As String, vVal As Variant, Optional bDoNotApp
   
   If bDoNotApply Then Goto _DO_NOT_APPLY
   
-  If Control Is DrawingArea Or If IsContainer() Then
-    If sProp = "Enabled" Then 
-      Goto _DO_NOT_APPLY
-    Endif
+  If Control Is DrawingArea Then
+    If sProp = "Enabled" Or If sProp = "Border" Then Goto _DO_NOT_APPLY
+  Else If IsContainer() Then
+    If sProp = "Enabled" Then Goto _DO_NOT_APPLY
   Endif
 
   If Unknown Then 

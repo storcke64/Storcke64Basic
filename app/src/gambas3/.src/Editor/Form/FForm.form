@@ -670,25 +670,25 @@
       Name = "panRight"
       MoveScaled(8,16,1,1)
       Background = Color.TextBackground
-      Mouse = Mouse.SizeE
+      Mouse = Cursor.SizeE
       Border = Border.Plain
     }
     { panDown Panel Handle
       Name = "panDown"
       MoveScaled(6,18,1,1)
       Background = Color.TextBackground
-      Mouse = Mouse.SizeS
+      Mouse = Cursor.SizeS
       Border = Border.Plain
     }
     { panRightDown Panel Handle
       Name = "panRightDown"
       MoveScaled(8,18,1,1)
       Background = Color.TextBackground
-      Mouse = Mouse.SizeNWSE
+      Mouse = Cursor.SizeNWSE
       Border = Border.Plain
     }
     { panBorder DrawingArea
-      MoveScaled(29,13,24,24)
+      MoveScaled(25,14,24,24)
       Background = Color.Background
       { panSelectN DrawingArea panSelect
         Name = "panSelectN"

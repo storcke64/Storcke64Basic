@@ -71,12 +71,13 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
   
   Dim iBorder As Integer
   Dim hCtrl As Control = hCCtrl.Control
+  Dim FW As Integer
   
   Select LCase(hCCtrl.Kind)
   
     Case "hbox", "vbox", "hpanel", "vpanel"
       
-      CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+      CFamily.PaintContainer(hCCtrl)
       Return
   
     Case "panel"
@@ -86,18 +87,23 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
       Select Case hCCtrl.GetProperty("Border")
         Case "Raised"
           iBorder = Border.Raised
+          FW = 2
         Case "Sunken"
           iBorder = Border.Sunken
+          FW = 2
         Case "Etched"
           iBorder = Border.Etched
+          FW = 2
         Case "Plain"
           iBorder = Border.Plain
+          FW = 1
         Default
-          CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+          CFamily.PaintContainer(hCCtrl)
           Return
       End Select
       
       Style.PaintPanel(0, 0, hCtrl.W, hCtrl.H, iBorder)
+      CFamily.PaintContainer(Null, FW, FW, hCtrl.W - 2 * FW, hCtrl.H - 2 * FW)
       Return
     
     Case "spring"
@@ -113,7 +119,7 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
       Paint.Rectangle(Paint.X, Paint.Y, Paint.W, Paint.H)
       Paint.Fill 
       
-      CFamily.PaintContainer(Paint.X, Paint.Y, Paint.W, Paint.H)
+      CFamily.PaintContainer(hCCtrl)
       If hCCtrl["Separator"] Then Paint.FillRect(Paint.X, Paint.H - 1, Paint.W, 1, Color.LightForeground)
       
       Return
@@ -126,7 +132,6 @@ Public Sub DrawControl(hCCtrl As CControl) As Boolean
       Super.DrawControl(hCCtrl)
 
   End Select
-
 
 End
 
