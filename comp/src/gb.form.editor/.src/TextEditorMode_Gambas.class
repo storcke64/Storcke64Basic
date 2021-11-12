@@ -55,7 +55,7 @@ Public Sub OnKeyPress(hEditor As TextEditor) As Boolean
   
   If Key.Alt Then
   
-    For Each sBraces In ["()", "{}", "[]"]
+    For Each sBraces In ["()", "{}", "[]", "\"\"", "''"]
       If InStr(sBraces, Key.Text) Then
         ToggleAroundCurrentWord(hEditor, sBraces)
         Return True
