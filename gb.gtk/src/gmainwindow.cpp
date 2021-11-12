@@ -564,6 +564,8 @@ gMainWindow::gMainWindow(gContainer *par) : gContainer(par)
 	
 	gtk_widget_show(frame);
 	gtk_widget_show(widget);
+	
+	setVisibility(false);
 }
 
 gMainWindow::~gMainWindow()
@@ -822,7 +824,10 @@ void gMainWindow::setVisible(bool vl)
 	{
 		gContainer::setVisible(vl);
 		if (vl)
+		{
+			_hidden = false;
 			setActiveWindow(this);
+		}
 		return;
 	}
 

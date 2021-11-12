@@ -258,6 +258,20 @@ static void cb_deactivate(gMainWindow *sender)
 	GB.Raise(THIS, EVENT_State, 0);
 }*/
 
+static void show_later(CWINDOW *_object)
+{
+	/* If the user has explicitely hidden the window since the posting of this routines
+		then do nothing
+	*/
+
+	//qDebug("show_later %s %p: hidden = %d", GB.GetClassName(THIS), THIS, THIS->hidden);
+	if (WINDOW && !WINDOW->isHidden())
+	{
+		if (!WINDOW->emitOpen())
+			WINDOW->show();
+	}
+	GB.Unref(POINTER(&_object));
+}
 
 /***************************************************************************
 
@@ -319,6 +333,12 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent)
 	WINDOW->onDeactivate = cb_deactivate;
 	WINDOW->onFontChange = cb_font_change;
 	WINDOW->onState = cb_state;
+	
+	if (parent)
+	{
+		GB.Ref(THIS);
+		GB.Post((void (*)())show_later, (intptr_t)THIS);
+	}
 
 END_METHOD
 
