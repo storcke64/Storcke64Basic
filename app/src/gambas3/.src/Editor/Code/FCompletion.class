@@ -3,6 +3,7 @@
 Static Private $aNativeDatatypes As String[] = ["Boolean 0", "Byte 0", "Short 0", "Integer 0", "Long 0", "Single 0", "Float 0", "Date 0", "String 0", "Object 0", "Variant 0", "Pointer 0"]
 
 Static Private $hClassPicture As Picture
+Static Private $sWordSeparators As String
 
 Private $aKey As String[]
 
@@ -30,7 +31,6 @@ Private $bGambas As Boolean
 Private $bHideLater As Boolean
 
 Private $cFindStrings As Collection
-Static Private $sWordSeparators As String
 Private $bStatic As Boolean
 
 Static Public Sub _init()
@@ -1220,7 +1220,8 @@ Public Sub timEnable_Timer()
 End
 
 Public Sub ReadConfig()
-  
+
+  hvwHelp.ReadConfig
   hvwHelp.Zoom = Settings["/Help/Zoom", 80] / 100
   If $hEditor Then gvwComp.Font = $hEditor.Font
   

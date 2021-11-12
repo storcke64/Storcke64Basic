@@ -63,7 +63,7 @@
       Spacing = True
       { PictureBox1 PictureBox
         MoveScaled(0,0,4,4)
-        Picture = Picture["icon:/medium/warning"]
+        Picture = Picture.Load("icon:/medium/warning")
         Alignment = Align.Center
       }
       { lblNothingToCommit Label

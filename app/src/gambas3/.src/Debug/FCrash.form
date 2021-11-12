@@ -16,7 +16,7 @@
       Margin = True
       { picCrash PictureBox
         MoveScaled(0,0,11,11)
-        Picture = Picture["img/crash/atari.png"]
+        Picture = Picture.Load("img/crash/atari.png")
         Alignment = Align.Center
         Mode = PictureBox.Contain
       }

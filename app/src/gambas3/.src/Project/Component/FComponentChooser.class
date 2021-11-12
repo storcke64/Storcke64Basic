@@ -475,6 +475,7 @@ Public Sub gvwComponent_Click()
     
   Else If gvwComponent.Column = 4 And If Project.Documentation.Exist(sComp) Then
     
+    webAboutComponent.ReadConfig
     MHelp.InitWebViewWith(webAboutComponent, MHelp.TYPE_COMPONENT, GetCurrent(),, "v&nh")
     webAboutComponent.Zoom = Settings["/Help/Zoom", 80] / 100
     wizComponent.MoveNext

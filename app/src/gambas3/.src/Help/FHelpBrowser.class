@@ -44,7 +44,7 @@ Public Sub _new()
   
 End
 
-Public Sub GetBrowser() As WebView
+Public Sub GetBrowser() As HelpView
   
   Return webHelp
   
@@ -52,6 +52,8 @@ End
 
 
 Public Sub ReadConfig()
+  
+  webHelp.ReadConfig
   
   $bOffLine = Settings["/UseOfflineHelp"]
 

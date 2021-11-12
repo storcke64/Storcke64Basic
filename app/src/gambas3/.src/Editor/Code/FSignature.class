@@ -15,6 +15,7 @@ Private $iCol As Integer
 
 Public Sub ReadConfig()
   
+  hvwHelp.ReadConfig
   hvwHelp.Zoom = Settings["/Help/Zoom", 80] / 100
   
 End

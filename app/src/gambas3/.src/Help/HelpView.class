@@ -1,20 +1,159 @@
 ' Gambas class file
 
-Export
+Export 
 
-Inherits HtmlView
+Inherits UserControl
 
-Private $hObs As Observer
+Property Zoom As Float
+Property Url As String
+Property Read Browser As Boolean
+
+Private $hView As Object
 
 Public Sub _new()
+  
+  ReadConfig
+  
+End
 
-  $hObs = New Observer(Me) As "HtmlView"
-  Me.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
+Public Sub ReadConfig()
+  
+  Dim bOffline As Boolean
+  
+  bOffline = Settings["/UseOfflineHelp"]
+  If Not $hView Or If bOffline Xor $hView Is HtmlView Then
+    If $hView Then $hView.Delete
+    If bOffline Then
+      $hView = New HtmlView(Me) As "HtmlView"
+      $hView.LoadCss(File.Load("help/wiki/style-offline-htmlview.css"))
+    Else
+      $hView = New HelpBrowser(Me) As "hvwHelp"
+    Endif
+    Try $hView.Border = False
+  Endif
   
 End
 
 Public Sub HtmlView_Link(Url As String)
 
-  MHelp.HandleSpecialURL(Me, Url)
+  If MHelp.HandleSpecialURL(Me, Url) Then Stop Event
   
 End
+
+Private Function Zoom_Read() As Float
+
+  Try Return $hView.Zoom
+
+End
+
+Private Sub Zoom_Write(Value As Float)
+
+  Try $hView.Zoom = Value
+
+End
+
+Private Function Browser_Read() As Boolean
+
+  Try Return $hView Is HelpBrowser
+
+End
+
+Public Sub Load(sPath As String, Optional sHighlight As String)
+  
+  Dim sUrl As String
+  
+  If $hView Is HelpBrowser Then
+    $hView.Clear
+    sUrl = "file://" & URL.Encode(sPath)
+    If sHighlight Then sUrl &= "?ht=" & URL.Encode(sHighlight)
+    $hView.Url = sUrl
+  Else 
+    $hView.Url = sPath
+  Endif
+  
+End
+
+Public Sub SetUrl(sUrl As String)
+  
+  If $hView Is HelpBrowser Then
+    
+    If sUrl <> $hView.Url Then
+      $hView.Clear
+      $hView.Url = sUrl
+    Endif
+    
+  Else 
+    
+    If MHelp.HandleSpecialUrl(Me, sUrl) Then
+      SetHtml("<html><body>" & Subst(("<tt>&1</tt> not found."), Html(sUrl)) & "</body></html>")
+    Endif
+    
+  Endif
+  
+End
+
+Public Sub SetHtml(sHtml As String)
+  
+  If $hView Is HelpBrowser Then
+    $hView.Stop
+    $hView.SetHtml(sHtml)
+  Else 
+    $hView.Html = sHtml
+  Endif
+  
+End
+
+Private Function Url_Read() As String
+
+  Return $hView.Url
+
+End
+
+Private Sub Url_Write(Value As String)
+
+  SetUrl(Value)
+
+End
+
+Public Sub Back()
+  
+  $hView.Back
+  
+End
+
+Public Sub Forward()
+  
+  $hView.Forward
+  
+End
+
+Public Sub Stop()
+  
+  Try $hView.Stop()
+  
+End
+
+Public Sub Reload()
+  
+  $hView.Reload()
+  
+End
+
+Public Sub ZoomIn()
+  
+  $hView.Zoom = Round($hView.Zoom * 1.125, -3)
+  
+End
+
+Public Sub ZoomOut()
+  
+  $hView.Zoom = Round($hView.Zoom / 1.125, -3)
+  
+End
+
+Public Sub ZoomNormal()
+  
+  $hView.Zoom = 1
+  
+End
+

@@ -17,7 +17,7 @@
     Indent = True
     { PictureBox1 PictureBox
       MoveScaled(0,0,5,5)
-      Picture = Picture["icon:/24/lamp"]
+      Picture = Picture.Load("icon:/24/lamp")
       Alignment = Align.Center
     }
     { lblTitle Label

@@ -134,7 +134,7 @@
       Margin = True
       { PictureBox1 PictureBox
         MoveScaled(0,0,5,5)
-        Picture = Picture["icon:/large/warning"]
+        Picture = Picture.Load("icon:/large/warning")
         AutoResize = True
       }
       { TextLabel1 TextLabel

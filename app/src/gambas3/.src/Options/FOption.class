@@ -601,6 +601,10 @@ Public Sub btnOfflineHelp_Click()
   Settings["/UseOfflineHelp"] = btnOfflineHelp.Value
   UpdateOfflineHelp
   FHelpBrowser.ReadConfig
+  FCompletion.ReadConfig
+  FSignature.ReadConfig
+  FProperty.ReadConfig
+  FHelpShortcut.ReadConfig
 
 End
 

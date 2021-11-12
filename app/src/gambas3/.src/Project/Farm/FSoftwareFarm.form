@@ -16,7 +16,7 @@
     { btnGoBack ToolButton
       MoveScaled(0,0,6,6)
       Enabled = False
-      Mouse = Mouse.Pointing
+      Mouse = Cursor.Pointing
       Picture = Picture["icon:/medium/left"]
     }
     { Panel12 Panel
@@ -280,21 +280,21 @@
       Margin = True
       { btnDownload Button
         MoveScaled(2,0,15,4)
-        Mouse = Mouse.Pointing
+        Mouse = Cursor.Pointing
         AutoResize = True
         Text = ("Download")
         Picture = Picture["icon:/small/download"]
       }
       { btnInstall Button
         MoveScaled(19,0,15,4)
-        Mouse = Mouse.Pointing
+        Mouse = Cursor.Pointing
         AutoResize = True
         Text = ("Download and install")
       }
       { btnVote Button
         MoveScaled(38,0,15,4)
         Visible = False
-        Mouse = Mouse.Pointing
+        Mouse = Cursor.Pointing
         AutoResize = True
         Text = ("Vote")
         Picture = Picture["icon:/small/bookmark"]
@@ -305,7 +305,7 @@
       }
       { btnRemove Button
         MoveScaled(57,0,15,4)
-        Mouse = Mouse.Pointing
+        Mouse = Cursor.Pointing
         AutoResize = True
         Text = ("Remove")
         Picture = Picture["icon:/small/remove"]
