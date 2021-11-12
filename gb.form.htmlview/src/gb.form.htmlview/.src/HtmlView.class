@@ -266,13 +266,15 @@ Private Sub Dir_Write(Value As String)
 
 End
 
-Public Sub Back()
+Public Sub Back() As Boolean
   
   If $aBack.Count > 1 Then
     $aForward.Add($aBack.Pop())
     Inc $iNoHistory
     Url_Write($aBack.Last)
     Dec $iNoHistory
+  Else 
+    Return True
   Endif
   
 End
