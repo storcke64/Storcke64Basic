@@ -115,9 +115,14 @@ Private Sub Url_Write(Value As String)
 
 End
 
-Public Sub Back()
+Public Sub Back() As Boolean
   
-  $hView.Back
+  If $hView Is WebView Then
+    If Not $hView.History.CanGoBack Then Return True
+    $hView.Back()
+  Else
+    Return $hView.Back()
+  Endif
   
 End
 
@@ -157,3 +162,8 @@ Public Sub ZoomNormal()
   
 End
 
+Public Sub Clear()
+  
+  $hView.Clear()
+  
+End
