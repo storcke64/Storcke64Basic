@@ -13,7 +13,7 @@ Static Private Sub GetDesktop() As String
   If $sDesktop Then Return $sDesktop
 
   If Not $aDesktopType Then 
-    $aDesktopType = Split(Application.Env["XDG_CURRENT_DESKTOP"], ":")
+    $aDesktopType = Split(UCase(Application.Env["XDG_CURRENT_DESKTOP"]), ":")
     $aDesktopType.ReadOnly = True
   Endif
   
