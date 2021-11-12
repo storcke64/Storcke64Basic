@@ -467,3 +467,12 @@ Public Sub View_Leave()
   $hDoc.OnLeave()
   
 End
+
+Public Sub Clear()
+  
+  Me.Html = ""
+  $sUrl = ""
+  $aBack.Clear
+  $aForward.Clear
+  
+End
