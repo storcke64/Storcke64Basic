@@ -170,13 +170,11 @@ End
 
 Public Sub Main()
 
-  'Dim hMime As DesktopMime
+  Dim hMime As DesktopMime
   
   'DesktopFile.FromMime("application/vnd.oasis.opendocument.text")
-  ' hMime = DesktopMime.FromFile("/bin/ls")
-  ' Print hMime.Type
-  
-  Print Desktop.Path
+  hMime = DesktopMime.FromFile("~/gambas/git/master/gb.poppler/src/.libs/gb.poppler.so.0.0.0")
+  Print hMime.Type
   
 End
 
