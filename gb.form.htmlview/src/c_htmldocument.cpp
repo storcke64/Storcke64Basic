@@ -923,6 +923,9 @@ void html_document::on_mouse(int event, int x, int y)
 	litehtml::position::vector redraw_boxes;
 	bool ret;
 	
+	if (!m_html)
+		return;
+	
 	switch (event)
 	{
 		case MOUSE_DOWN:
@@ -965,7 +968,8 @@ void html_document::on_mouse(int event, int x, int y)
 
 void html_document::on_media_change()
 {
-	m_html->media_changed();
+	if (m_html)
+		m_html->media_changed();
 }
 
 int html_document::find_anchor(const litehtml::tstring& anchor)
