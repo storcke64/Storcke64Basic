@@ -845,7 +845,9 @@ Private Sub Highlight_Write(Value As String)
     If LinesInfo[Y] Then LinesInfo[Y].ClearHighlight()
   Next
   $iFirstInvalidHighlight = 0
-  'Debug "valid "; $iFirstInvalidHighlight
+  $cHighlightLater = Null
+  
+  Refresh
 
 End
 
@@ -943,8 +945,6 @@ Private Sub StartHighlight() As Boolean
   $bCustomHighlight = False
   $iDoNotHighlightLine = -1
 
-  $bHighlighting = True
-
   If Not $hHighlight Then 
     If Object.CanRaise(Me.Current, "Highlight") Then 
       $bCustomHighlight = True
@@ -953,6 +953,8 @@ Private Sub StartHighlight() As Boolean
     Endif
   Endif
   
+  $bHighlighting = True
+
   TextHighlighter.CanRewrite = _Mode.Name
   
   If Not $bHighlightAll And If TextHighlighter.CanRewrite Then
