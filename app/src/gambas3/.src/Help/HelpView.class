@@ -4,6 +4,10 @@ Export
 
 Inherits UserControl
 
+Public Const _Properties As String = "*,Zoom"
+Public Const _DrawWith As String = "WebView"
+
+
 Property Zoom As Float
 Property Url As String
 Property Read Browser As Boolean
@@ -16,7 +20,7 @@ Public Sub _new()
   
 End
 
-Public Sub ReadConfig()
+Public Sub ReadConfig() As Boolean
   
   Dim bOffline As Boolean
   
@@ -30,6 +34,9 @@ Public Sub ReadConfig()
       $hView = New HelpBrowser(Me) As "hvwHelp"
     Endif
     Try $hView.Border = False
+    '$hView.Hide
+    $hView.Show ' FIXME: Why calling Show() is needed with gb.qt5???
+    Return True
   Endif
   
 End

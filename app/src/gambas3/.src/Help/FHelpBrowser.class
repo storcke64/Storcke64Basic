@@ -53,7 +53,7 @@ End
 
 Public Sub ReadConfig()
   
-  webHelp.ReadConfig
+  If webHelp.ReadConfig() Then GotoHome
   
   $bOffLine = Settings["/UseOfflineHelp"]
 
