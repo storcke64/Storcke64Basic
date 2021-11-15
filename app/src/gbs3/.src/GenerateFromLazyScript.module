@@ -43,7 +43,7 @@ Public Sub _call(oContext As Context, Program As Reader) As String
          Endif
       Else If aSpecial[s] Then
          If s = "ENUM" Then
-            Dim DefEnum As String = ProcessVariable(Program, i - $iAdjustedOffset)
+            Dim DefEnum As String = ProcessVariable(Program, i - $iAdjustedOffset, True)
             If Upper(DefEnum) Begins "ENUM" Then DefEnum = "Public " & DefEnum
             oContext.$sProgramHeader &= DefEnum & "\n"
             Break
@@ -116,13 +116,17 @@ Public Sub AdjustProgram(Program As Reader, EndIndex As Integer, StartIndex As I
   
 End
 
-Private Sub ProcessVariable(Program As Reader, index As Integer) As String
+Private Sub ProcessVariable(Program As Reader, index As Integer, Optional force As Boolean = False) As String
   Dim DefOutPut As String = ""
   Dim aSymbols As String[] = Program.ProgramSymbols[index]
   Dim aTypes As Integer[] = Program.ProgramTypes[index]
   
   For i As Integer = 0 To aSymbols.max
-    If aTypes[i] = Highlight.operator And If aSymbols[i] = "=" Then
+    If force Then 
+      DefOutPut = ProcessAssignment(Program, index, i)
+      Return DefOutPut
+    
+    Else If aTypes[i] = Highlight.operator And If aSymbols[i] = "=" Then
       DefOutPut = ProcessAssignment(Program, index, i)
       Return DefOutPut
     Endif
