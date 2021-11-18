@@ -22,6 +22,7 @@ Property Text, Tooltip As String
 Property Tag As Variant
 
 Static Private $iCount As Integer
+Static Public _GnomeDesktop As Boolean
 
 Private $bAppIndicator As Boolean
 Private $sName As String
@@ -37,6 +38,15 @@ Private $vTag As Variant
 
 Public Sub _new()
   
+  Dim aDesktop As String[]
+  
+  If $iCount = 0 Then
+    
+    aDesktop = Split(Env["XDG_CURRENT_DESKTOP"], ":")
+    _GnomeDesktop = aDesktop.Exist("GNOME", gb.IgnoreCase)
+    
+  Endif
+
   $hObject = New DBusStatusIcon As "StatusIcon"
 
   '$bAppIndicator = ["unity", "cinnamon", "x-cinnamon", "lxde"].Exist(Env["XDG_CURRENT_DESKTOP"], gb.IgnoreCase)
@@ -110,7 +120,7 @@ Public Sub Hide()
   sService = GetServiceName()
   
   If $bAppIndicator Then 
-    DBus[sService].Raise($hObject, "org.kde.StatusNotifierItem.NewStatus", ["Passive"])
+    Try DBus[sService].Raise($hObject, "org.kde.StatusNotifierItem.NewStatus", ["Passive"])
   Else
     DBus[sService].Unregister($hMenu)
     DBus[sService].Unregister($hObject)
@@ -127,8 +137,8 @@ Public Sub Delete()
   Hide
   
   If $bAppIndicator Then
-    DBus.UnRegister($hMenu) ', "/org/kde/statusnotifieritem" &/ CStr($iId) &/ "menu", ["com.canonical.dbusmenu"])
-    DBus.Unregister($hObject) ', "/org/kde/statusnotifieritem" &/ CStr($iId), ["org.kde.StatusNotifierItem"])
+    Try DBus.UnRegister($hMenu) ', "/org/kde/statusnotifieritem" &/ CStr($iId) &/ "menu", ["com.canonical.dbusmenu"])
+    Try DBus.Unregister($hObject) ', "/org/kde/statusnotifieritem" &/ CStr($iId), ["org.kde.StatusNotifierItem"])
   Endif
   
   $hMenu = Null

@@ -77,17 +77,21 @@ Private Sub GetLayout(iId As Integer, iRec As Integer, aProp As String[]) As _DB
   Dim aChildren As Variant[]
   Dim hItem As _DBusMenuItem
   
-  cProp = GetProperties(iId, aProp)
-  aChildrenId = $aProp[iId]["children"]
+  If $aProp.Count Then
   
-  aChildren = New Variant[]
-  
-  If iRec <> 0 And If aChildrenId Then 
-  
-    Dec iRec
-    For Each iChild In aChildrenId
-      aChildren.Add(GetLayout(iChild, iRec, aProp))
-    Next
+    cProp = GetProperties(iId, aProp)
+    aChildrenId = $aProp[iId]["children"]
+    
+    aChildren = New Variant[]
+    
+    If iRec <> 0 And If aChildrenId Then 
+    
+      Dec iRec
+      For Each iChild In aChildrenId
+        aChildren.Add(GetLayout(iChild, iRec, aProp))
+      Next
+      
+    Endif
     
   Endif
   
@@ -247,9 +251,11 @@ End
 
 Public Sub com_canonical_dbusmenu_AboutToShow(ParentId As Integer) As Boolean
   
+  If $aProp.Count = 0 Then Return
+  
   GetParent()._AboutToShow($aProp[ParentId]["menu"])
   'DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), ParentId])
-  Return True
+  If Not TrayIcon._GnomeDesktop Then Return True
   
 End
 
