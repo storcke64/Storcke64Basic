@@ -298,7 +298,6 @@ Private Sub RefreshEditor()
   MTheme.Theme = $hTheme
   
   Project.InitWebView
-  Project.RefreshBreakpointPicture
   
   For Each hFile In Project.Files
     Try hFile.ReadConfig()

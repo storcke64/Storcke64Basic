@@ -28,9 +28,6 @@ Private $bStart As Boolean
 Private $sCmdStart As String
 'PRIVATE $sCmdStartRun AS String
 
-Private $aBreakpoint As String[]
-Private $cDisabledBreakpoint As Collection
-Private $cClassHasBreakpoint As Collection
 Private $sAddBreakpoint As String
 Private $sRemoveBreakpoint As String
 
@@ -945,7 +942,6 @@ Private Sub Start(sCmd As String)
   Dim bValgrind As Boolean = False
   Dim sTitle As String
   Dim sProg As String
-  Dim sBreakpoint As String
   Dim sFile As String
   Dim aEnv As String[]
   Dim sOpenWebBrowser As String
@@ -968,32 +964,11 @@ Private Sub Start(sCmd As String)
 
   ProcessId = 0
   $sCmdStart = ""
-  ' FDebugInfo.ClearBreakpoint
 
   ReadDebugSettings()
 
-  ' FDebugInfo.ResetBreakpoints
-  ' 
-  ' For Each hForm In Project.Files
-  '   If Project.IsEditor(hForm) Then
-  '     hEdit = hForm
-  ' 
-  '     For Each iLine In hEdit.GetBreakpoints()
-  ' 
-  '       FDebugInfo.AddBreakpoint(hEdit.Name, hEdit.GetProcAt(iLine), iLine, True)
-  '       $sCmdStart = $sCmdStart & "+" & hEdit.Name & "." & CStr(iLine + 1) & "\n"
-  '       '$hProcess.Send(sCmd & "\n")
-  ' 
-  '     Next
-  ' 
-  '   Endif
-  ' Next
+  $sCmdStart &= Breakpoints.GetCommands()
   
-  For Each sBreakpoint In $aBreakpoint
-    If $cDisabledBreakpoint.Exist(sBreakpoint) Then Continue
-    $sCmdStart &= MakeBreakpoint(sBreakpoint, True) & "\n"
-  Next
-
   If $sAddBreakpoint Then
     $sCmdStart &= $sAddBreakpoint & "\n"
     $sAddBreakpoint = ""
@@ -1237,7 +1212,6 @@ End
 Public Sub RunRemote()
 
   Dim hForm As Object
-  Dim sBreakpoint As String
   Dim sDir As String
   Dim hStat As Stat
 
@@ -1269,10 +1243,7 @@ Public Sub RunRemote()
 
   ReadDebugSettings()
 
-  For Each sBreakpoint In $aBreakpoint
-    If $cDisabledBreakpoint.Exist(sBreakpoint) Then Continue
-    $sCmdStart &= MakeBreakpoint(sBreakpoint, True) & "\n"
-  Next
+  $sCmdStart &= Breakpoints.GetCommands()
 
   If $sAddBreakpoint Then
     $sCmdStart &= $sAddBreakpoint & "\n"
@@ -1515,182 +1486,13 @@ Public Sub WriteDebugSettings()
 End
 
 
-Public Sub SetBreakpoint(sBreakpoint As String, bOn As Boolean, Optional bDisabled As Boolean) 
-  
-  Dim iPos As Integer
-  Dim aBreak As String[]
-  Dim hEditor As FEditor
-  Dim sPath As String
-  
-  'Debug sClass; "."; iLine;; bOn
+Public Sub SetBreakpoint(sClass As String, iLine As Integer, bOn As Boolean) 
   
   If IsRunning() Then Return
 
-  iPos = $aBreakpoint.Find(sBreakpoint)
-  If iPos >= 0 Then 
-    $aBreakpoint.Remove(iPos)
-    $cDisabledBreakpoint.Remove(sBreakpoint)
-  Endif
-  
-  If bOn Then
-    $aBreakpoint.Add(sBreakpoint)
-    $aBreakpoint.Sort(gb.Natural)
-    If bDisabled Then $cDisabledBreakpoint[sBreakpoint] = True
-  Endif
-  
-  aBreak = Split(sBreakpoint, ".")
-  $cClassHasBreakpoint[aBreak[0]] = $aBreakpoint.Exist(aBreak[0] & ".*", gb.Like)
-
-  FDebugInfo.RefreshBreakpointView
-  
-  ' Update editor
-  
-  sPath = Project.FindPath(aBreak[0])
-  Try hEditor = Project.Files[sPath]
-  If hEditor Then hEditor.SetBreakpoint(CInt(aBreak[1]), bOn, bDisabled) 
-  
   If Not Project.Running Then Return
 
-  ' Update debugger
-
-  If bOn And If Not bDisabled Then
-    'Debug "+" & sClass & "." & CStr(iLine);; System.Backtrace.Join(" ")
-    WriteCommand(MakeBreakpoint(sBreakpoint, True))
-  Else
-    'Debug "-" & sClass & "." & CStr(iLine);; System.Backtrace.Join(" ")
-    WriteCommand(MakeBreakpoint(sBreakpoint, False))
-  Endif
-
-End
-
-Public Sub ClearBreakpoints()
-
-  $aBreakpoint = New String[]
-  $cDisabledBreakpoint = New Collection
-  $cClassHasBreakpoint = New Collection
-  FDebugInfo.RefreshBreakpointView
-  
-End
-
-Public Sub GetBreakpoints() As String[]
-  
-  Return $aBreakpoint
-  
-End
-
-Public Sub IsBreakpointDisabled(sBreakpoint As String) As Boolean
-  
-  Return $cDisabledBreakpoint.Exist(sBreakpoint)
-  
-End
-
-Public Sub ReadBreakpoints()
-
-  Dim iInd As Integer
-  Dim sBreakpoint As String
-  Dim aDisabled As Integer[]
-  
-  ClearBreakpoints
-
-  aDisabled = Project.Config["/Breakpoints/Disabled"]
-  If Not aDisabled Then aDisabled = New Integer[]
-
-  For iInd = 1 To Project.Config["/Breakpoints/Count", 0]
-    sBreakpoint = Project.Config["/Breakpoints/Breakpoint[" & CStr(iInd) & "]"]
-    SetBreakpoint(sBreakpoint, True, aDisabled.Exist(iInd))
-    'SetBreakpointFromString(sBreakpoint, True, bDisabled)
-  Next
-  
-End
-
-Public Sub RefreshBreakpointFromEditor(hEditor As FEditor)
-  
-  Dim I As Integer
-  Dim sPrefix As String
-  Dim iLine As Integer
-  Dim aBreakpoints As Integer[]
-  
-  sPrefix = hEditor.Name & "."
-  While I < $aBreakpoint.Count
-    If $aBreakpoint[I] Begins sPrefix Then
-      $cDisabledBreakpoint.Remove($aBreakpoint[I])
-      $aBreakpoint.Remove(I)
-    Else
-      Inc I
-    Endif
-  Wend
-  
-  With hEditor.GetEditor()
-    aBreakpoints = .Breakpoints
-    For Each iLine In aBreakpoints
-      $aBreakpoint.Add(hEditor.Name & "." & CStr(iLine))
-    Next
-    For Each iLine In .DisabledBreakpoints
-      $cDisabledBreakpoint[hEditor.Name & "." & CStr(iLine)] = True
-    Next
-    $cClassHasBreakpoint[hEditor.Name] = aBreakpoints.Count > 0
-  End With
-  
-  $aBreakpoint.Sort(gb.Natural)
-  
-  FDebugInfo.RefreshBreakpointView()
-  
-End
-
-
-Public Sub InitEditorWithBreakpoints(hEditor As FEditor)
-
-  Dim aBreakpoint As New Integer[]
-  Dim aDisabled As New Integer[]
-  Dim sBreakpoint As String
-  Dim iLine As Integer
-  Dim I As Integer
-  Dim sPrefix As String
-  
-  If Project.IsFake() Then Return
-  
-  sPrefix = hEditor.Name & "."
-  While I < $aBreakpoint.Count
-    sBreakpoint = $aBreakpoint[I]
-    If sBreakpoint Begins sPrefix Then
-      iLine = CInt(Split(sBreakpoint, ".")[1])
-      If hEditor.CanSetBreakpoint(iLine) Then
-        aBreakpoint.Add(iLine)
-        If $cDisabledBreakpoint.Exist(sBreakpoint) Then aDisabled.Add(iLine)
-      Else
-        $aBreakpoint.Remove(I)
-        Continue
-      Endif
-    Endif
-    Inc I
-  Wend
-  
-  With hEditor.GetEditor()
-    .Breakpoints = aBreakpoint
-    .DisabledBreakpoints = aDisabled
-  End With
-  
-End
-
-
-Public Sub WriteBreakpoints()
-  
-  Dim iCount As Integer
-  Dim sBreakpoint As String
-  Dim aDisable As New Integer[]
-
-  'IF NOT Project.Config THEN RETURN
-
-  Project.Config.Clear("/Breakpoints")
-
-  For Each sBreakpoint In $aBreakpoint
-    Inc iCount
-    Project.Config["/Breakpoints/Breakpoint[" & CStr(iCount) & "]"] = sBreakpoint
-    If $cDisabledBreakpoint.Exist(sBreakpoint) Then aDisable.Add(iCount)
-  Next
-
-  Project.Config["/Breakpoints/Disabled"] = aDisable
-  Project.Config["/Breakpoints/Count"] = iCount
+  WriteCommand(If(bOn, "+", "-") & sClass & "." & CStr(iLine + 1))
 
 End
 
@@ -1699,51 +1501,6 @@ Public Sub SetBalloon(hCtrl As Control, Optional X As Integer = -1, Y As Integer
   BalloonControl = hCtrl
   BalloonX = X
   BalloonY = Y  
-  
-End
-
-Public Sub HasBreakpoint(sClass As String) As Boolean
-  
-  Return $cClassHasBreakpoint[sClass]
-  
-End
-
-Public Sub RenameClass(sOld As String, sNew As String)
-
-  Dim I As Integer
-  Dim sBreakpoint As String
-  Dim aBreakpoint As String[]
-  Dim bDisabled As Boolean
-  Dim bHasBreakpoint As Boolean
-  
-  For I = 0 To $aBreakpoint.Max
-    
-    sBreakpoint = $aBreakpoint[I]
-    aBreakpoint = Split(sBreakpoint, ".")
-    
-    If aBreakpoint[0] = sOld Then
-      
-      bDisabled = $cDisabledBreakpoint.Exist(sBreakpoint)
-      $cDisabledBreakpoint.Remove(sBreakpoint)
-      
-      aBreakpoint[0] = sNew
-      sBreakpoint = aBreakpoint.Join(".")
-      
-      $aBreakpoint[I] = sBreakpoint
-      If bDisabled Then $cDisabledBreakpoint[sBreakpoint] = True
-      
-      bHasBreakpoint = True
-      
-    Endif
-    
-  Next
-  
-  $cClassHasBreakpoint.Remove(sOld)
-  $cClassHasBreakpoint[sNew] = bHasBreakpoint
-  
-  $aBreakpoint.Sort(gb.Natural)
-  
-  FDebugInfo.RefreshBreakpointView()
   
 End
 

@@ -274,7 +274,7 @@ End
 
 Public Sub Modify(Optional bReset As Boolean)
 
-  If Me.ReadOnly Then Return
+  'If Me.ReadOnly Then Return
 
   Inc Project.TimeStamp
   Inc Age
@@ -374,7 +374,7 @@ Private Sub RefreshLineInfo(Optional bForce As Boolean) As Boolean
     ResetIfModified
     
     UpdateCurrentProc
-    timProc.Restart
+    'timProc.Restart
 
     If $hSampleCode Then
       If $hEditor.Line < $iSampleStart Or If $hEditor.Line >= $iSampleEnd Then
@@ -1153,7 +1153,7 @@ Public Function CanSetBreakpoint(iLine As Integer) As Boolean
 
   If Project.IsFake() Then Return
   If Design.IsRunning() Then Return
-  If iLine < 0 Or If iLine >= $hEditor.Count Then Return
+  If iLine <= 0 Or If iLine >= $hEditor.Count Then Return
 
   '$hEditor[iLine].Refresh
   sLine = Trim($hEditor[iLine].Text)
@@ -1173,46 +1173,17 @@ Public Function CanSetBreakpoint(iLine As Integer) As Boolean
 
 End
 
-Public Sub SetBreakpoint(iLine As Integer, bVal As Boolean, bDisabled As Boolean) As Boolean
-
-  If bVal And If Not CanSetBreakpoint(iLine) Then Return True
-
-  'Editor.Lines.SetFlag(iLine, Editor.Breakpoint, bVal)
-  $hEditor[iLine].Breakpoint = bVal
-  $hEditor[iLine].Disabled = bDisabled
-  If iLine = $hEditor.Line Then RefreshLineInfo(True)
-
-End
-
-Private Sub HasBreakpoint(iLine As Integer) As Boolean
-
-  Return $hEditor[iLine].Breakpoint
-
-End
-
-Public Sub CheckBreakpoints()
-
-  Dim iLine As Integer
-
-  If Project.IsFake() Then Return
-  For Each iLine In $hEditor.Breakpoints
-    If Not CanSetBreakpoint(iLine) Then SetBreakpoint(iLine, False, False)
-  Next
-
-End
-
-Public Function GetBreakpoints(Optional bCheck As Boolean) As Integer[]
-
-  If bCheck Then CheckBreakpoints
-  Return $hEditor.Breakpoints
-  
-End
-
-Public Sub IsBreakpointDisabled(iLine As Integer) As Boolean
-  
-  Return $hEditor[iLine].Disabled
-  
-End
+' Public Sub CheckBreakpoints()
+' 
+'   Dim iLine As Integer
+' 
+'   If Project.IsFake() Then Return
+'   For Each iLine In $hEditor.Breakpoints
+'     If Not CanSetBreakpoint(iLine) Then SetBreakpoint(iLine, False, False)
+'   Next
+' 
+' End
+' 
 
 Public Sub mnuComment_Click()
 
@@ -2287,12 +2258,8 @@ End
 Public Sub Reload()
 
   edtEditor.Load(Path, True)
-  Design.InitEditorWithBreakpoints(Me)
   $hBookmark.Load()
-  ' If Not Project.RestoringFiles Then
-  '   If Settings["/Editor/Fold"] Then edtEditor.CollapseAll
-  ' Endif
-
+  Breakpoints.Load(Me)
   $hEditor.SetFocus
   Modify(True)
   
@@ -2685,13 +2652,18 @@ Public Sub ShowWatchResult(sStr As String)
 
 End
 
-Public Sub Editors_Margin()
-
-  Dim Y As Integer
+Public Sub ToggleBreakpoint(Y As Integer)
 
   If Design.IsRunning() Then Return  
-  Y = Last.Line
-  If CanSetBreakpoint(Y) Then Design.SetBreakpoint(Me.Name & "." & CStr(Y), Not HasBreakpoint(Y))
+  If Not CanSetBreakpoint(Y) Then Return
+  $hEditor[Y].Breakpoint = Not $hEditor[Y].Breakpoint
+  Design.SetBreakpoint(Me.Name, Y, $hEditor[Y].Breakpoint)
+
+End
+
+Public Sub Editors_Margin()
+
+  ToggleBreakpoint(Last.Line)
 
 End
 
@@ -2734,12 +2706,12 @@ Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
 
 End
 
-Public Sub timProc_Timer()
-
-  CheckBreakpoints
-  timProc.Enabled = False
-
-End
+' Public Sub timProc_Timer()
+' 
+'   CheckBreakpoints
+'   timProc.Enabled = False
+' 
+' End
 
 Private Sub SetComboProcText(sProc As String)
 
@@ -3429,8 +3401,7 @@ End
 
 Public Sub mnuBreakpoint_Click()
 
-  If Not CanSetBreakpoint($hEditor.Line) Then Return
-  Design.SetBreakpoint(Me.Name & "." & CStr($hEditor.Line), Not HasBreakpoint($hEditor.Line))
+  ToggleBreakpoint($hEditor.Line)
 
 End
 

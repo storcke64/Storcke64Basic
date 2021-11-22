@@ -15,7 +15,7 @@
   { wizDebug Wizard
     MoveScaled(1,2,137,46)
     Arrangement = Arrange.Vertical
-    Count = 8
+    Count = 7
     ShowTitle = False
     ShowButton = False
     Border = False
@@ -25,12 +25,12 @@
       MoveScaled(0,3,134,42)
       Expand = True
       { splDebug HSplit
-        MoveScaled(1,1,127,32)
+        MoveScaled(1,1,127,33)
         Expand = True
         { Panel16 VBox
-          MoveScaled(1,1,53,30)
+          MoveScaled(1,1,53,31)
           { HBox1 HBox
-            MoveScaled(1,5,44,4)
+            MoveScaled(2,2,44,4)
             Font = Font["-2"]
             Spacing = True
             { Panel17 HBox
@@ -90,12 +90,49 @@
             }
           }
           { Separator8 Separator
-            MoveScaled(4,10,11,0)
+            MoveScaled(4,7,11,0)
           }
           { lvwStack ListView
-            MoveScaled(1,16,18,12)
+            MoveScaled(6,8,18,8)
             Mouse = Cursor.Pointing
             Expand = True
+            Border = False
+          }
+          { sepBreakpoint Separator
+            MoveScaled(7,17,26,0)
+          }
+          { panBreakpoint HBox
+            MoveScaled(1,18,51,4)
+            Font = Font["-2"]
+            { PictureBox1 PictureBox
+              MoveScaled(0,0,4,4)
+              Picture = Picture.Load("icon:/small/halt")
+              Alignment = Align.Center
+            }
+            { Label2 Label
+              MoveScaled(5,0,12,4)
+              Expand = True
+              Text = ("Breakpoints")
+            }
+            { btnRemoveBreakpoint ToolButton
+              MoveScaled(41,0,4,4)
+              ToolTip = ("Remove breakpoint")
+              AutoResize = True
+              Picture = Picture["icon:/small/remove"]
+            }
+            { btnRemoveAllBreakpoints ToolButton
+              MoveScaled(45,0,4,4)
+              ToolTip = ("Remove all breakpoints")
+              AutoResize = True
+              Picture = Picture["icon:/small/trash"]
+            }
+          }
+          { sepBreakpoint2 Separator
+            MoveScaled(5,23,26,0)
+          }
+          { lvwBreakpoint ListView
+            MoveScaled(7,24,28,6)
+            Mouse = Cursor.Pointing
             Border = False
           }
         }
@@ -177,11 +214,11 @@
         }
       }
       { sepError Separator
-        MoveScaled(35,34,17,0)
+        MoveScaled(35,35,17,0)
         Visible = False
       }
       { panError Panel
-        MoveScaled(1,35,103,5)
+        MoveScaled(1,36,103,5)
         Visible = False
         Arrangement = Arrange.Row
         { picError PictureBox
@@ -227,60 +264,6 @@
       Arrangement = Arrange.Fill
     }
     Index = 2
-    Text = ("Breakpoints")
-    { Panel11 HBox
-      MoveScaled(0,0,81,4)
-      { panBreakpoint HBox
-        MoveScaled(0,0,71,4)
-        Expand = True
-        { btnRemoveBreakpoint ToolButton
-          MoveScaled(3,0,11,4)
-          ToolTip = ("Remove breakpoint")
-          AutoResize = True
-          Text = ("Remove")
-          Picture = Picture["icon:/small/remove"]
-        }
-        { btnDisableBreakpoint ToolButton
-          MoveScaled(14,0,11,4)
-          ToolTip = ("Disable breakpoint")
-          AutoResize = True
-          Text = ("Disable")
-          Picture = Picture["icon:/small/cancel"]
-        }
-        { btnEnableBreakpoint ToolButton
-          MoveScaled(25,0,11,4)
-          ToolTip = ("Enable breakpoint")
-          AutoResize = True
-          Text = ("Enable")
-          Picture = Picture["icon:/small/apply"]
-        }
-        { btnRemoveAllBreakpoint ToolButton
-          MoveScaled(37,0,13,4)
-          ToolTip = ("Remove all breakpoints")
-          AutoResize = True
-          Text = ("Remove all")
-          Picture = Picture["icon:/small/trash"]
-        }
-      }
-      { Panel6 Panel
-        MoveScaled(72,0,4,4)
-      }
-    }
-    { Separator1 Separator
-      MoveScaled(34,5,8,0)
-    }
-    { gvwBreakpoint GridView
-      MoveScaled(7,9,53,28)
-      Expand = True
-      Border = False
-      Mode = Select.Multiple
-      Header = GridView.Horizontal
-    }
-    { timBreakpoint #Timer
-      #MoveScaled(74,8)
-      Delay = 50
-    }
-    Index = 3
     Text = ("Warnings")
     { Panel2 HBox
       MoveScaled(28,9,53,24)
@@ -296,7 +279,7 @@
         MoveScaled(46,5,4,4)
       }
     }
-    Index = 4
+    Index = 3
     Text = ("Tasks")
     { Panel3 HBox
       MoveScaled(10,10,61,24)
@@ -315,7 +298,7 @@
     { timTask #Timer
       #MoveScaled(73,17)
     }
-    Index = 5
+    Index = 4
     Text = ("Unit tests")
     { Panel12 HBox
       MoveScaled(0,0,105,4)
@@ -373,7 +356,7 @@
       ShowLink = True
       ReadOnly = True
     }
-    Index = 6
+    Index = 5
     Text = ("Version control")
     { Panel8 HBox
       MoveScaled(0,0,120,4)
@@ -452,7 +435,7 @@
       ShowLink = True
       ReadOnly = True
     }
-    Index = 7
+    Index = 6
     Text = ("Search result")
     { Panel15 HBox
       MoveScaled(1,0,108,4)

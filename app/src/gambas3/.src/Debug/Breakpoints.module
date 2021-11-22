@@ -1,0 +1,144 @@
+' Gambas module file
+
+Private $cBreakpoints As Collection
+Private $iTimeStamp As Integer
+
+Public Sub OnProjectChange()
+  
+  Dim aBreakpoints As Integer[]
+  Dim sClass As String
+  
+  $cBreakpoints = New Collection
+  
+  For Each sClass In Project.Config.Keys["Breakpoints"]
+    Try aBreakpoints = Project.Config["/Breakpoints" &/ sClass]
+    If Not Error Then $cBreakpoints[sClass] = aBreakpoints
+  Next
+  
+  $iTimeStamp = Project.TimeStamp
+  
+End
+
+Public Sub Load(hModule As FEditor)
+
+  Dim aBreakpoints As Integer[]
+  Dim hEditor As TextEditor
+  'Dim iLine As Integer
+  'Dim I As Integer
+  'Dim aDisabled As Integer[]
+  
+  aBreakpoints = $cBreakpoints[hModule.Name]
+  If Not aBreakpoints Then Return
+  
+  hEditor = hModule.GetEditor()
+  
+  ' aDisabled = New Integer[]
+  ' 
+  ' For I = 0 To aBreakpoints.Max
+  '   iLine = aBreakpoints[I]
+  '   If iLine < 0 Then
+  '     aBreakpoints[I] = -iLine
+  '     aDisabled.Add(-iLine)
+  '   Endif
+  ' Next
+  
+  hEditor.Breakpoints = aBreakpoints
+  'hEditor.DisabledBreakpoints = aDisabled
+  
+End
+
+Private Sub Synchronize()
+  
+  Dim hForm As Object
+  Dim hEditor As TextEditor
+  Dim aBreakpoints As Integer[]
+  Dim sClass As String
+  
+  If $iTimeStamp = Project.TimeStamp Then Return
+
+  For Each hForm In Project.Files
+    If hForm Not Is FEditor Then Continue
+    
+    sClass = hForm.Name
+    hEditor = hForm.GetEditor()
+    aBreakpoints = hEditor.Breakpoints
+    
+    If aBreakpoints.Count = 0 Then
+      $cBreakpoints[sClass] = Null
+    Else 
+      $cBreakpoints[sClass] = aBreakpoints
+    Endif
+    
+  Next
+  
+  $iTimeStamp = Project.TimeStamp
+  
+End
+
+Public Sub GetCommands() As String
+
+  Dim aResult As New String[]
+  Dim aBreakpoints As Integer[]
+  Dim sClass As String
+  Dim iLine As Integer
+  
+  Synchronize()
+  
+  For Each aBreakpoints In $cBreakpoints
+    sClass = $cBreakpoints.Key
+    
+    For Each iLine In aBreakpoints
+      aResult.Add("+" & sClass & "." & CStr(iLine + 1) & "\n")
+    Next
+    
+  Next
+
+  Return aResult.Join("")
+  
+End
+
+Public Sub GetAll() As String[]
+  
+  Dim aResult As New String[]
+  Dim aBreakpoints As Integer[]
+  Dim sClass As String
+  Dim iLine As Integer
+  
+  Synchronize()
+  
+  For Each aBreakpoints In $cBreakpoints
+    sClass = $cBreakpoints.Key
+    
+    For Each iLine In aBreakpoints
+      aResult.Add(sClass & "." & CStr(iLine + 1))
+    Next
+    
+  Next
+
+  aResult.Sort(gb.Natural)
+  Return aResult
+  
+End
+
+Public Sub Save()
+  
+  Dim aBreakpoints As Integer[]
+  Dim sClass As String
+  
+  Synchronize()
+  
+  Project.Config.Clear("Breakpoints")
+  
+  For Each aBreakpoints In $cBreakpoints
+    sClass = $cBreakpoints.Key
+    Project.Config["/Breakpoints" &/ sClass] = aBreakpoints
+  Next
+  
+End
+
+Public Sub Rename(sOld As String, sNew As String)
+  
+  $cBreakpoints[sNew] = $cBreakpoints[sOld]
+  $cBreakpoints[sOld] = Null
+  
+End

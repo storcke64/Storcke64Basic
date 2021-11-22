@@ -2,9 +2,7 @@
 
 Public Shown As Boolean
 
-Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_BREAK, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH
-
-Private $cRefreshBreakpoint As New Collection
+Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH
 
 Private $cRefreshTask As New Collection
 Private $aTask As CTask[]
@@ -31,21 +29,12 @@ Private $iErrorColor As Integer
 
 Public Sub _new()
   
-  Dim DS As Integer = Desktop.Scale
-  
   With cvwVariable
     .Columns.Count = 2
   End With
   
   With cvwObject
     .Columns.Count = 2
-  End With
-  
-  With gvwBreakpoint
-    .AddColumn("", DS * 3).Resizable = False
-    .AddColumn(("Class"))
-    .AddColumn(("Line"))
-    .AddColumn(("Function"))
   End With
   
   With gvwFind
@@ -97,7 +86,6 @@ Public Sub Clear()
   lvwStack.Clear
   cvwVariable.Clear
   cvwObject.Clear
-  $cRefreshBreakpoint.Clear
   
 End
 
@@ -345,21 +333,19 @@ End
 Public Sub ReadConfig()
   
   Dim hCtrl As Control
-  Dim hFont As Font
   Dim fSize As Float
   Dim hImage As Image
   
   Settings.Read(panDebug)
   wizDebug.TextFont = Project.GetSmallFont()
   
-  Project.SetSmallFont(gvwBreakpoint)
-  hFont = gvwBreakpoint.Font
-  gvwTask.Font = hFont
-  gvwCompilation.Font = hFont
+  Project.SetSmallFont(gvwTask)
+  Project.SetSmallFont(gvwCompilation)
   
   fSize = Project.GetPercentFontSize("/DebuggerFontSize", 80)
   
   Project.SetNormalFont(lvwStack, fSize)
+  Project.SetNormalFont(lvwBreakpoint, fSize)
 
   InitFont(cvwVariable, fSize)
   InitFont(cvwObject, fSize)
@@ -415,11 +401,9 @@ Public Sub wizDebug_Click()
   Select Case wizDebug.Index
     Case TAB_DEBUG
       DefineVariable($sLastLocal, $sLastObject)
+      RefreshBreakpoints
     Case TAB_CONSOLE
       If FMain.IsDebugVisible() Then FOutput.SetFocus
-    Case TAB_BREAK
-      timBreakpoint_Timer
-      RefreshBreakpointView
     Case TAB_COMPILATION
     Case TAB_TASK
       If Not $aTask Then
@@ -547,7 +531,6 @@ Public Sub UpdateView()
   
   ShowTab(TAB_CONSOLE, Not bUndock)
   ShowTab(TAB_DEBUG, Project.Running)
-  ShowTab(TAB_BREAK)
   ShowTab(TAB_VERSION_CONTROL, VersionControl.Enabled)
   
   ' If panStack.Visible <> Project.Running Then
@@ -591,40 +574,6 @@ End
 Public Sub btnShowMe_Click()
   
   WatchExpression("Me")
-  
-End
-
-Public Sub RefreshBreakpoint(sClass As String)
-  
-  Dim hEditor As FEditor
-  
-  hEditor = Project.Files[Project.FindPath(sClass)]
-  If Not hEditor Then Return
-  
-  If hEditor.GetEditor().Breakpoints.Count = 0 And If Not Design.HasBreakpoint(sClass) Then Return
-  
-  $cRefreshBreakpoint[sClass] = sClass
-  timBreakpoint.Restart
-  'timBreakpoint.Start
-  
-End
-
-Public Sub timBreakpoint_Timer()
-  
-  Dim sClass As String
-  Dim hEditor As FEditor
-  
-  For Each sClass In $cRefreshBreakpoint
-    hEditor = Project.Files[Project.FindPath(sClass)]
-    If Not hEditor Then Continue
-    Design.RefreshBreakpointFromEditor(hEditor)
-  Next
-  
-  ' gvwBreakpoint.Rows.Count = $aBreakpoint.Count
-  ' gvwBreakpoint.Columns.Width = -1
-  
-  $cRefreshBreakpoint.Clear
-  timBreakpoint.Stop
   
 End
 
@@ -794,7 +743,7 @@ End
 Private Sub GotoConsole()
   
   If IsNull(FOutput.Parent) Then
-    SelectTab(TAB_BREAK)
+    SelectTab(TAB_COMPILATION)
   Else
     SelectTab(TAB_CONSOLE)
   Endif
@@ -822,10 +771,37 @@ Public Sub ShowConsole()
   
 End
 
-Public Sub RefreshTabs(sPath As String, sName As String)
+Private Sub RefreshBreakpoints()
+
+  Dim sBreakpoint As String
+  Dim H As Integer
   
-  RefreshBreakpoint(sName)
+  If wizDebug.Index <> TAB_DEBUG Then Return
+
+  lvwBreakpoint.Clear
+  For Each sBreakpoint In Breakpoints.GetAll()
+    H = lvwBreakpoint.Add(sBreakpoint, sBreakpoint).H
+  Next
+  
+  If lvwBreakpoint.Count = 0 Then
+    lvwBreakpoint.Hide
+    panBreakpoint.Hide
+    sepBreakpoint.Hide
+    sepBreakpoint2.Hide
+  Else
+    lvwBreakpoint.Show
+    panBreakpoint.Show
+    sepBreakpoint.Show
+    sepBreakpoint2.Show
+    lvwBreakpoint.H = H * Min(4, lvwBreakpoint.Count)
+  Endif
+  
+End
+
+Public Sub RefreshTabs(sPath As String, (sName) As String)
+  
   RefreshTask(sPath)
+  RefreshBreakpoints
   
 End
 
@@ -1138,144 +1114,6 @@ Public Sub btnCloseSearch_Click()
   
 End
 
-Public Sub gvwBreakpoint_Data(Row As Integer, Column As Integer)
-  
-  Dim sBreakpoint As String
-  Dim hEditor As FEditor
-  Dim aBreak As String[]
-  
-  Try sBreakpoint = Design.GetBreakpoints()[Row]
-  If Not sBreakpoint Then Return
-  aBreak = Split(sBreakpoint, ".")
-  
-  Select Case Column
-      
-    Case 0
-      gvwBreakpoint.Data.Picture = If(Design.IsBreakpointDisabled(sBreakpoint), $hDisabledBreakpoint, $hBreakpoint)
-      
-    Case 1
-      gvwBreakpoint.Data.Text = aBreak[0]
-      
-    Case 2
-      gvwBreakpoint.Data.Text = CStr(CInt(aBreak[1]) + 1)
-      
-    Case 3
-      Try hEditor = Project.Files[Project.FindPath(aBreak[0])]
-      If hEditor Then
-        gvwBreakpoint.Data.Text = hEditor.GetProcAt(CInt(aBreak[1]))
-      Else
-        gvwBreakpoint.Data.Text = ("File not loaded")
-        gvwBreakpoint.Data.Foreground = Color.LightForeground
-        gvwBreakpoint.Data.Font.Italic = True
-      Endif
-      
-  End Select
-  
-End
-
-Public Sub gvwBreakpoint_Click()
-  
-  Dim sBreakpoint As String
-  Dim aBreak As String[]
-  
-  If gvwBreakpoint.Row < 0 Then Return
-  
-  sBreakpoint = Design.GetBreakpoints()[gvwBreakpoint.Row]
-  aBreak = Split(sBreakpoint, ".")
-  
-  If gvwBreakpoint.Column = 0 Then
-    
-    Design.SetBreakpoint(sBreakpoint, True, Not Design.IsBreakpointDisabled(sBreakpoint))
-    gvwBreakpoint.Rows[gvwBreakpoint.Row].Refresh
-    
-  Endif
-  
-  Try Project.OpenFile(aBreak[0], CInt(aBreak[1]) + 1)
-  
-  gvwBreakpoint.UnSelectAll
-  gvwBreakpoint.Select(gvwBreakpoint.Row)
-  
-End
-
-Public Sub RefreshBreakpointView()
-  
-  If wizDebug.Index <> TAB_BREAK Then Return
-  
-  gvwBreakpoint.Rows.Count = Design.GetBreakpoints().Count
-  gvwBreakpoint_Font()
-  gvwBreakpoint.Refresh
-  'gvwBreakpoint_Click
-  
-End
-
-Public Sub gvwBreakpoint_Font()
-  
-  gvwBreakpoint.Columns[1].Width = -1
-  gvwBreakpoint.Columns[2].Width = -1
-  
-End
-
-
-Public Sub RemoveAllBreakpoints()
-  
-  Dim aBreakPoint As String[]
-  
-  aBreakpoint = Design.GetBreakpoints()
-  While aBreakpoint.Count
-    Design.SetBreakpoint(aBreakpoint[0], False)
-  Wend
-  
-  RefreshBreakpointView
-  
-End
-
-
-Public Sub btnRemoveBreakpoint_Click()
-  
-  Dim aBreakPoint As String[]
-  Dim iRow As Integer
-  
-  aBreakpoint = Design.GetBreakpoints()
-  For Each iRow In gvwBreakpoint.Rows.Selection.Reverse()
-    Design.SetBreakpoint(aBreakpoint[iRow], False)
-  Next
-  
-  RefreshBreakpointView
-  
-End
-
-Private Sub ToggleBreakpoints(bDisable As Boolean)
-  
-  Dim aBreakPoint As String[]
-  Dim iRow As Integer
-  
-  aBreakpoint = Design.GetBreakpoints()
-  
-  For Each iRow In gvwBreakpoint.Rows.Selection.Reverse()
-    Design.SetBreakpoint(aBreakpoint[iRow], True, bDisable)
-  Next
-  
-End
-
-Public Sub btnEnableBreakpoint_Click()
-  
-  ToggleBreakpoints(False)
-  
-End
-
-Public Sub btnDisableBreakpoint_Click()
-  
-  ToggleBreakpoints(True)
-  
-End
-
-Public Sub btnRemoveAllBreakpoint_Click()
-  
-  If Project.Running Then Return
-  RemoveAllBreakpoints
-  
-End
-
 Private Sub RefreshVariable()
 
   Dim sRoot As String
@@ -1539,11 +1377,10 @@ Public Sub UpdateProcessInfo()
   
 End
 
-
 Public Sub OnProjectDebugState()
   
   panBreakpoint.Enabled = Not Design.IsRunning()
-  gvwBreakpoint.Enabled = panBreakpoint.Enabled
+  lvwBreakpoint.Enabled = panBreakpoint.Enabled
   Action[".break"].Enabled = panBreakpoint.Enabled
   
 End
@@ -1918,5 +1755,38 @@ Public Sub panDebug_Arrange()
   lblError.H = lblError.Font.H + Desktop.Scale
   lblError.Adjust
   panError.H = lblError.H
+
+End
+
+Public Sub lvwBreakpoint_Select()
+
+  Project.Goto(lvwBreakpoint.Key)
+
+End
+
+Public Sub btnRemoveBreakpoint_Click()
+
+  Dim hForm As FEditor
+  
+  If lvwBreakpoint.Key Then
+    
+    hForm = Project.Goto(lvwBreakpoint.Key)
+    hForm.ToggleBreakpoint(hForm.GetEditor().Line)
+    
+  Endif
+
+End
+
+Public Sub btnRemoveAllBreakpoints_Click()
+
+  Dim hForm As FEditor
+  Dim sBreakpoint As String
+  
+  If Message.Delete(("Do you really want to remove all breakpoints?"), ("Remove"), ("Cancel")) <> 1 Then Return
+
+  For Each sBreakpoint In Breakpoints.GetAll()
+    hForm = Project.Goto(sBreakpoint)
+    hForm.ToggleBreakpoint(hForm.GetEditor().Line)
+  Next
 
 End

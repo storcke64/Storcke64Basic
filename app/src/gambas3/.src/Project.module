@@ -368,8 +368,6 @@ Public Sub Main()
   Application.Shadows = Settings["/Shadows", True]
   UpdateMessageBoxStyle()
 
-  RefreshBreakpointPicture
-
   Documentation = New CDocumentation
   
   If $bTesting And If sPath Then
@@ -377,7 +375,6 @@ Public Sub Main()
     InitWebView
     CRecentProject.Load
     FMain.Load
-    Design.ClearBreakpoints
     Project.Open(sPath)
     
     Dim hComp As CComponent
@@ -681,7 +678,7 @@ _INIT_AGAIN:
 
     ' Needed for MoveFile()
     RefreshSources
-    Design.ClearBreakpoints
+    'Design.ClearBreakpoints
 
     ReadProject(True)
     
@@ -765,7 +762,6 @@ _INIT_AGAIN:
   If Not $bTesting
     If Not bIsFake Then
       Design.ClearOutput
-      Design.ReadBreakpoints
     Endif
   Endif
   
@@ -801,6 +797,7 @@ _INIT_AGAIN:
     'FOpenProject.OnUpdateRecent
     
     If Not bIsFake Then
+      Breakpoints.OnProjectChange
       FDebugInfo.OnProjectChange
       'FDebugButton.OnProjectChange
     Endif
@@ -998,7 +995,7 @@ Public Function CloseProject() As Boolean
 
     Inc Application.Busy
 
-    If Not IsFake() Then Design.WriteBreakpoints
+    If Not IsFake() Then Breakpoints.Save()
 
     If Settings["/RestoreFiles", 1] Then
 
@@ -5739,26 +5736,6 @@ Catch
 
 End
 
-Public Sub RefreshBreakpointPicture()
-
-  ' Dim iSize As Integer
-  ' Dim hImage As Image
-  ' 
-  ' iSize = Font[Settings["/Editor/Font"]].Height
-  ' 
-  ' 'hImage = Picture["icon:/small/halt"].Image
-  ' hImage = Picture["img/16/breakpoint.png"].Image
-  ' 'hImage.Opacity(0.75)
-  ' If iSize < Stock.GetSize("small") Then hImage = hImage.Stretch(iSize, iSize)
-  ' Try Editor.BreakpointPicture = hImage.Picture
-  ' 
-  ' hImage = Picture["icon:/small/apply"].Image
-  ' 'hImage.Opacity(0.75)
-  ' If iSize < Stock.GetSize("small") Then hImage = hImage.Stretch(iSize, iSize)
-  ' Try Editor.BookmarkPicture = hImage.Picture
-  ' 
-End
-
 Public Sub DrawTitle(hForm As Object, Optional bNoReadOnly As Boolean)
 
   Dim sPath As String
@@ -6354,20 +6331,18 @@ Catch
 
 End
 
-Public Sub Goto(sPosition As String) As Boolean
+Public Sub Goto(sPosition As String) As Form
 
-  Dim aScan As String[]
   Dim sClass As String
   Dim iLine As Integer
+  Dim aPos As String[]
 
-  aScan = Scan(sPosition, "*.*.*")
-  If aScan.Count <> 3 Then Return True
+  aPos = Split(sPosition, ".")
+  sClass = aPos[0]
+  Try iLine = CInt(aPos.Last)
+  If Error Then Return
   
-  sClass = aScan[0]
-  Try iLine = CInt(aScan[2])
-  If Error Then Return True
-  
-  If ExistClass(sClass) Then OpenFile(sClass, iLine)
+  If ExistClass(sClass) Then Return OpenFile(sClass, iLine)
   
 End
 
@@ -6949,7 +6924,7 @@ Private Sub RenamePaths(sOld As String, sNew As String)
   
   If IsSourcePath(sOld) Then
     If IsCodeExt(sOld) Then 
-      Design.RenameClass(File.BaseName(sOld), File.BaseName(sNew))
+      Breakpoints.Rename(File.BaseName(sOld), File.BaseName(sNew))
     Endif
   Endif
   
