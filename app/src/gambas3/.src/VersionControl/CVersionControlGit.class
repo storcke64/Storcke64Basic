@@ -92,7 +92,9 @@ End
 
 Public Sub GetCurrentBranch() As String
 
-  Return Trim(RunShell("git branch --show-current"))
+  ' Works only with git > 2.22
+  ' Return Trim(RunShell("git branch --show-current"))
+  Return Trim(RunShell("git rev-parse --abbrev-ref HEAD"))
   
 End
 
