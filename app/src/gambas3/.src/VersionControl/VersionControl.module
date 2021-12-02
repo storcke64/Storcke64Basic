@@ -770,7 +770,7 @@ Public Sub GetBranchColor(sBranch As String) As Integer
     
     Select Case sBranch
       
-      Case "master"
+      Case "master", ""
         iColor = &H606060
         
       Case Else 
