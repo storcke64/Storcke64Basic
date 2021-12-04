@@ -1291,9 +1291,16 @@ Public Sub cvwVariable_Activate()
       Design.Command("#X" & sExpr & "\t" & sExpr)
     Else
       If .Key Begins "@" Then Return
-      .Editable = True
-      .Rename(1)
-      .Editable = False
+      
+      If sVal Begins Chr$(34) And If Len(sVal) > 128 Then
+        If Not FText.Run(UnQuote(sVal), Subst(("Modify '&1' value"), sExpr)) Then
+          Design.Command("=V" & .Key & "\t" & sExpr & " = " & Quote(FText.Value))
+        Endif
+      Else
+        .Editable = True
+        .Rename(1)
+        .Editable = False
+      Endif
     Endif
     
   End With

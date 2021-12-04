@@ -964,7 +964,7 @@ Public Sub txtProperty_Click()
 
     Case "s"
       SaveProperty
-      If FText.Run($sOldVal, $sLast) Then Goto _EXIT
+      If FText.Run($sOldVal, Subst(("Edit '&1' property"), $sLast)) Then Goto _EXIT
       $hEditor.Text = FText.Value
 
     Case "String[]"
@@ -1052,7 +1052,7 @@ Public Sub txtProperty_Click()
         If FFieldChooser.Run(sConnection, sTable, True, $sOldVal) Then Goto _EXIT
         $hEditor.Text = FFieldChooser.Value
       Else
-        If FText.Run($sOldVal, $sLast) Then Goto _EXIT
+        If FText.Run($sOldVal, Subst(("Edit '&1' property"), $sLast)) Then Goto _EXIT
         $hEditor.Text = FText.Value
       Endif
 

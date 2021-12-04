@@ -2645,7 +2645,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
       sError &= RTrim(File.Load(Project.Dir &/ ".lang" &/ sFile)) & "\n\n"
     Next
     sError = Trim(sError)
-    If sError Then FCommandError.Run(("The translation tools return the following errors:"), sError, ("Translation errors"))
+    If sError Then FCommandError.Run(("The translation tools returned the following errors:"), sError, ("Translation errors"))
     
   Endif  
 
