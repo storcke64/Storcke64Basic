@@ -212,11 +212,11 @@ build:alpine:
        imlib2-dev gettext-dev libffi-dev mesa-dev libgnome-keyring-dev mariadb-dev librsvg-dev
        libsm-dev libxcursor-dev libxml2-dev libxslt-dev libxtst-dev make ncurses-dev pcre-dev pkgconf
        poppler-dev postgresql-dev qt5-qtsvg-dev qt5-qtx11extras-dev qt5-qtwebengine-dev 
-       sdl2-dev sdl2_image-dev sdl2_mixer-dev sdl2_ttf-dev sdl_mixer-dev sqlite-dev unixodbc-dev xdg-utils 
+       sdl2-dev sdl2_image-dev sdl2_mixer-dev sdl2_ttf-dev sqlite-dev unixodbc-dev xdg-utils 
        zlib-dev webkit2gtk-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sqlite2 --disable-v4l --disable-gtkopengl --disable-zstd
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sdlsound --disable-sqlite2 --disable-v4l --disable-gtkopengl --disable-zstd
     - make -j$(nproc)
     - make install
 
