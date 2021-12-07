@@ -9,7 +9,23 @@ AC_PROG_LIBTOOL
 
 GB_COMPONENT_PKG_CONFIG(
   pcre, PCRE, gb.pcre, [src],
-  libpcre)
+  libpcre2-8)
+
+if test "$have_pcre" != "yes"; then
+
+  GB_COMPONENT_PKG_CONFIG_AGAIN(
+    pcre, PCRE, gb.pcre, [src],
+    libpcre, [trying with pcre])
+  gb_use_pcre2=0
+
+else
+
+  AC_DEFINE_UNQUOTED(PCRE2, 1, libpcre2 is used)
+  gb_use_pcre2=1
+
+fi
+
+AM_CONDITIONAL(USE_PCRE2, test "$gb_use_pcre2" = 1)
 
 AC_OUTPUT( \
 Makefile \

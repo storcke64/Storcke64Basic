@@ -1,6 +1,6 @@
 /***************************************************************************
 
-  regexp.c
+  regexp2.c
 
   (c) Rob Kudla <pcre-component@kudla.org>
   (c) Benoît Minisini <g4mba5@gmail.com>
@@ -26,23 +26,30 @@
 
 #include "gb_common.h"
 
-#include "regexp.h"
+#include "regexp2.h"
 #include "main.h"
 
 //#define DEBUG_REPLACE 1
 
-#define OVECSIZE_INC 99
-
-#define PCRE_GREEDY 0x80000000 // The highest possible pcre constant. It must be not used by pcre of course!
+#define PCRE2_GREEDY 0x80000000 // The highest possible pcre constant. It must be not used by pcre of course!
+#define PCRE2_EXTRA  0x80000001
 
 DECLARE_METHOD(RegExp_free);
 
 //---------------------------------------------------------------------------
 
+static void return_error(void *_object, int err_code)
+{
+	PCRE2_UCHAR8 err_msg[128];
+	THIS->error = err_code;
+	pcre2_get_error_message(err_code, err_msg, sizeof(err_msg)); 
+	GB.Error((char *)err_msg);
+}
+
 static void compile(void *_object)
 {
-	int errptr;
-	const char *errstr;
+	int err_code;
+	PCRE2_SIZE err_offset;
 
 	if (!THIS->pattern) {
 		GB.Error("No pattern provided");
@@ -52,19 +59,15 @@ static void compile(void *_object)
 	if (THIS->code)
 		free(THIS->code);
 
-	THIS->code = pcre_compile(THIS->pattern, THIS->copts, &errstr, &errptr, NULL);
+	THIS->code = pcre2_compile((PCRE2_SPTR)THIS->pattern, GB.StringLength(THIS->pattern), THIS->copts, &err_code, &err_offset, NULL);
 
 	if (!THIS->code)
-	{
-		THIS->error = errptr;
-		GB.Error(errstr);
-	}
+		return_error(THIS, err_code);
 }
 
 static void exec(void *_object, int lsubject)
 {
 	int ret;
-	char code[16];
 	
 	if (!THIS->code) 
 	{
@@ -81,66 +84,36 @@ static void exec(void *_object, int lsubject)
 		return;
 	}
 
-	for(;;)
+	pcre2_match_data_free(THIS->match); // does nothing if THIS->match is NULL
+	THIS->match = pcre2_match_data_create_from_pattern(THIS->code, NULL);
+	THIS->ovector = NULL;
+	
+	THIS->error = 0;
+	
+	ret = pcre2_match(THIS->code,
+			(PCRE2_SPTR)THIS->subject,
+			lsubject,
+			0,
+			THIS->eopts,
+			THIS->match,
+			NULL);
+	
+	if (ret > 0)
 	{
-		ret = pcre_exec(THIS->code,
-				NULL,
-				THIS->subject,
-				lsubject,
-				0,
-				THIS->eopts,
-				THIS->ovector,
-				THIS->ovecsize);
-		
-		if (ret > 0)
+		THIS->count = ret;
+		THIS->ovector = pcre2_get_ovector_pointer(THIS->match);
+	}
+	else if (ret < 0)
+	{
+		if (ret == PCRE2_ERROR_NOMATCH)
 		{
-			THIS->error = 0;
-			THIS->count = ret;
-			break;
+			THIS->count = 0;
 		}
-		else if (ret < 0)
+		else
 		{
 			THIS->error = ret;
-			
-			switch (ret)
-			{
-				case PCRE_ERROR_NOMATCH:
-					THIS->count = 0; return;
-				case PCRE_ERROR_NULL:
-					GB.Error("Pattern or subject is null"); return;
-				case PCRE_ERROR_BADOPTION:
-					GB.Error("Unknown option"); return;
-				case PCRE_ERROR_BADMAGIC:
-				case PCRE_ERROR_UNKNOWN_OPCODE:
-					GB.Error("Incorrect PCRE bytecode"); return;
-				case PCRE_ERROR_NOMEMORY:
-					GB.Error("Out of memory"); return;
-				case PCRE_ERROR_BADUTF8:
-				#ifdef PCRE_ERROR_SHORTUTF8
-				case PCRE_ERROR_SHORTUTF8:
-				#endif
-					GB.Error("Bad UTF-8 string"); return;
-				#ifdef PCRE_ERROR_BADUTF8_OFFSET
-				case PCRE_ERROR_BADUTF8_OFFSET:
-					GB.Error("Bad UTF-8 offset"); return;
-				#endif
-				case PCRE_ERROR_INTERNAL:
-					GB.Error("Unexpected internal error"); return;
-				case PCRE_ERROR_BADNEWLINE:
-					GB.Error("Invalid combination of newline options"); return;
-				//case PCRE_ERROR_RECURSELOOP:
-				//	GB.Error("Recursion loop detected"); return;
-				//case PCRE_ERROR_JIT_STACKLIMIT:
-				//	GB.Error("JIT stack limit reached"); return;
-				default:
-					sprintf(code, "%d", -ret);
-					GB.Error("Unable to run regular expression: error #&1", code);
-					return;
-			}
+			return_error(THIS, ret);
 		}
-		
-		THIS->ovecsize += OVECSIZE_INC;
-		GB.Realloc(POINTER(&THIS->ovector), THIS->ovecsize * sizeof(int));
 	}
 }
 
@@ -176,8 +149,6 @@ bool REGEXP_match(const char *subject, int lsubject, const char *pattern, int lp
 		return (lpattern <= 0);
 
 	CLEAR(&tmp);
-	tmp.ovecsize = OVECSIZE_INC;
-	GB.Alloc(POINTER(&tmp.ovector), sizeof(int) * tmp.ovecsize);
 	tmp.copts = coptions;
 	tmp.pattern = GB.NewString(pattern, lpattern);
 
@@ -223,9 +194,6 @@ END_METHOD
 
 BEGIN_METHOD(RegExp_new, GB_STRING subject; GB_STRING pattern; GB_INTEGER coptions; GB_INTEGER eoptions)
 
-	THIS->ovecsize = OVECSIZE_INC;
-	GB.Alloc(POINTER(&THIS->ovector), sizeof(int) * THIS->ovecsize);
-
 	if (MISSING(pattern)) // the user didn't provide a pattern.
 		return;
 
@@ -254,7 +222,7 @@ BEGIN_METHOD_VOID(RegExp_free)
 		free(THIS->code);
 	GB.FreeString(&THIS->subject);
 	GB.FreeString(&THIS->pattern);
-	GB.Free(POINTER(&THIS->ovector));
+	pcre2_match_data_free(THIS->match); // does nothing if THIS->match is NULL
 
 END_METHOD
 
@@ -282,7 +250,10 @@ END_PROPERTY
 
 BEGIN_PROPERTY(RegExp_Offset)
 
-	GB.ReturnInteger(THIS->ovector[0]);
+	if (THIS->ovector)
+		GB.ReturnInteger(THIS->ovector[0]);
+	else
+		GB.ReturnInteger(0);
 
 END_PROPERTY
 
@@ -344,7 +315,7 @@ END_PROPERTY
 
 BEGIN_PROPERTY(RegExp_Submatch_Offset)
 
-	GB.ReturnInteger(THIS->ovector[2 * THIS->_submatch]);
+	GB.ReturnInteger(THIS->ovector ? THIS->ovector[2 * THIS->_submatch] : 0);
 
 END_PROPERTY
 
@@ -375,13 +346,11 @@ BEGIN_METHOD(RegExp_Replace, GB_STRING subject; GB_STRING pattern; GB_STRING rep
 	int offset;
 
 	CLEAR(&r);
-	r.ovecsize = OVECSIZE_INC;
-	GB.Alloc(POINTER(&r.ovector), sizeof(int) * r.ovecsize);
 	r.copts = VARGOPT(coptions, 0);
-	if (r.copts & PCRE_GREEDY)
-		r.copts &= ~PCRE_GREEDY;
+	if (r.copts & PCRE2_GREEDY)
+		r.copts &= ~PCRE2_GREEDY;
 	else
-		r.copts |= PCRE_UNGREEDY;
+		r.copts |= PCRE2_UNGREEDY;
 	r.pattern = GB.NewString(STRING(pattern), LENGTH(pattern));
 
 	compile(&r);
@@ -400,8 +369,7 @@ BEGIN_METHOD(RegExp_Replace, GB_STRING subject; GB_STRING pattern; GB_STRING rep
 			fprintf(stderr, "\nsubject: (%d) %s\n", offset, r.subject);
 			#endif
 			exec(&r, GB.StringLength(subject) - offset);
-
-			if (r.ovector[0] < 0)
+			if (!r.ovector || r.ovector[0] < 0)
 				break;
 
 			_subst_regexp = &r;
@@ -465,36 +433,33 @@ GB_DESC CRegexpDesc[] =
 	GB_STATIC_METHOD("Match", "b", RegExp_Match, "(Subject)s(Pattern)s[(CompileOptions)i(ExecOptions)i]"),
 	GB_STATIC_METHOD("Replace", "s", RegExp_Replace, "(Subject)s(Pattern)s(Replace)s[(CompileOptions)i(ExecOptions)i]"),
 
-	GB_CONSTANT("Caseless", "i", PCRE_CASELESS),
-	GB_CONSTANT("MultiLine", "i", PCRE_MULTILINE),
-	GB_CONSTANT("DotAll", "i", PCRE_DOTALL),
-	GB_CONSTANT("Extended", "i", PCRE_EXTENDED),
-	GB_CONSTANT("Anchored", "i", PCRE_ANCHORED),
-	GB_CONSTANT("DollarEndOnly", "i", PCRE_DOLLAR_ENDONLY),
-	GB_CONSTANT("Extra", "i", PCRE_EXTRA),
-	GB_CONSTANT("NotBOL", "i", PCRE_NOTBOL),
-	GB_CONSTANT("NotEOL", "i", PCRE_NOTEOL),
-	GB_CONSTANT("Ungreedy", "i", PCRE_UNGREEDY),
-	GB_CONSTANT("NotEmpty", "i", PCRE_NOTEMPTY),
-	GB_CONSTANT("UTF8", "i", PCRE_UTF8),
-	GB_CONSTANT("NoAutoCapture", "i", PCRE_NO_AUTO_CAPTURE),
-	GB_CONSTANT("NoUTF8Check", "i", PCRE_NO_UTF8_CHECK),
-	GB_CONSTANT("NoMatch", "i", PCRE_ERROR_NOMATCH),
-	GB_CONSTANT("Null", "i", PCRE_ERROR_NULL),
-	GB_CONSTANT("BadOption", "i", PCRE_ERROR_BADOPTION),
-	GB_CONSTANT("BadMagic", "i", PCRE_ERROR_BADMAGIC),
-	GB_CONSTANT("UnknownNode", "i", PCRE_ERROR_UNKNOWN_NODE),
-	GB_CONSTANT("NoMemory", "i", PCRE_ERROR_NOMEMORY),
-	GB_CONSTANT("NoSubstring", "i", PCRE_ERROR_NOSUBSTRING),
-	GB_CONSTANT("MatchLimit", "i", PCRE_ERROR_MATCHLIMIT),
-	GB_CONSTANT("Callout", "i", PCRE_ERROR_CALLOUT),
-	GB_CONSTANT("BadUTF8", "i", PCRE_ERROR_BADUTF8),
-#if (((PCRE_MAJOR == 4) && (PCRE_MINOR < 5)) || (PCRE_MAJOR < 4))
-	GB_CONSTANT("BadUTF8Offset", "i", 65535), /* PCRE_ERROR_BADUTF8_OFFSET not defined < 4.5 */
-#else
-	GB_CONSTANT("BadUTF8Offset", "i", PCRE_ERROR_BADUTF8_OFFSET),
-#endif
-	GB_CONSTANT("Greedy", "i", PCRE_GREEDY),
+	GB_CONSTANT("Caseless", "i", PCRE2_CASELESS),
+	GB_CONSTANT("MultiLine", "i", PCRE2_MULTILINE),
+	GB_CONSTANT("DotAll", "i", PCRE2_DOTALL),
+	GB_CONSTANT("Extended", "i", PCRE2_EXTENDED),
+	GB_CONSTANT("Anchored", "i", PCRE2_ANCHORED),
+	GB_CONSTANT("DollarEndOnly", "i", PCRE2_DOLLAR_ENDONLY),
+	GB_CONSTANT("Extra", "i", PCRE2_EXTRA),
+	GB_CONSTANT("NotBOL", "i", PCRE2_NOTBOL),
+	GB_CONSTANT("NotEOL", "i", PCRE2_NOTEOL),
+	GB_CONSTANT("Ungreedy", "i", PCRE2_UNGREEDY),
+	GB_CONSTANT("NotEmpty", "i", PCRE2_NOTEMPTY),
+	GB_CONSTANT("UTF8", "i", PCRE2_UTF),
+	GB_CONSTANT("NoAutoCapture", "i", PCRE2_NO_AUTO_CAPTURE),
+	GB_CONSTANT("NoUTF8Check", "i", PCRE2_NO_UTF_CHECK),
+	
+	GB_CONSTANT("NoMatch", "i", PCRE2_ERROR_NOMATCH),
+	GB_CONSTANT("Null", "i", PCRE2_ERROR_NULL),
+	GB_CONSTANT("BadOption", "i", PCRE2_ERROR_BADOPTION),
+	GB_CONSTANT("BadMagic", "i", PCRE2_ERROR_BADMAGIC),
+	GB_CONSTANT("UnknownNode", "i", PCRE2_ERROR_INTERNAL),
+	GB_CONSTANT("NoMemory", "i", PCRE2_ERROR_NOMEMORY),
+	GB_CONSTANT("NoSubstring", "i", PCRE2_ERROR_NOSUBSTRING),
+	GB_CONSTANT("MatchLimit", "i", PCRE2_ERROR_MATCHLIMIT),
+	GB_CONSTANT("Callout", "i", PCRE2_ERROR_CALLOUT),
+	GB_CONSTANT("BadUTF8", "i", PCRE2_ERROR_UTF8_ERR1),
+	GB_CONSTANT("BadUTF8Offset", "i", PCRE2_ERROR_BADUTFOFFSET),
+	GB_CONSTANT("Greedy", "i", PCRE2_GREEDY),
 
 	GB_PROPERTY_READ("SubMatches", ".Regexp.Submatches", RegExp_Submatches),
 	

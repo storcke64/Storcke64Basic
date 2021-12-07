@@ -1,6 +1,6 @@
 /***************************************************************************
 
-  regexp.h
+  regexp2.h
 
   (c) Rob Kudla <pcre-component@kudla.org>
   (c) Benoît Minisini <g4mba5@gmail.com>
@@ -27,7 +27,8 @@
 
 #include "gambas.h"
 
-#include "pcre.h"
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include "pcre2.h"
 
 #ifndef __REGEXP_C
 
@@ -43,12 +44,12 @@ typedef
 		GB_BASE ob;
 		char *subject;
 		char *pattern;
-		int *ovector;
-		int ovecsize;
+		pcre2_match_data *match;
+		PCRE2_SIZE *ovector;
 		int count;
 		int eopts;
 		int copts;
-		pcre *code;
+		pcre2_code *code;
 		int _submatch;
 		int error;
 	}
