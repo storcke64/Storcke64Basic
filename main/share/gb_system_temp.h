@@ -24,7 +24,7 @@
 #include "config.h"
 #include "gb_system.h"
 
-#if OS_LINUX
+#if OS_LINUX || defined(OS_CYGWIN)
 
 #include <sys/sysinfo.h>
 
