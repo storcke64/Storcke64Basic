@@ -160,7 +160,7 @@ bool REGEXP_match(const char *subject, int lsubject, const char *pattern, int lp
 		tmp.subject = GB.NewString(subject, lsubject);
 
 		exec(&tmp, -1);
-		ret = (tmp.ovector[0] != -1);
+		ret = (tmp.ovector && tmp.ovector[0] != -1);
 	}
 
 	RegExp_free(&tmp, NULL);
