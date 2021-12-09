@@ -78,6 +78,12 @@ void SUBR_check_integer(VALUE *param)
 
 	if (TYPE_is_integer(param->type))
 		return;
+	
+	if (TYPE_is_long(param->type))
+	{
+		VALUE_convert_integer(param);
+		return;
+	}
 
 	THROW_TYPE(T_INTEGER, param->type);
 }
