@@ -338,11 +338,13 @@ void MEMORY_free(void *p_ptr)
 //void DEBUG_print_current_backtrace(void);
 //static bool _print_backtrace = FALSE;
 
+#define get_pool_index(_size) ((int)(_size >= POOL_MAX_LEN ? POOL_SIZE : ((_size / SIZE_INC) - 1)))
+
 void *my_malloc(size_t len)
 {
 	size_t *ptr;
-	int size = REAL_SIZE((int)len + sizeof(size_t));
-	int pool = (size / SIZE_INC) - 1;
+	size_t size = REAL_SIZE(len + sizeof(size_t));
+	int pool = get_pool_index(size);
 	
 	MEMORY_count++;
 	
@@ -390,7 +392,7 @@ void *my_malloc(size_t len)
 void my_free(void *alloc)
 {
 	size_t *ptr;
-	int size;
+	size_t size;
 	int pool;
 
 	if (!alloc)
@@ -401,8 +403,8 @@ void my_free(void *alloc)
 	ptr = alloc;
 	ptr--;
 	
-	size = (int)*ptr;
-	pool = (size / SIZE_INC) - 1;
+	size = *ptr;
+	pool = get_pool_index(size);
 
 	//if (ptr < (_first_alloc + (_max_alloc - _first_alloc) / 2))
 	if (1)
@@ -435,15 +437,15 @@ void my_free(void *alloc)
 void *my_realloc(void *alloc, size_t new_len)
 {
 	size_t *ptr;
-	int size;
-	int new_size;
+	size_t size;
+	size_t new_size;
 	
 	if (!alloc)
 		return my_malloc(new_len);
 
 	ptr = alloc;
 	ptr--;
-	size = (int)*ptr;
+	size = *ptr;
 	new_size = REAL_SIZE(new_len + sizeof(size_t));
 	
 	if (size == new_size)

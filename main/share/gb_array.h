@@ -26,10 +26,10 @@
 
 typedef
   struct {
-    int count;
-    int max;
-    int size;
-    int inc;
+    uint count;
+    uint max;
+    uint size;
+    uint inc;
     }
   ARRAY;
 
@@ -42,7 +42,7 @@ typedef
 #define ARRAY_create(data) ARRAY_create_with_size((data), sizeof(**(data)), 32)
 #define ARRAY_create_inc(data, inc) ARRAY_create_with_size((data), sizeof(**(data)), (inc))
 
-void ARRAY_create_with_size(void *p_data, size_t size, int inc);
+void ARRAY_create_with_size(void *p_data, size_t size, uint inc);
 void ARRAY_delete(void *p_data);
 
 #define ARRAY_size(_data) (DATA_TO_ARRAY(_data)->size)
@@ -50,7 +50,7 @@ void ARRAY_delete(void *p_data);
 
 void ARRAY_realloc(void *p_data);
 
-void *ARRAY_add_data(void *p_data, int num, bool zero);
+void *ARRAY_add_data(void *p_data, uint num, bool zero);
 void *ARRAY_add_data_one(void *p_data, bool zero);
 
 #define ARRAY_add_one(_pdata, _zero) \
@@ -74,26 +74,6 @@ void *ARRAY_add_data_one(void *p_data, bool zero);
 	ptr; \
 })
 
-/*#define ARRAY_add_one_size(_pdata, _zero) \
-({ \
-  ARRAY *array = DATA_TO_ARRAY(*(_pdata)); \
-  __typeof__(*(_pdata)) ptr; \
-  \
-  if (array->count < array->max) \
-	{ \
-		ptr = (void *)((char *)*(_pdata) + array->count * array->size); \
-		memset(ptr, 0, array->size); \
-		array->count++; \
-	} \
-	else \
-	{ \
-		array->count++; \
-		array = ARRAY_realloc(_pdata, (_zero)); \
-		ptr = (void *)((char *)*(_pdata) + (array->count - 1) * array->size); \
-	} \
-	ptr; \
-})*/
-
 #define ARRAY_add(_pdata) ARRAY_add_one(_pdata, FALSE)
 #define ARRAY_add_void(_pdata) ARRAY_add_one(_pdata, TRUE)
 #define ARRAY_add_size(_pdata) ARRAY_add_data_one(_pdata, FALSE)
@@ -105,9 +85,9 @@ void *ARRAY_add_data_one(void *p_data, bool zero);
 //PUBLIC void *ARRAY_get(void *data, int pos);
 #define ARRAY_get(_data, _pos) ((char *)(_data) + DATA_TO_ARRAY(_data)->size * (_pos))
 
-void *ARRAY_insert_many(void *p_data, int pos, int count);
+void *ARRAY_insert_many(void *p_data, int pos, uint count);
 #define ARRAY_insert(_pdata, _pos) ARRAY_insert_many(_pdata, _pos, 1);
-void ARRAY_remove_many(void *p_data, int pos, int count);
+void ARRAY_remove_many(void *p_data, int pos, uint count);
 #define ARRAY_remove(_pdata, _pos) ARRAY_remove_many(_pdata, _pos, 1);
 
 void ARRAY_remove_last(void *p_data);
