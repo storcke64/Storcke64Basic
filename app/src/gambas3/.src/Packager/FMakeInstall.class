@@ -128,7 +128,7 @@ Public Sub Form_Open()
 
   cmbCategories.List = Split(File.Load("install/categories"), "\n", "", True)
 
-  txtLicense.List = ["General Public License", "Freeware", "Public Domain", "Lesser General Public License", "Other License(s)", "Non-Free License"]
+  'txtLicense.List = ["General Public License", "Freeware", "Public Domain", "Lesser General Public License", "Other License(s)", "Non-Free License"]
   
   chkCreateDir.Value = Project.CreateEachDirectory
 
