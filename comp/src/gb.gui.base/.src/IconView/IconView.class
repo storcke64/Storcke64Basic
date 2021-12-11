@@ -263,7 +263,7 @@ Public Function Add((Key) As String, Text As String, Optional (Picture) As Pictu
   If $cItems.Exist(Key) Then Error.Raise("Key already used")
   
   If After Then
-    hAfter = $cItems[Key]
+    hAfter = $cItems[After]
     If Not hAfter Then Error.Raise("After item does not exist")
   Endif
   
