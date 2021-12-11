@@ -70,6 +70,26 @@ static void cb_map(GtkWidget *widget, gContainer *sender)
 		sender->arrangeLater();
 }
 
+#if GTK3
+static void cb_remap_children(GtkWidget *widget, GdkEvent *event, gContainer *sender)
+{
+	int i;
+	gControl *child;
+	
+	//fprintf(stderr, "cb_remap_children: %s\n", sender->name());
+	
+	for (i = 0; i < sender->childCount(); i++)
+	{
+		child = sender->child(i);
+		if (gtk_widget_get_visible(child->border))
+		{
+			child->hideButKeepFocus();
+			child->showButKeepFocus();
+		}
+	}
+}
+#endif
+
 static void cb_unmap(GtkWidget *widget, gContainer *sender)
 {
 	sender->setShown(false);
@@ -750,6 +770,9 @@ void gContainer::connectBorder()
 {
 	g_signal_connect_after(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
 	g_signal_connect_after(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
+#if GTK3
+	g_signal_connect_after(G_OBJECT(border), "map-event", G_CALLBACK(cb_remap_children), (gpointer)this);	
+#endif
 }
 
 bool gContainer::resize(int w, int h, bool no_decide)

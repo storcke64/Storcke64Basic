@@ -154,7 +154,7 @@ public:
 	virtual void reparent(gContainer *newpr, int x, int y);
 	void hideHiddenChildren();
 	virtual GtkWidget *getContainer();
-
+	
 	void setShown(bool v) { _shown = v; }
 	bool isShown() const { return _shown; }
 	void arrangeLater();

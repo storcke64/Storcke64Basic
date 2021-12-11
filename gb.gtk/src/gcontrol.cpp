@@ -712,11 +712,14 @@ void gControl::hideButKeepFocus()
 {
 	//fprintf(stderr, "gControl::hideButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
-	gApplication::_keep_focus = true;
-	gApplication::_disable_mapping_events = true;
-	gtk_widget_hide(border);
-	gApplication::_disable_mapping_events = false;
-	gApplication::_keep_focus = false;
+	if (gtk_widget_get_visible(border))
+	{
+		gApplication::_keep_focus = true;
+		gApplication::_disable_mapping_events = true;
+		gtk_widget_hide(border);
+		gApplication::_disable_mapping_events = false;
+		gApplication::_keep_focus = false;
+	}
 }
 
 void gControl::showButKeepFocus()
@@ -725,7 +728,7 @@ void gControl::showButKeepFocus()
 
 	//fprintf(stderr, "gControl::showButKeepFocus: %s\n", gApplication::_active_control ? gApplication::_active_control->name() : "NULL");
 
-	if (_allow_show)
+	if (_allow_show && !gtk_widget_get_visible(border))
 	{
 		gApplication::_disable_mapping_events = true;
 		gtk_widget_show(border);
