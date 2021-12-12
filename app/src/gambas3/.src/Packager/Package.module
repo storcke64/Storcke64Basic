@@ -2433,6 +2433,7 @@ Private Function MakeArchPackage(sSys As String)
     Print #hFile, "pkgrel="; Project.PackageVersion
     Print #hFile, "arch=('any')"
     Print #hFile, "url=\"" & Project.Url & "\""
+    Print #hFile, "packager="; Project.Maintainer; " <" & Project.Address; ">"
     If Me.ChangeLog Then 
       File.Save(sBuildDir &/ "ChangeLog", Me.ChangeLog)
       Print #hFile, "changelog=ChangeLog"
@@ -2583,6 +2584,7 @@ Private Function MakeArchSupportPackage((sSys) As String, sSupport As String, aC
     Print #hFile, "pkgrel="; Project.PackageVersion
     Print #hFile, "arch=('any')"
     Print #hFile, "url=\"" & Project.Url & "\""
+    Print #hFile, "packager="; Project.Maintainer; " <" & Project.Address; ">"
     If Me.ChangeLog Then 
       File.Save(sBuildDir &/ "ChangeLog", Me.ChangeLog)
       Print #hFile, "changelog=ChangeLog"
