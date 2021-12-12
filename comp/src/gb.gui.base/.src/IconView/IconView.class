@@ -429,19 +429,20 @@ Public Sub ScrollArea_Draw()
   Dim bRaiseDraw As Boolean
   Dim bFocus As Boolean
   
-  If $aItems.Count = 0 Then Return
   If $iLock Then Return
-  
-  bFocus = $hView.HasFocus
-  
-  hSaveClip = Paint.ClipRect
-  
+ 
   If $hPicture Then 
     Draw.FillX = -$hView.ScrollX
     Draw.FillY = -$hView.ScrollY
     Draw.Tile($hPicture, 0, 0, Draw.Width, Draw.Height)
   Endif
+ 
+  If $aItems.Count = 0 Then Return
+   
+  bFocus = $hView.HasFocus
   
+  hSaveClip = Paint.ClipRect
+   
   bRaiseDraw = Object.CanRaise(Me, "Draw")
   
   X = hSaveClip.X + $hView.ScrollX
