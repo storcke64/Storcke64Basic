@@ -1784,16 +1784,25 @@ Public Sub btnRemoveBreakpoint_Click()
 
 End
 
-Public Sub btnRemoveAllBreakpoints_Click()
+Public Sub RemoveAllBreakpoints()
 
   Dim hForm As FEditor
   Dim sBreakpoint As String
+  Dim aBreakpoint As String[]
   
   If Message.Delete(("Do you really want to remove all breakpoints?"), ("Remove"), ("Cancel")) <> 1 Then Return
 
   For Each sBreakpoint In Breakpoints.GetAll()
-    hForm = Project.Goto(sBreakpoint)
-    hForm.ToggleBreakpoint(hForm.GetEditor().Line)
+    aBreakpoint = Split(sBreakpoint, ".")
+    hForm = Project.LoadFile(Project.FindPath(aBreakpoint[0]))
+    hForm.ToggleBreakpoint(CInt(aBreakpoint[1]) - 1)
   Next
 
 End
+
+Public Sub btnRemoveAllBreakpoints_Click()
+  
+  RemoveAllBreakpoints
+  
+End
+

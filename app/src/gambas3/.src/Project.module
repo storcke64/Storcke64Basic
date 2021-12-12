@@ -765,6 +765,8 @@ _INIT_AGAIN:
     Endif
   Endif
   
+  If Not bIsFake Then Breakpoints.OnProjectChange
+  
   ReadProject
 
   If Not ReadOnly Then
