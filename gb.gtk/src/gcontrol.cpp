@@ -1693,25 +1693,8 @@ void gControl::registerControl()
 	gt_register_control(border, this);
 }
 
-#ifdef GTK3
-/*static gboolean cb_clip_children(GtkWidget *wid, GdkEventExpose *e, gContainer *d)
-{
-	cairo_region_t *me;
-	GtkAllocation a;
+#ifndef GTK3
 
-	gtk_widget_get_allocation(wid, &a);
-	me = cairo_region_create_rectangle((cairo_rectangle_int_t *)&a);
-
-	cairo_region_intersect(e->region, me);
-
-	cairo_region_destroy(me);
-
-	if (cairo_region_is_empty(e->region))
-		return TRUE;
-
-	return FALSE;
-}*/
-#else
 static gboolean cb_clip_children(GtkWidget *wid, GdkEventExpose *e, gContainer *d)
 {
 	GdkRegion *me;
@@ -1729,6 +1712,7 @@ static gboolean cb_clip_children(GtkWidget *wid, GdkEventExpose *e, gContainer *
 
 	return FALSE;
 }
+
 #endif
 
 #if 0
@@ -1812,6 +1796,30 @@ static bool must_patch(GtkWidget *widget)
 	return (parent_control->widget == widget || (GtkWidget *)parent_control->_scroll == widget);
 }
 
+static gboolean draw_container(GtkWidget *widget, cairo_t *cr)
+{
+	GList *children;
+	GtkFixedChild *child;
+	GtkAllocation a;
+
+	gtk_widget_get_allocation(widget, &a);
+	
+	cairo_save(cr);
+	cairo_rectangle(cr, 0, 0, a.width, a.height);
+	cairo_clip(cr);	
+	
+  for (children = *get_children_list(GTK_CONTAINER(widget)); children; children = children->next)
+	{
+		child = (GtkFixedChild *)children->data;
+		cairo_save(cr);
+		gtk_container_propagate_draw (GTK_CONTAINER(widget), child->widget, cr);
+		cairo_restore(cr);
+	}
+  
+  cairo_restore(cr);
+  return FALSE;
+}
+
 #include "gb.gtk.patch.h"
 
 PATCH_DECLARE(GTK_TYPE_WINDOW)
@@ -1821,7 +1829,6 @@ PATCH_DECLARE(GTK_TYPE_SPIN_BUTTON)
 PATCH_DECLARE(GTK_TYPE_BUTTON)
 PATCH_DECLARE(GTK_TYPE_FIXED)
 PATCH_DECLARE(GTK_TYPE_EVENT_BOX)
-//PATCH_DECLARE(GTK_TYPE_ALIGNMENT)
 PATCH_DECLARE(GTK_TYPE_BOX)
 PATCH_DECLARE(GTK_TYPE_TOGGLE_BUTTON)
 PATCH_DECLARE(GTK_TYPE_SCROLLED_WINDOW)
@@ -1847,7 +1854,6 @@ void gt_patch_control(GtkWidget *widget)
 	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_BUTTON)
 	else PATCH_CLASS(widget, GTK_TYPE_FIXED)
 	else PATCH_CLASS(widget, GTK_TYPE_EVENT_BOX)
-	//else PATCH_CLASS(widget, GTK_TYPE_ALIGNMENT)
 	else PATCH_CLASS(widget, GTK_TYPE_BOX)
 	else PATCH_CLASS(widget, GTK_TYPE_TOGGLE_BUTTON)
 	else PATCH_CLASS(widget, GTK_TYPE_SCROLLED_WINDOW)
@@ -1859,6 +1865,8 @@ void gt_patch_control(GtkWidget *widget)
 	else PATCH_CLASS(widget, GTK_TYPE_SCALE)
 	else PATCH_CLASS_BASELINE(widget, GTK_TYPE_COMBO_BOX)
 	else PATCH_CLASS(widget, GTK_TYPE_TEXT_VIEW)
+		
+	PATCH_CLASS_FIXED(widget, GTK_TYPE_FIXED)
 }
 
 #endif

@@ -200,5 +200,12 @@ if (G_OBJECT_TYPE(widget) == type) \
 #define PATCH_CLASS_BASELINE PATCH_CLASS
 
 #endif
+
+#define PATCH_CLASS_FIXED(widget, type) \
+if (G_OBJECT_TYPE(widget) == type) \
+{ \
+	GtkWidgetClass *klass = (GtkWidgetClass *)GTK_WIDGET_GET_CLASS(widget); \
+	klass->draw = draw_container; \
+}	
  
 #endif
