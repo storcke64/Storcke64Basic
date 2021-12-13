@@ -256,7 +256,16 @@ Private Sub InitMake(sSys As String)
     Endif
   End With
   
+  If sSys = "archlinux" Then MakeArchPackageInit()
+  
 End
+
+Private Sub ExitMake(sSys As String)
+  
+  If sSys = "archlinux" Then MakeArchPackageExit()
+  
+End
+
 
 Public Function Make() As Boolean
 
@@ -836,6 +845,8 @@ Private Function MakePackage(sSys As String) As Boolean
   End Select
   
   If $sSupportPackage Then MakeSupportPackage(sSys)
+  
+  ExitMake(sSys)
   
 Catch
 
@@ -2371,6 +2382,24 @@ Private Sub FormatArchPackageName(sName As String) As String
   
 End
 
+Private Sub MakeArchPackageInit()
+
+  Dim aLines As New String[]
+
+  Try aLines = Split(File.Load("~/.makepkg.conf"), "\n")
+  Try Move "~/.makepkg.conf" Kill "~/.makepkg.conf.save"
+  aLines.Add("PACKAGER=" & Quote(Project.Maintainer & " <" & Project.Address & ">"))
+  File.Save("~/.makepkg.conf", aLines.Join("\n") & "\n")
+
+End
+
+Private Sub MakeArchPackageExit()
+  
+  Try Kill "~/.makepkg.conf"
+  Try Move "~/.makepkg.conf.save" Kill "~/.makepkg.conf"
+  
+End
+
 
 Private Function MakeArchPackage(sSys As String)
 
@@ -2387,8 +2416,7 @@ Private Function MakeArchPackage(sSys As String)
   sPackageName = FormatArchPackageName($sUnsafePackageName)
 
   sPkgDesc = Replace($sDescription, "\n", " ")
-  
-  If sPkgDesc = "" Then sPkgDesc = "a software done with Gambas3"
+  If sPkgDesc = "" Then sPkgDesc = "A software done with Gambas3"
   
   $sFormatMinMax = "'&1>=&2' '&1<=&3' "
   $sFormatMin = "'&1>=&2' "
@@ -2428,12 +2456,11 @@ Private Function MakeArchPackage(sSys As String)
     Print #hFile, ""
     Print #hFile, "pkgname="; sPackageName
     Print #hFile, "_realname="; $sName
-    Print #hFile, "pkgdesc=\"" & sPkgDesc & "\""
-    Print #hFile, "pkgver=" & $sVersion
+    Print #hFile, "pkgdesc="; Shell$(sPkgDesc)
+    Print #hFile, "pkgver="; $sVersion
     Print #hFile, "pkgrel="; Project.PackageVersion
     Print #hFile, "arch=('any')"
-    Print #hFile, "url=\"" & Project.Url & "\""
-    Print #hFile, "packager="; Project.Maintainer; " <" & Project.Address; ">"
+    Print #hFile, "url="; Shell(Project.Url)
     If Me.ChangeLog Then 
       File.Save(sBuildDir &/ "ChangeLog", Me.ChangeLog)
       Print #hFile, "changelog=ChangeLog"
@@ -2579,12 +2606,11 @@ Private Function MakeArchSupportPackage((sSys) As String, sSupport As String, aC
     Print #hFile, ""
     Print #hFile, "pkgname=" & sPackageName
     Print #hFile, "_realname="; sPackageName
-    Print #hFile, "pkgdesc="; Shell(sPkgDesc)
+    Print #hFile, "pkgdesc="; Shell$(sPkgDesc)
     Print #hFile, "pkgver="; $sVersion
     Print #hFile, "pkgrel="; Project.PackageVersion
     Print #hFile, "arch=('any')"
     Print #hFile, "url="; Shell$(Project.Url)
-    Print #hFile, "packager="; Shell$(Project.Maintainer & " <" & Project.Address & ">")
     If Me.ChangeLog Then 
       File.Save(sBuildDir &/ "ChangeLog", Me.ChangeLog)
       Print #hFile, "changelog=ChangeLog"
