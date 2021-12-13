@@ -252,7 +252,6 @@ Public Sub ArrangeTimer_Timer()
   
 End
 
-
 Public Function Add((Key) As String, Text As String, Optional (Picture) As Picture, Optional After As String) As _IconView_Item
   
   Dim hItem As _IconView_Item = New _IconView_Item As "IconViewItem"
@@ -273,6 +272,9 @@ Public Function Add((Key) As String, Text As String, Optional (Picture) As Pictu
   
   If hAfter Then
     iPos = _FindItem(hAfter) + 1
+    $aItems.Add(hItem, iPos)
+  Else If (Not IsMissing(After)) And (Not After) Then
+    iPos = 0
     $aItems.Add(hItem, iPos)
   Else
     $aItems.Add(hItem)
@@ -414,6 +416,12 @@ End
 Public Sub _GetItemGeometry(hItem As _IconView_Item, hRect As Rect)
   
   GetIconGeometry(_FindItem(hItem), hRect)
+  
+End
+
+Public Sub _GetItem(Index As Integer) As _IconView_Item
+  
+  Return $aItems[Index]
   
 End
 
@@ -1650,8 +1658,8 @@ Private Function Keys_Read() As String[]
 
   Dim aKeys As New String[]
 
-  For Each $cItems
-    aKeys.Add($cItems.Key)
+  For Each hItem As _IconView_Item In $aItems
+    aKeys.Add(hItem.Key)
   Next
   Return aKeys
 
