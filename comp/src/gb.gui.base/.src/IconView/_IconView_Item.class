@@ -8,6 +8,8 @@ Property Text As String
 Property RichText As String
 Property Selected As Boolean
 Property Editable As Boolean
+Property Read Next As _IconView_Item
+Property Read Previous As _IconView_Item
 
 '' @{since 3.16}
 ''
@@ -815,5 +817,24 @@ Private Sub MyTrimRichText(RichText As String, W As Float, Optional H As Float) 
   
   Return sResult
   
+End
+
+
+Private Function Next_Read() As _IconView_Item
+
+  Dim hParent As IconView = GetIconView()
+  Dim iPos As Integer = hParent._FindItem(Me) + 1
+  If iPos > hParent.Keys.Max Then Return Null
+  Return hParent._GetItem(iPos)
+
+End
+
+Private Function Previous_Read() As _IconView_Item
+
+  Dim hParent As IconView = GetIconView()
+  Dim iPos As Integer = hParent._FindItem(Me) - 1
+  If iPos < 0 Then Return Null
+  Return hParent._GetItem(iPos)
+
 End
 
