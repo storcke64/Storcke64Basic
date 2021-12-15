@@ -823,7 +823,7 @@ Static Private Sub GetStyles(hTheme As Variant) As TextHighlighterStyle[]
 
 End
 
-Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Variant)
+Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Variant, Optional Pos As Integer)
   
   Dim sLine As String
   Dim aHighlight As Byte[]
@@ -845,6 +845,8 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Varia
   Dim aStyles As TextHighlighterStyle[]
   
   aStyles = GetStyles(Theme)
+  
+  Pos = Max(Pos, 1)
   
   fCharWidth = Paint._EstimateFixedFontCharWidth(Paint.Font)
   LH = Paint.Font.Height + 1
@@ -878,16 +880,26 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Varia
     
     For I = 0 To aHighlight.Max Step 2
       
-      iState = aHighlight[I] And 31
+      iState = aHighlight[I] And 63
       Try hStyle = aStyles[iState]
       If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
       iLen = aHighlight[I + 1]
       
+      If (P + iLen) < Pos Then 
+        P += iLen
+        Continue
+      Else 
+        If Pos > P Then 
+          iLen -= Pos - P
+          P = Pos
+        Endif
+      Endif
+      
       If fCharWidth Then
-        X = X0 + fCharWidth * (P - 1)
+        X = X0 + fCharWidth * (P - Pos)
       Else
-        X = X0 + Paint.Font.TextWidth(String.Left(sLine, P - 1))
+        X = X0 + Paint.Font.TextWidth(String.Mid(sLine, Pos, P - Pos))
       Endif
       
       sText = String.Mid$(sLine, P, iLen)

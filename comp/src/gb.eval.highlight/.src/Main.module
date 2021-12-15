@@ -46,10 +46,12 @@ End
 
 Public Sub Main()
 
-  ' Dim hHighlighter As TextHighlighter
-  ' 
-  ' hHighlighter = TextHighlighter["webpage"]
-  ' 
-  ' Print hHighlighter.ToHTML(File.Load("~/gambas/git/master/app/src/gambas-wiki/.src/Wiki.webpage"))
+  Dim hHighlighter As TextHighlighter
+  Dim hTheme As TextHighlighterTheme
+   
+  hHighlighter = TextHighlighter["gambas"]
+  hTheme = New TextHighlighterTheme
+  'hTheme.Invert()
+  Print hHighlighter.ToANSI(File.Load("UnitTest/TestProgram"), hTheme)
   
 End
