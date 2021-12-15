@@ -1009,10 +1009,10 @@ Public Sub gvwFind_Font()
   gvwFind.Columns[0].Width = Max(gvwFind.Columns[0].Width, Desktop.Scale * 20)
   gvwFind.Columns[1].Width = Max(gvwFind.Columns[1].Width, Desktop.Scale * 20)
   gvwFind.Refresh
-
+  
 End
 
-Public Sub gvwFind_Draw(X As Integer, Y As Integer, (Width) As Integer, Height As Integer, Row As Integer, Column As Integer)
+Public Sub gvwFind_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Row As Integer, Column As Integer)
 
   Dim hResult As CSearchResult
   Dim sText As String
@@ -1032,7 +1032,7 @@ Public Sub gvwFind_Draw(X As Integer, Y As Integer, (Width) As Integer, Height A
   
   X += Desktop.Scale \ 2
   
-  iPos = Max(1, iCol - 20)
+  iPos = Max(1, iCol - CInt(Width / 2 / $CW))
 
   XX = $hFont.TextWidth(String.Mid$(sText, iPos, iCol - iPos + 1))
   WW = $hFont.TextWidth(String.Mid$(sText, iPos, iCol - iPos + 1 + hResult.Length)) - XX
