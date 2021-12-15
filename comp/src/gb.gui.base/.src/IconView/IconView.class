@@ -273,7 +273,7 @@ Public Function Add((Key) As String, Text As String, Optional (Picture) As Pictu
   If hAfter Then
     iPos = _FindItem(hAfter) + 1
     $aItems.Add(hItem, iPos)
-  Else If (Not IsMissing(After)) And (Not After) Then
+  Else If Not IsMissing(After) And If Not After Then
     iPos = 0
     $aItems.Add(hItem, iPos)
   Else
