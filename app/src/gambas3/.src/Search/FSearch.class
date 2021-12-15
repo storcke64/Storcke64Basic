@@ -1019,106 +1019,30 @@ Public Sub gvwFind_Draw(X As Integer, Y As Integer, (Width) As Integer, Height A
   Dim iCol As Integer
   Dim XX As Integer
   Dim WW As Integer
+  Dim iPos As Integer
 
   If Column <> 4 Then Return
 
   hResult = $aResult[Row]
 
-  sText = hResult.Text
+  sText = Replace(hResult.Text, "\t", " ")
   iCol = hResult.Column
   
   Paint.Font = $hFont
   
   X += Desktop.Scale \ 2
   
-  If hResult.Highlight And Len(sText) < 1024 Then
+  iPos = Max(1, iCol - 20)
 
-    If $CW Then
-      XX = $CW * iCol
-      WW = $CW * hResult.Length
-      X -= Max(0, XX - $CW * 40)
-    Else
-      XX = $hFont.TextWidth(String.Left(sText, iCol))
-      WW = $hFont.TextWidth(String.Left(sText, iCol + hResult.Length)) - XX
-      X -= Max(0, XX - $hFont.TextWidth("0") * 40)
-    Endif
+  XX = $hFont.TextWidth(String.Mid$(sText, iPos, iCol - iPos + 1))
+  WW = $hFont.TextWidth(String.Mid$(sText, iPos, iCol - iPos + 1 + hResult.Length)) - XX
+  Paint.FillRect(X + XX, Y, WW, Height, MTheme.GetColor("Highlight"))
 
-    Paint.FillRect(X + XX, Y, WW, Height, MTheme.GetColor("Highlight"))
-    TextHighlighter[hResult.Highlight].Paint(sText, X, Y, MTheme.Theme)
-    
-  Else
-    
-    If iCol > 40 Then
-      sText = String.Mid$(sText, iCol - 40)
-      iCol = 41
-    Endif
-    
-    If $CW Then
-      XX = $CW * iCol
-      WW = $CW * hResult.Length
-    Else
-      XX = $hFont.TextWidth(String.Left(sText, iCol))
-      WW = $hFont.TextWidth(String.Left(sText, iCol + hResult.Length)) - XX
-    Endif
-    
-    Paint.FillRect(X + XX, Y, WW, Height, MTheme.GetColor("Highlight"))
-    
-    Paint.Background = MTheme.GetColor("Normal")
-    Paint.DrawText(sText, X, Y + $hFont.Ascent)
-    
+  If hResult.Highlight = "gambas" Then
+    TextHighlighter[hResult.Highlight].Paint(sText, X, Y, MTheme.Theme, iPos)
+  Else 
+    Paint.DrawText(String.Mid$(sText, iPos, 512), X, Y + $hFont.Ascent)
   Endif
-  
-  ' If $CW And If hResult.Highlight And If iLen < 1024 Then
-  ' 
-  '   sText = hResult.RichText
-  '   
-  '   If Not sText Then
-  '     sText = TextHighlighter[TextEditor.GetModeFromPath(hResult.Path)].ToRichText(hResult.Text, $hStyle)
-  '     hResult.RichText = sText
-  '   Endif
-  '   
-  '   bRichText = True
-  '   
-  ' Endif
-  ' 
-  ' Paint.Font = $hFont
-  ' 
-  ' ' If bRichText Then
-  ' '   If iCol >= 40 Then
-  ' '     X -= (iCol - 40) * $CW
-  ' '   Endif
-  ' ' Else 
-  '   If iCol >= 40 Then
-  '     sText = String.Mid$(sText, iCol - 39)
-  '     iCol = 40
-  '   Endif
-  ' 'Endif
-  ' 
-  ' If System.RightToLeft Then
-  '   X -= -1000000
-  '   Width += 1000000
-  '   Width -= Desktop.Scale \ 2
-  ' Else
-  '   X += Desktop.Scale \ 2
-  '   Width = 1000000
-  '   If $CW Then
-  '     XX = X + $CW * iCol '$hFont.TextWidth(String.Left(sText, iCol))
-  '     WW = $CW * hResult.Length '$hFont.TextWidth(String.Mid$(sText, iCol + 1, hResult.Length))
-  '   Else
-  '     XX = X + $hFont.TextWidth(String.Left(sText, iCol))
-  '     WW = $hFont.TextWidth(String.Mid$(sText, iCol + 1, hResult.Length))
-  '   Endif
-  ' Endif
-  ' 
-  ' Paint.FillRect(XX, Y, WW, Height, $hStyle[Highlight.Highlight].Color)
-  ' 
-  ' Paint.Background = $hStyle[Highlight.Normal].Color
-  ' 
-  ' If bRichText Then
-  '   Paint.DrawRichText(sText, X, Y, Width, Height, Align.Normal)
-  ' Else
-  '   Paint.DrawText(sText, X, Y, Width, Height, Align.Normal)
-  ' Endif
   
 End
 
