@@ -105,7 +105,7 @@ Public Sub ReadConfig()
     Dec $hFont.Size
     If $hFont.Size < 6 Then Break
   Wend
-  $CW = Paint._EstimateFixedFontCharWidth($hFont)
+  $CW = Paint._EstimateFontCharWidth($hFont)
   
   For I = 0 To $aResult.Max
     $aResult[I].RichText = ""
