@@ -570,21 +570,7 @@ Private Sub CalcSizes()
   $hTabImage = Null
   $hMultiLineImage = Null
   
-  $fCharWidth = Paint._EstimateFixedFontCharWidth($hFont)
-  ' $fCharWidth = $iSpaceWidth
-  ' For I = 33 To 255
-  '   If I > 126 And If I < 160 Then Continue
-  '   If I = 173 Then Continue
-  '   If $hFont.TextWidth(String.Chr$(I)) <> $iSpaceWidth Then
-  '     $fCharWidth = 0
-  '     Break
-  '   Endif
-  ' Next
-  ' 
-  ' If $fCharWidth Then
-  '   sText = String$(4, "AbCdEfGh01#@WwmM")
-  '   $fCharWidth = $hFont.TextWidth(sText) / Len(sText)
-  ' Endif
+  $fCharWidth = Paint._EstimateFontCharWidth($hFont, True)
   
   If Not $bRemoteDisplay Then
     $sCacheTextKey = $hFont.ToString()
