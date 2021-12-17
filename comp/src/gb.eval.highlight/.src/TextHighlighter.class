@@ -848,7 +848,7 @@ Public Sub Paint(Text As String, X As Float, Y As Float, Optional Theme As Varia
   
   Pos = Max(Pos, 1)
   
-  fCharWidth = Paint._EstimateFixedFontCharWidth(Paint.Font)
+  fCharWidth = Paint._EstimateFontCharWidth(Paint.Font, True)
   LH = Paint.Font.Height + 1
   BW = 1 + LH \ 6
   
