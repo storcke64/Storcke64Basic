@@ -356,7 +356,7 @@ Static Public Sub DrawRect(X As Float, Y As Float, Width As Float, Height As Flo
   
 End
 
-Static Public Sub _EstimateFixedFontCharWidth(hFont As Font) As Float
+Static Public Sub _EstimateFontCharWidth(hFont As Font, Optional bFixedOnly As Boolean) As Float
 
   Dim iSpaceWidth As Integer
   Dim I As Integer
@@ -368,16 +368,20 @@ Static Public Sub _EstimateFixedFontCharWidth(hFont As Font) As Float
   
   $sLastFont = sFont
   
-  iSpaceWidth = hFont.TextWidth(" ")
-  
-  For I = 33 To 255
-    If I > 126 And If I < 160 Then Continue
-    If I = 173 Then Continue
-    If hFont.TextWidth(String.Chr$(I)) <> iSpaceWidth Then 
-      $fLastWidth = 0
-      Return 0
-    Endif
-  Next
+  If bFixedOnly Then
+    
+    iSpaceWidth = hFont.TextWidth(" ")
+    
+    For I = 33 To 255
+      If I > 126 And If I < 160 Then Continue
+      If I = 173 Then Continue
+      If hFont.TextWidth(String.Chr$(I)) <> iSpaceWidth Then 
+        $fLastWidth = 0
+        Return 0
+      Endif
+    Next
+    
+  Endif
   
   sText = String$(4, "AbCdEfGh01#@WwmM")
   $fLastWidth = hFont.TextWidth(sText) / Len(sText)
