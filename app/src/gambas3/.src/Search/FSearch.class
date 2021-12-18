@@ -2,6 +2,7 @@
 
 Public IgnoreCase As Boolean
 Public RegularExpression As Boolean
+Public ReplaceCaptureGroups As Boolean
 Public IgnoreStrings As Boolean
 Public IgnoreComments As Boolean
 Public WordsOnly As Boolean
@@ -71,6 +72,11 @@ Public Sub Form_Open()
   chkIgnoreComments.Value = Settings["/FSearch/IgnoreComments", False]
   chkIgnoreStrings.Value = Settings["/FSearch/IgnoreStrings", False]
   chkRegularExpression.Value = Settings["/FSearch/RegularExpression", False]
+  If chkRegularExpression.Value Then
+    chkReplaceCaptureGroups.Value = Settings["/FSearch/ReplaceCaptureGroups", False]
+  Else
+    chkReplaceCaptureGroups.Value = False
+  Endif
   chkWordsOnly.Value = Settings["/FSearch/WordsOnly", False]
   'radSourceFileOnly.Value = Settings["/FSearch/SourceOnly", False]
   
@@ -90,6 +96,7 @@ Public Sub Form_Close()
   Settings["/FSearch/IgnoreComments"] = CBool(chkIgnoreComments.Value)
   Settings["/FSearch/IgnoreStrings"] = CBool(chkIgnoreStrings.Value)
   Settings["/FSearch/RegularExpression"] = CBool(chkRegularExpression.Value)
+  Settings["/FSearch/ReplaceCaptureGroups"] = CBool(chkReplaceCaptureGroups.Value)
   Settings["/FSearch/WordsOnly"] = CBool(chkWordsOnly.Value)
   'Settings["/FSearch/SourceOnly"] = CBool(radSourceFileOnly.Value)
 
@@ -392,6 +399,7 @@ Private Sub InitSearch() As Boolean
   IgnoreStrings = chkIgnoreStrings.Value
   IgnoreComments = chkIgnoreComments.Value
   RegularExpression = chkRegularExpression.Value
+  ReplaceCaptureGroups = chkReplaceCaptureGroups.Value
   WordsOnly = chkWordsOnly.Value
   CurrentProcedure = radCurrentProcedure.Value
   OnlySource = radSourceFileOnly.Value
@@ -424,6 +432,7 @@ Private Sub Run(iAction As Integer)
   Dim hEditor As FEditor
   Dim hTextEditor As TextEditor
   Dim iLastPos As Integer
+  Dim sReplace As String
   
   If InitSearch() Then Return
   ResetBrowse
@@ -442,19 +451,21 @@ Private Sub Run(iAction As Integer)
   
   If iAction And DO_REPLACE And If iAction And DO_ALL Then
     
-    Try hTextEditor.Begin
-    While aResult.Count
-      If $hCurrent.SetPosition(aResult[0], True) Then 
-        aResult.Remove(0)
-      Else
-        $hCurrent.SetPosition(aResult[0], False)
-        If Not $hCurrent.Replace(ReplaceString) Then
-          Inc nReplace
-          DoReplace(aResult, 0, ReplaceString)
+    If hTextEditor Then
+      hTextEditor.Begin
+      While aResult.Count
+        If $hCurrent.SetPosition(aResult[0], True) Then 
+          aResult.Remove(0)
+        Else
+          $hCurrent.SetPosition(aResult[0], False)
+          If Not hTextEditor.SearchReplace(ByRef sReplace) Then
+            Inc nReplace
+            DoReplace(aResult, 0, sReplace)
+          Endif
         Endif
-      Endif
-    Wend
-    Try hTextEditor.End
+      Wend
+      hTextEditor.End
+    Endif
     
   Else
 
@@ -503,8 +514,8 @@ Private Sub Run(iAction As Integer)
         $hCurrent.SetPosition(aResult[iInd], False)
         
         If iAction And DO_REPLACE And If iPos = iLastPos Then 
-          If Not $hCurrent.Replace(ReplaceString) Then
-            DoReplace(aResult, iInd, ReplaceString)
+          If Not hTextEditor.SearchReplace(ByRef sReplace) Then
+            DoReplace(aResult, iInd, sReplace)
           Endif
           iAction = iAction And Not DO_REPLACE
         Else
@@ -1263,6 +1274,8 @@ End
 
 Public Sub chkRegularExpression_Click()
 
+  chkReplaceCaptureGroups.Enabled = chkRegularExpression.Value
+  If Not chkRegularExpression.Value Then chkReplaceCaptureGroups.Value = False
   ShowString
 
 End
@@ -1289,6 +1302,8 @@ Public Sub timFillList_Timer()
   Dim iPos As Integer
   Dim bUndo As Boolean
   Dim hNewFile As Object
+  Dim hEditor As TextEditor
+  Dim sReplace As String
   
   fTimer = Timer
   
@@ -1318,11 +1333,15 @@ Public Sub timFillList_Timer()
         bUndo = True
       Endif
       
-      If Not hFile.Replace(ReplaceString) Then
-        hResult.Text = String.Left(hResult.Text, hResult.Column) & ReplaceString & String.Mid(hResult.Text, hResult.Column + hResult.Length + 1)
-        hResult.Length = String.Len(ReplaceString)
-        hResult.Bytes = Len(ReplaceString)
-        Inc $nReplace
+      hEditor = Null
+      Try hEditor = hFile.GetEditor()
+      If hEditor Then
+        If Not hEditor.SearchReplace(ByRef sReplace) Then
+          hResult.Text = String.Left(hResult.Text, hResult.Column) & sReplace & String.Mid(hResult.Text, hResult.Column + hResult.Length + 1)
+          hResult.Length = String.Len(sReplace)
+          hResult.Bytes = Len(sReplace)
+          Inc $nReplace
+        Endif
       Endif
       
       Continue
@@ -1408,10 +1427,10 @@ Public Sub timFillList_Timer()
   timFillList.Stop
   FDebugInfo.StopSearch
   
-  If $bReplaceAll Then
-    ClearCache
-    Search(SEARCH_AFTER_REPLACE)
-  Endif
+  ' If $bReplaceAll Then
+  '   ClearCache
+  '   Search(SEARCH_AFTER_REPLACE)
+  ' Endif
   
 End
 

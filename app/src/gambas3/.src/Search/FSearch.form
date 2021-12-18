@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,87,43)
+  MoveScaled(0,0,93,46)
   Visible = False
   Action = "find"
   Text = ("Search & Replace")
@@ -14,10 +14,10 @@
   Spacing = True
   Margin = True
   { Panel2 HBox
-    MoveScaled(1,1,85,36)
+    MoveScaled(1,1,91,39)
     Spacing = True
     { VBox3 VBox
-      MoveScaled(0,0,59,35)
+      MoveScaled(0,0,59,37)
       Expand = True
       Spacing = True
       { HBox1 HBox
@@ -43,14 +43,14 @@
         }
       }
       { HBox4 Panel
-        MoveScaled(-1,10,58,25)
+        MoveScaled(-1,10,58,27)
         Expand = True
         Arrangement = Arrange.Horizontal
         Spacing = True
         Margin = True
         Border = Border.Plain
         { VBox2 VBox
-          MoveScaled(1,0,29,25)
+          MoveScaled(1,0,29,27)
           Expand = True
           { Label4 Label
             MoveScaled(0,0,19,3)
@@ -70,21 +70,25 @@
             MoveScaled(0,11,30,4)
             Text = Shortcut(("Regular expression"), "x")
           }
-          { chkIgnoreStrings CheckBox
+          { chkReplaceCaptureGroups CheckBox
             MoveScaled(0,15,30,4)
+            Enabled = False
+            Text = ("Replace capture groups")
+          }
+          { chkIgnoreStrings CheckBox
+            MoveScaled(0,19,30,4)
             Text = Shortcut(("Ignore strings"), "I")
           }
           { chkIgnoreComments CheckBox
-            MoveScaled(0,19,30,4)
+            MoveScaled(0,23,30,4)
             Text = Shortcut(("Ignore comments"), "g")
           }
         }
         { Panel3 Panel
-          MoveScaled(31,11,1,5)
+          MoveScaled(30,11,1,5)
         }
         { panSearchIn VBox
-          MoveScaled(33,0,24,24)
-          Expand = True
+          MoveScaled(31,0,26,24)
           { Label3 Label
             MoveScaled(0,0,19,3)
             Font = Font["Bold"]
@@ -168,7 +172,7 @@
     }
   }
   { lblMessage Label
-    MoveScaled(1,38,64,4)
+    MoveScaled(1,41,64,4)
     Visible = False
     Font = Font["Bold"]
     Background = Color.TooltipBackground

@@ -3861,13 +3861,6 @@ Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean)
 
 End
 
-Public Sub Replace((sReplace) As String) As Boolean
-
-  Return True
-  'Editor.Replace(sReplace)
-
-End
-
 Public Sub svwWorkspace_MouseDown()
 
   UnselectAll

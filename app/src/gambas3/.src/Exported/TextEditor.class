@@ -136,7 +136,7 @@ Public Sub SetPosition(hResult As CSearchResult, bJustCheck As Boolean) As Boole
   
 End
 
-Public Sub Replace(sReplace As String) As Boolean
+Public Sub SearchReplace(ByRef sReplace As String) As Boolean
   
   Dim iLine, iColumn As Integer
   
@@ -145,6 +145,13 @@ Public Sub Replace(sReplace As String) As Boolean
   
   iLine = Me.SelectionLine
   iColumn = Me.SelectionColumn
+  
+  If FSearch.RegularExpression And If FSearch.ReplaceCaptureGroups Then
+    sReplace = RegExp.Replace(Me.SelectedText, FSearch.SearchString, FSearch.ReplaceString)
+  Else
+    sReplace = FSearch.ReplaceString
+  Endif
+  
   Me.Begin
   Me.Insert(sReplace)
   Me.Goto(iColumn, iLine)

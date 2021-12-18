@@ -880,12 +880,6 @@ Public Sub SetPosition(hResult As CSearchResult, Optional bJustCheck As Boolean)
   
 End
 
-Public Sub Replace(sReplace As String) As Boolean
-  
-  Return $hEditor.Replace(sReplace)
-  
-End
-
 Public Sub GetSelection() As String
   
   Return $hEditor.GetSelection()
