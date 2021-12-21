@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,93,46)
+  MoveScaled(0,0,94,46)
   Visible = False
   Action = "find"
   Text = ("Search & Replace")
@@ -14,7 +14,7 @@
   Spacing = True
   Margin = True
   { Panel2 HBox
-    MoveScaled(1,1,91,39)
+    MoveScaled(1,1,92,39)
     Spacing = True
     { VBox3 VBox
       MoveScaled(0,0,59,37)
@@ -70,10 +70,17 @@
             MoveScaled(0,11,30,4)
             Text = Shortcut(("Regular expression"), "x")
           }
-          { chkReplaceCaptureGroups CheckBox
-            MoveScaled(0,15,30,4)
-            Enabled = False
-            Text = ("Replace capture groups")
+          { Panel4 HBox
+            MoveScaled(1,15,27,4)
+            { Panel5 Panel
+              MoveScaled(1,0,2,4)
+            }
+            { chkReplaceCaptureGroups CheckBox
+              MoveScaled(4,0,21,4)
+              Enabled = False
+              Expand = True
+              Text = ("Replace capture groups")
+            }
           }
           { chkIgnoreStrings CheckBox
             MoveScaled(0,19,30,4)
