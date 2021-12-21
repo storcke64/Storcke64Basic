@@ -487,8 +487,6 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	if (GB.Is(THIS, CLASS_UserContainer))
 		PANEL->setUserContainer();
 	
-	THIS_USERCONTROL->container = THIS;
-
 	if (!GB.GetFunction(&func, THIS, "UserControl_Draw", NULL, NULL))
 	{
 		PANEL->setPaint();
@@ -506,71 +504,65 @@ END_METHOD
 	
 BEGIN_PROPERTY(UserControl_Container)
 
-	CCONTAINER *ct;
-	gControl *test;
-	int count;
-	int bucle;
-	bool ok = false;
+	CCONTAINER *cont;
+	gControl *p;
+	gContainer *w;
 	
 	if (READ_PROPERTY)
 	{
-		GB.ReturnObject(THIS_USERCONTAINER->container);
+		GB.ReturnObject(GetObject(WIDGET->proxyContainer()));
 		return;
 	}
 	
-	ct = (CCONTAINER*)VPROP(GB_OBJECT);
+	cont = (CCONTAINER*)VPROP(GB_OBJECT);
 	
-	if (!ct)
+	if (!cont)
 	{
-		if (THIS_CONT != THIS)
-			WIDGET_CONT->setProxyContainerFor(NULL);
-		THIS_USERCONTAINER->container = THIS;
+		if (WIDGET->proxyContainer() != WIDGET)
+			WIDGET->proxyContainer()->setProxyContainerFor(NULL);
 		WIDGET->setProxyContainer(NULL);
+		
 		WIDGET->setProxy(NULL);
 		return;
 	}
 	
-	if (GB.CheckObject(ct)) 
+	if (GB.CheckObject(cont)) 
 		return;
 	
-	count = PANEL->childCount();
+	w = (gContainer *)cont->ob.widget;
+	/*while (w->proxyContainer() != w)
+		w = w->proxyContainer();*/
 	
-	for (bucle = 0; bucle < count; bucle++)
+	if (w == WIDGET->proxyContainer())
+		return;
+	
+	for (p = cont->ob.widget; p; p = p->parent())
 	{
-		test = PANEL->child(bucle);
-		do 
-		{
-			if (test->parent() == WIDGET)
-			{
-				ok = true;
-				break;
-			}
-			test = test->parent();
-		} while (test);
+		if (p == WIDGET)
+			break;
 	}
 	
-	if (!ok)
+	if (!p)
 	{
 		GB.Error("Container must be a child control");
 		return;
 	}
 
-	gColor bg = WIDGET_CONT->background();
-	gColor fg = WIDGET_CONT->foreground();
+	gColor bg = WIDGET->proxyContainer()->background();
+	gColor fg = WIDGET->proxyContainer()->foreground();
 
-	if (THIS_CONT != THIS)
-		WIDGET_CONT->setProxyContainerFor(NULL);
+	if (WIDGET->proxyContainer() != WIDGET)
+		WIDGET->proxyContainer()->setProxyContainerFor(NULL);
 
-	THIS_USERCONTAINER->container = (CCONTAINER *)GetObject(((gContainer *)ct->ob.widget)->proxyContainer());
+	WIDGET->setProxyContainer(w);
+	w->setProxyContainerFor(WIDGET);
 	
-	WIDGET->setProxyContainer(WIDGET_CONT->proxyContainer());
-	WIDGET->setProxy(WIDGET_CONT);
+	w->setBackground(bg);
+	w->setForeground(fg);
+	w->performArrange();
 
-	WIDGET_CONT->setProxyContainerFor(WIDGET);
-	WIDGET_CONT->setBackground(bg);
-	WIDGET_CONT->setForeground(fg);
-	WIDGET_CONT->performArrange();
-
+	WIDGET->setProxy(w);
+	
 END_PROPERTY
 
 
@@ -582,7 +574,7 @@ BEGIN_PROPERTY(UserContainer_Container)
 	{
 		UserControl_Container(_object, _param);
 
-		WIDGET_CONT->setFullArrangement(&THIS_USERCONTAINER->save);
+		WIDGET->proxyContainer()->setFullArrangement(&THIS_USERCONTAINER->save);
 	}
 
 END_PROPERTY
@@ -591,11 +583,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Arrangement)
 
 	if (READ_PROPERTY)
-		GB.ReturnInteger(WIDGET_CONT->arrange());
+		GB.ReturnInteger(WIDGET->proxyContainer()->arrange());
 	else
 	{
-		WIDGET_CONT->setArrange(VPROP(GB_INTEGER));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setArrange(VPROP(GB_INTEGER));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 
 END_PROPERTY
@@ -604,11 +596,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_AutoResize)
 
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->autoResize());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->autoResize());
 	else
 	{
-		WIDGET_CONT->setAutoResize(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setAutoResize(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -617,11 +609,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Padding)
 
 	if (READ_PROPERTY)
-		GB.ReturnInteger(WIDGET_CONT->padding());
+		GB.ReturnInteger(WIDGET->proxyContainer()->padding());
 	else
 	{
-		WIDGET_CONT->setPadding(VPROP(GB_INTEGER));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setPadding(VPROP(GB_INTEGER));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -630,11 +622,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Spacing)
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->spacing());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->spacing());
 	else
 	{
-		WIDGET_CONT->setSpacing(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setSpacing(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -643,11 +635,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Margin)
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->margin());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->margin());
 	else
 	{
-		WIDGET_CONT->setMargin(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setMargin(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -656,11 +648,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Indent)
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->indent());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->indent());
 	else
 	{
-		WIDGET_CONT->setIndent(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setIndent(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -669,11 +661,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Centered)
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->centered());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->centered());
 	else
 	{
-		WIDGET_CONT->setCentered(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setCentered(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY
@@ -682,11 +674,11 @@ END_PROPERTY
 BEGIN_PROPERTY(UserContainer_Invert)
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET_CONT->invert());
+		GB.ReturnBoolean(WIDGET->proxyContainer()->invert());
 	else
 	{
-		WIDGET_CONT->setInvert(VPROP(GB_BOOLEAN));
-		THIS_USERCONTAINER->save = WIDGET_CONT->fullArrangement();
+		WIDGET->proxyContainer()->setInvert(VPROP(GB_BOOLEAN));
+		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
 END_PROPERTY

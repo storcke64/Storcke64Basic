@@ -369,16 +369,19 @@ void InitControl(gControl *control, CWIDGET *widget)
 
 CWIDGET *GetContainer(CWIDGET *control)
 {
+	gContainer *cont;
+	
 	if (!control)
 	{
 		GB.Error("Null container");
 		GB.Propagate();
 	}
 
-	if ( GB.Is (control,CLASS_UserContainer) || GB.Is (control,CLASS_UserControl) )
-		return (CWIDGET*)((CUSERCONTROL*)control)->container;
-
-	return control;
+	cont = (gContainer *)control->widget;
+	while (cont != cont->proxyContainer())
+		cont = cont->proxyContainer();
+	
+	return GetObject(cont);
 }
 
 int CWIDGET_get_handle(void *_object)

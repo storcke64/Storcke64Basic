@@ -679,11 +679,13 @@ __FOUND_WIDGET:
 			control = control->ignoreDesign();
 			/*while (control->isDesignIgnore())
 				control = control->parent();*/
-			//fprintf(stderr, "GDK_MOTION_NOTIFY: (%p %s) grab = %p\n", control, control->name(), button_grab);
+			//fprintf(stderr, "GDK_MOTION_NOTIFY: (%p %s) grab = %p state = %d tracking = %d\n", control, control->name(), button_grab, event->motion.state, control->isTracking());
 
 			gApplication::checkHoveredControl(control);
 
 		__MOTION_TRY_PROXY:
+
+			//fprintf(stderr, "--> try (%p %s) / %s\n", control, control->name(), control->_proxy_for ? control->_proxy_for->name() : "-");
 
 			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;

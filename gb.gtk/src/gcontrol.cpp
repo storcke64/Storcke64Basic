@@ -2629,7 +2629,12 @@ bool gControl::setProxy(gControl *proxy)
 
 		check = check->_proxy;
 	}
+	
+	if (proxy == _proxy)
+		return false;
 
+	//fprintf(stderr, "setProxy: (%p %s) -> (%p %s)\n", this, name(), proxy, proxy ? proxy->name() : "NULL");
+	
 	if (_proxy)
 		_proxy->_proxy_for = NULL;
 

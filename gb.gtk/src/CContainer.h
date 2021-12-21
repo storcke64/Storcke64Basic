@@ -46,9 +46,6 @@ extern GB_DESC UserContainerDesc[];
 #define WIDGET ((gContainer*)THIS->ob.widget)
 #define PANEL ((gPanel *)(THIS->ob.widget))
 
-#define THIS_CONT (THIS_USERCONTAINER->container)
-#define WIDGET_CONT ((gContainer *)THIS_USERCONTAINER->container->ob.widget)
-
 #endif
 
 #define ARRANGEMENT_FLAG_PROPERTIES \
@@ -84,7 +81,6 @@ typedef
 	struct
 	{
 		CWIDGET widget;
-		CCONTAINER *container;
 		gContainerArrangement save;
 	}
 	CUSERCONTAINER;
@@ -93,7 +89,6 @@ typedef
 	struct
 	{
 		CWIDGET widget;
-		CCONTAINER *container;
 	#ifdef GTK3
 		cairo_t *context;
 	#endif
