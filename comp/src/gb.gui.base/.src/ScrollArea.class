@@ -134,7 +134,7 @@ Public Sub _new()
   $hCorner = New DrawingArea(Me)
   $hCorner.Hide
   
-  Me.Proxy = $hDrawingArea
+  'Me.Proxy = $hDrawingArea
   Me._Container = $hDrawingArea
 
   Border_Write(True)

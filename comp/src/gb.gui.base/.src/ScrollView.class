@@ -72,9 +72,9 @@ Public Sub AutoResizeContents_Timer()
   Dim iSaveArr As Integer
   Dim D As Integer
 
-  If $bLock Then Return
+  'If Me.Name = "Brown" Then Debug $bLock;; System.Backtrace.Join(" ")
   
-  'If Me.Name = "lstRecent" Then Debug "scroll: "; Me.ScrollW;; Me.ScrollH;; "client: "; Me.ClientW;; Me.ClientH 'System.Backtrace.Join(" ")
+  If $bLock Then Return
   
   $bLock = True
   
@@ -115,7 +115,7 @@ Public Sub AutoResizeContents_Timer()
   H = Max(Me.ClientH, H)
 
   If $hCont.W <> W Or If $hCont.H <> H Then
-    'If Me.Name = "svwTheme" Then Debug "Resize cont "; W;; H
+    'If Me.Name = "Brown" Then Debug "Resize cont "; W;; H
     $hCont.Resize(W, H)
     iSaveArr = $hCont.Arrangement
     $hCont.Arrangement = Arrange.None
