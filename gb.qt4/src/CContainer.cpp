@@ -1333,26 +1333,27 @@ BEGIN_PROPERTY(UserControl_Container)
 		}
 
 		if (!p)
-			GB.Error("Container must be a child control");
-		else
 		{
-			GB_COLOR bg = CWIDGET_get_background((CWIDGET *)current, true);
-			GB_COLOR fg = CWIDGET_get_foreground((CWIDGET *)current, true);
-
-			if (current)
-				CWIDGET_container_for(current, NULL);
-			CWIDGET_container_for(cont, THIS);
-			
-			THIS->container = w;
-
-			CCONTAINER_arrange(THIS);
-
-			CWIDGET_set_color((CWIDGET *)cont, bg, fg, true);
-			
-			CCONTAINER_update_design(THIS);
-
-			CWIDGET_register_proxy(THIS, cont);
+			GB.Error("Container must be a child control");
+			return;
 		}
+		
+		GB_COLOR bg = CWIDGET_get_background((CWIDGET *)current, true);
+		GB_COLOR fg = CWIDGET_get_foreground((CWIDGET *)current, true);
+
+		if (current)
+			CWIDGET_container_for(current, NULL);
+		CWIDGET_container_for(cont, THIS);
+		
+		THIS->container = w;
+
+		CCONTAINER_arrange(THIS);
+
+		CWIDGET_set_color((CWIDGET *)cont, bg, fg, true);
+		
+		CCONTAINER_update_design(THIS);
+
+		CWIDGET_register_proxy(THIS, cont);
 	}
 
 END_PROPERTY

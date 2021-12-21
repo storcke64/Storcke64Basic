@@ -285,6 +285,13 @@ void CWIDGET_register_proxy(void *_object, void *proxy)
 		check = EXT(check) ? EXT(check)->proxy : NULL;
 	}
 	
+	if (proxy && THIS_EXT && proxy == THIS_EXT->proxy)
+		return;
+	else if (!proxy && !THIS_EXT)
+		return;
+	
+	//fprintf(stderr, "CWIDGET_register_proxy: (%p %s) -> (%p %s)\n", THIS, THIS->name, proxy, proxy ? ((CWIDGET *)proxy)->name : "NULL");
+
 	if (THIS_EXT && THIS_EXT->proxy && EXT(THIS_EXT->proxy))
 		EXT(THIS_EXT->proxy)->proxy_for = NULL;
 	
@@ -2585,7 +2592,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 	__MOUSE:
 	{
 		QMouseEvent *mevent = (QMouseEvent *)event;
-
+		
 		if (!original)
 			goto _DESIGN;
 		
@@ -2689,9 +2696,6 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			MOUSE_info.state = mevent->buttons();
 			MOUSE_info.modifier = mevent->modifiers();
 
-			//if (type == QEvent::MouseButtonPress)
-			//	qDebug("GB.Raise on %p (%s %p) %d", widget, control ? GB.GetClassName(control) : "-", control, event_id);
-			
 			if (event_id == EVENT_DblClick)
 				cancel = GB.Raise(control, EVENT_MouseDown, 0); //, GB_T_INTEGER, p.x(), GB_T_INTEGER, p.y(), GB_T_INTEGER, state);
 				
