@@ -283,7 +283,7 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent)
 
 	gMainWindow *win;
 	GB_CLASS CLASS_container;
-	CWIDGET *parent = NULL;
+	gContainer *parent = NULL;
 	int plug = 0;
 
 	if (!gApplication::isInit())
@@ -298,15 +298,14 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent)
 		if (GB.Conv((GB_VALUE *)(void *)ARG(parent), (GB_TYPE)CLASS_container))
 			return;
 
-		parent = (CWIDGET*)VARG(parent);
-		parent = GetContainer ((CWIDGET*)parent);
+		parent = CONTAINER(VARG(parent));
 	}
 
 	if (CWINDOW_Embedder && (!CWINDOW_Embedded) && (!parent))
 		plug = CWINDOW_Embedder;
 
 	if (parent)
-		win = new gMainWindow((gContainer *)parent->widget);
+		win = new gMainWindow(parent);
 	else if (!plug)
 		win = new gMainWindow();
 	else

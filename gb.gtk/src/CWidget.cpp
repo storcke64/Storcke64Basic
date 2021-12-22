@@ -371,15 +371,11 @@ CWIDGET *GetContainer(CWIDGET *control)
 {
 	gContainer *cont;
 	
-	if (!control)
-	{
-		GB.Error("Null container");
+	if (GB.CheckObject(control))
 		GB.Propagate();
-	}
-
-	cont = (gContainer *)control->widget;
-	while (cont != cont->proxyContainer())
-		cont = cont->proxyContainer();
+	
+	cont = ((gContainer *)control->widget)->proxyContainer();
+	//fprintf(stderr, "container: (%p %s)\n", control->widget, control->widget->name());
 	
 	return GetObject(cont);
 }

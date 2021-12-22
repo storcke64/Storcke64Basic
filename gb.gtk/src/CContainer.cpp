@@ -529,7 +529,7 @@ BEGIN_PROPERTY(UserControl_Container)
 	if (GB.CheckObject(cont)) 
 		return;
 	
-	w = (gContainer *)cont->ob.widget;
+	w = ((gContainer *)cont->ob.widget)->proxyContainer();
 	/*while (w->proxyContainer() != w)
 		w = w->proxyContainer();*/
 	
@@ -559,9 +559,9 @@ BEGIN_PROPERTY(UserControl_Container)
 	
 	w->setBackground(bg);
 	w->setForeground(fg);
-	w->performArrange();
-
-	WIDGET->setProxy(w);
+	
+	WIDGET->performArrange();
+	WIDGET->setProxy((gContainer *)cont->ob.widget);
 	
 END_PROPERTY
 
