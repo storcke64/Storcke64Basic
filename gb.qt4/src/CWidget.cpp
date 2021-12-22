@@ -290,7 +290,7 @@ void CWIDGET_register_proxy(void *_object, void *proxy)
 	else if (!proxy && !THIS_EXT)
 		return;
 	
-	//fprintf(stderr, "CWIDGET_register_proxy: (%p %s) -> (%p %s)\n", THIS, THIS->name, proxy, proxy ? ((CWIDGET *)proxy)->name : "NULL");
+	//fprintf(stderr, "proxy: (%p %s) -> (%p %s)\n", THIS, THIS->name, proxy, proxy ? ((CWIDGET *)proxy)->name : "NULL");
 
 	if (THIS_EXT && THIS_EXT->proxy && EXT(THIS_EXT->proxy))
 		EXT(THIS_EXT->proxy)->proxy_for = NULL;
@@ -2173,7 +2173,7 @@ QWidget *CWidget::getContainerWidget(CCONTAINER *object)
 		GB.Propagate();
 	}
 
-	//qDebug("Container = %p", object->container);
+	//fprintf(stderr, "container: (%p %s)\n", object, object->widget.name);
 
 	return (object->container);
 }
