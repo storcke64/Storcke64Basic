@@ -36,6 +36,8 @@ Private $cBranchColor As New Collection
 
 Private $aBranchColor As Integer[] = [&HFF0000, &HFF007F, &HFF00FF, &H7F00FF, &H0000FF, &H007FFF, &H00E0E0, &H00E000, &HE0E000, &HFFBF00, &HFF7F00, &HC00000, &HC00060, &HC000C0, &H00A0A0, &H00A000, &HA0A000, &HC09000, &HC05C00]
 
+Private Const DEFAULT_BRANCH_COLOR As Integer = &H606060
+
 Private Sub OnVersionControlChange()
 
   FMain.OnVersionControlChange
@@ -753,41 +755,49 @@ Public Sub GetBranchColor(sBranch As String) As Integer
   Dim iHash As Integer
   Dim iPos As Integer
   
-  Try iColor = $cBranchColor[sBranch]
-  If Error Then
-    
-    ' static size_t fnv1a_hash(const char* cp)
-    ' {
-    '     size_t hash = 0x811c9dc5;
-    '     while (*cp) {
-    '         hash ^= (unsigned char) *cp++;
-    '         hash *= 0x01000193;
-    '     }
-    '     return hash;
-    ' }
-    
-    sBranch = LCase(sBranch)
-    
-    Select Case sBranch
+  If Not sBranch Then 
+  
+    iColor = DEFAULT_BRANCH_COLOR
+  
+  Else
+  
+    Try iColor = $cBranchColor[sBranch]
+    If Error Then
       
-      Case "master", ""
-        iColor = &H606060
-        
-      Case Else 
-        
-        iHash = 5381
-        For I = 1 To Len(sBranch)
-          iPos = Asc(sBranch, I) - Asc("a") + 1
-          If iPos < 1 Or If iPos > 26 Then iPos = 27
-          iHash += iPos
-          iHash = (iHash * 33) Mod $aBranchColor.Count
-        Next
-        
-        iColor = $aBranchColor[iHash]
+      ' static size_t fnv1a_hash(const char* cp)
+      ' {
+      '     size_t hash = 0x811c9dc5;
+      '     while (*cp) {
+      '         hash ^= (unsigned char) *cp++;
+      '         hash *= 0x01000193;
+      '     }
+      '     return hash;
+      ' }
       
-    End Select
-    
-    $cBranchColor[sBranch] = iColor
+      sBranch = LCase(sBranch)
+      
+      Select Case sBranch
+        
+        Case "master"
+          iColor = DEFAULT_BRANCH_COLOR
+          
+        Case Else 
+          
+          iHash = 5381
+          For I = 1 To Len(sBranch)
+            iPos = Asc(sBranch, I) - Asc("a") + 1
+            If iPos < 1 Or If iPos > 26 Then iPos = 27
+            iHash += iPos
+            iHash = (iHash * 33) Mod $aBranchColor.Count
+          Next
+          
+          iColor = $aBranchColor[iHash]
+        
+      End Select
+      
+      $cBranchColor[sBranch] = iColor
+      
+    Endif
     
   Endif
   
