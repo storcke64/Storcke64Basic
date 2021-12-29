@@ -339,7 +339,7 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	if (handled)
 		return TRUE;
 
-	if (!propagated && gtk_widget_get_realized(focus))
+	if (!propagated && focus && gtk_widget_get_realized(focus))
 	{
 		handled = gtk_window_propagate_key_event(window, event);
 		if (handled)
