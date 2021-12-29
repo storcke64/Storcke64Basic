@@ -3525,7 +3525,7 @@ Public Sub View_Draw()
       HR = H
     Endif
   
-    If H >= $hView.ClientH Or If $bRemoteDisplay Then
+    If H >= $hView.ClientH Or If $bRemoteDisplay Or If $iWidth >= 32768 Then
       Paint.Save
       DrawLine(XX, Y, $iWidth, H, iRow) ',Y)
       Paint.Restore
