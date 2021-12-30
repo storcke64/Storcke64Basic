@@ -390,29 +390,34 @@ End
 
 Public Sub wizDebug_Click()
   
-  If Design.IsRunning() Then 
-    Select Case wizDebug.Index
-      Case TAB_CONSOLE
-        FOutput.SetFocus
-    End Select
-    Return
-  Endif
+  ' If Design.IsRunning() Then 
+  '   Select Case wizDebug.Index
+  '     Case TAB_CONSOLE
+  '       FOutput.SetFocus
+  '   End Select
+  '   Return
+  ' Endif
   
   Select Case wizDebug.Index
     Case TAB_DEBUG
-      DefineVariable($sLastLocal, $sLastObject)
-      RefreshBreakpoints
+      If Design.IsRunning() Then
+        DefineVariable($sLastLocal, $sLastObject)
+        RefreshBreakpoints
+      Endif
     Case TAB_CONSOLE
       If FMain.IsDebugVisible() Then FOutput.SetFocus
-    Case TAB_COMPILATION
     Case TAB_TASK
-      If Not $aTask Then
-        UpdateTask
-      Else
-        timTask_Timer
+      If Not Design.IsRunning() Then
+        If Not $aTask Then
+          UpdateTask
+        Else
+          timTask_Timer
+        Endif
       Endif
     Case TAB_SEARCH
-      FSearch.RefreshBrowse
+      If Not Design.IsRunning() Then
+        FSearch.RefreshBrowse
+      Endif
   End Select   
   
 End
@@ -760,7 +765,7 @@ End
 
 Public Sub OnVisibilityChange()
   
-  If IsSearchListVisible() Then FSearch.RefreshBrowse
+  RefreshTabs()
   
 End
 
@@ -798,10 +803,13 @@ Private Sub RefreshBreakpoints()
   
 End
 
-Public Sub RefreshTabs(sPath As String, (sName) As String)
+Public Sub RefreshTabs(Optional sPath As String, (sName) As String)
   
-  RefreshTask(sPath)
+  If Not Project.Path Or If Project.IsFake() Then Return
+  If Not FMain.IsDebugVisible() Then Return 
+  If sPath Then RefreshTask(sPath)
   RefreshBreakpoints
+  If IsSearchListVisible() Then FSearch.RefreshBrowse
   
 End
 
@@ -1765,7 +1773,7 @@ Public Sub panDebug_Arrange()
 
 End
 
-Public Sub lvwBreakpoint_Select()
+Public Sub lvwBreakpoint_Click()
 
   Project.Goto(lvwBreakpoint.Key)
 

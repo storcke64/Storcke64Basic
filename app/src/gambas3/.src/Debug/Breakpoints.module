@@ -43,6 +43,7 @@ Public Sub Load(hModule As FEditor)
   ' Next
   
   hEditor.Breakpoints = aBreakpoints
+  hModule.CheckBreakpoints()
   'hEditor.DisabledBreakpoints = aDisabled
   
 End
@@ -61,6 +62,7 @@ Private Sub Synchronize()
     
     sClass = hForm.Name
     hEditor = hForm.GetEditor()
+    hForm.CheckBreakpoints()
     aBreakpoints = hEditor.Breakpoints
     
     If aBreakpoints.Count = 0 Then

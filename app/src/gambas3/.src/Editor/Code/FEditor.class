@@ -1173,18 +1173,6 @@ Public Function CanSetBreakpoint(iLine As Integer) As Boolean
 
 End
 
-' Public Sub CheckBreakpoints()
-' 
-'   Dim iLine As Integer
-' 
-'   If Project.IsFake() Then Return
-'   For Each iLine In $hEditor.Breakpoints
-'     If Not CanSetBreakpoint(iLine) Then SetBreakpoint(iLine, False, False)
-'   Next
-' 
-' End
-' 
-
 Public Sub mnuComment_Click()
 
   Dim iStartLine As Integer
@@ -2654,10 +2642,24 @@ End
 
 Public Sub ToggleBreakpoint(Y As Integer)
 
-  If Design.IsRunning() Then Return  
-  If Not CanSetBreakpoint(Y) Then Return
+  If Design.IsRunning() Then Return
+  
+  If Not $hEditor[Y].Breakpoint Then
+    If Not CanSetBreakpoint(Y) Then Return
+  Endif
+  
   $hEditor[Y].Breakpoint = Not $hEditor[Y].Breakpoint
   Design.SetBreakpoint(Me.Name, Y, $hEditor[Y].Breakpoint)
+
+End
+
+Public Sub CheckBreakpoints()
+
+  Dim Y As Integer
+
+  For Each Y In $hEditor.Breakpoints
+    If Not CanSetBreakpoint(Y) Then ToggleBreakpoint(Y)
+  Next
 
 End
 
@@ -2705,13 +2707,6 @@ Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
   $hEditor.ShowMessageLabel(sMsg, "Breakpoint")
 
 End
-
-' Public Sub timProc_Timer()
-' 
-'   CheckBreakpoints
-'   timProc.Enabled = False
-' 
-' End
 
 Private Sub SetComboProcText(sProc As String)
 
