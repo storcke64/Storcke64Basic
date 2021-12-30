@@ -1292,6 +1292,10 @@ static void post_focus_change(void *)
 {
 	gControl *current, *control, *next;
 
+	#if DEBUG_FOCUS
+	fprintf(stderr, "post_focus_change...\n");
+	#endif
+	
 	if (!_focus_change || _doing_focus_change)
 		return;
 
@@ -1341,6 +1345,10 @@ static void post_focus_change(void *)
 
 	_doing_focus_change = false;
 	_focus_change = false;
+	
+	#if DEBUG_FOCUS
+	fprintf(stderr, "post_focus_change: END\n");
+	#endif
 }
 
 void gApplication::handleFocusNow()
@@ -1359,6 +1367,13 @@ static void handle_focus_change()
 
 void gApplication::setActiveControl(gControl *control, bool on)
 {
+	if (control->isWindow())
+	{
+		gControl *focus = ((gMainWindow *)control)->getInitialFocus();
+		if (focus != control)
+			focus->setFocus();
+	}
+	
 	while (!control->canFocus())
 	{
 		control = control->parent();

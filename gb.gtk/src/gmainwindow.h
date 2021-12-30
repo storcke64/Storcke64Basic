@@ -165,6 +165,7 @@ public:
 	void calcCsdSize();
 	void createWindow(GtkWidget *new_border);
 	void updateSize();
+	gControl *getInitialFocus();
 	
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;
@@ -218,6 +219,7 @@ public:
 	unsigned _initMenuBar : 1;
 	unsigned _grab_on_show : 1;
 	unsigned _frame_init : 1;
+	unsigned _set_focus : 1;
 };
 
 #endif

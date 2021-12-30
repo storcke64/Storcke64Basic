@@ -547,7 +547,10 @@ void gTextBox::onEnterEvent()
 		return;
 	
 	if (_text_area_visible)
+	{
+		//fprintf(stderr, "gTextBox::onEnterEvent: show\n");
 		gdk_window_show(TEXT_AREA(entry));
+	}
 }
 
 void gTextBox::onLeaveEvent()
@@ -557,7 +560,10 @@ void gTextBox::onLeaveEvent()
 	
 	_text_area_visible = !hasFocus() && gdk_window_is_visible(TEXT_AREA(entry));
 	if (_text_area_visible)
+	{
+		//fprintf(stderr, "gTextBox::onEnterEvent: hide\n");
 		gdk_window_hide(TEXT_AREA(entry));
+	}
 }
 #endif
 

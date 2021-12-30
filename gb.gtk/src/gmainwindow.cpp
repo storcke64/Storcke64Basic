@@ -323,6 +323,7 @@ static gboolean my_key_press_event(GtkWidget *widget, GdkEventKey *event)
 	GtkWidget *focus;
 
 	focus = gtk_window_get_focus(window);
+	//fprintf(stderr, "focus %p = %p\n", window, focus);
 	if (focus && gtk_widget_get_realized(focus))
 	{
 		if (GTK_IS_ENTRY(focus) || GTK_IS_TEXT_VIEW(focus))
@@ -428,6 +429,7 @@ void gMainWindow::initialize()
 	_is_window = true;
 	_no_background = true;
 	_frame_init = false;
+	_set_focus = false;
 	
 	onOpen = NULL;
 	onShow = NULL;
@@ -904,34 +906,9 @@ void gMainWindow::setVisible(bool vl)
 		}
 
 		drawMask();
+		
+		_set_focus = true;
 
-		if (focus)
-		{
-			//fprintf(stderr, "focus = %s\n", focus->name());
-			focus->setFocus();
-			focus = NULL;
-		}
-		else
-		{
-			gControl *ctrl = this;
-			
-			for(;;)
-			{
-				ctrl = ctrl->nextFocus();
-				if (!ctrl)
-					break;
-				
-				if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus())
-				{
-					ctrl->setFocus();
-					break;
-				}
-				
-				if (ctrl == this)
-					break;
-			}
-		}
-			
 		if (isSkipTaskBar())
 			_activate = true;
 
@@ -2107,3 +2084,41 @@ void gMainWindow::getCustomMinimumSize(int *w, int *h) const
 	*h = _min_h;
 }
 
+gControl *gMainWindow::getInitialFocus()
+{
+	gControl *ctrl;
+	
+	if (!_set_focus)
+		return this;
+	
+	_set_focus = false;
+	
+	if (focus)
+	{
+		ctrl = focus;
+		focus = NULL;
+		//fprintf(stderr, "focus = %p %s\n", focus->border, focus->name());
+		//focus->setFocus();
+		//fprintf(stderr, "focus of window %p -> %p\n", border, gtk_window_get_focus(GTK_WINDOW(border)));
+		//focus = NULL;
+	}
+	else
+	{
+		ctrl = this;
+		
+		for(;;)
+		{
+			ctrl = ctrl->nextFocus();
+			if (!ctrl)
+				break;
+			
+			if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus())
+				break;
+			
+			if (ctrl == this)
+				break;
+		}
+	}
+	
+	return ctrl;
+}

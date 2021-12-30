@@ -1266,12 +1266,6 @@ gControl *gControl::ignoreDesign()
 bool gControl::canFocus() const
 {
 	#if DEBUG_FOCUS
-	fprintf(stderr, "canFocus: %s ?\n", name());
-	#endif
-	/*if (_proxy)
-		return _proxy->canFocus();*/
-	
-	#if DEBUG_FOCUS
 	fprintf(stderr, "canFocus: %s -> %d\n", name(), gtk_widget_get_can_focus(widget));
 	#endif
 	
@@ -1349,7 +1343,7 @@ void gControl::setFocus()
 	{
 		//if (isVisible() && bufW > 0 && bufH > 0)
 		#if DEBUG_FOCUS
-		fprintf(stderr, "setFocus now %s\n", name());
+		fprintf(stderr, "setFocus now %s %p\n", name(), widget);
 		#endif
 		//win->activate();
 		
