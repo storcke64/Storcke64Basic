@@ -93,7 +93,7 @@ static gboolean cb_frame(GtkWidget *widget,GdkEventWindowState *event,gMainWindo
 	}
 
 	if (event->changed_mask & (GDK_WINDOW_STATE_ICONIFIED | GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN | GDK_WINDOW_STATE_STICKY | GDK_WINDOW_STATE_ABOVE | GDK_WINDOW_STATE_BELOW))
-		data->emit(SIGNAL(data->onState));
+		CB_window_state(data);
 
 	return false;
 }
@@ -115,7 +115,7 @@ static gboolean cb_show(GtkWidget *widget, gMainWindow *data)
 		fprintf(stderr, "cb_show\n");
 		#endif
 		data->emitResize();
-		data->emit(SIGNAL(data->onShow));
+		CB_window_show(data);
 		data->_not_spontaneous = false;
 	}
 	return false;
@@ -131,13 +131,11 @@ static gboolean cb_hide(GtkWidget *widget, gMainWindow *data)
 {
 	if (!data->_unmap)
 	{
-		data->emit(SIGNAL(data->onHide));
+		CB_window_hide(data);
 		data->_not_spontaneous = false;
 	}
 
 	return false;
-	//if (data == gDesktop::activeWindow())
-	//	gMainWindow::setActiveWindow(NULL);
 }
 
 static gboolean cb_unmap(GtkWidget *widget, GdkEvent *event, gMainWindow *data)
@@ -224,7 +222,7 @@ static gboolean cb_configure(GtkWidget *widget, GdkEventConfigure *event, gMainW
 	{
 		data->bufX = x;
 		data->bufY = y;
-		if (data->onMove) data->onMove(data);
+		CB_window_move(data);
 	}
 	
 	#ifdef DEBUG_RESIZE
@@ -431,16 +429,6 @@ void gMainWindow::initialize()
 	_frame_init = false;
 	_set_focus = false;
 	
-	onOpen = NULL;
-	onShow = NULL;
-	onHide = NULL;
-	onMove = NULL;
-	onResize = NULL;
-	onActivate = NULL;
-	onDeactivate = NULL;
-	onState = NULL;
-	onFontChange = NULL;
-
 	accel = gtk_accel_group_new();
 }
 
@@ -572,8 +560,6 @@ gMainWindow::gMainWindow(gContainer *par) : gContainer(par)
 
 gMainWindow::~gMainWindow()
 {
-	//fprintf(stderr, "delete window %p %s\n", this, name());
-	
 	if (!border)
 		return;
 
@@ -581,7 +567,7 @@ gMainWindow::~gMainWindow()
 
 	if (_opened)
 	{
-		emit(SIGNAL(onClose));
+		CB_window_close(this);
 		_opened = false;
 		if (GTK_IS_WINDOW(border) && isModal())
 			gApplication::exitLoop(this);
@@ -755,7 +741,7 @@ bool gMainWindow::emitOpen()
 
 	gtk_widget_realize(border);
 
-	emit(SIGNAL(onOpen));
+	CB_window_open(this);
 	if (_closed)
 	{
 		_opened = false;
@@ -763,7 +749,7 @@ bool gMainWindow::emitOpen()
 	}
 
 	//fprintf(stderr, "emit Move & Resize: %p\n", this);
-	emit(SIGNAL(onMove));
+	CB_window_move(this);
 	#ifdef DEBUG_RESIZE
 	fprintf(stderr, "cb_open\n");
 	#endif
@@ -828,7 +814,7 @@ void gMainWindow::setVisible(bool vl)
 		if (vl)
 		{
 			_hidden = false;
-			setActiveWindow(this);
+			//setActiveWindow(this);
 		}
 		return;
 	}
@@ -1351,7 +1337,7 @@ bool gMainWindow::doClose(bool destroying)
 		if (_opened)
 		{
 			_closing = true;
-			_closed = !onClose(this);
+			_closed = !CB_window_close(this);
 			_closing = false;
 			_opened = !_closed;
 		}
@@ -1374,7 +1360,7 @@ bool gMainWindow::doClose(bool destroying)
 				return true;
 
 			_closing = true;
-			_closed = !onClose(this);
+			_closed = !CB_window_close(this);
 			_closing = false;
 			_opened = !_closed;
 
@@ -1443,6 +1429,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 
 	if (isTopLevel() && newpr)
 	{
+		windows = g_list_remove(windows, (gpointer)this);
 		gtk_window_remove_accel_group(GTK_WINDOW(topLevel()->border), accel);
 
 		createWindow(gtk_event_box_new());
@@ -1470,6 +1457,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 	else if ((!isTopLevel() && !newpr)
 	         || (isTopLevel() && isPopup()))
 	{
+		windows = g_list_append(windows, (gpointer)this);
 		gtk_window_remove_accel_group(GTK_WINDOW(topLevel()->border), accel);
 		// TODO: test that
 		
@@ -1643,21 +1631,7 @@ int gMainWindow::clientHeight()
 
 void gMainWindow::setActiveWindow(gControl *control)
 {
-	gMainWindow *window = control ? control->window() : NULL;
-	gMainWindow *old = _active;
-
-	if (window == _active)
-		return;
-
-	_active = window;
-
-	//fprintf(stderr, "setActiveWindow: %p %s\n", _active, _active ? _active->name() : "");
-
-	if (old)
-		old->emit(SIGNAL(old->onDeactivate));
-
-	if (window)
-		window->emit(SIGNAL(window->onActivate));
+	_active = CB_window_activate(control);
 }
 
 #ifdef GDK_WINDOWING_X11
@@ -1776,7 +1750,7 @@ void gMainWindow::updateFont()
 {
 	gContainer::updateFont();
 	gMenu::updateFont(this);
-	emit(SIGNAL(onFontChange));
+	CB_window_font(this);
 }
 
 void gMainWindow::checkMenuBar()
@@ -1881,7 +1855,7 @@ void gMainWindow::emitResize()
 	_resize_last_h = bufH;
 	configure();
 	performArrange();
-	emit(SIGNAL(onResize));
+	CB_window_resize(this);
 }
 
 static void emit_resize_later(gMainWindow *window)
@@ -2120,5 +2094,5 @@ gControl *gMainWindow::getInitialFocus()
 		}
 	}
 	
-	return ctrl;
+	return ctrl ? ctrl : this;
 }

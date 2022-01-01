@@ -69,30 +69,25 @@ void CWINDOW_check_main_window(CWINDOW *win)
 }
 
 
-static void cb_open(gMainWindow *sender)
+void CB_window_open(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Open, 0);
 }
 
-static void cb_font_change(gMainWindow *sender)
+void CB_window_font(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Font, 0);
 }
 
-static void cb_state(gMainWindow *sender)
+void CB_window_state(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_State, 0);
 }
 
-/*static void gb_post_window_Open(gMainWindow *sender)
-{
-	GB.Post((GB_POST_FUNC)cb_open, (long)sender);
-}*/
-
-static void cb_show(gMainWindow *sender)
+void CB_window_show(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -103,12 +98,7 @@ static void cb_show(gMainWindow *sender)
 	GB.Unref(POINTER(&_object));
 }
 
-/*static void gb_post_window_Show(gMainWindow *sender)
-{
-	GB.Post( (void (*)())cb_show,(long)sender);
-}*/
-
-static void cb_hide(gMainWindow *sender)
+void CB_window_hide(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -119,13 +109,13 @@ static void cb_hide(gMainWindow *sender)
 	GB.Unref(POINTER(&_object));
 }
 
-static void cb_move(gMainWindow *sender)
+void CB_window_move(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Move, 0);
 }
 
-static void cb_resize(gMainWindow *sender)
+void CB_window_resize(gMainWindow *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Resize, 0);
@@ -173,7 +163,7 @@ bool CWINDOW_must_quit()
 	return true;
 }
 
-static bool cb_close(gMainWindow *sender)
+bool CB_window_close(gMainWindow *sender)
 {
 	CWINDOW *_object = (CWINDOW*)GetObject(sender);
 
@@ -206,50 +196,49 @@ static bool cb_close(gMainWindow *sender)
 	return false;
 }
 
-static void activate_window(gMainWindow *window)
-{
-	CWINDOW *active;
 
-	if (window)
+gMainWindow *CB_window_activate(gControl *control)
+{
+	gMainWindow *active;
+	CWINDOW *active_ob;
+
+	if (control)
 	{
+		active = control->window();
 		for(;;)
 		{
-			active = (CWINDOW *)GetObject(window);
-			if (window->isTopLevel())
+			active_ob = (CWINDOW *)GetObject(active);
+			if (active->isTopLevel())
 				break;
-			if (GB.CanRaise(active, EVENT_Activate))
+			if (GB.CanRaise(active_ob, EVENT_Activate))
 				break;
-			window = window->parent()->window();
+			active = active->parent()->window();
 		}
 	}
 	else
+	{
 		active = NULL;
-
-	if (active == CWINDOW_Active)
-		return;
-
-	if (CWINDOW_Active)
-	{
-		GB.Raise(CWINDOW_Active, EVENT_Deactivate, 0);
-		CWINDOW_Active = 0;
+		active_ob = NULL;
 	}
 
-	if (active)
+	if (active_ob != CWINDOW_Active)
 	{
-		GB.Raise(active, EVENT_Activate, 0);
+		if (CWINDOW_Active)
+		{
+			//fprintf(stderr, "deactivate: %p %s\n", CWINDOW_Active, CWINDOW_Active->ob.widget->name());
+			GB.Raise(CWINDOW_Active, EVENT_Deactivate, 0);
+			CWINDOW_Active = 0;
+		}
+
+		if (active)
+		{
+			//fprintf(stderr, "activate: %p %s\n", active, active->name());
+			GB.Raise(active_ob, EVENT_Activate, 0);
+		}
 	}
 
-	CWINDOW_Active = active;
-}
-
-static void cb_activate(gMainWindow *sender)
-{
-	activate_window(sender);
-}
-
-static void cb_deactivate(gMainWindow *sender)
-{
-	activate_window(NULL);
+	CWINDOW_Active = active_ob;
+	return active;
 }
 
 /*static void cb_state(gMainWindow *sender)
@@ -264,9 +253,9 @@ static void show_later(CWINDOW *_object)
 		then do nothing
 	*/
 
-	//qDebug("show_later %s %p: hidden = %d", GB.GetClassName(THIS), THIS, THIS->hidden);
 	if (WINDOW && !WINDOW->isHidden())
 	{
+		//fprintf(stderr, "show_later: %p %s\n", WINDOW, WINDOW->name());
 		if (!WINDOW->emitOpen())
 			WINDOW->show();
 	}
@@ -322,17 +311,6 @@ BEGIN_METHOD(CWINDOW_new, GB_OBJECT parent)
 	THIS->ob.widget	= win;
 	InitControl(THIS->ob.widget, (CWIDGET*)THIS);
 
-	WINDOW->onOpen = cb_open;
-	WINDOW->onShow = cb_show;
-	WINDOW->onHide = cb_hide;
-	WINDOW->onMove = cb_move;
-	WINDOW->onResize = cb_resize;
-	WINDOW->onClose = cb_close;
-	WINDOW->onActivate = cb_activate;
-	WINDOW->onDeactivate = cb_deactivate;
-	WINDOW->onFontChange = cb_font_change;
-	WINDOW->onState = cb_state;
-	
 	if (parent)
 	{
 		GB.Ref(THIS);

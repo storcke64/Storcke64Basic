@@ -121,18 +121,6 @@ public:
 	virtual void destroy();
 	virtual void restack(bool raise);
 	
-//"Signals"
-	void (*onOpen)(gMainWindow *sender);
-	void (*onShow)(gMainWindow *sender);
-	void (*onHide)(gMainWindow *sender);
-	void (*onMove)(gMainWindow *sender);
-	void (*onResize)(gMainWindow *sender);
-	bool (*onClose)(gMainWindow *sender);
-	void (*onActivate)(gMainWindow *sender);
-	void (*onDeactivate)(gMainWindow *sender);
-	void (*onState)(gMainWindow *sender);
-	void (*onFontChange)(gMainWindow *sender);
-
 //"Static"
 	static GList *windows;
 	static int count() { return g_list_length(windows); }
@@ -221,5 +209,17 @@ public:
 	unsigned _frame_init : 1;
 	unsigned _set_focus : 1;
 };
+
+// Callbacks
+
+void CB_window_open(gMainWindow *sender);
+void CB_window_show(gMainWindow *sender);
+void CB_window_hide(gMainWindow *sender);
+void CB_window_move(gMainWindow *sender);
+void CB_window_resize(gMainWindow *sender);
+bool CB_window_close(gMainWindow *sender);
+gMainWindow *CB_window_activate(gControl *sender);
+void CB_window_state(gMainWindow *sender);
+void CB_window_font(gMainWindow *sender);
 
 #endif
