@@ -1130,9 +1130,9 @@ Catch
   
 End
 
-Public Sub hvwHelp_GotFocus()
+Public Sub hvwHelp_KeyPress()
 
-  gvwComp.SetFocus
+  gvwComp_KeyPress
 
 End
 

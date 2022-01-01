@@ -34,6 +34,7 @@ Public Sub ReadConfig() As Boolean
       $hView = New HelpBrowser(Me) As "hvwHelp"
     Endif
     Try $hView.Border = False
+    Me.Proxy = $hView
     '$hView.Hide
     $hView.Show ' FIXME: Why calling Show() is needed with gb.qt5???
     Return True
@@ -46,6 +47,14 @@ Public Sub HtmlView_Link(Url As String)
   If MHelp.HandleSpecialURL(Me, Url) Then Stop Event
   
 End
+
+Public Sub HtmlView_Menu()
+  
+  Back()
+  Stop Event
+  
+End
+
 
 Private Function Zoom_Read() As Float
 
