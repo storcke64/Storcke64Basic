@@ -67,9 +67,11 @@ Public Sub btnOK_Click()
     .Config["/Executable/DoNotIncrementVersion"] = chkIncVersion.Value = CheckBox.False
     .Config["/Executable/NoTestModule"] = CBool(chkNoTest.Value)
     
-    .MajorVersion = txtMajor.Value 
-    .MinorVersion = txtMinor.Value
-    .ReleaseVersion = txtRelease.Value
+    If chkSetVersion.Value Then
+      .MajorVersion = txtMajor.Value 
+      .MinorVersion = txtMinor.Value
+      .ReleaseVersion = txtRelease.Value
+    Endif
     
     .WriteProject(True)
   End With
@@ -91,6 +93,10 @@ Public Sub chkIncVersion_Click()
     txtMinor.Value = Project.MinorVersion
     txtRelease.Value = Project.ReleaseVersion + 1
     chkSetVersion.Value = False
+  Else
+    txtMajor.Value = Project.MajorVersion
+    txtMinor.Value = Project.MinorVersion
+    txtRelease.Value = Project.ReleaseVersion
   Endif
 
 End
