@@ -373,6 +373,7 @@ Public Sub DrawingArea_MouseDown()
   
   If $bInsideArrow Or $bMenuOnly Then
     Arrow_Click
+    If Not Object.IsValid(Me) Then Return
     DrawingArea_MouseUp
     'If Not Mouse.Inside($hDrawingArea) Then DrawingArea_Leave
   Endif
