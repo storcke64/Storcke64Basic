@@ -135,6 +135,7 @@ void gDrawingArea::create(void)
 	GtkWidget *ch;
 	bool doReparent = false;
 	bool was_visible = isVisible();
+	bool can_focus = widget ? canFocus() : false;
 	GdkRectangle rect;
 	int bg, fg;
 
@@ -183,6 +184,8 @@ void gDrawingArea::create(void)
 
 	updateUseTablet();
 
+	gtk_widget_set_can_focus(widget, can_focus);
+	
 	if (doReparent)
 	{
 		if (box)
