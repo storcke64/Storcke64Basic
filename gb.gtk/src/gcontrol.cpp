@@ -1183,7 +1183,7 @@ MISC
 
 void gControl::refresh()
 {
-	fprintf(stderr, "%s: refresh %s\n", GB.Debug.GetCurrentPosition(), name());
+	//fprintf(stderr, "%s: refresh %s\n", GB.Debug.GetCurrentPosition(), name());
 	gtk_widget_queue_draw(border);
 	if (frame != border && GTK_IS_WIDGET(frame))
 		gtk_widget_queue_draw(frame);
