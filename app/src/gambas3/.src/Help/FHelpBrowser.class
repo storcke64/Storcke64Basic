@@ -404,6 +404,7 @@ Public Sub TaskSearch_Read(Data As String)
 
   Inc Project.NoWait  
   For Each sLine In Split(Left(Data, iPos - 1), "\n")
+    If lstResult.Exist(sLine) Then Continue
     sTitle = Wiki.GetPageTitle(sLine)
     If sTitle Then 
       lstResult.Add(sLine, sTitle)

@@ -109,25 +109,6 @@ Public Sub Main()
   
 End
 
-Private Sub GrepQuote(sStr As String) As String
-
-  Dim I As Integer
-  Dim sCar As String
-  Dim sResult As String
-
-  For I = 1 To String.Len(sStr)
-    sCar = String.Mid$(sStr, I, 1)
-    If Len(sCar) > 1 Or If IsLetter(sCar) Or If IsDigit(sCar) Then
-      sResult &= sCar
-    Else
-      sResult &= "\\" & sCar
-    Endif
-  Next
-  
-  Return sResult
-
-End
-
 Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
   
   Dim sText As String
@@ -176,7 +157,7 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
     aGrep.Add("--")
     
     sSearch = Search
-    If WordsOnly Then sSearch = "(^|[^_$[:alnum:]])" & GrepQuote(Search) & "($|[^_$[:alnum:]])"
+    If WordsOnly Then sSearch = "(^|[^_$[:alnum:]])" & Project.GrepQuote(Search) & "($|[^_$[:alnum:]])"
     aGrep.Add(sSearch)
   Endif
   

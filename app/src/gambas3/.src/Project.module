@@ -7145,3 +7145,23 @@ Public Sub GetTranslationEngines() As String[]
   Return aEngine.Sort()
   
 End
+
+Public Sub GrepQuote(sStr As String) As String
+
+  Dim I As Integer
+  Dim sCar As String
+  Dim sResult As String
+
+  For I = 1 To String.Len(sStr)
+    sCar = String.Mid$(sStr, I, 1)
+    If Len(sCar) > 1 Or If IsLetter(sCar) Or If IsDigit(sCar) Then
+      sResult &= sCar
+    Else
+      sResult &= "\\" & sCar
+    Endif
+  Next
+  
+  Return sResult
+
+End
+
