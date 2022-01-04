@@ -1053,7 +1053,7 @@ GdkCursor *gControl::getGdkCursor()
 	int m = _mouse;
 
 	if (gApplication::isBusy())
-		m = GDK_WATCH;
+		m = CURSOR_WAIT;
 
 	if (m == CURSOR_CUSTOM)
 	{
@@ -1119,14 +1119,8 @@ void gControl::setMouse(int m)
 		return;
 	}
 
-	/*if (m == CURSOR_CUSTOM)
-	{
-		if (!curs || !curs->cur)
-			m = CURSOR_DEFAULT;
-	}*/
-
+	//fprintf(stderr, "setMouse: %s\n", name());
 	_mouse = m;
-
 	updateCursor(getGdkCursor());
 }
 
