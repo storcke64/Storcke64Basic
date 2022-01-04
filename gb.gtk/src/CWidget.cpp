@@ -156,7 +156,7 @@ static int to_gambas_event(int type)
 	}
 }
 
-static bool can_raise(gControl *sender, int type)
+bool CB_control_can_raise(gControl *sender, int type)
 {
 	CWIDGET *ob = GetObject(sender);
 	if (!ob)
@@ -169,7 +169,7 @@ static bool can_raise(gControl *sender, int type)
 	return GB.CanRaise(ob, type);
 }
 
-static bool cb_mouse(gControl *sender, int type)
+bool CB_control_mouse(gControl *sender, int type)
 {
 	CWIDGET *ob = GetObject(sender);
 	bool ret = false;
@@ -225,22 +225,22 @@ static bool cb_mouse(gControl *sender, int type)
 	return ret;
 }
 
-static bool cb_key(gControl *sender, int type)
+bool CB_control_key(gControl *sender, int type)
 {
 	return GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-static void cb_enter_leave(gControl *sender, int type)
+void CB_control_enter_leave(gControl *sender, int type)
 {
 	GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-static void cb_focus(gControl *sender, int type)
+void CB_control_focus(gControl *sender, int type)
 {
 	GB.Raise(GetObject(sender), to_gambas_event(type), 0);
 }
 
-static bool cb_drag(gControl *sender)
+bool CB_control_drag(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -258,14 +258,14 @@ static bool cb_drag(gControl *sender)
 	return GB.Raise(THIS, EVENT_Drag, 0);
 }
 
-static void cb_drag_leave(gControl *sender)
+void CB_control_drag_leave(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
 	GB.Raise(THIS, EVENT_DragLeave, 0);
 }
 
-static bool cb_drag_move(gControl *sender)
+bool CB_control_drag_move(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -278,7 +278,7 @@ static bool cb_drag_move(gControl *sender)
 	return GB.Raise(THIS, EVENT_DragMove, 0);
 }
 
-static bool cb_drop(gControl *sender)
+bool CB_control_drop(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
@@ -292,7 +292,7 @@ static bool cb_drop(gControl *sender)
 	return true;
 }
 
-void DeleteControl(gControl *control)
+void CB_control_finish(gControl *control)
 {
 	CWIDGET *widget = (CWIDGET*)control->hFree;
 
@@ -346,23 +346,6 @@ void InitControl(gControl *control, CWIDGET *widget)
 	else
 		control->setName(name);
 
-	control->onFinish = DeleteControl;
-	control->onMouseEvent = cb_mouse;
-	control->onKeyEvent = cb_key;
-	control->onFocusEvent = cb_focus;
-	control->onDrag = cb_drag;
-	control->onDragLeave = cb_drag_leave;
-	control->onDragMove = cb_drag_move;
-	control->onDrop = cb_drop;
-	control->onEnterLeave = cb_enter_leave;
-	control->canRaise = can_raise;
-
-	if (control->isContainer())
-	{
-		((gContainer *)control)->onBeforeArrange = CCONTAINER_cb_before_arrange;
-		((gContainer *)control)->onArrange = CCONTAINER_cb_arrange;
-	}
-	
 	if (control->parent())
 		CCONTAINER_raise_insert((CCONTAINER *)control->parent()->hFree, widget);
 }

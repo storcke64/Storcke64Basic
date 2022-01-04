@@ -52,13 +52,6 @@ public:
 	virtual void setRealBackground(gColor color);
 	virtual void updateFont();
 
-//"Events"
-#ifdef GTK3
-	void (*onExpose)(gDrawingArea *sender, cairo_t *cr);
-#else
-	void (*onExpose)(gDrawingArea *sender, GdkRegion *region, int dx, int dy);
-#endif
-	void (*onFontChange)(gDrawingArea *sender);
 
 //"Private"
 	void create();
@@ -84,5 +77,15 @@ public:
 	unsigned _use_tablet : 1;
 	static int _in_any_draw_event;
 };
+
+
+// Callbacks
+
+#ifdef GTK3
+	void CB_drawingarea_expose(gDrawingArea *sender, cairo_t *cr);
+#else
+	void CB_drawingarea_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy);
+#endif
+	void CB_drawingarea_font(gDrawingArea *sender);
 
 #endif

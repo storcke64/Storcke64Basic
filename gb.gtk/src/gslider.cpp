@@ -36,8 +36,7 @@ static void cb_change(GtkRange *wid, gSlider *data)
 		return;
 	
 	data->_value = new_value;
-	if (data->onChange) 
-		data->onChange(data);
+	CB_slider_change(data);
 }
 
 void gSlider::update()
@@ -76,7 +75,6 @@ void gSlider::init()
 	//GtkAdjustment* adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 
 	_use_wheel = true;
-	onChange = NULL;
 
 	g_signal_connect(widget, "value-changed", G_CALLBACK(cb_change), (gpointer)this);
 	//g_signal_connect(adj, "changed", G_CALLBACK(cb_change), (gpointer)this);
@@ -224,7 +222,7 @@ void gSlider::setValue(int vl)
 	_value = vl;
 	update();
 	
-	emit(SIGNAL(onChange));
+	CB_slider_change(this);
 }
 
 #if 0

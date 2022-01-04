@@ -45,10 +45,7 @@ static void cb_destroy(GtkWidget *object, gControl *data)
 
 static gboolean cb_menu(GtkWidget *widget, gControl *data)
 {
-	if (data->onMouseEvent)
-		return data->onMouseEvent(data, gEvent_MouseMenu);
-	else
-		return false;
+	return CB_control_mouse(data, gEvent_MouseMenu);
 }
 
 gboolean gcb_focus_in(GtkWidget *widget, GdkEventFocus *event, gControl *data)
@@ -246,14 +243,11 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 			#if DEBUG_DND
 			fprintf(stderr, "send DragMove %s\n", control->name());
 			#endif
-			if (control->canRaise(control, gEvent_DragMove))
+			if (CB_control_can_raise(control, gEvent_DragMove))
 			{
-				if (control->onDragMove) 
-				{
-					retval = !control->onDragMove(control);
-					if (!retval)
-						break;
-				}
+				retval = CB_control_drag_move(control);
+				if (!retval)
+					break;
 			}
 			control = control->_proxy;
 		}
@@ -292,7 +286,7 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	// cb_drag_leave() is automatically called when a drop occurs
 	//cb_drag_leave(widget, context, time, data);
 	
-	if (!data->canRaise(data, gEvent_Drop))
+	if (!CB_control_can_raise(data, gEvent_Drop))
 	{
 		gtk_drag_finish(context, false, false, time);
 		return false;
@@ -305,8 +299,7 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	context = gDrag::enable(context, data, time);
 	data->_drag_get_data = true;
 	
-	if (data->onDrop)
-		data->onDrop(data);
+	CB_control_drop(data);
 	
 	context = gDrag::disable(context);
 

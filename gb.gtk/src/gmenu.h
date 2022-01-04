@@ -92,12 +92,6 @@ public:
 	static bool insidePopup() { return _in_popup > 0; }
 	static gMenu *currentPopup() { return _current_popup; }
 
-// "Signals"
-	void (*onFinish)(gMenu *sender); // Special
-	void (*onClick)(gMenu *sender);
-	void (*onShow)(gMenu *sender);
-	void (*onHide)(gMenu *sender);
-
 //"Private"
 	enum gMenuStyle { NOTHING, SEPARATOR, CHECK, NORMAL };
 	
@@ -179,5 +173,13 @@ private:
 	void updateShortcut();
 	void dispose();
 };
+
+// Callbacks
+void CB_menu_finish(gMenu *sender);
+void CB_menu_click(gMenu *sender);
+void CB_menu_show(gMenu *sender);
+void CB_menu_hide(gMenu *sender);
+
+
 
 #endif

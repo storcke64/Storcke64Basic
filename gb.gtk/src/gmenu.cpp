@@ -120,11 +120,8 @@ static void cb_activate(GtkMenuItem *menuitem, gMenu *data)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), true);
 	}
 	
-	if (data->onClick)
-	{
-		//fprintf(stderr, "cb_activate: %s\n", data->name());
-		data->onClick(data);
-	}
+	//fprintf(stderr, "cb_activate: %s\n", data->name());
+	CB_menu_click(data);
 }
 
 static void cb_size_allocate(GtkWidget *menu, GdkRectangle *allocation, gMenu *data)
@@ -134,7 +131,7 @@ static void cb_size_allocate(GtkWidget *menu, GdkRectangle *allocation, gMenu *d
 	if (!data->_opened)
 	{
 		data->_opened = true;
-		if (data->onShow) (*data->onShow)(data);
+		CB_menu_show(data);
 		//data->hideSeparators();
 	}
 }
@@ -167,7 +164,7 @@ static gboolean cb_unmap(GtkWidget *menu, gMenu *data)
 		return false;
 
 	data->_opened = false;
-	if (data->onHide) (*data->onHide)(data);
+	CB_menu_hide(data);
 
 	//fprintf(stderr, "cb_unmap: <<<\n");
 	return false;
@@ -462,11 +459,6 @@ void gMenu::initialize()
 {
 	//fprintf(stderr, "gMenu::gMenu: %p (%p)\n", this, pr);
 	
-	onFinish = NULL;
-	onClick = NULL;
-	onShow = NULL;
-	onHide = NULL;
-	
 	hFree = NULL;
 	_popup = NULL;
 	image = NULL;
@@ -649,7 +641,7 @@ gMenu::~gMenu()
 	#if DEBUG_DELETE
 	fprintf(stderr, "~gMenu: >>> %s\n", name());
 	#endif
-	if (onFinish) onFinish(this);
+	CB_menu_finish(this);
 }
 
 void gMenu::setEnabled(bool vl)

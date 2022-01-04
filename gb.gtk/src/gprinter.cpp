@@ -38,8 +38,7 @@ static void cb_begin_cancel(GtkPrintOperation *operation, GtkPrintContext *conte
 {
 	if (printer->_preview)
 	{
-		if (printer->onBegin)
-			(*printer->onBegin)(printer, context);
+		CB_printer_begin(printer, context);
 		return;
 	}
 	
@@ -58,8 +57,7 @@ static void cb_begin(GtkPrintOperation *operation, GtkPrintContext *context, gPr
 	#endif
 	printer->defineSettings();
 	//gtk_print_settings_to_file(gtk_print_operation_get_print_settings(operation), "/home/benoit/settings-begin-before.txt", NULL);
-	if (printer->onBegin)
-		(*printer->onBegin)(printer, context);
+	CB_printer_begin(printer, context);
 	//gtk_print_settings_to_file(gtk_print_operation_get_print_settings(operation), "/home/benoit/settings-begin-after.txt", NULL);
 }
 
@@ -68,8 +66,8 @@ static void cb_end(GtkPrintOperation *operation, GtkPrintContext *context, gPrin
 	#if DEBUG_ME
 	fprintf(stderr, "cb_end: %d\n", printer->_preview);
 	#endif
-	if (printer->_preview && printer->onEnd)
-		(*printer->onEnd)(printer);
+	if (printer->_preview)
+		CB_printer_end(printer);
 }
 
 static gboolean cb_paginate(GtkPrintOperation *operation, GtkPrintContext *context, gPrinter *printer)
@@ -77,13 +75,8 @@ static gboolean cb_paginate(GtkPrintOperation *operation, GtkPrintContext *conte
 	#if DEBUG_ME
 	fprintf(stderr, "cb_paginate\n");
 	#endif
-	if (printer->onPaginate)
-	{
-		(*printer->onPaginate)(printer);
-		return printer->isPageCountSet();
-	}
-	else
-		return TRUE;
+	CB_printer_paginate(printer);
+	return printer->isPageCountSet();
 }
 
 static void cb_draw(GtkPrintOperation *operation, GtkPrintContext *context, int page, gPrinter *printer)
@@ -91,8 +84,7 @@ static void cb_draw(GtkPrintOperation *operation, GtkPrintContext *context, int 
 	#if DEBUG_ME
 	fprintf(stderr, "cb_draw\n");
 	#endif
-	if (printer->onDraw)
-		(*printer->onDraw)(printer, context, page);
+	CB_printer_draw(printer, context, page);
 }
 
 static gboolean cb_preview(GtkPrintOperation *operation, GtkPrintOperationPreview *preview,GtkPrintContext *context, GtkWindow *parent, gPrinter *printer)
@@ -159,11 +151,6 @@ gPrinter::gPrinter()
 
 	setPaperModel(GB_PRINT_A4);
 	setUseFullPage(false);
-	
-	onBegin = NULL;
-	onEnd = NULL;
-	onDraw = NULL;
-	onPaginate = NULL;
 }
 
 gPrinter::~gPrinter()

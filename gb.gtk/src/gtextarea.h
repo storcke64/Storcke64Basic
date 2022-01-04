@@ -88,10 +88,6 @@ public:
 	
 	void emitCursor();
 	
-//"Signals"
-	void (*onChange)(gTextArea *sender);
-	void (*onCursor)(gTextArea *sender);
-
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
 	virtual void updateScrollBar();
@@ -127,5 +123,9 @@ private:
 
 	GtkTextIter *getIterAt(int pos = -1) const;
 };
+
+// Callbacks
+void CB_textarea_change(gTextArea *sender);
+void CB_textarea_cursor(gTextArea *sender);
 
 #endif

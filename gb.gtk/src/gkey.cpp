@@ -387,10 +387,10 @@ static bool raise_key_event_to_parent_window(gControl *control, int type)
 	while (control->parent())
 	{
 		win = control->parent()->window();
-		if (win->onKeyEvent && win->canRaise(win, type))
+		if (CB_control_can_raise(win, type))
 		{
 			//fprintf(stderr, "onKeyEvent: %d %p %s\n", type, win, win->name());
-			if (win->onKeyEvent(win, type))
+			if (CB_control_key(win, type))
 				return true;
 		}
 
@@ -468,7 +468,7 @@ __KEY_TRY_PROXY:
 			cancel = raise_key_event_to_parent_window(control, type);
 	}
 
-	if (!cancel && control->onKeyEvent && control->canRaise(control, type))
+	if (!cancel && CB_control_can_raise(control, type))
 	{
 		//fprintf(stderr, "gEvent_KeyPress on %p %s\n", control, control->name());
 		//fprintf(stderr, "onKeyEvent: %p %d %p %s\n", event, type, control, control->name());
@@ -476,7 +476,7 @@ __KEY_TRY_PROXY:
 			fprintf(stderr, "--> %s\n", control->name());
 		#endif
 		handled = true;
-		cancel = control->onKeyEvent(control, type);
+		cancel = CB_control_key(control, type);
 	}
 
 	if (cancel)

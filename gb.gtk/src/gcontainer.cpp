@@ -95,18 +95,6 @@ static void cb_unmap(GtkWidget *widget, gContainer *sender)
 	sender->setShown(false);
 }
 
-static void cb_arrange(gContainer *sender)
-{
-	if (sender->onArrange)
-		(*(sender->onArrange))(sender);
-}
-
-static void cb_before_arrange(gContainer *sender)
-{
-	if (sender->onBeforeArrange)
-		(*(sender->onBeforeArrange))(sender);
-}
-
 static void resize_container(gContainer *cont, int w, int h)
 {
 	/*w += cont->width() - cont->containerWidth();
@@ -163,8 +151,8 @@ static void resize_container(gContainer *cont, int w, int h)
 
 #define GET_OBJECT_NAME(_object) (((gControl *)_object)->name())
 
-#define RAISE_ARRANGE_EVENT(_object) cb_arrange((gContainer *)_object);
-#define RAISE_BEFORE_ARRANGE_EVENT(_object) cb_before_arrange((gContainer *)_object);
+#define RAISE_ARRANGE_EVENT(_object) CB_container_arrange((gContainer *)_object);
+#define RAISE_BEFORE_ARRANGE_EVENT(_object) CB_container_before_arrange((gContainer *)_object);
 
 #define DESKTOP_SCALE gDesktop::scale()
 
@@ -287,8 +275,6 @@ void gContainer::initialize()
 	_children = g_ptr_array_new();
 	
 	radiogroup = NULL;
-	onArrange = NULL;
-	onBeforeArrange = NULL;
 	
 	_proxyContainer = NULL;
 	_proxyContainerFor = NULL;

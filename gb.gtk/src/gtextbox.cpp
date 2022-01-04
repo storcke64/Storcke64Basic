@@ -74,7 +74,7 @@ static gboolean raise_change(gTextBox *data)
 {
 	if (data->_changed)
 	{
-		data->emit(SIGNAL(data->onChange));
+		CB_textbox_change(data);
 		data->_changed = false;
 	}
 	return FALSE;
@@ -95,7 +95,7 @@ static void cb_change_insert(GtkEditable *editable, gchar *new_text, gint new_te
 {
 	data->_changed = false;
 	gtk_editable_set_position(editable, *position);
-	data->emit(SIGNAL(data->onChange));
+	CB_textbox_change(data);
 	*position = gtk_editable_get_position(editable);
 }
 
@@ -110,7 +110,7 @@ static void cb_change_delete(GtkEditable *editable, gint start_pos, gint end_pos
 
 static void cb_activate(GtkEntry *editable, gTextBox *data)
 {
-	data->emit(SIGNAL(data->onActivate));
+	CB_textbox_activate(data);
 }
 
 static void cb_cursor(GtkWidget *entry, GParamSpec *param, gTextBox *data)
@@ -118,7 +118,7 @@ static void cb_cursor(GtkWidget *entry, GParamSpec *param, gTextBox *data)
 	if (data->_last_position != data->position())
 	{
 		data->_last_position = data->position();
-		data->emit(SIGNAL(data->onCursor));
+		CB_textbox_cursor(data);
 	}
 }
 
@@ -145,10 +145,6 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	}
 	else
 		entry = NULL;
-	
-	onChange = NULL;
-	onActivate = NULL;
-	onCursor = NULL;
 }
 
 gTextBox::~gTextBox()
@@ -198,7 +194,7 @@ void gTextBox::setText(const char *vl)
 	gtk_entry_set_text(GTK_ENTRY(entry), vl);
 	gtk_editable_set_position(GTK_EDITABLE(entry), -1);
 	unlock();
-	emit(SIGNAL(onChange));
+	CB_textbox_change(this);
 	_last_position = save;
 	cb_cursor(entry, NULL, this);
 }

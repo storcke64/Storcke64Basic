@@ -35,7 +35,7 @@ DECLARE_EVENT(EVENT_End);
 DECLARE_EVENT(EVENT_Paginate);
 DECLARE_EVENT(EVENT_Draw);
 
-static void cb_begin(gPrinter *printer, GtkPrintContext *context)
+void CB_printer_begin(gPrinter *printer, GtkPrintContext *context)
 {
 	void *_object = printer->tag;
 	THIS->current = 0;
@@ -44,7 +44,7 @@ static void cb_begin(gPrinter *printer, GtkPrintContext *context)
 	GB.Raise(THIS, EVENT_Begin, 0);
 }
 
-static void cb_end(gPrinter *printer)
+void CB_printer_end(gPrinter *printer)
 {
 	void *_object = printer->tag;
 	THIS->current = 0;
@@ -52,7 +52,7 @@ static void cb_end(gPrinter *printer)
 	PAINT_end();
 }
 
-static void cb_paginate(gPrinter *printer)
+void CB_printer_paginate(gPrinter *printer)
 {
 	void *_object = printer->tag;
 
@@ -62,7 +62,7 @@ static void cb_paginate(gPrinter *printer)
 		printer->setPageCount(printer->pageCount());
 }
 
-static void cb_draw(gPrinter *printer, GtkPrintContext *context, int page)
+void CB_printer_draw(gPrinter *printer, GtkPrintContext *context, int page)
 {
 	void *_object = printer->tag;
 	THIS->current = page + 1;
@@ -76,10 +76,6 @@ BEGIN_METHOD_VOID(Printer_new)
 
 	THIS->printer = new gPrinter();
 	PRINTER->tag = THIS;
-	PRINTER->onBegin = cb_begin;
-	PRINTER->onEnd = cb_end;
-	PRINTER->onDraw = cb_draw;
-	PRINTER->onPaginate = cb_paginate;
 
 END_METHOD
 

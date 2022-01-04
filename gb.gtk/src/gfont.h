@@ -44,6 +44,8 @@ public:
 	gFont *copy();
 	void copyTo(gFont *dst);
 	void mergeFrom(gFont *src);
+	bool equals(gFont *src);
+	
 	int ascent();
 	float ascentF();
 	int descent();

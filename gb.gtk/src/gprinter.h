@@ -81,13 +81,6 @@ public:
 	const char *outputFileName() const;
 	void setOutputFileName(const char *file);
 	
-// Signals
-
-	void (*onBegin)(gPrinter *me, GtkPrintContext *context);
-	void (*onEnd)(gPrinter *me);
-	void (*onDraw)(gPrinter *me, GtkPrintContext *context, int page);
-	void (*onPaginate)(gPrinter *me);
-	
 	void defineSettings();
 	void storeSettings();
 	
@@ -111,5 +104,11 @@ private:
 	bool _page_count_set;
 	bool _use_full_page;
 };
+
+// Callbacks
+void CB_printer_begin(gPrinter *me, GtkPrintContext *context);
+void CB_printer_end(gPrinter *me);
+void CB_printer_draw(gPrinter *me, GtkPrintContext *context, int page);
+void CB_printer_paginate(gPrinter *me);
 
 #endif

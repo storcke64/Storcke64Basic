@@ -582,40 +582,37 @@ __FOUND_WIDGET:
 
 			if (control->isDesign() || control->isEnabled())
 			{
-				if (control->onMouseEvent)
+				if (event->type == GDK_BUTTON_PRESS || CB_control_can_raise(control, type))
 				{
-					if (event->type == GDK_BUTTON_PRESS || control->canRaise(control, type))
+					control->getScreenPos(&xc, &yc);
+					xs = (int)event->button.x_root;
+					ys = (int)event->button.y_root;
+					x = xs - xc;
+					y = ys - yc;
+
+					gMouse::validate();
+					gMouse::setEvent(event);
+					//gMouse::setValid(1,(int)event->x,(int)event->y,event->button,event->state,data->screenX(),data->screenY());
+					gMouse::setMouse(x, y, xs, ys, event->button.button, event->button.state);
+					switch ((int)event->type)
 					{
-						control->getScreenPos(&xc, &yc);
-						xs = (int)event->button.x_root;
-						ys = (int)event->button.y_root;
-						x = xs - xc;
-						y = ys - yc;
+						case GDK_BUTTON_PRESS:
+							gMouse::setControl(control);
+							gMouse::setStart(x, y);
+							cancel = CB_control_mouse(control, gEvent_MousePress);
+							break;
 
-						gMouse::validate();
-						gMouse::setEvent(event);
-						//gMouse::setValid(1,(int)event->x,(int)event->y,event->button,event->state,data->screenX(),data->screenY());
-						gMouse::setMouse(x, y, xs, ys, event->button.button, event->button.state);
-						switch ((int)event->type)
-						{
-							case GDK_BUTTON_PRESS:
-								gMouse::setControl(control);
-								gMouse::setStart(x, y);
-								cancel = control->onMouseEvent(control, gEvent_MousePress);
-								break;
+						case GDK_2BUTTON_PRESS:
+							cancel = CB_control_mouse(control, gEvent_MouseDblClick);
+							break;
 
-							case GDK_2BUTTON_PRESS:
-								cancel = control->onMouseEvent(control, gEvent_MouseDblClick);
-								break;
-
-							case GDK_BUTTON_RELEASE:
-								gMouse::setControl(NULL);
-								cancel = control->onMouseEvent(control, gEvent_MouseRelease);
-								break;
-						}
-
-						gMouse::invalidate();
+						case GDK_BUTTON_RELEASE:
+							gMouse::setControl(NULL);
+							cancel = CB_control_mouse(control, gEvent_MouseRelease);
+							break;
 					}
+
+					gMouse::invalidate();
 				}
 			}
 
@@ -640,7 +637,7 @@ __FOUND_WIDGET:
 				while (control)
 				{
 					//fprintf(stderr, "menu %s D = %d DI = %d\n", control->name(), control->isDesign(), control->isDesignIgnore());
-					if (control->onMouseEvent(control, gEvent_MouseMenu))
+					if (CB_control_mouse(control, gEvent_MouseMenu))
 					{
 						cancel = true;
 						break;
@@ -690,7 +687,7 @@ __FOUND_WIDGET:
 			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;
 
-			if (control->onMouseEvent && (control->canRaise(control, gEvent_MouseMove) || control->canRaise(control, gEvent_MouseDrag))
+			if ((CB_control_can_raise(control, gEvent_MouseMove) || CB_control_can_raise(control, gEvent_MouseDrag))
 					&& (control->isTracking() || (event->motion.state & (GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK))))
 			{
 				control->getScreenPos(&xc, &yc);
@@ -705,7 +702,7 @@ __FOUND_WIDGET:
 
 				//fprintf(stderr, "pressure = %g\n", gMouse::getAxis(GDK_AXIS_PRESSURE));
 
-				cancel = control->onMouseEvent(control, gEvent_MouseMove);
+				cancel = CB_control_mouse(control, gEvent_MouseMove);
 
 				//if (data->acceptDrops() && gDrag::checkThreshold(data, gMouse::x(), gMouse::y(), gMouse::startX(), gMouse::startY()))
 				if (!cancel && (event->motion.state & (GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK))
@@ -713,7 +710,7 @@ __FOUND_WIDGET:
 						&& gDrag::checkThreshold(control, gMouse::x(), gMouse::y(), gMouse::startX(), gMouse::startY()))
 				{
 					//fprintf(stderr, "gEvent_MouseDrag: event = %p\n", gApplication::lastEvent());
-					cancel = control->onMouseEvent(control, gEvent_MouseDrag);
+					cancel = CB_control_mouse(control, gEvent_MouseDrag);
 				}
 				gMouse::invalidate();
 
@@ -749,7 +746,7 @@ __FOUND_WIDGET:
 			if (!control->isDesign() && !control->isEnabled())
 				goto __HANDLE_EVENT;
 
-			if (control->onMouseEvent && control->canRaise(control, gEvent_MouseWheel))
+			if (CB_control_can_raise(control, gEvent_MouseWheel))
 			{
 				int dir, dt, ort;
 				
@@ -788,7 +785,7 @@ __FOUND_WIDGET:
 				gMouse::setEvent(event);
 				gMouse::setMouse(x, y, xs, ys, 0, event->scroll.state);
 				gMouse::setWheel(dt, ort);
-				cancel = control->onMouseEvent(control, gEvent_MouseWheel);
+				cancel = CB_control_mouse(control, gEvent_MouseWheel);
 				gMouse::invalidate();
 			}
 
@@ -1153,7 +1150,7 @@ GtkWindowGroup *gApplication::enterGroup()
 
 	while (control)
 	{
-		control->emit(SIGNAL(control->onEnterLeave), gEvent_Leave);
+		CB_control_enter_leave(control, gEvent_Leave);
 		control = control->parent();
 	}
 
@@ -1318,8 +1315,7 @@ static void post_focus_change(void *)
 			#if DEBUG_FOCUS
 			fprintf(stderr, "focus out %s\n", control->name());
 			#endif
-			if (control->onFocusEvent)
-				control->onFocusEvent(control, gEvent_FocusOut);
+			CB_control_focus(control, gEvent_FocusOut);
 			control = next;
 		}
 
@@ -1335,10 +1331,9 @@ static void post_focus_change(void *)
 		{
 			next = control->_proxy_for;
 			#if DEBUG_FOCUS
-			fprintf(stderr, "focus in %s / %p\n", control->name(), control->onFocusEvent);
+			fprintf(stderr, "focus in %s\n", control->name());
 			#endif
-			if (control->onFocusEvent)
-				control->onFocusEvent(control, gEvent_FocusIn);
+			CB_control_focus(control, gEvent_FocusIn);
 			control = next;
 		}
 	}

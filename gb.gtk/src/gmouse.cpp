@@ -381,7 +381,7 @@ void gMouse::finishEvent()
 {
 	if (_control)
 	{
-		_control->onMouseEvent(_control, gEvent_MouseRelease);
+		CB_control_mouse(_control, gEvent_MouseRelease);
 		_control = NULL;
 	}
 }

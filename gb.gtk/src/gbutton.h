@@ -74,9 +74,6 @@ public:
 //"Method"
 	void animateClick(bool on);
 
-//"Signals"
-	void (*onClick)(gControl *sender);
-
 //"Private"
 	char type;
 	char *bufText;
@@ -98,5 +95,9 @@ public:
 	int autoHeight() const;
 	virtual void updateSize();
 };
+
+// Callbacks
+void CB_button_click(gControl *sender);
+
 
 #endif

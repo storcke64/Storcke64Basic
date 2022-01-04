@@ -224,20 +224,6 @@ public:
 	void emit(void *signal, intptr_t arg);
 	void emit(void *signal, char *arg) { emit(signal, (intptr_t)arg); }
 
-// "Signals"
-	bool (*canRaise)(gControl *sender, int type);
-	void (*onFinish)(gControl *sender); // Special
-	void (*onFocusEvent)(gControl *sender, int type);
-	bool (*onKeyEvent)(gControl *sender, int type);
-	bool (*onMouseEvent)(gControl *sender, int type);
-	void (*onEnterLeave)(gControl *sender, int type);
-	bool (*onDrag)(gControl *sender);
-	bool (*onDragMove)(gControl *sender);
-	bool (*onDrop)(gControl *sender);
-	void (*onDragLeave)(gControl *sender);
-	//void (*onMove)(gControl *sender);
-	//void (*onResize)(gControl *sender);
-
 // "Private"
 	gint bufW,bufH,bufX,bufY;
 	int _min_w, _min_h;
@@ -381,5 +367,19 @@ private:
 };
 
 #define SIGNAL(_signal) ((void *)_signal)
+
+// Callbacks
+
+// "Signals"
+bool CB_control_can_raise(gControl *sender, int type);
+void CB_control_finish(gControl *sender);
+void CB_control_focus(gControl *sender, int type);
+bool CB_control_key(gControl *sender, int type);
+bool CB_control_mouse(gControl *sender, int type);
+void CB_control_enter_leave(gControl *sender, int type);
+bool CB_control_drag(gControl *sender);
+bool CB_control_drag_move(gControl *sender);
+bool CB_control_drop(gControl *sender);
+void CB_control_drag_leave(gControl *sender);
 
 #endif

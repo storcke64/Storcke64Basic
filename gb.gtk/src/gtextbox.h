@@ -70,11 +70,6 @@ public:
 	virtual void customStyleSheet(GString *css);
 #endif
 	
-//"Signals"
-	void (*onChange)(gTextBox *sender);
-	void (*onActivate)(gTextBox *sender);
-	void (*onCursor)(gTextBox *sender);
-
 //"Private"
   virtual void updateCursor(GdkCursor *cursor);
   void initEntry();
@@ -102,5 +97,10 @@ public:
 	char *_placeholder;
 #endif
 };
+
+// Callbacks
+void CB_textbox_change(gTextBox *sender);
+void CB_textbox_activate(gTextBox *sender);
+void CB_textbox_cursor(gTextBox *sender);
 
 #endif

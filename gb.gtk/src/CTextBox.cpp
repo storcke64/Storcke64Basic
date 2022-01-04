@@ -39,19 +39,19 @@ DECLARE_EVENT(EVENT_Click);
 DECLARE_EVENT(EVENT_Cursor);
 
 
-static void cb_change(gTextBox *sender)
+void CB_textbox_change(gTextBox *sender)
 {
 	CWIDGET *_object = GetObject((gControl*)sender);
 	GB.Raise(THIS, EVENT_Change, 0);
 }
 
-static void cb_activate(gTextBox *sender)
+void CB_textbox_activate(gTextBox *sender)
 {
 	CWIDGET *_object = GetObject((gControl*)sender);
 	GB.Raise(THIS, EVENT_Activate, 0);
 }
 
-static void cb_cursor(gTextBox *sender)
+void CB_textbox_cursor(gTextBox *sender)
 {
 	CWIDGET *_object = GetObject((gControl*)sender);
 	GB.Raise(THIS, EVENT_Cursor, 0);
@@ -73,9 +73,6 @@ static void cb_cursor(gTextBox *sender)
 BEGIN_METHOD(TextBox_new, GB_OBJECT parent)
 
 	InitControl(new gTextBox(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
-	TEXTBOX->onChange = cb_change;
-	TEXTBOX->onActivate = cb_activate;
-	TEXTBOX->onCursor = cb_cursor;
 	
 END_METHOD
 
@@ -265,7 +262,7 @@ END_METHOD
 #undef THIS
 #define THIS ((CCOMBOBOX *)_object)
 
-static void cb_click(gComboBox *sender)
+void CB_combobox_click(gComboBox *sender)
 {
 	CWIDGET *_object = GetObject((gControl*)sender);
 	if (THIS->click)
@@ -280,11 +277,6 @@ BEGIN_METHOD(ComboBox_new, GB_OBJECT parent)
 
 	InitControl(new gComboBox(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
 	
-	COMBOBOX->onClick = cb_click;
-	COMBOBOX->onChange = cb_change;
-	COMBOBOX->onActivate = cb_activate;
-	COMBOBOX->onCursor = cb_cursor;
-
 END_METHOD
 
 

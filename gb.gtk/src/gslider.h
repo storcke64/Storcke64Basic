@@ -59,9 +59,6 @@ public:
 	virtual bool resize(int w, int h, bool no_decide);
 	void applyOrientation(GtkOrientation orientation);
 
-//"Signals"
-	void (*onChange)(gSlider *sender);
-
 //"Private"
 	void updateMark();
 	void init();
@@ -79,5 +76,8 @@ public:
 	int _value;
 	int _min, _max;
 };
+
+// Callbacks
+void CB_slider_change(gSlider *sender);
 
 #endif

@@ -47,16 +47,13 @@ static gboolean cb_button_press(GtkStatusIcon *plug, GdkEventButton *event, gTra
 
 	gApplication::updateLastEventTime();
 
-	if (data->onClick)
-	{
-		gMouse::validate();
-		gMouse::setMouse((int)event->x, (int)event->y, (int)event->x_root, (int)event->y_root, event->button, event->state);
-		if (event->type == GDK_BUTTON_PRESS)
-			data->onClick(data, event->button);
-		/*else if (event->type == GDK_2BUTTON_PRESS)
-			data->onDoubleClick(data);*/
-		gMouse::invalidate();
-	}
+	gMouse::validate();
+	gMouse::setMouse((int)event->x, (int)event->y, (int)event->x_root, (int)event->y_root, event->button, event->state);
+	if (event->type == GDK_BUTTON_PRESS)
+		CB_trayicon_click(data, event->button);
+	/*else if (event->type == GDK_2BUTTON_PRESS)
+		data->onDoubleClick(data);*/
+	gMouse::invalidate();
 
 	/*if (event->button == 3)
 		if (data->onMenu)
@@ -71,8 +68,7 @@ static gboolean cb_menu(GtkStatusIcon *plug, guint button, guint activate_time, 
 	
 	gApplication::updateLastEventTime();
 
-	if (data->onMenu)
-		data->onMenu(data);
+	CB_trayicon_menu(data);
 	
 	return false;
 }
@@ -87,37 +83,34 @@ static gboolean cb_scroll(GtkStatusIcon *plug, GdkEventScroll *event, gTrayIcon 
 
 	gApplication::updateLastEventTime();
 
-	if (data->onScroll)
-	{
-		dir = event->direction;
+	dir = event->direction;
 
 #ifdef GTK3
-		if (dir == GDK_SCROLL_SMOOTH)
-			return false;
-		/*{
-			gdouble dx = 0, dy = 0;
-			gdk_event_get_scroll_deltas((GdkEvent *)event, &dx, &dy);
-			if (fabs(dy) > fabs(dx))
-				dir = (dy < 0) ? GDK_SCROLL_UP : GDK_SCROLL_DOWN;
-			else
-				dir = (dx < 0) ? GDK_SCROLL_LEFT : GDK_SCROLL_RIGHT;
-		}*/
+	if (dir == GDK_SCROLL_SMOOTH)
+		return false;
+	/*{
+		gdouble dx = 0, dy = 0;
+		gdk_event_get_scroll_deltas((GdkEvent *)event, &dx, &dy);
+		if (fabs(dy) > fabs(dx))
+			dir = (dy < 0) ? GDK_SCROLL_UP : GDK_SCROLL_DOWN;
+		else
+			dir = (dx < 0) ? GDK_SCROLL_LEFT : GDK_SCROLL_RIGHT;
+	}*/
 #endif
 
-		switch (dir)
-		{
-			case GDK_SCROLL_UP: dt=1; ort=1; break;
-			case GDK_SCROLL_DOWN: dt=-1; ort=1; break;
-			case GDK_SCROLL_LEFT: dt=-1; ort=0; break;
-			case GDK_SCROLL_RIGHT: default: dt=1; ort=0; break;
-		}
-
-		gMouse::validate();
-		gMouse::setMouse((int)event->x, (int)event->y, (int)event->x_root, (int)event->y_root, 0, event->state);
-		gMouse::setWheel(dt, ort);
-		data->onScroll(data);
-		gMouse::invalidate();
+	switch (dir)
+	{
+		case GDK_SCROLL_UP: dt=1; ort=1; break;
+		case GDK_SCROLL_DOWN: dt=-1; ort=1; break;
+		case GDK_SCROLL_LEFT: dt=-1; ort=0; break;
+		case GDK_SCROLL_RIGHT: default: dt=1; ort=0; break;
 	}
+
+	gMouse::validate();
+	gMouse::setMouse((int)event->x, (int)event->y, (int)event->x_root, (int)event->y_root, 0, event->state);
+	gMouse::setWheel(dt, ort);
+	CB_trayicon_scroll(data);
+	gMouse::invalidate();
 	
 	return false;
 }
@@ -132,10 +125,6 @@ gTrayIcon::gTrayIcon()
 	_tooltip = NULL;
 	_icon = NULL;
 	_loopLevel = 0;
-	
-	onClick = NULL;
-	onScroll = NULL;
-	onMenu = NULL;
 	
 	trayicons = g_list_append(trayicons, (gpointer)this);
 }
@@ -160,7 +149,7 @@ gTrayIcon::~gTrayIcon()
 		_default_icon = NULL;
 	}
 
-	if (onDestroy) (*onDestroy)(this);
+	CB_trayicon_destroy(this);
 }
 
 gPicture *gTrayIcon::defaultIcon()

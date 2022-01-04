@@ -308,11 +308,6 @@ void gControl::postDelete()
 	_destroy_list = NULL;
 }
 
-static bool always_can_raise(gControl *sender, int type)
-{
-	return true;
-}
-
 void gControl::initAll(gContainer *parent)
 {
 	bufW = 1;
@@ -370,17 +365,6 @@ void gControl::initAll(gContainer *parent)
 	//_hidden_temp = false;
 	_allow_show = false;
 
-	onFinish = NULL;
-	onFocusEvent = NULL;
-	onKeyEvent = NULL;
-	onMouseEvent = NULL;
-	onDrag = NULL;
-	onDragMove = NULL;
-	onDrop = NULL;
-	onDragLeave = NULL;
-	onEnterLeave = NULL;
-	canRaise = always_can_raise;
-
 	frame = border = widget = NULL;
 	_scroll = NULL;
 	hFree = NULL;
@@ -423,7 +407,7 @@ void gControl::dispose()
 gControl::~gControl()
 {
 	//fprintf(stderr, "~gControl: %s %p %s\n", name(), this, GB.GetClassName(hFree));
-	emit(SIGNAL(onFinish));
+	CB_control_finish(this);
 
 	dispose();
 
@@ -957,10 +941,21 @@ void gControl::resolveFont()
 void gControl::setFont(gFont *ft)
 {
 	//fprintf(stderr, "setFont: %s: %s\n", name(), ft->toFullString());
+	
 	if (ft)
+	{
+		if (_font && _font->equals(ft))
+			return;
+		
 		gFont::assign(&_font, ft);
-	else if (_font)
+	}
+	else
+	{
+		if (!_font)
+			return;
+		
 		gFont::assign(&_font);
+	}
 
 	gFont::assign(&_resolved_font);
 
@@ -1188,6 +1183,7 @@ MISC
 
 void gControl::refresh()
 {
+	fprintf(stderr, "%s: refresh %s\n", GB.Debug.GetCurrentPosition(), name());
 	gtk_widget_queue_draw(border);
 	if (frame != border && GTK_IS_WIDGET(frame))
 		gtk_widget_queue_draw(frame);
@@ -2727,7 +2723,7 @@ void gControl::emitEnterEvent(bool no_leave)
 	}
 
 	//fprintf(stderr, "RAISE ENTER: %s\n", name());
-	emit(SIGNAL(onEnterLeave), gEvent_Enter);
+	CB_control_enter_leave(this, gEvent_Enter);
 }
 
 void gControl::emitLeaveEvent()
@@ -2772,7 +2768,7 @@ void gControl::emitLeaveEvent()
 	}
 
 	//fprintf(stderr, "RAISE LEAVE: %s\n", name());
-	emit(SIGNAL(onEnterLeave), gEvent_Leave);
+	CB_control_enter_leave(this, gEvent_Leave);
 }
 
 bool gControl::isAncestorOf(gControl *child)

@@ -53,16 +53,15 @@ DECLARE_EVENT(EVENT_Arrange);
 DECLARE_EVENT(EVENT_Insert);
 
 
-void CCONTAINER_cb_before_arrange(gContainer *sender)
+void CB_container_before_arrange(gContainer *sender)
 {
 	GB.Raise(sender->hFree, EVENT_BeforeArrange, 0);
 }
 
-void CCONTAINER_cb_arrange(gContainer *sender)
+void CB_container_arrange(gContainer *sender)
 {
 	GB.Raise(sender->hFree, EVENT_Arrange, 0);
 }
-
 
 void CCONTAINER_raise_insert(CCONTAINER *_object, CWIDGET *child)
 {
@@ -681,15 +680,6 @@ BEGIN_PROPERTY(UserContainer_Invert)
 		THIS_USERCONTAINER->save = WIDGET->proxyContainer()->fullArrangement();
 	}
 	
-END_PROPERTY
-
-BEGIN_PROPERTY(UserContainer_Focus)
-
-	if (READ_PROPERTY)
-		GB.ReturnBoolean(WIDGET->canFocus());
-	else
-		WIDGET->setCanFocus(VPROP(GB_BOOLEAN));
-
 END_PROPERTY
 
 //---------------------------------------------------------------------------

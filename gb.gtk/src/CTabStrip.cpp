@@ -31,13 +31,13 @@
 DECLARE_EVENT(EVENT_Click);
 DECLARE_EVENT(EVENT_Close);
 
-static void gb_tabstrip_raise_click(CTABSTRIP *_object)
+static void raise_click(CTABSTRIP *_object)
 {
 	GB.Raise(THIS, EVENT_Click, 0);
 	GB.Unref(POINTER(&_object));
 }
 
-static void gb_tabstrip_post_click(gTabStrip *sender)
+void CB_tabstrip_click(gTabStrip *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	
@@ -45,10 +45,10 @@ static void gb_tabstrip_post_click(gTabStrip *sender)
 		return;
 	
 	GB.Ref(THIS);
-	GB.Post((GB_CALLBACK)gb_tabstrip_raise_click, (long)THIS);
+	GB.Post((GB_CALLBACK)raise_click, (long)THIS);
 }
 
-static void handle_close(gTabStrip *sender, int index)
+void CB_tabstrip_close(gTabStrip *sender, int index)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Close, 1, GB_T_INTEGER, index);
@@ -63,9 +63,7 @@ static void handle_close(gTabStrip *sender, int index)
 BEGIN_METHOD(TabStrip_new, GB_OBJECT parent)
 
 	InitControl(new gTabStrip(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
-	TABSTRIP->onClick = gb_tabstrip_post_click;
-	TABSTRIP->onClose = handle_close;
-	gb_tabstrip_post_click(TABSTRIP);
+	CB_tabstrip_click(TABSTRIP);
 
 END_METHOD
 

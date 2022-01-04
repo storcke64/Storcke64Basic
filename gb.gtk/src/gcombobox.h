@@ -74,9 +74,6 @@ public:
 	void updateBorder();
 	virtual void setDesign(bool ignore = false);
 	
-//"Signals"
-	void (*onClick)(gComboBox *sender);
-
 //"Private"
 	GtkCellRenderer *cell;
 	virtual int minimumHeight();
@@ -96,5 +93,8 @@ public:
 	void updateFocusHandler();
 	void create(bool readOnly);
 };
+
+// Calbacks
+void CB_combobox_click(gComboBox *sender);
 
 #endif

@@ -29,7 +29,7 @@
 
 DECLARE_EVENT(EVENT_Click);
 
-static void cb_click(gControl *sender)
+void CB_button_click(gControl *sender)
 {
 	CWIDGET *ob = GetObject(sender);
 	
@@ -44,7 +44,6 @@ static void cb_click(gControl *sender)
 BEGIN_METHOD(CBUTTON_new, GB_OBJECT parent)
 
 	InitControl(new gButton(CONTAINER(VARG(parent)), gButton::Button), (CWIDGET*)THIS);
-	BUTTON->onClick = cb_click;
 
 END_METHOD
 
@@ -52,28 +51,24 @@ END_METHOD
 BEGIN_METHOD(CTOGGLEBUTTON_new, GB_OBJECT parent)
 
 	InitControl(new gButton(CONTAINER(VARG(parent)), gButton::Toggle), (CWIDGET*)THIS);
-	BUTTON->onClick = cb_click;
 
 END_METHOD
 
 BEGIN_METHOD(CCHECKBOX_new, GB_OBJECT parent)
 
 	InitControl(new gButton(CONTAINER(VARG(parent)), gButton::Check), (CWIDGET*)THIS);
-	BUTTON->onClick = cb_click;
 
 END_METHOD
 
 BEGIN_METHOD(CRADIOBUTTON_new, GB_OBJECT parent)
 	
 	InitControl(new gButton(CONTAINER(VARG(parent)), gButton::Radio), (CWIDGET*)THIS);
-	BUTTON->onClick = cb_click;
 
 END_METHOD
 
 BEGIN_METHOD(CTOOLBUTTON_new, GB_OBJECT parent)
 
 	InitControl(new gButton(CONTAINER(VARG(parent)), gButton::Tool), (CWIDGET*)THIS);
-	BUTTON->onClick = cb_click;
 
 END_METHOD
 

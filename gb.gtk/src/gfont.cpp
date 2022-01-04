@@ -803,3 +803,12 @@ void gFont::checkMustFixSpacing()
 {
 	_must_fix_spacing = ::strcmp(name(), "Gambas") == 0;
 }
+
+bool gFont::equals(gFont *src)
+{
+	if (src == this)
+		return true;
+	
+	return !::strcmp(name(), src->name()) && bold() == src->bold() && italic() == src->italic()
+		&& size() == src->size() && strikeout() == src->strikeout() && underline() == src->underline();
+}

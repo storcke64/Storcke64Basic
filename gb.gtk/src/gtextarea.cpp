@@ -332,7 +332,7 @@ void gTextAreaAction::addText(char *add, int len)
 static void cb_changed(GtkTextBuffer *buf, gTextArea *data)
 {
 	data->updateFixSpacing();
-	data->emit(SIGNAL(data->onChange));
+	CB_textarea_change(data);
 } 
 
 static void cb_mark_set(GtkTextBuffer *buf, GtkTextIter *location, GtkTextMark *mark, gTextArea *data)
@@ -489,9 +489,6 @@ gTextArea::gTextArea(gContainer *parent) : gControl(parent)
 	_text_area_visible = false;
 	_no_background = true;
 	
-	onChange = 0;
-	onCursor = 0;
-
 	textview = gtk_text_view_new();
 	realizeScrolledWindow(textview);
 
@@ -1111,7 +1108,7 @@ void gTextArea::emitCursor()
 		return;
 	
 	_last_pos = pos;
-	emit(SIGNAL(onCursor));
+	CB_textarea_cursor(this);
 }
 
 #ifdef GTK3

@@ -74,10 +74,6 @@ public:
 
 	virtual void setMinimumSize();
 	
-	//"Events"
-	void (*onClick)(gTabStrip *sender);
-	void (*onClose)(gTabStrip *sender, int index);
-
 //"Private"
 	virtual GtkWidget *getContainer();
 	int getRealIndex(GtkWidget *page) const;
@@ -92,5 +88,11 @@ private:
 	gTabStripPage *get(int ind) const;
 	void destroyTab(int ind);
 };
+
+// Callbacks
+void CB_tabstrip_click(gTabStrip *sender);
+void CB_tabstrip_close(gTabStrip *sender, int index);
+
+
 
 #endif

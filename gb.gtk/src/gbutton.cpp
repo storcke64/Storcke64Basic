@@ -48,13 +48,13 @@ static void cb_click(GtkButton *object, gButton *data)
 		}
 	}
 
-	data->emit(SIGNAL(data->onClick));
+	CB_button_click(data);
 }
 
-static void cb_click_radio(GtkButton *object,gControl *data)
+static void cb_click_radio(GtkButton *object, gControl *data)
 {
-	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(object)))
-		if (((gButton*)data)->onClick) ((gButton*)data)->onClick((gControl*)data);
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(object)))
+		CB_button_click(data);
 	return;
 }
 
@@ -73,7 +73,7 @@ static void cb_click_check(GtkButton *object, gButton *data)
 		data->unlock();
 	}
 
-	data->emit(SIGNAL(data->onClick));
+	CB_button_click(data);
 }
 
 #ifdef GTK3
@@ -304,7 +304,6 @@ gButton::gButton(gContainer *par, Type typ) : gControl(par)
 	realize();
 	
 	gtk_widget_add_events(widget, GDK_POINTER_MOTION_MASK);
-	onClick = NULL;
 	
 	if (type == Radio)
 		g_signal_connect(G_OBJECT(widget),"clicked",G_CALLBACK(cb_click_radio),(gpointer)this);

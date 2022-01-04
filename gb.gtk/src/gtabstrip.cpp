@@ -76,7 +76,7 @@ static void cb_click(GtkNotebook *nb, GtkWidget *pg, guint pnum, gTabStrip *data
 {
 	data->updateFont();
 	data->performArrange();
-	data->emit(SIGNAL(data->onClick));
+	CB_tabstrip_click(data);
 }
 
 static void cb_size_allocate(GtkWidget *wid, GtkAllocation *alloc, gTabStrip *data)
@@ -180,8 +180,7 @@ static gboolean cb_button_expose(GtkWidget *wid, GdkEventExpose *e, gTabStrip *d
 
 static void cb_button_clicked(GtkWidget *wid, gTabStrip *data)
 {
-	if (data->onClose)
-		(*data->onClose)(data, data->getRealIndex((GtkWidget *)g_object_get_data(G_OBJECT(wid), "gambas-tab-page")));
+	CB_tabstrip_close(data, data->getRealIndex((GtkWidget *)g_object_get_data(G_OBJECT(wid), "gambas-tab-page")));
 }
 
 #ifdef GTK3
@@ -507,9 +506,6 @@ gTabStrip::gTabStrip(gContainer *parent) : gContainer(parent)
 	_closable = false;
 	_no_design = true;
 	
-	onClick = NULL;
-	onClose = NULL;
-	
 	//border = gtk_event_box_new();
 	//gtk_event_box_set_visible_window(GTK_EVENT_BOX(border), false);
 	
@@ -646,7 +642,7 @@ bool gTabStrip::setCount(int vl)
 	}
 	
 	if (ind != index())
-		emit(SIGNAL(onClick));
+		CB_tabstrip_click(this);
 	
 	return false;
 }

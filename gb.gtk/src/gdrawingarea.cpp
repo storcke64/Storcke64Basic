@@ -57,37 +57,11 @@ static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gDrawingArea *data)
 	{
 		//data->drawBackground();
 
-		if (data->onExpose)
-		{
-			gDrawingArea::_in_any_draw_event++;
-			data->_in_draw_event = true;
-			data->onExpose(data, cr);
-			gDrawingArea::_in_any_draw_event--;
-			data->_in_draw_event = false;
-			/*
-			list = cairo_copy_clip_rectangle_list(cr);
-
-			fprintf(stderr, "%d %d\n", list->status, list->num_rectangles);
-			if (list->status != CAIRO_STATUS_SUCCESS)
-			{
-				data->onExpose(data, cr);
-			}
-			else
-			{
-				for (i = 0; i < list->num_rectangles; i++)
-				{
-					r = &list->rectangles[i];
-					cairo_save(cr);
-					cairo_rectangle(cr, r->x, r->y, r->width, r->height);
-					cairo_clip(cr);
-					data->onExpose(data, cr);
-					cairo_restore(cr);
-				}
-			}
-
-			cairo_rectangle_list_destroy(list);
-			*/
-		}
+		gDrawingArea::_in_any_draw_event++;
+		data->_in_draw_event = true;
+		CB_drawingarea_expose(data, cr);
+		gDrawingArea::_in_any_draw_event--;
+		data->_in_draw_event = false;
 		data->drawBorder(cr);
 	}
 
@@ -104,19 +78,16 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gDrawingArea *data)
 	{
 		//data->drawBackground();
 
-		if (data->onExpose)
-		{
-			gDrawingArea::_in_any_draw_event++;
-			data->_in_draw_event = true;
+		gDrawingArea::_in_any_draw_event++;
+		data->_in_draw_event = true;
 
-			GtkAllocation a;
-			gtk_widget_get_allocation(wid, &a);
-			//fprintf(stderr, "%s: %d %d\n", data->parent()->name(), a.x, a.y);
-			
-			data->onExpose(data, e->region, a.x, a.y);
-			gDrawingArea::_in_any_draw_event--;
-			data->_in_draw_event = false;
-		}
+		GtkAllocation a;
+		gtk_widget_get_allocation(wid, &a);
+		//fprintf(stderr, "%s: %d %d\n", data->parent()->name(), a.x, a.y);
+		
+		CB_drawingarea_expose(data, e->region, a.x, a.y);
+		gDrawingArea::_in_any_draw_event--;
+		data->_in_draw_event = false;
 		data->drawBorder(e);
 	}
 
@@ -225,9 +196,6 @@ gDrawingArea::gDrawingArea(gContainer *parent) : gContainer(parent)
 #ifdef GTK3
 	_no_style_without_child = true;
 #endif
-
-	onExpose = NULL;
-	onFontChange = NULL;
 
 	create();
 }
@@ -462,7 +430,7 @@ void gDrawingArea::setUseTablet(bool vl)
 void gDrawingArea::updateFont()
 {
 	gContainer::updateFont();
-	emit(SIGNAL(onFontChange));
+	CB_drawingarea_font(this);
 }
 
 #ifdef GTK3

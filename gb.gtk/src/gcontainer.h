@@ -138,11 +138,6 @@ public:
 	void enableArrangement();
 	bool isArrangementEnabled() const { return _no_arrangement == 0; }
 	
-//"Signals"
-	void (*onArrange)(gContainer *sender);
-	void (*onBeforeArrange)(gContainer *sender);
-	//void (*onInsert)(gContainer *sender, gControl *child);
-
 //"Private"
 	GtkWidget *radiogroup;
 	GPtrArray *_children;
@@ -178,5 +173,12 @@ private:
 	unsigned _arrange_later : 1;
 	unsigned char _no_arrangement;
 };
+
+// Callbacks
+//"Signals"
+void CB_container_arrange(gContainer *sender);
+void CB_container_before_arrange(gContainer *sender);
+
+
 
 #endif

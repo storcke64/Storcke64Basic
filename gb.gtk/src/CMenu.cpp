@@ -66,7 +66,7 @@ static void delete_menu(gMenu *menu)
 	THIS->widget = NULL;
 }
 
-static void cb_finish(gMenu *sender)
+void CB_menu_finish(gMenu *sender)
 {
 	CMENU *_object = (CMENU*)sender->hFree;
 	if (_object)
@@ -79,7 +79,7 @@ static void cb_finish(gMenu *sender)
 	}
 }
 
-static void cb_click(gMenu *sender)
+void CB_menu_click(gMenu *sender)
 {
 	void *_object = sender->hFree;
 
@@ -94,7 +94,7 @@ static void cb_click(gMenu *sender)
 		GB.Post((GB_CALLBACK)send_click_event, (intptr_t)THIS);
 }
 
-static void cb_show(gMenu *sender)
+void CB_menu_show(gMenu *sender)
 {
 	static bool init = FALSE;
 
@@ -120,7 +120,7 @@ static void cb_show(gMenu *sender)
 	GB.Unref(POINTER(&_object));
 }
 
-static void cb_hide(gMenu *sender)
+void CB_menu_hide(gMenu *sender)
 {
 	void *_object = sender->hFree;
 	GB.Raise(THIS, EVENT_Hide, 0);
@@ -167,7 +167,6 @@ BEGIN_METHOD(Menu_new, GB_OBJECT parent; GB_BOOLEAN hidden)
 		}
 
 		THIS->widget = new gMenu((gMenu*)((CMENU*)parent)->widget, hidden);
-		MENU->onClick = cb_click;
 		goto __OK;
 	}
 
@@ -177,9 +176,6 @@ BEGIN_METHOD(Menu_new, GB_OBJECT parent; GB_BOOLEAN hidden)
 __OK:
 
 	MENU->hFree = (void*)THIS;
-	MENU->onFinish = cb_finish;
-	MENU->onShow = cb_show;
-	MENU->onHide = cb_hide;
 
 	name = GB.GetLastEventName();
 	if (!name)

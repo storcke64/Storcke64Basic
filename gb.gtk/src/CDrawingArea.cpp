@@ -76,7 +76,7 @@ static void cleanup_drawing(HANDLER_INFO *info)
 	info->control->context = info->save;
 }
 
-static void cb_expose(gDrawingArea *sender, cairo_t *cr)
+void CB_drawingarea_expose(gDrawingArea *sender, cairo_t *cr)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB_RAISE_HANDLER handler;
@@ -117,7 +117,7 @@ static void cleanup_drawing(intptr_t _unused)
 	PAINT_end();
 }
 
-static void cb_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
+void CB_drawingarea_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB_RAISE_HANDLER handler;
@@ -147,7 +147,7 @@ static void cb_expose(gDrawingArea *sender, GdkRegion *region, int dx, int dy)
 }
 #endif
 
-static void cb_font_change(gDrawingArea *sender)
+void CB_drawingarea_font(gDrawingArea *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 	GB.Raise(THIS, EVENT_Font, 0);
@@ -157,8 +157,6 @@ static void cb_font_change(gDrawingArea *sender)
 BEGIN_METHOD(CDRAWINGAREA_new, GB_OBJECT parent)
 
 	InitControl(new gDrawingArea(CONTAINER(VARG(parent))), (CWIDGET*)THIS);
-	WIDGET->onExpose = cb_expose;
-	WIDGET->onFontChange = cb_font_change;
 
 END_METHOD
 

@@ -33,20 +33,19 @@
 
 DECLARE_EVENT(EVENT_Change);
 
-void gb_raise_slider_Click(gSlider *sender)
+void CB_slider_change(gSlider *sender)
 {
-	CWIDGET *_ob=GetObject(sender);
+	CWIDGET *_ob = GetObject(sender);
 	
 	if (!_ob) return;
-	GB.Raise((void*)_ob,EVENT_Change,0);
+	GB.Raise((void*)_ob, EVENT_Change, 0);
 }
 
+//---------------------------------------------------------------------------
 
 BEGIN_METHOD(Slider_new, GB_OBJECT parent)
 
 	InitControl(new gSlider(CONTAINER(VARG(parent))),(CWIDGET*)THIS);
-	
-	SLIDER->onChange=gb_raise_slider_Click;
 	
 END_METHOD
 
@@ -54,10 +53,7 @@ BEGIN_METHOD(ScrollBar_new, GB_OBJECT parent)
 
 	InitControl(new gScrollBar(CONTAINER(VARG(parent))),(CWIDGET*)THIS);
 	
-	SBAR->onChange=gb_raise_slider_Click;
-
 END_METHOD
-
 
 BEGIN_PROPERTY(Slider_Tracking)
 
@@ -66,14 +62,12 @@ BEGIN_PROPERTY(Slider_Tracking)
 
 END_PROPERTY
 
-
 BEGIN_PROPERTY(Slider_Value)
 
 	if (READ_PROPERTY) { GB.ReturnInteger(SLIDER->value()); return; }
 	SLIDER->setValue(VPROP(GB_INTEGER));
 
 END_PROPERTY
-
 
 BEGIN_PROPERTY(Slider_MinValue)
 
