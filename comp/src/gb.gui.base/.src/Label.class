@@ -143,6 +143,8 @@ Public Sub _UpdateSize()
   W = hRect.W + P * 2
   H = hRect.H + P * 2
   
+  'Debug Me.Name; ": "; Me.Font.ToString();; W
+    
   If Align.IsMiddle($iAlign) Then
     If H < Me.H Then H = Me.H
   Endif
@@ -172,6 +174,8 @@ Private Sub GetExtents() As RectF
 
   Dim X As Float
 
+  ' Check Paint.Scalable to workaround a QT bug with Paint.TextExtents() on such fonts
+
   If Not $hExt Then
     If $bRichText Then
       If _Wrap Then
@@ -185,7 +189,8 @@ Private Sub GetExtents() As RectF
       If Paint.Font.Scalable Then X = Paint.TextExtents(LTrim($sText)).X
     Endif
     
-    $hExt.X = CInt(X)
+    'Debug Me.Name; ": "; Paint.Font.ToString();; $hExt.W;; "[";; X;; "]"
+    $hExt.X = X
     
   Endif
   Return $hExt
@@ -197,8 +202,8 @@ Public Sub UserControl_Draw()
   Dim P As Integer
   Dim F As Integer
   Dim hExt As RectF
-  Dim W As Integer
-  Dim X As Integer
+  Dim W As Float
+  Dim X As Float
   
   If $iBorder Then
     Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
@@ -226,7 +231,7 @@ Public Sub UserControl_Draw()
   Endif
 
   W = Me.W - X - P - hExt.X
-  ' 
+  
   If Not Me.Enabled Then Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
 
   If $bRichText Then
