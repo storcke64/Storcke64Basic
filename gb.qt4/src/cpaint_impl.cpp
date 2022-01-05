@@ -954,13 +954,14 @@ static void CurveTo(GB_PAINT *d, float x1, float y1, float x2, float y2, float x
 }
 
 static QStringList text_sl;
-static QVector<int> text_w;
-static int text_line;
+static QVector<float> text_w;
+static float text_line;
 
-static int get_text_width(QPainter *dp, QString &s)
+static float get_text_width(QPainter *p, QString &s)
 {
-	int w, width = 0;
+	float w, width = 0;
 	int i;
+	QFontMetricsF fm(p->font());
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	text_sl = s.split('\n', Qt::KeepEmptyParts);
@@ -973,9 +974,9 @@ static int get_text_width(QPainter *dp, QString &s)
 	for (i = 0; i < (int)text_sl.count(); i++)
 	{
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
-		w = dp->fontMetrics().horizontalAdvance(text_sl[i]);
+		w = fm.horizontalAdvance(text_sl[i]);
 #else
-		w = dp->fontMetrics().width(text_sl[i]);
+		w = fm.width(text_sl[i]);
 #endif
 		if (w > width) width = w;
 		text_w[i] = w;
@@ -984,9 +985,10 @@ static int get_text_width(QPainter *dp, QString &s)
 	return width;
 }
 
-static int get_text_height(QPainter *dp, QString &s)
+static int get_text_height(QPainter *p, QString &s)
 {
-	text_line = dp->fontMetrics().height();
+	QFontMetricsF fm(p->font());
+	text_line = fm.height();
 	return text_line * (1 + s.count('\n'));
 }
 

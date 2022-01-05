@@ -112,13 +112,14 @@ static Qt::Alignment get_horizontal_alignment(Qt::Alignment align)
 }
 
 static QStringList text_sl;
-static QVector<int> text_w;
-static int text_line;
+static QVector<float> text_w;
+static float text_line;
 
-static int get_text_width(QPainter *dp, QString &s)
+static void get_text_size(QPainter *dp, QString &s, float *tw, float *th)
 {
-	int w, width = 0;
+	float w, width = 0;
 	int i;
+	QFontMetricsF fm(dp->font());
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	text_sl = s.split('\n', Qt::KeepEmptyParts);
@@ -131,33 +132,29 @@ static int get_text_width(QPainter *dp, QString &s)
 	for (i = 0; i < (int)text_sl.count(); i++)
 	{
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
-		w = dp->fontMetrics().horizontalAdvance(text_sl[i]);
+		w = fm.horizontalAdvance(text_sl[i]);
 #else
-		w = dp->fontMetrics().width(text_sl[i]);
+		w = fm.width(text_sl[i]);
 #endif
 		if (w > width) width = w;
 		text_w[i] = w;
 	}
 
-	return width;
-}
-
-static int get_text_height(QPainter *dp, QString &s)
-{
-	text_line = dp->fontMetrics().height();
-	return text_line * (1 + s.count('\n'));
+	*tw = width;
+	
+	text_line = fm.height();
+	*th = text_line * (1 + s.count('\n'));
 }
 
 void DRAW_text(QPainter *p, const QString &text, float x, float y, float w, float h, int align)
 {
 	QPen pen, penm;
 	QString t = text;
-	int xx, ww;
-	int tw, th;
+	float xx, ww;
+	float tw, th;
 	int i;
 
-	tw = get_text_width(p, t);
-	th = get_text_height(p, t);
+	get_text_size(p, t, &tw, &th);
 
 	if (w < 0) w = tw;
 	if (h < 0) h = th;
@@ -240,8 +237,8 @@ void DRAW_rich_text(QPainter *p, const QString &text, float x, float y, float w,
 	if (w > 0)
 		doc->setTextWidth(w);
 		
-	tw = doc->idealWidth();
-	th = doc->size().height();
+	tw = ::ceilf(doc->idealWidth());
+	th = ::ceilf(doc->size().height());
 
 	if (w < 0) w = tw;
 	if (h < 0) h = th;
