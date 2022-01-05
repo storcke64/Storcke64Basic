@@ -2638,9 +2638,6 @@ void gControl::setNoTabFocus(bool v)
 		return;
 	}
 	
-	if (_no_tab_focus == v)
-		return;
-
 	_no_tab_focus = v;
 }
 
@@ -2650,6 +2647,11 @@ bool gControl::isNoTabFocus() const
 		return _proxy->isNoTabFocus();
 	else
 		return _no_tab_focus;
+}
+
+bool gControl::isNoTabFocusRec() const
+{
+	return isNoTabFocus() || (parent() && parent()->isNoTabFocusRec());
 }
 
 #ifdef GTK3
@@ -2861,50 +2863,41 @@ gControl *gControl::nextFocus()
 	gControl *ctrl;
 	gControl *next_ctrl;
 	
-	//fprintf(stderr, "next: %s\n", name());
-	
-	if (isContainer())
-	{
-		ctrl = ((gContainer *)this)->firstChild();
-		if (ctrl)
-		{
-			//fprintf(stderr, "==> %s\n", ctrl->name());
-			return ctrl;
-		}
-	}
-	
 	ctrl = this;
+	
+	if (ctrl->isContainer() && ((gContainer *)ctrl)->childCount())
+		return ((gContainer *)ctrl)->firstChild();
 	
 	for(;;)
 	{
 		next_ctrl = ctrl->next();
 		if (next_ctrl)
 			return next_ctrl;
-		
+		if (ctrl->isTopLevel())
+			return ctrl;
 		ctrl = ctrl->parent();
-		if (!ctrl)
-			return NULL;
-		/*if (!ctrl->parent())
-			return ctrl->nextFocus();*/
 	}
 }
 
 gControl *gControl::previousFocus()
 {
-	gControl *ctrl = previous();
+	gControl *ctrl;
+	gControl *next_ctrl;
 	
-	if (!ctrl)
+	ctrl = this;
+	
+	if (ctrl->isContainer() && ((gContainer *)ctrl)->childCount())
+		return ((gContainer *)ctrl)->lastChild();
+	
+	for(;;)
 	{
-		if (!isTopLevel())
-			return parent()->previousFocus();
-		
-		ctrl = this;
+		next_ctrl = ctrl->previous();
+		if (next_ctrl)
+			return next_ctrl;
+		if (ctrl->isTopLevel())
+			return ctrl;
+		ctrl = ctrl->parent();
 	}
-	
-	while (ctrl->isContainer() && ((gContainer *)ctrl)->childCount())
-		ctrl = ((gContainer *)ctrl)->lastChild();
-
-	return ctrl;
 }
 
 void gControl::createWidget()

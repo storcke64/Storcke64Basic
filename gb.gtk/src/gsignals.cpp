@@ -98,13 +98,15 @@ gboolean gcb_focus(GtkWidget *widget, GtkDirectionType direction, gControl *data
 			if (!ctrl)
 				break;
 			
-			if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus() && !ctrl->isNoTabFocus())
+			//fprintf(stderr, "gcb_focus: %s / %d %d %d %d\n", ctrl->name(), ctrl->isReallyVisible(), ctrl->isEnabled(), ctrl->canFocus(), !ctrl->isNoTabFocusRec());
+			
+			if (!ctrl->isTopLevel() && ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus() && !ctrl->isNoTabFocusRec())
 			{
-				//fprintf(stderr, "cb_focus: --> %s\n", ctrl->name());
+				//fprintf(stderr, "cb_focus: --> %s / %d\n", ctrl->name(), ctrl->isNoTabFocusRec());
 				ctrl->setFocus();
 				break;
 			}
-			if (ctrl == data)
+			if (ctrl == gApplication::activeControl())
 				break;
 		}
 	}

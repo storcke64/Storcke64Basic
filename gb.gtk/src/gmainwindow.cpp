@@ -474,7 +474,6 @@ void gMainWindow::initWindow()
 
 	have_cursor = true; //parent() == 0 && !_xembed;
 	setCanFocus(true);
-	setNoTabFocus(true);
 }
 
 
