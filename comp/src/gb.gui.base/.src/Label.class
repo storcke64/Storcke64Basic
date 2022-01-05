@@ -123,9 +123,9 @@ Public Sub _UpdateSize()
   $hExt = Null
   If $bLocked Then Return
   If Me.Design Then Return
-  If Not $bAutoResize Then Return
   If Not $sText Then Return
-
+  If Not $bAutoResize Then Return
+  
   $bLocked = True
 
   P = GetPadding()
@@ -162,13 +162,15 @@ Private Sub AutoResize_Write(Value As Boolean)
 End
 
 Public Sub UserControl_Font()
-  
+
   _UpdateSize
   Me.Refresh
   
 End
 
 Private Sub GetExtents() As RectF
+
+  Dim X As Float
 
   If Not $hExt Then
     If $bRichText Then
@@ -177,9 +179,14 @@ Private Sub GetExtents() As RectF
       Else
         $hExt = Paint.RichTextSize($sText)
       Endif
+      If Paint.Font.Scalable Then X = Paint.RichTextExtents($sText).X
     Else
       $hExt = Paint.TextSize($sText)
+      If Paint.Font.Scalable Then X = Paint.TextExtents(LTrim($sText)).X
     Endif
+    
+    $hExt.X = CInt(X)
+    
   Endif
   Return $hExt
 
@@ -189,8 +196,9 @@ Public Sub UserControl_Draw()
   
   Dim P As Integer
   Dim F As Integer
-  Dim X As Integer
   Dim hExt As RectF
+  Dim W As Integer
+  Dim X As Integer
   
   If $iBorder Then
     Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
@@ -205,23 +213,26 @@ Public Sub UserControl_Draw()
   
   If Not $sText Then Return
   
+  hExt = GetExtents()
+
   P = GetPadding()
 
-  hExt = GetExtents()
   If Align.IsLeft($iAlign) Then
-    X = P '- hExt.X
+    X = P - hExt.X
   Else If Align.IsRight($iAlign) Then
-    X = Me.W - P - Ceil(hExt.W)
-  Else If Align.IsCenter($iAlign) Then
-    X = (Me.W - hExt.W) / 2
+    X = Me.W - hExt.W - hExt.X - P
+  Else
+    X = P - hExt.X
   Endif
-  
+
+  W = Me.W - X - P - hExt.X
+  ' 
   If Not Me.Enabled Then Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
 
   If $bRichText Then
-    Paint.DrawRichText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
+    Paint.DrawRichText($sText, X, P, W, Me.H - P * 2, $iAlign)
   Else
-    Paint.DrawText($sText, X, P, Ceil(hExt.W), Me.H - P * 2, $iAlign)
+    Paint.DrawText($sText, X, P, W, Me.H - P * 2, $iAlign)
   Endif
   
 End

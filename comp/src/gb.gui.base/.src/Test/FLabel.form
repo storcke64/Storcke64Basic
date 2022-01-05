@@ -2,60 +2,65 @@
 
 { Form Form
   MoveScaled(0,0,103,110)
-  Font = Font["Times New Roman,+10"]
-  Arrangement = Arrange.Vertical
+  Font = Font["Cantarell,20,Italic"]
   Spacing = True
   { Label6 Label
-    MoveScaled(6,3,72,9)
+    MoveScaled(6,3,84,9)
     Background = Color.Cyan
+    AutoResize = True
     Alignment = Align.Left
-    Text = ("     This is a Label test line")
+    Border = Border.Plain
+    Text = ("This is a Label test line")
   }
   { Label4 Label
     MoveScaled(6,13,72,9)
-    Font = Font["Italic"]
     Background = Color.Pink
-    Alignment = Align.Left
-    Text = ("This is a Label test line")
+    Alignment = Align.Right
+    Border = Border.Plain
+    Text = ("This is a Label test line A")
   }
   { Label5 Label
-    MoveScaled(6,23,72,13)
+    MoveScaled(6,23,71,13)
     Background = Color.Pink
     Foreground = Color.SelectedBackground
     Alignment = Align.Center
+    Border = Border.Plain
     Text = ("This is a Label test line\nwith another one")
   }
   { Label1 Label
-    MoveScaled(6,38,72,9)
+    MoveScaled(6,38,75,8)
     Enabled = False
-    Font = Font["Italic"]
     Background = Color.Pink
-    Alignment = Align.Right
-    Text = ("This is a Label test line")
+    Alignment = Align.BottomRight
+    Border = Border.Plain
+    Text = ("This is a Label test lineT")
   }
   { Label2 TextLabel
-    MoveScaled(1,51,85,6)
+    MoveScaled(1,51,70,6)
+    Background = Color.Pink
+    AutoResize = True
+    Text = ("AThis is a TextLabel test line")
+  }
+  { Label3 TextLabel
+    MoveScaled(1,59,59,13)
     Background = Color.Pink
     AutoResize = True
     Text = ("This is a TextLabel test line")
+    Alignment = Align.TopRight
   }
-  { Label3 TextLabel
-    MoveScaled(1,59,75,13)
-    Font = Font["Italic"]
+  { Label7 TextLabel
+    MoveScaled(1,74,55,14)
     Background = Color.Pink
-    AutoResize = True
+    Text = ("This is a TextLabel test line")
+    Alignment = Align.TopRight
+  }
+  { Label8 TextLabel
+    MoveScaled(2,89,59,14)
+    Background = Color.Pink
     Text = ("This is a TextLabel test line")
     Alignment = Align.Top
   }
-  { Label7 TextLabel
-    MoveScaled(1,74,58,14)
-    Background = Color.Pink
-    Text = ("This is a TextLabel test line")
-  }
-  { Label8 TextLabel
-    MoveScaled(2,89,58,14)
-    Font = Font["Italic"]
-    Background = Color.Pink
-    Text = ("This is a TextLabel test line")
+  { Separator1 Separator
+    MoveScaled(4,48,94,3)
   }
 }
