@@ -401,15 +401,16 @@ static void Antialias(GB_PAINT *d, int set, int *antialias)
 		*antialias = PAINTER(d)->testRenderHint(QPainter::Antialiasing) ? 1 : 0;
 }
 
-static void set_painter_font(QPainter *p, QFont f)
+static void set_painter_font(QPainter *p, const QFont &f)
 {
 	p->setFont(f);	
 	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
 		
 	if (f != p->font())
 	{
-		f.fromString(f.toString());
-		p->setFont(f);
+		QFont f2;
+		f2.fromString(f.toString());
+		p->setFont(f2);
 	}
 }
 
@@ -1653,6 +1654,10 @@ int MyPaintDevice::metric(PaintDeviceMetric m) const
 		case PdmDpiY: return d->logicalDpiY();
 		case PdmPhysicalDpiX: return d->physicalDpiX();
 		case PdmPhysicalDpiY: return d->physicalDpiY();
+		case PdmDevicePixelRatio: return d->devicePixelRatio();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+		case PdmDevicePixelRatioScaled: return d->devicePixelRatioFScale();
+#endif
 		default: return 0;
 	}
 }
