@@ -469,7 +469,7 @@ static void get_text_size(CFONT *_object, QString s, int *w, int *h)
 			if (wt > width) width = wt;
 		}
 		
-		*w = width;
+		*w = ::ceilf(width);
 	}
 	
 	if (h)
@@ -478,7 +478,7 @@ static void get_text_size(CFONT *_object, QString s, int *w, int *h)
 
 		nl = s.count('\n');
 
-		*h = fm.height() * (1 + nl) + fm.leading() * nl;
+		*h = ::ceilf(fm.height() * (1 + nl) + fm.leading() * nl);
 	}
 }
 
@@ -520,8 +520,8 @@ static void get_rich_text_size(CFONT *_object, char *text, int len, int sw, int 
 	if (sw > 0)
 		rt.setTextWidth(sw);
 	
-	if (w) *w = rt.idealWidth();
-	if (h) *h = rt.size().height();
+	if (w) *w = ::ceilf(rt.idealWidth());
+	if (h) *h = ::ceilf(rt.size().height());
 }
 
 
