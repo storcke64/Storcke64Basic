@@ -1654,8 +1654,8 @@ int MyPaintDevice::metric(PaintDeviceMetric m) const
 		case PdmDpiY: return d->logicalDpiY();
 		case PdmPhysicalDpiX: return d->physicalDpiX();
 		case PdmPhysicalDpiY: return d->physicalDpiY();
-		case PdmDevicePixelRatio: return d->devicePixelRatio();
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+		case PdmDevicePixelRatio: return d->devicePixelRatio();
 		case PdmDevicePixelRatioScaled: return d->devicePixelRatioFScale();
 #endif
 		default: return 0;
