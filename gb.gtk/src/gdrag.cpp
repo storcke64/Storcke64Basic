@@ -795,7 +795,7 @@ bool gDrag::setCurrent(gControl *control)
 		current = _current;
 		while (current)
 		{
-			CB_control_drag(current);
+			CB_control_drag_leave(current);
 			current = current->_proxy;
 		}
 	}

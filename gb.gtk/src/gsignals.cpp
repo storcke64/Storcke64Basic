@@ -247,7 +247,7 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 			#endif
 			if (CB_control_can_raise(control, gEvent_DragMove))
 			{
-				retval = CB_control_drag_move(control);
+				retval = !CB_control_drag_move(control);
 				if (!retval)
 					break;
 			}
