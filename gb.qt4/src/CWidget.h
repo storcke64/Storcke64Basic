@@ -45,7 +45,6 @@ typedef
 		void *proxy_for;
 		char *action;
 		void *container_for;
-		char focusPolicy;
 		char mouse;
 	}
 	CWIDGET_EXT;
@@ -71,7 +70,7 @@ typedef
 			unsigned old_tracking : 1;
 			unsigned grab : 1;
 			unsigned dragging: 1;
-			unsigned noTabFocus : 1;
+			unsigned no_tab_focus : 1;
 			unsigned inside : 1;
 
 			unsigned inside_later : 1;
@@ -262,6 +261,7 @@ void *CWIDGET_get_next_previous(void *_object, bool next);
 void CWIDGET_set_focus(void *_object);
 void *CWIDGET_get_next_focus(void *_object);
 void *CWIDGET_get_previous_focus(void *_object);
+bool CWIDGET_has_no_tab_focus(void *_object);
 
 #ifndef DO_NOT_DECLARE_EVENTS
 #ifndef __CWIDGET_CPP

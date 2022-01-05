@@ -751,6 +751,22 @@ void CWIDGET_set_inverted(void *_object, bool v)
 	return ctrl->next();
 }*/
 
+bool CWIDGET_has_no_tab_focus(void *_object)
+{
+	void *parent;
+	
+	for(;;)
+	{
+		parent = CWIDGET_get_parent(THIS);
+		HANDLE_PROXY(_object);
+		if (THIS->flag.no_tab_focus)
+			return true;
+		if (!parent)
+			return false;
+		_object = parent;
+	}
+}
+
 
 void *CWIDGET_get_next_focus(void *_object)
 {
@@ -1356,38 +1372,9 @@ BEGIN_PROPERTY(Control_NoTabFocus)
 	HANDLE_PROXY(_object);
 	
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(THIS->flag.noTabFocus);
+		GB.ReturnBoolean(THIS->flag.no_tab_focus);
 	else
-	{
-		bool v = VPROP(GB_BOOLEAN);
-		Qt::FocusPolicy policy;
-			
-		if (THIS->flag.noTabFocus == v)
-			return;
-
-		THIS->flag.noTabFocus = v;
-		
-		if (v)
-		{
-			policy = WIDGET->focusPolicy();
-			
-			ENSURE_EXT(THIS)->focusPolicy = (char)policy;
-		
-			switch (policy)
-			{
-				case Qt::TabFocus: policy = Qt::NoFocus; break;
-				case Qt::StrongFocus: policy = Qt::ClickFocus; break;
-				case Qt::WheelFocus: policy = Qt::ClickFocus; break;
-				default: break;
-			}
-		}
-		else
-		{
-			policy = (Qt::FocusPolicy)THIS_EXT->focusPolicy;
-		}
-
-		WIDGET->setFocusPolicy(policy);
-	}
+		THIS->flag.no_tab_focus = VPROP(GB_BOOLEAN);
 
 END_PROPERTY
 

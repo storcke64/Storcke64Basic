@@ -2933,6 +2933,11 @@ bool MyMainWindow::focusNextPrevChild(bool next)
 		if (!current || current == initial)
 			return QWidget::focusNextPrevChild(next);
 		
+		//fprintf(stderr, "focusNextPrevChild: %s / %d\n", ((CWIDGET *)current)->name, CWIDGET_has_no_tab_focus(current));
+		
+		if (CWIDGET_has_no_tab_focus(current))
+			continue;
+		
 		w = QWIDGET(current);
 		if (w->isVisible() && w->isEnabled() && (w->focusPolicy() & Qt::TabFocus))
 		{
