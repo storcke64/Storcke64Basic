@@ -60,6 +60,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
   Dim bIgnore As Boolean
   Dim sPath As String
   Dim sKey As String
+  Dim sTempName As String
   Dim bShow As Boolean
   Dim sExt As String
   Dim sParent As String
@@ -135,9 +136,20 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           sParent = ""
           
           If sExt = "class" Then
+            
             For Each hModule In CModule.All
               If Exist(sDir &/ File.BaseName(sFile) & "." & hModule.Key) Then
-                bIgnore = True
+                
+                ' instead of a button in options
+                Dim bShowClassesInProjectTree As Boolean = False
+                ' bShowClassesInProjectTree = True
+                
+                If bShowClassesInProjectTree Then
+                  bParentLink = True
+                  sTempName = sFile
+                Else
+                  bIgnore = True
+                End If
                 Break
               Endif          
             Next
@@ -243,7 +255,6 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           Wend
         End With
       Endif
-
       If $hTree.Exist(sKey) Then
         With $hTree[sKey]
           .Text = sFile
@@ -251,7 +262,17 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           .Reparent(sParent)
         End With
       Else
+        ' need a diff. Name (Text) for classes to reparent later
+        If sTempName Then sFile = sTempName
+        
         $hTree.Add(sKey, sFile, hPict, sParent)
+        
+        ' if a *.class exist reparent the branch
+        If sExt <> "class" And If $hTree.Exist(File.SetExt(sKey, "class")) Then 
+          $hTree[File.SetExt(sKey, "class")].Reparent(sKey)
+          $hTree[File.SetExt(sKey, "class")].Text = sFile
+        End If
+        
         If bDir And If Not bSource Then
           $hTree.Add(sKey & "/", "",, sKey)
           bDir = False
@@ -965,6 +986,16 @@ Public Function ExistForm(sClass As String) As Boolean
   Next
 
 End
+
+
+Public Function HasForm(sPath As String) As Boolean
+  
+  If File.Ext(sPath) <> "class" Then Return
+
+  Return ExistForm(File.BaseName(sPath))
+
+End
+
 
 Public Sub HasTest() As Boolean
 

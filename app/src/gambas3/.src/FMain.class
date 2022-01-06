@@ -394,21 +394,22 @@ Public Sub mnuPopup_Show()
   Dim sPath As String
   Dim bIsDir As Boolean
   Dim bIsSpecial As Boolean
+  Dim bHasForm As Boolean
   
   sCurrent = GetCurrent()
   bCurrent = sCurrent
   sRoot = GetRootKey($sKey)
   bIsSpecial = $sKey Begins "$"
   bIsDir = IsDir(sCurrent)
-  
+  bHasForm = $hProjectTree.HasForm(sCurrent)
   If sCurrent Then 
     Try bLink = Stat(sCurrent).Type = gb.Link
     If Error Then Return
   Endif
   
   UpdateMenu
-  
-  If sCurrent And If Project.IsReadOnly(sCurrent) Then
+  ' do not show on readonly files and also not if it is a forms *.class file 
+  If sCurrent And If Project.IsReadOnly(sCurrent) Or bHasForm Then
     'mnuNew.Visible = False
     If Not bIsDir Or If Not bLink Then
       mnuCut.Visible = False
@@ -431,20 +432,28 @@ Public Sub mnuPopup_Show()
     mnuEditFile.Visible = mnuEditFile.Visible And CanEdit(sCurrent)
     mnuEditClass.Visible = mnuEditFile.Visible And Project.IsFormExt(sCurrent)
     
-    mnuStartup.Visible = mnuEditFile.Visible 
-    If mnuStartup.Visible Then
-      mnuStartup.Checked = (Project.Startup = File.BaseName(sCurrent))
-      mnuStartup.Enabled = Not Project.Running
-    Endif
-    mnuRunThat.Visible = mnuStartup.Visible
-    mnuRunThat.Enabled = mnuStartup.Enabled
+    If bHasForm Then  ' not shown if it is a forms *.class file
+      mnuStartup.Visible = False
+      mnuRunThat.Visible = False
+    Else
+      mnuStartup.Visible = mnuEditFile.Visible 
+      If mnuStartup.Visible Then
+        mnuStartup.Checked = (Project.Startup = File.BaseName(sCurrent))
+        mnuStartup.Enabled = Not Project.Running
+      Endif
+      mnuRunThat.Visible = mnuStartup.Visible
+      mnuRunThat.Enabled = mnuStartup.Enabled
+    End If 
   
-    If sCurrent And If Not bIsSpecial Then
+    If sCurrent And If Not bIsSpecial And If Not bHasForm Then
       mnuDoNotTranslate.Show
       mnuDoNotTranslate.Checked = Not Project.ShouldTranslate(sCurrent)
     Else
       mnuDoNotTranslate.Hide
     Endif
+    
+    ' not shown if it is a forms *.class file
+    mnuClone.Visible = Not bHasForm 
     
     mnuCompressFile.Hide
     mnuCompressNow.Hide
@@ -997,6 +1006,10 @@ Private Function CanDelete(sPath As String) As Boolean
   If Left$(sPath) = "$" Then Return
   If Stat(sPath).Type = gb.Link Then Return True
   If Project.IsReadOnly(sPath) Then Return False
+  ' del only on .form etc. files 
+  If CFamily.List.Exist(Lower(File.Ext(sPath))) Then Return True
+  ' not on .class files 
+  If Lower(File.Ext(sPath)) = "class" Then Return Not $hProjectTree.HasForm(sPath)
   If tvwProject[sPath].Count = 0 Then Return True
 
 Catch
@@ -1010,6 +1023,7 @@ Public Sub UpdateTranslate()
   'Action["component"].Visible = Project.CreateComponent 'AND NOT (Project.ReadOnly OR Project.Running)
   
 End
+
 
 Public Sub UpdateConsoleAction()
   
