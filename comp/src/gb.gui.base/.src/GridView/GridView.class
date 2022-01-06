@@ -116,7 +116,7 @@ Private $bSorted As Boolean
 
 Private $bHasDrawEvent As Boolean
 
-Private $iPadding As Integer = 2
+Private $iPadding As Integer
 Private $iTextHeight As Integer
 Private $bDoNotRaiseSelect As Boolean
 
@@ -137,6 +137,7 @@ Public Sub _new()
   $bGrid = True
   $iRow = -1
   $iCol = 0
+  $iPadding = Desktop.Scale \ 4
   
   Me.Proxy = $hView
   
@@ -469,7 +470,7 @@ Public Sub ScrollArea_Draw()
     iBg = Color.Background
   Endif
   
-  iPadding = Max(Desktop.Scale \ 2, $iPadding)
+  iPadding = Max(1 + Desktop.Scale \ 2, $iPadding)
   
   ' Column headers
   
@@ -499,17 +500,35 @@ Public Sub ScrollArea_Draw()
           Paint.Save
 
           If iSort = I Then
-            WA = Min(12, H - F)
-            If WA < .Width Then Style.PaintArrow(X + .Width - WA - iPadding, F, WA, H - F, If(bAscent, Align.Bottom, Align.Top))
-            'Draw.ClipRect = hClip.Intersection(Rect(X, F, Max(0, .Width - WA - 2), H - F))
-            'If Draw.ClipRect Then Draw.Text(.Text, X + 4, F, .Width - WA - 8, H - F, .Alignment)
-            Paint.Rectangle(X, F, Max(0, .Width - WA - 2), H - F)
-            Paint.Clip
-            DrawText(.Text, X + 1, F, .Width - WA - iPadding - 2, H - F - 2, .Alignment, iPadding)
+            WA = Min(Desktop.Scale, H - F)
+            If WA < .Width Then 
+              'Style.PaintArrow(X + .Width - WA - iPadding, F, WA, H - F, If(bAscent, Align.Bottom, Align.Top))
+              'Paint.FillRect(X + .Width - WA - iPadding, F, WA, H - F, Color.Yellow)
+              Paint.LineCap = Paint.LineCapRound
+              Paint.LineJoin = Paint.LineJoinRound
+              Paint.LineWidth = Desktop.Scale / 6
+              If System.RightToLeft Then
+                Paint.Arrow(X + iPadding, F, WA, H - F, If(bAscent, Align.Bottom, Align.Top))
+              Else
+                Paint.Arrow(X + .Width - WA - iPadding, F, WA, H - F, If(bAscent, Align.Bottom, Align.Top))
+              Endif
+              Paint.Stroke
+            Endif
+            WA += iPadding
+            
+            If System.RightToLeft Then
+              Paint.Rectangle(X + WA, F, Max(0, .Width - WA), H - F)
+              Paint.Clip
+              DrawText(.Text, X + WA, F, .Width - WA, H - F - 2, .Alignment, iPadding)
+            Else
+              Paint.Rectangle(X, F, Max(0, .Width - WA), H - F)
+              Paint.Clip
+              DrawText(.Text, X, F, .Width - WA, H - F - 2, .Alignment, iPadding)
+            Endif
           Else
-            Paint.Rectangle(X + 1, F, .Width - 2, H - F)
+            Paint.Rectangle(X, F, .Width, H - F)
             Paint.Clip
-            DrawText(.Text, X + 1, F, .Width - 2, H - F - 2, .Alignment, iPadding)
+            DrawText(.Text, X, F, .Width, H - F, .Alignment, iPadding)
           Endif
 
           Paint.Restore

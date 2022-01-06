@@ -504,24 +504,24 @@ Static Public Sub Arrow(X As Float, Y As Float, Width As Float, Height As Float,
 
   Dim SX, SY As Float
 
-  SX = Min(Width, Height) / 4
+  SX = (Min(Width, Height) - Paint.LineWidth) / 4
   If SX <= 0 Then Return
   SY = SX * 2
   
   If Orientation = Align.Top Or If Orientation = Align.Bottom Then Swap SX, SY
   
   If Align.IsLeft(Alignment) Then
-    X = SX
+    X += SX
   Else If Align.IsRight(Alignment) Then
-    X = Width - SX
+    X += Width - SX
   Else
     X += Width / 2
   Endif
   
   If Align.IsTop(Alignment) Then
-    Y = SY
+    Y += SY
   Else If Align.IsBottom(Alignment) Then
-    Y = Height - SY
+    Y += Height - SY
   Else
     Y += Height / 2
   Endif

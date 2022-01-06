@@ -614,10 +614,10 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
           XA = X + W + ($iDepthW + WA) / 4
           YA = Y + CInt(H - HA) \ 2
           
-          Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Left))
-          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
+          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 32)
           Paint.LineWidth = $iDepthW / 12
           Paint.LineCap = Paint.LineCapRound
+          Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Left))
           Paint.Stroke
           
         Endif
@@ -710,9 +710,9 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
           XA = X + ($iDepthW - WA) / 2
           YA = Y + (H - HA) / 2
           Paint.LineWidth = HA / 6
-          Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
-          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 64)
+          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 32)
           Paint.LineCap = Paint.LineCapRound
+          Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
           Paint.Stroke
           
         Endif
