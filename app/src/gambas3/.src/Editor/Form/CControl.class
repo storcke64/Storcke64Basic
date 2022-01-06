@@ -1230,10 +1230,8 @@ Private Sub CreatePanel(iIndex As Integer, sTag As String, iMouse As Integer, bM
   
   If bMaster Then
     hPanel.Background = Color.TextBackground
-    'hPanel.Foreground = Color.Black
   Else
-    hPanel.Background = Color.LightForeground
-    'hPanel.Foreground = Color.White
+    hPanel.Background = Color.Merge(Color.LightForeground, Color.TextForeground)
   Endif
   
   MovePanel(iIndex)
