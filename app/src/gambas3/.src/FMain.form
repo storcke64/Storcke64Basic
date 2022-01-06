@@ -1335,14 +1335,20 @@
         MoveScaled(1,7,28,5)
         Padding = 1
         { btnOpenStartup ToolButton
-          MoveScaled(1,0,4,4)
+          MoveScaled(0,0,4,4)
           ToolTip = ("Open startup class")
           Picture = Picture["icon:/small/home"]
         }
         { btnUseInheritance ToolButton
-          MoveScaled(5,0,4,4)
+          MoveScaled(4,0,4,4)
           ToolTip = ("Dispose class files according to inheritance")
           Picture = Picture["icon:/small/inheritance"]
+          Toggle = True
+        }
+        { btnShowAllClasses ToolButton
+          MoveScaled(8,0,4,4)
+          ToolTip = ("Display all class files")
+          Picture = Picture["icon:/small/text"]
           Toggle = True
         }
         { txtSearchProject ButtonBox

@@ -75,6 +75,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
   Dim hStat As Stat
   Dim bParentLink As Boolean
   Dim bStartup As Boolean
+  Dim sForm As String
   'Dim bCompressed As Boolean
 
   sPath = sDir &/ sFile
@@ -138,15 +139,12 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           If sExt = "class" Then
             
             For Each hModule In CModule.All
-              If Exist(sDir &/ File.BaseName(sFile) & "." & hModule.Key) Then
-                
-                ' instead of a button in options
-                Dim bShowClassesInProjectTree As Boolean = False
-                ' bShowClassesInProjectTree = True
-                
-                If bShowClassesInProjectTree Then
+              sForm = sDir &/ File.BaseName(sFile) & "." & hModule.Key
+              If Exist(sForm) Then
+                If Project.ShowAllClasses Then
                   bParentLink = True
                   sTempName = sFile
+                  sParent = sForm
                 Else
                   bIgnore = True
                 End If
@@ -193,6 +191,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
             
           sFile = File.BaseName(sFile)
           bStartup = sFile = $sStartup
+          If sTempName Then bStartup = False
           
         Endif
 
@@ -285,6 +284,9 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           .Font = $hTree.Font
           .Font.Underline = True
           .Font.Bold = True
+        Else If sTempName Then
+          .Font = $hTree.Font
+          .Font.Grade -= 2
         Else
           .Font = Null
         Endif

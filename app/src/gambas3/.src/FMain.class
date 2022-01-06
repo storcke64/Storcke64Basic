@@ -59,6 +59,7 @@ Public Sub _new()
   
   txtSearchProject._AddButton(btnOpenStartup)
   txtSearchProject._AddButton(btnUseInheritance)
+  txtSearchProject._AddButton(btnShowAllClasses)
   
   'FSearch.Load
   FOption.Load
@@ -99,6 +100,10 @@ Public Sub Form_Open()
   Project.UseInheritance = Settings["/UseInheritance", True] 
   btnUseInheritance.Value = Project.UseInheritance
   
+  btnShowAllClasses.Picture = Picture["img/module/class.png"].Stretch(Stock.GetSize("small"))
+  Project.ShowAllClasses = Settings["/ShowAllClasses", False] 
+  btnShowAllClasses.Value = Project.ShowAllClasses
+  
   UpdateGlobalLayout
   
 End
@@ -118,6 +123,7 @@ Public Sub Form_Close()
   Else
     
     Settings["/UseInheritance"] = Project.UseInheritance
+    Settings["/ShowAllClasses"] = Project.ShowAllClasses
     
     Settings.Write(Me)
     Settings.Write(panProject, "panProject") 
@@ -3159,6 +3165,13 @@ End
 Public Sub btnUseInheritance_Click()
 
   Project.UseInheritance = btnUseInheritance.Value
+  Project.Refresh
+
+End
+
+Public Sub btnShowAllClasses_Click()
+
+  Project.ShowAllClasses = btnShowAllClasses.Value
   Project.Refresh
 
 End
