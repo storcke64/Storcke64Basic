@@ -315,13 +315,8 @@ BEGIN_METHOD(Picture_Copy, GB_INTEGER x; GB_INTEGER y; GB_INTEGER w; GB_INTEGER 
 	int h = VARGOPT(h, THIS->pixmap->height());
 
 	pict = create();
-	delete pict->pixmap;
-	pict->pixmap = new QPixmap(w, h);
+	*pict->pixmap = THIS->pixmap->copy(x, y, w, h);
 	
-	QPainter p(pict->pixmap);
-	p.drawPixmap(0, 0, *THIS->pixmap, x, y, w, h);
-	p.end();
-
 	GB.ReturnObject(pict);
 
 END_METHOD
