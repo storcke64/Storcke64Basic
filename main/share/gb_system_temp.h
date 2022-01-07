@@ -55,7 +55,7 @@ int SYSTEM_get_cpu_count(void)
 
 int SYSTEM_get_cpu_count(void)
 {
-	fprintf(stderr, "gbx" GAMBAS_VERSION ": warning: don't know how to return cpu count\n");
+	fprintf(stderr, "gbx" GAMBAS_VERSION_STRING ": warning: don't know how to return cpu count\n");
 	return 1;
 }
 
