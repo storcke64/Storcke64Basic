@@ -60,7 +60,6 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
   Dim bIgnore As Boolean
   Dim sPath As String
   Dim sKey As String
-  Dim sTempName As String
   Dim bShow As Boolean
   Dim sExt As String
   Dim sParent As String
@@ -140,14 +139,8 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
             
             For Each hModule In CModule.All
               sForm = sDir &/ File.BaseName(sFile) & "." & hModule.Key
-              If Exist(sForm) Then
-                If Project.ShowAllClasses Then
-                  bParentLink = True
-                  sTempName = sFile
-                  sParent = sForm
-                Else
-                  bIgnore = True
-                End If
+              If Exist(sForm) Then 
+                bIgnore = True
                 Break
               Endif          
             Next
@@ -170,16 +163,6 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
                 Endif
               Endif
             Endif
-          ' Else If sExt = "module" Then
-          ' Else
-          '   'hModule = CModule[sExt]
-          '   'sParent = hModule.TreeKey
-          '   'If Not hModule.Used Then bIgnore = True
-          '   sParent = sDir
-          ' Else If sExt <> "module" Then
-          '   'If Not HasModule(sExt) Then
-          '   '  bIgnore = True
-          '   'Endif
           Endif
 
           If Not sParent Then sParent = sDir
@@ -191,7 +174,6 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
             
           sFile = File.BaseName(sFile)
           bStartup = sFile = $sStartup
-          If sTempName Then bStartup = False
           
         Endif
 
@@ -254,6 +236,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           Wend
         End With
       Endif
+      
       If $hTree.Exist(sKey) Then
         With $hTree[sKey]
           .Text = sFile
@@ -262,15 +245,15 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
         End With
       Else
         ' need a diff. Name (Text) for classes to reparent later
-        If sTempName Then sFile = sTempName
+        'If sTempName Then sFile = sTempName
         
         $hTree.Add(sKey, sFile, hPict, sParent)
         
-        ' if a *.class exist reparent the branch
-        If sExt <> "class" And If $hTree.Exist(File.SetExt(sKey, "class")) Then 
-          $hTree[File.SetExt(sKey, "class")].Reparent(sKey)
-          $hTree[File.SetExt(sKey, "class")].Text = sFile
-        End If
+        ' 'If a * .class exist reparent the branch
+        ' If sExt <> "class" And If $hTree.Exist(File.SetExt(sKey, "class")) Then 
+        '   $hTree[File.SetExt(sKey, "class")].Reparent(sKey)
+        '   $hTree[File.SetExt(sKey, "class")].Text = sFile
+        ' End If
         
         If bDir And If Not bSource Then
           $hTree.Add(sKey & "/", "",, sKey)
@@ -284,9 +267,6 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           .Font = $hTree.Font
           .Font.Underline = True
           .Font.Bold = True
-        Else If sTempName Then
-          .Font = $hTree.Font
-          .Font.Grade -= 2
         Else
           .Font = Null
         Endif
@@ -307,10 +287,24 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
         
       End With
       
-      If $bCurrentProject Then Project.RefreshIcon(sKey)
+      If bSource And If Project.ShowAllClasses Then
+        If ExistForm(sFile) Then
+        
+          sParent = sKey
+          sPath = File.SetExt(sPath, "class")
+          sKey = File.SetExt(sKey, "class")
+          Try hStat = Stat(sPath)
+          If Error Then Return
+          
+          With $hTree.Add(sKey, sFile, GetFileIcon(sPath,, hStat,, True), sParent)
+            .Font = $hTree.Font
+            .Font.Grade -= 2
+          End With
+        
+        Endif
+      Endif
       
-      'hForm = Files[sKey]
-      'If hForm Then hForm.Icon = GetFileIcon(sKey, 16)
+      If $bCurrentProject Then Project.RefreshIcon(sKey)
       
     Endif
 
@@ -989,7 +983,6 @@ Public Function ExistForm(sClass As String) As Boolean
 
 End
 
-
 Public Function HasForm(sPath As String) As Boolean
   
   If File.Ext(sPath) <> "class" Then Return
@@ -997,7 +990,6 @@ Public Function HasForm(sPath As String) As Boolean
   Return ExistForm(File.BaseName(sPath))
 
 End
-
 
 Public Sub HasTest() As Boolean
 
@@ -1112,7 +1104,7 @@ Public Sub RefreshKey(sKey As String, Optional sOld As String)
     Next
     
   Endif
-
+  
 End
 
 Public Sub AddExtern(sPath As String)

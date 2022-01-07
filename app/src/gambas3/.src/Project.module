@@ -4552,6 +4552,7 @@ Public Sub RenameFile(sPath As String, sNewName As String) As Boolean
   Dim sMsg As String
   Dim sFamily As String
   Dim bIsDir As Boolean
+  Dim bRenameForm As Boolean
 
   sDir = File.Dir(sPath)
   sExt = File.Ext(sPath)
@@ -4576,6 +4577,7 @@ Public Sub RenameFile(sPath As String, sNewName As String) As Boolean
     sNewPath = RenameOneFile(sDir, sName, sNewName, sExt)
 
     If CFamily.List.Exist(sExt) Then
+      bRenameForm = True
       RenameOneFile(sDir, sName, sNewName, "class")
     Else If sExt = "class" Then
       For Each sFamily In CFamily.List
@@ -4603,6 +4605,9 @@ Public Sub RenameFile(sPath As String, sNewName As String) As Boolean
       Refresh
     Else
       RefreshKey(sNewPath, sPath)
+      If bRenameForm And If ShowAllClasses Then
+        RefreshKey(File.SetExt(sNewPath, "class"))
+      Endif
     Endif
   
     'AddFile(File.Dir(sNewPath), File.Name(sNewPath), TRUE)
