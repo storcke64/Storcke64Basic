@@ -235,6 +235,8 @@ Private $bFileIsUnknown As Boolean
 
 Public NoWait As Integer
 
+Public OpenFileIgnoreUnknown As Boolean
+
 ' If GetFileIcon() has been called on an added file
 'Private $bLastAdded As Boolean
 
@@ -2013,18 +2015,17 @@ Public Sub IsPatchFile(sPath As String) As Boolean
 
 End
 
-Public Function LoadFile(sPath As String, Optional bNoErrorIfUnknown As Boolean) As Object
+Public Function LoadFile(sPath As String, Optional bNoMessage As Boolean) As Object
 
   Dim hForm As Object
   Dim bError As Boolean
   Dim sType As String
-  Dim sErr As String
 
   hForm = Files[sPath]
 
   If Not hForm Then
 
-    'Inc Application.Busy
+    If Not Exist(sPath) Then Stat(sPath) ' Raise the error on purpose
 
     If IsDir(sPath) Then
       
@@ -2085,7 +2086,7 @@ Public Function LoadFile(sPath As String, Optional bNoErrorIfUnknown As Boolean)
             
             'Dec Application.Busy
             Files[sPath] = Null
-            If bNoErrorIfUnknown Then
+            If bNoMessage Or If OpenFileIgnoreUnknown Then
               $bFileIsUnknown = True
             Else
               FMain.ShowError(("Cannot open a binary file."), sPath)
@@ -2122,11 +2123,12 @@ Public Function LoadFile(sPath As String, Optional bNoErrorIfUnknown As Boolean)
 
 Catch
 
-  sErr = Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>"
+  If Not bNoMessage Then
+    FMain.ShowErrorWith(("Cannot open file."), "*", sPath)
+  Endif
+
   If hForm Then Try hForm.Delete
-  'Dec Application.Busy
   Try Files[sPath] = Null
-  FMain.ShowError(("Cannot open file.") & "\n\n" & sErr, sPath)
 
 End
 
@@ -2175,12 +2177,13 @@ End
 
 Public Sub FileWasUnknown() As Boolean
   
+  OpenFileIgnoreUnknown = False
   Return $bFileIsUnknown
   
 End
 
 
-Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn As Integer = -1, Optional bNoErrorIfUnknown As Boolean) As Object
+Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn As Integer = -1) As Object
 
   Dim hForm As Object
   Dim bAlreadyLoaded As Boolean
@@ -2194,22 +2197,10 @@ Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn
     Return
   Endif
 
-  'IF File.Ext(sPath) = "form" THEN
-  '  FProperty.Show
-  '  FToolBox.Show
-  'ENDIF
-
-  ' If IsConflict(sPath) Then
-  '   FConflict.Run(sPath)
-  '   VersionControl.CheckPaths()
-  '   If IsConflict(sPath) Then Return
-  '   RefreshKey(sPath)
-  ' Endif
-  
   If Files[sPath] Then bAlreadyLoaded = True
 
   $bFileIsUnknown = False
-  If Not LoadFile(sPath, bNoErrorIfUnknown) Then Return
+  If Not LoadFile(sPath) Then Return
 
   If Not InsideDirectory(sPath, Project.Dir) Then Tree.AddExtern(sPath)
 

@@ -178,7 +178,8 @@ Public Sub tvwProject_Activate()
           If Project.IsSourcePath(sKeyClass) Then sKey = sKeyClass
         Endif
       Endif
-      Project.OpenFile(sKey,,, True)
+      Project.OpenFileIgnoreUnknown = True
+      Project.OpenFile(sKey)
       If Project.FileWasUnknown() Then
         sMime = MMime.GetMime(sKey)
         If sMime Then
@@ -2244,10 +2245,13 @@ End
 
 Public Sub ShowErrorWith(sTitle As String, Optional sMsg As String, Optional sKey As String)
   
+  Dim sBacktrace As String
+  
   If Not sMsg Or If sMsg = "*" Then 
+    If sMsg = "*" Then sBacktrace = Error.Backtrace.Join(" ")
     sMsg = Tr(Error.Text)
     If sMsg Not Ends "." Then sMsg &= "."
-    If sMsg = "*" Then Try sMsg &= "\n<font size=\"-1\"><tt>\n" & Error.Backtrace.Join(" ") & "</tt></font>"
+    If sBacktrace Then sMsg &= "\n<font size=\"-1\"><tt>" & sBacktrace & "</tt></font>"
   Endif
   
   ShowMessage("<b>" & sTitle & "</b>\n\n" & sMsg, "error", sKey)
