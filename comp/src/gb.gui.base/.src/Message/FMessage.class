@@ -2,7 +2,16 @@
 
 Static Private $iButton As Integer
 
-Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault As String[]) As Integer
+Static Public Sub Run(sIcon As String, sText As String, aButton As String[], aDefault As String[]) As Integer
+
+  Dim hForm As FMessage
+  
+  hForm = New FMessage
+  Return hForm.Display(sIcon, sText, aButton, aDefault)
+  
+End
+
+Public Sub Display(sIcon As String, sText As String, aButton As String[], aDefault As String[]) As Integer
 
   Dim DS As Integer = Desktop.Scale
   Dim sTitle As String
