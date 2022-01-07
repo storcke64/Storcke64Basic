@@ -352,8 +352,8 @@ static bool start_task(CTASK *_object)
 			
 			setlinebuf(stdout);
 		}
-		else
-			close(CHILD_STDOUT);
+		/*else
+			close(CHILD_STDOUT);*/
 
 		if (has_error)
 		{
@@ -364,8 +364,8 @@ static bool start_task(CTASK *_object)
 			
 			setlinebuf(stderr);
 		}
-		else
-			close(CHILD_STDERR);
+		/*else
+			close(CHILD_STDERR);*/
 
 		has_forked(); // After the redirection
 		
