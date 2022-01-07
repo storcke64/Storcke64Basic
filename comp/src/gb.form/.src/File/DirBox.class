@@ -3,7 +3,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Action,Border=True"
+Public Const _Properties As String = "*,Path,Action,Border=True"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "32,4"
 Public Const _Similar As String = "TextBox"
@@ -12,7 +12,7 @@ Public Const _Group As String = "Chooser"
 Event Click
 Event Change
 
-Property Value As String
+Property Value, Path As String
 Property Border As Boolean
 
 Private $hButtonBox As ButtonBox
