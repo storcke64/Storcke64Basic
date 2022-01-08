@@ -23,21 +23,15 @@ Property Placeholder As String
 '' File dialog will be for saving files.  (it will give overwrite warnings for existing files)
 Property SaveFile As Boolean
 
-'' A space separated list of filters and their names\
-'' Filter extensions use wildcards and are seperated with semicolons;\
-'' Use doublequotes to use spaces in names.
+'' Return or set the optional filters of the file selection dialog.
 ''
-'' [[
-'' ==
-'' Eg.\
-'' "*.png;*.jpg "Image files" *.ico "Icon Files"
-'' ]]
-'' .
-Property Filter As String
+'' The syntax is the same as the [Dialog.Filter](/comp/gb.qt4/dialog/filter) property.
 
-Private $sFilter As String
+Property Filter As String[]
+
+Private $aFilter As String[]
 Private $bSaveFile As Boolean
-Private $sTitle As String = "Select file..."
+Private $sTitle As String
 
 Private $hButtonBox As ButtonBox
 
@@ -53,31 +47,32 @@ End
 
 Public Sub Button_Click()
 
-  Dim sTitleBU As String = Dialog.Title
-  Dim sFilters, sFilterBU As String[]
+  Dim sSaveTitle As String = Dialog.Title
+  Dim aSaveFilter As String[]
+  Dim bCancel As Boolean
 
-  If $sFilter Then
-    sFilterBU = Dialog.Filter
-    sFilters = Split($sFilter, " ", "\"")
-    Dialog.Filter = sFilters
+  If $aFilter Then
+    aSaveFilter = Dialog.Filter
+    Dialog.Filter = $aFilter
   Endif
 
   Dialog.Path = $hButtonBox.Text
   Dialog.Title = $sTitle
+  If $aFilter And If $aFilter.Count Then Dialog.FilterIndex = 0
 
   If $bSaveFile Then
-    If Dialog.SaveFile() Then Goto CleanUp
+    bCancel = Dialog.SaveFile()
   Else
-    If Dialog.OpenFile() Then Goto CleanUp
+    bCancel = Dialog.OpenFile()
   Endif
 
-  $hButtonBox.Text = Dialog.Path
-  Raise Click
+  Dialog.Title = sSaveTitle
+  If $aFilter Then Dialog.Filter = aSaveFilter
 
-CleanUp:
-  Dialog.Title = sTitleBU
-  If $sFilter Then Dialog.Filter = sFilterBU
-  Return
+  If Not bCancel Then
+    $hButtonBox.Text = Dialog.Path
+    Raise Click
+  Endif
 
 End
 
@@ -135,15 +130,15 @@ Private Sub Title_Write(Value As String)
 
 End
 
-Private Function Filter_Read() As String
+Private Function Filter_Read() As String[]
 
-  Return $sFilter
+  Return $aFilter
 
 End
 
-Private Sub Filter_Write(Value As String)
+Private Sub Filter_Write(Value As String[])
 
-  $sFilter = Value
+  $aFilter = Value
 
 End
 
