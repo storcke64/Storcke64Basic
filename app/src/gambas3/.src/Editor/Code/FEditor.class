@@ -1552,7 +1552,7 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
     Return ParentClass
   Endif
 
-  If Left(sSymbol) = "{" And If Right(sSymbol) = "}" Then sSymbol = Mid$(sSymbol, 2, -1)
+  sSymbol = Util.TrimCurlyBracket(sSymbol)
 
   ' Look for local variables
 
@@ -2415,7 +2415,7 @@ Private Sub FindDefinition() As Boolean
       
     Endif
 
-    If sKeyword Begins "{" And If sKeyword Ends "}" Then sKeyword = Mid$(sKeyword, 2, -1)
+    sKeyword = Util.TrimCurlyBracket(sKeyword)
     
     If iCpt >= 1 And If Highlight.Types[iCpt] = Highlight.Label Then
       

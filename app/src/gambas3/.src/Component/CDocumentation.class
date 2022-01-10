@@ -644,7 +644,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
   
   For iLine = iLine To hEditor.Count - 1
     
-    aSym = Highlight.Analyze(hEditor[iLine].Text)
+    aSym = Highlight.Analyze(hEditor[iLine].Text, True)
     If aSym.Count = 0 Then Continue
     
     bStatic = bModule
@@ -653,7 +653,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
     sKind = ""
     
     For iInd = 0 To aSym.Count - 1
-      Select Case aSym[iInd]
+      Select Case UCase(aSym[iInd])
         Case "PUBLIC"
           sKind = "v"
           bPublic = True
@@ -743,12 +743,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
       bBrace = False
     Endif
     
-    If sName = "{" Then
-      If iInd + 2 > aSym.Max Then Continue
-      Inc iInd
-      sName = aSym[iInd]
-      If aSym[iInd + 1] = "}" Then Inc iInd
-    Endif
+    sName = Util.TrimCurlyBracket(sName)
     
     If bBrace Then
       If iInd + 1 > aSym.Max Then Continue
@@ -763,7 +758,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
       iInd += 2
       
       Do
-        sName2 = aSym[iInd]
+        sName2 = Util.TrimCurlyBracket(aSym[iInd])
         If Left(sName2) = "{" Then
           If iInd + 2 > aSym.Max Then Break
           Inc iInd
@@ -805,8 +800,8 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
           Endif
         Next
         
-        'iEnd = iInd
-        Try sSign = Trim(Mid$(Trim(hEditor[iLine].Text), Highlight.Positions[iStart] + 2))
+        'iEnd = iInd aSym.Copy(iStart, -1).Join(" ")'
+        Try sSign = Trim(Mid$(Highlight.TextAfter, Highlight.Positions[iStart] + 2))
         If Not Error Then
           iPos = RInStr(sSign, ")")
           If iPos Then sSign = Trim(Left$(sSign, iPos - 1))
@@ -870,7 +865,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
       ' PROPERTY ... USE
       
       If InStr("pr", sKind) And If aSym.Count >= 4 Then
-        If aSym[aSym.Count - 2] = "USE" Then
+        If aSym[aSym.Count - 2] == "USE" Then
           sName = aSym[aSym.Max]
           hSymbol2 = hSymbol.Copy()
           hSymbol2.Name = sName

@@ -59,6 +59,13 @@ Public Sub UncompressForGmail(sPath As String)
   
 End
 
+Public Sub TrimCurlyBracket(sStr As String) As String
+  
+  If sStr Begins "{" And If sStr Ends "}" Then Return Mid$(sStr, 2, -1)
+  Return sStr
+  
+End
+
 
 Public Sub Main()
 

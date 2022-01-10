@@ -552,11 +552,14 @@ End
 Public Sub Refresh(Optional bDoNotRefreshCache As Boolean, cFilter As Collection)
   
   Dim vLayout As Variant
+  Dim Y As Integer
   
   $cFilter = cFilter
   vLayout = $hTree.Layout
+  Y = $hTree.ScrollY
   FillTree(bDoNotRefreshCache)
   $hTree.Layout = vLayout
+  $hTree.ScrollY = Y
   
 End
 

@@ -297,7 +297,7 @@ Private Sub MakeSignature(sSign As String) As String
   Dim iPos, iPos2 As Integer
   Dim sResult As String
   
-  Highlight.Analyze(sSign)
+  Highlight.Analyze(sSign, True)
   aSym = Highlight.Symbols
   
   Do
@@ -311,7 +311,7 @@ Private Sub MakeSignature(sSign As String) As String
       Break
     Endif
     
-    If UCase(sSym) = "OPTIONAL" Then
+    If sSym == "OPTIONAL" Then
       If Not bOptional Then
         sResult &= "["
         bOptional = True
@@ -321,7 +321,7 @@ Private Sub MakeSignature(sSign As String) As String
     Endif
     
     bByRef = False
-    If UCase(sSym) = "BYREF" Then
+    If sSym == "BYREF" Then
       bByRef = True
       Inc iInd
       sSym = aSym[iInd]
@@ -335,7 +335,7 @@ Private Sub MakeSignature(sSign As String) As String
     If bByRef Then sSym = "&" & sSym
     
     Inc iInd
-    If aSym[iInd] <> "AS" Then Break
+    If UCase(aSym[iInd]) <> "AS" Then Break
     
     Inc iInd
     sType = aSym[iInd]
@@ -492,7 +492,7 @@ Public Function GetSignature(bBalise As Boolean, Optional iShowArg As Integer = 
       
       GoSub ADD_COMMA
 
-      sSym = Mid$(sSign, iInd + 1, iPos - iInd - 1)
+      sSym = Util.TrimCurlyBracket(Mid$(sSign, iInd + 1, iPos - iInd - 1))
 
       sRes &= $sArgBefore 
       
@@ -1210,6 +1210,7 @@ Private Function GetSyntaxSignature() As String
   Dim bName As Boolean
   Dim bFirst As Boolean
   Dim iLen As Integer
+  Dim sName As String
 
   bFirst = True
 
@@ -1237,7 +1238,8 @@ Private Function GetSyntaxSignature() As String
         sRes = sRes & Keyword(",") & " "
       Endif
 
-      sRes = sRes & "<u>" & Mid$(sSign, iInd + 1, iPos - iInd - 1) & "</u> " & Keyword("As") & " "
+      sName = Util.TrimCurlyBracket(Mid$(sSign, iInd + 1, iPos - iInd - 1))
+      sRes = sRes & "<u>" & sName & "</u> " & Keyword("As") & " "
 
       iInd = iPos
       bName = True
