@@ -160,7 +160,7 @@ BEGIN_METHOD_VOID(Application_Args_next)
 END_METHOD
 
 
-BEGIN_PROPERTY(Application_Args_All)
+BEGIN_PROPERTY(Application_Args_Copy)
 
 	GB_ARRAY array;
 	int i;
@@ -192,14 +192,26 @@ END_PROPERTY*/
 
 //-------------------------------------------------------------------------
 
-BEGIN_PROPERTY(Application_Env_Count)
-
+static int get_environ_count()
+{
 	int n = 0;
 
 	while(environ[n])
 		n++;
+	
+	return n;
+}
 
-  GB_ReturnInt(n);
+BEGIN_PROPERTY(Application_Env_Count)
+
+  GB_ReturnInteger(get_environ_count());
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Application_Env_Max)
+
+  GB_ReturnInteger(get_environ_count() - 1);
 
 END_PROPERTY
 
@@ -238,6 +250,25 @@ BEGIN_METHOD_VOID(Application_Env_next)
   }
 
 END_METHOD
+
+BEGIN_PROPERTY(Application_Env_Copy)
+
+	GB_ARRAY array;
+	int i, n;
+	char *arg;
+
+	n = get_environ_count();
+	GB_ArrayNew(&array, GB_T_STRING, n - 1);
+	for (i = 0; i < n; i++)
+	{
+		arg = environ[i];
+		if (arg && *arg)
+			*(char **)GB_ArrayGet(array, i) = STRING_new_zero(environ[i]);
+	}
+
+  GB_ReturnObject(array);
+
+END_PROPERTY
 
 //-------------------------------------------------------------------------
 
@@ -316,7 +347,8 @@ GB_DESC NATIVE_AppArgs[] =
 
   GB_STATIC_PROPERTY_READ("Count", "i", Application_Args_Count),
   GB_STATIC_PROPERTY_READ("Max", "i", Application_Args_Max),
-  GB_STATIC_PROPERTY_READ("All", "String[]", Application_Args_All),
+  GB_STATIC_PROPERTY_READ("All", "String[]", Application_Args_Copy),
+  GB_STATIC_METHOD("Copy", "String[]", Application_Args_Copy, NULL),
   GB_STATIC_METHOD("_get", "s", Application_Args_get, "(Index)i"),
   GB_STATIC_METHOD("_next", "s", Application_Args_next, NULL),
   //GB_STATIC_PROPERTY("Name", "s", Application_Args_Name),
@@ -330,6 +362,8 @@ GB_DESC NATIVE_AppEnv[] =
   GB_DECLARE_STATIC("Env"),
 
   GB_STATIC_PROPERTY_READ("Count", "i", Application_Env_Count),
+  GB_STATIC_PROPERTY_READ("Max", "i", Application_Env_Max),
+  GB_STATIC_METHOD("Copy", "String[]", Application_Env_Copy, NULL),
   GB_STATIC_METHOD("_get", "s", Application_Env_get, "(Key)s"),
   GB_STATIC_METHOD("_put", NULL, Application_Env_put, "(Value)s(Key)s"),
   GB_STATIC_METHOD("_next", "s", Application_Env_next, NULL),
