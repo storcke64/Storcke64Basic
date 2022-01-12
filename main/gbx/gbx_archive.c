@@ -778,7 +778,7 @@ char *ARCHIVE_get_version(ARCHIVE *arch)
 			while (line)
 			{
 				n++;
-				if (n == 5)
+				if (n == 4)
 				{
 					arch->version = STRING_new_zero(line);
 					break;
