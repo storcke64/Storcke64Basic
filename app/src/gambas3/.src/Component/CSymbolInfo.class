@@ -335,7 +335,7 @@ Private Sub MakeSignature(sSign As String) As String
     If bByRef Then sSym = "&" & sSym
     
     Inc iInd
-    If UCase(aSym[iInd]) <> "AS" Then Break
+    If Not (aSym[iInd] == "AS") Then Break
     
     Inc iInd
     sType = aSym[iInd]

@@ -1134,8 +1134,8 @@ Static Public Sub IsCurrentEndProc() As Boolean
 
   aLine = Highlight.Symbols
 
-  If aLine.Count = 1 Then Return aLine[0] = "END"
-  If aLine.Count = 2 Then Return aLine[0] = "END" And (aLine[1] = "PROCEDURE" Or aLine[1] = "FUNCTION" Or aLine[1] = "SUB")
+  If aLine.Count = 1 Then Return aLine[0] == "END"
+  If aLine.Count = 2 Then Return aLine[0] == "END" And (aLine[1] == "PROCEDURE" Or aLine[1] == "FUNCTION" Or aLine[1] == "SUB")
 
 End
 
@@ -1412,10 +1412,10 @@ Static Public Function ReadSymbolType(aSym As String[], iIndex As Integer, Optio
     bEmbed = True
   Endif
 
-  If aSym[iIndex] <> "AS" Then Return
+  If Not (aSym[iIndex] == "AS") Then Return
   Inc iIndex
-  If aSym[iIndex] = "NEW" Then Inc iIndex
-  If aSym[iIndex] = "STRUCT" Then 
+  If aSym[iIndex] == "NEW" Then Inc iIndex
+  If aSym[iIndex] == "STRUCT" Then 
     bStruct = True
     Inc iIndex
   Endif
@@ -1463,19 +1463,19 @@ Static Public Function ReadLocalSymbolType(aSym As String[], iIndex As Integer, 
 
   Do
 
-    If UCase(aSym[iIndex]) = UCase(sSymbol) Then
+    If aSym[iIndex] == sSymbol Then
 
       hSymbol.Name = aSym[iIndex]
 
       Inc iIndex
 
       Do
-        If aSym[iIndex] = "AS" Then Break
+        If aSym[iIndex] == "AS" Then Break
         Inc iIndex
       Loop
 
       Inc iIndex
-      If aSym[iIndex] = "NEW" Then Inc iIndex
+      If aSym[iIndex] == "NEW" Then Inc iIndex
 
       sType = aSym[iIndex]
       sType = UCase(Left(sType)) & Mid$(sType, 2)
@@ -1564,10 +1564,10 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
     aSym = Highlight.Analyze($hEditor[iLine].Text)
     If aSym.Count >= 1 Then
       If asym.Count = 1 Then
-        If aSym[0] = "END" Then Break
+        If aSym[0] == "END" Then Break
       Endif
       If aSym.Count >= 4 Then
-        If aSym[0] = "DIM" Or If aSym[0] = "STATIC" Then
+        If aSym[0] == "DIM" Or If aSym[0] == "STATIC" Then
           If ReadLocalSymbolType(aSym, 1, sSymbol, $hVirtualSymbol) Then
             With $hVirtualSymbol
               '.Name = aSym[1]
@@ -1575,7 +1575,7 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
               .Kind = "l"
               .LineNumber = iLine + 1
               .NotPublic = True
-              .IsStatic = aSym[0] = "STATIC"
+              .IsStatic = aSym[0] == "STATIC"
               '.Type = sType
             End With
             $hSymbol = $hVirtualSymbol
@@ -2364,7 +2364,7 @@ Private Sub FindDefinition() As Boolean
   aSymbols = Highlight.Symbols
   
   For iCpt = 0 To aSymbols.Max
-    If Highlight.Types[iCpt] = Highlight.Keyword Then aSymbols[iCpt] = UCase(aSymbols[iCpt])
+    'If Highlight.Types[iCpt] = Highlight.Keyword Then aSymbols[iCpt] = UCase(aSymbols[iCpt])
     If Highlight.Positions[iCpt] > iCol Then Break
   Next
   Dec iCpt
@@ -2419,7 +2419,7 @@ Private Sub FindDefinition() As Boolean
     
     If iCpt >= 1 And If Highlight.Types[iCpt] = Highlight.Label Then
       
-      If aSymbols[iCpt - 1] = "GOTO" Or If aSymbols[iCpt - 1] = "GOSUB" Then
+      If aSymbols[iCpt - 1] == "GOTO" Or If aSymbols[iCpt - 1] == "GOSUB" Then
         
         While iLine > 0
           Dec iLine
@@ -3303,7 +3303,7 @@ Public Sub RenameControl(sOld As String, sNew As String)
     Endif
     
     If aSym.Count Then
-     If aSym[0] = "Dim" Then Continue
+     If aSym[0] == "DIM" Then Continue
     Endif
 
     For iInd = aSym.Max DownTo 0
@@ -3318,8 +3318,8 @@ Public Sub RenameControl(sOld As String, sNew As String)
         If iInd > 0 Then
           sSym = aSym[iInd - 1]
           If sSym = "." Then
-            If iInd <= 1 Or If aSym[iInd - 2] <> "ME" Then Continue
-          Else If sSym = "!" Or If sSym = "AS" Or If sSym = "NEW" Then 
+            If iInd <= 1 Or If Not (aSym[iInd - 2] == "ME") Then Continue
+          Else If sSym = "!" Or If sSym == "AS" Or If sSym == "NEW" Then 
             Continue
           Endif
         Endif
@@ -3490,11 +3490,11 @@ Private Sub GetExpressionTypeWithEval(aSym As String[], aType As Integer[]) As S
     
     If aType[I] = Highlight.Keyword Then
       
-      If aSym[I] = "ME" Then
+      If aSym[I] == "ME" Then
         sType = GetSymbolType("ME")
-      Else If aSym[I] = "SUPER" Then
+      Else If aSym[I] == "SUPER" Then
         sType = GetSymbolType("SUPER")
-      Else If aSym[I] = "LAST" Then
+      Else If aSym[I] == "LAST" Then
         sType = "o"
       Endif
       
@@ -3525,7 +3525,7 @@ Private Sub GetExpressionTypeWithEval(aSym As String[], aType As Integer[]) As S
       
       bMakeArray = True
       If I > 0 Then 
-        If aType[I - 1] = Highlight.Symbol Or If aSym[I - 1] = ")" Or If aSym[I - 1] = "ME" Or If aSym[I - 1] = "SUPER" Then bMakeArray = False
+        If aType[I - 1] = Highlight.Symbol Or If aSym[I - 1] = ")" Or If aSym[I - 1] == "ME" Or If aSym[I - 1] == "SUPER" Then bMakeArray = False
       Endif
       
       If bMakeArray Then
@@ -3694,14 +3694,14 @@ Private Sub CreateLocalVariable() As Boolean
  
   If aSym.Count < 2 Then Return
  
-  If aSym[0] = "TRY" Then
+  If aSym[0] == "TRY" Then
     aSym.Remove(0)
     aType.Remove(0)
   Endif
   
   If aSym.Count < 2 Then Return
  
-  If aSym[0] = "IF" Or If aSym[0] = "ELSE" Then
+  If aSym[0] == "IF" Or If aSym[0] == "ELSE" Then
     I = aSym.Find("THEN") + 1
     If I <= 0 Then Return
     aSym.Remove(0, I)
@@ -3718,21 +3718,21 @@ Private Sub CreateLocalVariable() As Boolean
     aSym.Remove(0, 2)
     aType.Remove(0, 2)
     
-    If aSym[0] = "NEW" Then
+    If aSym[0] == "NEW" Then
       If aSym.Count >= 2 Then
         sType = aSym[1]
         If aSym.Count >= 3 And If aSym[2] = "[" Then sType = Left(sType) & LCase(Mid$(sType, 2)) & "[]"
       Endif
-    Else If aSym[0] = "OPEN" Or If aSym[0] = "PIPE" Or If aSym[0] = "LOCK" Or If aSym[0] = "MEMORY" Then
+    Else If aSym[0] == "OPEN" Or If aSym[0] == "PIPE" Or If aSym[0] == "LOCK" Or If aSym[0] == "MEMORY" Then
       sType = "File"
-    Else If aSym[0] = "SHELL" Or If aSym[0] = "EXEC" Then
+    Else If aSym[0] == "SHELL" Or If aSym[0] == "EXEC" Then
       sType = "Process"
-    Else If aSym[0] = "CLOSE" Then
+    Else If aSym[0] == "CLOSE" Then
       sType = "s"
-    Else If aSym[0] = "RAISE"
+    Else If aSym[0] == "RAISE"
       sType = "b"
-    Else If aSym[0] = "READ" And If aSym.Count >= 4 Then
-      If aSym[aSym.Max - 1] = "AS" And If aType[aSym.Max] = Highlight.DataType Then
+    Else If aSym[0] == "READ" And If aSym.Count >= 4 Then
+      If aSym[aSym.Max - 1] == "AS" And If aType[aSym.Max] = Highlight.DataType Then
         sType = CSymbolInfo.NameToType(aSym[aSym.Max])
       Else
         sType = "s"
@@ -3742,7 +3742,7 @@ Private Sub CreateLocalVariable() As Boolean
     Endif
 
   ' For ... To
-  Else If aSym.Count >= 6 And If aSym[0] = "FOR" And If aType[1] = Highlight.Symbol And If aSym[2] = "=" Then
+  Else If aSym.Count >= 6 And If aSym[0] == "FOR" And If aType[1] = Highlight.Symbol And If aSym[2] = "=" Then
     
     sName = aSym[1]
     sType = GetSymbolType(sName)
@@ -3752,7 +3752,7 @@ Private Sub CreateLocalVariable() As Boolean
     aType.Remove(0, 3)
     
     For I = 0 To aSym.Max
-      If aSym[I] = "TO" Or If aSym[I] = "DOWNTO" Then
+      If aSym[I] == "TO" Or If aSym[I] == "DOWNTO" Then
         aSym.Remove(I, -1)
         aType.Remove(I, -1)
         Break
@@ -3762,7 +3762,7 @@ Private Sub CreateLocalVariable() As Boolean
     sType = GetExpressionTypeWithEval(aSym, aType)
   
   ' For Each ... In
-  Else If aSym.Count >= 5 And If aSym[0] = "FOR" And If asym[1] = "EACH" And If aType[2] = Highlight.Symbol And If aSym[3] = "IN" Then
+  Else If aSym.Count >= 5 And If aSym[0] == "FOR" And If asym[1] == "EACH" And If aType[2] = Highlight.Symbol And If aSym[3] == "IN" Then
     
     sName = aSym[2]
     sType = GetSymbolType(sName)
@@ -3777,7 +3777,7 @@ Private Sub CreateLocalVariable() As Boolean
     sType = GetExpressionTypeWithEval(aSym, aType)
     
   ' Line Input
-  Else If aSym.Count >= 3 And If aSym[0] = "LINE" And If aSym[1] = "INPUT" Then
+  Else If aSym.Count >= 3 And If aSym[0] == "LINE" And If aSym[1] == "INPUT" Then
     
     I = aSym.Max
     While I > 2
@@ -3793,7 +3793,7 @@ Private Sub CreateLocalVariable() As Boolean
     Endif
 
   ' Inc & Dec
-  Else If aSym.Count = 2 And If aSym[0] = "INC" Or aSym[0] = "DEC" Then
+  Else If aSym.Count = 2 And If aSym[0] == "INC" Or aSym[0] == "DEC" Then
   
     sName = aSym[1]
     sType = GetSymbolType(sName)
@@ -3801,7 +3801,7 @@ Private Sub CreateLocalVariable() As Boolean
     sType = "i"
     
   ' Shell & Exec ... To
-  Else If aSym.Count >= 3 And If aSym[0] = "SHELL" Or aSym[0] = "EXEC" And If aSym[aSym.Count - 2] = "TO" Then
+  Else If aSym.Count >= 3 And If aSym[0] == "SHELL" Or aSym[0] == "EXEC" And If aSym[aSym.Count - 2] == "TO" Then
   
     sName = aSym[aSym.Max]
     sType = GetSymbolType(sName)

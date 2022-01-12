@@ -241,8 +241,8 @@ Private Sub IsStruct() As Boolean
   Dim iInd As Integer
   
   If aSym.Count >= 3 Then
-    If aSym[iInd] = "PUBLIC" Then Inc iInd
-    Return aSym[iInd] = "STRUCT"
+    If aSym[iInd] == "PUBLIC" Then Inc iInd
+    Return aSym[iInd] == "STRUCT"
   Endif
   
 End
@@ -251,7 +251,7 @@ Private Sub IsEndStruct() As Boolean
   
   Dim aSym As String[] = Highlight.Symbols
   
-  If aSym.Count = 2 And If aSym[0] = "END" And If aSym[1] = "STRUCT" Then Return True
+  If aSym.Count = 2 And If aSym[0] == "END" And If aSym[1] == "STRUCT" Then Return True
   
 End
 

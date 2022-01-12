@@ -5791,7 +5791,7 @@ Public Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As
       Case "EXPORT"
         
         sClass = File.BaseName(sPath)
-        If aSym.Count = 1 Or If aSym[1] = "OPTIONAL" Then 
+        If aSym.Count = 1 Or If aSym[1] == "OPTIONAL" Then 
           If sDefaultNameSpace Then Return sDefaultNameSpace & ":" & sClass
           Return sClass
         Endif
@@ -5803,7 +5803,7 @@ Public Sub GetExported(sPath As String, Optional sDefaultNameSpace As String) As
             
           Case "TO"
             If aSym.Count >= 3 Then 
-              If aSym[2] = "DEFAULT" Then Return sClass
+              If aSym[2] == "DEFAULT" Then Return sClass
               Return aSym[2] & ":" & sClass
             Endif
             

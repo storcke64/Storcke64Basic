@@ -494,7 +494,7 @@ Private Sub ScanStruct(hModule As Object, iLine As Integer) As Integer
   aSym = Highlight.Analyze(hEditor[iLine].Text)
   
   For iInd = 0 To aSym.Max - 1
-    If aSym[iInd] = "STRUCT" Then Break
+    If aSym[iInd] == "STRUCT" Then Break
   Next
   If iInd = aSym.Max Then Return iLine
   
@@ -507,7 +507,7 @@ Private Sub ScanStruct(hModule As Object, iLine As Integer) As Integer
     
     aSym = Highlight.Analyze(hEditor[iLine].Text)
     
-    If aSym.Count >= 2 And If aSym[0] = "END" And If aSym[1] = "STRUCT" Then Break
+    If aSym.Count >= 2 And If aSym[0] == "END" And If aSym[1] == "STRUCT" Then Break
     
     If aSym.Count = 0 Then Continue
     If Highlight.Types[0] <> Highlight.Symbol Then Continue
@@ -586,7 +586,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
     If aSym.Count = 0 Then Continue
     If Highlight.Types[0] = Highlight.Comment Or If Highlight.Types[0] = Highlight.Help Then Continue
     
-    Select Case aSym[0]
+    Select Case UCase(aSym[0])
         
       Case "INHERITS"
         
@@ -598,10 +598,10 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         
       Case "CREATE"
         
-        If aSym.Count = 1 Or If aSym[1] = "STATIC" Then 
+        If aSym.Count = 1 Or If aSym[1] == "STATIC" Then 
           hModule.AutoCreatable = True
           'DEBUG hModule.Name; " := "; hModule.AutoCreatable
-        Else If aSym[1] = "PRIVATE" Then 
+        Else If aSym[1] == "PRIVATE" Then 
           hModule.NotCreatable = True
         Endif
         
@@ -609,10 +609,10 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         
         bExport = True
         If aSym.Count >= 2 Then
-          If aSym[1] = "AS" Then
+          If aSym[1] == "AS" Then
             hModule.ExportName = aSym[2]
-          Else If aSym[1] = "TO" Then
-            If aSym[2] = "DEFAULT" Then
+          Else If aSym[1] == "TO" Then
+            If aSym[2] == "DEFAULT" Then
               hModule.ExportName = hModule.Name
             Else
               hModule.ExportName = aSym[2] & ":" & hModule.Name
@@ -793,7 +793,7 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         For iInd = aSym.Count - 1 To 0 Step -1
           If aSym[iInd] = ")" Then
             Break
-          Else If aSym[iInd] = "AS" Then
+          Else If aSym[iInd] == "AS" Then
             If iInd < (aSym.Count - 1) Then
               .Type = FEditor.ReadSymbolType(aSym, iInd)
             Endif
@@ -886,9 +886,9 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
         sLine = Trim(hEditor[iLine].Text)
         iPos = InStr(sLine, "'")
         If iPos Then sLine = Trim(Left(sLine, iPos - 1))
-        If Len(sLine) = 3 And If UCase(sLine) = "END" Then Break
-        If Len(sLine) = 7 And If UCase(sLine) = "END SUB" Then Break
-        If Len(sLine) = 12 And If UCase(sLine) = "END FUNCTION" Then Break
+        If sLine == "END" Then Break
+        If sLine == "END SUB" Then Break
+        If sLine == "END FUNCTION" Then Break
         'aSym = Highlight.Analyze(hEditor.Lines[iLine])
         'IF aSym.Count = 1 AND IF aSym[0] = "END" THEN BREAK
       Loop
