@@ -296,10 +296,12 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
           Try hStat = Stat(sPath)
           If Error Then Return
           
-          With $hTree.Add(sKey, sFile, GetFileIcon(sPath,, hStat,, True), sParent)
-            .Font = $hTree.Font
-            .Font.Grade -= 2
-          End With
+          If Not $hTree.Exist(sKey) Then
+            With $hTree.Add(sKey, sFile, GetFileIcon(sPath,, hStat,, True), sParent)
+              .Font = $hTree.Font
+              .Font.Grade -= 2
+            End With
+          Endif
         
         Endif
       Endif
