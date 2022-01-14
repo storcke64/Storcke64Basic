@@ -999,6 +999,7 @@ typedef
 		int (*GetEvent)(GB_CLASS, const char *);
 		char *(*GetLastEventName)(void);
 		void (*RaiseTimer)(void *);
+		bool (*HasActiveTimer)(void);
 		bool (*Stopped)(void);
 		bool (*IsRaiseLocked)(void *);
 

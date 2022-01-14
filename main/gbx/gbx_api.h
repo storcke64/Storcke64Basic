@@ -46,6 +46,7 @@ int GB_GetEvent(void *class, char *name);
 char *GB_GetLastEventName(void);
 bool GB_Stopped(void);
 bool GB_IsRaiseLocked(void *object);
+bool GB_HasActiveTimer(void);
 
 int GB_NParam(void);
 const char *GB_GetUnknown(void);

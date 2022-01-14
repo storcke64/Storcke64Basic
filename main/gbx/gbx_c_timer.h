@@ -38,7 +38,11 @@ typedef
 typedef GB_TIMER CTIMER;
 	
 #ifndef __GBX_C_TIMER_C
+
 extern GB_DESC NATIVE_Timer[];
+
+extern int CTIMER_active_count;
+
 #else
 
 #define THIS ((CTIMER *)_object)

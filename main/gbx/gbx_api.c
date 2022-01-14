@@ -108,6 +108,7 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_GetEvent,
 	(void *)GB_GetLastEventName,
 	(void *)CTIMER_raise,
+	(void *)GB_HasActiveTimer,
 	(void *)GB_Stopped,
 	(void *)GB_IsRaiseLocked,
 
@@ -455,6 +456,12 @@ void *GB_Hook(int type, void *hook)
 	}
 	
 	return old_hook;
+}
+
+
+bool GB_HasActiveTimer(void)
+{
+	return CTIMER_active_count > 0;
 }
 
 

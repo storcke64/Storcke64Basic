@@ -36,17 +36,25 @@
 
 #define EXT(_ob) ((CTIMER_EXT *)((CTIMER *)_ob)->ext)
 
+int CTIMER_active_count = 0;
+
 
 DECLARE_EVENT(EVENT_Timer);
 
+
 static void enable_timer(CTIMER *_object, bool on)
 {
-	if (on != (THIS->id != 0))
-		HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, on);
-
+	if (on == (THIS->id != 0))
+		return;
+	
+	HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, on);
+	
 	if (on && (THIS->id == 0))
 		GB_Error("Too many active timers");
+	
+	CTIMER_active_count += on ? 1 : -1;
 }
+
 
 CTIMER *CTIMER_every(int delay, GB_TIMER_CALLBACK callback, intptr_t param)
 {
@@ -66,6 +74,7 @@ CTIMER *CTIMER_every(int delay, GB_TIMER_CALLBACK callback, intptr_t param)
 
 	return timer;
 }
+
 
 void CTIMER_raise(void *_object)
 {
@@ -106,8 +115,7 @@ END_METHOD
 
 BEGIN_METHOD_VOID(Timer_free)
 
-	if (THIS->id)
-		HOOK_DEFAULT(timer, WATCH_timer)((GB_TIMER *)THIS, FALSE);
+	enable_timer(THIS, FALSE);
 	
 	if (THIS->ext)
 		IFREE(THIS->ext);
