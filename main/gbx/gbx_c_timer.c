@@ -53,6 +53,7 @@ static void enable_timer(CTIMER *_object, bool on)
 		GB_Error("Too many active timers");
 	
 	CTIMER_active_count += on ? 1 : -1;
+	//fprintf(stderr, "enable_timer: %d\n", CTIMER_active_count);
 }
 
 
@@ -87,7 +88,8 @@ void CTIMER_raise(void *_object)
 		}
 		else
 		{
-			if (!GB_Raise(THIS, EVENT_Timer, 0))
+			void *parent = OBJECT_parent(THIS);
+			if (parent && OBJECT_is_valid(parent) && !GB_Raise(THIS, EVENT_Timer, 0))
 				return;
 		}
 	}
