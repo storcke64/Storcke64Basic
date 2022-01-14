@@ -687,8 +687,11 @@ End
 
 Public Sub tvwFamily_Activate()
   
-  If tvwFamily.Current.Children Then Return
-  GetParent()._Activate()
+  If Not tvwFamily.Current.Tag Then Return
+  If Object.CanRaise(GetParent(), "Activate") Then
+    GetParent()._Activate()
+    Stop Event
+  Endif
   
 End
 

@@ -35,6 +35,9 @@ Private $hTimerAnim As Timer
 Private $iTarget As Integer
 Private $bLockRefresh As Boolean
 
+Private $hTimerAutoHide As Timer
+Private $bNoAutoHide As Boolean
+
 ' Static Public Sub _init()
 '   
 '   $hHandleH = Picture["img/handle-h.png"]
@@ -52,7 +55,7 @@ Public Sub _new()
   BUTTON_H = Desktop.Scale * 0.75
   BUTTON_W = BUTTON_H * 4
   TRANS_H = Max(2, BUTTON_H * 0.5)
-
+  
 End
 
 
@@ -919,15 +922,24 @@ Public Sub btnSide_Draw()
 
 End
 
+Private Sub CheckAutoHide()
+  
+  Try $hTimerAutoHide.Trigger
+  
+End
+
+
 Public Sub btnSide_Enter()
 
   Last.Refresh
+  CheckAutoHide()
 
 End
 
 Public Sub btnSide_Leave()
 
   Last.Refresh
+  CheckAutoHide()
 
 End
 
@@ -985,6 +997,7 @@ Public Sub panMove_Enter()
   $bInside = True
   'UpdateBackground
   RefreshButtons
+  CheckAutoHide()
   
 End
 
@@ -994,6 +1007,7 @@ Public Sub panMove_Leave()
   $bInside = False
   'UpdateBackground
   RefreshButtons
+  CheckAutoHide()
   
 End
 
@@ -1138,10 +1152,17 @@ Public Sub panMove_Menu()
   hMenu = New Menu(hPopup) As "mnuHidden"
   hMenu.Text = ("Hidden")
   hMenu.Checked = IsHidden()
+  hMenu.Enabled = Not IsAutoHide()
+  
+  hMenu = New Menu(hPopup)
   
   hMenu = New Menu(hPopup) As "mnuTransparent"
-  hMenu.Text = ("Transparent")
+  hMenu.Text = ("Transparent handle")
   hMenu.Checked = IsTransparent()
+  
+  hMenu = New Menu(hPopup) As "mnuAutoHide"
+  hMenu.Text = ("Hide automatically")
+  hMenu.Checked = IsAutoHide()
   
   hMenu = New Menu(hPopup)
   
@@ -1149,9 +1170,13 @@ Public Sub panMove_Menu()
   hMenu.Text = ("Cancel")
   hMenu.Picture = Picture["icon:/small/close"]
 
+  $bNoAutoHide = True
   hPopup.Popup
   hPopup.Delete
-
+  $bNoAutoHide = False
+  
+  CheckAutoHide()
+  
 End
 
 Public Sub mnuHidden_Click()
@@ -1166,6 +1191,12 @@ Public Sub mnuTransparent_Click()
   
 End
 
+Public Sub mnuAutoHide_Click()
+  
+  SetAutoHide(Not IsAutoHide())
+  
+End
+
 Public Sub GetMinSize() As Integer
   
   Return $iMinSize
@@ -1175,5 +1206,50 @@ End
 Public Sub SetMinSize(iMinSize As Integer)
   
   $iMinSize = Max(Desktop.Scale, iMinSize)
+  
+End
+
+Public Sub IsAutoHide() As Boolean
+  
+  Return $hTimerAutoHide
+  
+End
+
+Public Sub SetAutoHide(Value As Boolean)
+  
+  If IsAutoHide() = Value Then Return
+  
+  If Value Then
+    $hTimerAutoHide = New Timer As "TimerAutoHide"
+    CheckAutoHide()
+  Else
+    $hTimerAutoHide.Stop
+    $hTimerAutoHide = Null
+  Endif
+  
+End
+
+Public Sub Form_Enter()
+
+  CheckAutoHide()
+
+End
+
+Public Sub Form_Leave()
+
+  CheckAutoHide()
+
+End
+
+Public Sub TimerAutoHide_Timer()
+  
+  If $bNoAutoHide Then Return 
+  
+  'Debug $bInside;; panMove.Hovered;; Me.Hovered;; btnSide.Hovered;; btnSide2.Hovered
+  If $bInside Or If panMove.Hovered Or If Me.Hovered Or If btnSide.Hovered Or If btnSide2.Hovered Then
+    SetHidden(False)
+  Else
+    SetHidden(True)
+  Endif
   
 End

@@ -3,7 +3,7 @@
 Export
 Inherits UserContainer
 
-Public Const _Properties As String = "*,Action,Orientation{Align.Top;Bottom;Left;Right}=Top,Resizable=True,Border,Separator,Transparent,Hidden"
+Public Const _Properties As String = "*,Action,Orientation{Align.Top;Bottom;Left;Right}=Top,Resizable=True,AutoHide,Border,Separator,Transparent,Hidden"
 Public Const _Similar As String = "Panel"
 
 Event Show
@@ -23,8 +23,9 @@ Property Design As Boolean
 Property Settings As Variant[]
 Property Transparent As Boolean
 Property MinSize As Integer
-Private $hObs As Observer
+Property AutoHide As Boolean
 
+Private $hObs As Observer
 Private $hForm As FSidePanel
 
 Public Sub _new()
@@ -78,6 +79,7 @@ End
 
 Private Sub Hidden_Write(bHidden As Boolean)
 
+  If $hForm.IsAutoHide() Then Return
   $hForm.SetHidden(bHidden)
 
 End
@@ -179,12 +181,13 @@ End
 
 Private Function Settings_Read() As Variant[]
 
-  Return [CVariant(Hidden_Read()), Dimension_Read(), Transparent_Read()]
+  Return [CVariant(Hidden_Read()), Dimension_Read(), Transparent_Read(), AutoHide_Read()]
 
 End
 
 Private Sub Settings_Write(Value As Variant[])
 
+  Try AutoHide_Write(Value[3])
   Try Transparent_Write(Value[2])
   Try Hidden_Write(Value[0])
   Try Dimension_Write(Value[1])
@@ -224,5 +227,17 @@ End
 Private Sub MinSize_Write(Value As Integer)
 
   $hForm.SetMinSize(Value)
+
+End
+
+Private Function AutoHide_Read() As Boolean
+
+  Return $hForm.IsAutoHide()
+
+End
+
+Private Sub AutoHide_Write(Value As Boolean)
+
+  $hForm.SetAutoHide(Value)
 
 End
