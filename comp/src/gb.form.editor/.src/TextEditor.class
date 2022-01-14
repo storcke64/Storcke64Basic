@@ -504,6 +504,7 @@ Public Sub _new()
   
   $hTimerCacheLine = New Timer As "TimerCacheLine"
   $hTimerCacheLine.Delay = 5000
+  $hTimerCacheLine.Ignore = True
   
   $hRows = New _TextEditor_Rows As "Rows"
   
@@ -4021,6 +4022,7 @@ Public Sub View_LostFocus()
   
   $hTimerCursor.Stop
   $hDoc.HighlightUntil($Y)
+  $hTimerCacheLine.Stop
   $hTimerCacheLine.Trigger
   
 End
