@@ -51,15 +51,13 @@ public:
 		NUM_COLORS
 	};
 	
-	static void init();
-	static void exit();
-
-	static gFont* font();
-	static void setFont(gFont *vl);
+	static gFont* font() { return gFont::desktopFont(); }
+	static void setFont(gFont *vl) { gFont::setDesktopFont(vl); }
+	static int scale() { return gFont::desktopScale(); }
+	
 	static int height();
 	static int width();
 	static int resolution();
-	static int scale();
 	static gPicture* screenshot(int x = 0, int y = 0, int w = 0, int h = 0);
 	static gMainWindow* activeWindow();
 
@@ -80,17 +78,11 @@ public:
 	
 private:
 
-	static int _desktop_scale;
-	static gFont *_desktop_font;
 	static bool _colors_valid;
 	static gColor _colors[NUM_COLORS];
 	static gColor _colors_disabled[NUM_COLORS];
 	
 	static void calc_colors(gColor colors[], bool disabled);
-	
-#ifdef GTK3
-	static GtkStyleProvider *_css;
-#endif
 };
 
 #endif

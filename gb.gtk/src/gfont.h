@@ -30,7 +30,6 @@ class gFont : public gShare
 {
 public:
 	gFont();
-	gFont(const char *name);
 	virtual ~gFont();
   
   static void assign(gFont **dst, gFont *src = 0) { gShare::assign((gShare **)dst, src); }
@@ -58,8 +57,8 @@ public:
 	char* name();
 	int resolution();
 	double size();
-	bool strikeout();
-	bool underline();
+	bool strikeout() const { return _strikeout; }
+	bool underline() const { return _underline; }
 	int grade();
 
 	void setBold(bool vl);
@@ -73,6 +72,8 @@ public:
 
 	const char *toString();
 	const char *toFullString();
+	void setFromString(const char *str);
+	
 	int width(const char *text, int len = -1);
 	int height(const char *text, int len = -1);
 	int height();
@@ -80,12 +81,14 @@ public:
 	void richTextSize(const char *txt, int len, float sw, float *w, float *h);
 	
 	bool mustFixSpacing() const { return _must_fix_spacing; }
+	
+	static gFont *desktopFont();
+	static void setDesktopFont(gFont *vl);
+	static int desktopScale();
 
 //"Private"
-	gFont(GtkWidget *wg);
 	gFont(PangoFontDescription *fd);
-	PangoContext* ct;
-	PangoFontDescription *desc() { return pango_context_get_font_description(ct); }
+	PangoFontDescription *desc() { return pango_context_get_font_description(_context); }
 	bool isAllSet();
 	void setAll(bool v);
 	void setAllFrom(gFont *font);
@@ -100,18 +103,25 @@ public:
 	
 private:
 	
-	bool uline;
-	bool strike;
-	void create();
+	bool _underline;
+	bool _strikeout;
+	
 	void realize();
 	void initFlags();
 	void checkMustFixSpacing();
 	PangoFontMetrics *metrics();
 	void invalidateMetrics();
-
+	
+	PangoContext* _context;
 	PangoFontMetrics *_metrics;
 	int _height;
 	unsigned _must_fix_spacing : 1;
+	
+	static gFont *_desktop_font;
+	static int _desktop_scale;
+#ifdef GTK3
+	static GtkStyleProvider *_desktop_css;
+#endif	
 };
 
 #endif

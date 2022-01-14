@@ -1645,7 +1645,7 @@ static void set_layout_from_font(PangoLayout *layout, gFont *font, bool add, int
 	PangoAttribute *attr;
 	bool copy = false;
 	
-	desc = pango_context_get_font_description(font->ct);
+	desc = font->desc();
 
 	/*if ((dpi && dpi != gDesktop::resolution()))
 	{

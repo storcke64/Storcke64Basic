@@ -448,7 +448,6 @@ static void hook_main(int *argc, char ***argv)
 	gtk_init(argc, argv);
 	gApplication::init(argc, argv);
 	gApplication::setDefaultTitle(GB.Application.Title());
-	gDesktop::init();
 
 	gApplication::onEnterEventLoop = GB.Debug.EnterEventLoop;
 	gApplication::onLeaveEventLoop = GB.Debug.LeaveEventLoop;

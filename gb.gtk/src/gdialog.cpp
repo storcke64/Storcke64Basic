@@ -453,7 +453,7 @@ bool gDialog::selectFont()
 	dialog = (GtkFontChooserDialog *)gtk_font_chooser_dialog_new(_title, NULL);
 
 	if (_font)
-		gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(dialog), pango_context_get_font_description(_font->ct));
+		gtk_font_chooser_set_font_desc(GTK_FONT_CHOOSER(dialog), _font->desc());
 
 	if (run_dialog(GTK_DIALOG(dialog)) != GTK_RESPONSE_OK)
  	{

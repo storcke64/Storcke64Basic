@@ -57,10 +57,9 @@ CFONT *CFONT_create(gFont *font, FONT_FUNC func, void *object)
 
 BEGIN_METHOD(Font_new, GB_STRING font)
 
+	FONT = new gFont();
 	if (!MISSING(font))
-		FONT = new gFont(GB.ToZeroString(ARG(font)));
-	else
-		FONT = gDesktop::font()->copy();
+		FONT->setFromString(GB.ToZeroString(ARG(font)));
 
 END_METHOD
 
@@ -197,9 +196,9 @@ BEGIN_METHOD(Font_get, GB_STRING str)
 	CFONT *font;
 	gFont *fnt;
 	
-	fnt = new gFont(GB.ToZeroString(ARG(str)));
+	fnt = new gFont();
+	fnt->setFromString(GB.ToZeroString(ARG(str)));
 	font = CFONT_create(fnt);
-	//gFont::assign(&fnt);
 	
 	GB.ReturnObject(font);
 	

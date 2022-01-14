@@ -1059,7 +1059,6 @@ void gApplication::exit()
 
 	gKey::exit();
 	gTrayIcon::exit();
-  gDesktop::exit();
   gDialog::exit();
   gFont::exit();
   gt_exit();

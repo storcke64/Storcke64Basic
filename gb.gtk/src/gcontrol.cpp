@@ -2191,10 +2191,10 @@ void gControl::updateStyleSheet(bool dirty)
 		gt_css_add_color(css, bg, fg);
 	}
 	
-	if (_font)
+	if (_resolved_font)
 	{
 		setStyleSheetNode(css, getStyleSheetFontNode());
-		gt_css_add_font(css, _font);
+		gt_css_add_font(css, _resolved_font);
 	}
 
 	customStyleSheet(css);

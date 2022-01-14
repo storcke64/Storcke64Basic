@@ -41,66 +41,10 @@ Desktop
 bool gDesktop::_colors_valid = false;
 gColor gDesktop::_colors[NUM_COLORS];
 gColor gDesktop::_colors_disabled[NUM_COLORS];
-gFont *gDesktop::_desktop_font = NULL;
-int gDesktop::_desktop_scale = 0;
-#ifdef GTK3
-GtkStyleProvider *gDesktop::_css = NULL;
-#endif
 
 bool gDesktop::rightToLeft()
 {
 	return MAIN_rtl; //gtk_widget_get_default_direction() == GTK_TEXT_DIR_RTL;
-}
-
-void gDesktop::init()
-{
-	_desktop_font = new gFont();
-	_desktop_font->setAll(true);
-	_desktop_scale = 0;
-}
-
-void gDesktop::exit()
-{
-	gFont::assign(&_desktop_font);
-}
-
-gFont* gDesktop::font()
-{
-	if (!_desktop_font) gDesktop::init();
-	return _desktop_font;
-}
-
-#ifndef GTK3
-static void cb_update_font(gControl *control)
-{
-	control->updateFont();
-}
-#endif
-
-void gDesktop::setFont(gFont *ft)
-{
-	gFont::set(&_desktop_font, ft ? ft->copy() : new gFont());
-	_desktop_scale = 0;
-
-#ifndef GTK3
-	
-	gApplication::forEachControl(cb_update_font);
-	
-#else
-
-	GString *css = NULL;
-
-	if (ft)
-	{
-		css = g_string_new(NULL);
-		g_string_append(css, "* {\n");
-		gt_css_add_font(css, _desktop_font);
-		g_string_append(css, "}");
-	}
-	
-	gt_define_style_sheet(&_css, css);
-
-#endif
 }
 
 gMainWindow* gDesktop::activeWindow()
@@ -138,16 +82,6 @@ int gDesktop::resolution()
 	return res;
 }
 
-int gDesktop::scale()
-{
-	if (!_desktop_scale)
-	{
-		gFont *ft = font();
-		_desktop_scale = GET_DESKTOP_SCALE(ft->size(), resolution());
-	}
-
-	return _desktop_scale;
-}
 
 gPicture* gDesktop::screenshot(int x, int y, int w, int h)
 {
