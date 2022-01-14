@@ -335,11 +335,12 @@ Public Sub RefreshOne(hCtrl As CControl, sProp As String)
 
     If sVal = $cInitialValue[sProp] Then
       iBg = If(CControl.WasDefaultValue, $iBgDefault, $iBgSet)
-      grdProperty[iRow, 0].Font.Bold = True
+      'grdProperty[iRow, 0].Font.Bold = True
     Else
       iBg = $iBgModified
-      grdProperty[iRow, 0].Font.Bold = True
+      'grdProperty[iRow, 0].Font.Bold = True
     Endif
+    grdProperty[iRow, 0].Font.Bold = Not CControl.WasDefaultValue
     
     grdProperty[iRow, 0].Background = iBg
     grdProperty[iRow, 1].Background = iBg
