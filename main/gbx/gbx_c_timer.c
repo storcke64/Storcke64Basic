@@ -52,8 +52,12 @@ static void enable_timer(CTIMER *_object, bool on)
 	if (on && (THIS->id == 0))
 		GB_Error("Too many active timers");
 	
-	CTIMER_active_count += on ? 1 : -1;
-	//fprintf(stderr, "enable_timer: %d\n", CTIMER_active_count);
+	if (!THIS->ignore)
+	{
+		CTIMER_active_count += on ? 1 : -1;
+		/*if (!on)
+			fprintf(stderr, "disable_timer: %d -> %d\n", THIS->delay, CTIMER_active_count);*/
+	}
 }
 
 
@@ -206,6 +210,24 @@ BEGIN_METHOD_VOID(Timer_Trigger)
 
 END_METHOD
 
+BEGIN_PROPERTY(Timer_Ignore)
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(THIS->ignore);
+	else
+	{
+		bool v = VPROP(GB_BOOLEAN);
+		
+		if (THIS->ignore == v)
+			return;
+		
+		THIS->ignore = v;
+		if (THIS->id)
+			CTIMER_active_count += THIS->ignore ? -1 : 1;
+	}
+
+END_PROPERTY
+
 #endif
 
 GB_DESC NATIVE_Timer[] =
@@ -217,6 +239,7 @@ GB_DESC NATIVE_Timer[] =
 
 	GB_PROPERTY("Enabled", "b", Timer_Enabled),
 	GB_PROPERTY("Delay", "i", Timer_Delay),
+	GB_PROPERTY("Ignore", "b", Timer_Ignore),
 	//GB_PROPERTY_READ("Timeout", "f", Timer_Timeout),
 
 	GB_METHOD("Start", NULL, Timer_Start, NULL),
@@ -227,7 +250,7 @@ GB_DESC NATIVE_Timer[] =
 	GB_CONSTANT("_IsControl", "b", TRUE),
 	GB_CONSTANT("_IsVirtual", "b", TRUE),
 	GB_CONSTANT("_Group", "s", "Special"),
-	GB_CONSTANT("_Properties", "s", "Enabled,Delay{Range:0;86400000;10;ms}=1000"),
+	GB_CONSTANT("_Properties", "s", "Enabled,Delay{Range:0;86400000;10;ms}=1000,Ignore"),
 	GB_CONSTANT("_DefaultEvent", "s", "Timer"),
 
 	GB_EVENT("Timer", NULL, NULL, &EVENT_Timer),
