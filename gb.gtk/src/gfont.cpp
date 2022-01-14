@@ -23,6 +23,7 @@
 
 #include "widgets.h"
 #include "font-parser.h"
+#include "gapplication.h"
 #include "gdesktop.h"
 #include "gtools.h"
 #include "gb.form.font.h"

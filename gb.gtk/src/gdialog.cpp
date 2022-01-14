@@ -493,9 +493,9 @@ bool gDialog::selectFont()
 
 	if (_font)
 	{
-		desc=pango_context_get_font_description(_font->ct);
-		buf=pango_font_description_to_string(desc);
-		gtk_font_selection_dialog_set_font_name(msg,buf);
+		desc = _font->desc();
+		buf = pango_font_description_to_string(desc);
+		gtk_font_selection_dialog_set_font_name(msg, buf);
 		g_free(buf);
 	}
 	
