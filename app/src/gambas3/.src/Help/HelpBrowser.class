@@ -140,6 +140,7 @@ Private Sub HandleSpecialURL()
       If Not $hTimerNotExist Then
         $hTimerNotExist = New Timer As "TimerNotExist"
         $hTimerNotExist.Delay = 5000
+        $hTimerNotExist.Ignore = True
       Endif
       $hTimerNotExist.Restart
       
