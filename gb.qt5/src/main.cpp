@@ -578,7 +578,7 @@ static bool must_quit(void)
 	#if DEBUG_WINDOW
 	qDebug("must_quit: Window = %d Watch = %d in_event_loop = %d MAIN_in_message_box = %d _prevent_quit = %d", CWindow::count, CWatch::count, in_event_loop, MAIN_in_message_box, _prevent_quit);
 	#endif
-	return CWINDOW_must_quit() && CWatch::count == 0 && in_event_loop && MAIN_in_message_box == 0 && _prevent_quit == 0;
+	return CWINDOW_must_quit() && CWatch::count == 0 && in_event_loop && MAIN_in_message_box == 0 && _prevent_quit == 0 && !GB.HasActiveTimer();
 }
 
 static void check_quit_now(intptr_t param)

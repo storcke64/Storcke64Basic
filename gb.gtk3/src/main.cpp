@@ -570,7 +570,7 @@ static int hook_loop()
 		{
 			if (gApplication::mustQuit())
 				break;
-			if (CWINDOW_must_quit() && CWatcher::count() == 0 && gTrayIcon::visibleCount() == 0)
+			if (CWINDOW_must_quit() && CWatcher::count() == 0 && gTrayIcon::visibleCount() == 0 && !GB.HasActiveTimer())
 				break;
 			_must_check_quit = false;
 		}
