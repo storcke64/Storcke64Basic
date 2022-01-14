@@ -846,6 +846,8 @@ static void hook_timer(GB_TIMER *timer, bool on)
 
 	if (on)
 		timer->id = (intptr_t)(new MyTimer(timer));
+	else
+		MAIN_check_quit();
 }
 
 

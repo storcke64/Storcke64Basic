@@ -544,9 +544,9 @@ static void hook_timer(GB_TIMER *timer,bool on)
 		id->timeout = timer->delay;
 		id->source = (intptr_t)g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, timer->delay, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
 		timer->id = (intptr_t)id;
-		//fprintf(stderr, "start: delay = %d\n", timer->delay);
-		return;
 	}
+	else
+		MAIN_check_quit();
 }
 
 static void hook_post(void)
