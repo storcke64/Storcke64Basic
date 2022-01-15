@@ -4,6 +4,9 @@ Export
 
 Inherits _DBus
 
+Static Property Read System As DBusConnection
+Static Property Read Session As DBusConnection
+
 Static Property Name As String
 Static Public _ApplicationCache As New Collection
 Static Property Read Null As Object
@@ -11,6 +14,9 @@ Static Property Unique As Boolean
 
 Static Private $sAppName As String
 Static Private $bUnique As Boolean
+
+Static Private $hSystem As DBusConnection
+Static Private $hSession As DBusConnection
 
 Static Public Sub _get((Application) As String) As DBusApplication
   
@@ -21,14 +27,14 @@ Static Public Sub _get((Application) As String) As DBusApplication
   If Application Like "system://*" Then
     sKey = Application
     Application = Mid$(Application, 10)
-    hConn = _DBus.System
+    hConn = DBus.System
   Else If Application Like "session://*" Then
     sKey = Application
     Application = Mid$(Application, 11)
-    hConn = _DBus.Session
+    hConn = DBus.Session
   Else
     sKey = "session://" & Application
-    hConn = _DBus.Session
+    hConn = DBus.Session
   Endif
   
   hApp = _ApplicationCache[sKey]
@@ -160,5 +166,19 @@ End
 Static Private Sub Unique_Write(Value As Boolean)
 
   $bUnique = Value
+
+End
+
+Static Private Function System_Read() As DBusConnection
+
+  If Not $hSystem Then $hSystem = DBusConnection._Connect(True)
+  Return $hSystem
+
+End
+
+Static Private Function Session_Read() As DBusConnection
+
+  If Not $hSession Then $hSession = DBusConnection._Connect(False)
+  Return $hSession
 
 End

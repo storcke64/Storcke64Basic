@@ -44,6 +44,4 @@ typedef
 	}
 	CDBUSCONNECTION;
 
-CDBUSCONNECTION *CDBUSCONNECTION_get(DBusBusType type);
-	
 #endif /* __CDBUS_H */

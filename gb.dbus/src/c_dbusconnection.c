@@ -26,9 +26,6 @@
 #include "helper.h"
 #include "c_dbusconnection.h"
 
-static CDBUSCONNECTION *_system = NULL;
-static CDBUSCONNECTION *_session = NULL;
-
 static DBusConnection *get_bus(DBusBusType type)
 {
 	DBusConnection *conn;
@@ -42,48 +39,27 @@ static DBusConnection *get_bus(DBusBusType type)
 	return conn;
 }
 
-CDBUSCONNECTION *CDBUSCONNECTION_get(DBusBusType type)
+static CDBUSCONNECTION *connect_bus(DBusBusType type)
 {
+	CDBUSCONNECTION *ob;
 	DBusConnection *conn;
 	
-	if (type == DBUS_BUS_SYSTEM)
-	{
-		if (!_system)
-		{
-			conn = get_bus(type);
-			if (conn)
-			{
-				_system = GB.New(GB.FindClass("DBusConnection"), NULL, NULL);
-				GB.Ref(_system);
-				_system->connection = conn;
-			}
-		}
-		return _system;
-	}
-	else if (type == DBUS_BUS_SESSION)
-	{
-		if (!_session)
-		{
-			conn = get_bus(type);
-			if (conn)
-			{
-				_session = GB.New(GB.FindClass("DBusConnection"), NULL, NULL);
-				GB.Ref(_session);
-				_session->connection = conn;
-			}
-		}
-		return _session;
-	}
-	else
+	conn = get_bus(type);
+	if (!conn)
 		return NULL;
+	
+	ob = GB.New(GB.FindClass("DBusConnection"), NULL, NULL);
+	ob->connection = conn;
+	return ob;
 }
 
-BEGIN_METHOD_VOID(DBusConnection_exit)
 
-	GB.Unref(POINTER(&_session));
-	GB.Unref(POINTER(&_system));
+BEGIN_METHOD(DBusConnection_Connect, GB_BOOLEAN system)
 
-END_METHOD
+	GB.ReturnObject(connect_bus(VARG(system) ? DBUS_BUS_SYSTEM : DBUS_BUS_SESSION));
+
+END_PROPERTY
+
 
 BEGIN_METHOD_VOID(DBusConnection_free)
 
@@ -272,7 +248,7 @@ GB_DESC CDBusConnectionDesc[] =
 {
   GB_DECLARE("_DBusConnection", sizeof(CDBUSCONNECTION)), GB_NOT_CREATABLE(),
 
-	GB_STATIC_METHOD("_exit", NULL, DBusConnection_exit, NULL),
+	GB_STATIC_METHOD("_Connect", "DBusConnection", DBusConnection_Connect, "(System)b"),
 	GB_METHOD("_free", NULL, DBusConnection_free, NULL),
 	GB_METHOD("_Introspect", "s", DBusConnection_Introspect, "(Application)s[(Object)s]"),
 	GB_METHOD("_CallMethod", "v", DBusConnection_CallMethod, "(Application)s(Object)s(Interface)s(Method)s(InputSignature)s(OutputSignature)s(Arguments)Array;"),
