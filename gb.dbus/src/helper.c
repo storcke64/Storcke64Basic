@@ -201,6 +201,11 @@ static const char *to_dbus_type(GB_VALUE *arg)
 	return "v";
 }
 
+static bool can_be_string(const char signature)
+{
+	return signature == 's' || signature == 'o' || signature == 'g';
+}
+
 static char *array_from_dbus_type(const char *signature)
 {
 	static char type[DBUS_MAXIMUM_SIGNATURE_LENGTH + 1];
@@ -222,7 +227,7 @@ static char *array_from_dbus_type(const char *signature)
 		case DBUS_TYPE_VARIANT: return "Variant[]";
 		
 		case DBUS_TYPE_DICT_ENTRY: 
-			if (signature[1] == 's')
+			if (can_be_string(signature[1]))
 				return "Collection";
 			else
 				return NULL;
@@ -500,7 +505,7 @@ static bool append_arg(DBusMessageIter *iter, const char *signature, GB_VALUE *a
 			
 			dbus_message_iter_open_container(iter, DBUS_TYPE_ARRAY, contents_signature, &citer);
 			
-			if (contents_signature[0] == '{' && contents_signature[1] == 's')
+			if (contents_signature[0] == '{' && can_be_string(contents_signature[1]))
 			{
 				GB_COLLECTION col = (GB_COLLECTION)(arg->_object.value);
 				char *key;
@@ -764,7 +769,7 @@ static bool retrieve_arg(DBusMessageIter *iter, RETRIEVE_CALLBACK cb, void *para
 
 			signature_contents = dbus_message_iter_get_signature(&iter_contents);
 			
-			if (signature_contents[0] == '{' && signature_contents[1] == 's')
+			if (signature_contents[0] == '{' && can_be_string(signature_contents[1]))
 			{
 				GB_COLLECTION col;
 				COLLECTION_ADD add;

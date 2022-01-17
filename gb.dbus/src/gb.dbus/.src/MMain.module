@@ -139,7 +139,7 @@ Public Sub Main1()
 
 End
 
-Public Sub Main()
+Public Sub Main4()
 
   Dim hDBusApplication As DBusApplication
   Dim hDBusProxy As DBusProxy
@@ -153,10 +153,16 @@ Public Sub Main()
 
 End
 
-Public Sub Main5()
+Public Sub Main()
 
-  'Print DBus["org.freedesktop.DBus"]._Introspect("/a")
-  
-  'DBus["system://org.freedesktop.login1"]["/org/freedesktop/login1", "org.freedesktop.login1.Manager"].PowerOff(True)
-
+ Dim cManaged As Collection
+ 
+ Try Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.Introspectable"].Introspect()
+ 
+ Try cManaged = DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager"].GetManagedObjects()
+ 
+ If Error Then
+    Print Error.Text
+ Endif
+ 
 End
