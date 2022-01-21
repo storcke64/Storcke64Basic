@@ -1612,7 +1612,7 @@ Finally
   
 Catch
   
-  Message.ShowErrorWith(Subst(("Cannot write table '&1'."), $sTable), sError)
+  FMain.ShowErrorWith(Subst(("Cannot write table '&1'."), $sTable), sError)
   Return True
   
 End
