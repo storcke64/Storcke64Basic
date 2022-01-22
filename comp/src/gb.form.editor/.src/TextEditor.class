@@ -3486,7 +3486,7 @@ Public Sub View_Draw()
   hClip = Paint.ClipRect
   
   Y = YY
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     X = $hView.ClientW
   Else
     X = 0
@@ -6022,7 +6022,7 @@ Public Sub SideBar_Draw()
   Dim D As Integer = Desktop.Scale * 2
   Dim NL, Row As Integer
   Dim X, Y, W, H As Integer
-  Dim iBorder As Integer = IIf(System.RightToLeft, 0, 1)
+  Dim iBorder As Integer = IIf(Me.RightToLeft, 0, 1)
   Dim iCount As Integer = $hRows.Max '_RealToView($hDoc.Max)
 
   NL = $hView.ClientH \ $hRows.H + 1
@@ -6035,7 +6035,7 @@ Public Sub SideBar_Draw()
   Paint.DrawImage($hImageSideBar, iBorder, 0, Paint.W - 1, Paint.H)
   
   'Border Line
-  Paint.FillRect(If(System.RightToLeft, Paint.W - 1, 0), 0, 1, Paint.H, $iLimitColor)
+  Paint.FillRect(If(Me.RightToLeft, Paint.W - 1, 0), 0, 1, Paint.H, $iLimitColor)
   
   'Arrow Buttons
   If $iSideBarClick <> SIDEBAR_VIEW And If $hSideBar.Hovered Then
@@ -6066,7 +6066,7 @@ Public Sub SideBar_Draw()
     If Y + H > Paint.H Then Y = Max(0, $iMY - H - D)
     
     'Y = Max(0, IIf(Paint.Height - ($iMY + (Paint.Font.H * 3 + 6)) < 0, $iMY - ((Paint.Font.H * 3 + 6)), $iMY - H))
-    X = IIf(System.RightToLeft, Paint.Width - W - 3, 3)
+    X = IIf(Me.RightToLeft, Paint.Width - W - 3, 3)
     Paint.Rectangle(X, Y, W, H, Paint.Font.H / 4)
     Paint.Fill
     'Paint.Font.Grade = - 1
@@ -6122,7 +6122,7 @@ Public Sub SideBar_MouseMove()
       If Not $hSideBarViewer.Visible Then UpdatePreviewViewer
       iCurLine = _ViewToReal(Min(Max(0, Floor((Mouse.Y - $iMD) / $fBarLineHeight)), iCount))
       $hSideBarViewer.GotoCenter(0, iCurLine)
-      X = IIf(System.RightToLeft, $hSideBar.Left + $hSideBar.Width, $hSideBar.Left - $hView.Width / 2)
+      X = IIf(Me.RightToLeft, $hSideBar.Left + $hSideBar.Width, $hSideBar.Left - $hView.Width / 2)
       $hSideBarViewer.Move(X, Min(Max(1, Mouse.Y - ($hView.Height / 5) / 2), $hSideBar.Height - $hSideBarViewer.Height))
       $hSideBarViewer.Raise
       $hSideBarViewer.Show
@@ -6137,7 +6137,7 @@ Public Sub SideBar_MouseMove()
   '   Else
   '     If Not $bSideBarLockViewer Then
   '       If $hSideBarViewer.Visible Then
-  '         X = IIf(System.RightToLeft, $hSideBar.Left + $hSideBar.Width, $hSideBar.Left - $hView.Width / 2)
+  '         X = IIf(Me.RightToLeft, $hSideBar.Left + $hSideBar.Width, $hSideBar.Left - $hView.Width / 2)
   '         $hSideBarViewer.Move(X, Min(Max(1, Mouse.Y - ($hView.Height / 5) / 2), $hSideBar.Height - $hSideBarViewer.Height))
   '         $hSideBarViewer.Raise
   '         'iCurLine = Min(Max(0, Floor(((Mouse.y - $iMD)) / $fBarLineHeight)), iCount)
