@@ -467,14 +467,14 @@ End
 
 Public Sub Panel_Arrange()
 
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     $hScroll.Move(0, 0, Style.ScrollbarSize, $hPanel.ClientH)
   Else
     $hScroll.Move($hPanel.ClientW - Style.ScrollbarSize, 0, Style.ScrollbarSize, $hPanel.ClientH)
   Endif
   
   If $bShowScrollBar Then
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       $hView.Move($hScroll.W + PADDING, PADDING, $hPanel.ClientW - $hScroll.W - PADDING * 2, $hPanel.ClientH - PADDING * 2)
     Else
       $hView.Move(PADDING, PADDING, $hPanel.ClientW - $hScroll.W - PADDING * 2, $hPanel.ClientH - PADDING * 2)
@@ -909,7 +909,7 @@ Public Sub View_MouseMove()
       If Not $hMouseTimer Then $hMouseTimer = New Timer(50) As "MouseTimer"
       GotoMouse(False)
     Else If Not $bShowScrollBar Then
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         If Mouse.X < $hScroll.W And If $hScroll.MaxValue Then
           $hScroll.Raise
           $hScroll.Show
