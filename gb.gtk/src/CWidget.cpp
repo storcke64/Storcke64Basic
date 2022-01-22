@@ -952,6 +952,24 @@ BEGIN_PROPERTY(Control_NoTabFocus)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Control_Direction)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(CONTROL->direction());
+	else
+		CONTROL->setDirection(VPROP(GB_INTEGER));
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Control_RightToLeft)
+
+	GB.ReturnBoolean(CONTROL->isRightToLeft());
+
+END_PROPERTY
+
+//---------------------------------------------------------------------------
+
 GB_DESC CWidgetDesc[] =
 {
 	GB_DECLARE("Control", sizeof(CWIDGET)),
@@ -1017,6 +1035,8 @@ GB_DESC CWidgetDesc[] =
 	GB_PROPERTY("PopupMenu", "s", Control_PopupMenu),
 	GB_PROPERTY("Proxy", "Control", Control_Proxy),
 	GB_PROPERTY("NoTabFocus", "b", Control_NoTabFocus),
+	GB_PROPERTY("Direction", "i", Control_Direction),
+	GB_PROPERTY_READ("RightToLeft", "b", Control_RightToLeft),
 
 	GB_PROPERTY_READ("Parent", "Container", Control_Parent),
 	GB_PROPERTY_READ("_Parent", "Container", Control__Parent),

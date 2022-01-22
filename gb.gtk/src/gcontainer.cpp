@@ -108,7 +108,7 @@ static void resize_container(gContainer *cont, int w, int h)
 #define WIDGET_TYPE gControl*
 #define CONTAINER_TYPE gContainer*
 #define ARRANGEMENT_TYPE gContainerArrangement*
-#define IS_RIGHT_TO_LEFT() gDesktop::rightToLeft()
+#define IS_RIGHT_TO_LEFT(_object) (gtk_widget_get_direction(((gControl *)_object)->widget) == GTK_TEXT_DIR_RTL)
 #define GET_WIDGET(_object) _object
 #define GET_CONTAINER(_object) _object
 #define GET_ARRANGEMENT(_object) (((gContainer*)_object)->getArrangement())
@@ -659,6 +659,8 @@ void gContainer::insert(gControl *child, bool realize)
 	
 	if ((isUser() && isDesign()) || isDesignIgnore())
 		child->setDesign(true);
+	
+	child->updateDirection();
 }
 
 void gContainer::remove(gControl *child)
@@ -977,4 +979,22 @@ void gContainer::postArrange()
 	}
 
 	_arrange_list = NULL;
+}
+
+void gContainer::updateDirection()
+{
+	int i;
+	gControl *child;
+	
+	gControl::updateDirection();
+	
+	for (i = 0;; i++)
+	{
+		child = gContainer::child(i);
+		if (!child)
+			break;
+		child->updateDirection();
+	}
+	
+	performArrange();
 }

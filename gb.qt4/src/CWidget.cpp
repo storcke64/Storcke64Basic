@@ -714,17 +714,41 @@ void CWIDGET_raise_event_action(void *object, int event)
 }
 
 
+static void update_direction(void *_object)
+{
+	if (THIS->flag.inverted)
+	{
+		switch (THIS->flag.direction)
+		{
+			case DIRECTION_LTR: WIDGET->setLayoutDirection(Qt::RightToLeft); break;
+			case DIRECTION_RTL: WIDGET->setLayoutDirection(Qt::LeftToRight); break;
+			default:
+				WIDGET->unsetLayoutDirection();
+				WIDGET->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight;
+		}
+	}
+	else
+	{
+		switch (THIS->flag.direction)
+		{
+			case DIRECTION_LTR: WIDGET->setLayoutDirection(Qt::LeftToRight); break;
+			case DIRECTION_RTL: WIDGET->setLayoutDirection(Qt::RightToLeft); break;
+			default: WIDGET->unsetLayoutDirection();
+		}
+	}
+	
+	if (GB.Is(THIS, CLASS_Container))
+		CCONTAINER_arrange(THIS);
+}
+
+
 void CWIDGET_set_inverted(void *_object, bool v)
 {
 	if (v == THIS->flag.inverted)
 		return;
 	
 	THIS->flag.inverted = v;
-	
-	if (v)
-		WIDGET->setLayoutDirection(qApp->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight);
-	else
-		WIDGET->unsetLayoutDirection();
+	update_direction(THIS);
 }
 
 
@@ -1375,6 +1399,28 @@ BEGIN_PROPERTY(Control_NoTabFocus)
 		GB.ReturnBoolean(THIS->flag.no_tab_focus);
 	else
 		THIS->flag.no_tab_focus = VPROP(GB_BOOLEAN);
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Control_Direction)
+
+	if (READ_PROPERTY)
+		GB.ReturnInteger(THIS->flag.direction);
+	else
+	{
+		int dir = VPROP(GB_INTEGER);
+		if (dir < 0 || dir > 2) dir = 0;
+		THIS->flag.direction = dir;
+		update_direction(THIS);
+	}
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Control_RightToLeft)
+
+	GB.ReturnBoolean(WIDGET->isRightToLeft());
 
 END_PROPERTY
 
@@ -3345,6 +3391,8 @@ GB_DESC CControlDesc[] =
 	GB_PROPERTY("PopupMenu", "s", Control_PopupMenu),
 	GB_PROPERTY("Proxy", "Control", Control_Proxy),
 	GB_PROPERTY("NoTabFocus", "b", Control_NoTabFocus),
+	GB_PROPERTY("Direction", "i", Control_Direction),
+	GB_PROPERTY_READ("RightToLeft", "b", Control_RightToLeft),
 
 	GB_PROPERTY_READ("Parent", "Container", Control_Parent),
 	GB_PROPERTY_READ("_Parent", "Container", Control__Parent),

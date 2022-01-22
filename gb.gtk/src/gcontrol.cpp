@@ -364,6 +364,7 @@ void gControl::initAll(gContainer *parent)
 	_eat_return_key = false;
 	//_hidden_temp = false;
 	_allow_show = false;
+	_direction = DIRECTION_DEFAULT;
 
 	frame = border = widget = NULL;
 	_scroll = NULL;
@@ -2930,14 +2931,59 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 	}
 }
 
-bool gControl::setInverted(bool v)
+int gControl::actualDirection() const
+{
+	const gControl *ctrl = this;
+	
+	for(;;)
+	{
+		if (ctrl->direction() != DIRECTION_DEFAULT)
+			return ctrl->direction();
+		if (ctrl->isWindow())
+			return DIRECTION_DEFAULT;
+		ctrl = ctrl->parent();
+	}
+}
+
+void gControl::updateDirection()
+{
+	GtkTextDirection dir;
+	
+	switch(actualDirection())
+	{
+		case DIRECTION_LTR: dir = GTK_TEXT_DIR_LTR; break;
+		case DIRECTION_RTL: dir = GTK_TEXT_DIR_RTL; break;
+		default: dir = gtk_widget_get_default_direction();
+	}
+	
+	if (_inverted)
+		dir = dir == GTK_TEXT_DIR_LTR ? GTK_TEXT_DIR_RTL : GTK_TEXT_DIR_LTR;
+	
+	gtk_widget_set_direction(widget, dir);
+}
+
+bool gControl::isRightToLeft() const
+{
+	return gtk_widget_get_direction(widget) == GTK_TEXT_DIR_RTL;
+}
+
+
+void gControl::setInverted(bool v)
 {
 	if (v == _inverted)
-		return true;
+		return;
 	
 	_inverted = v;
-	gt_widget_set_inverted(widget, v);
-	return false;
+	updateDirection();
+}
+
+void gControl::setDirection(int v)
+{
+	if (v == _direction)
+		return;
+	
+	_direction = v;
+	updateDirection();
 }
 
 void gControl::checkVisibility()

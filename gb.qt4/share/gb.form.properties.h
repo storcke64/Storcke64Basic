@@ -27,7 +27,7 @@
 #define CCONTROL_PROPERTIES \
 	"X{Position},Y{Position},Width{Dimension},Height{Dimension},Visible=True,Enabled=True,Font{Font}," \
 	"Background{Color}=-1,Foreground{Color}=-1," \
-	"Tag,Tracking,NoTabFocus,Mouse{Cursor.*}=Default,ToolTip,Drop,Expand,Ignore,PopupMenu{Menu}"
+	"Tag,Tracking,NoTabFocus,Mouse{Cursor.*}=Default,ToolTip,Drop,Expand,Ignore,PopupMenu{Menu},Direction{Direction.*}=Default"
 #define CARRANGEMENT_PROPERTY "Arrangement{Arrange.None;Horizontal;Vertical;Row;Column;Fill}"
 #define CPADDING_PROPERTIES "Centered,Spacing,Margin,Padding{Range:0;63},Indent"
 #define CWINDOW_PADDING_PROPERTIES "Centered,Spacing,Margin,Padding{Range:0;63},Indent"

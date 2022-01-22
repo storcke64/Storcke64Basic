@@ -272,9 +272,8 @@ static void resize_container(void *_object, QWidget *cont, int w, int h)
 #define CONTAINER_TYPE QWidget *
 #define ARRANGEMENT_TYPE CCONTAINER_ARRANGEMENT *
 
-#define IS_RIGHT_TO_LEFT() qApp->isRightToLeft()
-
 #define GET_WIDGET(_object) ((CWIDGET *)_object)->widget
+#define IS_RIGHT_TO_LEFT(_object) (((CWIDGET *)_object)->widget)->isRightToLeft()
 #define GET_CONTAINER(_object) ((CCONTAINER *)_object)->container
 #define GET_ARRANGEMENT(_object) ((CCONTAINER_ARRANGEMENT *)_object)
 #define IS_EXPAND(_object) (((CWIDGET *)_object)->flag.expand)
@@ -897,6 +896,9 @@ void MyContainer::changeEvent(QEvent *e)
 {
 	void *_object = CWidget::get(this);
 
+	if (e->type() == QEvent::LayoutDirectionChange)
+		CCONTAINER_arrange(THIS);
+	
 	if (!THIS_ARRANGEMENT->paint)
 	{
 		MyFrame::changeEvent(e);

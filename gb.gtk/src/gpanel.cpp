@@ -141,4 +141,3 @@ void gPanel::setBackground(gColor color)
 		create();
 }
 #endif
-

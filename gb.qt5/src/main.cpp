@@ -683,8 +683,7 @@ __INSTALL_TRANSLATOR:
 	qApp->installTranslator(_translator);
 
 __SET_DIRECTION:
-	if (rtl)
-		qApp->setLayoutDirection(Qt::RightToLeft);
+	qApp->setLayoutDirection(rtl ? Qt::RightToLeft : Qt::LeftToRight);
 }
 
 static void hook_lang(char *lang, int rtl)
@@ -1115,7 +1114,7 @@ extern "C" {
 GB_DESC *GB_CLASSES[] EXPORT =
 {
 	BorderDesc, CColorDesc,
-	AlignDesc, ArrangeDesc, ScrollDesc, CKeyDesc, SelectDesc,
+	AlignDesc, ArrangeDesc, ScrollDesc, CKeyDesc, SelectDesc, DirectionDesc,
 	CImageDesc, CPictureDesc, AnimationDesc,
 	CFontDesc, CFontsDesc,
 	CMouseDesc, CCursorDesc, CPointerDesc,

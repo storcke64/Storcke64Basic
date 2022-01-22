@@ -207,3 +207,15 @@ GB_DESC SelectDesc[] =
 
   GB_END_DECLARE
 };
+
+
+GB_DESC DirectionDesc[] =
+{
+  GB_DECLARE_STATIC("Direction"),
+
+  GB_CONSTANT("Default", "i", DIRECTION_DEFAULT),
+  GB_CONSTANT("LeftToRight", "i", DIRECTION_LTR),
+  GB_CONSTANT("RightToLeft", "i", DIRECTION_RTL),
+
+  GB_END_DECLARE
+};

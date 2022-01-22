@@ -157,6 +157,8 @@ public:
 	
 	virtual void connectBorder();
 	
+	virtual void updateDirection();
+	
 	static void postArrange();
 	
 private:

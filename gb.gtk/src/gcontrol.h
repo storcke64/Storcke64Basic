@@ -135,7 +135,15 @@ public:
 	bool isNoTabFocus() const;
 	bool isNoTabFocusRec() const;
 	void setNoTabFocus(bool v);
+	
+	void setDirection(int v);
+	int direction() const { return _direction; }
+	
+	void setInverted(bool v);
+	bool isInverted() const { return _inverted; }
 
+	bool isRightToLeft() const;
+	
 	gColor background() const { return _bg; }
 	gColor foreground() const { return _fg; }
 	virtual void setBackground(gColor color = COLOR_DEFAULT);
@@ -293,6 +301,8 @@ public:
 	unsigned _minimum_size_set : 1;        // If minimum size has been computed
 	unsigned _allow_show : 1;              // Allowed to be visible (after the first resize)
 	
+	unsigned _direction : 2;               // Text direction
+	
 #ifdef GTK3
 	unsigned _style_dirty : 1;             // If the style must be refreshed
 	unsigned _no_style_without_child : 1;  // For containers that do not need a css if they have no children
@@ -350,11 +360,11 @@ public:
 	virtual void onLeaveEvent();
 #endif
 	
-	virtual bool setInverted(bool v);
-	bool isInverted() const { return _inverted; }
-	
 	void hideButKeepFocus();
 	void showButKeepFocus();
+	
+	int actualDirection() const;
+	virtual void updateDirection();
 	
 	static void postDelete();
 

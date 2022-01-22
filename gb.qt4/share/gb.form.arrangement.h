@@ -44,8 +44,8 @@ the following fields:
 - locked : if the container is being arranged.
 - user : if the container is a UserControl or a UserContainer.
 
-#define IS_RIGHT_TO_LEFT()
-If the current language is right to left written
+#define IS_RIGHT_TO_LEFT(_object)
+If the control is right to left written
 
 #define GET_WIDGET(_object)
 Returns the widget associated with the gambas control
@@ -205,7 +205,7 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 		//fprintf(stderr, "arrange: %s %d (%d %d) (%d %d)\n", ((gControl *)_object)->name(), arr->mode, ((gContainer *)_object)->width(), ((gContainer *)_object)->height(), ((gContainer *)_object)->clientWidth(), ((gContainer *)_object)->clientHeight());
 
 		invert = arr->invert;
-		rtl = IS_RIGHT_TO_LEFT();
+		rtl = IS_RIGHT_TO_LEFT(_object);
 		swap = (arr->mode & 1) == 0; // means "vertical"
 
 		if (!swap && invert)

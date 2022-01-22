@@ -162,4 +162,10 @@ enum {
 	CURSOR_ZOOM_OUT
 };
 
+enum {
+	DIRECTION_DEFAULT = 0,
+	DIRECTION_LTR = 1,
+	DIRECTION_RTL = 2
+};
+
 #endif

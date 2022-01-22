@@ -2576,12 +2576,3 @@ void gt_layout_get_extents(PangoLayout *layout, int *w, int *h, bool pixels)
 	
 }
 
-void gt_widget_set_inverted(GtkWidget *widget, bool inverted)
-{
-	GtkTextDirection dir = gtk_widget_get_default_direction();
-	
-	if (inverted)
-		gtk_widget_set_direction(widget, dir == GTK_TEXT_DIR_LTR ? GTK_TEXT_DIR_RTL : GTK_TEXT_DIR_LTR);
-	else
-		gtk_widget_set_direction(widget, dir);
-}

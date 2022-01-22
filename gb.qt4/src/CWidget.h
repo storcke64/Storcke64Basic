@@ -87,6 +87,7 @@ typedef
 			unsigned no_design : 1;
 			unsigned orientation : 1;          // for scrollbars & similar widgets
 			unsigned inverted : 1;             // if layout has been inverted
+			unsigned direction : 2;            // text direction
 			} flag;
 		char *name;
 		void *font;

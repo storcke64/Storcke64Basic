@@ -64,10 +64,10 @@ public:
 	void setTristate(bool vl);
 	void setAutoResize(bool vl);
 	
-	virtual bool setInverted(bool v);
-	
 	virtual void setRealForeground(gColor color);
 	gColor defaultBackground() const;
+	
+	virtual void updateDirection();
 	
 	//virtual void setRealBackground(gColor color);
 

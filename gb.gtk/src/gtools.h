@@ -241,6 +241,4 @@ void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
 void gt_define_style_sheet(GtkStyleProvider **provider, GString *css);
 #endif
 
-void gt_widget_set_inverted(GtkWidget *widget, bool inverted);
-
 #endif

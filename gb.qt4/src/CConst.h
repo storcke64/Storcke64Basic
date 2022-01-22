@@ -33,6 +33,7 @@ extern GB_DESC ArrangeDesc[];
 extern GB_DESC BorderDesc[];
 extern GB_DESC ScrollDesc[];
 extern GB_DESC SelectDesc[];
+extern GB_DESC DirectionDesc[];
 #endif
 
 int CCONST_convert(int *tab, int value, int def, bool to_qt);

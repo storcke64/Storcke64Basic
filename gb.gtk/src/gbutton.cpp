@@ -89,7 +89,7 @@ static gboolean button_expose(GtkWidget *wid, GdkEventExpose *e, gButton *data)
 	int x, w, wt, wp, hp;
 	int d = gDesktop::scale() / 2;
 	
-	rtl = gtk_widget_get_default_direction() == GTK_TEXT_DIR_RTL;
+	rtl = gtk_widget_get_direction(wid) == GTK_TEXT_DIR_RTL;
 	
 	#ifdef GTK3
 		GtkStateFlags f = gtk_widget_get_state_flags(data->widget);
@@ -401,7 +401,7 @@ void gButton::setText(const char *st)
 			gtk_button_set_label(GTK_BUTTON(widget), "");
 
 		_label = gtk_bin_get_child(GTK_BIN(widget));
-		gt_widget_set_inverted(_label, false);
+		updateDirection();
 		#ifndef GTK3
 		set_gdk_fg_color(_label, foreground());
 		#endif
@@ -738,14 +738,11 @@ void gButton::updateSize()
 	resize(mw, mh);
 }
 
-bool gButton::setInverted(bool v)
+void gButton::updateDirection()
 {
-	if (gControl::setInverted(v))
-		return true;
-	
+	gControl::updateDirection();
 	if (_label)
-		gt_widget_set_inverted(_label, false);
-	return false;
+		gtk_widget_set_direction(_label, gtk_widget_get_direction(widget));
 }
 
 gColor gButton::defaultBackground() const
