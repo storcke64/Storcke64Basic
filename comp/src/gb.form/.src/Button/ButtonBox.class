@@ -249,7 +249,7 @@ Public Sub Background_Arrange()
   
   H = Me.H - FH * 2
   
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     X = FW
     For Each hCtrl In aCtrl
       hCtrl.W = Desktop.Scale * 3

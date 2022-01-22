@@ -283,7 +283,7 @@ Private Sub DrawDoc(Page As Integer, iRow As Integer, iCol As Integer)
   Endif
   
   'Define the doc position
-  If System.RightToLeft Then 
+  If Me.RightToLeft Then 
     iDocX = $hView.ClientW - $fScaledPadding - (iCol * ($fMaxPageWidth + $fScaledSpace)) - $fMaxPageWidth + $hView.ScrollX
   Else
     iDocX = $fScaledPadding + iCol * ($fMaxPageWidth + $fScaledSpace) + ($fMaxPageWidth - $fScaledDocWidth) / 2 - $hView.ScrollX
@@ -294,7 +294,7 @@ Private Sub DrawDoc(Page As Integer, iRow As Integer, iCol As Integer)
     If $iArrangement = Arrange.Column Then
       iDocY -= $fCenter
     Else
-      If System.RightToLeft Then 
+      If Me.RightToLeft Then 
         iDocX -= $fCenter
       Else
         iDocX += $fCenter

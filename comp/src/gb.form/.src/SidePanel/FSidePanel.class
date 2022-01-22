@@ -68,7 +68,7 @@ End
 
 Private Sub GetLangOrientation(iOrientation As Integer) As Integer
   
-  If System.RightToLeft Then 
+  If Me.RightToLeft Then 
     If iOrientation = Align.Left Then 
       Return Align.Right
     Else If iOrientation = Align.Right Then 

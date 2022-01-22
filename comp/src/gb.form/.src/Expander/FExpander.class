@@ -187,7 +187,7 @@ Public Sub dwgTitle_Draw()
   If Not Me.Enabled Then iFlag += Draw.Disabled
   If $bInside And If Me.Enabled Then iFlag += Draw.Hover
   
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     Style.PaintArrow(Paint.W - W, Y, W, W, If($bHidden, Align.Left, Align.Bottom), iFlag)
     If $bInside Then Paint.DrawTextShadow($sText, 0, 0, Paint.W - W - D, Paint.H, Align.Normal)
     Paint.DrawText($sText, 0, 0, Paint.W - W - D, Paint.H, Align.Normal)

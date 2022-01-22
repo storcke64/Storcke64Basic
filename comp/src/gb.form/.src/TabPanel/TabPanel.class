@@ -128,7 +128,7 @@ Public Sub EnsureCurrentVisible_Timer()
   If $iCurrent < 0 Or If $iCurrent > $aButton.Max Then Return
   If Not $aButton[$iCurrent].Visible Then Return
   
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     
     $X = 0
     
@@ -202,13 +202,13 @@ Public Sub EnsureCurrentVisible_Timer()
   
   ' If $bArrow Then
   '   W -= ARROW_WIDTH
-  '   If System.RightToLeft Then $X += ARROW_WIDTH
+  '   If Me.RightToLeft Then $X += ARROW_WIDTH
   ' Endif
 
   $hTabBarContainer.Move($X, 0, W, $hTabBar.H)
   
   If $hTabBar.W >= (ARROW_WIDTH * 3) And If $aButton.Count Then
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       iLeftIndex = GetLastIndex()
       iRightIndex = _GetFirstIndex()
     Else
@@ -262,7 +262,7 @@ Private Sub UpdateLayout()
   If $hClosePanel Then
     If W >= H Then
       W -= H
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         $hClosePanel.Move(X, Y, H, H + 1)
         X += H
       Else
@@ -279,7 +279,7 @@ Private Sub UpdateLayout()
   PL = TabBarPaddingStart_Read()
   PR = TabBarPaddingEnd_Read()
   
-  If System.RightToLeft Then 
+  If Me.RightToLeft Then 
     If $hTabBarLeft Then $hTabBarLeft.Move(W - PL, Y, PL, H + 1)
     If $hTabBarRight Then $hTabBarRight.Move(0, Y, PR, H + 1)
     Swap PL, PR
@@ -366,7 +366,7 @@ Public Sub Arrow_MouseDown()
   
   If Mouse.Left Then
     
-    If Last = $hRightArrow Xor System.RightToLeft Then
+    If Last = $hRightArrow Xor Me.RightToLeft Then
       Try _MoveNext()
       $iRepeatInc = 1
     Else
@@ -674,13 +674,13 @@ Public Sub TabBarContainer_Draw()
   Draw.Foreground = Color.LightForeground
   Select Case $iOrientation
     Case Align.Top
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         Draw.Line(0, $hTabBarContainer.H - 1, hLast.X - 1, $hTabBar.H - 1)
       Else
         Draw.Line(hLast.X + hLast.W, $hTabBarContainer.H - 1, $hTabBarContainer.W, $hTabBar.H - 1)
       Endif
     Case Align.Bottom
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         Draw.Line(0, 0, hLast.X - 1, 0)
       Else
         Draw.Line(hLast.X + hLast.W, 0, $hTabBarContainer.W, 0)
@@ -885,7 +885,7 @@ Public Sub TabBarContainer_KeyPress()
   Select Case Key.Code
     
     Case Key.Left, Key.PageUp
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         Try _MoveNext
       Else
         Try _MovePrevious
@@ -893,7 +893,7 @@ Public Sub TabBarContainer_KeyPress()
       Stop Event
       
     Case Key.Right, Key.PageDown
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         Try _MovePrevious
       Else
         Try _MoveNext

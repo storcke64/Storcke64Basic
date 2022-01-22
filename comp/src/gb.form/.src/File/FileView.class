@@ -1259,7 +1259,7 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   
   Paint.Background = Color.Merge(Style.ForegroundOf(Last), Style.BackgroundOf(Last), 0.3)
   
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     Width = (Width - $iIconSize - H) \ 2
   Else
     X += (Width + $iIconSize + H) \ 2

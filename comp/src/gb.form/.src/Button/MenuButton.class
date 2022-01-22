@@ -455,7 +455,7 @@ Public Sub DrawingArea_Draw()
   
   If $hPicture Then
     
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       X = Paint.W - DS - $hPicture.W
     Else
       X = DS
@@ -470,7 +470,7 @@ Public Sub DrawingArea_Draw()
   Endif
   
   If bDrawArrow Then
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       Style.PaintArrow(DS, 0, DS, Me.H, Align.Bottom)
     Else
       Style.PaintArrow(Me.W - DS * 2, 0, DS, Me.H, Align.Bottom)
@@ -496,10 +496,10 @@ Public Sub DrawingArea_Draw()
       iAlign = Align.Normal
       If $hPicture Then
         W -= $hPicture.W + DS
-        If Not System.RightToLeft Then X += $hPicture.W + DS
+        If Not Me.RightToLeft Then X += $hPicture.W + DS
       Endif
       If bDrawArrow Then
-        If System.RightToLeft Then X += DS * 2
+        If Me.RightToLeft Then X += DS * 2
         W -= DS * 2
       Endif
     Endif
@@ -515,7 +515,7 @@ Public Sub DrawingArea_Draw()
       Y = (Me.H - hFont.Height) / 2 + hFont.Ascent + 1
       If Main.UseGTK() Then Inc Y
       
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         Paint.FillRect(Paint.W - X, Y, X2 - X, 1, iFg)
       Else
         Paint.FillRect(X, Y, X2 - X, 1, iFg)
