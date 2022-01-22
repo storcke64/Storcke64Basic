@@ -564,7 +564,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
   
   If Column = 0 Then
   
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
 
       W -= hItem._Depth * $iDepthW + $iDepthW
       
@@ -833,7 +833,7 @@ Public Sub GridView_MouseDown()
     _SetItemSelected(hItem, True) '.Rows[iRow].Selected = True
   Endif
 
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     With $hView.Columns[0]
       X = .X + .W - hItem._Depth * $iDepthW - $iDepthW
     End With

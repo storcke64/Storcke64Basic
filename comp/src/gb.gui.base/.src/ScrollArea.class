@@ -292,7 +292,7 @@ RETRY:
   If W < 1 Or If H < 1 Then
     $hDrawingArea.Hide
   Else
-    If $bVBarVisible And If System.RightToLeft Then
+    If $bVBarVisible And If Me.RightToLeft Then
       $hDrawingArea.Move(SP + SB + X, Y, W, H)
     Else
       $hDrawingArea.Move(X, Y, W, H)
@@ -309,14 +309,14 @@ RETRY:
   UpdateScrollbarVisibility
   
   If $bHBarVisible Then 
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       $hHBar.Move(X + Me.W - W, Y + H + SP, W, SB)
     Else
       $hHBar.Move(X, Y + H + SP, W, SB)
     Endif
   Endif
   If $bVBarVisible Then 
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       $hVBar.Move(X, Y, SB, H)
     Else
       $hVBar.Move(X + W + SP, Y, SB, H)
@@ -397,7 +397,7 @@ Private Sub LayoutShadows()
     $hShadowE.Raise
     'Paint.Rectangle(hClip.X + $iShadowW, hClip.Y + $iShadowN, hClip.W - $iShadowW - $iShadowE, hClip.H - $iShadowN - $iShadowS)
     'Paint.Clip()
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       $hShadowE.Visible = $iScrollX > $hHBar.MinValue 'Then Draw.Tile($hFadeN, 0, $iShadowN - Max(0, $hFadeN.H - ($iScrollY - $hVBar.MinValue)), DW, $hFadeN.H)
       $hShadowW.Visible = $iScrollX < $hHBar.MaxValue 'Then Draw.Tile($hFadeS, 0, DH - $hFadeS.H - $iShadowS + Max(0, $hFadeS.H - ($hVBar.MaxValue - $iScrollY)), DW, $hFadeS.H)
     Else
@@ -498,7 +498,7 @@ End
 
 Private Function ScrollX_Read() As Integer
 
-  If System.RightToLeft Then
+  If Me.RightToLeft Then
     Return $hHBar.MaxValue - $iScrollX
   Else
     Return $iScrollX
@@ -534,7 +534,7 @@ End
 
 Public Sub Scroll(X As Integer, Y As Integer) As Boolean
   
-  If System.RightToLeft Then X = $hHBar.MaxValue - X
+  If Me.RightToLeft Then X = $hHBar.MaxValue - X
 
   X = Max($hHBar.MinValue, Min($hHBar.MaxValue, X))
   Y = Max($hVBar.MinValue, Min($hVBar.MaxValue, Y))
@@ -794,7 +794,7 @@ Private Sub GetActualScroll(ByRef SX As Integer, ByRef SY As Integer)
   
 End
 
-Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer, Optional Direction As Integer = Scroll.Both) As Boolean
+Public Sub EnsureVisible(X As Integer, Y As Integer, W As Integer, H As Integer, Optional (Direction) As Integer = Scroll.Both) As Boolean
   
   Dim PW, PH, CX, CY, CW, CH As Integer
   Dim XX, YY, WW, HH As Float

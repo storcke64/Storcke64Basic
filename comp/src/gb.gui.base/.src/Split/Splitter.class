@@ -274,7 +274,7 @@ Private Sub DoLayout()
       
     Else
       
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
         
         X = WMax
         
@@ -358,7 +358,7 @@ Public Sub Resize_MouseDown()
     $XMin = aChildren[I].ScreenY
     $XMax = aChildren[I + 1].ScreenY + aChildren[I + 1].H + SW
   Else
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       $XMin = aChildren[I + 1].ScreenX
       $XMax = aChildren[I].ScreenX + aChildren[I].W + SW
     Else
@@ -402,7 +402,7 @@ Public Sub Resize_MouseMove()
     
     X = Min(Max(Mouse.ScreenX + SW - Mouse.StartX, $XMin + $iMinSize), $XMax - $iMinSize)
     
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       I2 = I
       I = I2 + 1
     Else

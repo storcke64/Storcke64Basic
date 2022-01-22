@@ -171,14 +171,14 @@ Public Sub _Layout()
     
   Endif
   
-  FH = GetView().Font.Height
+  FH = hView.Font.Height
   For Each hCol In $aColumns
     hCol._X = X
     X += hCol.Width
     H = Max(H, hView.Font.TextHeight(hCol.Text) + Max(hView.Padding * 2, Desktop.Scale))
   Next
   
-  If System.RightToLeft Then
+  If hView.RightToLeft Then
     'Debug "";
     I = 0
     For Each hCol In $aColumns
