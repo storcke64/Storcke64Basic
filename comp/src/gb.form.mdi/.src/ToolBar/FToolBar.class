@@ -228,7 +228,7 @@ Private Sub SetArrangement()
       'Debug ToolBarKey;; "WT = "; WT;; NX
     Endif
   
-    X = If(System.RightToLeft, panToolBar.W - SH, SH)
+    X = If(Me.RightToLeft, panToolBar.W - SH, SH)
     For Each hCtrl In panToolBar.Children
       If Not hCtrl.Visible Then Continue
       
@@ -251,7 +251,7 @@ Private Sub SetArrangement()
         Endif
       Endif
       
-      If System.RightToLeft Then
+      If Me.RightToLeft Then
       
         X -= W
         If X < 0 Then
@@ -311,7 +311,7 @@ Private Sub Update()
 
   If Not $bReallyVertical Then
   
-    If System.RightToLeft Then
+    If Me.RightToLeft Then
       XH = Me.W - $iHandleSize
       YH = 0
       XP = 0
