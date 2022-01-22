@@ -2275,6 +2275,7 @@ void CWidget::destroy()
 {
 	QWidget *w = (QWidget *)sender();
 	CWIDGET *_object = CWidget::get(w);
+	CWINDOW *win;
 
 	if (!THIS)
 		return;
@@ -2301,6 +2302,13 @@ void CWidget::destroy()
 #if QT5
 	CLEAN_POINTER(_last_entered);
 #endif
+	
+	win = CWINDOW_Current;
+	while (win)
+	{
+		CLEAN_POINTER(win->save_focus);
+		win = win->previous;
+	}
 
 	if (THIS_EXT)
 	{
@@ -2358,10 +2366,13 @@ static void post_focus_change(void *)
 {
 	CWIDGET *current, *control;
 	
+	//fprintf(stderr, "post_focus_change: %d %d\n", !_focus_change, _doing_focus_change);
+	
 	if (!_focus_change || _doing_focus_change)
 		return;
 	
 	_doing_focus_change = true;
+	_focus_change = false;
 	
 	for(;;)
 	{
@@ -2370,6 +2381,7 @@ static void post_focus_change(void *)
 			break;
 
 		control = _old_active_control;
+		//if (control) fprintf(stderr, "check focus out %s\n", control->name);
 		while (control)
 		{
 			//fprintf(stderr, "post_focus_change: %s lost focus\n", control->name);
@@ -2381,6 +2393,7 @@ static void post_focus_change(void *)
 		CWINDOW_activate(current);
 		
 		control = current;
+		//if (control) fprintf(stderr, "check focus in %s\n", control->name);
 		while (control)
 		{
 			//fprintf(stderr, "post_focus_change: %s got focus\n", control->name);
@@ -2390,7 +2403,8 @@ static void post_focus_change(void *)
 	}
 	
 	_doing_focus_change = false;
-	_focus_change = false;
+	
+	//fprintf(stderr, "post_focus_change: END\n");
 }
 
 static void handle_focus_change()
@@ -2412,7 +2426,7 @@ void CWIDGET_handle_focus(CWIDGET *control, bool on)
 	if (on == (CWIDGET_active_control == control))
 		return;
 	
-	//fprintf(stderr, "CWIDGET_handle_focus: %s %d\n", control->name, on);
+	//fprintf(stderr, "CWIDGET_handle_focus: %s %d / %d\n", control->name, on, _focus_change);
 	
 	if (CWIDGET_active_control && !_focus_change)
 		CWIDGET_previous_control = CWIDGET_active_control;

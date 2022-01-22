@@ -1987,6 +1987,9 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	setEventLoop();
 
 	THIS->loopLevel++;
+	
+	THIS->save_focus = CWIDGET_active_control;
+	THIS->previous = CWINDOW_Current;
 	CWINDOW_Current = THIS;
 
 	_enterLoop = true;
@@ -1998,9 +2001,9 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 
 	GB.OnErrorBegin(&handler);
 
-	//fprintf(stderr, "eventLoop.exec <---- %p\n",CWINDOW_Current);
+	//fprintf(stderr, "event loop <---- %p\n",CWINDOW_Current);
 	eventLoop.exec();
-	//fprintf(stderr, "eventLoop.exec ---->%p\n", info.save);
+	//fprintf(stderr, "event loop ---->%p\n", info.save);
 
 	GB.OnErrorEnd(&handler);
 
@@ -2022,6 +2025,12 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 		CWIDGET_leave_popup(info.save_popup);
 	
 	CWINDOW_ensure_active_window();
+	
+	if (THIS->save_focus)
+	{
+		CWIDGET_set_focus(THIS->save_focus);
+		THIS->save_focus = NULL;
+	}
 }
 
 #if 0

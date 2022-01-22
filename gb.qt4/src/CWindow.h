@@ -55,6 +55,8 @@ typedef
 		CPICTURE *icon;
 		CPICTURE *picture;
 		CWIDGET *focus;
+		CWIDGET *save_focus;
+		struct CWINDOW *previous;
 		QPushButton *defaultButton;
 		QPushButton *cancelButton;
 		int ret;

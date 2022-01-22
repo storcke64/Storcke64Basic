@@ -395,8 +395,16 @@ void gControl::dispose()
 	gMainWindow *win;
 	
 	win = window();
-	if (win && win->focus == this)
-		win->focus = NULL;
+	if (win && win->_initial_focus == this)
+		win->_initial_focus = NULL;
+	
+	win = gMainWindow::_current;
+	while (win)
+	{
+		if (win && win->_save_focus == this)
+			win->_save_focus = NULL;
+		win = win->_previous;
+	}
 
 	if (pr)
 	{
@@ -537,6 +545,7 @@ void gControl::setVisibility(bool vl)
 	{
 		if (parent() && hasFocus())
 			gcb_focus(widget, GTK_DIR_TAB_FORWARD, this);
+		gApplication::setActiveControl(this, false);
 		if (gtk_widget_has_grab(border))
 			gtk_grab_remove(border);
 		gtk_widget_hide(border);
@@ -1345,7 +1354,7 @@ void gControl::setFocus()
 		#if DEBUG_FOCUS
 		fprintf(stderr, "setFocus later %s\n", name());
 		#endif
-		win->focus = this;
+		win->_initial_focus = this;
 	}
 }
 

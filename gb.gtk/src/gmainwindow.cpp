@@ -391,12 +391,14 @@ void gMainWindow::initialize()
 	menuBar = NULL;
 	_icon = NULL;
 	_picture = NULL;
-	focus = 0;
+	_initial_focus = NULL;
+	_save_focus = NULL;
 	_title = NULL;
 	_current = NULL;
 	_resize_last_w = _resize_last_h = -1;
 	_min_w = _min_h = _default_min_w = _default_min_h = 0;
 	_csd_w  = _csd_h = -1;
+	_previous = NULL;
 
 	_opened = false;
 	_sticky = false;
@@ -562,7 +564,7 @@ gMainWindow::~gMainWindow()
 	if (!border)
 		return;
 
-	gApplication::handleFocusNow();
+	gApplication::finishFocus();
 
 	if (_opened)
 	{
@@ -906,7 +908,7 @@ void gMainWindow::setVisible(bool vl)
 	else
 	{
 		if (this == _active)
-			focus = gApplication::activeControl();
+			_initial_focus = gApplication::activeControl();
 
 		_not_spontaneous = isVisible();
 		gContainer::setVisible(false);
@@ -993,11 +995,10 @@ bool gMainWindow::isModal() const
 
 void gMainWindow::showModal()
 {
-  gMainWindow *save;
-
 	if (!isTopLevel()) return;
-	if (isModal()) return;
+	if (isModal() || isPopup()) return;
 
+	gApplication::finishFocus();
 	gMouse::finishEvent();
 	
 	//show();
@@ -1006,7 +1007,8 @@ void gMainWindow::showModal()
 	gtk_window_set_modal(GTK_WINDOW(border), true);
 	setTransientFor();
 
-	save = _current;
+	_save_focus = gApplication::activeControl();
+	_previous = _current;
 	_current = this;
 
 	center();
@@ -1014,27 +1016,34 @@ void gMainWindow::showModal()
 	gtk_grab_add(border);
 	gApplication::enterLoop(this);
 
-	_current = save;
+	_current = _previous;
+	_previous = NULL;
 
 	gtk_grab_remove(border);
 	gtk_window_set_modal(GTK_WINDOW(border), false);
 
 	if (!_persistent)
-		destroyNow();
+		destroy();
 	else
 		hide();
+	
+	if (_save_focus)
+	{
+		gApplication::setActiveControl(_save_focus, true);
+		_save_focus = NULL;
+	}
 }
 
 void gMainWindow::showPopup(int x, int y)
 {
-  gMainWindow *save;
 	bool has_border;
 	int oldx, oldy;
 	GdkWindowTypeHint type;
 
 	if (!isTopLevel()) return;
-	if (isModal()) return;
+	if (isModal() || isPopup()) return;
 
+	gApplication::finishFocus();
 	gMouse::finishEvent();
 
 	//gtk_widget_unrealize(border);
@@ -1055,23 +1064,23 @@ void gMainWindow::showPopup(int x, int y)
 	
 	setTransientFor();
 
+	_save_focus = gApplication::activeControl();
+	_previous = _current;
+	_current = this;
+
 	gtk_window_resize(GTK_WINDOW(border), bufW, bufH);
   move(x, y);
 	//raise();
 	setFocus();
-
-	save = _current;
-	_current = this;
-
+	
 	gApplication::enterPopup(this);
 
-	_current = save;
+	_current = _previous;
+	_previous = NULL;
 	_popup = false;
 
 	if (!_persistent)
-	{
-		destroyNow();
-	}
+		destroy();
 	else
 	{
 		hide();
@@ -1080,6 +1089,12 @@ void gMainWindow::showPopup(int x, int y)
 		gtk_window_set_type_hint(GTK_WINDOW(border), type);
 
 		move(oldx, oldy);
+	}
+	
+	if (_save_focus)
+	{
+		gApplication::setActiveControl(_save_focus, true);
+		_save_focus = NULL;
 	}
 }
 
@@ -2066,10 +2081,10 @@ gControl *gMainWindow::getInitialFocus()
 	
 	_set_focus = false;
 	
-	if (focus)
+	if (_initial_focus)
 	{
-		ctrl = focus;
-		focus = NULL;
+		ctrl = _initial_focus;
+		_initial_focus = NULL;
 		//fprintf(stderr, "focus = %p %s\n", focus->border, focus->name());
 		//focus->setFocus();
 		//fprintf(stderr, "focus of window %p -> %p\n", border, gtk_window_get_focus(GTK_WINDOW(border)));

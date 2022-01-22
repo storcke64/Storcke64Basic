@@ -1224,11 +1224,13 @@ void gApplication::enterPopup(gMainWindow *owner)
 		_loop_owner = owner;
 
 		(*onEnterEventLoop)();
+		//fprintf(stderr, "event loop <----\n");
 		do
 		{
 			MAIN_do_iteration(false);
 		}
 		while (_loopLevel > l);
+		//fprintf(stderr, "event loop ---->\n");
 		(*onLeaveEventLoop)();
 
 		if (_in_popup == 1)
@@ -1250,8 +1252,8 @@ void gApplication::enterPopup(gMainWindow *owner)
 		}
 		//exitGroup(oldGroup);
 	}
-	else
-		gControl::postDelete();
+	/*else
+		gControl::postDelete();*/
 
 	_in_popup--;
 }
@@ -1289,9 +1291,10 @@ static void post_focus_change(void *)
 	gControl *current, *control, *next;
 
 	#if DEBUG_FOCUS
-	fprintf(stderr, "post_focus_change...\n");
+	fprintf(stderr, "post_focus_change: %d %d\n", !_focus_change, _doing_focus_change);
 	#endif
 	
+
 	if (!_focus_change || _doing_focus_change)
 		return;
 
@@ -1308,6 +1311,7 @@ static void post_focus_change(void *)
 			break;
 
 		control = gApplication::_old_active_control;
+		//if (control) fprintf(stderr, "check focus out %s\n", control->name());
 		while (control)
 		{
 			next = control->_proxy_for;
@@ -1317,15 +1321,12 @@ static void post_focus_change(void *)
 			CB_control_focus(control, gEvent_FocusOut);
 			control = next;
 		}
-
-		current = gApplication::activeControl();
-		if (current == gApplication::_old_active_control)
-			break;
-
+		
 		gApplication::_old_active_control = current;
 		gMainWindow::setActiveWindow(current);
 
-		control = gApplication::activeControl();
+		control = current; //gApplication::activeControl();
+		//if (control) fprintf(stderr, "check focus in %s\n", control->name());
 		while (control)
 		{
 			next = control->_proxy_for;
@@ -1337,15 +1338,15 @@ static void post_focus_change(void *)
 		}
 	}
 
-	_doing_focus_change = false;
 	_focus_change = false;
+	_doing_focus_change = false;
 	
 	#if DEBUG_FOCUS
 	fprintf(stderr, "post_focus_change: END\n");
 	#endif
 }
 
-void gApplication::handleFocusNow()
+void gApplication::finishFocus()
 {
 	post_focus_change(NULL);
 }
@@ -1379,7 +1380,7 @@ void gApplication::setActiveControl(gControl *control, bool on)
 		return;
 
 	#if DEBUG_FOCUS
-	fprintf(stderr, "setActiveControl: %s %d\n", control->name(), on);
+	fprintf(stderr, "setActiveControl: %s %d / %d\n", control->name(), on, _focus_change);
 	#endif
 	
 	if (_active_control && !_focus_change)

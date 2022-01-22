@@ -162,8 +162,10 @@ public:
 	gPicture *_icon;
 	gPicture *_picture;
 	char *_title;
+	gMainWindow *_previous;
 
-	gControl *focus;
+	gControl *_initial_focus;
+	gControl *_save_focus;
 	gButton *_default;
 	gButton *_cancel;
 
