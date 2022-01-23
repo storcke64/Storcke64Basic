@@ -2372,7 +2372,6 @@ static void post_focus_change(void *)
 		return;
 	
 	_doing_focus_change = true;
-	_focus_change = false;
 	
 	for(;;)
 	{
@@ -2402,6 +2401,7 @@ static void post_focus_change(void *)
 		}
 	}
 	
+	_focus_change = false;
 	_doing_focus_change = false;
 	
 	//fprintf(stderr, "post_focus_change: END\n");
