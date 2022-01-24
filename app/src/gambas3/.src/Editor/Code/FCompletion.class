@@ -718,7 +718,9 @@ Private Sub FillWithIdent(sWord As String)
     cSymbol = Project.Documentation.GetClassSymbols(GetClass())
     If cSymbol Then
       For Each hSymbol In cSymbol
-        If Not hSymbol.NotPublic Then Continue
+        If InStr("pr", LCase(hSymbol.Kind)) Then
+          If Not hSymbol.NotPublic Then Continue
+        Endif
         sCar = hSymbol.Name
         If Not (sCar Like sWord & "*") Then Continue
         If cKey.Exist(sCar) Then Continue
