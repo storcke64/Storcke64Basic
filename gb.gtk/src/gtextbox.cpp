@@ -469,8 +469,9 @@ void gTextBox::clear()
 
 void gTextBox::setMinimumSize()
 {
-	_min_h = font()->height() + (hasBorder() ? 4 : 0);
-	_min_w = _min_h;
+	int h = font()->height();
+	_min_h = h + (hasBorder() ? 4 : 0);
+	_min_w = h / 2 + (hasBorder() ? 4 : 0);
 }
 
 
