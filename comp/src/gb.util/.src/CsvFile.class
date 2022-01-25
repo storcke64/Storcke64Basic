@@ -67,6 +67,9 @@ Public Sub _new(Path As String, Optional Separator As String = ",", Optional Esc
       If Error Then Error.Raise("Cannot guess charset")
     Endif
   Endif
+  
+  ' For all these stupid Windows softwares that put useless BOM in UTF-8 files.
+  If sLine Begins "\xEF\xBB\xBF" Then sLine = Mid$(sLine, 4)
 
   $aField = Split(sLine, $sSeparator, $sEscape)
   
