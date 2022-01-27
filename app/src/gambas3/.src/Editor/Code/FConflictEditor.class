@@ -656,15 +656,15 @@ Private Sub InitEditor(hEditor As TextEditor)
     .ReadConfig(True)
     .ShowExpand = False
     
-    If Color[.Styles[Highlight.Background].Color].Luminance >= 128 Then
-      .Styles[Highlight.Custom].Background = Color.SetAlpha(Color.Green, 224)
-      .Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Red, 224)
-    Else
-      .Styles[Highlight.Custom].Background = Color.SetAlpha(Color.Green, 160)
-      .Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Red, 160)
-    Endif
-    .Styles[Highlight.Custom].Color = .Styles[Highlight.Normal].Color
-    .Styles[Highlight.Custom + 1].Color = .Styles[Highlight.Normal].Color
+    ' If Color[.Styles[Highlight.Background].Color].Luminance >= 128 Then
+    '   .Styles[Highlight.Custom].Background = Color.SetAlpha(Color.Green, 224)
+    '   .Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Red, 224)
+    ' Else
+    '   .Styles[Highlight.Custom].Background = Color.SetAlpha(Color.Green, 160)
+    '   .Styles[Highlight.Custom + 1].Background = Color.SetAlpha(Color.Red, 160)
+    ' Endif
+    ' .Styles[Highlight.Custom].Color = .Styles[Highlight.Normal].Color
+    ' .Styles[Highlight.Custom + 1].Color = .Styles[Highlight.Normal].Color
     
   End With 
   
@@ -1405,19 +1405,19 @@ End
 Public Sub Editors_Highlight(Text As String)
   
   If Text Begins "<<<<<<" Then 
-    TextHighlighter.Add(Highlight.Custom, String.Len(Text))
-    TextHighlighter.State = Highlight.Custom
+    TextHighlighter.Add(Highlight.Removed, String.Len(Text))
+    TextHighlighter.State = Highlight.Removed
   Else If Text Begins "======" Then
     TextHighlighter.Add(Highlight.Comment, String.Len(Text))
     TextHighlighter.State = Highlight.Normal
     TextHighlighter.Tag = 1
   Else If Text Begins ">>>>>>" Then
-    TextHighlighter.Add(Highlight.Custom + 1, String.Len(Text))
-    TextHighlighter.State = Highlight.Custom + 1
+    TextHighlighter.Add(Highlight.Added, String.Len(Text))
+    TextHighlighter.State = Highlight.Added
     TextHighlighter.Tag = 2
   Else
     If TextHighlighter.Tag = 1 Then 
-      TextHighlighter.State = Highlight.Custom + 1
+      TextHighlighter.State = Highlight.Added
       TextHighlighter.Tag = 0
     Else If TextHighlighter.Tag = 2 Then 
       TextHighlighter.State = Highlight.Normal
