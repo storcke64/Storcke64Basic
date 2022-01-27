@@ -127,14 +127,14 @@ private:
 	Qt::HANDLE _background;
 #endif
 	int _background_w, _background_h;
-	bool _frozen;
-	bool _merge;
-	bool _focus;
+	unsigned _frozen : 1;
+	unsigned _merge : 1;
+	unsigned _focus : 1;
+	unsigned _set_background : 1;
+	unsigned _cached : 1;
+	unsigned _no_background : 1;
+	unsigned _in_draw_event : 1;
 	int _event_mask;
-	bool _set_background;
-	bool _cached;
-	bool _no_background;
-	bool _in_draw_event;
 	int _draw_event;
 	static int _in_any_draw_event;
 };
