@@ -27,6 +27,7 @@ Public Sub _new()
   WebTree1.Columns[0].Text = "File"
   WebTree1.AddColumn("Date")
   WebTree1.AddColumn("Size",, Align.Right)
+  WebTree1.AddColumn("Button")
 
   For Each sFile In RDir("~/Images").Sort()
     
@@ -36,7 +37,7 @@ Public Sub _new()
       .[1] = Format(hStat.LastModified, gb.GeneralDate)
       .[2] = Format(hStat.Size, ",0")
     End With
-    If sParent Then WebTree1[sParent].Expanded = True
+    'If sParent Then WebTree1[sParent].Expanded = True
     
   Next
 
@@ -260,5 +261,12 @@ End
 Public Sub WebMenu17_Click()
 
   Message(Last.Text)
+
+End
+
+Public Sub WebTree1_Data(Key As String, Column As Integer, Data As WebTreeData)
+
+  If Column = 2 And If Key Ends ".png" Then Data.Background = Color.SoftYellow
+  If Column = 3 Then Data.Html = "<i><b>" & Html(File.Ext(Key)) & "</b></i>"
 
 End

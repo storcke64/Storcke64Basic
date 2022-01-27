@@ -35,6 +35,7 @@ Event Collapse
 'Event Rename
 'Event Cancel
 Event Compare(Key As String, OtherKey As String)
+Event Data(Key As String, Column As Integer, Data As WebTreeData)
 
 Static Private $iNoEvent As Integer
 
@@ -1138,7 +1139,7 @@ Private Sub ShowHeader_Write(Value As Boolean)
 
 End
 
-Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Boolean)
+Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Boolean, bData As Boolean)
 
   Dim sKey As String = hItem.Key
   Dim sKeyBase64 As String = Base64(sKey)
@@ -1146,6 +1147,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
   Dim hCol As _WebTableColumn
   Dim NX As Integer
   Dim sStyle As String
+  Dim hData As WebTreeData
 
   If Not bVisible Then Return
 
@@ -1220,8 +1222,10 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     hCol = $hColumns[iCol]
     If hCol.Hidden Then Continue
     
-    'hData = New WebTableData
-    'Raise Data(iRow, iCol, hData)
+    If bData Then
+      hData = New WebTreeData
+      Raise Data(hItem.Key, iCol, hData)
+    Endif
     
     Print "<td";
     hCol._PrintAlignment()
@@ -1233,12 +1237,26 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
         sStyle &= "min-width:" & hCol.Width & ";"
       Endif
     Endif
-    'If hData.Background <> Color.Default Then sStyle &= "background-color:" & WebControl._GetColor(hData.Background) & ";"
-    'If hData.Foreground <> Color.Default Then sStyle &= "color:" & WebControl._GetColor(hData.Foreground) & ";"
+    
+    If bData Then
+      If hData.Background <> Color.Default Then sStyle &= "background-color:" & WebControl._GetColor(hData.Background) & ";"
+      If hData.Foreground <> Color.Default Then sStyle &= "color:" & WebControl._GetColor(hData.Foreground) & ";"
+    Endif
+    
     If sStyle Then Print " style=\""; sStyle; "\"";
     Print ">";
     
-    Print Html(hItem[iCol]);
+    If bData Then
+      If hData.Html Then
+        Print hData.Html;
+      Else If hData.Text Then
+        Print Html(hData.Text);
+      Else 
+        Print Html(hItem[iCol]);
+      Endif
+    Else
+      Print Html(hItem[iCol]);
+    Endif
     
     Print "</td>";
     
@@ -1250,7 +1268,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     Inc iLevel
     If Not hItem.Expanded Then bVisible = False
     For Each sKey In hItem._GetChildren()
-      PrintItem($cItem[sKey], iLevel, bVisible)
+      PrintItem($cItem[sKey], iLevel, bVisible, bData)
     Next
     Dec iLevel
   Endif
@@ -1260,6 +1278,9 @@ End
 Public Sub _Render()
   
   Dim sKey As String
+  Dim bData As Boolean
+  
+  bData = Object.CanRaise(Me, "Data")
   
   Print "<div class=\"gw-tree-contents\" onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ");\">";
   'If $bFixed Then
@@ -1272,7 +1293,7 @@ Public Sub _Render()
   
   If $cItem.Count > 1 Then
     For Each sKey In $hRoot._GetChildren()
-      PrintItem($cItem[sKey], 0, True)
+      PrintItem($cItem[sKey], 0, True, bData)
     Next
   Endif
   
