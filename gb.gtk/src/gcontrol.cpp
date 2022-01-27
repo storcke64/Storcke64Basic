@@ -1166,6 +1166,7 @@ gMainWindow* gControl::topLevel() const
 long gControl::handle()
 {
 #ifdef GTK3
+	gtk_widget_realize(border);
 	GdkWindow *window = gtk_widget_get_window(border);
 	return PLATFORM.Window.GetId(window);
 #else
@@ -2227,8 +2228,14 @@ gColor gControl::realBackground(bool no_default)
 {
 	if (_bg != COLOR_DEFAULT)
 		return _bg;
-	else
-		return no_default ? defaultBackground() : COLOR_DEFAULT;
+	
+	if (!no_default)
+		return COLOR_DEFAULT;
+	
+	if (parent())
+		return parent()->realBackground(true);
+	
+	return defaultBackground();
 }
 
 void gControl::setRealBackground(gColor color)
@@ -2795,10 +2802,16 @@ bool gControl::isAncestorOf(gControl *child)
 #ifdef GTK3
 void gControl::drawBackground(cairo_t *cr)
 {
-	if (background() == COLOR_DEFAULT)
-		return;
+	gColor col= background();
+	
+	if (col == COLOR_DEFAULT)
+	{
+		if (!gtk_widget_get_has_window(border))
+			return;
+		col = realBackground(true);
+	}
 
-	gt_cairo_set_source_color(cr, background());
+	gt_cairo_set_source_color(cr, col);
 	cairo_rectangle(cr, 0, 0, width(), height());
 	cairo_fill(cr);
 }

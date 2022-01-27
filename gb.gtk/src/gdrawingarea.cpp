@@ -43,10 +43,6 @@ int gDrawingArea::_in_any_draw_event = 0;
 #ifdef GTK3
 static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gDrawingArea *data)
 {
-	/*cairo_rectangle_list_t *list;
-	cairo_rectangle_t *r;
-	int i;*/
-
 	if (data->cached())
 	{
 		cairo_set_source_surface(cr, data->buffer, 0, 0);
@@ -55,7 +51,7 @@ static gboolean cb_draw(GtkWidget *wid, cairo_t *cr, gDrawingArea *data)
 	}
 	else
 	{
-		//data->drawBackground();
+		data->drawBackground(cr);
 
 		gDrawingArea::_in_any_draw_event++;
 		data->_in_draw_event = true;
@@ -128,16 +124,18 @@ void gDrawingArea::create(void)
 	}
 
 #ifdef GTK3
-	if (_cached || _use_tablet)
+	if (_cached || _use_tablet || _own_window)
 #else
-	if (_cached || _use_tablet || background() != COLOR_DEFAULT)
+	if (_cached || _use_tablet || _own_window || background() != COLOR_DEFAULT)
 #endif
 	{
 		createBorder(gtk_event_box_new());
 		widget = gtk_fixed_new();
 		box = widget;
+#ifndef GTK3
 		gtk_widget_set_app_paintable(border, TRUE);
 		gtk_widget_set_app_paintable(box, TRUE);
+#endif
 	}
 	else
 	{
@@ -186,10 +184,10 @@ void gDrawingArea::create(void)
 gDrawingArea::gDrawingArea(gContainer *parent) : gContainer(parent)
 {
 	_is_drawingarea = true;
+	_own_window = false;
 	_cached = false;
 	buffer = NULL;
 	box = NULL;
-	_old_bg_id = 0;
 	_resize_cache = false;
 	_no_background = false;
 	_use_tablet = false;
@@ -385,17 +383,6 @@ void gDrawingArea::refreshCache()
 
 void gDrawingArea::setNoBackground(bool vl)
 {
-	/*
-	GdkWindow *win;
-
-	gtk_widget_realize(widget);
-	win = widget->window;
-
-	if (vl)
-		gdk_window_set_back_pixmap(win, NULL, FALSE);
-	else
-		setBackground(background());
-	*/
 	if (vl != _no_background)
 	{
 		_no_background = vl;
@@ -445,3 +432,14 @@ void gDrawingArea::setBackground(gColor color)
 		create();
 }
 #endif
+
+long gDrawingArea::handle()
+{
+	if (!_own_window)
+	{
+		_own_window = true;
+		create();
+	}
+	
+	return gControl::handle();
+}

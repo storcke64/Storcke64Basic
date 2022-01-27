@@ -51,6 +51,7 @@ public:
 #endif
 	virtual void setRealBackground(gColor color);
 	virtual void updateFont();
+	virtual long handle();
 
 
 //"Private"
@@ -68,13 +69,11 @@ public:
 	GdkPixmap *buffer;
 #endif
 	GtkWidget *box;
-	uint _event_mask;
-	uint _old_bg_id;
 	unsigned _cached : 1;
 	unsigned _resize_cache : 1;
 	unsigned _in_draw_event : 1;
-	unsigned _no_background : 1;
 	unsigned _use_tablet : 1;
+	unsigned _own_window : 1;
 	static int _in_any_draw_event;
 };
 
