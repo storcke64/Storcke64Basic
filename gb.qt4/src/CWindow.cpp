@@ -2983,6 +2983,8 @@ void CWINDOW_activate(CWIDGET *ob)
 {
 	CWINDOW *active;
 
+	//fprintf(stderr, "CWINDOW_activate: %s\n", ob ? ob->name : NULL);
+	
 	//qDebug("CWINDOW_activate: %s", ob ? ob->name : NULL);
 
 	if (ob)
@@ -3064,6 +3066,8 @@ bool CWindow::eventFilter(QObject *o, QEvent *e)
 		{
 			MyMainWindow *w = (MyMainWindow *)o;
 
+			THIS->noHideEvent = false;
+			
 			if (THIS->toplevel && !THIS->popup && !THIS->moved)
 				w->center();
 
@@ -3081,9 +3085,10 @@ bool CWindow::eventFilter(QObject *o, QEvent *e)
 		}
 		else if (e->type() == QEvent::Hide) // && !e->spontaneous())
 		{
-			//qDebug("Hide: %s %d (%d)", GB.GetClassName(THIS), WINDOW->isHidden(), e->spontaneous());
-			//if (WINDOW->isHidden())
+			//fprintf(stderr, "Hide: %p %s %d (%d)\n", o, GB.GetClassName(THIS), WINDOW->isHidden(), e->spontaneous());
+			if (!THIS->noHideEvent)
 			{
+				THIS->noHideEvent = true;
 				GB.Raise(THIS, EVENT_Hide, 0);
 				if (!e->spontaneous())
 					CACTION_raise(THIS);

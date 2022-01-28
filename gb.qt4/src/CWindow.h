@@ -100,6 +100,7 @@ typedef
 		unsigned popup : 1;
 		
 		unsigned modal : 1;
+		unsigned noHideEvent : 1;
 		}
 	CWINDOW;
 
