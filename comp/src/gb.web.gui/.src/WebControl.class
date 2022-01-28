@@ -358,7 +358,7 @@ Public Sub _RenderStyleSheet()
           '_AddStyleSheet("display: block;")
           If hParent.Spacing And If Not hParent._IsFirstVisibleChild(Me) Then _AddStyleSheet("margin-left:0.5rem;")
         Case Arrange.Column, Arrange.Row
-          _AddStyleSheet("display:inline-block;")
+          '_AddStyleSheet("display:inline-block;")
           If hParent.Spacing Then _AddStyleSheet("margin-right:0.5rem;margin-bottom:0.5rem;")
       End Select
     Endif

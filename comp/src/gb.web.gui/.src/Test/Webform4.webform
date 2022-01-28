@@ -1,0 +1,52 @@
+# Gambas Form File 3.0
+
+{ WebForm WebForm
+  #MoveScaled(0,0,89,56)
+  Width = "40em"
+  Arrangement = Arrange.Vertical
+  Border = True
+  { WebContainer1 WebContainer
+    #MoveScaled(1,1,87,16)
+    Arrangement = Arrange.Row
+    Margin = True
+    Spacing = True
+    { WebButton2 WebButton
+      #MoveScaled(1,1,23,6)
+      Width = "12em"
+      Height = "1em"
+      Image = "icon:/32/cancel"
+    }
+    { WebButton1 WebButton
+      #MoveScaled(25,1,21,6)
+      Width = "12em"
+      Height = "2em"
+      Text = ("bonjour")
+      Image = "icon:/32/cancel"
+    }
+    { WebButton3 WebButton
+      #MoveScaled(47,1,23,6)
+      Width = "12em"
+      Height = "4em"
+      Image = "icon:/huge/cancel"
+    }
+    { WebButton4 WebButton
+      #MoveScaled(1,8,23,6)
+      Width = "12em"
+      Height = "1em"
+      Text = ("test")
+      Image = "icon:/32/cancel"
+    }
+    { WebButton5 WebButton
+      #MoveScaled(25,8,21,6)
+      Width = "12em"
+      Height = "2em"
+      Image = "icon:/32/cancel"
+    }
+    { WebButton6 WebButton
+      #MoveScaled(47,8,23,6)
+      Width = "12em"
+      Height = "4em"
+      Image = "icon:/huge/emote-laugh"
+    }
+  }
+}

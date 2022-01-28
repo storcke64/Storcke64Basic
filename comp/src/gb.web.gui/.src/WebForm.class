@@ -147,10 +147,13 @@ Static Private Sub RenderIcon(sPath As String) As Boolean
   
   If sSize = "huge" Then
     sPath = "./gb.form.stock/gambas/128/" &/ sIcon & ".png"
-  Else
-    sPath = "./gb.form.stock/gambas/32/" &/ sIcon & ".png"
+    If Exist(sPath) Then 
+      Response.SendFile(sPath)
+      Return
+    Endif
   Endif
   
+  sPath = "./gb.form.stock/gambas/32/" &/ sIcon & ".png"
   Response.SendFile(sPath)
   
 End
