@@ -104,7 +104,7 @@ Public Sub View_MouseDown()
   
   $iLastX = Mouse.X
   $iLastY = Mouse.Y
-  $hDoc.OnMouseDown(($iLastX + $hView.ScrollX) / $fZoom, ($iLastY + $hView.ScrollY) / $fZoom)
+  If Mouse.Left Then $hDoc.OnMouseDown(($iLastX + $hView.ScrollX) / $fZoom, ($iLastY + $hView.ScrollY) / $fZoom)
   
 End
 
@@ -112,10 +112,9 @@ Public Sub View_MouseUp()
   
   $iLastX = Mouse.X
   $iLastY = Mouse.Y
-  $hDoc.OnMouseUp(($iLastX + $hView.ScrollX) / $fZoom, ($iLastY + $hView.ScrollY) / $fZoom)
+  If Mouse.Left Then $hDoc.OnMouseUp(($iLastX + $hView.ScrollX) / $fZoom, ($iLastY + $hView.ScrollY) / $fZoom)
   
 End
-
 
 Public Sub View_Scroll()
   

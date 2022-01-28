@@ -180,15 +180,16 @@ double litehtml::strtod(const char *nptr, char **endptr)
 	
 	p = nptr;
 	
-	if (*p == '+')
-	{
-		neg = false;
-		p++;
-	}
-	else if (*p == '-')
+	if (*p == '-')
 	{
 		neg = true;
 		p++;
+	}
+	else
+	{
+		neg = false;
+		if (*p == '+')
+			p++;
 	}
 	
 	while (*p)
