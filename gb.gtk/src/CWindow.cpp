@@ -202,6 +202,8 @@ gMainWindow *CB_window_activate(gControl *control)
 	gMainWindow *active;
 	CWINDOW *active_ob;
 
+	//fprintf(stderr, "CB_window_activate: %s\n", control ? control->name() : "NULL");
+
 	if (control)
 	{
 		active = control->window();

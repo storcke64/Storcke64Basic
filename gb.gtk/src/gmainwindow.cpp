@@ -100,6 +100,9 @@ static gboolean cb_frame(GtkWidget *widget,GdkEventWindowState *event,gMainWindo
 
 static gboolean cb_show(GtkWidget *widget, gMainWindow *data)
 {
+	if (gApplication::_disable_mapping_events)
+		return false;
+	
 	if (data->_grab_on_show)
 	{
 		data->_grab_on_show = FALSE;
@@ -123,12 +126,18 @@ static gboolean cb_show(GtkWidget *widget, gMainWindow *data)
 
 static gboolean cb_map(GtkWidget *widget, GdkEvent *event, gMainWindow *data)
 {
+	if (gApplication::_disable_mapping_events)
+		return false;
+	
 	data->_unmap = false;
 	return cb_show(widget, data);
 }
 
 static gboolean cb_hide(GtkWidget *widget, gMainWindow *data)
 {
+	if (gApplication::_disable_mapping_events)
+		return false;
+	
 	if (!data->_unmap)
 	{
 		CB_window_hide(data);
@@ -140,6 +149,9 @@ static gboolean cb_hide(GtkWidget *widget, gMainWindow *data)
 
 static gboolean cb_unmap(GtkWidget *widget, GdkEvent *event, gMainWindow *data)
 {
+	if (gApplication::_disable_mapping_events)
+		return false;
+	
 	bool ret = cb_hide(widget, data);
 	data->_unmap = true;
 	return ret;
@@ -2100,7 +2112,7 @@ gControl *gMainWindow::getInitialFocus()
 			if (!ctrl)
 				break;
 			
-			if (ctrl->isReallyVisible() && ctrl->isEnabled() && ctrl->canFocus())
+			if (ctrl->isReallyVisible() && ctrl->isEnabled() && !ctrl->isWindow() && ctrl->canFocus())
 				break;
 			
 			if (ctrl == this)

@@ -1362,11 +1362,14 @@ static void handle_focus_change()
 
 void gApplication::setActiveControl(gControl *control, bool on)
 {
-	if (control->isWindow())
+	if (control->isWindow() && on)
 	{
 		gControl *focus = ((gMainWindow *)control)->getInitialFocus();
 		if (focus != control)
+		{
 			focus->setFocus();
+			control = focus;
+		}
 	}
 	
 	while (!control->canFocus())

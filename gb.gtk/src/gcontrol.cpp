@@ -1266,9 +1266,9 @@ gControl *gControl::ignoreDesign()
 
 bool gControl::canFocus() const
 {
-	#if DEBUG_FOCUS
+	/*#if DEBUG_FOCUS
 	fprintf(stderr, "canFocus: %s -> %d\n", name(), gtk_widget_get_can_focus(widget));
-	#endif
+	#endif*/
 	
 #if GTK_CHECK_VERSION(2, 18, 0)
 	return gtk_widget_get_can_focus(widget);
@@ -1290,9 +1290,9 @@ bool gControl::canFocusOnClick() const
 
 void gControl::setCanFocus(bool vl)
 {
-	#if DEBUG_FOCUS
+	/*#if DEBUG_FOCUS
 	fprintf(stderr, "setCanFocus: %s %d ?\n", name(), vl);
-	#endif
+	#endif*/
 	if (isDesign() || vl == canFocus())
 		return;
 
@@ -1300,9 +1300,9 @@ void gControl::setCanFocus(bool vl)
 		_proxy->setCanFocus(vl);
 	else*/
 	{
-		#if DEBUG_FOCUS
+		/*#if DEBUG_FOCUS
 		fprintf(stderr, "setCanFocus: %s %p %d\n", name(), this, vl);
-		#endif
+		#endif*/
 		gtk_widget_set_can_focus(widget, vl);
 	}
 
