@@ -57,6 +57,14 @@ Public Sub _RenderStyleSheet()
   
 End
 
+Public Sub _BeforeRender()
+  
+  Print "<div"; Me._GetClassId(); " tabindex=\"0\"";
+  Me._RenderStyleSheet()
+  Print ">";
+  
+End
+
 Public Sub _Render()
   
   Dim I As Integer

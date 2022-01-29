@@ -6,7 +6,7 @@
   Arrangement = Arrange.Vertical
   Border = True
   { WebContainer1 WebContainer
-    #MoveScaled(1,1,87,16)
+    #MoveScaled(1,1,87,25)
     Arrangement = Arrange.Row
     Margin = True
     Spacing = True
@@ -46,7 +46,11 @@
       #MoveScaled(47,8,23,6)
       Width = "12em"
       Height = "4em"
+      Text = ("Agence")
       Image = "icon:/huge/emote-laugh"
+    }
+    { WebTextBox1 WebTextBox
+      #MoveScaled(1,15,24,4)
     }
   }
 }

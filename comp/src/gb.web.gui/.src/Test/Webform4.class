@@ -1,2 +1,14 @@
 ' Gambas class file
 
+
+Public Sub WebButton4_Click()
+
+  Message.Warning("Attention !", "OK", "Cancel")
+
+End
+
+Public Sub WebForm_Open()
+
+  WebForm.Debug = True
+
+End

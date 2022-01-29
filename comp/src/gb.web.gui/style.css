@@ -6,7 +6,7 @@ HTML, BODY {
   font-family: sans-serif;
 }
 
-HTML, BODY, DIV, INPUT {
+HTML,BODY,DIV,INPUT,TEXTAREA {
   box-sizing: border-box;
 }
 
@@ -15,8 +15,10 @@ SELECT {
   font-size: inherit;
 }
 
-INPUT {
+INPUT,TEXTAREA {
   font: inherit;
+  background-color: white;
+  border: solid 1px gray;
 }
 
 H1,H2,H3,P {
@@ -28,11 +30,22 @@ IFRAME {
   border: none;
 }
 
+:focus-visible {
+  outline: none;
+}
+
 :focus { 
-  outline: none; 
+  box-shadow: inset 0 0 0.25em #2980B9 !important;
+  border-color: #2980B9 !important;
 }
 
 ::-moz-focus-inner { border: 0; }
+
+::placeholder {
+  color: #E0E0E0;
+  font-style: italic;
+  opacity: 1;
+}
 
 /*UL, OL {
   padding-left: 2em;
@@ -57,12 +70,12 @@ P:first-child,UL:first-child,OL:first-child {
   display: flex;
   position: relative;
   flex-flow: row;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   padding: 0;
   font: inherit;
   padding: 0.125em 0.5em;
-  min-height: 2em;
+  height: 2em;
   border: solid 1px gray;
   cursor: default;
   background-color: #F0F0F0;
@@ -89,7 +102,14 @@ P:first-child,UL:first-child,OL:first-child {
 
 .gw-button-image {
   margin-right: 0.5em;
-  height: 100%;
+}
+
+.gw-button-image:last-child {
+  margin-right: 0;
+}
+
+.gw-button-text {
+  align-self: center;
 }
 
 .gw-button-arrow {
@@ -935,7 +955,7 @@ TABLE.gw-calendar > TBODY > TR > TD.gw-date-current {
 
 .gw-mandatory {
   position: absolute;
-  box-shadow: inset 0 0 0.5em rgba(255,0,0,0.5);
+  box-shadow: inset 0 0 0.5rem rgba(255,127,127,1);
   top: 0;
   left: 0;
   z-index: 1;

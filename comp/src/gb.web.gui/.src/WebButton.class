@@ -91,8 +91,9 @@ Public Sub _BeforeRender()
   sClass = "gw-button"
   If Me.Default Then sClass &= " gw-button-default"
   
-  Print "<div"; Me._GetClassId(sClass); 
+  Print "<button"; Me._GetClassId(sClass); 
   If Me.Enabled Then
+    'Print " tabindex=\"0\"";
     If $bImmediate Then
       Print " onclick=\"";
       vSave = WebForm._BeginJavascript()
@@ -116,7 +117,7 @@ Public Sub _Render()
   If $sImage Then 
     Print "<img src=\""; Me._GetImageLink($sImage); "\"";
     Print " class=\"gw-button-image\"";
-    ' If Me.Height Then
+    'If Not Me.Height Then Print ""
     '   Print " style=\"max-height:"; Me.Height; "\"";
     ' Else
     '   Print " style=\"height:1em;\"";
@@ -129,7 +130,7 @@ Public Sub _Render()
     ' Endif
     Print " />";
   Endif
-  If $sText Then Print "<span>"; Html($sText); "</span>";
+  If $sText Then Print "<div class=\"gw-button-text\">"; Html($sText); "</div>";
   If $bShowArrow Then
     Print "<div class=\"gw-button-arrow\"";
     If Object.CanRaise(Me, "Menu") Then
@@ -139,6 +140,13 @@ Public Sub _Render()
     Endif
     Print "></div>"
   Endif
+  
+End
+
+Public Sub _AfterRender()
+  
+  Raise Render
+  Print "</button>"
   
 End
 
