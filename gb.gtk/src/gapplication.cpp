@@ -342,7 +342,7 @@ static void gambas_handle_event(GdkEvent *event)
 
 		//if (GTK_IS_WINDOW(widget))
 		{
-			control = gt_get_control(widget);
+			//control = gt_get_control(widget);
 			if (control)
 				gApplication::setActiveControl(control, event->focus_change.in);
 			else if (event->focus_change.in)
@@ -1383,8 +1383,11 @@ void gApplication::setActiveControl(gControl *control, bool on)
 		return;
 
 	#if DEBUG_FOCUS
-	fprintf(stderr, "setActiveControl: %s %d / %d\n", control->name(), on, _focus_change);
+	fprintf(stderr, "setActiveControl: %s %s %d / %d\n", GB.GetClassName(control->hFree), control->name(), on, _focus_change);
 	#endif
+	
+	/*if (!::strcmp(GB.GetClassName(control->hFree), "FEditor") && !on)
+		BREAKPOINT();*/
 	
 	if (_active_control && !_focus_change)
 		_previous_control = _active_control;

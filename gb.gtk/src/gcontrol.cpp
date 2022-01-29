@@ -543,9 +543,12 @@ void gControl::setVisibility(bool vl)
 	}
 	else
 	{
-		if (parent() && hasFocus())
-			gcb_focus(widget, GTK_DIR_TAB_FORWARD, this);
-		gApplication::setActiveControl(this, false);
+		if (hasFocus())
+		{
+			if (parent())
+				gcb_focus(widget, GTK_DIR_TAB_FORWARD, this);
+			gApplication::setActiveControl(this, false);
+		}
 		if (gtk_widget_has_grab(border))
 			gtk_grab_remove(border);
 		gtk_widget_hide(border);
@@ -694,9 +697,6 @@ void gControl::move(int x, int y)
 	updateGeometry();
 	#endif
 	
-	/*if (name() && !::strcmp(name(), "txtTagEditor") && y == 43)
-		BREAKPOINT();*/
-
 	checkVisibility();
 	
 	send_configure(this); // needed for Watcher and Form Move events
@@ -1342,18 +1342,16 @@ void gControl::setFocus()
 
 	if (win->isVisible())
 	{
-		//if (isVisible() && bufW > 0 && bufH > 0)
 		#if DEBUG_FOCUS
-		fprintf(stderr, "setFocus now %s %p\n", name(), widget);
+		fprintf(stderr, "setFocus NOW: %s %s %p\n", GB.GetClassName(hFree), name(), hFree);
 		#endif
-		//win->activate();
 		
 		gtk_widget_grab_focus(widget);
 	}
 	else
 	{
 		#if DEBUG_FOCUS
-		fprintf(stderr, "setFocus later %s\n", name());
+		fprintf(stderr, "setFocus later: %s %s %p\n", GB.GetClassName(hFree), name(), hFree);
 		#endif
 		win->_initial_focus = this;
 	}
