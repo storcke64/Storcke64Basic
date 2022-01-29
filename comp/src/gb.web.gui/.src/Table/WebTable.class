@@ -11,10 +11,11 @@ Public Const _DefaultEvent As String = "Data"
 
 Public Enum None, Horizontal, Vertical, Both
 
-Event Data(Row As Integer, Column As Integer, Data As WebTableData)
+Event Data(Row As Integer, Column As Integer, Data As WebCellData)
 Event Select
 Event Activate
 Event Sort
+Event Click(Row As Integer, Column As Integer)
 
 Property Read Columns As _WebTableColumns
 Property Count As Integer
@@ -70,7 +71,7 @@ Private Sub PrintRow(iRow As Integer)
 
   Dim iCol As Integer
   Dim hCol As _WebTableColumn
-  Dim hData As WebTableData
+  Dim hData As WebCellData
   Dim sStyle As String
   Dim NX As Integer
   Dim bNoHeader As Boolean
@@ -109,7 +110,7 @@ Private Sub PrintRow(iRow As Integer)
     hCol = $hColumns[iCol]
     If hCol.Hidden Then Continue
     
-    hData = New WebTableData
+    hData = New WebCellData
     Raise Data(iRow, iCol, hData)
     
     Print "<td";
@@ -126,10 +127,25 @@ Private Sub PrintRow(iRow As Integer)
     If hData.Foreground <> Color.Default Then sStyle &= "color:" & WebControl._GetColor(hData.Foreground) & ";"
     If sStyle Then Print " style=\""; sStyle; "\"";
     Print ">";
-    If hData.Html Then
-      Print hData.Html;
+    
+    If hData.Control Then
+      
+      With hData.Control
+        WebControl._SetCurrentCell(Me, CStr(iCol) & ":" & CStr(iRow))
+        ._BeforeRender()
+        ._Render()
+        ._AfterRender()
+        WebControl._SetCurrentCell()
+      End With
+      
     Else
-      Print Html(hData.Text);
+    
+      If hData.Html Then
+        Print hData.Html;
+      Else
+        Print Html(hData.Text);
+      Endif
+      
     Endif
     
     Print "</td>";
@@ -639,4 +655,18 @@ Private Sub Header_Write(Value As Integer)
   $iHeader = Value
   Me.Refresh
 
+End
+
+Public Sub _RaiseCellEvent(sCell As String, sEvent As String, aArg As Variant[])
+  
+  Dim aCell As String[]
+  
+  If sEvent == "click" Then
+    aCell = Split(sCell, ":")
+    If IsNull(aArg) Then aArg = New Variant[]
+    aArg.Add(CInt(aCell[1]), 0)
+    aArg.Add(CInt(aCell[0]), 1)
+    Object.Raise(Me, sEvent, aArg)
+  Endif
+  
 End

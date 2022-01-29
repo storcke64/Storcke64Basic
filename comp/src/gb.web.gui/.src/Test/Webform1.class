@@ -23,6 +23,7 @@ Public Sub _new()
   WebTable1.AddColumn("Name")
   WebTable1.AddColumn("Size", "8em", Align.Right)
   WebTable1.AddColumn("Last modified", "12em", Align.Right)
+  WebTable1.AddColumn("Button")
 
   WebTree1.Columns[0].Text = "File"
   WebTree1.AddColumn("Date")
@@ -116,7 +117,7 @@ Private Sub ReloadTable()
 
 End
 
-Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebTableData)
+Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebCellData)
 
   Dim hStat As Stat
   
@@ -134,6 +135,8 @@ Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebTableDat
       Data.Text = File.FormatSize(hStat.Size, True)
     Case 2
       Data.Text = Format(hStat.LastModified, "dd/mm/yyyy hh:nn:ss")
+    Case 3
+      Data.Control = btnTable
   End Select
   
 Catch
@@ -264,9 +267,26 @@ Public Sub WebMenu17_Click()
 
 End
 
-Public Sub WebTree1_Data(Key As String, Column As Integer, Data As WebTreeData)
+Public Sub WebTree1_Data(Key As String, Column As Integer, Data As WebCellData)
 
-  If Column = 2 And If Key Ends ".png" Then Data.Background = Color.SoftYellow
-  If Column = 3 Then Data.Html = "<i><b>" & Html(File.Ext(Key)) & "</b></i>"
+  If Column = 2 And If Key Ends ".png" Then 
+    Data.Foreground = Color.Red
+    Data.Image = "icon:/small/image"
+  Endif
+  If Column = 3 Then
+    Data.Control = btnTable
+  Endif
+
+End
+
+Public Sub WebTable1_Click(Row As Integer, (Column) As Integer)
+
+  Message(Row)
+
+End
+
+Public Sub WebTree1_Click(Key As String, (Column) As Integer)
+
+  Message(Key)
 
 End

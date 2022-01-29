@@ -27,7 +27,6 @@ Property Read Columns As _WebTreeColumns
 Property ScrollX As Integer
 Property ScrollY As Integer
 
-Event Click
 Event Activate
 Event Select
 Event Expand
@@ -35,7 +34,8 @@ Event Collapse
 'Event Rename
 'Event Cancel
 Event Compare(Key As String, OtherKey As String)
-Event Data(Key As String, Column As Integer, Data As WebTreeData)
+Event Data(Key As String, Column As Integer, Data As WebCellData)
+Event Click(Key As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
 
@@ -1147,7 +1147,8 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
   Dim hCol As _WebTableColumn
   Dim NX As Integer
   Dim sStyle As String
-  Dim hData As WebTreeData
+  Dim hData As WebCellData
+  Dim sText As String
 
   If Not bVisible Then Return
 
@@ -1173,7 +1174,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
   If Not bVisible Then Print " style=\"display:none;\"";
   Print ">";
   
-  Print "<td class=\"gw-tree-item\" style=\"padding-left:"; iLevel; "em;\">";
+  Print "<td class=\"gw-tree-item\" style=\"padding-left:"; iLevel; "em;\"><div>";
   
   If hItem.Children Then
     Print "<div class=\"gw-tree-arrow ";
@@ -1209,7 +1210,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
   Endif
   Print "<div class=\"gw-tree-text\">"; If(hItem.Html, hItem.Html, Html(hItem.Text)); "</div>";
   
-  Print "</td>";
+  Print "</div></td>";
   
   If Not $bShowHeader Then
     For iCol = 0 To $hColumns.Count - 1
@@ -1223,11 +1224,11 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     If hCol.Hidden Then Continue
     
     If bData Then
-      hData = New WebTreeData
+      hData = New WebCellData
       Raise Data(hItem.Key, iCol, hData)
     Endif
     
-    Print "<td";
+    Print "<td class=\"gw-tree-item\"";
     hCol._PrintAlignment()
     sStyle = ""
     If Not $bShowHeader And If iLevel = 0 Then
@@ -1244,21 +1245,45 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     Endif
     
     If sStyle Then Print " style=\""; sStyle; "\"";
-    Print ">";
+    Print "><div>";
     
     If bData Then
-      If hData.Html Then
-        Print hData.Html;
-      Else If hData.Text Then
-        Print Html(hData.Text);
-      Else 
-        Print Html(hItem[iCol]);
-      Endif
+
+      If hData.Control Then
+        
+        sText = ""
+        With hData.Control
+          WebControl._SetCurrentCell(Me, CStr(iCol) & ":" & hItem.Key)
+          ._BeforeRender()
+          ._Render()
+          ._AfterRender()
+          WebControl._SetCurrentCell()
+        End With
+        
+      Else
+      
+        If hData.Image Then
+          Print "<img class=\"gw-tree-image\" src=\""; Html(Me._GetImageLink(hData.Image)); "\">";
+        Endif
+        If hData.Html Then
+          sText = hData.Html
+        Else If hData.Text Then
+          sText = Html(hData.Text)
+        Else 
+          sText = Html(hItem[iCol])
+        Endif
+        
+      Endif 
+      
     Else
-      Print Html(hItem[iCol]);
+      
+      sText = Html(hItem[iCol])
+      
     Endif
     
-    Print "</td>";
+    If sText Then Print "<div class=\"gw-tree-text\">"; sText; "</div>"
+    
+    Print "</div></td>";
     
   Next
   
@@ -1445,4 +1470,15 @@ Private Sub Key_Write(Value As String)
   $sKey = Value
   If $iMode = Select.Single Then _SetSelected($sKey, True)
 
+End
+
+Public Sub _RaiseCellEvent(sCell As String, sEvent As String, (aArg) As Variant[])
+  
+  Dim iPos As Integer
+  
+  If sEvent == "click" Then
+    iPos = InStr(sCell, ":")
+    If iPos > 0 Then Raise Click(Mid$(sCell, iPos + 1), CInt(Left$(sCell, iPos - 1)))
+  Endif
+  
 End

@@ -905,28 +905,16 @@ Private Sub Resizable_Write(Value As Boolean)
 
 End
 
-Private Sub HandleKeyPress(sName As String, vEvent As Variant)
-
-  Dim hCtrl As WebControl
-  Dim hForm As WebForm
-  
-  If sName Then
-    hCtrl = WebControl.FromName(sName)
-    If hCtrl Then hCtrl._RaiseKeyPress(vEvent)
-  Else
-    hForm = _CurrentPopup
-    If Not hForm Then hForm = _CurrentModal
-    If Not hForm Then hForm = Me
-    hForm._RaiseKeyPress(vEvent)
-  Endif
-
-End
-
 Public Sub _HandleMessage()
 
   Dim hCtrl As WebControl
   Dim aCmd As Variant
   Dim iOldInMessage As Integer
+  Dim iPos As Integer
+  Dim sCell As String
+  Dim sName As String
+  Dim hForm As WebForm
+  Dim hTarget As Object
   
   'Dim fTimer As Float
   
@@ -944,7 +932,7 @@ Public Sub _HandleMessage()
     Case "raise"
       
       If aCmd[1] Then
-        hCtrl = WebControl.FromName(aCmd[1])
+        GoSub GET_TARGET
       Else
         hCtrl = Me
       Endif
@@ -957,12 +945,14 @@ Public Sub _HandleMessage()
       PrintLog("Raise event '" & aCmd[2] & "' on '" & hCtrl.Name & "'")
       Object.Raise(hCtrl, aCmd[2], aCmd[3])
       
+      If hTarget Then Try hTarget._RaiseCellEvent(sCell, aCmd[2], aCmd[3])
+      
     Case "update"
       
       'Debug aCmd[1];; aCmd[2];; aCmd[3]
       
       If aCmd[1] Then
-        hCtrl = WebControl.FromName(aCmd[1])
+        GoSub GET_TARGET
         If Not hCtrl Then Goto VOID_RESPONSE
       Else
         hCtrl = Me
@@ -972,7 +962,15 @@ Public Sub _HandleMessage()
       
     Case "keypress"
       
-      HandleKeyPress(aCmd[1], aCmd[2])
+      If aCmd[1] Then
+        GoSub GET_TARGET
+        If hCtrl Then hCtrl._RaiseKeyPress(aCmd[2])
+      Else
+        hForm = _CurrentPopup
+        If Not hForm Then hForm = _CurrentModal
+        If Not hForm Then hForm = Me
+        hForm._RaiseKeyPress(aCmd[2])
+      Endif
       
     Case "finish"
       
@@ -994,6 +992,27 @@ VOID_RESPONSE:
   Response.Begin
   'Print "console.log("; JS("unknown control " & aCmd[1]); ");"
   Response.End
+  Return
+  
+GET_TARGET:
+  
+  sName = aCmd[1]
+  iPos = RInStr(sName, "|")
+  If iPos Then
+    sCell = Mid$(sName, iPos + 1)
+    sName = Left(sName, iPos - 1)
+  Endif
+  
+  hCtrl = WebControl.FromName(sName)
+  
+  If sCell Then
+    iPos = InStr(sCell, ":")
+    If iPos Then
+      hTarget = WebControl.FromId(CInt(Left(sCell, iPos - 1)))
+      sCell = Mid$(sCell, iPos + 1)
+    Endif
+  Endif
+  
   Return
   
 ' Catch

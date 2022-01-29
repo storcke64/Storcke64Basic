@@ -89,6 +89,9 @@ Static Public _NextName As String
 
 Static Public _Shortcuts As New Collection
 
+Static Private $hCellParent As WebControl
+Static Private $sCellId As String
+
 Public _Refresh As Boolean
 Public _EventName As String
 Public _Proxy As String
@@ -285,9 +288,17 @@ Private Sub Tag_Write(Value As Variant)
 
 End
 
+Private Sub GetCellName() As String
+  
+  If Not $hCellParent Then Return $sName
+  Return $sName & "|" & CStr($hCellParent.Id) & ":" & $sCellId
+  
+End
+
+
 Public Sub _GetKeyPressHandler() As String
   
-  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onkeydown(" & JS($sName) & ", event)\""
+  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onkeydown(" & JS(GetCellName()) & ", event)\""
   
 End
 
@@ -300,8 +311,8 @@ Public Sub _GetClassId(Optional sClass As String) As String
   If $bNoBorder Then sClass &= " gw-noborder"
   If Not Me.Enabled Then sClass &= " gw-disabled"
   If $sClass Then sClass &= " " & $sClass
-  If $bHidden Then sClass &= " gw-hidden"
-  sResult = " class=\"" & Html(sClass) & "\" id=\"" & Html($sName) & "\""
+  If $bHidden And If Not $hCellParent Then sClass &= " gw-hidden"
+  sResult = " class=\"" & Html(sClass) & "\" id=\"" & Html(GetCellName()) & "\""
   If $sTooltip Then sResult &= " title=\"" & Html($sTooltip) & "\""
   
   Return sResult
@@ -334,33 +345,37 @@ Public Sub _RenderStyleSheet()
   
   _StartStyleSheet
   
-  If $bIgnore Then
-    
-    _AddStyleSheet("position:absolute;")
-    
-  Else
+  If Not $hCellParent Then
   
-    If Me Is WebContainer Then _AddStyleSheet("position:relative;")
-  
-    If $bExpand Then 
-      _AddStyleSheet("flex-grow:1;")
+    If $bIgnore Then
+      
+      _AddStyleSheet("position:absolute;")
+      
     Else
-      _AddStyleSheet("flex-shrink:0;")
-    Endif
     
-    hParent = Me.Parent
-    If hParent Then
-      Select Case hParent.Arrangement
-        Case Arrange.Vertical
-          'If bInline Then _AddStyleSheet("display:block;")
-          If hParent.Spacing And If Not hParent._IsFirstVisibleChild(Me) Then _AddStyleSheet("margin-top:0.5rem;")
-        Case Arrange.Horizontal
-          '_AddStyleSheet("display: block;")
-          If hParent.Spacing And If Not hParent._IsFirstVisibleChild(Me) Then _AddStyleSheet("margin-left:0.5rem;")
-        Case Arrange.Column, Arrange.Row
-          '_AddStyleSheet("display:inline-block;")
-          If hParent.Spacing Then _AddStyleSheet("margin-right:0.5rem;margin-bottom:0.5rem;")
-      End Select
+      If Me Is WebContainer Then _AddStyleSheet("position:relative;")
+    
+      If $bExpand Then 
+        _AddStyleSheet("flex-grow:1;")
+      Else
+        _AddStyleSheet("flex-shrink:0;")
+      Endif
+      
+      hParent = Me.Parent
+      If hParent Then
+        Select Case hParent.Arrangement
+          Case Arrange.Vertical
+            'If bInline Then _AddStyleSheet("display:block;")
+            If hParent.Spacing And If Not hParent._IsFirstVisibleChild(Me) Then _AddStyleSheet("margin-top:0.5rem;")
+          Case Arrange.Horizontal
+            '_AddStyleSheet("display: block;")
+            If hParent.Spacing And If Not hParent._IsFirstVisibleChild(Me) Then _AddStyleSheet("margin-left:0.5rem;")
+          Case Arrange.Column, Arrange.Row
+            '_AddStyleSheet("display:inline-block;")
+            If hParent.Spacing Then _AddStyleSheet("margin-right:0.5rem;margin-bottom:0.5rem;")
+        End Select
+      Endif
+      
     Endif
     
   Endif
@@ -634,13 +649,16 @@ Public Sub _GetEventJS(sProp As String, sEvent As String, Optional sArg As Strin
   
   Dim sStr As String
   
-  If Not Object.CanRaise(Me, sEvent) Then Return
+  If Not Object.CanRaise(Me, sEvent) Then 
+    If Not $hCellParent Then Return
+    If Not Object.CanRaise($hCellParent, sEvent) Then Return
+  Endif
   
   sStr = " " & sProp & "=\"gw.raise(" '& JS(Me.Form.Name) & "," 
   If Me Is WebForm Then
     sStr &= "null"
   Else
-    sStr &= JS($sName)
+    sStr &= JS(GetCellName())
   Endif
   sStr &= "," & JS(sEvent)
   If sArg Then sStr &= "," & sArg
@@ -654,7 +672,7 @@ End
 Public Sub _GetUpdateJS(sEvent As String, sProp As String, Optional sGetValue As String = "null", Optional sMore As String) As String
   
   Dim sStr As String
-  sStr = " " & sEvent & "=\"gw.update(" & JS($sName) & "," & JS(sProp) & "," & sGetValue & ");"
+  sStr = " " & sEvent & "=\"gw.update(" & JS(GetCellName()) & "," & JS(sProp) & "," & sGetValue & ");"
   If sMore Then sStr &= sMore
   Return sStr & "\""
   
@@ -663,7 +681,7 @@ End
 Public Sub _GetUpdateWaitJS(sEvent As String, sProp As String, Optional sGetValue As String = "null", Optional sMore As String) As String
   
   Dim sStr As String
-  sStr = " " & sEvent & "=\"gw.updateWait(" & JS($sName) & "," & JS(sProp) & "," & sGetValue & ");"
+  sStr = " " & sEvent & "=\"gw.updateWait(" & JS(GetCellName()) & "," & JS(sProp) & "," & sGetValue & ");"
   If sMore Then sStr &= sMore
   Return sStr & "\""
   
@@ -1234,5 +1252,12 @@ Public Sub _GetTopLevel() As WebForm
     If Not hParent Or If hForm._Window Then Return hForm
     hForm = hForm.Form
   Loop
+  
+End
+
+Static Public Sub _SetCurrentCell(Optional hCtrl As WebControl, sCell As String)
+  
+  $hCellParent = hCtrl
+  $sCellId = sCell
   
 End

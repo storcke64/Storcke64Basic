@@ -93,7 +93,7 @@ P:first-child,UL:first-child,OL:first-child {
 .gw-button.gw-noborder {
   border: solid 1px transparent;
   background: none;
-  padding: 0;
+  /*padding: 0;*/
 }
 
 .gw-button.gw-noborder:hover {
@@ -1017,9 +1017,9 @@ TABLE.gw-calendar > TBODY > TR > TD.gw-date-current {
   overflow: auto;
 }
 
-.gw-tree-item {
+.gw-tree-item > DIV {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
 }
 

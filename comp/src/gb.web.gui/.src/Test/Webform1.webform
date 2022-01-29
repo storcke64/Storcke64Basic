@@ -152,6 +152,15 @@
       Header = WebTable.Both
       Sortable = True
     }
+    { btnTable WebButton
+      #MoveScaled(23,59,15,4)
+      Height = "1.5em"
+      Visible = False
+      Ignore = True
+      Border = False
+      Text = ("Call me")
+      Image = "icon:/medium/call"
+    }
     Index = 1
     Text = ("Tab 2")
     { WebVBox1 WebVBox
