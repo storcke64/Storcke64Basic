@@ -120,7 +120,7 @@ Public Sub Display(sIcon As String, sText As String, aButton As String[], aDefau
   hSpace = New Spring(panButton)
   panButton.H = Max(H, DS * 4)
   
-  W = Max(DS * 32, Max(txtMessage.W + 1, WB) + picMessage.W + DS * 7)
+  W = Max(DS * 32, Max(txtMessage.W + 2, WB) + picMessage.W + DS * 7)
   H = Max(DS * 8, HT) + panButton.H + DS * 7
   If panColor.Margin Then
     W += DS * 2

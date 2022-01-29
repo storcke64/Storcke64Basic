@@ -2,7 +2,7 @@
 
 { Form Form
   MoveScaled(0,0,103,110)
-  Font = Font["Cantarell,20,Italic"]
+  Font = Font["Italic,+5"]
   Spacing = True
   { Label6 Label
     MoveScaled(6,3,84,9)
@@ -32,14 +32,12 @@
     Enabled = False
     Background = Color.Pink
     Alignment = Align.BottomRight
-    Border = Border.Plain
     Text = ("This is a Label test lineT")
   }
   { Label2 TextLabel
-    MoveScaled(1,51,70,6)
+    MoveScaled(1,51,77,6)
     Background = Color.Pink
-    AutoResize = True
-    Text = ("AThis is a TextLabel test line")
+    Text = ("Le programme a retourné")
   }
   { Label3 TextLabel
     MoveScaled(1,59,59,13)
@@ -58,7 +56,7 @@
     MoveScaled(2,89,59,14)
     Background = Color.Pink
     Text = ("This is a TextLabel test line")
-    Alignment = Align.Top
+    Alignment = Align.Center
   }
   { Separator1 Separator
     MoveScaled(4,48,94,3)

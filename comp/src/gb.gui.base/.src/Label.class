@@ -193,6 +193,7 @@ Private Sub GetExtents() As RectF
     $hExt.X = X
     
   Endif
+  
   Return $hExt
 
 End
@@ -223,11 +224,11 @@ Public Sub UserControl_Draw()
   P = GetPadding()
 
   If Align.IsLeft($iAlign) Then
-    X = P - hExt.X
+    X = P - Int(hExt.X)
   Else If Align.IsRight($iAlign) Then
     X = Me.W - hExt.W - hExt.X - P
   Else
-    X = P - hExt.X
+    X = P - Int(hExt.X + 1)
   Endif
 
   W = Me.W - X - P - hExt.X
