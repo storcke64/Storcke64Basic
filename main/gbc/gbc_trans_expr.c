@@ -784,7 +784,8 @@ void TRANS_new(void)
 
 	if (PATTERN_is_class(*JOB->current))
 	{
-		index = CLASS_add_class(JOB->class, PATTERN_index(*JOB->current));
+		index = TRANS_get_class(PATTERN_index(*JOB->current));
+		//CLASS_add_class(JOB->class, PATTERN_index(*JOB->current));
 		if (PATTERN_is(JOB->current[1], RS_LSQR))
 			index = CLASS_get_array_class(JOB->class, T_OBJECT, index);
 
