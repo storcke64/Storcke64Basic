@@ -11,10 +11,11 @@ Public Const _DefaultEvent As String = "Data"
 
 Public Enum None, Horizontal, Vertical, Both
 
-Event Data(Row As Integer, Column As Integer, Data As WebCellData)
+Event Data(Row As Integer, Column As Integer, Data As WebTableData)
 Event Select
 Event Activate
 Event Sort
+'' This event is raised when a control [embedded in a cell](../../webtabledata/control) raises its 'Click' event.
 Event Click(Row As Integer, Column As Integer)
 
 Property Read Columns As _WebTableColumns
@@ -71,7 +72,7 @@ Private Sub PrintRow(iRow As Integer)
 
   Dim iCol As Integer
   Dim hCol As _WebTableColumn
-  Dim hData As WebCellData
+  Dim hData As WebTableData
   Dim sStyle As String
   Dim NX As Integer
   Dim bNoHeader As Boolean
@@ -110,7 +111,7 @@ Private Sub PrintRow(iRow As Integer)
     hCol = $hColumns[iCol]
     If hCol.Hidden Then Continue
     
-    hData = New WebCellData
+    hData = New WebTableData
     Raise Data(iRow, iCol, hData)
     
     Print "<td";

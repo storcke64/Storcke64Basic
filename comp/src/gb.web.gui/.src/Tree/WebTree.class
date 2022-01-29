@@ -34,7 +34,8 @@ Event Collapse
 'Event Rename
 'Event Cancel
 Event Compare(Key As String, OtherKey As String)
-Event Data(Key As String, Column As Integer, Data As WebCellData)
+Event Data(Key As String, Column As Integer, Data As WebTreeData)
+'' This event is raised when a control [embedded in a cell](../../webtreedata/control) raises its 'Click' event.
 Event Click(Key As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
@@ -1147,7 +1148,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
   Dim hCol As _WebTableColumn
   Dim NX As Integer
   Dim sStyle As String
-  Dim hData As WebCellData
+  Dim hData As WebTreeData
   Dim sText As String
 
   If Not bVisible Then Return
@@ -1224,7 +1225,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     If hCol.Hidden Then Continue
     
     If bData Then
-      hData = New WebCellData
+      hData = New WebTreeData
       Raise Data(hItem.Key, iCol, hData)
     Endif
     

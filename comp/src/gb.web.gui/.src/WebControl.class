@@ -15,6 +15,7 @@ Public Const _DefaultEvent As String = "Render"
 '' This event is raised just after the rendering of the control, so that you can add your own HTML contents.
 Event Render
 
+'' This event is raised when a keyboard key is pressed while the control has the focus.
 Event KeyPress
 
 '' Return the server control identifier.
@@ -664,6 +665,8 @@ Public Sub _GetEventJS(sProp As String, sEvent As String, Optional sArg As Strin
   If sArg Then sStr &= "," & sArg
   sStr &= ");"
   sStr &= "\""
+  
+  If sProp = "onclick" Then sStr &= " onmousedown=\"event.stopPropagation();\""
   
   Return sStr
   

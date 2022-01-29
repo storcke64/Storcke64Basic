@@ -117,7 +117,7 @@ Private Sub ReloadTable()
 
 End
 
-Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebCellData)
+Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebTableData)
 
   Dim hStat As Stat
   
@@ -267,7 +267,7 @@ Public Sub WebMenu17_Click()
 
 End
 
-Public Sub WebTree1_Data(Key As String, Column As Integer, Data As WebCellData)
+Public Sub WebTree1_Data(Key As String, Column As Integer, Data As WebTreeData)
 
   If Column = 2 And If Key Ends ".png" Then 
     Data.Foreground = Color.Red
