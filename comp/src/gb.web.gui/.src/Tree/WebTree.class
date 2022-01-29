@@ -111,7 +111,7 @@ End
 '   
 ' End
 
-Public Sub Add(Key As String, Text As String, Optional Image As String, Optional Parent As String, Optional After As String) As _WebTreeItem
+Public Sub Add((Key) As String, Text As String, Optional Image As String, Optional Parent As String, Optional After As String) As _WebTreeItem
   
   Dim hItem, hParent As _WebTreeItem
   
