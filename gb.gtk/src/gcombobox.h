@@ -73,6 +73,7 @@ public:
 	virtual bool canFocus() const;
 	void updateBorder();
 	virtual void setDesign(bool ignore = false);
+	virtual void updateDirection();
 	
 //"Private"
 	GtkCellRenderer *cell;

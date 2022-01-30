@@ -2973,7 +2973,7 @@ void gControl::updateDirection()
 	{
 		case DIRECTION_LTR: dir = GTK_TEXT_DIR_LTR; break;
 		case DIRECTION_RTL: dir = GTK_TEXT_DIR_RTL; break;
-		default: dir = gtk_widget_get_default_direction();
+		default: dir = MAIN_rtl ? GTK_TEXT_DIR_RTL : GTK_TEXT_DIR_LTR;
 	}
 	
 	if (_inverted)

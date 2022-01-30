@@ -326,6 +326,7 @@ void gComboBox::create(bool readOnly)
 		g_free(save);
 		
 		updateDesign();
+		updateDirection();
 	}
 	
 	unlock();
@@ -800,3 +801,14 @@ void gComboBox::setDesign(bool ignore)
 	if (entry)
 		gtk_widget_set_can_focus(entry, false);
 }
+
+void gComboBox::updateDirection()
+{
+	GtkTextDirection dir;
+	
+	gControl::updateDirection();
+	
+	dir = gtk_widget_get_direction(widget);
+	gtk_widget_set_direction(gtk_bin_get_child(GTK_BIN(widget)), dir);
+}
+
