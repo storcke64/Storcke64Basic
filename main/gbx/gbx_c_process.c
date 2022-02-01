@@ -882,7 +882,7 @@ static bool wait_child(CPROCESS *process)
 
 static void callback_child(int signum, intptr_t data)
 {
-	CPROCESS *process, *next;
+	CPROCESS *process;
 
 	#ifdef DEBUG_ME
 	fprintf(stderr, ">> callback_child\n");
@@ -890,10 +890,13 @@ static void callback_child(int signum, intptr_t data)
 
 	for (process = _running_process_list; process; )
 	{
-		next = process->next;
 		if (wait_child(process))
+		{
 			stop_process(process);
-		process = next;
+			process = _running_process_list;
+		}
+		else
+			process = process->next;
 	}
 	
 	throw_last_child_error();
