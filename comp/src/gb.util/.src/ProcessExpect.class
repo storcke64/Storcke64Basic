@@ -1,30 +1,43 @@
 ' Gambas class file
 
-Private $aExpect As String[]
+Private $aExpect As New ProcessPrompt[]
 Private $sBuffer As String
 Private $hObs As Observer
 Private $hObsAfter As Observer
 
-Public Sub _new(hProcess As Process)
+Public Sub _new()
   
   $aExpect = New String[]
-  $hObs = New Observer(hProcess) As "Expect"
-  $hObsAfter = New Observer(hProcess, True) As "ExpectAfter"
   
 End
 
-Public Sub Expect(Prompt As String, Optional Answer As String)
+Public Sub Expect(hProcess As Process, Prompt As String, Answer As String, Keep As Boolean)
+  
+  Dim hProcessPrompt As ProcessPrompt
   
   If Prompt Not Begins "*" Then Prompt = "*" & Prompt
-  $aExpect.Add(Prompt)
-  $aExpect.Add(Answer)
+  
+  With hProcessPrompt = New ProcessPrompt
+    .Prompt = Prompt
+    .Answer = Answer
+    .Keep = Keep
+  End With
+  
+  $aExpect.Add(hProcessPrompt)
+  
+  If Not $hObs Then
+    $hObs = New Observer(hProcess) As "Expect"
+    $hObsAfter = New Observer(hProcess, True) As "ExpectAfter"
+  Endif
   
 End
 
 Public Sub Expect_Read()
 
   Dim sData As String
-  Dim hProcess As Process = $hObs.Object
+  Dim hProcess As Process 
+  
+  hProcess = $hObs.Object
   
   sData = Peek #hProcess, Lof(hProcess)
   
@@ -38,16 +51,28 @@ End
 
 Public Sub ExpectAfter_Read()
   
-  Dim hProcess As Process = $hObsAfter.Object
+  Dim hProcess As Process 
   Dim I As Integer
+  Dim hProcessPrompt As ProcessPrompt
   
-  For I = 0 To $aExpect.Max Step 2
-    If RTrim($sBuffer) Like $aExpect[I] Then
-      If $aExpect[I + 1] Then Print #hProcess, $aExpect[I + 1]
-      Object.Raise(hProcess, "Prompt", [$aExpect[I], $aExpect[I + 1]])
-      $sBuffer = ""
-    Endif
+  hProcess = $hObsAfter.Object
+  
+  For I = 0 To $aExpect.Max
+    With hProcessPrompt = $aExpect[I]
+      If RTrim($sBuffer) Like .Prompt Then
+        If .Answer Then Print #hProcess, .Answer
+        Object.Raise(hProcess, "Prompt", [.Prompt, .Answer])
+        $sBuffer = ""
+        If Not .Keep Then $aExpect.Remove(I)
+        Break
+      Endif
+    End With
   Next
+  
+  If $aExpect.Count = 0 Then
+    $hObs.Detach
+    $hObsAfter.Detach
+  Endif
   
 End
 
