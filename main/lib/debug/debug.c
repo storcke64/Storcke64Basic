@@ -1387,7 +1387,7 @@ void DEBUG_main(bool error)
 		// A null string command means an I/O error
 		if (len == 0)
 		{
-			fprintf(stderr, "warning: debugger I/O error: %s\n", strerror(errno));
+			fprintf(stderr, "gb.debug: warning: debugger I/O error: %s\n", strerror(errno));
 			exit(1);
 		}
 		
