@@ -400,6 +400,8 @@ int STREAM_read(STREAM *stream, void *addr, int len)
 			eff = read_unread(EXTRA(stream), addr, len);
 			addr += eff;
 			len -= eff;
+			
+			return eff;
 		}
 		
 		if (len > 0 && EXTRA(stream)->buffer)
@@ -512,11 +514,23 @@ int STREAM_read_max(STREAM *stream, void *addr, int len)
 	if (len <= 0)
 		return 0;
 
-	if (EXTRA(stream) && EXTRA(stream)->buffer)
+	if (EXTRA(stream))
 	{
-		eff += read_buffer(EXTRA(stream), addr, len);
-		addr += eff;
-		len -= eff;
+		if (EXTRA(stream)->unread)
+		{
+			eff = read_unread(EXTRA(stream), addr, len);
+			addr += eff;
+			len -= eff;
+			
+			return eff;
+		}
+		
+		if (len > 0 && EXTRA(stream)->buffer)
+		{
+			eff = read_buffer(EXTRA(stream), addr, len);
+			addr += eff;
+			len -= eff;
+		}
 	}
 
 	while (len > 0)
@@ -1931,6 +1945,14 @@ bool STREAM_lof_safe(STREAM *stream, int64_t *len)
 
 	*len = 0;
 
+	extra = EXTRA(stream);
+	if (extra && extra->unread)
+	{
+		*len = extra->unread_len - extra->unread_pos;
+		if (*len > 0)
+			return FALSE;
+	}
+
 	if (stream->type->lof)
 	{
 		if (!(*(stream->type->lof))(stream, len))
@@ -1944,11 +1966,8 @@ bool STREAM_lof_safe(STREAM *stream, int64_t *len)
 
 ADD_BUFFER:
 
-	extra = EXTRA(stream);
 	if (extra)
 	{
-		if (extra->unread)
-			*len += extra->unread_len - extra->unread_pos;
 		if (extra->buffer)
 			*len += extra->buffer_len - extra->buffer_pos;
 	}
