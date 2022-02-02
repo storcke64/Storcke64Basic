@@ -265,14 +265,22 @@
       Picture = Picture["icon:/small/play"]
       Shortcut = "F5"
     }
+    { mnuDebugExtern Menu
+      Action = "run-extern"
+      Text = ("Debug extern process") & "..."
+      Picture = Picture["icon:/small/connect"]
+    }
+    { Menu49 Menu
+    }
     { Menu45 Menu
       Action = "run-with"
-      Text = ("Run with") & "..."
+      Text = ("Program arguments") & "..."
+      Picture = Picture["icon:/small/text"]
     }
-    { mnuRemoteDebug Menu
+    { mnuDebugRemote Menu
       Action = "run-remote"
-      Text = ("Run remotely")
-      Picture = Picture["icon:/small/connect"]
+      Text = ("Remote debugging") & "..."
+      Picture = Picture["icon:/small/network"]
     }
     { Menu14 Menu
     }
@@ -1270,8 +1278,8 @@
     { btnRunRemote ToolButton
       MoveScaled(104,4,4,4)
       Visible = False
-      ToolTip = ("Run remotely")
-      Action = "run-remote"
+      ToolTip = ("Extern debugging")
+      Action = "run-extern"
       Picture = Picture["icon:/small/connect"]
     }
   }
@@ -1840,10 +1848,15 @@
     Shortcut = ""
     Picture = "icon:/small/eject"
   }
-  { Action run-remote
-    Text = "Run remotely"
+  { Action run-extern
+    Text = "Debug extern process"
     Shortcut = ""
     Picture = "icon:/small/connect"
+  }
+  { Action run-remote
+    Text = "Remote debugging"
+    Shortcut = ""
+    Picture = "icon:/small/network"
   }
   { Action run-that
     Text = "Run this class"
@@ -1966,7 +1979,7 @@
 { Toolbars
   { Toolbar main
     Text = ""
-    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with,run-remote"
+    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with,run-extern"
     Default = "new-project,open-project,save-project,save-project-as,project-property,option,|,exec,translate,|,compile,compile-all,test,start,pause,stop,step,forward,return,until,-,find-project,go-back,go-forward,version-control"
   }
 }

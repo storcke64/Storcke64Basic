@@ -1363,6 +1363,7 @@ Public Sub OnProjectChange()
   
   UpdateGlobalLayout
   UpdateMenu
+  UpdateRemote
   
   'If $bInOpenExtern Then Return
   
@@ -1488,8 +1489,10 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.Run(False, Design.ACTION_RUN)
     Case "run-with"
       If Not FArguments.Run() Then Project.Run(False, Design.ACTION_RUN_WITH)
+    Case "run-extern"
+      Project.Run(False, Design.ACTION_RUN_EXTERN)
     Case "run-remote"
-      Project.Run(False, Design.ACTION_RUN_REMOTE)
+      If Not FDebugRemote.Run() Then UpdateRemote
     Case "test"
       Project.Test()
     Case "test-suite"
@@ -2255,6 +2258,12 @@ Public Sub ShowErrorWith(sTitle As String, Optional sMsg As String, Optional sKe
   Endif
   
   ShowMessage("<b>" & sTitle & "</b>\n\n" & sMsg, "error", sKey)
+  
+End
+
+Public Sub ShowErrorWithOutput(sTitle As String, sOutput As String, Optional sKey As String)
+  
+  ShowMessage("<b>" & sTitle & "</b>\n\n<font size=\"-1\"><tt>" & Html(sOutput) & "</tt></font>", "error", sKey)
   
 End
 
@@ -3327,4 +3336,15 @@ Public Sub btnVcAddAll_Click()
 
   FMain.mnuAddVersionAll_Click()
 
+End
+
+Private Sub UpdateRemote()
+  
+  Dim hForm As Object
+  
+  Action["start"].Picture = Project.GetDebuggerIcon(tlbMain.Size)
+  For Each hForm In Project.Files
+    Try hForm.UpdateRemote()
+  Next
+  
 End

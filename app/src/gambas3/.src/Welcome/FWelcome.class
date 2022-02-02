@@ -275,7 +275,6 @@ End
 
 Public Sub Form_Hide()
 
-  'Settings.Write(Me)
   Settings["/FWelcome/SortRecent"] = $iSort
   Settings["/FWelcome/Filter"] = txtFilter.Text
 
@@ -460,3 +459,4 @@ Public Sub MediaPlayer_End()
   '$hWelcome.NoTear = True
   
 End
+

@@ -110,7 +110,24 @@ End
 
 Public Sub dwgStatus_Draw()
   
-  Try Project.ActiveForm.PaintStatus()
+  Dim W As Integer
+  Dim X As Integer
+  Dim DS As Integer
+  
+  If $sMessage Then
+    DS = Desktop.Scale
+    Paint.Font.Grade = -1
+    'Paint.Font.Bold = True
+    W = Paint.TextSize($sMessage).W + DS * 3
+    X = dwgStatus.W - W - DS \ 2
+    Paint.Rectangle(X, DS \ 2, W, dwgStatus.H - DS, DS * 2)
+    Paint.Background = Color.LightBackground
+    Paint.Fill
+    Paint.Background = Color.TextForeground
+    Paint.DrawText($sMessage, X, DS \ 2, W, dwgStatus.H - DS, Align.Center)
+  Else
+    Try Project.ActiveForm.PaintStatus()
+  Endif
   
 End
 
@@ -122,15 +139,9 @@ Public Sub SetMessage(Optional sText As String, bAdd As Boolean)
     $sMessage = sText
   Endif
   
+  dwgStatus.Refresh
   If $sMessage Then
-    lblMessage.Text = $sMessage
-    lblMessage.Show
-    dwgStatus.Hide
     If Project.NoWait = 0 Then Wait
-  Else 
-    lblMessage.Hide
-    dwgStatus.Show
-    dwgStatus.Refresh
   Endif
   
   If Not $sMessage Then

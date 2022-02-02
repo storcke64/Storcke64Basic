@@ -3152,6 +3152,7 @@ Public Sub panToolBar_Configure()
 
   UpdateMenu
   UpdateDiffAction
+  UpdateRemote
   Project.UpdateLockedAction(Me)
   
   If $sModule Then
@@ -4012,4 +4013,10 @@ Public Sub btnDiffNext_Click()
   Y = $hEditor.FindNextDiff($hEditor.Line)
   If Y >= 0 Then $hEditor.Goto($hEditor.Column, Y)
 
+End
+
+Public Sub UpdateRemote()
+  
+  Action[".run-me", Me].Picture = Project.GetDebuggerIcon(panToolbar.Size)
+  
 End

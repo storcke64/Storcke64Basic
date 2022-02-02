@@ -867,6 +867,7 @@ End
 Public Sub Form_Open()
 
   Me.Center
+  btnClose.Raise
 
 End
 
@@ -1957,3 +1958,9 @@ Public Sub cmbHighlight_Click()
 
 End
 
+
+Public Sub Form_Resize()
+
+  btnClose.Move(Me.ClientW - btnClose.W - Desktop.Scale, Me.ClientH - btnClose.H - Desktop.Scale)
+
+End

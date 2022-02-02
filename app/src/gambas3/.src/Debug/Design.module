@@ -1,12 +1,14 @@
 ' Gambas module file
 
+Private Const DEBUG_REMOTE As Boolean = False
+
 Public Startup As String
 
 Public ProcessId As Integer
 Public ProcessFiles As Integer
 Public ProcessMemory As Long
 
-Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM, ACTION_RUN_REMOTE
+Public Enum ACTION_RUN, ACTION_RUN_WITH, ACTION_STEP, ACTION_FORWARD, ACTION_RETURN_FROM, ACTION_RUN_EXTERN
 
 Private Const STATE_LAST As Integer = -1
 Private Const STATE_STOP As Integer = 0
@@ -18,7 +20,6 @@ Private $bTest As Boolean
 Private $iState As Integer
 Private $hProcess As Process
 Private $hObserver As Observer
-'Private $bRunRemote As Boolean
 
 Private $sPosClass As String
 Private $iPosLine As Integer
@@ -52,12 +53,20 @@ Private $hBrowser As Process
 
 Private $hTimerShowConsole As Timer
 
-Private $bRemote As Boolean
-Private $sRemoteLink As String
-Private $hTimerRemote As Timer
+Private $bExtern As Boolean
+Private $sExternLink As String
+Private $hTimerExtern As Timer
 Private $hTimerWatch As Timer
 
 Private $sBuffer As String
+
+Private $sRemoteDebuggerHelper As String
+Private $bRemote As Boolean
+Private $hRemoteFifo As Process
+Private $sRemoteBuffer As String
+Private $bRemoteFifoAuth As Boolean
+Private $bProcessAuth As Boolean
+Private $bProcessIgnoreNextNewLine As Boolean
 
 Public Sub Init()
  
@@ -106,7 +115,7 @@ Private Sub SetState(iState As Integer)
   
   'bDebug = $iState <> STATE_STOP And $iState <> STATE_STARTING
 
-  Action["run-remote"].Enabled = iState = STATE_STOP
+  Action["run-extern"].Enabled = iState = STATE_STOP
   Action["pause"].Enabled = iState = STATE_RUNNING
   bEnable = iState <> STATE_RUNNING And iState <> STATE_STARTING
   Action["forward"].Enabled = bEnable
@@ -149,10 +158,11 @@ Public Sub Pause()
 
   If $iState <> STATE_RUNNING Then Return
   
-  ' If Project.UseTerminal Then
-  '   If $iProcessId Then Signal.Send($iProcessId, Signal.SIGUSR2)
-  ' Else
-  If ProcessId Then Signal.Send(ProcessId, Signal.SIGUSR2)
+  If $bRemote Then
+    WriteCommand("p" & CStr(ProcessId))
+  Else
+    If ProcessId Then Debug.Signal(ProcessId)
+  Endif
 
 End
 
@@ -187,7 +197,28 @@ End
 
 Public Sub Process_Read()
   
+  Dim sData As String
+  
   $hTimerShowConsole.Restart
+  If $bRemote Then
+    sData = Read #$hProcess, Lof($hProcess)
+    If DEBUG_REMOTE Then Debug Quote(sData)
+    If $bProcessAuth Then
+      If $bProcessIgnoreNextNewLine And If sData Begins "\r\n" Then
+        sData = Mid$(sData, 3)
+        $bProcessIgnoreNextNewLine = False
+        If Not sData Then Return
+      Endif
+      FOutput.Insert(sData, True)
+    Endif
+  Endif
+  
+End
+
+Public Sub Process_Prompt((Prompt) As String, (Answer) As String)
+  
+  $bProcessAuth = True
+  $bProcessIgnoreNextNewLine = True
   
 End
 
@@ -204,25 +235,12 @@ Public Sub TimerShowConsole_Timer()
   
 End
 
-
-
-
-' Public Sub Process_Read()
-' 
-'   Dim sData As String
-'   
-'   sData = Read #Last, -4096
-'   Insert(sData)
-'   
-' End
-' 
 Private Sub Translate(sErr As String) As String
   
   If InStr(sErr, " ") Then Return Tr$(sErr)
   Return sErr
   
 End
-
 
 Public Sub MakeMessage(sErr As String) As String
   
@@ -286,6 +304,8 @@ Public Sub Debug_Read(Data As String)
     $bStart = True
     Signal
     Return
+  Else If Not Data Then
+    Return
   Endif
   
   aData = Split(Data, "\t")
@@ -316,7 +336,7 @@ Public Sub Debug_Read(Data As String)
           $hTimerWatch.Delay = 1000
           $hTimerWatch.Start
           TimerWatch_Timer
-          FDebugInfo.UpdateProcessId()
+          FDebugInfo.UpdateProcessInfo(ProcessId, ProcessFiles, ProcessMemory)
         Endif
       Endif
     
@@ -463,6 +483,18 @@ Public Sub Debug_Read(Data As String)
           
       End Select
   
+    Case "i"
+      
+      sVar = Mid$(aData[0], 2)
+      If Not sVar Then
+        $hTimerWatch.Stop
+      Else
+        aData = Split(sVar)
+        Try ProcessFiles = CInt(aData[0])
+        Try ProcessMemory = CLong(aData[1])
+        FDebugInfo.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
+      Endif
+
   End Select
   
 End
@@ -477,6 +509,8 @@ Public Sub Process_Kill()
 
   Dim sMsg As String
   Dim bTest As Boolean
+
+  If $bRemote And If DEBUG_REMOTE Then Debug
 
   bTest = $bTest
   
@@ -508,7 +542,7 @@ Public Sub Process_Kill()
     If bTest Then 
       FDebugInfo.StopTest(MTest.TEST_FAIL)
     Else
-      FMain.ShowInfo(Subst(("The program has returned\nthe value: &1"), $hProcess.Value))
+      FDebugButton.SetMessage(Subst(("The program has returned the value &1."), $hProcess.Value))
     Endif
   Else
     If bTest Then FDebugInfo.StopTest(MTest.TEST_SUCCESS)
@@ -522,7 +556,6 @@ Public Sub Process_Kill()
 
 End
 
-
 Private Sub AfterStop()
 
   Dim hForm As Object
@@ -533,6 +566,11 @@ Private Sub AfterStop()
   $sRemoveBreakPoint = ""
 
   Debug.Stop
+  
+  If $hRemoteFifo Then
+    Try $hRemoteFifo.Kill
+    $hRemoteFifo.Wait(0.5)
+  Endif
   
   If $sPipeError Then
     $hPipeError.Close
@@ -570,12 +608,12 @@ Private Sub AfterStop()
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
   
-  If $bRemote Then
-    $hTimerRemote.Stop
-    $hTimerRemote = Null
-    Try Kill $sRemoteLink
+  If $bExtern Then
+    $hTimerExtern.Stop
+    $hTimerExtern = Null
+    Try Kill $sExternLink
     FDebugInfo.StopWaitForRemote
-    $bRemote = False
+    $bExtern = False
   Endif
 
   ' FOR EACH hForm IN $cShow
@@ -748,8 +786,13 @@ End
 
 Private Sub WriteCommand(sCmd As String)
   
-  'Error "---> "; sCmd
-  Debug.Write(sCmd)
+  If $hRemoteFifo Then
+    If DEBUG_REMOTE Then Debug "---> "; sCmd
+    Print #$hRemoteFifo, sCmd
+    'Flush #$hRemoteFifo
+  Else
+    Debug.Write(sCmd)
+  Endif
   
 End
 
@@ -949,6 +992,14 @@ Private Sub Start(sCmd As String)
   Dim iPos As Integer
   Dim I As Integer
   Dim aProg As String[]
+  Dim sRemoteServer As String
+  Dim sRemoteFolder As String
+  Dim sRemoteUser As String
+  Dim aRemoteCmd As String[]
+  Dim sRemotePassword As String
+  Dim hCopyProcess As Process
+  Dim sFifo As String
+  Dim sRemoteDebuggerHelper As String
 
   If Project.Running Then Return
   
@@ -956,7 +1007,68 @@ Private Sub Start(sCmd As String)
 
   $bConsole = Action["console"].Value  
 
-  If Project.Compile() Then Return
+  $bRemote = Project.Config["/Debug/Remote"]
+  If $bRemote Then
+    
+    If Project.MakeExecutable(True, True) Then Return
+    
+    ' Create the debugger helper
+    
+    sRemoteDebuggerHelper = CreateDebuggerHelper()
+    If Not sRemoteDebuggerHelper Then Return
+    
+    sRemoteServer = Project.Config["/Debug/RemoteServer"]
+    sRemoteFolder = Project.Config["/Debug/RemoteDirectory"]
+    sRemoteUser = Project.Config["/Debug/RemoteUser"]
+    Try sRemotePassword = Desktop.Passwords[Project.Name &/ "RemoteDebug"]
+    
+    ' Create the remote directory and the remote fifo
+    
+    Project.SetMessage(("Initialize remote debugging..."))
+    
+    If sRemoteFolder = "~" Then
+      sRemoteFolder = "/home" &/ sRemoteUser
+    Else If sRemoteFolder Begins "~/" Then
+      sRemoteFolder = "/home" &/ sRemoteUser &/ Mid$(sRemoteFolder, 3)
+    Endif
+    
+    sFifo = sRemoteFolder &/ ".remote."
+    
+    aExec = ["ssh", "-q", "-o", "StrictHostKeyChecking=no", sRemoteUser & "@" & sRemoteServer, 
+      "mkdir -p " & Shell(sRemoteFolder) & " && " &
+      "rm -f " & Shell(sFifo & "in") & " " & Shell(sFifo & "out") & " && " &
+      "mkfifo " & Shell(sFifo & "in") & " " & Shell(sFifo & "out")]
+    $sRemoteBuffer = aExec.Join(" ")
+    hCopyProcess = Exec aExec For Input Output As "RemoteProcess"
+    hCopyProcess.Expect("password:", sRemotePassword)
+    hCopyProcess.Wait
+    
+    If hCopyProcess.Value Then
+      FMain.ShowErrorWithOutput(("Unable to initialize remote debugging."), $sRemoteBuffer)
+      Return
+    Endif
+    
+    ' Copy the executable to the remote server
+    
+    $sRemoteBuffer = ""
+    hCopyProcess = Exec ["scp", "-q", "-o", "StrictHostKeyChecking=no", Project.GetExecPath(), sRemoteDebuggerHelper, sRemoteUser & "@" & sRemoteServer & ":" & sRemoteFolder] For Input Output As "RemoteProcess"
+    hCopyProcess.Expect("password:", sRemotePassword)
+    hCopyProcess.Wait
+    
+    If hCopyProcess.Value Then
+      FMain.ShowErrorWithOutput(("Unable to copy executable to the remote server."), $sRemoteBuffer)
+      Return
+    Endif
+    
+    Project.SetMessage(("OK"), True)
+    
+  Else
+    
+    If Project.Compile() Then Return
+    
+    sFifo = $sFifo
+
+  Endif
 
   ClearOutput
 
@@ -997,6 +1109,7 @@ Private Sub Start(sCmd As String)
   FDebugInfo.OnProjectDebug
 
   aEnv = Project.Environment.Copy()
+  If $bRemote Then Try aEnv.Insert(Project.Config["/Debug/RemoteEnvironment"])
   I = 0
   While I < aEnv.Count
     If aEnv[I] Begins " " Then
@@ -1012,7 +1125,7 @@ Private Sub Start(sCmd As String)
   
   If $bTest Then
     
-    aExec = [System.Path &/ "bin/gbx" & System.Version, "-g", "-f", $sFifo, "-T", GetTestSuite(), File.Dir(SConv(Project.Path))]
+    aExec = [System.Path &/ "bin/gbx" & System.Version, "-g", "-f", sFifo, "-T", GetTestSuite(), File.Dir(SConv(Project.Path))]
     
     $hProcess = FDebugInfo.GetTestTerminal().Exec(aExec, aEnv)
     $hProcess.Term.Echo = True
@@ -1022,20 +1135,13 @@ Private Sub Start(sCmd As String)
 
     If Project.Profiling Then FProfile.CleanProfileFiles
   
-    ' If Project.Environment And If Project.Environment.Count Then 
-    ' 
-    '   sExec = Project.Environment.Join(" ")
-    '   sExec &= " exec " & Shell$(System.Path &/ "bin/gbx" & System.Version) & " -g -f " & Shell$(File.Dir(SConv(Project.Path)))
-    ' 
-    '   For Each sArg In Project.Arguments
-    '     sExec &= " " & Shell$(sArg)
-    '   Next
-    '   
-    '   $hProcess = Shell sExec For Read Write As "Process"
-    ' 
-    ' Else
-  
-    aExec = [System.Path &/ "bin/gbx" & System.Version, "-g", "-f", $sFifo]
+    If $bRemote Then
+      aExec = ["gbr" & System.Version]
+    Else
+      aExec = [System.Path &/ "bin/gbx" & System.Version]
+    Endif
+    
+    aExec.Insert(["-g", "-f", sFifo])
     
     If Startup Then 
       aExec.Add("-s")
@@ -1072,10 +1178,14 @@ Private Sub Start(sCmd As String)
       
     Endif
     
-    aExec.Add(File.Dir(SConv(Project.Path)))
+    If $bRemote Then
+      aExec.Add(sRemoteFolder &/ File.Name(Project.GetExecPath()))
+    Else
+      aExec.Add(File.Dir(SConv(Project.Path)))
+    Endif
     
-    If Project.CurrentArgument Then
-      aExec.Add("--")
+    If Project.CurrentArgument And If Project.CurrentArgument.Count Then
+      If Not $bRemote Then aExec.Add("--")
       aExec.Insert(Project.CurrentArgument)
     Endif
     
@@ -1091,8 +1201,15 @@ Private Sub Start(sCmd As String)
       aExec.Insert(["valgrind", "--tool=memcheck", "--num-callers=50"], 0)
     Endif
   
-    'If Project.UseTerminal Then aExec.Insert(["/usr/bin/Terminal", "--hold", "--disable-server", "-x"], 0)
-  
+    If $bRemote Then
+      
+      aRemoteCmd = ["ssh", "-q", "-t", "-o", "StrictHostKeyChecking=no", sRemoteUser & "@" & sRemoteServer]
+      aRemoteCmd.Insert(aEnv)
+      aEnv.Clear
+      aExec.Insert(aRemoteCmd, 0)
+      
+    Endif
+
     If Project.UseTerminal Then 
     
       sTitle = Project.Name & " (" & ("Output terminal") & ")"
@@ -1162,13 +1279,29 @@ Private Sub Start(sCmd As String)
         
     End Select
     
-    If sProg Then
+    If $bRemote Then
+      
+      $bRemoteFifoAuth = False
+      $hRemoteFifo = Exec ["ssh", "-q", "-t", "-o", "StrictHostKeyChecking=no", sRemoteUser & "@" & sRemoteServer, sRemoteFolder &/ File.Name($sRemoteDebuggerHelper)] For Input Output As "RemoteFifo"
+      $hRemoteFifo.Term.Echo = False
+      $hRemoteFifo.Expect("password:", sRemotePassword)
+      
+      If DEBUG_REMOTE Then Debug aExec.Join(" ")
+      $bProcessAuth = False
+      $hProcess = Exec aExec With aEnv For Input Output As "Process" 
+      $hProcess.Expect("password:", sRemotePassword)
+
+    Else If sProg Then
+      
       $hProcess = Exec aExec With aEnv As "Process"
+      
     Else
+      
       '$hProcess = Exec aExec With aEnv For Input Output As "Process"
       $hProcess = FOutput.GetTerminal().Exec(aExec, aEnv)
       $hProcess.Term.Echo = True
       $hObserver = New Observer($hProcess, True) As "Process"
+      
     Endif
     
     If $sPipeError Then
@@ -1209,7 +1342,7 @@ Private Sub Start(sCmd As String)
   
 End
 
-Public Sub RunRemote()
+Public Sub RunExtern()
 
   Dim hForm As Object
   Dim sDir As String
@@ -1219,18 +1352,18 @@ Public Sub RunRemote()
   
   sDir = File.Dir(Temp$())
   
-  $sRemoteLink = "/tmp/gambas-" & Project.Name & ".debug"
+  $sExternLink = "/tmp/gambas-" & Project.Name & ".debug"
   
-  Try hStat = Stat($sRemoteLink)
+  Try hStat = Stat($sExternLink)
   If hStat And If IsDir(hStat.Link) Then
-    FMain.ShowErrorWith(("Unable to start remote debugging."), ("Another remote debugging is active."))
+    FMain.ShowErrorWith(("Unable to start extern debugging."), ("Another extern debugging is active."))
     Return
   Endif
   
-  Try Kill $sRemoteLink
-  Try Link sDir To $sRemoteLink
+  Try Kill $sExternLink
+  Try Link sDir To $sExternLink
   If Error Then 
-    FMain.ShowErrorWith(("Unable to start remote debugging."))
+    FMain.ShowErrorWith(("Unable to start extern debugging."))
     Return
   Endif
 
@@ -1254,7 +1387,7 @@ Public Sub RunRemote()
   
   $sCmdStart &= "g"
 
-  $bRemote = True
+  $bExtern = True
   $bStart = True
   Project.Running = True
 
@@ -1280,9 +1413,9 @@ Public Sub RunRemote()
     Return
   Endif
 
-  $hTimerRemote = New Timer As "TimerRemote"
-  $hTimerRemote.Delay = 500
-  $hTimerRemote.Start
+  $hTimerExtern = New Timer As "TimerExtern"
+  $hTimerExtern.Delay = 500
+  $hTimerExtern.Start
   ' 
   ' 'If Project.Profiling Then FProfile.CleanProfileFiles
   ' 
@@ -1292,7 +1425,7 @@ Public Sub RunRemote()
   ' 
 End
 
-Public Sub TimerRemote_Timer()
+Public Sub TimerExtern_Timer()
   
   Dim sPath As String
   Dim hLock As File
@@ -1342,7 +1475,7 @@ Public Sub Command(sCmd As String, Optional iNewState As Integer = STATE_LAST)
   'IF NOT Project.Running THEN RETURN
 
   'WAIT
-  If Not $hProcess And If Not $bRemote Then Return
+  If Not $hProcess And If Not $bExtern Then Return
 
   'IF bResult THEN
   '  $cCommand.Add(sPrefix & sCmd)
@@ -1370,7 +1503,7 @@ Private Sub Signal()
   'PRINT "Signal"
 
   If $bStart Then
-    If $bRemote Then FDebugInfo.StopWaitForRemote
+    If $bExtern Then FDebugInfo.StopWaitForRemote
     'PRINT "START Debug.Write: "; $sCmdStart
     WriteCommand($sCmdStart)
     $bStart = False
@@ -1504,9 +1637,9 @@ Public Sub SetBalloon(hCtrl As Control, Optional X As Integer = -1, Y As Integer
   
 End
 
-Public Sub IsRemote() As Boolean
+Public Sub IsExtern() As Boolean
   
-  Return $bRemote
+  Return $bExtern
   
 End
 
@@ -1522,6 +1655,13 @@ Public Sub TimerWatch_Timer()
     Return
   Endif
   
+  If $bRemote Then
+    
+    WriteCommand("i" & CStr(ProcessId))
+    Return
+    
+  Endif
+    
   sDir = "/proc" &/ CStr(ProcessId)
   If Not IsDir(sDir) Then
     $hTimerWatch.Stop
@@ -1544,6 +1684,96 @@ Public Sub TimerWatch_Timer()
     Next
   Endif
   
-  FDebugInfo.UpdateProcessInfo()
+  FDebugInfo.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
   
+End
+
+Public Sub RemoteProcess_Read()
+
+  Dim sData As String
+
+  sData = Read #Last, Lof(Last)  
+  If DEBUG_REMOTE Then Debug Quote(sData)
+  $sRemoteBuffer &= sData
+  
+End
+
+Public Sub RemoteProcess_Error(sData As String)
+
+  If DEBUG_REMOTE Then Debug Quote(sData)
+  $sRemoteBuffer &= sData
+  
+End
+
+Public Sub RemoteProcess_Kill()
+  
+  If DEBUG_REMOTE Then Debug
+  
+End
+
+
+Public Sub RemoteFifo_Prompt((Prompt) As String, (Answer) As String)
+  
+  $bRemoteFifoAuth = True
+  
+End
+
+Public Sub RemoteFifo_Read()
+
+  Dim sData As String
+  Dim iPos As Integer
+  
+  sData = Read #Last, Lof(Last)
+  If Not $bRemoteFifoAuth Then Return
+  
+  sData = Replace(sData, "\r", "")
+  If DEBUG_REMOTE Then Debug Quote(sData)
+  
+  Do
+    iPos = InStr(sData, "\n")
+    If iPos Then
+      Debug_Read(Left(sData, iPos))
+      sData = Mid$(sData, iPos + 1)
+    Else
+      Debug_Read(sData)
+      Break
+    Endif
+  Loop
+  
+End
+
+Public Sub RemoteFifo_Kill()
+  
+  If DEBUG_REMOTE Then Debug
+  $hRemoteFifo = Null
+  
+End
+
+Private Sub CreateDebuggerHelper() As String
+
+  Dim sDir As String
+  Dim sOutput As String
+  Dim sPath As String
+  
+  If Not $sRemoteDebuggerHelper Then
+  
+    sDir = File.Dir(Temp$()) &/ "remote-debugger-helper"
+    Mkdir sDir
+    Mkdir sDir &/ ".src"
+    Copy "debugger/Main.module" To sDir &/ ".src/Main.module"
+    Copy "debugger/_project" To sDir &/ ".project"
+    Shell "cd " & Shell(sDir) & " && gbc3 -gt -j1 2>&1 && gba3 2>&1" To sOutput
+    
+    sPath = sDir &/ "remote-debugger-helper.gambas"
+    If Not Exist(sPath) Then
+      FMain.ShowErrorWithOutput(("Unable to generate the remote debugger helper."), sOutput)
+      Return
+    Endif
+    
+    $sRemoteDebuggerHelper = sPath
+  
+  Endif
+  
+  Return $sRemoteDebuggerHelper
+
 End

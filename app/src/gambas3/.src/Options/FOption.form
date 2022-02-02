@@ -1142,12 +1142,8 @@
     { HBox46 HBox
       MoveScaled(1,60,66,4)
       Spacing = True
-      Indent = True
-      { Spring2 Spring
-        MoveScaled(8,0,5,4)
-      }
       { btnInstallFont Button
-        MoveScaled(23,0,39,4)
+        MoveScaled(2,0,39,4)
         AutoResize = True
         Text = ("Install Gambas fonts for code edition") & "..."
       }
@@ -1181,7 +1177,7 @@
         Mode = PictureBox.Fill
       }
       { sldBackgroundBrightness Slider
-        MoveScaled(5,0,59,4)
+        MoveScaled(5,0,34,4)
         Expand = True
         MaxValue = 255
         Step = 16
@@ -1284,17 +1280,21 @@
     { HBox8 HBox
       MoveScaled(0,62,66,4)
       Spacing = True
-      Indent = True
-      { Spring5 Spring
-        MoveScaled(8,0,5,4)
-      }
       { btnInstallIconTheme Button
-        MoveScaled(27,0,39,4)
+        MoveScaled(1,0,39,4)
         AutoResize = True
         Text = ("Install Gambas icon theme") & "..."
       }
     }
     Index = 0
+  }
+  { btnClose Button
+    MoveScaled(0,0,20,4)
+    Visible = False
+    Ignore = True
+    AutoResize = True
+    Text = ("Close")
+    Picture = Picture["icon:/medium/close"]
   }
 }
 

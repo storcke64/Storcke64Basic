@@ -140,7 +140,7 @@
     Count = 7
     Border = True
     Index = 0
-    Text = ("General")
+    Text = ("Description")
     Picture = Picture["icon:/large/gambas"]
     { Panel4 VBox
       MoveScaled(0,0,88,65)
@@ -532,13 +532,9 @@
       Expand = True
       Arrangement = Arrange.Vertical
       Border = Border.Plain
-      { tvwEnv TableView
-        MoveScaled(2,2,65,20)
+      { choEnv EnvChooser
+        MoveScaled(5,3,16,16)
         Expand = True
-        Border = False
-        Mode = Select.Single
-        Padding = 4
-        Header = GridView.Horizontal
       }
       { Separator2 Separator
         MoveScaled(28,24,15,0)

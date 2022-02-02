@@ -237,6 +237,8 @@ Public NoWait As Integer
 
 Public OpenFileIgnoreUnknown As Boolean
 
+Private $hRemoteDebugIcon As Image
+
 ' If GetFileIcon() has been called on an added file
 'Private $bLastAdded As Boolean
 
@@ -2668,13 +2670,13 @@ Public Sub Run(Optional bCompileAll As Boolean, Optional iAction As Integer, Opt
     Case Design.ACTION_RETURN_FROM
       Design.ReturnFrom
       
-    Case Design.ACTION_RUN_REMOTE
-      Design.RunRemote
+    Case Design.ACTION_RUN_EXTERN
+      Design.RunExtern
       
     Case Else
       If sStartup Then Design.Startup = sStartup
       If iAction = Design.ACTION_RUN Then Project.CurrentArgument = Null
-      Design.Run
+      Design.Run()
       Design.Startup = ""
     
   End Select
@@ -7159,6 +7161,26 @@ Public Sub GrepQuote(sStr As String) As String
   Next
   
   Return sResult
+
+End
+
+Public Sub GetDebuggerIcon(sSize As String) As Picture
+
+  Dim W As Integer
+
+  If Not Config Or If Not Config["/Debug/Remote"] Then Return Picture["icon:/" & sSize & "/play"]
+
+  W = Stock.GetSize(sSize)
+  
+  If Not $hRemoteDebugIcon Or If $hRemoteDebugIcon.W <> W Then
+    
+    $hRemoteDebugIcon = Picture["icon:/" & sSize & "/play"].Copy().Image
+    $hRemoteDebugIcon.Brightness(1)
+    $hRemoteDebugIcon.Colorize(&HC0A600)
+    
+  Endif
+  
+  Return $hRemoteDebugIcon.Picture
 
 End
 

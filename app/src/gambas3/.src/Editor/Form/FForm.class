@@ -1661,6 +1661,7 @@ Private Sub DrawDropFrame()
     H = .DefaultHeight
   End With
   
+  $hCtrlFrame = Null
   DrawFrame(hParent, X - $hDropTarget.Grid(W \ 2), Y - $hDropTarget.Grid(H \ 2), W, H, True)
   
 End
@@ -4110,6 +4111,7 @@ Public Sub tlbForm_Configure()
   'Action[".show-class"].Picture = Project.GetFileIcon(File.SetExt(Path, "class"), 16)
   UpdateMenu
   UpdateDiffAction
+  UpdateRemote
 
 End
 
@@ -4654,4 +4656,10 @@ Private Function DiffMode_Read() As Boolean
 
   Return $bDiffMode
 
+End
+
+Public Sub UpdateRemote()
+  
+  Action[".run-me", Me].Picture = Project.GetDebuggerIcon(tlbForm.Size)
+  
 End

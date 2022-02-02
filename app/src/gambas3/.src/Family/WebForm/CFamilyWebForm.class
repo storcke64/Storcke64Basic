@@ -248,7 +248,7 @@ End
 
 Public Sub SelectImage((sPropertyType) As String, sImage As String) As String
 
-  Return FSelectIcon.Run(sImage, FSelectIcon.SELECT_STOCK + FSelectIcon.SELECT_IMAGE + FSelectIcon.SELECT_SVGIMAGE + FSelectIcon.SELECT_PUBLIC, ["normal", "huge"])
+  Return FSelectIcon.Run(sImage, FSelectIcon.SELECT_STOCK + FSelectIcon.SELECT_IMAGE + FSelectIcon.SELECT_SVGIMAGE + FSelectIcon.SELECT_PUBLIC, ["medium", "huge"])
       
 End
 

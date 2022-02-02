@@ -1335,58 +1335,49 @@ Public Sub OnProjectDebug()
   
 End
 
-' Public Sub UpdateProcessId(iId As Integer)
-'   
-'   btnDebugProcess.Text = Subst(("Process &1"), iId)
-'   
-' End
-
-Public Sub UpdateProcessId()
+Public Sub UpdateProcessInfo(iProcessId As Integer, iProcessFiles As Integer, iProcessMemory As Long)
   
-  If Design.IsRemote() Then
-    picProcess.Picture = Picture["icon:/small/connect"]
-  Else
-    picProcess.Picture = Picture["icon:/small/exec"]
-  Endif
-  
-  If Design.ProcessId = 0 Then
+  If iProcessId >= 0 Then
     
-    lblProcessId.Hide
+    If Design.IsExtern() Then
+      picProcess.Picture = Picture["icon:/small/connect"]
+    Else
+      picProcess.Picture = Picture["icon:/small/exec"]
+    Endif
     
-  Else
-    
-    lblProcessId.Show
-    lblProcessId.Text = Subst(("Process &1"), Design.ProcessId)
-    UpdateProcessInfo
+    If iProcessId = 0 Then
+      
+      lblProcessId.Hide
+      
+    Else
+      
+      lblProcessId.Show
+      lblProcessId.Text = Subst(("Process &1"), iProcessId)
+      
+    Endif
     
   Endif
   
-End
-
-
-Public Sub UpdateProcessInfo()
-  
-  If Design.ProcessId = 0 Then
+  If iProcessId = 0 Then
     
     panProcessFiles.Hide
     panProcessMemoryRead.Hide
     
   Else
     
-    If Design.ProcessFiles < 0 Then
+    If iProcessFiles < 0 Then
       panProcessFiles.Hide
     Else
       panProcessFiles.Show
-      lblProcessFiles.Text = CStr(Design.ProcessFiles)
+      lblProcessFiles.Text = CStr(iProcessFiles)
     Endif
     
-    If Design.ProcessMemory < 0 Then
+    If iProcessMemory < 0 Then
       panProcessMemory.Hide
     Else
       panProcessMemory.Show
-      lblProcessMemory.Text = File.FormatSize(Design.ProcessMemory, True) 
+      lblProcessMemory.Text = File.FormatSize(iProcessMemory, True) 
     Endif
-    
     
   Endif
   

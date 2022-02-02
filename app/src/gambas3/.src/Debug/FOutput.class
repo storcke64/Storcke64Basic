@@ -53,20 +53,12 @@ Public Sub Clear()
 End
 
 
-Public Sub Insert(sText As String, Optional bCurrent As Boolean)
+Public Sub Insert(sText As String, Optional bNoReplace As Boolean)
 
-  If chkCharset.Value Then  
-    Try sText = DConv$(sText)
-  Endif
+  If chkCharset.Value Then Try sText = DConv$(sText)
 
-  If Not bCurrent Then 
-    'edtOutput.Line = edtOutput.Lines.Count
-    'edtOutput.Goto(edtOutput.Lines.Count, 10000)
-  Endif
-  
-  'If Not Action["console"].Value Then Action["console"].Value = True
-
-  trmOutput.Print(Replace(sText, "\n", "\r\n"))
+  If Not bNoReplace Then sText = Replace(sText, "\n", "\r\n")
+  trmOutput.Print(sText)
   
 End
 

@@ -1,0 +1,165 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,69,72)
+  Text = ("Remote debugging")
+  Arrangement = Arrange.Vertical
+  Spacing = True
+  Margin = True
+  { HBox19 HBox
+    MoveScaled(1,1,55,4)
+    { Label32 Label
+      MoveScaled(0,0,31,4)
+      Font = Font["Bold"]
+      Expand = True
+      Text = ("Activate remote debugging")
+    }
+    { btnRemoteDebugging SwitchButton
+      MoveScaled(45,0,8,4)
+      Animated = True
+    }
+  }
+  { panRemoteDebugging VBox
+    MoveScaled(1,6,63,60)
+    Enabled = False
+    Expand = True
+    Spacing = True
+    { HBox20 HBox
+      MoveScaled(0,0,56,4)
+      Spacing = True
+      Indent = True
+      { Label33 Label
+        MoveScaled(0,0,20,4)
+        Text = ("Protocol")
+      }
+      { Label34 Label
+        MoveScaled(44,0,8,4)
+        Alignment = Align.Center
+        Border = Border.Raised
+        Text = ("SSH")
+      }
+    }
+    { HBox21 HBox
+      MoveScaled(0,5,56,4)
+      Spacing = True
+      Indent = True
+      { Label35 Label
+        MoveScaled(0,0,20,4)
+        Text = ("Server")
+      }
+      { txtRemoteServer TextBox
+        MoveScaled(30,0,24,4)
+        Expand = True
+      }
+    }
+    { HBox2 HBox
+      MoveScaled(0,10,56,4)
+      Spacing = True
+      Indent = True
+      { Label1 Label
+        MoveScaled(0,0,20,4)
+        Text = ("User")
+      }
+      { txtRemoteUser TextBox
+        MoveScaled(30,0,24,4)
+        Expand = True
+      }
+    }
+    { HBox3 HBox
+      MoveScaled(0,15,56,4)
+      Spacing = True
+      Indent = True
+      { Label2 Label
+        MoveScaled(0,0,20,4)
+        Text = ("Password")
+      }
+      { txtRemotePassword ButtonBox
+        MoveScaled(30,0,24,4)
+        Expand = True
+        Picture = Picture["icon:/small/watch"]
+        Password = True
+      }
+    }
+    { HBox23 HBox
+      MoveScaled(0,20,56,4)
+      Spacing = True
+      Indent = True
+      { Label37 Label
+        MoveScaled(0,0,20,4)
+        Text = ("Directory")
+      }
+      { txtRemoteDirectory TextBox
+        MoveScaled(30,0,24,4)
+        Expand = True
+      }
+    }
+    { Label3 Label
+      MoveScaled(0,26,36,3)
+      Font = Font["Bold"]
+      Text = ("Remote environment")
+    }
+    { Panel3 Panel
+      MoveScaled(2,30,41,27)
+      Expand = True
+      Arrangement = Arrange.Vertical
+      Border = Border.Plain
+      { choEnv EnvChooser
+        MoveScaled(5,3,16,16)
+        Expand = True
+      }
+      { Separator2 Separator
+        MoveScaled(10,21,15,0)
+      }
+      { HBox4 HBox
+        MoveScaled(4,22,36,4)
+        Background = Color.TextBackground
+        { btnInsertEnv ToolButton
+          MoveScaled(0,0,11,4)
+          AutoResize = True
+          Text = Shortcut(("Add"), "A")
+          Picture = Picture["icon:/small/add"]
+        }
+        { btnRemoveEnv ToolButton
+          MoveScaled(12,0,12,4)
+          Enabled = False
+          AutoResize = True
+          Text = Shortcut(("Remove"), "R")
+          Picture = Picture["icon:/small/remove"]
+        }
+        { btnMoveUpEnv ToolButton
+          MoveScaled(24,0,4,4)
+          Enabled = False
+          Picture = Picture["icon:/small/up"]
+        }
+        { btnMoveDownEnv ToolButton
+          MoveScaled(28,0,4,4)
+          Enabled = False
+          Picture = Picture["icon:/small/down"]
+        }
+      }
+    }
+  }
+  { HBox1 HBox
+    MoveScaled(1,67,67,4)
+    Spacing = True
+    { btnRemoteCheck Button
+      MoveScaled(0,0,26,4)
+      Enabled = False
+      AutoResize = True
+      Text = ("Check remote server")
+    }
+    { Spring1 Spring
+      MoveScaled(27,1,4,2)
+    }
+    { btnOK Button
+      MoveScaled(34,0,15,4)
+      Text = ("OK")
+      Default = True
+    }
+    { btnCancel Button
+      MoveScaled(50,0,15,4)
+      Text = ("Cancel")
+      Cancel = True
+    }
+  }
+}
