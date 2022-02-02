@@ -1305,6 +1305,8 @@ void DEBUG_main(bool error)
 
 	static DEBUG_COMMAND Command[] =
 	{
+		// "p" and "i" are reserved for remote debugging.
+		
 		{ "q", TC_NONE, command_quit, FALSE },
 		{ "n", TC_NEXT, command_next, FALSE },
 		{ "s", TC_STEP, command_step, FALSE },

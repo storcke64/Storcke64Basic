@@ -289,6 +289,12 @@ BEGIN_PROPERTY(Debug_Fifo)
 
 END_PROPERTY
 
+BEGIN_METHOD(Debug_Signal, GB_INTEGER pid)
+
+	kill(VARG(pid), SIGUSR2);
+
+END_METHOD
+
 
 GB_DESC CDebugDesc[] =
 {
@@ -305,6 +311,8 @@ GB_DESC CDebugDesc[] =
 	GB_STATIC_METHOD("GetSignal", "s", Debug_GetSignal, "(Signal)i"),
 
 	GB_STATIC_METHOD("Write", NULL, Debug_Write, "(Data)s"),
+	
+	GB_STATIC_METHOD("Signal", NULL, Debug_Signal, "(ProcessId)i"),
 	
 	GB_STATIC_PROPERTY_READ("Fifo", "s", Debug_Fifo),
 	
