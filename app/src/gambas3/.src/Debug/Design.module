@@ -1000,6 +1000,7 @@ Private Sub Start(sCmd As String)
   Dim hCopyProcess As Process
   Dim sFifo As String
   Dim sRemoteDebuggerHelper As String
+  Dim iCurrentArg As Variant
 
   If Project.Running Then Return
   
@@ -1184,18 +1185,11 @@ Private Sub Start(sCmd As String)
       aExec.Add(File.Dir(SConv(Project.Path)))
     Endif
     
-    If Project.CurrentArgument And If Project.CurrentArgument.Count Then
+    iCurrentArg = Project.Config["/Debug/CurrentArgument", 0] - 1
+    If iCurrentArg >= 0 And iCurrentArg < Project.Arguments.Count Then
       If Not $bRemote Then aExec.Add("--")
-      aExec.Insert(Project.CurrentArgument)
+      aExec.Insert(Project.Arguments[iCurrentArg])
     Endif
-    
-    ' If Project.Arguments.Count Then
-    '   iPos = Project.CurrentArgument - 1
-    '   If iPos >= 0 And If iPos < Project.Arguments.Count Then
-    '     aExec.Add("--")
-    '     aExec.Insert(Project.Arguments[iPos])
-    '   Endif
-    ' Endif
     
     If bValgrind Then 
       aExec.Insert(["valgrind", "--tool=memcheck", "--num-callers=50"], 0)

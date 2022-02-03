@@ -275,7 +275,7 @@
     { Menu45 Menu
       Action = "run-with"
       Text = ("Program arguments") & "..."
-      Picture = Picture["icon:/small/text"]
+      Picture = Picture["icon:/small/text-list-order"]
     }
     { mnuDebugRemote Menu
       Action = "run-remote"
@@ -905,6 +905,10 @@
     { Menu6 Menu
     }
   }
+  { mnuArguments Menu
+    { Menu50 Menu
+    }
+  }
   { sepMenu Separator
     MoveScaled(0,0,13,0)
     Visible = False
@@ -1065,45 +1069,47 @@
       Action = "test"
       Picture = Picture["icon:/small/ok"]
     }
-    { btnGo ToolButton
-      MoveScaled(74,0,4,4)
+    { btnGo MenuButton
+      MoveScaled(74,0,6,4)
       ToolTip = ("Run")
       Action = "start"
       Picture = Picture["icon:/small/play"]
+      Border = False
+      Menu = "mnuArguments"
     }
     { btnPause ToolButton
-      MoveScaled(78,0,4,4)
+      MoveScaled(80,0,4,4)
       ToolTip = ("Pause")
       Action = "pause"
       Picture = Picture["icon:/small/pause"]
     }
     { btnStop ToolButton
-      MoveScaled(81,0,4,4)
+      MoveScaled(83,0,4,4)
       ToolTip = ("Stop")
       Action = "stop"
       Picture = Picture["icon:/small/stop"]
     }
     { btnStep ToolButton
-      MoveScaled(84,0,4,4)
+      MoveScaled(86,0,4,4)
       ToolTip = ("Step")
       Action = "step"
       Picture = Picture["icon:/small/end"]
     }
     { btnForward ToolButton
-      MoveScaled(88,0,4,4)
+      MoveScaled(90,0,4,4)
       ToolTip = ("Forward")
       Action = "forward"
       Picture = Picture["icon:/small/forward"]
     }
     { btnFrom ToolButton
-      MoveScaled(91,0,4,4)
+      MoveScaled(93,0,4,4)
       ToolTip = ("Finish current function")
       Action = "return"
       Picture = Picture["icon:/small/eject"]
     }
     { btnUntil ToolButton mnuUntil
       Name = "btnUntil"
-      MoveScaled(95,0,4,4)
+      MoveScaled(97,0,4,4)
       ToolTip = ("Run until current line")
       Action = "until"
       Picture = Picture["icon:/small/jump"]

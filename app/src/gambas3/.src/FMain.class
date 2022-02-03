@@ -1356,6 +1356,48 @@ Private Sub UpdateGlobalLayout()
 
 End
 
+Private Sub UpdateArguments()
+
+  Dim I As Integer
+  Dim hMenu As Menu
+  Dim iCurrent As Integer
+  
+  If Project.Arguments.Count Then
+    btnGo.Menu = "mnuArguments"
+  Else
+    btnGo.Menu = ""
+  Endif
+  
+  mnuArguments.Children.Clear
+  
+  iCurrent = Project.Config["/Debug/CurrentArgument", 0]
+  
+  hMenu = New Menu(mnuArguments) As "mnuArgument"
+  hMenu.Text = ("No arguments")
+  hMenu.Radio = True
+  hMenu.Value = iCurrent = 0
+  hMenu.Tag = 0
+  
+  hMenu = New Menu(mnuArguments)
+  
+  For I = 0 To Project.Arguments.Max
+    hMenu = New Menu(mnuArguments) As "mnuArgument"
+    hMenu.Text = Project.ArgumentsToString(Project.Arguments[I])
+    hMenu.Radio = True
+    hMenu.Value = iCurrent = (I + 1)
+    hMenu.Tag = I + 1
+  Next
+  
+End
+
+Public Sub mnuArgument_Click()
+  
+  Project.Config["/Debug/CurrentArgument"] = Last.Tag
+  UpdateArguments
+  
+End
+
+
 Public Sub OnProjectChange()
   
   $hProjectTree = Project.Tree 
@@ -1364,6 +1406,7 @@ Public Sub OnProjectChange()
   UpdateGlobalLayout
   UpdateMenu
   UpdateRemote
+  UpdateArguments
   
   'If $bInOpenExtern Then Return
   
@@ -1488,7 +1531,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "start"
       Project.Run(False, Design.ACTION_RUN)
     Case "run-with"
-      If Not FArguments.Run() Then Project.Run(False, Design.ACTION_RUN_WITH)
+      If Not FArguments.Run() Then UpdateArguments 'Then Project.Run(False, Design.ACTION_RUN_WITH)
     Case "run-extern"
       Project.Run(False, Design.ACTION_RUN_EXTERN)
     Case "run-remote"
