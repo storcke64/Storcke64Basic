@@ -1347,17 +1347,17 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
   Dim sLine As String
   Dim sDebChangeLog As String
   Dim sDate As String
-  Dim sBits As String[]
   Dim sPreviousLine As String
   Dim sWord As String
   Dim sNextWord As String
   Dim aWord As String[]
+  Dim aDate As String[]
   
   aLine = Split(ChangeLog, "\n")  
   
   For Each sLine In aLine
     
-    If Left$(sLine, 1) = "*" Then 
+    If sLine Begins "*" Then 
       
       If sDate <> "" Then
         'Debian packages don't accept an empty changelog line for the release:
@@ -1366,8 +1366,18 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
         Endif   
         sDebChangeLog = sDebChangeLog & "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n\n"
       Endif
-      sbits = Split(Trim$(sLine), " ")
-      sDate = sbits[1] & ", " & sbits[3] & " " & sbits[2] & " " & sbits[4] & " 12:00:00 +0000"
+      
+      sLine = Trim(Mid$(sLine, 2))
+      aDate = Split(sLine, " ")
+      
+      If aDate.Count < 4 Then Goto BAD_DATE
+      If Len(aDate[0]) < 3 Or If Not IsLetter(aDate[0]) Then Goto BAD_DATE
+      If Len(aDate[1]) < 3 Or If Not IsLetter(aDate[1]) Then Goto BAD_DATE
+      If Not IsDigit(aDate[2]) Or If CInt(aDate[2]) < 1 Or If CInt(aDate[2]) > 31 Then Goto BAD_DATE
+      If Not IsDigit(aDate[3]) Or If CInt(aDate[3]) < 1970 Or If CInt(aDate[3]) > 9999 Then Goto BAD_DATE
+      
+      sDate = aDate[0] & ", " & aDate[2] & " " & aDate[1] & " " & aDate[3] & " 12:00:00 +0000"
+      
       'sVersion = GetDebVersion()
       sPreviousLine = sPackageName & " (" & $sVersionWithRelease & ") unstable; urgency=low" & "\n\n"
       sDebChangeLog &= sPreviousLine
@@ -1409,6 +1419,10 @@ Private Sub ChangelogToDebChangelog(sPackageName As String) As String
   sDebChangeLog &= "\n -- " & Project.Maintainer & " <" & Project.Address & ">  " & sDate & "\n"
   
   Return sDebChangeLog 
+  
+BAD_DATE:
+
+  Error.Raise(Subst(("Incorrect date in ChangeLog: &1"), sLine))
 
 End
 

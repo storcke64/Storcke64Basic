@@ -886,7 +886,7 @@ Catch
 
   GoSub _STOP_CONVERT
 
-  If Error.Text Then
+  If Error.Text <> "*" Then
     Message.Error("<b>" & ("Cannot open project file :") & "</b>\n" & sDir & "\n\n<tt>" & Error.Text & "\n" & Error.Backtrace.Join(" ") & "</tt>")
   Endif
 
@@ -3788,7 +3788,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   If aMissing.Count Then
     sMsg = Subst(("Some components are missing: &1"), aMissing.Join(", "))
     If Message.Warning(sMsg, ("Continue"), ("Cancel")) = 2 Then
-      Error.Raise("")
+      Error.Raise("*")
     Endif
   Endif
 
