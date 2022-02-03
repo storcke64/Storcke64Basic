@@ -1000,7 +1000,7 @@ Private Sub Start(sCmd As String)
   Dim hCopyProcess As Process
   Dim sFifo As String
   Dim sRemoteDebuggerHelper As String
-  Dim iCurrentArg As Variant
+  Dim iCurrentArg As Integer
 
   If Project.Running Then Return
   

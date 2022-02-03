@@ -66,7 +66,7 @@ Private Function GetNextTip(Optional bPrev As Boolean) As String
     iPos = InStr(sLang, "_")
     If iPos Then
       sLang = Left$(sLang, iPos - 1)
-      sFile = "tips/tips." & sLang
+      sFile = "tips/tips." & sLang & ".txt"
     Endif
   Endif
   If Not Exist(sFile) Then
