@@ -471,10 +471,15 @@ Public Sub DrawingArea_Draw()
   
   If bDrawArrow Then
     If Me.RightToLeft Then
-      Style.PaintArrow(DS, 0, DS, Me.H, Align.Bottom)
+      Paint.Arrow(DS, 0, DS, Me.H, Align.Bottom)
     Else
-      Style.PaintArrow(Me.W - DS * 2, 0, DS, Me.H, Align.Bottom)
+      Paint.Arrow(Me.W - DS * 2, 0, DS, Me.H, Align.Bottom)
     Endif
+    Paint.LineWidth = DS / 6
+    iFg = Style.ForegroundOf($hDrawingArea)
+    If Not Me.Enabled Or If Not $sMenu Then iFg = Color.Merge(Color.ButtonBackground, iFg)
+    Paint.Background = iFg
+    Paint.Stroke
   Endif
   
   If $sActualText Then 

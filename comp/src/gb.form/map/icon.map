@@ -1,6 +1,7 @@
 access                  preferences/preferences-desktop-accessibility;apps/preferences-desktop-accessibility
 add                     actions/list-add
 added                   emblems/vcs-added;emblems/added
+administrator           #
 agenda                  apps/agenda;actions/view-calendar-agenda
 align-bottom            actions/align-vertical-bottom
 align-center            actions/align-horizontal-center
@@ -10,6 +11,7 @@ align-middle            actions/align-vertical-center
 align-right             actions/align-horizontal-right
 align-top               actions/align-vertical-top
 align-width             actions/object-rows
+anchor                  actions/anchor
 apply                   actions/dialog-apply;actions/dialog-ok-apply
 archive                 $(mime)/package-x-generic;apps/utilities-file-archiver
 attach                  status/mail-attachment;actions/mail-attachment
@@ -80,6 +82,7 @@ drink                   places/poi-bar
 earth                   #
 edit                    actions/document-edit;apps/accessories-text-editor
 eject                   actions/media-eject
+end-of-line             #
 emote-crying            emotes/face-crying
 emote-cool              emotes/face-cool
 emote-laugh             emotes/face-laugh
@@ -213,8 +216,11 @@ open-recent             actions/document-open-recent
 options                 actions/configure;categories/preferences-system;;preferences/preferences-system;apps/preferences-system
 package                 apps/system-software-install;apps/preferences-desktop-default-applications;preferences/preferences-desktop-default-applications
 page                    actions/view-pages-single;actions/page-simple
+page-break              actions/insert-page-break
 page-two                actions/view-pages-facing
+paragraph               #
 paste                   actions/edit-paste
+paste-special           actions/special_paste
 pause                   actions/media-playback-pause
 pda                     devices/pda
 pdf                     $(mime)/application-pdf
@@ -286,9 +292,11 @@ sun                     status/weather-clear
 suspend                 apps/system-suspend;actions/system-suspend
 system                  devices/computer
 switch-user             apps/system-switch-user;actions/system-switch-user
+tab                     #
 table                   [breeze*]actions/table
 tablet                  devices/input-tablet;;preferences/preferences-desktop-tablet;apps/preferences-desktop-tablet
 tag                     actions/tag
+template                actions/template
 terminal                apps/utilities-terminal
 text                    $(mime)/text-x-generic;$(mime)/text-plain
 text-baseline           actions/format-align-vertical-baseline;actions/align-vertical-baseline
@@ -299,6 +307,7 @@ text-center             actions/format-justify-center
 text-fill               actions/format-justify-fill
 text-italic             actions/format-text-italic
 text-left               actions/format-justify-left
+text-line-spacing       actions/format-line-spacing-normal;actions/text_line_spacing
 text-list               actions/format-list-unordered
 text-list-order         actions/format-list-ordered
 text-lower              actions/format-text-lowercase
