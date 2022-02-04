@@ -1314,9 +1314,7 @@ void CWIDGET_set_focus(void *_object)
 
 	if (win->opened && QWIDGET(win)->isVisible())
 	{
-		//qDebug("set focus on %s for %s", THIS->name, ((CWIDGET *)win)->name);
 		WIDGET->setFocus();
-		//((MyMainWindow *)(win->widget.widget))->activate();
 	}
 	else if ((CWIDGET *)win != THIS)
 	{

@@ -258,7 +258,11 @@ BEGIN_METHOD(Image_Rotate, GB_FLOAT angle)
 	
 	if (angle != 0.0)
 	{
+#ifdef QT5
+		QTransform mat;
+#else
 		QMatrix mat;
+#endif
 		mat.rotate(VARG(angle) * -360.0 / 2 / M_PI);
 		*rotate = QIMAGE->transformed(mat);
 	}
