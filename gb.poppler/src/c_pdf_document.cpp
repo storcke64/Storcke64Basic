@@ -96,7 +96,13 @@ BEGIN_METHOD(PdfDocument_new, GB_STRING path; GB_STRING password)
 	else
 		password = GB.ToZeroString(ARG(password));
 	
+#if POPPLER_CHECK_VERSION(0,82,0)
+	GBytes *bytes = g_bytes_new_static(THIS->buffer, THIS->length);
+	THIS->doc = poppler_document_new_from_bytes(bytes, password, &error);
+	g_bytes_unref(bytes);
+#else
 	THIS->doc = poppler_document_new_from_data(THIS->buffer, THIS->length, password, &error);
+#endif
 	if (!THIS->doc)
 	{
 		GB.Error(error->message);
