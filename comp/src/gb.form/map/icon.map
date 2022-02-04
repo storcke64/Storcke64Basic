@@ -33,6 +33,7 @@ c                       $(mime)/text-x-csrc
 calculator              apps/accessories-calculator
 calendar                actions/office-calendar;apps/evolution-calendar;actions/view-pim-calendar
 call                    actions/call-start
+call-stop               actions/call-stop
 cap-butt                actions/stroke-cap-butt
 cap-round               actions/stroke-cap-round
 cap-square              actions/stroke-cap-square
@@ -85,6 +86,7 @@ eject                   actions/media-eject
 end-of-line             #
 emote-crying            emotes/face-crying
 emote-cool              emotes/face-cool
+emote-kiss              emotes/face-kiss
 emote-laugh             emotes/face-laugh
 emote-raspberry         emotes/face-raspberry
 emote-plain             emotes/face-plain
@@ -152,6 +154,7 @@ info                    status/dialog-information;;apps/help-info;apps/ktip
 inheritance             actions/code-class
 insert-image            actions/insert-image
 insert-link             actions/insert-link
+insert-table            actions/insert-table
 insert-text             actions/insert-text
 internet                [-breeze*]places/folder-html;categories/applications-internet
 intersection            #
@@ -172,6 +175,8 @@ layout                  actions/document-page-setup
 left                    actions/go-previous
 library                 $(mime)/application-x-sharedlib
 lightness               #
+line-style              #
+line-width              actions/edit-line-width
 link                    emblems/emblem-symbolic-link
 linux                   #;;preferences/preferences-system-linux;apps/preferences-system-linux
 lock                    actions/object-locked;status/object-locked;;preferences/preferences-desktop-user-password;apps/preferences-desktop-user-password
