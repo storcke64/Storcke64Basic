@@ -218,6 +218,7 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
   Dim iColor As Integer
   Dim bCancel As Boolean
   Dim iPadding As Integer
+  Dim iBg As Integer
 
   Paint.Save
   
@@ -237,6 +238,7 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
     Endif
     
     Paint.FillRect(X, Y, W, H, iColor)
+    iBg = iColor
     
     If .Border Then
       hRectDraw = .Border.GetRect(RectF(X, Y, W, H), True)
@@ -285,7 +287,7 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
       Endif
     Endif
     
-    Paint.Background = iColor
+    Paint.Background = _Gui.GetForeground(Me, iColor)
     
     If .Font And If .Font.Modified Then Paint.Font = .Font
 
@@ -417,6 +419,7 @@ Public Sub ScrollArea_Draw()
   Dim hRectF As RectF
   Dim iBgSel As Integer
   Dim iPadding As Integer
+  Dim iFg As Integer
   
   If $iBg <> Color.Transparent Then
     If $iBg = Color.Default Then 
@@ -464,11 +467,11 @@ Public Sub ScrollArea_Draw()
   
   ' Headers use button colors
   
-  Paint.Background = Color.ButtonForeground
   iBg = Color.ButtonBackground
-  If Color.Distance(iBg, Color.TextBackground) < 0.1 Then
-    iBg = Color.Background
-  Endif
+  If Color.Distance(iBg, Color.TextBackground) < 0.1 Then iBg = Color.Background
+
+  iFg = Color.ButtonForeground
+  Paint.Background = _Gui.GetForeground(Me, iFg)
   
   iPadding = Max(1 + Desktop.Scale \ 2, $iPadding)
   
@@ -2505,3 +2508,4 @@ Public Sub _RefreshPicture()
   $hView.Refresh
   
 End
+

@@ -174,3 +174,9 @@ Public Sub tvwTest_DblClick()
   Debug
 
 End
+
+Public Sub Button7_Click()
+
+  tvwTest.Enabled = Not tvwTest.Enabled
+
+End

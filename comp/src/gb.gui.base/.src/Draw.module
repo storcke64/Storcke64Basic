@@ -469,7 +469,7 @@ Private Sub DrawEllipse(iAction As Integer, X As Float, Y As Float, W As Float, 
   hInfo = _GetInfo()
   
   If Start = 0 And If {End} = 0 Then
-    Paint.Ellipse(X, Y, W - 1, H - 1, 0, Pi(2), False)
+    Paint.Ellipse(X, Y, W - 1, H - 1) ', 0, Pi(2), False)
   Else
     Paint.Ellipse(X, Y, W - 1, H - 1, Start, {End} - Start, True)
   Endif

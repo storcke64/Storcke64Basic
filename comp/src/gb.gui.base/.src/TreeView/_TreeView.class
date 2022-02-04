@@ -553,8 +553,11 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
   Dim bHasNext As Boolean
   Dim hParent As _TreeView_Item
   Dim bStopEvent As Boolean
+  Dim iFg As Integer
   
   If Not hItem Then Return
+  
+  iFg = Paint.Background
   
   bStopEvent = Raise Draw(X, Y, W, H, hItem.Key, Column)
   If bStopEvent Then
@@ -574,7 +577,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         
         If $bShowLines And If hItem._Depth Then
           
-          Paint.Background = Color.SetAlpha(Color.LightForeground, 128)
+          Paint.Background = _Gui.GetForeground(Me, Color.SetAlpha(Color.LightForeground, 128))
           
           bHasNext = GetSibling(hItem.Key, 1)
           
@@ -614,7 +617,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
           XA = X + W + ($iDepthW + WA) / 4
           YA = Y + CInt(H - HA) \ 2
           
-          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 32)
+          Paint.Background = Color.SetAlpha(_Gui.GetForeground(Me, Style.ForegroundOf($hView)), 32)
           Paint.LineWidth = $iDepthW / 12
           Paint.LineCap = Paint.LineCapRound
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Left))
@@ -668,7 +671,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
         
         If $bShowLines And If hItem._Depth Then
           
-          Paint.Background = Color.SetAlpha(Color.LightForeground, 128)
+          Paint.Background = Color.SetAlpha(_Gui.GetForeground(Me, Color.LightForeground), 128)
           
           bHasNext = GetSibling(hItem.Key, 1)
           
@@ -702,7 +705,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
       
         If hItem.Count Then
           
-          Paint.Background = Color.LightForeground
+          'Paint.Background = Color.LightForeground
           'HA = H / 2
           'If HA < Desktop.Scale Then HA = Min(H, Desktop.Scale)
           WA = Min(H, $iDepthW \ 2)
@@ -710,7 +713,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
           XA = X + ($iDepthW - WA) / 2
           YA = Y + (H - HA) / 2
           Paint.LineWidth = HA / 6
-          Paint.Background = Color.SetAlpha(Style.ForegroundOf($hView), 32)
+          Paint.Background = Color.SetAlpha(iFg, 32)
           Paint.LineCap = Paint.LineCapRound
           Paint.Arrow(XA, YA, WA, HA, If(hItem.Expanded, Align.Bottom, Align.Right))
           Paint.Stroke
@@ -757,9 +760,9 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     Endif
     
     If hItem.Foreground <> Color.Default Then
-      Paint.Background = hItem.Foreground
+      Paint.Background = _Gui.GetForeground(Me, hItem.Foreground)
     Else
-      Paint.Background = Style.ForegroundOf(Me)
+      Paint.Background = iFg 'Style.ForegroundOf(Me)
     Endif
     If hItem.Font Then Paint.Font = hItem.Font
     

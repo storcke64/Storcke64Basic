@@ -374,3 +374,10 @@ Static Public Sub DndFrame_DragLeave()
   Wend
   
 End
+
+Static Public Sub GetForeground(hCtrl As Control, iFg As Integer) As Integer
+
+  If hCtrl.Enabled Then Return iFg
+  Return Color.Merge(iFg, Style.BackgroundOf(hCtrl))
+
+End
