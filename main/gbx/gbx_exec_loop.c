@@ -4031,7 +4031,7 @@ static void _break(ushort code)
 
 		//fprintf(stderr, "%s %d\n", DEBUG_get_current_position(), DEBUG_info->watch);
 
-		if (CP && CP->component == NULL)
+		if (CP && (EXEC_debug_inside || !CP->component))
 		{
 			if (EXEC_profile_instr)
 				DEBUG.Profile.Add(CP, FP, PC);

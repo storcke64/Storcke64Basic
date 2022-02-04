@@ -85,6 +85,7 @@ typedef
 		void (*BreakOnError)(bool);
 		void (*EnterEval)(void);
 		void (*LeaveEval)(void);
+		void (*DebugInside)(bool);
 		}
 	GB_DEBUG_INTERFACE;
 

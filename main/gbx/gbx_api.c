@@ -335,6 +335,7 @@ const void *const GAMBAS_DebugApi[] =
 	(void *)GB_DebugBreakOnError,
 	(void *)DEBUG_enter_eval,
 	(void *)DEBUG_leave_eval,
+	(void *)GB_DebugInside,
 	NULL
 };
 
@@ -2444,6 +2445,11 @@ void *GB_DebugGetExec(void)
 void GB_DebugBreakOnError(bool b)
 {
 	EXEC_break_on_error = b;
+}
+
+void GB_DebugInside(bool b)
+{
+	EXEC_debug_inside = b;
 }
 
 bool GB_SystemDebug(void)
