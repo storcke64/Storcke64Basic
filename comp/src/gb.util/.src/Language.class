@@ -1,0 +1,361 @@
+' Gambas class file
+
+Export
+
+''' This class allows to deal with the translation of the current project.
+
+'' Return all known languages codes.
+Static Property Read All As String[]
+
+'' Return the language key.
+Property Read Key As String Use $sKey
+'' Return the language code, suitable to [System.Language](/comp/gb/system/language).
+Property Read Code As String
+'' Return the translated name.
+Property Read Name As String
+'' Return the english name.
+Property Read EnglishName As String
+'' Return if the language is unknown
+Property Read Unknown As Boolean
+
+Static Private $cName As Collection
+Static Private $cEnglishName As Collection
+Static Private $cCode As Collection
+
+Static Public Sub _lang()
+
+  $cName = New Collection
+  $cEnglishName = New Collection
+  $cCode = New Collection
+
+  $cName["af"] = ("Afrikaans (South Africa)")
+  $cEnglishName["af"] = "Afrikaans"
+
+  $cName["ar"] = ("Arabic (Egypt)")
+  $cName["ar_TN"] = ("Arabic (Tunisia)")
+  $cName["ar_DZ"] = ("Arabic (Algeria)")
+  $cEnglishName["ar"] = "Arabic"
+  $cCode["ar"] = "ar_EG"
+
+  $cName["az"] = ("Azerbaijani (Azerbaijan)")
+  $cEnglishName["az"] = "Azerbaijani"
+
+  $cName["bg"] = ("Bulgarian (Bulgaria)")
+  $cEnglishName["bg"] = "Bulgarian"
+
+  $cName["ca"] = ("Catalan (Catalonia, Spain)")
+  'Name["ca_ES"] = ("Catalan (Catalonia, Spain)")
+  $cEnglishName["ca"] = "Catalan"
+  $cCode["ca"] = "ca_ES"
+
+  $cName["cy"] = ("Welsh (United Kingdom)")
+  $cEnglishName["cy"] = "Welsh"
+
+  $cName["cs"] = ("Czech (Czech Republic)")
+  $cEnglishName["cs"] = "Czech"
+  $cCode["cs"] = "cs_CZ"
+
+  $cName["da"] = ("Danish (Denmark)")
+  $cEnglishName["da"] = "Danish"
+
+  $cName["de"] = ("German (Germany)")
+  $cName["de_BE"] = ("German (Belgium)")
+  $cEnglishName["de"] = "German"
+  $cCode["de"] = "de_DE"
+
+  $cName["el"] = ("Greek (Greece)")
+  $cEnglishName["el"] = "Greek"
+
+  $cName["en"] = ("English (common)")
+  $cName["en_GB"] = ("English (United Kingdom)")
+  $cName["en_US"] = ("English (U.S.A.)")
+  $cName["en_AU"] = ("English (Australia)")
+  $cName["en_CA"] = ("English (Canada)")
+  $cEnglishName["en"] = "English"
+  $cCode["en"] = "en_GB"
+
+  $cName["eo"] = ("Esperanto (Anywhere!)")
+  $cEnglishName["eo"] = "Esperanto"
+
+  $cName["es"] = ("Spanish (common)")
+  $cName["es_ES"] = ("Spanish (Spain)")
+  $cName["es_AR"] = ("Spanish (Argentina)")
+  $cEnglishName["es"] = "Spanish"
+  $cCode["es"] = "es_ES"
+
+  $cName["et_EE"] = ("Estonian (Estonia)")
+  $cEnglishName["et"] = "Estonian"
+
+  $cName["eu"] = ("Basque (Basque country)")
+  $cEnglishName["eu"] = "Basque"
+
+  $cName["fa"] = ("Farsi (Iran)")
+  $cEnglishName["fa"] = "Farsi"
+
+  $cName["fi"] = ("Finnish (Finland)")
+  $cEnglishName["fi"] = "Finnish"
+  $cCode["fi"] = "fi_FI"
+
+  $cName["fr"] = ("French (France)")
+  $cName["fr_BE"] = ("French (Belgium)")
+  $cName["fr_CA"] = ("French (Canada)")
+  $cName["fr_CH"] = ("French (Switzerland)")
+  $cEnglishName["fr"] = "French"
+  $cCode["fr"] = "fr_FR"
+
+  $cName["gl_ES"] = ("Galician (Spain)")
+  $cEnglishName["gl"] = "Galician"
+
+  $cName["he"] = ("Hebrew (Israel)")
+  $cEnglishName["he"] = "Hebrew"
+
+  $cName["hi"] = ("Hindi (India)")
+  $cEnglishName["hi"] = "Hindi"
+
+  $cName["hu"] = ("Hungarian (Hungary)")
+  $cEnglishName["hu"] = "Hungarian"
+
+  $cName["hr"] = ("Croatian (Croatia)")
+  $cEnglishName["hr"] = "Croatian"
+
+  $cName["id"] = ("Indonesian (Indonesia)")
+  $cEnglishName["id"] = "Indonesian"
+  $cCode["id"] = "id_ID"
+
+  $cName["ir"] = ("Irish (Ireland)")
+  $cEnglishName["ir"] = "Irish"
+
+  $cName["is"] = ("Icelandic (Iceland)")
+  $cEnglishName["is"] = "Icelandic"
+
+  $cName["it"] = ("Italian (Italy)")
+  $cName["it_CH"] = ("Italian (Switzerland)")
+  $cEnglishName["it"] = "Italian"
+  $cCode["it"] = "it_IT"
+
+  $cName["ja"] = ("Japanese (Japan)")
+  $cEnglishName["ja"] = "Japanase"
+
+  $cName["km"] = ("Khmer (Cambodia)")
+  $cEnglishName["km"] = "Khmer"
+
+  $cName["ko"] = ("Korean (Korea)")
+  $cEnglishName["ko"] = "Korean"
+  $cCode["ko"] = "ko_KR"
+
+  $cName["la"] = ("Latin")
+  $cEnglishName["la"] = "Latin"
+
+  $cName["lt"] = ("Lithuanian (Lithuania)")
+  $cEnglishName["lt"] = "Lithuanian"
+
+  $cName["ml"] = ("Malayalam (India)")
+  $cEnglishName["ml"] = "Malayalam"
+
+  $cName["mk"] = ("Macedonian (Republic of Macedonia)")
+  $cEnglishName["mk"] = "Macedonian"
+
+  $cName["nl"] = ("Dutch (Netherlands)")
+  $cName["nl_BE"] = ("Dutch (Belgium)")
+  $cEnglishName["nl"] = "Dutch"
+  $cCode["nl"] = "nl_NL"
+
+  $cName["no"] = ("Norwegian (Norway)")
+  $cName["nb_NO"] = ("Bokmål (Norway)")
+  $cEnglishName["no"] = "Norwegian"
+  $cCode["no"] = "nb_NO"
+
+  $cName["pa"] = ("Punjabi (India)")
+  $cEnglishName["pa"] = "Punjabi"
+
+  $cName["pl"] = ("Polish (Poland)")
+  $cEnglishName["pl"] = "Polish"
+
+  $cName["pt"] = ("Portuguese (Portugal)")
+  $cName["pt_BR"] = ("Portuguese (Brazil)")
+  $cEnglishName["pt"] = "Portuguese"
+
+  $cName["qcv_ES"] = ("Valencian (Valencian Community, Spain)")
+  $cEnglishName["qcv"] = "Valencian"
+
+  $cName["ro"] = ("Romanian (Romania)")
+  $cEnglishName["ro"] = "Romanian"
+
+  $cName["ru"] = ("Russian (Russia)")
+  $cEnglishName["ru"] = "Russian"
+  $cCode["ru"] = "ru_RU"
+
+  $cName["sl"] = ("Slovenian (Slovenia)")
+  $cEnglishName["sl"] = "Slovenian"
+
+  $cName["sq"] = ("Albanian (Albania)")
+  $cEnglishName["sq"] = "Albanian"
+
+  $cName["sr"] = ("Serbian (Serbia & Montenegro)")
+  $cEnglishName["sr"] = "Serbian"
+
+  $cName["sv"] = ("Swedish (Sweden)")
+  $cEnglishName["sv"] = "Swedish"
+
+  $cName["tr"] = ("Turkish (Turkey)")
+  $cEnglishName["tr"] = "Turkish"
+  $cCode["tr"] = "tr_TR"
+
+  $cName["uk"] = ("Ukrainian (Ukrain)")
+  $cEnglishName["uk"] = "Ukrainian"
+
+  $cName["vi"] = ("Vietnamese (Vietnam)")
+  $cEnglishName["vi"] = "Vietnamese"
+
+  $cName["wa"] = ("Wallon (Belgium)")
+  $cEnglishName["wa"] = "Wallon"
+
+  $cName["zh"] = ("Simplified chinese (China)")
+  $cName["zh_TW"] = ("Traditional chinese (Taiwan)")
+  $cEnglishName["zh"] = "Chinese"
+  $cCode["zh"] = "zh_CN"
+
+End
+
+Static Public Sub _get(Code As String) As Language
+
+  Return New Language(Code)
+  
+End
+
+
+'' Find a language from its code or its translated name and returns it.
+''
+'' * ~Language~ is the code or name to search. If not specified, [System.Language](/comp/gb/system/language) is used.
+''
+'' If the language is not found, NULL is returned.
+
+Static Public Sub Find(Optional Language As String) As Language
+
+  Dim sName As String
+  Dim sStr As String
+  Dim sKey As String
+  Dim iPos As Integer
+  Dim sLang As String
+  
+  sLang = Language
+  If Not sLang Then sLang = System.Language
+  
+  sName = $cName[sLang]
+  If Not sName Then
+    iPos = InStr(sLang, ".")
+    If iPos Then
+      sLang = Left(sLang, iPos - 1)
+      sName = $cName[sLang]
+      If Not sName Then
+        iPos = InStr(sLang, "_")
+        If iPos Then
+          sLang = Left(sLang, iPos - 1)
+          sName = $cName[sLang]
+        Endif
+      Endif
+    Endif
+  Endif
+  
+  If sName Then
+    
+    sKey = Language
+    
+  Else
+    
+    For Each sStr In $cName
+      If String.Comp(sStr, Language, gb.IgnoreCase) = 0 Then
+        sKey = $cName.Key
+        Break
+      Endif
+    Next
+    
+  Endif
+  
+  If sKey Then Return New Language(sKey)
+  
+End
+
+Public Sub _new(Language As String)
+  
+  $sKey = Language
+  
+End
+
+Private Function Name_Read() As String
+
+  Dim sName As String
+
+  sName = $cName[$sKey]
+  If Not sName Then sName = ("Unknown") & " (" & $sKey & ")"
+  Return sName
+
+End
+
+Private Function EnglishName_Read() As String
+
+  Dim sKey As String
+  Dim iPos As Integer
+  Dim sName As Variant
+
+  sKey = $sKey
+  iPos = InStr(sKey, "_")
+  If iPos Then sKey = Left(sKey, iPos - 1)
+  
+  sName = $cEnglishName[sKey]
+  If Not sName Then sName = "Unknown (" & sKey & ")"
+  Return sName
+
+End
+
+'' Return the translations of the current projet or library as a list of language codes.
+''
+'' * ~Dir~ : Allow to override the directory where the translation files are searched for.
+
+Static Public Sub GetTranslations(Optional Dir As String) As String[]
+
+  Dim aLang As New String[]
+  Dim sStr As String
+  
+  If Dir Then 
+    Dir &/= ".lang"
+  Else
+    Dir = "../.lang"
+  Endif
+  
+  For Each sStr In Dir(Dir, "*.po")
+    aLang.Add(File.BaseName(sStr))
+  Next
+  
+  Return aLang.Sort()
+  
+End
+
+Static Private Function All_Read() As String[]
+
+  Dim aLang As New String[]
+  Dim sStr As String
+  
+  For Each sStr In $cName
+    aLang.Add($cName.Key)
+  Next
+  
+  Return aLang.Sort()
+
+End
+
+Private Function Unknown_Read() As Boolean
+
+  Return $cName.Exist($sKey)
+
+End
+
+Private Function Code_Read() As String
+
+  Dim sCode As String
+
+  sCode = $cCode[$sKey]
+  If Not sCode Then sCode = $sKey
+  Return sCode & ".utf-8"
+
+End
