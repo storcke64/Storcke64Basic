@@ -16,6 +16,8 @@ in maniera facile e veloce. Ma la responsabilità di creare programmi puliti è 
 
 [STARTUP]
 
+<h3>Classe di inizio</h3>
+
 <p>Ogni progetto deve avere una <i>classe di inizio</i>.
  Questa classe di inizio deve definire un metodo pubblico <i> (public)</i> e statico <i>(static)</i>
  denominato <i>Main</i> senza argomenti, che si comporterà come il metodo di inizio del tuo programma</p>
@@ -29,6 +31,8 @@ nel menù a cascata</p>
 
 
 [OPEN]
+
+<h3>Open</h3>
 
 <p>L'Istruzione <b>OPEN</b> di <b>Gambas</b> non si comporta nella stessa maniera
  che in <i>Visual Basic</i>.
@@ -49,6 +53,8 @@ handle = OPEN "ilmiofile" FOR READ</pre>
 
 [CATDIR]
 
+<h3>Concatenazione dei percorsi</h3>
+
 <p>Lo sapevi che puoi concatenare nomi di directory e nomi di file
 con l'operatore <b><tt>&/</tt></b>?
 Questo operatore aggiunge se necessario la <i>slash</i> ("/") in maniera tale che 
@@ -67,6 +73,8 @@ PRINT "/home/gambas/" &/ "/tmp" &/ "foo.bar"
 
 [EXEC]
 
+<h3>Eseguibile</h3>
+
 <p>Puoi realizzare un file eseguibile di tutto il tuo progetto.
  Seleziona <i>Crea eseguibile</i> nel menu  <i>Progetto</i>.</p>
 
@@ -76,6 +84,9 @@ tuo progetto</p>
 
 
 [PATH]
+
+<h3>Percorsi relativi</h3>
+
 <p>
 I percorsi relativi hanno un significato speciale in <b>Gambas</b>.
 Sono sempre riferiti a file dentro il tuo progetto.
@@ -89,6 +100,8 @@ progetto, perché i percorsi assoluti non funzioneranno quando crei l'eseguibile
 
 [GLOBAL]
 
+<h3>Variabili globali</h3>
+
 Non ci sono <u>variabili globali</u> in <b><i>Gambas</i></b>!
 <p>
 Come sostituto, dichiarale nel modulo principale come <tt>PUBLIC</tt>.
@@ -101,6 +114,8 @@ o form: <tt>MyMainModule.MyGlobalVariable</tt> o
 <tt>MyMainForm.MyGlobalVariable</tt>.
 
 [EMPTY]
+
+<h3>Stringhe vuote</h3>
 
 <p>Per sapere se una stringa è vuota non è necessario usare la funzione <b>Len()</b> .
  Puoi direttamente testare la stringa, visto che una stringa vuota è <b>FALSE</b> e una non vuota è <b>TRUE</b>.</p>
@@ -147,6 +162,8 @@ Per esempio:</p>
 
 [EVENT]
 
+<h3>Gestori di eventi</h3>
+
 <p>Tutti i controlli e tutti gli oggetti che possono avere eventi,
  hanno un <i>Osservatore di eventi</i> e un <i>nome di gruppo</i> del evento.</p>
 
@@ -176,6 +193,8 @@ END
 
 [GROUP]
 
+<h3>Gruppi di controlli</h3>
+
 <p>Tutti i controlli hanno una proprietà <i>(Group)</i>.
  Quando questa proprietà è utilizzata, il prefisso del gestore di eventi è il nome del
  gruppo e non il nome  del controllo.</p>
@@ -198,6 +217,8 @@ seguente :</p>
 
 [FORM]
 
+<h3>Form</h3>
+
 <p>Un form è l'osservatore di eventi di se stesso, in questo modo puoi gestire direttamente i suoi eventi (<i>Resize</i>, <i>Activate</i>, ...)
 dentro il codice della sua stessa classe.</p>
 
@@ -205,6 +226,8 @@ dentro il codice della sua stessa classe.</p>
 
 
 [EMBED]
+
+<h3>Incorporare i Form</h3>
 
 <p>Con <b><i>Gambas</i></b> puoi fare in modo che qualsiasi form venga
 racchiuso in un altro form!</p>
@@ -229,6 +252,8 @@ hSuperControl.Move(8, 8, 128, 64)</tt><br>
 
 [TAG]
 
+<h3>Proprietà Tag</h3>
+
 <p>Tutti i controlli hanno una proprietà chiamata <i>Tag</i>
  Questa proprietà è pensata per essere usata dai programmatori e può contenere qualsiasi dato 
 <b>VARIANT</b> che credi utile.</p>
@@ -237,6 +262,8 @@ hSuperControl.Move(8, 8, 128, 64)</tt><br>
 
 
 [LAST]
+
+<h3>Last</h3>
 
 <p>La parola chiave <b>LAST</b> ritorna l'ultimo controllo che ha ricevuto un evento.
  E' molto utile quando vuoi scrivere un gestore di eventi 
@@ -254,6 +281,8 @@ END</tt></p>
 
 
 [LEFT]
+
+<h3>Left$ / Mid$ / Right$</h3>
 
 <p>Le famose routine <b>Left$</b>, <b>Right$</b>, <b>Mid$</b> di <i>BASIC</i>
  hanno un comportamento molto utile in <b><i>Gambas</i></b>.</p>
@@ -517,6 +546,8 @@ dove <tt>&lt;MyApplication&gt;</tt> è il nome del tuo progetto.
 
 
 [END]
+
+<h3>Questo è tutto gente!</h3>
 
 <p>Hai letto tutti i suggerimenti del giorno. Spero che ora tu sia un esperto di <b>Gambas</b> ! :-)</p>
 
