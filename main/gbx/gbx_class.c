@@ -1114,7 +1114,7 @@ static bool check_signature(char type, const CLASS_DESC *desc, const CLASS_DESC 
 
 void CLASS_make_description(CLASS *class, const CLASS_DESC *desc, int n_desc, int *first)
 {
-	static const char *nonher[] = { "_new", "_free", "_init", "_exit", NULL };
+	static const char *nonher[] = { "_new", "_free", "_init", "_exit", "_lang", NULL };
 
 	int ind;
 	int i, j;
@@ -1663,3 +1663,14 @@ CLASS *CLASS_find_load_from(const char *name, const char *from)
 	return class;
 }
 
+
+void CLASS_translation_must_be_reloaded(void)
+{
+	CLASS *class;
+
+	for (class = _classes; class; class = class->next)
+	{
+		if (class->ready && !class->is_native)
+			EXEC_public(class, NULL, "_lang", 0);
+	}
+}

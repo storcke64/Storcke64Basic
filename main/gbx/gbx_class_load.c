@@ -1319,6 +1319,8 @@ void CLASS_run_inits(CLASS *class)
 	/* _init */
 	EXEC_public(class, NULL, "_init", 0);
 	
+	EXEC_public(class, NULL, "_lang", 0);
+	
 	COMPONENT_current = current;
 }
 

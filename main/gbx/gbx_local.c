@@ -1040,6 +1040,7 @@ void LOCAL_set_lang(const char *lang)
 	{
 		_translation_loaded = FALSE;
 		COMPONENT_translation_must_be_reloaded();
+		CLASS_translation_must_be_reloaded();
 	}
 	else
 	{

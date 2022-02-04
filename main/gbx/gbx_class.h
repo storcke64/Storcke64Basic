@@ -522,6 +522,8 @@ int CLASS_sizeof(CLASS *class);
 
 CLASS *CLASS_find_load_from(const char *name, const char *from);
 
+void CLASS_translation_must_be_reloaded(void);
+
 /* class_init.c */
 
 void CLASS_init_native(void);

@@ -1,23 +1,23 @@
 /***************************************************************************
 
-  gbx_c_array.h
+	gbx_c_array.h
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2, or (at your option)
-  any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2, or (at your option)
+	any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-  MA 02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+	MA 02110-1301, USA.
 
 ***************************************************************************/
 
@@ -102,19 +102,19 @@ void CARRAY_release_static(CLASS *class, CLASS_ARRAY *desc, void *data);
 	int __index = (_index); \
 	CARRAY *__array = (CARRAY *)(_array); \
 	void *__data; \
-  if ((__index < 0) || (__index >= __array->count)) \
-  	__data = CARRAY_out_of_bounds(); \
-  else \
- 		__data = (void *)((char *)(__array->data) + __index * __array->size); \
- 	__data; \
+	if ((__index < 0) || (__index >= __array->count)) \
+		__data = CARRAY_out_of_bounds(); \
+	else \
+		__data = (void *)((char *)(__array->data) + __index * __array->size); \
+	__data; \
 })
 
 #define CARRAY_get_data_throw(_array, _index) \
 ({ \
 	int __index = (_index); \
 	CARRAY *__array = (CARRAY *)(_array); \
-  if ((__index < 0) || (__index >= __array->count)) \
-  	THROW(E_BOUND); \
+	if ((__index < 0) || (__index >= __array->count)) \
+		THROW(E_BOUND); \
 	(void *)((char *)(__array->data) + __index * __array->size); \
 })
 
