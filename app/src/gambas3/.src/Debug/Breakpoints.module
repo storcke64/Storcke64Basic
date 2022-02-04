@@ -77,7 +77,7 @@ Private Sub Synchronize()
   
 End
 
-Public Sub GetCommands() As String
+Public Sub GetCommands() As String[]
 
   Dim aResult As New String[]
   Dim aBreakpoints As Integer[]
@@ -90,12 +90,12 @@ Public Sub GetCommands() As String
     sClass = $cBreakpoints.Key
     
     For Each iLine In aBreakpoints
-      aResult.Add("+" & sClass & "." & CStr(iLine + 1) & "\n")
+      aResult.Add("+" & sClass & "." & CStr(iLine + 1))
     Next
     
   Next
 
-  Return aResult.Join("")
+  Return aResult
   
 End
 

@@ -36,7 +36,9 @@ Static Public Sub Open(sPath As String)
   If Not Exist(sPath) Then Return
   
   hProf = New FProfile
+  Project.SetMessage(("Loading profiling file..."))
   hProf.Init(sPath)
+  Project.SetMessage(("OK"), True)
   
 End
 
@@ -396,13 +398,28 @@ Fast Public Sub Init(sPath As String)
           iOldTime = iTime
           
           Dec iLastLine
-          Try aLine[iLastLine] += iTime - iLastTime
-          If Not Error Then 
-            Inc aCount[iLastLine]
-          Else
-            If iLastLine >= 0 Then Debug hCurrent.Name; "."; iLastLine + 1; " ("; aLine.Count; ")"
+          
+          If iLastLine < 0 Then
+            
             hCurrent.FirstTime += iTime - iLastTime
+            
+          Else
+            
+            If iLastLine >= aLine.Count Then
+              aLine.Resize((iLastLine + 128) And Not 127)
+              aCount.Resize(aLine.Count)
+            Endif
+            
+            aLine[iLastLine] += iTime - iLastTime
+            Inc aCount[iLastLine]
+            
           Endif
+          
+          ' If Not Error Then 
+          ' Else
+          '   If iLastLine >= 0 Then Debug hCurrent.Name; "."; iLastLine + 1; " ("; aLine.Count; ")"
+          '   hCurrent.FirstTime += iTime - iLastTime
+          ' Endif
           
           iLastLine = iLine
           
@@ -441,7 +458,7 @@ Fast Public Sub Init(sPath As String)
 Catch
   
   Dec Application.Busy
-  FMain.ShowErrorWith(Subst(("Unable to load profile file: &1"), File.Name(sPath)))
+  FMain.ShowErrorWith(Subst(("Unable to load profile file: &1"), File.Name(sPath)), "*")
   
 End
 

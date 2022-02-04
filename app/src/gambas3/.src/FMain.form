@@ -270,18 +270,6 @@
       Text = ("Debug extern process") & "..."
       Picture = Picture["icon:/small/connect"]
     }
-    { Menu49 Menu
-    }
-    { Menu45 Menu
-      Action = "run-with"
-      Text = ("Program arguments") & "..."
-      Picture = Picture["icon:/small/text-list-order"]
-    }
-    { mnuDebugRemote Menu
-      Action = "run-remote"
-      Text = ("Remote debugging") & "..."
-      Picture = Picture["icon:/small/network"]
-    }
     { Menu14 Menu
     }
     { mnuPause Menu
@@ -395,7 +383,7 @@
     }
     { mnuProfile Menu
       Action = "profile"
-      Text = Shortcut(("Activate profiling"), "g")
+      Text = ("Activate profiling")
       Toggle = True
     }
     { mnuOpenProfile Menu
@@ -407,11 +395,28 @@
     }
     { mnuClearBreakpoints Menu
       Action = "clear-break"
-      Text = Shortcut(("Clear all breakpoints"), "a")
+      Text = ("Clear all breakpoints")
     }
     { mnuClearDebugWindows Menu
       Action = "close-all-debug"
       Text = Shortcut(("Close all debug windows"), "d")
+    }
+    { Menu49 Menu
+    }
+    { mnuDebugInside Menu
+      Action = "debug-inside"
+      Text = ("Debug inside components")
+      Toggle = True
+    }
+    { Menu45 Menu
+      Action = "run-with"
+      Text = ("Program arguments") & "..."
+      Picture = Picture["icon:/small/text-list-order"]
+    }
+    { mnuDebugRemote Menu
+      Action = "run-remote"
+      Text = ("Remote debugging") & "..."
+      Picture = Picture["icon:/small/network"]
     }
   }
   { mnuView Menu
@@ -1272,15 +1277,6 @@
       Menu = "mnuVersionControl"
       MenuOnly = True
     }
-    { btnRunWith ToolButton
-      MoveScaled(89,4,15,4)
-      Visible = False
-      ToolTip = ("Run with arguments")
-      Action = "run-with"
-      AutoResize = True
-      Text = ("Run with") & "..."
-      Picture = Picture["icon:/small/play"]
-    }
     { btnRunRemote ToolButton
       MoveScaled(104,4,4,4)
       Visible = False
@@ -1630,6 +1626,10 @@
     Shortcut = "Ctrl+X"
     Picture = "icon:/small/cut"
   }
+  { Action debug-inside
+    Text = "Debug inside components"
+    Shortcut = ""
+  }
   { Action delete
     Text = "Delete"
     Shortcut = "Del"
@@ -1870,9 +1870,9 @@
     Picture = "icon:/small/play"
   }
   { Action run-with
-    Text = "Run with"
+    Text = "Program arguments"
     Shortcut = ""
-    Picture = "icon:/small/play"
+    Picture = "icon:/small/text-list-order"
   }
   { Action save-project
     Text = "Save project"
@@ -1985,7 +1985,7 @@
 { Toolbars
   { Toolbar main
     Text = ""
-    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with,run-extern"
+    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-extern"
     Default = "new-project,open-project,save-project,save-project-as,project-property,option,|,exec,translate,|,compile,compile-all,test,start,pause,stop,step,forward,return,until,-,find-project,go-back,go-forward,version-control"
   }
 }

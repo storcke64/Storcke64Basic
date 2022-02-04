@@ -169,7 +169,7 @@ Public Sub UpdateProfile()
   aProf = FProfile.FindAll()
   
   panProfile.Children.Clear
-  
+   
   If aProf.Count = 0 Then
     panProfile.Hide
     Return

@@ -318,21 +318,23 @@ End
 
 Private Procedure AddDir(Optional sDir As String)
 
-  Dim cDir As New String[]
+  Dim aDir As New String[]
   Dim sFile As String
   Dim aFile As New String[]
 
   If sDir Then 
-    cDir.Add(sDir)
+    aDir.Add(sDir)
   Else 
-    cDir.Add($sDir)
-    If $sDir <> $sSourceDir Then cDir.Add($sSourceDir)
+    aDir.Add($sDir)
+    If $sDir <> $sSourceDir Then aDir.Add($sSourceDir)
   Endif
+
+  $hTree._Begin()
 
   Repeat
 
-    sDir = cDir[0]
-    cDir.Remove(0)
+    sDir = aDir[0]
+    aDir.Remove(0)
     
     If Not IsDir(sDir) Then Continue
 
@@ -355,14 +357,16 @@ Private Procedure AddDir(Optional sDir As String)
     For Each sFile In aFile
   
       sFile = Mid$(sFile, 2)
-      If AddFile(sDir, sFile, True) Then cDir.Add(sDir &/ sFile)
       'AddFile(sDir, sFile, True)
+      If AddFile(sDir, sFile) Then aDir.Add(sDir &/ sFile)
       
     Next
     
     DoRefreshAfter
     
-  Until cDir.Count = 0
+  Until aDir.Count = 0
+
+  $hTree._End()
 
 End
 

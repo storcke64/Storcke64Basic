@@ -1273,7 +1273,14 @@ Public Sub UpdateMenu()
     Action[sAction].Enabled = bEnabled
   Next
   
-  Action["run-with"].Enabled = bEnabled
+  For Each sAction In ["run-extern", "terminal", "redirect", "httpserver", "gui", "profile", "open-profile", "run-with", "run-remote"]
+    Action[sAction].Enabled = bEnabled
+  Next
+  
+  mnuEnvDbDebug.Enabled = bEnabled
+  mnuEnvJitDebug.Enabled = bEnabled
+  mnuEnvNoJit.Enabled = bEnabled
+  mnuEnvReverse.Enabled = bEnabled
   
   sText = If(Project.Running, ("Continue"), ("Run"))
   mnuRun.Text = sText
@@ -1415,10 +1422,11 @@ Public Sub OnProjectChange()
   mnuFilterModified.Visible = VersionControl.Enabled
   
   txtSearchProject.Clear
-  mnuUseTerminal.Value = Project.UseTerminal
-  mnuRedirectStderr.Value = Project.RedirectStderr
-  mnuUseHttpServer.Value = Project.UseHttpServer
-  mnuProfile.Value = Project.Profiling
+  mnuUseTerminal.Value = Design.UseTerminal
+  mnuRedirectStderr.Value = Design.RedirectStderr
+  mnuUseHttpServer.Value = Design.UseHttpServer
+  mnuProfile.Value = Design.Profiling
+  mnuDebugInside.Value = Design.DebugInside
 
   OnRefreshComponents
   
@@ -1620,20 +1628,23 @@ Public Sub Action_Activate((Key) As String) As Boolean
       CPosition.MoveNext
     
     Case "terminal"
-      Project.UseTerminal = Action["terminal"].Value
-      Project.WriteProject(True)
+      Design.UseTerminal = Action["terminal"].Value
+      Design.WriteSettings
       
     Case "redirect"
-      Project.RedirectStderr = Action["redirect"].Value
-      Project.WriteProject(True)
+      Design.RedirectStderr = Action["redirect"].Value
+      Design.WriteSettings
       
     Case "httpserver"
-      Project.UseHttpServer = Action["httpserver"].Value
-      Project.WriteProject(True)
+      Design.UseHttpServer = Action["httpserver"].Value
+      Design.WriteSettings
       
     Case "profile"
-      Project.Profiling = Action["profile"].Value
-      Project.WriteProject(True)
+      Design.Profiling = Action["profile"].Value
+      Design.WriteSettings
+      
+    Case "debug-inside"
+      Design.SetDebugInside(Action["debug-inside"].Value)
       
     ' Case "breakerr"
     '   Project.BreakOnError = Action["breakerr"].Value
@@ -2294,7 +2305,7 @@ Public Sub ShowErrorWith(sTitle As String, Optional sMsg As String, Optional sKe
   Dim sBacktrace As String
   
   If Not sMsg Or If sMsg = "*" Then 
-    If sMsg = "*" Then sBacktrace = Error.Backtrace.Join(" ")
+    If sMsg = "*" Then Try sBacktrace = Error.Backtrace.Join(" ")
     sMsg = Tr(Error.Text)
     If sMsg Not Ends "." Then sMsg &= "."
     If sBacktrace Then sMsg &= "\n<font size=\"-1\"><tt>" & sBacktrace & "</tt></font>"
