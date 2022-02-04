@@ -237,7 +237,8 @@ Private Sub GetTranslation(sStr As String) As String
   Dim sPath As String
   Dim sTrans As String
   
-  sLang = Language.Find(System.Language)  
+  sLang = MyLanguage.Find(System.Language)  
+  If Error Then Return sStr
   sPath = $sPath &/ ".lang" &/ sLang & ".po"
   If Not Exist(sPath) Then Return sStr
   

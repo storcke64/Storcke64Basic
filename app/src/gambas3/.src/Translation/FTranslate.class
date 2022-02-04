@@ -125,7 +125,7 @@ Private Sub ComputeTransStat(sLang As String, Optional nTrans As Integer)
     .[1] = Min(100, (nStr * 100) \ nTrans) & "% "
     .[2] = CStr(nTrans - nStr) & " "
     .[3] = sLang & ".po"
-    Try .[4] = Project.GetFileSize(Stat(Language.GetPath(sLang, "po")).Size)
+    Try .[4] = Project.GetFileSize(Stat(MyLanguage.GetPath(sLang, "po")).Size)
   End With
 
 End
@@ -155,7 +155,7 @@ Public Sub Form_Open()
   'For Each sLang In Language.GetAll()
   aName = New String[]
   For Each sLang In Project.GetTranslations()
-    sName = Language.ToName(sLang)
+    sName = MyLanguage.ToName(sLang)
     aName.Add(sName)
     cvwLang.Add(sLang, sName)
   Next
@@ -229,10 +229,10 @@ Private Sub SetLang(Optional sLang As String) As Boolean
 
   SaveTranslate
 
-  If Not sLang Then sLang = Language.Find(System.Language)
+  If Not sLang Then sLang = MyLanguage.Find(System.Language)
 
   sDir = Project.Dir &/ ".lang"
-  sPath = Language.GetPath(sLang, "po")
+  sPath = MyLanguage.GetPath(sLang, "po")
 
   'lblFile.Text = File.Name(sPath)
   cmbLang.ToolTip = File.Name(sPath)
@@ -273,7 +273,7 @@ Private Sub SetLang(Optional sLang As String) As Boolean
 
   hTrans = New CTranslation(sLang)
   If cmbLangSource.Index > 0 Then
-    sLangSrc = Language.FromName(cmbLangSource.Text)
+    sLangSrc = MyLanguage.FromName(cmbLangSource.Text)
     hTransSrc = New CTranslation(sLangSrc)
   Endif
 
@@ -314,7 +314,7 @@ Private Sub SetLang(Optional sLang As String) As Boolean
   $sPath = sPath
   $bModify = False
 
-  sName = Language.ToName($sLang)
+  sName = MyLanguage.ToName($sLang)
   Try cvwLang.Add($sLang, sName)
   If Not Error Then cmbLang.Add(sName)
   'If Not Error And If chkStat.Value Then cvwLang[$sLang][1] = "0%"
@@ -334,7 +334,7 @@ Finally
 Catch
 
   sMsg = Error.Text & "\n<tt>" & Error.Backtrace.Join(" ") & "</tt>\n\n" & Trim($sErrMerge)
-  ErrorMessage(Subst(("Cannot read translation file for language '&1'"), Language.ToName(sLang)), sMsg)
+  ErrorMessage(Subst(("Cannot read translation file for language '&1'"), MyLanguage.ToName(sLang)), sMsg)
   $bIgnore = False
   Return True
 
@@ -676,7 +676,7 @@ End
 
 Public Sub cmbLang_Click()
 
-  Dim sLang As String = Language.FromName(cmbLang.Text)
+  Dim sLang As String = MyLanguage.FromName(cmbLang.Text)
 
   If sLang = $sLang Then Return
 
@@ -1043,7 +1043,7 @@ Public Sub btnImport_Click()
 
   Inc Application.Busy
 
-  sPath = Language.GetPath($sLang, "po")
+  sPath = MyLanguage.GetPath($sLang, "po")
 
   'SHELL "msgmerge -o " & Project.Quote(sPath & ".new") & " " & Project.Quote(Dialog.Path) & " " & Project.Quote(sPath) & " 2>/dev/null" WAIT
   'MergeMessage(sPath, "-o " & Quote.Shell(sPath & ".new") & " " & Quote.Shell(Dialog.Path) & " " & Quote.Shell(sPath))
@@ -1482,7 +1482,7 @@ Private Sub UpdateStat()
   'Shell "grep -c \"^msgid\" " & Shell$(Project.Dir &/ ".lang/.pot") To sRes
   'nTrans = Val(sRes) - 1 ' Remove the < msgid "" > line
 
-  For Each sLang In Language.GetAll()
+  For Each sLang In MyLanguage.GetAll()
     If Project.HasTranslation(sLang) Then
       ComputeTransStat(sLang)
     Endif
@@ -1541,8 +1541,8 @@ Public Sub cvwLang_Compare((Key) As String, OtherKey As String)
       iComp = String.Comp(cvwLang[Key][3], cvwLang[OtherKey][3])
 
     Case 4
-      iVal = Stat(Language.GetPath(Key, "po")).Size
-      iOtherVal = Stat(Language.GetPath(OtherKey, "po")).Size
+      iVal = Stat(MyLanguage.GetPath(Key, "po")).Size
+      iOtherVal = Stat(MyLanguage.GetPath(OtherKey, "po")).Size
       If iVal < iOtherVal Then
         iComp = -1
       Else If iVal > iOtherVal Then
@@ -1669,13 +1669,13 @@ Private Sub GetAutomaticTranslation(sText As String) As String
   Inc Application.Busy
   
   If cmbLangSource.Index > 0 Then
-    sLangSrc = Language.FromName(cmbLangSource.Text)
+    sLangSrc = MyLanguage.FromName(cmbLangSource.Text)
   Else
     sLangSrc = Project.DefaultLanguage
   Endif
   sLangSrc = StripLang(sLangSrc)
   
-  sLangDest = StripLang(Language.FromName(cmbLang.Text))
+  sLangDest = StripLang(MyLanguage.FromName(cmbLang.Text))
 
   aText = New String[]
 

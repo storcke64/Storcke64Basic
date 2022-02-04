@@ -84,7 +84,7 @@ Private Sub LoadTranslation(sLang As String)
   Dim cKey As New Collection
   Dim bIgnore As Boolean
   
-  sPath = Language.GetPath(sLang, "po")
+  sPath = MyLanguage.GetPath(sLang, "po")
   If Not Exist(sPath) Then Return 
   
   hFile = Open sPath 

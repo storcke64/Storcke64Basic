@@ -35,7 +35,7 @@
     }
   }
   { ipnOption IconPanel
-    MoveScaled(1,1,95,67)
+    MoveScaled(1,1,97,67)
     Arrangement = Arrange.Vertical
     Spacing = True
     Count = 10
@@ -815,13 +815,29 @@
     Index = 6
     Text = ("Interface")
     Picture = Picture["icon:/large/window"]
+    { HBox13 HBox
+      MoveScaled(0,0,66,4)
+      Spacing = True
+      { Label32 Label
+        MoveScaled(0,0,11,4)
+        Font = Font["Bold"]
+        AutoResize = True
+        Text = ("Language")
+      }
+      { cmbLang ComboBox
+        MoveScaled(32,0,29,4)
+        #Translate = False
+        Expand = True
+        ReadOnly = True
+      }
+    }
     { Label43 Label
-      MoveScaled(0,1,63,3)
+      MoveScaled(0,5,63,3)
       Font = Font["Bold"]
-      Text = ("Interface")
+      Text = ("Options")
     }
     { HBox58 HBox
-      MoveScaled(1,5,66,4)
+      MoveScaled(1,9,66,4)
       Spacing = True
       Indent = True
       { Label57 Label
@@ -835,7 +851,7 @@
       }
     }
     { HBox59 HBox
-      MoveScaled(1,10,66,4)
+      MoveScaled(1,13,66,4)
       Spacing = True
       Indent = True
       { Label71 Label
@@ -849,7 +865,7 @@
       }
     }
     { HBox3 HBox
-      MoveScaled(1,15,66,4)
+      MoveScaled(1,17,66,4)
       Spacing = True
       Indent = True
       { Label10 Label
@@ -863,7 +879,7 @@
       }
     }
     { HBox26 HBox
-      MoveScaled(1,20,66,4)
+      MoveScaled(1,21,66,4)
       Spacing = True
       Indent = True
       { Label15 Label
@@ -891,7 +907,7 @@
       }
     }
     { HBox48 HBox
-      MoveScaled(1,30,66,4)
+      MoveScaled(1,29,66,4)
       Spacing = True
       Indent = True
       { Label58 Label
@@ -905,7 +921,7 @@
       }
     }
     { HBox57 HBox
-      MoveScaled(1,35,66,4)
+      MoveScaled(1,33,66,4)
       Spacing = True
       Indent = True
       { Label49 Label
@@ -919,7 +935,7 @@
       }
     }
     { HBox7 HBox
-      MoveScaled(1,40,66,4)
+      MoveScaled(1,38,66,4)
       Spacing = True
       Indent = True
       { Label2 Label
@@ -934,15 +950,15 @@
       }
     }
     { Panel7 Panel
-      MoveScaled(23,46,4,1)
+      MoveScaled(23,48,4,1)
     }
     { Label1 Label
-      MoveScaled(1,47,63,3)
+      MoveScaled(1,49,63,3)
       Font = Font["Bold"]
       Text = ("Layout")
     }
     { Panel6 HBox
-      MoveScaled(1,50,63,13)
+      MoveScaled(1,53,63,13)
       Expand = True
       Spacing = True
       { gvwLayout GridView

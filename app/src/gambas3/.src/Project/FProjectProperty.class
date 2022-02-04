@@ -66,8 +66,8 @@ Public Sub Form_Open()
   'txtName.Text = "<font size=\"+2\"><b>" & Project.Name & "</b></font><br>" & File.Dir(Project.Dir)
 
   cmbDefaultLanguage.Clear
-  For Each sLang In Language.GetAll()
-    cmbDefaultLanguage.Add(Language.ToName(sLang))
+  For Each sLang In MyLanguage.GetAll()
+    cmbDefaultLanguage.Add(MyLanguage.ToName(sLang))
   Next
   
   With Project
@@ -87,8 +87,8 @@ Public Sub Form_Open()
     txtRelease.Value = .ReleaseVersion
     btnTranslate.Value = .Localize
     cmbType.Index = .Type
-    cmbDefaultLanguage.Text = Language.ToName(System.Language)
-    Try cmbDefaultLanguage.Text = Language.ToName(Project.DefaultLanguage)
+    cmbDefaultLanguage.Text = MyLanguage.ToName(System.Language)
+    Try cmbDefaultLanguage.Text = MyLanguage.ToName(Project.DefaultLanguage)
     ' Select Case .Type
     '   Case .TYPE_NORMAL
     '     radTypeNormal.Value = True
@@ -243,7 +243,7 @@ Private Function DoApply() As Boolean
       Project.DeleteCompiledFiles()
     Endif
     .Localize = btnTranslate.Value
-    .DefaultLanguage = Language.FromName(cmbDefaultLanguage.Text)
+    .DefaultLanguage = MyLanguage.FromName(cmbDefaultLanguage.Text)
     
     .Type = cmbType.Index
 

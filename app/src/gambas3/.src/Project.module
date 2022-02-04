@@ -310,8 +310,14 @@ Public Sub Main()
   Dim iInd As Integer
   Dim sArg As String
   Dim aOpenFile As New String[]
+  Dim sLang As String
 
   'DB.Debug = True
+  
+  sLang = Settings["/Language"]
+  If sLang Then
+    System.Language = Language[sLang].Code
+  Endif
     
   For iInd = 1 To Args.Count - 1
     sArg = Args[iInd]
@@ -6255,7 +6261,7 @@ End
 
 Public Sub Application_Error()
 
-  Try Save
+  If Project.Dir Then Try Save
 
 End
 

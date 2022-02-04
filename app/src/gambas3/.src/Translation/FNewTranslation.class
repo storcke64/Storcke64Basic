@@ -17,9 +17,9 @@ Public Sub Form_Open()
   cvwLanguage.Columns[0].Expand = True
   cvwLanguage.AddColumn(("File"), Desktop.Scale * 12)
   
-  For Each sLang In Language.GetAll()
+  For Each sLang In MyLanguage.GetAll()
     If Project.HasTranslation(sLang) Then Continue
-    cvwLanguage.Add(sLang, Language.ToName(sLang))[1] = sLang & ".po"
+    cvwLanguage.Add(sLang, MyLanguage.ToName(sLang))[1] = sLang & ".po"
   Next
   
   btnOK.Enabled = False

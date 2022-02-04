@@ -103,6 +103,8 @@ Public Sub _new()
   Settings.Read($hLastTheme, "/Editor/Styles")
   $hTheme = $hLastTheme.Copy()
   
+  FillLanguage
+  
   $aConfig = [
     [txtEditorFont, "/Editor/Font", ""],
     [txtConsoleFont, "/ConsoleFont", ""],
@@ -1962,5 +1964,40 @@ End
 Public Sub Form_Resize()
 
   btnClose.Move(Me.ClientW - btnClose.W - Desktop.Scale, Me.ClientH - btnClose.H - Desktop.Scale)
+
+End
+
+Private Sub FillLanguage()
+
+  Dim aLang As String[]
+  Dim I As Integer
+  Dim sLang As String
+
+  aLang = Language.GetTranslations()
+  For I = 0 To aLang.Max
+    aLang[I] = Language[aLang[I]].Name
+  Next
+  aLang.Sort(gb.Language)
+  aLang.Add(("(System configuration)"), 0)
+  cmbLang.List = aLang
+
+  sLang = Settings["/Language"]
+  Object.Lock(cmbLang)
+  If Not sLang Then
+    cmbLang.Index = 0
+  Else
+    cmbLang.Index = cmbLang.Find(Language[sLang].Name)
+  Endif
+  Object.Unlock(cmbLang)
+
+End
+
+Public Sub cmbLang_Click()
+
+  Dim sLang As String
+  
+  If cmbLang.Index > 0 Then Try sLang = Language.Find(cmbLang.Text).Key
+  Settings["/Language"] = sLang
+  NeedRestart
 
 End

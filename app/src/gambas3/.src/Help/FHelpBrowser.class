@@ -27,7 +27,7 @@ Public Sub _new()
   hMenu.Text = ("Default language")
   
   For Each sLang In $aLang
-    aLangName.Add(Language.ToName(sLang) & ":" & sLang)
+    aLangName.Add(MyLanguage.ToName(sLang) & ":" & sLang)
   Next
   aLangName.Sort(gb.Language)
   
@@ -81,7 +81,7 @@ Public Sub Form_Open()
   
   sLang = MHelp.GetLanguage(True)
   If sLang Then
-    btnHome.Text = Language.ToName(sLang)
+    btnHome.Text = MyLanguage.ToName(sLang)
   Else
     btnHome.Text = ("Default language")
   Endif

@@ -1026,7 +1026,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean, sMore As String) As Bo
       hClass = Project.Documentation.Classes[$sEventClass]
       sEvent = Mid$(sText, RInStr(sText, "_") + 1)
       hEvent = hClass.Symbols[":" & sEvent]
-      sText &= hEvent.GetSignature(False)
+      If hEvent Then sText &= hEvent.GetSignature(False)
     Endif
   Endif  
 

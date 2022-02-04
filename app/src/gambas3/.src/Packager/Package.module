@@ -661,7 +661,7 @@ Private Sub PrintTranslatedDesktopEntry(cLine As Collection, sEntry As String, s
   cLine[sEntry] = MakeOneLine(sText)
   
   For Each sLang In Project.GetTranslations()
-    sTrans = CTranslation.FindTranslation(Language.GetPath(sLang, "po"), sText)
+    sTrans = CTranslation.FindTranslation(MyLanguage.GetPath(sLang, "po"), sText)
     If sTrans Then cLine[sEntry & "[" & sLang & "]"] = MakeOneLine(sTrans)
   Next
 
