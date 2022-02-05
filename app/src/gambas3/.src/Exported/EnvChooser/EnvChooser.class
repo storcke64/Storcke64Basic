@@ -4,24 +4,83 @@ Export
 
 Inherits UserControl
 
+Public Const _Properties As String = "*,Border,Menu"
+Public Const _DefaultEvent As String = "Activate"
+Public Const _DefaultSize As String = "36,36"
+Public Const _Group As String = "Chooser"
+
 Property Environment As String[]
 Property Read Current As Integer
+Property Menu As String
+Property Border As Boolean
 
-Event Select
 Event Activate
+Event Change
 
 Private tvwEnv As TableView
+Private panEnv As Panel
 
 Private $aEnv As String[]
+  
+Private {HBox3} As HBox
+Private {btnInsertEnv} As MenuButton
+Private {btnRemoveEnv} As ToolButton
+Private {btnMoveUpEnv} As ToolButton
+Private {btnMoveDownEnv} As ToolButton
 
 Public Sub _new()
-  
-  tvwEnv = New TableView(Me) As "tvwEnv"
 
+  Dim sepEnv As Separator
+  
+  panEnv = New Panel(Me)
+  panEnv.Arrangement = Arrange.Vertical
+  
+  tvwEnv = New TableView(panEnv) As "tvwEnv"
+  tvwEnv.Expand = True
   tvwEnv.Grid = True
   tvwEnv.Border = False
   tvwEnv.Header = GridView.Horizontal
   tvwEnv.Mode = Select.Single
+  
+  sepEnv = New Separator(panEnv)
+  sepEnv.H = 1
+
+  {HBox3} = New HBox(panEnv) As "HBox3"
+  With {HBox3}
+    .Background = Color.TextBackground
+    .H = Desktop.Scale * 4
+  
+    {btnInsertEnv} = New MenuButton({HBox3}) As "btnInsertEnv"
+    With {btnInsertEnv}
+      .AutoResize = True
+      .Text = ("&Add")
+      .Picture = Picture["icon:/small/add"]
+      .Border = False
+      .Arrow = False
+    End With
+  
+    {btnRemoveEnv} = New ToolButton({HBox3}) As "btnRemoveEnv"
+    With {btnRemoveEnv}
+      .Enabled = False
+      .AutoResize = True
+      .Text = Shortcut(("Remove"), "R")
+      .Picture = Picture["icon:/small/remove"]
+    End With
+  
+    {btnMoveUpEnv} = New ToolButton({HBox3}) As "btnMoveUpEnv"
+    With {btnMoveUpEnv}
+      .W = Desktop.Scale * 4
+      .Enabled = False
+      .Picture = Picture["icon:/small/up"]
+    End With
+  
+    {btnMoveDownEnv} = New ToolButton({HBox3}) As "btnMoveDownEnv"
+    With {btnMoveDownEnv}
+      .W = Desktop.Scale * 4
+      .Enabled = False
+      .Picture = Picture["icon:/small/down"]
+    End With
+  End With
 
   tvwEnv.AddColumn("")
   tvwEnv.AddColumn(("Variable"), Desktop.Scale * 16)
@@ -152,10 +211,9 @@ End
 
 Public Sub tvwEnv_Select()
 
-  Raise Select
-  ' btnRemoveEnv.Enabled = tvwEnv.Row >= 0
-  ' btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
-  ' btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
+  btnRemoveEnv.Enabled = tvwEnv.Row >= 0
+  btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
+  btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
 
 End
 
@@ -205,20 +263,23 @@ Public Sub Insert(Optional aEnv As String[])
     Next
   
   Endif
+  
+  Raise Change
 
 End
 
-Public Sub RemoveCurrent()
+Private Sub RemoveCurrent()
   
   If $aEnv.Count = 0 Then Return
   If tvwEnv.Row < 0 Then Return
   tvwEnv.Save
   $aEnv.Remove(tvwEnv.Row)
   UpdateEnv
+  Raise Change
   
 End
 
-Public Sub MoveUpCurrent()
+Private Sub MoveUpCurrent()
 
   Dim iRow As Integer
 
@@ -229,10 +290,11 @@ Public Sub MoveUpCurrent()
   Swap $aEnv[iRow], $aEnv[iRow - 1]
   tvwEnv.Refresh
   tvwEnv.MoveTo(iRow - 1, tvwEnv.Column)
+  Raise Change
 
 End
 
-Public Sub MoveDownCurrent()
+Private Sub MoveDownCurrent()
 
   Dim iRow As Integer
 
@@ -243,6 +305,7 @@ Public Sub MoveDownCurrent()
   Swap $aEnv[iRow], $aEnv[iRow + 1]
   tvwEnv.Refresh
   tvwEnv.MoveTo(iRow + 1, tvwEnv.Column)
+  Raise Change
 
 End
 
@@ -277,5 +340,55 @@ Private Sub Environment_Write(Value As String[])
   Endif
   
   UpdateEnv
+  Raise Change
+
+End
+
+Private Function Menu_Read() As String
+
+  Return btnInsertEnv.Menu
+
+End
+
+Private Sub Menu_Write(Value As String)
+
+  btnInsertEnv.Menu = Value
+  btnInsertEnv.Arrow = Value
+
+End
+
+Public Sub btnRemoveEnv_Click()
+
+  RemoveCurrent()
+
+End
+
+Public Sub btnMoveUpEnv_Click()
+
+  MoveUpCurrent()
+
+End
+
+Public Sub btnMoveDownEnv_Click()
+
+  MoveDownCurrent()
+
+End
+
+Public Sub btnInsertEnv_Click()
+
+  Insert()
+
+End
+
+Private Function Border_Read() As Boolean
+
+  Return panEnv.Border
+
+End
+
+Private Sub Border_Write(Value As Boolean)
+
+  panEnv.Border = If(Value, Border.Plain, Border.None)
 
 End

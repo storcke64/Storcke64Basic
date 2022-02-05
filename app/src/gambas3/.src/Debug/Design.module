@@ -296,7 +296,7 @@ Public Sub Debug_Read(Data As String)
   Dim sWhere As String
   Dim iPos As Integer
 
-  'Debug Quote(Data)
+  'ebug Quote(Data)
   $sBuffer &= Data
   iPos = InStr($sBuffer, "\n") 
   If iPos = 0 Then Return
@@ -1008,6 +1008,7 @@ Private Sub Start(sCmd As String)
   Dim sFifo As String
   Dim sRemoteDebuggerHelper As String
   Dim iCurrentArg As Integer
+  Dim aArguments As String[][]
 
   If Project.Running Then Return
   
@@ -1101,7 +1102,7 @@ Private Sub Start(sCmd As String)
   FDebugInfo.UpdateView
   FDebugInfo.OnProjectDebug
 
-  aEnv = Project.Environment.Copy()
+  aEnv = Project.GetEnvironment()
   If $bRemote Then Try aEnv.Insert(Project.Config["/Debug/RemoteEnvironment"])
   I = 0
   While I < aEnv.Count
@@ -1181,9 +1182,10 @@ Private Sub Start(sCmd As String)
     Endif
     
     iCurrentArg = Project.Config["/Debug/CurrentArgument", 0] - 1
-    If iCurrentArg >= 0 And iCurrentArg < Project.Arguments.Count Then
+    aArguments = Project.Config["/Debug/Arguments"]
+    If aArguments And If iCurrentArg >= 0 And iCurrentArg < aArguments.Count Then
       If Not $bRemote Then aExec.Add("--")
-      aExec.Insert(Project.Arguments[iCurrentArg])
+      aExec.Insert(aArguments[iCurrentArg])
     Endif
     
     If bValgrind Then 
@@ -1481,7 +1483,7 @@ Private Sub Signal()
   If $bStart Then
     If $bExtern Then FDebugInfo.StopWaitForRemote
     'PRINT "START Debug.Write: "; $sCmdStart
-    If $aCmdStart.Count Then WriteCommand($aCmdStart.Join("\n") & "\n")
+    If $aCmdStart.Count Then WriteCommand($aCmdStart.Join("\n"))
     $bStart = False
     'Command("w", TRUE)
     'Command($sCmdStartRun, FALSE, STATE_RUNNING)

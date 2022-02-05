@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,112,73)
+  MoveScaled(0,0,112,78)
   Text = ("Project properties")
   Icon = Picture["icon:/small/properties"]
   Persistent = True
@@ -133,11 +133,11 @@
     }
   }
   { ipnProject IconPanel
-    MoveScaled(1,1,110,66)
+    MoveScaled(1,1,110,71)
     Expand = True
     Arrangement = Arrange.Vertical
     Spacing = True
-    Count = 7
+    Count = 6
     Border = True
     Index = 0
     Text = ("Description")
@@ -301,7 +301,6 @@
         }
         { btnHidden SwitchButton
           MoveScaled(34,0,8,4)
-          Animated = True
         }
       }
       { panCompatible HBox
@@ -525,55 +524,10 @@
       }
     }
     Index = 4
-    Text = ("Environment")
-    Picture = Picture["icon:/large/attach"]
-    { Panel3 Panel
-      MoveScaled(9,9,69,42)
-      Expand = True
-      Arrangement = Arrange.Vertical
-      Border = Border.Plain
-      { choEnv EnvChooser
-        MoveScaled(5,3,16,16)
-        Expand = True
-      }
-      { Separator2 Separator
-        MoveScaled(28,24,15,0)
-      }
-      { HBox3 HBox
-        MoveScaled(1,34,64,4)
-        Background = Color.TextBackground
-        { btnInsertEnv MenuButton
-          MoveScaled(0,0,11,4)
-          AutoResize = True
-          Text = ("&Add")
-          Picture = Picture["icon:/small/add"]
-          Border = False
-          Menu = "mnuInsertEnv"
-        }
-        { btnRemoveEnv ToolButton
-          MoveScaled(12,0,12,4)
-          Enabled = False
-          AutoResize = True
-          Text = Shortcut(("Remove"), "R")
-          Picture = Picture["icon:/small/remove"]
-        }
-        { btnMoveUpEnv ToolButton
-          MoveScaled(24,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/up"]
-        }
-        { btnMoveDownEnv ToolButton
-          MoveScaled(28,0,4,4)
-          Enabled = False
-          Picture = Picture["icon:/small/down"]
-        }
-      }
-    }
-    Index = 5
     Text = ("Options")
     Picture = Picture["icon:/large/options"]
     { Panel6 VBox
-      MoveScaled(0,0,86,64)
+      MoveScaled(0,0,86,71)
       Expand = True
       Spacing = True
       { Label7 Label
@@ -614,7 +568,6 @@
         }
         { btnShowDeprecated SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
       { Label8 Label
@@ -634,7 +587,6 @@
         }
         { btnModulePublic SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
       { HBox11 HBox
@@ -648,7 +600,6 @@
         }
         { btnControlPublic SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
       { HBox5 HBox
@@ -662,7 +613,6 @@
         }
         { btnWarning SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
       { HBox2 HBox
@@ -677,7 +627,6 @@
         { btnCheckPrefix SwitchButton
           MoveScaled(47,0,8,4)
           Enabled = False
-          Animated = True
         }
       }
       { HBox17 HBox
@@ -695,14 +644,36 @@
           Expand = True
         }
       }
+      { HBox3 HBox
+        MoveScaled(1,43,83,4)
+        Spacing = True
+        Indent = True
+        { PictureBox1 PictureBox
+          MoveScaled(0,0,4,4)
+          ToolTip = ("This option will make the compiler claim a specific bytecode version.\n\nBut it won't make the program automatically backward-compatible, and\nmay lead to a crash if the program is run on an older version of the\ninterpreter.")
+          Padding = 4
+          Picture = Picture.Load("icon:/large/warning")
+          Stretch = True
+        }
+        { Label32 Label
+          MoveScaled(5,0,33,4)
+          Expand = True
+          Text = ("Force bytecode version")
+        }
+        { cmbForceBytecodeVersion ComboBox
+          MoveScaled(67,0,8,4)
+          #Translate = False
+          List = ["", "3.8", "3.15"]
+        }
+      }
       { Label19 Label
-        MoveScaled(0,42,84,3)
+        MoveScaled(0,49,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Translation")
       }
       { HBox9 HBox
-        MoveScaled(1,46,83,4)
+        MoveScaled(1,53,83,4)
         Spacing = True
         Indent = True
         { Label24 Label
@@ -712,11 +683,10 @@
         }
         { btnTranslate SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
       { HBox8 HBox
-        MoveScaled(1,51,83,4)
+        MoveScaled(1,58,83,4)
         Spacing = True
         Indent = True
         { Label20 Label
@@ -732,13 +702,13 @@
         }
       }
       { Label27 Label
-        MoveScaled(0,55,84,3)
+        MoveScaled(0,62,84,3)
         Font = Font["Bold"]
         Alignment = Align.BottomNormal
         Text = ("Version control")
       }
       { HBox6 HBox
-        MoveScaled(1,59,83,4)
+        MoveScaled(1,66,83,4)
         Spacing = True
         Indent = True
         { Label23 Label
@@ -748,11 +718,10 @@
         }
         { btnVersionAddBranch SwitchButton
           MoveScaled(47,0,8,4)
-          Animated = True
         }
       }
     }
-    Index = 6
+    Index = 5
     Text = ("Statistics")
     Picture = Picture["icon:/large/statistics"]
     { gvwStat GridView
@@ -769,7 +738,7 @@
     Index = 0
   }
   { Panel10 HBox
-    MoveScaled(25,68,83,4)
+    MoveScaled(25,73,83,4)
     Spacing = True
     { Panel11 Panel
       MoveScaled(0,1,14,3)

@@ -318,31 +318,12 @@
       Text = ("Use embedded HTTP server")
       Toggle = True
     }
+    { mnuDebugInside Menu
+      Action = "debug-inside"
+      Text = ("Debug inside components")
+      Toggle = True
+    }
     { Menu44 Menu
-    }
-    { mnuEnvReverse Menu mnuSetEnv
-      Name = "mnuEnvReverse"
-      Text = ("Invert language orientation")
-      Toggle = True
-      Tag = "GB_REVERSE=1"
-    }
-    { mnuEnvNoJit Menu mnuSetEnv
-      Name = "mnuEnvNoJit"
-      Text = ("Disable just-in-time compiler")
-      Toggle = True
-      Tag = "GB_NO_JIT=1"
-    }
-    { mnuEnvJitDebug Menu mnuSetEnv
-      Name = "mnuEnvJitDebug"
-      Text = ("Show just-in-time compiler debugging messages")
-      Toggle = True
-      Tag = "GB_JIT_DEBUG=1"
-    }
-    { mnuEnvDbDebug Menu mnuSetEnv
-      Name = "mnuEnvDbDebug"
-      Text = ("Show database requests")
-      Toggle = True
-      Tag = "GB_DB_DEBUG=1"
     }
     { mnuGUI Menu
       Action = "gui"
@@ -403,20 +384,9 @@
     }
     { Menu49 Menu
     }
-    { mnuDebugInside Menu
-      Action = "debug-inside"
-      Text = ("Debug inside components")
-      Toggle = True
-    }
-    { Menu45 Menu
-      Action = "run-with"
-      Text = ("Program arguments") & "..."
-      Picture = Picture["icon:/small/text-list-order"]
-    }
-    { mnuDebugRemote Menu
-      Action = "run-remote"
-      Text = ("Remote debugging") & "..."
-      Picture = Picture["icon:/small/network"]
+    { mnuDebugConfig Menu
+      Action = "debug-config"
+      Text = ("Configuration") & "..."
     }
   }
   { mnuView Menu
@@ -1626,6 +1596,10 @@
     Shortcut = "Ctrl+X"
     Picture = "icon:/small/cut"
   }
+  { Action debug-config
+    Text = "Configuration"
+    Shortcut = ""
+  }
   { Action debug-inside
     Text = "Debug inside components"
     Shortcut = ""
@@ -1859,20 +1833,10 @@
     Shortcut = ""
     Picture = "icon:/small/connect"
   }
-  { Action run-remote
-    Text = "Remote debugging"
-    Shortcut = ""
-    Picture = "icon:/small/network"
-  }
   { Action run-that
     Text = "Run this class"
     Shortcut = ""
     Picture = "icon:/small/play"
-  }
-  { Action run-with
-    Text = "Program arguments"
-    Shortcut = ""
-    Picture = "icon:/small/text-list-order"
   }
   { Action save-project
     Text = "Save project"

@@ -7,12 +7,6 @@ Public Sub Run() As Boolean
 End
 
 
-Public Sub btnRemoteDebugging_Click()
-
-  panRemoteDebugging.Enabled = btnRemoteDebugging.Value
-  
-End
-
 Public Sub btnCancel_Click()
 
   Me.Close
@@ -30,6 +24,12 @@ Public Sub Form_Open()
   
   choEnv.Environment = Project.Config["/Debug/RemoteEnvironment"]
 
+End
+
+Public Sub btnRemoteDebugging_Click()
+
+  panRemoteDebugging.Enabled = btnRemoteDebugging.Value
+  
 End
 
 Public Sub txtRemotePassword_Click()

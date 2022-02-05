@@ -1277,10 +1277,10 @@ Public Sub UpdateMenu()
     Action[sAction].Enabled = bEnabled
   Next
   
-  mnuEnvDbDebug.Enabled = bEnabled
-  mnuEnvJitDebug.Enabled = bEnabled
-  mnuEnvNoJit.Enabled = bEnabled
-  mnuEnvReverse.Enabled = bEnabled
+  'mnuEnvDbDebug.Enabled = bEnabled
+  'mnuEnvJitDebug.Enabled = bEnabled
+  'mnuEnvNoJit.Enabled = bEnabled
+  'mnuEnvReverse.Enabled = bEnabled
   
   sText = If(Project.Running, ("Continue"), ("Run"))
   mnuRun.Text = sText
@@ -1307,7 +1307,7 @@ Public Sub UpdateMenu()
   
   bVisible = False
   If Project.Components Then
-    mnuEnvDbDebug.Visible = Project.Components.Exist("gb.db")
+    'mnuEnvDbDebug.Visible = Project.Components.Exist("gb.db")
   
     If Project.Components.Exist("gb.gui") Or If Project.Components.Exist("gb.gui.qt") Then
       bVisible = True
@@ -1368,14 +1368,18 @@ Private Sub UpdateArguments()
   Dim I As Integer
   Dim hMenu As Menu
   Dim iCurrent As Integer
+  Dim aArguments As String[][]
   
-  If Project.Arguments.Count Then
-    btnGo.Menu = "mnuArguments"
-  Else
-    btnGo.Menu = ""
-  Endif
+  aArguments = Project.Config["/Debug/Arguments"]
   
   mnuArguments.Children.Clear
+  
+  If Not aArguments Or If aArguments.Count = 0 Then
+    btnGo.Menu = ""
+    Return
+  Endif
+
+  btnGo.Menu = "mnuArguments"
   
   iCurrent = Project.Config["/Debug/CurrentArgument", 0]
   
@@ -1387,9 +1391,9 @@ Private Sub UpdateArguments()
   
   hMenu = New Menu(mnuArguments)
   
-  For I = 0 To Project.Arguments.Max
+  For I = 0 To aArguments.Max
     hMenu = New Menu(mnuArguments) As "mnuArgument"
-    hMenu.Text = Project.ArgumentsToString(Project.Arguments[I])
+    hMenu.Text = Project.ArgumentsToString(aArguments[I])
     hMenu.Radio = True
     hMenu.Value = iCurrent = (I + 1)
     hMenu.Tag = I + 1
@@ -1538,8 +1542,6 @@ Public Sub Action_Activate((Key) As String) As Boolean
       panProject.Hidden = Not Action[Key].Value
     Case "start"
       Project.Run(False, Design.ACTION_RUN)
-    Case "run-with"
-      If Not FArguments.Run() Then UpdateArguments 'Then Project.Run(False, Design.ACTION_RUN_WITH)
     Case "run-extern"
       Project.Run(False, Design.ACTION_RUN_EXTERN)
     Case "run-remote"
@@ -1646,6 +1648,17 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "debug-inside"
       Design.SetDebugInside(Action["debug-inside"].Value)
       
+    Case "run-with"
+      If Not FArguments.Run() Then UpdateArguments 'Then Project.Run(False, Design.ACTION_RUN_WITH)
+      
+    Case "debug-config"
+      If Not FDebugConfig.Run() Then
+        UpdateMenu
+        UpdateRemote
+        UpdateArguments
+        OnRefreshComponents
+      Endif
+
     ' Case "breakerr"
     '   Project.BreakOnError = Action["breakerr"].Value
     '   Project.WriteProject(True)
@@ -2788,12 +2801,12 @@ Public Sub OnRefreshComponents()
     If sComp Then hMenu.Visible = Project.Documentation.Components.Exist(sComp)
   Next
   
-  aEnv = Project.Environment
+  aEnv = Project.GetEnvironment()
   
   hMenu = Null
   iPos = aEnv.Find("GB_GUI=*", gb.Like)
   If iPos >= 0 Then
-    sComp = Project.Environment[iPos]
+    sComp = aEnv[iPos]
     For Each hMenu In mnuGUI.Children
       If hMenu.Visible And If hMenu.Tag = sComp Then
         btnGUI.Text = hMenu.Text
@@ -2809,59 +2822,13 @@ Public Sub OnRefreshComponents()
     mnuSetGUICurrentDesktop.Checked = True
   Endif
   
-  For Each hMenu In [mnuEnvReverse, mnuEnvNoJit, mnuEnvDbDebug, mnuEnvJitDebug]
-    hMenu.Checked = aEnv.Exist(hMenu.Tag)
-  Next
-  
 End
 
 Public Sub mnuSetEnv_Click()
   
-  Dim iPos As Integer
-  Dim aEnv As String[]
-  Dim sEnv As String
-  Dim sVar As String
-  Dim sValue As String
-  Dim hMenu As Menu
-
-  hMenu = Last
-  
-  sEnv = hMenu.Tag
-  iPos = InStr(sEnv, "=")
-  sVar = Left(sEnv, iPos - 1)
-  sValue = Mid(sEnv, iPos + 1)
-  
-  aEnv = Project.Environment
-  
-  For iPos = 0 To aEnv.Max
-    If LTrim(aEnv[iPos]) Begins (sVar & "=") Then Break
-  Next
-  If iPos >= aEnv.Count Then iPos = -1
-  
-  If Not sValue Then
-    If iPos >= 0 Then 
-      aEnv.Remove(iPos)
-      Goto WRITE_PROJECT
-    Endif
-  Else
-    If iPos < 0 Then
-      aEnv.Add(sEnv, 0)
-      Goto WRITE_PROJECT
-    Else If aEnv[iPos] <> sEnv Then
-      aEnv[iPos] = sEnv
-      Goto WRITE_PROJECT
-    Else If hMenu.Toggle
-      aEnv.Remove(iPos)
-      Goto WRITE_PROJECT
-    Endif
+  If Project.SetEnv(Last.Tag, True) Then
+    OnRefreshComponents
   Endif
-  
-  Return
-  
-WRITE_PROJECT:
-
-  Project.WriteProject(True)
-  OnRefreshComponents
   
 End
 
