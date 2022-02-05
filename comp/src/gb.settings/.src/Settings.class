@@ -629,42 +629,92 @@ Static Public Sub ToString(Value As Variant) As String
   
 End
 
-Static Private Sub GetChar() As String
+Static Private Sub ConvertArray(aArray As Variant[]) As Object
+
+  Dim iType As Integer
+  Dim iInd As Integer
+  Dim aBoolean As Boolean[]
+  Dim aInteger As Integer[]
+  Dim aFloat As Float[]
+  Dim aString As String[]
+  Dim aObject As Object[]
   
-  Dim sCar As String
+  iType = TypeOf(aArray[0])
+  For iInd = 1 To aArray.Max
+    If TypeOf(aArray[iInd]) <> iType Then Return aArray
+  Next
   
-  If $iPos > Len($sStr) Then Return
-  sCar = Mid$($sStr, $iPos, 1)
-  Inc $iPos
-  Return sCar
+  Select Case iType
+    Case gb.Boolean
+      aBoolean = aArray
+      Return aBoolean
+    Case gb.Integer
+      aInteger = aArray
+      Return aInteger
+    Case gb.Float
+      aFloat = aArray
+      Return aFloat
+    Case gb.String
+      aString = aArray
+      Return aString
+    Case gb.Object
+      aObject = aArray
+      Return aObject
+    Default
+      Return aArray
+  End Select
   
 End
 
-
-Static Private Sub ReadChar() As String
-  
-  Dim sCar As String
-
-  Do
-    sCar = GetChar()
-    If Not sCar Then Return
-    If sCar > " " Then Return sCar
-  Loop
-  
-End
-
-
-Static Private Sub ReadToken() As String
+Static Private Sub ReadValue(Optional bNotStrict As Boolean) As Variant
   
   Dim sToken As String
   Dim sCar As String
-
-  sCar = ReadChar()
-  If Not IsLetter(sCar) Then Return sCar
+  Dim sString As String
+  Dim iPos As Integer
+  Dim cObject As Collection
+  Dim sKey As String
+  Dim aArray As Object
+  Dim aVariant As Variant[]
+  Dim vNumber As Variant
+  Dim bFloat As Boolean
+  Dim sNumber As String
   
+  'sCar = ReadToken()
+  GoSub READ_TOKEN
+  
+  If sToken = "{" Then
+    GoSub READ_OBJECT
+    Return cObject
+  Else If sToken = "[" Then
+    GoSub READ_ARRAY
+    Return aArray
+  Else If sToken = Chr$(34) Then
+    GoSub READ_STRING
+    Return sString
+  Else If sToken = "-" Or If IsDigit(sToken) Then
+    GoSub READ_NUMBER
+    Return vNumber
+  Else If sToken == "null" Then
+    Return Null
+  Else If sToken == "true" Then
+    Return True
+  Else If sToken == "false" Then
+    Return False
+  Else If bNotStrict Then
+    Return $sStr
+  Else
+    Error.Raise("Incorrect token: " & Quote(sCar))
+  Endif
+  
+READ_TOKEN:
+  
+  GoSub READ_CHAR
   sToken = sCar
+  If Not IsLetter(sCar) Then Return
+
   Do
-    sCar = GetChar()
+    GoSub GET_CHAR
     If Not sCar Then Break
     If Not IsLetter(sCar) Then 
       Dec $iPos
@@ -673,22 +723,35 @@ Static Private Sub ReadToken() As String
     sToken &= sCar
   Loop
   
-  Return sToken
-  
-End
+  Return
 
-Static Private Sub ReadString() As String
+GET_CHAR:  
   
-  Dim sCar As String
-  Dim sString As String
-  Dim iPos As Integer
+  If $iPos > Len($sStr) Then 
+    sCar = ""
+    Return
+  Endif
+  sCar = Mid$($sStr, $iPos, 1)
+  Inc $iPos
+  Return
+
+READ_CHAR:
+
+  Do
+    GoSub GET_CHAR
+    If Not sCar Or If sCar > " " Then Return
+  Loop
+  
+READ_STRING:
+  
+  sString = ""
   
   Do
-    sCar = GetChar()
+    GoSub GET_CHAR
     If Not sCar Then Error.Raise("Non terminated string")
     If sCar = Chr$(34) Then Return sString
     If sCar = "\\" Then
-      sCar = GetChar()
+      GoSub GET_CHAR
       If Not sCar Then Error.Raise("Non terminated string")
       iPos = InStr("bfrtn", sCar)
       If iPos Then
@@ -703,84 +766,52 @@ Static Private Sub ReadString() As String
     sString &= sCar
   Loop
   
-End
+READ_OBJECT:
 
-Static Private Sub ReadObject() As Collection
-  
-  Dim sCar As String
-  Dim cObject As New Collection
-  Dim sKey As String
+  cObject = New Collection
   
   Do
-    sCar = ReadChar()
-    If sCar = "}" Then Return cObject
+    GoSub READ_CHAR
+    If sCar = "}" Then Return
     If sCar <> Chr$(34) Then Error.Raise("String expected")
-    sKey = ReadString()
-    sCar = ReadChar()
+    GoSub READ_STRING
+    sKey = sString
+    GoSub READ_CHAR
     If sCar <> ":" Then Error.Raise("Colon expected")
     cObject[sKey] = ReadValue()
-    sCar = ReadChar()
+    GoSub READ_CHAR
     If sCar = "}" Then Return cObject
     If sCar <> "," Then Error.Raise("Comma expected")
   Loop
   
-End
+READ_ARRAY:
 
-Static Private Sub ReadArray() As Array
-  
-  Dim sCar As String
-  Dim aArray As New Variant[]
-  Dim iInd As Integer
-  Dim iType As Integer
-  Dim aTypedArray As Object
+  aVariant = New Variant[]
   
   Do
-    sCar = ReadChar()
+    GoSub READ_CHAR
     If sCar = "]" Then Break
     Dec $iPos
-    aArray.Add(ReadValue())
-    sCar = ReadChar()
+    aVariant.Add(ReadValue())
+    GoSub READ_CHAR
     If sCar = "]" Then Break
     If sCar <> "," Then Error.Raise("Comma expected")
   Loop
   
-  If aArray.Count = 0 Then Return Null
-  iType = TypeOf(aArray[0])
-  For iInd = 1 To aArray.Max
-    If TypeOf(aArray[iInd]) <> iType Then Return aArray
-  Next
+  If aVariant.Count = 0 Then
+    aArray = Null
+    Return
+  Endif
   
-  Select Case iType
-    Case gb.Boolean
-      aTypedArray = New Boolean[aArray.Count]
-    Case gb.Integer
-      aTypedArray = New Integer[aArray.Count]
-    Case gb.Float
-      aTypedArray = New Float[aArray.Count]
-    Case gb.String
-      aTypedArray = New String[aArray.Count]
-    Case gb.Object
-      aTypedArray = New Object[aArray.Count]
-    Default
-      aTypedArray = New Variant[aArray.Count]
-  End Select
+  aArray = ConvertArray(aVariant)
+  Return
   
-  For iInd = 0 To aArray.Max
-    aTypedArray[iInd] = aArray[iInd]
-  Next
-  Return aTypedArray
-  
-End
+READ_NUMBER:
 
-Static Private Sub ReadNumber(sNumber As String) As Variant
-  
-  Dim sCar As String
-  Dim vNumber As Variant
-  Dim bFloat As Boolean
-  Dim iPos As Integer
+  sNumber = sCar
   
   Do
-    sCar = GetChar()
+    GoSub GET_CHAR
     If Not sCar Then Break
     iPos = InStr(".eE-+0123456789", sCar)
     If iPos = 0 Then 
@@ -797,63 +828,7 @@ Static Private Sub ReadNumber(sNumber As String) As Variant
     Try vNumber = CInt(sNumber)
   Endif
   If IsNull(vNumber) Then Error.Raise("Incorrect number")
-  Return vNumber
-  
-End
-
-' Static Private Sub ReadType() As Integer
-'   
-'   Dim sCar As String
-'   Dim iPos As Integer
-'   
-'   iPos = $iPos
-'   sCar = ReadToken()
-'   
-'   If sCar = "{" Then
-'     Return gb.Variant
-'   Else If sCar = "[" Then
-'     Return gb.Object
-'   Else If sCar = Chr$(34) Then
-'     Return gb.String
-'   Else If sCar = "-" Or If IsDigit(sCar) Then
-'     Return TypeOf(ReadNumber(sCar))
-'   Else If sCar = "null" Then
-'     Return gb.Null
-'   Else If sCar == "true" Or If sCar == "false" Then
-'     Return gb.Boolean
-'   Else
-'     Error.Raise("Incorrect token: " & Quote(sCar))
-'   Endif
-'   
-'   $iPos = iPos
-'   
-' End
-
-Static Private Sub ReadValue(Optional bNotStrict As Boolean) As Variant
-  
-  Dim sCar As String
-  
-  sCar = ReadToken()
-  
-  If sCar = "{" Then
-    Return ReadObject()
-  Else If sCar = "[" Then
-    Return ReadArray()
-  Else If sCar = Chr$(34) Then
-    Return ReadString()
-  Else If sCar = "-" Or If IsDigit(sCar) Then
-    Return ReadNumber(sCar)
-  Else If sCar == "null" Then
-    Return Null
-  Else If sCar == "true" Then
-    Return True
-  Else If sCar == "false" Then
-    Return False
-  Else If bNotStrict Then
-    Return $sStr
-  Else
-    Error.Raise("Incorrect token: " & Quote(sCar))
-  Endif
+  Return
   
 End
 
