@@ -764,6 +764,21 @@ static void make_component_list()
 	qsort(_components, ARRAY_count(_components), sizeof(*_components), (int (*)(const void *, const void *))compare_components);
 }
 
+static void print_version()
+{
+	#ifdef TRUNK_VERSION
+	printf(VERSION " " TRUNK_VERSION "\n");
+	#else /* no TRUNK_VERSION */
+	printf(VERSION "\n");
+	#endif
+}
+
+static void print_title()
+{
+	printf("\nGambas informer version ");
+	print_version();
+}
+
 int main(int argc, char **argv)
 {
 	int i;
@@ -787,12 +802,7 @@ int main(int argc, char **argv)
 		switch (opt)
 		{
 			case 'V':
-				#ifdef TRUNK_VERSION
-				printf(VERSION " " TRUNK_VERSION "\n");
-				#else /* no TRUNK_VERSION */
-				printf(VERSION "\n");
-				#endif
-				exit(0);
+				print_version();
 
 			case 'v':
 				_verbose = TRUE;
@@ -813,19 +823,18 @@ int main(int argc, char **argv)
 				break;
 				
 			case 'L':
-				printf(
-					"\nGAMBAS Component Informer version " VERSION "\n"
-					COPYRIGHT
-					);
+				print_title();
+				printf(COPYRIGHT);
 				exit(0);
 
 			case 'h':
+				print_title();
 				printf(
 					"\nGenerate component description files.\n"
-					"\nUsage: gbi" GAMBAS_VERSION_STRING " [options] [components]\n"
+					"\n    gbi" GAMBAS_VERSION_STRING " [options] [components]\n"
 					"\nOptions:"
 					#if HAVE_GETOPT_LONG
-					"\n"
+					"\n\n"
 					"  -h  --help                 display this help\n"
 					"  -L  --license              display license\n"
 					#if DO_PRELOADING
@@ -835,7 +844,7 @@ int main(int argc, char **argv)
 					"  -v                         verbose output\n"
 					"  -V  --version              display version\n"
 					#else
-					" (no long options on this system)\n"
+					" (no long options on this system)\n\n"
 					"  -h                         display this help\n"
 					"  -L                         display license\n"
 					#if DO_PRELOADING

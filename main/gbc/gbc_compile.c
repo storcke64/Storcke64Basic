@@ -66,6 +66,7 @@ char *COMP_classes = NULL;
 COMPILE COMP_current;
 uint COMPILE_version = GAMBAS_PCODE_VERSION;
 char *COMP_default_namespace = NULL;
+bool COMP_do_not_lock = FALSE;
 
 #define STARTUP_MAX_LINE 256
 
@@ -661,6 +662,9 @@ int COMPILE_lock_file(const char *name)
 	const char *path;
 	int fd;
 	
+	if (COMP_do_not_lock)
+		return -1;
+	
 	path = FILE_cat(COMP_dir, name, NULL);
 	
 	fd = open(path, O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
@@ -679,13 +683,17 @@ __ERROR:
 
 void COMPILE_unlock_file(int fd)
 {
-	close(fd);
+	if (!COMP_do_not_lock)
+		close(fd);
 }
 
 
 void COMPILE_remove_lock(const char *name)
 {
 	const char *path;
+	
+	if (COMP_do_not_lock)
+		return;
 	
 	path = FILE_cat(COMP_dir, name, NULL);
 	if (FILE_exist(path))

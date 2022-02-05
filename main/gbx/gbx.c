@@ -216,6 +216,12 @@ static void print_version()
 #endif
 }
 
+static void print_title()
+{
+	printf("\nGambas interpreter version ");
+	print_version();
+}
+
 int main(int argc, char *argv[])
 {
 	CLASS_DESC_METHOD *startup = NULL;
@@ -243,29 +249,35 @@ int main(int argc, char *argv[])
 	{
 		if (is_long_option(argv[1], 'h', "help"))
 		{
+			print_title();
+			
 			if (EXEC_arch)
 			{
 				printf(
 					"\nExecute a Gambas executable.\n"
-					"\nUsage: gbr" GAMBAS_VERSION_STRING " [options] <executable file> [<arguments>]\n\n"
+					"\n    gbr" GAMBAS_VERSION_STRING " [options] <executable file> [<arguments>]\n\n"
 					);
 			}
 			else
 			{
 				printf(
-					"\nExecute a Gambas project or evaluate a Gambas expression (-e option).\n"
-					"\nUsage: gbx" GAMBAS_VERSION_STRING " [options] [<project directory>] [-- <arguments>]\n"
-					"       gbx" GAMBAS_VERSION_STRING " -e <expression>\n\n"
+					"\nExecute a Gambas project.\n"
+					"\n    gbx" GAMBAS_VERSION_STRING " [options] [<project directory>] [-- <arguments>]\n"
+					"\nEvaluate a Gambas expression.\n"
+					"\n    gbx" GAMBAS_VERSION_STRING " -e <expression>\n\n"
 					);
 			}
 
-			printf("Options:\n");
+			printf("Options:\n\n");
+			
+			printf(
+				"  -a <path>       override application path\n"
+			);
 			
 			if (!EXEC_arch)
 				printf("  -e              evaluate an expression\n");
-
+			
 			printf(
-				"  -a <path>       override application path\n"
 				"  -g              enter debugging mode\n"
 				"  -h --help       display this help\n"
 				"  -H --httpd      run through an embedded http server\n"
@@ -291,8 +303,7 @@ int main(int argc, char *argv[])
 		}
 		else if (is_long_option(argv[1], 'L', "license"))
 		{
-			printf("\nGambas interpreter version ");
-			print_version();
+			print_title();
 			printf(COPYRIGHT);
 			my_exit(0);
 		}
