@@ -1,9 +1,8 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,107,68)
+  MoveScaled(0,0,90,68)
   Text = ("Debugger configuration")
-  Resizable = False
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
@@ -156,7 +155,6 @@
       }
       { btnUseTerminal SwitchButton
         MoveScaled(47,0,8,4)
-        Tag = "GB_DB_DEBUG=1"
       }
     }
     { HBox10 HBox
@@ -170,7 +168,6 @@
       }
       { btnRedirectStderr SwitchButton
         MoveScaled(47,0,8,4)
-        Tag = "GB_DB_DEBUG=1"
       }
     }
     { HBox11 HBox
@@ -184,7 +181,6 @@
       }
       { btnUseHttpServer SwitchButton
         MoveScaled(47,0,8,4)
-        Tag = "GB_DB_DEBUG=1"
       }
     }
     { HBox5 HBox
@@ -253,6 +249,7 @@
     { lstArg ListEditor
       MoveScaled(5,2,50,25)
       Expand = True
+      Wrap = True
       Unique = True
     }
     Index = 2

@@ -1426,11 +1426,11 @@ Public Sub OnProjectChange()
   mnuFilterModified.Visible = VersionControl.Enabled
   
   txtSearchProject.Clear
-  mnuUseTerminal.Value = Design.UseTerminal
-  mnuRedirectStderr.Value = Design.RedirectStderr
-  mnuUseHttpServer.Value = Design.UseHttpServer
-  mnuProfile.Value = Design.Profiling
-  mnuDebugInside.Value = Design.DebugInside
+  ' mnuUseTerminal.Value = Design.UseTerminal
+  ' mnuRedirectStderr.Value = Design.RedirectStderr
+  ' mnuUseHttpServer.Value = Design.UseHttpServer
+  mnuProfile.Value = Project.Config["/Debug/Profiling"]
+  mnuDebugInside.Value = Project.Config["/Debug/DebugInside"]
 
   OnRefreshComponents
   
@@ -1544,8 +1544,6 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.Run(False, Design.ACTION_RUN)
     Case "run-extern"
       Project.Run(False, Design.ACTION_RUN_EXTERN)
-    Case "run-remote"
-      If Not FDebugRemote.Run() Then UpdateRemote
     Case "test"
       Project.Test()
     Case "test-suite"
@@ -1629,27 +1627,23 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "go-forward"
       CPosition.MoveNext
     
-    Case "terminal"
-      Design.UseTerminal = Action["terminal"].Value
-      Design.WriteSettings
-      
-    Case "redirect"
-      Design.RedirectStderr = Action["redirect"].Value
-      Design.WriteSettings
-      
-    Case "httpserver"
-      Design.UseHttpServer = Action["httpserver"].Value
-      Design.WriteSettings
+    ' Case "terminal"
+    '   Project.Config["/Debug/UseTerminal"] = Action["terminal"].Value
+    '   
+    ' Case "redirect"
+    '   Project.Config["/Debug/RedirectStderr"] = Action["redirect"].Value
+    '   
+    ' Case "httpserver"
+    '   Project.Config["/Debug/UseHttpServer"] = Action["httpserver"].Value
       
     Case "profile"
-      Design.Profiling = Action["profile"].Value
-      Design.WriteSettings
+      Project.Config["/Debug/Profiling"] = Action["profile"].Value
       
     Case "debug-inside"
       Design.SetDebugInside(Action["debug-inside"].Value)
       
-    Case "run-with"
-      If Not FArguments.Run() Then UpdateArguments 'Then Project.Run(False, Design.ACTION_RUN_WITH)
+    ' Case "run-with"
+    '   If Not FArguments.Run() Then UpdateArguments 'Then Project.Run(False, Design.ACTION_RUN_WITH)
       
     Case "debug-config"
       If Not FDebugConfig.Run() Then

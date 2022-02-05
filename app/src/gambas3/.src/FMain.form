@@ -270,6 +270,11 @@
       Text = ("Debug extern process") & "..."
       Picture = Picture["icon:/small/connect"]
     }
+    { mnuDebugInside Menu
+      Action = "debug-inside"
+      Text = ("Debug inside components")
+      Toggle = True
+    }
     { Menu14 Menu
     }
     { mnuPause Menu
@@ -307,21 +312,19 @@
       Action = "terminal"
       Text = Shortcut(("Use terminal emulator"), "t")
       Toggle = True
+      Visible = False
     }
     { mnuRedirectStderr Menu
       Action = "redirect"
       Text = ("Redirect standard error output")
       Toggle = True
+      Visible = False
     }
     { mnuUseHttpServer Menu
       Action = "httpserver"
       Text = ("Use embedded HTTP server")
       Toggle = True
-    }
-    { mnuDebugInside Menu
-      Action = "debug-inside"
-      Text = ("Debug inside components")
-      Toggle = True
+      Visible = False
     }
     { Menu44 Menu
     }

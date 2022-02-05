@@ -2,11 +2,11 @@
 
 Private Const DEBUG_REMOTE As Boolean = False
 
-Public UseTerminal As Boolean
-Public RedirectStderr As Boolean
-Public UseHttpServer As Boolean
-Public Profiling As Boolean
-Public DebugInside As Boolean
+Private UseTerminal As Boolean
+Private RedirectStderr As Boolean
+Private UseHttpServer As Boolean
+Private Profiling As Boolean
+Private DebugInside As Boolean
 
 Private $iProfileIndex As Integer
 
@@ -1013,6 +1013,8 @@ Private Sub Start(sCmd As String)
   If Project.Running Then Return
   
   '$cShow.Clear
+  
+  ReadSettings
 
   $bConsole = Action["console"].Value  
 
@@ -1600,19 +1602,18 @@ Public Sub ReadDebugSettings()
 
 End
 
-Public Sub WriteSettings()
-  
-  Project.Config["/Debug/UseTerminal"] = UseTerminal
-  Project.Config["/Debug/RedirectStderr"] = RedirectStderr
-  Project.Config["/Debug/UseHttpServer"] = UseHttpServer 
-  Project.Config["/Debug/Profiling"] = Profiling
-  Project.Config["/Debug/DebugInside"] = DebugInside
-
-End
+' Public Sub WriteSettings()
+'   
+'   Project.Config["/Debug/UseTerminal"] = UseTerminal
+'   Project.Config["/Debug/RedirectStderr"] = RedirectStderr
+'   Project.Config["/Debug/UseHttpServer"] = UseHttpServer 
+'   Project.Config["/Debug/Profiling"] = Profiling
+'   Project.Config["/Debug/DebugInside"] = DebugInside
+' 
+' End
 
 Public Sub WriteDebugSettings()
   
-  WriteSettings
   FDebugInfo.WriteWatchSettings()
   FDebugExpr.WriteSettings()
 
@@ -1786,7 +1787,7 @@ End
 Public Sub SetDebugInside(bVal As Boolean)
   
   DebugInside = bVal
-  WriteSettings
+  Project.Config["/Debug/DebugInside"] = bVal
   If Project.Running Then WriteCommand("og" & If(bVal, "+", "-"))
   
 End

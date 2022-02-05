@@ -38,7 +38,7 @@ Static Public Sub Open(sPath As String)
   hProf = New FProfile
   Project.SetMessage(("Loading profiling file..."))
   hProf.Init(sPath)
-  Project.SetMessage(("OK"), True)
+  Project.SetMessage(("Loading profiling file...") & ("OK"))
   
 End
 
@@ -179,14 +179,26 @@ Fast Public Sub Init(sPath As String)
   Dim sTitle As String
   Dim bVer As Boolean
   Dim hEventLoop As CProfile
+  Dim iLenFile As Long
+  Dim iProgress As Integer
+  Dim iLastProgress As Integer
   
   Inc Application.Busy
   
   Path = sPath
   
   hFile = Open sPath
+  iLenFile = Lof(hFile)
   
-  For Each sLine In hFile.Lines
+  While Not Eof(hFile)
+  
+    Line Input #hFile, sLine
+    
+    iProgress = CInt(100 * Seek(hFile) / iLenFile)
+    If iProgress <> iLastProgress Then
+      Project.SetMessage(("Loading profiling file..." & CStr(iProgress) & "%"))
+      iLastProgress = iProgress
+    Endif
     
     If Not bVer Then
       If sLine <> "[1]" Then Error.Raise(("Bad profile file format"))
@@ -429,7 +441,7 @@ Fast Public Sub Init(sPath As String)
         
     Endif
     
-  Next
+  Wend
   
   hCurrent = $cFunc[".System.EventLoop"]
   If hCurrent Then hCurrent.SetEventLoop()

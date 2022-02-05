@@ -14,6 +14,7 @@ End
 
 Public Sub Form_Open()
 
+  Settings.Read(Me)
   Project.SetEditorFont(lstArg)
   panEnvDbDebug.Visible = Project.Components.Exist("gb.db")
 
@@ -46,9 +47,9 @@ Private Sub LoadSettings()
   
   ' Options
   
-  btnUseTerminal.Value = Design.UseTerminal
-  btnRedirectStderr.Value = Design.RedirectStderr
-  btnUseHttpServer.Value = Design.UseHttpServer
+  btnUseTerminal.Value = Project.Config["/Debug/UseTerminal"]
+  btnRedirectStderr.Value = Project.Config["/Design/RedirectStderr"]
+  btnUseHttpServer.Value = Project.Config["/Design/UseHttpServer"]
 
   ' Environment
 
@@ -102,13 +103,9 @@ Private Sub SaveSettings() As Boolean
 
   ' Options
   
-  ' Design.UseTerminal = btnUseTerminal.Value
-  ' Design.RedirectStderr = btnRedirectStderr.Value
-  ' Design.UseHttpServer = btnUseHttpServer.Value 
-  ' Design.WriteSettings
-  Action["terminal"].Value = btnUseTerminal.Value
-  Action["redirect"].Value = btnRedirectStderr.Value
-  Action["httpserver"].Value = btnUseHttpServer.Value
+  Project.Config["/Debug/UseTerminal"] = btnUseTerminal.Value
+  Project.Config["/Debug/RedirectStderr"] = btnRedirectStderr.Value
+  Project.Config["/Debug/UseHttpServer"] = btnUseHttpServer.Value
 
   ' Remote debugging
 
@@ -187,5 +184,11 @@ End
 Public Sub choEnv_Change()
 
   UpdateOptions
+
+End
+
+Public Sub Form_Close()
+
+  Settings.Write(Me)
 
 End
