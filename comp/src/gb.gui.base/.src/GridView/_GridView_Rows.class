@@ -411,10 +411,28 @@ Private Sub Height_Read() As Integer
 End
 
 Private Sub Height_Write(Value As Integer)
+
+  Dim hView As GridView = GetView()
+  Dim iRow As Integer
+  Dim w As Integer
   
   $iDefaultHeight = Value
-  GetView()._ResizeContents()
   
+  If $iDefaultHeight < 0 Then 
+    
+    Repeat
+      W = hView.ClientW
+      For iRow = 0 To $nRows - 1
+        _SetRowHeight(iRow, -1)
+      Next
+    Until hView.ClientW = W
+    
+  Else
+    
+    hView._ResizeContents()
+    
+  Endif
+
 End
 
 Private Function Max_Read() As Integer
