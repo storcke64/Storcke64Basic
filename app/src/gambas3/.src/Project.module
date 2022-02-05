@@ -7258,7 +7258,10 @@ End
 
 Public Sub GetEnvironment() As String[]
   
-  Return Project.Config["/Debug/Environment"]  
+  Dim aEnv As String[]
+  aEnv = Project.Config["/Debug/Environment"]  
+  If Not aEnv Then aEnv = New String[]
+  Return aEnv
   
 End
 

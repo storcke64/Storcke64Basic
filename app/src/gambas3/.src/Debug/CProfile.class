@@ -23,6 +23,25 @@ Public Code As String
 
 Private $iSelf As Long = -1
 
+Public Sub _write(hStream As Stream)
+  
+  Write #hStream, Name As String
+  Write #hStream, Count As Integer
+  Write #hStream, {Time} As Long
+  Write #hStream, FirstTime As Long
+  Write #hStream, MaxTime As Long
+  Write #hStream, Level As Integer
+  Write #hStream, RecTime As Long
+  Write #hStream, Called As Collection
+  Write #hStream, CalledList As CProfile[]
+  Write #hStream, Caller As Collection
+  Write #hStream, CallerList As CProfile[]
+  Write #hStream, StartLine As Integer
+  Write #hStream, Code As String
+  
+End
+
+
 Public Sub _compare(hOther As CProfile) As Integer
   
   Dim iRet As Integer
