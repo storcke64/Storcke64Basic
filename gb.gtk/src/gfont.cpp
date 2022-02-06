@@ -258,31 +258,15 @@ void gFont::realize()
 {
 	_context = NULL;
 	_height = 0;
-	_metrics = NULL;
 
 	reset();
 	
 	_nfont++;  
 }
 
-PangoFontMetrics *gFont::metrics()
-{
-	if (!_metrics)
-	{
-		PangoFontDescription *desc = pango_context_get_font_description(_context);
-		_metrics = pango_context_get_metrics(_context, desc, NULL);
-	}
-	
-	return _metrics;
-}
-
 void gFont::invalidateMetrics()
 {
-	if (_metrics)
-	{
-		pango_font_metrics_unref(_metrics);
-		_metrics = NULL;
-	}
+	pango_context_changed(_context);
 	_height = 0;
 }
 
@@ -341,7 +325,6 @@ gFont::gFont() : gShare()
 		pango_font_description_free(fd);
 	
 	checkMustFixSpacing();
-	
 }
 
 gFont::gFont(PangoFontDescription *fd) : gShare()
@@ -447,8 +430,7 @@ void gFont::setItalic(bool vl)
 char* gFont::name()
 {
 	PangoFontDescription *desc = pango_context_get_font_description(_context);
-
-	return (char *)pango_font_description_get_family (desc);	
+	return (char *)pango_font_description_get_family(desc);
 }
 
 void gFont::setName(char *nm)
@@ -465,12 +447,8 @@ void gFont::setName(char *nm)
 
 double gFont::size()
 {
-	double size;	
-
 	PangoFontDescription *desc = pango_context_get_font_description(_context);
-
-	size=pango_font_description_get_size(desc);
-	return size / (double)PANGO_SCALE;
+	return (double)pango_font_description_get_size(desc) / (double)PANGO_SCALE;
 }
 
 int gFont::grade()
