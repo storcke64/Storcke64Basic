@@ -171,6 +171,7 @@ Private Sub DrawItem(hCtrl As Control, sAction As String, bScreenshot As Boolean
   Paint.DrawRect(1, 1, Paint.W - 2, Paint.H - 2, Color.LightForeground)
   
   If hCtrl.Hovered Then
+    Paint.FillRect(0, 0, Paint.W, Paint.H, Style.BackgroundOf($hToolbar))
     Paint.DrawRect(0, 0, Paint.W, Paint.H, Color.LightBackground)
   Endif
   
