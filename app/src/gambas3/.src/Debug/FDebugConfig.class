@@ -62,8 +62,6 @@ Private Sub LoadSettings()
   txtRemoteUser.Text = Project.Config["/Debug/RemoteUser"]
   txtRemoteDirectory.Text = Project.Config["/Debug/RemoteDirectory"]
   
-  Try txtRemotePassword.Text = Desktop.Passwords[Project.Name &/ "RemoteDebug"]
-  
   choEnvRemote.Environment = Project.Config["/Debug/RemoteEnvironment"]
 
   ' Arguments
@@ -139,6 +137,9 @@ End
 Public Sub btnRemoteDebugging_Click()
 
   panRemoteDebugging.Enabled = btnRemoteDebugging.Value
+  If panRemoteDebugging.Enabled And If Not txtRemotePassword.Text Then
+    Try txtRemotePassword.Text = Desktop.Passwords[Project.Name &/ "RemoteDebug"]
+  Endif
   
 End
 

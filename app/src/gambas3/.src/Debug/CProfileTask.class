@@ -32,7 +32,7 @@ Public Sub Main() As Variant
   
 End
 
-Fast Private Sub EnterFunction(sWhere As String, iTime As Long) As CProfile
+Private Sub EnterFunction(sWhere As String, iTime As Long) As CProfile
   
   Dim hProf As CProfile
   Dim iPos As Integer

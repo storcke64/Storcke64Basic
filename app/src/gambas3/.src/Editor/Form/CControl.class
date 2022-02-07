@@ -2161,7 +2161,7 @@ Public Sub AddAction(cActionSet As Collection)
   Endif
   
   cAction["Name"] = sAction
-  SetAction(cAction, "Text", True)
+  SetAction(cAction, "Text", Not IsContainer())
   SetAction(cAction, "ToolTip")
   
   If Kind = "Form" Then

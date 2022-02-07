@@ -1273,7 +1273,7 @@ Public Sub UpdateMenu()
     Action[sAction].Enabled = bEnabled
   Next
   
-  For Each sAction In ["run-extern", "terminal", "redirect", "httpserver", "gui", "profile", "open-profile", "run-with", "run-remote"]
+  For Each sAction In ["run-extern", "gui", "profile", "open-profile", "run-with", "run-remote", "debug-config"]
     Action[sAction].Enabled = bEnabled
   Next
   
