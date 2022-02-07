@@ -192,12 +192,12 @@ __CONV:
 
 __NULL:
 
-	fprintf(_where, "NULL");
+	fprintf(_where, "Null");
 	goto __RETURN;
 
 __BOOLEAN:
 
-	fprintf(_where, value->_boolean.value ? "TRUE" : "FALSE");
+	fprintf(_where, value->_boolean.value ? "True" : "False");
 	goto __RETURN;
 
 __BYTE:
@@ -256,7 +256,7 @@ __VARIANT:
 
 __VOID:
 
-	fprintf(_where, "VOID");
+	fprintf(_where, "Void");
 	goto __RETURN;
 
 __CLASS:
@@ -279,7 +279,7 @@ __POINTER:
 
 __FUNCTION:
 
-	fprintf(_where, "FUNCTION");
+	fprintf(_where, "Function");
 	goto __RETURN;
 
 __RETURN:
