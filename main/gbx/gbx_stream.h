@@ -24,6 +24,7 @@
 #ifndef __GBX_STREAM_H
 #define __GBX_STREAM_H
 
+#include "gb_hash.h"
 #include "gbx_value.h"
 #include "gbx_archive.h"
 
@@ -53,6 +54,8 @@ typedef
 		char *unread;
 		int unread_pos;
 		int unread_len;
+		void **read_objects;
+		HASH_TABLE *write_objects;
 	}
 	STREAM_EXTRA;
 	
@@ -72,7 +75,7 @@ typedef
 		unsigned no_read_ahead : 1;
 		unsigned null_terminated : 1;
 		unsigned check_read : 1;
-		unsigned _reserved : 3;
+		unsigned _reserved : 2;
 		#if __WORDSIZE == 64
 		unsigned _reserved2 : 32;
 		#endif
