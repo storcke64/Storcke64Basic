@@ -32,7 +32,7 @@ Public Sub Main() As Variant
   
 End
 
-Private Sub EnterFunction(sWhere As String, iTime As Long) As CProfile
+Fast Private Sub EnterFunction(sWhere As String, iTime As Long) As CProfile
   
   Dim hProf As CProfile
   Dim iPos As Integer
@@ -99,6 +99,7 @@ Private Sub EnterFunction(sWhere As String, iTime As Long) As CProfile
   
 End
 
+'Fast 
 Fast Private Sub ExitFunction(iTime As Long) As CProfile
   
   Dim hProf As CProfile
@@ -132,12 +133,14 @@ Fast Private Sub ExitFunction(iTime As Long) As CProfile
   
 End
 
+'Fast 
 Fast Private Sub GetClass(sFunc As String) As String
   
   Return Left(sFunc, InStr(sFunc, ".") - 1)
   
 End
 
+'Fast 
 Fast Public Sub LoadProfile()
   
   Dim hFile As File
@@ -415,30 +418,10 @@ Fast Public Sub LoadProfile()
   
   hCurrent = $cFunc[".System.EventLoop"]
   If hCurrent Then hCurrent.SetEventLoop()
-  
-  ' sTitle = GetName()
-  ' sTitle &= " (" & Subst(("&1 Mb"), (Stat(sPath).Size + 1048575) \ 1048576) & ") - " & Str(Stat(sPath).LastModified) & " - " & Subst(("Total time &1 μs"), Format($iTime, "#,##0"))
-  
-  ' hEventLoop = $cFunc[FUNC_EVENT_LOOP]
-  ' If hEventLoop Then sTitle &= " / " & Subst("&1 μs", Format($iTime - hEventLoop.Self, "#,##0"))
-  ' Me.Title = sTitle
-
-  ' gvwProfile.Rows.Count = $aFunc.Count
-  ' 
-  ' Object.Lock(gvwProfile)
-  ' gvwProfile.Columns.Sort = 2
-  ' gvwProfile.Columns.Ascending = True
-  ' Object.Unlock(gvwProfile)
-  ' gvwProfile_Sort
-  ' 
-  ' $aAll.Add(Path)
-  ' 
-  ' Me.Show
 
 Catch
   
   Print "*"
-  'FMain.ShowErrorWith(Subst(("Unable to load profile file: &1"), File.Name(sPath)), "*")
   
 End
 

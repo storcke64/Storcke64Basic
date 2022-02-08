@@ -2626,7 +2626,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
 
     SetMessage(("OK"), True)
     
-    If bAll Then SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.#")), True)
+    If bAll Then SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.##")), True)
     'FMain.ShowAnimate("Happy")
 
   Endif

@@ -592,8 +592,6 @@ Private Sub AfterStop()
 
   WriteDebugSettings()
 
-  'Project.DebugInfoForm.Hide
-  'tvwLocal.Clear
   FDebugInfo.Clear
   FDebugExpr.Clear
 
@@ -603,15 +601,11 @@ Private Sub AfterStop()
   For Each hForm In Project.Workspace.Windows
     Try hForm.OnProjectDebug 
   Next
-  'FMain.ShowTool(TRUE)
+
   FMain.OnProjectDebug
   FOutput.OnProjectDebug
   FSearch.OnProjectDebug
 
-  'hForm = FDebugInfo.Parent
-  'Settings["/FMain/Splitter"] = hForm.Layout
-  'FDebugInfo.Hide
-  
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
   
@@ -623,14 +617,7 @@ Private Sub AfterStop()
     $bExtern = False
   Endif
 
-  ' FOR EACH hForm IN $cShow
-  '   'TRY PRINT "Design.AfterStop: SHOW "; hForm.Name
-  '   hForm.Show
-  ' NEXT
-
   Action["console"].Value = $bConsole
-
-  'Project.SetMessage(("OK"))
 
   FMain.ActivateCurrentWindow
 
