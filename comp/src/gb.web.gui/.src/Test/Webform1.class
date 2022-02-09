@@ -290,3 +290,12 @@ Public Sub WebTree1_Click(Key As String, (Column) As Integer)
   Message(Key)
 
 End
+
+Public Sub WebButton11_Click()
+
+  Dim sResult As String
+
+   sResult = FInputBox.Run("Prompt", "Title", WebTextBox1.Text)
+   If sResult Then WebTextBox1.Text = sResult
+
+End
