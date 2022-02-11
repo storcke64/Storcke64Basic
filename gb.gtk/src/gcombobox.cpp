@@ -802,6 +802,14 @@ void gComboBox::setDesign(bool ignore)
 		gtk_widget_set_can_focus(entry, false);
 }
 
+static void cb_update_direction(GtkWidget *widget, gpointer data)
+{
+	gtk_widget_set_direction(widget, (GtkTextDirection)(uintptr_t)data);
+	
+	if (GTK_IS_CONTAINER(widget))
+		gtk_container_forall(GTK_CONTAINER(widget), cb_update_direction, data);
+}
+
 void gComboBox::updateDirection()
 {
 	GtkTextDirection dir;
@@ -809,6 +817,6 @@ void gComboBox::updateDirection()
 	gControl::updateDirection();
 	
 	dir = gtk_widget_get_direction(widget);
-	gtk_widget_set_direction(gtk_bin_get_child(GTK_BIN(widget)), dir);
+	cb_update_direction(widget, (gpointer)(uintptr_t)dir);
 }
 
