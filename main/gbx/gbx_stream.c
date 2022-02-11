@@ -1272,11 +1272,14 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 					THROW_SERIAL();
 			}
 			else
+			{
 				atype = ((CLASS *)type)->array_type;
+			}
 
 			if (TYPE_is_pure_object(atype))
 				CLASS_load((CLASS *)atype);
 			
+			STREAM_read(stream, &buffer._byte, 1); // Compatibility with old format
 			size = read_length(stream);
 
 			GB_ArrayNew((GB_ARRAY *)&array, atype, size);
@@ -1782,7 +1785,13 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 				buffer._byte = 'A';
 				STREAM_write(stream, &buffer._byte, 1);
 			}
-				
+			
+			if (TYPE_is_pure_object(array->type))
+				buffer._byte = T_OBJECT;
+			else
+				buffer._byte = (uchar)array->type;
+			STREAM_write(stream, &buffer._byte, 1); // Compatibility with old format
+			
 			write_length(stream, array->count);
 		}
 
