@@ -1261,25 +1261,33 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			int size, i;
 			VALUE temp;
 			void *data;
-			TYPE atype;
+			TYPE atype = T_VOID;
 
 			if (buffer._byte == 'a' || variant)
 			{
 				class = read_class(stream, type);
 				
 				atype = class->array_type;
-				if (!atype)
-					THROW_SERIAL();
 			}
-			else
+			else if (TYPE_is_pure_object(type))
 			{
 				atype = ((CLASS *)type)->array_type;
 			}
+			else if (TYPE_is_object(type))
+			{
+				atype = T_VARIANT;
+			}
 
+			if (TYPE_is_void(atype))
+				THROW_SERIAL();
+			
 			if (TYPE_is_pure_object(atype))
 				CLASS_load((CLASS *)atype);
 			
 			STREAM_read(stream, &buffer._byte, 1); // Compatibility with old format
+			if (atype == T_VARIANT)
+				atype = (TYPE)buffer._byte;
+			
 			size = read_length(stream);
 
 			GB_ArrayNew((GB_ARRAY *)&array, atype, size);
