@@ -724,7 +724,7 @@ static void update_direction(void *_object)
 			case DIRECTION_RTL: WIDGET->setLayoutDirection(Qt::LeftToRight); break;
 			default:
 				WIDGET->unsetLayoutDirection();
-				WIDGET->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight;
+				WIDGET->setLayoutDirection(WIDGET->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight);
 		}
 	}
 	else
