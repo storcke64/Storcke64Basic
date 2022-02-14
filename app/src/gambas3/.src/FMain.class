@@ -1303,7 +1303,7 @@ Public Sub UpdateMenu()
   
   mnuClearDebugWindows.Enabled = Project.Running
   
-  mnuUseHttpServer.Visible = Project.CanUseHttpServer()
+  'mnuUseHttpServer.Visible = Project.CanUseHttpServer()
   
   bVisible = False
   If Project.Components Then

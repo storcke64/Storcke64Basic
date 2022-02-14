@@ -2080,7 +2080,11 @@ Private Sub SetAction(cAction As Collection, sProp As String, Optional bRemoveSh
   
   Dim sVal As String = GetPropertyString(sProp)
   If sVal Then 
-    If bRemoveShortcut Then sVal = RemoveShortcut(sVal)
+    If bRemoveShortcut Then 
+      sVal = RemoveShortcut(sVal)
+    Else
+      sVal = sVal
+    Endif
     cAction[sProp] = sVal
   Endif
   
@@ -2146,6 +2150,7 @@ Public Sub AddAction(cActionSet As Collection)
   Dim sAction As String
   Dim cAction As Collection
   Dim sPicture As String
+  Dim bRemoveShortcut As Boolean
   
   sAction = GetProperty("Action")
   If Not sAction Then Return
@@ -2161,7 +2166,8 @@ Public Sub AddAction(cActionSet As Collection)
   Endif
   
   cAction["Name"] = sAction
-  SetAction(cAction, "Text", Not IsContainer())
+  If Not IsContainer() Or If Kind = "Menu" Then bRemoveShortcut = True
+  SetAction(cAction, "Text", bRemoveShortcut)
   SetAction(cAction, "ToolTip")
   
   If Kind = "Form" Then

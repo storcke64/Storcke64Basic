@@ -6266,6 +6266,7 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
   Dim hForm As Object
 
   Inc Application.Busy 
+  SetMessage(("Update all forms") & "…")
 
   For Each sPath In Tree.Sources
 
@@ -6307,6 +6308,8 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
 
   Endif
 
+  SetMessage(("OK"), True)
+  
 Catch
 
   Application.Busy = 0

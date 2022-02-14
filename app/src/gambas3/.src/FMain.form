@@ -750,23 +750,23 @@
     { mnuCompressAll Menu
       Action = "compress-all"
       Text = ("Compress all")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
     }
     { mnuUncompressAll Menu
       Action = "uncompress-all"
       Text = ("Uncompress all")
-      Picture = Picture["icon:/small/undo"]
+      Picture = Picture["icon:/small/uncompress"]
     }
     { mnuCompressFile Menu
       Action = "compress-file"
       Text = ("Compress file into the executable")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
       Toggle = True
     }
     { mnuCompressNow Menu
       Action = "compress-now"
       Text = ("Compress file")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
     }
     { Menu46 Menu
     }
@@ -1263,7 +1263,7 @@
     Visible = False
   }
   { msgError MessageView
-    MoveScaled(57,10,57,6)
+    MoveScaled(58,10,57,6)
     Animated = True
   }
   { panGlobal Panel
@@ -1564,17 +1564,17 @@
   { Action compress-all
     Text = "Compress all"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action compress-file
     Text = "Compress file into the executable"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action compress-now
     Text = "Compress file"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action console
     Text = "Console"
@@ -1908,7 +1908,7 @@
   { Action uncompress-all
     Text = "Uncompress all"
     Shortcut = ""
-    Picture = "icon:/small/undo"
+    Picture = "icon:/small/uncompress"
   }
   { Action until
     Text = "Run until current line"

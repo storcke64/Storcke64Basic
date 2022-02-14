@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.16.90\n"
-"POT-Creation-Date: 2022-02-07 17:59 UTC\n"
+"POT-Creation-Date: 2022-02-14 20:43 UTC\n"
 "PO-Revision-Date: 2022-02-05 17:34 UTC\n"
 "Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
 "Language: fr\n"
@@ -990,15 +990,15 @@ msgstr "Formulaire de terminal"
 msgid "TermForms"
 msgstr "Formulaires de terminal"
 
-#: CProfile.class:133
+#: CProfile.class:151
 msgid "Evaluator"
 msgstr "Évaluateur"
 
-#: CProfile.class:135
+#: CProfile.class:153
 msgid "Event loop"
 msgstr "Boucle d'évènements"
 
-#: CProfileTask.class:174 FProfile.class:204
+#: CProfileTask.class:177
 msgid "Bad profile file format"
 msgstr "Format de fichier de profilage incorrect"
 
@@ -1233,14 +1233,14 @@ msgstr "URL du référentiel distant"
 msgid "A new Git repository will be created for this project."
 msgstr "Un nouveau référentiel Git sera créé pour ce projet."
 
-#: CVersionControlGit.class:445 Design.module:1074 FColorChooser.form:67
+#: CVersionControlGit.class:445 Design.module:1061 FColorChooser.form:67
 #: FConnectionEditor.class:721 FCrash.form:94 FCreateFile.form:210
 #: FDebugConfig.form:509 FFarmConfig.form:33 FFarmLogin.form:121
 #: FFieldChooser.form:138 FFontChooser.form:34 FGotoLine.form:17
 #: FImageOffsetSelection.form:33 FImageQuality.form:30 FImageResize.form:105
 #: FImageRotate.form:26 FLayout.form:44 FList.form:122 FMakeExecutable.form:166
 #: FMenu.form:440 FNewConnection.form:312 FNewTable.form:80
-#: FNewTranslation.form:34 FPasteSpecial.form:86 FProfile.class:41
+#: FNewTranslation.form:34 FPasteSpecial.form:86 FProfile.class:37
 #: FProjectProperty.form:1038 FProxy.form:63 FReportBorderChooser.form:54
 #: FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42
 #: FReportCoordChooser.form:32 FReportPaddingChooser.form:69
@@ -1307,47 +1307,47 @@ msgstr "Le programme a été terminé."
 msgid "The program has returned the value &1."
 msgstr "Le programme a retourné la valeur &1."
 
-#: Design.module:848
+#: Design.module:835
 msgid "The project has no test module."
 msgstr "Le projet n'a pas de module de test."
 
-#: Design.module:1038
+#: Design.module:1025
 msgid "Initialize remote debugging..."
 msgstr "Initialisation du débogage distant..."
 
-#: Design.module:1058
+#: Design.module:1045
 msgid "Unable to initialize remote debugging."
 msgstr "Impossible d'initialiser le débogage distant."
 
-#: Design.module:1070
+#: Design.module:1057
 msgid "Unable to copy executable to the remote server."
 msgstr "Impossible de copier l'exécutable sur le serveur distant."
 
-#: Design.module:1208
+#: Design.module:1195
 msgid "Output terminal"
 msgstr "Terminal de sortie"
 
-#: Design.module:1241
+#: Design.module:1228
 msgid "No terminal emulator found."
 msgstr "Impossible de trouver un émulateur de terminal."
 
-#: Design.module:1241
+#: Design.module:1228
 msgid "Unable to start project."
 msgstr "Impossible de démarrer le projet."
 
-#: Design.module:1352
+#: Design.module:1339
 msgid "Another extern debugging is active."
 msgstr "Un autre débogage externe est actif."
 
-#: Design.module:1352
+#: Design.module:1339
 msgid "Unable to start extern debugging."
 msgstr "Impossible de démarrer le débogage externe."
 
-#: Design.module:1392
+#: Design.module:1379
 msgid "Unable to start debugger."
 msgstr "Impossible de démarrer le débogueur."
 
-#: Design.module:1775
+#: Design.module:1762
 msgid "Unable to generate the remote debugger helper."
 msgstr "Impossible de générer l'assistant de débogage distant."
 
@@ -1502,7 +1502,7 @@ msgstr "Zoom arrière"
 msgid "No zoom"
 msgstr "Taille normale"
 
-#: FConflict.class:14 FMain.form:1719
+#: FConflict.class:14 FMain.form:1718
 msgid "&Edit"
 msgstr "&Editer"
 
@@ -1557,7 +1557,7 @@ msgstr "Conflit de version"
 
 #: FConflict.form:70 FConflictEditor.form:114 FConnectionEditor.form:246
 #: FEditor.form:132 FForm.form:168 FImageEditor.form:145 FMain.form:1081
-#: FMenu.form:152 FProjectEditor.form:113 FProjectVersion.form:234
+#: FMenu.form:152 FProjectEditor.form:112 FProjectVersion.form:234
 #: FTextEditor.form:149
 msgid "Cut"
 msgstr "Couper"
@@ -1565,7 +1565,7 @@ msgstr "Couper"
 #: FConflict.form:76 FConflictEditor.form:121 FConnectionEditor.form:152
 #: FEditor.form:139 FForm.form:175 FImageEditor.form:153 FList.form:99
 #: FMain.form:1088 FMakeInstall.form:922 FMenu.form:159 FOutput.form:42
-#: FProjectEditor.form:106 FProjectVersion.form:240 FSystemInfo.form:38
+#: FProjectEditor.form:105 FProjectVersion.form:240 FSystemInfo.form:38
 #: FTextEditor.form:156 FTranslate.form:127
 msgid "Copy"
 msgstr "Copier"
@@ -1573,7 +1573,7 @@ msgstr "Copier"
 #: FConflict.form:82 FConflictEditor.form:128 FConnectionEditor.form:161
 #: FEditor.form:146 FForm.form:188 FImageEditor.form:160 FList.form:105
 #: FMain.form:1095 FMenu.form:166 FOutput.form:49 FPasteTable.form:99
-#: FProjectEditor.form:120 FProjectVersion.form:246 FTextEditor.form:163
+#: FProjectEditor.form:119 FProjectVersion.form:246 FTextEditor.form:163
 msgid "Paste"
 msgstr "Coller"
 
@@ -2040,7 +2040,7 @@ msgstr "Exporter"
 
 #: FConnectionEditor.form:492 FForm.form:195 FList.form:65 FMain.form:1115
 #: FMenu.form:110 FNewConnection.class:402 FOption.form:1411
-#: FProjectEditor.form:127 FSoftwareFarm.class:665 FTranslate.form:104
+#: FProjectEditor.form:126 FSoftwareFarm.class:665 FTranslate.form:104
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -2512,7 +2512,7 @@ msgstr "Effacer la console"
 msgid "Run test"
 msgstr "Démarrer le test"
 
-#: FDebugInfo.form:552 FMain.form:1845
+#: FDebugInfo.form:552 FMain.form:1844
 msgid "Modifications."
 msgstr "Modifications."
 
@@ -2574,7 +2574,7 @@ msgstr "Aller à"
 msgid "Find definition"
 msgstr "Trouver la définition"
 
-#: FEditor.form:309 FMain.form:1616
+#: FEditor.form:309 FMain.form:1615
 msgid "Run until current line"
 msgstr "Exécuter jusqu'à la ligne courante"
 
@@ -3022,7 +3022,7 @@ msgstr "Avant-plan"
 msgid "Lock / unlock form"
 msgstr "Vérrouiller  / déverrouiller le formulaire"
 
-#: FFormStack.form:14 FMain.form:2034
+#: FFormStack.form:14 FMain.form:2033
 msgid "Hierarchy"
 msgstr "Hiérarchie"
 
@@ -3155,7 +3155,7 @@ msgid "Zoom fit"
 msgstr "Zoom ajusté"
 
 #: FImageEditor.form:408 FMain.form:411 FTextEditor.form:406
-#: Project.module:7014
+#: Project.module:7017
 msgid "Save as"
 msgstr "Enregistrer sous"
 
@@ -3933,7 +3933,7 @@ msgstr "Ouvrir un terminal"
 msgid "Send project by mail"
 msgstr "Envoyer le projet par courriel"
 
-#: FMain.form:888
+#: FMain.form:888 Project.module:6269
 msgid "Update all forms"
 msgstr "Mettre à-jour tous les formulaires"
 
@@ -4105,75 +4105,75 @@ msgstr "Créer un paquet d'installation"
 msgid "Compile all"
 msgstr "Tout compiler"
 
-#: FMain.form:1608
+#: FMain.form:1607
 msgid "Finish current function"
 msgstr "Terminer la fonction courante"
 
-#: FMain.form:1677 FPublish.form:51
+#: FMain.form:1676 FPublish.form:51
 msgid "Publish software"
 msgstr "Publier un logiciel"
 
-#: FMain.form:1707
+#: FMain.form:1706
 msgid "&File"
 msgstr "&Fichier"
 
-#: FMain.form:1731
+#: FMain.form:1730
 msgid "&Project"
 msgstr "&Projet"
 
-#: FMain.form:1743
+#: FMain.form:1742
 msgid "&Debug"
 msgstr "&Débogage"
 
-#: FMain.form:1755
+#: FMain.form:1754
 msgid "&View"
 msgstr "&Affichage"
 
-#: FMain.form:1767
+#: FMain.form:1766
 msgid "&Tools"
 msgstr "&Outils"
 
-#: FMain.form:1779
+#: FMain.form:1778
 msgid "&?"
 msgstr "&?"
 
-#: FMain.form:1800
+#: FMain.form:1799
 msgid "Extern debugging"
 msgstr "Débogage externe"
 
-#: FMain.form:1879
+#: FMain.form:1878
 msgid "Open startup class"
 msgstr "Ouvrir la classe de démarrage"
 
-#: FMain.form:1885
+#: FMain.form:1884
 msgid "Dispose class files according to inheritance"
 msgstr "Disposer les fichiers classes selon l'héritage"
 
-#: FMain.form:1892
+#: FMain.form:1891
 msgid "Display form class files"
 msgstr "Afficher les fichiers classes des formulaires"
 
-#: FMain.form:1901
+#: FMain.form:1900
 msgid "Project filter"
 msgstr "Filtre de projet"
 
-#: FMain.form:1962
+#: FMain.form:1961
 msgid "Show project tree"
 msgstr "Afficher l'arbre du projet"
 
-#: FMain.form:1970
+#: FMain.form:1969
 msgid "Show properties sheet"
 msgstr "Afficher la feuille de propriétés"
 
-#: FMain.form:2041
+#: FMain.form:2040
 msgid "Show property help"
 msgstr "Afficher l'aide sur les propriétés"
 
-#: FMain.form:2049
+#: FMain.form:2048
 msgid "Show controls"
 msgstr "Afficher les contrôles"
 
-#: FMain.form:2057
+#: FMain.form:2056
 msgid "Toolbox"
 msgstr "Boîte à outils"
 
@@ -4719,7 +4719,7 @@ msgstr "Sélectionnez un projet"
 msgid "Examples"
 msgstr "Exemples"
 
-#: FOpenProject.form:152 FWelcome.class:73 Project.module:6624
+#: FOpenProject.form:152 FWelcome.class:73 Project.module:6627
 msgid "Installed software"
 msgstr "Logiciels installés"
 
@@ -5303,51 +5303,51 @@ msgstr "Sélectionnez un patch"
 msgid "Revert"
 msgstr "Revenir"
 
-#: FProfile.class:39
+#: FProfile.class:35
 msgid "Loading profiling file..."
 msgstr "Chargement du fichier de profilage..."
 
-#: FProfile.class:52
-msgid "Profile #&1"
-msgstr "Profilage n°&1"
-
-#: FProfile.class:450
+#: FProfile.class:68
 msgid "&1 Mb"
 msgstr "&1 Mo"
 
-#: FProfile.class:450
+#: FProfile.class:68
 msgid "Total time &1 μs"
 msgstr "Durée totale &1 μs"
 
-#: FProfile.class:473
+#: FProfile.class:91
 msgid "Unable to load profile file: &1"
 msgstr "Impossible de charger le fichier de profilage : &1"
 
-#: FProfile.class:740
+#: FProfile.class:108
+msgid "Profile #&1"
+msgstr "Profilage n°&1"
+
+#: FProfile.class:368
 msgid "Function"
 msgstr "Fonction"
 
-#: FProfile.class:742
+#: FProfile.class:370
 msgid "Calls"
 msgstr "Appels"
 
-#: FProfile.class:745
+#: FProfile.class:373
 msgid "Duration"
 msgstr "Durée"
 
-#: FProfile.class:748
+#: FProfile.class:376
 msgid "Average"
 msgstr "Moyenne"
 
-#: FProfile.class:751
+#: FProfile.class:379
 msgid "Self"
 msgstr "Propre"
 
-#: FProfile.class:1150
+#: FProfile.class:778
 msgid "Profile files"
 msgstr "Fichiers de profilage"
 
-#: FProfile.class:1157
+#: FProfile.class:785
 msgid "Unable to save profile."
 msgstr "Impossible d'enregistrer le profilage."
 
@@ -8481,39 +8481,39 @@ msgstr "Conversion des fichiers du projet..."
 msgid "Unable to convert &1"
 msgstr "Impossible de convertir &1"
 
-#: Project.module:6313
+#: Project.module:6316
 msgid "Unable to update forms."
 msgstr "Impossible de mettre à-jour les formulaires."
 
-#: Project.module:6409
+#: Project.module:6412
 msgid "The &1 program is not installed on your system."
 msgstr "Le programme &1 n'est pas installé sur votre système."
 
-#: Project.module:6411
+#: Project.module:6414
 msgid "The following programs are not installed on your system: &1."
 msgstr "Les programmes suivants ne sont pas installés sur votre système : &1."
 
-#: Project.module:6502
+#: Project.module:6505
 msgid "Unable to read component description file."
 msgstr "Impossible de lire le fichier de description du composant."
 
-#: Project.module:6563
+#: Project.module:6566
 msgid "Cannot write component description file."
 msgstr "Impossible d'écrire le fichier de description du composant."
 
-#: Project.module:6624
+#: Project.module:6627
 msgid "Project templates"
 msgstr "Modèles de projet"
 
-#: Project.module:6670
+#: Project.module:6673
 msgid "Unable to run terminal."
 msgstr "Impossible de démarrer le terminal."
 
-#: Project.module:7096
+#: Project.module:7099
 msgid "Save file as"
 msgstr "Enregistrer le fichier sous"
 
-#: Project.module:7106 Save.module:57
+#: Project.module:7109 Save.module:57
 msgid "Unable to save file."
 msgstr "Impossible d'enregistrer le fichier."
 
@@ -8598,3 +8598,7 @@ msgstr "Ce symbole n'existe pas."
 
 #~ msgid "Program arguments"
 #~ msgstr "Arguments du programme"
+
+#, fuzzy
+#~ msgid "Update all forms..."
+#~ msgstr "Mettre à-jour tous les formulaires"

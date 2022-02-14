@@ -112,7 +112,7 @@ Private Sub SaveSettings() As Boolean
   Project.Config["/Debug/RemoteUser"] = txtRemoteUser.Text
   Project.Config["/Debug/RemoteDirectory"] = txtRemoteDirectory.Text
   
-  Try Desktop.Passwords[Project.Name &/ "RemoteDebug"] = txtRemotePassword.Text
+  If btnRemoteDebugging.Value Then Try Desktop.Passwords[Project.Name &/ "RemoteDebug"] = txtRemotePassword.Text
   
   Project.Config["/Debug/RemoteEnvironment"] = choEnvRemote.Environment
   
