@@ -2244,6 +2244,7 @@ void MyMainWindow::setBorder(bool b)
 #ifdef QT5
 	
 	bool visible = isVisible();
+	void *_object = CWidget::get(this);;
 	
 	if (_border)
 		setWindowFlags(windowFlags() & ~Qt::FramelessWindowHint);
@@ -2251,6 +2252,7 @@ void MyMainWindow::setBorder(bool b)
 		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	
 	if (visible) show();
+	move(THIS->x, THIS->y);
 
 #else
 
