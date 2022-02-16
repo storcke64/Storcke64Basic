@@ -2241,18 +2241,19 @@ void MyMainWindow::setBorder(bool b)
 	if (!isWindow())
 		return;
 
-	//qDebug("effectiveWinId");
+#ifdef QT5
+	
+	setWindowFlag(Qt::FramelessWindowHint, !_border);
+	show();
+
+#else
+
 	initProperties(PROP_BORDER);
-	#ifdef QT5
-		PLATFORM.Window.Remap(WINDOW);
-	#else
 	if (effectiveWinId())
 		X11_window_remap(effectiveWinId());
-	#endif
-
-	#ifndef QT5
 	doReparent(parentWidget(), pos());
-	#endif
+	
+#endif
 }
 
 void MyMainWindow::setResizable(bool b)
