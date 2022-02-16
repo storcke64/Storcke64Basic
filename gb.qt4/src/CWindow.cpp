@@ -2243,8 +2243,9 @@ void MyMainWindow::setBorder(bool b)
 
 #ifdef QT5
 	
+	bool visible = isVisible();
 	setWindowFlag(Qt::FramelessWindowHint, !_border);
-	show();
+	if (visible) show();
 
 #else
 
