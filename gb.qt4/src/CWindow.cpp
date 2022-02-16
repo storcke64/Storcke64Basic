@@ -2244,7 +2244,12 @@ void MyMainWindow::setBorder(bool b)
 #ifdef QT5
 	
 	bool visible = isVisible();
-	setWindowFlag(Qt::FramelessWindowHint, !_border);
+	
+	if (_border)
+		setWindowFlags(windowFlags() & ~Qt::FramelessWindowHint);
+	else
+		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+	
 	if (visible) show();
 
 #else
@@ -2270,8 +2275,6 @@ void MyMainWindow::setResizable(bool b)
 
 void MyMainWindow::setUtility(bool b)
 {
-	Qt::WindowFlags flags;
-
 	if (_utility == b)
 		return;
 
