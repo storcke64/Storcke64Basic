@@ -1724,15 +1724,15 @@ void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float
 	switch (align)
 	{
 		case ALIGN_BOTTOM_NORMAL:
-			align = gDesktop::rightToLeft() ? ALIGN_BOTTOM_RIGHT : ALIGN_BOTTOM_LEFT;
+			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_BOTTOM_RIGHT : ALIGN_BOTTOM_LEFT;
 			break;
 		
 		case ALIGN_NORMAL:
-			align = gDesktop::rightToLeft() ? ALIGN_RIGHT : ALIGN_LEFT;
+			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_RIGHT : ALIGN_LEFT;
 			break;
 			
 		case ALIGN_TOP_NORMAL:
-			align = gDesktop::rightToLeft() ? ALIGN_TOP_RIGHT : ALIGN_TOP_LEFT;
+			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_TOP_RIGHT : ALIGN_TOP_LEFT;
 			break;
 	}
 	

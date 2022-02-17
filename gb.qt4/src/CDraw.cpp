@@ -89,18 +89,18 @@ void DRAW_init()
 	GB.GetInterface("gb.draw", DRAW_INTERFACE_VERSION, &DRAW);
 }
 
-static Qt::Alignment get_horizontal_alignment(Qt::Alignment align)
+static Qt::Alignment get_horizontal_alignment(Qt::Alignment align, QString *t = 0)
 {
 	align &= Qt::AlignHorizontal_Mask;
 	switch (align)
 	{
 		case Qt::AlignLeft:
-			if (QApplication::isRightToLeft())
+			if (t ? t->isRightToLeft() : QApplication::isRightToLeft())
 				return Qt::AlignRight;
 			break;
 			
 		case Qt::AlignRight:
-			if (QApplication::isRightToLeft())
+			if (t ? t->isRightToLeft() : QApplication::isRightToLeft())
 				return Qt::AlignLeft;
 			break;
 			
@@ -153,6 +153,7 @@ void DRAW_text(QPainter *p, const QString &text, float x, float y, float w, floa
 	float xx, ww;
 	float tw, th;
 	int i;
+	Qt::Alignment a;
 
 	get_text_size(p, t, &tw, &th);
 
@@ -168,14 +169,14 @@ void DRAW_text(QPainter *p, const QString &text, float x, float y, float w, floa
 		default: break;
 	}
 
-	align = get_horizontal_alignment((Qt::Alignment)align);
-	
 	for (i = 0; i < (int)text_sl.count(); i++)
 	{
 		t = text_sl[i];
 		ww = text_w[i];
+		
+		a = get_horizontal_alignment((Qt::Alignment)align, &t);
 
-		switch(align)
+		switch(a)
 		{
 			case Qt::AlignRight: xx = x + w - ww; break;
 			case Qt::AlignHCenter: xx = x + (w - ww) / 2; break;
