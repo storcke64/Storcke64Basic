@@ -20,6 +20,18 @@ audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop
 average                 #
 battery                 devices/battery
 bicycle                 #
+border                  actions/format-border-set-all
+border-bottom           actions/format-border-set-bottom
+border-diag             actions/format-border-set-diagonal-bl-tr
+border-horizontal       actions/format-border-set-internal-horizontal
+border-inside           actions/format-border-set-internal
+border-left             actions/format-border-set-left
+border-none             actions/format-border-set-none
+border-outside          actions/format-border-set-external
+border-rev-diag         actions/format-border-set-dialonal-tl-br
+border-right            actions/format-border-set-right
+border-top              actions/format-border-set-top
+border-vertical         actions/format-border-set-internal-vertical
 brightness              #
 blue                    [breeze*]actions/colors-chromablue
 bluetooth               preferences/preferences-system-bluetooth;apps/preferences-system-bluetooth;apps/bluetooth
@@ -44,6 +56,7 @@ cdrom                   devices/media-optical
 column-after            actions/edit-table-insert-column-right
 column-before           actions/edit-table-insert-column-left
 column-remove           actions/edit-table-delete-column
+compress                actions/archive-insert
 clear                   actions/edit-clear-locationbar-rtl;actions/edit-clear
 clock                   apps/clock;actions/chronometer;;preferences/preferences-system-time;apps/preferences-system-time
 clone                   actions/edit-clone;actions/edit-duplicate
@@ -78,6 +91,8 @@ draw-line               actions/draw-line
 draw-path               actions/draw-path;tools/draw-freehand
 draw-polygon            actions/draw-polygon
 draw-rectangle          actions/draw-rectangle;tools/draw-rectangle
+draw-round              actions/draw-rectangle-rounded
+draw-star               actions/draw-star
 draw-text               actions/draw-text;tools/draw-text
 drink                   places/poi-bar
 earth                   #
@@ -109,7 +124,11 @@ filter                  actions/view-filter
 find                    actions/edit-find;;preferences/preferences-system-search;apps/preferences-system-search;preferences/preferences-desktop-search;apps/preferences-desktop-search
 firewall                apps/firewall;apps/config-firewall;preferences/preferences-security-firewall;apps/preferences-security-firewall;status/firewall-applet;;status/security-high
 first                   actions/go-first
-flag                    actions/flag-red
+flag                    actions/flag;actions/flag-black
+flag-blue               actions/flag-blue
+flag-green              actions/flag-green
+flag-red                actions/flag-red
+flag-yellow             actions/flag-yellow
 flip-h                  actions/object-flip-horizontal
 flip-v                  actions/object-flip-vertical
 floppy                  devices/media-floppy
@@ -131,6 +150,7 @@ gambas                  #
 game                    categories/applications-games;devices/input-gaming;devices/joystick;;preferences/preferences-desktop-gaming;apps/preferences-desktop-gaming
 gamma                   #
 gnu                     #
+gradient                actions/color-gradient
 green                   [breeze*]actions/colors-chromagreen
 grid                    actions/view-grid;actions/games-config-board
 group                   actions/object-group;actions/edit-group
@@ -140,8 +160,10 @@ house                   places/poi-building
 harddisk                devices/drive-harddisk
 harddisk-root           devices/drive-harddisk-root
 hardware                devices/audio-card;;apps/hwinfo
+hatch                   #
 headset                 devices/audio-headset
 help                    apps/system-help;categories/system-help;apps/help-browser
+highlight               actions/draw-highlight
 home                    actions/go-home
 html                    $(mime)/text-html
 hibernate               apps/system-hibernate;apps/system-suspend-hibernate;actions/system-hibernate;actions/system-suspend-hibernate
@@ -175,7 +197,7 @@ layout                  actions/document-page-setup
 left                    actions/go-previous
 library                 $(mime)/application-x-sharedlib
 lightness               #
-line-style              #
+line-style              actions/object-stroke-style
 line-width              actions/edit-line-width
 link                    emblems/emblem-symbolic-link
 linux                   #;;preferences/preferences-system-linux;apps/preferences-system-linux
@@ -191,10 +213,14 @@ marker                  places/poi-marker
 math                    actions/preview-math;actions/preview_math
 md                      $(mime)/text-x-markdown
 media-player            devices/multimedia-player
+memory                  devices/media-memory
 menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
 microphone              devices/audio-input-microphone
 modified                emblems/vcs-locally-modified;emblems/emblem-csv-modified
 monitor                 apps/utilities-system-monitor
+moon                    [breeze*!48]applets/weather-clear-night;status/weather-clear-night
+more                    actions/view-more
+more-h                  actions/view-more-horizontal
 mouse                   devices/input-mouse;preferences/preferences-desktop-mouse;apps/preferences-desktop-mouse
 mount                   actions/media-mount
 move                    actions/transform-move
@@ -246,6 +272,7 @@ program                 $(mime)/application-x-executable
 properties              actions/document-properties
 question                status/dialog-question;actions/svn-status
 quit                    actions/application-exit
+quote                   actions/format-text-blockquote
 raise                   actions/object-ordre-raise
 repeat                  actions/media-playlist-repeat
 recent                  [breeze*]actions/appointment-new;actions/document-open-recent
@@ -256,6 +283,8 @@ refresh                 actions/view-refresh
 remove                  actions/list-remove
 rename                  actions/edit-rename
 replace                 actions/edit-find-replace
+reply                   actions/mail-reply-sender
+reply-all               actions/mail-reply-all
 resize                  actions/transform-scale
 restart                 apps/system-restart;apps/system-reboot;actions/system-restart;actions/system-reboot
 restaurant              places/poi-restaurant
@@ -276,6 +305,7 @@ scanner                 [breeze*]devices/scanner;devices/scanner;;preferences/pr
 science                 categories/applications-science
 screen                  devices/video-display;preferences/preferences-desktop-display;apps/preferences-desktop-display
 script                  $(mime)/text-x-script
+sdcard                  devices/media-memory-sd
 security                status/security-medium
 select                  actions/select-rectangular
 select-all              actions/edit-select-all
@@ -293,7 +323,7 @@ start                   actions/media-skip-backward
 statistics              actions/view-statistics
 stop                    actions/media-playback-stop
 sum                     #
-sun                     status/weather-clear
+sun                     [breeze*!48]applets/weather-clear;status/weather-clear
 suspend                 apps/system-suspend;actions/system-suspend
 system                  devices/computer
 switch-user             apps/system-switch-user;actions/system-switch-user
@@ -327,7 +357,8 @@ text-super              actions/format-text-superscript;actions/text-superscript
 text-top                actions/format-align-vertical-top
 text-underline          actions/format-text-underline
 text-upper              actions/format-text-uppercase
-theme                   preferences/preferences-desktop-theme;preferences/preferences-desktop-theme-global;;apps/preferences-desktop-theme;apps/preferences-desktop-theme-global
+theme                    preferences/preferences-desktop-theme;preferences/preferences-desktop-theme-global;;apps/preferences-desktop-theme;apps/preferences-desktop-theme-global
+toilet                  #
 tools                   [elementary]categories/applications-development;[breeze*]categories/applications-system;actions/applications-system;categories/applications-system
 top                     actions/go-top
 town                    places/poi-town
@@ -336,6 +367,7 @@ transparency            #
 trash                   [breeze*!16]places/user-trash;places/user-trash
 trash-full              [breeze*!16]places/user-trash-full;places/user-trash-full
 usb                     devices/media-removable;devices/drive-removable-media;devices/drive-removable;devices/drive-removable-media-usb
+uncompress              actions/archive-extract;actions/extract-archive
 undo                    actions/edit-undo
 ungroup                 actions/object-ungroup
 unindent                actions/format-indent-less

@@ -188,7 +188,7 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
   Dim hFocus As Control
   
   hWatch = New Timer As "WatchTimer"
-  hWatch.Delay = 50
+  hWatch.Delay = 100
   hWatch.Start
   
   hFocus = Application.ActiveControl
@@ -223,8 +223,6 @@ Static Private Sub HandleMenu(hCurrent As MenuButton)
   
 End
 
-
-
 Private Sub Arrow_Click()
 
   If Not $sMenu Or If Not Main.FindMenu(Me, $sMenu) Then
@@ -237,6 +235,7 @@ Private Sub Arrow_Click()
     Return
   Endif
   
+  DrawingArea_MouseUp
   HandleMenu(Me)
   
 End
