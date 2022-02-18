@@ -2916,6 +2916,33 @@ Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As Str
   
 End
 
+' Public Sub OpenFileLater(sPath As String)
+'   
+'   If Not $aOpenFileLater Then 
+'     $aOpenFileLater = New String[]
+'     $hTimerOpenFileLater = New Timer As "TimerOpenFileLater"
+'     $hTimerOpenFileLater.Trigger
+'   Endif
+'   
+'   $aOpenFileLater.Add(sPath)
+'   
+' End
+' 
+' Public Sub TimerOpenFileLater_Timer()
+' 
+'   Dim sPath As String
+'   Dim aOpenFileLater As String[]
+'   
+'   $hTimerOpenFileLater = Null
+'   aOpenFileLater = $aOpenFileLater
+'   $aOpenFileLater = Null
+'   
+'   For Each sPath In aOpenFileLater
+'     OpenFile(sPath)
+'   Next
+'   
+' End
+' 
 Public Sub MakeDir(sDir As String) As Boolean
 
   Dim sPath As String
