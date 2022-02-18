@@ -1711,7 +1711,7 @@ void gt_add_layout_from_font(PangoLayout *layout, gFont *font, int dpi)
 	set_layout_from_font(layout, font, true, dpi);
 }
 
-void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float *th, int align, float *offX, float *offY)
+void gt_layout_alignment(PangoLayout *layout, const char *text, int len, float w, float h, float *tw, float *th, int align, float *offX, float *offY)
 {
 	int ptw, pth;
 	gt_layout_get_extents(layout, &ptw, &pth, FALSE);
@@ -1721,19 +1721,24 @@ void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float
 	if (w < 0) w = *tw;
 	if (h < 0) h = *th;
 
-	switch (align)
+	if (ALIGN_IS_NORMAL(align))
 	{
-		case ALIGN_BOTTOM_NORMAL:
-			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_BOTTOM_RIGHT : ALIGN_BOTTOM_LEFT;
-			break;
+		PangoDirection dir = pango_find_base_dir(text, len);
 		
-		case ALIGN_NORMAL:
-			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_RIGHT : ALIGN_LEFT;
-			break;
+		switch (align)
+		{
+			case ALIGN_BOTTOM_NORMAL:
+				align = dir == PANGO_DIRECTION_RTL ? ALIGN_BOTTOM_RIGHT : ALIGN_BOTTOM_LEFT;
+				break;
 			
-		case ALIGN_TOP_NORMAL:
-			align = pango_layout_get_direction(layout, 0) == PANGO_DIRECTION_RTL ? ALIGN_TOP_RIGHT : ALIGN_TOP_LEFT;
-			break;
+			case ALIGN_NORMAL:
+				align = dir == PANGO_DIRECTION_RTL ? ALIGN_RIGHT : ALIGN_LEFT;
+				break;
+				
+			case ALIGN_TOP_NORMAL:
+				align = dir == PANGO_DIRECTION_RTL ? ALIGN_TOP_RIGHT : ALIGN_TOP_LEFT;
+				break;
+		}
 	}
 	
 	switch (align)

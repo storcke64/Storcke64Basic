@@ -122,7 +122,7 @@ gPicture *gt_grab_window(GdkWindow *win, int x = 0, int y = 0, int w = 0, int h 
 
 // Compute the alignment of a PangoLayout
 
-void gt_layout_alignment(PangoLayout *layout, float w, float h, float *tw, float *th, int align, float *offX, float *offY);
+void gt_layout_alignment(PangoLayout *layout, const char *text, int len, float w, float h, float *tw, float *th, int align, float *offX, float *offY);
 
 // Compute the extents of a layout
 
