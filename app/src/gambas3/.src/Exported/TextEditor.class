@@ -21,6 +21,7 @@ Private $aFind As Integer[]
 
 Private $iLastLine As Integer
 Private $iLastLineOffset As Integer
+Private $hTask As CVersionControlHistoryTask
 
 Public Sub _new()
   
@@ -482,14 +483,55 @@ HANDLE_REMOVED:
 
 End
 
+Public Sub StopFillWithHistory()
+  
+  Dim hTask As CVersionControlHistoryTask
+  
+  If $hTask Then
+    hTask = $hTask
+    $hTask = Null
+    hTask.Kill 
+    hTask.Wait
+  Endif
+  
+End
+
+
 Public Sub FillWithHistory(sPath As String, Optional sPath2 As String, Optional bFull As Boolean)
   
-  Inc Application.Busy
+  StopFillWithHistory
+  
   Me.Clear
-  Me.Text = VersionControl.History(sPath, sPath2, bFull)
-  Me.SetFocus
-  Me.Reset
-  Dec Application.Busy
+  
+  $hTask = New CVersionControlHistoryTask(sPath, sPath2, bFull) As "TaskVCHistory"
+  
+  'Me.Text = VersionControl.History(sPath, sPath2, bFull)
+  
+End
+  
+Public Sub TaskVCHistory_Read(Data As String)
+
+  'Dim SY As Integer
+  
+  If Not $hTask Then Return
+  
+  Me.Append(Data)
+  
+  ' SY = Me.ScrollY
+  ' Me.SaveCursor()
+  ' Me.Goto(-1, Me.Count)
+  ' Me.Insert(Data)
+  ' Me.RestoreCursor
+  ' Me.ScrollY = SY
+  
+End
+
+Public Sub TaskVCHistory_Kill()
+  
+  If $hTask Then
+    Me.SetFocus
+    Me.Reset
+  Endif
   
 End
 

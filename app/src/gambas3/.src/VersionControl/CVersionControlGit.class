@@ -191,7 +191,8 @@ Public Sub History(sPath As String, Optional sPath2 As String, bFull As Boolean)
     If sPath2 Then sCmd &= " " & Shell(File.Name(sPath2))
   Endif
   
-  Return VersionControl.Shell(sCmd)
+  'Return VersionControl.Shell(sCmd)
+  Shell sCmd Wait
 
 End
 

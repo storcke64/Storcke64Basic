@@ -53,11 +53,19 @@
     Spacing = True
     { chkHideTrans CheckBox
       MoveScaled(0,0,24,4)
+      Visible = False
       AutoResize = True
       Text = ("Hide translation changes")
     }
+    { chkShowHistoryChanges CheckBox
+      MoveScaled(0,0,29,3)
+      Visible = False
+      AutoResize = True
+      Text = ("Display changes in history")
+    }
     { panNothing Panel
       MoveScaled(9,0,31,4)
+      Visible = False
       Arrangement = Arrange.Horizontal
       AutoResize = True
       Spacing = True
@@ -68,7 +76,7 @@
       }
       { lblNothingToCommit Label
         MoveScaled(4,0,25,4)
-        Font = Font["Bold"]
+        Font = Font["Italic"]
         Text = ("There is nothing to commit.")
       }
     }
