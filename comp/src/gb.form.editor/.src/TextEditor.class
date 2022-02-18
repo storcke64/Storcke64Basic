@@ -2641,6 +2641,30 @@ Public Sub Insert(Text As String)
   
 End
 
+'' Append some text to the editor's end without moving the cursor.
+''
+'' - ~Text~ is the text that will be inserted at the end of the editor contents.
+''
+'' The text can be multi-line. The line separator is always `"\n"` in that case.
+
+Public Sub Append(Text As String)
+  
+  Dim Y As Integer
+  Dim X As Integer
+  
+  If Not Text Then Return
+  
+  $hDoc.Begin
+  
+  Y = $hDoc.Count - 1
+  X = $hDoc.LineLength[Y]
+  $hDoc.Insert(Text, X, Y)
+  
+  $hDoc.End
+  
+End
+
+
 Public Sub _BeforeInsert(Y1 As Integer, N As Integer)
   
   $hRows._BeforeInsert(Y1, N, $cLineLayout)
