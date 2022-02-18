@@ -730,11 +730,10 @@ void gControl::showButKeepFocus()
 	}
 	
 	focus = gApplication::_active_control;
-	if (focus)
+	if (focus && !focus->hasFocus())
 	{
 		gApplication::_active_control = NULL;
-		if (!focus->hasFocus())
-			focus->setFocus();
+		focus->setFocus();
 		gApplication::_active_control = focus;
 	}
 
@@ -1332,7 +1331,7 @@ void gControl::setFocus()
 		return;
 	}
 
-	if (hasFocus())
+	if (!canFocus() || hasFocus())
 		return;
 	
 	gMainWindow *win = window();

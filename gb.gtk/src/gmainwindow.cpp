@@ -1446,12 +1446,14 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 {
 	int w, h;
 	gColor fg, bg;
+	bool was_visible;
 
 	if (_xembed)
 		return;
 
 	bg = background();
 	fg = foreground();
+	was_visible = isVisible();
 
 	if (isTopLevel() && newpr)
 	{
@@ -1477,6 +1479,8 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 
 		gtk_widget_set_size_request(border, width(), height());
 
+		if (was_visible)
+			gtk_widget_show(border);
 		// Hidden children are incorrectly shown. Fix that!
 		hideHiddenChildren();
 	}
@@ -1511,11 +1515,13 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 		gtk_widget_set_size_request(border, 1, 1);
 		resize(w, h);
 
-		hideHiddenChildren();
-		
 		gtk_widget_set_sensitive(frame, FALSE);
 		gtk_widget_set_sensitive(frame, TRUE);
 
+		if (was_visible)
+			present();
+		hideHiddenChildren();
+		
 		_popup = false; //type == GTK_WINDOW_POPUP;
 	}
 	else
