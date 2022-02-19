@@ -2070,7 +2070,7 @@ Private Function GetExpressionSignature(aExpr As String[], aType As Integer[]) A
 
   $iPosSignature = Highlight.Positions[iInd - 1]
 
-  If iInd >= 2 Then bNew = aExpr[iInd - 2] = "NEW"
+  If iInd >= 2 Then bNew = aExpr[iInd - 2] == "NEW"
 
   aExpr.Remove(iInd, -1)
   aType.Remove(iInd, -1)
@@ -2125,7 +2125,7 @@ Private Function GetExpressionSymbol(aExpr As String[], aType As Integer[]) As C
     aExpr.Remove(aExpr.Count - 1)
   Endif
 
-  If aExpr.Count >= 2 Then bNew = aExpr[aExpr.Count - 2] = "NEW"
+  If aExpr.Count >= 2 Then bNew = aExpr[aExpr.Count - 2] == "NEW"
 
   sType = GetExpressionType(aExpr, aType, sPattern = ".")
   'IF NOT $hSymbol THEN
