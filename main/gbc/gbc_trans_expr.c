@@ -72,7 +72,8 @@ static void _drop_type(int n)
 #define push_type_id(_id) fprintf(stderr, "push_type_id: %d in %s.%d\n", (_id), __func__, __LINE__), _push_type(TYPE_make_simple(_id))
 #define pop_type() (fprintf(stderr, "pop_type: in %s.%d\n", __func__, __LINE__),(_type[--_type_level]))
 #define drop_type(_n) fprintf(stderr, "drop_type: %d in %s.%d\n", (_n), __func__, __LINE__),_drop_type(_n)
-#define get_type_id(_i, _nparam) (fprintf(stderr, "get_type(%d,%d): %d in %s.%d\n", (_i), (_nparam), (_type[_type_level + (_i) - (_nparam)].t.id), __func__, __LINE__),(_type[_type_level + (_i) - (_nparam)].t.id))
+#define get_type(_i, _nparam) (fprintf(stderr, "get_type(%d,%d): %d in %s.%d\n", (_i), (_nparam), (_type[_type_level + (_i) - (_nparam)].l), __func__, __LINE__),(_type[_type_level + (_i) - (_nparam)]))
+#define get_type_id(_i, _nparam) (fprintf(stderr, "get_type_id(%d,%d): %d in %s.%d\n", (_i), (_nparam), (_type[_type_level + (_i) - (_nparam)].t.id), __func__, __LINE__),(_type[_type_level + (_i) - (_nparam)].t.id))
 #define dup_type() fprintf(stderr, "dup_type: in %s.%d\n", __func__, __LINE__),push_type(_type[_type_level - 1])
 
 #else
@@ -557,6 +558,10 @@ static void trans_operation(short op, short nparam, PATTERN previous)
 			ftype = TYPE_make_simple(T_VARIANT);
 			break;
 			
+		case RST_BCLR:
+			ftype = get_type(0, nparam);
+			break;
+			
 		/*case RST_GET:
 			ftype = get_type(0, nparam);
 			if (ftype.t.id == T_OBJECT)
@@ -572,6 +577,8 @@ static void trans_operation(short op, short nparam, PATTERN previous)
 			break;*/
 		
 		default:
+			if (type > T_OBJECT)
+				ERROR_panic("Operator type analysis not implemented.");
 			ftype = TYPE_make_simple(type);
 			
 	}
