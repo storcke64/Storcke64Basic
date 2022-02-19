@@ -463,7 +463,7 @@ Public Sub DrawingArea_Draw()
     If Me.Enabled Then
       Paint.DrawPicture($hPicture, X, (Me.H - $hPicture.H) / 2)
     Else
-      Paint.DrawImage($hPicture.Image.Desaturate(), X, (Me.H - $hPicture.H) / 2)
+      Paint.DrawImage($hPicture.Image.Desaturate().Contrast(-1), X, (Me.H - $hPicture.H) / 2)
     Endif
     
   Endif

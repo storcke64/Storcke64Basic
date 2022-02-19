@@ -3,6 +3,7 @@ add                     actions/list-add
 added                   emblems/vcs-added;emblems/added
 administrator           #
 agenda                  apps/agenda;actions/view-calendar-agenda
+alarm                   status/alarm;actions/alarm
 align-bottom            actions/align-vertical-bottom
 align-center            actions/align-horizontal-center
 align-height            actions/object-columns
@@ -19,6 +20,9 @@ android                 $(mime)/application-vnd.android.package-archive
 audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop-sound;apps/preferences-desktop-sound
 average                 #
 battery                 devices/battery
+battery-high            status/battery-100
+battery-low             status/battery-020
+battery-medium          status/battery-060
 bicycle                 #
 border                  actions/format-border-set-all
 border-bottom           actions/format-border-set-bottom
@@ -42,6 +46,7 @@ bottom                  actions/go-bottom
 brush                   actions/draw-brush
 bus                     places/poi-bus-stop
 c                       $(mime)/text-x-csrc
+cake                    emotes/food-cake
 calculator              apps/accessories-calculator
 calendar                actions/office-calendar;apps/evolution-calendar;actions/view-pim-calendar
 call                    actions/call-start
@@ -216,6 +221,7 @@ media-player            devices/multimedia-player
 memory                  devices/media-memory
 menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
 microphone              devices/audio-input-microphone
+microphone-off          status/audio-input-microphone-muted;status/microphone-disabled
 modified                emblems/vcs-locally-modified;emblems/emblem-csv-modified
 monitor                 apps/utilities-system-monitor
 moon                    [breeze*!48]applets/weather-clear-night;status/weather-clear-night
@@ -306,7 +312,10 @@ science                 categories/applications-science
 screen                  devices/video-display;preferences/preferences-desktop-display;apps/preferences-desktop-display
 script                  $(mime)/text-x-script
 sdcard                  devices/media-memory-sd
-security                status/security-medium
+security                [breeze*]preferences/security;status/security-medium
+security-high           status/security-high
+security-low            status/security-low
+security-medium         status/security-medium
 select                  actions/select-rectangular
 select-all              actions/edit-select-all
 server                  [breeze*!16]places/server-database;places/network-server
@@ -322,6 +331,7 @@ star                    [breeze*]actions/draw-star;status/starred;;preferences/p
 start                   actions/media-skip-backward
 statistics              actions/view-statistics
 stop                    actions/media-playback-stop
+subtitle                actions/media-view-subtitles;actions/add-subtitle
 sum                     #
 sun                     [breeze*!48]applets/weather-clear;status/weather-clear
 suspend                 apps/system-suspend;actions/system-suspend
@@ -388,13 +398,19 @@ view-preview            actions/view-preview
 view-split-h            actions/view-split-left-right
 view-split-v            actions/view-split-top-bottom
 view-tree               actions/view-list-tree
-volume                  status/audio-volume-high
+volume                  apps/preferences-desktop-sound;status/audio-volume-high
+volume-high             status/audio-volume-high
+volume-low              status/audio-volume-low
+volume-medium           status/audio-volume-medium
 vpn                     devices/network-vpn
 walk                    #
 warning                 status/dialog-warning
 watch                   [breeze*]actions/visibility;actions/view-visible
 webcam                  devices/camera-web
 wifi                    devices/network-wireless
+wifi-high               status/network-wireless-connected-100;status/network-wireless-100
+wifi-low                status/network-wireless-connected-50;status/network-wireless-50
+wifi-medium             status/network-wireless-connected-75;status/network-wireless-75
 window                  actions/window;;preferences/preferences-system-windows;apps/preferences-system-windows
 windows                 $(mime)/application-x-ms-dos-executable
 wizard                  actions/tools-wizard
