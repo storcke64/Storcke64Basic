@@ -1902,6 +1902,12 @@ void gControl::setMinimumSize()
 
 void gControl::connectBorder()
 {
+	if (widget != border && (GTK_IS_WINDOW(border) || (GTK_IS_EVENT_BOX(border) && !gtk_event_box_get_visible_window(GTK_EVENT_BOX(border)))))
+	{
+		gtk_widget_add_events(border, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
+			| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
+			| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+	}
 }
 
 void gControl::realize(bool draw_frame)
@@ -1928,6 +1934,10 @@ void gControl::realize(bool draw_frame)
 		gt_patch_control(widget);
 #endif
 
+	gtk_widget_add_events(widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
+		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
+		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+
 	connectParent();
 	connectBorder();
 	
@@ -1945,20 +1955,6 @@ void gControl::realize(bool draw_frame)
 	if (isContainer() && !gtk_widget_get_has_window(widget))
 		g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(cb_clip_children), (gpointer)this);
 #endif
-
-	//if (isContainer() && widget != border)
-	//	g_signal_connect(G_OBJECT(widget), "size-allocate", G_CALLBACK(cb_size_allocate), (gpointer)this);
-
-	gtk_widget_add_events(widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
-		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-
-	if (widget != border && (GTK_IS_WINDOW(border) || (GTK_IS_EVENT_BOX(border) && !gtk_event_box_get_visible_window(GTK_EVENT_BOX(border)))))
-	{
-		gtk_widget_add_events(border, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-			| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
-			| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-	}
 
 	registerControl();
 	updateFont();

@@ -1492,7 +1492,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 		// TODO: test that
 		
 		createWindow(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-
+		
 		if (parent())
 		{
 			parent()->remove(this);

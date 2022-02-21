@@ -756,6 +756,8 @@ GtkWidget *gContainer::getContainer()
 
 void gContainer::connectBorder()
 {
+	gControl::connectBorder();
+	
 	g_signal_connect_after(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
 	g_signal_connect_after(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
 #if GTK3
