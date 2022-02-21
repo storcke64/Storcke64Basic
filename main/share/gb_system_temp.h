@@ -53,6 +53,8 @@ int SYSTEM_get_cpu_count(void)
 
 #else
 
+#include <stdio.h>
+
 int SYSTEM_get_cpu_count(void)
 {
 	fprintf(stderr, "gbx" GAMBAS_VERSION_STRING ": warning: don't know how to return cpu count\n");
