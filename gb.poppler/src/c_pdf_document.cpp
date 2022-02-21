@@ -85,7 +85,7 @@ static GEOM_RECTF *make_rect(PopplerRectangle *rect)
 BEGIN_METHOD(PdfDocument_new, GB_STRING path; GB_STRING password)
 
 	const char *password;
-	GError *error;
+	GError *error = NULL;
 	std::string rpasswd;
 
 	if (GB.LoadFile(STRING(path), LENGTH(path), &THIS->buffer, &THIS->length))
