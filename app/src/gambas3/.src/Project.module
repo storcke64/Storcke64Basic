@@ -2841,7 +2841,7 @@ Public Sub MakeRelativeLink(sLink As String, sPath As String) As String
 
 End
 
-Public Sub InsertSource(sName As String, sType As String, sDir As String, Optional sTemplate As String, Optional bNoRefresh As Boolean, Optional bNoOpen As Boolean, Optional bLink As Boolean)
+Public Sub InsertSource(sName As String, sType As String, sDir As String, Optional sTemplate As String, Optional bNoRefresh As Boolean, Optional bNoOpen As Boolean, Optional bLink As Boolean) As String
 
   Dim sPath As String
 
@@ -2868,10 +2868,12 @@ Public Sub InsertSource(sName As String, sType As String, sDir As String, Option
 
   If Not bNoRefresh Then Refresh
   If Not bNoOpen Then OpenFile(sPath)
+  
+  Return sPath
 
 End
 
-Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As String, Optional bNoOpen As Boolean, Optional bLink As Boolean)
+Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As String, Optional bNoOpen As Boolean, Optional bLink As Boolean) As String
 
   Dim sPath As String
 
@@ -2913,6 +2915,8 @@ Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As Str
   'RefreshLibrary
 
   If Not bNoOpen Then OpenFile(sPath)
+  
+  Return sPath
   
 End
 

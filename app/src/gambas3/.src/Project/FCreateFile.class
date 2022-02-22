@@ -173,13 +173,13 @@ Private Sub CreateFile() As Boolean
     
       sTemp = "' Gambas module file\n\n"
       
-      Project.InsertSource(sName, sType, $sDir, sTemp,, True)
+      $sPath = Project.InsertSource(sName, sType, $sDir, sTemp,, True)
   
     Case "test"
     
       sTemp = "' Gambas test file\n\n"
       
-      Project.InsertSource(sName, sType, $sDir, sTemp,, True)
+      $sPath = Project.InsertSource(sName, sType, $sDir, sTemp,, True)
   
     Case "class"
     
@@ -196,7 +196,7 @@ Private Sub CreateFile() As Boolean
       If cmbParent.Index > 0 Then sTemp &= "Inherits " & cmbParent.Text & "\n"
       sTemp = RTrim(sTemp) & "\n"
       
-      Project.InsertSource(sName, sType, $sDir, sTemp,, True)
+      $sPath = Project.InsertSource(sName, sType, $sDir, sTemp,, True)
   
     Case "form", "report", "webform", "termform"
     
@@ -261,34 +261,34 @@ Private Sub CreateFile() As Boolean
       
       sTemp &= "}\n"
       
-      Project.InsertSource(sName, sType, $sDir, sTemp,, True)
+      $sPath = Project.InsertSource(sName, sType, $sDir, sTemp,, True)
       
     Case "webpage"
 
       Project.InsertSource(sName, "class", $sDir, "' Gambas class file\n\n", True, True)
-      Project.InsertSource(sName, "webpage", $sDir, "<html>\n<body>\n<%\nPrint \"<h1>Gambas</h1>\";\n%>\n</body>\n</html>\n",, True)
+      $sPath = Project.InsertSource(sName, "webpage", $sDir, "<html>\n<body>\n<%\nPrint \"<h1>Gambas</h1>\";\n%>\n</body>\n</html>\n",, True)
       
     Case "text"
     
       File.Save($sDir &/ sName, "")
       Inc FMain.NoMessage
-      Project.InsertFile(sName, $sDir,, True)
+      $sPath = Project.InsertFile(sName, $sDir,, True)
       Dec FMain.NoMessage
   
     Case "html"
     
       File.Save($sDir &/ sName, "<html>\n\n<head>\n</head>\n\n<body>\n</body>\n\n</html>\n")
-      Project.InsertFile(sName, $sDir,, True)
+      $sPath = Project.InsertFile(sName, $sDir,, True)
   
     Case "css"
     
       File.Save($sDir &/ sName, "BODY\n{\n}\n")
-      Project.InsertFile(sName, $sDir,, True)
+      $sPath = Project.InsertFile(sName, $sDir,, True)
   
     Case "js"
     
       File.Save($sDir &/ sName, "// " & sName & "\n\nfunction foo()\n{\n}\n")
-      Project.InsertFile(sName, $sDir,, True)
+      $sPath = Project.InsertFile(sName, $sDir,, True)
   
     Case "image"
     
@@ -300,11 +300,9 @@ Private Sub CreateFile() As Boolean
       Endif
       hImage.Save($sDir &/ sName)
 
-      Project.InsertFile(sName, $sDir,, True)
+      $sPath = Project.InsertFile(sName, $sDir,, True)
   
   End Select
-  
-  $sPath = $sDir &/ sName
   
 End
 

@@ -2810,7 +2810,7 @@ Public Sub PasteSelection(hShape As CImageSelection)
 
   CreateSelection
   AddUndo($hSelect.Copy())
-  $hSelect.Select($hSelect.AddSelection(hShape))
+  $hSelect.AddSelection(hShape)
   
   RefreshSelection
   
