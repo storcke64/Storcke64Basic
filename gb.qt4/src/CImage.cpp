@@ -264,7 +264,7 @@ BEGIN_METHOD(Image_Rotate, GB_FLOAT angle)
 		QMatrix mat;
 #endif
 		mat.rotate(VARG(angle) * -360.0 / 2 / M_PI);
-		*rotate = QIMAGE->transformed(mat);
+		*rotate = QIMAGE->transformed(mat, Qt::SmoothTransformation);
 	}
 	else
 		*rotate = QIMAGE->copy();

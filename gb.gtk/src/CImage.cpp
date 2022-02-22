@@ -225,9 +225,15 @@ END_METHOD
 BEGIN_METHOD(Image_Rotate, GB_FLOAT angle)
 
 	CIMAGE *img;
+	gPicture *pic, *pic2;
 
 	check_image(THIS);
-	img = CIMAGE_create(PICTURE->rotate(VARG(angle)));
+	pic = PICTURE->stretch(PICTURE->width() * 2, PICTURE->height() * 2, false);
+	pic2 = pic->rotate(VARG(angle));
+	pic->unref();
+	pic = pic2->stretch(pic2->width() / 2, pic2->height() / 2, true);
+	pic2->unref();
+	img = CIMAGE_create(pic);
 	GB.ReturnObject((void*)img);
 
 END_METHOD
