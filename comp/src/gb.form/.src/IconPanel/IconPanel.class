@@ -393,3 +393,16 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Endif
   
 End
+
+Public Sub FindPanel(Text As String) As Integer
+
+  Dim I As Integer
+  Dim hCont As _IconPanelContainer
+  
+  For I = 0 To $aCont.Max
+    hCont = $aCont[I]
+    If hCont.Text = Text Then Return I
+  Next
+  Return -1
+  
+End

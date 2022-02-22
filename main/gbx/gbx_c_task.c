@@ -653,7 +653,7 @@ BEGIN_METHOD_VOID(Task_Wait)
 			if (THIS->stopped)
 				break;
 			//printf("sleep\n"); fflush(stdout);
-			sleep(10);
+			usleep(10);
 		}
 	}
 	END_ERROR

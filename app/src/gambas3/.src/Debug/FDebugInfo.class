@@ -1712,21 +1712,21 @@ Public Sub IsWatch(sExpr As String) As Boolean
   
 End
 
-Public Sub GetWatches() As String
+Public Sub GetWatches() As String[]
 
-  Dim sCmd As String
+  Dim aCmd As New String[]
   Dim sExpr As String
   
-  If cvwVariable.MoveTo("@") Then Return
-  If cvwVariable.MoveChild() Then Return
+  If cvwVariable.MoveTo("@") Then Return aCmd
+  If cvwVariable.MoveChild() Then Return aCmd
   
   Repeat
     sExpr = cvwVariable.Item.Text
-    sCmd &= "?W" & sExpr & "\t" & sExpr & "\n"
-    If $cTrack.Exist("@" & sExpr) Then sCmd &= "w" & $cTrack["@" & sExpr] & "\t" & sExpr & "\n"
+    aCmd.Add("?W" & sExpr & "\t" & sExpr)
+    If $cTrack.Exist("@" & sExpr) Then aCmd.Add("w" & $cTrack["@" & sExpr] & "\t" & sExpr)
   Until cvwVariable.MoveNext()
   
-  Return sCmd
+  Return aCmd
   
 End
 

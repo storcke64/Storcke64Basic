@@ -1107,3 +1107,16 @@ Private Sub ShowTabBar_Write(Value As Boolean)
   UpdateLayout
 
 End
+
+Public Sub FindPanel(Text As String) As Integer
+
+  Dim I As Integer
+  Dim hCont As _TabPanelContainer
+  
+  For I = 0 To $aCont.Max
+    hCont = $aCont[I]
+    If hCont.Text = Text Then Return I
+  Next
+  Return -1
+  
+End

@@ -82,6 +82,7 @@ Public Sub Form_Open()
     btnWarning.Value = .Warnings
     btnCheckPrefix.Value = .CheckVariablePrefix
     txtDefaultNamespace.Text = .DefaultNamespace
+    cmbForceBytecodeVersion.Text = .ForceBytecodeVersion
     txtMajor.Value = .MajorVersion
     txtMinor.Value = .MinorVersion
     txtRelease.Value = .ReleaseVersion
@@ -138,8 +139,6 @@ Public Sub Form_Open()
 
   ipnProject.Index = 0
 
-  InitEnvironment
-
   btnOK.Enabled = Not Project.ReadOnly And Not Project.Running
 
   $bInitInfo = False
@@ -159,18 +158,6 @@ Public Sub Form_Activate()
     $bShowArguments = False
     ipnProject.Index = ARGUMENT_TAB
   Endif
-  
-End
-
-Private Sub InitEnvironment()
-
-  choEnv.Environment = Project.Environment.Copy()
-  
-End
-
-Private Sub SaveEnvironment()
-  
-  Project.Environment = choEnv.Environment
   
 End
 
@@ -227,21 +214,16 @@ Private Function DoApply() As Boolean
     .Warnings = btnWarning.Value
     .CheckVariablePrefix = btnCheckPrefix.Value
     .DefaultNamespace = txtDefaultNamespace.Text
+    .ForceBytecodeVersion = Trim(cmbForceBytecodeVersion.Text)
     .MajorVersion = txtMajor.Value
     .MinorVersion = txtMinor.Value
     .ReleaseVersion = txtRelease.Value
     .VersionFile = chkGetVersionFromFile.Value
-    '.SnapToGrid = chkSnap.Value
 
-    'IF chkShowGrid.Value <> .ShowGrid OR .Snap <> txtGrid.Value THEN
-    '  bRefreshForm = TRUE
-    'ENDIF
-
-    '.ShowGrid = chkShowGrid.Value
-    '.Snap = txtGrid.Value
     If btnTranslate.Value And Not .Localize Then
       Project.DeleteCompiledFiles()
     Endif
+    
     .Localize = btnTranslate.Value
     .DefaultLanguage = MyLanguage.FromName(cmbDefaultLanguage.Text)
     
@@ -263,7 +245,6 @@ Private Function DoApply() As Boolean
   End With
 
   SaveComponents
-  SaveEnvironment
   WriteComponent
 
   Inc Project.TimeStamp
@@ -625,20 +606,6 @@ Public Sub btnReset_Click()
   
   End Select
 
-End
-
-Public Sub btnInsertEnv_Click()
-
-  choEnv.Insert()
-
-End
-
-Public Sub mnuInsertEnv_Click()
-  
-  Dim sNewEnv As String = Last.Tag
-  If Not sNewEnv Then Return
-  choEnv.Insert(Split(sNewEnv))
-  
 End
 
 ' Public Sub cmbTranslate_Click()
@@ -1285,26 +1252,6 @@ Public Sub lstReferences_Add()
 
 End
 
-Public Sub btnMoveUpEnv_Click()
-
-  choEnv.MoveUpCurrent()
-
-End
-
-Public Sub btnMoveDownEnv_Click()
-
-  choEnv.MoveDownCurrent()
-
-End
-
-Public Sub choEnv_Select()
-
-  btnRemoveEnv.Enabled = choEnv.Current >= 0
-  btnMoveDownEnv.Enabled = btnRemoveEnv.Enabled
-  btnMoveUpEnv.Enabled = btnRemoveEnv.Enabled
-
-End
-
 Public Sub btnWarning_Click()
 
   btnCheckPrefix.Enabled = btnWarning.Value
@@ -1320,17 +1267,5 @@ End
 Public Sub lvwExclude_Select()
 
   lvwRequire.UnSelectAll
-
-End
-
-Public Sub btnRemoveEnv_Click()
-
-  choEnv.RemoveCurrent()
-
-End
-
-Public Sub choEnv_Activate()
-
-  btnOK.Value = True
 
 End

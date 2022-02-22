@@ -69,6 +69,21 @@ static bool _extract = FALSE;
 static char *_extract_archive;
 static char *_extract_file = NULL;
 
+static void print_version()
+{
+	#ifdef TRUNK_VERSION
+	printf(VERSION " " TRUNK_VERSION "\n");
+	#else /* no TRUNK_VERSION */
+	printf(VERSION "\n");
+	#endif
+}
+
+static void print_title()
+{
+	printf("\nGambas archiver version ");
+	print_version();
+}
+
 static void get_arguments(int argc, char **argv)
 {
 	int opt;
@@ -89,11 +104,7 @@ static void get_arguments(int argc, char **argv)
 		switch (opt)
 		{
 			case 'V':
-				#ifdef TRUNK_VERSION
-				printf(VERSION " " TRUNK_VERSION "\n");
-				#else /* no TRUNK_VERSION */
-				printf(VERSION "\n");
-				#endif
+				print_version();
 				exit(0);
 
 			case 'v':
@@ -115,21 +126,20 @@ static void get_arguments(int argc, char **argv)
 				break;
 				
 			case 'L':
-				printf(
-					"\nGAMBAS Archiver version " VERSION "\n"
-					COPYRIGHT
-					);
+				print_version();
+				printf(COPYRIGHT);
 				exit(0);
 
 			case 'h': case '?':
+				print_title();
 				printf(
 					"\nCreate a standalone one-file executable from a Gambas project.\n"
-					"Or extract a specific file from a Gambas executable (-x option).\n"
-					"\nUsage: gba" GAMBAS_VERSION_STRING " [options] [<project directory>]\n"
-					"       gba" GAMBAS_VERSION_STRING " -x <archive path> <file>\n\n"
+					"\n    gba" GAMBAS_VERSION_STRING " [options] [<project directory>]\n"
+					"\nExtract a specific file from a Gambas executable (-x option).\n"
+					"\n    gba" GAMBAS_VERSION_STRING " -x <archive path> <file>\n\n"
 					"Options:"
 					#if HAVE_GETOPT_LONG
-					"\n"
+					"\n\n"
 					"  -h  --help                 display this help\n"
 					"  -L  --license              display license\n"
 					"  -o  --output=ARCHIVE       archive path [<project directory>/<project name>.gambas]\n"
@@ -138,7 +148,7 @@ static void get_arguments(int argc, char **argv)
 					"  -V  --version              display version\n"
 					"  -x  --extract=ARCHIVE      archive path\n"
 					#else
-					" (no long options on this system)\n"
+					" (no long options on this system)\n\n"
 					"  -h                     display this help\n"
 					"  -L                     display license\n"
 					"  -o=ARCHIVE             archive path [<project directory>/<project name>.gambas]\n"

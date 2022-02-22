@@ -2496,11 +2496,15 @@ Public Sub btnZoomFit_Click()
 
   Dim iIndex As Integer
   Dim fZoom As Float
+  Dim W, H As Integer
+  
+  W = imvImage.W - Desktop.Scale * 2
+  H = imvImage.H - Desktop.Scale * 2
   
   For iIndex = cmbZoom.Count - 1 DownTo 0
     
     fZoom = CFloat(String.Left(cmbZoom[iIndex].Text, -1))
-    If ($hImage.W * fZoom) > imvImage.W Or If ($hImage.H * fZoom) > imvImage.H Then Break
+    If ($hImage.W * fZoom) > W Or If ($hImage.H * fZoom) > H Then Break
     
   Next
   

@@ -280,6 +280,7 @@
         { slbOpacity SliderBox
           MoveScaled(18,0,38,4)
           Expand = True
+          Picture = Picture["icon:/32/opacity"]
           MaxValue = 255
           Step = 32
           DefaultValue = 255
@@ -296,6 +297,7 @@
         { slbSize SliderBox
           MoveScaled(18,0,38,4)
           Expand = True
+          Picture = Picture["icon:/32/line-width"]
           MaxValue = 256
           Step = 2
         }
@@ -310,6 +312,7 @@
         { slbTolerance SliderBox
           MoveScaled(18,0,38,4)
           Expand = True
+          Picture = Picture["icon:/32/percent"]
           MaxValue = 128
           Step = 8
           DefaultValue = 32
@@ -326,6 +329,7 @@
         { slbRoundness SliderBox
           MoveScaled(18,0,38,4)
           Expand = True
+          Picture = Picture["icon:/32/draw-round"]
           MaxValue = 256
           Step = 2
           DefaultValue = 32

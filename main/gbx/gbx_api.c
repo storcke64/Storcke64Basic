@@ -335,6 +335,7 @@ const void *const GAMBAS_DebugApi[] =
 	(void *)GB_DebugBreakOnError,
 	(void *)DEBUG_enter_eval,
 	(void *)DEBUG_leave_eval,
+	(void *)GB_DebugInside,
 	NULL
 };
 
@@ -2446,6 +2447,11 @@ void GB_DebugBreakOnError(bool b)
 	EXEC_break_on_error = b;
 }
 
+void GB_DebugInside(bool b)
+{
+	EXEC_debug_inside = b;
+}
+
 bool GB_SystemDebug(void)
 {
 	return EXEC_debug;
@@ -2526,26 +2532,34 @@ void GB_Wait(int delay)
 
 bool GB_Serialize(const char *path, GB_VALUE *value)
 {
+	CFILE *cfile;
 	STREAM stream;
 
 	CATCH_ERROR
 	{
 		STREAM_open(&stream, path, GB_ST_CREATE);
-		STREAM_write_type(&stream, T_VARIANT, (VALUE *)value);
-		STREAM_close(&stream);
+		cfile = CFILE_create(&stream, GB_ST_CREATE);
+		OBJECT_REF(cfile);
+		STREAM_write_type(&cfile->ob.stream, T_VARIANT, (VALUE *)value);
+		//STREAM_close(&cfile->ob.stream);
+		OBJECT_UNREF(cfile);
 	}
 	END_CATCH_ERROR
 }
 
 bool GB_UnSerialize(const char *path, GB_VALUE *value)
 {
+	CFILE *cfile;
 	STREAM stream;
 
 	CATCH_ERROR
 	{
 		STREAM_open(&stream, path, GB_ST_READ);
-		STREAM_read_type(&stream, T_VARIANT, (VALUE *)value);
-		STREAM_close(&stream);
+		cfile = CFILE_create(&stream, GB_ST_CREATE);
+		OBJECT_REF(cfile);
+		STREAM_read_type(&cfile->ob.stream, T_VARIANT, (VALUE *)value);
+		//STREAM_close(&cfile->ob.stream);
+		OBJECT_UNREF(cfile);
 	}
 	END_CATCH_ERROR
 }

@@ -27,34 +27,6 @@ Static Public Sub _init()
   
 End
 
-' Static Private Sub MakeDark(hImage As Image) As Image
-'   
-'   Dim X As Integer
-'   Dim Y As Integer
-'   Dim hColor As ColorInfo
-'   Dim iLum As Integer
-'   Dim iFg As Integer
-'   Dim iBg As Integer
-'   
-'   iFg = Color[Color.Foreground].Luminance
-'   iBg = Color[Color.Background].Luminance
-'   hImage = hImage.Copy()
-'   
-'   For X = 0 To hImage.W
-'     For Y = 0 To hImage.H
-'       hColor = Color[hImage[X, Y]]
-'       iLum = hColor.Luminance 
-'       hColor.Luminance = iFg - (hColor.Luminance - iBg)
-'       hImage[X, Y] = hColor.Color
-'     Next
-'   Next
-'   
-'   Return hImage
-'   
-' End
-' 
-' 
-
 Static Private Sub Stretch(hImage As Image, iSize As Integer) As Image
   
   If hImage.W = iSize And If hImage.H = iSize Then Return hImage

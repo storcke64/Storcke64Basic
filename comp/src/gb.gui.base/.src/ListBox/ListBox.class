@@ -3,7 +3,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,List,Border=True,Mode{Select.*}=Single,ScrollBar{Scroll.*}=Vertical,Sorted"
+Public Const _Properties As String = "*,List,Border=True,Mode{Select.*}=Single,ScrollBar{Scroll.*}=Vertical,Wrap,Sorted"
 Public Const _Group As String = "View"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "16,16"
@@ -19,6 +19,7 @@ Property Index As Integer
 Property Read Text As String
 Property List As String[]
 Property Font As Font
+Property Wrap As Boolean
 
 Property ScrollX As Integer
 Property ScrollY As Integer
@@ -36,6 +37,8 @@ Private $aText As New String[]
 Private $bSorted As Boolean
 Private $hSortTimer As Timer
 Private $hTimerClick As Timer
+Private $bWrap As Boolean
+Private $hResizeTimer As Timer
 
 Public Sub _new()
   
@@ -43,11 +46,12 @@ Public Sub _new()
   $hView.Columns.Count = 1
   $hView.Mode = Select.Single
   $hView.Grid = False
-  $hView.AutoResize = True
   $hView._DoNotDrawSelection = True
   $hView.ScrollBar = Scroll.Vertical
   
   Me.Proxy = $hView
+  
+  UpdateLayout
   
 End
 
@@ -73,8 +77,18 @@ Private Sub SortLater()
     $hSortTimer.Trigger
   Endif
   
+  ResizeLater
+  
 End
 
+Private Sub ResizeLater()
+  
+  If Not $hResizeTimer Then
+    $hResizeTimer = New Timer As "Resize"
+    $hResizeTimer.Trigger
+  Endif
+  
+End
 
 Public Sub Add(Text As String, Optional Index As Integer = -1)
   
@@ -86,6 +100,13 @@ Public Sub Add(Text As String, Optional Index As Integer = -1)
   Endif
   
   $hView.Rows.Count = $aText.Count
+  
+  If Index < 0 Then
+    $hView.Rows[$aText.Max].H = -1
+  Else
+    $hView.Rows[Index].H = -1
+  Endif
+  
   SortLater
   
 End
@@ -104,6 +125,7 @@ Public Sub GridView_Data(Row As Integer, (Column) As Integer)
   
   With $hView.Data
     Try .Text = $aText[Row]
+    .WordWrap = $bWrap
     If $hView.Rows[Row].Selected Then
       .Background = Color.SelectedBackground
       .Foreground = Color.SelectedForeground
@@ -143,15 +165,46 @@ Private Function ScrollBar_Read() As Integer
 
 End
 
+Private Sub UpdateLayout()
+
+  ' Dim W As Integer
+  ' Dim sText As String
+  
+  If $bWrap Then
+    
+    $hView.AutoResize = True
+    $hView.Columns[0].Expand = True
+
+  Else
+  
+    If $hView.ScrollBar And Scroll.Horizontal Then
+      
+      $hView.AutoResize = False
+      $hView.Columns[0].W = -1
+      
+    Else
+      
+      $hView.AutoResize = True
+      $hView.Columns[0].Expand = False
+      
+    Endif
+    
+    ' For Each sText In $aText
+    '   W = Max(W, Me.Font.TextWidth(sText))
+    ' Next
+    ' 
+    ' $hView.Columns[0].W = W + 8
+  
+  Endif
+
+  ResizeLater
+
+End
+
 Private Sub ScrollBar_Write(Value As Integer)
 
   $hView.Scrollbar = Value
-  If $hView.ScrollBar And Scroll.Horizontal Then
-    $hView.AutoResize = False
-    $hView.Columns[0].W = -1
-  Else
-    $hView.AutoResize = True
-  Endif
+  UpdateLayout
 
 End
 
@@ -267,6 +320,14 @@ Public Sub Sort_Timer()
   $hSortTimer = Null
   If $bSorted Then Sort
   $hView.Columns[0].W = -1
+  $hView.Refresh
+  
+End
+
+Public Sub Resize_Timer()
+  
+  $hResizeTimer = Null
+  $hView.Rows.H = -1
   $hView.Refresh
   
 End
@@ -412,25 +473,11 @@ Public Sub _SetText(iIndex As Integer, sText As String)
   
 End
 
-Private Sub ResizeColumn()
-  
-  Dim W As Integer
-  Dim sText As String
-  
-  For Each sText In $aText
-    W = Max(W, Me.Font.TextWidth(sText))
-  Next
-  
-  $hView.Columns[0].W = W + 8
-  
-End
-
-Public Sub GridView_ColumnSize((Column) As Integer)
-  
-  ResizeColumn
-  
-End
-
+' Public Sub GridView_ColumnSize((Column) As Integer)
+'   
+'   UpdateLayout
+'   
+' End
 
 Private Function Font_Read() As Font
 
@@ -441,6 +488,26 @@ End
 Private Sub Font_Write(Value As Font)
 
   $hView.Font = Value
-  ResizeColumn
+  UpdateLayout
 
 End
+
+Private Function Wrap_Read() As Boolean
+
+  Return $bWrap
+
+End
+
+Private Sub Wrap_Write(Value As Boolean)
+
+  If $bWrap = Value Then Return
+  $bWrap = Value
+  UpdateLayout
+
+End
+
+Public Sub GridView_Arrange()
+  
+  If $bWrap Then ResizeLater
+  
+End 

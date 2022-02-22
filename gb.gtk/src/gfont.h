@@ -109,11 +109,10 @@ private:
 	void realize();
 	void initFlags();
 	void checkMustFixSpacing();
-	PangoFontMetrics *metrics();
+	PangoFontMetrics *metrics() {	return pango_context_get_metrics(_context, NULL, NULL); }
 	void invalidateMetrics();
 	
 	PangoContext* _context;
-	PangoFontMetrics *_metrics;
 	int _height;
 	unsigned _must_fix_spacing : 1;
 	

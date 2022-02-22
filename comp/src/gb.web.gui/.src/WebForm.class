@@ -1553,11 +1553,11 @@ Private Sub TriggerShortcut(sShortcut As String) As Boolean
   
   If $iDefault And If sShortcut = "ENTER" Then
     hButton = WebControl.FromId($iDefault)
-    If hButton Then hButton.Click()
+    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ")")
     Return True
   Else If $iCancel And If sShortcut = "ESCAPE" Then
     hButton = WebControl.FromId($iCancel)
-    If hButton Then hButton.Click()
+    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ")")
     Return True
   Endif
 

@@ -1504,6 +1504,12 @@ gw = {
     setText: function(id, text)
     {
       $(id).lastElementChild.innerHTML = text;
+    },
+    
+    click: function(id)
+    {
+      $(id).focus();
+      $(id).click();
     }
   },
   

@@ -128,8 +128,7 @@ static bool init_painting(GB_PAINT *d, QPaintDevice *device)
 	PAINTER(d)->setRenderHints(QPainter::Antialiasing, true);
 	PAINTER(d)->setRenderHints(QPainter::TextAntialiasing, true);
 	PAINTER(d)->setRenderHints(QPainter::SmoothPixmapTransform, true);
-	if (MAIN_right_to_left)
-		PAINTER(d)->setLayoutDirection(Qt::RightToLeft);
+	PAINTER(d)->setLayoutDirection(Qt::LayoutDirectionAuto);
 
 	if (GB.Is(d->device, CLASS_Control))
 		col = CWIDGET_get_real_foreground((CWIDGET *)d->device);

@@ -2,6 +2,14 @@
 
 Private Const DEBUG_REMOTE As Boolean = False
 
+Private UseTerminal As Boolean
+Private RedirectStderr As Boolean
+Private UseHttpServer As Boolean
+Private Profiling As Boolean
+Private DebugInside As Boolean
+
+Private $iProfileIndex As Integer
+
 Public Startup As String
 
 Public ProcessId As Integer
@@ -26,8 +34,7 @@ Private $iPosLine As Integer
 Private $sError As String
 
 Private $bStart As Boolean
-Private $sCmdStart As String
-'PRIVATE $sCmdStartRun AS String
+Private $aCmdStart As String[]
 
 Private $sAddBreakpoint As String
 Private $sRemoveBreakpoint As String
@@ -289,7 +296,7 @@ Public Sub Debug_Read(Data As String)
   Dim sWhere As String
   Dim iPos As Integer
 
-  'Debug Quote(Data)
+  'ebug Quote(Data)
   $sBuffer &= Data
   iPos = InStr($sBuffer, "\n") 
   If iPos = 0 Then Return
@@ -550,7 +557,7 @@ Public Sub Process_Kill()
 
   $hProcess = Null
 
-  If Project.Profiling Then
+  If Profiling Then
     FProfile.Open($sProfilePath)
   Endif
 
@@ -585,8 +592,6 @@ Private Sub AfterStop()
 
   WriteDebugSettings()
 
-  'Project.DebugInfoForm.Hide
-  'tvwLocal.Clear
   FDebugInfo.Clear
   FDebugExpr.Clear
 
@@ -596,15 +601,11 @@ Private Sub AfterStop()
   For Each hForm In Project.Workspace.Windows
     Try hForm.OnProjectDebug 
   Next
-  'FMain.ShowTool(TRUE)
+
   FMain.OnProjectDebug
   FOutput.OnProjectDebug
   FSearch.OnProjectDebug
 
-  'hForm = FDebugInfo.Parent
-  'Settings["/FMain/Splitter"] = hForm.Layout
-  'FDebugInfo.Hide
-  
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
   
@@ -616,14 +617,7 @@ Private Sub AfterStop()
     $bExtern = False
   Endif
 
-  ' FOR EACH hForm IN $cShow
-  '   'TRY PRINT "Design.AfterStop: SHOW "; hForm.Name
-  '   hForm.Show
-  ' NEXT
-
   Action["console"].Value = $bConsole
-
-  'Project.SetMessage(("OK"))
 
   FMain.ActivateCurrentWindow
 
@@ -1001,10 +995,13 @@ Private Sub Start(sCmd As String)
   Dim sFifo As String
   Dim sRemoteDebuggerHelper As String
   Dim iCurrentArg As Integer
+  Dim aArguments As String[][]
 
   If Project.Running Then Return
   
   '$cShow.Clear
+  
+  ReadSettings
 
   $bConsole = Action["console"].Value  
 
@@ -1076,23 +1073,8 @@ Private Sub Start(sCmd As String)
   'PRINT "EXEC "; "gbx -gs " & File.Dir(Project.Path) & " -- " & Project.Arguments
 
   ProcessId = 0
-  $sCmdStart = ""
-
-  ReadDebugSettings()
-
-  $sCmdStart &= Breakpoints.GetCommands()
   
-  If $sAddBreakpoint Then
-    $sCmdStart &= $sAddBreakpoint & "\n"
-    $sAddBreakpoint = ""
-  Endif
-  
-  $sCmdStart &= FDebugInfo.GetWatches()
-  
-  'If Project.BreakOnError Then $sCmdStart &= "b+\n"
-
-  $sCmdStart &= sCmd
-  '$sCmdStartRun = sCmd
+  MakeInitialCommands(sCmd)
 
   $bStart = True
   Project.Running = True
@@ -1109,7 +1091,7 @@ Private Sub Start(sCmd As String)
   FDebugInfo.UpdateView
   FDebugInfo.OnProjectDebug
 
-  aEnv = Project.Environment.Copy()
+  aEnv = Project.GetEnvironment()
   If $bRemote Then Try aEnv.Insert(Project.Config["/Debug/RemoteEnvironment"])
   I = 0
   While I < aEnv.Count
@@ -1134,7 +1116,7 @@ Private Sub Start(sCmd As String)
 
   Else
 
-    If Project.Profiling Then FProfile.CleanProfileFiles
+    If Profiling Then FProfile.CleanProfileFiles
   
     If $bRemote Then
       aExec = ["gbr" & System.Version]
@@ -1142,7 +1124,10 @@ Private Sub Start(sCmd As String)
       aExec = [System.Path &/ "bin/gbx" & System.Version]
     Endif
     
-    aExec.Insert(["-g", "-f", sFifo])
+    aExec.Add("-g")
+
+    aExec.Add("-f")
+    aExec.Add(sFifo)
     
     If Startup Then 
       aExec.Add("-s")
@@ -1150,7 +1135,7 @@ Private Sub Start(sCmd As String)
     Endif
     
     If Project.CanUseHttpServer() Then 
-      If Project.UseHttpServer Or If Project.Components.Exist("gb.httpd") Then
+      If UseHttpServer Or If Project.Components.Exist("gb.httpd") Then
         aExec.Add("-H")
         iPos = aEnv.Find("GB_HTTPD_PORT=*", gb.Like)
         sPort = "8080"
@@ -1163,12 +1148,12 @@ Private Sub Start(sCmd As String)
       Endif
     Endif
     
-    If Project.Profiling Then 
+    If Profiling Then 
       
       aExec.Add("-p")
       
-      Inc Project.ProfileIndex
-      sFile = "." & CStr(Project.ProfileIndex) & ".prof"
+      Inc $iProfileIndex
+      sFile = "." & CStr($iProfileIndex) & ".prof"
       
       If Project.ReadOnly Then
         $sProfilePath = File.Dir(Temp$) &/ sFile
@@ -1186,9 +1171,10 @@ Private Sub Start(sCmd As String)
     Endif
     
     iCurrentArg = Project.Config["/Debug/CurrentArgument", 0] - 1
-    If iCurrentArg >= 0 And iCurrentArg < Project.Arguments.Count Then
+    aArguments = Project.Config["/Debug/Arguments"]
+    If aArguments And If iCurrentArg >= 0 And iCurrentArg < aArguments.Count Then
       If Not $bRemote Then aExec.Add("--")
-      aExec.Insert(Project.Arguments[iCurrentArg])
+      aExec.Insert(aArguments[iCurrentArg])
     Endif
     
     If bValgrind Then 
@@ -1204,7 +1190,7 @@ Private Sub Start(sCmd As String)
       
     Endif
 
-    If Project.UseTerminal Then 
+    If UseTerminal Then 
     
       sTitle = Project.Name & " (" & ("Output terminal") & ")"
     
@@ -1245,7 +1231,7 @@ Private Sub Start(sCmd As String)
         
       Endif
       
-      If Project.RedirectStderr Then
+      If RedirectStderr Then
         $sPipeError = Temp$()
         aExec.Add("-r")
         aExec.Add($sPipeError)
@@ -1366,20 +1352,7 @@ Public Sub RunExtern()
   ClearOutput
 
   ProcessId = 0
-  $sCmdStart = ""
-
-  ReadDebugSettings()
-
-  $sCmdStart &= Breakpoints.GetCommands()
-
-  If $sAddBreakpoint Then
-    $sCmdStart &= $sAddBreakpoint & "\n"
-    $sAddBreakpoint = ""
-  Endif
-  
-  $sCmdStart &= FDebugInfo.GetWatches()
-  
-  $sCmdStart &= "g"
+  MakeInitialCommands("g")
 
   $bExtern = True
   $bStart = True
@@ -1499,7 +1472,7 @@ Private Sub Signal()
   If $bStart Then
     If $bExtern Then FDebugInfo.StopWaitForRemote
     'PRINT "START Debug.Write: "; $sCmdStart
-    WriteCommand($sCmdStart)
+    If $aCmdStart.Count Then WriteCommand($aCmdStart.Join("\n"))
     $bStart = False
     'Command("w", TRUE)
     'Command($sCmdStartRun, FALSE, STATE_RUNNING)
@@ -1598,12 +1571,33 @@ End
 ' 
 ' END
 
+Private Sub ReadSettings()
+  
+  UseTerminal = Project.Config["/Debug/UseTerminal"]
+  RedirectStderr = Project.Config["/Debug/RedirectStderr"]
+  UseHttpServer = Project.Config["/Debug/UseHttpServer"]
+  Profiling = Project.Config["/Debug/Profiling"]
+  DebugInside = Project.Config["/Debug/DebugInside"]
+
+End
+
 Public Sub ReadDebugSettings()
   
+  ReadSettings
   FDebugInfo.ReadWatchSettings()
   FDebugExpr.ReadSettings()
 
 End
+
+' Public Sub WriteSettings()
+'   
+'   Project.Config["/Debug/UseTerminal"] = UseTerminal
+'   Project.Config["/Debug/RedirectStderr"] = RedirectStderr
+'   Project.Config["/Debug/UseHttpServer"] = UseHttpServer 
+'   Project.Config["/Debug/Profiling"] = Profiling
+'   Project.Config["/Debug/DebugInside"] = DebugInside
+' 
+' End
 
 Public Sub WriteDebugSettings()
   
@@ -1612,6 +1606,11 @@ Public Sub WriteDebugSettings()
 
 End
 
+Public Sub OnProjectChange()
+  
+  ReadSettings
+  
+End
 
 Public Sub SetBreakpoint(sClass As String, iLine As Integer, bOn As Boolean) 
   
@@ -1771,3 +1770,35 @@ Private Sub CreateDebuggerHelper() As String
   Return $sRemoteDebuggerHelper
 
 End
+
+Public Sub SetDebugInside(bVal As Boolean)
+  
+  DebugInside = bVal
+  Project.Config["/Debug/DebugInside"] = bVal
+  If Project.Running Then WriteCommand("og" & If(bVal, "+", "-"))
+  
+End
+
+Private Sub MakeInitialCommands(sCmd As String)
+
+  $aCmdStart = New String[]
+
+  ReadDebugSettings()
+
+  If DebugInside Then $aCmdStart.Add("og+")
+
+  $aCmdStart.Insert(Breakpoints.GetCommands())
+  
+  If $sAddBreakpoint Then
+    $aCmdStart.Add($sAddBreakpoint)
+    $sAddBreakpoint = ""
+  Endif
+  
+  $aCmdStart.Insert(FDebugInfo.GetWatches())
+
+  'If Project.BreakOnError Then $aCmdStart.Add("o+")
+  
+  $aCmdStart.Add(sCmd)
+
+End
+

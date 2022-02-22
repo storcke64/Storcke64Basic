@@ -63,7 +63,6 @@
       Name = "btnProperty"
       MoveScaled(53,0,4,4)
       ToolTip = ("File properties")
-      Action = ".property"
       Picture = Picture["icon:/small/info"]
     }
     { Separator2 Separator
@@ -134,10 +133,6 @@
     Text = "Paste"
     Picture = "icon:/small/paste"
   }
-  { Action property
-    Text = "File properties"
-    Picture = "icon:/small/info"
-  }
   { Action reload
     Text = "Reload"
     Picture = "icon:/small/refresh"
@@ -159,7 +154,7 @@
 { Toolbars
   { Toolbar project
     Text = "Project browser"
-    List = "reload,up,zoom-out,icon-size,zoom-in,image-preview,detail,property,copy,cut,paste,delete"
-    Default = "reload,|,zoom-out,icon-size,zoom-in,|,image-preview,detail,property,|,copy,cut,paste,delete"
+    List = "reload,up,zoom-out,icon-size,zoom-in,image-preview,detail,copy,cut,paste,delete"
+    Default = "reload,|,zoom-out,icon-size,zoom-in,|,image-preview,detail,$btnProperty,|,copy,cut,paste,delete"
   }
 }

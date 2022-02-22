@@ -300,6 +300,8 @@ void STREAM_release(STREAM *stream)
 	
 	if (extra)
 	{
+		ARRAY_delete(&extra->read_objects);
+		HASH_TABLE_delete(&extra->write_objects);
 		IFREE(extra);
 		stream->common.extra = NULL;
 	}
@@ -627,8 +629,8 @@ void STREAM_write(STREAM *stream, void *addr, int len)
 			THROW(E_CLOSED);
 	}
 	while (len > 0);
-	
 }
+
 
 void STREAM_write_zeros(STREAM *stream, int len)
 {
@@ -642,6 +644,7 @@ void STREAM_write_zeros(STREAM *stream, int len)
 		len -= lenw;
 	}
 }
+
 
 void STREAM_write_eol(STREAM *stream)
 {
@@ -1107,6 +1110,29 @@ static void read_value_ctype(STREAM *stream, CLASS *class, CTYPE ctype, void *ad
 	VALUE_class_write(class, &temp, addr, ctype);
 }
 
+static CLASS *read_class(STREAM *stream, TYPE type)
+{
+	char *name = COMMON_buffer;
+	unsigned char len;
+	CLASS *class;
+	
+	STREAM_read(stream, &len, 1);
+	STREAM_read(stream, name, len);
+	name[len] = 0;
+
+	class = CLASS_get(name);
+	if (!class)
+		THROW_SERIAL();
+	
+	if (TYPE_is_pure_object(type))
+	{
+		if ((CLASS *)type != class)
+			THROW_SERIAL();
+	}
+	
+	return class;
+}
+
 static void read_structure(STREAM *stream, CLASS *class, char *base)
 {
 	int i, n;
@@ -1140,6 +1166,17 @@ static void read_structure(STREAM *stream, CLASS *class, char *base)
 			read_value_ctype(stream, desc->variable.class, ctype, addr);
 		}
 	}
+}
+
+static void register_read_object(STREAM *stream, void *object)
+{
+	STREAM_EXTRA *extra = ENSURE_EXTRA(stream);
+	
+	if (!extra->read_objects)
+		ARRAY_create(&extra->read_objects);
+	
+	//fprintf(stderr, "register_read_object: %p -> %d\n", object, ARRAY_count(extra->read_objects));
+	*(void **)ARRAY_add(&extra->read_objects) = object;
 }
 
 static void error_STREAM_read_type(void *object)
@@ -1179,16 +1216,6 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			return;
 		}
 		
-			/*if (class->special[SPEC_WRITE] != NO_SYMBOL)
-			{
-				CSTREAM *ob = CSTREAM_FROM_STREAM(stream);
-				STACK_check(1);
-				PUSH_OBJECT(OBJECT_class(ob), ob);
-				EXEC_special(SPEC_WRITE, class, object, 1, FALSE);
-				break;
-			}*/
-		
-
 		STREAM_read(stream, &buffer._byte, 1);
 
 		if (buffer._byte == 0)
@@ -1198,28 +1225,74 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			return;
 		}
 		
-		if (buffer._byte == 'A')
+		if (buffer._byte == '@')
 		{
+			void *object;
+			STREAM_EXTRA *extra = EXTRA(stream);
+			int id;
+			
+			if (!extra)
+				THROW(E_SERIAL);
+			
+			STREAM_read(stream, &id, sizeof(int));
+			id--;
+			if (id < 0 || id > ARRAY_count(extra->read_objects))
+				THROW(E_SERIAL);
+			
+			object = extra->read_objects[id];
+			//fprintf(stderr, "find: %d -> %p\n", id, object);
+			value->_object.object = object;
+			value->type = (TYPE)OBJECT_class(object);
+			
+			if (value->type != type)
+			{
+				OBJECT_REF(object);
+				VALUE_convert(value, type);
+				UNBORROW(value);
+			}
+			
+			return;
+		}
+		
+		if (buffer._byte == 'A' || buffer._byte == 'a')
+		{
+			CLASS *class;
 			CARRAY *array;
 			int size, i;
 			VALUE temp;
 			void *data;
-			TYPE atype;
+			TYPE atype = T_VOID;
 
-			STREAM_read(stream, &buffer._byte, 1);
-
-			if (TYPE_is_pure_object(type))
-				atype = ((CLASS *)type)->array_type;
-			else
+			if (buffer._byte == 'a' || variant)
 			{
-				atype = (TYPE)buffer._byte;
-				if (atype > T_OBJECT)
-					THROW_SERIAL();
+				class = read_class(stream, type);
+				
+				atype = class->array_type;
+			}
+			else if (TYPE_is_pure_object(type))
+			{
+				atype = ((CLASS *)type)->array_type;
+			}
+			else if (TYPE_is_object(type))
+			{
+				atype = T_VARIANT;
 			}
 
+			if (TYPE_is_void(atype))
+				THROW_SERIAL();
+			
+			if (TYPE_is_pure_object(atype))
+				CLASS_load((CLASS *)atype);
+			
+			STREAM_read(stream, &buffer._byte, 1); // Compatibility with old format
+			if (atype == T_VARIANT)
+				atype = (TYPE)buffer._byte;
+			
 			size = read_length(stream);
 
 			GB_ArrayNew((GB_ARRAY *)&array, atype, size);
+			register_read_object(stream, array);
+			
 			for (i = 0; i < size; i++)
 			{
 				data = CARRAY_get_data(array, i);
@@ -1230,6 +1303,7 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 			value->type = (TYPE)OBJECT_class(array);
 			value->_object.object = array;
+			
 			if (value->type != type)
 			{
 				OBJECT_REF(array);
@@ -1251,6 +1325,8 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			size = read_length(stream);
 
 			GB_CollectionNew(&col, buffer._byte == 'c');
+			register_read_object(stream, col);
+			
 			for (i = 0; i < size; i++)
 			{
 				len = read_length(stream);
@@ -1268,6 +1344,7 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 
 			value->type = (TYPE)OBJECT_class(col);
 			value->_object.object = col;
+			
 			if (value->type != type)
 			{
 				OBJECT_REF(col);
@@ -1283,32 +1360,13 @@ void STREAM_read_type(STREAM *stream, TYPE type, VALUE *value)
 			void *object;
 			void *cstream;
 			
-			if (buffer._byte == 'o')
-			{
-				int len;
-				char *name = COMMON_buffer;
-				
-				STREAM_read(stream, &buffer._byte, 1);
-				len = buffer._byte;
-				STREAM_read(stream, name, len);
-
-				class = CLASS_look(name, len);
-				if (!class)
-					THROW_SERIAL();
-			}
-			
-			if (TYPE_is_pure_object(type))
-			{
-				if (class && (CLASS *)type != class)
-					THROW_SERIAL();
-			}
+			if (buffer._byte == 'o' || variant)
+				class = read_class(stream, type);
 			else
-			{
-				if (!class)
-					THROW_SERIAL();
-			}
+				class = (CLASS *)type;
 			
 			object = OBJECT_REF(OBJECT_create(class, NULL, NULL, 0));
+			register_read_object(stream, object);
 			
 			cstream = CSTREAM_FROM_STREAM(stream);
 			
@@ -1525,6 +1583,8 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 	void *object;
 	void *structure;
 	bool variant;
+	STREAM_EXTRA *extra;
+	int *pid;
 
 	if (type == T_VARIANT)
 	{
@@ -1652,6 +1712,25 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 		return;
 	}
 	
+	extra = ENSURE_EXTRA(stream);
+	if (!extra->write_objects)
+		HASH_TABLE_create(&extra->write_objects, sizeof(int), HF_NORMAL);
+	
+	pid = (int *)HASH_TABLE_lookup(extra->write_objects, (const char *)&object, sizeof(uintptr_t), FALSE);
+	if (pid)
+	{
+		buffer._byte = '@';
+		STREAM_write(stream, &buffer._byte, 1);
+		buffer._int = *pid;
+		STREAM_write(stream, &buffer._int, sizeof(int));
+		return;
+	}
+	else
+	{
+		pid = HASH_TABLE_insert(extra->write_objects, (const char *)&object, sizeof(uintptr_t));
+		*pid = HASH_TABLE_size(extra->write_objects);
+	}
+	
 	class = OBJECT_class(object);
 	
 	if (class->special[SPEC_WRITE] != NO_SYMBOL)
@@ -1697,16 +1776,30 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 
 		if (!array->ref)
 		{
-			buffer._byte = 'A';
-			STREAM_write(stream, &buffer._byte, 1);
+			if (variant || type == T_OBJECT)
+			{
+				char *name = class->name;
+				int len = strlen(name);
+				
+				buffer._byte = 'a';
+				STREAM_write(stream, &buffer._byte, 1);
+				
+				buffer._byte = (unsigned char)len;
+				STREAM_write(stream, &buffer._byte, 1);
+				STREAM_write(stream, name, len);
+			}
+			else
+			{
+				buffer._byte = 'A';
+				STREAM_write(stream, &buffer._byte, 1);
+			}
 			
-			if (TYPE_is_object(array->type))
+			if (TYPE_is_pure_object(array->type))
 				buffer._byte = T_OBJECT;
 			else
-				buffer._byte = (unsigned char)array->type;
+				buffer._byte = (uchar)array->type;
+			STREAM_write(stream, &buffer._byte, 1); // Compatibility with old format
 			
-			STREAM_write(stream, &buffer._byte, 1);
-
 			write_length(stream, array->count);
 		}
 

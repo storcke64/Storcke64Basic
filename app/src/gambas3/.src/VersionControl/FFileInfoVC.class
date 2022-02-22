@@ -164,3 +164,9 @@ Public Sub chkShowHistoryChanges_Click()
   edtHistory.FillWithHistory($sPath, $sPath2, chkShowHistoryChanges.Value)
 
 End
+
+Public Sub Form_Close()
+
+  edtHistory.StopFillWithHistory
+
+End

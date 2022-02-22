@@ -63,6 +63,7 @@ uint64_t EXEC_byref = 0;
 
 unsigned char EXEC_quit_value = 0; // interpreter return value
 bool EXEC_debug = FALSE; // debugging mode
+bool EXEC_debug_inside = FALSE; // debug inside components
 bool EXEC_task = FALSE; // I am a background task
 bool EXEC_profile = FALSE; // profiling mode
 bool EXEC_profile_instr = FALSE; // profiling mode at instruction level

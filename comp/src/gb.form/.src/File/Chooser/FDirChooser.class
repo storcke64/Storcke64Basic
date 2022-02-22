@@ -1070,7 +1070,7 @@ Private Sub FillMenu()
   
   hMenu = New Menu(mnuPopup) As "mnuUncompress"
   hMenu.Text = ("&Uncompress file")
-  hMenu.Picture = Picture["icon:/small/archive"]
+  hMenu.Picture = Picture["icon:/small/uncompress"]
   mnuUncompress = hMenu
   
   hMenu = New Menu(mnuPopup) As "mnuCreateDirectory"

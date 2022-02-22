@@ -724,7 +724,7 @@ static void update_direction(void *_object)
 			case DIRECTION_RTL: WIDGET->setLayoutDirection(Qt::LeftToRight); break;
 			default:
 				WIDGET->unsetLayoutDirection();
-				WIDGET->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight;
+				WIDGET->setLayoutDirection(WIDGET->isLeftToRight() ? Qt::RightToLeft : Qt::LeftToRight);
 		}
 	}
 	else
@@ -1314,9 +1314,7 @@ void CWIDGET_set_focus(void *_object)
 
 	if (win->opened && QWIDGET(win)->isVisible())
 	{
-		//qDebug("set focus on %s for %s", THIS->name, ((CWIDGET *)win)->name);
 		WIDGET->setFocus();
-		//((MyMainWindow *)(win->widget.widget))->activate();
 	}
 	else if ((CWIDGET *)win != THIS)
 	{

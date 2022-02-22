@@ -43,8 +43,6 @@ Public Startup As String
 Public (Components) As String[]
 Public Libraries As String[]
 Public ExtraReferences As String[]
-Public Arguments As String[][]
-Public Environment As String[]
 Public KeepDebugInfo As Boolean
 Public CreateShortcut As Boolean
 Public RunAfterMakingExec As String
@@ -54,6 +52,7 @@ Public ShowDeprecated As Boolean
 Public Warnings As Boolean
 Public CheckVariablePrefix As Boolean
 Public DefaultNamespace As String
+Public ForceBytecodeVersion As String
 Public MajorVersion As Integer
 Public MinorVersion As Integer
 Public ReleaseVersion As Integer
@@ -105,11 +104,6 @@ Public DefaultLanguage As String
 Public Type As Integer
 Public Authors As String
 Public VersionFile As Boolean
-Public UseTerminal As Boolean
-Public RedirectStderr As Boolean
-Public UseHttpServer As Boolean
-Public Profiling As Boolean
-Public ProfileIndex As Integer
 Public DoNotTranslate As String[]
 Public CompressFiles As Boolean
 Public CompressedFiles As String[]
@@ -263,9 +257,13 @@ End
 
 Public Sub InitWebView()
 
+  Static bInit As Boolean
+
   'Dim sPath As String
   Dim hDefaultFont As Font
   Dim hFixedFont As Font
+
+  If bInit Then Return
 
   ' If Not WebSettings.Cache.Path Then
   '   sPath = "~/.cache"
@@ -301,6 +299,8 @@ Public Sub InitWebView()
   
   WebSettings.Fonts.Fixed = hFixedFont.Name
   WebSettings.Fonts.DefaultFixedSize = hFixedFont.Size
+  
+  bInit = True
 
 End
 
@@ -382,7 +382,7 @@ Public Sub Main()
   
   If $bTesting And If sPath Then
     InitVersion
-    InitWebView
+    'InitWebView
     CRecentProject.Load
     FMain.Load
     Project.Open(sPath)
@@ -415,7 +415,7 @@ Public Sub Main()
   DEFAULT_FONT &= CStr(Application.Font.Size)
   
   InitVersion
-  InitWebView
+  'InitWebView
   ShowFileInTitle = Settings["/ShowFileInTitle", True]
   MHelp.ReadConfig
   FDebugExpr.ReadConfig
@@ -801,18 +801,19 @@ _INIT_AGAIN:
 
   If Not bIsFake Then CRecentProject.Add(sDir)
 
-  If Not $bTesting
+  If Not $bTesting Then
+    
+    If Not bIsFake Then
+      Design.OnProjectChange
+      Breakpoints.OnProjectChange
+      FDebugInfo.OnProjectChange
+    Endif
+    
     FMain.OnProjectChange
     FSearch.OnProjectChange
     If Class.IsLoaded("FHelpBrowser") Then FHelpBrowser.OnProjectChange
     FProfile.OnProjectChange
     'FOpenProject.OnUpdateRecent
-    
-    If Not bIsFake Then
-      Breakpoints.OnProjectChange
-      FDebugInfo.OnProjectChange
-      'FDebugButton.OnProjectChange
-    Endif
     
   Endif
 
@@ -2574,9 +2575,8 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
 
   If bAll Then fTimer = Timer
 
-  iPos = Environment.Find("GB_PCODE_VERSION=*", gb.Like)
-  If iPos >= 0 Then
-    Shell sExec With [Environment[iPos]] Wait
+  If ForceBytecodeVersion Then
+    Shell sExec With ["GB_PCODE_VERSION=" & ForceBytecodeVersion] Wait
   Else
     Shell sExec Wait
   Endif
@@ -2626,7 +2626,7 @@ Public Function Compile(Optional bAll As Boolean, Optional bNoDebug As Boolean, 
 
     SetMessage(("OK"), True)
     
-    If bAll Then SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.#")), True)
+    If bAll Then SetMessage(" " & Subst(("(in &1 s)"), Format(Timer - fTimer, "0.##")), True)
     'FMain.ShowAnimate("Happy")
 
   Endif
@@ -2916,6 +2916,33 @@ Public Sub InsertFile(sName As String, sDir As String, Optional sTemplate As Str
   
 End
 
+' Public Sub OpenFileLater(sPath As String)
+'   
+'   If Not $aOpenFileLater Then 
+'     $aOpenFileLater = New String[]
+'     $hTimerOpenFileLater = New Timer As "TimerOpenFileLater"
+'     $hTimerOpenFileLater.Trigger
+'   Endif
+'   
+'   $aOpenFileLater.Add(sPath)
+'   
+' End
+' 
+' Public Sub TimerOpenFileLater_Timer()
+' 
+'   Dim sPath As String
+'   Dim aOpenFileLater As String[]
+'   
+'   $hTimerOpenFileLater = Null
+'   aOpenFileLater = $aOpenFileLater
+'   $aOpenFileLater = Null
+'   
+'   For Each sPath In aOpenFileLater
+'     OpenFile(sPath)
+'   Next
+'   
+' End
+' 
 Public Sub MakeDir(sDir As String) As Boolean
 
   Dim sPath As String
@@ -3384,6 +3411,8 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   Dim hComp As CComponent
   Dim bNewPackagerConfig As Boolean
   Dim aVer As String[]
+  Dim aArguments As String[][]
+  Dim aEnv As String[]
 
   hFic = Open Path For Input
 
@@ -3393,8 +3422,6 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   LibraryPath = ""
   Title = ""
   TabSize = Settings["/DefaultTabSize", 2]
-  Arguments = New String[][]
-  Environment = New String[]
   MajorVersion = 0
   MinorVersion = 0
   ReleaseVersion = 1
@@ -3405,6 +3432,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   Warnings = True
   CheckVariablePrefix = False
   DefaultNamespace = ""
+  ForceBytecodeVersion = ""
   KeepDebugInfo = True
   CompressFiles = True
   Localize = False
@@ -3434,11 +3462,6 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   RunAfterMakingExec = ""
   DefaultLanguage = ""
   VersionFile = False
-  UseTerminal = False
-  RedirectStderr = False
-  UseHttpServer = False
-  Profiling = False
-  ProfileIndex = 0
   Maintainer = ""
   Vendor = ""
   VendorPrefix = ""
@@ -3507,26 +3530,16 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
       Case "arguments"
         If Left(sVal) = "[" Then
-          Arguments = Settings.FromString(sVal)
+          aArguments = Settings.FromString(sVal)
         Else
-          Arguments = [Split(UnQuote(sVal), "\n")]
+          aArguments = [Split(UnQuote(sVal), "\n")]
         Endif
         
       Case "argumentlist"
-        Arguments = Settings.FromString(sVal)
+        aArguments = Settings.FromString(sVal)
         
-      ' Case "currentargument"
-      '   If Left(sVal) = "[" Then
-      '     CurrentArgument = Settings.FromString(sVal)
-      '   Else
-      '     Try CurrentArgument = Arguments[CInt(sVal)]
-      '   Endif
-
-      ' Case "currentargumentlist"
-      '   CurrentArgument = Settings.FromString(sVal)
-
       Case "environment"
-        Environment = Split(UnQuote(sVal), "\n")
+        aEnv = Split(UnQuote(sVal), "\n")
 
       Case "version"
         iPos = InStr(sVal, " ")
@@ -3592,6 +3605,9 @@ Public Sub ReadProject(Optional bConvert As Boolean)
 
       Case "defaultnamespace"
         DefaultNamespace = sVal
+
+      Case "forcebytecodeversion"
+        ForceBytecodeVersion = sVal
 
       Case "description"
         Description = UnQuote(sVal)
@@ -3722,18 +3738,6 @@ Public Sub ReadProject(Optional bConvert As Boolean)
       Case "sourcepath"
         SourcePath = sVal
 
-      Case "useterminal"
-        UseTerminal = CInt(sVal) <> 0
-
-      Case "redirectstderr"
-        RedirectStderr = CInt(sVal) <> 0
-
-      Case "usehttpserver"
-        UseHttpServer = CInt(sVal) <> 0
-
-      Case "profiling"
-        Profiling = CInt(sVal) <> 0
-
       ' Case "breakonerror"
       '   BreakOnError = CInt(sVal) <> 0
       ' 
@@ -3787,6 +3791,20 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   Next
 
   Close hFic
+  
+  If aArguments Or If aEnv Then
+    
+    If aArguments Then Config["/Debug/Arguments"] = aArguments
+    
+    If aEnv Then
+      iPos = aEnv.Find("GB_PCODE_VERSION=*", gb.Like)
+      If iPos >= 0 Then ForceBytecodeVersion = Scan(aEnv[iPos], "GB_PCODE_VERSION=*")[0]
+      Config["/Debug/Environment"] = aEnv
+    Endif
+    
+    Config.Save
+    
+  Endif
 
   VersionFile = Not GetVersion(True)
   'If JustUpdateVersion Then Return
@@ -3876,13 +3894,6 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
 
   If Title Then Print #hFile, "Title="; Title
   If Startup Then Print #hFile, "Startup="; Startup
-  'If Stack Then Print #hFic, "Stack="; Stack
-  'If StackTrace Then Print #hFic, "StackTrace=1"
-  If UseTerminal Then Print #hFile, "UseTerminal=1"
-  If RedirectStderr Then Print #hFile, "RedirectStderr=1"
-  If UseHttpServer Then Print #hFile, "UseHttpServer=1"
-  If Profiling Then Print #hFile, "Profiling=1"
-  'If BreakOnError Then Print #hFic, "BreakOnError=1"
   If Icon Then Print #hFile, "Icon="; Icon
 
   GetVersion()
@@ -3911,12 +3922,6 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If Description Then Print #hFile, "Description="; Quote(Description)
   If Authors Then Print #hFile, "Authors="; Quote(Authors)
 
-  If Arguments.Count Then 
-    Print #hFile, "Arguments="; Settings.ToString(Arguments)
-    'If CurrentArgument And If CurrentArgument.Count Then Print #hFile, "CurrentArgumentList="; Settings.ToString(CurrentArgument)
-  Endif
-  If Environment.Count Then Print #hFile, "Environment="; Quote(Environment.Join("\n"))
-
   Print #hFile, "TabSize="; CStr(TabSize)
   If Localize Then Print #hFile, "Translate=1"
   If DefaultLanguage Then Print #hFile, "Language="; DefaultLanguage
@@ -3936,6 +3941,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If Not Warnings Then Print #hFile, "Warnings=0"
   If CheckVariablePrefix Then Print #hFile, "CheckVariablePrefix=1"
   If DefaultNamespace Then Print #hFile, "DefaultNameSpace="; DefaultNamespace
+  If ForceBytecodeVersion Then Print #hFile, "ForceBytecodeVersion="; ForceBytecodeVersion
   If SourcePath Then Print #hFile, "SourcePath="; SourcePath
 
   If Maintainer Then Print #hFile, "Maintainer="; Maintainer
@@ -6287,6 +6293,7 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
   Dim hForm As Object
 
   Inc Application.Busy 
+  SetMessage(("Update all forms") & "…")
 
   For Each sPath In Tree.Sources
 
@@ -6328,6 +6335,8 @@ Public Sub UpdateAllForms(Optional sOldClass As String, sNewClass As String)
 
   Endif
 
+  SetMessage(("OK"), True)
+  
 Catch
 
   Application.Busy = 0
@@ -7263,3 +7272,74 @@ ADD_ARGUMENT:
 
 End
 
+Public Sub ConvertForm(sForm As String) As String
+
+  Dim sTemp As String
+  Dim sResult As String
+  
+  sTemp = Temp()
+  File.Save(sTemp, sForm)
+  Shell "gbc" & System.Version & " -F " & Shell(sTemp) & " 2>&1" To sResult
+  Kill sTemp
+  If Process.LastValue Then Error.Raise(sResult)
+  Return Replace(sResult, "\t", Space$(Project.TabSize))
+  
+End
+
+Public Sub GetEnvironment() As String[]
+  
+  Dim aEnv As String[]
+  aEnv = Project.Config["/Debug/Environment"]  
+  If Not aEnv Then aEnv = New String[]
+  Return aEnv
+  
+End
+
+Public Sub SetEnv(sEnv As String, bSet As Boolean) As Boolean
+  
+  Dim iPos As Integer
+  Dim aEnv As String[]
+  Dim sVar As String
+  Dim sValue As String
+
+  iPos = InStr(sEnv, "=")
+  sVar = Left(sEnv, iPos - 1)
+  sValue = Mid(sEnv, iPos + 1)
+  
+  aEnv = Project.GetEnvironment()
+  
+  For iPos = 0 To aEnv.Max
+    If LTrim(aEnv[iPos]) Begins (sVar & "=") Then Break
+  Next
+  If iPos >= aEnv.Count Then iPos = -1
+  
+  If bSet Then
+    If Not sValue Then
+      If iPos >= 0 Then 
+        aEnv.Remove(iPos)
+        Goto WRITE_PROJECT
+      Endif
+    Else
+      If iPos < 0 Then
+        aEnv.Add(sEnv, 0)
+        Goto WRITE_PROJECT
+      Else If aEnv[iPos] <> sEnv Then
+        aEnv[iPos] = sEnv
+        Goto WRITE_PROJECT
+      Endif
+    Endif
+  Else
+    If iPos >= 0 Then
+      aEnv.Remove(iPos)
+      Goto WRITE_PROJECT
+    Endif
+  Endif
+  
+  Return
+  
+WRITE_PROJECT:
+
+  Project.Config["/Debug/Environment"] = aEnv
+  Return True
+  
+End

@@ -401,6 +401,18 @@ AC_DEFUN([GB_INIT],
     AC_DEFINE(HAVE_GCC_STD_CPP11, 1, [Whether g++ supports -std=c++11])
   fi
   
+  dnl ---- check for -std=c++17 compiler flag
+  
+  GB_CXXFLAGS_GCC_OPTION([-std=c++17],,
+    [
+      GB_CXXFLAGS_STD_CPP11=" -std=c++17"
+      have_gcc_std_cpp11x=yes
+    ])
+  
+  if test "$have_gcc_std_cpp17" = "yes"; then
+    AC_DEFINE(HAVE_GCC_STD_CPP17, 1, [Whether g++ supports -std=c++17])
+  fi
+  
   dnl ---- Debug flags
 
   if test "$gambas_debug" = "yes"; then

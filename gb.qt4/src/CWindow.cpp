@@ -676,21 +676,6 @@ static bool do_close(CWINDOW *_object, int ret, bool destroyed = false)
 		#endif
 	}
 
-	#if 0
-	if (closed || destroyed)
-	{
-		if (CWINDOW_Active == THIS)
-			CWINDOW_activate(CWidget::get(WIDGET->parentWidget()));
-		if (CWINDOW_LastActive == THIS)
-		{
-			//GB.Unref(POINTER(&CWINDOW_LastActive));
-			CWINDOW_LastActive = 0;
-			//qDebug("CWINDOW_LastActive = 0");
-		}
-		THIS->opened = FALSE;
-	}
-	#endif
-
 	if (closed)
 		THIS->ret = ret;
 
@@ -2241,18 +2226,27 @@ void MyMainWindow::setBorder(bool b)
 	if (!isWindow())
 		return;
 
-	//qDebug("effectiveWinId");
+#ifdef QT5
+	
+	bool visible = isVisible();
+	void *_object = CWidget::get(this);;
+	
+	if (_border)
+		setWindowFlags(windowFlags() & ~Qt::FramelessWindowHint);
+	else
+		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+	
+	if (visible) show();
+	move(THIS->x, THIS->y);
+
+#else
+
 	initProperties(PROP_BORDER);
-	#ifdef QT5
-		PLATFORM.Window.Remap(WINDOW);
-	#else
 	if (effectiveWinId())
 		X11_window_remap(effectiveWinId());
-	#endif
-
-	#ifndef QT5
 	doReparent(parentWidget(), pos());
-	#endif
+	
+#endif
 }
 
 void MyMainWindow::setResizable(bool b)
@@ -2268,8 +2262,6 @@ void MyMainWindow::setResizable(bool b)
 
 void MyMainWindow::setUtility(bool b)
 {
-	Qt::WindowFlags flags;
-
 	if (_utility == b)
 		return;
 
@@ -2555,11 +2547,6 @@ void MyMainWindow::closeEvent(QCloseEvent *e)
 	THIS->closed = true;
 	//qApp->sendEvent(WIDGET, new QEvent(EVENT_CLOSE));
 
-	/*if (CWINDOW_Active == THIS)
-	{
-		//qDebug("closeEvent activate: %p %p", CWidget::get(WIDGET->parentWidget()), CWINDOW_Active);
-		CWINDOW_activate(CWidget::get(WIDGET->parentWidget()));
-	}*/
 	if (CWINDOW_LastActive == THIS)
 	{
 		//GB.Unref(POINTER(&CWINDOW_LastActive));
@@ -2983,10 +2970,22 @@ void CWINDOW_activate(CWIDGET *ob)
 {
 	CWINDOW *active;
 
-	//fprintf(stderr, "CWINDOW_activate: %s\n", ob ? ob->name : NULL);
+	/*if (ob)
+	{
+		fprintf(stderr, "CWINDOW_activate: %s %s\n", GB.GetClassName(ob), ob->name);
+		
+		CWIDGET *parent = ob;
+		for(;;)
+		{
+			parent = (CWIDGET *)CWIDGET_get_parent(parent);
+			if (!parent)
+				break;
+			fprintf(stderr, "  --> %s %s\n", GB.GetClassName(parent), parent->name);
+		}
+	}
+	else
+		fprintf(stderr, "CWINDOW_activate: null\n");*/
 	
-	//qDebug("CWINDOW_activate: %s", ob ? ob->name : NULL);
-
 	if (ob)
 	{
 		active = CWidget::getWindow(ob);
@@ -3014,7 +3013,10 @@ void CWINDOW_activate(CWIDGET *ob)
 	}
 
 	if (active)
+	{
+		//fprintf(stderr, "Activate: %s\n", GB.GetClassName(active));
 		GB.Raise(active, EVENT_Activate, 0);
+	}
 
 	CWINDOW_Active = active;
 	

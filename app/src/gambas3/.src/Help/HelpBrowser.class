@@ -22,6 +22,8 @@ Private $hTimerNotExist As Timer
 
 Public Sub _new()
 
+  Project.InitWebView
+
   $hObs = New Observer(Me) As "WebView"
   $hWatcher = New Watcher(Me) As "Watcher"
   

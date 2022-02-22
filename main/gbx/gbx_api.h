@@ -219,6 +219,7 @@ int GB_toupper(int c);
 void *GB_DebugGetClass(const char *name);
 void *GB_DebugGetExec(void);
 void GB_DebugBreakOnError(bool);
+void GB_DebugInside(bool);
 
 #define GB_PrintString PRINT_string
 

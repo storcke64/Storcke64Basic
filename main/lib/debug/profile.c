@@ -197,7 +197,8 @@ void PROFILE_add(void *cp, void *fp, void *pc)
 	ushort line;
 	
 	line = 0;
-	DEBUG_calc_line_from_position(cp, fp, pc, &line);
+	if (_count && DEBUG_calc_line_from_position(cp, fp, pc, &line))
+		return;
 	
 	add_line(line, time);
 }

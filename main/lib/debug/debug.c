@@ -1024,9 +1024,29 @@ static void command_symbol(char *cmd)
 }
 
 
-static void command_break_on_error(char *cmd)
+static void command_option(char *cmd)
 {
-	GB_DEBUG.BreakOnError(cmd[1] == '+');
+	bool on;
+	
+	if (!cmd[1] || !cmd[2])
+		return;
+	
+	on = cmd[2] == '+';
+	
+	switch(cmd[1])
+	{
+		case 'b':
+			
+			GB_DEBUG.BreakOnError(on);
+			break;
+			
+		case 'g':
+			GB_DEBUG.DebugInside(on);
+			break;
+			
+		default:
+			;
+	}
 }
 
 
@@ -1320,7 +1340,7 @@ void DEBUG_main(bool error)
 		{ "#", TC_NONE, command_eval, TRUE },
 		{ "=", TC_NONE, command_eval, TRUE },
 		{ "@", TC_NONE, command_frame, TRUE },
-		{ "b", TC_NONE, command_break_on_error, TRUE },
+		{ "o", TC_NONE, command_option, TRUE },
 		{ "w", TC_NONE, command_watch, TRUE },
 
 		{ NULL }

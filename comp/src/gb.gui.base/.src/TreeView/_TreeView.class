@@ -569,7 +569,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
   
     If Me.RightToLeft Then
 
-      W -= hItem._Depth * $iDepthW + $iDepthW
+      W -= hItem._Depth * $iDepthW '+ $iDepthW
       
       If Not $bNoRoot Then
       

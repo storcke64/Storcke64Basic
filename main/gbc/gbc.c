@@ -77,6 +77,8 @@ static bool _opt_check_prefix = FALSE;
 static bool _opt_public_module = FALSE;
 static bool _opt_public_control = FALSE;
 
+static char *_convert_form = NULL;
+
 #if HAVE_GETOPT_LONG
 static struct option _long_options[] =
 {
@@ -90,10 +92,11 @@ static struct option _long_options[] =
 	{ "all", 0, NULL, 'a' },
 	{ "translate-errors", 0, NULL, 'e' },
 	{ "warnings", 0, NULL, 'w' },
-
+	
 	{ "jobs", 1, NULL, 'j' },
 	{ "root", 1, NULL, 'r' },
 	{ "default-namespace", 1, NULL, 'n' },
+	{ "form", 1, NULL, 'F' },
 
 	//{ "no-old-read-write-syntax", 0, &_opt_no_old_read_syntax, 1 },
 	//{ "check-prefix", 0, &_opt_check_prefix, 1},
@@ -119,6 +122,21 @@ static uint _ntask_max = 0;
 static uint _ntask = 0;
 static bool _child = FALSE;
 
+static void print_version()
+{
+	#ifdef TRUNK_VERSION
+	printf(VERSION " " TRUNK_VERSION "\n");
+	#else /* no TRUNK_VERSION */
+	printf(VERSION "\n");
+	#endif
+}
+
+static void print_title()
+{
+	printf("\nGambas compiler version ");
+	print_version();
+}
+
 static void get_arguments(int argc, char **argv)
 {
 	const char *dir;
@@ -131,9 +149,9 @@ static void get_arguments(int argc, char **argv)
 	for(;;)
 	{
 		#if HAVE_GETOPT_LONG
-			opt = getopt_long(argc, argv, "gxvaVhj:Lwtser:f:n:", _long_options, &index);
+			opt = getopt_long(argc, argv, "gxvaVhj:Lwtser:f:n:F:", _long_options, &index);
 		#else
-			opt = getopt(argc, argv, "gxvaVhj:Lwtser:f:n:");
+			opt = getopt(argc, argv, "gxvaVhj:Lwtser:f:n:F:");
 		#endif
 		if (opt < 0) break;
 
@@ -141,11 +159,7 @@ static void get_arguments(int argc, char **argv)
 		{
 			case 'V':
 				
-				#ifdef TRUNK_VERSION
-				printf(VERSION " " TRUNK_VERSION "\n");
-				#else /* no TRUNK_VERSION */
-				printf(VERSION "\n");
-				#endif
+				print_version();
 				exit(0);
 
 			case 'g':
@@ -197,58 +211,62 @@ static void get_arguments(int argc, char **argv)
 				
 			case 'L':
 				
-				printf(
-					"\nGAMBAS Compiler version " VERSION "\n"
-					COPYRIGHT
-					);
+				print_title();
+				printf(COPYRIGHT);
 				exit(0);
 
 			case 'h': case '?':
 				
+				print_title();
+				
 				printf(
 					"\nCompile Gambas projects into architecture-independent bytecode.\n"
-					"\nUsage: gbc" GAMBAS_VERSION_STRING " [options] [<project directory>]\n\n"
+					"\n    gbc" GAMBAS_VERSION_STRING " [options] [<project directory>]\n"
+					"\nConvert a form file into Gambas code.\n"
+					"\n    gbc" GAMBAS_VERSION_STRING " -F <form file>\n\n"
 					"Options:"
 					#if HAVE_GETOPT_LONG
-					"\n"
-					"  -a  --all                            compile all files\n"
-					"  -e  --translate-errors               display translatable error messages\n"
-					"  -g  --debug                          add debugging information\n"
-					"  -h  --help                           display this help\n"
-					"  -j  --jobs <count>                   number of background jobs (default: %d)\n"
-					"  -L  --license                        display license\n"
-					"  -n  --default-namespace <namespace>  default namespace for exported classes\n"
-					"  -r  --root <directory>               gives the gambas installation directory\n"
-					"  -s  --swap                           swap endianness\n"
-					"  -t  --translate                      output translation files and compile them if needed\n"
-					"  -v  --verbose                        verbose output\n"
-					"  -V  --version                        display version\n"
-					"  -w  --warnings                       display warnings\n"
-					"  -x  --exec                           executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
-					"\nCompiler flags:\n"
-					"  -f check-prefix                      check the prefix of variables if warnings are enable\n"
-					"  -f public-module                     module symbols are public by default\n"
-					"  -f public-control                    form controls are public\n"
+					"\n\n"
+					"  -a --all                              compile all files\n"
+					"  -e --translate-errors                 display translatable error messages\n"
+					"  -F --form <form file>                 convert a form file into code and print it\n"
+					"  -g --debug                            add debugging information\n"
+					"  -h --help                             display this help\n"
+					"  -j --jobs <count>                     number of background jobs (default: %d)\n"
+					"  -L --license                          display license\n"
+					"  -n --default-namespace <namespace>    default namespace for exported classes\n"
+					"  -r --root <directory>                 gives the gambas installation directory\n"
+					"  -s --swap                             swap endianness\n"
+					"  -t --translate                        output translation files and compile them if needed\n"
+					"  -v --verbose                          verbose output\n"
+					"  -V --version                          display version\n"
+					"  -w --warnings                         display warnings\n"
+					"  -x --exec                             executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"\nCompiler flags:\n\n"
+					"  -f check-prefix                       check the prefix of variables if warnings are enable\n"
+					"  -f public-module                      module symbols are public by default\n"
+					"  -f public-control                     form controls are public\n"
 					#else
-					" (no long options on this system)\n"
-					"  -a                  compile all files\n"
-					"  -e                  display translatable error messages\n"
-					"  -g                  add debugging information\n"
-					"  -h                  display this help\n"
-					"  -j <count>          number of background jobs (default: %d)\n"
-					"  -L                  display license\n"
-					"  -n <namespace>      default namespace for exported classes\n"
-					"  -r <directory>      gives the gambas installation directory\n"
-					"  -s                  swap endianness\n"
-					"  -t                  output translation files and compile them if needed\n"
-					"  -v                  verbose output\n"
-					"  -V                  display version\n"
-					"  -w                  display warnings\n"
-					"  -x                  executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
-					"\nCompiler flags:\n"
-					"  -f check-prefix     check the prefix of variables if warnings are enable\n"
-					"  -f public-module    module symbols are public by default\n"
-					"  -f public-control   form controls are public\n"
+					" (no long options on this system)\n\n"
+					"  -a                   compile all files\n"
+					"  -e                   display translatable error messages\n"
+					"  -F <form file>       convert a form file into code and print it\n"
+					"  -g                   add debugging information\n"
+					"  -h                   display this help\n"
+					"  -j <count>           number of background jobs (default: %d)\n"
+					"  -L                   display license\n"
+					"  -n <namespace>       default namespace for exported classes\n"
+					"  -r <directory>       gives the gambas installation directory\n"
+					"  -s                   swap endianness\n"
+					"  -t                   output translation files and compile them if needed\n"
+					"  -v                   verbose output\n"
+					"  -V                   display version\n"
+					"  -w                   display warnings\n"
+					"  -x                   executable mode (define the 'Exec' preprocessor constant and remove assertions)\n"
+					"\nCompiler flags:\n\n"
+					"  -f check-prefix      check the prefix of variables if warnings are enable\n"
+					"  -f public-module     module symbols are public by default\n"
+					"  -f public-control    form controls are public\n"
 					#endif
 					"\n",
 					SYSTEM_get_cpu_count());
@@ -283,6 +301,13 @@ static void get_arguments(int argc, char **argv)
 					ERROR_fail("option '-n' already specified.");
 				COMP_default_namespace = STR_copy(optarg);
 				break;
+				
+			case 'F':
+				
+				if (_convert_form)
+					ERROR_fail("option '-F' already specified.");
+				_convert_form = STR_copy(optarg);
+				break;
 
 			default:
 				exit(1);
@@ -293,7 +318,9 @@ static void get_arguments(int argc, char **argv)
 	if (optind < (argc - 1))
 		ERROR_fail("too many arguments");
 
-	/*COMP_project = STR_copy(FILE_cat(argv[optind], "Gambas", NULL));*/
+	if (_convert_form)
+		return;
+	
 	if (optind < argc)
 		FILE_chdir(argv[optind]);
 
@@ -368,6 +395,8 @@ static void compile_file(const char *file)
 		BUFFER_load_file(&source, JOB->form);
 		BUFFER_add(&source, "\n\0", 2);
 
+		FORM_set_target(&JOB->source);
+		
 		switch (JOB->family->type)
 		{
 			case FORM_WEBPAGE:
@@ -376,7 +405,7 @@ static void compile_file(const char *file)
 
 			case FORM_NORMAL:
 			default:
-				FORM_do(source, _opt_public_control);
+				FORM_do(source, FALSE, _opt_public_control);
 				break;
 		}
 
@@ -767,47 +796,56 @@ int main(int argc, char **argv)
 	{
 		get_arguments(argc, argv);
 		
-		if (_ntask_max == 0)
-			_ntask_max = SYSTEM_get_cpu_count() + 1;
-		
-		if (_ntask_max >= 2)
+		if (_convert_form)
 		{
-			if (setpgid(0, 0))
-				ERROR_fail("setpgid() fails: %s", strerror(errno));
+			COMP_do_not_lock = TRUE;
+			FORM_convert(_convert_form);
+			STR_free(_convert_form);
 		}
-
-		COMPILE_init();
-
-		// Remove information files if we are compiling everything
-
-		if (main_compile_all)
+		else
 		{
-			if (COMP_verbose)
-				fputs("Removing .info and .list files", stderr);
-			FILE_chdir(COMP_dir);
-			FILE_unlink(".info");
-			FILE_unlink(".list");
+			if (_ntask_max == 0)
+				_ntask_max = SYSTEM_get_cpu_count() + 1;
+			
+			if (_ntask_max >= 2)
+			{
+				if (setpgid(0, 0))
+					ERROR_fail("setpgid() fails: %s", strerror(errno));
+			}
+
+			COMPILE_init();
+
+			// Remove information files if we are compiling everything
+
+			if (main_compile_all)
+			{
+				if (COMP_verbose)
+					fputs("Removing .info and .list files", stderr);
+				FILE_chdir(COMP_dir);
+				FILE_unlink(".info");
+				FILE_unlink(".list");
+			}
+
+			init_files(COMP_dir);
+
+			for (i = 0; i < ARRAY_count(_files); i++)
+				run_task(compile_file, _files[i]);
+
+			wait_for_all_task();
+			
+			COMPILE_remove_lock(".gbc.lock");
+			COMPILE_remove_lock(".gbc.stderr");
+
+			exit_files();
+			
+			if (main_trans)
+				compile_all_lang();
+			
+			COMPILE_exit();
+			FILE_exit();
+
+			puts("OK");
 		}
-
-		init_files(COMP_dir);
-
-		for (i = 0; i < ARRAY_count(_files); i++)
-			run_task(compile_file, _files[i]);
-
-		wait_for_all_task();
-		
-		COMPILE_remove_lock(".gbc.lock");
-		COMPILE_remove_lock(".gbc.stderr");
-
-		exit_files();
-		
-		if (main_trans)
-			compile_all_lang();
-		
-		COMPILE_exit();
-		FILE_exit();
-
-		puts("OK");
 	}
 	CATCH
 	{

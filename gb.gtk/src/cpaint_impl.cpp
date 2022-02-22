@@ -1050,6 +1050,9 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 	PangoLayout *layout;
 	float tw, th, offx, offy;
 
+	if (len == 0)
+		return;
+	
 	layout = create_pango_layout(d);
 
 	if (rich)
@@ -1077,7 +1080,7 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 
 	if (w > 0 || h > 0)
 	{
-		gt_layout_alignment(layout, w, h, &tw, &th, align, &offx, &offy);
+		gt_layout_alignment(layout, text, len, w, h, &tw, &th, align, &offx, &offy);
 		if (rich)
 			offx = 0;
 	}

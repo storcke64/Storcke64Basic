@@ -2,25 +2,89 @@
 
 Export
 
+'' Return if the end of file has been reached.
 Property Read Eof As Boolean
-Property Fields As String[]
+
+'' Return the name of the columns
+Property Fields, Columns As String[]
+
+'' Return the current line
 Property Read Line As Integer
+
+'' @{since 3.17}
+'' 
+'' Return or set the CSV file separator
+
+Property Separator As String Use $sSeparator
+
+'' @{since 3.17}
+'' 
+'' Return or set the CSV file escape character.
+
+Property Escape As String Use $sEscape
+
+'' @{since 3.17}
+'' 
+'' Return or set the CSV file charset.
+
+Property Charset As String Use $sCharset
+
+'' @{since 3.17}
+'' 
+'' Return or set if field names diacritics are kept or not.
+
+Property NoDiacritics As Boolean Use $bNoDiacritics
+
+'' @{since 3.17}
+'' 
+'' Return or set if field names are kept unchanged or not.
+''
+'' If this property is set, the [../NoDiacritics] property is ignored.
+
+Property KeepNames As Boolean Use $bKeepNames
 
 Static Private $bCreate As Boolean
 
 Private $hFile As File
 Private $aField As String[]
-Private $sSeparator As String
-Private $sEscape As String
 Private $iLine As Integer
 Private $bWrite As Boolean
-Private $sCharset As String
+
+'' Open a CSV file for reading and return it as a CsvFile object.
+''
+'' - ~Path~ is the path of the file.
+'' - ~Separator~ is the column separator, ',' by default.
+'' - ~Escape~ is the escape character, '"' by default.
+'' - ~Charset~ is the file charset. If not specified, it will be guessed.
+''
+'' [[ warning
+'' If another file with the same name already exists, it is erased.
+'' ]]
+''
+'' Field names are automatically formatted: trailing and double white spaces are removed, and characters are converted to lower case.
+''
+'' If you want to keep the original field names, set the [../KeepNames] property just after the creation of the CsvFile object.
 
 Static Public Sub Open(Path As String, Optional Separator As String = ",", Optional Escape As String = "\"", Optional Charset As String) As CsvFile
   
   Return New CsvFile(Path, Separator, Escape, Charset)
   
 End
+
+'' Create a CSV file for writing and return it as a CsvFile object.
+''
+'' - ~Path~ is the path of the file.
+'' - ~Separator~ is the column separator, ',' by default.
+'' - ~Escape~ is the escape character, '"' by default.
+'' - ~Charset~ is the file charset. If not specified, it will be guessed.
+''
+'' [[ warning
+'' If another file with the same name already exists, it is erased.
+'' ]]
+''
+'' Field names are automatically formatted: trailing and double white spaces are removed, and characters are converted to lower case.
+''
+'' If you want to keep the original field names, set the [../KeepNames] property just after the creation of the CsvFile object.
 
 Static Public Sub Create(Path As String, Optional Separator As String = ",", Optional Escape As String = "\"", Optional Charset As String) As CsvFile
 
@@ -29,11 +93,19 @@ Static Public Sub Create(Path As String, Optional Separator As String = ",", Opt
   
 End
 
+'' Create a new CsvFile for reading.
+''
+'' - ~Path~ is the path of the file.
+'' - ~Separator~ is the column separator, ',' by default.
+'' - ~Escape~ is the escape character, '"' by default.
+'' - ~Charset~ is the file charset. If not specified, it will be guessed.
+'' - ~NoDiacritics~ remove all diacritics from field names.
+''
+'' Field names are automatically formatted: trailing and double white spaces are removed, and characters are converted to lower case.
+''
+'' If you want to keep the original field names, set the [../KeepNames] property just after the creation of the CsvFile object.
+
 Public Sub _new(Path As String, Optional Separator As String = ",", Optional Escape As String = "\"", Optional Charset As String, Optional NoDiacritics As Boolean)
-  
-  Dim sLine As String
-  Dim iInd As Integer
-  Dim sField As String
   
   $sSeparator = Separator
   $sEscape = Escape
@@ -54,7 +126,17 @@ Public Sub _new(Path As String, Optional Separator As String = ",", Optional Esc
     Endif
   Endif
   
+  $bNoDiacritics = NoDiacritics
+  
   $hFile = Open Path For Input
+  
+End
+
+Private Sub ReadFields()
+
+  Dim sLine As String
+  Dim iInd As Integer
+  Dim sField As String
   
   sLine = $hFile.ReadLine($sEscape)
 
@@ -74,16 +156,24 @@ Public Sub _new(Path As String, Optional Separator As String = ",", Optional Esc
   $aField = Split(sLine, $sSeparator, $sEscape)
   
   For iInd = 0 To $aField.Max
-    sField = Trim($aField[iInd])
-    sField = Replace(sField, String.Chr(160), " ")
-    sField = Replace(sField, "\n", " ")
-    sField = Replace(sField, "\t", " ")
-    While InStr(sField, "  ")
-      sField = Replace(sField, "  ", " ")
-    Wend
-    sField = String.LCase(sField)
     
-    If NoDiacritics Then sField = String.RemoveDiacritics(sField)
+    If Not $bKeepNames Then
+    
+      sField = Trim($aField[iInd])
+      
+      sField = Replace(sField, String.Chr(160), " ")
+      sField = Replace(sField, "\n", " ")
+      sField = Replace(sField, "\t", " ")
+      
+      While InStr(sField, "  ")
+        sField = Replace(sField, "  ", " ")
+      Wend
+      
+      sField = String.LCase(sField)
+      
+    Endif
+    
+    If $bNoDiacritics Then sField = String.RemoveDiacritics(sField)
     
     If Not sField Then sField = "#" & CStr(iInd)
     $aField[iInd] = sField
@@ -93,6 +183,10 @@ Public Sub _new(Path As String, Optional Separator As String = ",", Optional Esc
   
 End
 
+'' Read a row from the CSV file.
+''
+'' The row is returned as a collection of column values indexed by the column name.
+
 Public Sub Read() As Collection
   
   Dim sLine As String
@@ -101,6 +195,7 @@ Public Sub Read() As Collection
   Dim iInd As Integer
   
   If Eof($hFile) Then Return 
+  If Not $aField Then ReadFields
   
   cCol = New Collection(gb.IgnoreCase)
   
@@ -190,6 +285,12 @@ Private Sub Print(sVal As String, Optional bNoSep As Boolean)
   Endif
   
 End
+
+'' Write a new row of columns in the CSV file.
+''
+'' - ~Line~ is the contents of the columns.
+''
+'' Line can be either a string array of column values (following the [../Columns] order), or a collection of column values indexed by column names.
 
 Public Sub Write({Line} As Variant)
   

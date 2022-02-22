@@ -147,10 +147,6 @@ Public Sub RefreshAll()
 
   $sClass = sClass
 
-  'If Not $bDisableIntegratedHelp Then
-  MHelp.InitWebViewWith(GetWebView(), MHelp.TYPE_CLASS, sClass,, "noimage")
-  'Endif
-
   'PRINT "Kind = "; sClass
   'cProp = CControl.PropertiesInOrder[sClass]
   Try aProp = Project.Documentation.Classes[sClass].PropertyList
@@ -598,7 +594,10 @@ Private Sub ShowProperty(Optional sFocus As String)
     If iRow >= 0 Then grdProperty.Row = iRow
   Endif
 
-  If grdProperty.Row < 0 Then Return
+  If grdProperty.Row < 0 Then 
+    MHelp.InitWebViewWith(GetWebView(), MHelp.TYPE_CLASS, $sClass,, "noimage")
+    Return
+  Endif
 
   If $sLast Then HideProperty()
 

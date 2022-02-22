@@ -292,7 +292,7 @@ RETRY:
   If W < 1 Or If H < 1 Then
     $hDrawingArea.Hide
   Else
-    If $bVBarVisible And If Me.RightToLeft Then
+    If bVBarVisible And If Me.RightToLeft Then
       $hDrawingArea.Move(SP + SB + X, Y, W, H)
     Else
       $hDrawingArea.Move(X, Y, W, H)

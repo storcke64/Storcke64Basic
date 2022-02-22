@@ -270,17 +270,10 @@
       Text = ("Debug extern process") & "..."
       Picture = Picture["icon:/small/connect"]
     }
-    { Menu49 Menu
-    }
-    { Menu45 Menu
-      Action = "run-with"
-      Text = ("Program arguments") & "..."
-      Picture = Picture["icon:/small/text-list-order"]
-    }
-    { mnuDebugRemote Menu
-      Action = "run-remote"
-      Text = ("Remote debugging") & "..."
-      Picture = Picture["icon:/small/network"]
+    { mnuDebugInside Menu
+      Action = "debug-inside"
+      Text = ("Debug inside components")
+      Toggle = True
     }
     { Menu14 Menu
     }
@@ -319,42 +312,21 @@
       Action = "terminal"
       Text = Shortcut(("Use terminal emulator"), "t")
       Toggle = True
+      Visible = False
     }
     { mnuRedirectStderr Menu
       Action = "redirect"
       Text = ("Redirect standard error output")
       Toggle = True
+      Visible = False
     }
     { mnuUseHttpServer Menu
       Action = "httpserver"
       Text = ("Use embedded HTTP server")
       Toggle = True
+      Visible = False
     }
     { Menu44 Menu
-    }
-    { mnuEnvReverse Menu mnuSetEnv
-      Name = "mnuEnvReverse"
-      Text = ("Invert language orientation")
-      Toggle = True
-      Tag = "GB_REVERSE=1"
-    }
-    { mnuEnvNoJit Menu mnuSetEnv
-      Name = "mnuEnvNoJit"
-      Text = ("Disable just-in-time compiler")
-      Toggle = True
-      Tag = "GB_NO_JIT=1"
-    }
-    { mnuEnvJitDebug Menu mnuSetEnv
-      Name = "mnuEnvJitDebug"
-      Text = ("Show just-in-time compiler debugging messages")
-      Toggle = True
-      Tag = "GB_JIT_DEBUG=1"
-    }
-    { mnuEnvDbDebug Menu mnuSetEnv
-      Name = "mnuEnvDbDebug"
-      Text = ("Show database requests")
-      Toggle = True
-      Tag = "GB_DB_DEBUG=1"
     }
     { mnuGUI Menu
       Action = "gui"
@@ -395,7 +367,7 @@
     }
     { mnuProfile Menu
       Action = "profile"
-      Text = Shortcut(("Activate profiling"), "g")
+      Text = ("Activate profiling")
       Toggle = True
     }
     { mnuOpenProfile Menu
@@ -407,11 +379,18 @@
     }
     { mnuClearBreakpoints Menu
       Action = "clear-break"
-      Text = Shortcut(("Clear all breakpoints"), "a")
+      Text = ("Clear all breakpoints")
     }
     { mnuClearDebugWindows Menu
       Action = "close-all-debug"
       Text = Shortcut(("Close all debug windows"), "d")
+    }
+    { Menu49 Menu
+    }
+    { mnuDebugConfig Menu
+      Action = "debug-config"
+      Text = ("Configuration") & "..."
+      Picture = Picture["icon:/small/tools"]
     }
   }
   { mnuView Menu
@@ -771,23 +750,23 @@
     { mnuCompressAll Menu
       Action = "compress-all"
       Text = ("Compress all")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
     }
     { mnuUncompressAll Menu
       Action = "uncompress-all"
       Text = ("Uncompress all")
-      Picture = Picture["icon:/small/undo"]
+      Picture = Picture["icon:/small/uncompress"]
     }
     { mnuCompressFile Menu
       Action = "compress-file"
       Text = ("Compress file into the executable")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
       Toggle = True
     }
     { mnuCompressNow Menu
       Action = "compress-now"
       Text = ("Compress file")
-      Picture = Picture["icon:/small/archive"]
+      Picture = Picture["icon:/small/compress"]
     }
     { Menu46 Menu
     }
@@ -1019,16 +998,8 @@
       Picture = Picture["icon:/small/properties"]
       Toggle = True
     }
-    { ToolButton10 ToolButton
-      MoveScaled(51,0,4,4)
-      Visible = False
-      ToolTip = ("Toolbox")
-      Action = "control"
-      Picture = Picture["icon:/small/tools"]
-      Toggle = True
-    }
     { btnShowConsole ToolButton
-      MoveScaled(54,0,4,4)
+      MoveScaled(51,0,4,4)
       Visible = False
       ToolTip = ("Console")
       Action = "console"
@@ -1036,7 +1007,7 @@
       Toggle = True
     }
     { btnFind ToolButton
-      MoveScaled(57,0,4,4)
+      MoveScaled(54,0,4,4)
       Visible = False
       ToolTip = ("Search")
       Action = "find"
@@ -1044,7 +1015,7 @@
       Toggle = True
     }
     { btnHelp ToolButton
-      MoveScaled(60,0,4,4)
+      MoveScaled(57,0,4,4)
       Visible = False
       ToolTip = ("Help browser")
       Action = "help"
@@ -1052,25 +1023,32 @@
       Toggle = True
     }
     { btnCompile ToolButton
-      MoveScaled(64,0,4,4)
+      MoveScaled(61,0,4,4)
       ToolTip = ("Compile")
       Action = "compile"
       Picture = Picture["icon:/small/make"]
     }
     { btnCompileAll ToolButton
-      MoveScaled(67,0,4,4)
+      MoveScaled(64,0,4,4)
       ToolTip = ("Compile all")
       Action = "compile-all"
       Picture = Picture["icon:/small/make-all"]
     }
     { btnTest ToolButton
-      MoveScaled(70,0,4,4)
+      MoveScaled(67,0,4,4)
       ToolTip = ("Test")
       Action = "test"
       Picture = Picture["icon:/small/ok"]
     }
+    { ToolButton10 ToolButton
+      MoveScaled(71,0,4,4)
+      Visible = False
+      ToolTip = ("Debugger configuration")
+      Action = "debug-config"
+      Picture = Picture["icon:/small/tools"]
+    }
     { btnGo MenuButton
-      MoveScaled(74,0,6,4)
+      MoveScaled(75,0,6,4)
       ToolTip = ("Run")
       Action = "start"
       Picture = Picture["icon:/small/play"]
@@ -1175,7 +1153,7 @@
       Picture = Picture["icon:/small/book"]
     }
     { btnGUI MenuButton
-      MoveScaled(13,4,11,4)
+      MoveScaled(13,4,6,4)
       Visible = False
       ToolTip = ("GUI component")
       Action = "gui"
@@ -1272,15 +1250,6 @@
       Menu = "mnuVersionControl"
       MenuOnly = True
     }
-    { btnRunWith ToolButton
-      MoveScaled(89,4,15,4)
-      Visible = False
-      ToolTip = ("Run with arguments")
-      Action = "run-with"
-      AutoResize = True
-      Text = ("Run with") & "..."
-      Picture = Picture["icon:/small/play"]
-    }
     { btnRunRemote ToolButton
       MoveScaled(104,4,4,4)
       Visible = False
@@ -1294,7 +1263,7 @@
     Visible = False
   }
   { msgError MessageView
-    MoveScaled(57,10,57,6)
+    MoveScaled(58,10,57,6)
     Animated = True
   }
   { panGlobal Panel
@@ -1523,7 +1492,7 @@
     Padding = 32
   }
   { timOpen #Timer
-    #MoveScaled(147,7)
+    #MoveScaled(143,9)
   }
 }
 
@@ -1595,17 +1564,17 @@
   { Action compress-all
     Text = "Compress all"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action compress-file
     Text = "Compress file into the executable"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action compress-now
     Text = "Compress file"
     Shortcut = ""
-    Picture = "icon:/small/archive"
+    Picture = "icon:/small/compress"
   }
   { Action console
     Text = "Console"
@@ -1614,7 +1583,7 @@
   }
   { Action control
     Text = "Toolbox"
-    Picture = "icon:/small/tools"
+    Picture = "$SidePanel"
   }
   { Action copy
     Text = "Copy"
@@ -1629,6 +1598,15 @@
     Text = "Cut"
     Shortcut = "Ctrl+X"
     Picture = "icon:/small/cut"
+  }
+  { Action debug-config
+    Text = "Configuration"
+    Shortcut = ""
+    Picture = "icon:/small/tools"
+  }
+  { Action debug-inside
+    Text = "Debug inside components"
+    Shortcut = ""
   }
   { Action delete
     Text = "Delete"
@@ -1859,18 +1837,8 @@
     Shortcut = ""
     Picture = "icon:/small/connect"
   }
-  { Action run-remote
-    Text = "Remote debugging"
-    Shortcut = ""
-    Picture = "icon:/small/network"
-  }
   { Action run-that
     Text = "Run this class"
-    Shortcut = ""
-    Picture = "icon:/small/play"
-  }
-  { Action run-with
-    Text = "Run with"
     Shortcut = ""
     Picture = "icon:/small/play"
   }
@@ -1940,7 +1908,7 @@
   { Action uncompress-all
     Text = "Uncompress all"
     Shortcut = ""
-    Picture = "icon:/small/undo"
+    Picture = "icon:/small/uncompress"
   }
   { Action until
     Text = "Run until current line"
@@ -1985,7 +1953,7 @@
 { Toolbars
   { Toolbar main
     Text = ""
-    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,control,console,find,help,compile,compile-all,test,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-with,run-extern"
+    List = "new-project,open-project,save-project,save-project-as,project-property,refresh-project,option,shortcut,exec,translate,archive,install,project,property,console,find,help,compile,compile-all,test,debug-config,start,pause,stop,step,forward,return,until,find-project,go-back,go-forward,browse-project,open-terminal,send-mail,publish,farm,gui,menu-file,menu-edit,menu-project,menu-debug,menu-view,menu-tool,menu-help,version-control,run-extern"
     Default = "new-project,open-project,save-project,save-project-as,project-property,option,|,exec,translate,|,compile,compile-all,test,start,pause,stop,step,forward,return,until,-,find-project,go-back,go-forward,version-control"
   }
 }

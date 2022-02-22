@@ -363,3 +363,16 @@ Public Sub SetIndex(iIndex As Integer)
   If iIndex < 0 Then UpdateButtons
   
 End
+
+Public Sub GetWrap() As Boolean
+  
+  Return lstData.Wrap
+  
+End
+
+Public Sub SetWrap(bVal As Boolean)
+  
+  lstData.Wrap = bVal
+  
+End
+

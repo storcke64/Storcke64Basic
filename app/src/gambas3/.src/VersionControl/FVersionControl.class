@@ -1,8 +1,8 @@
 ' Gambas class file
 
-Public Sub Run() As Boolean
+Public Sub Run()
 
-  Return Not Me.ShowModal()
+  Me.ShowModal()
 
 End
 
@@ -37,38 +37,23 @@ Private Sub DoCommit()
 
   If bPush And If Not bCommit Then
     
-    VersionControl.Commit("", False)
     Me.Close
+    VersionControl.Commit("", False)
     
   Else
   
-    ' If Not VersionControl.Diff() Then
-    '   If chkDoNotPush.Visible Then
-    '     If Message.Question(("There is nothing to commit.") & "\n\n" & ("Do you want to push the repository?"), ("Push"), ("Cancel")) = 1 Then 
-    '       VersionControl.Commit("", False)
-    '       Me.Close
-    '     Endif
-    '   Else
-    '     Message.Info(("There is nothing to commit."))
-    '   Endif
-    '   Return
-    ' Endif
-    
     sChange = GetChanges()
     
     If Not Trim(sChange) Then
       tabVersionControl.Index = 0
       edtJournal.Goto(0, 0)
       edtJournal.SetFocus
-      Balloon.Warning(("Please enter the journal."), btnCommit)
+      Message.Warning(("Please enter the journal."))
       Return
     Endif
     
-    'Project.Config["/FCommit/LastCommit"] = RTrim(sChange)
-    
-    If VersionControl.Commit(sChange, Not bPush) Then Return
-    
-    Me.Close(True)
+    Me.Close
+    VersionControl.Commit(sChange, Not bPush)
 
   Endif  
   
@@ -128,6 +113,7 @@ Public Sub Form_Close()
   Project.Config["/FCommit/LastCommit"] = RTrim(GetChanges())
   
   Try trmShell.Kill
+  edtHistory.StopFillWithHistory
   
 End
 
@@ -161,11 +147,11 @@ Private Sub LoadDiff()
     If sDiff Then
       edtDiff.Text = sDiff
       edtDiff.Show
-      panNothing.Hide
+      'panNothing.Hide
     Else
       edtDiff.Text = "-"
       edtDiff.Hide
-      panNothing.Show
+      'panNothing.Show
     Endif
     
     tabVersionControl[0].Visible = edtDiff.Visible
@@ -197,6 +183,7 @@ Public Sub tabVersionControl_Click()
   End Select
   
   chkHideTrans.Visible = tabVersionControl.Index = 1 And edtDiff.Visible
+  chkShowHistoryChanges.Visible = tabVersionControl.Index = 2
 
 End
 
@@ -223,5 +210,11 @@ Public Sub chkHideTrans_Click()
 
   edtDiff.Clear
   LoadDiff
+
+End
+
+Public Sub chkShowHistoryChanges_Click()
+
+  edtHistory.FillWithHistory(Project.Dir,, chkShowHistoryChanges.Value)
 
 End
