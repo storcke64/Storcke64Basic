@@ -730,12 +730,10 @@ void gControl::showButKeepFocus()
 	}
 	
 	focus = gApplication::_active_control;
+	gApplication::_active_control = NULL;
 	if (focus && !focus->hasFocus())
-	{
-		gApplication::_active_control = NULL;
 		focus->setFocus();
-		gApplication::_active_control = focus;
-	}
+	gApplication::_active_control = focus;
 
 	//_hidden_temp = false;
 }
@@ -1341,11 +1339,11 @@ void gControl::setFocus()
 
 	if (win->isVisible())
 	{
-		#if DEBUG_FOCUS
-		fprintf(stderr, "setFocus NOW: %s %s %p\n", GB.GetClassName(hFree), name(), hFree);
-		#endif
-		
 		gtk_widget_grab_focus(widget);
+		
+		#if DEBUG_FOCUS
+		fprintf(stderr, "setFocus NOW: %s %s %p -> %d\n", GB.GetClassName(hFree), name(), hFree, hasFocus());
+		#endif
 	}
 	else
 	{
@@ -1877,14 +1875,20 @@ void gControl::setMinimumSize()
 		bool mapped = gtk_widget_get_mapped(border);
 		
 		if (!mapped)
+		{
+			gApplication::_disable_mapping_events = true;
 			gtk_widget_show(border);
+		}
 			
 		_do_not_patch = true;
 		gtk_widget_get_preferred_size(widget, &minimum_size, &natural_size);
 		_do_not_patch = false;
 		
 		if (!mapped)
+		{
 			gtk_widget_hide(border);
+			gApplication::_disable_mapping_events = false;
+		}
 		
 		//fprintf(stderr, "gtk_widget_get_preferred_size: %s: min = %d %d / nat = %d %d\n", GB.GetClassName(hFree), minimum_size.width, minimum_size.height, natural_size.width, natural_size.height);
 
@@ -1900,8 +1904,12 @@ void gControl::setMinimumSize()
 }
 
 
-void gControl::connectBorder()
+void gControl::updateEventMask()
 {
+	gtk_widget_add_events(widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
+		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
+		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+
 	if (widget != border && (GTK_IS_WINDOW(border) || (GTK_IS_EVENT_BOX(border) && !gtk_event_box_get_visible_window(GTK_EVENT_BOX(border)))))
 	{
 		gtk_widget_add_events(border, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
@@ -1934,17 +1942,12 @@ void gControl::realize(bool draw_frame)
 		gt_patch_control(widget);
 #endif
 
-	gtk_widget_add_events(widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-		| GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK
-		| GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-
+	initSignals();
 	connectParent();
-	connectBorder();
 	
 	setMinimumSize();
 	resize(Max(8, _min_w), Max(8, _min_h), true);
-	initSignals();
-
+	
 	if (!_no_background && !gtk_widget_get_has_window(border))
 		ON_DRAW_BEFORE(border, this, cb_background_expose, cb_background_draw);
 
@@ -1956,6 +1959,8 @@ void gControl::realize(bool draw_frame)
 		g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(cb_clip_children), (gpointer)this);
 #endif
 
+	updateEventMask();
+	
 	registerControl();
 	updateFont();
 }
@@ -2932,7 +2937,6 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 	GtkWidget *old = border;
 	
 	border = new_border;
-	connectBorder();
 	
 	if (keep_widget && widget)
 		gt_widget_reparent(widget, border);

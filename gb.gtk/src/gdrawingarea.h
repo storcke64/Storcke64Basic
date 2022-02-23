@@ -45,7 +45,6 @@ public:
 
 //"Methods"
 	void clear();
-	virtual void setEnabled(bool vl);
 #ifndef GTK3
 	virtual void setBackground(gColor color = COLOR_DEFAULT);
 #endif
@@ -59,7 +58,6 @@ public:
 	void updateCache();
 	void resizeCache();
 	void refreshCache();
-	void updateEventMask();
 	void setCache();
 	void updateUseTablet();
 

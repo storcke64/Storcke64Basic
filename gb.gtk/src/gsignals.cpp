@@ -315,14 +315,9 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	return true;
 }
 
-// void sg_size(GtkWidget *widget,GtkRequisition *req, gContainer *data)
-// {
-// 	if (data->parent()) data->parent()->performArrange();
-// 	if (data->isContainer()) data->performArrange();
-// }
-
 static void cb_show(GtkWidget *widget, gContainer *data)
 {
+	//fprintf(stderr, "cb_show: %s '%s'\n", GB.GetClassName(data->hFree), data->name());
 	data->performArrange();
 }
 

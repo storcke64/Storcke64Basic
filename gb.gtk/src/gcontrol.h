@@ -311,7 +311,7 @@ public:
 	
   void removeParent() { pr = NULL; }
 	void initSignals();
-	void borderSignals();
+	virtual void borderSignals();
 	void widgetSignals();
 	void connectParent();
 	void setParent(gContainer *parent) { pr = parent; }
@@ -321,6 +321,7 @@ public:
 	void registerControl();
 	void updateGeometry(bool force = false);
 	bool mustUpdateCursor() { return mouse() != -1 || have_cursor || !parent(); }
+	void updateEventMask();
 	
 	bool hasInputMethod() { return _has_input_method; }
 	virtual GtkIMContext *getInputMethod();
@@ -345,7 +346,6 @@ public:
 	
 	void createBorder(GtkWidget *new_border, bool keep_widget = false);
 	void createWidget();
-	virtual void connectBorder();
 	
 	int minimumWidth() const { return _min_w; }
 	int minimumHeight() const { return _min_h; }

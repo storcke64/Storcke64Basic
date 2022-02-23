@@ -1439,6 +1439,7 @@ void gMainWindow::createWindow(GtkWidget *new_border)
 {
 	gt_widget_reparent(frame, new_border);
 	createBorder(new_border);
+	updateEventMask();
 	registerControl();
 }
 

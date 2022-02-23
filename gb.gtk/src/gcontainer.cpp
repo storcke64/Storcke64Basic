@@ -65,6 +65,8 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
+	//fprintf(stderr, "cb_map: %p / %p (%d) '%s'\n", sender, sender->hFree, gApplication::_disable_mapping_events, sender->name());
+
 	sender->setShown(true);
 	if (!gApplication::_disable_mapping_events)
 		sender->arrangeLater();
@@ -76,7 +78,7 @@ static void cb_remap_children(GtkWidget *widget, GdkEvent *event, gContainer *se
 	int i;
 	gControl *child;
 	
-	//fprintf(stderr, "cb_remap_children: %s\n", sender->name());
+	//fprintf(stderr, "cb_remap_children: '%s' <<<\n", sender->name());
 	
 	for (i = 0; i < sender->childCount(); i++)
 	{
@@ -87,11 +89,15 @@ static void cb_remap_children(GtkWidget *widget, GdkEvent *event, gContainer *se
 			child->showButKeepFocus();
 		}
 	}
+
+	//fprintf(stderr, "cb_remap_children: >>> '%s'\n", sender->name());
 }
 #endif
 
 static void cb_unmap(GtkWidget *widget, gContainer *sender)
 {
+	//fprintf(stderr, "cb_unmap: %p / %p '%s'\n", sender, sender->hFree, sender->name());
+	
 	sender->setShown(false);
 }
 
@@ -167,6 +173,7 @@ void gContainer::performArrange()
 	else
 	{
 		_did_arrangement = false;
+		//fprintf(stderr, "performArrange: %p / %p [%d] '%s'\n", this, hFree, isShown(), name());
 		arrangeContainer((void *)this);
 	}
 }
@@ -754,13 +761,13 @@ GtkWidget *gContainer::getContainer()
 	return widget;
 }
 
-void gContainer::connectBorder()
+void gContainer::borderSignals()
 {
-	gControl::connectBorder();
+	gControl::borderSignals();
 	
-	g_signal_connect_after(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
-	g_signal_connect_after(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
-#if GTK3
+	g_signal_connect(G_OBJECT(border), "map", G_CALLBACK(cb_map), (gpointer)this);	
+	g_signal_connect(G_OBJECT(border), "unmap", G_CALLBACK(cb_unmap), (gpointer)this);	
+#ifdef GTK3
 	g_signal_connect_after(G_OBJECT(border), "map-event", G_CALLBACK(cb_remap_children), (gpointer)this);	
 #endif
 }
@@ -949,6 +956,8 @@ void gContainer::resetArrangeLater()
 {
 	if (_arrange_later)
 	{
+		//fprintf(stderr, "resetArrangeLater: %p / %p '%s'\n", this, hFree, name());
+		
 		_arrange_later = false;
 		_arrange_list = g_list_remove(_arrange_list, this);
 	}
@@ -958,6 +967,8 @@ void gContainer::arrangeLater()
 {
 	if (!_arrange_later)
 	{
+		//fprintf(stderr, "arrangeLater: %p / %p '%s'\n", this, hFree, name());
+	
 		_arrange_later = true;
 		_arrange_list = g_list_prepend(_arrange_list, (gpointer)this);
 	}
@@ -980,6 +991,7 @@ void gContainer::postArrange()
 		cont->performArrange();
 	}
 
+	g_list_free(_arrange_list);
 	_arrange_list = NULL;
 }
 

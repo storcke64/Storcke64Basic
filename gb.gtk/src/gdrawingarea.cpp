@@ -204,40 +204,6 @@ gDrawingArea::~gDrawingArea()
 		UNREF_BUFFER();
 }
 
-/*void gDrawingArea::resize(int w, int h)
-{
-	// TODO Do not resize cache if the DrawingArea is being painted
-	gContainer::resize(w,h);
-	//updateCache();
-}*/
-
-void gDrawingArea::updateEventMask()
-{
-	/*
-	static int event_mask;
-	XWindowAttributes attr;
-
-	gtk_widget_realize(border);
-
-	if (!enabled())
-	{
-		XGetWindowAttributes(gdk_display, GDK_WINDOW_XID(border->window), &attr);
-		event_mask = attr.your_event_mask;
-		XSelectInput(gdk_display, GDK_WINDOW_XID(border->window), ExposureMask);
-	}
-	else
-	{
-		XSelectInput(gdk_display, GDK_WINDOW_XID(border->window), event_mask);
-	}
-	*/
-}
-
-void gDrawingArea::setEnabled(bool vl)
-{
-	gContainer::setEnabled(vl);
-	updateEventMask();
-}
-
 void gDrawingArea::setCached(bool vl)
 {
 	if (vl == _cached) return;

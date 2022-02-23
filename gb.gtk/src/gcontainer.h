@@ -155,7 +155,7 @@ public:
 	void arrangeLater();
 	void resetArrangeLater();
 	
-	virtual void connectBorder();
+	virtual void borderSignals();
 	
 	virtual void updateDirection();
 	
