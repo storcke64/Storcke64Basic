@@ -2230,7 +2230,7 @@ gColor gControl::realBackground(bool no_default)
 	if (!no_default)
 		return COLOR_DEFAULT;
 	
-	if (parent())
+	if (!use_base && parent())
 		return parent()->realBackground(true);
 	
 	return defaultBackground();
