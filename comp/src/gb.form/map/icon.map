@@ -58,6 +58,7 @@ camera                  devices/camera-photo
 cancel                  actions/dialog-cancel
 car                     places/poi-car
 cdrom                   devices/media-optical
+city                    #
 column-after            actions/edit-table-insert-column-right
 column-before           actions/edit-table-insert-column-left
 column-remove           actions/edit-table-delete-column
@@ -273,7 +274,7 @@ plugin                  preferences/preferences-plugin;apps/preferences-plugin;c
 preview                 actions/document-print-preview
 previous                actions/go-previous-view
 print                   actions/document-print
-printer                 devices/printer;;preferences/preferences-devices-printer;apps/preferences/preferences-devices-printer
+printer                 devices/printer;;preferences/preferences-devices-printer;apps/preferences-devices-printer
 program                 $(mime)/application-x-executable
 properties              actions/document-properties
 question                status/dialog-question;actions/svn-status
@@ -307,7 +308,7 @@ rss                     actions/rss;apps/akregator
 saturation              #
 save                    actions/document-save
 save-as                 actions/document-save-as
-scanner                 [breeze*]devices/scanner;devices/scanner;;preferences/preferences-devices-scanner;apps/preferences/preferences-devices-scanner
+scanner                 [breeze*]devices/scanner;devices/scanner;;preferences/preferences-devices-scanner;apps/preferences-devices-scanner
 science                 categories/applications-science
 screen                  devices/video-display;preferences/preferences-desktop-display;apps/preferences-desktop-display
 script                  $(mime)/text-x-script
