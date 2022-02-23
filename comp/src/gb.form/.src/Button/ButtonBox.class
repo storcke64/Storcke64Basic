@@ -239,7 +239,7 @@ Public Sub Background_Arrange()
   Dim X, H As Integer
   
   If $bBorder Then
-    FW = Style.BoxFrameWidth
+    FW = Min(3, Style.BoxFrameWidth)
     FH = Min(3, Style.BoxFrameHeight)
   Endif
   
