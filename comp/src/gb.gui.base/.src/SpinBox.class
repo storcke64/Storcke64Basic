@@ -28,6 +28,9 @@ Property ReadOnly As Boolean
 
 Private Enum ARROW_NONE, ARROW_TOP, ARROW_BOTTOM
 
+Static Private $hPictPlus As Picture
+Static Private $hPictMinus As Picture
+
 Private $hView As DrawingArea
 Private $hTextBox As TextBox
 
@@ -43,6 +46,10 @@ Private $iStep As Integer = 1
 Private $bShowZero As Boolean
 Private $iBg As Integer = Color.Default
 Private $bShowSign As Boolean
+Private $bWide As Boolean
+Private $hButtonInc As ToolButton
+Private $hButtonDec As ToolButton
+Private $iWidth As Integer
 
 Public Sub _new()
   
@@ -54,6 +61,8 @@ Public Sub _new()
   $hTextBox.Background = Color.TextBackground
   
   Me.Proxy = $hTextBox
+  
+  ComputeMinWidth
   
 End
 
@@ -85,27 +94,77 @@ Private Sub GetArrowRect(iArrow As Integer, Optional bForDrawing As Boolean) As 
   
 End
 
+Public Sub _GetIdealWidth(WithButtons As Boolean) As Integer
+
+  Dim DS As Integer
+  Dim BW As Integer
+  Dim BH As Integer
+  
+  If $bBorder Then 
+    BW = Min(3, Style.BoxFrameWidth)
+    BH = Min(3, Style.BoxFrameHeight)
+  Endif
+  
+  DS = Desktop.Scale
+  
+  If WithButtons Then
+    Return DS * 6 + $iWidth + BW * 2
+  Else
+    Return DS * 2 + $iWidth + BW * 2
+  Endif
+  
+End
 
 Public Sub View_Arrange()
 
   Dim W, H As Integer
   Dim BW, BH As Integer
+  Dim DS As Integer = Desktop.Scale
   
   If $bBorder Then 
-    BW = Style.BoxFrameWidth
+    BW = Min(3, Style.BoxFrameWidth)
     BH = Min(3, Style.BoxFrameHeight)
   Endif
   
   'Debug Style.BoxFrameWidth;; Style.BoxFrameHeight
   
-  W = Me.W - BW * 2 - Desktop.Scale * 2
+  W = Me.W - BW * 2
   H = Me.H - BH * 2
+  
+  If Me.W < _GetIdealWidth(True) Then
+    W -= DS * 2
+    $bWide = False
+  Else
+    W -= DS * 6
+    $bWide = True
+  Endif
+  
+  If $bWide Then
+    If Not $hButtonInc Then
+      $hButtonInc = New ToolButton($hView) As "Button"
+      $hButtonDec = New ToolButton($hView) As "Button"
+      UpdatePictures
+      UpdateButtons
+    Endif
+  Else
+    If $hButtonInc Then
+      $hButtonInc.Delete
+      $hButtonDec.Delete
+      $hButtonInc = Null
+      $hButtonDec = Null
+    Endif
+  Endif
   
   If W < 1 Or If H < 1 Then
     $hTextBox.Hide
   Else
     $hTextBox.Move(BW, BH, W, H)
     $hTextBox.Show
+  Endif
+  
+  If $bWide Then
+    $hButtonInc.Move(Me.W - BW - DS * 6, BH, DS * 3, Me.H - BH * 2)
+    $hButtonDec.Move(Me.W - BW - DS * 3, BH, DS * 3, Me.H - BH * 2)
   Endif
   
 End
@@ -140,25 +199,29 @@ Public Sub View_Draw()
   
   If $hTextBox.ReadOnly Then Return
   
-  hRect = GetArrowRect(ARROW_TOP, True)
-  If $iValue = $iMax Or If $hTextBox.ReadOnly Then
-    iState = Style.Disabled
-  Else If $iInsideArrow = ARROW_TOP
-    iState = Style.Hovered
-  Else
-    iState = Style.Normal
+  If Not $bWide Then
+  
+    hRect = GetArrowRect(ARROW_TOP, True)
+    If $iValue = $iMax Or If $hTextBox.ReadOnly Then
+      iState = Style.Disabled
+    Else If $iInsideArrow = ARROW_TOP
+      iState = Style.Hovered
+    Else
+      iState = Style.Normal
+    Endif
+    Style.PaintArrow(hRect.X, hRect.Y, hRect.W, hRect.H, Align.Top, iState)
+  
+    hRect = GetArrowRect(ARROW_BOTTOM, True)
+    If $iValue = $iMin Or If $hTextBox.ReadOnly Then
+      iState = Style.Disabled
+    Else If $iInsideArrow = ARROW_BOTTOM
+      iState = Style.Hovered
+    Else
+      iState = Style.Normal
+    Endif
+    Style.PaintArrow(hRect.X, hRect.Y, hRect.W, hRect.H, Align.Bottom, iState)
+    
   Endif
-  Style.PaintArrow(hRect.X, hRect.Y, hRect.W, hRect.H, Align.Top, iState)
-
-  hRect = GetArrowRect(ARROW_BOTTOM, True)
-  If $iValue = $iMin Or If $hTextBox.ReadOnly Then
-    iState = Style.Disabled
-  Else If $iInsideArrow = ARROW_BOTTOM
-    iState = Style.Hovered
-  Else
-    iState = Style.Normal
-  Endif
-  Style.PaintArrow(hRect.X, hRect.Y, hRect.W, hRect.H, Align.Bottom, iState)
   
 End
 
@@ -172,7 +235,6 @@ Private Sub ChangeValue(bAdd As Boolean, Optional bFocus As Boolean)
   If $iValue = iValue Then Raise Limit
   
 End
-
 
 Public Sub View_MouseWheel()
   
@@ -197,12 +259,27 @@ Public Sub TextBox_Activate()
   
 End
 
+Private Sub ComputeMinWidth()
+
+  Dim nZero As Integer
+  Dim iWidth As Integer
+  
+  nZero = Max(Len(CStr($iMin)), Len(CStr($iMax)))
+  
+  iWidth = $hTextBox.Font.TextWidth(String$(nZero, "9")) + Desktop.Scale
+  If $bShowSign Or If $iMin < 0 Then iWidth += $hTextBox.Font.TextWidth("+")
+  If iWidth <> $iWidth Then 
+    $iWidth = iWidth
+    View_Arrange
+  Endif
+  
+End
 
 Private Sub SetValue(iValue As Integer, Optional bFocus As Boolean)
 
   Dim sValue As String
   Dim nZero As Integer
-
+  
   If iValue < $iMin Then
     iValue = If($bWrap, $iMax, $iMin)
   Else If iValue > $iMax Then
@@ -210,11 +287,13 @@ Private Sub SetValue(iValue As Integer, Optional bFocus As Boolean)
   Endif
   
   sValue = CStr(iValue)
+  nZero = Max(Len(CStr($iMin)), Len(CStr($iMax)))
   If $bShowZero Then
-    nZero = Max(Len(CStr($iMin)), Len(CStr($iMax)))
     If nZero > Len(sValue) Then sValue = String$(nZero - Len(sValue), "0") & sValue
   Endif
   If $bShowSign And If iValue > 0 Then sValue = "+" & sValue
+  
+  ComputeMinWidth
   
   If $hTextBox.Text <> sValue Then $hTextBox.Text = sValue
   If $iValue <> iValue Then
@@ -298,12 +377,20 @@ Public Sub View_MouseMove()
   
   Dim iInsideArrow As Integer
   
-  If GetArrowRect(ARROW_TOP).Contains(Mouse.X, Mouse.Y) Then
-    iInsideArrow = ARROW_TOP
-  Else If GetArrowRect(ARROW_BOTTOM).Contains(Mouse.X, Mouse.Y) Then
-    iInsideArrow = ARROW_BOTTOM
-  Else
+  If $bWide Then
+  
     iInsideArrow = ARROW_NONE
+      
+  Else
+  
+    If GetArrowRect(ARROW_TOP).Contains(Mouse.X, Mouse.Y) Then
+      iInsideArrow = ARROW_TOP
+    Else If GetArrowRect(ARROW_BOTTOM).Contains(Mouse.X, Mouse.Y) Then
+      iInsideArrow = ARROW_BOTTOM
+    Else
+      iInsideArrow = ARROW_NONE
+    Endif
+    
   Endif
   
   If iInsideArrow <> $iInsideArrow Then
@@ -342,6 +429,25 @@ Public Sub View_MouseDown()
   
 End
 
+Public Sub Button_MouseDown()
+  
+  Dim bCancel As Boolean
+  
+  bCancel = Raise MouseDown
+  If bCancel Then 
+    Stop Event
+    Return
+  Endif
+  
+  $bTimerAdd = Last = $hButtonInc
+  $hTimer = New Timer(500) As "TimerMouse"
+  $hTimer.Start
+  
+  CheckValue
+  ChangeValue($bTimerAdd, True)
+  
+End
+
 Public Sub View_MouseUp()
   
   Dim bCancel As Boolean
@@ -354,6 +460,12 @@ Public Sub View_MouseUp()
   Endif
   
   If bCancel Then Stop Event
+  
+End
+
+Public Sub Button_MouseUp()
+  
+  View_MouseUp
   
 End
 
@@ -566,6 +678,7 @@ Private Sub ReadOnly_Write(Value As Boolean)
   If $hTextBox.ReadOnly = Value Then Return
   $hTextBox.ReadOnly = Value
   UpdateTextBoxBackground
+  UpdateButtons
   $hView.Refresh
 
 End
@@ -581,4 +694,37 @@ Private Sub ShowSign_Write(Value As Boolean)
   $bShowSign = Value
   SetValue($iValue)
 
+End
+
+Private Sub UpdateButtons()
+
+  If Not $hButtonInc Then Return
+  
+  $hButtonInc.Enabled = Not Me.ReadOnly
+  $hButtonDec.Enabled = $hButtonInc.Enabled
+
+End
+
+Private Sub UpdatePictures()
+  
+  Dim W As Integer
+  
+  If Not $hButtonInc Then Return
+  
+  W = Desktop.Scale * 2
+  
+  If Not $hPictPlus Or If $hPictPlus.W <> W Then 
+    Try $hPictPlus = Picture["./gb.gui.base/spinbox/plus.png"].Stretch(W)
+    Try $hPictMinus = Picture["./gb.gui.base/spinbox/minus.png"].Stretch(W)
+  Endif
+  
+  $hButtonInc.Picture = $hPictPlus
+  $hButtonDec.Picture = $hPictMinus
+  
+End
+
+Public Sub View_Font()
+  
+  UpdatePictures
+  
 End
