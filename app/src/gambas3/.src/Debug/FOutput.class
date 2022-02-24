@@ -255,6 +255,8 @@ Public Sub btnEdit_Click()
   sText = trmOutput.Text
   If Not sText Then Return
 
+  Action["console"].Value = False
+
   Inc $iConsole
 
   sPath = File.Dir(Temp$()) &/ $iConsole & ".console"
