@@ -23,6 +23,7 @@ Private $hSpinBox As SpinBox
 Private $iStep As Integer = 1
 Private $iDefault As Integer
 Private $hPictureBox As PictureBox
+Private $hObs As Observer
 
 Public Sub _new()
   
@@ -35,10 +36,19 @@ Public Sub _new()
   $hSlider.Orientation = ScrollBar.Horizontal
   
   $hSpinBox = New SpinBox(Me) As "SpinBox"
+  $hSpinBox.Alignment = Align.Right
+  
+  $hObs = New Observer(Me) As "UserControl"
+  
   UpdateSpinBoxWidth
   
 End
 
+Public Sub UserControl_Arrange()
+  
+  UpdateSpinBoxWidth
+  
+End
 
 Private Function Value_Read() As Integer
 
@@ -61,12 +71,23 @@ End
 
 Private Sub UpdateSpinBoxWidth()
 
+  Dim DS As Integer = Desktop.Scale
   Dim N As Integer
+  Dim W As Integer
+  Dim MW As Integer
 
   N = Max(Abs($hSpinBox.MinValue), Abs($hSpinBox.MaxValue))
   'If $hSpinBox.MinValue < 0 Then N *= 10
 
-  $hSpinBox.W = Max(Desktop.Scale * 8, (2 + Len(CStr(N))) * $hSpinBox.Font.TextWidth("0") + $hSpinBox.Font.TextWidth("-") + Desktop.Scale * 2)
+  W = Max(DS * 8, (2 + Len(CStr(N))) * $hSpinBox.Font.TextWidth("0") + $hSpinBox.Font.TextWidth("-") + DS * 2)
+  
+  MW = DS * 6
+  If $hPictureBox Then MW += $hPictureBox.W
+  
+  W = $hSpinBox._GetIdealWidth(True)
+  If Me.W < MW + W Then W = $hSpinBox._GetIdealWidth(False)
+  
+  $hSpinBox.W = W
 
 End
 
@@ -186,7 +207,10 @@ Private Sub Picture_Write(Value As Picture)
     Endif
     $hPictureBox.Picture = Value
   Else
-    If $hPictureBox Then $hPictureBox.Delete
+    If $hPictureBox Then 
+      $hPictureBox.Delete
+      $hPictureBox = Null
+    Endif
   Endif
 
 End

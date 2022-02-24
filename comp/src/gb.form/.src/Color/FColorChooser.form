@@ -19,12 +19,12 @@
         Spacing = True
         { dwgStdColor DrawingArea
           MoveScaled(1,1,33,4)
-          Mouse = Mouse.Pointing
+          Mouse = Cursor.Pointing
           Border = Border.Plain
         }
         { dwgColorMap DrawingArea
           MoveScaled(3,6,25,20)
-          Mouse = Mouse.Cross
+          Mouse = Cursor.Cross
           Expand = True
           Border = Border.Plain
         }
@@ -41,7 +41,7 @@
         }
         { dwgValue DrawingArea
           MoveScaled(0,6,4,20)
-          Mouse = Mouse.Pointing
+          Mouse = Cursor.Pointing
           Expand = True
         }
       }
@@ -58,7 +58,7 @@
           Spacing = True
           { PictureBox1 PictureBox
             MoveScaled(0,0,3,4)
-            Picture = Picture["icon:/small/red"]
+            Picture = Picture.Load("icon:/small/red")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -67,10 +67,11 @@
             MoveScaled(4,0,7,4)
             Expand = True
             MaxValue = 255
+            Alignment = Align.Right
           }
           { PictureBox5 PictureBox
             MoveScaled(14,0,3,4)
-            Picture = Picture["icon:/small/hue"]
+            Picture = Picture.Load("icon:/small/hue")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -79,6 +80,7 @@
             MoveScaled(19,0,7,4)
             Expand = True
             MaxValue = 359
+            Alignment = Align.Right
           }
         }
         { Panel3 HBox
@@ -86,7 +88,7 @@
           Spacing = True
           { PictureBox2 PictureBox
             MoveScaled(0,0,3,4)
-            Picture = Picture["icon:/small/green"]
+            Picture = Picture.Load("icon:/small/green")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -95,10 +97,11 @@
             MoveScaled(4,0,7,4)
             Expand = True
             MaxValue = 255
+            Alignment = Align.Right
           }
           { PictureBox6 PictureBox
             MoveScaled(14,0,3,4)
-            Picture = Picture["icon:/small/saturation"]
+            Picture = Picture.Load("icon:/small/saturation")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -107,6 +110,7 @@
             MoveScaled(19,0,7,4)
             Expand = True
             MaxValue = 255
+            Alignment = Align.Right
           }
         }
         { Panel4 HBox
@@ -114,7 +118,7 @@
           Spacing = True
           { PictureBox3 PictureBox
             MoveScaled(0,0,3,4)
-            Picture = Picture["icon:/small/blue"]
+            Picture = Picture.Load("icon:/small/blue")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -123,10 +127,11 @@
             MoveScaled(4,0,7,4)
             Expand = True
             MaxValue = 255
+            Alignment = Align.Right
           }
           { PictureBox7 PictureBox
             MoveScaled(14,0,3,4)
-            Picture = Picture["icon:/small/lightness"]
+            Picture = Picture.Load("icon:/small/lightness")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -135,6 +140,7 @@
             MoveScaled(19,0,7,4)
             Expand = True
             MaxValue = 255
+            Alignment = Align.Right
           }
         }
         { panAlpha HBox
@@ -143,7 +149,7 @@
           Spacing = True
           { PictureBox4 PictureBox
             MoveScaled(0,0,3,4)
-            Picture = Picture["icon:/small/transparency"]
+            Picture = Picture.Load("icon:/small/transparency")
             Alignment = Align.Center
             Mode = PictureBox.Contain
           }
@@ -151,6 +157,7 @@
             Name = "txtA"
             MoveScaled(4,0,7,4)
             MaxValue = 255
+            Alignment = Align.Right
           }
           { sldAlpha Slider
             MoveScaled(15,0,12,4)
@@ -179,7 +186,7 @@
           MoveScaled(4,15,3,3)
           Visible = False
           Tracking = True
-          Mouse = Mouse.Cross
+          Mouse = Cursor.Cross
           Ignore = True
         }
       }
