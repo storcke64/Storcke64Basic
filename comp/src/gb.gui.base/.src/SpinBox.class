@@ -117,9 +117,14 @@ End
 
 Public Sub View_Arrange()
 
+  Static $bArrange As Boolean
+
   Dim W, H As Integer
   Dim BW, BH As Integer
   Dim DS As Integer = Desktop.Scale
+  
+  If $bArrange Then Return
+  $bArrange = True
   
   If $bBorder Then 
     BW = Min(3, Style.BoxFrameWidth)
@@ -166,6 +171,8 @@ Public Sub View_Arrange()
     $hButtonInc.Move(Me.W - BW - DS * 6, BH, DS * 3, Me.H - BH * 2)
     $hButtonDec.Move(Me.W - BW - DS * 3, BH, DS * 3, Me.H - BH * 2)
   Endif
+  
+  $bArrange = False
   
 End
 
