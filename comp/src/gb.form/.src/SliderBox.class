@@ -23,7 +23,7 @@ Private $hSpinBox As SpinBox
 Private $iStep As Integer = 1
 Private $iDefault As Integer
 Private $hPictureBox As PictureBox
-Private $hObs As Observer
+Private $hWatcher As Watcher
 
 Public Sub _new()
   
@@ -38,13 +38,13 @@ Public Sub _new()
   $hSpinBox = New SpinBox(Me) As "SpinBox"
   $hSpinBox.Alignment = Align.Right
   
-  $hObs = New Observer(Me) As "UserControl"
+  $hWatcher = New Watcher(Me) As "UserControl"
   
   UpdateSpinBoxWidth
   
 End
 
-Public Sub UserControl_Arrange()
+Public Sub UserControl_Resize()
   
   UpdateSpinBoxWidth
   
@@ -71,23 +71,24 @@ End
 
 Private Sub UpdateSpinBoxWidth()
 
+  Static bUpdating As Boolean
+
   Dim DS As Integer = Desktop.Scale
-  Dim N As Integer
   Dim W As Integer
   Dim MW As Integer
 
-  N = Max(Abs($hSpinBox.MinValue), Abs($hSpinBox.MaxValue))
-  'If $hSpinBox.MinValue < 0 Then N *= 10
+  If bUpdating Then Return 
+  bUpdating = True
 
-  W = Max(DS * 8, (2 + Len(CStr(N))) * $hSpinBox.Font.TextWidth("0") + $hSpinBox.Font.TextWidth("-") + DS * 2)
-  
-  MW = DS * 6
+  MW = DS * 8
   If $hPictureBox Then MW += $hPictureBox.W
   
   W = $hSpinBox._GetIdealWidth(True)
   If Me.W < MW + W Then W = $hSpinBox._GetIdealWidth(False)
   
   $hSpinBox.W = W
+  
+  bUpdating = False
 
 End
 
