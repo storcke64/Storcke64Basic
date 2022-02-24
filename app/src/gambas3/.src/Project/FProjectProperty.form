@@ -143,7 +143,7 @@
     Text = ("Description")
     Picture = Picture["icon:/large/gambas"]
     { Panel4 VBox
-      MoveScaled(0,0,88,65)
+      MoveScaled(0,0,88,70)
       Expand = True
       Spacing = True
       { Panel1 HBox
@@ -180,7 +180,7 @@
         }
       }
       { panGeneral HPanel
-        MoveScaled(0,10,87,54)
+        MoveScaled(0,10,87,59)
         Expand = True
         Spacing = True
         { Label16 Label
@@ -217,49 +217,52 @@
           Expand = True
           Spacing = True
           { txtMajor SpinBox
-            MoveScaled(0,0,9,4)
+            MoveScaled(0,0,13,4)
             MaxValue = 9999
           }
           { txtMinor SpinBox
-            MoveScaled(10,0,9,4)
+            MoveScaled(14,0,13,4)
             MaxValue = 9999
           }
           { txtRelease SpinBox
-            MoveScaled(20,0,12,4)
+            MoveScaled(28,0,15,4)
             MaxValue = 999999
           }
-          { chkGetVersionFromFile CheckBox
-            MoveScaled(33,0,35,4)
-            Expand = True
-            Text = ("Get from 'VERSION' file")
-          }
+        }
+        { Label33 Label
+          MoveScaled(0,15,16,4)
+        }
+        { chkGetVersionFromFile CheckBox
+          MoveScaled(18,15,32,4)
+          Expand = True
+          Text = ("Get from 'VERSION' file")
         }
         { Label12 Label
-          MoveScaled(0,15,16,4)
+          MoveScaled(0,20,16,4)
           Font = Font["Bold"]
           Text = ("Title")
         }
         { txtTitle TextBox
-          MoveScaled(18,15,60,4)
+          MoveScaled(18,20,60,4)
           Expand = True
         }
         { Label3 Label
-          MoveScaled(0,19,16,4)
+          MoveScaled(0,24,16,4)
           Font = Font["Bold"]
           Text = ("Description")
         }
         { txtDesc TextArea
-          MoveScaled(18,20,60,16)
+          MoveScaled(18,25,60,16)
           Expand = True
           Wrap = True
         }
         { Label11 Label
-          MoveScaled(0,37,16,4)
+          MoveScaled(0,42,16,4)
           Font = Font["Bold"]
           Text = ("Authors")
         }
         { txtAuthor TextArea
-          MoveScaled(18,37,57,16)
+          MoveScaled(18,42,57,16)
           Expand = True
           Wrap = True
         }
@@ -304,7 +307,7 @@
         }
       }
       { panCompatible HBox
-        MoveScaled(0,13,71,4)
+        MoveScaled(0,13,82,4)
         Spacing = True
         Indent = True
         { chkCompat CheckBox
@@ -312,17 +315,17 @@
           Text = ("Compatible until version")
         }
         { txtCompMajor SpinBox
-          MoveScaled(34,0,9,4)
+          MoveScaled(34,0,13,4)
           Enabled = False
           MaxValue = 9999
         }
         { txtCompMinor SpinBox
-          MoveScaled(44,0,9,4)
+          MoveScaled(48,0,13,4)
           Enabled = False
           MaxValue = 9999
         }
         { txtCompRelease SpinBox
-          MoveScaled(54,0,12,4)
+          MoveScaled(62,0,15,4)
           Enabled = False
           MaxValue = 999999
         }
@@ -546,10 +549,11 @@
           Text = ("Tab size")
         }
         { txtTabSize SpinBox
-          MoveScaled(47,0,8,4)
+          MoveScaled(46,0,11,4)
           MinValue = 1
           MaxValue = 16
           Value = 2
+          Alignment = Align.Right
         }
         { Label5 Label
           MoveScaled(59,0,22,4)

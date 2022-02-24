@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,58,42)
+  MoveScaled(0,0,61,42)
   Text = ("Resize image")
   Resizable = False
   Spacing = True
@@ -11,7 +11,7 @@
     Text = ("Width")
   }
   { btnSync ToggleButton
-    MoveScaled(32,1,4,9)
+    MoveScaled(35,1,4,9)
     Picture = Picture["img/32/linked.png"]
     Border = False
     Value = True
@@ -21,7 +21,7 @@
     Text = ("Height")
   }
   { btnCancel Button
-    MoveScaled(41,6,16,4)
+    MoveScaled(44,6,16,4)
     Text = ("Cancel")
     Cancel = True
   }
@@ -57,19 +57,21 @@
     Value = True
   }
   { txtWidth SpinBox
-    MoveScaled(16,1,11,4)
+    MoveScaled(16,1,14,4)
     MinValue = 1
     MaxValue = 65536
     Value = 1
+    Alignment = Align.Right
   }
   { txtHeight SpinBox
-    MoveScaled(16,6,11,4)
+    MoveScaled(16,6,14,4)
     MinValue = 1
     MaxValue = 65536
     Value = 1
+    Alignment = Align.Right
   }
   { btnOK Button
-    MoveScaled(41,1,16,4)
+    MoveScaled(44,1,16,4)
     Text = ("OK")
     Default = True
   }
@@ -84,21 +86,21 @@
     Text = ("Ratio")
   }
   { txtRatio ComboBox
-    MoveScaled(16,11,11,4)
+    MoveScaled(16,11,14,4)
     #Translate = False
     List = ["25", "33", "50", "66", "100", "150", "200", "300", "400"]
     Text = "100"
   }
   { Label4 Label
-    MoveScaled(28,1,3,4)
+    MoveScaled(31,1,3,4)
     Text = ("px")
   }
   { Label5 Label
-    MoveScaled(28,6,3,4)
+    MoveScaled(31,6,3,4)
     Text = ("px")
   }
   { Label6 Label
-    MoveScaled(28,11,3,4)
+    MoveScaled(31,11,3,4)
     #Translate = False
     Text = "%"
   }

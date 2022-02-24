@@ -5,14 +5,14 @@
   Text = ("Offset selection")
   Resizable = False
   { txtSize SpinBox
-    MoveScaled(1,1,10,4)
+    MoveScaled(1,1,11,4)
     MinValue = 1
     MaxValue = 256
     Value = 1
     Alignment = Align.Right
   }
   { Label1 Label
-    MoveScaled(12,1,4,4)
+    MoveScaled(13,1,4,4)
     Text = ("px")
   }
   { btnOK Button

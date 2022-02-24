@@ -55,7 +55,7 @@
         MoveScaled(55,0,32,7)
         AutoResize = True
         { Panel14 HBox
-          MoveScaled(0,0,26,4)
+          MoveScaled(0,0,30,4)
           Spacing = True
           { Label8 Label
             MoveScaled(0,0,16,4)
@@ -64,7 +64,7 @@
             Text = ("Package version")
           }
           { txtPackageVersion SpinBox
-            MoveScaled(17,0,8,4)
+            MoveScaled(17,0,11,4)
             MinValue = 1
             MaxValue = 999
             Value = 1
@@ -500,10 +500,10 @@
         Text = ("Minimum Gambas version")
       }
       { dwgVersionMin DrawingArea
-        MoveScaled(36,0,9,4)
+        MoveScaled(36,0,14,4)
         Enabled = False
         { spnVersionMin SpinBox
-          MoveScaled(4,0,5,4)
+          MoveScaled(4,0,10,4)
           Border = False
         }
       }
