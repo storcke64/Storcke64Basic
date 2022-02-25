@@ -259,7 +259,7 @@ Public Sub Button_Click()
   Dim XD As Integer
   Dim iLen As Integer
   Dim sPattern As String
-  Dim iColor As Integer
+  Dim iColor As Integer = Color.White
   
   hEditor = GetEditor()
   sLine = hEditor[hEditor.Line].Text
