@@ -231,11 +231,7 @@ End
 
 Public Sub Main()
 
-  Dim hPicture As Picture
-
-  Application.Theme = "Elementary"
-  hPicture = Picture["icon:/32/align-top"]
-  Print hPicture
+  MakeColorMap
   
 End
 
@@ -323,5 +319,54 @@ Public Sub FormatSize(Size As Long) As String
   '     Return Subst(("&1 GB"), FormatNumber(Size / 1000000000))
   '   Endif
   ' Endif
+
+End
+
+Private Sub MakeColorMap()
+
+  Dim hImage As Image
+  Dim X As Integer
+  Dim Y As Integer
+  Dim H, S As Integer
+  Dim V As Integer
+  Dim hImage2 As Image
+
+  hImage = New Image(128, 128)
+  hImage2 = New Image(128, 128)
+  
+  For X = 0 To hImage.W - 1
+    For Y = 0 To hImage.H - 1
+          
+      H = 359 - X * 360 / hImage.W
+      S = Min(255, 255 - Y * 256 / hImage.H)
+      
+      hImage2[X, Y] = Color.HSV(H, S, 255)
+      
+      H = ((H + 7) \ 15) * 15
+      If H = 360 Then H = 0
+      S = Min(255, ((S + 15) \ 32) * 32)
+      
+      hImage[X, Y] = Color.HSV(H, S, 255)
+      
+    Next
+  Next
+  
+  hImage2.Save("~/gambas/git/master/comp/src/gb.form/img/colormap.png")
+  hImage.Save("~/gambas/git/master/comp/src/gb.form/img/colormap-snap.png")
+  
+  hImage = New Image(8, 128)
+  
+  For Y = 0 To hImage.H - 1
+          
+    V = Y / hImage.H * 256
+    V = ((V + 16) \ 32) * 32
+    V = Min(255, Max(0, 256 - V))
+
+    hImage.FillRect(0, Y, hImage.W, 1, Color.RGB(V, V, V))
+      
+  Next
+  
+  hImage.Save("~/gambas/git/master/comp/src/gb.form/img/valuemap-snap.png")
+  
 
 End
