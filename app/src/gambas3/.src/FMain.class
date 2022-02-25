@@ -2634,11 +2634,13 @@ End
 Public Sub Form_Resize()
 
   Dim W, H As Integer
+  Dim DS As Integer
   
   If dwgWelcome.Visible Then
-    W = Desktop.Scale * 106 + 64
-    If W > Me.ClientW Then W = Max(Me.ClientW, Desktop.Scale * 80 + 64)
-    H = Max(Desktop.Scale * 90 + 64, Me.ClientH - 64)
+    DS = Desktop.Scale
+    W = DS * 113 + 1
+    If W > Me.ClientW Then W = Max(Me.ClientW, DS * 70)
+    H = Max(DS * 60, Me.ClientH)
     dwgWelcome.Move((Me.ClientW - W) \ 2, (Me.ClientH - H) \ 2, W, H)
     
   Endif

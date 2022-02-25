@@ -434,7 +434,7 @@ Public Sub panList_Arrange()
 
   Dim iArr As Integer
 
-  iArr = If(panList.W > Desktop.Scale * 70, Arrange.Row, Arrange.Vertical)
+  iArr = If(panList.W >= Desktop.Scale * 70, Arrange.Row, Arrange.Vertical)
   'Debug iArr;; panList.W;; Desktop.Scale * 64
   $hRecent.SetArrangement(iArr)
   $hExample.SetArrangement(iArr)
@@ -460,3 +460,9 @@ Public Sub MediaPlayer_End()
   
 End
 
+
+Public Sub Form_Arrange()
+
+  
+
+End

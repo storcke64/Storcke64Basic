@@ -264,12 +264,13 @@ Public Sub DrawingArea_Draw()
       hExt = Paint.TextExtents(sText)
       HT = Paint.Font.Height
       Paint.DrawText(sText, X + WT, Y, Paint.W, Paint.H, Align.TopLeft)
+      WT += Paint.Font.TextWidth(sText)
 
       If .Branch Then
         
-        XB = X + hExt.Width + P
-        YB = Y - 2
-        HB = Ceil(hExt.H) + 4
+        XB = X + WT + P
+        YB = Y
+        HB = HT
 
         GoSub DRAW_BRANCH
 
@@ -292,13 +293,13 @@ Public Sub DrawingArea_Draw()
       sText = .Version
       hExt = Paint.TextExtents(sText)
       HT = Paint.Font.H
-      Paint.DrawText(sText, X, Y + HT, Paint.W, hExt.H, Align.Left)
+      Paint.DrawText(sText, X, Y + HT, Paint.W, HT, Align.Left)
       
       If .Branch Then
         
         XB = X + hExt.Width + P
-        YB = Y + HT - 2
-        HB = Ceil(hExt.H) + 4
+        YB = Y + HT 
+        HB = HT 'Ceil(hExt.H) + 4
 
         GoSub DRAW_BRANCH
 
