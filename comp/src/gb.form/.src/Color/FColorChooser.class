@@ -147,8 +147,8 @@ End
 Private Sub UpdateColorMap()
 
   If Not $bSnap Then
-    $hCurrentColorMap = $hColorMapSnap.Stretch(dwgColorMap.Width, dwgColorMap.Height, False).Brightness((txtV.Value - 255) / 255)
-    $hCurrentValueMap = $hValueMapSnap.Stretch(dwgValue.W - 6, dwgValue.H - 2, False)
+    $hCurrentColorMap = $hColorMapSnap.Stretch(dwgColorMap.Width, dwgColorMap.Height, True).Brightness((txtV.Value - 255) / 255)
+    $hCurrentValueMap = $hValueMapSnap.Stretch(dwgValue.W - 6, dwgValue.H - 2, True)
   Else
     $hCurrentColorMap = $hColorMap.Stretch(dwgColorMap.Width, dwgColorMap.Height).Brightness((txtV.Value - 255) / 255)
     $hCurrentValueMap = $hValueMap.Stretch(dwgValue.W - 6, dwgValue.H - 2)
