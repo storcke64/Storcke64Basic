@@ -217,7 +217,7 @@ BEGIN_METHOD(Image_Save, GB_STRING path; GB_INTEGER quality)
 
 END_METHOD
 
-BEGIN_METHOD(Image_Stretch, GB_INTEGER width; GB_INTEGER height)
+BEGIN_METHOD(Image_Stretch, GB_INTEGER width; GB_INTEGER height; GB_BOOLEAN fast)
 
 	//static int count = 0;
 	QImage *stretch;
@@ -239,7 +239,7 @@ BEGIN_METHOD(Image_Stretch, GB_INTEGER width; GB_INTEGER height)
 		
 		if (w > 0 && h > 0)
 		{
-			*stretch = QIMAGE->scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+			*stretch = QIMAGE->scaled(w, h, Qt::IgnoreAspectRatio, VARGOPT(fast, FALSE) ? Qt::FastTransformation : Qt::SmoothTransformation);
 			stretch->detach();
 		}
 	}
@@ -333,7 +333,7 @@ GB_DESC CImageDesc[] =
 	GB_STATIC_METHOD("FromString", "Image", Image_FromString, "(Data)s"),
 	GB_METHOD("Save", NULL, Image_Save, "(Path)s[(Quality)i]"),
 
-	GB_METHOD("Stretch", "Image", Image_Stretch, "(Width)i(Height)i"),
+	GB_METHOD("Stretch", "Image", Image_Stretch, "(Width)i(Height)i[(Fast)b]"),
 	GB_METHOD("Rotate", "Image", Image_Rotate, "(Angle)f"),
 
 	GB_METHOD("PaintImage", NULL, Image_PaintImage, "(Image)Image;(X)i(Y)i[(Width)i(Height)i(SrcX)i(SrcY)i(SrcWidth)i(SrcHeight)i]"),
