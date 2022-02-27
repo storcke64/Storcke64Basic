@@ -137,8 +137,9 @@ Public Sub EnsureVisible(Child As WebControl)
   Try hParent = Child.Parent.Parent
   If hParent <> Me Then Error.Raise("Not a direct child")
   
-  $sEnsureVisible = Child.Name
-  Me.Refresh
+  WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS(Child.Name) & ")")
+  ' $sEnsureVisible = Child.Name
+  ' Me.Refresh
   
 End
 

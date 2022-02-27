@@ -310,7 +310,9 @@ gw = {
         return;
       }
       
-      after();
+      if (after)
+        after();
+      
       gw.commands.splice(0, 2);
     }
   },
@@ -382,6 +384,42 @@ gw = {
     }
   },
   
+  onFocus: function()
+  {
+    var elt = document.activeElement;
+    var id;
+    
+    if (gw._focusTimeout)
+    {
+      clearTimeout(gw._focusTimeout);
+      gw._focusTimeout = undefined;
+    }
+    
+    if (elt && elt.id)
+    {
+      id = elt.id;
+      
+      if (gw.window.current && !id.startsWith(gw.window.current + '.'))
+      {
+        gw.setFocus(gw.active);
+        return;
+      }
+      
+      gw.active = id;
+      gw.update('', '#focus', id);
+      //console.log('onFocus: ' + id);
+    }
+    else
+    {
+      gw._focusTimeout = setTimeout(function() 
+        {
+          gw._focusTimeout = undefined;
+          //console.log('onFocus: -');
+          gw.update('', '#focus', '');
+        }, 50);
+    }
+  },
+  
   setFocus: function(id)
   {
     var elt = $(id + ':entry') || $(id);
@@ -389,7 +427,6 @@ gw = {
     if (elt)
     {
       elt.focus();
-      gw.active = document.activeElement.id;
       gw.selection = undefined;
       gw.focus = true;
     }
@@ -587,6 +624,7 @@ gw = {
   window: 
   {
     zIndex: 0,
+    current: '',
     
     exist: function(id)
     {
@@ -614,8 +652,14 @@ gw = {
       $(id).gw_popup = undefined;
       $(id).gw_transient = undefined;
       
-      if (modal && $(id).gw_focus == undefined)
-        $(id).gw_focus = gw.saveFocus();
+      if (modal)
+      {
+        $(id).gw_current = gw.window.current;
+        gw.window.current = id.substr(id.lastIndexOf('@'));;
+        
+        if ($(id).gw_focus == undefined)
+          $(id).gw_focus = gw.saveFocus();
+      } 
       
       if (minw != undefined)
       {
@@ -695,6 +739,9 @@ gw = {
       var i;
       
       $(id).removeEventListener('mousedown', gw.window.onMouseDown);
+      
+      if ($(id).gw_modal)
+        gw.window.current = $(id).gw_current;
       
       i = gw.windows.indexOf(id);
       if (i >= 0)
@@ -1205,15 +1252,24 @@ gw = {
       gw.scrollview.scroll(id, child.offsetLeft - (sw.clientWidth - child.offsetWidth) / 2, child.offsetTop - (sw.clientHeight - child.offsetHeight) / 2);
     },
     
+    getView: function(elt)
+    {
+      if (elt.hasClass('gw-listbox'))
+        return elt;
+      else
+        return elt.firstChild;
+    },
+    
     onScroll: function(id, more, timeout)
     {
+      var sw, last;
       var elt = $(id);
       
       if (!elt)
         return;
       
-      var sw = elt.firstChild;
-      var last = elt.gw_last_scroll;
+      sw = gw.scrollview.getView(elt);
+      last = elt.gw_last_scroll;
       
       if (last && last[0] == sw.scrollLeft && last[1] == sw.scrollTop)
         return;
@@ -1276,7 +1332,7 @@ gw = {
     
     scroll: function(id, x, y)
     {
-      var sw = $(id).firstChild
+      var sw = gw.scrollview.getView($(id));
       
       gw.log("gw.control.scroll: " + id + ": " + x + " " + y);
       
@@ -1426,13 +1482,13 @@ gw = {
   
   textbox:
   {
-    onactivate: function(id, e)
+    onActivate: function(id, e)
     {
       if (e.keyCode == 13)
         setTimeout(function() { gw.update(id, 'text', $(id + ':entry').value); gw.raise(id, 'activate', [], false); }, 20);
     },
     
-    onchange: function(id)
+    onChange: function(id)
     {
       if ($(id).gw_timer) clearTimeout($(id).gw_timer);
       $(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $(id + ':entry').value, null); }, 20);
@@ -1472,7 +1528,7 @@ gw = {
 
   textarea:
   {
-    onchange: function(id)
+    onChange: function(id)
     {
       if ($(id).gw_timer) clearTimeout($(id).gw_timer);
       $(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $(id).value, null); }, 50);
@@ -1652,7 +1708,7 @@ gw = {
       null);
   },
   
-  onkeydown: function(id, event)
+  onKeydown: function(id, event)
   {
     if (!event.bubbles)
       return;
@@ -1670,7 +1726,7 @@ gw = {
     gw.sendKeyPress(event, id);
   },
   
-  onshortcut: function(event)
+  onShortcut: function(event)
   {
     if (event.bubbles && gw.shortcuts)
     {
@@ -1685,4 +1741,7 @@ gw = {
   },
 }
 
-document.onkeydown = gw.onshortcut;
+document.onkeydown = gw.onShortcut;
+document.addEventListener('focusin', gw.onFocus);
+document.addEventListener('focusout', gw.onFocus);
+

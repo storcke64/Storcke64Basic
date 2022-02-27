@@ -33,10 +33,15 @@ Property Read Selection As Integer[]
 '' Return or set if the items are HTML or plain text.
 Property UseHTML As Boolean
 
+Property ScrollX As Integer
+Property ScrollY As Integer
+
 Private $aList As New String[]
 Private $iMode As Integer
 Private $hSelection As CSelection
-Private $bHTml As Boolean
+Private $bHtml As Boolean
+Private $iScrollX As Integer
+Private $iScrollY As Integer
 
 Public Sub _new()
   
@@ -60,6 +65,7 @@ End
 Public Sub _BeforeRender()
   
   Print "<div"; Me._GetClassId(); " tabindex=\"0\"";
+  Print " onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ");\"";
   Me._RenderStyleSheet()
   Print ">";
   
@@ -88,6 +94,8 @@ Public Sub _Render()
   
   If $iMode = Select.Single Then WebForm._AddJavascript("$(" & JS(Me.Name) & ").gw_current = " & Index_Read())
   
+  If $iScrollX Or If $iScrollY Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
+  
 End
 
 Public Sub _UpdateProperty(sProp As String, vValue As Variant)
@@ -111,7 +119,14 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
       Inc Me._NoRefresh
       Try Select(vValue)
       Dec Me._NoRefresh
+      
+    Case "#scroll"
 
+      Inc Me._NoRefresh
+      Me.ScrollX = vValue[0]
+      Me.ScrollY = vValue[1]
+      Dec Me._NoRefresh
+      
   End Select
   
 End
@@ -199,6 +214,8 @@ Public Sub Clear()
   
   UnselectAll
   $aList.Clear
+  Me.ScrollX = 0
+  Me.ScrollY = 0
   Me.Refresh
   
 End
@@ -298,6 +315,32 @@ Private Sub UseHtml_Write(Value As Boolean)
 
   If $bHtml = Value Then Return
   $bHtml = Value
+  Me.Refresh
+
+End
+
+Private Function ScrollX_Read() As Integer
+
+  Return $iScrollX
+
+End
+
+Private Sub ScrollX_Write(Value As Integer)
+
+  $iScrollX = Value
+  Me.Refresh
+
+End
+
+Private Function ScrollY_Read() As Integer
+
+  Return $iScrollY
+
+End
+
+Private Sub ScrollY_Write(Value As Integer)
+
+  $iScrollY = Value
   Me.Refresh
 
 End

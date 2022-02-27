@@ -77,6 +77,7 @@ Static Private $hRead As File
 Static Private $hWrite As File
 Static Private $bDoNotRespond As Boolean
 Static Private $iEventLoopLevel As Integer
+Static Private $sActiveControl As String
 
 Static Private $aJavascript As New String[]
 Static Private $aJavascriptBefore As New String[]
@@ -755,7 +756,7 @@ Public Sub _BeforeRender()
   Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
   'Print Me._GetKeyPressHandler();
-  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onkeydown(" & JS(Me.Name) & ", event)\"";
+  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeydown(" & JS(Me.Name) & ", event)\"";
   Print ">"
   
   DisableShortcuts()
@@ -776,6 +777,8 @@ Public Sub Render()
   Header.Form = Null
   
   $aJavascript.Clear
+  
+  If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ")")
   
   Print "<body"; Me._GetEventJS("onload", "open"); ">"
   
@@ -1152,19 +1155,21 @@ Private Sub DoShow()
   Dim hWindow As WebWindow
   
   If _Window Then 
+    
     hWindow = WebControl.FromId(_Window)
     If hWindow Then hWindow.Show
-    Return
+    
+  Else
+  
+    WebControl._NextName = "$" & Me.Name
+    hWindow = New WebWindow(_Current._GetWindowContainer())
+    _Window = hWindow.Id
+    
+    hWindow.Child = Me
+    hWindow.Resizable = $bResizable
+    hWindow.Move($sX, $sY, $sWidth, $sHeight)
+    
   Endif
-  
-  WebControl._NextName = "$" & Me.Name
-  hWindow = New WebWindow(_Current._GetWindowContainer())
-  _Window = hWindow.Id
-  
-  hWindow.Child = Me
-  hWindow.Resizable = $bResizable
-  hWindow.Move($sX, $sY, $sWidth, $sHeight)
-  'hWindow.Refresh
   
 End
 
@@ -1234,7 +1239,7 @@ Public Sub ShowModal(Optional Parent As WebControl) As Variant
   
   RunEventLoop
   
-  _CurrentModal = hPRevious
+  _CurrentModal = hPrevious
   
   vReturn = $vEventLoopReturn
   $vEventLoopReturn = Null
@@ -1331,6 +1336,9 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
         Try WebControl.FromName(sName).Raise()
       Next
       Dec _DisableRefresh
+      
+    Case "#focus"
+      $sActiveControl = vValue
       
   End Select
   
@@ -1628,4 +1636,18 @@ Static Public Sub _AddPreload(sLink As String)
   
   $cPreload[sLink] = True
   
+End
+
+Static Public Function _GetActiveControl() As WebControl
+
+  Dim sId As String
+  Dim iPos As Integer
+  
+  If $sActiveControl Then
+    sId = $sActiveControl
+    iPos = InStr(sId, ":")
+    If iPos Then sId = Left(sId, iPos - 1)
+    Return WebControl.FromName(sId)
+  Endif
+
 End
