@@ -409,14 +409,29 @@ Private Sub RefreshExample()
   
   If $bNoRefresh Then Return
   
-  If sFont = $sLast And If panExample.Expand = cmbFamily.Visible Then Return
+  If sFont <> $sLast Then
+  
+    Object.Lock(cmbFamily)
+    cmbFamily.Text = Family
+    Object.Unlock(cmbFamily)
+    txtFamily.Text = "  " & Family
+    txtExample.Font = Font[sFont]
+      
+    Size = Font[sFont].Size
+    Grade = Font[sFont].Grade
+    
+    sldSize.Value = txtSize.Value
+    
+    If $iNoChange = 0 Then GetParent()._Change
+    If Not panExample.Visible Then GetParent()._Activate
+    
+    $sLast = sFont
+    
+  Endif
   
   If panExample.Visible Then
     
-    txtFamily.Text = "  " & Family
-    txtExample.Font = Font[sFont]
-    
-    If cmbFamily.Visible Then
+    If panFamily.Visible Then
       panExample.Expand = True
     Else
       panExample.Expand = False
@@ -424,16 +439,6 @@ Private Sub RefreshExample()
     Endif
     
   Endif
-  
-  Size = Font[sFont].Size
-  Grade = Font[sFont].Grade
-  
-  sldSize.Value = txtSize.Value
-  
-  If $iNoChange = 0 Then GetParent()._Change
-  If Not panExample.Visible Then GetParent()._Activate
-  
-  $sLast = sFont
   
 End
 
@@ -633,8 +638,8 @@ Public Sub panBorder_BeforeArrange()
       panFilter.Hide
       txtFamily.Hide
 
-      cmbFamily.Show
-      cmbFamily.Lower
+      panFamily.Show
+      panFamily.Lower
 
       StopCacheTask
       RefreshFamily
@@ -643,14 +648,14 @@ Public Sub panBorder_BeforeArrange()
     
     If panBorder.H < (Desktop.Scale * 18) Then
       panExample.Hide
-    Else
+    Else If Not panExample.Visible Then
       panExample.Show
     Endif
     
   Else
     
-    If cmbFamily.Visible Then
-      cmbFamily.Hide
+    If panFamily.Visible Then
+      panFamily.Hide
       txtFamily.Show
       panExample.Show
       tvwFamily.Show
@@ -898,4 +903,16 @@ Public Sub btnPreview_Click()
 
   SetShowFont(btnPreview.Value)
   
+End
+
+Public Sub btnSelectFont_Click()
+
+  Dim bRelative As Boolean
+  
+  Dialog.Font = Font[GetFont()]
+  If Dialog.SelectFont() Then Return
+  bRelative = btnRelative.Value
+  SetFont(Dialog.Font.ToString())
+  If bRelative Then btnRelative.Value = True
+
 End

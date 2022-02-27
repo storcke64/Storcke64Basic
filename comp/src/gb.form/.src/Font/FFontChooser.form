@@ -7,9 +7,18 @@
     MoveScaled(2,2,77,60)
     Arrangement = Arrange.Vertical
     Border = Border.Plain
-    { cmbFamily ComboBox
-      MoveScaled(40,1,27,4)
-      ReadOnly = True
+    { panFamily HBox
+      MoveScaled(5,1,63,4)
+      { cmbFamily ComboBox
+        MoveScaled(0,0,27,4)
+        Expand = True
+        ReadOnly = True
+        Border = False
+      }
+      { btnSelectFont ToolButton
+        MoveScaled(31,0,4,4)
+        Picture = Picture["icon:/small/font"]
+      }
     }
     { panFilter HBox
       MoveScaled(4,7,70,4)
