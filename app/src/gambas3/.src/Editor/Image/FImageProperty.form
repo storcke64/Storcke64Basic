@@ -602,13 +602,12 @@
       { Panel1 HBox
         MoveScaled(1,1,57,4)
         { Label12 Label
-          MoveScaled(0,0,15,4)
-          Expand = True
-          AutoResize = True
+          MoveScaled(0,0,26,4)
           Text = ("Grid resolution")
         }
         { txtGridRes SliderBox
-          MoveScaled(23,0,32,4)
+          MoveScaled(31,0,24,4)
+          Expand = True
           MinValue = 4
           MaxValue = 128
           Step = 4
@@ -618,12 +617,12 @@
       { Panel5 HBox
         MoveScaled(1,5,57,4)
         { chkGridSnap CheckBox
-          MoveScaled(0,0,15,4)
-          Expand = True
+          MoveScaled(0,0,26,4)
           Text = ("Grid snap")
         }
         { txtGridSnap SliderBox
-          MoveScaled(23,0,32,4)
+          MoveScaled(31,0,24,4)
+          Expand = True
           MinValue = 1
           MaxValue = 512
           Step = 8
@@ -639,6 +638,7 @@
         }
         { btnLockGrid ToolButton
           MoveScaled(49,0,4,4)
+          ToolTip = ("Lock grid configuration")
           Picture = Picture["icon:/small/lock"]
           Toggle = True
         }
