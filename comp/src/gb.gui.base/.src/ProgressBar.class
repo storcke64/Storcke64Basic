@@ -59,6 +59,7 @@ Public Sub UserControl_Draw()
   Dim iWP As Integer
   Dim W As Float
   Dim iCol As Integer
+  Dim I As Integer
   
   iCol = Color.Merge(Color.Background, Color.LightForeground)
   If Not Me.Enabled Then iCol = Color.Desaturate(iCol)
@@ -89,38 +90,71 @@ Public Sub UserControl_Draw()
   
   If $bPulse Then
     
-    iWP = Paint.H * 2
-    W = Paint.W - iWP
-    If W >= 10 Then    
-      W *= $fValue
-      Paint.FillRect(W, 0, iWP, Paint.H, iCol)
-      'Style.PaintPanel(W, 0, iWP, Paint.H, Border.Raised)
-    Endif
+    iWP = Paint.H
+    $iPulse = $iPulse Mod (iWP * 2)
+    
+    Paint.Save
+    Paint.Background = iCol
+    Paint.Translate($iPulse - iWP * 2, 0)
+    For I = 0 To Paint.W + iWP Step iWP
+      Paint.MoveTo(0, Paint.H)
+      Paint.LineTo(iWP, 0)
+      Paint.LineTo(iWP + iWP / 2, 0)
+      Paint.LineTo(iWP / 2, Paint.H)
+      Paint.LineTo(0, Paint.H)
+      Paint.Fill
+      Paint.Translate(iWP, 0)
+    Next
+    Paint.Restore
     
   Else
   
     W = Paint.W * $fValue
   
-    Paint.FillRect(0, 0, W, Paint.H, iCol)
+    If Me.RightToLeft Then
+      
+      Paint.FillRect(Paint.W - W, 0, W, Paint.H, iCol)
+      
+      If $bLabel Then
     
-    'Style.PaintPanel(F, F, W, Draw.H - F * 2, Border.Raised)
+        Paint.Save
+        Paint.Rectangle(Paint.W - W, 0, W, Paint.H)
+        Paint.Clip
+        Paint.Background = Color.SelectedForeground
+        Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
+        Paint.Restore
     
-    If $bLabel Then
-  
-      Paint.Save
-      Paint.Rectangle(0, 0, W, Paint.H)
-      Paint.Clip
-      Paint.Background = Color.SelectedForeground
-      Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
-      Paint.Restore
-  
-      Paint.Save
-      Paint.Rectangle(W, 0, Paint.W - W, Paint.H)
-      Paint.Clip
-      Paint.Background = Color.Foreground
-      Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
-      Paint.Restore
-  
+        Paint.Save
+        Paint.Rectangle(0, 0, Paint.W - W, Paint.H)
+        Paint.Clip
+        Paint.Background = Color.Foreground
+        Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
+        Paint.Restore
+    
+      Endif
+      
+    Else
+      
+      Paint.FillRect(0, 0, W, Paint.H, iCol)
+    
+      If $bLabel Then
+    
+        Paint.Save
+        Paint.Rectangle(0, 0, W, Paint.H)
+        Paint.Clip
+        Paint.Background = Color.SelectedForeground
+        Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
+        Paint.Restore
+    
+        Paint.Save
+        Paint.Rectangle(W, 0, Paint.W - W, Paint.H)
+        Paint.Clip
+        Paint.Background = Color.Foreground
+        Paint.DrawText(Format($fValue, "0%"), 0, 0, Paint.W, Paint.H, Align.Center)
+        Paint.Restore
+    
+      Endif
+      
     Endif
     
   Endif
@@ -147,7 +181,7 @@ Private Sub Pulse_Write(Value As Boolean)
     $hTimerPulse.Delay = 20
     $hTimerPulse.Start
     $fValue = 0
-    $iPulse = 1
+    $iPulse = 0
   Else
     $hTimerPulse = Null
   Endif
@@ -156,15 +190,7 @@ End
 
 Public Sub Pulse_Timer()
 
-  $fValue += 0.02 * $iPulse
-  If $fValue < 0 Then
-    $fValue = 0
-    $iPulse = 1
-  Else If $fValue > 1 Then
-    $fValue = 1
-    $iPulse = -1
-  Endif
-  
+  Inc $iPulse
   Me.Refresh
   
 End
