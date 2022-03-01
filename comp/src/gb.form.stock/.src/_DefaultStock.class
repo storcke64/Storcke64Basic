@@ -6,6 +6,7 @@ Class Image
 Class SvgImage
 
 Static Private $cSynonymous As New Collection
+Static Private $cRightToLeft As Collection
 
 Static Private $bDebug As Boolean
 
@@ -34,17 +35,45 @@ Static Private Sub Stretch(hImage As Image, iSize As Integer) As Image
   
 End
 
-Static Private Sub LoadIcon(sKey As String, iSize As Integer, sStock As String) As Image
-
-  Dim sPath As String
+Static Private Sub LoadRightToLeft()
   
-  sPath = sStock &/ CStr(iSize) &/ sKey
-  If System.RightToLeft And If Exist(sPath & "-rtl.png") Then sPath &= "-rtl"
-  If $bDebug And If iSize = 32 And If Not Exist(sPath & ".png") Then Error "gb.form.stock: unknown icon: " & sKey
-  Return Image.Load(sPath & ".png")
+  Dim sKey As String
+  
+  $cRightToLeft = New Collection
+  For Each sKey In Split(File.Load("no-reverse"), "\n")
+    sKey = Trim(sKey)
+    If Not sKey Then Continue
+    If sKey Begins ";" Then Continue
+    $cRightToLeft[sKey] = True
+  Next
   
 End
 
+Static Private Sub LoadIcon(sKey As String, iSize As Integer, sStock As String) As Image
+
+  Dim sPath As String
+  Dim hImage As Image
+  Dim bMirror As Boolean
+  
+  sPath = sStock &/ CStr(iSize) &/ sKey
+  If $bDebug And If iSize = 32 And If Not Exist(sPath & ".png") Then Error "gb.form.stock: unknown icon: " & sKey
+  'If System.RightToLeft And If Exist(sPath & "-rtl.png") Then sPath &= "-rtl"
+  If System.RightToLeft Then
+    If Not $cRightToLeft Then LoadRightToLeft
+    If $cRightToLeft.Exist(sKey) Then
+      If Exist(sPath & "-rtl.png") Then 
+        sPath &= "-rtl"
+      Else
+        bMirror = True
+      Endif
+    Endif
+  Endif
+  
+  hImage = Image.Load(sPath & ".png")
+  If bMirror Then hImage = hImage.Mirror(True, False)
+  Return hImage
+  
+End
 
 Static Public Sub LoadImage(sKey As String, iSize As Integer, Optional sStock As String) As Image
 
