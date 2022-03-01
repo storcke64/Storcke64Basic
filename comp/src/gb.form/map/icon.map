@@ -321,6 +321,7 @@ select                  actions/select-rectangular
 select-all              actions/edit-select-all
 server                  [breeze*!16]places/server-database;places/network-server
 share                   actions/document-share;actions/send-to;preferences/preferences-system-network-sharing;apps/preferences-system-network-sharing;preferences/preferences-system-sharing
+shopping                #
 shortcut                apps/accessories-character-map;preferences/preferences-desktop-keyboard-shortcut;apps/preferences-desktop-keyboard-shortcut
 shuffle                 actions/media-playlist-shuffle
 shutdown                apps/system-shutdown;actions/system-shutdown
@@ -369,6 +370,7 @@ text-top                actions/format-align-vertical-top
 text-underline          actions/format-text-underline
 text-upper              actions/format-text-uppercase
 theme                    preferences/preferences-desktop-theme;preferences/preferences-desktop-theme-global;;apps/preferences-desktop-theme;apps/preferences-desktop-theme-global
+today                   actions/go-jump-today;actions/calendar-today;actions/go-today;actions/jump-today
 toilet                  #
 tools                   [elementary]categories/applications-development;[breeze*]categories/applications-system;actions/applications-system;categories/applications-system
 top                     actions/go-top
