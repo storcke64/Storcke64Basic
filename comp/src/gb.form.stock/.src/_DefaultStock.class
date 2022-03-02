@@ -40,7 +40,7 @@ Static Private Sub LoadRightToLeft()
   Dim sKey As String
   
   $cRightToLeft = New Collection
-  For Each sKey In Split(File.Load("no-reverse"), "\n")
+  For Each sKey In Split(File.Load("reverse"), "\n")
     sKey = Trim(sKey)
     If Not sKey Then Continue
     If sKey Begins ";" Then Continue
