@@ -350,7 +350,7 @@ Private Procedure AddDir(Optional sDir As String)
       If Not IsDir(sDir &/ sFile) Then aFile.Add("F" & sFile)
     Next
   
-    aFile.Sort(gb.Natural)
+    aFile.Sort(gb.Natural + gb.IgnoreCase)
   
     $aInheritance.Clear
   
@@ -1019,7 +1019,7 @@ Public Sub GetTestModules() As String[]
     If File.Ext(sPath) = "test" Then aResult.Add(sPath)
   Next
   
-  aResult.Sort(gb.Natural)
+  aResult.Sort(gb.Natural + gb.IgnoreCase)
   Return aResult
   
 End

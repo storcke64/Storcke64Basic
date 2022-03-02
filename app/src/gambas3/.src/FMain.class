@@ -961,6 +961,11 @@ Private Sub Rename(sKey As String)
   
   If $bInRename Then Return
   $bInRename = True
+  
+  If Not tvwProject.Exist(sKey) Then
+    txtSearchProject.Text = ""
+    txtSearchProject.FilterNow
+  Endif
   tvwProject[sKey].Rename
   
   Try hEditor = Application.ActiveControl
