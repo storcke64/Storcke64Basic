@@ -168,8 +168,13 @@ End
 
 Public Sub mnuCopy_Click()
 
+  Me.Foreground = Color.SelectedForeground
+  Me.Background = Color.SelectedBackground
   Component.Load("gb.util")
   Clipboard.Copy(String.FromHTML(txtMessage.Text))
+  Wait 0.15
+  Me.Foreground = Color.Foreground
+  Me.Background = Color.Background
 
 End
 

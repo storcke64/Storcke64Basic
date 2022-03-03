@@ -4,6 +4,7 @@
   MoveScaled(0,0,73,37)
   Background = Color.Background
   Foreground = Color.TextForeground
+  PopupMenu = "mnuPopup"
   Resizable = False
   SkipTaskbar = True
   Transparent = True
@@ -53,6 +54,7 @@
           { txtMessage TextLabel
             MoveScaled(1,1,41,9)
             Expand = True
+            Padding = 2
           }
         }
       }
