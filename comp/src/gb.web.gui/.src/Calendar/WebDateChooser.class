@@ -172,7 +172,7 @@ Public Sub panCalendar_Render()
   dDate = Date($dStart)
   dNow = Date(Now)
   
-  For Y = 1 To 5
+  For Y = 1 To 6
     Print "<tr>"
     For X = 0 To 6
       Print "<td";
