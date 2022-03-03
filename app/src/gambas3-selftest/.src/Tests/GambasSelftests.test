@@ -63,24 +63,14 @@ Private sTest As String '
 Private bReadOK As Boolean
 Private bWriteOK As Boolean
 Private hWatchFile As File
-'Private bZeroExpected As Boolean
 
 Private hStillHere1 As New MyPoint
-
-' Private Enum Zero, One, Two
 
 Public hFormForEvent As New TestClass3
 
 Private iTestAndIf As Integer = 0
 
-'Private $Errors As New String[]
-
-'Private hFile2 As File
 Private iseek As Integer
-
-'Private hCrash2 As New ChildClass
-
-'Private bRun As Boolean = False
 
 Public Const kkX As Integer = 1999
 Public Const kkY As Integer = 1499
@@ -133,16 +123,14 @@ Fast Public Function FastTests() As Integer
 
     Dim fArr As New Float[]
     Dim sngArr As New Single[]
-    'Dim lArr As New Long[]
+
     Dim iArr As New Integer[]
     Dim shrArr As New Short[]
-    'Dim btArr As New Byte[]
+
     Dim bArr As New Boolean[]
     Dim sArr As New String[]
     Dim dArr As New Date[]
     Dim vArr As New Variant[]
-    'Dim oArr As New Object[]
-    'Dim pArr As New Pointer[]
     Dim oo As Object
     Dim e As New Collection
 
@@ -155,10 +143,6 @@ Fast Public Function FastTests() As Integer
 
     Dim l1, l2 As Long
 
-    'Dim sTemp As String
-
-    'Dim hTest1 As Crash
-    'Dim hTest2 As New Crash
     Dim hTest3 As New Crash2
 
     Dim hCrash As New ChildClass
@@ -185,10 +169,6 @@ Fast Public Function FastTests() As Integer
     Endif
 
     ' ------------------------------------------------- End Prerequisites
-
-    ' If bRun = False Then
-    '     Errors.Add("Test")
-    ' Endif
 
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     ''Crash and compiler tests.
@@ -333,54 +313,28 @@ Fast Public Function FastTests() As Integer
     bBoolean = Read #hFile As Boolean
     Assert.Ok(bBoolean, "ReadFileBoolean")
 
-    ' If bBoolean = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     sStr3 = Read #hFile As String
     Assert.StringEquals(sStr3, "Mätä", "ReadFileString")
 
     iShort = Read #hFile As Short
     Assert.Equals(iShort, -1, "ReadFileShort")
-    ' If iShort <> -1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     bByte = Read #hFile As Byte
     Assert.Equals(bByte, 255, "ReadFileByte")
-    ' If bByte <> 255 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     sStr1 = Read #hFile As String
     Assert.Equals(sStr1, "", "ReadFileString2")
-    ' If sStr1 <> "" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     bByte = Read #hFile As Byte
     Assert.Equals(bByte, 255, "ReadFileByte2")
-    ' If bByte <> 255 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     sStr2 = Read #hFile As String
     Assert.Equals(sStr2, "Gambas", "ReadFileGambas")
-    ' If sStr2 <> "Gambas" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     bByte = Read #hFile As Byte
     Assert.Equals(bByte, 255, "ReadFileByte3")
-    ' If bByte <> 255 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     hFile.Close
-
-    'Inc ii
-    'If ii < 5 Then Goto again
-    'Debug Errors.Count
 
     sDescription = "Testing StringArray"
 
@@ -396,17 +350,9 @@ Fast Public Function FastTests() As Integer
 
         Assert.NotOk(oo.Find(0) <> -1 Or oo.Find(10001) <> -1 Or oo.Find(999) = -1, sDescription)
 
-        ' If oo.Find(0) <> -1 Or oo.Find(10001) <> -1 Or oo.Find(999) = -1 Then
-        '     Errors.Add(System.Backtrace[0])
-        ' Endif
-
         oo.Fill(666, 0, 10000)
 
         Assert.NotOk(oo.Find(0) <> -1 Or oo.Find(10000) <> -1 Or oo.Find(666) = -1, sDescription)
-
-        ' If oo.Find(0) <> -1 Or oo.Find(10000) <> -1 Or oo.Find(666) = -1 Then
-        '     Errors.Add(System.Backtrace[0])
-        ' Endif
 
         oo.Clear
 
@@ -417,43 +363,31 @@ Fast Public Function FastTests() As Integer
     Assert.NotOk("abc" == "ab", "String Comparison 1")
     If Not ("abc" == "ab") Then
         sStr = "T"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.Ok("abc" == "abc", "String Comparison 2")
     If "abc" == "abc" Then
         sStr &= "h"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.Ok("abc" == "abC", "String Comparison 3")
     If "abc" == "abC" Then
         sStr &= "i"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.Ok("abc" <> "ab", "String Comparison 4")
     If "abc" <> "ab" Then
         sStr &= "s"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.NotOk("abc" = "abC", "String Comparison 5")
     If Not ("abc" = "abC") Then
         sStr &= " "
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.ok("abc" = "abc", "String Comparison 6")
     If "abc" = "abc" Then
         sStr &= UCase$("g")
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     sStr &= Mid$("Alphabets", 5, 1) 'a
@@ -466,9 +400,6 @@ Fast Public Function FastTests() As Integer
     sStr = Replace$(sStr, "X", "s")
 
     Assert.StringEquals(sStr, "This Gambas", "Playing with Strings")
-    ' If sStr <> "This Gambas" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     sDescription = "Testing RInStr"
 
@@ -476,122 +407,78 @@ Fast Public Function FastTests() As Integer
         If Assert.Ok(RInStr("Gambas is basic", "bas", 10) = 4, sDescription) Then
             If Assert.Ok(RInStr("Gambas is basic", "not") = 0, sDescription) Then
                 sStr &= " "
-                ' Else
-                '     Errors.Add(System.Backtrace[0])
             Endif
-            ' Else
-            '     Errors.Add(System.Backtrace[0])
         Endif
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok(Html$(">Gambas<") Ends "&lt;", "Html lt") Then
         sStr &= "v"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok(Html$(">Gambas<") Begins "&gt;", "Html gt") Then
         sStr &= "e"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     Assert.NotOk(Html$(">Gambas") Ends "&lt;" Or Html$("Gambas<") Begins "&gt;", "Bad Html gt lt")
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     If Assert.Ok("Gambas" Like "G*", "Like 1") Then
         sStr &= "r"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok("Gambas" Like "?[Aa]*", "Like 2") Then
         sStr &= "s"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.NotOk(("Gambas" Like "G[^Aa]*"), "Like 3") Then
         sStr &= RTrim$("i ")
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok(InStr("Gambas is basic", "bas") = 4, "Instr 1") Then
         If Assert.Ok(InStr("Gambas is basic", "bas", 10) = 11, "Instr 2") Then
             If Assert.Ok(InStr("Gambas is basic", "not") = 0, "Instr 3") Then
                 sStr &= Trim$(" o ")
-                ' Else
-                '     Errors.Add(System.Backtrace[0])
             Endif
-            ' Else
-            '     Errors.Add(System.Backtrace[0])
         Endif
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     sStr &= LTrim$(" n")
 
     If Assert.Ok(Split(sStr, " ").Count = 3, "Split string") Then
         sStr &= Space$(1)
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok(Scan(sStr, "* * *").Count = 3, "Scan string") Then
         sStr &= "i"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok("abcd" > "abc", "string greater") Then
         sStr &= "s"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.NotOk("abcd" < "abc", "string not smaller") Then
         sStr &= " "
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.ok("abcd" >= "abc", "string greater equals") Then
         sStr &= "s"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok("abc" >= "abc", "string greater equals 2") Then
         sStr &= "o"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok("abc" <= "abcd", "string samller equals") Then
         sStr &= "m"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     If Assert.Ok("abc" <= "abc", "string samller equals 2") Then
         sStr &= "e"
-        ' Else
-        '     Errors.Add(System.Backtrace[0])
     Endif
 
     sStr &= "&1&2&4&3"
     sStr = Subst$(sStr, "w", "h", "t", "a")
 
     Assert.StringEquals(UnQuote$("This is not a \\\"quoted\\\"\\nmulti-line string."), "This is not a \"quoted\"\nmulti-line string.", "UnQuote$")
-
-    ' If UnQuote$("This is not a \\\"quoted\\\"\\nmulti-line string.") <> "This is not a \"quoted\"\nmulti-line string." Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     sStr &= " tested for string e"
 
@@ -600,19 +487,10 @@ Fast Public Function FastTests() As Integer
     sStr &= "ors."
 
     Assert.Equals(Len(sStr), 57, "Lenstr57")
-    ' If Len(sStr) <> 57 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
-    'Debug sStr
 
     Shell "echo '" & sStr & "' | md5sum" To tmp
 
     Assert.StringEquals(Left$(tmp, 32), "d2cbdfdf41d7aafb66c0df1c9ffd482f", "Validate result with md5sum.")
-
-    ' If Left$(tmp, 32) <> "d2cbdfdf41d7aafb66c0df1c9ffd482f" Then 'Validate result with md5sum.
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ' TODO: Really the same???? This:
     Assert.equals(Sin(0.5) ^ 2 + Cos(0.5) ^ 2, 1, "Trigonometric 1")
@@ -627,50 +505,19 @@ Fast Public Function FastTests() As Integer
 
     Assert.equals(Sin(ASin(0.5)) ^ 5, 0.5 ^ 5, "Trigonometric 4")
 
-    ' If Sin(ASin(0.5)) <> 0.5 Or If Sin(ASin(0.5)) ^ 5 <> 0.5 ^ 5 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.LessEqual(Abs(Cos(ACos(0.5)) - 0.5), 1.1102230246252E-16, "Trigonometric 5")
-
-    ' If Abs(Cos(ACos(0.5)) - 0.5) > 1.1102230246252E-16 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.NotOk(Abs(Tan(ATan(0.5)) - 0.5) > 5.5511151231259E-17, "Trigonometric 4")
 
-    ' If Abs(Tan(ATan(0.5)) - 0.5) > 5.5511151231259E-17 Then '5.5511151231258E-17  OK?
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Str(ACosh(2)), Str(1.31695789692482), "Str(ACosh(2))")
 
-    ' If Str(ACosh(2)) <> Str(1.31695789692482) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Deg(Ang(-1, 1)), 135, "Deg(Ang(-1,1))")
-    ' If Not (Deg(Ang(-1, 1)) = 135) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Str(ATanh(0.5)), Str(0.549306144334055), "Str(ATanh(0.5))")
 
-    ' If Not Str(ATanh(0.5)) = Str(0.549306144334055) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Str(Sinh(1)), Str(1.1752011936438), "Str(Sinh(1))")
 
-    ' If Str(Sinh(1)) <> Str(1.1752011936438) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(((8 Or 32) Xor 16), 56, "((8 Or 32) Xor 16)")
-
-    ' If ((8 Or 32) Xor 16) <> 56 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii = BClr(40, 3) '32
     ii = BSet(ii, 30)
@@ -687,15 +534,7 @@ Fast Public Function FastTests() As Integer
 
     Assert.Ok(BTst(ii, 13), "Bit manipulation 1")
 
-    ' If BTst(ii, 13) = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.NotOk(BTst(ii, 14), "Bit manipulation 2")
-
-    ' If BTst(ii, 14) = True Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     For jj = 0 To 31
         ii = Ror(ii, jj)
@@ -713,10 +552,6 @@ Fast Public Function FastTests() As Integer
     Assert.Equals(Ror(CShort(1), 1), -32768, "Bit manipulation 7")
     Assert.Equals(Shl(CShort(-1), 0), -1, "Bit manipulation 8")
 
-    ' If l1 <> -2 Or Bin$(ii) <> "111111111111111111111111111111" Or Asr(CShort(-4), 1) <> -2 Or BSet(CShort(-2), 0) <> -1 Or Ror(CShort(1), 1) <> -32768 Or Shl(CShort(-1), 0) <> -1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     ii = Abs(-100)
     Dec ii
     Inc ii
@@ -725,97 +560,50 @@ Fast Public Function FastTests() As Integer
 
     Assert.Equals(Frac(ii / 2), 0.5, "Some numbers crumpling")
 
-    ' If Frac(ii / 2) <> 0.5 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Int(Pi), 3, "Int Pi")
-    ' If Int(Pi) <> 3 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Int(-Pi), -4, "Int -Pi")
-    ' If Int(-Pi) <> -4 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Max(Pi, 2), Pi, "Max Pi")
 
-    ' If Max(Pi, 2) <> Pi Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Min(Pi, 2), 2, "Min Pi")
-
-    ' If Min(Pi, 2) <> 2 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Sgn(-123456789), -1, "Sgn(-123456789)")
 
-    ' If Sgn(-123456789) <> -1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Sgn(-Pi), -1, "Sgn(-Pi)")
-
-    ' If Sgn(-Pi) <> -1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Round(Pi, -2), 3.14, "Round(Pi, -2)")
     Assert.Equals(Round(CSingle(6) + 0.01), 6, "Round(CSingle(6) + 0.01)")
 
-    ' If Round(Pi, -2) <> 3.14 Or Round(CSingle(6) + 0.01) <> 6 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Round(1972, 2), 2000, "Round(1972, 2)")
-
-    ' If Round(1972, 2) <> 2000 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Randomize 123
     If Assert.Ok(CInt(Rnd(1, 10)) = 3 And CInt(Rnd(1, 10)) = 3 And CInt(Rnd(1, 10)) = 9, "Rnd 1") Then
         Select Case 5
             Case CInt(Rnd(1, 10))
                 Assert.Fail("Rnd 2")
-                'Errors.Add(System.Backtrace[0])
             Case CInt(Rnd(1, 10)) '5
                 Assert.Pass("Rnd 3")
             Case CInt(Rnd(1, 10))
                 Assert.Fail("Rnd 4")
-                'Errors.Add(System.Backtrace[0])
         End Select
     Else
         Assert.Fail("Rnd 5")
-        'Errors.Add(System.Backtrace[0])
     Endif
 
     ii = 3
 
     Assert.StringEquals(Choose(ii, "one", "two", "three", "four"), "three", "Choose 1")
 
-    ' If Choose(ii, "one", "two", "three", "four") <> "three" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     ii = 3
     Assert.Ok(IsNull(Choose(ii * 2, "one", "two", "three", "four")), "Choose 2")
     Assert.Ok(IsNull(Choose(-2, "one", 2)), "Choose 3")
     Assert.Ok(IsNull(Choose(2000000000, True, Date(Now))), "Choose 4")
     Assert.Ok(IsNull(Choose(-2000000000, True, Date(Now))), "Choose 5")
-    ' If IsNull(Choose(ii * 2, "one", "two", "three", "four")) = False Or IsNull(Choose(-2, "one", 2)) = False Or IsNull(Choose(2000000000, True, Date(Now))) = False Or IsNull(Choose(-2000000000, True, Date(Now))) = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii = 7
     sStr = If((ii Mod 2) = 0, "even", "odd")
     Assert.StringEquals(sStr, "odd", "IIf ii Mod 2")
-    ' If sStr <> "odd" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii = 2
 
@@ -835,14 +623,8 @@ Fast Public Function FastTests() As Integer
     '#Endif
 
     Assert.Equals(19 Div 5, 19 \ 5, "Is 19 Div 5")
-    ' If 19 Div 5 <> 19 \ 5 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(19 Div 5, 3, "Is2 19 Div 5")
-    ' If 19 Div 5 <> 3 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     'If "And If" fails, this raises division by zero.
     If 1 = 2 And If 1 / 0 Then
@@ -855,9 +637,6 @@ Fast Public Function FastTests() As Integer
     Endif
 
     Assert.Equals(iTestAndIf, 0)
-    ' If iTestAndIf <> 0 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii = 3
     ii ^= 2
@@ -867,57 +646,24 @@ Fast Public Function FastTests() As Integer
     Assert.Equals(ii, 64)
     Assert.Equals(CStr(2 ^ 23), "8388608", "Int 1")
 
-    ' If ii <> 64 Or CStr(2 ^ 23) <> "8388608" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(ii ^ 2, ii * ii, "Int 2")
-
-    ' If ii ^ 2 <> ii * ii Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii *= 2
     Assert.Equals(ii, 128, "Int 3")
-    ' If ii <> 128 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii \= 3
 
     Assert.Equals(ii, 42, "Int 4")
-    ' If ii <> 42 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Asl(12, 3), Shl(12, 3), "Asl Shl")
 
-    ' If Asl(12, 3) <> Shl(12, 3) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Asr(12, 3), Shr(12, 3), "Asr Shr")
 
-    ' If Asr(12, 3) <> Shr(12, 3) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Ang(-1, 1), ATan2(1, -1), "Ang Atan2")
-    ' If Ang(-1, 1) <> ATan2(1, -1) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Sinh(ASinh(0.5)) - 0.5, 0, "Sinh ASinh")
 
-    ' If Sinh(ASinh(0.5)) - 0.5 <> 0 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Ok(TestClass3.TestByref(), "TestClass3.TestByref")
-
-    ' If TestClass3.TestByref() = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     ii = 0
     Do
@@ -927,55 +673,26 @@ Fast Public Function FastTests() As Integer
 
     Assert.Equals(ii, 10, "Breaktest")
 
-    ' If ii <> 10 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     ii = 0
     With TestClass2
         ii = .TestConst + TestConst2
     End With
 
     Assert.Equals(ii, 3, "Test With")
-    ' If ii <> 3 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Cbr(1000), 10, "Cbr")
-    ' If Cbr(1000) <> 10 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Sqr(100), 10, "Sqr")
-    ' If Sqr(100) <> 10 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.LessEqual((Cbr(Pi ^ 3) - Pi), 4.4408920985007E-16, "Cbr(Pi ^ 3) - Pi")
 
-    ' If (Cbr(Pi ^ 3) - Pi) > 4.4408920985007E-16 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Sqr(Pi ^ 2), Pi, "Sqr(Pi ^ 2)")
-    ' If Sqr(Pi ^ 2) <> Pi Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(CByte(17), 17, "CByte(17)")
-    ' If CByte(17) <> 17 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(CByte(100000), 160, "CByte(100000)")
-    ' If CByte(100000) <> 160 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(CByte(True), 255, "CByte(True)")
-    ' If CByte(True) <> 255 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Test.Note("Or Or Xor")
     If (1 = 2 Or 3 = 4) Or (1 = 1 Xor 2 = 2) Then
@@ -994,9 +711,6 @@ Fast Public Function FastTests() As Integer
     Endif
 
     Assert.LessEqual(Abs((ACosh(Cosh(0.5)) - 0.5)), 1.7E-16, "Abs((ACosh(Cosh(0.5)) - 0.5)")
-    ' If Abs((ACosh(Cosh(0.5)) - 0.5)) > 1.7E-16 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Test.Note("CFloat")
     If CFloat("+3.1416") <> 3.1416 Or CFloat("1.0E+3") <> 1000 Or CFloat(0.00005) <> CFloat(CStr(CFloat(0.00005))) Or CFloat(10000400000000) <> 1.00004E+13 Then
@@ -1015,9 +729,6 @@ Fast Public Function FastTests() As Integer
     Endif
 
     Assert.Equals(Format$(Pi, "#.##"), Str$(3.14), "Format Pi")
-    ' If Format$(Pi, "#.##") <> Str$(3.14) Then
-    '     Assert.Fail("Format Pi")
-    ' Endif
 
     Test.Note("VarPtr")
     bTest = True
@@ -1034,26 +745,13 @@ Fast Public Function FastTests() As Integer
     Endif
 
     Assert.Equals(Val(Format$(Exp(20), "#########.#####")), 485165195.40979, "Val(Format$(Exp(20)")
-    ' If Val(Format$(Exp(20), "#########.#####")) <> 485165195.40979 Then ''Is this OK?
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(CInt(Exp10(4)), 10000, "CInt(Exp10(4))")
     Assert.Equals(CInt("12"), 12, "CInt 12")
 
-    ' If CInt(Exp10(4)) <> 10000 Or CInt("12") <> 12 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Exp2(4), 16, "Exp2(4)")
-    ' If Exp2(4) <> 16 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(Expm(0.5), (Exp(0.5) - 1), "Expm vs Exp")
-    ' If Expm(0.5) <> (Exp(0.5) - 1) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Test.Note("Goto Test")
 TestLabel1:
@@ -1064,28 +762,15 @@ TestLabel3:
 
     Assert.Equals(Eval(Quote$("This is not a \\\"quoted\\\"\\nmulti-line string.")), "This is not a \\\"quoted\\\"\\nmulti-line string.", "Eval Quote Test")
 
-    ' If Eval(Quote$("This is not a \\\"quoted\\\"\\nmulti-line string.")) <> "This is not a \\\"quoted\\\"\\nmulti-line string." Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(Eval("A + B + C", cCol), 6, "Eval(A + B + C, cCol)")
-    ' If Eval("A + B + C", cCol) <> 6 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     Assert.Equals(InlineArr.Join("/"), "A/B/C", "InlineArr.Join")
-    ' If InlineArr.Join("/") <> "A/B/C" Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     If InlineArr[0] <> "A" Or InlineArr[1] <> "B" Or InlineArr[2] <> "C" Then
         Assert.Fail(InlineArr)
     Endif
 
     Assert.Equals(Hyp(1.2, -2.3), Sqr(1.2 ^ 2 + -2.3 ^ 2), "Hyp = Sqr")
-    ' If Hyp(1.2, -2.3) <> Sqr(1.2 ^ 2 + -2.3 ^ 2) Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     If IsBoolean("False") = False Or IsBoolean("FALSE") = False Or IsBoolean("true") = False Or IsBoolean("123") = True Then
         Assert.Fail("IsBoolean")
@@ -1119,9 +804,6 @@ TestLabel3:
     Endif
 
     Assert.Notequals(iTestAndIf, 0, "iTestAndIf = 1")
-    ' If iTestAndIf = 0 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     If 1 = 2 Or If Me._TestAndIf() = 1 Then
         Assert.Fail("Is 1 = 2 Or If Me._TestAndIf() = 1")
@@ -1130,9 +812,6 @@ TestLabel3:
     Endif
 
     Assert.Equals(iTestAndIf, 1, "iTestAndIf = 1")
-    ' If iTestAndIf <> 1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
     iTestAndIf = 0
 
     If IsBlank("Cheque") = True Or IsBlank(" \t") = False Then
@@ -1142,9 +821,6 @@ TestLabel3:
     Endif
 
     Assert.Ok(IsDigit("1972"), "IsDigit(1972)")
-    ' If IsDigit("1972") = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     If IsDigit("three") = True Or IsDigit("123a") = True Then
         Assert.Fail("IsDigit")
@@ -1153,27 +829,9 @@ TestLabel3:
     Endif
 
     Assert.Ok(IsDir(Application.Path), "IsDir(Application.Path)")
-
-    ' If IsDir(Application.Path) = False Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.NotOk(IsDir(Application.Path &/ ".src" &/ "mTest.module"), "IsDir <> File")
-    ' If IsDir(Application.Path &/ ".src" &/ "mTest.module") = True Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.NotOk(IsDir("c24b7a17-c968-4145-b03d-da0ac6477cdc"), "Not existent dir/file")
-
-    ' If IsDir("This probably doesn't exist.") = True Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
-
     Assert.Equals(ClassTest.x, 1, "ClassTest.x = 1 ")
-
-    ' If ClassTest.x <> 1 Then
-    '     Errors.Add(System.Backtrace[0])
-    ' Endif
 
     jj = 1
     For Each ii In cCol
@@ -1187,22 +845,6 @@ TestLabel3:
         Assert.Pass("Continue ok")
     Endif
 
-    ' -------------------------------------------------
-    ' TODO: From here on use appropriate Assertions.
-    '
-    ' Too much work to replace the old Errors.Add(System.Backtrace[0]) by appropriate Asserts. To
-    '
-    ' Now I replace
-    '
-    '         Errors.Add(System.Backtrace[0])
-    '    Endif
-    '
-    '    by
-    '
-    '        Assert.Fail(sDescription)
-    '    Else
-    '        Assert.Pass(sDescription)
-    '    Endif
     ' -------------------------------------------------
 
     sDescription = "Test Hex$"
@@ -1632,21 +1274,21 @@ TestLabel3:
     Endif
 
     sDescription = "Hour"
-    If Hour(Now) < 0 Or Hour(Now) > 23 Or Hour(Date(2010, 12, 4, 15, 08, 09)) <> 15 Then
+    If Hour(Now) < 0 Or Hour(Now) > 23 Or Hour(Date(2010, 12, 4, 15, 8, 9)) <> 15 Then
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)
     Endif
 
     sDescription = "Minute"
-    If Minute(Now) < 0 Or Minute(Now) > 59 Or Minute(Date(2010, 12, 4, 15, 08, 09)) <> 8 Then
+    If Minute(Now) < 0 Or Minute(Now) > 59 Or Minute(Date(2010, 12, 4, 15, 8, 9)) <> 8 Then
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)
     Endif
 
     sDescription = "Second"
-    If Second(Now) < 0 Or Second(Now) > 59 Or Second(Date(2010, 12, 4, 15, 08, 09)) <> 9 Then
+    If Second(Now) < 0 Or Second(Now) > 59 Or Second(Date(2010, 12, 4, 15, 8, 9)) <> 9 Then
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)
@@ -1990,7 +1632,7 @@ TestLabel3:
     Try Time(99, 0, 0, 0)
 
     sDescription = "Test Time"
-    If Error = False Or Time(14, 08, 25) <> "14:08:25" Or Time(23, 59, 59) <> "23:59:59" Or CDate((60 * 60) / (24 * 60 * 60)) <> "01:00:00" Then
+    If Error = False Or Time(14, 8, 25) <> "14:08:25" Or Time(23, 59, 59) <> "23:59:59" Or CDate((60 * 60) / (24 * 60 * 60)) <> "01:00:00" Then
         Assert.Fail(sDescription)
     Else
         Assert.Pass(sDescription)
@@ -2622,7 +2264,7 @@ Public Sub TVal()
     Assert.Equals(Val("&H123abc"), 1194684, "Val string representing hex number")
     Assert.Ok(Val("True"), " Val \"True\"")
     Assert.NotOk(Val("False"), " Val \"False\"")
-    Assert.Null(Val("Gambas"), "Val \"Gambas\" is Null") 
+    Assert.Null(Val("Gambas"), "Val \"Gambas\" is Null")
 
 End
 
@@ -2632,10 +2274,11 @@ Public Sub TCatch()
     'do an error
     f = 2 / 0
 
-    Catch 
-        Print Error.Text
-        
-        Assert.Equals(Error.Code, 26, "division 0")
+Catch
+    Print Error.Text
+
+    Assert.Equals(Error.Code, 26, "division 0")
+
 End
 
 '' Tests a Error an Error.Clear
@@ -2644,12 +2287,12 @@ Public Sub TError()
     Dim f As Float
     'do an error
     Try f = 2 / 0
-    
+
     'first test if error is handled
     Assert.GreaterEqual(Error.Code, 0, "Error.Code > 0")
     Assert.NotNull(Error.Text, "Error.Text not null")
     Assert.Error("Test Error happened")
-    
+
     'test error clear
     Try f = 2 / 0
     Error.Clear
@@ -2658,7 +2301,6 @@ Public Sub TError()
     Assert.Null(Error.Where, "Error.Where Null")
 
 End
-
 
 Fast Public Function _TestAndIf() As Integer
 
