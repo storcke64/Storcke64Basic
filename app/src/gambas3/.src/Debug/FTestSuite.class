@@ -153,8 +153,10 @@ Public Sub lvwSuite_Select()
   Wend
   
   tvwSuite.MoveFirst()
-  tvwSuite.Key = tvwSuite.Item.Key
-  tvwSuite.Current.EnsureVisible()
+  If tvwSuite.Available Then
+    tvwSuite.Key = tvwSuite.Item.Key
+    tvwSuite.Current.EnsureVisible()
+  Endif
   
 End
 
