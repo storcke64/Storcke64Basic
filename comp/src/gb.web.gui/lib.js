@@ -731,7 +731,7 @@ gw = {
       
       gw.window.refresh();
       
-      $(id).scrollIntoView({behavior:"auto", block:"nearest"});      
+      $(id).scrollIntoView({behavior:"auto", block:"nearest"});
     },
 
     close: function(id)
@@ -1323,7 +1323,7 @@ gw = {
             { 
               elt.gw_scroll = undefined; 
               if (pos[0] != sw.scrollLeft || pos[1] != sw.scrollTop)
-                gw.table.onScroll(id, more, timeout);
+                gw.scrollview.onScroll(id, more, timeout);
             });
             
           //elt.gw_scroll = undefined;
@@ -1615,12 +1615,14 @@ gw = {
     select: function(id, row, event, multiple)
     {
       var items = $(id).children;
-      var elt = items[row];
       var last = $(id).gw_current;
-      var selected = !elt.hasClass('gw-selected');
+      var elt = items[row];
+      var selected;
       
-      if (event.detail == 2)
+      if (event.detail == 2 || !elt)
         return;
+      
+      selected = !elt.hasClass('gw-selected');
       
       if (multiple)
       {
@@ -1634,6 +1636,7 @@ gw = {
         if (last != undefined)
           items[last] && items[last].removeClass('gw-selected');
         elt.addClass('gw-selected');
+        gw.listbox.ensureVisible(id, row);
         gw.update(id, '$', row);
       }
       
@@ -1641,6 +1644,43 @@ gw = {
       
       /*$(id).addClass('gw-unselectable');
       setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);*/
+    },
+    
+    onKeyDown: function(id, event)
+    {
+      var row;
+      
+      if (event.key == 'ArrowDown')
+      {
+        if (!(event.altKey || event.shiftKey || event.ctrlKey))
+        {
+          row = $(id).gw_current;
+          gw.listbox.select(id, row + 1, event, false);
+          event.preventDefault();
+        }
+      }
+      else if (event.key == 'ArrowUp')
+      {
+        if (!(event.altKey || event.shiftKey || event.ctrlKey))
+        {
+          row = $(id).gw_current;
+          gw.listbox.select(id, row - 1, event, false);
+          event.preventDefault();
+        }
+      }
+    },
+    
+    ensureVisible: function(id, row)
+    {
+      var elt = $(id);
+      var child = elt.children[row];
+      
+      //console.log(row + ' / ' + (child.offsetTop + child.offsetHeight) + ' / ' + elt.scrollTop + ' / ' + elt.clientHeight);
+      
+      if ((child.offsetTop + child.offsetHeight) >= (elt.scrollTop + elt.clientHeight))
+        gw.scrollview.scroll(id, elt.scrollLeft, child.offsetTop + child.offsetHeight - elt.clientHeight);
+      else if (child.offsetTop < elt.scrollTop)
+        gw.scrollview.scroll(id, elt.scrollLeft, child.offsetTop);
     }
   },
   
@@ -1708,11 +1748,12 @@ gw = {
       null);
   },
   
-  onKeydown: function(id, event)
+  onKeyDown: function(id, event)
   {
     if (!event.bubbles)
       return;
-      
+    
+    if (gw.active) id = gw.active;
     var elt = $(id);
     while (elt)
     {

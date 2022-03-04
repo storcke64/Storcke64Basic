@@ -756,7 +756,7 @@ Public Sub _BeforeRender()
   Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
   'Print Me._GetKeyPressHandler();
-  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeydown(" & JS(Me.Name) & ", event)\"";
+  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeyDown(" & JS(Me.Name) & ", event)\"";
   Print ">"
   
   DisableShortcuts()

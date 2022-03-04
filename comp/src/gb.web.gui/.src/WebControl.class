@@ -297,12 +297,11 @@ Private Sub GetCellName() As String
 End
 
 
-Public Sub _GetKeyPressHandler() As String
-  
-  If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onKeydown(" & JS(GetCellName()) & ", event)\""
-  
-End
-
+' Public Sub _GetKeyPressHandler() As String
+'   
+'   If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onKeyDown(" & JS(GetCellName()) & ", event)\""
+'   
+' End
 
 Public Sub _GetClassId(Optional sClass As String) As String
 

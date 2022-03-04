@@ -49,7 +49,6 @@ Public Sub _new()
   
 End
 
-
 Public Sub _RenderStyleSheet()
   
   Me._StartStyleSheet
@@ -66,6 +65,7 @@ Public Sub _BeforeRender()
   
   Print "<div"; Me._GetClassId(); " tabindex=\"0\"";
   Print " onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ");\"";
+  If $iMode = Select.Single Then Print " onkeydown=\"gw.listbox.onKeyDown("; JS(Me.Name), ",event);\"";
   Me._RenderStyleSheet()
   Print ">";
   
@@ -162,8 +162,8 @@ End
 Private Sub Index_Write(Value As Integer)
 
   If $iMode = Select.None Then Return
-  UnselectAll
-  Select(Value)  
+  If $hSelection Then $hSelection.UnselectAll
+  Select(Value)
 
 End
 

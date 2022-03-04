@@ -88,7 +88,7 @@ Public Sub _Render()
   If Object.CanRaise(Me, "Change") Then Print " oninput=\"gw.textbox.onChange("; JS(Me.Name); ");\"";
   If Object.CanRaise(Me, "Activate") Then Print " onkeydown=\"gw.textbox.onActivate("; JS(Me.Name); ",event);\"";
   'WebForm._AddJavascript("gw.textbox.onActivate(" & JS(Me.Name) & ")")
-  Print Me._GetKeyPressHandler();
+  'Print Me._GetKeyPressHandler();
   
   If Not Me.Enabled Then Print " disabled";
   If $bReadOnly Then Print " readonly";
