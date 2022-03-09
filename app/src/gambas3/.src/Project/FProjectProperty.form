@@ -452,78 +452,86 @@
     Index = 3
     Text = ("Libraries")
     Picture = Picture["icon:/large/plugin"]
-    { Panel13 VBox
-      MoveScaled(1,1,85.7143,63.8571)
+    { Splitter1 Splitter
+      MoveScaled(0,0,86,70)
       Expand = True
-      Spacing = True
-      { Label9 Label
-        MoveScaled(0,0,26,3)
-        Font = Font["Bold"]
-        Text = ("Libraries")
-      }
-      { Label17 Label
-        MoveScaled(1,4,60,4)
-        Visible = False
-        AutoResize = True
-        Text = ("Runtime library search path")
-      }
-      { txtLibraryPath TextBox
-        MoveScaled(1,8,24,4)
-        Visible = False
-      }
-      { Panel2 Panel
-        MoveScaled(0,14,84.8571,20.8571)
+      Arrangement = Arrange.Vertical
+      { VBox2 VBox
+        MoveScaled(0,0,82,35)
         Expand = True
-        Arrangement = Arrange.Vertical
-        Border = Border.Plain
-        { gvwLibrary GridView
-          MoveScaled(1,0,59,14)
+        { Label9 Label
+          MoveScaled(0,0,26,3)
+          Font = Font["Bold"]
+          Text = ("Libraries")
+        }
+        { Label17 Label
+          MoveScaled(1,4,60,4)
+          Visible = False
+          AutoResize = True
+          Text = ("Runtime library search path")
+        }
+        { txtLibraryPath TextBox
+          MoveScaled(1,8,24,4)
+          Visible = False
+        }
+        { Panel2 Panel
+          MoveScaled(2,13,78,21)
           Expand = True
-          Border = False
-          Mode = Select.Single
-          Grid = False
-        }
-        { Separator1 Separator
-          MoveScaled(56,14,12,0)
-        }
-        { HBox18 HBox
-          MoveScaled(0,16,84,4)
-          Background = Color.TextBackground
-          { btnInsertLib ToolButton
-            MoveScaled(0,0,17,4)
-            AutoResize = True
-            Text = Shortcut(("Add"), "A") & "..."
-            Picture = Picture["icon:/small/add"]
+          Arrangement = Arrange.Vertical
+          Border = Border.Plain
+          { gvwLibrary GridView
+            MoveScaled(1,0,59,14)
+            Expand = True
+            Border = False
+            Mode = Select.Single
+            Grid = False
           }
-          { btnRemoveLib ToolButton
-            MoveScaled(18,0,17,4)
-            Enabled = False
-            AutoResize = True
-            Text = Shortcut(("Remove"), "R")
-            Picture = Picture["icon:/small/remove"]
+          { Separator1 Separator
+            MoveScaled(56,14,12,0)
           }
-          { btnMoveUpLib ToolButton
-            MoveScaled(36,0,4,4)
-            Enabled = False
-            Picture = Picture["icon:/small/up"]
-          }
-          { btnMoveDownLib ToolButton
-            MoveScaled(43,0,4,4)
-            Enabled = False
-            Picture = Picture["icon:/small/down"]
+          { HBox18 HBox
+            MoveScaled(0,16,76,4)
+            Background = Color.TextBackground
+            { btnInsertLib ToolButton
+              MoveScaled(0,0,17,4)
+              AutoResize = True
+              Text = Shortcut(("Add"), "A") & "..."
+              Picture = Picture["icon:/small/add"]
+            }
+            { btnRemoveLib ToolButton
+              MoveScaled(18,0,17,4)
+              Enabled = False
+              AutoResize = True
+              Text = Shortcut(("Remove"), "R")
+              Picture = Picture["icon:/small/remove"]
+            }
+            { btnMoveUpLib ToolButton
+              MoveScaled(36,0,4,4)
+              Enabled = False
+              Picture = Picture["icon:/small/up"]
+            }
+            { btnMoveDownLib ToolButton
+              MoveScaled(43,0,4,4)
+              Enabled = False
+              Picture = Picture["icon:/small/down"]
+            }
           }
         }
       }
-      { Label6 Label
-        MoveScaled(0,39,29,3)
-        Font = Font["Bold"]
-        Text = ("Additional references")
-      }
-      { lstReferences ListEditor
-        MoveScaled(2,43,74,20)
+      { VBox3 VBox
+        MoveScaled(1,39,82,30)
         Expand = True
-        ReadOnly = True
-        Unique = True
+        { Label6 Label
+          MoveScaled(0,0,29,3)
+          Font = Font["Bold"]
+          Text = ("Additional references")
+        }
+        { lstReferences ListEditor
+          MoveScaled(2,4,74,20)
+          Expand = True
+          ReadOnly = True
+          Unique = True
+        }
       }
     }
     Index = 4

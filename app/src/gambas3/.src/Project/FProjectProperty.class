@@ -55,10 +55,20 @@ Public Sub _new()
   
 End
 
+Public Sub Form_Close()
+
+  Settings.Write(Me)
+  Settings.Write(Splitter1, "Layout")
+
+End
+
 Public Sub Form_Open()
 
   Dim sLang As String
-
+  
+  Settings.Read(Me)
+  Settings.Read(Splitter1, "Layout")
+  
   Me.Title = ("Project properties") & " - " & Project.Name
 
   lblName.Text = Project.Name
@@ -1269,3 +1279,5 @@ Public Sub lvwExclude_Select()
   lvwRequire.UnSelectAll
 
 End
+
+
