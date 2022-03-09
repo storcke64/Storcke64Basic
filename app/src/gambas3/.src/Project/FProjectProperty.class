@@ -58,7 +58,7 @@ End
 Public Sub Form_Close()
 
   Settings.Write(Me)
-  Settings.Write(Splitter1, "Layout")
+  Settings.Write(splLibraries)
 
 End
 
@@ -67,7 +67,7 @@ Public Sub Form_Open()
   Dim sLang As String
   
   Settings.Read(Me)
-  Settings.Read(Splitter1, "Layout")
+  Settings.Read(splLibraries)
   
   Me.Title = ("Project properties") & " - " & Project.Name
 
