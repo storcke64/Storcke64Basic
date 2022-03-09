@@ -80,7 +80,7 @@ Private Sub SetPath(sPath As String)
   $hProjectInfo = New CProjectInfo(sPath)
   $hIcon = Null
   
-  $sToolTip = Replace($sPath, System.User.Home, "~")
+  $sToolTip = Replace(File.Dir($sPath), System.User.Home, "~")
   $iIdealW = 0
   'Me.H = Me.IdealHeight
   Me.Refresh
@@ -119,7 +119,7 @@ Public Sub DrawingArea_MouseMove()
   Dim bInRemove As Boolean
   Dim sTooltip As String
   
-  If Rect(DS, DS, ICON_SIZE, ICON_SIZE).Contains(Mouse.X, Mouse.Y) Then sTooltip = $sToolTip
+  If Rect(DS, $hDrawingArea.H - DS * 3, $hDrawingArea.W - DS * 2, DS * 2).Contains(Mouse.X, Mouse.Y) Then sTooltip = $sToolTip
   If sTooltip <> $hDrawingArea.Tooltip Then $hDrawingArea.Tooltip = sTooltip
   
   If ShowButton Then bInButton = Rect(0, $hDrawingArea.H - DS * 4, $hDrawingArea.W, DS * 4).Contains(Mouse.X, Mouse.Y)
@@ -218,9 +218,8 @@ Public Sub DrawingArea_Draw()
     X += P
     Y += P
     W -= P * 2
-    H -= P * 2
-    
-    If ShowButton And If $bHighlight Then H -= P * 2
+    H -= P * 4
+    If Template Then H += P * 2
     
     Paint.Rectangle(X, Y, W, H)
     Paint.Clip
@@ -280,8 +279,8 @@ Public Sub DrawingArea_Draw()
       If Not sText Then sText = .GetTranslatedTitle()
       Paint.Font = Font["-1"]
       
-      W = Paint.W - X - P * 2
-      H = Paint.H - Y - HT - P - 3
+      W = W - X - P * 2
+      H = H - HT 'Y - ICON_SIZE
       Paint.DrawText(Paint.TrimText(sText, W, H), X, Y + HT + 3, W, H)
       
     Else
@@ -322,6 +321,11 @@ Public Sub DrawingArea_Draw()
   
   End With
   
+  If ShowRemove And If $bHighlight Then
+    Paint.FillRect(Paint.W - $hRemove.W - P - P \ 2, P \ 2, $hRemove.W + P, $hRemove.H + P, iBg)
+    Paint.DrawImage(If($bInsideRemove, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
+  Endif
+  
   If ShowButton And If $bHighlight Then
     X = 0
     Y = Paint.H - P * 4
@@ -335,11 +339,13 @@ Public Sub DrawingArea_Draw()
       Paint.Background = Color.LightForeground
     Endif
     Paint.DrawText(("Open in another window") & "…", X + P, Y, W - P * 2, H, Align.Normal)
-  Endif
-  
-  If ShowRemove And If $bHighlight Then
-    Paint.FillRect(Paint.W - $hRemove.W - P - P \ 2, P \ 2, $hRemove.W + P, $hRemove.H + P, iBg)
-    Paint.DrawImage(If($bInsideRemove, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
+  Else If Not Template Then
+    Paint.Font.Grade = -1
+    Paint.Background = Color.LightForeground
+    Paint.Save
+    Paint.ClipRect = Rect(P, Paint.H - P * 3, Paint.W - P * 2, P * 2)
+    Paint.DrawText($sToolTip, P, Paint.H - P * 3, Paint.W - P * 2, P * 2, Align.Right)
+    Paint.Restore
   Endif
   
   Me.Enabled = Not $hProjectInfo.Deleted

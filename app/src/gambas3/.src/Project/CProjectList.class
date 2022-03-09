@@ -81,6 +81,21 @@ Private Sub GetExamples() As String[]
 
 End
 
+Private Sub CreateProjectBox() As ProjectBox
+
+  Dim hProjectItem As ProjectBox
+
+  hProjectItem = New ProjectBox($hList) As "ProjectItem"
+  
+  If $iArrange = Arrange.Row Then
+    hProjectItem.ResizeScaled(32, 17)
+  Else
+    hProjectItem.ResizeScaled(1, 12)
+  Endif
+  
+  Return hProjectItem
+
+End
 
 Private Sub FillWithExample()
 
@@ -137,12 +152,8 @@ Private Sub FillWithExample()
       '   sLastDir = sDir
       ' Endif
       
-      hProjectItem = New ProjectBox($hList) As "ProjectItem"
-      If $iArrange = Arrange.Row Then
-        hProjectItem.ResizeScaled(32, 16)
-      Else
-        hProjectItem.ResizeScaled(1, 9)
-      Endif
+      hProjectItem = CreateProjectBox()
+      
       hProjectItem.ShowAuthors = True
       hProjectItem.Path = sExample
       'hProjectItem.Group = sGroup
@@ -244,12 +255,7 @@ Private Sub FillWithSoftware()
         sLastDir = sDir
       Endif
       
-      hProjectItem = New ProjectBox($hList) As "ProjectItem"
-      If $iArrange = Arrange.Row Then
-        hProjectItem.ResizeScaled(32, 16)
-      Else
-        hProjectItem.ResizeScaled(1, 9)
-      Endif
+      hProjectItem = CreateProjectBox()
       hProjectItem.ShowAuthors = True
       hProjectItem.ShowRemove = True
       hProjectItem.Path = sSoft
@@ -315,7 +321,7 @@ Private Sub FillWithTemplate()
 
     For Each sSoft In aSoft
     
-      hProjectItem = New ProjectBox($hList) As "ProjectItem"
+      hProjectItem = CreateProjectBox()
       hProjectItem.ResizeScaled(40, 16)
       hProjectItem.Path = sSoft
       hProjectItem.Group = sGroup
@@ -398,12 +404,7 @@ Private Sub FillWithRecent(bClear As Boolean)
       sLastTitle = sTitle
     Endif
     
-    hProjectItem = New ProjectBox($hList) As "ProjectItem"
-    If $iArrange = Arrange.Row Then
-      hProjectItem.ResizeScaled(32, 16)
-    Else
-      hProjectItem.ResizeScaled(1, 9)
-    Endif
+    hProjectItem = CreateProjectBox()
     hProjectItem.ShowAuthors = True
     hProjectItem.ShowRemove = True
     hProjectItem.Path = hRecent.Path
