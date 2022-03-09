@@ -42,6 +42,7 @@
 #include "gbx_signal.h"
 #include "gbx_event.h"
 #include "gbx_component.h"
+#include "gbx_watch.h"
 
 #include "gbx_c_file.h"
 #include "gbx_c_task.h"
@@ -150,14 +151,14 @@ static int get_readable(int fd)
 		return len;
 }
 
-static bool callback_read(int fd, int type, CTASK *_object)
+static bool callback_write(int fd, int type, CTASK *_object)
 {
 	int len;
 	char *data;
 	char *p;
 	int n;
 	
-	//fprintf(stderr, "callback_read: %d %p\n", fd, THIS);
+	//fprintf(stderr, "callback_write: %d %p\n", fd, THIS);
 	
 	len = get_readable(fd);
 	if (len == 0)
@@ -228,10 +229,10 @@ static void init_task(void)
 {
 	_task_count++;
 
-	if (_task_count > 1)
-		return;
+	if (_task_count <= 1)
+		_signal_handler = SIGNAL_register(SIGCHLD, callback_child, 0);
 	
-	_signal_handler = SIGNAL_register(SIGCHLD, callback_child, 0);
+	SIGNAL_check(SIGCHLD);
 }
 
 static void exit_task(void)
@@ -322,7 +323,7 @@ static bool start_task(CTASK *_object)
 			close(fd_out[1]);
 			THIS->fd_out = fd_out[0];
 
-			GB_Watch(THIS->fd_out, GB_WATCH_READ, (void *)callback_read, (intptr_t)THIS);
+			GB_Watch(THIS->fd_out, GB_WATCH_READ, (void *)callback_write, (intptr_t)THIS);
 		}
 
 		if (has_error)
@@ -550,7 +551,7 @@ static void stop_task(CTASK *_object)
 			if (len <= 0)
 				break;
 			
-			if (callback_read(THIS->fd_out, 0, THIS))
+			if (callback_write(THIS->fd_out, 0, THIS))
 				break;
 		}
 	}
@@ -637,23 +638,42 @@ static void error_Task_Wait(CTASK *task)
 	OBJECT_UNREF(task);
 }
 
-BEGIN_METHOD_VOID(Task_Wait)
+BEGIN_METHOD(Task_Wait, GB_FLOAT timeout)
+
+	int ret;
+	int sigfd;
+	int timeout;
+	
+	timeout = (int)(VARGOPT(timeout, 0.0) * 1000);
 
 	OBJECT_REF(THIS);
 	
-	//printf("Task_Wait: %p\n", THIS); fflush(stdout);
+	//fprintf(stderr, "Task_Wait: %p\n", THIS);
 	
 	ON_ERROR_1(error_Task_Wait, THIS)
 	{
-		for(;;)
+		GB_Wait(0);
+		
+		while (!THIS->stopped)
 		{
-			//printf("GB_Wait\n"); fflush(stdout);
-			GB_Wait(0);
-			//printf("stopped = %d\n", THIS->stopped); fflush(stdout);
-			if (THIS->stopped)
+			sigfd = SIGNAL_get_fd();
+			SIGNAL_check(SIGCHLD);
+			ret = WATCH_process(sigfd, THIS->fd_out, THIS->fd_err, timeout);
+
+			if (ret & WP_OUTPUT)
+				callback_write(THIS->fd_out, GB_WATCH_READ, THIS);
+
+			if (ret & WP_ERROR)
+				callback_error(THIS->fd_err, GB_WATCH_READ, THIS);
+
+			if (ret & WP_END)
+				SIGNAL_raise_callbacks(sigfd, GB_WATCH_READ, 0);
+
+			if (ret & WP_TIMEOUT)
 				break;
-			//printf("sleep\n"); fflush(stdout);
-			usleep(10);
+
+			if (ret == 0)
+				usleep(1000);
 		}
 	}
 	END_ERROR
@@ -733,7 +753,7 @@ GB_DESC TaskDesc[] =
 
 	GB_METHOD("Stop", NULL, Task_Stop, NULL),
 	GB_METHOD("Kill", NULL, Task_Stop, NULL),
-	GB_METHOD("Wait", NULL, Task_Wait, NULL),
+	GB_METHOD("Wait", NULL, Task_Wait, "[(Timeout)f]"),
 
 	GB_EVENT("Read", NULL, "(Data)s", &EVENT_Read),
 	GB_EVENT("Error", NULL, "(Data)s", &EVENT_Error),
