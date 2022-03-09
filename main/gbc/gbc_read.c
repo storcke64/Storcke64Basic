@@ -320,6 +320,8 @@ void READ_dump_pattern(PATTERN *pattern)
 
 	if (type == RT_RESERVED)
 		printf("RESERVED     %s\n", READ_get_pattern(pattern));
+	else if (type == RT_INTEGER)
+		printf("INTEGER      %s\n", READ_get_pattern(pattern));
 	else if (type == RT_NUMBER)
 		printf("NUMBER       %s\n", READ_get_pattern(pattern));
 	else if (type == RT_IDENTIFIER)

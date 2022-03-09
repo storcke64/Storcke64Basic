@@ -133,14 +133,20 @@ static void add_memory_list(char *p, int size)
 	}
 }
 
-static void add_file_list(FILE *fi)
+static bool add_file_list(const char *path)
 {
+	FILE *f;
 	char line[256];
 	int len;
 
+	f = fopen(path, "r");
+
+	if (!f)
+		return TRUE;
+
 	for(;;)
 	{
-		if (read_line(fi, line, sizeof(line)))
+		if (read_line(f, line, sizeof(line)))
 			break;
 
 		len = strlen(line);
@@ -149,6 +155,9 @@ static void add_file_list(FILE *fi)
 
 		COMPILE_add_class(line, len);
 	}
+	
+	fclose(f);
+	return FALSE;
 }
 
 static void add_library_list_file(const char *path, bool ref)
@@ -201,16 +210,14 @@ static void add_library_list_file(const char *path, bool ref)
 void COMPILE_add_component(const char *name)
 {
 	char *path;
-	FILE *fi;
 
 	if (COMP_verbose)
 		fprintf(stderr, "Loading information from component '%s'\n", name);
 	
 	path = (char *)FILE_cat(COMP_info_path, name, NULL);
 	strcat(path, ".list");
-	fi = fopen(path, "r");
 
-	if (!fi)
+	if (add_file_list(path))
 	{
 		// Do not raise an error if a component self-reference is not found
 		if (strcmp(name, COMP_project_name))
@@ -218,10 +225,6 @@ void COMPILE_add_component(const char *name)
 			THROW("Component not found: &1", name);
 		return;
 	}
-
-	add_file_list(fi);
-
-	fclose(fi);
 }
 
 
@@ -497,6 +500,10 @@ void COMPILE_init(void)
 	}
 
 	fclose(fp);
+	
+	// Add local ".list" file
+	// Not possible at the moment.
+	// add_file_list(FILE_cat(FILE_get_dir(COMP_project), ".list", NULL));
 
 	// Startup file
 
@@ -636,6 +643,8 @@ static void add_class(const char *name, int len)
 	if (clen != len)
 		ERROR_panic("Class name is too long");
 
+	//fprintf(stderr, "add_class: %.*s\n", len, name);
+	
 	BUFFER_add(&COMP_classes, &clen, 1);
 	BUFFER_add(&COMP_classes, name, len);
 }

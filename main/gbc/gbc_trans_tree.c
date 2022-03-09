@@ -44,6 +44,7 @@ static TRANS_TREE _tree[MAX_EXPR_PATTERN];
 static int _tree_pos[MAX_EXPR_PATTERN];
 static int _tree_length = 0;
 static int _tree_line = 0;
+static int _tree_current_line = 0;
 
 static void analyze_expr(short priority, short op_main);
 static void analyze_array();
@@ -81,9 +82,9 @@ static inline void add_pattern(PATTERN pattern)
 	if (_tree_length >= MAX_EXPR_PATTERN)
 		THROW_EXPR_TOO_COMPLEX();
 	_tree_pos[_tree_length] = COMPILE_get_column(_current);
-	if (JOB->line != _tree_line)
+	if (JOB->line != _tree_current_line)
 	{
-		_tree_line = JOB->line;
+		_tree_current_line = JOB->line;
 		_tree_pos[_tree_length] = -_tree_pos[_tree_length];
 	}
 	_tree[_tree_length] = pattern;
@@ -816,7 +817,7 @@ void TRANS_tree(bool check_statement, TRANS_TREE **result, int *count)
 	#endif
 
 	_tree_length = 0;
-	_tree_line = JOB->line;
+	_tree_line = _tree_current_line = JOB->line;
 	_current = JOB->current;
 	_level = 0;
 
