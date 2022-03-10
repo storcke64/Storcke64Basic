@@ -407,7 +407,7 @@ static void conv_data(const char *data, int len, GB_VARIANT_VALUE *val, Oid type
 		val->type = GB_T_BOOLEAN;
 		val->value._boolean = conv_boolean(data) ? -1 : 0;
 	}
-	else if (type == _oid[OID_INT2] && type == _oid[OID_INT4])
+	else if (type == _oid[OID_INT2] || type == _oid[OID_INT4])
 	{
 		GB.NumberFromString(GB_NB_READ_INTEGER, data, strlen(data), &conv);
 
