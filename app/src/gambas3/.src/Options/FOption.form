@@ -145,10 +145,8 @@
         Expand = True
         Text = ("Add vendor prefix or name to package names")
       }
-      { cmbPrefix ComboBox
-        MoveScaled(53,0,10,4)
-        ReadOnly = True
-        List = [("No"), ("Yes")]
+      { btnPrefix SwitchButton
+        MoveScaled(57,0,8,4)
       }
     }
     Index = 1

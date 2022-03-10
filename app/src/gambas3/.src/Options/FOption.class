@@ -154,7 +154,7 @@ Public Sub _new()
     [txtVendorPrefix, "/Packager/VendorPrefix", ""],
     [txtLicense, "/Packager/License", "General Public License"],
     [txtURL, "/Packager/URL", "www.endoftheinternet.com"],
-    [cmbPrefix, "/Packager/UsePrefix", 0],
+    [btnPrefix, "/Packager/UsePrefix", 0],
     [btnCompressPng, "/CompressPng", 1],
     [btnAutoTrans, "/AutomaticTranslation/Enabled", 0]]
   
@@ -1234,7 +1234,7 @@ End
 
 Public Sub cmbPrefix_Click()
 
-  Settings["/Packager/UsePrefix"] = cmbPrefix.Index = 1
+  Settings["/Packager/UsePrefix"] = btnPrefix.Value
 
 End
 

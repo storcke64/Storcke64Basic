@@ -48,8 +48,8 @@ Private Sub LoadSettings()
   ' Options
   
   btnUseTerminal.Value = Project.Config["/Debug/UseTerminal"]
-  btnRedirectStderr.Value = Project.Config["/Design/RedirectStderr"]
-  btnUseHttpServer.Value = Project.Config["/Design/UseHttpServer"]
+  btnRedirectStderr.Value = Project.Config["/Debug/RedirectStderr"]
+  btnUseHttpServer.Value = Project.Config["/Debug/UseHttpServer"]
 
   ' Environment
 
