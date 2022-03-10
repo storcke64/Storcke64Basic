@@ -18,7 +18,7 @@ Property Zoom As Float
 Property MonospaceFont As Font
 Property Url As String
 
-Private $hDoc As HtmlDocument
+Private $hDoc As HtmlViewDocument
 Private $hView As ScrollArea
 
 Private $bCssLoaded As Boolean
@@ -45,7 +45,7 @@ Public Sub _new()
   $hView.Tracking = True
   $hView.Focus = True
   
-  $hDoc = New HtmlDocument As "HtmlDocument"
+  $hDoc = New HtmlViewDocument As "HtmlViewDocument"
   $hDoc.SetMedia(Desktop.Width, Desktop.Height, Desktop.Resolution)
   View_Font
   
@@ -197,13 +197,13 @@ Private Sub GotoLink(sLink As String) As Boolean
 
 End
 
-Public Sub HtmlDocument_Link(sLink As String)
+Public Sub HtmlViewDocument_Link(sLink As String)
   
   GotoLink(sLink)
   
 End
 
-Public Sub HtmlDocument_Title(sTitle As String)
+Public Sub HtmlViewDocument_Title(sTitle As String)
   
   Raise Title(sTitle)
   
