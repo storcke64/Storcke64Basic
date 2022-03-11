@@ -18,17 +18,14 @@
     }
   }
   { fprInfo FileProperties
-    MoveScaled(2,2,36,37)
+    MoveScaled(2,2,38,38)
     Expand = True
   }
   { HBox1 HBox
     MoveScaled(1,43,40,4)
-    { Panel3 Panel
-      MoveScaled(11,0,3,4)
-      Expand = True
-    }
+    Centered = True
     { btnClose Button
-      MoveScaled(20,0,16,4)
+      MoveScaled(12,0,16,4)
       Text = ("Close")
       Picture = Picture["icon:/small/close"]
       Default = True
