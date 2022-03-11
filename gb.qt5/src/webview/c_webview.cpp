@@ -32,6 +32,7 @@
 #include <QWebEngineHistory>
 #include <QJsonDocument>
 #include <QContextMenuEvent>
+#include <QPointer>
 
 /*#include "ccookiejar.h"
 #include "cwebsettings.h"
@@ -946,14 +947,14 @@ MyWebEngineView::MyWebEngineView(QWidget *parent) : QWebEngineView(parent)
 
 void MyWebEngineView::clearPage(bool destroy)
 {
-	QWebEnginePage *p;
+	QPointer<QWebEnginePage> p;
 	if (destroy)
 		p = page();
 	
 	setPage(new MyWebPage(this));
 	QObject::connect(page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
 	
-	if (destroy)
+	if (destroy && p)
 		delete p;
 }
 
