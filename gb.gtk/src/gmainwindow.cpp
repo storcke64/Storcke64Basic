@@ -406,7 +406,6 @@ void gMainWindow::initialize()
 	_initial_focus = NULL;
 	_save_focus = NULL;
 	_title = NULL;
-	_current = NULL;
 	_resize_last_w = _resize_last_h = -1;
 	_min_w = _min_h = _default_min_w = _default_min_h = 0;
 	_csd_w  = _csd_h = -1;
@@ -1025,13 +1024,13 @@ void gMainWindow::showModal()
 
 	center();
 	show();
-	gtk_grab_add(border);
+	//gtk_grab_add(border);
 	gApplication::enterLoop(this);
 
 	_current = _previous;
 	_previous = NULL;
 
-	gtk_grab_remove(border);
+	//gtk_grab_remove(border);
 	gtk_window_set_modal(GTK_WINDOW(border), false);
 
 	if (!_persistent)
