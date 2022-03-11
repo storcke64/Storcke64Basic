@@ -1,8 +1,9 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,55,56)
+  MoveScaled(0,0,55,59)
   Arrangement = Arrange.Vertical
+  Spacing = True
   { tabInfo TabPanel
     MoveScaled(1,1,52,51)
     Expand = True
@@ -16,7 +17,6 @@
       Margin = True
       { picIcon PictureBox
         MoveScaled(3,1,10,8)
-        Picture = Picture["icon:/64/file"]
         AutoResize = True
       }
       { lblName TextLabel
@@ -187,12 +187,16 @@
     }
     Index = 0
   }
-  { btnClose Button
-    MoveScaled(31,51,17,4)
+  { panClose HBox
+    MoveScaled(2,53,48,4)
     Visible = False
-    Ignore = True
-    Text = ("Close")
-    Default = True
-    Cancel = True
+    Centered = True
+    { btnClose Button
+      MoveScaled(17,0,17,4)
+      Visible = False
+      Text = ("Close")
+      Default = True
+      Cancel = True
+    }
   }
 }

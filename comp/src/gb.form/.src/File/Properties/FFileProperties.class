@@ -27,6 +27,7 @@ Private $bIgnoreNextTaskError As Boolean
 Public Sub Run(sPath As String) As Boolean
   
   SetPath(sPath)
+  panClose.Show
   btnClose.Show
   panMediaClose.Show
   'tabInfo.Border = False
@@ -78,6 +79,8 @@ Private Sub RefreshPath()
 
   lblDir.Text = FormatPath(File.Dir($sPath))
   If String.Len(lblDir.Text) >= 32 Then lblDir.Tooltip = lblDir.Text
+  
+  picIcon.Picture = Picture["icon:/64/file"]
   
   If Exist($sPath) Then
   
@@ -298,18 +301,18 @@ Public Sub Add(hPanel As Control, sTitle As String) As Integer
 
 End
 
-Public Sub Form_Arrange()
-
-  Dim D As Integer
-  
-  If btnClose.Visible Then 
-    D = Desktop.Scale
-    If Me.Margin Then D += Desktop.Scale
-    btnClose.Move(Me.ClientW - btnClose.W - D, Me.ClientH - btnClose.H - D)
-  Endif
-
-End
-
+' Public Sub Form_Arrange()
+' 
+'   Dim D As Integer
+'   
+'   If btnClose.Visible Then 
+'     D = Desktop.Scale
+'     If Me.Margin Then D += Desktop.Scale
+'     btnClose.Move(Me.ClientW - btnClose.W - D, Me.ClientH - btnClose.H - D)
+'   Endif
+' 
+' End
+' 
 Public Sub btnClose_Click()
 
   Me.Close
