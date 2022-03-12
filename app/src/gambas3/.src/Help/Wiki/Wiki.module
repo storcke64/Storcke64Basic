@@ -343,7 +343,7 @@ Public Sub SolvePath(sPath As String) As String
 End
 
 
-Public Sub GetPageTitle(sPath As String) As String
+Public Sub GetPageTitle(sPath As String, Optional bForceReadFile As Boolean) As String
   
   Dim sFile As String
   Dim iPos As Integer
@@ -353,7 +353,7 @@ Public Sub GetPageTitle(sPath As String) As String
   sPath = SolvePath(sPath)
   bComp = sPath Begins "/comp/"
   
-  If bComp Then
+  If bComp And If Not bForceReadFile Then
     If sPath Like "/comp/*/*/?*" Then Return GetSymbolTitle(sPath)
     If sPath Like "/comp/*/?*" Then Return GetClassTitle(sPath)
   Endif
@@ -596,7 +596,16 @@ Public Sub GetSymbolTitle(Optional sPath As String) As String
   
   If Not hSym Then Return sClass & "." & sSymbol & " (" & sComponent & ")?"
 
-  sName = CSymbolInfo.GetType(hSym.Class)
+  sName = hSym.Class 
+  If sName Begins "." Then
+    sTitle = Trim(GetPageTitle("/comp" &/ sComponent &/ sClass, True)) ', True))
+    If sTitle Then
+      If Right(sTitle) = ")" Then sTitle = Trim(Left$(sTitle, RInStr(sTitle, "(") - 1))
+      sName = sTitle
+    Endif
+  Else
+    sName = CSymbolInfo.GetType(sName)
+  Endif
 
   Select Case Wiki.Symbol
     Case "_new"

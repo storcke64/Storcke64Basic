@@ -57,12 +57,15 @@ Public Sub ReadConfig()
   
   $bOffLine = Settings["/UseOfflineHelp"]
 
-  Project.SetSmallFont(panToolbar)
+  tabClass.TextFont = Project.GetSmallFont()
+  panToolbar.Font = tabClass.TextFont
+  panToolbar.H = tabClass.TabBarSize
+  
   If $bOffLine Then
-    tabClass.ShowTabBar = True
+    tabClass[1].Visible = True
   Else
-    tabClass.ShowTabBar = False
     tabClass.Index = 0
+    tabClass[1].Visible = False
   Endif
   
 End
@@ -73,7 +76,7 @@ Public Sub Form_Open()
   Dim sLang As String
   
   Settings.Read(Me)
-  Settings.Read(splHelp)
+  Settings.Read(sdpHelp)
   btnShowPanel.Value = Settings["/FHelpBrowser/ShowPanel", False]
   btnShowPanel_Click
   
@@ -103,7 +106,7 @@ End
 Public Sub Form_Close()
   
   Settings.Write(Me)
-  Settings.Write(splHelp)
+  Settings.Write(sdpHelp)
   Settings["/FHelpBrowser/ShowPanel"] = btnShowPanel.Value
   
 End
@@ -213,9 +216,9 @@ End
 
 Public Sub btnShowPanel_Click()
   
-  tabClass.Visible = btnShowPanel.Value
-  If btnShowPanel.Value Then FillTree
-  'If splHelp.Layout[0] = 0 Then splHelp.Layout = [1, 2]
+  FillTree
+  sdpHelp.Hidden = False
+  btnShowPanel.Hide
 
 End
 
@@ -436,5 +439,23 @@ End
 Public Sub tabClass_Arrange()
 
   spnSearch.Move(lstResult.X + (lstResult.W - spnSearch.W) \ 2, lstResult.Y + (lstResult.H - spnSearch.H) \ 2)
+
+End
+
+Public Sub tabClass_CloseAll()
+
+  sdpHelp.Hidden = True
+
+End
+
+Public Sub sdpHelp_Hide()
+
+  btnShowPanel.Show
+
+End
+
+Public Sub sdpHelp_Show()
+
+  btnShowPanel.Hide
 
 End
