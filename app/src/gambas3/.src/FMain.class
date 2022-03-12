@@ -1273,8 +1273,12 @@ Public Sub UpdateMenu()
   
   UpdateTranslate
   
-  For Each sAction In ["exec", "install", "compile", "compile-all", "test"]
+  For Each sAction In ["exec", "install", "compile", "compile-all"]
     Action[sAction].Visible = bVisible
+    Action[sAction].Enabled = bEnabled
+  Next
+  
+  For Each sAction In ["test", "test-suite"]
     Action[sAction].Enabled = bEnabled
   Next
   

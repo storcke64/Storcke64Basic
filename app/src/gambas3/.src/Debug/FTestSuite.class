@@ -17,7 +17,7 @@ Public Sub Form_Open()
 
 End
 
-Private Sub LoadTestWith()
+Private Sub UpdateTestWith()
 
   Dim sText As String
   Dim sKey As String
@@ -46,7 +46,7 @@ Private Sub LoadSuites()
   Dim sName As String
   Dim iTestWith As Integer
 
-  $cSuites = MTest.LoadSuites(ByRef iTestWith)
+  $cSuites = MTest.LoadSuites(ByRef iTestWith, cmbTestWith)
 
   'hSettings = New Settings(Project.Dir &/ ".test")
   'iCount = hSettings["/TestSuites/Count", 0]
@@ -60,7 +60,7 @@ Private Sub LoadSuites()
   
   '$cSuites.Clear
 
-  cmbTestWith.Add(("Default"))
+  'cmbTestWith.Add(("Default"))
   '$cSuites["$"] = SuiteToSelection(hSettings["/TestSuites/Default"])
   
   For Each $cSuites
@@ -68,13 +68,13 @@ Private Sub LoadSuites()
     sName = $cSuites.Key
     If sName = "$" Then Continue
     lvwSuite.Add(sName, sName)
-    cmbTestWith.Add(sName)
+    'cmbTestWith.Add(sName)
     
   Next
   
-  LoadTestWith
-  Try cmbTestWith.Index = iTestWith
-  If Error Then cmbTestWith.Index = 0
+  'LoadTestWith
+  'Try cmbTestWith.Index = iTestWith
+  'If Error Then cmbTestWith.Index = 0
 
   If cmbTestWith.Index = 0 Then
     lvwSuite.Key = "$"
@@ -176,7 +176,7 @@ Private Sub CreateSuite(Optional sCopy As String)
   lvwSuite.Add(sName, sName).Selected = True
   lvwSuite.Key = sName
   
-  LoadTestWith
+  UpdateTestWith
 
   btnRename_Click
   
@@ -216,7 +216,7 @@ Public Sub lvwSuite_Rename()
   lvwSuite.Remove(sOldName)
   lvwSuite.Add(sNewName, sNewName).Selected = True
   
-  LoadTestWith
+  UpdateTestWith
   
 End
 
@@ -295,7 +295,7 @@ Public Sub btnDelete_Click()
   $cSuites.Remove(sKey)
   lvwSuite.Remove(sKey)
   lvwSuite["$"].Selected = True
-  LoadTestWith
+  UpdateTestWith
 
 End
 

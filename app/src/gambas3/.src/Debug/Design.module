@@ -608,6 +608,7 @@ Private Sub AfterStop()
 
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
+  FDebugInfo.OnProjectDebug
   
   If $bExtern Then
     $hTimerExtern.Stop

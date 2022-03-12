@@ -143,9 +143,10 @@
       Picture = Picture["icon:/small/ok"]
       Shortcut = "F4"
     }
-    { mnuTestsuites Menu
+    { mnuTestSuites Menu
       Action = "test-suite"
       Text = ("Test suites") & "..."
+      Picture = Picture["icon:/small/more"]
       Shortcut = "Shift+F4"
     }
     { mnuSepCompile Menu
@@ -1894,6 +1895,7 @@
   { Action test-suite
     Text = "Test suites"
     Shortcut = "Shift+F4"
+    Picture = "icon:/small/more"
   }
   { Action tips
     Text = "Tips of the day"

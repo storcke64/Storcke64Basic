@@ -76,7 +76,7 @@ Private Sub SuiteToSelection(sSuite As String, aTest As String[]) As String[]
 
 End
 
-Public Sub LoadSuites(ByRef iTestWith As Integer) As Collection
+Public Sub LoadSuites(ByRef iTestWith As Integer, Optional hCombo As ComboBox) As Collection
 
   Dim hSettings As Settings
   Dim iCount As Integer
@@ -105,6 +105,26 @@ Public Sub LoadSuites(ByRef iTestWith As Integer) As Collection
   Next
   
   iTestWith = hSettings["/TestSuites/TestWith", 0]
+  
+  If hCombo Then  
+  
+    Object.Lock(hCombo)
+    
+    hCombo.Clear
+    hCombo.Add(("Default"))
+  
+    For Each cSuites
+      sName = cSuites.Key
+      If sName = "$" Then Continue
+      hCombo.Add(sName)
+    Next
+  
+    Try hCombo.Index = iTestWith
+    If Error Then hCombo.Index = 0
+    
+    Object.Unlock(hCombo)
+    
+  Endif
   
   Return cSuites
   
@@ -179,6 +199,16 @@ Public Sub SaveSuites(cSuites As Collection, iTestWith As Integer)
   Next
 
   hSettings["/TestSuites/Count"] = iCount
+  hSettings["/TestSuites/TestWith"] = iTestWith
+  hSettings.Save
+  
+End
+
+Public Sub SaveTestWith(iTestWith As Integer)
+
+  Dim hSettings As Settings
+  
+  hSettings = New Settings(Project.Dir &/ ".test")
   hSettings["/TestSuites/TestWith"] = iTestWith
   hSettings.Save
   

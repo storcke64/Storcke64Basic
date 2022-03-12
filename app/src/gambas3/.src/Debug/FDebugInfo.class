@@ -418,6 +418,9 @@ Public Sub wizDebug_Click()
       If Not Design.IsRunning() Then
         FSearch.RefreshBrowse
       Endif
+    Case TAB_TEST
+      UpdateComboSuite
+      
   End Select   
   
 End
@@ -1325,6 +1328,8 @@ Public Sub OnProjectDebug()
   panError.Hide
   sepError.Hide
   
+  cmbTest.Enabled = Not Project.Running
+  
   ' If Design.IsRemote() Then
   '   btnDebugProcess.Picture = Picture["icon:/small/connect"]
   ' Else
@@ -1805,3 +1810,15 @@ Public Sub btnRemoveAllBreakpoints_Click()
   
 End
 
+Private Sub UpdateComboSuite()
+
+  Dim iTestWith As Integer
+  MTest.LoadSuites(ByRef iTestWith, cmbTest)
+
+End
+
+Public Sub cmbTest_Click()
+
+  MTest.SaveTestWith(cmbTest.Index)
+
+End
