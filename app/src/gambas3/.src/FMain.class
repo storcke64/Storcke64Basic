@@ -1544,6 +1544,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
   Dim hEditor As FEditor
   Dim hCtrl As Object
   Dim hAction As Action
+  Dim bRunTest As Integer
   
   Select Key
       
@@ -1556,8 +1557,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "test"
       Project.Test()
     Case "test-suite"
-      FTestSuite.ShowDialog()
+      bRunTest = FTestSuite.ShowDialog()
       FDebugInfo.UpdateTestSuites
+      If bRunTest Then Project.Test()
     Case "pause"
       Design.Pause
     Case "stop"

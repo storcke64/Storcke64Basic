@@ -332,13 +332,15 @@ End
 
 Public Sub Form_KeyPress()
 
-  Select Case Key.Code
-    Case Key["+"]
+  Select Case Key.Shortcut
+    Case "+"
       btnNew.Value = True
-    Case Key.Delete, Key["-"]
+    Case "-", "Delete"
       btnDelete.Value = True
-    Case Key["Z"]
-      If Key.Control Then btnReset.Value = True
+    Case "CTRL+Z"
+      btnReset.Value = True
+    Case "F4"
+      btnRunTest.Value = True
   End Select
 
 End
@@ -346,5 +348,11 @@ End
 Public Sub lvwSuite_DblClick()
 
   Try lvwSuite.Current.Rename()
+
+End
+
+Public Sub btnRunTest_Click()
+
+  Me.Close(True)
 
 End
