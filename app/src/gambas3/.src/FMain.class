@@ -1557,6 +1557,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.Test()
     Case "test-suite"
       FTestSuite.ShowDialog()
+      FDebugInfo.UpdateTestSuites
     Case "pause"
       Design.Pause
     Case "stop"

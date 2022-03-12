@@ -400,10 +400,15 @@
             Visible = False
             Picture = Picture["icon:/small/cancel"]
           }
-          { pgbDownload ProgressBar
-            MoveScaled(33,0,18,4)
-            Visible = False
+          { Panel3 VBox
+            MoveScaled(33,0,18.875,3.875)
             Expand = True
+            Centered = True
+            { pgbDownload ProgressBar
+              MoveScaled(0,1,18,2)
+              Visible = False
+              Label = False
+            }
           }
         }
       }

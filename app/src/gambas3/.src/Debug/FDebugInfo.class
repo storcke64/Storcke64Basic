@@ -419,7 +419,7 @@ Public Sub wizDebug_Click()
         FSearch.RefreshBrowse
       Endif
     Case TAB_TEST
-      UpdateComboSuite
+      UpdateTestSuites
       
   End Select   
   
@@ -1810,7 +1810,7 @@ Public Sub btnRemoveAllBreakpoints_Click()
   
 End
 
-Private Sub UpdateComboSuite()
+Public Sub UpdateTestSuites()
 
   Dim iTestWith As Integer
   MTest.LoadSuites(ByRef iTestWith, cmbTest)
