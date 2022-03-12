@@ -7,26 +7,6 @@
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
-  { HBox1 HBox
-    MoveScaled(1,1,79,4)
-    Spacing = True
-    { Label1 Label
-      MoveScaled(0,0,9,4)
-      AutoResize = True
-      Text = ("Test with")
-    }
-    { cmbTestWith ComboBox
-      MoveScaled(10,0,20,4)
-      Expand = True
-      ReadOnly = True
-    }
-    { btnRunTest Button
-      MoveScaled(61,0,16,4)
-      AutoResize = True
-      Text = ("Run test")
-      Picture = Picture["icon:/small/ok"]
-    }
-  }
   { HBox2 Panel
     MoveScaled(1,8,77,42)
     Expand = True
@@ -110,17 +90,25 @@
   { HBox3 HBox
     MoveScaled(2,51,80,4)
     Spacing = True
-    Invert = True
-    { btnClose Button
-      MoveScaled(58,0,16,4)
-      Text = ("Close")
-      Picture = Picture["icon:/small/close"]
-      Cancel = True
+    { btnRunTest Button
+      MoveScaled(0,0,16,4)
+      AutoResize = True
+      Text = ("Run test")
+      Picture = Picture["icon:/small/ok"]
+    }
+    { Spring1 Spring
+      MoveScaled(22,1,14,2)
     }
     { btnReset Button
       MoveScaled(41,0,16,4)
       Text = ("Reset")
       Picture = Picture["icon:/small/undo"]
+    }
+    { btnClose Button
+      MoveScaled(58,0,16,4)
+      Text = ("Close")
+      Picture = Picture["icon:/small/close"]
+      Cancel = True
     }
   }
 }

@@ -1544,7 +1544,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
   Dim hEditor As FEditor
   Dim hCtrl As Object
   Dim hAction As Action
-  Dim bRunTest As Integer
+  Dim bRunTest As Boolean
   
   Select Key
       
