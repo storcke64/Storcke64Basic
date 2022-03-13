@@ -437,9 +437,9 @@ Private Sub IndentLineGambas(sLine As String) As String
           '$iLastSelect = $iLine
           iNextLevel = $iLevel + 2
         Else
-          If $cClose.Exist(sSym) Then Dec $iLevel
+          If Highlight.Types[0] = Highlight.Keyword And If $cClose.Exist(sSym) Then Dec $iLevel
           iNextLevel = $iLevel
-          If $cOpen.Exist(sSym) Then Inc iNextLevel
+          If Highlight.Types[0] = Highlight.Keyword And If $cOpen.Exist(sSym) Then Inc iNextLevel
         Endif
         
       Endif

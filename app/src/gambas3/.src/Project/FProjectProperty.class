@@ -53,6 +53,8 @@ Public Sub _new()
   hBorder.Color = Color.LightForeground
   gvwLibrary.Rows.Border = hBorder
   
+  splLibraries.MinSize = Desktop.Scale * 10
+  
 End
 
 Public Sub Form_Close()
