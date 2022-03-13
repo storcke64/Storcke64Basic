@@ -165,8 +165,8 @@ Private Sub PrintBody(iStart As Integer, iEnd As Integer)
     Print "<tr";
     If $iMode Then
       
+      Print " id=\""; Me.Name & ":" & CStr(iRow); "\""
       If $bNoCheck Then
-        Print " id=\""; Me.Name & ":" & CStr(iRow); "\""
         If IsSelected(iRow) Then Print " class=\"gw-selected\";"
       'Print Me._GetUpdateJS("onclick", "$" & CStr(iRow));
         Print " onmousedown=\"gw.table.select("; JS(Me.Name); ","; iRow; 
