@@ -36,7 +36,7 @@ GB_COMPONENT_PKG_CONFIG_AGAIN(
 
 GB_COMPONENT_PKG_CONFIG(
   gtk3opengl, GTK3OPENGL, gb.gtk3.opengl, [opengl],
-  'gtk+-3.0 >= 3.16'
+  'gtk+-3.0 >= 3.16' gl
 )
 
 AC_OUTPUT( \
