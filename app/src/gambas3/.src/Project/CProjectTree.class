@@ -96,7 +96,7 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
     sParent = KEY_CONNECTION
   Else If $cExtern.Exist(sPath) Then
     sParent = KEY_EXTERN
-    If Not $hTree.Exist(sParent) Then $hTree.Add(sParent, ("Files"), Picture["icon:/small/system"], $sDir)
+    If Not $hTree.Exist(sParent) Then $hTree.Add(sParent, ("Files"), Picture["icon:/small/link"], $sDir)
     bExtern = True
     Try sTitle = Project.Files[sPath].GetTitle()
     If sTitle Then sFile = sTitle
@@ -147,7 +147,11 @@ Private Sub AddFile(sDir As String, sFile As String, Optional bAfter As Boolean,
 
             If Not bIgnore Then
               'IF sFile = "ReportContainer.class" THEN STOP
-              If Project.UseInheritance Then sParent = FindKey(Project.GetParentClass(sPath))
+              If Project.UseInheritance Then 
+                sParent = FindKey(Project.GetParentClass(sPath))
+                If sParent Then bAfter = True
+              Endif 
+              
               If sParent Then
                 If File.Ext(sParent) <> "class" Then 
                   sParent = ""
