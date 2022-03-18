@@ -564,3 +564,54 @@ Public Sub EndModifyLines(Optional aLines As String[])
   
 End
 
+Public Sub LocateChange(ByRef sPath As String, ByRef iLine As Integer) As Boolean
+
+  Dim sLine As String
+  Dim sLeft As String
+  Dim Y As Integer
+  Dim iPos As Integer
+  
+  iLine = Me.Line
+  sLine = Me[iLine].Text
+  sLeft = Left(sLine)
+  If InStr("+-", sLeft) = 0 Then Return
+  
+  Y = iLine
+  While Y > 0
+    Dec Y
+    sLine = Me[Y].Text
+    If sLine Begins "@@" Then
+      iPos = InStr(sLine, "+")
+      If iPos = 0 Then Return
+      sLine = Mid$(sLine, iPos + 1)
+      iPos = InStr(sLine, ",")
+      If iPos = 0 Then Return
+      iLine = CInt(Left(sLine, iPos - 1)) + iLine - Y - 1
+      Break
+    Else If sLine Begins "-" Then
+      Dec iLine
+    Endif
+  Wend
+  
+  While Y > 0
+    Dec Y
+    sLine = Me[Y].Text
+    If sLine Begins "+++ " Then
+      sLine = Mid$(sLine, 5)
+      If sLine Begins Chr$(34) Then
+        iPos = 0
+        Do
+          iPos = InStr(sLine, "\\", iPos + 1)
+          If iPos = 0 Then Break
+          If IsDigit(Mid$(sLine, iPos + 1, 3)) Then sLine = Left(sLine, iPos - 1) & Chr$(Val("&O" & Mid$(sLine, iPos + 1, 3))) & Mid$(sLine, iPos + 4)
+        Loop
+        sLine = UnQuote(sLine)
+      Endif
+      sPath = VersionControl.GetRoot() &/ Mid$(sLine, 3)
+      Return
+    Endif
+  Wend
+  
+  Return True
+  
+End

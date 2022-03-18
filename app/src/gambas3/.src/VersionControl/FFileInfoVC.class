@@ -4,8 +4,12 @@ Class DesktopMime
 
 Static Private $sPath As String
 Static Private $sPath2 As String
+Static Private $bLocateChange As Boolean
+Static Private $iLine As Integer
 
 Public Sub Run(sPath As String) As Boolean
+  
+  Dim bRet As Boolean
   
   $sPath = sPath
   If Project.IsFormPath($sPath) Then 
@@ -14,7 +18,12 @@ Public Sub Run(sPath As String) As Boolean
     $sPath2 = ""
   Endif
   
-  Return Not FFileInfoVC.ShowModal()
+  bRet = Not FFileInfoVC.ShowModal()
+  
+  If $bLocateChange Then
+    $bLocateChange = False
+    Project.OpenFile($sPath, $iLine)
+  Endif
   
 End
 
@@ -129,12 +138,14 @@ Public Sub tabInfo_Click()
       
       btnRevert.Show
       chkShowHistoryChanges.Hide
+      btnLocateChange.Show
       LoadVersionControlInfo
     
     Case 1
     
       btnRevert.Hide
       chkShowHistoryChanges.Show
+      btnLocateChange.Hide
       If edtHistory.IsVoid() Then edtHistory.FillWithHistory($sPath, $sPath2)
     
   End Select
@@ -168,5 +179,13 @@ End
 Public Sub Form_Close()
 
   edtHistory.StopFillWithHistory
+
+End
+
+Public Sub btnLocateChange_Click()
+
+  If edtChange.LocateChange(ByRef $sPath, ByRef $iLine) Then Return
+  $bLocateChange = True
+  Me.Close
 
 End

@@ -701,7 +701,7 @@ Public Sub AddLine(Optional sLig As String)
 
   sAdd = Space$($iSaveLevel * 2) & sLig
   'PRINT sAdd
-  $sSave = $sSave & sAdd & gb.NewLine
+  $sSave &= sAdd & gb.NewLine
 
   'IF Left$(sLig, 1) = "{" THEN $iIndent = $iIndent + 1
 

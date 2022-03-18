@@ -1750,7 +1750,7 @@ End
 
 Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale As Boolean) As String[]
 
-  Dim cLine As New String[]
+  Dim aLine As New String[]
   Dim sProp As String
   Dim vVal As Variant
   Dim cProp As Collection
@@ -1864,13 +1864,13 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
         sLine &= StringArrayPropertyToString(vVal, bTranslate)
 
       Case "Font"
-        sLine = sLine & "Font[" & Quote(vVal) & "]"
+        sLine &= "Font[" & Quote(vVal) & "]"
 
       Case "Color"
         If Not IsNull(Val(vVal)) Then
-          sLine = sLine & vVal
+          sLine &= vVal
         Else
-          sLine = sLine & "Color." & vVal
+          sLine &= "Color." & vVal
         Endif
 
       Case "Picture"
@@ -1905,10 +1905,10 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
         sLine &= "ReportBrush[" & Quote$(vVal) & "]"
         
       Case "Connection"
-        sLine = sLine & "Connections[" & Quote$(vVal) & "]"
+        sLine &= "Connections[" & Quote$(vVal) & "]"
 
       Case "Constant"
-        sLine = sLine & hProp.ConstantClass & "." & vVal
+        sLine &= hProp.ConstantClass & "." & vVal
         
       Case "d"
 
@@ -1922,7 +1922,7 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
 
     If hProp.Virtual Then sLine = "#" & sLine
 
-    cLine.Add(sLine)
+    aLine.Add(sLine)
 
   Next
 
@@ -1950,11 +1950,11 @@ Public Function GetEachProperty(DX As Integer, DY As Integer, Optional bNoScale 
   
     If VirtualCoord Or If Virtual Then sLine = "#" & sLine
   
-    cLine.Add(sLine, 0)
+    aLine.Add(sLine, 0)
     
   Endif
 
-  Return cLine
+  Return aLine
 
 End
 

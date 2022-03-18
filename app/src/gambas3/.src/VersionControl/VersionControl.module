@@ -812,3 +812,9 @@ Public Sub GetBranchFromDir(sDir As String) As String
   If sDir Then Return Trim(Split(File.Load(sDir &/ "HEAD"), "/").Last)
 
 End
+
+Public Sub GetRoot() As String
+  
+  Return $hVC.GetRoot()
+  
+End

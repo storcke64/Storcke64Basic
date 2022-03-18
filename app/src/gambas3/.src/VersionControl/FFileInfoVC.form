@@ -39,7 +39,7 @@
     Index = 0
   }
   { HBox1 HBox
-    MoveScaled(4,54,78,4)
+    MoveScaled(4,54,96,4)
     Spacing = True
     { btnRevert Button
       MoveScaled(0,0,18,4)
@@ -47,17 +47,23 @@
       Text = Shortcut(("Undo changes"), "U")
       Picture = Picture["icon:/small/undo"]
     }
+    { btnLocateChange Button
+      MoveScaled(19,0,21,4)
+      AutoResize = True
+      Text = ("Locate change")
+      Picture = Picture["icon:/small/find"]
+    }
     { chkShowHistoryChanges CheckBox
-      MoveScaled(19,0,29,3)
+      MoveScaled(46,1,29,3)
       AutoResize = True
       Text = ("Display changes in history")
     }
     { Panel3 Panel
-      MoveScaled(55,0,1,4)
+      MoveScaled(76,0,1,4)
       Expand = True
     }
     { btnClose Button
-      MoveScaled(61,0,16,4)
+      MoveScaled(79,0,16,4)
       Text = ("Close")
       Picture = Picture["icon:/small/close"]
       Default = True
