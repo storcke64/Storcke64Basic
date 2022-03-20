@@ -160,6 +160,11 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   Dim hWindow As Window
   Dim hClass As CClassInfo
   Dim hClassDraw As CClassInfo
+  Dim iPos As Integer
+  Dim aInit As String[]
+  Dim sInit As String
+  Dim hProp As CPropertyInfo
+  Dim sProp As String
 
   'PRINT "> CreateControl "; sClass
 
@@ -169,7 +174,14 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   bExist = hClass <> Null
   If bExist Then
     DrawWith = hClass.DrawWith
-    If DrawWith Then sClass = DrawWith
+    If DrawWith Then 
+      sClass = DrawWith
+      iPos = InStr(sClass, ":")
+      If iPos Then
+        aInit = Split(Mid$(sClass, iPos + 1))
+        sClass = Left(sClass, iPos - 1)
+      Endif
+    Endif
   Endif
   NoParent = Not hClass.ConstructorNeedParent()
   
@@ -314,6 +326,29 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
       Endif
 
   End Select
+
+  If aInit Then
+    
+    For Each sInit In aInit
+      
+      iPos = InStr(sInit, "=")
+      If iPos = 0 Then Continue
+      
+      sProp = Left(sInit, iPos - 1)
+      With Project.Documentation.Classes[Kind]
+        Try hProp = .Properties[sProp]
+        If IsNull(hProp) Then Continue
+      End With
+  
+      If Len(hProp.Type) = 1 Then
+        Try Object.SetProperty(hCtrl, sProp, Eval(Mid$(sInit, iPos + 1)))
+      Else
+        Try Object.SetProperty(hCtrl, sProp, GetRealValue(hProp, Mid$(sInit, iPos + 1)))
+      Endif
+      
+    Next
+    
+  Endif
 
   'PRINT "< CreateControl "; sClass
 
