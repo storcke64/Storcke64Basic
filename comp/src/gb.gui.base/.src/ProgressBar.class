@@ -96,7 +96,7 @@ Public Sub UserControl_Draw()
     Paint.Save
     Paint.Background = iCol
     Paint.Translate($iPulse - iWP * 2, 0)
-    For I = 0 To Paint.W + iWP Step iWP
+    For I = 0 To Paint.W + iWP * 2 Step iWP
       Paint.MoveTo(0, Paint.H)
       Paint.LineTo(iWP, 0)
       Paint.LineTo(iWP + iWP / 2, 0)

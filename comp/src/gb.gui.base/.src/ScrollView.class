@@ -85,6 +85,7 @@ Public Sub AutoResizeContents_Timer()
     
     For Each hChild In $hCont.Children
       If Not hChild.Visible Then Continue
+      If hChild.Ignore Then Continue
       W = Max(W, hChild.X + hChild.W)
       H = Max(H, hChild.Y + hChild.H)
     Next
