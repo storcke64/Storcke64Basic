@@ -1185,17 +1185,17 @@ gw = {
         }
         
         for (i = start; i <= end; i++)
-          $(id + ':' + i).checked = checked;
+          $(id + '!' + i).checked = checked;
       }
       else
-        $(id + ':' + start).checked = checked;
+        $(id + '!' + start).checked = checked;
         
       gw.update(id, '!' + start + ':' + end, checked);
     },
   
     check: function(id, row, event)
     {
-      var elt = $(id + ':' + row);
+      var elt = $(id + '!' + row);
       var checked = !elt.checked;
       var last = $(id).gw_current;
       var len;
@@ -1215,11 +1215,6 @@ gw = {
       $(id).addClass('gw-unselectable');
       setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);
     },
-    
-    /*toggle: function(id, row)
-    {
-      gw.update(id, '?' + row, false);
-    },*/
     
     ensureVisible: function(id, row)
     {

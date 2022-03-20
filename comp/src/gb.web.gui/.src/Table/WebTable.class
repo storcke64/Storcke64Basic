@@ -93,7 +93,7 @@ Private Sub PrintRow(iRow As Integer)
     Else
       Print "<input type=\"checkbox\""; 
     Endif
-    Print " id=\""; Me.Name & ":" & CStr(iRow); "\"";
+    Print " id=\""; Me.Name & "!" & CStr(iRow); "\"";
     'Print Me._GetUpdateJS("onchange", "!" & CStr(iRow), "this.checked");
     If IsSelected(iRow) Then Print " checked";
     Print ">";
@@ -192,7 +192,6 @@ Private Sub PrintBody(iStart As Integer, iEnd As Integer)
   If iRow < $iCount Then Print "<tbody id=\""; Me.Name; ":more\"><tr><td><div class=\"gw-table-more\"><img src=\""; Application.Root &/ "gw-table-more.gif\"></td></tr></div></tbody>"
   
 End
-
 
 Public Sub _Render()
 

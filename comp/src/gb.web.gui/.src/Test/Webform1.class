@@ -299,3 +299,9 @@ Public Sub WebButton11_Click()
    If sResult Then WebTextBox1.Text = sResult
 
 End
+
+Public Sub btnCheck_Click()
+
+  WebTable1.ShowCheck = Not WebTable1.ShowCheck
+
+End
