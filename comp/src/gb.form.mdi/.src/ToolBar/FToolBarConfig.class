@@ -149,7 +149,7 @@ Private Sub GetActionText(sAction As String) As String
     Case "-"
       Return ("Space")
     Case Else
-      Return MAction.Actions[sAction].Text
+      Try Return MAction.Actions[sAction].Text
   End Select
 
 End
