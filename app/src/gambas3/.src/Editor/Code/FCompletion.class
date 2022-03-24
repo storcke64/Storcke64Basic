@@ -40,7 +40,7 @@ Static Public Sub _init()
   
   For I = 0 To 127
     sCar = Chr$(I)
-    If IsDigit(sCar) Or If IsLetter(sCar) Or If sCar = "_" Or If sCar = "$" Then Continue
+    If IsDigit(sCar) Or If IsLetter(sCar) Or If InStr("_$-", sCar) Then Continue
     $sWordSeparators &= sCar
   Next
   
