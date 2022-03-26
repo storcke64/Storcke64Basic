@@ -77,8 +77,6 @@ Public Sub Form_Open()
   
   Settings.Read(Me)
   Settings.Read(sdpHelp)
-  btnShowPanel.Value = Settings["/FHelpBrowser/ShowPanel", False]
-  btnShowPanel_Click
   
   ReadConfig
   
@@ -216,7 +214,6 @@ End
 
 Public Sub btnShowPanel_Click()
   
-  FillTree
   sdpHelp.Hidden = False
   btnShowPanel.Hide
 
@@ -457,5 +454,6 @@ End
 Public Sub sdpHelp_Show()
 
   btnShowPanel.Hide
+  FillTree
 
 End
