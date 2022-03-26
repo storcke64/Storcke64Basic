@@ -22,6 +22,7 @@ End
 Public Sub ReadConfig() As Boolean
   
   Dim bOffline As Boolean
+  Dim bRet As Boolean
   
   bOffline = Settings["/UseOfflineHelp"]
   If Not $hView Or If bOffline Xor $hView Is HtmlView Then
@@ -36,8 +37,15 @@ Public Sub ReadConfig() As Boolean
     Me.Proxy = $hView
     '$hView.Hide
     $hView.Show ' FIXME: Why calling Show() is needed with gb.qt5???
-    Return True
+    bRet = True
   Endif
+  
+  If bOffLine Then
+    $hView.Font = Font[Settings["/Help/Font"]]
+    $hView.MonospaceFont = Font[Settings["/Help/FixedFont"]]
+  Endif
+  
+  Return bRet
   
 End
 

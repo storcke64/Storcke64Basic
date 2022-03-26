@@ -960,6 +960,7 @@ Private Sub InitOffline()
 
   Dim sDir As String
   Dim sFile As String
+  Dim sCss As String
   
   If Not $bInitOffline Then
     
@@ -971,7 +972,10 @@ Private Sub InitOffline()
       Copy "help/wiki" &/ sFile To sDir &/ sFile
     Next
   
-    File.Save(sDir &/ "style.css", Replace(File.Load("help/wiki/style.css") & "\n" & File.Load("help/wiki/style-offline.css"), "<%/%>", sDir))
+    sCss = File.Load("help/wiki/style.css") & "\n" & File.Load("help/wiki/style-offline.css")
+    sCss = Replace(sCss, "font-family: sans-serif;", "")
+    sCss = Replace(sCss, "<%/%>", sDir)
+    File.Save(sDir &/ "style.css", sCss)
     
     $bInitOffline = True
     

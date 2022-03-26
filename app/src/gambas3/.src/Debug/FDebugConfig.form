@@ -289,11 +289,11 @@
           MoveScaled(0,0,20,4)
           Text = ("Protocol")
         }
-        { Label34 Label
-          MoveScaled(44,0,8,4)
-          Alignment = Align.Center
-          Border = Border.Raised
+        { TextBox1 TextBox
+          MoveScaled(46,0,7,4)
           Text = ("SSH")
+          Alignment = Align.Center
+          ReadOnly = True
         }
       }
       { HBox21 HBox

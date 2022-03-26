@@ -110,8 +110,8 @@ Public Sub _new()
     [txtConsoleFont, "/ConsoleFont", ""],
     [txtPrintFont, "/Printing/Font", ""],
     [txtGlobalFont, "/Font", ""],
-    [txtHelpDefaultFont, "/Browser/Font", ""],
-    [txtHelpFixedFont, "/Browser/FixedFont", ""],
+    [txtHelpDefaultFont, "/Help/Font", ""],
+    [txtHelpFixedFont, "/Help/FixedFont", ""],
     [btnCloseWithMiddleClick, "/CloseWithMiddleClick", 0],
     [txtTabSize, "/DefaultTabSize", 2],
     [txtCompilerJobs, "/CompilerJobs", 1],
@@ -1408,10 +1408,14 @@ Private Sub RefreshBrowser()
 
   If $bNoChange Then Return
 
-  Settings["/Browser/Font"] = txtHelpDefaultFont.Value
-  Settings["/Browser/FixedFont"] = txtHelpFixedFont.Value
+  Settings["/Help/Font"] = txtHelpDefaultFont.Value
+  Settings["/Help/FixedFont"] = txtHelpFixedFont.Value
   
   Project.InitWebView
+  FProperty.ReadConfig
+  FCompletion.ReadConfig
+  FSignature.ReadConfig
+  If Class.IsLoaded("FHelpBrowser") Then FHelpBrowser.ReadConfig
 
 End
 
