@@ -72,6 +72,7 @@ Private Sub LoadVersionControlInfo()
     edtChange.Text = sDiff
     edtChange.Show
     lblVersioning.Hide
+    btnLocateChange.Show
   Else
     edtChange.Hide
     If Project.IsLocked($sPath) Then
@@ -84,6 +85,7 @@ Private Sub LoadVersionControlInfo()
       bHideUndoButton = True
     Endif
     lblVersioning.Show
+    btnLocateChange.Hide
   Endif
   
   btnRevert.Visible = Not bHideUndoButton
