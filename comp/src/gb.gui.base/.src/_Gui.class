@@ -381,3 +381,23 @@ Static Public Sub GetForeground(hCtrl As Control, iFg As Integer) As Integer
   Return Color.Merge(iFg, Style.BackgroundOf(hCtrl))
 
 End
+
+Static Private Sub GetTopLevel(hCtrl As Control) As Window
+
+  Dim hWin As Window
+  
+  Do
+    hWin = hCtrl.Window
+    If hWin.TopLevel Then Return hWin
+    hCtrl = hWin.Parent
+  Loop
+  
+End
+
+
+Static Public Sub MustAnimate(hCtrl As Control) As Boolean
+  
+  If Not Application.Animations Then Return
+  If GetTopLevel(hCtrl) = Application.ActiveWindow Then Return True
+  
+End
