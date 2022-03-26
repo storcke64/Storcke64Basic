@@ -42,8 +42,10 @@ Private $hObs As Observer
 Private $iIdealW As Integer
 Private $bSelected As Boolean
 Private $sToolTip As String
-Private $bInsideButton As Boolean
-Private $bInsideRemove As Boolean
+
+Private Enum BUTTON_NONE, BUTTON_REMOVE, BUTTON_OPEN
+Private $iInside As Integer
+Private $iPressed As Integer
 
 Public Sub _new()
   
@@ -115,22 +117,22 @@ End
 Public Sub DrawingArea_MouseMove()
   
   Dim DS As Integer = Desktop.Scale
-  Dim bInButton As Boolean
-  Dim bInRemove As Boolean
   Dim sTooltip As String
+  Dim iInside As Integer
   
   If Rect(DS, $hDrawingArea.H - DS * 3, $hDrawingArea.W - DS * 2, DS * 2).Contains(Mouse.X, Mouse.Y) Then sTooltip = $sToolTip
   If sTooltip <> $hDrawingArea.Tooltip Then $hDrawingArea.Tooltip = sTooltip
   
-  If ShowButton Then bInButton = Rect(0, $hDrawingArea.H - DS * 4, $hDrawingArea.W, DS * 4).Contains(Mouse.X, Mouse.Y)
-  If bInButton <> $bInsideButton Then
-    $bInsideButton = bInButton
-    $hDrawingArea.Refresh
+  If ShowButton And If Rect(0, $hDrawingArea.H - DS * 4, $hDrawingArea.W, DS * 4).Contains(Mouse.X, Mouse.Y) Then
+    iInside = BUTTON_OPEN
+  Else If ShowRemove And If Rect($hDrawingArea.W - DS - $hRemove.W, DS, $hRemove.W, $hRemove.H).Contains(Mouse.X, Mouse.Y) Then
+    iInside = BUTTON_REMOVE
+  Else
+    iInside = BUTTON_NONE
   Endif
 
-  If ShowRemove Then bInRemove = Rect($hDrawingArea.W - DS - $hRemove.W, DS, $hRemove.W, $hRemove.H).Contains(Mouse.X, Mouse.Y)
-  If bInRemove <> $bInsideRemove Then
-    $bInsideRemove = bInRemove
+  If iInside <> $iInside Then
+    $iInside = iInside
     $hDrawingArea.Refresh
   Endif
   
@@ -323,7 +325,7 @@ Public Sub DrawingArea_Draw()
   
   If ShowRemove And If $bHighlight Then
     Paint.FillRect(Paint.W - $hRemove.W - P - P \ 2, P \ 2, $hRemove.W + P, $hRemove.H + P, iBg)
-    Paint.DrawImage(If($bInsideRemove, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
+    Paint.DrawImage(If($iInside = BUTTON_REMOVE, $hRemove, $hRemoveGray), Paint.W - $hRemove.W - P, P)
   Endif
   
   If ShowButton And If $bHighlight Then
@@ -332,13 +334,16 @@ Public Sub DrawingArea_Draw()
     W = Paint.W
     H = P * 4
     Paint.Font.Grade = -1
-    If $bInsideButton Then
-      Paint.Background = Color.SelectedBackground
-      Paint.DrawTextShadow(("Open in another window") & "…", X + P, Y, W - P * 2, H, Align.Normal)
+    'Style.PaintButton(X + 2, Y + 2, W - 4, H - 4, Mouse.Button = Mouse.Left, Style.Normal, Not $bInsideButton, Color.ButtonBackground)
+    Paint.Background = Color.ButtonForeground
+    If $iInside = BUTTON_OPEN Then
+      Paint.FillRect(X + 4, Y + 4, W - 8, H - 8, If($iPressed = $iInside, Color.LightBackground, Color.Merge(Color.LightBackground, Color.TextBackground)))
+      'Paint.Background = Color.SelectedBackground
+      Paint.DrawTextShadow(("Open in another window") & "…", X + P, Y, W - P * 2, H, Align.Center)
     Else
-      Paint.Background = Color.LightForeground
+      Paint.DrawRect(X + 4, Y + 4, W - 8, H - 8, Color.LightBackground, 1)
     Endif
-    Paint.DrawText(("Open in another window") & "…", X + P, Y, W - P * 2, H, Align.Normal)
+    Paint.DrawText(("Open in another window") & "…", X + P, Y, W - P * 2, H, Align.Center)
   Else If Not Template Then
     Paint.Font.Grade = -1
     Paint.Background = Color.LightForeground
@@ -461,12 +466,21 @@ Private Function Info_Read() As CProjectInfo
 
 End
 
-Public Sub DrawingArea_MouseUp()
+Public Sub DrawingArea_MouseDown()
   
   If Mouse.Left Then 
-    If $bInsideButton Then
+    $iPressed = $iInside
+    $hDrawingArea.Refresh
+  Endif
+  
+End
+
+Public Sub DrawingArea_MouseUp()
+  
+  If Mouse.Left And If $iInside = $iPressed Then 
+    If $iInside = BUTTON_OPEN Then
       Raise ButtonClick
-    Else If $bInsideRemove Then
+    Else If $iInside = BUTTON_REMOVE Then
       Raise RemoveClick
       Stop Event
     Else
@@ -474,6 +488,7 @@ Public Sub DrawingArea_MouseUp()
     Endif
     $hDrawingArea.Refresh
   Endif
+  $iPressed = BUTTON_NONE
   
 End
 
