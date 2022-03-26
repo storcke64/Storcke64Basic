@@ -352,7 +352,7 @@ Private Sub UpdateButtons()
   
   btnUp.Enabled = lstData.Index > 0
   btnDown.Enabled = (lstData.Index >= 0) And (lstData.Index < (lstData.Count - 1))
-  btnRemove.Enabled = lstData.Index > 0
+  btnRemove.Enabled = lstData.Index >= 0
   
 End
 
