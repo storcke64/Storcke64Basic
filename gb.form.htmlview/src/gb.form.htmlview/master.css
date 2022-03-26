@@ -31,9 +31,9 @@ script {
 
 body {
 	display:block; 
-	margin:1em;
-  height:100%;
-  width:100%;
+	margin:1em; 
+    height:100%;
+    width:100%;
 }
 
 p {
@@ -50,14 +50,6 @@ b, strong {
 i, em {
 	display:inline; 
 	font-style:italic;
-}
-
-u {
-  text-decoration: underline;
-}
-
-s {
-  text-decoration: line-through;
 }
 
 center 
@@ -229,7 +221,7 @@ td[nowrap], th[nowrap] {
 }
 
 tt, code, kbd, samp {
-    font-family: monospace;
+    font-family: monospace
 }
 
 pre, xmp, plaintext, listing {
@@ -248,7 +240,7 @@ ul, menu, dir {
     margin-bottom: 1em;
     margin-left: 0;
     margin-right: 0;
-    padding-left: 40px
+    padding-left: 4em;
 }
 
 ol {
@@ -258,7 +250,7 @@ ol {
     margin-bottom: 1em;
     margin-left: 0;
     margin-right: 0;
-    padding-left: 40px
+    padding-left: 4em;
 }
 
 li {
@@ -273,9 +265,13 @@ ol ol ul, ol ul ul, ul ol ul, ul ul ul {
     list-style-type: square;
 }
 
+li:first-child > p {
+  margin-top: 0;
+}
+
 dd {
     display: block;
-    margin-left: 40px;
+    margin-left: 4em;
 }
 
 dl {
@@ -299,8 +295,8 @@ blockquote {
 	display: block;
 	margin-top: 1em;
 	margin-bottom: 1em;
-	margin-left: 40px;
-	margin-left: 40px;
+	margin-left: 4em;
+	margin-right: 4em;
 }
 
 /*********** FORM ELEMENTS ************/

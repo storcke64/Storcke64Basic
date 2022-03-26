@@ -26,9 +26,14 @@
       MoveScaled(16,0,4,4)
       Picture = Picture["icon:/small/right"]
     }
+    { btnFont Button
+      MoveScaled(24,0,16,4)
+      Text = ("Font")
+    }
   }
   { HtmlView1 HtmlView
     MoveScaled(9,24,38,30)
+    Font = Font["16"]
     Background = Color.White
     Expand = True
     MonospaceFont = Font["Ubuntu Mono"]

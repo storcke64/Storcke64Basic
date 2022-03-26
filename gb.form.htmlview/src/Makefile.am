@@ -15,6 +15,7 @@ libgumbo_la_SOURCES = \
 	gumbo/attribute.h \
 	gumbo/char_ref.c \
 	gumbo/char_ref.h \
+	gumbo/char_ref.rl \
 	gumbo/error.c \
 	gumbo/error.h \
 	gumbo/gumbo.h \
@@ -124,6 +125,7 @@ gb_form_htmlview_la_SOURCES = \
 	litehtml/num_cvt.cpp \
 	litehtml/num_cvt.h \
 	litehtml/os_types.h \
+	litehtml/strtod.cpp \
 	litehtml/src.txt \
 	litehtml/style.cpp \
 	litehtml/style.h \

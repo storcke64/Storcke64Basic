@@ -1,6 +1,6 @@
 #include "html.h"
 #include "types.h"
-#include "html_tag.h"
+#include "utf8_strings.h"
 
 void litehtml::trim(tstring &s) 
 {
@@ -18,9 +18,9 @@ void litehtml::trim(tstring &s)
 
 void litehtml::lcase(tstring &s) 
 {
-	for(tstring::iterator i = s.begin(); i != s.end(); i++)
+	for(tchar_t & i : s)
 	{
-		(*i) = t_tolower(*i);
+		i = t_tolower(i);
 	}
 }
 
@@ -54,7 +54,7 @@ int litehtml::value_index( const tstring& val, const tstring& strings, int defVa
 	int idx = 0;
 	tstring::size_type delim_start	= 0;
 	tstring::size_type delim_end	= strings.find(delim, delim_start);
-	tstring::size_type item_len		= 0;
+	tstring::size_type item_len;
 	while(true)
 	{
 		if(delim_end == tstring::npos)
@@ -102,7 +102,7 @@ void litehtml::split_string(const tstring& str, string_vector& tokens, const tst
 
 	tstring::size_type token_start	= 0;
 	tstring::size_type token_end	= str.find_first_of(all_delims, token_start);
-	tstring::size_type token_len	= 0;
+	tstring::size_type token_len;
 	tstring token;
 	while(true)
 	{
@@ -168,69 +168,7 @@ void litehtml::join_string(tstring& str, const string_vector& tokens, const tstr
 	str = ss.str();
 }
 
-double litehtml::strtod(const char *nptr, char **endptr)
-{
-	tstring num;
-	tstring dec;
-	const char *p;
-	double val = 0;
-	bool neg;
-	double f;
-	int i;
-	
-	p = nptr;
-	
-	if (*p == '-')
-	{
-		neg = true;
-		p++;
-	}
-	else
-	{
-		neg = false;
-		if (*p == '+')
-			p++;
-	}
-	
-	while (*p)
-	{
-		if (*p == '.' || !t_isdigit(*p))
-			break;
-		num += *p++;
-	}
-	
-	f = 1.0;
-	for (i = num.length() - 1; i >= 0; i--)
-	{
-		val += (num[i] - '0') * f;
-		f *= 10.0;
-	}
-	
-	if (*p == '.')
-	{
-		p++;
-		while(*p)
-		{
-			if (!t_isdigit(*p))
-				break;
-			dec += *p++;
-		}
-		
-		f = 1.0;
-		for (i = 0; i < dec.length(); i++)
-		{
-			f /= 10.0;
-			val += (dec[i] - '0') * f;
-		}
-	}
-	
-	if (endptr)
-		*endptr = (char *)p;
-	
-	return neg ? (-val) : val;
-}
-
-int litehtml::strcasecmp(const char *s1, const char *s2)
+int litehtml::t_strcasecmp(const litehtml::tchar_t *s1, const litehtml::tchar_t *s2)
 {
 	int i, d, c;
 
@@ -247,7 +185,7 @@ int litehtml::strcasecmp(const char *s1, const char *s2)
 	}
 }
 
-int litehtml::strncasecmp(const char *s1, const char *s2, size_t n)
+int litehtml::t_strncasecmp(const litehtml::tchar_t *s1, const litehtml::tchar_t *s2, size_t n)
 {
 	int i, d, c;
 
@@ -264,4 +202,44 @@ int litehtml::strncasecmp(const char *s1, const char *s2, size_t n)
 	return 0;
 }
 
-
+void litehtml::document_container::split_text(const char* text, const std::function<void(const tchar_t*)>& on_word, const std::function<void(const tchar_t*)>& on_space)
+{
+	std::wstring str;
+	std::wstring str_in = (const wchar_t*)(utf8_to_wchar(text));
+	ucode_t c;
+	for (size_t i = 0; i < str_in.length(); i++)
+	{
+		c = (ucode_t)str_in[i];
+		if (c <= ' ' && (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'))
+		{
+			if (!str.empty())
+			{
+				on_word(litehtml_from_wchar(str.c_str()));
+				str.clear();
+			}
+			str += c;
+			on_space(litehtml_from_wchar(str.c_str()));
+			str.clear();
+		}
+		// CJK character range
+		else if (c >= 0x4E00 && c <= 0x9FCC)
+		{
+			if (!str.empty())
+			{
+				on_word(litehtml_from_wchar(str.c_str()));
+				str.clear();
+			}
+			str += c;
+			on_word(litehtml_from_wchar(str.c_str()));
+			str.clear();
+		}
+		else
+		{
+			str += c;
+		}
+	}
+	if (!str.empty())
+	{
+		on_word(litehtml_from_wchar(str.c_str()));
+	}
+}

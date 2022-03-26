@@ -12,7 +12,7 @@
 
 ## Compatibility
 
-**litehtml** is compatible with any platform suported by C++ and STL. For Windows MS Visual Studio 2013 is recommended. **litehtml** supports both UTF-8 and Unicode strings on Windows and UTF-8 strings on Linux.
+**litehtml** is compatible with any platform suported by C++ and STL. For Windows MS Visual Studio 2013 is recommended. **litehtml** supports both UTF-8 and Unicode strings on Windows and UTF-8 strings on Linux and Haiku.
 
 ## Support for HTML and CSS standards
 
@@ -25,18 +25,14 @@ You can [download the simple browser](http://www.litehtml.com/download.html) (**
 The litebrowser source codes are available on GitHub:
   * [For Windows](https://github.com/litehtml/litebrowser)
   * [For Linux](https://github.com/litehtml/litebrowser-linux)
+  * [For Haiku](https://github.com/adamfowleruk/litebrowser-haiku)
 
 ## License
 
 **litehtml** is distributed under [New BSD License](https://opensource.org/licenses/BSD-3-Clause).
 The **gumbo-parser** is disributed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
-## Support litehtml project
+## Links
 
-If you like the work **litehtml** is doing please consider a small donation:
-
-[ ![PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif) ](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UHBQG6EAFCRBA)
-
-Bitcoin: **1CS1174GVSLbP33TBp8RFwqPS6KmQK6kLY**
-
-![BitCoin](https://www.tordex.com/assets/images/litehtml-bitcoin.png)
+  * [source code](https://github.com/litehtml/litehtml)
+  * [website](http://www.litehtml.com/)

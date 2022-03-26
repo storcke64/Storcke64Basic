@@ -111,7 +111,6 @@ public:
 	void draw(int x, int y, int w, int h);
 	int getWidth() const;
 	int getHeight() const;
-	int pt_to_px_const(int pt) const;
 	
 	void rounded_rectangle(const litehtml::position &pos, const litehtml::border_radiuses &radius, bool keep = false, bool back = false);
 	void begin_clip();
@@ -128,7 +127,7 @@ protected:
 	virtual void delete_font(litehtml::uint_ptr hFont) override;
 	virtual int text_width(const litehtml::tchar_t* text, litehtml::uint_ptr hFont) override;
 	virtual void draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* text, litehtml::uint_ptr hFont, litehtml::web_color color, const litehtml::position& pos) override;
-	virtual int pt_to_px(int pt) override;
+	virtual int pt_to_px(int pt) const;
 	virtual int get_default_font_size() const override;
 	virtual const litehtml::tchar_t* get_default_font_name() const override;
 	virtual void draw_list_marker(litehtml::uint_ptr hdc, const litehtml::list_marker& marker) override;
@@ -236,7 +235,13 @@ litehtml::uint_ptr html_document::create_font(const litehtml::tchar_t* faceName,
 		len -=2;
 	}
 	
-	if (strncasecmp(faceName, "monospace", len) == 0 && THIS->monospace_font_name)
+	if (litehtml::t_strncasecmp(faceName, "sans-serif", len) == 0)
+	{
+		faceName = get_default_font_name();
+		len = strlen((char *)faceName);
+	}
+	
+	if (litehtml::t_strncasecmp(faceName, "monospace", len) == 0 && THIS->monospace_font_name)
 	{
 		faceName = THIS->monospace_font_name;
 		len = GB.StringLength(THIS->monospace_font_name);
@@ -283,6 +288,8 @@ litehtml::uint_ptr html_document::create_font(const litehtml::tchar_t* faceName,
 	ret = GB.Call(&func, 1, FALSE);
 	fm->x_height = ret->_integer.value;
 	
+	//fm->draw_spaces = (italic == litehtml::fontStyleItalic || decoration);
+	
 	GB.Ref(font);
 	return (litehtml::uint_ptr)font;
 }
@@ -296,15 +303,24 @@ int html_document::text_width(const litehtml::tchar_t* text, litehtml::uint_ptr 
 {
 	static GB_FUNCTION _func = { 0 };
 	GB_VALUE *ret;
+	GET_CURRENT();
 	
-	if (!_func.object)
-		GB.GetFunction(&_func, (void *)hFont, "TextWidth", "s", "i");
+	if (CURRENT)
+	{
+		float w;
+		PAINT->TextSize(CURRENT, text, strlen(text), &w, NULL);
+		return (int)ceil(w);
+	}
 	else
+	{
+		if (!GB_FUNCTION_IS_VALID(&_func))
+			GB.GetFunction(&_func, (void *)hFont, "TextWidth", "s", "i");
 		_func.object = (void *)hFont;
-	
-	GB.Push(1, GB_T_STRING, text, strlen(text));
-	ret = GB.Call(&_func, 1, FALSE);
-	return ret->_integer.value;
+
+		GB.Push(1, GB_T_STRING, text, strlen(text));
+		ret = GB.Call(&_func, 1, FALSE);
+		return ret->_integer.value;
+	}
 }
 
 void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* text, litehtml::uint_ptr hFont, litehtml::web_color color, const litehtml::position& pos)
@@ -319,7 +335,7 @@ void html_document::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t* t
 	end_clip();
 }
 
-int html_document::pt_to_px_const(int pt) const
+int html_document::pt_to_px(int pt) const
 {
 	GET_CURRENT();
 	if (CURRENT)
@@ -328,14 +344,9 @@ int html_document::pt_to_px_const(int pt) const
 		return (int)(0.4 + pt * THIS->resolution / 72.0);
 }
 
-int html_document::pt_to_px(int pt)
-{
-	return pt_to_px_const(pt);
-}
-
 int html_document::get_default_font_size() const
 {
-	return pt_to_px_const(THIS->default_font_size ? THIS->default_font_size : 12);
+	return pt_to_px(THIS->default_font_size ? THIS->default_font_size : 12);
 }
 
 const litehtml::tchar_t* html_document::get_default_font_name() const
@@ -1001,8 +1012,15 @@ int html_document::find_anchor(const litehtml::tstring& anchor)
 
 static void reload_document(void *_object)
 {
-	if (THIS->doc && THIS->html && *THIS->html && THIS->doc->load(THIS->html))
-		GB.Error("Unable to parse HTML");
+	delete THIS->doc;
+	
+	if (THIS->html && *THIS->html)
+	{	
+		THIS->doc = new html_document(THIS->context, THIS);
+
+		if (THIS->doc->load(THIS->html))
+			GB.Error("Unable to parse HTML");
+	}
 }
 
 //-------------------------------------------------------------------------
@@ -1072,16 +1090,11 @@ END_PROPERTY
 BEGIN_METHOD(HtmlDocument_LoadCss, GB_STRING css)
 
 	if (THIS->context)
-	{
 		delete THIS->context;
-		delete THIS->doc;
-	}
 	
 	THIS->context = new litehtml::context;
 	THIS->context->load_master_stylesheet(GB.ToZeroString(ARG(css)));
 
-	THIS->doc = new html_document(THIS->context, THIS);
-	
 	reload_document(THIS);
 
 END_METHOD
@@ -1092,21 +1105,11 @@ BEGIN_METHOD_VOID(HtmlDocument_Reload)
 
 END_METHOD
 
-BEGIN_METHOD(HtmlDocument_SetDefaultFont, GB_OBJECT font)
+BEGIN_METHOD(HtmlDocument_SetDefaultFont, GB_STRING name; GB_INTEGER size)
 
-	GB_VALUE *ret;
-	GB_FONT font;
+	THIS->default_font_size = VARG(size);
+	GB.StoreString(ARG(name), &THIS->default_font_name);
 	
-	font = VARG(font);
-	if (GB.CheckObject(font))
-		return;
-	
-	ret = GB.GetProperty(font, "Size");
-	THIS->default_font_size = (int)ret->_float.value;
-	
-	ret = GB.GetProperty(font, "Name");
-	GB.StoreString((GB_STRING *)ret, &THIS->default_font_name);
-
 END_METHOD
 
 BEGIN_METHOD(HtmlDocument_SetMonospaceFont, GB_STRING name)
@@ -1193,7 +1196,7 @@ GB_DESC HtmlDocumentDesc[] =
 	
 	GB_PROPERTY("Html", "s", HtmlDocument_Html),
 	GB_METHOD("LoadCss", NULL, HtmlDocument_LoadCss, "(Css)s"),
-	GB_METHOD("SetDefaultFont", NULL, HtmlDocument_SetDefaultFont, "(Font)Font;"),
+	GB_METHOD("SetDefaultFont", NULL, HtmlDocument_SetDefaultFont, "(Name)s(Size)i"),
 	GB_METHOD("SetMonospaceFont", NULL, HtmlDocument_SetMonospaceFont, "(Name)s"),
 	GB_METHOD("SetMedia", NULL, HtmlDocument_SetMedia, "(ScreenWidth)i(ScreenHeight)i(Resolution)i"),
 	GB_METHOD("Reload", NULL, HtmlDocument_Reload, NULL),

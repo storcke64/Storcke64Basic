@@ -47,7 +47,7 @@ Public Sub _new()
   
   $hDoc = New HtmlViewDocument As "HtmlViewDocument"
   $hDoc.SetMedia(Desktop.Width, Desktop.Height, Desktop.Resolution)
-  View_Font
+  $hDoc.SetDefaultFont(Me.Font.Name, Me.Font.Size)
   
   Me.Proxy = $hView
   
@@ -55,7 +55,8 @@ End
 
 Public Sub View_Font()
   
-  $hDoc.SetDefaultFont($hView.Font)
+  $hDoc.SetDefaultFont($hView.Font.Name, $hView.Font.Size)
+  Reload()
   
 End
 
@@ -70,6 +71,9 @@ Public Sub View_Arrange()
      W -= 2
      H -= 2
   Endif
+  
+  If W < 1 Or If H < 1 Then Return
+  
   $hDoc.Render(W / $fZoom, H / $fZoom)
   
   W = $hDoc.W * $fZoom
@@ -335,7 +339,6 @@ Public Sub Reload()
   $hView.Refresh
   
 End
-
 
 Private Function MonospaceFont_Read() As Font
 
