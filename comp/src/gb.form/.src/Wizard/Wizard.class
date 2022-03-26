@@ -193,7 +193,7 @@ Private Sub Index_Write(iIndex As Integer)
   
   Endif
 
-  If Application.Animations And If $iAllowAnimation Then DoAnimate($iCurrent, iIndex)
+  If _Gui.MustAnimate(Me) And If $iAllowAnimation Then DoAnimate($iCurrent, iIndex)
 
   Me._Container = $aCont[iIndex]
 

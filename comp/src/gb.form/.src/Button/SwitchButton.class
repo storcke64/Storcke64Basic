@@ -157,7 +157,7 @@ End
 
 Private Sub ToggleAnimate()
   
-  If Application.Animations Then
+  If _Gui.MustAnimate(Me) Then
     If $fValue < 0.5 Then
       $fTargetValue = 1
     Else

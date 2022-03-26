@@ -544,7 +544,11 @@ End
 
 Private Sub TogglePanel()
 
+  Dim bAnim As Boolean
+
   If Me.Parent.Design Then Return
+
+  bAnim = _Gui.MustAnimate(Me)
 
   If $bVisible Then
 
@@ -569,7 +573,7 @@ Private Sub TogglePanel()
     
     $bVisible = False
     
-    If Application.Animations Then
+    If bAnim Then
       
       $iTarget = If($bTransparent, 1, BUTTON_H)
       
@@ -598,7 +602,7 @@ Private Sub TogglePanel()
       $hTimerAnim = Null
     Endif
     
-    If Application.Animations Then
+    If bAnim Then
       
       panSide.Show
       sepSide.Visible = $bSeparator
