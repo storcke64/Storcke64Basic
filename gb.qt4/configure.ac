@@ -6,6 +6,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.qt4)
 AC_PROG_LIBTOOL
+PKG_PROG_PKG_CONFIG
 
 AC_ARG_ENABLE(
   qt-translation,
@@ -46,7 +47,7 @@ GB_COMPONENT_PKG_CONFIG(
   'QtCore >= 4.5.0' QtGui QtOpenGL x11 gl
 )
 
-MOC=`pkg-config --variable=moc_location QtCore`
+MOC=`$PKG_CONFIG --variable=moc_location QtCore`
 AC_SUBST(MOC)
 
 AC_OUTPUT( \

@@ -6,6 +6,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.qt5)
 AC_PROG_LIBTOOL
+PKG_PROG_PKG_CONFIG
 
 GB_CHECK_XWINDOW
 AM_CONDITIONAL(XWINDOW, test x"$have_x" = xyes)
@@ -35,7 +36,7 @@ GB_COMPONENT_PKG_CONFIG(
   'Qt5Core >= 5.5.0' Qt5WebEngineWidgets
 )
 
-pkg-config --atleast-version 5.4.0 Qt5Core
+$PKG_CONFIG --atleast-version 5.4.0 Qt5Core
 if test $? != 0; then
 	AC_DEFINE_UNQUOTED(QT_OLD_OPENGL, 1, Use deprecated OpenGL widget)
 	QT_OPENGL_SUPPORT=Qt5OpenGL
@@ -54,7 +55,7 @@ GB_COMPONENT_PKG_CONFIG(
   'Qt5Core >= 5.3.0' Qt5Gui Qt5Widgets x11
 )
 
-MOC=`pkg-config --variable=host_bins Qt5Core`/moc
+MOC=`$PKG_CONFIG --variable=host_bins Qt5Core`/moc
 AC_SUBST(MOC)
 
 AC_OUTPUT( \
