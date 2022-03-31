@@ -6,6 +6,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.ncurses)
 AC_PROG_LIBTOOL
+PKG_PROG_PKG_CONFIG
 
 # Most distributions I have seen apparently provide the ncurses and panel
 # pkg-config files (which may be synonymous with ncursesw and panelw for
@@ -13,7 +14,7 @@ AC_PROG_LIBTOOL
 #
 # We should prefer linking with the wide-character version but still
 # allow to compile on systems that don't have ncursesw pkg-config files.
-pkg-config --silence-errors --exists ncursesw panelw
+$PKG_CONFIG --silence-errors --exists ncursesw panelw
 if test $? -eq "0"
   then gb_ncurses_pkgconfig_names="ncursesw panelw"
   else gb_ncurses_pkgconfig_names="ncurses panel"

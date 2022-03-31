@@ -965,6 +965,7 @@ cd $gb_save
 
 AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
 [
+  AC_REQUIRE([PKG_PROG_PKG_CONFIG])
   AC_ARG_ENABLE(
     $1,
     [  --enable-$1                enable $3 (default: yes)],
@@ -994,17 +995,17 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
     have_$1=yes
     gb_testval=""
 
-    pkg-config --silence-errors --exists $5
+    $PKG_CONFIG --silence-errors --exists $5
     if test $? -eq "0"; then
 
       ## Checking for headers
 
-      $2_INC="`pkg-config --cflags $5`"
+      $2_INC="`$PKG_CONFIG --cflags $5`"
 
       ## Checking for libraries
 
-      $2_LIB="`pkg-config --libs-only-l $5`"
-      $2_LDFLAGS="`pkg-config --libs-only-L $5` `pkg-config --libs-only-other $5`"
+      $2_LIB="`$PKG_CONFIG --libs-only-l $5`"
+      $2_LDFLAGS="`$PKG_CONFIG --libs-only-L $5` `$PKG_CONFIG --libs-only-other $5`"
       $2_DIR=$4
 
     else
@@ -1031,7 +1032,7 @@ AC_DEFUN([GB_COMPONENT_PKG_CONFIG],
     for pkgcmp in $5
     do
 
-      pkg-config --silence-errors --exists $pkgcmp
+      $PKG_CONFIG --silence-errors --exists $pkgcmp
       if test $? -eq "1"; then
         GB_WARNING([Unable to met pkg-config requirement: $pkgcmp])
       fi
