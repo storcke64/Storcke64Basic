@@ -100,7 +100,7 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
   
   If hEditor Then
     If hEditor.Name == $sPosClass And If hEditor.GetEditor().Line = ($iPosLine - 1) Then
-      hEditor.ShowErrorMessage($sError, "error")
+      hEditor.ShowErrorMessage($sError)
     Else If $iPosLine > hEditor.GetEditor().Count Then
       sPath = Project.FindForm(hEditor.Name)
       FMain.ShowError($sError, sPath)

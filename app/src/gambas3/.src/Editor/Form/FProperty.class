@@ -134,24 +134,30 @@ Public Sub RefreshAll()
     If sClass = "" Then
       $hObject = hCtrl
       sClass = hCtrl.Kind
-    Else If sClass <> hCtrl.Kind Then
+    Endif
+    
+    If sClass <> hCtrl.Kind Then
       bDiff = True
       Break
     Endif
 
   Next
 
-  If bDiff Then sClass = $hFamily.ControlClass
+  grdProperty.Enabled = Not $hObject.Locked
   
   UpdateLabel
 
-  $sClass = sClass
+  If bDiff Then sClass = $hFamily.ControlClass
+  
+  If $hObject.Locked Then
+    $sClass = $hObject.Kind
+  Else
+    $sClass = sClass
+  Endif
 
-  'PRINT "Kind = "; sClass
-  'cProp = CControl.PropertiesInOrder[sClass]
-  Try aProp = Project.Documentation.Classes[sClass].PropertyList
+  Try aProp = Project.Documentation.Classes[$sClass].PropertyList
   If Not aProp Then
-    Error "gambas3: cannot get property list of "; sClass
+    'Error "gambas3: cannot get property list of "; sClass
     aProp = New String[]
   Else
     '     sClassColor = sClass
@@ -234,37 +240,17 @@ Public Sub RefreshAll()
   ' Can be lesser than predicted, as some properties may be hidden
   grdProperty.Rows.Count = iRow
 
-  'grdProperty.Rows.Count = iRow
-
-  '   iRow = 3
-  '   WHILE aColor.Count
-  '     FOR iRow = iRow TO aColor[0] + 2
-  '       grdProperty[iRow, 0].
-  '     NEXT
-  '   WEND
-
-  ' FOR iRow = 0 TO grdProperty.Rows.Count - 1
-  '   grdProperty[iRow, 0].Font = grdProperty.Font
-  '   grdProperty[iRow, 0].Font.Bold = TRUE
-  '   grdProperty[iRow, 0].Alignment = Align.TopNormal
-  '   grdProperty[iRow, 1].Alignment = Align.TopNormal
-  ' NEXT
-
   Form_Resize
   panProperty.Show
   sepProperty.Show
-  'lblMessage.Hide
-  'lblMessage.Ignore = TRUE
 
   grdProperty.Show
   lblName.Show
-  'VSplit1.Show
 
   If Not $bMany Then
     FFormStack.SelectCurrent
   Endif
 
-  'If btnLock.Value Then
   If $sFocus Then
     iRow = FindProperty($sFocus)
     If iRow >= 0 Then
@@ -272,6 +258,8 @@ Public Sub RefreshAll()
       ShowProperty
     Endif
   Endif
+  
+  
 
   Return
 
@@ -313,6 +301,7 @@ Public Sub RefreshOne(hCtrl As CControl, sProp As String)
 
   If Not $bMany Then
     If $hObject <> hCtrl Then Return
+    If $hObject.Locked Then Return
   Endif
 
   If sProp = "Name" Then
@@ -446,12 +435,15 @@ Public Function SaveProperty() As Boolean
   If $bMany Then
 
     For Each hCtrl In $hForm.Selection
+      If hCtrl.Locked Then Continue
       If hCtrl.SetProperty($sLast, vVal) Then Goto _BAD
     Next
 
   Else
 
-    If $hObject.SetProperty($sLast, vVal) Then Goto _BAD
+    If Not $hObject.Locked Then
+      If $hObject.SetProperty($sLast, vVal) Then Goto _BAD
+    Endif
 
   Endif
 
@@ -919,6 +911,7 @@ Private Sub GetConnection() As String
   Dim sResult As String
 
   For Each hCtrl In $hForm.Selection
+    If hCtrl.Locked Then Continue
     sConn = hCtrl.GetConnection()
     If Not sResult Then
       sResult = sConn
@@ -938,6 +931,7 @@ Private Sub GetTable(Optional sField As String) As String
   Dim sResult As String
 
   For Each hCtrl In $hForm.Selection
+    If hCtrl.Locked Then Continue
     sTable = hCtrl.GetTable(sField)
     If Not sResult Then
       sResult = sTable
@@ -1139,6 +1133,8 @@ Public Function GetProperty(sProp As String) As String
 
   For Each hCtrl In $hForm.Selection
 
+    If hCtrl.Locked Then Continue
+    
     If bFirst Then
       If sVal <> hCtrl.GetPropertyString(sProp) Then
         CControl.WasDefaultValue = False

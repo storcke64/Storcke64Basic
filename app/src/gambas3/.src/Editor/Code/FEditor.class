@@ -2690,7 +2690,7 @@ Public Sub ShowMessage(sMsg As String, Optional sIcon As String, Optional bNoEsc
 
 End
 
-Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
+Public Sub ShowErrorMessage(sMsg As String)
 
   $hEditor.SetFocus
   Wait

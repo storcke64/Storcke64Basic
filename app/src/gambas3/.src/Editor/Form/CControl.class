@@ -22,6 +22,7 @@ Public {Public} As Boolean
 Public VirtualCoord As Boolean
 Public NoParent As Boolean
 Public Tabs As Collection
+Public Locked As Boolean ' When the component of the control is missing
 
 Property Read X As Integer
 Property Read Y As Integer
@@ -173,6 +174,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
   hClass = Project.Documentation.Classes[sClass]
   bExist = hClass <> Null
   If bExist Then
+    
     DrawWith = hClass.DrawWith
     If DrawWith Then 
       sClass = DrawWith
@@ -182,8 +184,10 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
         sClass = Left(sClass, iPos - 1)
       Endif
     Endif
+    
+    NoParent = Not hClass.ConstructorNeedParent()
+    
   Endif
-  NoParent = Not hClass.ConstructorNeedParent()
   
   If IsMultiContainer() Then
     If sClass <> "TabPanel" And If sClass <> "TabStrip" Then
@@ -317,11 +321,16 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
           hCtrl = New (sClass) ' Timer(hParent)
         Endif
 
+      Else If Locked Then
+        
+        hCtrl = New TabPanel(hParent)
+        hCtrl.ShowTabBar = False
+        
       Else
 
         If bExist Then Try hCtrl = New (sClass, hParent)
         If Not hCtrl Then Try hCtrl = New ($hFamily.Name & sClass, hParent)
-        If Not hCtrl Then hCtrl = New DrawingArea(hParent)
+        If Not hCtrl Then hCtrl = New TabPanel(hParent)
 
       Endif
 
@@ -400,6 +409,7 @@ Private Sub GetDefaultTabText(iIndex As Integer) As String
   Dim hClass As CClassInfo
   Dim sText As String
 
+  If Locked Then Return 
   hClass = Project.Documentation.Classes[Kind]
   sText = hClass.DefaultText
   If Not sText Then sText = "Tab &1"
@@ -419,6 +429,11 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
   $hFamily = hFamily
   
   hClass = Project.Documentation.Classes[sClass]
+  If Not hClass Then
+    'FMain.ShowError(Subst(("Component missing for control &1"), sClass))
+    hClass = Project.Documentation.Classes["TabStrip"]
+    Locked = True
+  Endif
   
   Try $bIsContainer = hClass.Container
   Try $bIsMultiContainer = hClass.MultiContainer
@@ -462,6 +477,11 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
       hCtrl.Ignore = True
       '$cValue["Ignore"] = True
       
+    Else If Locked Then
+      
+      hCtrl = CreateControl(sName, "TabPanel", Parent.Control)
+      Unknown = True
+      
     Else
 
       'If Not Parent Then Stop
@@ -471,7 +491,7 @@ Public Sub _new(sName As String, sClass As String, hParent As CControl, hForm As
 
     Endif
 
-    hCtrl.Drop = True
+    hCtrl.Drop = Not Locked
     'hCtrl.Tracking = True
 
   Endif

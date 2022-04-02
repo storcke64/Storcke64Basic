@@ -239,6 +239,11 @@
     }
     { mnuSep4 Menu
     }
+    { mnuDeleteUnknown Menu
+      Action = ".delete-unknown"
+      Text = ("Delete controls from missing components") & "..."
+      Picture = Picture["icon:/small/trash"]
+    }
     { Menu7 Menu
       Action = ".locked"
       Text = ("Locked")
@@ -612,11 +617,18 @@
       Action = ".format-foreground"
       Picture = Picture["icon:/small/pen"]
     }
+    { btnRemoveUnknown ToolButton
+      MoveScaled(48,4,43,4)
+      Action = ".delete-unknown"
+      AutoResize = True
+      Text = ("Delete controls from missing components") & "..."
+      Picture = Picture["icon:/small/trash"]
+    }
     { Spring1 Spring
-      MoveScaled(42,4,7,4)
+      MoveScaled(106,4,7,4)
     }
     { ToolButton7 ToolButton
-      MoveScaled(51,4,4,4)
+      MoveScaled(115,4,4,4)
       ToolTip = ("Lock / unlock form")
       Action = ".locked"
       Picture = Picture["icon:/small/lock"]
@@ -668,21 +680,21 @@
     }
     { panRight Panel Handle
       Name = "panRight"
-      MoveScaled(8,16,1,1)
+      MoveScaled(6,8,1,1)
       Background = Color.TextBackground
       Mouse = Cursor.SizeE
       Border = Border.Plain
     }
     { panDown Panel Handle
       Name = "panDown"
-      MoveScaled(6,18,1,1)
+      MoveScaled(4,10,1,1)
       Background = Color.TextBackground
       Mouse = Cursor.SizeS
       Border = Border.Plain
     }
     { panRightDown Panel Handle
       Name = "panRightDown"
-      MoveScaled(8,18,1,1)
+      MoveScaled(6,10,1,1)
       Background = Color.TextBackground
       Mouse = Cursor.SizeNWSE
       Border = Border.Plain
@@ -727,9 +739,25 @@
         NoBackground = True
       }
     }
+    { panUnknown Panel
+      MoveScaled(0,16,24,19)
+      Visible = False
+      Centered = True
+      Margin = True
+      { lblUnknown TextLabel
+        MoveScaled(2,2,34,13)
+        Font = Font["Bold,+1"]
+        Background = &H20F4F4F4&
+        Padding = 16
+        AutoResize = True
+        Border = Border.Plain
+        Text = ("Some controls couldn't be loaded because of missing components.")
+        Alignment = Align.Center
+      }
+    }
   }
   { dwgBackground DrawingArea
-    MoveScaled(76,26,12,9)
+    MoveScaled(75,25,12,9)
     Background = Color.LightForeground
     Ignore = True
   }
@@ -839,6 +867,11 @@
     Text = "Delete container only"
     Shortcut = ""
     Picture = "img/32/delete-container.png"
+  }
+  { Action delete-unknown
+    Text = "Delete controls from missing components"
+    Shortcut = ""
+    Picture = "icon:/small/trash"
   }
   { Action diff
     Text = "Show modifications"
@@ -1007,7 +1040,7 @@
 { Toolbars
   { Toolbar form
     Text = "Form"
-    List = "show-class,diff,diff-previous,diff-next,save,reload,run-me,undo,redo,cut,copy,paste,delete,menu,grid,tooltip,delete-container,embed-container,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-vertical,arrange-horizontal,arrange-column,arrange-row,arrange-hcenter,arrange-vcenter,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,locked"
-    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,|,undo,redo,|,menu,grid,tooltip,|,|,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-hcenter,arrange-vcenter,|,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,|,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,~,locked"
+    List = "show-class,diff,diff-previous,diff-next,save,reload,run-me,undo,redo,cut,copy,paste,delete,menu,grid,tooltip,delete-container,embed-container,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-vertical,arrange-horizontal,arrange-column,arrange-row,arrange-hcenter,arrange-vcenter,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,delete-unknown,locked"
+    Default = "show-class,diff,diff-previous,diff-next,|,save,reload,|,undo,redo,|,menu,grid,tooltip,|,|,raise,lower,align-top,align-bottom,align-left,align-right,same-width,same-height,arrange-hcenter,arrange-vcenter,|,move-tab-first,move-tab-previous,move-tab-next,move-tab-last,show-tab,|,text-font,text-bold,text-italic,text-underline,text-zoom-in,text-zoom-out,text-zoom-normal,format-background,format-foreground,delete-unknown,~,locked"
   }
 }

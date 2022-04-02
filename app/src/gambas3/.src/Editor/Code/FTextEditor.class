@@ -966,7 +966,7 @@ Public Sub mnuUpperCase_Click()
   
 End
 
-Public Sub ShowErrorMessage(sMsg As String, (sIcon) As String)
+Public Sub ShowErrorMessage(sMsg As String)
 
   $hEditor.SetFocus
   Wait

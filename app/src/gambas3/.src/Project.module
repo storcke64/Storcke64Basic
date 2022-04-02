@@ -2380,9 +2380,9 @@ Private Sub CompileError(sMsg As String)
   Endif
 
   If hEditor Then
-    hForm.ShowErrorMessage(sMsg, "make")
+    hForm.ShowErrorMessage(sMsg)
   Else
-    FMain.ShowMessage(sMsg, "make")
+    FMain.ShowError(sMsg)
   Endif
 
   'Catch
