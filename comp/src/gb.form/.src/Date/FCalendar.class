@@ -291,19 +291,25 @@ Public Sub dwgMonth_Draw()
   Paint.Font = GetParent().Font
   Paint.Font.Size = fSize
   
-  dDate = $dStart
-  X = 0
-  Y = YD
-  For J = 0 To 5
-    If Year(dDate) <> Year($dDate) Then
-      iWeek = Week(DateAdd(dDate, gb.Day, 6))
-    Else
-      iWeek = Week(dDate)
-    Endif
-    Paint.DrawText(CStr(iWeek), X, Y, XD, H, Align.Center)
-    Y += H
-    dDate += 7
-  Next
+  If $bShowWeek Then
+    
+    dDate = $dStart
+    X = 0
+    Y = YD
+    For J = 0 To 5
+      If Year(dDate) <> Year($dDate) Then
+        iWeek = Week(DateAdd(dDate, gb.Day, 6))
+      Else
+        iWeek = Week(dDate)
+      Endif
+      Paint.DrawText(CStr(iWeek), X, Y, XD, H, Align.Center)
+      Y += H
+      dDate += 7
+    Next
+    
+    Paint.FillRect(XD, YD, 1, Paint.H - YD, Color.LightForeground)
+    
+  Endif
 
   dDate = $dStart
   Y = YD

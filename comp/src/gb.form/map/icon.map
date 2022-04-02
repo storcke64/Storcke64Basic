@@ -139,16 +139,20 @@ flag-yellow             actions/flag-yellow
 flip-h                  actions/object-flip-horizontal
 flip-v                  actions/object-flip-vertical
 floppy                  devices/media-floppy
+folder-blue             places/folder-blue;places/blue-folder
 folder-document         places/folder-document;places/folder-documents
 folder-download         places/folder-download;places/folder-downloads
+folder-green            places/folder-green;places/green-folder
 folder-home             places/user-home
 folder-image            places/folder-pictures;places/folder-images
 folder-music            places/folder-music
 folder-network          places/folder-network
 folder-recent           places/folder-recent;actions/folder-open-recent
+folder-red              places/folder-red;places/red-folder
 folder-remote           places/folder-remote
 folder-root             places/folder-root
 folder-video            places/folder-video;places/folder-videos
+folder-yellow           places/folder-yellow;places/yellow-folder
 font                    [-breeze*]actions/format-text-superscript;preferences/preferences-desktop-font;apps/preferences-desktop-font;preferences/preferences-desktop-font-installer;apps/preferences-desktop-font-installer
 formula                 actions/formula
 forward                 actions/media-seek-forward
@@ -200,6 +204,7 @@ keyboard                devices/input-keyboard;preferences/preferences-desktop-k
 lamp                    actions/help-hint
 language                [-breeze*]actions/im-google-talk;preferences/preferences-desktop-locale;apps/preferences-desktop-locale
 last                    actions/go-last
+layer                   actions/dialog-layer
 layout                  actions/document-page-setup
 left                    actions/go-previous
 library                 $(mime)/application-x-sharedlib
@@ -267,7 +272,7 @@ pdf                     $(mime)/application-pdf
 pen                     actions/draw-freehand
 people                  [breeze*]actions/user-group-new;preferences/system-users;apps/system-users;preferences/preferences-system-users;apps/preferences-system-users
 percent                 actions/format-number-percent
-phone                   [-breeze*]devices/smartphone;devices/phone;;preferences/preferences-kde-connect
+phone                   devices/phone;;preferences/preferences-kde-connect
 pin                     actions/pin;actions/view-pin
 pointer                 actions/tools-pointer;;preferences/preferences-desktop-cursors;apps/preferences-desktop-cursors
 play                    actions/media-playback-start
@@ -327,6 +332,7 @@ shopping                #
 shortcut                apps/accessories-character-map;preferences/preferences-desktop-keyboard-shortcut;apps/preferences-desktop-keyboard-shortcut
 shuffle                 actions/media-playlist-shuffle
 shutdown                apps/system-shutdown;actions/system-shutdown
+smartphone              devices/smartphone;;preferences/preferences-kde-connect
 sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
 speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
