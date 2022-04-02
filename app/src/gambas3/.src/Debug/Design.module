@@ -1615,11 +1615,11 @@ End
 
 Public Sub SetBreakpoint(sClass As String, iLine As Integer, bOn As Boolean) 
   
-  If IsRunning() Then Return
-
-  If Not Project.Running Then Return
-
-  WriteCommand(If(bOn, "+", "-") & sClass & "." & CStr(iLine + 1))
+  If Project.Running And If Not IsRunning() Then
+    WriteCommand(If(bOn, "+", "-") & sClass & "." & CStr(iLine + 1))
+  Endif
+  
+  
 
 End
 

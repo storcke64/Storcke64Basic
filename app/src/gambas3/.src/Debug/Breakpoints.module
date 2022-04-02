@@ -73,6 +73,10 @@ Private Sub Synchronize()
     
   Next
   
+  For Each $cBreakpoints
+    If Not Project.ExistClass($cBreakpoints.Key) Then $cBreakpoints.Remove($cBreakpoints.Key)
+  Next
+  
   $iTimeStamp = Project.TimeStamp
   
 End
