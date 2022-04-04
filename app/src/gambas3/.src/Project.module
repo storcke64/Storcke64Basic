@@ -5171,7 +5171,7 @@ Public Sub GetUniqueSourceName(sName As String) As String
 
 End
 
-Public Sub CopyFile(sSrc As String, sDst As String)
+Public Sub CopyFile(sSrc As String, sDst As String) As String
 
   Dim sDest As String
 
@@ -5183,6 +5183,8 @@ Public Sub CopyFile(sSrc As String, sDst As String)
   Tree.RefreshKey(sDest)
   Tree.SelectKey(sDest)
   Inc Project.TimeStamp
+  
+  Return sDest
 
 Catch
 

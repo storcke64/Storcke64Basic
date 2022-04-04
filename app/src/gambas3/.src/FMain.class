@@ -1174,7 +1174,7 @@ Public Sub mnuPaste_Click()
   Select Case sAction
       
     Case "C"
-      Project.CopyFile(sSrc, sDst)
+      sDst = Project.CopyFile(sSrc, sDst)
       Rename(sDst)
       
     Case "X"
