@@ -39,6 +39,8 @@ Public Sub Run()
   Dim sLink As String
   Dim cTarget As Collection
   Dim sStyle As String
+  Dim bDark As Boolean
+  Dim sOrigin As String
 
   hFile = Open "links" For Input 
   While Not Eof(hFile)
@@ -65,9 +67,12 @@ Public Sub Run()
   
   Close #hFile
 
-  For Each sStyle In ["gambas", "gambas-mono"]
+  For Each sStyle In ["gambas", "gambas-mono", "gambas-dark", "gambas-mono-dark"]
 
-    sRoot = "~/.local/share/icons/" & String.UCaseFirst(sStyle)
+    sRoot = "~/.local/share/icons/" & sStyle
+    bDark = sStyle Ends "-dark"
+    sOrigin = sStyle
+    If bDark Then sOrigin = Left(sOrigin, -5)
   
     hFile = Open "icon.map" For Input 
     While Not Eof(hFile)
@@ -86,8 +91,8 @@ Public Sub Run()
       For Each sSize In ["16", "32", "48", "64", "128"]
         
         If sSize = "16" Then
-          sIconPath = sStyle &/ "32" &/ sIcon & ".png"
-          If Not Exist(sIconPath) Then sIconPath = sStyle &/ "128" &/ sIcon & ".png"
+          sIconPath = sOrigin &/ "32" &/ sIcon & ".png"
+          If Not Exist(sIconPath) Then sIconPath = sOrigin &/ "128" &/ sIcon & ".png"
           hImage = Image.Load(sIconPath).Stretch(16, 16)
           sIconPath = Temp$("image") & ".png"
           hImage.Save(sIconPath)
@@ -98,7 +103,7 @@ Public Sub Run()
         '   sIconPath = Temp$("image") & ".png"
         '   hImage.Save(sIconPath)
         Else
-          sIconPath = sStyle &/ sSize &/ sIcon & ".png"
+          sIconPath = sOrigin &/ sSize &/ sIcon & ".png"
         Endif
         
         If Not Exist(sIconPath) Then Continue
@@ -143,6 +148,9 @@ Public Sub Run()
           Else
             Copy sIconPath To sTargetPath
             sMakeLink = Mid$(sTargetDir, InStr(sTargetDir, "/") + 1) &/ sTarget & ".png"
+            If bDark Then
+              Image.Load(sTargetPath).Invert(True).Save(sTargetPath)
+            Endif
           Endif
           
         Next
@@ -156,14 +164,18 @@ Public Sub Run()
     hFile = Open sRoot &/ "index.theme" For Output Create
     
     Print #hFile, "[Icon Theme]"
-    Print #hFile, "Name="; String.UCaseFirst(sStyle)
-    Print #hFile, "Comment="; String.UCaseFirst(sStyle); " Icon Theme"
+    Print #hFile, "Name="; sStyle
+    Print #hFile, "Comment="; sStyle; " icon theme"
     Print #hFile, "Inherits=";
-    If sStyle = "gambas" Then
-      Print #hFile, "Papirus,breeze,gnome,hicolor"
-    Else
-      Print #hFile, "HighContrast"
-    Endif
+    Select Case sStyle
+      Case "gambas"
+        Print #hFile, "Papirus,breeze,gnome,hicolor"
+      Case "gambas-dark"
+        Print #hFile, "Papirus-Dark,breeze-dark,gnome,hicolor"
+      Case "gambas-mono", "gambas-mono-dark"
+        Print #hFile, "HighContrast"
+    End Select
+    
     Print #hFile, "Directories="; aDirectories.Sort(gb.Natural).Join(",")
     Print #hFile
     ' Print #hFile, "DesktopDefault=48"
