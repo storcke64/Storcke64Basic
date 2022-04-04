@@ -139,16 +139,16 @@ Public Sub tabInfo_Click()
     Case 0
       
       btnRevert.Show
-      chkShowHistoryChanges.Hide
+      panChange.Hide
       btnLocateChange.Show
       LoadVersionControlInfo
     
     Case 1
     
       btnRevert.Hide
-      chkShowHistoryChanges.Show
+      panChange.Show
       btnLocateChange.Hide
-      If edtHistory.IsVoid() Then edtHistory.FillWithHistory($sPath, $sPath2)
+      If edtHistory.IsVoid() Then edtHistory.FillWithHistory($sPath, spnChange, $sPath2)
     
   End Select
   
@@ -174,7 +174,7 @@ End
 
 Public Sub chkShowHistoryChanges_Click()
 
-  edtHistory.FillWithHistory($sPath, $sPath2, chkShowHistoryChanges.Value)
+  edtHistory.FillWithHistory($sPath, spnChange, $sPath2, chkShowHistoryChanges.Value)
 
 End
 

@@ -174,7 +174,7 @@ Public Sub tabVersionControl_Click()
       Try edtDiff.SetFocus
       
     Case 2
-      If edtHistory.IsVoid() Then edtHistory.FillWithHistory(Project.Dir)
+      If edtHistory.IsVoid() Then edtHistory.FillWithHistory(Project.Dir, spnChange)
       
     Case 3
       Try trmShell.Exec(["bash"], ["PWD=" & Project.Dir])
@@ -183,7 +183,7 @@ Public Sub tabVersionControl_Click()
   End Select
   
   chkHideTrans.Visible = tabVersionControl.Index = 1 And edtDiff.Visible
-  chkShowHistoryChanges.Visible = tabVersionControl.Index = 2
+  panChange.Visible = tabVersionControl.Index = 2
 
 End
 
@@ -215,6 +215,6 @@ End
 
 Public Sub chkShowHistoryChanges_Click()
 
-  edtHistory.FillWithHistory(Project.Dir,, chkShowHistoryChanges.Value)
+  edtHistory.FillWithHistory(Project.Dir, spnChange,, chkShowHistoryChanges.Value)
 
 End

@@ -21,7 +21,9 @@ Private $aFind As Integer[]
 
 Private $iLastLine As Integer
 Private $iLastLineOffset As Integer
+
 Private $hTask As CVersionControlHistoryTask
+Private $hSpinner As Spinner
 
 Public Sub _new()
   
@@ -497,12 +499,15 @@ Public Sub StopFillWithHistory()
 End
 
 
-Public Sub FillWithHistory(sPath As String, Optional sPath2 As String, Optional bFull As Boolean)
+Public Sub FillWithHistory(sPath As String, hSpinner As Spinner, Optional sPath2 As String, Optional bFull As Boolean)
   
   StopFillWithHistory
   
   Me.Clear
-  
+
+  $hSpinner = hSpinner
+  hSpinner.Show
+  hSpinner.Start
   $hTask = New CVersionControlHistoryTask(sPath, sPath2, bFull) As "TaskVCHistory"
   
   'Me.Text = VersionControl.History(sPath, sPath2, bFull)
@@ -528,6 +533,12 @@ End
 
 Public Sub TaskVCHistory_Kill()
   
+  If $hSpinner Then
+    $hSpinner.Stop
+    $hSpinner.Hide
+    $hSpinner = Null
+  Endif
+
   If $hTask Then
     Me.SetFocus
     Me.Reset
