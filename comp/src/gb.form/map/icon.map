@@ -131,6 +131,7 @@ filter                  actions/view-filter
 find                    actions/edit-find;;preferences/preferences-system-search;apps/preferences-system-search;preferences/preferences-desktop-search;apps/preferences-desktop-search
 firewall                apps/firewall;apps/config-firewall;preferences/preferences-security-firewall;apps/preferences-security-firewall;status/firewall-applet;;status/security-high
 first                   actions/go-first
+fog                     status/weather-fog
 flag                    actions/flag;actions/flag-black
 flag-blue               actions/flag-blue
 flag-green              actions/flag-green
@@ -287,6 +288,7 @@ properties              actions/document-properties
 question                status/dialog-question;actions/svn-status
 quit                    actions/application-exit
 quote                   actions/format-text-blockquote
+rain                    status/weather-showers
 raise                   actions/object-ordre-raise
 repeat                  actions/media-playlist-repeat
 recent                  [breeze*]actions/appointment-new;actions/document-open-recent
@@ -333,6 +335,7 @@ shortcut                apps/accessories-character-map;preferences/preferences-d
 shuffle                 actions/media-playlist-shuffle
 shutdown                apps/system-shutdown;actions/system-shutdown
 smartphone              devices/smartphone;;preferences/preferences-kde-connect
+snow                    status/weather-snow
 sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
 speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
@@ -340,10 +343,12 @@ spell-check             actions/tools-check-spelling
 star                    [breeze*]actions/draw-star;status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
 statistics              actions/view-statistics
+storm                   status/weather-storm
 stop                    actions/media-playback-stop
 subtitle                actions/media-view-subtitles;actions/add-subtitle
 sum                     #
 sun                     [breeze*!48]applets/weather-clear;status/weather-clear
+sun-cloud               status/weather-few-clouds
 suspend                 apps/system-suspend;actions/system-suspend
 system                  devices/computer
 switch-user             apps/system-switch-user;actions/system-switch-user
