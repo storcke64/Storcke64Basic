@@ -516,8 +516,6 @@ End
   
 Public Sub TaskVCHistory_Read(Data As String)
 
-  'Dim SY As Integer
-  
   If Not $hTask Then Return
   
   Me.Append(Data)

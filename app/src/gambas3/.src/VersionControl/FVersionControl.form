@@ -59,15 +59,16 @@
     }
     { panChange HBox
       MoveScaled(0,0,36,4)
+      Visible = False
       Expand = True
       { chkShowHistoryChanges CheckBox
         MoveScaled(0,0,29,3)
-        Visible = False
         AutoResize = True
         Text = ("Display changes in history")
       }
       { spnChange Spinner
         MoveScaled(29,0,4,4)
+        Margin = True
         Type = Spinner.Circle
       }
     }

@@ -1672,7 +1672,7 @@ Public Sub TimerWatch_Timer()
       If sMap Begins "Pss:" Then
         sMap = LTrim(Mid$(sMap, 5))
         iPos = InStr(sMap, " ")
-        ProcessMemory = CInt(Left(sMap, iPos - 1)) * 1024
+        ProcessMemory = CLong(Left(sMap, iPos - 1)) * 1024
         Break
       Endif
     Next
