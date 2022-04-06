@@ -227,7 +227,7 @@ Public Sub _Render()
   If $bNoScrolling Then
     $bNoScrolling = False
   Else
-    If $iEnsureVisible > 0 Then
+    If $iEnsureVisible >= 0 Then
       WebForm._AddJavascript("gw.table.ensureVisible(" & JS(Me.Name) & "," & CStr($iEnsureVisible) & ")")
       $iEnsureVisible = -1
     Else
