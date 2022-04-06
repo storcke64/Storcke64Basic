@@ -2236,8 +2236,11 @@ void MyMainWindow::setBorder(bool b)
 	else
 		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	
-	if (visible) show();
-	move(THIS->x, THIS->y);
+	if (visible) 
+	{
+		show();
+		move(THIS->x, THIS->y);
+	}
 
 #else
 

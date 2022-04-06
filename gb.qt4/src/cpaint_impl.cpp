@@ -405,12 +405,13 @@ static void set_painter_font(QPainter *p, const QFont &f)
 	p->setFont(f);	
 	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
 		
-	if (f != p->font())
+	/*if (f != p->font())
 	{
+		fprintf(stderr, "set_painter_font: %s / %s\n", TO_UTF8(f.toString()), TO_UTF8(p->font().toString()));
 		QFont f2;
 		f2.fromString(f.toString());
 		p->setFont(f2);
-	}
+	}*/
 }
 
 static void apply_font(QFont &font, void *object = 0)

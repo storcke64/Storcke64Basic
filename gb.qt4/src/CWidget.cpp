@@ -1314,7 +1314,7 @@ void CWIDGET_set_focus(void *_object)
 
 	if (win->opened && QWIDGET(win)->isVisible())
 	{
-		WIDGET->setFocus();
+		WIDGET->setFocus(CMOUSE_is_valid() ? Qt::MouseFocusReason : Qt::TabFocusReason);
 	}
 	else if ((CWIDGET *)win != THIS)
 	{
