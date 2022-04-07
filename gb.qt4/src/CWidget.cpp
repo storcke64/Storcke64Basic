@@ -1314,10 +1314,10 @@ void CWIDGET_set_focus(void *_object)
 
 	if (win->opened && QWIDGET(win)->isVisible())
 	{
-		if (qobject_cast<QAbstractButton *>(WIDGET))
-			WIDGET->setFocus(Qt::TabFocusReason);
+		if (qobject_cast<QLineEdit *>(WIDGET) || qobject_cast<QTextEdit *>(WIDGET) || qobject_cast<QComboBox *>(WIDGET))
+			WIDGET->setFocus(Qt::MouseFocusReason);
 		else
-			WIDGET->setFocus(Qt::OtherFocusReason);
+			WIDGET->setFocus(Qt::TabFocusReason);
 		//WIDGET->window()->setAttribute(Qt::WA_KeyboardFocusChange, false);
 	}
 	else if ((CWIDGET *)win != THIS)

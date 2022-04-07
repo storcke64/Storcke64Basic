@@ -244,7 +244,7 @@ static void handle_focus(CWINDOW *_object)
 	if (THIS->focus)
 	{
 		//qDebug("handle_focus on %s", THIS->focus->name);
-		THIS->focus->widget->setFocus();
+		CWIDGET_set_focus(THIS->focus);
 		GB.Unref(POINTER(&THIS->focus));
 		THIS->focus = NULL;
 	}
