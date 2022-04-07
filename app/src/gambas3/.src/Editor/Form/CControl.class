@@ -330,7 +330,7 @@ Private Function CreateControl(sName As String, sClass As String, hParent As Obj
 
         If bExist Then Try hCtrl = New (sClass, hParent)
         If Not hCtrl Then Try hCtrl = New ($hFamily.Name & sClass, hParent)
-        If Not hCtrl Then hCtrl = New TabPanel(hParent)
+        If Not hCtrl Then hCtrl = New DrawingArea(hParent)
 
       Endif
 

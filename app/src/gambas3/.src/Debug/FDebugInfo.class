@@ -1822,3 +1822,18 @@ Public Sub cmbTest_Click()
   MTest.SaveTestWith(cmbTest.Index)
 
 End
+
+Public Sub spnIgnoreExtern_Change()
+
+  Design.SetExternIgnore(spnIgnoreExtern.Value)
+
+End
+
+Public Sub SetExternIgnore(iNum As Integer)
+  
+  Object.Lock(spnIgnoreExtern)
+  spnIgnoreExtern.Value = iNum
+  Object.Unlock(spnIgnoreExtern)
+  
+End
+
