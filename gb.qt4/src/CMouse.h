@@ -96,4 +96,6 @@ void CMOUSE_reset_translate(void);
 void CMOUSE_set_control(void *control);
 void CMOUSE_finish_event(void);
 
+#define CMOUSE_is_valid() (MOUSE_info.valid != 0)
+
 #endif

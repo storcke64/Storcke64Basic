@@ -1,5 +1,6 @@
 ' Gambas module file
 
+Private Const MAX_IGNORE_EXTERN As Integer = 8
 Private Const DEBUG_REMOTE As Boolean = False
 
 Private UseTerminal As Boolean
@@ -566,6 +567,7 @@ End
 Private Sub AfterStop()
 
   Dim hForm As Object
+  Dim I As Integer
 
   If $iState = STATE_STOP Then Return
 
@@ -614,6 +616,9 @@ Private Sub AfterStop()
     $hTimerExtern.Stop
     $hTimerExtern = Null
     Try Kill $sExternLink
+    For I = 1 To MAX_IGNORE_EXTERN
+      Try Kill $sExternLink & ".*"
+    Next
     FDebugInfo.StopWaitForRemote
     $bExtern = False
   Endif
@@ -1335,6 +1340,8 @@ Public Sub RunExtern()
   
   $sExternLink = "/tmp/gambas-" & Project.Name & ".debug"
   
+  ' FIXME: race condition here!
+  
   Try hStat = Stat($sExternLink)
   If hStat And If IsDir(hStat.Link) Then
     FMain.ShowErrorWith(("Unable to start extern debugging."), ("Another extern debugging is active."))
@@ -1347,6 +1354,8 @@ Public Sub RunExtern()
     FMain.ShowErrorWith(("Unable to start extern debugging."))
     Return
   Endif
+  
+  SetExternIgnore(0)
 
   $bConsole = Action["console"].Value  
 
@@ -1393,11 +1402,36 @@ Public Sub RunExtern()
   ' 
 End
 
+Public Sub SetExternIgnore(iNum As Integer)
+
+  Dim I As Integer
+  Dim sPath As String
+  
+  For I = 1 To MAX_IGNORE_EXTERN
+    sPath = $sExternLink & "." & CStr(I)
+    If I <= iNum Then
+      Try File.Save(sPath, "")
+    Else
+      Try Kill sPath
+    Endif
+  Next
+  
+End
+
+
 Public Sub TimerExtern_Timer()
   
   Dim sPath As String
   Dim hLock As File
+  Dim I As Integer
   
+  For I = 1 To MAX_IGNORE_EXTERN
+    sPath = $sExternLink & "." & CStr(I)
+    If Not Exist(sPath) Then Break
+  Next
+  
+  FDebugInfo.SetExternIgnore(I - 1)
+
   If ProcessId Then
     sPath = File.SetExt($sFifo, "lock")
     Try hLock = Lock sPath

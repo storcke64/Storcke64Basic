@@ -527,6 +527,7 @@ static void paint_background(STYLE_T *style, int state, GB_COLOR color, int x, i
 		gt_add_css_color(&css, color);
 		g_stradd(&css, "; background-image:none; }\n");
 		gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(_css), css, -1, NULL);
+		g_free(css);
 		gtk_style_context_add_provider(style, _css, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
 #if GTK_CHECK_VERSION(3, 12, 0)
@@ -545,8 +546,8 @@ static void paint_background(STYLE_T *style, int state, GB_COLOR color, int x, i
 
 	gtk_render_frame(style, _cr, x, y, w, h);
 
-	if (color != GB_COLOR_DEFAULT)
-		gtk_style_context_remove_provider(style, _css);
+	/*if (color != GB_COLOR_DEFAULT)
+		gtk_style_context_remove_provider(style, _css);*/
 }
 #endif
 

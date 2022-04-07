@@ -213,6 +213,49 @@
           }
         }
       }
+      { panRemoteDebug Panel
+        MoveScaled(73,9,38,22)
+        Visible = False
+        Background = Color.TextBackground
+        Expand = True
+        Arrangement = Arrange.Vertical
+        Centered = True
+        Spacing = True
+        Margin = True
+        { spnRemoteDebug Spinner
+          MoveScaled(9,2,13,6)
+          Type = Spinner.Circle
+        }
+        { Label1 TextLabel
+          MoveScaled(6,10,18,5)
+          Foreground = Color.LightForeground
+          AutoResize = True
+          Text = ("Waiting for extern process") & "..."
+          Alignment = Align.Center
+        }
+        { HBox2 HBox
+          MoveScaled(2,16,34,4)
+          Centered = True
+          Spacing = True
+          { Label3 Label
+            MoveScaled(1,0,6,4)
+            Foreground = Color.LightForeground
+            AutoResize = True
+            Text = ("Ignore")
+          }
+          { spnIgnoreExtern SpinBox
+            MoveScaled(9,0,9,4)
+            Foreground = Color.LightForeground
+            MaxValue = 8
+          }
+          { Label4 Label
+            MoveScaled(19,0,9,4)
+            Foreground = Color.LightForeground
+            AutoResize = True
+            Text = ("processes")
+          }
+        }
+      }
       { sepError Separator
         MoveScaled(35,35,17,0)
         Visible = False
@@ -232,27 +275,6 @@
           MoveScaled(11,1,15,3)
           Expand = True
           Alignment = Align.Normal
-        }
-      }
-      { panRemoteDebug Panel
-        MoveScaled(113,34,20,18)
-        Visible = False
-        Background = Color.TextBackground
-        Expand = True
-        Arrangement = Arrange.Vertical
-        Centered = True
-        Spacing = True
-        Margin = True
-        { spnRemoteDebug Spinner
-          MoveScaled(4,2,13,6)
-          Type = Spinner.Circle
-        }
-        { Label1 TextLabel
-          MoveScaled(1,10,18,5)
-          Foreground = Color.LightForeground
-          AutoResize = True
-          Text = ("Waiting for extern process") & "..."
-          Alignment = Align.Center
         }
       }
     }
