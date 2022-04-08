@@ -291,7 +291,6 @@ quote                   actions/format-text-blockquote
 rain                    status/weather-showers
 raise                   actions/object-ordre-raise
 repeat                  actions/media-playlist-repeat
-recent                  [breeze*]actions/appointment-new;actions/document-open-recent
 record                  actions/media-record
 red                     [breeze*]actions/colors-chromared
 redo                    actions/edit-redo
@@ -348,7 +347,7 @@ stop                    actions/media-playback-stop
 subtitle                actions/media-view-subtitles;actions/add-subtitle
 sum                     #
 sun                     [breeze*!48]applets/weather-clear;status/weather-clear
-sun-cloud               status/weather-few-clouds
+sun-cloud               status/weather-clouds;status/weather-few-clouds
 suspend                 apps/system-suspend;actions/system-suspend
 system                  devices/computer
 switch-user             apps/system-switch-user;actions/system-switch-user
