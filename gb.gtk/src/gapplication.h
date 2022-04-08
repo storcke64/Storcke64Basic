@@ -101,6 +101,15 @@ public:
 	
 	static void forEachControl(void (*cb)(gControl *), bool (*filter)(gControl *) = NULL);
 	
+	static void disableInputEvents() { _disable_input_events++; }
+	static void enableInputEvents() { _disable_input_events--; }
+	static bool areInputEventsEnabled() { return _disable_input_events == 0; }
+	static bool eventsPending();
+	static bool processInputEvent() { return true; };
+#if 0
+	static void pushInputEvent(GdkEvent *);
+#endif
+	
 	static bool _fix_breeze;
 	static bool _fix_oxygen;
 	static int _scrollbar_size;
@@ -136,6 +145,8 @@ public:
 	static void (*onLeaveEventLoop)();
 	static bool _keep_focus;
 	static bool _disable_mapping_events;
+	static int _disable_input_events;
+	static GQueue *_input_events;
 };
 
 #endif

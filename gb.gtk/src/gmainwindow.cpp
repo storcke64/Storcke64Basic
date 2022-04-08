@@ -159,7 +159,7 @@ static gboolean cb_unmap(GtkWidget *widget, GdkEvent *event, gMainWindow *data)
 
 static gboolean cb_close(GtkWidget *widget,GdkEvent *event, gMainWindow *data)
 {
-	if (!gMainWindow::_current || data == gMainWindow::_current)
+	if ((!gMainWindow::_current || data == gMainWindow::_current) && gApplication::areInputEventsEnabled())
 		data->doClose();
 
 	return true;

@@ -252,9 +252,29 @@ static void gambas_handle_event(GdkEvent *event)
 			fprintf(stderr, "**** GDK_GRAB_BROKEN inside popup: %s %swindow = %p grab_window = %p popup_window = %p\n", event->grab_broken.keyboard ? "keyboard" : "pointer",
 							event->grab_broken.implicit ? "implicit " : "", event->grab_broken.window, event->grab_broken.grab_window, gApplication::_popup_grab_window);
 	}*/
-
+	
 	if (!((event->type >= GDK_MOTION_NOTIFY && event->type <= GDK_FOCUS_CHANGE) || event->type == GDK_SCROLL))
 		goto __HANDLE_EVENT;
+
+	if (gApplication::_disable_input_events)
+	{
+		switch(event->type)
+		{
+			case GDK_ENTER_NOTIFY:
+			case GDK_LEAVE_NOTIFY:
+			case GDK_BUTTON_PRESS:
+			case GDK_2BUTTON_PRESS:
+			case GDK_BUTTON_RELEASE:
+			case GDK_MOTION_NOTIFY:
+			case GDK_SCROLL:
+			case GDK_KEY_PRESS:
+			case GDK_KEY_RELEASE:
+				//gApplication::pushInputEvent(event);
+				return;
+			default:
+				;
+		}
+	}
 
 	widget = gtk_get_event_widget(event);
 	
@@ -918,6 +938,9 @@ bool gApplication::_must_quit = false;
 GdkEvent *gApplication::_event = NULL;
 bool gApplication::_keep_focus = false;
 bool gApplication::_disable_mapping_events = false;
+
+int gApplication::_disable_input_events = 0;
+GQueue *gApplication::_input_events = NULL;
 
 bool gApplication::_fix_breeze = false;
 bool gApplication::_fix_oxygen = false;
@@ -1725,4 +1748,39 @@ void gApplication::forEachControl(void (*cb)(gControl *), bool (*filter)(gContro
 			for_each_control(win, cb);
 		}
 	}
+}
+
+#if 0
+void gApplication::pushInputEvent(GdkEvent *event)
+{
+	if (!_input_events)
+		_input_events = g_queue_new();
+	
+	g_queue_push_tail(_input_events, gdk_event_copy(event));
+}
+
+bool gApplication::processInputEvent()
+{
+	GdkEvent *event;
+	
+	if (!areInputEventsEnabled())
+		return true;
+	
+	if (!_input_events || g_queue_is_empty(_input_events))
+		return true;
+	
+	event = (GdkEvent *)g_queue_pop_head(_input_events);
+	gambas_handle_event(event);
+	gdk_event_free(event);
+	return false;
+}
+#endif
+
+bool gApplication::eventsPending()
+{
+	/*if (areInputEventsEnabled() && _input_events && !g_queue_is_empty(_input_events))
+		return true;*/
+	
+	return gtk_events_pending();
+		
 }

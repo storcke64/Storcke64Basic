@@ -404,7 +404,8 @@ void hook_quit (void)
 {
 	GB_FUNCTION func;
 
-	while (gtk_events_pending())
+	while (!gApplication::processInputEvent());
+	while (gApplication::eventsPending())
 		gtk_main_iteration();
 
 	if (GB.ExistClass("TrayIcons"))
@@ -592,8 +593,10 @@ static void hook_wait(int duration)
 
 	if (duration == 0)
 	{
-		while (gtk_events_pending())
+		gApplication::disableInputEvents();
+		while (gApplication::eventsPending())
 			MAIN_do_iteration(false);
+		gApplication::enableInputEvents();
 	}
 	else
 		MAIN_do_iteration(duration > 0);
@@ -657,17 +660,22 @@ static void hook_lang(char *lang, int rtl)
 
 void MAIN_do_iteration_just_events()
 {
-	if (gtk_events_pending())
+	if (gApplication::eventsPending())
+	{
+		while (!gApplication::processInputEvent());
 		gtk_main_iteration_do(false);
+	}
 }
 
 void MAIN_do_iteration(bool do_not_block)
 {
 	gApplication::_loopLevel++;
 
+	while (!gApplication::processInputEvent());
+	
 	if (do_not_block)
 	{
-		if (gtk_events_pending())
+		if (gApplication::eventsPending())
 			gtk_main_iteration();
 	}
 	else

@@ -928,7 +928,7 @@ void gMenu::doPopup(bool move, int x, int y)
 	
 	// flush the event loop so that the main window is reactivated before the click menu event is raised
 
-	while (gtk_events_pending())
+	while (gApplication::eventsPending())
 		MAIN_do_iteration(false);
 }
 
