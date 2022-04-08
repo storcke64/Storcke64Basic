@@ -121,5 +121,7 @@ typedef
 #define DEBUG_FIFO_PATTERN FILE_TEMP_PREFIX "/gambas" GAMBAS_VERSION_STRING "-ide-debug-%d.%s"
 #define DEBUG_FIFO_PATH_MAX 64
 #define DEBUG_WAIT_LINK "/tmp/gambas-%s.debug"
-
+#define DEBUG_WAIT_IGNORE "/tmp/gambas-%s.debug.%d"
+#define DEBUG_WAIT_IGNORE_MAX 8
+	
 #endif
