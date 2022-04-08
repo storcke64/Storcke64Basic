@@ -166,6 +166,7 @@ static void add_library_list_file(const char *path, bool ref)
 	ARCH_FIND find;
 	const char *name;
 	char *rpath = NULL;
+	bool is_file = FALSE;
 
 	if (*path == ':')
 	{
@@ -188,16 +189,31 @@ static void add_library_list_file(const char *path, bool ref)
 		name = path;
 		if (!FILE_exist(path))
 			path = NULL;
+		/*
+		{
+			is_file = TRUE;
+			path = FILE_cat(FILE_get_dir(path), ".list", NULL);
+			if (!FILE_exist(path))
+				path = NULL;
+		}
+		*/
 	}
 
 	if (path)
 	{
-		arch = ARCH_open(path);
+		if (is_file)
+		{
+			add_file_list(path);
+		}
+		else
+		{
+			arch = ARCH_open(path);
 
-		if (!ARCH_find(arch, ".list", 0, &find))
-			add_memory_list(&arch->addr[find.pos], find.len);
+			if (!ARCH_find(arch, ".list", 0, &find))
+				add_memory_list(&arch->addr[find.pos], find.len);
 
-		ARCH_close(arch);
+			ARCH_close(arch);
+		}
 	}
 	else
 		ERROR_warning((ref ? "cannot find reference: %s" : "cannot find library: %s"), name);
@@ -271,7 +287,7 @@ static void startup_print(FILE *fs, const char *key, const char *def)
 		fprintf(fs, "%s\n", def);
 }
 
-/*static char *find_version_in_file(void)
+static char *find_version_in_file(void)
 {
 	char *dir, *pdir;
 	FILE *fv;
@@ -311,7 +327,7 @@ static void startup_print(FILE *fs, const char *key, const char *def)
 		len--;
 	line[len] = 0;
 	return STR_copy(line);
-}*/
+}
 
 static void startup_print_version(FILE *fs)
 {
@@ -326,7 +342,7 @@ static void startup_print_version(FILE *fs)
 		if (read_line(fp, line, sizeof(line)))
 			break;
 
-		/*if (line_begins_with(line, "VersionFile=", 12))
+		if (line_begins_with(line, "VersionFile=", 12))
 		{
 			if (line[12] == '1')
 			{
@@ -334,7 +350,7 @@ static void startup_print_version(FILE *fs)
 				break;
 			}
 		}
-		else*/ if (line_begins_with(line, "Version=", 8))
+		else if (line_begins_with(line, "Version=", 8))
 		{
 			version = STR_copy(&line[8]);
 		}
