@@ -29,9 +29,25 @@ AC_CACHE_CHECK(for SSL mode option,
     gb_cv_db_mysql_ssl_mode=yes, gb_cv_db_mysql_ssl_mode=no
     )])
   
-  if test $gb_cv_db_mysql_ssl_mode = yes; then
-    AC_DEFINE(HAVE_MYSQL_SSL_MODE_DISABLED, 1, [Define if you have SSL_MODE_DISABLED constant.])
-  fi
+if test $gb_cv_db_mysql_ssl_mode = yes; then
+  AC_DEFINE(HAVE_MYSQL_SSL_MODE_DISABLED, 1, [Define if you have SSL_MODE_DISABLED constant.])
+fi
+
+AC_CACHE_CHECK(for retry count option,
+  gb_cv_db_mysql_retry_count,
+  [AC_TRY_COMPILE(
+    [
+      #include <mysql.h>
+    ],
+    [
+      int opt = MYSQL_OPT_RETRY_COUNT;
+    ],
+    gb_cv_db_mysql_retry_count=yes, gb_cv_db_mysql_retry_count=no
+    )])
+  
+if test $gb_cv_db_mysql_retry_count = yes; then
+  AC_DEFINE(HAVE_MYSQL_RETRY_COUNT, 1, [Define if you have SSL_OPT_RETRY_COUNT option.])
+fi
 
 CPPFLAGS=$gb_save_cppflags
   
