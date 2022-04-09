@@ -508,6 +508,7 @@ static const char *get_quote(void)
 	return QUOTE_STRING;
 }
 
+
 /*****************************************************************************
 
 	open_database()
@@ -515,12 +516,14 @@ static const char *get_quote(void)
 	Connect to a database.
 
 	<desc> points at a structure describing each connection parameter.
+	<db> points at the DB_DATABASE structure that must be initialized.
+
+	This function must return TRUE if the connection has failed.
+
+	The name of the database can be NULL, meaning a default database.
 
 	In Sqlite, there is no such thing as a host.  If this is set then check
 	to see whether this is actually a path to a home area. NG 01/04/04
-
-	This function must return a database handle, or NULL if the connection
-	has failed.
 
 *****************************************************************************/
 

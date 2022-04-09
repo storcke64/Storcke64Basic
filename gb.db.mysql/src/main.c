@@ -689,11 +689,156 @@ static const char *get_quote(void)
 	Connect to a database.
 
 	<desc> points at a structure describing each connection parameter.
+	<db> points at the DB_DATABASE structure that must be initialized.
 
-	This function must return a database handle, or NULL if the connection
-	has failed.
+	This function must return TRUE if the connection has failed.
+
+	The name of the database can be NULL, meaning a default database.
 
 *****************************************************************************/
+
+static DB_MYSQL_OPTION _options[] = {
+	{ "DEFAULT_AUTH", MYSQL_DEFAULT_AUTH, GB_T_STRING },
+	{ "ENABLE_CLEARTEXT_PLUGIN", MYSQL_ENABLE_CLEARTEXT_PLUGIN, GB_T_BOOLEAN },
+	{ "INIT_COMMAND", MYSQL_INIT_COMMAND, GB_T_STRING },
+	{ "BIND", MYSQL_OPT_BIND, GB_T_STRING },
+	{ "CAN_HANDLE_EXPIRED_PASSWORDS", MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS, GB_T_BOOLEAN },
+	{ "COMPRESSION_ALGORITHMS", MYSQL_OPT_COMPRESSION_ALGORITHMS, GB_T_STRING},
+	{ "CONNECT_TIMEOUT ", MYSQL_OPT_CONNECT_TIMEOUT , GB_T_INTEGER},
+	{ "GET_SERVER_PUBLIC_KEY", MYSQL_OPT_GET_SERVER_PUBLIC_KEY, GB_T_BOOLEAN},
+	{ "LOAD_DATA_LOCAL_DIR", MYSQL_OPT_LOAD_DATA_LOCAL_DIR, GB_T_STRING},
+	{ "LOCAL_INFILE", MYSQL_OPT_LOCAL_INFILE, GB_T_BOOLEAN},
+	{ "MAX_ALLOWED_PACKET", MYSQL_OPT_MAX_ALLOWED_PACKET, GB_T_INTEGER},
+	{ "NET_BUFFER_LENGTH", MYSQL_OPT_NET_BUFFER_LENGTH, GB_T_INTEGER},
+	{ "PROTOCOL", MYSQL_OPT_PROTOCOL, GB_T_STRING},
+	{ "READ_TIMEOUT", MYSQL_OPT_READ_TIMEOUT, GB_T_INTEGER},
+	{ "RECONNECT", MYSQL_OPT_RECONNECT, GB_T_BOOLEAN},
+	{ "RETRY_COUNT ", MYSQL_OPT_RETRY_COUNT , GB_T_INTEGER},
+	{ "SSL_CA", MYSQL_OPT_SSL_CA, GB_T_STRING},
+	{ "SSL_CAPATH", MYSQL_OPT_SSL_CAPATH, GB_T_STRING},
+	{ "SSL_CERT", MYSQL_OPT_SSL_CERT, GB_T_STRING},
+	{ "SSL_CIPHER", MYSQL_OPT_SSL_CIPHER, GB_T_STRING},
+	{ "SSL_CRL", MYSQL_OPT_SSL_CRL, GB_T_STRING},
+	{ "SSL_CRLPATH", MYSQL_OPT_SSL_CRLPATH, GB_T_STRING},
+	{ "SSL_FIPS_MODE", MYSQL_OPT_SSL_FIPS_MODE, GB_T_INTEGER},
+	{ "SSL_KEY", MYSQL_OPT_SSL_KEY, GB_T_STRING},
+	{ "SSL_MODE", MYSQL_OPT_SSL_MODE, GB_T_STRING},
+	{ "TLS_CIPHERSUITES", MYSQL_OPT_TLS_CIPHERSUITES, GB_T_STRING},
+	{ "TLS_VERSION", MYSQL_OPT_TLS_VERSION, GB_T_STRING},
+	{ "WRITE_TIMEOUT", MYSQL_OPT_WRITE_TIMEOUT, GB_T_INTEGER},
+	{ "ZSTD_COMPRESSION_LEVEL", MYSQL_OPT_ZSTD_COMPRESSION_LEVEL, GB_T_INTEGER},
+	{ "PLUGIN_DIR", MYSQL_PLUGIN_DIR, GB_T_STRING},
+	{ "READ_DEFAULT_FILE", MYSQL_READ_DEFAULT_FILE, GB_T_STRING},
+	{ "READ_DEFAULT_GROUP", MYSQL_READ_DEFAULT_GROUP, GB_T_STRING},
+	{ "REPORT_DATA_TRUNCATION", MYSQL_REPORT_DATA_TRUNCATION, GB_T_BOOLEAN},
+	{ "SERVER_PUBLIC_KEY", MYSQL_SERVER_PUBLIC_KEY, GB_T_STRING},
+	{ "SET_CHARSET_DIR", MYSQL_SET_CHARSET_DIR, GB_T_STRING},
+	{ "SET_CHARSET_NAME", MYSQL_SET_CHARSET_NAME, GB_T_STRING},
+	{ NULL }
+};
+
+static MYSQL *_options_conn;
+
+static void add_option_value(const char *key, GB_VALUE *value)
+{
+	DB_MYSQL_OPTION *p;
+	union {
+		unsigned int _uint;
+		unsigned long _ulong;
+	} tmp;
+	char *sval;
+	
+	for (p = _options;; p++)
+	{
+		if (!p->key)
+			return;
+		
+		if (!strcasecmp(p->key, key))
+			break;
+	}
+	
+	if (GB.Conv(value, p->type))
+		return;
+	
+	switch(p->cst)
+	{
+		case MYSQL_OPT_PROTOCOL:
+
+			sval = value->_string.value.addr;
+			if (!strcasecmp(sval, "DEFAULT"))
+				tmp._uint = MYSQL_PROTOCOL_DEFAULT;
+			else if (!strcasecmp(sval, "TCP"))
+				tmp._uint = MYSQL_PROTOCOL_TCP;
+			else if (!strcasecmp(sval, "SOCKET"))
+				tmp._uint = MYSQL_PROTOCOL_SOCKET;
+			else if (!strcasecmp(sval, "PIPE"))
+				tmp._uint = MYSQL_PROTOCOL_PIPE;
+			else if (!strcasecmp(sval, "MEMORY"))
+				tmp._uint = MYSQL_PROTOCOL_MEMORY;
+			else
+				return;
+			
+			mysql_options(_options_conn, p->cst, &tmp._uint);
+			break;
+		
+		case MYSQL_OPT_LOCAL_INFILE:
+			
+			tmp._uint = value->_boolean.value;
+			mysql_options(_options_conn, p->cst, &tmp._uint);
+			break;
+			
+		case MYSQL_OPT_MAX_ALLOWED_PACKET:
+		case MYSQL_OPT_NET_BUFFER_LENGTH:
+			
+			tmp._ulong = value->_integer.value;
+			mysql_options(_options_conn, p->cst, &tmp._ulong);
+			break;
+
+		case MYSQL_OPT_SSL_FIPS_MODE:
+			
+			sval = value->_string.value.addr;
+			if (!strcasecmp(sval, "OFF"))
+				tmp._uint = SSL_FIPS_MODE_OFF;
+			else if (!strcasecmp(sval, "ON"))
+				tmp._uint = SSL_FIPS_MODE_ON;
+			else if (!strcasecmp(sval, "STRICT"))
+				tmp._uint = SSL_FIPS_MODE_STRICT;
+			else
+				return;
+			
+			mysql_options(_options_conn, p->cst, &tmp._uint);
+			break;
+
+		case MYSQL_OPT_SSL_MODE:
+			
+			sval = value->_string.value.addr;
+			if (!strcasecmp(sval, "DISABLED"))
+				tmp._uint = SSL_MODE_DISABLED;
+			else if (!strcasecmp(sval, "PREFERRED"))
+				tmp._uint = SSL_MODE_PREFERRED;
+			else if (!strcasecmp(sval, "REQUIRED"))
+				tmp._uint = SSL_MODE_REQUIRED;
+			else if (!strcasecmp(sval, "VERIFY_CA"))
+				tmp._uint = SSL_MODE_VERIFY_CA;
+			else if (!strcasecmp(sval, "VERIFY_IDENTITY"))
+				tmp._uint = SSL_MODE_VERIFY_IDENTITY;
+			else
+				return;
+			
+			mysql_options(_options_conn, p->cst, &tmp._uint);
+			break;
+		
+		default:
+			
+			if (p->type == GB_T_BOOLEAN)
+				mysql_options(_options_conn, p->cst, &value->_boolean.value);
+			else if (p->type == GB_T_INTEGER)
+				mysql_options(_options_conn, p->cst, &value->_integer.value);
+			else if (p->type == GB_T_STRING)
+				mysql_options(_options_conn, p->cst, value->_string.value.addr);
+	}
+	
+}
 
 static void set_character_set(DB_DATABASE *db)
 {
@@ -770,6 +915,10 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	
 	timeout = db->timeout;
 	mysql_options(conn, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
+	
+	_options_conn = conn;
+	
+	DB.GetOptions(add_option_value);
 	
 	env = getenv("GB_DB_MYSQL_NOSSL");
 	if (env && strcmp(env, "0"))

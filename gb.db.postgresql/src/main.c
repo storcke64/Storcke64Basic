@@ -703,6 +703,23 @@ static const char *get_quote(void)
 
 *****************************************************************************/
 
+static const char **_options_keys;
+static const char **_options_values;
+
+static void add_option(const char *key, const char *value)
+{
+	*(const char **)GB.Add(&_options_keys) = key;
+	*(const char **)GB.Add(&_options_values) = value;
+}
+
+static void add_option_value(const char *key, GB_VALUE *value)
+{
+	if (GB.Conv(value, GB_T_STRING))
+		return;
+	
+	add_option(key, value->_string.value.addr);
+}
+
 static int open_database(DB_DESC *desc, DB_DATABASE *db)
 {
 	const char *query =
@@ -712,22 +729,34 @@ static int open_database(DB_DESC *desc, DB_DATABASE *db)
 	PGresult *res;
 	int status;
 	char *name;
-	char dbname[512];
+	char buffer[16];
 
 	if (desc->name)
 		name = desc->name;
 	else
 		name = "template1";
 
-	if (snprintf(dbname, sizeof(dbname), "dbname='%s' connect_timeout=%d", get_quote_string(name, strlen(name), '\''), db->timeout) >= sizeof(dbname))
-	{
-		GB.Error("Cannot open database: database name too long");
-		return TRUE;
-	}
-
 	//fprintf(stderr, "gb.db.postgresql: host = `%s` port = `%s` dbnname = `%s` user = `%s` password = `%s`\n", desc->host, desc->port, dbname, desc->user, desc->password);
 
-	conn = PQsetdbLogin(desc->host, desc->port, NULL, NULL, dbname, desc->user, desc->password);
+	GB.NewArray(&_options_keys, sizeof(char *), 0);
+	GB.NewArray(&_options_values, sizeof(char *), 0);
+	
+	add_option("host", desc->host);
+	add_option("port", desc->port);
+	add_option("dbname", name);
+	add_option("user", desc->user);
+	add_option("password", desc->password);
+	sprintf(buffer, "%d", db->timeout);
+	add_option("connect_timeout", buffer);
+	
+	DB.GetOptions(add_option_value);
+	
+	add_option(NULL, NULL);
+	
+	conn = PQconnectdbParams((const char *const *)_options_keys, (const char *const *)_options_values, FALSE);
+	
+	GB.FreeArray(&_options_keys);
+	GB.FreeArray(&_options_values);
 
 	if (!conn)
 	{

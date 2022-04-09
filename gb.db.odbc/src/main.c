@@ -713,16 +713,18 @@ void GetConnectedDBName(DB_DESC *desc, ODBC_CONN *odbc)
 }
 
 /*****************************************************************************
- * 
+
 	open_database()
-	
+
 	Connect to a database.
 
 	<desc> points at a structure describing each connection parameter.
+	<db> points at the DB_DATABASE structure that must be initialized.
 
-	This function must return a database handle, or NULL if the connection
-	has failed.
-	
+	This function must return TRUE if the connection has failed.
+
+	The name of the database can be NULL, meaning a default database.
+
 *****************************************************************************/
 
 static int open_database(DB_DESC *desc, DB_DATABASE *db)
