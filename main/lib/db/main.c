@@ -49,6 +49,8 @@
 GB_INTERFACE GB EXPORT;
 
 
+DB_DATABASE *DB_CurrentDatabase = NULL;
+
 static DB_DRIVER *_drivers[MAX_DRIVER];
 static int _drivers_count = 0;
 static char *_query = NULL;
@@ -60,7 +62,8 @@ static int _temp_len;
 static bool _debug = FALSE;
 static const char *_try_another = NULL;
 
-DB_DATABASE *DB_CurrentDatabase = NULL;
+static GB_COLLECTION _options;
+
 
 int DB_CheckNameWith(const char *name, const char *msg, const char *more)
 {
@@ -192,13 +195,15 @@ static DB_DRIVER *DB_GetDriver(const char *type)
 }
 
 
-bool DB_Open(DB_DESC *desc, DB_DRIVER **driver, DB_DATABASE *db)
+bool DB_Open(DB_DESC *desc, DB_DRIVER **driver, DB_DATABASE *db, GB_COLLECTION options)
 {
 	DB_DRIVER *d;
 	int res;
 	int timeout;
 	const char *type = desc->type;
 
+	_options = options;
+	
 	timeout = db->timeout;
 	CLEAR(db);
 	db->timeout = timeout;
@@ -222,6 +227,27 @@ bool DB_Open(DB_DESC *desc, DB_DRIVER **driver, DB_DATABASE *db)
 		type = _try_another;
 	}
 }
+
+
+void DB_GetOptions(DB_OPTIONS_CALLBACK cb)
+{
+	GB_COLLECTION_ITER iter;
+	GB_VALUE value;
+	char *key;
+	int len;
+	
+	GB.Collection.Enum(_options, &iter, NULL, NULL, NULL);
+	for(;;)
+	{
+		if (GB.Collection.Enum(_options, &iter, (GB_VARIANT *)&value, &key, &len))
+			break;
+		
+		GB.BorrowValue(&value);
+		(*cb)(GB.TempString(key, len), &value);
+		GB.ReleaseValue(&value);
+	}
+}
+
 
 void DB_Format(DB_DRIVER *driver, GB_VALUE *arg, DB_FORMAT_CALLBACK add)
 {
@@ -694,6 +720,7 @@ void *GB_DB_1[] EXPORT = {
 	(void *)DB_QuoteString,
 	(void *)DB_UnquoteString,
 	(void *)DB_GetCurrent,
+	(void *)DB_GetOptions,
 
 	(void *)q_init,
 	(void *)q_add,

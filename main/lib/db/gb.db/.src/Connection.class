@@ -10,6 +10,14 @@ Private DEBUG_ME As Boolean
 Property Read Url As String
 Property Read SQL As SQLRequest
 
+'' Return or set the connection options.
+''
+'' These options are specific to the database type.
+
+Property Options As Collection
+
+Private $hOptions As Collection
+
 Private Function GetTempTableName() As String
 
   Dim iInd As Integer
@@ -508,5 +516,19 @@ Private Function Url_Read() As String
   If Me.User Then sUrl &= Me.User & "@"
   sUrl &= Me.Host &/ Me.Name
   Return sUrl
+
+End
+
+
+Private Function Options_Read() As Collection
+
+  If Not $hOptions Then $hOptions = New Collection
+  Return $hOptions
+
+End
+
+Private Sub Options_Write(Value As Collection)
+
+  $hOptions = Value.Copy()
 
 End

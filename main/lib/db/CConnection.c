@@ -79,7 +79,11 @@ static SUBCOLLECTION_DESC _tables_desc =
 
 static void open_connection(CCONNECTION *_object)
 {
-	if (DB_Open(&THIS->desc, &THIS->driver, &THIS->db))
+	GB_COLLECTION options;
+	
+	options = GB.GetProperty(THIS, "Options")->_object.value;
+	
+	if (DB_Open(&THIS->desc, &THIS->driver, &THIS->db, options))
 		return;
 
 	THIS->limit = 0;

@@ -133,6 +133,9 @@ typedef
 
 typedef
 	void (*DB_SUBST_CALLBACK)(int, char **, int *, char);
+	
+typedef
+	void (*DB_OPTIONS_CALLBACK)(const char *, GB_VALUE *);
 
 typedef
 	struct {
@@ -232,6 +235,7 @@ typedef
 		char *(*QuoteString)(const char *, int, char);
 		char *(*UnquoteString)(const char *, int, char);
 		DB_DATABASE *(*GetCurrentDatabase)();
+		void (*GetOptions)(DB_OPTIONS_CALLBACK);
 
 		struct {
 			void (*Init)(void);
