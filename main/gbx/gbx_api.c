@@ -2510,8 +2510,6 @@ void GB_Wait(int delay)
 		for(;;)
 		{
 			duration = (int)(wait * 1000 + 0.5);
-			if (duration <= 0)
-				duration = 1;
 			HOOK_DEFAULT(wait, WATCH_wait)(duration);
 
 			if (DATE_timer(&time, FALSE))

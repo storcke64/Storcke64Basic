@@ -72,18 +72,18 @@ void SUBR_wait(ushort code)
 	EXEC_set_native_error(FALSE);
 	
 	if (code == 0)
-		GB_Wait(0);
+		GB_Wait(-1);
 	else if (code == 1)
 	{
 		int delay = (int)(SUBR_get_float(PARAM) * 1000 + 0.5);
-		if (delay < 0)
+		if (delay <= 0)
 			delay = 0;
 		GB_Wait(delay);
 	}
 	else if (code == 2)
 	{
 		NPARAM = 0;
-		GB_Wait(-1);
+		GB_Wait(-2);
 	}
 
 	if (EXEC_has_native_error())
