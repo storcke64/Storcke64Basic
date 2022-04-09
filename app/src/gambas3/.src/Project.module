@@ -257,13 +257,9 @@ End
 
 Public Sub InitWebView()
 
-  Static bInit As Boolean
-
   'Dim sPath As String
   Dim hDefaultFont As Font
   Dim hFixedFont As Font
-
-  If bInit Then Return
 
   ' If Not WebSettings.Cache.Path Then
   '   sPath = "~/.cache"
@@ -300,8 +296,6 @@ Public Sub InitWebView()
   WebSettings.Fonts.Fixed = hFixedFont.Name
   WebSettings.Fonts.DefaultFixedSize = hFixedFont.Size
   
-  bInit = True
-
 End
 
 Public Sub Main()

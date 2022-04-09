@@ -121,6 +121,12 @@ Public Sub WebView_NewView()
   
 End
 
+Private Sub GetHelpView() As HelpView
+
+  Return Object.Parent(Me)
+
+End
+
 Private Sub HandleSpecialURL()
 
   Dim hWin As Window
@@ -129,11 +135,11 @@ Private Sub HandleSpecialURL()
   
   If $sNextUrl Begins "gambas://" Then 
     
-    MHelp.ManageSpecialLink(Me, $sNextUrl)
+    MHelp.ManageSpecialLink(GetHelpView(), $sNextUrl)
     
   Else If $sNextUrl Begins "wiki://" Then
     
-    If MHelp.MakeOffline(Me, $sNextUrl, $bNoHeader) Then
+    If MHelp.MakeOffline(GetHelpView(), $sNextUrl, $bNoHeader) Then
       hWin = Me.Window
       $hNotExist.Move(Me.ScreenX - hWin.ScreenX + Desktop.Scale, Me.ScreenY - hWin.ScreenY + Me.Height - $hNotExist.H - Desktop.Scale)
       $hNotExist.Show
