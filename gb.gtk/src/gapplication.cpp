@@ -939,8 +939,8 @@ GdkEvent *gApplication::_event = NULL;
 bool gApplication::_keep_focus = false;
 bool gApplication::_disable_mapping_events = false;
 
-int gApplication::_disable_input_events = 0;
-GQueue *gApplication::_input_events = NULL;
+bool gApplication::_disable_input_events = false;
+//GQueue *gApplication::_input_events = NULL;
 
 bool gApplication::_fix_breeze = false;
 bool gApplication::_fix_oxygen = false;
@@ -1189,16 +1189,15 @@ void gApplication::enterLoop(void *owner, bool showIt, GtkWindow *modal)
 {
 	void *old_owner = _loop_owner;
 	int l = _loopLevel;
-	//GtkWindowGroup *oldGroup;
+	bool d; 
 
 	if (showIt) ((gControl *)owner)->show();
-
-	//oldGroup = enterGroup();
 
 	_loopLevel++;
 	_loop_owner = owner;
 	setButtonGrab(NULL);
 
+	d = gApplication::disableInputEvents(false);
 	(*onEnterEventLoop)();
 	do
 	{
@@ -1206,17 +1205,16 @@ void gApplication::enterLoop(void *owner, bool showIt, GtkWindow *modal)
 	}
 	while (_loopLevel > l);
 	(*onLeaveEventLoop)();
+	gApplication::disableInputEvents(d);
 
 	_loop_owner = old_owner;
-
-	//exitGroup(oldGroup);
 }
 
 void gApplication::enterPopup(gMainWindow *owner)
 {
 	void *old_owner;
 	int l;
-	//GtkWindowGroup *oldGroup;
+	bool d;
 	GtkWindow *window = GTK_WINDOW(owner->border);
 	GtkWidget *old_popup_grab;
 
@@ -1225,8 +1223,6 @@ void gApplication::enterPopup(gMainWindow *owner)
 	// Remove possible current button grab
 	gApplication::setButtonGrab(NULL);
 //
-	//oldGroup = enterGroup();
-
 	gtk_window_set_modal(window, true);
 	owner->show();
 	gdk_window_set_override_redirect(gtk_widget_get_window(owner->border), true);
@@ -1238,7 +1234,6 @@ void gApplication::enterPopup(gMainWindow *owner)
 
 		if (_in_popup == 1)
 			owner->_grab_on_show = TRUE;
-			//gApplication::grabPopup();
 
 		l = _loopLevel;
 		old_owner = _loop_owner;
@@ -1246,6 +1241,7 @@ void gApplication::enterPopup(gMainWindow *owner)
 		_loopLevel++;
 		_loop_owner = owner;
 
+		d = gApplication::disableInputEvents(false);
 		(*onEnterEventLoop)();
 		//fprintf(stderr, "event loop <----\n");
 		do
@@ -1255,6 +1251,7 @@ void gApplication::enterPopup(gMainWindow *owner)
 		while (_loopLevel > l);
 		//fprintf(stderr, "event loop ---->\n");
 		(*onLeaveEventLoop)();
+		gApplication::disableInputEvents(d);
 
 		if (_in_popup == 1)
 		{
@@ -1273,10 +1270,7 @@ void gApplication::enterPopup(gMainWindow *owner)
 			gdk_window_set_override_redirect(gtk_widget_get_window(owner->border), false);
 			gtk_window_set_modal(window, false);
 		}
-		//exitGroup(oldGroup);
 	}
-	/*else
-		gControl::postDelete();*/
 
 	_in_popup--;
 }
@@ -1775,6 +1769,13 @@ bool gApplication::processInputEvent()
 	return false;
 }
 #endif
+
+bool gApplication::disableInputEvents(bool disable)
+{
+	bool d = _disable_input_events;
+	_disable_input_events = disable;
+	return d;
+}
 
 bool gApplication::eventsPending()
 {

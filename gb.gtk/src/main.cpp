@@ -585,21 +585,25 @@ static void hook_wait(int duration)
 	{
 		if (!_warning)
 		{
-			fprintf(stderr, "gb.gtk: warning: calling the event loop during a keyboard event handler is ignored\n");
+			fprintf(stderr, "gb.gtk3: warning: calling the event loop during a keyboard event handler is ignored\n");
 			_warning = TRUE;
 		}
 		return;
 	}
 
-	if (duration == 0)
+	if (duration >= 0)
 	{
-		gApplication::disableInputEvents();
+		MAIN_do_iteration(true);
+	}
+	else if (duration == -1)
+	{
+		bool d = gApplication::disableInputEvents(true);
 		while (gApplication::eventsPending())
 			MAIN_do_iteration(false);
-		gApplication::enableInputEvents();
+		gApplication::disableInputEvents(d);
 	}
-	else
-		MAIN_do_iteration(duration > 0);
+	else if (duration == -2)
+		MAIN_do_iteration(false);
 }
 
 static void hook_watch(int fd, int type, void *callback, intptr_t param)

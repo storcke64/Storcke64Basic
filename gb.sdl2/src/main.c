@@ -175,17 +175,21 @@ static int my_loop()
 
 static void my_wait(int duration)
 {
-	if (duration < 0)
+	if (duration >= 0)
+	{
+		GB.Loop(10);
+		event_loop();
+		WINDOW_update();
+	}
+	else if (duration == -1)
+	{
+		GB.Loop(10);
+		WINDOW_update();
+	}
+	else if (duration == -2)
 	{
 		while (!GB.Loop(10) && !event_loop())
 			WINDOW_update();
-	}
-	else
-	{
-		GB.Loop(10);
-		if (duration > 0)
-			event_loop();
-		WINDOW_update();
 	}
 }
 

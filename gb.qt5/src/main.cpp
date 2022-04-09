@@ -809,25 +809,24 @@ static void hook_wait(int duration)
 		return;
 	}
 
+	if (CKEY_is_valid())
+	{
+		if (!_warning)
+		{
+			fprintf(stderr, QT_NAME ": warning: calling the event loop during a keyboard event handler is ignored\n");
+			_warning = TRUE;
+		}
+		return;
+	}
+	
 	MAIN_in_wait++;
 	
-	if (duration > 0)
-	{
-		if (CKEY_is_valid())
-		{
-			if (!_warning)
-			{
-				fprintf(stderr, QT_NAME ": warning: calling the event loop during a keyboard event handler is ignored\n");
-				_warning = TRUE;
-			}
-		}
-		else
-			qApp->processEvents(QEventLoop::AllEvents, duration);
-	}
-	else if (duration < 0)
+	if (duration >= 0)
+		qApp->processEvents(QEventLoop::AllEvents, duration);
+	else if (duration == -1)
+		qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 0);
+	else if (duration == -2)
 		qApp->processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents);
-	else
-		qApp->processEvents(QEventLoop::ExcludeUserInputEvents, duration);
 	
 	MAIN_in_wait--;
 }
