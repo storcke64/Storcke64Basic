@@ -97,6 +97,7 @@ extern VALUE *EXEC_super;
 
 extern bool EXEC_debug;
 extern bool EXEC_debug_inside;
+extern bool EXEC_debug_hold;
 extern bool EXEC_task;
 extern bool EXEC_profile;
 extern bool EXEC_trace;
