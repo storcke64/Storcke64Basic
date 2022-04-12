@@ -1322,7 +1322,7 @@ Public Sub OnProjectDebug()
   
   $sLastLocal = ""
   $sLastObject = ""
-  If Settings["/ShowDebugPanelAutomatically", True] Then FDebugButton.SelectButton(TAB_CONSOLE)
+  If Settings["/ShowDebugPanelAutomatically", True] Then Action["console"].Value = True
   lblError.Text = ""
   lblError.Adjust
   panError.Hide
