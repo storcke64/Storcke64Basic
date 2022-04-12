@@ -71,13 +71,27 @@ static bool _quit_after_main = FALSE;
 static bool _eval = FALSE;
 static const char *_tests = NULL;
 
+static void NORETURN do_exit(int ret, bool immediate)
+{
+	if (EXEC_debug_hold)
+	{
+		if (ret) ERROR_warning("The process returned %d", ret);
+		sleep(86400);
+	}
+	
+	if (immediate)
+		_exit(ret);
+	else
+		exit(ret);
+}
+
 static void NORETURN my_exit(int ret)
 {
 	LOCAL_exit();
 	COMPONENT_exit();
 	EXTERN_exit();
 	//fclose(log_file);
-	exit(ret);
+	do_exit(ret, FALSE);
 }
 
 static void init(const char *file, int argc, char **argv)
@@ -155,7 +169,7 @@ void main_exit(bool silent)
 	{
 		if (!silent)
 			ERROR_print_at(stderr, _eval, TRUE);
-		_exit(1);
+		do_exit(1, TRUE);
 	}
 	END_TRY
 
@@ -166,7 +180,7 @@ void main_exit(bool silent)
 void MAIN_exit(bool silent, int ret)
 {
 	main_exit(silent);
-	_exit(ret);
+	do_exit(ret, TRUE);
 }
 
 
@@ -521,6 +535,6 @@ int main(int argc, char *argv[])
 
 	fflush(NULL);
 	
-	return ret;
+	do_exit(ret, FALSE);
 }
 

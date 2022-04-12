@@ -86,6 +86,7 @@ typedef
 		void (*EnterEval)(void);
 		void (*LeaveEval)(void);
 		void (*DebugInside)(bool);
+		void (*DebugHold)(void);
 		}
 	GB_DEBUG_INTERFACE;
 

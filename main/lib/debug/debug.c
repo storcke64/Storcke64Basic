@@ -553,6 +553,11 @@ static void command_quit(char *cmd)
 	exit(1);
 }
 
+static void command_hold(char *cmd)
+{
+	GB_DEBUG.DebugHold();
+}
+
 static void command_go(char *cmd)
 {
 	GB.Component.Signal(GB_SIGNAL_DEBUG_CONTINUE, 0);
@@ -1342,6 +1347,7 @@ void DEBUG_main(bool error)
 		{ "@", TC_NONE, command_frame, TRUE },
 		{ "o", TC_NONE, command_option, TRUE },
 		{ "w", TC_NONE, command_watch, TRUE },
+		{ "h", TC_NONE, command_hold, TRUE },
 
 		{ NULL }
 	};
