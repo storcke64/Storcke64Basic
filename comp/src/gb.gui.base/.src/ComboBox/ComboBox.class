@@ -30,6 +30,7 @@ Property Password As Boolean
 Property MaxLength As Integer
 Property Placeholder As String
 Property Read Selection As _ComboBox_Selection
+Property Read Selected As Boolean
 
 Private $bReadOnly As Boolean
 Private $bBorder As Boolean = True
@@ -192,11 +193,15 @@ End
 
 Private Sub Sort(Optional bForce As Boolean)
 
+  Dim sText As String
+  
   If Not $bSorted Then Return
   If Not $bDirty And Not bForce Then Return
   
+  If $bReadOnly Then sText = Text_Read()
   $aList.Sort(gb.Natural + gb.IgnoreCase)
   $bDirty = False
+  If $bReadOnly And If sText Then $iIndex = FindItem(sText)
 
 End
 
@@ -207,18 +212,26 @@ Private Function List_Read() As String[]
 
 End
 
-Private Sub List_Write(Value As String[])
-
-  If Value Then
-    $aList = Value.Copy()
-    Sort(True)
-  Else 
-    $aList.Clear
+Private Sub ResetIndex()
+  
+  If $bReadOnly And If $aList.Count And If $iIndex < 0 Then
+    Sort()
+    $iIndex = 0
   Endif
-
-  $iIndex = -1
   Me.Refresh
   
+End
+
+
+Private Sub List_Write(Value As String[])
+
+  Clear()
+  If Not Value Then Return
+
+  $aList = Value.Copy()
+  Sort(True)
+  ResetIndex
+
 End
 
 Private Function Count_Read() As Integer
@@ -404,6 +417,7 @@ Public Sub Add(Item As String, Optional Index As Integer)
     $aList.Add(Item, Index)
   Endif
   $bDirty = True
+  ResetIndex
   
 End
 
@@ -646,5 +660,12 @@ Private Sub Background_Write(Value As Integer)
   $iBg = Value
   If $hTextBox Then $hTextBox.Background = $iBg
   Me.Refresh
+
+End
+
+Private Function Selected_Read() As Boolean
+
+  CheckEditable
+  Return $hTextBox.Selected
 
 End
