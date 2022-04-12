@@ -808,7 +808,7 @@ static void hook_wait(int duration)
 		return;
 	}
 
-	if (CKEY_is_valid())
+	if (CKEY_is_valid() && duration != -1)
 	{
 		if (!_warning)
 		{
