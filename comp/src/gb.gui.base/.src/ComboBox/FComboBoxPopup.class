@@ -1,0 +1,66 @@
+' Gambas class file
+
+Private $aList As String[]
+
+Public Sub Open(aList As String[], iIndex As Integer, X As Integer, Y As Integer, W As Integer) As Integer
+  
+  Dim iRow As Integer
+  
+  $aList = aList
+  
+  gvwPopup.Rows.Count = aList.Count
+  gvwPopup.Columns.Count = 1
+  gvwPopup.Columns[0].Expand = True
+  
+  W -= Style.FrameWidth * 2
+  X += Style.FrameWidth
+  
+  Me.Resize(W, (gvwPopup.Font.TextHeight(" ") + 6) * Min(10, $aList.Count) + 2)
+  
+  Try gvwPopup.Row = iIndex
+  
+  iRow = Me.ShowPopup(X, Y) - 1
+  
+  $aList = Null
+  
+  Return iRow
+  
+End
+
+Public Sub gvwPopup_Data(Row As Integer, (Column) As Integer)
+
+  gvwPopup.Data.Text = $aList[Row]
+
+End
+
+Public Sub gvwPopup_MouseMove()
+
+  Dim iRow As Integer
+
+  If Mouse.X < 0 Or If Mouse.X >= gvwPopup.ClientW Then Return
+  
+  iRow = gvwPopup.RowAt(Mouse.Y)
+  If iRow >= 0 Then 
+    gvwPopup.Rows[iRow].EnsureVisible
+    gvwPopup.Row = iRow
+  Endif
+
+End
+
+' Public Sub gvwPopup_MouseWheel()
+'   
+'   gvwPopup_MouseMove
+'   
+' End
+
+Public Sub gvwPopup_MouseUp()
+  
+  Me.Close(gvwPopup.Row + 1)
+  
+End
+
+Public Sub Form_Activate()
+
+  gvwPopup.SetFocus
+
+End
