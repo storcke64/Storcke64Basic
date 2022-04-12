@@ -231,8 +231,6 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CTextBoxDesc,
 	CTextAreaDesc,
 	CTextAreaSelectionDesc,
-	CComboBoxDesc,
-	CComboBoxItemDesc,
 	CTabStripDesc,
 	CTabStripContainerDesc,
 	CTabStripContainerChildrenDesc,

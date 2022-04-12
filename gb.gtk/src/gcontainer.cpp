@@ -450,7 +450,7 @@ void gContainer::setUser()
 void gContainer::setPaint()
 {
 	arrangement.paint = true;
-	ON_DRAW(border, this, cb_expose, cb_draw);
+	ON_DRAW_BEFORE(border, this, cb_expose, cb_draw);
 }
 
 void gContainer::setInvert(bool vl)

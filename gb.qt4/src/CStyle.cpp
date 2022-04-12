@@ -108,7 +108,7 @@ static void init_option(QStyleOption &opt, int x, int y, int w, int h, int state
 	if (!(state & GB_DRAW_STATE_DISABLED))
 		opt.state |= QStyle::State_Enabled;
 	if (state & GB_DRAW_STATE_FOCUS)
-		opt.state |= QStyle::State_HasFocus;
+		opt.state |= QStyle::State_HasFocus | QStyle::State_KeyboardFocusChange;
 	if (state & GB_DRAW_STATE_HOVER)
 		opt.state |= QStyle::State_MouseOver;
 	if (state & GB_DRAW_STATE_ACTIVE)

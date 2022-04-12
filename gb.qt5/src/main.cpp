@@ -131,7 +131,6 @@ GB_CLASS CLASS_Printer;
 GB_CLASS CLASS_Image;
 GB_CLASS CLASS_SvgImage;
 GB_CLASS CLASS_TextArea;
-GB_CLASS CLASS_ComboBox;
 
 static bool in_event_loop = false;
 static int _no_destroy = 0;
@@ -1125,7 +1124,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	CMenuChildrenDesc, CMenuDesc,
 	CButtonDesc, CToggleButtonDesc, CToolButtonDesc,
 	CCheckBoxDesc, CRadioButtonDesc,
-	CTextBoxSelectionDesc, CTextBoxDesc, CComboBoxItemDesc, CComboBoxDesc,
+	CTextBoxSelectionDesc, CTextBoxDesc,
 	CTextAreaSelectionDesc, CTextAreaDesc,
 	CPanelDesc, CHBoxDesc, CVBoxDesc, CHPanelDesc, CVPanelDesc,
 	CTabStripContainerChildrenDesc, CTabStripContainerDesc, CTabStripDesc,
@@ -1224,7 +1223,6 @@ int EXPORT GB_INIT(void)
 	CLASS_Image = GB.FindClass("Image");
 	CLASS_SvgImage = GB.FindClass("SvgImage");
 	CLASS_TextArea = GB.FindClass("TextArea");
-	CLASS_ComboBox = GB.FindClass("ComboBox");
 
 	QT_InitEventLoop();
 

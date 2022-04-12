@@ -74,7 +74,6 @@ extern GB_CLASS CLASS_Printer;
 extern GB_CLASS CLASS_Image;
 extern GB_CLASS CLASS_SvgImage;
 extern GB_CLASS CLASS_TextArea;
-extern GB_CLASS CLASS_ComboBox;
 
 #endif
 

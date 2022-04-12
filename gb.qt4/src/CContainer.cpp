@@ -1088,7 +1088,7 @@ BEGIN_PROPERTY(UserContainer_Arrangement)
 
 END_PROPERTY
 
-BEGIN_PROPERTY(UserContainer_Focus)
+BEGIN_PROPERTY(UserControl_Focus)
 
 	if (READ_PROPERTY)
 		GB.ReturnBoolean(CWIDGET_get_allow_focus(THIS));
@@ -1652,6 +1652,7 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Indent", "b", Container_Indent),
 	GB_PROPERTY("_Invert", "b", Container_Invert),
 	GB_PROPERTY("_Centered", "b", Container_Centered),
+	GB_PROPERTY("_Focus", "b", UserControl_Focus),
 
 	USERCONTROL_DESCRIPTION,
 	

@@ -565,6 +565,16 @@ BEGIN_PROPERTY(UserControl_Container)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(UserControl_Focus)
+
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(WIDGET->canFocus());
+	else
+		WIDGET->setCanFocus(VPROP(GB_BOOLEAN));
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(UserContainer_Container)
 
 	if (READ_PROPERTY)
@@ -699,6 +709,7 @@ GB_DESC UserControlDesc[] =
 	GB_PROPERTY("_Indent", "b", Container_Indent),
 	GB_PROPERTY("_Invert", "b", Container_Invert),
 	GB_PROPERTY("_Centered", "b", Container_Centered),
+	GB_PROPERTY("_Focus", "b", UserControl_Focus),
 
 	USERCONTROL_DESCRIPTION,
 
