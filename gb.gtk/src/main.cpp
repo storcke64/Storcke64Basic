@@ -579,7 +579,7 @@ static void hook_wait(int duration)
 		return;
 	}
 
-	if (duration && gKey::isValid())
+	if (duration != -1 && gKey::isValid())
 	{
 		if (!_warning)
 		{
