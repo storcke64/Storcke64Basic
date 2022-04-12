@@ -1378,6 +1378,7 @@ Private Sub UpdateArguments()
   Dim hMenu As Menu
   Dim iCurrent As Integer
   Dim aArguments As String[][]
+  Dim sArg As String
   
   aArguments = Project.Config["/Debug/Arguments"]
   
@@ -1402,7 +1403,9 @@ Private Sub UpdateArguments()
   
   For I = 0 To aArguments.Max
     hMenu = New Menu(mnuArguments) As "mnuArgument"
-    hMenu.Text = Project.ArgumentsToString(aArguments[I])
+    sArg = Project.ArgumentsToString(aArguments[I])
+    If String.Len(sArg) > 128 Then sArg = String.Left(sArg, 128) & "…"
+    hMenu.Text = sArg
     hMenu.Radio = True
     hMenu.Value = iCurrent = (I + 1)
     hMenu.Tag = I + 1

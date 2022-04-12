@@ -3,7 +3,9 @@
 Static Private $aTheme As String[] = ["amethyst", "amber", "emerald", "gambas", "ruby", "sapphire", "visual", "obsidian", "quest", "quick", "blues", "zen", "pastel"]
 Static Private $aThemeName As String[] = [("Amethyst"), ("Amber"), ("Emerald"), ("Gambas"), ("Ruby"), ("Sapphire"), ("Visual"), ("Obsidian"), ("Quest"), ("Quick"), ("Blues"), ("Zen"), ("Pastel")]
 Static Private $aBrowser As String[] = ["konqueror", "rekonq", "firefox", "iceweasel", "epiphany", "seamonkey", "opera", "chromium"]
-Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "Terminal", "lxterminal", "xterm"]
+
+Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "lxterminal", "xterm"]
+Static Private $aTerminalNames As String[] = [("(Default)"), "KDE terminal", "Gnome terminal", "Mate terminal", "XFCE terminal", "LXDE terminal", "X11 terminal"]
 'Static Private $aImageEditor As String[] = ["gimp", "kolourpaint", "krita"]
 Static Private $aMessageBoxStyle As String[] = ["default", "flat"]
 Static Private $aMessageBoxStyleName As String[] = [("Default"), ("Flat")]
@@ -91,7 +93,7 @@ Public Sub _new()
   
   cmbIconTheme.List = [("Desktop"), "Gnome", "KDE", "Trinity", "KDE4", "KDE5", "LXDE", "Mate", "XFCE"].Insert(Stock.Themes)
   cmbBrowser.List = [("(Default)"), "Konqueror", "Rekonq", "Firefox", "Iceweasel", "Epiphany", "SeaMonkey", "Opera", "Chromium"]
-  cmbTerminal.List = [("(Default)"), "Konsole", "Gnome terminal", "Mate terminal", "XFCE Terminal", "lxterminal", "XTerm"]
+  cmbTerminal.List = $aTerminalNames
   txtEditorFont.Default = Project.DEFAULT_FONT
   txtConsoleFont.Default = Project.DEFAULT_FONT
   txtPrintFont.Default = Project.DEFAULT_FONT
