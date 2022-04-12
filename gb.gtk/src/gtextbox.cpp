@@ -122,7 +122,7 @@ static void cb_cursor(GtkWidget *entry, GParamSpec *param, gTextBox *data)
 	}
 }
 
-gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
+gTextBox::gTextBox(gContainer *parent) : gControl(parent)
 {
 #ifndef GTK3
 	_placeholder = NULL;
@@ -133,18 +133,13 @@ gTextBox::gTextBox(gContainer *parent, bool combo) : gControl(parent)
 	_text_area_visible = true;
 	_last_position = 0;
 
-	if (!combo)
-	{
-		have_cursor = true;
-		_no_background = TRUE;
-		
-		entry = widget = gtk_entry_new();
-		realize();
-		setColorBase();
-		initEntry();
-	}
-	else
-		entry = NULL;
+	have_cursor = true;
+	_no_background = TRUE;
+	
+	entry = widget = gtk_entry_new();
+	realize();
+	setColorBase();
+	initEntry();
 }
 
 gTextBox::~gTextBox()

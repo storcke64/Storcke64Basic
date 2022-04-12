@@ -38,7 +38,6 @@
 
 #define CBUTTON_PROPERTIES "*,Action,AutoResize,Text,Picture,Border=True,Default,Cancel"
 #define CCHECKBOX_PROPERTIES "*,Action,AutoResize,Text,Tristate,Invert,Value{CheckBox.False;True;None}"
-#define CCOMBOBOX_PROPERTIES "*,Action,ReadOnly,List,Text,Password,MaxLength,Placeholder,Sorted,Border=True"
 #define CDIAL_PROPERTIES "*,MinValue=0,MaxValue=100,Step=1,PageStep=10,Wrap,Mark=True"
 #define CDRAWINGAREA_PROPERTIES "*," CARRANGEMENT_PROPERTIES ",Border{Border.None;Plain;Sunken;Raised;Etched},Cached,Focus,NoBackground,Tablet"
 #define CEDITOR_PROPERTIES "*,Font,Border=True,ScrollBar{Scroll.*}=Both,Highlight{Highlight.None;Custom;Gambas;HTML;CSS;WebPage;Diff;JavaScript;SQL}=None,ReadOnly=False,TabSize{Range:1;16}=2"
@@ -121,7 +120,6 @@
 	
 #define BUTTON_DESCRIPTION DESCRIBE_CONTROL(CBUTTON_PROPERTIES, "Click", "16,4")
 #define CHECKBOX_DESCRIPTION DESCRIBE_CONTROL(CCHECKBOX_PROPERTIES, "Click", "24,4"), SIMILAR("Button")
-#define COMBOBOX_DESCRIPTION DESCRIBE_CONTROL(CCOMBOBOX_PROPERTIES, "Click", "24,4"), SIMILAR("TextBox")
 #define DIAL_DESCRIPTION DESCRIBE_CONTROL(CDIAL_PROPERTIES, "Change", "6,6"), SIMILAR("Slider")
 #define DRAWINGAREA_DESCRIPTION DESCRIBE_CONTAINER(CDRAWINGAREA_PROPERTIES, "Draw")
 #define EDITOR_DESCRIPTION DESCRIBE_CONTROL(CEDITOR_PROPERTIES, "KeyPress", "16,16"), SIMILAR("TextArea")

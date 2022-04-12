@@ -27,7 +27,7 @@
 class gTextBox : public gControl
 {
 public:
-	gTextBox(gContainer *parent, bool combo = false);
+	gTextBox(gContainer *parent);
 	~gTextBox();
 
 //"Properties"

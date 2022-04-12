@@ -64,7 +64,7 @@ void FixBreezeStyle::fixFontMetrics(QStyleOption *option)
 
 QRect FixBreezeStyle::subControlRect(ComplexControl element, const QStyleOptionComplex* option, SubControl subControl, const QWidget* widget) const
 {
-	if (element == CC_ComboBox)
+	/*if (element == CC_ComboBox)
 	{
 		if (subControl == SC_ComboBoxEditField)
 		{
@@ -92,7 +92,8 @@ QRect FixBreezeStyle::subControlRect(ComplexControl element, const QStyleOptionC
 			return visualRect( option, labelRect );
 		}
 	}
-	else if (element == CC_Slider)
+	else*/
+	if (element == CC_Slider)
 	{
 		const QStyleOptionSlider *sliderOption( qstyleoption_cast<const QStyleOptionSlider*>( option ) );
 		const bool horizontal( sliderOption->orientation == Qt::Horizontal );
@@ -167,7 +168,7 @@ void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOpti
 			}
 		}
 	}
-	else */
+	else
 	if (element == CC_ComboBox)
 	{
 		QStyleOptionComboBox newOption;	
@@ -189,7 +190,8 @@ void FixBreezeStyle::drawComplexControl(ComplexControl element, const QStyleOpti
 			}
 		}
 	}
-	else if (element == CC_Slider)
+	else*/
+	if (element == CC_Slider)
 	{
 		//QStyleOptionSlider newOption;
 		const QStyleOptionSlider *sliderOption( qstyleoption_cast<const QStyleOptionSlider*>( option ) );

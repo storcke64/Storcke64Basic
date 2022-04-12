@@ -17,7 +17,7 @@ gb_gtk_la_SOURCES = \
 	gdesktop.cpp gdialog.cpp \
 	gcontrol.cpp gcontainer.cpp \
 	gbutton.cpp gslider.cpp gsignals.cpp \
-	gcombobox.cpp gtextbox.cpp gtextarea.cpp \
+	gtextbox.cpp gtextarea.cpp \
 	gpanel.cpp gtabstrip.cpp \
 	gmenu.cpp gtrayicon.cpp gmainwindow.cpp \
 	gtree.h gtree.cpp \
@@ -60,7 +60,6 @@ gb_gtk_la_SOURCES = \
 	gtrayicon.h \
 	gplugin.h \
 	gbutton.h \
-	gcombobox.h \
 	gtextbox.h \
 	gtextarea.h \
 	gslider.h \
