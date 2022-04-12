@@ -75,6 +75,7 @@ Private $sRemoteBuffer As String
 Private $bRemoteFifoAuth As Boolean
 Private $bProcessAuth As Boolean
 Private $bProcessIgnoreNextNewLine As Boolean
+Private $bGnomeTerminal As Boolean
 
 Public Sub Init()
  
@@ -645,9 +646,8 @@ Public Sub Stop()
 
   If $iState = STATE_STOP Then Return
 
-  'Try $hBrowser.Kill
-  '$hBrowser = Null
   If $hProcess Then
+    If $bGnomeTerminal Then Pause()
     Try $hProcess.Kill
     $hProcess.Wait(1)
   Endif
@@ -1244,6 +1244,8 @@ Private Sub Start(sCmd As String)
       Endif
       
     Endif
+    
+    $bGnomeTerminal = False
       
     Select Case sProg
     
@@ -1251,10 +1253,11 @@ Private Sub Start(sCmd As String)
         aExec = ["konsole", "--nofork", "--hold", "--name", Project.Name & "-output", "-e", aExec.Join(" ")]
         
       Case "gnome-terminal"
-        ' gnome terminal cannot hold at end
-        aExec.Insert(["gnome-terminal", "--hide-menubar", "--maximize", "--title=" & sTitle, "-x"], 0)
+        aExec.Insert(["gnome-terminal", "--hide-menubar", "--maximize", "--wait", "--title=" & sTitle, "--"], 0)
+        $aCmdStart.Add("h", 0)
+        $bGnomeTerminal = True
         
-      Case "Terminal", "xfce4-terminal", "mate-terminal"
+      Case "xfce4-terminal", "mate-terminal"
         aExec.Insert([sProg, "--hide-menubar", "--hide-toolbars", "--title=" & sTitle, "--hold", "-x"], 0)
       
       Case "lxterminal"
