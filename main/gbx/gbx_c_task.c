@@ -652,7 +652,7 @@ BEGIN_METHOD(Task_Wait, GB_FLOAT timeout)
 	
 	ON_ERROR_1(error_Task_Wait, THIS)
 	{
-		GB_Wait(0);
+		GB_Wait(-1);
 		
 		while (!THIS->stopped)
 		{

@@ -74,7 +74,7 @@ void JIT_abort(void)
 	
 	find_method(&func, "_Abort", NULL, NULL);
 	GB_Call(&func, 0, FALSE);
-	GB_Wait(0);
+	GB_Wait(-1);
 }
 
 void JIT_exit(void)
