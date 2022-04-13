@@ -149,6 +149,7 @@ End
 Public Sub gvwInfo_Draw(X As Integer, Y As Integer, Width As Integer, Height As Integer, Row As Integer, Column As Integer)
 
   If Row = 0 And If Column = 0 Then
+    Paint.Background = Color.Blue
     Paint.DrawText("Gambas", X, Y, Width, Height, Align.Center)
   Endif
 

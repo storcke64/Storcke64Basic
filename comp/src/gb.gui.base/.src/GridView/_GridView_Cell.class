@@ -209,12 +209,14 @@ End
 
 Private Sub RowSpan_Write(Value As Integer)
 
-  Dim S As Integer = _View._GetSpan(_Row, _Column)[1]
+  Dim aSpan As Short[]
 
-  If S < 0 Then Return
-  If Value < 1 Or If Value > 32767 Then Return
+  aSpan = _View._GetSpan(_Row, _Column)
+  Dec Value
+  If Value < 0 Or If Value > 32767 Then Return
+  If aSpan[1] < 0 Or If aSpan[0] = Value Then Return
   
-  _View._SetSpan(_Row, _Column, Value - 1, S)
+  _View._SetSpan(_Row, _Column, Value, aSpan[1])
   _View.Refresh
 
 End
@@ -229,12 +231,14 @@ End
 
 Private Sub ColumnSpan_Write(Value As Integer)
 
-  Dim S As Integer = _View._GetSpan(_Row, _Column)[0]
+  Dim aSpan As Short[]
 
-  If S < 0 Then Return
-  If Value < 1 Or If Value > 32767 Then Return
+  aSpan = _View._GetSpan(_Row, _Column)
+  Dec Value
+  If Value < 0 Or If Value > 32767 Then Return
+  If aSpan[0] < 0 Or If aSpan[1] = Value Then Return
   
-  _View._SetSpan(_Row, _Column, S, Value - 1)
+  _View._SetSpan(_Row, _Column, aSpan[0], Value)
   _View.Refresh
 
 End

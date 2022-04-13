@@ -539,6 +539,13 @@ Public Sub GridView_Data(Row As Integer, (Column) As Integer)
   If Not hItem Then Return
   
   $hView.Data.Background = hItem.Background
+  If Column = 0 Then
+    If hItem.Span Then
+      $hView[Row, Column].ColumnSpan = $hView.Columns.Count
+    Else 
+      $hView[Row, Column].ColumnSpan = 1
+    Endif
+  Endif
   
 End
 
@@ -764,6 +771,7 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     Else
       Paint.Background = iFg 'Style.ForegroundOf(Me)
     Endif
+    
     If hItem.Font Then Paint.Font = hItem.Font
     
     'Draw.Text(hItem.Text & " (" & hItem._Index & ") [" & hItem._Rows & "] {" & hItem._GrandChildren & "}", X, Y, W, H, $hView.Columns[Column].Alignment)

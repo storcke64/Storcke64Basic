@@ -292,7 +292,9 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
     If .Font And If .Font.Modified Then Paint.Font = .Font
 
     If $bHasDrawEvent Then
+      Paint.Save
       bCancel = Raise Draw(X, Y, W, H, iRow, iCol)
+      Paint.Restore
       If bCancel Then Goto DRAW_GRID
     Endif
     
