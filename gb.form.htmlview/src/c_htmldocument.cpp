@@ -1013,6 +1013,7 @@ int html_document::find_anchor(const litehtml::tstring& anchor)
 static void reload_document(void *_object)
 {
 	delete THIS->doc;
+	THIS->doc = NULL;
 	
 	if (THIS->html && *THIS->html)
 	{	
