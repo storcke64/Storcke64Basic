@@ -420,7 +420,10 @@ END_METHOD
 
 BEGIN_METHOD_VOID(Font_Copy)
 
-	GB.ReturnObject(CFONT_create(*THIS->font));
+	QFont f;
+	
+	f.fromString(THIS->font->toString());
+	GB.ReturnObject(CFONT_create(f));
 
 END_METHOD
 
