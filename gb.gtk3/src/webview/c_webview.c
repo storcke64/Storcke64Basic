@@ -393,7 +393,7 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	webkit_web_view_run_javascript(WIDGET, script, NULL, (GAsyncReadyCallback)cb_javascript_finished, (gpointer)THIS);
 	
 	while(THIS->js_running)
-		GB.Wait(0);
+		GB.Wait(-1);
 	
 	if (THIS->js_error)
 	{

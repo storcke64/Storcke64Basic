@@ -447,7 +447,7 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	WIDGET->page()->runJavaScript(QSTRING_ARG(script), cb_javascript_finished);
 	
 	while(_js_running)
-		GB.Wait(0);
+		GB.Wait(-1);
 
 	if (_js_error)
 	{
