@@ -230,6 +230,8 @@ Static Public Sub Refresh()
   For Each hWindow In Windows
     
     hWin = hWindow
+    If Not Object.IsValid(hWin) Then Continue 
+    
     _Refresh(ByRef hWin.Icon)
     GoSub REFRESH_MENU
       
