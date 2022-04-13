@@ -160,6 +160,7 @@ Private Sub AddVariableHeader(hView As ColumnView, sKey As String, sText As Stri
     .MoveFirst()
     .Font = lvwStack.Font
     .Background = Color.SetAlpha(Color.Foreground, 240)
+    .Span = True
   End With
 
 End
