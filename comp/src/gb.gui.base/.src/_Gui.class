@@ -386,6 +386,8 @@ Static Private Sub GetTopLevel(hCtrl As Control) As Window
 
   Dim hWin As Window
   
+  If Not hCtrl Then Return
+  
   Do
     hWin = hCtrl.Window
     If hWin.TopLevel Then Return hWin
@@ -394,10 +396,9 @@ Static Private Sub GetTopLevel(hCtrl As Control) As Window
   
 End
 
-
 Static Public Sub MustAnimate(hCtrl As Control) As Boolean
   
   If Not Application.Animations Then Return
-  If GetTopLevel(hCtrl) = Application.ActiveWindow Then Return True
+  Return GetTopLevel(hCtrl) = GetTopLevel(Application.ActiveWindow) 
   
 End

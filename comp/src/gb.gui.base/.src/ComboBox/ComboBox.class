@@ -385,13 +385,13 @@ Private Sub Index_Write(Value As Integer)
   
   Sort()
   If $bReadOnly Then
-    If $iIndex = Value Then Return
-    $iIndex = Value
-    Me.Refresh
+    If $iIndex <> Value Then
+      $iIndex = Value
+      Me.Refresh
+    Endif
   Else 
     $iIndex = Value
     Try sText = $aList[$iIndex]
-    If $hTextBox.Text = sText Then Return
     $hTextBox.Text = sText
   Endif
 
