@@ -383,6 +383,8 @@ Private Sub Index_Write(Value As Integer)
   
   If Value < -1 Or If Value >= $aList.Count Then Error.Raise("Bad argument")
   
+  If $iIndex < 0 And If Value < 0 Then Return
+  
   Sort()
   If $bReadOnly Then
     If $iIndex <> Value Then
