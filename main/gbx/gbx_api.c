@@ -99,7 +99,7 @@ const void *const GAMBAS_Api[] =
 	(void *)EVENT_post,
 	(void *)EVENT_post2,
 	(void *)CTIMER_every,
-	(void *)GB_Raise,
+	(void *)GB_RaiseEvent,
 	(void *)GB_RaiseBegin,
 	(void *)GB_RaiseEnd,
 	(void *)EVENT_post_event,
@@ -394,6 +394,7 @@ const void *const GAMBAS_JitApi[] =
 
 bool GAMBAS_DoNotRaiseEvent = FALSE;
 bool GAMBAS_StopEvent = FALSE;
+bool GAMBAS_RaiseEventCanPropagate = FALSE;
 
 static bool _event_stopped = FALSE;
 static int _raise_event_level = 0;
@@ -793,7 +794,7 @@ static int get_event_func_id(ushort *event_tab, int event_id)
 	return func_id;
 }
 
-static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
+static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam, bool can_propagate)
 {
 	bool stop_event;
 	CLASS *class;
@@ -840,7 +841,11 @@ static bool raise_event(OBJECT *observer, void *object, int func_id, int nparam)
 	}
 	CATCH 
 	{
-		if (ERROR->info.code && ERROR->info.code != E_ABORT) // && !STACK_has_error_handler())
+		// Errors cannot be propagated outside of an event handler, because 
+		// the event may result from a library signal that do not support 
+		// exceptions (like the glib library).
+		
+		if (ERROR->info.code && ERROR->info.code != E_ABORT && !(can_propagate && STACK_has_error_handler()))
 		{
 			ERROR_hook();
 
@@ -912,7 +917,7 @@ void GB_RaiseEnd(GB_RAISE_HANDLER *handler)
 	_GB_Raise_handler = handler->old;
 }
 
-bool GB_Raise(void *object, int event_id, int nparam, ...)
+bool GB_RaiseEvent(void *object, int event_id, int nparam, ...)
 {
 	OBJECT *parent;
 	int func_id;
@@ -920,7 +925,11 @@ bool GB_Raise(void *object, int event_id, int nparam, ...)
 	va_list args;
 	bool arg;
 	COBSERVER *obs;
+	bool can_propagate;
 
+	can_propagate = GAMBAS_RaiseEventCanPropagate;
+	GAMBAS_RaiseEventCanPropagate = FALSE;
+	
 	if (GAMBAS_DoNotRaiseEvent)
 		return FALSE;
 
@@ -968,7 +977,7 @@ bool GB_Raise(void *object, int event_id, int nparam, ...)
 			}
 
 			EXEC_dup(nparam);
-			result = raise_event(parent, object, func_id, nparam);
+			result = raise_event(parent, object, func_id, nparam, can_propagate);
 
 			if (result)
 				goto __RETURN;
@@ -994,7 +1003,7 @@ bool GB_Raise(void *object, int event_id, int nparam, ...)
 				else
 				{
 					EXEC_dup(nparam);
-					result = raise_event(parent, object, func_id, nparam);
+					result = raise_event(parent, object, func_id, nparam, can_propagate);
 					if (result)
 						goto __RETURN;
 				}
@@ -1024,7 +1033,7 @@ bool GB_Raise(void *object, int event_id, int nparam, ...)
 			}
 
 			EXEC_dup(nparam);
-			result = raise_event(parent, object, func_id, nparam);
+			result = raise_event(parent, object, func_id, nparam, can_propagate);
 			if (result)
 				goto __RETURN;
 		}

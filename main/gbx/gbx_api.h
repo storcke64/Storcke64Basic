@@ -39,7 +39,7 @@ const char *GB_CurrentComponent(void);
 void GB_Wait(int);
 void GB_Push(int nval, ...);
 bool GB_CanRaise(void *object, int event_id);
-bool GB_Raise(void *object, int event_id, int nparam, ...);
+bool GB_RaiseEvent(void *object, int event_id, int nparam, ...);
 void GB_RaiseBegin(GB_RAISE_HANDLER *handler);
 void GB_RaiseEnd(GB_RAISE_HANDLER *handler);
 int GB_GetEvent(void *class, char *name);
@@ -224,6 +224,8 @@ void GB_DebugHold(void);
 
 #define GB_PrintString PRINT_string
 
+#define GB_Raise(_object, _event_id, _nparam, ...) (GAMBAS_RaiseEventCanPropagate = TRUE, GB_RaiseEvent(_object, _event_id, _nparam, ## __VA_ARGS__))
+
 #ifndef __GBX_API_C
 EXTERN void *GAMBAS_Api[];
 EXTERN void *GAMBAS_DebugApi[];
@@ -231,6 +233,7 @@ EXTERN void *GAMBAS_JitApi[];
 EXTERN unsigned int GAMBAS_MissingParam;
 EXTERN bool GAMBAS_DoNotRaiseEvent;
 EXTERN bool GAMBAS_StopEvent;
+EXTERN bool GAMBAS_RaiseEventCanPropagate;
 #endif
 
 #endif
