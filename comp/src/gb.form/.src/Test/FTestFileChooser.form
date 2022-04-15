@@ -64,13 +64,8 @@
     #Translate = False
     Expand = True
     Spacing = True
-    { FileChooser1 FileChooser
-      MoveScaled(10,4,77,56)
-      Expand = True
-      Multi = True
-      Filter = [("*.jpg;*.gif;*.png"), ("Images")]
-      ShowDetailed = True
-      ShowButton = True
+    { DirChooser1 DirChooser
+      MoveScaled(8,8,65,48)
     }
     { FileProperties1 FileProperties
       MoveScaled(94,7,32,44)

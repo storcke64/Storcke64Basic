@@ -771,7 +771,7 @@ Public Sub SetSettings(aVar As Variant[])
     If $bFile Then Try fvwChoose.Current = aVar[3]
     Try $bView = Not aVar[4]
     If Not Error Then btnView_Click
-    splChoose.Layout = aVar[5]
+    Try splChoose.Layout = aVar[5]
     Try SetFilterIndex(aVar[7])
     
     Try iZoom = $aIconSize.Find(fvwChoose.IconSize)

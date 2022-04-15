@@ -102,12 +102,19 @@ Public Sub SetOrientation(iOrientation As Integer)
 
 End
 
+Private Sub IsSeparatorVisible() As Boolean
+
+  Return $bSeparator And Not HasBorder()
+
+End
+
 Private Sub RefreshPanel()
 
   Dim W As Integer
   Dim W2 As Integer
   Dim Y As Integer
   Dim D As Integer
+  Dim bSeparator As Boolean
 
   'IF NOT $bVisible THEN panSide.Hide
   If Not $bOpened Then Return
@@ -201,8 +208,11 @@ Private Sub RefreshPanel()
 
   'If $bTransparent Then panSide.Move(0, 0, Me.ClientW, Me.ClientH)
   
+  bSeparator = IsSeparatorVisible()
+  sepSide.Visible = bSeparator And $bVisible
+  
   If $bTransparent Then
-    D = 0
+    D = IIf(bSeparator, 1, 0)
   Else
     D = BUTTON_H
   Endif
@@ -226,8 +236,6 @@ Private Sub RefreshPanel()
       panSide.Move(0, 0, Me.ClientW - D, Me.ClientH)
 
   End Select
-  
-  sepSide.Visible = $bSeparator And $bVisible
   
   'IF $bVisible THEN panSide.Show
   
@@ -541,7 +549,6 @@ Private Sub AfterTogglePanel()
   
 End
 
-
 Private Sub TogglePanel()
 
   Dim bAnim As Boolean
@@ -605,7 +612,7 @@ Private Sub TogglePanel()
     If bAnim Then
       
       panSide.Show
-      sepSide.Visible = $bSeparator
+      sepSide.Visible = IsSeparatorVisible()
       
       If $iOrientation = Align.Top Or If $iOrientation = Align.Bottom Then
         $iTarget = $H
@@ -1257,3 +1264,17 @@ Public Sub TimerAutoHide_Timer()
   Endif
   
 End
+
+Public Sub SetBorder(bBorder As Boolean)
+  
+  panSide.Border = If(bBorder, Border.Plain, Border.None)
+  RefreshPanel
+  
+End
+
+Public Sub HasBorder() As Boolean
+  
+  Return panSide.Border <> Border.None
+  
+End
+

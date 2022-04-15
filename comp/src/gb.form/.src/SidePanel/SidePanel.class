@@ -61,13 +61,13 @@ End
 
 Private Function Border_Read() As Boolean
 
-  Return $hForm.GetContainer().Border <> Border.None
+  Return $hForm.HasBorder()
 
 End
 
 Private Sub Border_Write(bBorder As Boolean)
 
-  $hForm.GetContainer().Border = If(bBorder, Border.Sunken, Border.None)
+  $hForm.SetBorder(bBorder)
 
 End
 

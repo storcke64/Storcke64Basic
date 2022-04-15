@@ -1013,7 +1013,7 @@ Private Sub Settings_Write(Value As Variant[])
   
 Catch
   
-  Error "gb.form :"; Error.Where; ": "; Error.Text
+  Error "gb.form: "; Error.Where; ": "; Error.Text
   
 End
 

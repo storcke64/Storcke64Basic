@@ -91,7 +91,7 @@ difference              #
 directory               places/folder
 disconnect              actions/network-disconnect
 down                    actions/go-down
-download                [elementary]actions/media-import-audio-cd;emblems/emblem-downloads;actions/edit-download;actions/download
+download                actions/download;actions/edit-download;[elementary]actions/media-import-audio-cd;emblems/emblem-downloads
 draw-arrow              actions/draw-arrow
 draw-circle             actions/draw-circle;tools/draw-ellipse
 draw-line               actions/draw-line
@@ -217,7 +217,7 @@ linux                   #;;preferences/preferences-system-linux;apps/preferences
 lock                    actions/object-locked;status/object-locked;;preferences/preferences-desktop-user-password;apps/preferences-desktop-user-password
 lock-screen             apps/system-lock-screen;actions/system-lock-screen
 logout                  apps/system-log-out;actions/system-log-out
-lower                   actions/object-ordre-lower
+lower                   actions/object-order-lower
 love                    actions/love
 mail                    apps/evolution-mail;actions/mail-mark-unread;;preferences/preferences-mail;apps/preferences-mail
 make                    actions/arrow-down
@@ -290,7 +290,7 @@ question                status/dialog-question;actions/svn-status
 quit                    actions/application-exit
 quote                   actions/format-text-blockquote
 rain                    applets/weather-showers;status/weather-showers
-raise                   actions/object-ordre-raise
+raise                   actions/object-order-raise
 repeat                  actions/media-playlist-repeat
 record                  actions/media-record
 red                     [breeze*]actions/colors-chromared
@@ -340,7 +340,7 @@ sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
 speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
 spell-check             actions/tools-check-spelling
-star                    [breeze*]actions/draw-star;status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
+star                    status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
 statistics              actions/view-statistics
 storm                   applets/weather-storm;status/weather-storm
