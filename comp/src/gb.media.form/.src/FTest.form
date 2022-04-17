@@ -8,13 +8,18 @@
   { MediaView1 MediaView
     MoveScaled(4,5,38,30)
     Expand = True
-    URL = "/home/benoit/Vidéos/vlc-record-2018-12-21.mp4"
+    URL = "/home/benoit/StopHatingRussians.mp4"
   }
   { HBox1 HBox
     MoveScaled(4,39,78,4)
+    Spacing = True
     { Button1 Button
       MoveScaled(5,0,16,4)
       Text = ("Volume")
+    }
+    { Button2 Button
+      MoveScaled(23,0,16,4)
+      Text = ("Hide")
     }
   }
 }
