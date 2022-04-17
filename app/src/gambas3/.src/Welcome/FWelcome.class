@@ -460,9 +460,9 @@ Public Sub MediaPlayer_End()
   
 End
 
-
-Public Sub Form_Arrange()
-
+Public Sub Form_Close()
   
-
+  $hPlayer.Stop()
+  $hPlayer = Null
+  
 End
