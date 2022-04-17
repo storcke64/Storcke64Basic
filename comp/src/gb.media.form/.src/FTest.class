@@ -12,3 +12,9 @@ Static Public Sub _init()
   Application.Theme = "Gambas"
   
 End
+
+Public Sub Button2_Click()
+
+  MediaView1.Visible = Not MediaView1.Visible
+
+End

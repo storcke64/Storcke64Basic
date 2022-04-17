@@ -330,7 +330,8 @@ End
 
 Public Sub Form_Close()
 
-  Try $hPlayer.Stop
+  Try $hPlayer.Close()
+  $hPlayer = Null
 
 End
 
