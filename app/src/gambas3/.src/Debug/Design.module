@@ -1200,7 +1200,7 @@ Private Sub Start(sCmd As String)
     
       sTitle = Project.Name & " (" & ("Output terminal") & ")"
     
-      sProg = Settings["/Terminal"]
+      sProg = Settings["/Debug/Terminal"]
       
       If Not sProg Or If Project.CheckProgram(sProg) Then
       

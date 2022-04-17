@@ -28,7 +28,7 @@
       Action = ".new-table"
       AutoResize = True
       Text = ("New table") & "..."
-      Picture = Picture["icon:/small/new"]
+      Picture = Picture["icon:/small/insert-table"]
     }
     { btnSave ToolButton mnuSave
       Name = "btnSave"
@@ -458,7 +458,7 @@
   }
   { Action new-table
     Text = "New table"
-    Picture = "icon:/small/new"
+    Picture = "icon:/small/insert-table"
   }
   { Action paste-table
     Text = "Paste"

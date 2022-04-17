@@ -4,8 +4,6 @@ Static Private $aTheme As String[] = ["amethyst", "amber", "emerald", "gambas", 
 Static Private $aThemeName As String[] = [("Amethyst"), ("Amber"), ("Emerald"), ("Gambas"), ("Ruby"), ("Sapphire"), ("Visual"), ("Obsidian"), ("Quest"), ("Quick"), ("Blues"), ("Zen"), ("Pastel")]
 Static Private $aBrowser As String[] = ["konqueror", "rekonq", "firefox", "iceweasel", "epiphany", "seamonkey", "opera", "chromium"]
 
-Static Private $aTerminal As String[] = ["konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "lxterminal", "xterm"]
-Static Private $aTerminalNames As String[] = [("(Default)"), "KDE terminal", "Gnome terminal", "Mate terminal", "XFCE terminal", "LXDE terminal", "X11 terminal"]
 'Static Private $aImageEditor As String[] = ["gimp", "kolourpaint", "krita"]
 Static Private $aMessageBoxStyle As String[] = ["default", "flat"]
 Static Private $aMessageBoxStyleName As String[] = [("Default"), ("Flat")]
@@ -93,7 +91,6 @@ Public Sub _new()
   
   cmbIconTheme.List = [("Desktop"), "Gnome", "KDE", "Trinity", "KDE4", "KDE5", "LXDE", "Mate", "XFCE"].Insert(Stock.Themes)
   cmbBrowser.List = [("(Default)"), "Konqueror", "Rekonq", "Firefox", "Iceweasel", "Epiphany", "SeaMonkey", "Opera", "Chromium"]
-  cmbTerminal.List = $aTerminalNames
   txtEditorFont.Default = Project.DEFAULT_FONT
   txtConsoleFont.Default = Project.DEFAULT_FONT
   txtPrintFont.Default = Project.DEFAULT_FONT
@@ -166,7 +163,6 @@ Public Sub _new()
   
   cmbIconTheme.Index = Max(0, cmbIconTheme.List.Find(Settings["/Theme", MTheme.DEFAULT_THEME]))
   cmbBrowser.Index = $aBrowser.Find(Settings["/Browser"]) + 1
-  cmbTerminal.Index = $aTerminal.Find(Settings["/Terminal"]) + 1
 
   SetPercentSize(cmbProjectFontSize, Settings["/ProjectFontSize", 100])    
   SetPercentSize(cmbTitleFontSize, Settings["/TitleFontSize", 80])    
@@ -553,16 +549,6 @@ Public Sub cmbBrowser_Click()
   
   Project.Browser = ""
 
-End
-
-Public Sub cmbTerminal_Click()
-
-  If cmbTerminal.Index > 0 Then 
-    Settings["/Terminal"] = $aTerminal[cmbTerminal.Index - 1]
-  Else   
-    Settings["/Terminal"] = ""
-  Endif
-  
 End
 
 Public Sub btnShowDebug_Click()

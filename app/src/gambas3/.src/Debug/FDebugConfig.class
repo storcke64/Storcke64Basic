@@ -1,5 +1,8 @@
 ' Gambas class file
 
+Static Private $aTerminal As String[] = ["", "konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "lxterminal", "xterm"]
+Static Private $aTerminalNames As String[] = [("(Default)"), "KDE terminal", "Gnome terminal", "Mate terminal", "XFCE terminal", "LXDE terminal", "X11 terminal"]
+
 Static Public Sub Run() As Boolean
   
   Return Not FDebugConfig.ShowModal()
@@ -11,6 +14,13 @@ Public Sub btnCancel_Click()
   Me.Close
 
 End
+
+Public Sub _new()
+  
+  cmbTerminal.List = $aTerminalNames
+  
+End
+
 
 Public Sub Form_Open()
 
@@ -34,7 +44,8 @@ Private Sub UpdateOptions()
   For Each hCtrl In ipnDebug[0].Children
     If hCtrl Not Is HBox Then Continue
     hCont = hCtrl
-    hButton = hCont.Children[1]
+    Try hButton = hCont.Children[1]
+    If Error Then Continue
     If hButton.Tag Then hButton.Value = aEnv.Exist(hButton.Tag)
   Next
 
@@ -48,6 +59,8 @@ Private Sub LoadSettings()
   ' Options
   
   btnUseTerminal.Value = Project.Config["/Debug/UseTerminal"]
+  cmbTerminal.Index = $aTerminal.Find(Settings["/Debug/Terminal", ""])
+  
   btnRedirectStderr.Value = Project.Config["/Debug/RedirectStderr"]
   btnUseHttpServer.Value = Project.Config["/Debug/UseHttpServer"]
 
@@ -102,6 +115,8 @@ Private Sub SaveSettings() As Boolean
   ' Options
   
   Project.Config["/Debug/UseTerminal"] = btnUseTerminal.Value
+  Settings["/Debug/Terminal"] = $aTerminal[cmbTerminal.Index]
+
   Project.Config["/Debug/RedirectStderr"] = btnRedirectStderr.Value
   Project.Config["/Debug/UseHttpServer"] = btnUseHttpServer.Value
 
@@ -191,5 +206,11 @@ End
 Public Sub Form_Close()
 
   Settings.Write(Me)
+
+End
+
+Public Sub btnUseTerminal_Click()
+
+  panTerminal.Visible = btnUseTerminal.Value
 
 End
