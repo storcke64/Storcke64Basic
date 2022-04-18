@@ -1252,8 +1252,13 @@ Private Sub Start(sCmd As String)
       Case "konsole"
         aExec = ["konsole", "--nofork", "--hold", "--name", Project.Name & "-output", "-e", aExec.Join(" ")]
         
-      Case "gnome-terminal", "xfce4-terminal", "mate-terminal"
+      Case "gnome-terminal"
         aExec.Insert([sProg, "--hide-menubar", "--maximize", "--wait", "--title=" & sTitle, "--"], 0)
+        $aCmdStart.Add("h", 0)
+        $bGnomeTerminal = True
+        
+      Case "xfce4-terminal", "mate-terminal"
+        aExec.Insert([sProg, "--hide-menubar", "--maximize", "--title=" & sTitle, "-x"], 0)
         $aCmdStart.Add("h", 0)
         $bGnomeTerminal = True
         
