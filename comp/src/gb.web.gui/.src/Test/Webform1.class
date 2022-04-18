@@ -305,3 +305,33 @@ Public Sub btnCheck_Click()
   WebTable1.ShowCheck = Not WebTable1.ShowCheck
 
 End
+
+Public Sub WebTree1_Expand()
+
+  lblTreeEvent.Text = "Expand: " & WebTree1.Item.Key
+
+End
+
+Public Sub WebTree1_Collapse()
+
+  lblTreeEvent.Text = "Collapse: " & WebTree1.Item.Key
+
+End
+
+Public Sub btnShowCheckTree_Click()
+
+  WebTree1.ShowCheck = Not WebTree1.ShowCheck
+
+End
+
+Public Sub WebTree1_KeyPress()
+
+  lblTreeEvent.Text = "KeyPress: " & Key.Shortcut
+
+End
+
+Public Sub WebTree1_Select()
+
+  lblTreeEvent.Text = "Select: " & WebTree1.Selection.Join()
+
+End
