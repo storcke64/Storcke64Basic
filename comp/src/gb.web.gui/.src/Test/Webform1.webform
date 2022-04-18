@@ -232,8 +232,21 @@
     }
     Index = 3
     Text = ("Tab 4")
+    { WebHBox4 WebHBox
+      #MoveScaled(1,1,133.75,6)
+      Spacing = True
+      { btnShowCheckTree WebButton
+        #MoveScaled(1,1,15,4)
+        Text = ("Check")
+      }
+      { lblTreeEvent WebLabel
+        #MoveScaled(17,1,30,4)
+        Expand = True
+        Border = True
+      }
+    }
     { WebTree1 WebTree
-      #MoveScaled(1,1,133.75,49)
+      #MoveScaled(1,8,133.75,49)
       Expand = True
       Mode = Select.Multiple
       ShowHeader = True

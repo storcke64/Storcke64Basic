@@ -833,6 +833,7 @@ Public Sub _SetSelected(sKey As String, bSelected As Boolean)
   Endif
   
   $hSelection.SelectItem(sKey, bSelected)
+  Raise Select
   
 End
 
@@ -1199,7 +1200,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     Else
       Print "<input type=\"checkbox\""; 
     Endif
-    Print " id=\""; Me.Name & ":" & Base64(sKey); "\" class=\"gw-tree-check\"";
+    Print " id=\""; Me.Name & "!" & Base64(sKey); "\" class=\"gw-tree-check\"";
     'Print Me._GetUpdateJS("onchange", "!" & CStr(iRow), "this.checked");
     If _IsSelected(sKey) Then Print " checked";
     Print ">";
