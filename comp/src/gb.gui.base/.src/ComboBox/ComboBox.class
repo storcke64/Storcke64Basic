@@ -87,6 +87,7 @@ Public Sub UserControl_Draw()
 
   iBg = $iBg
   If iBg = Color.Default Then iBg = If($bReadOnly, Color.ButtonBackground, Color.TextBackground)
+  If Not Me.Enabled And Not $bReadOnly Then iBg = Style.BackgroundOf($hTextBox) 'Color.Merge(iBg, Color.TextForeground)
   
   If $bBorder Or If bHovered Or If bHasFocus Then
     If $bReadOnly Then
