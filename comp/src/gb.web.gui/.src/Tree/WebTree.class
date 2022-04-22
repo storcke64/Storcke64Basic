@@ -268,8 +268,6 @@ Public Sub _ReparentItem(hItem As _WebTreeItem, Parent As String)
   
 End
 
-
-
 Private Sub GetNextItem(hItem As _WebTreeItem) As _WebTreeItem
   
   Dim hParent As _WebTreeItem
@@ -1200,7 +1198,7 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     Else
       Print "<input type=\"checkbox\""; 
     Endif
-    Print " id=\""; Me.Name & "!" & Base64(sKey); "\" class=\"gw-tree-check\"";
+    Print " id=\""; Me.Name & ":c:" & Base64(sKey); "\" class=\"gw-tree-check\"";
     'Print Me._GetUpdateJS("onchange", "!" & CStr(iRow), "this.checked");
     If _IsSelected(sKey) Then Print " checked";
     Print ">";

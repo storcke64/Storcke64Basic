@@ -47,7 +47,7 @@ Private $iDisplay As Integer = 100
 Private $iScrollX As Integer
 Private $iScrollY As Integer
 Private $bNoScrolling As Boolean
-Private $bNoCheck As Boolean
+Private $bShowCheck As Boolean = True
 Private $iEnsureVisible As Integer = -1
 Private $bSortable As Boolean
 Private $iSortColumn As Integer = -1
@@ -83,7 +83,7 @@ Private Sub PrintRow(iRow As Integer)
     Print "<td class=\"gw-table-index\">"; iRow + 1; "</td>";
   Endif
   
-  If $iMode And If Not $bNoCheck Then
+  If $iMode And If $bShowCheck Then
     'Print "<td onmousedown=\"gw.table.check("; JS(Me.Name); ","; CStr(iRow); 
     'If $iMode <> Select.Single Then Print ",event"; 
     'Print ")\">";
@@ -93,7 +93,7 @@ Private Sub PrintRow(iRow As Integer)
     Else
       Print "<input type=\"checkbox\""; 
     Endif
-    Print " id=\""; Me.Name & "!" & CStr(iRow); "\"";
+    Print " id=\""; Me.Name & ":c:" & CStr(iRow); "\"";
     'Print Me._GetUpdateJS("onchange", "!" & CStr(iRow), "this.checked");
     If IsSelected(iRow) Then Print " checked";
     Print ">";
@@ -166,7 +166,7 @@ Private Sub PrintBody(iStart As Integer, iEnd As Integer)
     If $iMode Then
       
       Print " id=\""; Me.Name & ":" & CStr(iRow); "\""
-      If $bNoCheck Then
+      If Not $bShowCheck Then
         If IsSelected(iRow) Then Print " class=\"gw-selected\";"
       'Print Me._GetUpdateJS("onclick", "$" & CStr(iRow));
         Print " onmousedown=\"gw.table.select("; JS(Me.Name); ","; iRow; 
@@ -508,13 +508,14 @@ End
 
 Private Function ShowCheck_Read() As Boolean
 
-  Return Not $bNoCheck
+  Return $bShowCheck
 
 End
 
 Private Sub ShowCheck_Write(Value As Boolean)
 
-  $bNoCheck = Not Value
+  If $bShowCheck = Value Then Return
+  $bShowCheck = Value
   Me.Refresh
 
 End
