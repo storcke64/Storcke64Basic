@@ -335,3 +335,15 @@ Public Sub WebTree1_Select()
   lblTreeEvent.Text = "Select: " & WebTree1.Selection.Join()
 
 End
+
+Public Sub WebTabPanel1_Click()
+
+  If WebTabPanel1.Index = 3 Then WebTree1.SetFocus
+
+End
+
+Public Sub WebComboBox1_KeyPress()
+
+  WebForm.Print("WebComboBox1: keypress: " & Key.Shortcut)
+
+End

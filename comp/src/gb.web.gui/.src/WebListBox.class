@@ -65,7 +65,7 @@ Public Sub _BeforeRender()
   
   Print "<div"; Me._GetClassId(); " tabindex=\"0\"";
   Print " onscroll=\"gw.scrollview.onScroll("; JS(Me.Name); ");\"";
-  If $iMode = Select.Single Then Print " onkeydown=\"gw.listbox.onKeyDown("; JS(Me.Name), ",event);\"";
+  If $iMode = Select.Single Then Print " onkeydown=\"gw.listbox.onKeyDown("; JS(Me.Name); ",event);\"";
   Me._RenderStyleSheet()
   Print ">";
   

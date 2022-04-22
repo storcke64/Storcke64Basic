@@ -324,6 +324,7 @@ Public Sub _BeforeRender()
   
   Print "<div"; _GetClassId();
   Me._RenderStyleSheet()
+  If Object.CanRaise(Me, "KeyPress") Then Print " tabindex=\"0\"";
   Print ">";
   
 End

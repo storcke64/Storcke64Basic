@@ -120,7 +120,10 @@ gw = {
   setOuterHtml: function(id, html)
   {
     if ($(id))
+    {
       $(id).outerHTML = html;
+      gw.onFocus();
+    }
     else
       gw.log('setOuterHtml: ' + id + '? ' + html);
   },
@@ -387,7 +390,7 @@ gw = {
   onFocus: function()
   {
     var elt = document.activeElement;
-    var id;
+    var id, pos, win;
     
     if (gw._focusTimeout)
     {
@@ -418,6 +421,23 @@ gw = {
           gw.update('', '#focus', '');
         }, 50);
     }
+    
+    while (elt && (!elt.id || elt.id.indexOf(':') >= 0))
+      elt = elt.parentNode;
+    
+    if (elt && elt != document.body)
+    {
+      pos = gw.getPos(elt);
+      $('gw-focus').style.top = pos.top + 'px';
+      $('gw-focus').style.left = pos.left + 'px';
+      $('gw-focus').style.width = pos.width + 'px';
+      $('gw-focus').style.height = pos.height + 'px';
+      win = gw.getWindow(elt);
+      $('gw-focus').style.zIndex = win ? (parseInt(win.style.zIndex) + 2) : 2;
+      $('gw-focus').style.display = 'block';
+    }
+    else
+      $('gw-focus').style.display = '';
   },
   
   setFocus: function(id)
@@ -520,6 +540,18 @@ gw = {
     }
     
     return { found: found, left: left, top: top, width: width, height: height, right: left + width, bottom: top + height };
+  },
+  
+  getWindow: function(elt)
+  {
+    while (!elt.hasClass('gw-window'))
+    {
+      elt = elt.parentNode;
+      if (elt == document.body || !elt)
+        return null;
+    }
+      
+    return elt;
   },
 
   copy: function(elt)
@@ -682,6 +714,12 @@ gw = {
       gw.window.refresh();
     },
     
+    translate: function(id, x, y)
+    {
+      $(id).style.transform = 'translate(' + (x|0) + 'px,' + (y|0) + 'px)';
+      gw.onFocus();
+    },
+    
     popup: function(id, resizable, control, transient, minw, minh)
     {
       var pos;
@@ -705,9 +743,9 @@ gw = {
         /*$(id).style.left = pos.left + 'px';
         $(id).style.top = pos.bottom + 'px';*/
         if (transient)
-          $(id).style.transform = 'translate(' + (pos.left|0) + 'px,' + (pos.top|0) + 'px)';
+          gw.window.translate(id, pos.left, pos.top);
         else
-          $(id).style.transform = 'translate(' + (pos.left|0) + 'px,' + (pos.bottom|0) + 'px)';
+          gw.window.translate(id, pos.left, pos.bottom);
       }
       
       $(id).gw_resizable = resizable;
@@ -768,7 +806,7 @@ gw = {
       {
         if ($(gw.windows[i]))
         {
-          zi = 11 + i * 2;
+          zi = 11 + i * 4;
           if ($(gw.windows[i]).style.zIndex != zi)
             $(gw.windows[i]).style.zIndex = zi;
           i++;
@@ -787,6 +825,8 @@ gw = {
       }
       else
         gw.window.updateTitleBars();
+        
+      gw.onFocus();
     },
     
     updateTitleBars: function()
@@ -820,7 +860,7 @@ gw = {
       gw.windows.push(id);
       
       for (i = 0; i < gw.windows.length; i++)
-        $(gw.windows[i]).style.zIndex = 11 + i * 2;
+        $(gw.windows[i]).style.zIndex = 11 + i * 4;
         
       gw.window.updateTitleBars();
       $(id).focus();
@@ -837,24 +877,26 @@ gw = {
       {
         if ($(gw.windows[i]).gw_modal)
         {
-          gw.window.zIndex = 10 + i * 2;
-          elt.style.zIndex = 10 + i * 2;
+          gw.window.zIndex = 10 + i * 4;
+          elt.style.zIndex = 10 + i * 4;
           elt.style.display = 'block';
           /*if ($(gw.windows[i]).gw_popup)
             elt.style.opacity = '0';
           else
             elt.style.opacity = '';*/
+          gw.onFocus();
           return;
         }
       }
       
       gw.window.zIndex = 0;
       elt.style.display = 'none';
+      gw.onFocus();
     },
     
     center: function(id)
     {
-      $(id).style.transform = 'translate(' + ((window.innerWidth - $(id).offsetWidth) / 2 | 0) + 'px,' + ((window.innerHeight - $(id).offsetHeight) / 2 | 0) + 'px)';
+      gw.window.translate(id, (window.innerWidth - $(id).offsetWidth) / 2, (window.innerHeight - $(id).offsetHeight) / 2);
       gw.window.updateGeometry(id);
     },
     
@@ -1009,6 +1051,7 @@ gw = {
     {
       var b = $(id).getBoundingClientRect();
       gw.update(id, '#geometry', [ b.left + 'px', b.top + 'px', b.width + 'px', b.height + 'px', gw.window.isMaximized(id)]);
+      gw.onFocus();
     },
     
     onUp: function(e)
@@ -1061,7 +1104,7 @@ gw = {
           {
             elt.style.width = w + 'px';
             //elt.style.left = x + 'px'; 
-            elt.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+            gw.window.translate(c.id, x, y);
             //c.x = x;
           }
         }
@@ -1074,7 +1117,7 @@ gw = {
           {
             elt.style.height = h + 'px';
             //elt.style.top = y + 'px'; 
-            elt.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+            gw.window.translate(c.id, x, y);
           }
         }
     
@@ -1085,7 +1128,7 @@ gw = {
       {
         /*elt.style.left = (Math.max(0, c.x + c.cx - e.clientX)) + 'px';
         elt.style.top = (Math.max(0, c.y + c.cy - e.clientY)) + 'px';*/
-        elt.style.transform = 'translate(' + (Math.max(0, c.x + c.cx - e.clientX)) + 'px,' + (Math.min(window.innerHeight - elt.firstElementChild.offsetHeight, Math.max(0, c.y + c.cy - e.clientY))) + 'px)';
+        gw.window.translate(c.id, Math.max(0, c.x + c.cx - e.clientX), Math.min(window.innerHeight - elt.firstElementChild.offsetHeight, Math.max(0, c.y + c.cy - e.clientY)));
         return;
       }
     
@@ -1127,23 +1170,36 @@ gw = {
       var i;
       var tr;
       
-      if (end < start)
+      if ($(id).hasClass('gw-table'))
       {
-        i = start;
-        start = end;
-        end = i;
+        if (end < start)
+        {
+          i = start;
+          start = end;
+          end = i;
+        }
+        
+        for (i = start; i <= end; i++)
+        {
+          tr = $(id + ':' + i);
+          if (checked)
+            tr.addClass('gw-selected');
+          else
+            tr.removeClass('gw-selected');
+        }
+          
+        gw.update(id, '!' + start + ':' + end, checked);
       }
-      
-      for (i = start; i <= end; i++)
+      else
       {
-        tr = $(id + ':' + i);
+        tr = $(id + ':' + start);
         if (checked)
           tr.addClass('gw-selected');
         else
           tr.removeClass('gw-selected');
-      }
         
-      gw.update(id, '!' + start + ':' + (end - start + 1), checked);
+        gw.update(id, '!' + start, checked);
+      }
     },
   
     select: function(id, row, event)
@@ -1185,17 +1241,20 @@ gw = {
         }
         
         for (i = start; i <= end; i++)
-          $(id + '!' + i).checked = checked;
+          $(id + ':c:' + i).checked = checked;
+      
+        gw.update(id, '!' + start + ':' + end, checked);
       }
       else
-        $(id + '!' + start).checked = checked;
-        
-      gw.update(id, '!' + start + ':' + end, checked);
+      {
+        $(id + ':c:' + start).checked = checked;
+        gw.update(id, '!' + start, checked);
+      }
     },
   
     check: function(id, row, event)
     {
-      var elt = $(id + '!' + row);
+      var elt = $(id + ':c:' + row);
       var checked = !elt.checked;
       var last = $(id).gw_current;
       var len;
@@ -1743,27 +1802,11 @@ gw = {
       null);
   },
   
-  onKeyDown: function(id, event)
+  onKeyDown: function(event)
   {
-    if (!event.bubbles)
-      return;
+    var elt;
+    var id;
     
-    if (gw.active) id = gw.active;
-    var elt = $(id);
-    while (elt)
-    {
-      id = elt.id;
-      if (id && id.indexOf(':') < 0)
-        break;
-      elt = elt.parentNode;
-      id = '';
-    }
-  
-    gw.sendKeyPress(event, id);
-  },
-  
-  onShortcut: function(event)
-  {
     if (event.bubbles && gw.shortcuts)
     {
       gw.sendKeyPress(event, '');
@@ -1772,12 +1815,28 @@ gw = {
       {
         gw.log('shortcut -> ' + shortcut);
         event.preventDefault();
+        return;
       }
     }
+    
+    if (!event.bubbles)
+      return;
+    
+    id = '';
+    elt = document.activeElement;
+    while (elt) // TODO: stop at window?
+    {
+      id = elt.id;
+      if (id && id.indexOf(':') < 0)
+        break;
+      elt = elt.parentNode;
+    }
+  
+    gw.sendKeyPress(event, id);
   },
 }
 
-document.onkeydown = gw.onShortcut;
+document.onkeydown = gw.onKeyDown;
 document.addEventListener('focusin', gw.onFocus);
 document.addEventListener('focusout', gw.onFocus);
 

@@ -756,7 +756,7 @@ Public Sub _BeforeRender()
   Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
   'Print Me._GetKeyPressHandler();
-  If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeyDown(" & JS(Me.Name) & ", event)\"";
+  'If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeyDown(" & JS(Me.Name) & ", event)\"";
   Print ">"
   
   DisableShortcuts()
@@ -805,6 +805,7 @@ Public Sub Render()
     "<div id=\"gw-lock-3\" class=\"gw-lock-circle\"></div>"
     "</div>"
     "</div>"
+  Print "<div id=\"gw-focus\"></div>"
   
   Me._Redraw()
   
@@ -965,6 +966,7 @@ Public Sub _HandleMessage()
       
     Case "keypress"
       
+      'Print("_HandleMessage: keypress: " & JSON.ToString(aCmd[1]) & " / " & JSON.ToString(aCmd[2]))
       If aCmd[1] Then
         GoSub GET_TARGET
         If hCtrl Then hCtrl._RaiseKeyPress(aCmd[2])
@@ -1326,6 +1328,7 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   
   Dim aWindows As String[]
   Dim sName As String
+  Dim iPos As Integer
   
   Select Case sProp
   
@@ -1339,6 +1342,7 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
       
     Case "#focus"
       $sActiveControl = vValue
+      iPos = RInStr($sActiveControl, ":")
       
   End Select
   
@@ -1647,7 +1651,9 @@ Static Public Function _GetActiveControl() As WebControl
     sId = $sActiveControl
     iPos = InStr(sId, ":")
     If iPos Then sId = Left(sId, iPos - 1)
+    
     Return WebControl.FromName(sId)
+    
   Endif
 
 End
