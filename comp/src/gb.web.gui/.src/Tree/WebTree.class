@@ -1,5 +1,12 @@
 ' Gambas class file
 
+''' This control implements a tree view of selectable text items with icons.
+'''
+''' Tree view items are indexed by a key. They display a string and an icon for each item.
+''' 
+''' This control has an internal cursor used for accessing its items. Use the [./movefirst], [./movenext], [./moveto]... methods to move the
+''' internal cursor, and the [./item] property to get the item it points at.
+
 Export
 Inherits WebControl
 
@@ -9,34 +16,85 @@ Public Const _DrawWith As String = "TreeView"
 Public Const _DefaultSize As String = "24,24"
 Public Const _DefaultEvent As String = "Click"
 
+'' Returns the number of items in the view.
 Property Read Count As Integer
+
+'' Returns or sets the selection mode.
+''
+'' See the [../select] class For a list of constants to use with this property.
 Property Mode As Integer
 
+'' Return a list of all items keys
 Property Read Keys As String[]
+
+'' Return the item pointed by the internal cursor, or [/lang/null] if the internal cursor is not available.
 Property Read Item As _WebTreeItem
+
+'' Return the current item, i.e. the item is selected in single selection mode.
 Property Read Current As _WebTreeItem
+
+'' Return the key of the [../current] item.
 Property Key As String
+
+'' Return if the [../item] property is valid.
 Property Read Available As Boolean
 'Property Read Renaming As Boolean
 'Property Editable As Boolean
 Property Compare As Integer
+
+'' Return the keys of the selected items as as string array.
 Property Read Selection As String[]
+
+'' Return or set if the header is visible.
 Property ShowHeader As Boolean
+
+'' Return or set if selection is indicated by check boxes and radio buttons, or by highlighting the items.
+''
+'' Check boxes are used in multiple selection mode, radio buttons in single selection mode.
 Property ShowCheck As Boolean
+
+'' Return a virtual collection of the columns of the view.
 Property Read Columns As _WebTreeColumns
+
+'' Return or set the horizontal scrolling position.
 Property ScrollX As Integer
+
+'' Return or set the vertical scrolling position.
 Property ScrollY As Integer
 
+'' This event is raised when an item is double-clicked.
+''
+'' The internal cursor is set to the clicked item.
 Event Activate
+
+'' This event is raised when the selection changes.
+''
+'' The internal cursor is set to the expanded item.
 Event Select
+
+'' This event is raised when an item is expanded.
+''
+'' The internal cursor is set to the expanded item.
 Event Expand
+
+'' This event is raised when an item is collapsed.
+''
+'' The internal cursor is set to the collapsed item.
 Event Collapse
 'Event Rename
 'Event Cancel
-Event Compare(Key As String, OtherKey As String)
-Event Data(Key As String, Column As Integer, Data As WebTreeData)
+Event Compare((Key) As String, OtherKey As String)
+
+'' This event is raised when the contents of a specific item is needed (usually to draw it).
+'' 
+'' - ~Key~ is the item key.
+'' - ~Column~ is the item column.
+''
+'' You must provide the item contents by setting the fields of the ~Data~ argument.
+Event Data((Key) As String, Column As Integer, Data As WebTreeData)
+
 '' This event is raised when a control [embedded in a cell](../../webtreedata/control) raises its 'Click' event.
-Event Click(Key As String, Column As Integer)
+Event Click((Key) As String, Column As Integer)
 
 Static Private $iNoEvent As Integer
 
@@ -64,6 +122,8 @@ Private $iScrollY As Integer
 
 Private $sKey As String
 
+'' Create a new WebTree control.
+
 Public Sub _new()
   
   $hColumns = New _WebTreeColumns As "Columns"
@@ -79,6 +139,8 @@ Public Sub _new()
   
 End
 
+'' Return an item from its key.
+
 Public Sub _get((Key) As String) As _WebTreeItem
   
   If Not Key Then Error.Raise("Null key")
@@ -86,6 +148,8 @@ Public Sub _get((Key) As String) As _WebTreeItem
   Return $cItem[Key]
   
 End
+
+'' Clear the view.
 
 Public Sub Clear()
 
@@ -111,6 +175,16 @@ End
 '   Endif
 '   
 ' End
+
+'' Add an item to the view.
+'' 
+'' * ~Key~ is the key of the new item.
+'' * ~Text~ is the text of the new item.
+'' * ~Image~ is the relative path of the image displayed besides the item. By default, no image is displayed.
+'' * ~Parent~ is the key of the parent item where the item will be inserted. By default, the new item is a root item.
+'' * ~After~ is the key of an item that the new item will directly follows. This item and the new item must have the same parent. By default, the new item become the last child of its parent.
+'' 
+'' The newly created item is returned.
 
 Public Sub Add((Key) As String, Text As String, Optional Image As String, Optional Parent As String, Optional After As String) As _WebTreeItem
   
@@ -199,6 +273,9 @@ Private Sub RemoveRec((Key) As String, Optional bDoNotDestroy As Boolean)
   
 End
 
+'' Remove an item from the view.
+''
+'' ~Key~ is the key of the item to remove.
 
 Public Sub Remove((Key) As String)
   
@@ -583,6 +660,8 @@ End
 '   
 ' End
 
+'' Return if an item exists with the ~Key~ key.
+
 Public Sub Exist((Key) As String) As Boolean
   
   Return $cItem.Exist(Key)
@@ -619,6 +698,9 @@ Private Sub SetCursor(sKey As String) As Boolean
   
 End
 
+'' Move the internal cursor to the first item of the view.
+'' 
+'' Return [/lang/true] if the view is void.
 
 Public Sub MoveFirst() As Boolean
   
@@ -628,6 +710,10 @@ Public Sub MoveFirst() As Boolean
   Return SetCursor(sKey)
   
 End
+
+'' Move the internal cursor to the last item of the view.
+'' 
+'' Return [/lang/true] if the view is void.
 
 Public Sub MoveLast() As Boolean
   
@@ -640,6 +726,11 @@ Public Sub MoveLast() As Boolean
   
 End
 
+'' When one of the other Move... methods has failed, you can use this one
+'' to move the internal cursor back to its position before the move.
+'' 
+'' Return [/lang/true] if the internal cursor was not at a valid position.
+
 Public Sub MoveBack() As Boolean
 
   Dim sKey As String
@@ -650,12 +741,20 @@ Public Sub MoveBack() As Boolean
   
 End
 
+'' Move the internal cursor to a specified item.
+'' 
+'' Return [/lang/true] if the item does not exist.
+
 Public Sub MoveTo((Key) As String) As Boolean
   
   If Not $cItem.Exist(Key) Then Key = ""
   Return SetCursor(Key)
   
 End
+
+'' Move the internal cursor one visible item above.
+'' 
+'' Return [/lang/true] if there is no item above.
 
 Public Sub MoveAbove() As Boolean
   
@@ -668,6 +767,10 @@ Public Sub MoveAbove() As Boolean
   
 End
 
+'' Move the internal cursor one visible item below.
+'' 
+'' Return [/lang/true] if there is no item below.
+
 Public Sub MoveBelow() As Boolean
   
   Dim sKey As String
@@ -678,6 +781,10 @@ Public Sub MoveBelow() As Boolean
   Return SetCursor(sKey)
   
 End
+
+'' Move the internal cursor to the first child item of the item currently pointed by the internal cursor.
+'' 
+'' Returns [/lang/true] if there is no child item.
 
 Public Sub MoveChild() As Boolean
   
@@ -704,17 +811,29 @@ Private Sub GetSibling(sKey As String, Optional iAdd As Integer) As String
   
 End
 
+'' Move the internal cursor to the next child item.
+'' 
+'' Return [/lang/true] if there is no child item left.
+
 Public Sub MoveNext() As Boolean
   
   Return SetCursor(GetSibling($sCursor, 1))
   
 End
 
+'' Move the internal cursor to the previous child item.
+'' 
+'' Return [/lang/true] if there is no child item left.
+
 Public Sub MovePrevious() As Boolean
   
   Return SetCursor(GetSibling($sCursor, -1))
   
 End
+
+'' Move the internal cursor to the parent item of the item currently pointed by the internal cursor.
+'' 
+'' Return [/lang/true] if there is no parent item.
 
 Public Sub MoveParent() As Boolean
   
@@ -731,6 +850,8 @@ Private Function Available_Read() As Boolean
 
 End
 
+'' Select all items in the view.
+
 Public Sub SelectAll()
 
   If $iMode <> Select.Multiple Then Return
@@ -739,6 +860,8 @@ Public Sub SelectAll()
   Me.Refresh
   
 End
+
+'' Unselect all items in the view.
 
 Public Sub UnselectAll()
   
@@ -1316,7 +1439,7 @@ Public Sub _Render()
 
   If $bShowHeader Then $hColumns._Render()
   
-  If $cItem.Count > 1 Then
+  If $cItem.Count Then
     For Each sKey In $hRoot._GetChildren()
       PrintItem($cItem[sKey], 0, True, bData)
     Next
@@ -1430,6 +1553,14 @@ Private Sub ScrollY_Write(Value As Integer)
   Me.Refresh
 
 End
+
+'' Add a new column to the view.
+'' 
+'' - ~Text~ is the title of the column.
+'' - ~Width~ is its width, or '*' if the column must expand. If the width is not specified, the column will fit its contents.
+'' - ~Alignment~ is the column alignment, among [Align.Left](../../align/left), [Align.Center](../../align/center),[Align.Right](../../align/right) and [Align.Normal](../../align/normal) (the default).
+'' 
+'' The column object is returned.
 
 Public Sub AddColumn(Text As String, Optional Width As String, Alignment As Integer = Align.Normal) As _WebTableColumn
   
