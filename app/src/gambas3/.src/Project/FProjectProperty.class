@@ -142,6 +142,7 @@ Public Sub Form_Open()
   
   'ipnProject[VERSION_CONTROL_TAB].Visible = VersionControl.Enabled
   gvwVcInfo.Visible = VersionControl.Enabled
+  lblVcInfo.Visible = VersionControl.Enabled
   'sepVcInfo.Visible = gvwVcInfo.Visible
   If VersionControl.Name = "Git" Then
     btnVersionAddBranch.Enabled = True

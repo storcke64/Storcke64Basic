@@ -61,7 +61,7 @@ Private Sub GetTextEditor() As String
     sProg = "gedit"
   Endif
   
-  For Each sProg In [sProg, "kwrite", "gedit", "emacs"]
+  For Each sProg In [sProg, "kwrite", "kate", "gedit", "emacs"]
     If System.Exist(sProg) Then Return sProg
   Next
 
@@ -270,7 +270,7 @@ Public Sub Process_Read()
         Insert("********" & "\n")
         $sOutput = ""
       Endif
-    Else If RTrim(sLine) Ends "(yes/no)?" Then
+    Else If RTrim(sLine) Like "*(yes/no*)?" Then
       Print #Last, "yes"
       Insert("yes\n")
       $sOutput = ""
