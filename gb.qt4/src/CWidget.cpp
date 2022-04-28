@@ -289,6 +289,9 @@ void CWIDGET_register_proxy(void *_object, void *proxy)
 	else if (!proxy && !THIS_EXT)
 		return;
 	
+	if (proxy && EXT(proxy) && EXT(proxy)->proxy_for)
+		EXT(EXT(proxy)->proxy_for)->proxy = NULL;
+
 	//fprintf(stderr, "proxy: (%p %s) -> (%p %s)\n", THIS, THIS->name, proxy, proxy ? ((CWIDGET *)proxy)->name : "NULL");
 
 	if (THIS_EXT && THIS_EXT->proxy && EXT(THIS_EXT->proxy))
@@ -2256,7 +2259,8 @@ void CWidget::destroy()
 	if (!THIS)
 		return;
 
-	//qDebug("CWidget::destroy: (%s %p) %s [%p]", GB.GetClassName(THIS), THIS, THIS->name, _hovered);
+	/*fprintf(stderr, "CWidget::destroy: (%s %p) %s / proxy = %p / proxy_for = %p\n", GB.GetClassName(THIS), THIS, THIS->name,
+					THIS_EXT ? THIS_EXT->proxy : NULL, THIS_EXT ? THIS_EXT->proxy_for : NULL);*/
 
 	if (!_post_check_hovered)
 	{
@@ -2288,14 +2292,14 @@ void CWidget::destroy()
 
 	if (THIS_EXT)
 	{
-		CACTION_register(THIS, THIS_EXT->action, NULL);
-		GB.FreeString(&THIS_EXT->action);
-	
 		if (THIS_EXT->proxy)
 			EXT(THIS_EXT->proxy)->proxy_for = NULL;
 		if (THIS_EXT->proxy_for)
 			EXT(THIS_EXT->proxy_for)->proxy = NULL;
 		
+		CACTION_register(THIS, THIS_EXT->action, NULL);
+		GB.FreeString(&THIS_EXT->action);
+
 		if (THIS_EXT->container_for)
 		{
 			((CCONTAINER *)THIS_EXT->container_for)->container = ((CWIDGET *)THIS_EXT->container_for)->widget;
