@@ -2634,6 +2634,9 @@ bool gControl::setProxy(gControl *proxy)
 
 	//fprintf(stderr, "proxy: (%p %s) -> (%p %s)\n", this, name(), proxy, proxy ? proxy->name() : "NULL");
 	
+	if (proxy && proxy->_proxy_for)
+		proxy->_proxy_for->_proxy = NULL;
+
 	if (_proxy)
 		_proxy->_proxy_for = NULL;
 
