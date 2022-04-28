@@ -525,6 +525,7 @@ int main(int argc, char *argv[])
 		}
 
 		ret = EXEC_quit_value;
+		do_exit(ret, TRUE);
 	}
 	END_TRY
 
