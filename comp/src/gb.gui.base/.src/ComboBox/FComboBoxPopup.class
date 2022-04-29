@@ -64,3 +64,13 @@ Public Sub Form_Activate()
   gvwPopup.SetFocus
 
 End
+
+Public Sub Form_KeyPress()
+
+  If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
+    Me.Close(gvwPopup.Row + 1)
+  Else If Key.Code = Key.Escape Then
+    Me.Close
+  Endif
+
+End

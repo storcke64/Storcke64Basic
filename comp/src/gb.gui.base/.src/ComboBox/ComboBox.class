@@ -544,7 +544,7 @@ Public Sub Select(Optional Start As Integer, Length As Integer)
   If IsMissing(Start) And If IsMissing(Length) Then
     $hTextBox.Select()
   Else If Not IsMissing(Start) And If Not IsMissing(Length) Then
-    $hTextBox(Start, Length)
+    $hTextBox.Select(Start, Length)
   Endif
   
 End
