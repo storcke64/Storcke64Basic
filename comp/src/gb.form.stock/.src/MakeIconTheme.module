@@ -169,9 +169,9 @@ Public Sub Run()
     Print #hFile, "Inherits=";
     Select Case sStyle
       Case "gambas"
-        Print #hFile, "Papirus,breeze,gnome,hicolor"
+        Print #hFile, "Papirus,breeze,hicolor"
       Case "gambas-dark"
-        Print #hFile, "Papirus-Dark,breeze-dark,gnome,hicolor"
+        Print #hFile, "Papirus-Dark,breeze-dark,hicolor"
       Case "gambas-mono", "gambas-mono-dark"
         Print #hFile, "HighContrast"
     End Select
