@@ -226,7 +226,9 @@ End
 
 Private Sub List_Write(Value As String[])
 
-  Clear()
+  $aList.Clear
+  $iIndex = -1
+  $bDirty = False
   If Not Value Then Return
 
   $aList = Value.Copy()
