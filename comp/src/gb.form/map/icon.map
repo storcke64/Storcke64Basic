@@ -14,7 +14,7 @@ align-top               actions/align-vertical-top
 align-width             actions/object-rows
 anchor                  actions/anchor
 apply                   actions/dialog-apply;actions/dialog-ok-apply
-archive                 $(mime)/package-x-generic;apps/utilities-file-archiver
+archive                 $(mime)/package-x-generic;apps/utilities-file-archiver;;apps/ark
 attach                  status/mail-attachment;actions/mail-attachment
 android                 $(mime)/application-vnd.android.package-archive
 audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop-sound;apps/preferences-desktop-sound
@@ -103,7 +103,7 @@ draw-star               actions/draw-star
 draw-text               actions/draw-text;tools/draw-text
 drink                   places/poi-bar
 earth                   #
-edit                    actions/document-edit;apps/accessories-text-editor
+edit                    actions/document-edit;apps/accessories-text-editor;;apps/kwrite;apps/kate;apps/gedit
 eject                   actions/media-eject
 end-of-line             #
 emote-crying            emotes/face-crying
@@ -169,7 +169,7 @@ group                   actions/object-group;actions/edit-group
 h                       $(mime)/text-x-chdr
 halt                    actions/process-stop
 house                   places/poi-building
-harddisk                devices/drive-harddisk
+harddisk                devices/drive-harddisk;;apps/gparted;apps/partitionmanager;apps/disk-manager;apps/disk-utility;apps/gnome-disks;apps/yast-disk
 harddisk-root           devices/drive-harddisk-root
 hardware                devices/audio-card;;apps/hwinfo
 hatch                   #
@@ -181,7 +181,7 @@ html                    $(mime)/text-html
 hibernate               apps/system-hibernate;apps/system-suspend-hibernate;actions/system-hibernate;actions/system-suspend-hibernate
 hue                     #
 identity                apps/user-info;preferences/preferences-desktop-user;apps/preferences-desktop-user
-image                   $(mime)/image-x-generic;;preferences/preferences-desktop-wallpaper;apps/preferences-desktop-wallpaper;preferences/preferences-wallpaper;apps/preferences-wallpaper
+image                   $(mime)/image-x-generic;;preferences/preferences-desktop-wallpaper;apps/preferences-desktop-wallpaper;preferences/preferences-wallpaper;apps/preferences-wallpaper;;;;apps/gwenview
 important               emblems/emblem-important
 indent                  actions/format-indent-more
 info                    status/dialog-information;;apps/help-info;apps/ktip
@@ -208,7 +208,7 @@ last                    actions/go-last
 layer                   actions/dialog-layer
 layout                  actions/document-page-setup
 left                    actions/go-previous
-library                 $(mime)/application-x-sharedlib
+library                 $(mime)/application-x-sharedlib;;;apps/synaptic
 lightness               #
 line-style              actions/object-stroke-style
 line-width              actions/edit-line-width
@@ -261,7 +261,7 @@ open                    actions/document-open
 open-link               actions/external-link
 open-recent             actions/document-open-recent
 options                 actions/configure;categories/preferences-system;;preferences/preferences-system;apps/preferences-system
-package                 apps/system-software-install;apps/preferences-desktop-default-applications;preferences/preferences-desktop-default-applications
+package                 apps/system-software-install;apps/preferences-desktop-default-applications;preferences/preferences-desktop-default-applications;;apps/plasmadiscover;apps/muondiscover;apps/software-store
 page                    actions/view-pages-single;actions/page-simple
 page-break              actions/insert-page-break
 page-two                actions/view-pages-facing
@@ -270,7 +270,7 @@ paste                   actions/edit-paste
 paste-special           actions/special_paste
 pause                   actions/media-playback-pause
 pda                     devices/pda
-pdf                     $(mime)/application-pdf
+pdf                     $(mime)/application-pdf;;apps/okular
 pen                     actions/draw-freehand
 people                  [breeze*]actions/user-group-new;preferences/system-users;apps/system-users;preferences/preferences-system-users;apps/preferences-system-users
 percent                 actions/format-number-percent
@@ -392,7 +392,7 @@ train                   places/poi-railway-station
 transparency            #
 trash                   [breeze*!16]places/user-trash;places/user-trash
 trash-full              [breeze*!16]places/user-trash-full;places/user-trash-full
-usb                     devices/media-removable;devices/drive-removable-media;devices/drive-removable;devices/drive-removable-media-usb
+usb                     devices/media-removable;devices/drive-removable-media;devices/drive-removable;devices/drive-removable-media-usb;;apps/usb-creator;apps/usb-creator-kde
 uncompress              actions/archive-extract;actions/extract-archive
 undo                    actions/edit-undo
 ungroup                 actions/object-ungroup
