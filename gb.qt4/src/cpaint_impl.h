@@ -49,7 +49,7 @@ void PAINT_clip(int x, int y, int w, int h);
 class MyPaintEngine: public QPaintEngine
 {
 public:
-	MyPaintEngine();
+	explicit MyPaintEngine();
   virtual ~MyPaintEngine();
 
 	virtual bool begin(QPaintDevice *pdev);
@@ -78,7 +78,7 @@ public:
 class MyPaintDevice: public QPaintDevice
 {
 public:
-	MyPaintDevice();
+	explicit MyPaintDevice();
 	virtual QPaintEngine *paintEngine() const;
 	
 protected:

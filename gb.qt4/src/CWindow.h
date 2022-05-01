@@ -222,7 +222,7 @@ public:
 	QHash<QString, CWIDGET *> names;
 	void *_object;
 
-	MyMainWindow(QWidget *parent, const char *name, bool embedded = false);
+	explicit MyMainWindow(QWidget *parent, const char *name, bool embedded = false);
 	~MyMainWindow();
 	
 	virtual void setVisible(bool visible);

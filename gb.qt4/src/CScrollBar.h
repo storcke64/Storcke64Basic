@@ -55,8 +55,8 @@ class MyScrollBar : public QScrollBar
 
 public:
 
-  MyScrollBar(QWidget *);
-	void updateOrientation();
+  explicit MyScrollBar(QWidget *);
+  void updateOrientation();
 
 protected:
 

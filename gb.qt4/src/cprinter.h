@@ -52,4 +52,6 @@ extern GB_DESC PrinterDesc[];
 
 #endif
 
+QSizeF CPRINTER_get_page_size(CPRINTER *_object);
+
 #endif

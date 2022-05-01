@@ -52,7 +52,7 @@ class CWatcher: public QObject
 
 public:
 
-  CWatcher(CWATCHER *watcher, CWIDGET *o);
+  explicit CWatcher(CWATCHER *watcher, CWIDGET *o);
   ~CWatcher();
 
   bool eventFilter(QObject *, QEvent *);

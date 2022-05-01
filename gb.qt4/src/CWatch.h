@@ -40,7 +40,7 @@ public:
   static void stop();
   static int count;
 
-  CWatch(int fd, QSocketNotifier::Type type, GB_WATCH_CALLBACK callback, intptr_t param);
+  explicit CWatch(int fd, QSocketNotifier::Type type, GB_WATCH_CALLBACK callback, intptr_t param);
   ~CWatch();
 
 private:

@@ -150,7 +150,7 @@ class MyFrame : public QWidget
 	Q_OBJECT
 	
 public:
-	MyFrame(QWidget *);
+	explicit MyFrame(QWidget *);
 	
 	int frameStyle() const { return _frame; }
 	void setFrameStyle(int frame);

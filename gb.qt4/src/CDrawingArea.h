@@ -59,7 +59,7 @@ class MyDrawingArea : public MyContainer
 
 public:
 
-	MyDrawingArea(QWidget *parent);
+	explicit MyDrawingArea(QWidget *parent);
 	~MyDrawingArea();
 
 	int drawn;

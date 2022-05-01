@@ -54,7 +54,7 @@ class MySlider : public QSlider
 
 public:
 
-  MySlider(QWidget *);
+  explicit MySlider(QWidget *);
 	void updateOrientation();
 
 protected:

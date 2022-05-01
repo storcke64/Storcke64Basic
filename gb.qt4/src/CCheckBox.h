@@ -51,7 +51,7 @@ class MyCheckBox : public QCheckBox
 	
 public:
 
-  MyCheckBox(QWidget *parent);
+  explicit MyCheckBox(QWidget *parent);
   void adjust(bool force = false);
   bool isAutoResize() const { return _autoResize; }
   void setAutoResize(bool a) { _autoResize = a; adjust(); }

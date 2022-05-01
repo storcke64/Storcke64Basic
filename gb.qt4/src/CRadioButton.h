@@ -51,7 +51,7 @@ class MyRadioButton : public QRadioButton
 	
 public:
 
-  MyRadioButton(QWidget *parent);
+  explicit MyRadioButton(QWidget *parent);
   void adjust(bool force = false);
   bool isAutoResize() const { return _autoResize; }
   void setAutoResize(bool a) { _autoResize = a; adjust(); }
