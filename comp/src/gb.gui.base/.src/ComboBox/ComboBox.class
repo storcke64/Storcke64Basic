@@ -4,7 +4,7 @@ Export
 Inherits UserControl
 
 Public Const _Properties As String = "*,Action,ReadOnly,List,Text,Password,MaxLength,Placeholder,Sorted,Border=True"
-Public Const _DefaultEvent As String = "MouseDown"
+Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "16,16"
 Public Const _IsContainer As Boolean = False
 Public Const _Group As String = "Form"
@@ -452,11 +452,18 @@ End
 
 Private Sub Text_Write(Value As String)
 
-  $iIndex = FindItem(Value)
+  Dim iIndex As Integer
+
   If $bReadOnly Then
     Me.Refresh
   Else
     $hTextBox.Text = Value
+  Endif
+
+  iIndex = FindItem(Value)
+  If iIndex <> $iIndex Then
+    $iIndex = iIndex
+    If iIndex >= 0 Then Raise Click
   Endif
 
 End
