@@ -287,6 +287,7 @@ BEGIN_METHOD(WebView_new, GB_OBJECT parent)
   QObject::connect(wid, SIGNAL(loadStarted()), &WebViewSignalManager::manager, SLOT(loadStarted()));
   QObject::connect(wid, SIGNAL(loadProgress(int)), &WebViewSignalManager::manager, SLOT(loadProgress(int)));
   QObject::connect(wid, SIGNAL(loadFinished(bool)), &WebViewSignalManager::manager, SLOT(loadFinished(bool)));
+	//QObject::connect(wid, SIGNAL(destroyed()), &WebViewSignalManager::manager, SLOT(destroy()));
 
 	wid->clearPage(false);
 
