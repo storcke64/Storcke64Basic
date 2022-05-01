@@ -92,7 +92,7 @@
     MoveScaled(1,6,84,83)
     Expand = True
     { panSide VBox
-      MoveScaled(0,0,38,83)
+      MoveScaled(0,0,39,83)
       Spacing = True
       Margin = True
       { txtFile ButtonBox
@@ -111,6 +111,7 @@
         { cmbResolution ComboBox
           MoveScaled(20,0,9,4)
           #Translate = False
+          Expand = True
           ReadOnly = True
           List = ["75", "150", "300", "600", "1200"]
         }
@@ -142,6 +143,7 @@
         }
         { txtCopies SpinBox
           MoveScaled(13,0,9,4)
+          Expand = True
           MinValue = 1
           Value = 1
         }
@@ -187,6 +189,7 @@
           }
           { txtWidth SpinBox
             MoveScaled(14,0,9,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label7 Label
@@ -203,6 +206,7 @@
           }
           { txtHeight SpinBox
             MoveScaled(14,0,9,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label8 Label
@@ -239,7 +243,8 @@
           }
           { txtMarginLeft SpinBox txtMargin
             Name = "txtMarginLeft"
-            MoveScaled(14,0,9,4)
+            MoveScaled(14,0,11,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label9 Label
@@ -257,6 +262,7 @@
           { txtMarginRight SpinBox txtMargin
             Name = "txtMarginRight"
             MoveScaled(14,0,9,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label13 Label
@@ -274,6 +280,7 @@
           { txtMarginTop SpinBox txtMargin
             Name = "txtMarginTop"
             MoveScaled(14,0,9,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label15 Label
@@ -291,6 +298,7 @@
           { txtMarginBottom SpinBox txtMargin
             Name = "txtMarginBottom"
             MoveScaled(14,0,9,4)
+            Expand = True
             MaxValue = 1000
           }
           { Label17 Label

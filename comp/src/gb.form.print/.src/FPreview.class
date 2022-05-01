@@ -391,7 +391,7 @@ End
 Public Sub Printer_Begin()
 
   If $bPrinting Then
-    Me.Enabled = False
+    'Me.Enabled = False
     FPrinting.Show()
     BeginPaint(Paint.W / $hPrinter.PaperWidth * SCALE)
     Paint.FontScale = 25.4 / 72 / SCALE * 72 / 96 * 96 / $hPrinter.Resolution
@@ -431,7 +431,7 @@ Public Sub Printer_End()
   FPrinting.Close
   $bPrinting = False
   RefreshPrintButton
-  Me.Enabled = True
+  'Me.Enabled = True
   
 End
 
