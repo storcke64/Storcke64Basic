@@ -64,7 +64,7 @@ DECLARE_EVENT(EVENT_Draw);
 #define SET_ORIENTATION setOrientation
 #define PAGE_FORMAT paperSize
 #define SET_PAGE_FORMAT(_format) setPaperSize(_format)
-#define PAGE_SIZE paperSize()
+#define PAGE_SIZE(_unit) paperSize(_unit)
 #define SET_PAGE_SIZE(_size, _unit) setPaperSize(_size, _unit)
 
 #define PRINTER_ORIENTATION QPrinter::Orientation
