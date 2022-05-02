@@ -334,6 +334,8 @@ static void startup_print_version(FILE *fs)
 	FILE *fp;
 	char line[256];
 	char *version = NULL;
+	char *branch = NULL;
+	bool add_branch = FALSE;
 
 	fp = open_project_file();
 
@@ -342,17 +344,18 @@ static void startup_print_version(FILE *fs)
 		if (read_line(fp, line, sizeof(line)))
 			break;
 
-		if (line_begins_with(line, "VersionFile=", 12))
+		if (line_begins_with(line, "Version=", 8))
+		{
+			version = STR_copy(&line[8]);
+			branch = index(version, ' ');
+		}
+		else if (line_begins_with(line, "VersionFile=", 12))
 		{
 			if (line[12] == '1')
 			{
 				version = find_version_in_file();
-				break;
+				add_branch = TRUE;
 			}
-		}
-		else if (line_begins_with(line, "Version=", 8))
-		{
-			version = STR_copy(&line[8]);
 		}
 	}
 
@@ -361,6 +364,8 @@ static void startup_print_version(FILE *fs)
 	if (version)
 	{
 		fputs(version, fs);
+		if (add_branch && branch)
+			fputs(branch, fs);
 		fputc('\n', fs);
 		STR_free(version);
 	}

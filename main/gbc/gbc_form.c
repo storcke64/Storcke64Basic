@@ -107,12 +107,12 @@ static void print_var(const char *before, const char *word, int len, const char 
 {
 	FORM_print(before);
 	if (!word)
-		FORM_print("Me");
+		FORM_print_len("Me", 2);
 	else
 	{
-		FORM_print("{");
+		FORM_print_char('{');
 		FORM_print_len(word, len);
-		FORM_print("}");
+		FORM_print_char('}');
 	}
 	FORM_print(after);
 }
@@ -523,7 +523,7 @@ void FORM_do(char *source, bool convert, bool ctrl_public)
 			/*get_current(&word, &len_word);*/
 			/*FORM_print("  %.*s", len_word, word);*/
 			FORM_print_indent();
-			FORM_print("\t.");
+			FORM_print_len("\t.", 2);
 			FORM_print_len(line, len);
 			FORM_print("\n");
 		}
