@@ -375,7 +375,8 @@ END_PROPERTY
 
 BEGIN_METHOD_VOID(WebView_Clear)
 
-	create_widget(THIS, NULL);
+	THIS->accept_next = TRUE;
+	webkit_web_view_load_html(WIDGET, "", NULL);
 
 END_METHOD
 
