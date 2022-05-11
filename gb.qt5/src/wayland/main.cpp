@@ -155,6 +155,7 @@ static void window_set_properties(QWidget *window, int which, QT_WINDOW_PROP *pr
 	X11_flush();*/
 	
 	Qt::WindowFlags flags = window->windowFlags();
+	bool visible = window->isVisible();
 	
 	if (prop->stacking == 1)
 		flags |= Qt::WindowStaysOnTopHint;
@@ -172,6 +173,8 @@ static void window_set_properties(QWidget *window, int which, QT_WINDOW_PROP *pr
 		flags &= ~Qt::FramelessWindowHint;
 	
 	window->setWindowFlags(flags);
+	if (visible)
+		window->show();
 }
 
 static void window_set_user_time(QWidget *window, int timestamp)
@@ -181,6 +184,9 @@ static void window_set_user_time(QWidget *window, int timestamp)
 
 static void window_set_transient_for(QWidget *window, QWidget *parent)
 {
+#if QT_VERSION >= 0x051300
+	window->windowHandle()->setTransientParent(parent->windowHandle());
+#endif
 }
 
 //-------------------------------------------------------------------------
