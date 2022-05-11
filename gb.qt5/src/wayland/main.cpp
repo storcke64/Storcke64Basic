@@ -128,35 +128,17 @@ static void window_remap(QWidget *window)
 
 static void window_set_properties(QWidget *window, int which, QT_WINDOW_PROP *prop)
 {
-	/*X11_flush();
+	static bool warn_stacking = false;
 
-	if (which & (PROP_STACKING | PROP_SKIP_TASKBAR))
-	{
-		X11_window_change_begin(window->effectiveWinId(), window->isVisible());
-
-		if (which & PROP_STACKING)
-		{
-			X11_window_change_property(X11_atom_net_wm_state_above, prop->stacking == 1);
-			X11_window_change_property(X11_atom_net_wm_state_stays_on_top, prop->stacking == 1);
-			X11_window_change_property(X11_atom_net_wm_state_below, prop->stacking == 2);
-		}
-		if (which & PROP_SKIP_TASKBAR)
-			X11_window_change_property(X11_atom_net_wm_state_skip_taskbar, prop->skipTaskbar);
-
-		X11_window_change_end();
-	}
-
-	if (which & PROP_BORDER)
-		X11_set_window_decorated(window->effectiveWinId(), prop->border);
-
-	if (which & PROP_STICKY)
-		X11_window_set_desktop(window->effectiveWinId(), window->isVisible(), prop->sticky ? 0xFFFFFFFF : X11_get_current_desktop());
-
-	X11_flush();*/
-	
 	Qt::WindowFlags flags = window->windowFlags();
 	bool visible = window->isVisible();
 	
+	if (prop->stacking && !warn_stacking)
+	{
+		fprintf(stderr, "gb.qt5.wayland: warning: 'Window.Stacking' property is not supported on wayland\n");
+		warn_stacking = true;
+	}
+
 	if (prop->stacking == 1)
 		flags |= Qt::WindowStaysOnTopHint;
 	else
