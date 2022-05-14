@@ -416,7 +416,7 @@ void hook_quit (void)
 	if (!GB.GetFunction(&func, (void *)GB.FindClass("_Gui"), "_Quit", NULL, NULL))
 		GB.Call(&func, 0, FALSE);
 
-	CWINDOW_delete_all();
+	CWINDOW_delete_all(true);
 	gControl::postDelete();
 
 	//CWatcher::Clear();

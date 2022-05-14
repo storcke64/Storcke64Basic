@@ -62,7 +62,7 @@ extern CWINDOW *CWINDOW_Main;
 void CWINDOW_check_main_window(CWINDOW *win);
 bool CWINDOW_must_quit();
 void CWINDOW_close_all();
-void CWINDOW_delete_all();
+void CWINDOW_delete_all(bool main);
 
 #endif
 
