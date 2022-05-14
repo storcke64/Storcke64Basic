@@ -566,6 +566,7 @@ void gTextArea::setText(const char *txt, int len)
 	begin();
 	gtk_text_buffer_set_text(_buffer, (const gchar *)txt, len);
 	end();
+	refresh();
 }
 
 bool gTextArea::readOnly() const
@@ -711,7 +712,10 @@ void gTextArea::paste()
 	
 	txt = gClipboard::getText(&len, "text/plain");
 	if (txt)
+	{
 		gtk_text_buffer_insert_at_cursor(_buffer, (const gchar *)txt, len);
+		refresh();
+	}
 }
 
 void gTextArea::insert(const char *txt)
@@ -720,6 +724,7 @@ void gTextArea::insert(const char *txt)
 		return;
 	
 	gtk_text_buffer_insert_at_cursor(_buffer, (const gchar *)txt, -1);
+	refresh();
 }
 
 int gTextArea::toLine(int pos) const
@@ -819,7 +824,8 @@ void gTextArea::setSelText(const char *vl)
 	if (gtk_text_buffer_get_selection_bounds(_buffer, &start, &end))
 		gtk_text_buffer_delete(_buffer, &start, &end);
 	
-	gtk_text_buffer_insert(_buffer, &start, vl, -1);	
+	gtk_text_buffer_insert(_buffer, &start, vl, -1);
+	refresh();
 }
 
 void gTextArea::selDelete()
