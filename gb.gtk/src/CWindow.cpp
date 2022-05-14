@@ -128,7 +128,7 @@ static bool close_window(CWINDOW *_object, int ret = 0)
 	return WINDOW->close();
 }
 
-void CWINDOW_delete_all()
+void CWINDOW_delete_all(bool main)
 {
 	int i;
 	gMainWindow *win;
@@ -146,6 +146,9 @@ void CWINDOW_delete_all()
 
 		win->destroy();
 	}
+
+	if (main && CWINDOW_Main)
+		((gMainWindow *)(CWINDOW_Main->ob.widget))->destroy();
 }
 
 bool CWINDOW_must_quit()
@@ -180,7 +183,7 @@ bool CB_window_close(gMainWindow *sender)
 
 		if (!sender->isPersistent())
 		{
-			CWINDOW_delete_all();
+			CWINDOW_delete_all(false);
 			CWINDOW_Main = NULL;
 		}
 	}

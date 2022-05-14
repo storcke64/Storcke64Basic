@@ -1483,6 +1483,9 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 			gtk_widget_show(border);
 		// Hidden children are incorrectly shown. Fix that!
 		hideHiddenChildren();
+		
+		if (!isIgnore())
+			newpr->performArrange();
 	}
 	else if ((!isTopLevel() && !newpr)
 	         || (isTopLevel() && isPopup()))
@@ -1496,7 +1499,8 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 		if (parent())
 		{
 			parent()->remove(this);
-			parent()->arrange();
+			if (!isIgnore())
+				parent()->performArrange();
 			setParent(NULL);
 		}
 
