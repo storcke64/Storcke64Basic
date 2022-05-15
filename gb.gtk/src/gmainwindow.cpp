@@ -796,9 +796,6 @@ void gMainWindow::setTransientFor()
 	gMainWindow *parent = _current;
 
 	if (!parent)
-		parent = gApplication::mainWindow();
-		
-	if (!parent)
 		parent = _active;
 
 	if (parent)
