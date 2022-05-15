@@ -1954,11 +1954,7 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 
 		parent = CWINDOW_Current;
 		if (!parent)
-		{
-			parent = CWINDOW_Main;
-			if (!parent)
-				parent = CWINDOW_Active;
-		}
+			parent = CWINDOW_Active;
 
 		if (parent)
 			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Window | info.flags);
