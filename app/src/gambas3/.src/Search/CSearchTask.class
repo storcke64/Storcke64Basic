@@ -123,6 +123,7 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
   Dim hFile As Object
   Dim sResult As String
   Dim iFilePos As Integer
+  Dim hEditor As TextEditor
 
   hFile = Project.Files[sPath]
   
@@ -133,8 +134,11 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
   Endif
     
   If Not sTemp Then
+    Try hEditor = hFile.GetEditor()
+    If hEditor Then Object.Lock(hEditor)
     Try sText = hFile.GetText()
-    If Error Then Return
+    If hEditor Then Object.Unlock(hEditor)
+    If Not sText Then Return
     sTemp = Temp$("grep")
     File.Save(sTemp, sText)
   Endif
@@ -163,40 +167,12 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
   
   aGrep.Add(sTemp)
   
-  ' If sPath Then
-  '   hGrepResult = $cGrepCache[sPath]
-  '   
-  '   If hGrepResult Then
-  '     Try iAge = hFile.Age
-  '     If iAge = hGrepResult.Age Then
-  '       If aGrep.Join("\n") = hGrepResult.Command Then
-  '         Return hGrepResult.Result
-  '       Endif
-  '     Endif
-  '   Endif
-  ' Endif
-  
   'grep -nR -F -I -i -w -ob --exclude=*~ --exclude-dir=.svn -s -- "Date" * .src
   
   Exec aGrep To sGrep
 
   For Each sFind In Split(sGrep, "\n", "", True)
     
-    If hFile Then
-      ' If hFile Is FOutput Then
-      '   hResult.Path = ""
-      '   hResult.File = "Console"
-      ' Else
-        'hResult.Path = sPath
-        ''hResult.File = hFile.Name
-      'Endif
-    Else
-      'hResult.Path = sPath
-      ''hResult.File = If(Project.IsSourcePath(sPath), File.BaseName(sPath), File.Name(sPath))
-    Endif
-    
-    'hResult.Highlight = TextEditor.GetModeFromPath(sPath)
-
     iPos = InStr(sFind, ":")
     If iPos = 0 Then Continue
     
@@ -226,18 +202,6 @@ Private Sub GrepFile(sPath As String, Optional bUseReplaceString As Boolean)
     'Sleep 0.005
     
   Next
-  
-  ' If sPath Then
-  '   If hFile Then Try iAge = hFile.Age
-  '   hGrepResult = New CGrepResult
-  '   With hGrepResult
-  '     .Result = aResult.Copy()
-  '     .Age = iAge
-  '     .Path = sPath
-  '     .Command = aGrep.Join("\n")
-  '   End With
-  '   $cGrepCache[sPath] = hGrepResult
-  ' Endif
   
 End
 
