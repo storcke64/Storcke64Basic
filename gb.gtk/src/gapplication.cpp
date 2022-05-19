@@ -49,6 +49,7 @@
 
 #ifdef GTK3
 static GtkApplication *_app;
+GtkStyleProvider *_tooltip_css = NULL;
 #endif
 
 static bool _debug_keypress = false;
@@ -969,6 +970,26 @@ void gApplication::ungrabPopup()
 	}
 }
 
+#ifdef GTK3
+
+bool gApplication::areTooltipsEnabled()
+{
+	return _tooltip_css == NULL;
+}
+
+void gApplication::enableTooltips(bool vl)
+{
+	if (vl == areTooltipsEnabled())
+		return;
+
+	gt_define_style_sheet(&_tooltip_css, NULL);
+
+	if (!vl)
+		gt_define_style_sheet(&_tooltip_css, g_string_new("tooltip { opacity: 0; }"));
+}
+
+#else
+
 bool gApplication::areTooltipsEnabled()
 {
   gboolean enabled;
@@ -988,6 +1009,8 @@ void gApplication::enableTooltips(bool vl)
   settings = gtk_settings_get_default();
   g_object_set (settings, "gtk-enable-tooltips", enabled, (char *)NULL);
 }
+
+#endif
 
 static void do_nothing()
 {
