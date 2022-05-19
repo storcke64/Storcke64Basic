@@ -1526,6 +1526,8 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
   Dim iInd As Integer
   Dim aSym As String[]
   Dim sType As String
+  Dim bStatic As Boolean
+  Dim iStart As Integer
 
   'sSymbol = UCase(sSymbol)
   $bLastStatic = False
@@ -1553,25 +1555,22 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
     If iLine < 0 Then Return
     aSym = Highlight.Analyze($hEditor[iLine].Text)
     If aSym.Count >= 1 Then
-      If asym.Count = 1 Then
+      If aSym.Count = 1 Then
         If aSym[0] == "END" Then Break
       Endif
       If aSym.Count >= 4 Then
         If aSym[0] == "DIM" Or If aSym[0] == "STATIC" Then
-          If ReadLocalSymbolType(aSym, 1, sSymbol, $hVirtualSymbol) Then
-            With $hVirtualSymbol
-              '.Name = aSym[1]
-              .Class = Me.Name
-              .Kind = "l"
-              .LineNumber = iLine + 1
-              .NotPublic = True
-              .IsStatic = aSym[0] == "STATIC"
-              '.Type = sType
-            End With
-            $hSymbol = $hVirtualSymbol
-            'Debug $hVirtualSymbol.Name;; "->";; $hVirtualSymbol.Type
-            Return $hVirtualSymbol.Type
-          Endif
+          iStart = 1
+          bStatic = aSym[0] == "STATIC"
+          GoSub READ_LOCAL_SYMBOL
+        Else If aSym[0] = "FOR" And If Highlight.Types[1] = Highlight.Symbol And If aSym[2] = "AS" Then
+          iStart = 1
+          bStatic = False
+          GoSub READ_LOCAL_SYMBOL
+        Else If aSym[0] = "FOR" And If aSym[1] = "EACH" And If Highlight.Types[2] = Highlight.Symbol And If aSym[3] = "AS" Then
+          iStart = 2
+          bStatic = False
+          GoSub READ_LOCAL_SYMBOL
         Endif
       Endif
     Endif
@@ -1650,6 +1649,23 @@ LOOK_FOR_SUBR:
     If Project.ExistForm(sSymbol) Then $bLastStatic = False
     Return sSymbol
   Endif
+  
+  Return
+  
+READ_LOCAL_SYMBOL:
+
+  If Not ReadLocalSymbolType(aSym, iStart, sSymbol, $hVirtualSymbol) Then Return
+  
+  With $hVirtualSymbol
+    '.Name = aSym[1]
+    .Class = Me.Name
+    .Kind = "l"
+    .LineNumber = iLine + 1
+    .NotPublic = True
+    .IsStatic = bStatic
+  End With
+  $hSymbol = $hVirtualSymbol
+  Return $hVirtualSymbol.Type
 
 End
 
