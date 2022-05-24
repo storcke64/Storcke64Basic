@@ -708,7 +708,7 @@ Private Sub UpdateButtons()
   If Not $hButtonInc Then Return
   
   $hButtonInc.Enabled = Not Me.ReadOnly
-  $hButtonDec.Enabled = $hButtonInc.Enabled
+  $hButtonDec.Enabled = Not Me.ReadOnly
 
 End
 
