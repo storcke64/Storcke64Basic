@@ -2,12 +2,9 @@
 
 Export
 
-Static Public Name As String
-
 Static Private Sub Open(sIcon As String, sTitle As String, sText As String, Optional sButton1 As String, sButton2 As String, sButton3 As String) As Integer
   
   Dim hMessage As FMessage
-  Dim sName As String
   Dim vVal As Variant
   
   hMessage = New FMessage
@@ -15,12 +12,6 @@ Static Private Sub Open(sIcon As String, sTitle As String, sText As String, Opti
   hMessage.SetIcon(sIcon)
   hMessage.SetText(sText)
   hMessage.SetButton(sButton1, sButton2, sButton3)
-  
-  If Name Then
-    sName = Name
-  Else
-    Try sName = Last.Name
-  Endif
   
   vVal = hMessage.ShowModal(Null)
   If IsNull(vVal) Then
