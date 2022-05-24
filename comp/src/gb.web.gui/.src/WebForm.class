@@ -712,6 +712,8 @@ Static Private Sub PrintJavascript()
     $aJavascript.Clear
   Endif
   
+  WebControl._PrintNeedKeyPress
+  
 End
 
 Public Sub _new()
@@ -757,8 +759,6 @@ Public Sub _BeforeRender()
   If Me.Class Then Print " "; Me.Class;
   Print "\" id=\""; Me.Name; "\"";
   Me._RenderStyleSheet()
-  'Print Me._GetKeyPressHandler();
-  'If Object.CanRaise(Me, "KeyPress") Or If $iDefault Or If $iCancel Then Print " onkeydown=\"gw.onKeyDown(" & JS(Me.Name) & ", event)\"";
   Print ">"
   
   DisableShortcuts()
@@ -971,7 +971,11 @@ Public Sub _HandleMessage()
       'Print("_HandleMessage: keypress: " & JSON.ToString(aCmd[1]) & " / " & JSON.ToString(aCmd[2]))
       If aCmd[1] Then
         GoSub GET_TARGET
-        If hCtrl Then hCtrl._RaiseKeyPress(aCmd[2])
+        If hCtrl Then
+          hForm = hCtrl.Form
+          If hForm <> hCtrl Then hForm._RaiseKeyPress(aCmd[2])
+          hCtrl._RaiseKeyPress(aCmd[2])
+        Endif
       Else
         hForm = _CurrentPopup
         If Not hForm Then hForm = _CurrentModal
