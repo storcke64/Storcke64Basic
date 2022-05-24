@@ -73,6 +73,8 @@ static const char *_tests = NULL;
 
 static void NORETURN do_exit(int ret, bool immediate)
 {
+	fflush(NULL);
+
 	if (EXEC_debug_hold)
 	{
 		if (ret) ERROR_warning("The process returned %d", ret);
@@ -177,7 +179,7 @@ void main_exit(bool silent)
 }
 
 
-void MAIN_exit(bool silent, int ret)
+void NORETURN MAIN_exit(bool silent, int ret)
 {
 	main_exit(silent);
 	do_exit(ret, TRUE);
@@ -494,9 +496,7 @@ int main(int argc, char *argv[])
 		EXEC_release_return_value();
 
 		if (_quit_after_main)
-		{
 			MAIN_exit(TRUE, 0);
-		}
 
 		if (!ret)
 		{
@@ -508,8 +508,13 @@ int main(int argc, char *argv[])
 	}
 	CATCH
 	{
-		if (ERROR->info.code && ERROR->info.code != E_ABORT)
+		ret = EXEC_quit_value;
+
+		if (ERROR->info.code)
 		{
+			if (ERROR->info.code == E_ABORT)
+				do_exit(ret, TRUE);
+
 			ERROR_hook();
 
 			if (EXEC_debug)
@@ -523,9 +528,6 @@ int main(int argc, char *argv[])
 				MAIN_exit(TRUE, 1);
 			}
 		}
-
-		ret = EXEC_quit_value;
-		do_exit(ret, TRUE);
 	}
 	END_TRY
 
@@ -534,8 +536,6 @@ int main(int argc, char *argv[])
 	if (!EXEC_task)
 		MEMORY_exit();
 
-	fflush(NULL);
-	
 	do_exit(ret, FALSE);
 }
 
