@@ -68,6 +68,7 @@ gw = {
   autocompletion: [],
   focus: false,
   lock: 0,
+  needKeyPress: {},
   
   log: function(msg)
   {
@@ -77,6 +78,13 @@ gw = {
         gw.startTime = Date.now();
       console.log(((Date.now() - gw.startTime) / 1000).toFixed(3) + ': ' + msg);
     }
+  },
+  
+  getFormId: function(id)
+  {
+    var pos = id.indexOf(".");
+    if (pos > 0)
+      return id.substr(0, pos);
   },
   
   load: function(lib)
@@ -115,6 +123,7 @@ gw = {
     var newDiv = oldDiv.cloneNode(false);
     newDiv.innerHTML = html;
     oldDiv.parentNode.replaceChild(newDiv, oldDiv);
+    gw.onFocus();
   },
   
   setOuterHtml: function(id, html)
@@ -1809,11 +1818,11 @@ gw = {
     
     if (event.bubbles && gw.shortcuts)
     {
-      gw.sendKeyPress(event, '');
       var shortcut = gw.makeShortcut(event);
       if (gw.shortcuts[shortcut])
       {
         gw.log('shortcut -> ' + shortcut);
+        gw.sendKeyPress(event, '');
         event.preventDefault();
         return;
       }
@@ -1832,7 +1841,8 @@ gw = {
       elt = elt.parentNode;
     }
   
-    gw.sendKeyPress(event, id);
+    if (id && (gw.needKeyPress[id] != undefined || gw.needKeyPress[gw.getFormId(id)]))
+      gw.sendKeyPress(event, id);
   },
 }
 

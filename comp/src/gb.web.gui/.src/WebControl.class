@@ -83,6 +83,8 @@ Static Private $iLastId As Integer
 Static Private $iLastFormId As Integer
 Static Private $cFromId As New Collection
 Static Private $cFromName As New Collection
+Static Private $cNeedKeyPress As New Collection
+Static Private $bSendNeedKeyPress As Boolean
 
 Static Private $aStyleSheet As String[]
 
@@ -162,6 +164,35 @@ Public Sub _new(Optional Parent As WebContainer)
   
 End
 
+Public Sub _attach((Parent) As Object, (EventName) As String)
+
+  Dim bKeyPress As Boolean
+  Dim bOldKeyPress As Boolean
+  
+  If Not $sName Then Return
+  bOldKeyPress = $cNeedKeyPress.Exist($sName)
+  bKeyPress = Object.CanRaise(Me, "KeyPress")
+  If bKeyPress <> bOldKeyPress Then
+    If bKeyPress Then
+      $cNeedKeyPress[$sName] = True
+    Else
+      $cNeedKeyPress.Remove($sName)
+    Endif
+    $bSendNeedKeyPress = True
+  Endif
+  
+End
+
+Static Public Sub _PrintNeedKeyPress()
+  
+  If Not $bSendNeedKeyPress Then Return
+  
+  $bSendNeedKeyPress = False
+  Print "gw.needKeyPress = "; JSON.ToString($cNeedKeyPress)
+  
+End
+
+
 Private Sub SetName(Optional sName As String)
   
   Dim iSuffix As Integer
@@ -172,7 +203,10 @@ Private Sub SetName(Optional sName As String)
 
   If sName = $sName Then Return
 
-  If $sName Then $cFromName[$sName] = Null
+  If $sName Then
+    $cFromName.Remove($sName)
+    $cNeedKeyPress.Remove($sName)
+  Endif
 
   Do
     If iSuffix = 0 Then
@@ -191,6 +225,9 @@ Private Sub SetName(Optional sName As String)
   If hParent Then hParent._UpdateChildName($sName, sName)
   
   $cFromName[sName] = $iId
+  If Object.CanRaise(Me, "KeyPress") Then $cNeedKeyPress[sName] = True
+  $bSendNeedKeyPress = True
+  
   $sName = sName
   
 End
@@ -297,12 +334,6 @@ Private Sub GetCellName() As String
 End
 
 
-' Public Sub _GetKeyPressHandler() As String
-'   
-'   If Object.CanRaise(Me, "KeyPress") Then Return " onkeydown=\"gw.onKeyDown(" & JS(GetCellName()) & ", event)\""
-'   
-' End
-
 Public Sub _GetClassId(Optional sClass As String) As String
 
   Dim sResult As String
@@ -324,7 +355,7 @@ Public Sub _BeforeRender()
   
   Print "<div"; _GetClassId();
   Me._RenderStyleSheet()
-  If Object.CanRaise(Me, "KeyPress") Then Print " tabindex=\"0\"";
+  If $cNeedKeyPress.Exist($sName) Then Print " tabindex=\"0\"";
   Print ">";
   
 End
