@@ -24,6 +24,8 @@
 #ifndef __GBX_H
 #define __GBX_H
 
-void MAIN_exit(bool silent, int ret);
+#include "gb_common.h"
+
+void NORETURN MAIN_exit(bool silent, int ret);
 
 #endif
