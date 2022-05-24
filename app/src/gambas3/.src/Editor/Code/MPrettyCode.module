@@ -338,6 +338,7 @@ Private Sub IndentLineGambas(sLine As String) As String
   Dim iLastType As Integer
   Dim iLevel As Integer
   Dim bNextIndent As Boolean
+  Dim I As Integer
 
   sLine = LTrim(sLine)
   
@@ -365,8 +366,23 @@ Private Sub IndentLineGambas(sLine As String) As String
     ' $bLastString = iLastType = Highlight.String
     
     If iLastType = Highlight.Operator Then
-      If InStr(":]);.!", aSym[aSym.Max]) = 0 Then 'And If aSym[0] <> "PRINT" Then 
+      sSym = aSym.Last
+      If InStr(":]);.!", sSym) = 0 Then 'And If aSym[0] <> "PRINT" Then 
+      
         $bNextIndent = True
+        
+        If sSym = "," Then
+          For I = aSym.Max - 1 DownTo 0
+            sSym = aSym[I]
+            If sSym = "PRINT" Then
+              $bNextIndent = False
+              Break
+            Else If InStr("[(", sSym) Then
+              Break
+            Endif
+          Next
+        Endif
+        
       Endif
     Else If iLastType = Highlight.String And If Highlight.Types[0] = Highlight.String Then
       bNextIndent = True
