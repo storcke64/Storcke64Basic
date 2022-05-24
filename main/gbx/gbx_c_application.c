@@ -310,6 +310,7 @@ BEGIN_PROPERTY(Application_Startup)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(Application_Priority)
 
 	int pr;
@@ -334,6 +335,13 @@ BEGIN_PROPERTY(Application_Priority)
 		if (setpriority(PRIO_PROCESS, 0, VPROP(GB_INTEGER)) < 0)
 			THROW_SYSTEM(errno, NULL);
 	}
+
+END_PROPERTY
+
+
+BEGIN_PROPERTY(Application_Task)
+
+  GB_ReturnBoolean(EXEC_task);
 
 END_PROPERTY
 
@@ -389,6 +397,7 @@ GB_DESC NATIVE_App[] =
   GB_STATIC_PROPERTY("Daemon", "b", Application_Daemon),
   GB_STATIC_PROPERTY_READ("Startup", "Class", Application_Startup),
 	GB_STATIC_PROPERTY("Priority", "i", Application_Priority),
+  GB_STATIC_PROPERTY_READ("Task", "b", Application_Task),
 
   GB_END_DECLARE
 };
