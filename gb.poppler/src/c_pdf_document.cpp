@@ -25,6 +25,7 @@
 
 #define __C_PDF_DOCUMENT_CPP
 
+#include <string_view>
 #include <Page.h>
 
 #include "c_pdf_document.h"
@@ -476,7 +477,7 @@ BEGIN_METHOD(PdfPage_FindText, GB_STRING search; GB_INTEGER options)
 	GB_ARRAY result;
 	GEOM_RECTF *rect;
 	
-	rects = r =poppler_page_find_text_with_options(THIS->current, GB.ToZeroString(ARG(search)), (PopplerFindFlags)VARGOPT(options, POPPLER_FIND_DEFAULT));
+	rects = r = poppler_page_find_text_with_options(THIS->current, GB.ToZeroString(ARG(search)), (PopplerFindFlags)VARGOPT(options, POPPLER_FIND_DEFAULT));
 	
 	GB.Array.New(&result, GB.FindClass("RectF"), 0);
 	
