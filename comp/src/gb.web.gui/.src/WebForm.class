@@ -1531,6 +1531,9 @@ Private Sub DisableShortcuts()
     Next
   Endif
   
+  If $iDefault Then cShortcut["ENTER"] = True
+  If $iCancel Then cShortcut["ESCAPE"] = True
+  
   If cShortcut.Count = 0 Then Return
   
   _AddJavascript("gw.shortcuts = " & JS(cShortcut))
