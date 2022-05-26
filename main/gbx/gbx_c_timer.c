@@ -70,6 +70,7 @@ CTIMER *CTIMER_every(int delay, GB_TIMER_CALLBACK callback, intptr_t param)
 	
 	timer->delay = delay;
 	timer->task = EXEC_task;
+	timer->ignore = TRUE;
 
 	ALLOC_ZERO(&timer->ext, sizeof(CTIMER_EXT));
 	EXT(timer)->callback = callback;
