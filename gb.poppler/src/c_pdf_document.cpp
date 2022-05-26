@@ -25,7 +25,12 @@
 
 #define __C_PDF_DOCUMENT_CPP
 
-#include <string_view>
+#if defined __has_include
+#  if __has_include (<string_view>)
+#    include <string_view>
+#  endif
+#endif
+
 #include <Page.h>
 
 #include "c_pdf_document.h"
