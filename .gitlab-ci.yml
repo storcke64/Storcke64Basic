@@ -216,7 +216,7 @@ build:alpine:
        zlib-dev webkit2gtk-dev
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sdlsound --disable-sqlite2 --disable-v4l --disable-gtkopengl --disable-zstd  --disable-qt5webkit
+    - GAMBAS_CONFIG_FAILURE=1 ./configure -C --disable-openal --disable-qt4 --disable-sdl --disable-sdlsound --disable-sqlite2 --disable-v4l --disable-gtkopengl --disable-zstd  --disable-qt5webkit --disable-pdf
     - make -j$(nproc)
     - make install
 
