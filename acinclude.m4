@@ -405,8 +405,8 @@ AC_DEFUN([GB_INIT],
   
   GB_CXXFLAGS_GCC_OPTION([-std=c++17],,
     [
-      GB_CXXFLAGS_STD_CPP11=" -std=c++17"
-      have_gcc_std_cpp11x=yes
+      GB_CXXFLAGS_STD_CPP17=" -std=c++17"
+      have_gcc_std_cpp17x=yes
     ])
   
   if test "$have_gcc_std_cpp17" = "yes"; then
