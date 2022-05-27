@@ -34,6 +34,16 @@ Static Private $aStyle As TextHighlighterStyle[]
 
 Private $aStyles As String[]
 
+Private Sub GetAlternate() As Integer
+  
+  Static iValue As Integer = -1
+  
+  If iValue < 0 Then iValue = Highlight.Styles.Find("Alternate")
+  Return iValue
+  
+End
+
+
 Fast Static Public Sub Add((State) As Integer, Optional Count As Integer = 1)
 
   Dim iState As Integer
@@ -145,7 +155,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
     
     For I = 0 To aHighlight.Max Step 2
       
-      iState = aHighlight[I] And 31
+      iState = aHighlight[I] And 63
       Try hStyle = aStyles[iState]
       If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
@@ -162,7 +172,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
       Endif
       
       sStyle = ""
-      If bAlt Then sStyle &= "background:#" & Hex$(aStyles[Highlight.Alternate], 6) & ";"
+      If bAlt Then sStyle &= "background:#" & Hex$(aStyles[GetAlternate()].Color, 6) & ";"
       If hStyle.Color Then sStyle &= "color:#" & Hex$(hStyle.Color, 6) & ";"
       If hStyle.Dotted Then sStyle &= "text-decoration:underline dotted;"
       
@@ -283,7 +293,7 @@ Public Sub ToRichText(Text As String, Optional Theme As Variant) As String
     
     For I = 0 To aHighlight.Max Step 2
       
-      iState = aHighlight[I] And 31
+      iState = aHighlight[I] And 63
       Try hStyle = aStyles[iState]
       If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
@@ -300,7 +310,7 @@ Public Sub ToRichText(Text As String, Optional Theme As Variant) As String
       Endif
       
       sStyle = ""
-      'If bAlt Then sStyle &= "background:#E0E0E0;"
+      'If bAlt Then sStyle &= "background:#" & Hex$(aStyles[GetAlternate()].Color, 6) & ";"
       If hStyle.Color Then sStyle &= " color=\"#" & Hex$(hStyle.Color, 6) & "\""
       
       If sStyle <> sOldStyle Then
@@ -389,7 +399,7 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
     
     For I = 0 To aHighlight.Max Step 2
       
-      iState = aHighlight[I] And 31
+      iState = aHighlight[I] And 63
       Try hStyle = aStyles[iState]
       If Error Then hStyle = aStyles[0]
       bAlt = aHighlight[I] >= 128
@@ -405,7 +415,7 @@ Public Sub ToANSI(Text As String, Optional Theme As Variant) As String
       If bAlt <> bOldAlt Then
         bOldAlt = bAlt
         If bAlt Then
-          sANSI = "\e[48;2;" & ColorToConsole(aStyles[Highlight.Alternate]) & "m" & sANSI
+          sANSI = "\e[48;2;" & ColorToConsole(aStyles[GetAlternate()].Color) & "m" & sANSI
         Else
           sANSI = "\e[49m" & sANSI
         Endif
