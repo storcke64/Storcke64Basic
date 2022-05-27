@@ -337,7 +337,7 @@ Public Sub ArrowBox_MouseDown()
   iIndex = Index_Read()
   
   $hPopup = New FComboBoxPopup
-  iIndex = $hPopup.Open($aList, iIndex, Me.ScreenX, Me.ScreenY + Me.H, Me.W)
+  iIndex = $hPopup.Open($aList, iIndex, Me)
   $hPopup = Null
   If iIndex >= 0 Then Index_Write(iIndex)
   Me.SetFocus

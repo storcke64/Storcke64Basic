@@ -1,18 +1,18 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,64,64)
+  MoveScaled(0,0,30,64)
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
   { MyComboBox1 ComboBox
     MoveScaled(5,2,21,4)
     ReadOnly = True
-    List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("Élément 9"), ("Élément 10"), ("Élément 11"), ("Élément 12")]
+    List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("Élément 9"), ("Élément 10"), ("Élément 11"), ("Élément 12"), ("Élément plus long que les autres")]
   }
   { MyComboBox2 ComboBox
     MoveScaled(5,8,24,4)
-    List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("Élément 5"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("Élément 9"), ("Élément 10"), ("Élément 11"), ("Élément 12")]
+    List = [("Élément 6"), ("Élément 7"), ("Élément 8"), ("Élément 9"), ("Élément 10"), ("Élément 11"), ("Élément 12"), ("Élément plus long que les autres")]
   }
   { MyComboBox3 ComboBox
     MoveScaled(4,13,24,4)
