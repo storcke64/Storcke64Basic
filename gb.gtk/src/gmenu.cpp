@@ -821,6 +821,7 @@ void gMenu::destroy()
 	if (_destroyed)
 		return;
 	
+	hide();
 	dispose();
 	menus_destroyed = g_list_prepend(menus_destroyed, (gpointer)this);
 	_destroyed = true;
