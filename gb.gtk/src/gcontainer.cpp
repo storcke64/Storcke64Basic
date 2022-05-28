@@ -65,11 +65,11 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
-	//fprintf(stderr, "cb_map: %p / %p (%d) '%s'\n", sender, sender->hFree, gApplication::_disable_mapping_events, sender->name());
+	if (gApplication::_disable_mapping_events)
+		return;
 
 	sender->setShown(true);
-	if (!gApplication::_disable_mapping_events)
-		sender->arrangeLater();
+	sender->arrangeLater();
 }
 
 #if GTK3
@@ -98,6 +98,9 @@ static void cb_unmap(GtkWidget *widget, gContainer *sender)
 {
 	//fprintf(stderr, "cb_unmap: %p / %p '%s'\n", sender, sender->hFree, sender->name());
 	
+	if (gApplication::_disable_mapping_events)
+		return;
+
 	sender->setShown(false);
 }
 

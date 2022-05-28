@@ -678,12 +678,12 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 
 					case ARRANGE_VERTICAL:
 // 						#ifndef QNAMESPACE_H
-// 						fprintf(stderr, "%s: VERTICAL: x = %d autoresize (%d, %d) pad %d spc %d [%d] rtl %d\n", 
+// 						fprintf(stderr, "%s: VERTICAL: x = %d autoresize (%d, %d) pad %d spc %d [%d] rtl %d\n",
 // 						((gControl *)_object)->name(), x, x + arr->padding + wf, GET_WIDGET_H(cont), arr->padding, spacing, i, rtl);
 // 						#else
-// 						fprintf(stderr, "%s: VERTICAL: y = %d autoresize (%d, %d) pad %d spc %d [%d] rtl %d hec %d\n", 
-// 							((CWIDGET *)_object)->name, y, dmax + wf, has_expand_children ? GET_WIDGET_H(cont) : y + arr->padding + hf, 
-// 							arr->padding, spacing, i, rtl, has_expand_children);						
+// 						fprintf(stderr, "%s: VERTICAL: y = %d autoresize (%d, %d) pad %d spc %d [%d] rtl %d hec %d\n",
+// 							((CWIDGET *)_object)->name, y, dmax + wf, has_expand_children ? GET_WIDGET_H(cont) : y + arr->padding + hf,
+// 							arr->padding, spacing, i, rtl, has_expand_children);
 // 						#endif
 						//RESIZE_WIDGET(cont, GET_WIDGET_W(cont), y + arr->padding + hf);
 						if (dmax > 0)
@@ -698,9 +698,14 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 						break;
 
 					case ARRANGE_ROW:
-						//if ((y + h + arr->padding + GET_WIDGET_H(cont) - hc - yc) < 16)
-						//	qDebug("y = %d h = %d arr->padding = %d H = %d hc = %d yc = %d -> %d", y, h, arr->padding, GET_WIDGET_H(cont), hc, yc, (y + h + arr->padding + GET_WIDGET_H(cont) - hc - yc));
-						RESIZE_CONTAINER(_object, cont, GET_WIDGET_W(cont), y + h + padding + hf);
+// 						#ifndef GET_MAX_SIZE
+// 						#ifndef QNAMESPACE_H
+// 						fprintf(stderr, "%s: ROW: autoresize (%d, %d)\n", ((gControl *)_object)->name(), GET_WIDGET_W(cont), y + h + padding + hf);
+// 						#else
+// 						fprintf(stderr, "%s: ROW: autoresize (%d, %d)\n", ((CWIDGET *)_object)->name, GET_WIDGET_W(cont), y + h + padding + hf);
+// 						#endif
+// 						#endif
+// 						RESIZE_CONTAINER(_object, cont, GET_WIDGET_W(cont), y + h + padding + hf);
 						break;
 					
 					case ARRANGE_FILL:
