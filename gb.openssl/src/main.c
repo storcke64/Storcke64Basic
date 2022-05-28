@@ -36,10 +36,6 @@
 
 #include <openssl/evp.h>
 
-#include <gb_common.h>
-#include <gbx_compare.h>
-#include <gbx_c_array.h>
-
 #include "main.h"
 #include "c_openssl.h"
 #include "c_digest.h"
@@ -69,8 +65,9 @@ GB_DESC *GB_CLASSES[] EXPORT = {
 void sort_and_dedupe(GB_ARRAY list)
 {
 	GB_FUNCTION sortfn, removefn;
-	CARRAY *arr;
 	int i;
+	char **data;
+	int count;
 
 	if (GB.GetFunction(&sortfn, list, "Sort", NULL, NULL)) {
 		GB.Error("Can't sort array");
@@ -83,12 +80,12 @@ void sort_and_dedupe(GB_ARRAY list)
 		GB.Error("Can't remove duplicates");
 		return;
 	}
-	arr = (CARRAY *) list;
-	for (i = 0; i < arr->count - 1;) {
-		char *a = ((char **) arr->data)[i],
-		     *b = ((char **) arr->data)[i + 1];
 
-		if (!strcasecmp(a, b)) {
+	data = (char **)GB.Array.Get(list, 0);
+	count = GB.Array.Count(list);
+
+	for (i = 0; i < count - 1;) {
+		if (!strcasecmp(data[i], data[i + 1])) {
 			GB.Push(1, GB_T_INTEGER, i);
 			GB.Call(&removefn, 1, 0);
 		} else {

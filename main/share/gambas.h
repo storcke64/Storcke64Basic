@@ -829,10 +829,19 @@ typedef
 #define GB_NB_LOCAL           16
 
 
-/* Constants used by the GB.Collection.New() and GB.HashTable.New() API function */
+/* Comparison constants. Used by the GB.Collection.New() and GB.HashTable.New() API function */
 
-#define GB_COMP_BINARY      0
-#define GB_COMP_NOCASE      1
+#define GB_COMP_BINARY        0
+#define GB_COMP_NOCASE        1
+#define GB_COMP_LANG          2
+#define GB_COMP_LIKE          4
+#define GB_COMP_MATCH         5
+#define GB_COMP_NATURAL       8
+
+#define GB_COMP_TYPE_MASK     15
+
+#define GB_COMP_ASCENT        0
+#define GB_COMP_DESCENT       16
 
 
 /* Constant used by GB.ConvString to convert to 32 bits Unicode (it needs some special processing) */
