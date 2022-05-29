@@ -65,8 +65,7 @@ static gboolean cb_expose(GtkWidget *wid, GdkEventExpose *e, gContainer *data)
 
 static void cb_map(GtkWidget *widget, gContainer *sender)
 {
-	if (gApplication::_disable_mapping_events)
-		return;
+	//fprintf(stderr, "cb_map: %s %d\n", sender->name(), gApplication::_disable_mapping_events);
 
 	sender->setShown(true);
 	sender->arrangeLater();
@@ -96,8 +95,7 @@ static void cb_remap_children(GtkWidget *widget, GdkEvent *event, gContainer *se
 
 static void cb_unmap(GtkWidget *widget, gContainer *sender)
 {
-	//fprintf(stderr, "cb_unmap: %p / %p '%s'\n", sender, sender->hFree, sender->name());
-	
+	//fprintf(stderr, "cb_unmap: %s %d\n", sender->name(), gApplication::_disable_mapping_events);
 	if (gApplication::_disable_mapping_events)
 		return;
 

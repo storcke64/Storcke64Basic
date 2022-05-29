@@ -771,15 +771,6 @@ bool gControl::resize(int w, int h, bool no_decide)
 	}
 	else
 	{
-		/*if (frame && widget != border)
-		{
-			int fw = getFrameWidth() * 2;
-			if (w < fw || h < fw)
-				gtk_widget_hide(widget);
-			else
-				gtk_widget_show(widget);
-		}*/
-
 		//g_debug("resize: %p %s: %d %d", this, name(), w, h);
 		_dirty_size = true;
 
