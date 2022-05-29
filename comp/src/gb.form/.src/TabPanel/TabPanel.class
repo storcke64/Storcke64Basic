@@ -3,7 +3,7 @@
 Export
 Inherits UserContainer
 
-Public Const _Properties As String = "*,Border=True,Count{Range:1;256}=1,Index,Text,TextFont,Picture,Orientation{Align.Top;Bottom}=Top,Closable,CloseButton,Moveable,Highlight"
+Public Const _Properties As String = "*,Border=True,Count{Range:1;256}=1,Index,Text,TextFont,Picture,Orientation{Align.Top;Bottom}=Top,Closable,CloseButton,Moveable,Highlight,ShowTabBar=True"
 Public Const _Similar As String = "TabStrip"
 Public Const _IsMultiContainer As Boolean = True
 Public Const _DefaultEvent As String = "Click"
@@ -34,10 +34,7 @@ Property ShowTabBar As Boolean
 
 Private $hTabBar As DrawingArea
 Private $hTabBarContainer As DrawingArea
-'Private $hLeftArrow As DrawingArea
-'Private $hRightArrow As DrawingArea
 Private $X As Integer
-'Private $bArrow As Boolean
 
 Private $aCont As New _TabPanelContainer[]
 Private $aButton As New _TabPanelButton[]
@@ -66,7 +63,7 @@ Private $iTabBarContainerH As Integer
 Private $hTabBarLeft As DrawingArea
 Private $hTabBarRight As DrawingArea
 Private $bUpdateLayout As Boolean
-Private $bShowTabBar As Boolean
+Private $bShowTabBar As Boolean = True
 
 Public Sub _new()
 
@@ -251,16 +248,16 @@ Private Sub UpdateLayout()
   If $bUpdateLayout Then Return
   $bUpdateLayout = True
   
-  $bShowTabBar = $hTabBar.Visible
+  $hTabBar.Visible = $bShowTabBar
 
   W = Me.W
   H = TabBarSize_Read()
-  $hTabBar.Height = H + 1
+  $hTabBar.H = H + 1
   
-  Y = If(Align.Top, 0, $hTabBar.Y)
+  Y = If($iOrientation = Align.Top, 0, Me.H - $hTabBar.H)
   
   If $hClosePanel Then
-    If W >= H Then
+    If W >= H And If H > 0 Then
       W -= H
       If Me.RightToLeft Then
         $hClosePanel.Move(X, Y, H, H + 1)
@@ -297,11 +294,11 @@ Private Sub UpdateLayout()
   Select Case $iOrientation
     Case Align.Top
       $hTabBar.Move(X, 0, W, $hTabBar.H)
-      $hPanel.Move(0, $hTabBar.H, Me.W, Me.H - $hTabBar.H)
+      $hPanel.Move(0, $hTabBar.H, Me.W, Me.H - $hTabBar.H - 1)
       '$hTabBar.Next = $hPanel
     Case Align.Bottom
       $hTabBar.Move(X, Me.H - $hTabBar.H, W, $hTabBar.H)
-      $hPanel.Move(0, 0, Me.W, Me.H - $hTabBar.H)
+      $hPanel.Move(0, 1, Me.W, Me.H - $hTabBar.H - 1)
       'Me._Arrangement = Arrange.Vertical
       '$hPanel.Next = $hTabBar
   End Select
@@ -516,9 +513,9 @@ Private Sub UpdateCurrentContainer()
   If $bBorder Then
     If Not $hTabBar.Visible Then D = 1
     If $iOrientation = Align.Top Then
-      $aCont[$iCurrent].Move(1, D, $hPanel.W - 2, $hPanel.H - D)
+      $aCont[$iCurrent].Move(1, D, $hPanel.W - 2, $hPanel.H - D - 1)
     Else
-      $aCont[$iCurrent].Move(1, 1, $hPanel.W - 2, $hPanel.H - D)
+      $aCont[$iCurrent].Move(1, 1, $hPanel.W - 2, $hPanel.H - D - 1)
     Endif
   Else
     $aCont[$iCurrent].Move(0, 0, $hPanel.W, $hPanel.H)
@@ -667,25 +664,28 @@ End
 Public Sub TabBarContainer_Draw()
   
   Dim hLast As _TabPanelButton
+  Dim iCol As Integer
+  Dim Y As Integer
+  Dim W As Integer
   
   Try hLast = $aButton[GetLastIndex()]
   If Error Then Return
   
-  Draw.Foreground = Color.LightForeground
+  iCol = Color.LightForeground
+  
   Select Case $iOrientation
     Case Align.Top
-      If Me.RightToLeft Then
-        Draw.Line(0, $hTabBarContainer.H - 1, hLast.X - 1, $hTabBar.H - 1)
-      Else
-        Draw.Line(hLast.X + hLast.W, $hTabBarContainer.H - 1, $hTabBarContainer.W, $hTabBar.H - 1)
-      Endif
+      Y = $hTabBarContainer.H - 1
     Case Align.Bottom
-      If Me.RightToLeft Then
-        Draw.Line(0, 0, hLast.X - 1, 0)
-      Else
-        Draw.Line(hLast.X + hLast.W, 0, $hTabBarContainer.W, 0)
-      Endif
+      Y = 0
   End Select
+  
+  If Me.RightToLeft Then
+    Paint.FillRect(0, Y, hLast.X, 1, iCol)
+  Else
+    W = $hTabBarContainer.W - (hLast.X + hLast.W)
+    If W > 0 Then Paint.FillRect(hLast.X + hLast.W, Y, W, 1, iCol)
+  Endif
   
 End
 
@@ -729,6 +729,7 @@ Private Sub Orientation_Write(Value As Integer)
 
   $iOrientation = Value
   UpdateLayout
+  UpdateCurrentContainer
 
 End
 
@@ -1090,20 +1091,20 @@ End
 
 Private Function TabBarSize_Read() As Integer
 
-  If $hTabBar.Visible Then Return $hTabBar.Font.Height + Desktop.Scale * 1.75
+  If $bShowTabBar Then Return $hTabBar.Font.Height + Desktop.Scale * 1.75
 
 End
 
 Private Function ShowTabBar_Read() As Boolean
 
-  Return $hTabBar.Visible
+  Return $bShowTabBar
 
 End
 
 Private Sub ShowTabBar_Write(Value As Boolean)
 
-  If $hTabBar.Visible = Value Then Return 
-  $hTabBar.Visible = Value
+  If $bShowTabBar = Value Then Return 
+  $bShowTabBar = Value
   UpdateLayout
 
 End
