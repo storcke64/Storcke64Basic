@@ -782,7 +782,7 @@ Public Sub Render()
   
   If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ")")
   
-  Print "<body"; Me._GetEventJS("onload", "open"); ">"
+  Print "<body onload=\"gw.onload();\">"
   
   For Each sImage In ["error.png", "info.png", "question.png", "warning.png"]
     _AddPreload(Application.Root &/ "message" &/ sImage)

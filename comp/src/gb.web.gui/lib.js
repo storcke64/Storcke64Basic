@@ -177,17 +177,19 @@ gw = {
     }
   },
   
-  saveFocus: function() {
+  saveFocus: function()
+  {
     var active = document.activeElement.id;
     var selection;
     
     if (active)
       selection = gw.getSelection($(active));
-      
+    
     return [active, selection];
   },
   
-  restoreFocus: function(save) {
+  restoreFocus: function(save)
+  {
     var elt;
     
     if (save[0])
@@ -197,6 +199,7 @@ gw = {
       {
         elt.focus();
         gw.setSelection(elt, save[1]);
+        gw.onFocus();
       }
     }
     //else
@@ -275,7 +278,8 @@ gw = {
         
         if (!gw.focus)
           gw.restoreFocus(save);
-        
+          
+        gw.onFocus();
       }
       
       if (after)
@@ -407,6 +411,9 @@ gw = {
       gw._focusTimeout = undefined;
     }
     
+    while (elt && (!elt.id || elt.id.indexOf(':') >= 0))
+      elt = elt.parentNode;
+    
     if (elt && elt.id)
     {
       id = elt.id;
@@ -417,22 +424,21 @@ gw = {
         return;
       }
       
-      gw.active = id;
-      gw.update('', '#focus', id);
-      //console.log('onFocus: ' + id);
+      if (gw.active != id)
+      {
+        gw.active = id;
+        gw.update('', '#focus', id);
+      }
     }
-    else
+    else if (gw.active)
     {
+      gw.active = undefined;
       gw._focusTimeout = setTimeout(function() 
         {
           gw._focusTimeout = undefined;
-          //console.log('onFocus: -');
           gw.update('', '#focus', '');
         }, 50);
     }
-    
-    while (elt && (!elt.id || elt.id.indexOf(':') >= 0))
-      elt = elt.parentNode;
     
     if (elt && elt != document.body)
     {
@@ -446,7 +452,9 @@ gw = {
       $('gw-focus').style.display = 'block';
     }
     else
+    {
       $('gw-focus').style.display = '';
+    }
   },
   
   setFocus: function(id)
@@ -458,6 +466,7 @@ gw = {
       elt.focus();
       gw.selection = undefined;
       gw.focus = true;
+      gw.onFocus();
     }
   },
   
@@ -801,6 +810,7 @@ gw = {
       {
         gw.restoreFocus($(id).gw_focus);
         $(id).gw_focus = undefined;
+        gw.onFocus();
       }
       
       $(id).gw_minw = $(id).gw_minh = undefined;
@@ -1821,7 +1831,7 @@ gw = {
       var shortcut = gw.makeShortcut(event);
       if (gw.shortcuts[shortcut])
       {
-        gw.log('shortcut -> ' + shortcut);
+        //gw.log('shortcut -> ' + shortcut);
         gw.sendKeyPress(event, '');
         event.preventDefault();
         return;
@@ -1844,9 +1854,18 @@ gw = {
     if (id && (gw.needKeyPress[id] != undefined || gw.needKeyPress[gw.getFormId(id)]))
       gw.sendKeyPress(event, id);
   },
+  
+  onload: function()
+  {
+    document.body.addEventListener('focusin', gw.onFocus);
+    document.body.addEventListener('focusout', gw.onFocus);
+    gw.raise(null, 'open');
+    document.body.style.opacity = '1';
+    document.body.style.pointerEvents = 'auto';
+  }
 }
 
 document.onkeydown = gw.onKeyDown;
-document.addEventListener('focusin', gw.onFocus);
-document.addEventListener('focusout', gw.onFocus);
+
+
 

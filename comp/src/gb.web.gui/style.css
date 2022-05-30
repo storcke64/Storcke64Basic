@@ -10,6 +10,11 @@ HTML,BODY,DIV,INPUT,TEXTAREA {
   box-sizing: border-box;
 }
 
+BODY {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 SELECT {
   min-height: 2em;
   font-size: inherit;

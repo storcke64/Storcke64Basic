@@ -21,7 +21,6 @@
     { WebContainer3 WebContainer
       #MoveScaled(1,15,48,6)
       Arrangement = Arrange.Horizontal
-      Margin = True
       Spacing = True
       { WebContainer1 WebContainer
         #MoveScaled(1,1,8,4)
@@ -29,7 +28,7 @@
       }
       { btnOK WebButton
         #MoveScaled(10,1,14,4)
-        Width = "6em"
+        Width = "8em"
         Height = "2em"
         Text = ("OK")
         Image = "icon:/small/apply"
@@ -37,7 +36,7 @@
       }
       { btnCancel WebButton
         #MoveScaled(25,1,14,4)
-        Width = "6em"
+        Width = "8em"
         Height = "2em"
         Text = ("Cancel")
         Image = "icon:/small/cancel"
