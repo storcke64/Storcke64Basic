@@ -68,6 +68,7 @@ void sort_and_dedupe(GB_ARRAY list)
 	int i;
 	char **data;
 	int count;
+	char *a, *b;
 
 	if (GB.GetFunction(&sortfn, list, "Sort", NULL, NULL)) {
 		GB.Error("Can't sort array");
@@ -82,13 +83,21 @@ void sort_and_dedupe(GB_ARRAY list)
 	}
 
 	data = (char **)GB.Array.Get(list, 0);
-	count = GB.Array.Count(list);
+	count = GB.Array.Count(list) - 1;
 
-	for (i = 0; i < count - 1;) {
-		if (!strcasecmp(data[i], data[i + 1])) {
+	for (i = 0; i < count;)
+	{
+		a = data[i];
+		b = data[i + 1];
+
+		if ((a && b && !strcasecmp(a, b)) || (!a && !b))
+		{
 			GB.Push(1, GB_T_INTEGER, i);
 			GB.Call(&removefn, 1, 0);
-		} else {
+			count--;
+		}
+		else
+		{
 			i++;
 		}
 	}
