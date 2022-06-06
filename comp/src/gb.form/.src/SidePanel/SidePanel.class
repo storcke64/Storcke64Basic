@@ -3,7 +3,7 @@
 Export
 Inherits UserContainer
 
-Public Const _Properties As String = "*,Action,Orientation{Align.Top;Bottom;Left;Right}=Top,Resizable=True,AutoHide,Border,Separator,Transparent,Hidden"
+Public Const _Properties As String = "*,Action,Orientation{Align.Top;Bottom;Left;Right}=Top,Resizable=True,ShowButtons=True,AutoHide,Border,Separator,Transparent,Hidden"
 Public Const _Similar As String = "Panel"
 
 Event Show
@@ -24,6 +24,7 @@ Property Settings As Variant[]
 Property Transparent As Boolean
 Property MinSize As Integer
 Property AutoHide As Boolean
+Property ShowButtons As Boolean
 
 Private $hObs As Observer
 Private $hForm As FSidePanel
@@ -239,5 +240,17 @@ End
 Private Sub AutoHide_Write(Value As Boolean)
 
   $hForm.SetAutoHide(Value)
+
+End
+
+Private Function ShowButtons_Read() As Boolean
+
+  Return $hForm.MustShowButtons()
+
+End
+
+Private Sub ShowButtons_Write(Value As Boolean)
+
+  $hForm.SetShowButtons(Value)
 
 End

@@ -37,6 +37,7 @@ Private $bLockRefresh As Boolean
 
 Private $hTimerAutoHide As Timer
 Private $bNoAutoHide As Boolean
+Private $bShowButtons As Boolean = True
 
 ' Static Public Sub _init()
 '   
@@ -119,6 +120,11 @@ Private Sub RefreshPanel()
   'IF NOT $bVisible THEN panSide.Hide
   If Not $bOpened Then Return
 
+  If $bShowButtons Then
+    btnSide.Show
+    btnSide2.Show
+  Endif
+  
   'If $bSeparator Then S = 1
 
   Select Case $iOrientation
@@ -237,10 +243,10 @@ Private Sub RefreshPanel()
 
   End Select
   
-  'IF $bVisible THEN panSide.Show
-  
-  'DEBUG $bVisible;; "(";; ME.X;; ME.Y;; ME.W;; ME.H;; ") (";; btnSide.X;; btnSide.Y;; btnSide.W;; btnSide.H;; btnSide.Visible;; ") (";; panSide.X;; panSide.Y;; panSide.W;; panSide.H;; panSide.Visible;; ")"
-  'STOP
+  If Not $bShowButtons Then
+    btnSide.Hide
+    btnSide2.Hide
+  Endif
   
 End
 
@@ -479,7 +485,7 @@ Public Sub RefreshAll()
     'DEBUG ME.Parent.W;; ME.CLientW
     'panSide.Hide 'Enabled = FALSE
     
-    If Not $hShowPanel And If $bTransparent Then
+    If Not $hShowPanel And If $bTransparent And If $bShowButtons Then
       
       hCont = Me.Parent.Parent
       
@@ -1171,6 +1177,10 @@ Public Sub panMove_Menu()
   hMenu.Text = ("Transparent handle")
   hMenu.Checked = IsTransparent()
   
+  ' hMenu = New Menu(hPopup) As "mnuShowButtons"
+  ' hMenu.Text = ("Show buttons")
+  ' hMenu.Checked = MustShowButtons()
+  
   hMenu = New Menu(hPopup) As "mnuAutoHide"
   hMenu.Text = ("Hide automatically")
   hMenu.Checked = IsAutoHide()
@@ -1201,6 +1211,12 @@ Public Sub mnuTransparent_Click()
   SetTransparent(Not IsTransparent())
   
 End
+
+' Public Sub mnuShowButtons_Click()
+'   
+'   SetShowButtons(Not MustShowButtons())
+'   
+' End
 
 Public Sub mnuAutoHide_Click()
   
@@ -1278,3 +1294,16 @@ Public Sub HasBorder() As Boolean
   
 End
 
+Public Sub SetShowButtons(bShow As Boolean)
+  
+  If $bShowButtons = bShow Then Return
+  $bShowButtons = bShow
+  RefreshPanel
+  
+End
+
+Public Sub MustShowButtons() As Boolean
+  
+  Return $bShowButtons
+  
+End
