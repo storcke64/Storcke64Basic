@@ -496,7 +496,7 @@ static void hook_main(int *argc, char ***argv)
 
 typedef
 	struct {
-		int source;
+		guint source;
 		GTimer *timer;
 		int timeout;
 		}
@@ -504,29 +504,28 @@ typedef
 
 gboolean hook_timer_function(GB_TIMER *timer)
 {
-	if (timer->id)
-	{
-		GB.RaiseTimer(timer);
+	intptr_t old_id = timer->id;
 
-		if (timer->id)
-		{
-			MyTimerId *id = (MyTimerId *)timer->id;
-			GTimer *t = id->timer;
-			int elapsed = (int)(g_timer_elapsed(t, NULL) * 1000) - id->timeout;
-			int next = timer->delay - elapsed;
-			if (next < 10)
-				next = 10;
-			id->timeout = next;
-			g_timer_start(t);
-			id->source = g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, next, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
-			//fprintf(stderr, "elapsed = %d  delay = %d  next = %d\n", elapsed, timer->delay, next);
-		}
+	GB.RaiseTimer(timer);
+
+	if (timer->id == old_id) // If the event handler has removed the timer or restarted it, do nothing, just let the current source be removed.
+	{
+		MyTimerId *id = (MyTimerId *)timer->id;
+		GTimer *t = id->timer;
+		int elapsed = (int)(g_timer_elapsed(t, NULL) * 1000) - id->timeout;
+		int next = timer->delay - elapsed;
+		if (next < 10)
+			next = 10;
+		id->timeout = next;
+		g_timer_start(t);
+		id->source = g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, next, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
+		//fprintf(stderr, "elapsed = %d  delay = %d  next = %d\n", elapsed, timer->delay, next);
 	}
 
 	return false;
 }
 
-static void hook_timer(GB_TIMER *timer,bool on)
+static void hook_timer(GB_TIMER *timer, bool on)
 {
 	if (timer->id)
 	{
@@ -542,7 +541,7 @@ static void hook_timer(GB_TIMER *timer,bool on)
 		MyTimerId *id = g_new(MyTimerId, 1);
 		id->timer = g_timer_new();
 		id->timeout = timer->delay;
-		id->source = (intptr_t)g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, timer->delay, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
+		id->source = g_timeout_add_full(G_PRIORITY_DEFAULT_IDLE, timer->delay, (GSourceFunc)hook_timer_function, (gpointer)timer, NULL);
 		timer->id = (intptr_t)id;
 	}
 	else
