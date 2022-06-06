@@ -1279,6 +1279,7 @@
       Arrangement = Arrange.Vertical
       Action = "project"
       Orientation = Align.Left
+      ShowButtons = False
       Separator = True
       Transparent = True
       { panBranchColor HBox
@@ -1403,10 +1404,11 @@
             }
           }
           { panDebug SidePanel
-            MoveScaled(2,30,81,23)
+            MoveScaled(7,30,81,23)
             ToolTip = ("Debug")
             Arrangement = Arrange.Fill
             Orientation = Align.Bottom
+            ShowButtons = False
             Separator = True
             Transparent = True
             Hidden = True
@@ -1432,6 +1434,7 @@
           Arrangement = Arrange.Vertical
           Action = "property"
           Orientation = Align.Right
+          ShowButtons = False
           Separator = True
           Transparent = True
           { panImageProperty Panel
