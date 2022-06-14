@@ -1455,7 +1455,7 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 				i = (start + count) / 2;
 				str = data[i];
 				len = STRING_length(str);
-				c = STRING_compare_ignore_case(str, len, value, len_value);
+				c = STRING_compare_ignore_case(value, len_value, str, len);
 				if (c < 0)
 					count = i;
 				else if (c > 0)
@@ -1471,7 +1471,7 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 			{
 				str = data[i];
 				len = STRING_length(str);
-				if (STRING_equal_ignore_case(str, len, value, len_value))
+				if (STRING_equal_ignore_case(value, len_value, str, len))
 					return i;
 			}
 		}
@@ -1481,7 +1481,7 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 		COMPARE_STRING_FUNC compare = COMPARE_get_string_func(mode);
 		bool nocase = mode & GB_COMP_NOCASE;
 		
-		// Beware: ordre of comparison arguments is important!
+		// Beware: order of comparison arguments is important!
 		
 		if (sorted)
 		{
@@ -1490,10 +1490,11 @@ static int find_string(CARRAY *_object, int mode, const char *value, int len_val
 				i = (start + count) / 2;
 				str = data[i];
 				len = STRING_length(str);
+				// pattern must be second, but then the strings and the comparison result are inverted.
 				c = (*compare)(str, len, value, len_value, nocase, FALSE);
-				if (c < 0)
+				if (c > 0)
 					count = i;
-				else if (c > 0)
+				else if (c < 0)
 					start = i + 1;
 				else
 					return i;
