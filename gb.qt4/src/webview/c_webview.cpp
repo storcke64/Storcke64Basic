@@ -441,7 +441,7 @@ public:
 BEGIN_METHOD_VOID(WebView_Cookies_Clear)
 
 	QList<QNetworkCookie> list;
-	qstatic_cast<MyCookieJar *>(WIDGET->page()->networkAccessManager()->cookieJar())->setAllCookies(list);
+	static_cast<MyCookieJar *>(WIDGET->page()->networkAccessManager()->cookieJar())->setAllCookies(list);
 
 END_METHOD
 
