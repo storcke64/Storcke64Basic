@@ -194,9 +194,9 @@ void WEBVIEW_init_settings(void *_object)
 	webkit_settings_set_default_font_size(settings, webkit_settings_get_default_font_size(init));
 	webkit_settings_set_default_monospace_font_size(settings, webkit_settings_get_default_monospace_font_size(init));
 	webkit_settings_set_minimum_font_size(settings, webkit_settings_get_minimum_font_size(init));
+
+	//webkit_settings_set_enable_developer_extras(settings, TRUE);
 }
-
-
 
 #if 0
 /***************************************************************************/

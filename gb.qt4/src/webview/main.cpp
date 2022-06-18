@@ -66,6 +66,7 @@ GB_DESC *GB_CLASSES[] EXPORT =
 	WebViewSettingsDesc,
 	WebViewHistoryItemDesc,
 	WebViewHistoryDesc,
+	WebViewCookiesDesc,
 	WebViewDesc,
 	NULL
 };

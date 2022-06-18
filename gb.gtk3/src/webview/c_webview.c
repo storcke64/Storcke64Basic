@@ -463,6 +463,20 @@ BEGIN_PROPERTY(WebViewHistory_CanGoForward)
 
 END_PROPERTY
 
+//-------------------------------------------------------------------------
+
+static void cb_cookies_clear_finished(WebKitWebView *widget, GAsyncResult *result, void *_object)
+{
+}
+
+BEGIN_METHOD_VOID(WebView_Cookies_Clear)
+
+	WebKitWebsiteDataManager *manager = webkit_web_view_get_website_data_manager(WIDGET);
+
+	webkit_website_data_manager_clear(manager, WEBKIT_WEBSITE_DATA_COOKIES, 0, NULL, (GAsyncReadyCallback)cb_cookies_clear_finished, (gpointer)THIS);
+
+END_METHOD
+
 //---------------------------------------------------------------------------
 
 GB_DESC WebViewHistoryItemDesc[] = 
@@ -484,6 +498,15 @@ GB_DESC WebViewHistoryDesc[] =
 	GB_METHOD("_get", ".WebView.History.Item", WebViewHistory_get, "(Index)i"),
 	GB_PROPERTY_READ("CanGoBack", "b", WebViewHistory_CanGoBack),
 	GB_PROPERTY_READ("CanGoForward", "b", WebViewHistory_CanGoForward),
+
+	GB_END_DECLARE
+};
+
+GB_DESC WebViewCookiesDesc[] =
+{
+	GB_DECLARE_VIRTUAL(".WebView.Cookies"),
+
+	GB_METHOD("Clear", NULL, WebView_Cookies_Clear, NULL),
 
 	GB_END_DECLARE
 };
@@ -515,6 +538,7 @@ GB_DESC WebViewDesc[] =
 	
 	GB_PROPERTY_SELF("History", ".WebView.History"),
 	GB_PROPERTY_SELF("Settings", ".WebView.Settings"),
+	GB_PROPERTY_SELF("Cookies", ".WebView.Cookies"),
 
 	GB_CONSTANT("_Properties", "s", "*,Url,Zoom=1"),
   GB_CONSTANT("_Group", "s", "View"),

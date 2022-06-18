@@ -36,6 +36,7 @@
 /*extern GB_DESC WebViewAuthDesc[];
 extern GB_DESC WebViewDownloadsDesc[];*/
 extern GB_DESC WebViewDesc[];
+extern GB_DESC WebViewCookiesDesc[];
 extern GB_DESC WebViewHistoryDesc[];
 extern GB_DESC WebViewHistoryItemDesc[];
 

@@ -30,6 +30,8 @@
 #include <QWebFrame>
 #include <QWebHistory>*/
 #include <QWebEngineHistory>
+#include <QWebEngineProfile>
+#include <QWebEngineCookieStore>
 #include <QJsonDocument>
 #include <QContextMenuEvent>
 #include <QPointer>
@@ -591,20 +593,20 @@ BEGIN_PROPERTY(WebView_Cookies)
 	QList<QNetworkCookie> list;
 	GB_ARRAY cookies;
 	int i;
-	
+
 	if (READ_PROPERTY)
 	{
 		list = cookieJar->allCookies();
-		
+
 		GB.Array.New(POINTER(&cookies), GB.FindClass("Cookie"), list.count());
-		
+
 		for (i = 0; i < list.count(); i++)
 		{
 			CCOOKIE *cookie = WEB_create_cookie(list.at(i));
 			*((CCOOKIE **)(GB.Array.Get(cookies, i))) = cookie;
 			GB.Ref(cookie);
 		}
-		
+
 		GB.ReturnObject(cookies);
 	}
 	else
@@ -613,7 +615,7 @@ BEGIN_PROPERTY(WebView_Cookies)
 		cookies = VPROP(GB_OBJECT);
 		if (GB.CheckObject(cookies))
 			return;
-		
+
 		for (i = 0; i < GB.Array.Count(cookies); i++)
 		{
 			CCOOKIE *cookie = *((CCOOKIE **)GB.Array.Get(cookies, i));
@@ -621,7 +623,7 @@ BEGIN_PROPERTY(WebView_Cookies)
 				continue;
 			list.append(*(cookie->cookie));
 		}
-		
+
 		cookieJar->setAllCookies(list);
 	}
 
@@ -728,7 +730,7 @@ static QWebEngineHistoryItem get_item(QWebEngineHistory *history, int index)
 	return history->itemAt(history->currentItemIndex() + index);
 }
 
-BEGIN_PROPERTY(WebViewHistoryItem_Title)
+BEGIN_PROPERTY(WebView_History_Item_Title)
 
 	QWebEngineHistoryItem item = get_item(HISTORY, THIS->history);
 	
@@ -739,7 +741,7 @@ BEGIN_PROPERTY(WebViewHistoryItem_Title)
 
 END_PROPERTY
 
-BEGIN_PROPERTY(WebViewHistoryItem_Url)
+BEGIN_PROPERTY(WebView_History_Item_Url)
 
 	QWebEngineHistoryItem item = get_item(HISTORY, THIS->history);
 	
@@ -750,7 +752,7 @@ BEGIN_PROPERTY(WebViewHistoryItem_Url)
 
 END_PROPERTY
 
-BEGIN_METHOD_VOID(WebViewHistoryItem_GoTo)
+BEGIN_METHOD_VOID(WebView_History_Item_GoTo)
 
 	QWebEngineHistoryItem item = get_item(HISTORY, THIS->history);
 	
@@ -759,13 +761,13 @@ BEGIN_METHOD_VOID(WebViewHistoryItem_GoTo)
 
 END_METHOD
 
-BEGIN_METHOD_VOID(WebViewHistory_Clear)
+BEGIN_METHOD_VOID(WebView_History_Clear)
 
 	HISTORY->clear();
 
 END_METHOD
 
-BEGIN_METHOD(WebViewHistory_get, GB_INTEGER index)
+BEGIN_METHOD(WebView_History_get, GB_INTEGER index)
 
 	int index = VARG(index);
 	
@@ -780,17 +782,25 @@ BEGIN_METHOD(WebViewHistory_get, GB_INTEGER index)
 
 END_METHOD
 
-BEGIN_PROPERTY(WebViewHistory_CanGoBack)
+BEGIN_PROPERTY(WebView_History_CanGoBack)
 
 	GB.ReturnBoolean(HISTORY->canGoBack());
 
 END_PROPERTY
 
-BEGIN_PROPERTY(WebViewHistory_CanGoForward)
+BEGIN_PROPERTY(WebView_History_CanGoForward)
 
 	GB.ReturnBoolean(HISTORY->canGoForward());
 
 END_PROPERTY
+
+//-------------------------------------------------------------------------
+
+BEGIN_METHOD_VOID(WebView_Cookies_Clear)
+
+	WIDGET->page()->profile()->cookieStore()->deleteAllCookies();
+
+END_METHOD
 
 //-------------------------------------------------------------------------
 
@@ -869,14 +879,14 @@ GB_DESC WebViewDesc[] =
 };
 #endif
 
-GB_DESC WebViewHistoryItemDesc[] = 
+GB_DESC WebViewHistoryItemDesc[] =
 {
 	GB_DECLARE_VIRTUAL(".WebView.History.Item"),
-	
-	GB_PROPERTY_READ("Title", "s", WebViewHistoryItem_Title),
-	GB_PROPERTY_READ("Url", "s", WebViewHistoryItem_Url),
-	GB_METHOD("GoTo", NULL, WebViewHistoryItem_GoTo, NULL),
-	
+
+	GB_PROPERTY_READ("Title", "s", WebView_History_Item_Title),
+	GB_PROPERTY_READ("Url", "s", WebView_History_Item_Url),
+	GB_METHOD("GoTo", NULL, WebView_History_Item_GoTo, NULL),
+
 	GB_END_DECLARE
 };
 
@@ -884,10 +894,19 @@ GB_DESC WebViewHistoryDesc[] =
 {
 	GB_DECLARE_VIRTUAL(".WebView.History"),
 
-	GB_METHOD("Clear", NULL, WebViewHistory_Clear, NULL),
-	GB_METHOD("_get", ".WebView.History.Item", WebViewHistory_get, "(Index)i"),
-	GB_PROPERTY_READ("CanGoBack", "b", WebViewHistory_CanGoBack),
-	GB_PROPERTY_READ("CanGoForward", "b", WebViewHistory_CanGoForward),
+	GB_METHOD("Clear", NULL, WebView_History_Clear, NULL),
+	GB_METHOD("_get", ".WebView.History.Item", WebView_History_get, "(Index)i"),
+	GB_PROPERTY_READ("CanGoBack", "b", WebView_History_CanGoBack),
+	GB_PROPERTY_READ("CanGoForward", "b", WebView_History_CanGoForward),
+
+	GB_END_DECLARE
+};
+
+GB_DESC WebViewCookiesDesc[] =
+{
+	GB_DECLARE_VIRTUAL(".WebView.Cookies"),
+
+	GB_METHOD("Clear", NULL, WebView_Cookies_Clear, NULL),
 
 	GB_END_DECLARE
 };
@@ -921,7 +940,8 @@ GB_DESC WebViewDesc[] =
 	
 	GB_PROPERTY_SELF("History", ".WebView.History"),
 	GB_PROPERTY_SELF("Settings", ".WebView.Settings"),
-	
+	GB_PROPERTY_SELF("Cookies", ".WebView.Cookies"),
+
 	GB_CONSTANT("_Properties", "s", "*,Url,Zoom=1"),
 	GB_CONSTANT("_Group", "s", "View"),
 	

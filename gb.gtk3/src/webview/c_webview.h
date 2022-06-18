@@ -48,6 +48,7 @@ typedef
 extern GB_DESC WebViewDesc[];
 extern GB_DESC WebViewHistoryDesc[];
 extern GB_DESC WebViewHistoryItemDesc[];
+extern GB_DESC WebViewCookiesDesc[];
 #else
 
 #define THIS    ((CWEBVIEW *)_object)
