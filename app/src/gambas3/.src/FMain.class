@@ -1324,6 +1324,12 @@ Public Sub UpdateMenu()
   Endif
   Action["gui"].Visible = bVisible
   
+  If Project.Running And If Not Project.Config["/Debug/Browser"] Then
+    Action["browser"].Visible = True
+  Else
+    Action["browser"].Visible = False
+  Endif
+  
   'btnShowMenu.Visible = Not Me.Menus.Visible
   'btnShowMenu.Raise
   

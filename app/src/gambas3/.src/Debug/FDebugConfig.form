@@ -168,7 +168,7 @@
         Text = ("Terminal")
       }
       { cmbTerminal ComboBox
-        MoveScaled(38,0,20,4)
+        MoveScaled(36,0,22,4)
         ReadOnly = True
       }
     }
@@ -198,8 +198,23 @@
         MoveScaled(47,0,8,4)
       }
     }
-    { HBox5 HBox
+    { panBrowser HBox
       MoveScaled(1,24,58,4)
+      Visible = False
+      Spacing = True
+      Indent = True
+      { Label12 Label
+        MoveScaled(0,0,21,4)
+        Expand = True
+        Text = ("Debug browser")
+      }
+      { cmbBrowser ComboBox
+        MoveScaled(36,0,22,4)
+        ReadOnly = True
+      }
+    }
+    { HBox5 HBox
+      MoveScaled(1,29,58,4)
       Spacing = True
       Indent = True
       { Label21 Label
@@ -214,7 +229,7 @@
       }
     }
     { HBox6 HBox
-      MoveScaled(1,29,58,4)
+      MoveScaled(1,34,58,4)
       Spacing = True
       Indent = True
       { Label5 Label
@@ -229,7 +244,7 @@
       }
     }
     { HBox7 HBox
-      MoveScaled(1,34,58,4)
+      MoveScaled(1,39,58,4)
       Spacing = True
       Indent = True
       { Label6 Label
@@ -244,7 +259,7 @@
       }
     }
     { panEnvDbDebug HBox
-      MoveScaled(1,39,58,4)
+      MoveScaled(1,44,58,4)
       Spacing = True
       Indent = True
       { Label7 Label

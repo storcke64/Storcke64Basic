@@ -3,6 +3,9 @@
 Static Private $aTerminal As String[] = ["", "konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "lxterminal", "xterm"]
 Static Private $aTerminalNames As String[] = [("(Default)"), "KDE terminal", "Gnome terminal", "Mate terminal", "XFCE terminal", "LXDE terminal", "X11 terminal"]
 
+Static Private $aBrowser As String[] = ["", "firefox", "chromium"]
+Static Private $aBrowserNames As String[] = [("(Internal browser)"), "Firefox", "Chromium"]
+
 Static Public Sub Run() As Boolean
   
   Return Not FDebugConfig.ShowModal()
@@ -18,6 +21,7 @@ End
 Public Sub _new()
   
   cmbTerminal.List = $aTerminalNames
+  cmbBrowser.List = $aBrowserNames
   
 End
 
@@ -59,10 +63,11 @@ Private Sub LoadSettings()
   ' Options
   
   btnUseTerminal.Value = Project.Config["/Debug/UseTerminal"]
-  cmbTerminal.Index = $aTerminal.Find(Settings["/Debug/Terminal", ""])
+  cmbTerminal.Index = $aTerminal.Find(Settings["/Debug/Terminal"])
   
   btnRedirectStderr.Value = Project.Config["/Debug/RedirectStderr"]
   btnUseHttpServer.Value = Project.Config["/Debug/UseHttpServer"]
+  cmbBrowser.Index = $aBrowser.Find(Project.Config["/Debug/Browser"])
 
   ' Environment
 
@@ -119,6 +124,7 @@ Private Sub SaveSettings() As Boolean
 
   Project.Config["/Debug/RedirectStderr"] = btnRedirectStderr.Value
   Project.Config["/Debug/UseHttpServer"] = btnUseHttpServer.Value
+  Project.Config["/Debug/Browser"] = $aBrowser[cmbBrowser.Index]
 
   ' Remote debugging
 
@@ -212,5 +218,11 @@ End
 Public Sub btnUseTerminal_Click()
 
   panTerminal.Visible = btnUseTerminal.Value
+
+End
+
+Public Sub btnUseHttpServer_Click()
+
+  panBrowser.Visible = btnUseHttpServer.Value
 
 End

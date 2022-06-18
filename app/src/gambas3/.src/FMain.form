@@ -420,6 +420,12 @@
       Toggle = True
       Shortcut = "F11"
     }
+    { mnuViewBrowser Menu
+      Action = "browser"
+      Text = ("Debug browser")
+      Picture = Picture["icon:/small/internet"]
+      Toggle = True
+    }
     { Menu11 Menu
     }
     { mnuStatusBar Menu
@@ -1537,6 +1543,11 @@
     Text = "Browse project"
     Shortcut = "Ctrl+Alt+O"
     Picture = "icon:/small/file-manager"
+  }
+  { Action browser
+    Text = "Debug browser"
+    Shortcut = ""
+    Picture = "icon:/small/internet"
   }
   { Action clean-up-project
     Text = "Clean up"

@@ -324,7 +324,7 @@
       }
     }
     Index = 2
-    Text = ("Help & applications")
+    Text = ("Help")
     Picture = Picture["icon:/large/help"]
     { Label46 Label
       MoveScaled(1,0,63,3)
@@ -436,11 +436,13 @@
     }
     { Label45 Label
       MoveScaled(1,44,63,3)
+      Visible = False
       Font = Font["Bold"]
       Text = ("Applications")
     }
     { HBox12 HBox
       MoveScaled(1,49,66,4)
+      Visible = False
       Spacing = True
       Indent = True
       { Label13 Label

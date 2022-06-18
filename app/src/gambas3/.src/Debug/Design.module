@@ -57,7 +57,7 @@ Private $sProfilePath As String
 
 Private $sPipeError As String
 Private $hPipeError As File
-Private $hBrowser As Process
+'Private $hBrowser As Process
 
 Private $hTimerShowConsole As Timer
 
@@ -76,6 +76,9 @@ Private $bRemoteFifoAuth As Boolean
 Private $bProcessAuth As Boolean
 Private $bProcessIgnoreNextNewLine As Boolean
 Private $bGnomeTerminal As Boolean
+
+Private $bCloseWebBrowser As Boolean
+Private $hBrowser As Process
 
 Public Sub Init()
  
@@ -600,6 +603,12 @@ Private Sub AfterStop()
 
   $sError = ""
   Balloon.Hide
+  
+  If $bCloseWebBrowser Then FBrowser.Hide
+  If $hBrowser Then
+    Try $hBrowser.Kill
+    $hBrowser = Null
+  Endif
 
   For Each hForm In Project.Workspace.Windows
     Try hForm.OnProjectDebug 
@@ -1002,6 +1011,7 @@ Private Sub Start(sCmd As String)
   Dim sRemoteDebuggerHelper As String
   Dim iCurrentArg As Integer
   Dim aArguments As String[][]
+  Dim sBrowser As String
 
   If Project.Running Then Return
   
@@ -1315,9 +1325,21 @@ Private Sub Start(sCmd As String)
 
   'UpdateMinimize
 
+  $bCloseWebBrowser = False
   If sOpenWebBrowser Then
-    $hBrowser = Project.OpenWebPage(sOpenWebBrowser, True)
-    'If $hBrowser Then Object.Attach($hBrowser, Me, "Browser")
+    sBrowser = Project.Config["/Debug/Browser"]
+    If sBrowser Then
+      $hBrowser = Project.OpenBrowser(sBrowser, sOpenWebBrowser, True)
+      If $hBrowser Then
+        Object.Attach($hBrowser, Me, "Browser")
+      Else
+        sBrowser = ""
+      Endif
+    Endif
+    If Not sBrowser Then
+      FBrowser.Run(sOpenWebBrowser)
+      $bCloseWebBrowser = True
+    Endif
   Endif
 
   If $bTest Then
@@ -1448,14 +1470,6 @@ Public Sub TimerExtern_Timer()
   Endif
   
 End
-
-
-' Public Sub Browser_Kill()
-'   
-'   Stop()
-'   
-' End
-
 
 ' Private Sub UpdateMinimize()
 '   
@@ -1842,3 +1856,11 @@ Private Sub MakeInitialCommands(sCmd As String)
 
 End
 
+Public Sub Browser_Kill()
+
+  If $hBrowser Then
+    $hBrowser = Null
+    {Stop}
+  Endif
+  
+End

@@ -5542,36 +5542,18 @@ Public Function CheckProgram(sProg As String) As Boolean
 
 End
 
-'' Open a URL inside an external browser.
-'' - ~sLink~ is the URL to open.
-
-Public Sub OpenWebPage(sLink As String, Optional bNewInstance As Boolean) As Process
-
-  Dim sExec As String
+Public Sub OpenBrowser(sBrowser As String, sUrl As String, Optional bNewInstance As Boolean) As Process
+  
   Dim aTest As String[]
+  Dim sExec As String
   Dim bCheck As Boolean
   Dim hProcess As Process
-  'Dim sNewInstance As String
-
-  If Not Browser Then
-
-    Select Case Settings["/Browser"]
-
-      Case "konqueror"
-        aTest = ["konqueror"]
-
-      Case "epiphany"
-        aTest = ["epiphany"]
-
+  
+  Select Case sBrowser
+    
       Case "firefox"
         aTest = ["firefox", "mozilla-firefox"]
-        
-      Case "iceweasel"
-        aTest = ["iceweasel"]
 
-      Case "seamonkey"
-        aTest = ["seamonkey"]
-        
       Case "chromium"
         aTest = ["chromium", "chromium-browser", "google-chrome-stable"]
 
@@ -5587,53 +5569,53 @@ Public Sub OpenWebPage(sLink As String, Optional bNewInstance As Boolean) As Pro
           aTest.Add("firefox")
           aTest.Add("iceweasel")
         Endif
-
-    End Select
-
-    aTest.Insert(["mozilla-firefox", "firefox", "mozilla", "iceweasel", "konqueror", "seamonkey", "chromium-browser", "opera"])
     
-    For Each sExec In aTest
-      If Not sExec Then Continue
-      bCheck = Not CheckProgram(sExec)
-      If bCheck Then Break
-    Next
-
-    If Not bCheck Then Return
-
-    Browser = sExec
-    
-  Endif
-
-  If Left(sLink) = "/" Then
-    sLink = "file://" & Replace(sLink, "?", "%3F")
-  Endif
-
-  ' If Browser = "firefox" Or If Browser = "iceweasel" Then
-  '   hProcess = Shell "firefox -remote \"openURL(" & sLink & ",new-window)\"" Wait
-  '   If hFirefox.Value Then
-  '     Shell Browser & " " & Chr$(34) & sLink & Chr$(34)
-  '   End If
-  ' Else
-  sExec = Browser
+  End Select
   
+  For Each sExec In aTest
+    If Not sExec Then Continue
+    bCheck = Not CheckProgram(sExec)
+    If bCheck Then Break
+  Next
+
+  If Not bCheck Then
+    Message.Error(("Unable to find a web browser."))
+    Return
+  Endif
+  
+  If Left(sUrl) = "/" Then sUrl = "file://" & URL.Quote(sUrl)
+
   If bNewInstance Then 
     
-    ' Select Case Browser
-    '   
-    '   Case "firefox", "iceweasel", "mozilla-firefox"
-    '     sExec &= " --new-instance"
-    '     
-    ' End Select
+    Select Case sExec
+      
+      Case "firefox", "mozilla-firefox"
+        Shell sExec & " -CreateProfile GambasIDE" Wait
+        sExec &= " -P \"Gambas3IDE\" -no-remote"
+        
+      Case "chromium", "chromium-browser", "google-chrome-stable"
+        sExec &= " --incognito"
+        
+    End Select
     
   Endif
   
-  hProcess = Shell sExec & " " & Shell(sLink)
+  hProcess = Shell sExec & " " & Shell(sUrl)
   Return hProcess
-  'End If
 
 Catch
 
   Message.Error(Error.Text)
+
+End
+
+
+'' Open a URL inside an external browser.
+'' - ~sLink~ is the URL to open.
+
+Public Sub OpenWebPage(sLink As String, Optional bNewInstance As Boolean) As Process
+
+  Return OpenBrowser("", sLink, bNewInstance)
 
 End
 

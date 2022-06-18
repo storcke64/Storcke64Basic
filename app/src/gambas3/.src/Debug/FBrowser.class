@@ -1,0 +1,16 @@
+' Gambas class file
+
+Public Sub Run(sUrl As String)
+  
+  wvwBrowser.Clear
+  wvwBrowser.Cookies.Clear
+  wvwBrowser.Url = sUrl
+  Me.Show
+  
+End
+
+Public Sub wvwBrowser_Title()
+
+  Me.Title = wvwBrowser.Title & " — " & ("Debug browser")
+
+End
