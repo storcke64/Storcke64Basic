@@ -423,10 +423,25 @@ END_PROPERTY
 
 //-------------------------------------------------------------------------
 
+class MyCookieJar : public QNetworkCookieJar
+{
+	Q_OBJECT
+
+public:
+
+	MyCookieJar(QObject *parent = 0);
+
+	QList<QNetworkCookie> allCookies () const { return QNetworkCookieJar::allCookies(); }
+	void setAllCookies(const QList<QNetworkCookie> &cookieList) { QNetworkCookieJar::setAllCookies(cookieList); }
+
+	//virtual QList<QNetworkCookie> cookiesForUrl(const QUrl & url) const;
+	//virtual bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url);
+};
+
 BEGIN_METHOD_VOID(WebView_Cookies_Clear)
 
 	QList<QNetworkCookie> list;
-	WIDGET->page()->networkAccessManager()->cookieJar()->setAllCookies(list);
+	qstatic_cast<MyCookieJar *>(WIDGET->page()->networkAccessManager()->cookieJar())->setAllCookies(list);
 
 END_METHOD
 
