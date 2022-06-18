@@ -30,7 +30,7 @@ Private $iTabBarHeight As Integer
 Private $bFirstShowDebug As Boolean
 
 Public Sub _new()
-  
+
   'Me.ResizeScaled(86, 97)
   
   'Project.ProjectTree = tvwProject
@@ -1426,7 +1426,29 @@ Public Sub mnuArgument_Click()
   
 End
 
+Private Sub UpdateDebugBrowser()
 
+  Dim I As Integer
+  Dim hMenu As Menu
+  Dim sBrowser As String
+  
+  mnuDebugBrowser.Children.Clear
+  sBrowser = Project.Config["/Debug/Browser"]
+  
+  For I = 0 To Design.Browsers.Max
+    
+    hMenu = New Menu(mnuDebugBrowser) As "mnuDebugBrowser"
+    hMenu.Text = Design.BrowserNames[I]
+    hMenu.Tag = Design.Browsers[I]
+    If Design.Browsers[I] = sBrowser Then
+      hMenu.Checked = True
+      btnDebugBrowser.Text = hMenu.Text
+    Endif
+    
+  Next
+  
+End
+  
 Public Sub OnProjectChange()
   
   $hProjectTree = Project.Tree 
@@ -1436,6 +1458,7 @@ Public Sub OnProjectChange()
   UpdateMenu
   UpdateRemote
   UpdateArguments
+  UpdateDebugBrowser
   
   'If $bInOpenExtern Then Return
   
@@ -1671,6 +1694,7 @@ Public Sub Action_Activate((Key) As String) As Boolean
         UpdateMenu
         UpdateRemote
         UpdateArguments
+        UpdateDebugBrowser
         OnRefreshComponents
       Endif
 
@@ -3384,5 +3408,12 @@ Private Sub UpdateRemote()
   For Each hForm In Project.Files
     Try hForm.UpdateRemote()
   Next
+  
+End
+
+Public Sub mnuDebugBrowser_Click()
+  
+  Project.Config["/Debug/Browser"] = Last.Tag
+  UpdateDebugBrowser
   
 End

@@ -1,5 +1,11 @@
 ' Gambas module file
 
+Public Terminals As String[] = ["", "konsole", "gnome-terminal", "mate-terminal", "xfce4-terminal", "lxterminal", "xterm"]
+Public TerminalNames As String[] = [("(Default)"), "KDE terminal", "Gnome terminal", "Mate terminal", "XFCE terminal", "LXDE terminal", "X11 terminal"]
+
+Public Browsers As String[] = ["", "firefox", "chromium"]
+Public BrowserNames As String[] = [("(Internal)"), "Firefox", "Chromium"]
+
 Private Const MAX_IGNORE_EXTERN As Integer = 8
 Private Const DEBUG_REMOTE As Boolean = False
 

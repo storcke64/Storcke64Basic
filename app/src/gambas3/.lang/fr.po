@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.17.90\n"
-"PO-Revision-Date: 2022-06-18 13:57 UTC\n"
+"PO-Revision-Date: 2022-06-18 22:19 UTC\n"
 "Last-Translator: benoit <benoit@benoit-TOWER>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -350,7 +350,7 @@ msgstr "&1 traductions ont été récupérées."
 msgid "&1 weeks ago"
 msgstr "il y a &1 semaines"
 
-#: FMain.form:1787
+#: FMain.form:1808
 msgid "&?"
 msgstr "&?"
 
@@ -362,15 +362,15 @@ msgstr "Ajouter"
 msgid "&Clear history"
 msgstr "&Effacer l'historique"
 
-#: FMain.form:1751
+#: FMain.form:1772
 msgid "&Debug"
 msgstr "&Débogage"
 
-#: FConflict.class:14 FMain.form:1727
+#: FConflict.class:14 FMain.form:1748
 msgid "&Edit"
 msgstr "&Editer"
 
-#: FMain.form:1715
+#: FMain.form:1736
 msgid "&File"
 msgstr "&Fichier"
 
@@ -378,15 +378,15 @@ msgstr "&Fichier"
 msgid "&Overwrite"
 msgstr "&Remplacer"
 
-#: FMain.form:1739
+#: FMain.form:1760
 msgid "&Project"
 msgstr "&Projet"
 
-#: FMain.form:1775
+#: FMain.form:1796
 msgid "&Tools"
 msgstr "&Outils"
 
-#: FMain.form:1763
+#: FMain.form:1784
 msgid "&View"
 msgstr "&Affichage"
 
@@ -462,13 +462,17 @@ msgstr "(Clef automatique)"
 msgid "(Declarations)"
 msgstr "(Déclarations)"
 
-#: FDebugConfig.class:4 FOption.class:93 FTranslate.class:153
+#: Design.module:4 FOption.class:93 FTranslate.class:153
 msgid "(Default)"
 msgstr "(Défaut)"
 
 #: FConnectionEditor.class:722 Project.module:2623
 msgid "(in &1 s)"
 msgstr "(en &1 s)"
+
+#: Design.module:7
+msgid "(Internal)"
+msgstr "(Interne)"
 
 #: FCreateFile.class:94
 msgid "(No parent)"
@@ -524,7 +528,7 @@ msgstr "<h3>Le compilateur a planté !</h3>\nVeuillez le signaler sur le bugtrac
 msgid "<tt>&1</tt> not found."
 msgstr "<tt>&1</tt> introuvable."
 
-#: FMain.form:1336 FOutput.form:173
+#: FMain.form:1339 FOutput.form:173
 msgid "?"
 msgstr "?"
 
@@ -537,7 +541,7 @@ msgstr ""
 msgid "Abort"
 msgstr "Abandonner"
 
-#: FAbout.form:12 FMain.form:1376 FWelcome.class:76
+#: FAbout.form:12 FMain.form:1379 FWelcome.class:76
 msgid "About Gambas"
 msgstr "À propos de Gambas"
 
@@ -561,19 +565,19 @@ msgstr "Un mail de confirmation sera envoyé à l'adresse spécifiée. Cliquez s
 msgid "Action"
 msgstr "Action"
 
-#: FOption.form:1238
+#: FOption.form:1240
 msgid "Activate animations"
 msgstr "Activer les animations"
 
-#: FOption.form:1143
+#: FOption.form:1145
 msgid "Activate code snippets"
 msgstr "Activer les fragments de code"
 
-#: FMain.form:743
+#: FMain.form:746
 msgid "Activate profiling"
 msgstr "Activer le profilage"
 
-#: FDebugConfig.form:406
+#: FDebugConfig.form:427
 msgid "Activate remote debugging"
 msgstr "Activer le débogage distant"
 
@@ -585,7 +589,7 @@ msgstr "Activer le suivi de version"
 msgid "Activate warnings"
 msgstr "Activer les avertissements"
 
-#: FConnectionEditor.form:325 FMain.class:2374 FMakeInstall.form:757 FProjectProperty.form:739 FPublish.form:157
+#: FConnectionEditor.form:325 FMain.class:2401 FMakeInstall.form:757 FProjectProperty.form:739 FPublish.form:157
 msgid "Add"
 msgstr "Ajouter"
 
@@ -601,7 +605,7 @@ msgstr "Ajouter une nouvelle traduction"
 msgid "Add branch to version number"
 msgstr "Ajouter la branche au numéro de version"
 
-#: FDebugInfo.form:624 FMain.form:565
+#: FDebugInfo.form:624 FMain.form:568
 msgid "Add everything to repository"
 msgstr "Tout ajouter au référentiel"
 
@@ -629,7 +633,7 @@ msgstr "Références supplémentaires"
 msgid "Add major version number to package names"
 msgstr "Ajouter le numéro de version majeure aux noms des paquets"
 
-#: FMain.form:1158
+#: FMain.form:1161
 msgid "Add to repository"
 msgstr "Ajouter au référentiel"
 
@@ -677,7 +681,7 @@ msgstr "Aligner sur le haut"
 msgid "All"
 msgstr "Tout"
 
-#: FMain.class:2022
+#: FMain.class:2049
 msgid "All backup or generated files will be removed from the project directory."
 msgstr "Les fichiers de sauvegarde et les fichiers générés du projet vont être supprimés."
 
@@ -737,7 +741,7 @@ msgstr "Un nouveau référentiel Git sera créé pour ce projet."
 msgid "Anonymous"
 msgstr "Anonyme"
 
-#: Design.module:1359
+#: Design.module:1381
 msgid "Another extern debugging is active."
 msgstr "Un autre débogage externe est actif."
 
@@ -745,7 +749,7 @@ msgstr "Un autre débogage externe est actif."
 msgid "Application debugger helper"
 msgstr "Debogueur intégré"
 
-#: FOption.form:794
+#: FOption.form:795
 msgid "Applications"
 msgstr "Applications"
 
@@ -753,7 +757,7 @@ msgstr "Applications"
 msgid "Application settings management"
 msgstr "Gestion des fichiers de configuration"
 
-#: FImageProperty.form:725 FMain.form:528 FPatch.form:69
+#: FImageProperty.form:725 FMain.form:531 FPatch.form:69
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -781,7 +785,7 @@ msgstr "Arabe (Tunisie)"
 msgid "Argument cannot be passed by reference"
 msgstr "L'argument ne peut être passé en référence"
 
-#: FDebugConfig.form:376
+#: FDebugConfig.form:397
 msgid "Arguments"
 msgstr "Arguments"
 
@@ -833,7 +837,7 @@ msgstr "Auteurs"
 msgid "Automatic extension"
 msgstr "Extension automatique"
 
-#: FOption.form:974
+#: FOption.form:976
 msgid "Automatic formatting"
 msgstr "Formatage automatique"
 
@@ -885,7 +889,7 @@ msgstr "Azéri (Azerbaïdjan)"
 msgid "B"
 msgstr "B"
 
-#: FForm.form:863 FOption.form:1616
+#: FForm.form:863 FOption.form:1618
 msgid "Background"
 msgstr "Arrière-plan"
 
@@ -1021,7 +1025,7 @@ msgstr "Bordure"
 msgid "Bottom align"
 msgstr "Aligner en bas"
 
-#: FMain.form:571
+#: FMain.form:574
 msgid "Branch"
 msgstr "Branche"
 
@@ -1041,11 +1045,11 @@ msgstr "Au premier plan"
 msgid "Browse"
 msgstr "Parcourir"
 
-#: FMain.form:877
+#: FMain.form:880
 msgid "Browse project"
 msgstr "Parcourir le projet"
 
-#: FOption.form:805
+#: FOption.form:807
 msgid "Browser"
 msgstr "Navigateur"
 
@@ -1081,7 +1085,7 @@ msgstr "Fonctions appelantes"
 msgid "Calls"
 msgstr "Appels"
 
-#: CProjectList.class:553 CVersionControlGit.class:450 CWaitingAnimation.class:63 FColorChooser.form:73 FComponentChooser.form:97 FConflict.class:197 FConnectionEditor.class:470 FCrash.form:100 FCreateFile.form:206 FDebugConfig.form:536 FDebugExpr.form:46 FDebugInfo.form:686 FDeleteUnknown.form:61 FExportData.class:126 FFarmConfig.form:38 FFarmLogin.form:126 FFarmRegister.form:141 FFarmRequest.form:43 FFieldChooser.form:144 FFileInfoVC.class:100 FFontChooser.form:40 FGotoLine.form:23 FHelpBrowser.form:143 FImageOffsetSelection.form:39 FImageQuality.form:24 FImageResize.form:49 FImageRotate.form:32 FLayout.form:50 FList.form:128 FMain.class:265 FMakeExecutable.form:172 FMakeInstall.class:376 FMenu.form:446 FNewConnection.form:318 FNewTable.form:86 FNewTranslation.form:40 FOption.class:867 FPasteSpecial.form:92 FPasteTable.form:105 FProjectChooser.form:64 FProjectProperty.form:1072 FProjectVersion.class:211 FProxy.form:57 FPublish.class:273 FReportBorderChooser.form:48 FReportBoxShadowChooser.form:27 FReportBrushChooser.form:36 FReportCoordChooser.form:26 FReportPaddingChooser.form:75 FSave.form:29 FSaveProjectAs.form:81 FSearch.class:959 FSelectComponent.form:39 FSelectExtraFile.form:43 FSelectIcon.form:99 FSelectLibrary.form:66 FSnippet.form:57 FSoftwareFarm.class:563 FTableChooser.form:68 FTestSuite.class:261 FText.form:40 FTranslate.class:689 FVersionControl.form:153 FWebFontChooser.form:129 Project.module:595 VersionControl.module:461
+#: CProjectList.class:553 CVersionControlGit.class:450 CWaitingAnimation.class:63 FColorChooser.form:73 FComponentChooser.form:97 FConflict.class:197 FConnectionEditor.class:470 FCrash.form:100 FCreateFile.form:206 FDebugConfig.form:557 FDebugExpr.form:46 FDebugInfo.form:686 FDeleteUnknown.form:61 FExportData.class:126 FFarmConfig.form:38 FFarmLogin.form:126 FFarmRegister.form:141 FFarmRequest.form:43 FFieldChooser.form:144 FFileInfoVC.class:100 FFontChooser.form:40 FGotoLine.form:23 FHelpBrowser.form:143 FImageOffsetSelection.form:39 FImageQuality.form:24 FImageResize.form:49 FImageRotate.form:32 FLayout.form:50 FList.form:128 FMain.class:265 FMakeExecutable.form:172 FMakeInstall.class:376 FMenu.form:446 FNewConnection.form:318 FNewTable.form:86 FNewTranslation.form:40 FOption.class:867 FPasteSpecial.form:92 FPasteTable.form:105 FProjectChooser.form:64 FProjectProperty.form:1072 FProjectVersion.class:211 FProxy.form:57 FPublish.class:273 FReportBorderChooser.form:48 FReportBoxShadowChooser.form:27 FReportBrushChooser.form:36 FReportCoordChooser.form:26 FReportPaddingChooser.form:75 FSave.form:29 FSaveProjectAs.form:81 FSearch.class:959 FSelectComponent.form:39 FSelectExtraFile.form:43 FSelectIcon.form:99 FSelectLibrary.form:66 FSnippet.form:57 FSoftwareFarm.class:563 FTableChooser.form:68 FTestSuite.class:261 FText.form:40 FTranslate.class:689 FVersionControl.form:153 FWebFontChooser.form:129 Project.module:595 VersionControl.module:461
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1349,7 +1353,7 @@ msgstr "Impossible d'utiliser &1 avec &2"
 msgid "Cannot use NEW operator there"
 msgstr "Impossible d'utiliser l'opérateur NEW ici"
 
-#: Project.module:6593
+#: Project.module:6575
 msgid "Cannot write component description file."
 msgstr "Impossible d'écrire le fichier de description du composant."
 
@@ -1417,7 +1421,7 @@ msgstr "Dessin de graphes"
 msgid "Check prefix of variables"
 msgstr "Vérifier le préfixe des variables"
 
-#: FMain.class:2512
+#: FMain.class:2539
 msgid "Choose a profile"
 msgstr "Choisissez un profilage"
 
@@ -1433,7 +1437,7 @@ msgstr "Choisissez le nom du fichier patch"
 msgid "Chooser"
 msgstr "Sélecteur"
 
-#: CComponent.class:595 FDebugInfo.class:50 FDeleteUnknown.class:6 FMain.form:963
+#: CComponent.class:595 FDebugInfo.class:50 FDeleteUnknown.class:6 FMain.form:966
 msgid "Class"
 msgstr "Classe"
 
@@ -1461,11 +1465,11 @@ msgstr "Nom de classe masqué par une déclaration globale : &1"
 msgid "class name hidden by local declaration: &1"
 msgstr "Nom de classe masqué par une déclaration locale : &1"
 
-#: FMain.class:2022
+#: FMain.class:2049
 msgid "Clean"
 msgstr "Nettoyer"
 
-#: FMain.form:591 FProjectVersion.form:95
+#: FMain.form:594 FProjectVersion.form:95
 msgid "Clean up"
 msgstr "Nettoyer"
 
@@ -1477,7 +1481,7 @@ msgstr "Effacer"
 msgid "Clear all bookmarks"
 msgstr "Effacer tous les signets"
 
-#: FMain.form:758
+#: FMain.form:761
 msgid "Clear all breakpoints"
 msgstr "Effacer tous les points d'arrêts"
 
@@ -1505,27 +1509,27 @@ msgstr "Presse-papier"
 msgid "Clipboard contents"
 msgstr "Contenu du presse-papiers"
 
-#: FCommandError.form:54 FConflict.form:166 FConflictEditor.form:306 FDebugInfo.form:693 FEditor.form:378 FFileInfoVC.form:103 FFileProperty.form:41 FForm.form:468 FImageEditor.form:418 FMain.form:422 FOption.form:1786 FPatch.form:88 FProjectVersion.form:322 FSystemInfo.form:44 FTestSuite.form:153 FTextEditor.form:416 FTips.form:87 FTranslate.form:442
+#: FCommandError.form:54 FConflict.form:166 FConflictEditor.form:306 FDebugInfo.form:693 FEditor.form:378 FFileInfoVC.form:103 FFileProperty.form:41 FForm.form:468 FImageEditor.form:418 FMain.form:425 FOption.form:1788 FPatch.form:88 FProjectVersion.form:322 FSystemInfo.form:44 FTestSuite.form:153 FTextEditor.form:416 FTips.form:87 FTranslate.form:442
 msgid "Close"
 msgstr "Fermer"
 
-#: FMain.form:763
+#: FMain.form:766
 msgid "Close all debug windows"
 msgstr "Fermer toutes les fenêtres de débogage"
 
-#: FMain.form:850
+#: FMain.form:853
 msgid "Close all windows"
 msgstr "Fermer toutes les fenêtres"
 
-#: FOption.form:1033
+#: FOption.form:1035
 msgid "Close braces, brackets"
 msgstr "Fermer les parenthèses, les crochets"
 
-#: FOption.form:1049
+#: FOption.form:1051
 msgid "Close strings"
 msgstr "Fermer les chaînes de caractères"
 
-#: FOption.form:1302
+#: FOption.form:1304
 msgid "Close tabs with middle mouse click"
 msgstr "Fermer les onglets avec le bouton du milieu de la souris"
 
@@ -1533,11 +1537,11 @@ msgstr "Fermer les onglets avec le bouton du milieu de la souris"
 msgid "Code"
 msgstr "Code"
 
-#: FOption.form:968
+#: FOption.form:970
 msgid "Code formatting"
 msgstr "Formatage du code"
 
-#: FOption.form:1127
+#: FOption.form:1129
 msgid "Code snippets"
 msgstr "Fragments de code"
 
@@ -1577,11 +1581,11 @@ msgstr "La commande ne répond pas."
 msgid "Comment"
 msgstr "Mettre en commentaire"
 
-#: FOption.form:1017
+#: FOption.form:1019
 msgid "Comments insertion"
 msgstr "Insertion des commentaires"
 
-#: FDebugInfo.form:603 FMain.form:540 FProjectVersion.form:89 FVersionControl.form:133
+#: FDebugInfo.form:603 FMain.form:543 FProjectVersion.form:89 FVersionControl.form:133
 msgid "Commit"
 msgstr "Publier"
 
@@ -1605,15 +1609,15 @@ msgstr "Compatible jusqu'à la version"
 msgid "Compilation"
 msgstr "Compilation"
 
-#: FMain.form:452
+#: FMain.form:455
 msgid "Compile"
 msgstr "Compiler"
 
-#: FMain.form:459
+#: FMain.form:462
 msgid "Compile All"
 msgstr "Tout compiler"
 
-#: FMain.form:1557
+#: FMain.form:1566
 msgid "Compile all"
 msgstr "Tout compiler"
 
@@ -1645,7 +1649,7 @@ msgstr "Composant introuvable: &1"
 msgid "Components"
 msgstr "Composants"
 
-#: FMain.form:1217
+#: FMain.form:1220
 msgid "Compress all"
 msgstr "Tout compresser"
 
@@ -1653,11 +1657,11 @@ msgstr "Tout compresser"
 msgid "Compressed files are now generated with the executable. Consequently they will be removed from the project."
 msgstr "Les fichiers compressés sont maintenant générés avec l'exécutable. Par conséquent ils seront supprimés du projet."
 
-#: FMain.form:1236 FTextEditor.form:236
+#: FMain.form:1239 FTextEditor.form:236
 msgid "Compress file"
 msgstr "Compresser le fichier"
 
-#: FMain.form:1229
+#: FMain.form:1232
 msgid "Compress file into the executable"
 msgstr "Compresser le fichier dans l'exécutable"
 
@@ -1673,7 +1677,7 @@ msgstr "Compression et décompression"
 msgid "Compress PNG images with "
 msgstr "Compresser les images PNG avec"
 
-#: FMain.form:771
+#: FMain.form:774
 msgid "Configuration"
 msgstr "Configuration"
 
@@ -1725,7 +1729,7 @@ msgstr "Propriétés de la connexion"
 msgid "Connections"
 msgstr "Connexions"
 
-#: FDebugButton.form:39 FDebugInfo.form:447 FMain.form:800 FOption.form:1517
+#: FDebugButton.form:39 FDebugInfo.form:447 FMain.form:803 FOption.form:1519
 msgid "Console"
 msgstr "Console"
 
@@ -1773,7 +1777,7 @@ msgstr "Contrôle"
 msgid "Controls"
 msgstr "Contrôles"
 
-#: FOption.form:985
+#: FOption.form:987
 msgid "Control structure completion"
 msgstr "Compléter les structures de contrôles"
 
@@ -1785,7 +1789,7 @@ msgstr "Convertir"
 msgid "Converting project structure..."
 msgstr "Conversion de la structure du projet..."
 
-#: FConflict.form:76 FConflictEditor.form:121 FConnectionEditor.form:152 FEditor.form:139 FForm.form:179 FImageEditor.form:153 FList.form:99 FMain.form:1097 FMakeInstall.form:922 FMenu.form:159 FOutput.form:42 FProjectVersion.form:240 FSystemInfo.form:38 FTextEditor.form:156 FTranslate.form:127
+#: FConflict.form:76 FConflictEditor.form:121 FConnectionEditor.form:152 FEditor.form:139 FForm.form:179 FImageEditor.form:153 FList.form:99 FMain.form:1100 FMakeInstall.form:922 FMenu.form:159 FOutput.form:42 FProjectVersion.form:240 FSystemInfo.form:38 FTextEditor.form:156 FTranslate.form:127
 msgid "Copy"
 msgstr "Copier"
 
@@ -1797,7 +1801,7 @@ msgstr "Copier au même emplacement"
 msgid "Copy field list"
 msgstr "Copier la liste des champs"
 
-#: FMain.form:1134
+#: FMain.form:1137
 msgid "Copy file path"
 msgstr "Copier le chemin du fichier"
 
@@ -1821,7 +1825,7 @@ msgstr "Coins"
 msgid "creatable"
 msgstr "instanciable"
 
-#: FMain.form:523
+#: FMain.form:526
 msgid "Create"
 msgstr "Créer"
 
@@ -1905,7 +1909,7 @@ msgstr "Courante"
 msgid "Current branch"
 msgstr "Branche courante"
 
-#: FMain.form:706
+#: FMain.form:709
 msgid "Current desktop"
 msgstr "Bureau courant"
 
@@ -1929,7 +1933,7 @@ msgstr "Projet courant"
 msgid "Custom"
 msgstr "Personnel"
 
-#: FConflict.form:70 FConflictEditor.form:114 FConnectionEditor.form:246 FEditor.form:132 FForm.form:172 FImageEditor.form:145 FMain.form:1090 FMenu.form:152 FProjectVersion.form:234 FTextEditor.form:149
+#: FConflict.form:70 FConflictEditor.form:114 FConnectionEditor.form:246 FEditor.form:132 FForm.form:172 FImageEditor.form:145 FMain.form:1093 FMenu.form:152 FProjectVersion.form:234 FTextEditor.form:149
 msgid "Cut"
 msgstr "Couper"
 
@@ -1949,7 +1953,7 @@ msgstr "Danois (Danemark)"
 msgid "Data"
 msgstr "Données"
 
-#: FDebugConfig.form:211 FNewConnection.form:189 FProjectProperty.form:289 Project.module:242
+#: FDebugConfig.form:214 FNewConnection.form:189 FProjectProperty.form:289 Project.module:242
 msgid "Database"
 msgstr "Bases de données"
 
@@ -1977,27 +1981,27 @@ msgstr "Le système de gestion de paquets de Debian ne peut gérer les noms de r
 msgid "Debian packaging system cannot handle spaces in file names."
 msgstr "Le système de gestion de paquets de Debian ne peut gérer les noms de fichiers contenant un caractère d'espacement."
 
-#: FDebugInfo.form:114 FMain.form:614
+#: FDebugInfo.form:114 FMain.form:617
 msgid "Debug"
 msgstr "Débogage"
 
-#: FBrowser.form:9 FMain.form:808
+#: FBrowser.form:9 FDebugConfig.form:316 FMain.form:811
 msgid "Debug browser"
 msgstr "Navigateur de débogage"
 
-#: FMain.form:626
+#: FMain.form:629
 msgid "Debug extern process"
 msgstr "Débogage d'un processus externe"
 
-#: FDebugConfig.form:229 FHelpShortcut.form:25
+#: FDebugConfig.form:232 FHelpShortcut.form:25
 msgid "Debugger"
 msgstr "Débogueur"
 
-#: FDebugConfig.form:85 FMain.form:1572
+#: FDebugConfig.form:88 FMain.form:1581
 msgid "Debugger configuration"
 msgstr "Configuration du débogueur"
 
-#: FOption.form:1479
+#: FOption.form:1481
 msgid "Debugger size"
 msgstr "Taille du débogueur"
 
@@ -2005,7 +2009,7 @@ msgstr "Taille du débogueur"
 msgid "Debugging"
 msgstr "Débogage"
 
-#: FMain.form:632
+#: FMain.form:635
 msgid "Debug inside components"
 msgstr "Débogage à l'intérieur des composants"
 
@@ -2021,7 +2025,7 @@ msgstr "Le cas par défaut est déjà défini"
 msgid "Default case must be the last one"
 msgstr "Le cas par défaut doit être le dernier"
 
-#: FForm.form:855 FOption.form:1419
+#: FForm.form:855 FOption.form:1421
 msgid "Default font"
 msgstr "Police par défaut"
 
@@ -2057,7 +2061,7 @@ msgstr "Valeur par défaut"
 msgid "Define bookmark"
 msgstr "Définir un signet"
 
-#: FConnectionEditor.form:492 FDeleteUnknown.form:54 FForm.form:199 FList.form:65 FMain.form:1124 FMenu.form:110 FNewConnection.class:402 FOption.form:1396 FSoftwareFarm.class:665 FTranslate.form:104
+#: FConnectionEditor.form:492 FDeleteUnknown.form:54 FForm.form:199 FList.form:65 FMain.form:1127 FMenu.form:110 FNewConnection.class:402 FOption.form:1398 FSoftwareFarm.class:665 FTranslate.form:104
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -2165,7 +2169,7 @@ msgstr "Gestion de boîte de dialogue"
 msgid "Difference"
 msgstr "Différence"
 
-#: FDebugConfig.form:495 FMain.form:935
+#: FDebugConfig.form:516 FMain.form:938
 msgid "Directory"
 msgstr "Répertoire"
 
@@ -2177,7 +2181,7 @@ msgstr "Le répertoire existe déja."
 msgid "Directory is not empty"
 msgstr "Le répertoire n'est pas vide"
 
-#: FDebugConfig.form:330
+#: FDebugConfig.form:351
 msgid "Disable just-in-time compiler"
 msgstr "Désactiver le compilateur « just-in-time »"
 
@@ -2185,7 +2189,7 @@ msgstr "Désactiver le compilateur « just-in-time »"
 msgid "Display changes in history"
 msgstr "Afficher les changements dans l'historique"
 
-#: FMain.form:1901
+#: FMain.form:1922
 msgid "Display form class files"
 msgstr "Afficher les fichiers classes des formulaires"
 
@@ -2197,7 +2201,7 @@ msgstr "Afficher ME"
 msgid "Display metadata"
 msgstr "Afficher les métadonnées"
 
-#: FMain.form:1894
+#: FMain.form:1915
 msgid "Dispose class files according to inheritance"
 msgstr "Disposer les fichiers classes selon l'héritage"
 
@@ -2229,7 +2233,7 @@ msgstr "Ne pas ouvrir"
 msgid "Do not save"
 msgstr "Ne pas enregistrer"
 
-#: FMain.form:1210
+#: FMain.form:1213
 msgid "Do not translate"
 msgstr "Ne pas traduire"
 
@@ -2261,7 +2265,7 @@ msgstr "Télécharger la documentation"
 msgid "Download software"
 msgstr "Télécharger le logiciel"
 
-#: FMain.class:2374
+#: FMain.class:2401
 msgid "Do you really want to add every file to the repository?"
 msgstr "Voulez-vous vraiment ajouter tous les fichiers au référentiel ?"
 
@@ -2413,7 +2417,7 @@ msgstr "Dessin"
 msgid "Drawing grid"
 msgstr "Grille de dessin"
 
-#: FMain.form:1111
+#: FMain.form:1114
 msgid "Duplicate"
 msgstr "Dupliquer"
 
@@ -2449,7 +2453,7 @@ msgstr "E-mail"
 msgid "Echo"
 msgstr "Echo"
 
-#: FConnectionEditor.form:455 FDebugExpr.form:28 FMain.form:438 FOption.form:1189
+#: FConnectionEditor.form:455 FDebugExpr.form:28 FMain.form:441 FOption.form:1191
 msgid "Edit"
 msgstr "Editer"
 
@@ -2473,7 +2477,7 @@ msgstr "Édition"
 msgid "Edit list property"
 msgstr "Éditer la liste des propriétés"
 
-#: FEditor.form:414 FHelpShortcut.form:23 FOption.form:814
+#: FEditor.form:414 FHelpShortcut.form:23 FOption.form:816
 msgid "Editor"
 msgstr "Éditeur"
 
@@ -2501,7 +2505,7 @@ msgstr "Ellipse"
 msgid "Embedded arrays are forbidden here"
 msgstr "Les tableaux incorporés sont interdits ici"
 
-#: CDocumentation.class:100 FDebugConfig.form:195 FProjectProperty.form:273
+#: CDocumentation.class:100 FDebugConfig.form:198 FProjectProperty.form:273
 msgid "Embedded HTTP server"
 msgstr "Server HTTP embarqué"
 
@@ -2565,7 +2569,7 @@ msgstr "Saisissez les types MIME gérés par votre application.\nVeuillez saisir
 msgid "enumerable"
 msgstr "énumérable"
 
-#: FDebugConfig.form:386
+#: FDebugConfig.form:407
 msgid "Environment"
 msgstr "Environnement"
 
@@ -2637,7 +2641,7 @@ msgstr "Exclure les modules de tests"
 msgid "Exclusive or"
 msgstr "Ou exclusif"
 
-#: FMain.form:499
+#: FMain.form:502
 msgid "Executable"
 msgstr "Exécutable"
 
@@ -2649,7 +2653,7 @@ msgstr "Taille de l'exécutable"
 msgid "Experimental"
 msgstr "Expérimental"
 
-#: FOption.form:1060
+#: FOption.form:1062
 msgid "Explicit formating"
 msgstr "Formatage explicite"
 
@@ -2681,7 +2685,7 @@ msgstr "Exporter les noms des champs"
 msgid "Export selected records only"
 msgstr "Exporter les enregistrements sélectionnés uniquement"
 
-#: FOption.form:1713
+#: FOption.form:1715
 msgid "Export theme"
 msgstr "Exporter le thème"
 
@@ -2705,7 +2709,7 @@ msgstr "Expression trop complexe. Trop d'opérandes"
 msgid "Extensions"
 msgstr "Extensions"
 
-#: FMain.form:1808
+#: FMain.form:1829
 msgid "Extern debugging"
 msgstr "Débogage externe"
 
@@ -2757,7 +2761,7 @@ msgstr "Champ_&1"
 msgid "Fields"
 msgstr "Champs"
 
-#: FDebugInfo.class:41 FMain.form:306 FNewTranslation.class:18 FTranslate.class:78
+#: FDebugInfo.class:41 FMain.form:309 FNewTranslation.class:18 FTranslate.class:78
 msgid "File"
 msgstr "Fichier"
 
@@ -2813,7 +2817,7 @@ msgstr "Remplir"
 msgid "Fill rule"
 msgstr "Règle de remplissage"
 
-#: FMain.form:1163 FSoftwareFarm.form:207
+#: FMain.form:1166 FSoftwareFarm.form:207
 msgid "Filter"
 msgstr "Filtrer"
 
@@ -2821,7 +2825,7 @@ msgstr "Filtrer"
 msgid "Financial support"
 msgstr "Aide financière"
 
-#: FMain.form:861
+#: FMain.form:864
 msgid "Find"
 msgstr "Rechercher"
 
@@ -2861,11 +2865,11 @@ msgstr "Trouver la chaîne traduite précédente"
 msgid "Find previous untranslated string"
 msgstr "Trouver la chaîne précédente non traduite"
 
-#: FMain.form:669
+#: FMain.form:672
 msgid "Finish"
 msgstr "Terminer"
 
-#: FMain.form:1616
+#: FMain.form:1637
 msgid "Finish current function"
 msgstr "Terminer la fonction courante"
 
@@ -2877,7 +2881,7 @@ msgstr "Terminé et stable"
 msgid "Finnish (Finland)"
 msgstr "Finlandais (Finlande)"
 
-#: Design.module:272 Project.module:2291
+#: Design.module:281 Project.module:2291
 msgid "first"
 msgstr "premier"
 
@@ -2885,7 +2889,7 @@ msgstr "premier"
 msgid "First"
 msgstr "Début"
 
-#: FOption.form:1571
+#: FOption.form:1573
 msgid "Fixed font"
 msgstr "Police non-proportionnelle"
 
@@ -2901,7 +2905,7 @@ msgstr "Système de log flexible"
 msgid "Float"
 msgstr "Décimal"
 
-#: FOption.form:1402
+#: FOption.form:1404
 msgid "Fonts"
 msgstr "Polices"
 
@@ -2933,7 +2937,7 @@ msgstr "Forcer la version du bytecode"
 msgid "Foreground"
 msgstr "Avant-plan"
 
-#: CModule.class:29 FEditor.form:420 FForm.form:485 FMain.form:970 FToolBox.class:26
+#: CModule.class:29 FEditor.form:420 FForm.form:485 FMain.form:973 FToolBox.class:26
 msgid "Form"
 msgstr "Formulaire"
 
@@ -2941,7 +2945,7 @@ msgstr "Formulaire"
 msgid "Format code"
 msgstr "Formater le code"
 
-#: FOption.form:1071
+#: FOption.form:1073
 msgid "Format on load & save"
 msgstr "Formater au chargement et à l'enregistrement"
 
@@ -2953,7 +2957,7 @@ msgstr "Les contrôles des formulaires sont publics"
 msgid "Forms"
 msgstr "Formulaires"
 
-#: FMain.form:662
+#: FMain.form:665
 msgid "Forward"
 msgstr "Avancer"
 
@@ -3134,7 +3138,7 @@ msgstr "Allemand (Allemagne)"
 msgid "Get from 'VERSION' file"
 msgstr "Obtenir depuis un fichier 'VERSION'"
 
-#: FOption.form:1435
+#: FOption.form:1437
 msgid "Global size"
 msgstr "Taille globale"
 
@@ -3158,11 +3162,11 @@ msgstr "Bibliothèque d'arithmétique multi-précision GNU"
 msgid "GNU Scientific Library"
 msgstr "Bibliothèque scientifique GNU"
 
-#: FHelpBrowser.form:131 FMain.form:836 FProfile.form:48
+#: FHelpBrowser.form:131 FMain.form:839 FProfile.form:48
 msgid "Go back"
 msgstr "Revenir en arrière"
 
-#: FHelpBrowser.form:137 FMain.form:843 FProfile.form:54
+#: FHelpBrowser.form:137 FMain.form:846 FProfile.form:54
 msgid "Go forward"
 msgstr "Aller en avant"
 
@@ -3226,7 +3230,7 @@ msgstr "Bibliothèque GTK+3"
 msgid "GTK+3 web browser component"
 msgstr "Composant de navigateur web pour GTK+3"
 
-#: FDebugConfig.form:93 FMain.form:702 FProjectProperty.form:171
+#: FDebugConfig.form:96 FMain.form:705 FProjectProperty.form:171
 msgid "GUI component"
 msgstr "Composant graphique"
 
@@ -3238,15 +3242,11 @@ msgstr "Hébreu (Israël)"
 msgid "Height"
 msgstr "Hauteur"
 
-#: FOption.form:663 FProperty.form:144
+#: FOption.form:657 FProperty.form:144
 msgid "Help"
 msgstr "Aide"
 
-#: FOption.form:657
-msgid "Help & applications"
-msgstr "Aide et applications"
-
-#: FHelpBrowser.form:36 FMain.form:1346
+#: FHelpBrowser.form:36 FMain.form:1349
 msgid "Help browser"
 msgstr "Navigateur d'aide"
 
@@ -3270,23 +3270,23 @@ msgstr "Cacher la sélection"
 msgid "Hide translation changes"
 msgstr "Cacher les modifications des traductions"
 
-#: FFormStack.form:14 FMain.form:2045
+#: FFormStack.form:14 FMain.form:2066
 msgid "Hierarchy"
 msgstr "Hiérarchie"
 
-#: FOption.form:847
+#: FOption.form:849
 msgid "Highlight current line"
 msgstr "Surligner la ligne courante"
 
-#: FOption.form:1748
+#: FOption.form:1750
 msgid "Highlighting configuration for"
 msgstr "Configuration de la coloration pour"
 
-#: FOption.form:1693
+#: FOption.form:1695
 msgid "Highlighting theme"
 msgstr "Thème de coloration syntaxique"
 
-#: FOption.form:863
+#: FOption.form:865
 msgid "Highlight modified lines"
 msgstr "Indiquer les lignes modifiées"
 
@@ -3318,7 +3318,7 @@ msgstr "Séparation horizontale"
 msgid "Host"
 msgstr "Hôte"
 
-#: FMain.form:1015
+#: FMain.form:1018
 msgid "HTML file"
 msgstr "Fichier HTML"
 
@@ -3354,7 +3354,7 @@ msgstr "Hongrois (Hongrie)"
 msgid "Icelandic (Iceland)"
 msgstr "Islandais (Islande)"
 
-#: FOption.form:1677
+#: FOption.form:1679
 msgid "Icon theme"
 msgstr "Thème d'icône"
 
@@ -3382,7 +3382,7 @@ msgstr "Si les dimensions du formulaire et des contrôles doivent suivre la tail
 msgid "If the Text property must be translated."
 msgstr "Si la propriété Text doit être traduite."
 
-#: CSoftware.class:361 FDebugInfo.form:403 FMain.class:2890 FMenu.class:101
+#: CSoftware.class:361 FDebugInfo.form:403 FMain.class:2917 FMenu.class:101
 msgid "Ignore"
 msgstr "Ignorer"
 
@@ -3406,7 +3406,7 @@ msgstr "Ignorer les chaînes"
 msgid "Illegal instruction"
 msgstr "Instruction illégale"
 
-#: FConflict.class:141 FMain.form:1008 FReportBrushChooser.form:49 Project.module:245
+#: FConflict.class:141 FMain.form:1011 FReportBrushChooser.form:49 Project.module:245
 msgid "Image"
 msgstr "Image"
 
@@ -3447,7 +3447,7 @@ msgstr "Images"
 msgid "Implements"
 msgstr "Implémente"
 
-#: FConnectionEditor.form:170 FImportTable.form:48 FMain.form:1043 FOption.form:1175 FTranslate.form:462
+#: FConnectionEditor.form:170 FImportTable.form:48 FMain.form:1046 FOption.form:1177 FTranslate.form:462
 msgid "Import"
 msgstr "Importer"
 
@@ -3471,7 +3471,7 @@ msgstr "Importer des fichiers"
 msgid "Import text file"
 msgstr "Importer un fichier texte"
 
-#: FOption.form:1707
+#: FOption.form:1709
 msgid "Import theme"
 msgstr "Importer un thème"
 
@@ -3519,7 +3519,7 @@ msgstr "Incrémenter la version"
 msgid "Indent"
 msgstr "Indenter"
 
-#: FOption.form:1087
+#: FOption.form:1089
 msgid "Indent local variable declaration"
 msgstr "Indenter les déclarations de variables locales"
 
@@ -3559,7 +3559,7 @@ msgstr "Information sur la bibliothèque"
 msgid "in form definition"
 msgstr "dans la définition du formulaire"
 
-#: Design.module:1034
+#: Design.module:1048
 msgid "Initialize remote debugging..."
 msgstr "Initialisation du débogage distant..."
 
@@ -3607,7 +3607,7 @@ msgstr "Insérer la date du jour"
 msgid "Install"
 msgstr "Installer"
 
-#: FMain.form:513
+#: FMain.form:516
 msgid "Installation package"
 msgstr "Paquet d'installation"
 
@@ -3615,15 +3615,15 @@ msgstr "Paquet d'installation"
 msgid "Installed"
 msgstr "Installés"
 
-#: FOpenProject.form:152 FWelcome.class:73 Project.module:6654
+#: FOpenProject.form:152 FWelcome.class:73 Project.module:6636
 msgid "Installed software"
 msgstr "Logiciels installés"
 
-#: FOption.form:1612
+#: FOption.form:1614
 msgid "Install Gambas fonts for code edition"
 msgstr "Installer les polices Gambas dédiées à l'édition de code"
 
-#: FOption.form:1775
+#: FOption.form:1777
 msgid "Install Gambas icon theme"
 msgstr "Installer le thème d'icônes Gambas"
 
@@ -3639,7 +3639,7 @@ msgstr "Mélange d'entier et de booléen avec l'opérateur `&1'"
 msgid "Integrated Development Environment for Gambas"
 msgstr "Environnement de développement intégré pour Gambas"
 
-#: FOption.form:1203
+#: FOption.form:1205
 msgid "Interface"
 msgstr "Interface"
 
@@ -3683,7 +3683,7 @@ msgstr "Chemin invalide"
 msgid "Invert"
 msgstr "Inverser"
 
-#: FImageProperty.form:418 FOption.form:1732
+#: FImageProperty.form:418 FOption.form:1734
 msgid "Invert colors for dark themes"
 msgstr "Inverser les couleurs pour les thèmes sombres"
 
@@ -3691,7 +3691,7 @@ msgstr "Inverser les couleurs pour les thèmes sombres"
 msgid "Invert gradient"
 msgstr "Inverser le dégradé"
 
-#: FDebugConfig.form:312
+#: FDebugConfig.form:333
 msgid "Invert language orientation"
 msgstr "Inverser l'orientation de la langue"
 
@@ -3727,7 +3727,7 @@ msgstr "Élément &1"
 msgid "Japanese (Japan)"
 msgstr "Japonais (Japon)"
 
-#: FMain.form:1029
+#: FMain.form:1032
 msgid "Javascript file"
 msgstr "Fichier Javascript"
 
@@ -3735,7 +3735,7 @@ msgstr "Fichier Javascript"
 msgid "Javascript files"
 msgstr "Fichiers Javascript"
 
-#: FDebugConfig.form:179 FProjectProperty.form:257
+#: FDebugConfig.form:182 FProjectProperty.form:257
 msgid "JIT compiler"
 msgstr "Compilateur « just-in-time »"
 
@@ -3767,7 +3767,7 @@ msgstr "Conserver les informations de débogage dans l'exécutable"
 msgid "Keep my changes"
 msgstr "Conserver mes changements"
 
-#: FOption.form:1119
+#: FOption.form:1121
 msgid "Keep successive void lines"
 msgstr "Conserver les lignes vides successives"
 
@@ -3779,7 +3779,7 @@ msgstr "Conserver la capture d'écran stockée sur le serveur"
 msgid "Key"
 msgstr "Clef"
 
-#: FMain.form:1361
+#: FMain.form:1364
 msgid "Keyboard shortcuts"
 msgstr "Raccourcis claviers"
 
@@ -3787,7 +3787,7 @@ msgstr "Raccourcis claviers"
 msgid "Key field"
 msgstr "Champ clef"
 
-#: FOption.form:960
+#: FOption.form:962
 msgid "Keywords in upper case"
 msgstr "Mots-clefs en majuscule"
 
@@ -3803,7 +3803,7 @@ msgstr "Coréen (Corée)"
 msgid "Label '&1' not declared"
 msgstr "L'étiquette '&1' n'est pas déclarée"
 
-#: FNewTranslation.class:16 FOption.form:1214 FTranslate.class:74
+#: FNewTranslation.class:16 FOption.form:1216 FTranslate.class:74
 msgid "Language"
 msgstr "Langage"
 
@@ -3843,7 +3843,7 @@ msgstr "l'année dernière"
 msgid "Latin"
 msgstr "Latin"
 
-#: FOption.form:1366
+#: FOption.form:1368
 msgid "Layout"
 msgstr "Disposition"
 
@@ -3931,7 +3931,7 @@ msgstr "Local"
 msgid "Local root path"
 msgstr "Répertoire racine local"
 
-#: FOption.form:1001
+#: FOption.form:1003
 msgid "Local variable declaration"
 msgstr "Déclaration des variables locales"
 
@@ -4008,7 +4008,7 @@ msgstr "Baguette magique"
 msgid "Maintainer information"
 msgstr "Informations sur le mainteneur"
 
-#: FMain.form:495
+#: FMain.form:498
 msgid "Make"
 msgstr "Générer"
 
@@ -4016,15 +4016,15 @@ msgstr "Générer"
 msgid "Make code pretty"
 msgstr "Réindenter le code"
 
-#: FMain.form:1471 FMakeExecutable.form:30 Project.module:3232
+#: FMain.form:1480 FMakeExecutable.form:30 Project.module:3232
 msgid "Make executable"
 msgstr "Générer l'exécutable"
 
-#: FMain.form:1494 FMakeInstall.form:138
+#: FMain.form:1503 FMakeInstall.form:138
 msgid "Make installation package"
 msgstr "Créer un paquet d'installation"
 
-#: FMain.form:1486
+#: FMain.form:1495
 msgid "Make source archive"
 msgstr "Générer une archive des sources"
 
@@ -4097,7 +4097,7 @@ msgstr "Les menus ont été modifiés !"
 msgid "Message"
 msgstr "Message"
 
-#: FOption.form:1350
+#: FOption.form:1352
 msgid "Message style"
 msgstr "Style de message"
 
@@ -4149,11 +4149,11 @@ msgstr "Opérateur manquant"
 msgid "Missing right brace"
 msgstr "Parenthèse fermante manquante"
 
-#: FDebugInfo.form:596 FMain.form:1854
+#: FDebugInfo.form:596 FMain.form:1875
 msgid "Modifications."
 msgstr "Modifications."
 
-#: FMenu.class:1200 Project.module:5762
+#: FMenu.class:1200 Project.module:5744
 msgid "modified"
 msgstr "modifié"
 
@@ -4161,7 +4161,7 @@ msgstr "modifié"
 msgid "Modify '&1' value"
 msgstr "Modifier la valeur de « &1 »"
 
-#: FMain.form:949
+#: FMain.form:952
 msgid "Module"
 msgstr "Module"
 
@@ -4289,7 +4289,7 @@ msgstr "Le réseau est indisponible."
 msgid "Network programming"
 msgstr "Programmation réseau"
 
-#: FConnectionEditor.form:225 FMain.form:932 FOption.form:1182 FTranslate.form:94
+#: FConnectionEditor.form:225 FMain.form:935 FOption.form:1184 FTranslate.form:94
 msgid "New"
 msgstr "Nouveau"
 
@@ -4301,7 +4301,7 @@ msgstr "Les arguments de NEW ne peuvent être passés par référence"
 msgid "New code snippet"
 msgstr "Nouveau fragment de code"
 
-#: FMain.form:1261 FNewConnection.class:159
+#: FMain.form:1264 FNewConnection.class:159
 msgid "New connection"
 msgstr "Nouvelle connexion"
 
@@ -4317,7 +4317,7 @@ msgstr "Nouveau dossier"
 msgid "New index"
 msgstr "Nouvel index"
 
-#: FCreateProject.form:31 FMain.form:310
+#: FCreateProject.form:31 FMain.form:313
 msgid "New project"
 msgstr "Nouveau projet"
 
@@ -4373,7 +4373,7 @@ msgstr "Non"
 msgid "No answer."
 msgstr "Aucune réponse."
 
-#: FMain.class:1399
+#: FMain.class:1403
 msgid "No arguments"
 msgstr "Aucun argument"
 
@@ -4505,7 +4505,7 @@ msgstr "Pas assez d'arguments à New()"
 msgid "Not enough values"
 msgstr "Pas assez de valeurs"
 
-#: Design.module:1237
+#: Design.module:1251
 msgid "No terminal emulator found."
 msgstr "Impossible de trouver un émulateur de terminal."
 
@@ -4585,7 +4585,7 @@ msgstr "Bureautique"
 msgid "Offset selection"
 msgstr "Agrandir ou rétrécir la sélection"
 
-#: CVersionControlGit.class:450 Design.module:1070 FColorChooser.form:67 FConnectionEditor.class:721 FCrash.form:94 FCreateFile.form:212 FDebugConfig.form:530 FFarmConfig.form:33 FFarmLogin.form:121 FFieldChooser.form:138 FFontChooser.form:34 FGotoLine.form:17 FImageOffsetSelection.form:33 FImageQuality.form:30 FImageResize.form:107 FImageRotate.form:26 FLayout.form:44 FList.form:122 FMakeExecutable.form:166 FMenu.form:441 FNewConnection.form:312 FNewTable.form:80 FNewTranslation.form:34 FPasteSpecial.form:86 FProfile.class:37 FProjectProperty.form:1066 FProxy.form:63 FReportBorderChooser.form:54 FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42 FReportCoordChooser.form:32 FReportPaddingChooser.form:69 FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:105 FSelectLibrary.form:60 FSnippet.form:51 FTableChooser.form:62 FText.form:34 FWebFontChooser.form:123 Project.module:2621
+#: CVersionControlGit.class:450 Design.module:1084 FColorChooser.form:67 FConnectionEditor.class:721 FCrash.form:94 FCreateFile.form:212 FDebugConfig.form:551 FFarmConfig.form:33 FFarmLogin.form:121 FFieldChooser.form:138 FFontChooser.form:34 FGotoLine.form:17 FImageOffsetSelection.form:33 FImageQuality.form:30 FImageResize.form:107 FImageRotate.form:26 FLayout.form:44 FList.form:122 FMakeExecutable.form:166 FMenu.form:441 FNewConnection.form:312 FNewTable.form:80 FNewTranslation.form:34 FPasteSpecial.form:86 FProfile.class:37 FProjectProperty.form:1066 FProxy.form:63 FReportBorderChooser.form:54 FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42 FReportCoordChooser.form:32 FReportPaddingChooser.form:69 FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:105 FSelectLibrary.form:60 FSnippet.form:51 FTableChooser.form:62 FText.form:34 FWebFontChooser.form:123 Project.module:2621
 msgid "OK"
 msgstr "OK"
 
@@ -4629,7 +4629,7 @@ msgstr "Afficheur de plans depuis le réseau"
 msgid "Opacity"
 msgstr "Opacité"
 
-#: FConflict.form:141 FMain.form:390 FOpenProject.form:40 FProjectChooser.form:70
+#: FConflict.form:141 FMain.form:393 FOpenProject.form:40 FProjectChooser.form:70
 msgid "Open"
 msgstr "Ouvrir"
 
@@ -4641,11 +4641,11 @@ msgstr "Ouvrir malgré tout"
 msgid "OpenAL 3D audio library"
 msgstr "Bibliothèque audio 3D OpenAL"
 
-#: FMain.form:884
+#: FMain.form:887
 msgid "Open a terminal"
 msgstr "Ouvrir un terminal"
 
-#: FConflictEditor.form:283 FForm.form:422 FMain.form:1065 FTextEditor.form:370
+#: FConflictEditor.form:283 FForm.form:422 FMain.form:1068 FTextEditor.form:370
 msgid "Open code"
 msgstr "Ouvrir le code"
 
@@ -4653,11 +4653,11 @@ msgstr "Ouvrir le code"
 msgid "Open contents"
 msgstr "Ouvrir le contenu"
 
-#: FMain.form:331
+#: FMain.form:334
 msgid "Open example"
 msgstr "Ouvrir un exemple"
 
-#: FMain.form:340 FWelcome.class:75
+#: FMain.form:343 FWelcome.class:75
 msgid "Open file"
 msgstr "Ouvrir un fichier"
 
@@ -4709,23 +4709,23 @@ msgstr "OpenGL avec QT5"
 msgid "Open in another window"
 msgstr "Ouvrir dans une nouvelle fenêtre"
 
-#: FMain.form:1070
+#: FMain.form:1073
 msgid "Open in file manager"
 msgstr "Ouvrir dans le gestionnaire de fichiers"
 
-#: FMain.form:1075
+#: FMain.form:1078
 msgid "Open in project"
 msgstr "Ouvir dans le projet"
 
-#: FMain.form:749
+#: FMain.form:752
 msgid "Open profile"
 msgstr "Ouvrir un profilage"
 
-#: FMain.form:317 FWelcome.class:70
+#: FMain.form:320 FWelcome.class:70
 msgid "Open project"
 msgstr "Ouvrir un projet"
 
-#: FMain.form:323
+#: FMain.form:326
 msgid "Open recent"
 msgstr "Ouvrir un projet récent"
 
@@ -4733,7 +4733,7 @@ msgstr "Ouvrir un projet récent"
 msgid "OpenSSL library routines"
 msgstr "Routines de la bibliothèque OpenSSL"
 
-#: FMain.form:1888
+#: FMain.form:1909
 msgid "Open startup class"
 msgstr "Ouvrir la classe de démarrage"
 
@@ -4741,11 +4741,11 @@ msgstr "Ouvrir la classe de démarrage"
 msgid "Open target folder"
 msgstr "Ouvrir le répertoire destination"
 
-#: FMain.form:1079
+#: FMain.form:1082
 msgid "Open with"
 msgstr "Ouvrir avec"
 
-#: FCreateFile.form:72 FDebugConfig.form:235 FImportTable.form:58 FMakeExecutable.form:51 FMakePatch.form:65 FOption.form:1227 FProjectProperty.form:785 FSearch.form:110
+#: FCreateFile.form:72 FDebugConfig.form:238 FImportTable.form:58 FMakeExecutable.form:51 FMakePatch.form:65 FOption.form:1229 FProjectProperty.form:785 FSearch.form:110
 msgid "Options"
 msgstr "Options"
 
@@ -4753,7 +4753,7 @@ msgstr "Options"
 msgid "Origin"
 msgstr "Origine"
 
-#: FMain.form:1036
+#: FMain.form:1039
 msgid "Other"
 msgstr "Autre"
 
@@ -4773,7 +4773,7 @@ msgstr "Mémoire pleine"
 msgid "Out of range"
 msgstr "Dépassement de capacité"
 
-#: Design.module:1204
+#: Design.module:1218
 msgid "Output terminal"
 msgstr "Terminal de sortie"
 
@@ -4825,11 +4825,11 @@ msgstr "Classe parente"
 msgid "Parent directory"
 msgstr "Répertoire parent"
 
-#: FDebugConfig.form:477 FFarmLogin.form:74 FFarmRegister.form:76 FNewConnection.form:164 FProjectVersion.form:142 FProxy.form:47
+#: FDebugConfig.form:498 FFarmLogin.form:74 FFarmRegister.form:76 FNewConnection.form:164 FProjectVersion.form:142 FProxy.form:47
 msgid "Password"
 msgstr "Mot de passe"
 
-#: FConflict.form:82 FConflictEditor.form:128 FConnectionEditor.form:161 FEditor.form:146 FForm.form:192 FImageEditor.form:160 FList.form:105 FMain.form:1104 FMenu.form:166 FOutput.form:49 FPasteTable.form:99 FProjectVersion.form:246 FTextEditor.form:163
+#: FConflict.form:82 FConflictEditor.form:128 FConnectionEditor.form:161 FEditor.form:146 FForm.form:192 FImageEditor.form:160 FList.form:105 FMain.form:1107 FMenu.form:166 FOutput.form:49 FPasteTable.form:99 FProjectVersion.form:246 FTextEditor.form:163
 msgid "Paste"
 msgstr "Coller"
 
@@ -4873,7 +4873,7 @@ msgstr "Copier la table"
 msgid "Paste with PRINT"
 msgstr "Coller avec PRINT"
 
-#: FMain.form:520
+#: FMain.form:523
 msgid "Patch"
 msgstr "Patch"
 
@@ -4901,7 +4901,7 @@ msgstr "Patcher le projet courant"
 msgid "Path"
 msgstr "Emplacement"
 
-#: FMain.form:641
+#: FMain.form:644
 msgid "Pause"
 msgstr "Pause"
 
@@ -5085,7 +5085,7 @@ msgstr "Portugais (Portugal)"
 msgid "PostgreSQL database driver"
 msgstr "Pilote de base de données PostgreSQL"
 
-#: FMain.form:921 FOption.form:272
+#: FMain.form:924 FOption.form:272
 msgid "Preferences"
 msgstr "Préférences"
 
@@ -5121,7 +5121,7 @@ msgstr "Modification précédente"
 msgid "Print"
 msgstr "Imprimer"
 
-#: FOption.form:1533 Project.module:249
+#: FOption.form:1535 Project.module:249
 msgid "Printing"
 msgstr "Impression"
 
@@ -5129,7 +5129,7 @@ msgstr "Impression"
 msgid "Print to console"
 msgstr "Imprimer dans la console"
 
-#: FOption.form:895
+#: FOption.form:897
 msgid "Procedure folding"
 msgstr "Repliage des procédures"
 
@@ -5137,7 +5137,7 @@ msgstr "Repliage des procédures"
 msgid "Procedure list"
 msgstr "Liste des procédures"
 
-#: FOption.form:911
+#: FOption.form:913
 msgid "Procedure separation"
 msgstr "Séparation des procédures"
 
@@ -5157,7 +5157,7 @@ msgstr "Profilage n°&1"
 msgid "Profile files"
 msgstr "Fichiers de profilage"
 
-#: FMain.class:2513
+#: FMain.class:2540
 msgid "Profile for &1 project"
 msgstr "Profilage pour le projet &1"
 
@@ -5169,7 +5169,7 @@ msgstr "Analyseur des arguments du programme"
 msgid "Progress"
 msgstr "Avancement"
 
-#: CProjectTree.class:397 FHelpShortcut.form:21 FMain.form:447 FSearch.class:134 FSelectIcon.form:32
+#: CProjectTree.class:397 FHelpShortcut.form:21 FMain.form:450 FSearch.class:134 FSelectIcon.form:32
 msgid "Project"
 msgstr "Projet"
 
@@ -5177,7 +5177,7 @@ msgstr "Projet"
 msgid "Project checkout has failed."
 msgstr "La récupération du projet a échoué."
 
-#: Project.module:6024
+#: Project.module:6006
 msgid "Project cleanup..."
 msgstr "Nettoyage du projet..."
 
@@ -5189,11 +5189,11 @@ msgstr "Détails du projet"
 msgid "Project directory"
 msgstr "Répertoire du projet"
 
-#: Project.module:6030
+#: Project.module:6012
 msgid "Project files conversion..."
 msgstr "Conversion des fichiers du projet..."
 
-#: FMain.form:1910
+#: FMain.form:1931
 msgid "Project filter"
 msgstr "Filtre de projet"
 
@@ -5205,7 +5205,7 @@ msgstr "Le projet a été mis à-jour depuis le référentiel avec succès."
 msgid "Project is translatable"
 msgstr "Le projet est traduisible"
 
-#: FMain.form:940
+#: FMain.form:943
 msgid "Project link"
 msgstr "Lien vers un projet"
 
@@ -5213,7 +5213,7 @@ msgstr "Lien vers un projet"
 msgid "Project name"
 msgstr "Nom du projet"
 
-#: FMain.form:1436 FProjectProperty.form:161
+#: FMain.form:1445 FProjectProperty.form:161
 msgid "Project properties"
 msgstr "Propriétés du projet"
 
@@ -5221,7 +5221,7 @@ msgstr "Propriétés du projet"
 msgid "Projects"
 msgstr "Projets"
 
-#: Project.module:6654
+#: Project.module:6636
 msgid "Project templates"
 msgstr "Modèles de projet"
 
@@ -5241,15 +5241,15 @@ msgstr "Type de projet"
 msgid "Project Version Control"
 msgstr "Suivi de version du projet"
 
-#: CClassInfo.class:638 FMain.form:606 FProperty.form:28
+#: CClassInfo.class:638 FMain.form:609 FProperty.form:28
 msgid "Properties"
 msgstr "Propriétés"
 
-#: FMain.form:792
+#: FMain.form:795
 msgid "Properties sheet"
 msgstr "Feuille de propriétés"
 
-#: FDebugConfig.form:427
+#: FDebugConfig.form:448
 msgid "Protocol"
 msgstr "Protocole"
 
@@ -5265,7 +5265,7 @@ msgstr "Configuration du proxy"
 msgid "Public"
 msgstr "Public"
 
-#: FMain.form:582 FPublish.form:64
+#: FMain.form:585 FPublish.form:64
 msgid "Publish"
 msgstr "Publier"
 
@@ -5285,7 +5285,7 @@ msgstr "Publié &1 (&2)"
 msgid "Publish project"
 msgstr "Publier un projet"
 
-#: FMain.form:1685 FPublish.form:51
+#: FMain.form:1706 FPublish.form:51
 msgid "Publish software"
 msgstr "Publier un logiciel"
 
@@ -5297,7 +5297,7 @@ msgstr "Punjabi (Inde)"
 msgid "Push"
 msgstr "Envoyer"
 
-#: FMain.form:576
+#: FMain.form:579
 msgid "Put under version control"
 msgstr "Mettre sous suivi de version"
 
@@ -5361,7 +5361,7 @@ msgstr "Quête"
 msgid "Quick"
 msgstr "Rapide"
 
-#: FMain.form:377 FSave.class:28 FWelcome.class:77
+#: FMain.form:380 FSave.class:28 FWelcome.class:77
 msgid "Quit"
 msgstr "Quitter"
 
@@ -5401,7 +5401,7 @@ msgstr "Mémoire en lecture seule"
 msgid "Read error"
 msgstr "Erreur de lecture"
 
-#: FMain.form:1047 FOpenProject.form:49
+#: FMain.form:1050 FOpenProject.form:49
 msgid "Recent"
 msgstr "Récent"
 
@@ -5413,7 +5413,7 @@ msgstr "Projets récents"
 msgid "Rectangle"
 msgstr "Rectangle"
 
-#: FDebugConfig.form:280 FMain.form:685
+#: FDebugConfig.form:283 FMain.form:688
 msgid "Redirect standard error output"
 msgstr "Rediriger la sortie erreur standard"
 
@@ -5421,7 +5421,7 @@ msgstr "Rediriger la sortie erreur standard"
 msgid "Redo"
 msgstr "Rétablir"
 
-#: FMain.form:597
+#: FMain.form:600
 msgid "Refresh"
 msgstr "Rafraîchir"
 
@@ -5429,7 +5429,7 @@ msgstr "Rafraîchir"
 msgid "Refresh information"
 msgstr "Rafraîchir les informations"
 
-#: FMain.form:1444
+#: FMain.form:1453
 msgid "Refresh project"
 msgstr "Rafraîchir le projet"
 
@@ -5445,11 +5445,11 @@ msgstr "Enregistrer un utilisateur"
 msgid "Regular expression"
 msgstr "Expression rationnelle"
 
-#: FComponentChooser.form:103 FConflictEditor.form:293 FConnectionEditor.form:120 FEditor.form:362 FForm.form:452 FHelpBrowser.form:149 FImageEditor.form:394 FMain.form:397 FTextEditor.form:393 FTranslate.form:99 Project.module:940
+#: FComponentChooser.form:103 FConflictEditor.form:293 FConnectionEditor.form:120 FEditor.form:362 FForm.form:452 FHelpBrowser.form:149 FImageEditor.form:394 FMain.form:400 FTextEditor.form:393 FTranslate.form:99 Project.module:940
 msgid "Reload"
 msgstr "Recharger"
 
-#: FMain.form:368
+#: FMain.form:371
 msgid "Reload project"
 msgstr "Recharger le projet"
 
@@ -5465,11 +5465,11 @@ msgstr "Se souvenir du mot de passe"
 msgid "Remote"
 msgstr "Distant"
 
-#: FDebugConfig.form:396
+#: FDebugConfig.form:417
 msgid "Remote debugging"
 msgstr "Débogage distant"
 
-#: FDebugConfig.form:507
+#: FDebugConfig.form:528
 msgid "Remote environment"
 msgstr "Environnement distant"
 
@@ -5489,11 +5489,11 @@ msgstr "URL du référentiel distant"
 msgid "Remote revision"
 msgstr "Révision distante"
 
-#: FDebugConfig.class:109
+#: FDebugConfig.class:108
 msgid "Remote server, user and folder are required."
 msgstr "Le serveur distant, l'utilisateur et le répertoire sont obligatoires."
 
-#: EnvChooser.class:66 FConnectionEditor.form:134 FDebugInfo.class:1798 FMain.form:1283 FMakeInstall.form:763 FOption.form:1196 FProjectProperty.form:661 FPublish.form:267 FSoftwareFarm.form:427 FTestSuite.class:261
+#: EnvChooser.class:66 FConnectionEditor.form:134 FDebugInfo.class:1798 FMain.form:1286 FMakeInstall.form:763 FOption.form:1198 FProjectProperty.form:661 FPublish.form:267 FSoftwareFarm.form:427 FTestSuite.class:261
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -5529,11 +5529,11 @@ msgstr "Supprimer une couleur de dégradé"
 msgid "Remove query"
 msgstr "Supprimer la requête"
 
-#: FOption.form:1103
+#: FOption.form:1105
 msgid "Remove useless spaces at end of line"
 msgstr "Supprimer les espaces inutiles en fin de ligne"
 
-#: FConnectionEditor.form:143 FMain.form:1117
+#: FConnectionEditor.form:143 FMain.form:1120
 msgid "Rename"
 msgstr "Renommer"
 
@@ -5545,7 +5545,7 @@ msgstr "Renommer la table"
 msgid "Rename test suite"
 msgstr "Renommer la série de tests"
 
-#: FMain.form:867 FSearch.form:85
+#: FMain.form:870 FSearch.form:85
 msgid "Replace"
 msgstr "Remplacer"
 
@@ -5561,7 +5561,7 @@ msgstr "Remplacer les groupes de capture"
 msgid "Replace existing translations"
 msgstr "Remplacer les traductions existantes"
 
-#: CModule.class:31 FMain.form:984 FToolBox.class:26
+#: CModule.class:31 FMain.form:987 FToolBox.class:26
 msgid "Report"
 msgstr "État"
 
@@ -5641,7 +5641,7 @@ msgstr "Le type de la valeur de retour n'a pas été spécifié dans la déclara
 msgid "Revert"
 msgstr "Revenir"
 
-#: FDebugInfo.form:617 FMain.form:559
+#: FDebugInfo.form:617 FMain.form:562
 msgid "Revert all changes"
 msgstr "Annuler tous les changements"
 
@@ -5685,7 +5685,7 @@ msgstr "Lignes"
 msgid "Ruby"
 msgstr "Rubis"
 
-#: FMain.form:619
+#: FMain.form:622
 msgid "Run"
 msgstr "Démarrer"
 
@@ -5701,7 +5701,7 @@ msgstr "Exécuter la requête"
 msgid "Run test"
 msgstr "Démarrer le test"
 
-#: FEditor.form:339 FMain.form:1150
+#: FEditor.form:339 FMain.form:1153
 msgid "Run this class"
 msgstr "Exécuter cette classe"
 
@@ -5717,7 +5717,7 @@ msgstr "Exécuter cette commande « shell » ensuite"
 msgid "Runtime library search path"
 msgstr "Chemin de recherche des bibliothèques à l'exécution"
 
-#: FEditor.form:309 FMain.form:1624
+#: FEditor.form:309 FMain.form:1645
 msgid "Run until current line"
 msgstr "Exécuter jusqu'à la ligne courante"
 
@@ -5749,7 +5749,7 @@ msgstr "Saphir"
 msgid "Saturation"
 msgstr "Saturation"
 
-#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:368 FForm.form:458 FImageEditor.form:401 FMain.form:406 FMenu.class:101 FOption.form:1388 FSaveProjectAs.form:87 FTextEditor.form:399 FTranslate.form:249
+#: FConflict.form:149 FConflictEditor.form:299 FConnectionEditor.form:112 FEditor.form:368 FForm.form:458 FImageEditor.form:401 FMain.form:409 FMenu.class:101 FOption.form:1390 FSaveProjectAs.form:87 FTextEditor.form:399 FTranslate.form:249
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -5757,7 +5757,7 @@ msgstr "Enregistrer"
 msgid "Save All"
 msgstr "Tout enregistrer"
 
-#: FImageEditor.form:408 FMain.form:412 FTextEditor.form:406 Project.module:7044
+#: FImageEditor.form:408 FMain.form:415 FTextEditor.form:406 Project.module:7026
 msgid "Save as"
 msgstr "Enregistrer sous"
 
@@ -5777,7 +5777,7 @@ msgstr "Enregistrer comme PNG"
 msgid "Save as TIFF"
 msgstr "Enregistrer comme TIFF"
 
-#: Project.module:7126
+#: Project.module:7108
 msgid "Save file as"
 msgstr "Enregistrer le fichier sous"
 
@@ -5793,11 +5793,11 @@ msgstr "Enregistrer les fichiers modifiés"
 msgid "Save profile"
 msgstr "Enregistrer le profilage"
 
-#: FMain.form:349
+#: FMain.form:352
 msgid "Save project"
 msgstr "Enregistrer le projet"
 
-#: FMain.form:357 FSaveProjectAs.form:19
+#: FMain.form:360 FSaveProjectAs.form:19
 msgid "Save project as"
 msgstr "Enregistrer le projet sous"
 
@@ -5841,7 +5841,7 @@ msgstr "Bibliothèque SDL"
 msgid "SDL sound & CD-ROM management"
 msgstr "Gestion du son et du CD-ROM basé sur la bibliothèque SDL"
 
-#: FHelpBrowser.form:63 FMain.form:1533 FSearch.form:71
+#: FHelpBrowser.form:63 FMain.form:1542 FSearch.form:71
 msgid "Search"
 msgstr "Rechercher"
 
@@ -5873,7 +5873,7 @@ msgstr "La chaîne de caractères a été remplacée &1 fois."
 msgid "Search string replaced once."
 msgstr "La chaîne de caractères recherchée à été remplacée une fois."
 
-#: Design.module:274 Project.module:2293
+#: Design.module:283 Project.module:2293
 msgid "second"
 msgstr "deuxième"
 
@@ -5901,7 +5901,7 @@ msgstr "Choisissez un répertoire"
 msgid "Select a field"
 msgstr "Choisissez un champ"
 
-#: FMain.class:2763 FProperty.class:1017
+#: FMain.class:2790 FProperty.class:1017
 msgid "Select a file"
 msgstr "Choisissez un fichier"
 
@@ -6009,7 +6009,7 @@ msgstr "Auto-extractible"
 msgid "Send a bug report by mail"
 msgstr "Envoyer un rapport d'erreur par mail"
 
-#: FMain.form:891
+#: FMain.form:894
 msgid "Send project by mail"
 msgstr "Envoyer le projet par courriel"
 
@@ -6029,7 +6029,7 @@ msgstr "Série"
 msgid "Serialization error"
 msgstr "Erreur de sérialisation"
 
-#: FDebugConfig.form:445 FFarmLogin.form:38 FFarmRegister.form:40
+#: FDebugConfig.form:466 FFarmLogin.form:38 FFarmRegister.form:40
 msgid "Server"
 msgstr "Serveur"
 
@@ -6045,7 +6045,7 @@ msgstr "Ombre"
 msgid "Shape grid"
 msgstr "Grille de la forme"
 
-#: FMain.form:915
+#: FMain.form:918
 msgid "Shortcuts"
 msgstr "Raccourcis"
 
@@ -6053,11 +6053,11 @@ msgstr "Raccourcis"
 msgid "Show"
 msgstr "Afficher"
 
-#: FMain.form:1171
+#: FMain.form:1174
 msgid "Show added files"
 msgstr "Afficher les fichier ajoutés"
 
-#: FMain.form:1199
+#: FMain.form:1202
 msgid "Show all"
 msgstr "Afficher tout"
 
@@ -6069,19 +6069,19 @@ msgstr "Afficher tous les symboles"
 msgid "Show average"
 msgstr "Afficher la moyenne"
 
-#: FMain.form:1191
+#: FMain.form:1194
 msgid "Show compressed files"
 msgstr "Afficher les fichiers compressés"
 
-#: FMain.form:2060
+#: FMain.form:2081
 msgid "Show controls"
 msgstr "Afficher les contrôles"
 
-#: FDebugConfig.form:366
+#: FDebugConfig.form:387
 msgid "Show database requests"
 msgstr "Afficher les requêtes de bases de données"
 
-#: FOption.form:1334
+#: FOption.form:1336
 msgid "Show debugging panel if needed"
 msgstr "Afficher le panneau de débogage si nécessaire"
 
@@ -6101,15 +6101,15 @@ msgstr "Afficher les contrôles dépréciés"
 msgid "Show documentation in popups"
 msgstr "Afficher la documentation dans les popups"
 
-#: FMain.form:1166
+#: FMain.form:1169
 msgid "Show exported classes"
 msgstr "Afficher les classes exportées"
 
-#: FOption.form:1318
+#: FOption.form:1320
 msgid "Show file name in window title"
 msgstr "Afficher le nom de fichier dans le titre de la fenêtre"
 
-#: FMain.form:1181
+#: FMain.form:1184
 msgid "Show files in conflict"
 msgstr "Afficher les fichiers en conflit"
 
@@ -6121,19 +6121,19 @@ msgstr "Afficher les filtres"
 msgid "Show help tree"
 msgstr "Afficher l'arborescence de l'aide"
 
-#: FOption.form:831
+#: FOption.form:833
 msgid "Show indentation with vertical lines"
 msgstr "Afficher l'indentation avec des lignes verticales"
 
-#: FDebugConfig.form:348
+#: FDebugConfig.form:369
 msgid "Show just-in-time compiler debugging messages"
 msgstr "Afficher les messages de débogage du compilateur « just-in-time »"
 
-#: FOption.form:879
+#: FOption.form:881
 msgid "Show line numbers"
 msgstr "Afficher les numéros de lignes"
 
-#: FMain.form:824
+#: FMain.form:827
 msgid "Show menubar"
 msgstr "Afficher la barre des menus"
 
@@ -6141,7 +6141,7 @@ msgstr "Afficher la barre des menus"
 msgid "Show modifications"
 msgstr "Afficher les modifications"
 
-#: FMain.form:1176
+#: FMain.form:1179
 msgid "Show modified files"
 msgstr "Afficher les fichiers modifiés"
 
@@ -6149,19 +6149,19 @@ msgstr "Afficher les fichiers modifiés"
 msgid "Show old versions"
 msgstr "Afficher les anciennes versions"
 
-#: FOption.form:943
+#: FOption.form:945
 msgid "Show Preview"
 msgstr "Afficher la prévisualisation"
 
-#: FMain.form:1971
+#: FMain.form:1992
 msgid "Show project tree"
 msgstr "Afficher l'arbre du projet"
 
-#: FMain.form:1979
+#: FMain.form:2000
 msgid "Show properties sheet"
 msgstr "Afficher la feuille de propriétés"
 
-#: FMain.form:2052
+#: FMain.form:2073
 msgid "Show property help"
 msgstr "Afficher l'aide sur les propriétés"
 
@@ -6173,11 +6173,11 @@ msgstr "Afficher des durées relatives"
 msgid "Show search window"
 msgstr "Afficher la fenêtre de recherche"
 
-#: FOption.form:1254
+#: FOption.form:1256
 msgid "Show shadows"
 msgstr "Afficher les ombres"
 
-#: FOption.form:927
+#: FOption.form:929
 msgid "Show spaces at end of line with dots"
 msgstr "Afficher les espaces en fin de ligne avec des points"
 
@@ -6193,11 +6193,11 @@ msgstr "Afficher l'onglet"
 msgid "Show tips on startup"
 msgstr "Afficher les astuces au démarrage"
 
-#: FOption.form:1270
+#: FOption.form:1272
 msgid "Show tooltips"
 msgstr "Afficher les bulles d'aide"
 
-#: FMain.form:1186
+#: FMain.form:1189
 msgid "Show untranslatable files"
 msgstr "Afficher les fichiers non traduisibles"
 
@@ -6257,7 +6257,7 @@ msgstr "Logiciel"
 msgid "Software description"
 msgstr "Description du logiciel"
 
-#: FMain.form:906 FWelcome.class:74
+#: FMain.form:909 FWelcome.class:74
 msgid "Software farm"
 msgstr "Logithèque"
 
@@ -6337,7 +6337,7 @@ msgstr "Son"
 msgid "Source"
 msgstr "Source"
 
-#: FMain.form:506 FMakePatch.form:52
+#: FMain.form:509 FMakePatch.form:52
 msgid "Source archive"
 msgstr "Archive source"
 
@@ -6406,7 +6406,7 @@ msgid "Square triangle"
 msgstr "Triangle rectangle"
 
 # gb-ignore
-#: FDebugConfig.form:432
+#: FDebugConfig.form:453
 msgid "SSH"
 msgstr ""
 
@@ -6418,7 +6418,7 @@ msgstr "Stable"
 msgid "Stack overflow"
 msgstr "Débordement de pile"
 
-#: FMain.form:1143
+#: FMain.form:1146
 msgid "Startup class"
 msgstr "Classe de démarrage"
 
@@ -6450,11 +6450,11 @@ msgstr "Statistiques"
 msgid "Status"
 msgstr "État"
 
-#: FMain.form:817
+#: FMain.form:820
 msgid "Status bar"
 msgstr "Barre d'état"
 
-#: FMain.form:655
+#: FMain.form:658
 msgid "Step"
 msgstr "Pas-à-pas"
 
@@ -6462,7 +6462,7 @@ msgstr "Pas-à-pas"
 msgid "Stock"
 msgstr "Stock"
 
-#: FMain.form:648
+#: FMain.form:651
 msgid "Stop"
 msgstr "Arrêter"
 
@@ -6502,7 +6502,7 @@ msgstr "Tracer"
 msgid "Structures must be public"
 msgstr "Les structures doivent être publiques"
 
-#: FMain.form:1022
+#: FMain.form:1025
 msgid "Style sheet"
 msgstr "Feuille de style"
 
@@ -6530,7 +6530,7 @@ msgstr "Suèdois (Suède)"
 msgid "Symbol"
 msgstr "Symbole"
 
-#: FDebugInfo.form:610 FMain.form:546 FReportBorderChooser.form:60 FReportPaddingChooser.form:64
+#: FDebugInfo.form:610 FMain.form:549 FReportBorderChooser.form:60 FReportPaddingChooser.form:64
 msgid "Synchronize"
 msgstr "Synchroniser"
 
@@ -6658,7 +6658,7 @@ msgstr "Presse-papier système"
 msgid "System error #&1: &2"
 msgstr "Erreur système n°&1: &2"
 
-#: FMain.form:1370 FSystemInfo.form:13
+#: FMain.form:1373 FSystemInfo.form:13
 msgid "System information"
 msgstr "Informations système"
 
@@ -6706,7 +6706,7 @@ msgstr "Distribution cible"
 msgid "Tasks"
 msgstr "Tâches"
 
-#: CModule.class:33 FMain.form:998 FToolBox.class:26
+#: CModule.class:33 FMain.form:1001 FToolBox.class:26
 msgid "TermForm"
 msgstr "Formulaire de terminal"
 
@@ -6714,7 +6714,7 @@ msgstr "Formulaire de terminal"
 msgid "TermForms"
 msgstr "Formulaires de terminal"
 
-#: FDebugConfig.form:263 FVersionControl.form:66
+#: FDebugConfig.form:266 FVersionControl.form:66
 msgid "Terminal"
 msgstr "Terminal"
 
@@ -6726,7 +6726,7 @@ msgstr "Emulateur de terminal"
 msgid "Terminal management"
 msgstr "Gestion du terminal"
 
-#: FMain.form:469
+#: FMain.form:472
 msgid "Test"
 msgstr "Tester"
 
@@ -6742,7 +6742,7 @@ msgstr "Le test a échoué."
 msgid "Test has succeeded."
 msgstr "Le test a réussi."
 
-#: FMain.form:956
+#: FMain.form:959
 msgid "Test module"
 msgstr "Module de test"
 
@@ -6754,7 +6754,7 @@ msgstr "Modules de test"
 msgid "Test suite #&1"
 msgstr "Suite de tests n°&1"
 
-#: FMain.form:476 FTestSuite.form:28
+#: FMain.form:479 FTestSuite.form:28
 msgid "Test suites"
 msgstr "Suites de tests"
 
@@ -6782,7 +6782,7 @@ msgstr "Le composant &1 nécessite un des composants suivants:<br>&2."
 msgid "The &1 component needs the &2 component."
 msgstr "Le composant &1 nécessite le composant &2."
 
-#: Project.module:6439
+#: Project.module:6421
 msgid "The &1 program is not installed on your system."
 msgstr "Le programme &1 n'est pas installé sur votre système."
 
@@ -6822,7 +6822,7 @@ msgstr "Le répertoire sera supprimé à la prochaine publication."
 msgid "The event group that the control belongs to."
 msgstr "Le groupe d'évènements auquel le control appartient."
 
-#: FMain.class:2890 Project.module:940
+#: FMain.class:2917 Project.module:940
 msgid "The file has been modified.\n\nAll your changes will be lost."
 msgstr "Le fichier a été modifié.\n\nToutes les modifications seront perdues."
 
@@ -6862,7 +6862,7 @@ msgstr "Les fichiers suivants ont été modifiés. Désirez-vous les enregistrer
 msgid "The following patterns will be substituted in the command&nbsp;:<br>\n&bull;&nbsp;<b><tt>$(FILE)</tt></b> will be replaced by the executable path.<br>\n&bull;&nbsp;<b><tt>$(DIR)</tt></b> by the project directory.<br>\n&bull;&nbsp;<b><tt>$(NAME)</tt></b> by the project name.<br>\n&bull;&nbsp;<b><tt>$(TITLE)</tt></b> by the project title.<br>\n&bull;&nbsp;<b><tt>$(VERSION)</tt></b> by the project version.<br>\n<br>\n<i>Note&nbsp;: all substitutions will be quoted.</i>"
 msgstr "Les motifs suivants seront substitués dans la commande&nbsp;:<br>\n&bull;&nbsp;<b><tt>$(FILE)</tt></b> sera remplacé par le chemin de l'exécutable.<br>\n&bull;&nbsp;<b><tt>$(DIR)</tt></b> par le répertoire du projet.<br>\n&bull;&nbsp;<b><tt>$(NAME)</tt></b> par le nom du projet.<br>\n&bull;&nbsp;<b><tt>$(TITLE)</tt></b> par le titre du projet.<br>\n&bull;&nbsp;<b><tt>$(VERSION)</tt></b> par la version du projet.<br>\n<br>\n<i>Note&nbsp;: toutes les substitutions seront « échappées ».</i>"
 
-#: Project.module:6441
+#: Project.module:6423
 msgid "The following programs are not installed on your system: &1."
 msgstr "Les programmes suivants ne sont pas installés sur votre système : &1."
 
@@ -6886,7 +6886,7 @@ msgstr "Les outils de traduction GNU ne sont pas installés sur votre système.\
 msgid "The length must be greater than 1 and lower than 255."
 msgstr "La longueur doit être comprise entre 1 et 255."
 
-#: FOption.form:1660
+#: FOption.form:1662
 msgid "Themes"
 msgstr "Thèmes"
 
@@ -6910,15 +6910,15 @@ msgstr "Le paquet ne peut être créé à l'intérieur du répertoire du projet.
 msgid "The packages have been successfully created."
 msgstr "Les paquets ont été créés avec succès."
 
-#: Design.module:542
+#: Design.module:551
 msgid "The program has been interrupted by CTRL+C."
 msgstr "Le programme a été interrompu par CTRL+C."
 
-#: Design.module:546
+#: Design.module:555
 msgid "The program has been terminated."
 msgstr "Le programme a été terminé."
 
-#: Design.module:555
+#: Design.module:564
 msgid "The program has returned the value &1."
 msgstr "Le programme a retourné la valeur &1."
 
@@ -6950,7 +6950,7 @@ msgstr "Le répertoire final du projet est :"
 msgid "The project has been successfully published."
 msgstr "Le projet a été publié avec succès."
 
-#: Design.module:844
+#: Design.module:857
 msgid "The project has no test module."
 msgstr "Le projet n'a pas de module de test."
 
@@ -7066,7 +7066,7 @@ msgstr "La table « &1 » n'a pas de clef primaire."
 msgid "The translation tools returned the following errors:"
 msgstr "Les outils de translations ont retourné les erreurs suivantes :"
 
-#: Design.module:276 Project.module:2295
+#: Design.module:285 Project.module:2295
 msgid "third"
 msgstr "troisième"
 
@@ -7194,7 +7194,7 @@ msgstr "Ce fichier est inchangé depuis la dernière publication."
 msgid "This file is in conflict. You must resolve the conflict in order to use the file again."
 msgstr "Ce fichier est en conflit. Vous devez résoudre ce conflit afin de pouvoir l'utiliser de nouveau."
 
-#: FMain.class:2778
+#: FMain.class:2805
 msgid "This file is located inside the project."
 msgstr "Le fichier est situé à l'intérieur du projet."
 
@@ -7334,7 +7334,7 @@ msgstr "Minuscule"
 msgid "Tip of the day #&1"
 msgstr "Astuce du jour n°&1"
 
-#: FMain.form:1354 FTips.form:19
+#: FMain.form:1357 FTips.form:19
 msgid "Tips of the day"
 msgstr "Astuces du jour"
 
@@ -7342,7 +7342,7 @@ msgstr "Astuces du jour"
 msgid "Title"
 msgstr "Titre"
 
-#: FOption.form:1457
+#: FOption.form:1459
 msgid "Title size"
 msgstr "Taille des titres"
 
@@ -7370,11 +7370,11 @@ msgstr "Basculer l'affichage de l'aperçu"
 msgid "Tolerance"
 msgstr "Tolérance"
 
-#: FMain.form:2068
+#: FMain.form:2089
 msgid "Toolbox"
 msgstr "Boîte à outils"
 
-#: FMain.form:857
+#: FMain.form:860
 msgid "Tools"
 msgstr "Outils"
 
@@ -7478,7 +7478,7 @@ msgstr "'\\' en fin de chaîne"
 msgid "Transform into a \".gmail.txt\" archive that fools GMail"
 msgstr "Transformer en une archive « *.gmail.txt » qui trompe GMail"
 
-#: FMain.form:486
+#: FMain.form:489
 msgid "Translate"
 msgstr "Traduire"
 
@@ -7490,7 +7490,7 @@ msgstr "Chaînes traduites"
 msgid "Translated string symbols do not match untranslated string ones."
 msgstr "Les symboles de la chaîne traduite ne correspondent pas à ceux de la chaîne non traduite."
 
-#: FDebugConfig.form:163 FHelpShortcut.form:27 FOption.form:609 FProjectProperty.form:241 FTranslate.form:167
+#: FDebugConfig.form:166 FHelpShortcut.form:27 FOption.form:609 FProjectProperty.form:241 FTranslate.form:167
 msgid "Translation"
 msgstr "Traduction"
 
@@ -7566,11 +7566,11 @@ msgstr "Impossible de compresser le fichier."
 msgid "Unable to connect to database."
 msgstr "Impossible de se connecter à la base de données."
 
-#: Project.module:6060
+#: Project.module:6042
 msgid "Unable to convert &1"
 msgstr "Impossible de convertir &1"
 
-#: Design.module:1066
+#: Design.module:1080
 msgid "Unable to copy executable to the remote server."
 msgstr "Impossible de copier l'exécutable sur le serveur distant."
 
@@ -7610,13 +7610,17 @@ msgstr "Impossible de supprimer la base de données."
 msgid "Unable to download <b>&1</b>:"
 msgstr "Impossible de télécharger <b>&1</b> :"
 
-#: FMain.class:1895
+#: FMain.class:1922
 msgid "Unable to drop file into the project."
 msgstr "Impossible de déposer le fichier à l'intérieur du projet."
 
 #: FExportData.class:113
 msgid "Unable to export data."
 msgstr "Impossible d'exporter les données."
+
+#: Project.module:5582
+msgid "Unable to find a web browser."
+msgstr "Impossible de trouver un navigateur Internet."
 
 #: Project.module:570
 msgid "Unable to find Gambas IDE executable in directory:\n\n&1"
@@ -7626,7 +7630,7 @@ msgstr "Impossible de trouver l'exécutable de l'EDI Gambas dans le répertoire 
 msgid "Unable to generate the patch."
 msgstr "Impossible de générer le patch."
 
-#: Design.module:1809
+#: Design.module:1823
 msgid "Unable to generate the remote debugger helper."
 msgstr "Impossible de générer l'assistant de débogage distant."
 
@@ -7638,7 +7642,7 @@ msgstr "Impossible de lire la position du fichier"
 msgid "Unable to get table fields."
 msgstr "Impossible de récupérer les champs de la table."
 
-#: Design.module:1054
+#: Design.module:1068
 msgid "Unable to initialize remote debugging."
 msgstr "Impossible d'initialiser le débogage distant."
 
@@ -7718,7 +7722,7 @@ msgstr "Impossible de publier le projet."
 msgid "Unable to push the project."
 msgstr "Impossible d'envoyer le projet."
 
-#: Project.module:6532
+#: Project.module:6514
 msgid "Unable to read component description file."
 msgstr "Impossible de lire le fichier de description du composant."
 
@@ -7750,11 +7754,11 @@ msgstr "Impossible de récupérer le mot de passe."
 msgid "Unable to run query."
 msgstr "Impossible d'exécuter la requête."
 
-#: Project.module:6700
+#: Project.module:6682
 msgid "Unable to run terminal."
 msgstr "Impossible de démarrer le terminal."
 
-#: Project.module:7136 Save.module:57
+#: Project.module:7118 Save.module:57
 msgid "Unable to save file."
 msgstr "Impossible d'enregistrer le fichier."
 
@@ -7778,15 +7782,15 @@ msgstr "Impossible d'enregistrer le projet."
 msgid "Unable to send bug report."
 msgstr "Impossible d'envoyer le rapport d'erreur."
 
-#: Design.module:1401
+#: Design.module:1423
 msgid "Unable to start debugger."
 msgstr "Impossible de démarrer le débogueur."
 
-#: Design.module:1359
+#: Design.module:1381
 msgid "Unable to start extern debugging."
 msgstr "Impossible de démarrer le débogage externe."
 
-#: Design.module:1237
+#: Design.module:1251
 msgid "Unable to start project."
 msgstr "Impossible de démarrer le projet."
 
@@ -7810,7 +7814,7 @@ msgstr "Impossible de désinstaller <b>&1</b> :"
 msgid "Unable to uninstall software:"
 msgstr "Impossible de désinstaller le logiciel :"
 
-#: Project.module:6343
+#: Project.module:6325
 msgid "Unable to update forms."
 msgstr "Impossible de mettre à-jour les formulaires."
 
@@ -7826,7 +7830,7 @@ msgstr "Impossible de mettre à-jour vers <b>&1</b> :"
 msgid "Uncomment"
 msgstr "Retirer les commentaires"
 
-#: FMain.form:1223
+#: FMain.form:1226
 msgid "Uncompress all"
 msgstr "Tout décompresser"
 
@@ -7834,7 +7838,7 @@ msgstr "Tout décompresser"
 msgid "Underline"
 msgstr "Souligné"
 
-#: FConflict.form:88 FConflictEditor.form:97 FConnectionEditor.form:267 FEditor.form:115 FFieldChooser.form:127 FForm.form:155 FImageEditor.form:126 FList.form:111 FOption.form:1719 FProjectVersion.form:252 FTextEditor.form:132
+#: FConflict.form:88 FConflictEditor.form:97 FConnectionEditor.form:267 FEditor.form:115 FFieldChooser.form:127 FForm.form:155 FImageEditor.form:126 FList.form:111 FOption.form:1721 FProjectVersion.form:252 FTextEditor.form:132
 msgid "Undo"
 msgstr "Annuler"
 
@@ -7846,7 +7850,7 @@ msgstr "Annuler les changements"
 msgid "Undock console"
 msgstr "Console flottante"
 
-#: FMain.form:552
+#: FMain.form:555
 msgid "Undo synchronization"
 msgstr "Annuler la synchronisation"
 
@@ -8007,7 +8011,7 @@ msgstr "Monter"
 msgid "Update"
 msgstr "Mise-à-jour"
 
-#: FMain.form:897 Project.module:6296
+#: FMain.form:900 Project.module:6278
 msgid "Update all forms"
 msgstr "Mettre à-jour tous les formulaires"
 
@@ -8039,7 +8043,7 @@ msgstr "URL"
 msgid "Use a fixed font"
 msgstr "Utiliser une police non proportionnelle"
 
-#: FDebugConfig.form:296 FMain.form:692
+#: FDebugConfig.form:299 FMain.form:695
 msgid "Use embedded HTTP server"
 msgstr "Utiliser le serveur HTTP embarqué"
 
@@ -8055,7 +8059,7 @@ msgstr "LOCK inutile"
 msgid "Use offline documentation"
 msgstr "Utiliser la documentation hors-ligne"
 
-#: CVersionControlGit.class:354 FDebugConfig.form:461 FFarmLogin.form:59 FFarmRegister.form:61 FNewConnection.form:144 FProjectVersion.form:127 FProxy.form:42
+#: CVersionControlGit.class:354 FDebugConfig.form:482 FFarmLogin.form:59 FFarmRegister.form:61 FNewConnection.form:144 FProjectVersion.form:127 FProxy.form:42
 msgid "User"
 msgstr "Utilisateur"
 
@@ -8063,11 +8067,11 @@ msgstr "Utilisateur"
 msgid "Use system charset"
 msgstr "Utiliser le jeu de caractères du système"
 
-#: FDebugConfig.form:246 FMain.form:678
+#: FDebugConfig.form:249 FMain.form:681
 msgid "Use terminal emulator"
 msgstr "Utiliser un émulateur de terminal"
 
-#: FOption.form:1286
+#: FOption.form:1288
 msgid "Use utility windows"
 msgstr "Utiliser des fenêtres utilitaires"
 
@@ -8127,7 +8131,7 @@ msgstr "Version"
 msgid "Version conflict"
 msgstr "Conflit de version"
 
-#: FDebugButton.form:75 FDebugInfo.form:578 FMain.form:535 FProjectProperty.form:1003 FVersionControl.class:80
+#: FDebugButton.form:75 FDebugInfo.form:578 FMain.form:538 FProjectProperty.form:1003 FVersionControl.class:80
 msgid "Version control"
 msgstr "Suivi de version"
 
@@ -8155,7 +8159,7 @@ msgstr "Capture vidéo"
 msgid "Vietnamese (Vietnam)"
 msgstr "Vietnamien (Viet-nâm)"
 
-#: FConflictEditor.form:222 FEditor.form:275 FImageEditor.form:347 FMain.form:778 FTextEditor.form:296 FToolBox.class:26
+#: FConflictEditor.form:222 FEditor.form:275 FImageEditor.form:347 FMain.form:781 FTextEditor.form:296 FToolBox.class:26
 msgid "View"
 msgstr "Affichage"
 
@@ -8231,7 +8235,7 @@ msgstr "Routines utilitaires pour les applications Web"
 msgid "Web feed parser and generator"
 msgstr "Générateur et analyseur de flux web"
 
-#: CModule.class:32 FMain.form:991 FToolBox.class:26
+#: CModule.class:32 FMain.form:994 FToolBox.class:26
 msgid "WebForm"
 msgstr "Formulaire Web"
 
@@ -8239,7 +8243,7 @@ msgstr "Formulaire Web"
 msgid "WebForms"
 msgstr "Formulaires Web"
 
-#: CModule.class:30 FMain.form:977
+#: CModule.class:30 FMain.form:980
 msgid "WebPage"
 msgstr "Page Web"
 
@@ -8352,7 +8356,7 @@ msgstr "Zen"
 msgid "zlib compression driver"
 msgstr "Pilote de compression zlib"
 
-#: FOption.form:1587
+#: FOption.form:1589
 msgid "Zoom (browser excepted)"
 msgstr "Zoom (sauf le navigateur)"
 
