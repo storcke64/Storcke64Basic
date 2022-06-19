@@ -475,16 +475,20 @@ CLASS_DESC_EVENT *CLASS_get_event_desc(CLASS *class, const char *name);
 
 int CLASS_find_symbol_with_prefix(CLASS *class, const char *name, const char *prefix);
 
-CLASS *CLASS_look(const char *name, int len);
-CLASS *CLASS_find(const char *name);
+CLASS *CLASS_look_do(const char *name, int len, bool global);
+CLASS *CLASS_find_do(const char *name, bool global);
+
+#define CLASS_look(_name, _len) CLASS_look_do(_name, _len, FALSE)
+#define CLASS_find(_name) CLASS_find_do(_name, FALSE)
+
+#define CLASS_look_global(_name, _len) CLASS_look_do(_name, _len, TRUE)
+#define CLASS_find_global(_name) CLASS_find_do(_name, TRUE)
 
 TABLE *CLASS_get_table(void);
 
 bool CLASS_inherits(CLASS *class, CLASS *parent);
 
 CLASS *CLASS_replace_global(const char *name);
-CLASS *CLASS_look_global(const char *name, int len);
-CLASS *CLASS_find_global(const char *name);
 CLASS *CLASS_check_global(CLASS *class);
 CLASS *CLASS_find_export(const char *name, const char *global);
 

@@ -64,8 +64,6 @@ static TABLE _global_table;
 static CLASS *_classes = NULL;
 // First created class (must be 'Class' class)
 static CLASS *_first = NULL;
-// This flag forces CLASS_find() to register in the global table
-static bool _global = FALSE;
 // If set, do not create a new class, but register that class in the global table
 static CLASS *_global_class = NULL;
 
@@ -466,18 +464,18 @@ void CLASS_exit()
 }
 
 
-CLASS *CLASS_look(const char *name, int len)
+CLASS *CLASS_look_do(const char *name, int len, bool global)
 {
 	CLASS_SYMBOL *csym;
 	ARCHIVE *arch = NULL;
 	int index;
 
 	#if DEBUG_COMP
-	fprintf(stderr, "CLASS_look: %s in %s", name, _global ? "global" : (_export ? "export" : "local"));
+	fprintf(stderr, "CLASS_look: %s in %s", name, global ? "global" : "local");
 	#endif
 
 	//if (CP && CP->component && CP->component->archive)
-	if (!_global && !ARCHIVE_get_current(&arch))
+	if (!global && !ARCHIVE_get_current(&arch))
 	{
 		if (TABLE_find_symbol(arch->classes, name, len, &index))
 		{
@@ -506,14 +504,13 @@ CLASS *CLASS_look(const char *name, int len)
 	}
 }
 
-CLASS *CLASS_find(const char *name)
+CLASS *CLASS_find_do(const char *name, bool global)
 {
 	CLASS_SYMBOL *csym;
 	CLASS *class;
 	int index;
 	int len;
 	ARCHIVE *arch = NULL;
-	bool global;
 
 	if (name == NULL)
 		name = COMMON_buffer;
@@ -521,7 +518,7 @@ CLASS *CLASS_find(const char *name)
 	len = strlen(name);
 
 #if DEBUG_LOAD
-		fprintf(stderr, "CLASS_find: %s (%d)\n", name, _global);
+		fprintf(stderr, "CLASS_find: %s (%d)\n", name, global);
 #endif
 
 	class = CLASS_look(name, len);
@@ -529,9 +526,8 @@ CLASS *CLASS_find(const char *name)
 		return class;
 
 	//if (CP && CP->component && CP->component->archive)
-	if (!_global && !ARCHIVE_get_current(&arch))
+	if (!global && !ARCHIVE_get_current(&arch))
 	{
-		global = FALSE;
 		index = TABLE_add_symbol(arch->classes, name, len);
 		#if DEBUG_LOAD || DEBUG_COMP
 			fprintf(stderr, "Not found -> creating new one in %s\n", arch->name ? arch->name : "main");
@@ -578,6 +574,7 @@ CLASS *CLASS_find(const char *name)
 	return class;
 }
 
+
 int CLASS_count(void)
 {
 	return TABLE_count(&_global_table);
@@ -595,29 +592,6 @@ CLASS *CLASS_get(const char *name)
 }
 
 
-CLASS *CLASS_look_global(const char *name, int len)
-{
-	CLASS *class;
-
-	_global = TRUE;
-	class = CLASS_look(name, len);
-	_global = FALSE;
-
-	return class;
-}
-
-
-CLASS *CLASS_find_global(const char *name)
-{
-	CLASS *class;
-
-	_global = TRUE;
-	class = CLASS_find(name);
-	_global = FALSE;
-
-	return class;
-}
-
 CLASS *CLASS_find_export(const char *name, const char *global)
 {
 	CLASS *class;
@@ -626,7 +600,7 @@ CLASS *CLASS_find_export(const char *name, const char *global)
 	{
 		class = CLASS_find(name);
 		_global_class = class;
-	CLASS_find_global(global);
+		CLASS_find_global(global);
 		_global_class = NULL;
 	}
 	else

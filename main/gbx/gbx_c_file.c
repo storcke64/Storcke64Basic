@@ -177,7 +177,7 @@ void CFILE_exit(void)
 	int i;
 	
 	for (i = 0; i <= 2; i++)
-	 OBJECT_UNREF(_std[i]);
+		OBJECT_UNREF(_std[i]);
 	
 	if (_term_init)
 		SIGNAL_unregister(SIGWINCH, _SIGWINCH_callback);

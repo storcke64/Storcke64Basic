@@ -126,9 +126,9 @@ const void *const GAMBAS_Api[] =
 	(void *)GB_GetClass,
 	(void *)GB_GetClassName,
 	(void *)GB_ExistClass,
-	(void *)CLASS_find_global,
+	(void *)GB_FindClass,
 	(void *)GB_ExistClassLocal,
-	(void *)CLASS_find,
+	(void *)GB_FindClassLocal,
 	(void *)GB_GetArrayType,
 	(void *)CLASS_get_array_class,
 	(void *)CLASS_find_load_from,
@@ -2495,6 +2495,16 @@ bool GB_ExistClass(const char *name)
 bool GB_ExistClassLocal(const char *name)
 {
 	return CLASS_look(name, strlen(name)) != NULL;
+}
+
+void *GB_FindClass(const char *name)
+{
+	return CLASS_find_global(name);
+}
+
+void *GB_FindClassLocal(const char *name)
+{
+	return CLASS_find(name);
 }
 
 TYPE GB_GetArrayType(void *klass)
