@@ -1324,11 +1324,10 @@ Public Sub UpdateMenu()
   Endif
   Action["gui"].Visible = bVisible
   
-  If Project.Running And If Not Project.Config["/Debug/Browser"] Then
-    Action["browser"].Visible = True
-  Else
-    Action["browser"].Visible = False
-  Endif
+  bVisible = False
+  Try bVisible = Project.Config["/Debug/UseHttpServer"]
+  Action["debug-browser"].Visible = bVisible
+  UpdateDebugBrowser
   
   'btnShowMenu.Visible = Not Me.Menus.Visible
   'btnShowMenu.Raise
@@ -1431,6 +1430,8 @@ Private Sub UpdateDebugBrowser()
   Dim I As Integer
   Dim hMenu As Menu
   Dim sBrowser As String
+  
+  If Not Action["debug-browser"].Visible Then Return
   
   mnuDebugBrowser.Children.Clear
   sBrowser = Project.Config["/Debug/Browser"]
@@ -1694,7 +1695,6 @@ Public Sub Action_Activate((Key) As String) As Boolean
         UpdateMenu
         UpdateRemote
         UpdateArguments
-        UpdateDebugBrowser
         OnRefreshComponents
       Endif
 
