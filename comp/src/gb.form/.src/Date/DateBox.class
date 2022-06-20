@@ -18,6 +18,7 @@ Property ReadOnly As Boolean
 Property Border As Boolean
 Property Mode As Integer
 Property Read Text As String
+Property Read Editor As MaskBox
 
 Private $hButtonBox As ButtonBox
 Private $hPopup As Window
@@ -293,5 +294,11 @@ End
 Private Function Text_Read() As String
 
   Return $hButtonBox.Text
+
+End
+
+Private Function Editor_Read() As MaskBox
+
+  Return $hButtonBox.Editor
 
 End

@@ -390,3 +390,15 @@ Private Sub Alignment_Write(Value As Integer)
   Try hCtrl.Alignment = Value
 
 End
+
+Public Sub SelectAll()
+  
+  Dim hCtrl As Object = $hCtrl
+  
+  If hCtrl Is TextBox Then
+    hCtrl.SelectAll()
+  Else 
+    Try hCtrl.Editor.SelectAll()
+  Endif
+  
+End
