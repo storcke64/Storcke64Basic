@@ -2,12 +2,12 @@
 
 Private Const MAX_ITEMS As Integer = 10
 Private $aList As String[]
+Private $sFind As String
+Private $hCombo As ComboBox
 
-Public Sub Open(aList As String[], iIndex As Integer, hCtrl As Control) As Integer
+Public Sub Open(aList As String[], iIndex As Integer, hCtrl As ComboBox) As Integer
   
   Dim iRow As Integer
-  Dim I As Integer
-  Dim hFont As Font
   Dim WM As Integer
   Dim X, Y, W, H As Integer
   Dim hScreen As Screen
@@ -49,7 +49,9 @@ Public Sub Open(aList As String[], iIndex As Integer, hCtrl As Control) As Integ
   
   Try gvwPopup.Row = iIndex
   
+  $hCombo = hCtrl
   iRow = Me.ShowPopup(X, Y) - 1
+  $hCombo = Null
   
   $aList = Null
   
@@ -95,12 +97,38 @@ Public Sub Form_Activate()
 
 End
 
+Private Sub FindItem()
+
+  Dim I As Integer
+  Dim sFind As String
+
+  If Not $sFind Then Return
+  sFind = String.LCase($sFind)
+
+  For I = 0 To $aList.Max
+    If String.LCase($aList[I]) Begins sFind Then
+      gvwPopup.Rows[I].EnsureVisible
+      gvwPopup.Row = I
+      Break
+    Endif
+  Next
+  
+End
+
 Public Sub Form_KeyPress()
 
   If Key.Code = Key.Return Or If Key.Code = Key.Enter Then
     Me.Close(gvwPopup.Row + 1)
   Else If Key.Code = Key.Escape Then
     Me.Close
+  Else If Key.Code = Key.Backspace Then
+    If $sFind Then
+      $sFind = String.Left($sFind, -1)
+      FindItem
+    Endif
+  Else If Key.Text Then
+    $sFind &= Key.Text
+    FindItem
   Endif
 
 End
