@@ -70,6 +70,7 @@ Static Private _Current As WebForm
 'Private Const LOG_ENABLED As Boolean = True
 Static Private $bLogEnabled As Boolean
 
+Static Private $sStartupError As String
 Static Private $iRequestProcess As Integer
 Static Private $bSendCookie As Boolean
 Static Private $hTimeout As Timer
@@ -232,7 +233,10 @@ Static Public Sub Main()
     Signal[Signal.SIGUSR1].Catch()
 
     PrintLog("Create startup form")
-    _Current = Application.Startup.AutoCreate()
+    Try _Current = Application.Startup.AutoCreate()
+    If Error Then
+      $sStartupError = Error.Text & "\n\n" & Error.Backtrace.Join(" ")
+    Endif
     
     PrintLog("Start request timeout")
     $hTimeout = New Timer As "Timeout"
@@ -472,6 +476,7 @@ Static Private Sub BeginResponse()
   PrintLog("Open write " & sWrite)
   $hWrite = Open Pipe sWrite For Write
   $hWrite.Blocking = True
+  $hWrite.Begin
   Output To $hWrite
   
   PrintLog("Send SIGUSR1 to request process " & CStr($iRequestProcess))
@@ -485,6 +490,8 @@ Static Private Sub EndResponse()
     PrintLog("EndResponse ignore")
     Return
   Endif
+  
+  $hWrite.Send
 
   Input From Default
   Output To Default
@@ -630,7 +637,11 @@ Static Private Sub HandleRequest()
       $bSendCookie = False
     Endif
     
-    _Current.Render()
+    If $sStartupError Then
+      RenderStartupError
+    Else
+      _Current.Render()
+    Endif
     
   Endif
   
@@ -780,9 +791,9 @@ Public Sub Render()
   
   $aJavascript.Clear
   
-  If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ")")
-  
   Print "<body onload=\"gw.onload();\">"
+  
+  If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ")")
   
   For Each sImage In ["error.png", "info.png", "question.png", "warning.png"]
     _AddPreload(Application.Root &/ "message" &/ sImage)
@@ -810,7 +821,7 @@ Public Sub Render()
   Print "<div id=\"gw-focus\"></div>"
   
   Me._Redraw()
-  
+    
   Print "<script type=\"text/javascript\">"
   Print "gw.form = "; JS(Object.Type(Me)); ";"
   Print "gw.version = "; JS(Application.Version); ";"
@@ -822,6 +833,13 @@ Public Sub Render()
   Print "</html>"
   
   Response.End
+  
+End
+
+Static Private Sub RenderStartupError()
+
+  StartupError.Message = $sStartupError
+  StartupError.Render()
   
 End
 
@@ -921,6 +939,8 @@ Public Sub _HandleMessage()
   Dim sName As String
   Dim hForm As WebForm
   Dim hTarget As Object
+  Dim bSendResponse As Boolean
+  Dim sErr As String
   
   'Dim fTimer As Float
   
@@ -995,6 +1015,7 @@ Public Sub _HandleMessage()
   
   _InMessage = iOldInMessage
   
+  bSendResponse = True
   SendResponse
   Return
   
@@ -1026,18 +1047,15 @@ GET_TARGET:
   
   Return
   
-' Catch
-'   
-'   sErr = Error.Text & "\n" & Error.Backtrace.Join(" ")
-'   _InExec = iOldInExec
-'   
-'   Response.Cancel
-'   Response.Begin
-'   Print "console.log("; JS(aCmd); ");"
-'   Print "console.log("; JS(sErr); ");"
-'   Print "console.log("; JS($aJavascript.Join("\n")); ");"
-'   Print "alert("; JS(sErr); ");"
-'   Response.End
+Catch
+  
+  If Not bSendResponse Then
+    sErr = Error.Text & "\n\n" & Error.Backtrace.Join(" ")
+    Response.ContentType = "text/javascript;charset=utf-8"
+    Response.Begin
+    Print "alert("; JS(sErr); ")"
+    Response.End
+  Endif
   
 End
 

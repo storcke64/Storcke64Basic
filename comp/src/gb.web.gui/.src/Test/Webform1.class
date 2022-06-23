@@ -41,7 +41,7 @@ Public Sub _new()
     'If sParent Then WebTree1[sParent].Expanded = True
     
   Next
-
+  
 End
 
 
@@ -50,7 +50,7 @@ Public Sub WebForm_Open()
   ReloadTable
 
   WebTimer1_Timer
-
+  
 End
 
 Public Sub WebButton1_Click()
