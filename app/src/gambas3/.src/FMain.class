@@ -1282,7 +1282,7 @@ Public Sub UpdateMenu()
     Action[sAction].Enabled = bEnabled
   Next
   
-  For Each sAction In ["run-extern", "gui", "profile", "open-profile", "run-with", "run-remote", "debug-config"]
+  For Each sAction In ["run-extern", "gui", "debug-browser", "profile", "open-profile", "run-with", "run-remote", "debug-config"]
     Action[sAction].Enabled = bEnabled
   Next
   
@@ -1328,6 +1328,9 @@ Public Sub UpdateMenu()
   Try bVisible = Project.Config["/Debug/UseHttpServer"]
   Action["debug-browser"].Visible = bVisible
   UpdateDebugBrowser
+  
+  Action["browser"].Visible = False
+  If bVisible And If Project.Running And If Not Project.Config["/Debug/Browser"] Then Action["browser"].Visible = True
   
   'btnShowMenu.Visible = Not Me.Menus.Visible
   'btnShowMenu.Raise
