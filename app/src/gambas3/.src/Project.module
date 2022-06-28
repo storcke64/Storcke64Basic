@@ -6950,6 +6950,9 @@ Public Sub FindProjectPath(sPath As String) As String
   
   Do
     
+    If sPath = "/" Then Break
+    If sPath Begins "/home" And If Split(sPath, "/", "", True).Count = 2 Then Break
+    
     If Exist(sPath &/ ".project") Then 
       
       hFile = Open sPath &/ ".project"

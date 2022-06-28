@@ -298,7 +298,7 @@ Public Sub Debug_Read(Data As String)
   Dim sWhere As String
   Dim iPos As Integer
 
-  'ebug Quote(Data)
+  'Debug Quote(Data)
   $sBuffer &= Data
   iPos = InStr($sBuffer, "\n") 
   If iPos = 0 Then Return
@@ -786,6 +786,7 @@ End
 
 Private Sub WriteCommand(sCmd As String)
   
+  'Debug Quote(sCmd)
   If $hRemoteFifo Then
     If DEBUG_REMOTE Then Debug "---> "; sCmd
     Print #$hRemoteFifo, sCmd
