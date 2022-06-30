@@ -10,7 +10,7 @@ PKG_PROG_PKG_CONFIG
 
 GB_COMPONENT_PKG_CONFIG(
   poppler, POPPLER, gb.pdf, [src],
-  'poppler >= 0.20'
+  'poppler >= 0.20' 'poppler < 23.0'
 )
 
 if test "$have_poppler" = "yes"; then
@@ -32,6 +32,8 @@ if test "$have_poppler" = "yes"; then
   AC_DEFINE_UNQUOTED(POPPLER_VERSION_0_86, $((1-$?)), Poppler version >= 0.86)
   $PKG_CONFIG --atleast-version=21.06.0 poppler
   AC_DEFINE_UNQUOTED(POPPLER_VERSION_21_06_0, $((1-$?)), Poppler version >= 21.06.0)
+  $PKG_CONFIG --atleast-version=22.06.0 poppler
+  AC_DEFINE_UNQUOTED(POPPLER_VERSION_22_06_0, $((1-$?)), Poppler version >= 22.06.0)
 fi
 
 AC_OUTPUT( \
