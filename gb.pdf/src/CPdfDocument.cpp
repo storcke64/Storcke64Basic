@@ -477,12 +477,12 @@ int32_t open_document (void *_object, char *sfile, int32_t lfile)
 	if ( GB.LoadFile(sfile,lfile,&buf,&len) ) return -1;
 
 	#if POPPLER_VERSION_0_58
-	stream=new MemStream(buf,0,(uint)len,std::move(obj));
+	stream = new MemStream(buf,0,(uint)len,std::move(obj));
 	#else
 	obj.initNull();
-	stream=new MemStream(buf,0,(uint)len,&obj);
+	stream = new MemStream(buf,0,(uint)len,&obj);
 	#endif
-	test=new PDFDoc (stream,0,0);
+	test = new PDFDoc(stream);
 
 	if (!test->isOk())
 	{
@@ -1036,6 +1036,17 @@ BEGIN_PROPERTY (PDFPAGELINKS_count)
 
 	if (!THIS->links) aux_fill_links(_object);
 	if (!THIS->links) { GB.ReturnInteger(0); return; }
+
+#if POPPLER_VERSION_22_06_0
+	int numlinks = 0;
+	for (AnnotLink *link : THIS->links->getLinks()) {
+		numlinks++;
+	}
+	GB.ReturnInteger(numlinks);
+#else
+	GB.ReturnInteger(THIS->links->getNumLinks());
+#endif
+
 	GB.ReturnInteger(THIS->links->getNumLinks());
 
 
@@ -1043,7 +1054,25 @@ END_PROPERTY
 
 BEGIN_METHOD (PDFPAGELINKS_get,GB_INTEGER ind;)
 
-	bool pok=true;
+#if POPPLER_VERSION_22_06_0
+
+ 	if (!THIS->links) aux_fill_links(_object);
+	if (THIS->links && VARG(ind)>0)
+ 	{
+		int i = 0;
+		for (AnnotLink *link : THIS->links->getLinks()) {
+			if (VARG(ind)==i) {
+				THIS->action=link->getAction();
+				RETURN_SELF();
+			}
+		}
+ 	}
+	GB.Error("Out of bounds");
+    return;
+
+#else
+
+	bool pok = true;
 
 	if (!THIS->links) aux_fill_links(_object);
 	if (!THIS->links) pok=false;
@@ -1062,6 +1091,8 @@ BEGIN_METHOD (PDFPAGELINKS_get,GB_INTEGER ind;)
 	THIS->action=THIS->links->getLink(THIS->lcurrent)->getAction();
 
 	RETURN_SELF();
+
+#endif
 
 END_METHOD
 
@@ -1131,9 +1162,26 @@ static void aux_get_link_dimensions(void *_object, CPDFRECT *rect)
 	pw=THIS->page->getMediaWidth();	
 	ph=THIS->page->getMediaHeight();
 
+#if POPPLER_VERSION_22_06_0
+
+	uint i = 0;
+	l = t = w = h = 0;
+	for (AnnotLink *link : THIS->links->getLinks()) {
+		if (i == THIS->lcurrent) {
+			link->getRect(&l, &t, &w, &h);
+			break;
+		}
+		i++;
+	}
+
+#else
+
 	THIS->links->getLink(THIS->lcurrent)->getRect(&l, &t, &w, &h);
-	w=w-l;
-	h=h-t;	
+
+#endif
+
+	w -= l;
+	h -= t;
 
 	switch (get_rotation(THIS))
 	{
