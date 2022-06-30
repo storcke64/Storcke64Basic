@@ -1047,9 +1047,6 @@ BEGIN_PROPERTY (PDFPAGELINKS_count)
 	GB.ReturnInteger(THIS->links->getNumLinks());
 #endif
 
-	GB.ReturnInteger(THIS->links->getNumLinks());
-
-
 END_PROPERTY
 
 BEGIN_METHOD (PDFPAGELINKS_get,GB_INTEGER ind;)
