@@ -56,11 +56,8 @@ Static Private Sub CodeFromDOM(sCode As String) As String
   
   If Not $cTrans Then
     $cTrans = [
-      "Alt": "AltKey",
-      "AltGraph": "AltGrKey",
-      "Control": "ControlKey",
-      "Meta": "MetaKey",
-      "Shift": "ShiftKey",
+      "AltGraph": "AltGr",
+      "Control": "Ctrl",
       "ArrowDown": "Down",
       "ArrowUp": "Up",
       "ArrowLeft": "Left",
@@ -122,12 +119,16 @@ Static Private Function Shortcut_Read() As String
   
   sCode = Code_Read()
   
-  If Key.Control And If sCode <> "ControlKey" Then sShortcut &= "Ctrl+"
-  If Key.Shift And If sCode <> "ShiftKey" Then sShortcut &= "Shift+"
-  If Key.Alt And If sCode <> "AltKey" Then sShortcut &= "Alt+"
-  If Key.Meta And If sCode <> "MetaKey" Then sShortcut &= "Meta+"
+  If Key.Control Then sShortcut &= "Ctrl+"
+  If Key.Shift Then sShortcut &= "Shift+"
+  If Key.Alt Then sShortcut &= "Alt+"
+  If Key.Meta Then sShortcut &= "Meta+"
   
-  Return sShortcut & sCode
+  If sCode = "Ctrl" Or If sCode = "Shift" Or If sCode = "Alt" Or If sCode = "Meta" Then
+    Return Left(sShortcut, -1)
+  Else
+    Return sShortcut & sCode
+  Endif
 
 End
 

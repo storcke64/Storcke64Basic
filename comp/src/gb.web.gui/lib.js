@@ -461,7 +461,7 @@ gw = {
   {
     var elt = $(id + ':entry') || $(id);
     
-    if (elt)
+    if (elt && document.activeElement != elt)
     {
       elt.focus();
       gw.selection = undefined;
