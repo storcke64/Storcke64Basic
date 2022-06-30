@@ -44,8 +44,8 @@ Public Sub Open(aList As String[], iIndex As Integer, hCtrl As ComboBox) As Inte
     Y = hCtrl.ScreenY + hCtrl.H
   Endif
   
-  If X + W > hScreen.AvailableWidth Then X = hScreen.AvailableWidth - W
-  If X < 0 Then X = 0
+  If X + W > hScreen.AvailableX + hScreen.AvailableWidth Then X = hScreen.AvailableX + hScreen.AvailableWidth - W
+  If X < hScreen.AvailableX Then X = hScreen.AvailableX
   
   Try gvwPopup.Row = iIndex
   
