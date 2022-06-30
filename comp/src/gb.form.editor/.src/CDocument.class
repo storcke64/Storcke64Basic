@@ -398,8 +398,8 @@ Public Sub SetLine(Y As Integer, sLine As String, Optional bNoRefresh As Boolean
 
   Dim hView As TextEditor
   
-  If Info(Y).Colors Then ClearHighlight(Y)
   If sLine = Lines[Y] Then Return
+  If Info(Y).Colors Then ClearHighlight(Y)
   
   Lines[Y] = sLine
   LineLength[Y] = String.Len(sLine)
@@ -500,19 +500,24 @@ Public Sub Remove(X1 As Integer, Y1 As Integer, X2 As Integer, Y2 As Integer, Op
   Dim hView As TextEditor
   Dim bHighlight As Boolean
   
-  sText = GetText(X1, Y1, X2, Y2)
-  
-  If Y1 > Y2 Then
+  If Y1 > Y2 Or If Y1 = Y2 And X1 > X2 Then
     Swap X1, X2
     Swap Y1, Y2
   Endif
+
+  If Y1 >= Lines.Count Then Return
+  
+  If Y2 >= Lines.Max Then
+    If Y2 >= Lines.Count Or If X2 > LineLength[Y2] Then
+      Y2 = Lines.Max
+      X2 = LineLength[Y2]
+    Endif
+  Endif
+  
+  sText = GetText(X1, Y1, X2, Y2)
   
   If Y1 = Y2 Then
     
-    If X1 > X2 Then
-      Swap X1, X2
-    Endif
-  
     If X2 > X1 And If X1 < LineLength[Y1] Then
       
       SetLine(Y1, String.Left(Lines[Y1], X1) & String.Mid$(Lines[Y1], X2 + 1))
