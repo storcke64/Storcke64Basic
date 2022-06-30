@@ -154,7 +154,10 @@ public:
 	void createWindow(GtkWidget *new_border);
 	void updateSize();
 	gControl *getInitialFocus();
-	
+#ifdef GTK3
+	virtual GtkWidget *getStyleSheetWidget();
+#endif
+
 	GtkWindowGroup *group;
 	GtkAccelGroup *accel;
 	GtkMenuBar *menuBar;
