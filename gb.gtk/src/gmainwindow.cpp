@@ -1760,17 +1760,17 @@ void gMainWindow::configure()
 bool gMainWindow::setMenuBarVisible(bool v)
 {
 	if (_showMenuBar == v)
-		return TRUE;
+		return true;
 
 	_showMenuBar = v;
 
 	if (!menuBar)
-		return TRUE;
+		return true;
 
 	configure();
 	performArrange();
 
-	return FALSE;
+	return false;
 }
 
 bool gMainWindow::isMenuBarVisible()
@@ -2129,3 +2129,10 @@ gControl *gMainWindow::getInitialFocus()
 	
 	return ctrl ? ctrl : this;
 }
+
+#ifdef GTK3
+GtkWidget *gMainWindow::getStyleSheetWidget()
+{
+	return frame;
+}
+#endif
