@@ -1,0 +1,45 @@
+' Gambas class file
+
+Export
+
+Private Sub URLQuote(Path As String) As String
+  
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+  
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = " " Then 
+      sCar = "+"
+    Else If IsLetter(sCar) Or If IsDigit(sCar) Or If InStr("-._~,$!/", sCar) Then 
+    Else 
+      sCar = "%" & Hex$(Asc(sCar), 2)
+    Endif
+    sRes &= sCar
+  Next
+
+  Return sRes
+  
+End
+
+Public Sub CopyPath(Path As String)
+  
+  Clipboard.CopyPaths([Path])
+  
+End
+
+Public Sub CopyPaths(Paths As String[])
+
+  Dim I As Integer
+  Dim sData As String
+  
+  If Not Paths Or If Paths.Count = 0 Then Return
+  
+  For I = 0 To Paths.Max
+    sData &= "file://" & URLQuote(Paths[I]) & gb.CrLf
+  Next
+  
+  Clipboard.Copy(sData, "text/uri-list")
+  
+End
