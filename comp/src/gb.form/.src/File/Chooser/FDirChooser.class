@@ -1230,31 +1230,9 @@ Public Sub mnuRename_Click()
   
 End
 
-Private Sub URLQuote(Path As String) As String
-  
-  Dim iInd As Integer
-  Dim sRes As String
-  Dim sCar As String
-  
-  For iInd = 1 To Len(Path)
-    sCar = Mid$(Path, iInd, 1)
-    If sCar = " " Then 
-      sCar = "+"
-    Else If IsLetter(sCar) Or If IsDigit(sCar) Or If InStr("-._~,$!/", sCar) Then 
-    Else 
-      sCar = "%" & Hex$(Asc(sCar), 2)
-    Endif
-    sRes &= sCar
-  Next
-
-  Return sRes
-  
-End
-
 Public Sub mnuCopy_Click()
   
   Dim aPath As String[]
-  Dim I As Integer
   
   If dvwChoose.HasFocus Then
     aPath = [dvwChoose.Current]
@@ -1264,11 +1242,7 @@ Public Sub mnuCopy_Click()
   
   If aPath.Count = 0 Then Return
   
-  For I = 0 To aPath.Max
-    aPath[I] = "file://" & URLQuote(aPath[I])
-  Next
-  
-  Clipboard.Copy(aPath.Join(gb.CrLf) & gb.CrLf, "text/uri-list")
+  Clipboard.CopyPaths(aPath)
   
 End
 
