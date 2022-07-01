@@ -84,7 +84,7 @@ Public Maintainer As String
 Public Address As String
 Public Vendor As String
 Public VendorPrefix As String
-Public Url As String
+Property Url As String Use $sUrl
 Public License As String
 Public CreateEachDirectory As Boolean
 Public RuntimeVersion As String
@@ -3296,6 +3296,8 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       sErr = InstallLibrary(sExecPath, Vendor, CStr(MajorVersion) & "." & CStr(MinorVersion))
       If sErr Then FMain.ShowWarning(sErr)
     Endif
+    
+    If Not bSilent Then Clipboard.CopyPath(sExecPath)
 
     If RunAfterMakingExec Then
       'Shell Replace(RunAfterMakingExec, "$(FILE)", Shell$(sExecPath)) Wait
@@ -3464,7 +3466,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
   Vendor = ""
   VendorPrefix = ""
   Address = ""
-  Url = ""
+  $sUrl = ""
   License = ""
   CreateEachDirectory = False
   PublishTags = New String[]
@@ -3728,7 +3730,7 @@ Public Sub ReadProject(Optional bConvert As Boolean)
         Address = sVal
 
       Case "url"
-        Url = sVal
+        $sUrl = sVal
 
       Case "license"
         License = sVal
@@ -3946,7 +3948,7 @@ Public Sub WriteProject(Optional bComponentDoNotChange As Boolean, Optional bMak
   If Vendor Then Print #hFile, "Vendor="; Vendor
   If VendorPrefix Then Print #hFile, "VendorPrefix="; VendorPrefix
   If Address Then Print #hFile, "Address="; Address
-  If Url And If Url <> DEFAULT_URL Then Print #hFile, "Url="; Url
+  If $sUrl And If $sUrl <> DEFAULT_URL Then Print #hFile, "Url="; $sUrl
   If License Then Print #hFile, "License="; License
   If Prefix Then Print #hFile, "Prefix=1"
   If PackageName Then Print #hFile, "PackageName="; PackageName

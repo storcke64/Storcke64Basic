@@ -11,7 +11,7 @@ Static Public ALLOWED_CONTROL_PROP As String[] = ["Text", "Foreground", "Backgro
 Static Public CreatingSpecialProperty As Boolean
 
 Static Private $cRedirect As New Collection
-Static Private $cTranslate As New Collection
+Static Private $cTranslate As New Collection(gb.IgnoreCase)
 Static Private $cUpdateName As New Collection
 Static Private $cAlwaysRead As New Collection
 Static Private $cShortcut As New Collection
