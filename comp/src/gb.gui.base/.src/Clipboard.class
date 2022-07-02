@@ -2,7 +2,7 @@
 
 Export
 
-Private Sub URLQuote(Path As String) As String
+Static Private Sub URLQuote(Path As String) As String
   
   Dim iInd As Integer
   Dim sRes As String
@@ -23,13 +23,13 @@ Private Sub URLQuote(Path As String) As String
   
 End
 
-Public Sub CopyPath(Path As String)
+Static Public Sub CopyPath(Path As String)
   
   Clipboard.CopyPaths([Path])
   
 End
 
-Public Sub CopyPaths(Paths As String[])
+Static Public Sub CopyPaths(Paths As String[])
 
   Dim I As Integer
   Dim sData As String
