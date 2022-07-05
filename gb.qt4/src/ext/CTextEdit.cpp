@@ -653,6 +653,7 @@ GB_DESC CTextEditDesc[] =
   GB_PROPERTY("Text", "s", CTEXTAREA_text),
   GB_PROPERTY("RichText", "s", CTEXTAREA_rich_text),
   GB_METHOD("Insert", NULL, CTEXTAREA_insert, "(Text)s"),
+  GB_METHOD("InsertRichText", NULL, CTEXTAREA_sel_rich_text, "(Text)s"),
 
   GB_PROPERTY("Paragraph", "i", CTEXTAREA_line),
   GB_PROPERTY("Index", "i", CTEXTAREA_column),
