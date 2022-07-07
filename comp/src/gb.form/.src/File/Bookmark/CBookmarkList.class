@@ -133,6 +133,17 @@ Public Sub FindBookmark({Link} As String) As CBookmark
   
 End
 
+Public Sub FindBookmarkByName(Name As String) As CBookmark
+  
+  Dim hBookmark As CBookmark
+  
+  For Each hBookmark In Me
+    If Not hBookmark.Exist() Then Continue
+    If hBookmark.Name = Name Then Return hBookmark
+  Next
+  
+End
+
 Public Sub FindBest(sDir As String) As CBookmark
   
   Dim hBookmark As CBookmark
