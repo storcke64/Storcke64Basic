@@ -8,6 +8,7 @@ Export
 Static Property Read Count As Integer
 
 Static Private $aBookmark As New Bookmark[]
+Static Private $hTimerUpdate As Timer
 
 Static Public _Age As Integer = 1
 
@@ -30,6 +31,7 @@ Static Public Sub Add(Path As String, Optional Name As String, Icon As String)
   
   $aBookmark.Add(hBookmark)
   Inc _Age
+  UpdateBookmarks
   
 End
 
@@ -50,6 +52,7 @@ Static Public Sub Remove(Path As String)
   Wend
 
   Inc _Age
+  UpdateBookmarks
   
 End
 
@@ -65,6 +68,7 @@ Static Public Sub Clear()
   
   $aBookmark.Clear
   Inc _Age
+  UpdateBookmarks
   
 End
 
@@ -74,3 +78,31 @@ Static Public Sub _GetAll() As Bookmark[]
   
 End
 
+Static Private Sub UpdateBookmarks()
+
+  If Not $hTimerUpdate Then $hTimerUpdate = New Timer As "TimerUpdate"
+  $hTimerUpdate.Trigger
+
+End
+
+Static Public Sub TimerUpdate_Timer()
+
+  Dim hWindow As Window
+  Dim hCtrl As Control
+  Dim hDirChooser As FDirChooser
+  
+  For Each hWindow In Windows
+    
+    If Not Object.IsValid(hWindow) Then Continue 
+    
+    For Each hCtrl In hWindow.Controls
+      
+      If Not Object.IsValid(hCtrl) Then Continue
+      Try hDirChooser = hCtrl
+      If Not Error Then hDirChooser.UpdateBookmark()
+      
+    Next
+    
+  Next
+  
+End
