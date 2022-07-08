@@ -225,6 +225,18 @@
         Action = "vc-branch"
         Text = ("Branch")
       }
+      { Menu51 Menu
+      }
+      { mnuVcBrowse Menu
+        Action = "vc-browse"
+        Text = ("Browse repository") & "..."
+        Picture = Picture["icon:/small/file-manager"]
+      }
+      { mnuVcOpenTerminal Menu
+        Action = "vc-open-terminal"
+        Text = ("Open a terminal") & "..."
+        Picture = Picture["icon:/small/terminal"]
+      }
     }
     { mnuVersionControlWith Menu
       Text = ("Put under version control")
@@ -1958,10 +1970,20 @@
     Text = "Branch"
     Shortcut = ""
   }
+  { Action vc-browse
+    Text = "Browse repository"
+    Shortcut = ""
+    Picture = "icon:/small/file-manager"
+  }
   { Action vc-commit
     Text = "Commit"
     Shortcut = ""
     Picture = "icon:/small/upload"
+  }
+  { Action vc-open-terminal
+    Text = "Open a terminal"
+    Shortcut = ""
+    Picture = "icon:/small/terminal"
   }
   { Action vc-revert
     Text = "Revert all changes"

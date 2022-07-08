@@ -94,6 +94,9 @@ Public Sub Refresh()
         Message.Warning(("Please set the $EDITOR environment variable with your favorite graphical text editor. Some version control commands need it."))
       Endif
     Endif
+    
+    Project.UpdateBookmarks
+    
   Endif
   
 End

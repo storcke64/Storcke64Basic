@@ -73,6 +73,7 @@ Public Sub dchProject_Change()
     
     $sLast = ""
     panProject.Hide
+    'dchProject.ShowFile = True
     dchProject.FileView.Show
     dchProject.ShowToolbar = True
 
@@ -85,6 +86,7 @@ Public Sub dchProject_Change()
     hProjectTree.SetView(tvwProject)
     
     panProject.Show
+    'dchProject.ShowFile = False
     dchProject.FileView.Hide
     
     dchProject.ShowToolbar = False

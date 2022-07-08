@@ -1754,6 +1754,12 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "vc-revert"
       VersionControl.Revert
       
+    Case "vc-browse"
+      Desktop.Open(VersionControl.GetRoot())
+      
+    Case "vc-open-terminal"
+      Project.OpenTerminal(VersionControl.GetRoot())
+      
   End Select 
   
   If Left(Key) = "_" And If Project.ActiveForm Then 

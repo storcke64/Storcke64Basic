@@ -533,6 +533,14 @@ Finally
 
 End
 
+Public Sub UpdateBookmarks()
+  
+  Bookmarks.Clear
+  If Project.Dir Then Bookmarks.Add(Project.Dir, ("Current project"), "icon:/small/gambas")
+  If VersionControl.Enabled Then Bookmarks.Add(VersionControl.GetRoot(), ("Repository"), "icon:/small/record")
+  
+End
+
 Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpenFile As String) As Boolean
 
   Dim sOldPath As String
@@ -877,8 +885,8 @@ _INIT_AGAIN:
   Endif
 
   Application.Restart = ["gambas3", Project.Dir]
-  
-  Bookmarks.Add(sDir, ("Current project"), "icon:/small/gambas")
+
+  UpdateBookmarks  
   
   'SetMessage(("OK"))
   Return
@@ -1065,7 +1073,7 @@ Public Function CloseProject() As Boolean
     
     'If IsFake() Then Shell "rm -rf " & Shell$(Project.Dir) Wait
 
-    Bookmarks.Remove(Dir)
+    Bookmarks.Clear
 
     Path = ""
     {Dir} = ""

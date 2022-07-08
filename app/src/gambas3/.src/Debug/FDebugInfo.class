@@ -1838,3 +1838,9 @@ Public Sub SetExternIgnore(iNum As Integer)
   
 End
 
+
+Public Sub btnVcBrowse_Click()
+
+  Desktop.Open(VersionControl.GetRoot())
+
+End
