@@ -235,7 +235,7 @@ Public Sub _Render()
     Endif
   Endif
   
-  If $iMode = Select.Single Then WebForm._AddJavascript("$(" & JS(Me.Name) & ").gw_current = " & Current_Read())
+  If $iMode = Select.Single Then WebForm._AddJavascript("$_(" & JS(Me.Name) & ").gw_current = " & Current_Read())
 
 End
 
@@ -352,7 +352,7 @@ Private Sub SendMoreJavascript()
   sResult = Close #hFile
   Output To Default
   
-  WebForm._AddJavascript("$(" & JS(Me.Name & ":more") & ").outerHTML = " & JS(sResult))
+  WebForm._AddJavascript("$_(" & JS(Me.Name & ":more") & ").outerHTML = " & JS(sResult))
 
 End
 

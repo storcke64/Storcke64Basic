@@ -92,7 +92,7 @@ Public Sub _Render()
     Print "</div>";
   Next
   
-  If $iMode = Select.Single Then WebForm._AddJavascript("$(" & JS(Me.Name) & ").gw_current = " & Index_Read())
+  If $iMode = Select.Single Then WebForm._AddJavascript("$_(" & JS(Me.Name) & ").gw_current = " & Index_Read())
   
   If $iScrollX Or If $iScrollY Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
   

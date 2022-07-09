@@ -1,4 +1,4 @@
-function $(a)
+function $_(a)
 {
   return document.getElementById(a);
 }
@@ -119,7 +119,7 @@ gw = {
   
   setInnerHtml: function(id, html)
   {
-    var oldDiv = $(id);
+    var oldDiv = $_(id);
     var newDiv = oldDiv.cloneNode(false);
     newDiv.innerHTML = html;
     oldDiv.parentNode.replaceChild(newDiv, oldDiv);
@@ -128,9 +128,9 @@ gw = {
   
   setOuterHtml: function(id, html)
   {
-    if ($(id))
+    if ($_(id))
     {
-      $(id).outerHTML = html;
+      $_(id).outerHTML = html;
       gw.onFocus();
     }
     else
@@ -139,10 +139,10 @@ gw = {
   
   removeElement: function(id)
   {
-    var elt = $(id);
+    var elt = $_(id);
     //for (i = 0; i < id_list.length; i++)
     //{
-      //elt = $(id_list[i]);
+      //elt = $_(id_list[i]);
       if (!elt)
         return;
     
@@ -155,7 +155,7 @@ gw = {
   insertElement: function(id, parent)
   {
     var elt;
-    var pelt = $(parent);
+    var pelt = $_(parent);
     
     if (!pelt)
       return;
@@ -167,7 +167,7 @@ gw = {
 
   setVisible: function(id, visible)
   {
-    var elt = $(id);
+    var elt = $_(id);
     if (elt)
     {
       if (visible)
@@ -183,7 +183,7 @@ gw = {
     var selection;
     
     if (active)
-      selection = gw.getSelection($(active));
+      selection = gw.getSelection($_(active));
     
     return [active, selection];
   },
@@ -194,7 +194,7 @@ gw = {
     
     if (save[0])
     {
-      elt = $(save[0])
+      elt = $_(save[0])
       if (elt) 
       {
         elt.focus();
@@ -213,12 +213,12 @@ gw = {
     {
       if (gw.lock == 0)
       {
-        elt = $('gw-lock');
+        elt = $_('gw-lock');
         elt.style.zIndex = 1000;
         elt.style.display = 'block';
         
         gw.lock_id = setTimeout(function() {
-          $('gw-lock').style.opacity = '1';
+          $_('gw-lock').style.opacity = '1';
           gw.lock_id = undefined;
           }, 500);
       }
@@ -235,7 +235,7 @@ gw = {
           clearTimeout(gw.lock_id);
           gw.lock_id = undefined;
         }
-        elt = $('gw-lock');
+        elt = $_('gw-lock');
         elt.style.display = 'none';
         elt.style.opacity = '0';
       }
@@ -443,23 +443,23 @@ gw = {
     if (elt && elt != document.body)
     {
       pos = gw.getPos(elt);
-      $('gw-focus').style.top = pos.top + 'px';
-      $('gw-focus').style.left = pos.left + 'px';
-      $('gw-focus').style.width = pos.width + 'px';
-      $('gw-focus').style.height = pos.height + 'px';
+      $_('gw-focus').style.top = pos.top + 'px';
+      $_('gw-focus').style.left = pos.left + 'px';
+      $_('gw-focus').style.width = pos.width + 'px';
+      $_('gw-focus').style.height = pos.height + 'px';
       win = gw.getWindow(elt);
-      $('gw-focus').style.zIndex = win ? (parseInt(win.style.zIndex) + 2) : 2;
-      $('gw-focus').style.display = 'block';
+      $_('gw-focus').style.zIndex = win ? (parseInt(win.style.zIndex) + 2) : 2;
+      $_('gw-focus').style.display = 'block';
     }
     else
     {
-      $('gw-focus').style.display = '';
+      $_('gw-focus').style.display = '';
     }
   },
   
   setFocus: function(id)
   {
-    var elt = $(id + ':entry') || $(id);
+    var elt = $_(id + ':entry') || $_(id);
     
     if (elt && document.activeElement != elt)
     {
@@ -472,7 +472,7 @@ gw = {
   
   highlightMandatory: function(id)
   {
-    var elt = $(id);
+    var elt = $_(id);
     var elt_br;
     var div;
     var div_br;
@@ -584,7 +584,7 @@ gw = {
   },
   /*ensureVisible: function(id, x, y, w, h)
   {
-    var elt = typeof(id) == 'string' ? $(id) : id;
+    var elt = typeof(id) == 'string' ? $_(id) : id;
     var pw, ph,cx, cy, cw, ch;
     var xx, yy, ww, hh;
   
@@ -694,35 +694,35 @@ gw = {
         
         gw.windows.push(id);
         
-        $(id).addEventListener('mousedown', gw.window.onMouseDown);
+        $_(id).addEventListener('mousedown', gw.window.onMouseDown);
       }
       
-      $(id).gw_resizable = resizable;
-      $(id).gw_modal = modal;
-      $(id).gw_popup = undefined;
-      $(id).gw_transient = undefined;
+      $_(id).gw_resizable = resizable;
+      $_(id).gw_modal = modal;
+      $_(id).gw_popup = undefined;
+      $_(id).gw_transient = undefined;
       
       if (modal)
       {
-        $(id).gw_current = gw.window.current;
+        $_(id).gw_current = gw.window.current;
         gw.window.current = id.substr(id.lastIndexOf('@'));;
         
-        if ($(id).gw_focus == undefined)
-          $(id).gw_focus = gw.saveFocus();
+        if ($_(id).gw_focus == undefined)
+          $_(id).gw_focus = gw.saveFocus();
       } 
       
       if (minw != undefined)
       {
-        $(id).gw_minw = minw;
-        $(id).gw_minh = minh;
+        $_(id).gw_minw = minw;
+        $_(id).gw_minh = minh;
       }
-      else if ($(id).gw_minw == undefined)
+      else if ($_(id).gw_minw == undefined)
       {
-        $(id).gw_minw = $(id).offsetWidth;
-        $(id).gw_minh = $(id).offsetHeight;
+        $_(id).gw_minw = $_(id).offsetWidth;
+        $_(id).gw_minh = $_(id).offsetHeight;
       }
       
-      //console.log('gw.window.open: minw = ' + $(id).gw_minw + ' minh = ' + $(id).gw_minh);
+      //console.log('gw.window.open: minw = ' + $_(id).gw_minw + ' minh = ' + $_(id).gw_minh);
       
       // Touch events 
       //pane.addEventListener('touchstart', onTouchDown);
@@ -734,7 +734,7 @@ gw = {
     
     translate: function(id, x, y)
     {
-      $(id).style.transform = 'translate(' + (x|0) + 'px,' + (y|0) + 'px)';
+      $_(id).style.transform = 'translate(' + (x|0) + 'px,' + (y|0) + 'px)';
       gw.onFocus();
     },
     
@@ -753,51 +753,51 @@ gw = {
         
         gw.windows.push(id);
         
-        $(id).addEventListener('mousedown', gw.window.onMouseDown);
+        $_(id).addEventListener('mousedown', gw.window.onMouseDown);
 
-        pos = gw.getPos($(control));
+        pos = gw.getPos($_(control));
         //console.log(pos);
         
-        /*$(id).style.left = pos.left + 'px';
-        $(id).style.top = pos.bottom + 'px';*/
+        /*$_(id).style.left = pos.left + 'px';
+        $_(id).style.top = pos.bottom + 'px';*/
         if (transient)
           gw.window.translate(id, pos.left, pos.top);
         else
           gw.window.translate(id, pos.left, pos.bottom);
       }
       
-      $(id).gw_resizable = resizable;
-      $(id).gw_modal = true;
-      $(id).gw_popup = true;
-      $(id).gw_popup_transient = transient;
+      $_(id).gw_resizable = resizable;
+      $_(id).gw_modal = true;
+      $_(id).gw_popup = true;
+      $_(id).gw_popup_transient = transient;
       
-      if ($(id).gw_focus == undefined)
-        $(id).gw_focus = gw.saveFocus();
+      if ($_(id).gw_focus == undefined)
+        $_(id).gw_focus = gw.saveFocus();
       
       if (minw != undefined)
       {
-        $(id).gw_minw = minw;
-        $(id).gw_minh = minh;
+        $_(id).gw_minw = minw;
+        $_(id).gw_minh = minh;
       }
-      else if ($(id).gw_minw == undefined)
+      else if ($_(id).gw_minw == undefined)
       {
-        $(id).gw_minw = $(id).offsetWidth;
-        $(id).gw_minh = $(id).offsetHeight;
+        $_(id).gw_minw = $_(id).offsetWidth;
+        $_(id).gw_minh = $_(id).offsetHeight;
       }
       
       gw.window.refresh();
       
-      $(id).scrollIntoView({behavior:"auto", block:"nearest"});
+      $_(id).scrollIntoView({behavior:"auto", block:"nearest"});
     },
 
     close: function(id)
     {
       var i;
       
-      $(id).removeEventListener('mousedown', gw.window.onMouseDown);
+      $_(id).removeEventListener('mousedown', gw.window.onMouseDown);
       
-      if ($(id).gw_modal)
-        gw.window.current = $(id).gw_current;
+      if ($_(id).gw_modal)
+        gw.window.current = $_(id).gw_current;
       
       i = gw.windows.indexOf(id);
       if (i >= 0)
@@ -806,14 +806,14 @@ gw = {
         gw.window.refresh();
       }
       
-      if ($(id).gw_focus)
+      if ($_(id).gw_focus)
       {
-        gw.restoreFocus($(id).gw_focus);
-        $(id).gw_focus = undefined;
+        gw.restoreFocus($_(id).gw_focus);
+        $_(id).gw_focus = undefined;
         gw.onFocus();
       }
       
-      $(id).gw_minw = $(id).gw_minh = undefined;
+      $_(id).gw_minw = $_(id).gw_minh = undefined;
     },
     
     refresh: function()
@@ -823,11 +823,11 @@ gw = {
       
       while (i < gw.windows.length)
       {
-        if ($(gw.windows[i]))
+        if ($_(gw.windows[i]))
         {
           zi = 11 + i * 4;
-          if ($(gw.windows[i]).style.zIndex != zi)
-            $(gw.windows[i]).style.zIndex = zi;
+          if ($_(gw.windows[i]).style.zIndex != zi)
+            $_(gw.windows[i]).style.zIndex = zi;
           i++;
         }
         else
@@ -855,17 +855,17 @@ gw = {
       for (i = 0; i < gw.windows.length; i++)
       {
         win = gw.windows[i];
-        if ($(win).gw_popup)
+        if ($_(win).gw_popup)
           continue;
-        $(win).addClass('gw-deactivated');
-        $(win + '-titlebar').addClass('gw-deactivated');
+        $_(win).addClass('gw-deactivated');
+        $_(win + '-titlebar').addClass('gw-deactivated');
         last = win;
       }
       
-      if (last && !$(last).gw_popup)
+      if (last && !$_(last).gw_popup)
       {
-        $(last).removeClass('gw-deactivated');
-        $(last + '-titlebar').removeClass('gw-deactivated');
+        $_(last).removeClass('gw-deactivated');
+        $_(last + '-titlebar').removeClass('gw-deactivated');
       }
     },
     
@@ -879,10 +879,10 @@ gw = {
       gw.windows.push(id);
       
       for (i = 0; i < gw.windows.length; i++)
-        $(gw.windows[i]).style.zIndex = 11 + i * 4;
+        $_(gw.windows[i]).style.zIndex = 11 + i * 4;
         
       gw.window.updateTitleBars();
-      $(id).focus();
+      $_(id).focus();
         
       if (send)
         gw.update('', '#windows', gw.windows);
@@ -890,16 +890,16 @@ gw = {
     
     updateModal: function()
     {
-      var i, elt = $('gw-modal');
+      var i, elt = $_('gw-modal');
       
       for (i = gw.windows.length - 1; i >= 0; i--)
       {
-        if ($(gw.windows[i]).gw_modal)
+        if ($_(gw.windows[i]).gw_modal)
         {
           gw.window.zIndex = 10 + i * 4;
           elt.style.zIndex = 10 + i * 4;
           elt.style.display = 'block';
-          /*if ($(gw.windows[i]).gw_popup)
+          /*if ($_(gw.windows[i]).gw_popup)
             elt.style.opacity = '0';
           else
             elt.style.opacity = '';*/
@@ -915,33 +915,33 @@ gw = {
     
     center: function(id)
     {
-      gw.window.translate(id, (window.innerWidth - $(id).offsetWidth) / 2, (window.innerHeight - $(id).offsetHeight) / 2);
+      gw.window.translate(id, (window.innerWidth - $_(id).offsetWidth) / 2, (window.innerHeight - $_(id).offsetHeight) / 2);
       gw.window.updateGeometry(id);
     },
     
     isMaximized: function(id)
     {
-      return $(id).gw_save_geometry != undefined;
+      return $_(id).gw_save_geometry != undefined;
     },
     
     maximize: function(id)
     {
-      var geom = $(id).gw_save_geometry;
+      var geom = $_(id).gw_save_geometry;
       if (geom != undefined)
       {
-        //$(id).style.left = geom[0];
-        //$(id).style.top = geom[1];
-        $(id).style.transform = geom[0]
-        $(id).style.width = geom[1];
-        $(id).style.height = geom[2];
-        $(id).gw_save_geometry = undefined;
+        //$_(id).style.left = geom[0];
+        //$_(id).style.top = geom[1];
+        $_(id).style.transform = geom[0]
+        $_(id).style.width = geom[1];
+        $_(id).style.height = geom[2];
+        $_(id).gw_save_geometry = undefined;
       }
       else
       {
-        $(id).gw_save_geometry = [$(id).style.transform, $(id).style.width, $(id).style.height];
-        $(id).style.transform = '';
-        $(id).style.width = '100%';
-        $(id).style.height = '100%';
+        $_(id).gw_save_geometry = [$_(id).style.transform, $_(id).style.width, $_(id).style.height];
+        $_(id).style.transform = '';
+        $_(id).style.width = '100%';
+        $_(id).style.height = '100%';
       }
       gw.window.updateGeometry(id);
     },
@@ -966,7 +966,7 @@ gw = {
       if (c == undefined)
         return; 
         
-      if ($(c.id).gw_save_geometry)
+      if ($_(c.id).gw_save_geometry)
         return;
         
       if (c.isMoving || c.isResizing)
@@ -981,9 +981,9 @@ gw = {
     {
       var win = gw.windows[gw.windows.length - 1];
       
-      if ($(win).gw_popup)
+      if ($_(win).gw_popup)
       {
-        if (transient && !$(win).gw_popup_transient)
+        if (transient && !$_(win).gw_popup_transient)
           return;
         gw.update(win, '#close');
       }
@@ -1008,7 +1008,7 @@ gw = {
       for (i = 0; i < gw.windows.length; i++)
       {
         id = gw.windows[gw.windows.length - i - 1];
-        elt = $(id);
+        elt = $_(id);
         
         if (elt.style.zIndex < gw.window.zIndex)
           continue;
@@ -1039,10 +1039,10 @@ gw = {
           else
             onTopEdge = onLeftEdge = onRightEdge = onBottomEdge = isResizing = false;
           
-          if ($(id).gw_popup)
+          if ($_(id).gw_popup)
             th = 0;
           else
-            th = $(id + '-titlebar').offsetHeight;
+            th = $_(id + '-titlebar').offsetHeight;
           isMoving = !isResizing && y < (th + MARGINS);
           
           gw.window.context = {
@@ -1068,7 +1068,7 @@ gw = {
     
     updateGeometry: function(id)
     {
-      var b = $(id).getBoundingClientRect();
+      var b = $_(id).getBoundingClientRect();
       gw.update(id, '#geometry', [ b.left + 'px', b.top + 'px', b.width + 'px', b.height + 'px', gw.window.isMaximized(id)]);
       gw.onFocus();
     },
@@ -1099,9 +1099,9 @@ gw = {
       c = gw.window.context;
       if (!c) return;
     
-      elt = $(c.id);
+      elt = $_(c.id);
       minWidth = elt.gw_minw;
-      minHeight = elt.gw_minh; //$(c.id + '-titlebar').offsetHeight + 2 + elt.gw_minh;
+      minHeight = elt.gw_minh; //$_(c.id + '-titlebar').offsetHeight + 2 + elt.gw_minh;
       e = gw.window.downEvent;
     
       if (c && c.isResizing && e)
@@ -1189,7 +1189,7 @@ gw = {
       var i;
       var tr;
       
-      if ($(id).hasClass('gw-table'))
+      if ($_(id).hasClass('gw-table'))
       {
         if (end < start)
         {
@@ -1200,7 +1200,7 @@ gw = {
         
         for (i = start; i <= end; i++)
         {
-          tr = $(id + ':' + i);
+          tr = $_(id + ':' + i);
           if (checked)
             tr.addClass('gw-selected');
           else
@@ -1211,7 +1211,7 @@ gw = {
       }
       else
       {
-        tr = $(id + ':' + start);
+        tr = $_(id + ':' + start);
         if (checked)
           tr.addClass('gw-selected');
         else
@@ -1223,8 +1223,8 @@ gw = {
   
     select: function(id, row, event)
     {
-      var elt = $(id + ':' + row);
-      var last = $(id).gw_current;
+      var elt = $_(id + ':' + row);
+      var last = $_(id).gw_current;
       var selected = !elt.hasClass('gw-selected');
       
       if (event)
@@ -1237,20 +1237,20 @@ gw = {
       else
       {
         if (last != undefined)
-          $(id + ':' + last) && $(id + ':' + last).removeClass('gw-selected');
+          $_(id + ':' + last) && $_(id + ':' + last).removeClass('gw-selected');
         elt.addClass('gw-selected');
         gw.update(id, '$' + row, null);
       }
       
-      $(id).gw_current = row;
+      $_(id).gw_current = row;
       
-      $(id).addClass('gw-unselectable');
-      setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);
+      $_(id).addClass('gw-unselectable');
+      setTimeout(function() { $_(id).removeClass('gw-unselectable'); }, 0);
     },
     
     checkRange: function(id, start, end, checked)
     {
-      if ($(id).hasClass('gw-table'))
+      if ($_(id).hasClass('gw-table'))
       {
         if (end < start)
         {
@@ -1260,22 +1260,22 @@ gw = {
         }
         
         for (i = start; i <= end; i++)
-          $(id + ':c:' + i).checked = checked;
+          $_(id + ':c:' + i).checked = checked;
       
         gw.update(id, '!' + start + ':' + end, checked);
       }
       else
       {
-        $(id + ':c:' + start).checked = checked;
+        $_(id + ':c:' + start).checked = checked;
         gw.update(id, '!' + start, checked);
       }
     },
   
     check: function(id, row, event)
     {
-      var elt = $(id + ':c:' + row);
+      var elt = $_(id + ':c:' + row);
       var checked = !elt.checked;
-      var last = $(id).gw_current;
+      var last = $_(id).gw_current;
       var len;
       
       elt.focus();
@@ -1288,16 +1288,16 @@ gw = {
       if (event.target == elt)
         elt.checked = !checked;
 
-      $(id).gw_current = row;
+      $_(id).gw_current = row;
 
-      $(id).addClass('gw-unselectable');
-      setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);
+      $_(id).addClass('gw-unselectable');
+      setTimeout(function() { $_(id).removeClass('gw-unselectable'); }, 0);
     },
     
     ensureVisible: function(id, row)
     {
-      var sw = $(id).firstChild;
-      gw.scrollview.scroll(id, sw.scrollLeft, $(id + ':' + row).offsetTop - sw.clientHeight / 2);
+      var sw = $_(id).firstChild;
+      gw.scrollview.scroll(id, sw.scrollLeft, $_(id + ':' + row).offsetTop - sw.clientHeight / 2);
     }
   },
   
@@ -1314,14 +1314,14 @@ gw = {
   {
     setHeaders: function(id, hid, vid)
     {
-      $(id).gw_headerh = hid;
-      $(id).gw_headerv = vid;
+      $_(id).gw_headerh = hid;
+      $_(id).gw_headerv = vid;
     },
 
     ensureVisible: function(id, child)
     {
-      var sw = $(id).firstChild;
-      child = $(child);
+      var sw = $_(id).firstChild;
+      child = $_(child);
       gw.scrollview.scroll(id, child.offsetLeft - (sw.clientWidth - child.offsetWidth) / 2, child.offsetTop - (sw.clientHeight - child.offsetHeight) / 2);
     },
     
@@ -1336,7 +1336,7 @@ gw = {
     onScroll: function(id, more, timeout)
     {
       var sw, last;
-      var elt = $(id);
+      var elt = $_(id);
       
       if (!elt)
         return;
@@ -1371,10 +1371,10 @@ gw = {
       }
       
       if (elt.gw_headerh)
-        $(elt.gw_headerh).firstChild.scrollLeft = sw.scrollLeft;
+        $_(elt.gw_headerh).firstChild.scrollLeft = sw.scrollLeft;
 
       if (elt.gw_headerv)
-        $(elt.gw_headerv).firstChild.scrollTop = sw.scrollTop;
+        $_(elt.gw_headerv).firstChild.scrollTop = sw.scrollTop;
 
       if (elt.gw_noscroll)
       {
@@ -1405,18 +1405,18 @@ gw = {
     
     scroll: function(id, x, y)
     {
-      var sw = gw.scrollview.getView($(id));
+      var sw = gw.scrollview.getView($_(id));
       
       gw.log("gw.control.scroll: " + id + ": " + x + " " + y);
       
       if (x != sw.scrollLeft)
       {
-        $(id).gw_noscroll = true;
+        $_(id).gw_noscroll = true;
         sw.scrollLeft = x;
       }
       if (y != sw.scrollTop)
       {
-        $(id).gw_noscroll = true;
+        $_(id).gw_noscroll = true;
         sw.scrollTop = y;
       }
       if (x != sw.scrollLeft || y != sw.scrollTop)
@@ -1428,9 +1428,9 @@ gw = {
   {
     select: function(id) 
     {
-      var elt = $(id + ':file');
+      var elt = $_(id + ':file');
       
-      if ($(id).gw_uploading)
+      if ($_(id).gw_uploading)
         return;
       
       elt.focus();
@@ -1455,7 +1455,7 @@ gw = {
     
     upload: function(id, key)
     {
-      var elt = $(id + ':file');
+      var elt = $_(id + ':file');
       var file = elt.files[0];
       var xhr = new XMLHttpRequest();
       var form = new FormData();
@@ -1525,16 +1525,16 @@ gw = {
   autocomplete: function(id)
   {
     new AutoComplete({
-      selector: $(id + ':entry'),
+      selector: $_(id + ':entry'),
       cache: false,
       source: function(term, response) {
-        var xhr = $(id).gw_xhr;
+        var xhr = $_(id).gw_xhr;
         if (xhr)
         {
           try { xhr.abort(); } catch(e) {}
         }
         
-        $(id).gw_xhr = xhr = new XMLHttpRequest();
+        $_(id).gw_xhr = xhr = new XMLHttpRequest();
         
         xhr.open('GET', $root + '/x?c=' + encodeURIComponent(JSON.stringify(['raise', id, 'completion', [term]])), true);
         xhr.onreadystatechange = function() {
@@ -1558,29 +1558,29 @@ gw = {
     onActivate: function(id, e)
     {
       if (e.keyCode == 13)
-        setTimeout(function() { gw.update(id, 'text', $(id + ':entry').value); gw.raise(id, 'activate', [], false); }, 20);
+        setTimeout(function() { gw.update(id, 'text', $_(id + ':entry').value); gw.raise(id, 'activate', [], false); }, 20);
     },
     
     onChange: function(id)
     {
-      if ($(id).gw_timer) clearTimeout($(id).gw_timer);
-      $(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $(id + ':entry').value, null); }, 20);
+      if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
+      $_(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $_(id + ':entry').value, null); }, 20);
     },
     
     getText: function(id)
     {
-      return $(id + ':entry').value;
+      return $_(id + ':entry').value;
     },
     
     moveEnd: function(id)
     {
-      gw.setSelection($(id + ':entry'), [-1, -1]);
+      gw.setSelection($_(id + ':entry'), [-1, -1]);
     },
     
     setText: function(id, text)
     {
       gw.command(function() {
-        $(id + ':entry').value = text;
+        $_(id + ':entry').value = text;
         gw.textbox.moveEnd(id);
         gw.update(id, 'text', text);
         });
@@ -1595,7 +1595,7 @@ gw = {
     
     copy: function(id)
     {
-      gw.copy($(id + ':entry'));
+      gw.copy($_(id + ':entry'));
     }
   },
 
@@ -1603,25 +1603,25 @@ gw = {
   {
     onChange: function(id)
     {
-      if ($(id).gw_timer) clearTimeout($(id).gw_timer);
-      $(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $(id).value, null); }, 50);
+      if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
+      $_(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $_(id).value, null); }, 50);
     },
     
     copy: function(id)
     {
-      gw.copy($(id));
+      gw.copy($_(id));
     },
     
     moveEnd: function(id)
     {
-      gw.setSelection($(id), [-1, -1]);
-      $(id).scrollTop = $(id).scrollHeight;
+      gw.setSelection($_(id), [-1, -1]);
+      $_(id).scrollTop = $_(id).scrollHeight;
     },
     
     setText: function(id, text)
     {
       gw.command(function() {
-        $(id).value = text;
+        $_(id).value = text;
         gw.textarea.moveEnd(id);
         gw.update(id, 'text', text);
         });
@@ -1632,13 +1632,13 @@ gw = {
   {
     setText: function(id, text)
     {
-      $(id).lastElementChild.innerHTML = text;
+      $_(id).lastElementChild.innerHTML = text;
     },
     
     click: function(id)
     {
-      $(id).focus();
-      $(id).click();
+      $_(id).focus();
+      $_(id).click();
     }
   },
   
@@ -1646,15 +1646,15 @@ gw = {
   {
     resize: function(id)
     {
-      $(id + ':select').onmouseover = function() { $(id + ':select').style.width = $(id).offsetWidth + 'px'; }
+      $_(id + ':select').onmouseover = function() { $_(id + ':select').style.width = $_(id).offsetWidth + 'px'; }
     },
     
     update: function(id, index, text)
     {
       if (text != undefined)
-        $(id + ':entry').value = text;
+        $_(id + ':entry').value = text;
         
-      $(id + ':select').selectedIndex = index;
+      $_(id + ':select').selectedIndex = index;
     }
   },
   
@@ -1662,7 +1662,7 @@ gw = {
   {
     selectRange: function(id, start, end, checked)
     {
-      var items = $(id).children;
+      var items = $_(id).children;
       var i;
       var elt;
       
@@ -1687,8 +1687,8 @@ gw = {
   
     select: function(id, row, event, multiple)
     {
-      var items = $(id).children;
-      var last = $(id).gw_current;
+      var items = $_(id).children;
+      var last = $_(id).gw_current;
       var elt = items[row];
       var selected;
       
@@ -1713,10 +1713,10 @@ gw = {
         gw.update(id, '$', row);
       }
       
-      $(id).gw_current = row;
+      $_(id).gw_current = row;
       
-      /*$(id).addClass('gw-unselectable');
-      setTimeout(function() { $(id).removeClass('gw-unselectable'); }, 0);*/
+      /*$_(id).addClass('gw-unselectable');
+      setTimeout(function() { $_(id).removeClass('gw-unselectable'); }, 0);*/
     },
     
     onKeyDown: function(id, event)
@@ -1727,7 +1727,7 @@ gw = {
       {
         if (!(event.altKey || event.shiftKey || event.ctrlKey))
         {
-          row = $(id).gw_current;
+          row = $_(id).gw_current;
           gw.listbox.select(id, row + 1, event, false);
           event.preventDefault();
         }
@@ -1736,7 +1736,7 @@ gw = {
       {
         if (!(event.altKey || event.shiftKey || event.ctrlKey))
         {
-          row = $(id).gw_current;
+          row = $_(id).gw_current;
           gw.listbox.select(id, row - 1, event, false);
           event.preventDefault();
         }
@@ -1745,7 +1745,7 @@ gw = {
     
     ensureVisible: function(id, row)
     {
-      var elt = $(id);
+      var elt = $_(id);
       var child = elt.children[row];
       
       //console.log(row + ' / ' + (child.offsetTop + child.offsetHeight) + ' / ' + elt.scrollTop + ' / ' + elt.clientHeight);
@@ -1776,20 +1776,20 @@ gw = {
   {
     pause: function(id)
     {
-      var elt = $(id);
+      var elt = $_(id);
       elt.pause();
     },
     
     stop: function(id)
     {
-      var elt = $(id);
+      var elt = $_(id);
       elt.pause();
       elt.currentTime = 0;
     },
     
     play: function(id)
     {
-      var elt = $(id);
+      var elt = $_(id);
       elt.pause();
       elt.currentTime = 0;
       elt.play();

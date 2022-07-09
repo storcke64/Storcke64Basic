@@ -658,13 +658,13 @@ Public Sub _RefreshReply() As Boolean
   sResult = Close #hFile
   Output To Default
   
-  'WebForm._AddRefresh("$(" & JS(Me.Name) & ").outerHTML = " & JS(sResult) & ";")
+  'WebForm._AddRefresh("$_(" & JS(Me.Name) & ").outerHTML = " & JS(sResult) & ";")
   
   If _Naked Then
     Print "gw.setInnerHtml("; JS(Me.Name); ","; JS(sResult); ");"
   Else
     Print "gw.setOuterHtml("; JS(Me.Name); ","; JS(sResult); ");"
-    'Print "$("; JS(Me.Name); ").outerHTML = "; JS(sResult); ";"
+    'Print "$_("; JS(Me.Name); ").outerHTML = "; JS(sResult); ";"
   Endif
   
   _Refresh = False

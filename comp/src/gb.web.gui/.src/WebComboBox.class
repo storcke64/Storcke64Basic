@@ -255,7 +255,7 @@ Private Sub Text_Write(Value As String)
     $sText = Value
     
     If Me._CanRefresh() Then WebForm._AddJavascript("gw.combobox.update(" & JS(Me.Name) & "," & CStr(iIndex) & "," & JS($sText) & ")")
-    'WebForm._AddJavascript("$(" & JS(Me.Name & ":entry") & ").value = " & JS($sText))
+    'WebForm._AddJavascript("$_(" & JS(Me.Name & ":entry") & ").value = " & JS($sText))
     
     If iIndex <> $iIndex Then 
       $iIndex = iIndex
