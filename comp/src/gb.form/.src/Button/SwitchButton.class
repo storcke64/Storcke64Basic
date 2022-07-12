@@ -79,7 +79,7 @@ Public Sub DrawingArea_Draw()
   If iFlag And Style.Disabled Then iCol = Color.Merge(iCol, Color.Background, 0.75)
   
   DS = Desktop.Scale
-  Paint.Rectangle(DS, (Paint.H - DS * 1.5) / 2, Paint.W - DS * 2, DS * 1.5, DS)
+  Paint.Rectangle(DS, (Paint.H - DS) / 2, Paint.W - DS * 2, DS, DS)
   Paint.Background = iCol
   Paint.Fill
   

@@ -1249,7 +1249,7 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
 
   H = $hInfoFont.H
   
-  If $iIconSize < (H * 4) Then Return
+  If $iIconSize < (H * 5) Then Return
   
   Try hStat = DirCache[$sDir].GetInfo(Mid$(Key, 2))
   'Try hStat = Stat($sDir &/ Mid$(Key, 2))
@@ -1269,11 +1269,15 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Y += Desktop.Scale
   Paint.DrawText(Main.FormatSize(hStat.Size), X, Y, Width, Height, Align.TopNormal)
   
-  If $iIconSize < (H * 5) Then Return
+  'If $iIconSize < (H * 5) Then Return
   
   dDate = hStat.LastModified
   If Date(dDate) = Date(Now) Then
     sDate = Format(dDate, gb.LongTime)
+  Else If Year(dDate) = Year(Now) Then
+    sDate = Format(dDate, "dd mmm")
+  Else If $iIconSize < (H * 6) Then
+    sDate = Format(dDate, "mmm yyyy")
   Else
     sDate = Format(dDate, gb.MediumDate)
   Endif

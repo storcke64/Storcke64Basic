@@ -287,7 +287,7 @@ Private Sub FormatNumber(fNum As Float) As String
 
   Dim sStr As String
   
-  sStr = Format(fNum, "0.##")
+  sStr = Format(fNum, "0.#")
   If String.Len(sStr) > 4 Then
     sStr = String.Left(sStr, 4)
     If Not IsDigit(Right(sStr)) Then sStr = Left(sStr, -1)

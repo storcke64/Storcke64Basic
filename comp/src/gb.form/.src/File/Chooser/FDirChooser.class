@@ -51,7 +51,7 @@ Private $aUncompressFilter As String[]
 
 Public Sub _new(Optional bFile As Boolean)
 
-  Dim hChild As Control
+  'Dim hChild As Control
   Dim iCol As Integer
   
   DirView = dvwChoose
@@ -69,19 +69,19 @@ Public Sub _new(Optional bFile As Boolean)
   
   Paint.End
   
-  ScrollArea(DirView.Proxy.Proxy.Proxy).Shadow = True
-  
-  For Each hChild In FileView.Children
-    Do
-      If hChild Is ScrollArea Then
-        ScrollArea(hChild).Shadow = True
-        Break
-      Endif
-      hChild = hChild.Proxy
-      If Not hChild Then Break
-    Loop
-    
-  Next
+  ' ScrollArea(DirView.Proxy.Proxy.Proxy).Shadow = True
+  ' 
+  ' For Each hChild In FileView.Children
+  '   Do
+  '     If hChild Is ScrollArea Then
+  '       ScrollArea(hChild).Shadow = True
+  '       Break
+  '     Endif
+  '     hChild = hChild.Proxy
+  '     If Not hChild Then Break
+  '   Loop
+  '   
+  ' Next
   
   $bShowBookmark = True
   $hBookmarkList = New CBookmarkList
