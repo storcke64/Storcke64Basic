@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Public Enum TYPE_RECENT, TYPE_EXAMPLE, TYPE_SOFTWARE, TYPE_TEMPLATE
+Public Const PROJECT_BOX_SCALE_WIDTH As Integer = 32
 
 Event Click(Path As String, Another As Boolean)
 Event DblClick(Path As String)
@@ -88,7 +89,7 @@ Private Sub CreateProjectBox() As ProjectBox
   hProjectItem = New ProjectBox($hList) As "ProjectItem"
   
   If $iArrange = Arrange.Row Then
-    hProjectItem.ResizeScaled(32, 17)
+    hProjectItem.ResizeScaled(PROJECT_BOX_SCALE_WIDTH, 17)
   Else
     hProjectItem.ResizeScaled(1, 12)
   Endif

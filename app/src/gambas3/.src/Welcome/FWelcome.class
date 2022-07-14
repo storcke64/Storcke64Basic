@@ -52,6 +52,11 @@ Public Sub _new()
   
 End
 
+Public Sub GetFixedWidth() As Integer
+  
+  Return panButton.W + 1
+  
+End
 
 Public Sub Form_Open()
 

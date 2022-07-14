@@ -2692,11 +2692,10 @@ Public Sub Form_Resize()
   
   If dwgWelcome.Visible Then
     DS = Desktop.Scale
-    W = DS * 113 + 1
+    W = frmWelcome.GetFixedWidth() + DS * CProjectList.PROJECT_BOX_SCALE_WIDTH * 2 + DS * 3 + Style.ScrollbarSize + Style.ScrollbarSpacing + 3 + dwgWelcome.Padding * 2
     If W > Me.ClientW Then W = Max(Me.ClientW, DS * 70)
     H = Max(DS * 60, Me.ClientH)
     dwgWelcome.Move((Me.ClientW - W) \ 2, (Me.ClientH - H) \ 2, W, H)
-    
   Endif
 
 End

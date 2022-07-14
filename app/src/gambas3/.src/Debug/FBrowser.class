@@ -14,3 +14,9 @@ Public Sub wvwBrowser_Title()
   Me.Title = wvwBrowser.Title & " — " & ("Debug browser")
 
 End
+
+Public Sub Form_Close()
+
+  Design.Stop
+
+End
