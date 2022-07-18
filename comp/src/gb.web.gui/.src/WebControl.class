@@ -867,7 +867,7 @@ Static Public Sub _GetColor(iCol As Integer) As String
   Dim G As Integer
   Dim B As Integer
 
-  A = Lsr(iCol, 24)
+  A = 255 - Lsr(iCol, 24)
   R = Lsr(iCol, 16) And 255
   G = Lsr(iCol, 8) And 255
   B = iCol And 255
