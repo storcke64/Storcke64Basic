@@ -343,7 +343,7 @@ Public Sub OnProjectChange()
   MHelp.Clear
   If Me.Closed Then Return
   
-  If btnShowPanel.Value Then FillTree
+  If Not sdpHelp.Hidden Then FillTree
   
   If webHelp.Url <> GetHomeURL() Then
     btnHome_Click

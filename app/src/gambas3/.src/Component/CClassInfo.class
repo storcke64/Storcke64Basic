@@ -716,13 +716,7 @@ Public Sub GetHelpHTML() As String
   sTitle = sClass
   If sWhere Then sTitle = "<a href=\"" & sWhere & "\">" & sTitle & "</a>"
   
-  sHtml = MHelp.MakePage("help/class-help.html", ["help": sHelp, "title": sTitle, "symbols": sSymbols])
-  
-  ' sHtml = Replace(sHtml, "$(title)", sTitle)
-  ' sHtml = Replace(sHtml, "$(symbols)", sSymbols)
-  ' sHtml = Replace(sHtml, "$(hide-title)", "")
-  
-  If sInfo Then sHtml = Replace(sHtml, "<!--$(info)-->", sInfo)
+  sHtml = MHelp.MakePage("help/class-help.html", ["help": sHelp, "title": sTitle, "symbols": sSymbols, "info": sInfo])
   sHtml = SubstPart(sHtml, "ShowSymbols", bHasSymbol)
   
   Return sHtml
