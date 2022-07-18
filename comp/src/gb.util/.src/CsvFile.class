@@ -220,6 +220,7 @@ End
 
 Private Function Fields_Read() As String[]
 
+  If Not $aField Then ReadFields
   Return $aField.Copy()
 
 End
