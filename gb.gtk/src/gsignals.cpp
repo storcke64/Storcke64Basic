@@ -322,14 +322,11 @@ static void cb_show(GtkWidget *widget, gContainer *data)
 }
 
 void gControl::borderSignals()
-{	
+{
+	GtkWidget *w;
+
 	g_signal_connect_after(G_OBJECT(border), "destroy", G_CALLBACK(cb_destroy), (gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"drag-data-received",G_CALLBACK(sg_drag_data_received),(gpointer)this);
-	g_signal_connect(G_OBJECT(border), "drag-motion", G_CALLBACK(cb_drag_motion),(gpointer)this);
-	g_signal_connect(G_OBJECT(border), "drag-leave", G_CALLBACK(cb_drag_leave),(gpointer)this);
-	g_signal_connect(G_OBJECT(border), "drag-drop", G_CALLBACK(cb_drag_drop),(gpointer)this);
-	g_signal_connect(G_OBJECT(border), "drag-data-get", G_CALLBACK(cb_drag_data_get),(gpointer)this);
-	g_signal_connect(G_OBJECT(border), "drag-end", G_CALLBACK(cb_drag_end),(gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"enter-notify-event",G_CALLBACK(sg_enter),(gpointer)this);
 	//g_signal_connect(G_OBJECT(border),"leave-notify-event",G_CALLBACK(sg_enter),(gpointer)this);
 	
@@ -349,10 +346,20 @@ void gControl::borderSignals()
 		//g_signal_connect_after(G_OBJECT(border),"motion-notify-event",G_CALLBACK(sg_motion),(gpointer)this);
 		//g_signal_connect(G_OBJECT(border),"scroll-event",G_CALLBACK(sg_scroll),(gpointer)this);
 	}
+
+	w = _scroll ? widget : border;
+
+	g_signal_connect(G_OBJECT(w), "drag-motion", G_CALLBACK(cb_drag_motion),(gpointer)this);
+	g_signal_connect(G_OBJECT(w), "drag-leave", G_CALLBACK(cb_drag_leave),(gpointer)this);
+	g_signal_connect(G_OBJECT(w), "drag-drop", G_CALLBACK(cb_drag_drop),(gpointer)this);
+	g_signal_connect(G_OBJECT(w), "drag-data-get", G_CALLBACK(cb_drag_data_get),(gpointer)this);
+	g_signal_connect(G_OBJECT(w), "drag-end", G_CALLBACK(cb_drag_end),(gpointer)this);
 }
 
-void gControl::widgetSignals()
-{
+void gControl::initSignals()
+{	
+	borderSignals();
+
 	if (!(border != widget && !_scroll))
 	{
 		//g_signal_connect(G_OBJECT(widget),"scroll-event",G_CALLBACK(sg_scroll),(gpointer)this);
@@ -363,23 +370,18 @@ void gControl::widgetSignals()
 		}*/
 		//g_signal_connect(G_OBJECT(widget),"motion-notify-event",G_CALLBACK(sg_motion),(gpointer)this);
 		g_signal_connect(G_OBJECT(widget), "popup-menu", G_CALLBACK(cb_menu), (gpointer)this);
-	}	
-	
+	}
+
 	g_signal_connect(G_OBJECT(widget), "key-press-event", G_CALLBACK(gcb_key_event), (gpointer)this);
 	g_signal_connect(G_OBJECT(widget), "key-release-event", G_CALLBACK(gcb_key_event), (gpointer)this);
 	g_signal_connect(G_OBJECT(widget), "focus", G_CALLBACK(gcb_focus), (gpointer)this);
 	g_signal_connect(G_OBJECT(widget), "focus-in-event", G_CALLBACK(gcb_focus_in), (gpointer)this);
 	g_signal_connect(G_OBJECT(widget), "focus-out-event", G_CALLBACK(gcb_focus_out), (gpointer)this);
 	//g_signal_connect(G_OBJECT(widget),"event",G_CALLBACK(sg_event),(gpointer)this);
-	if (widget != border)
+
+	/*if (widget != border)
 	{
 		g_signal_connect(G_OBJECT(widget), "drag-end", G_CALLBACK(cb_drag_end), (gpointer)this);
-	}
-}
-
-void gControl::initSignals()
-{	
-	borderSignals();
-	widgetSignals();
+	}*/
 }
 

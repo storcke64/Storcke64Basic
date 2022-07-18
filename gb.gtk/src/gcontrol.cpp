@@ -1532,15 +1532,18 @@ Drag & Drop
 
 void gControl::setAcceptDrops(bool vl)
 {
+	GtkWidget *w;
+
 	if (vl == _accept_drops)
 		return;
 
 	_accept_drops = vl;
 
+	w = _scroll ? widget : border;
 	if (vl)
-		gtk_drag_dest_set(border, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+		gtk_drag_dest_set(w, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
 	else
-		gtk_drag_dest_unset(border);
+		gtk_drag_dest_unset(w);
 }
 
 /*********************************************************************

@@ -225,40 +225,6 @@ void gSlider::setValue(int vl)
 	CB_slider_change(this);
 }
 
-#if 0
-void gSlider::orientation(int w,int h)
-{
-	//GtkAdjustment *adj;
-	//GtkOrientation orient;
-	
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(widget),  (w < h) ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
-
-	/*if (orient != gtk_orientable_get_orientation(GTK_ORIENTABLE(widget)))
-	{
-		adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-		g_object_ref(adj);
-		
-		gtk_widget_destroy(widget);
-		
-		widget = gtk_scale_new(
-		if (type == GTK_TYPE_VSCALE)
-			widget = gtk_vscale_new(adj);
-		else
-			widget = gtk_hscale_new(adj);
-		
-		gtk_container_add(GTK_CONTAINER(border), widget);
-		
-		gtk_scale_set_draw_value(GTK_SCALE(widget), false);
-		gtk_widget_show(widget);
-		widgetSignals();
-		g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(cb_change), (gpointer)this);
-		
-		g_object_unref(adj);
-		
-		init();
-	}*/
-}
-#endif
 
 void gSlider::applyOrientation(GtkOrientation orientation)
 {
