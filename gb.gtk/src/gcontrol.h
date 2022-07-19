@@ -312,6 +312,7 @@ public:
   void removeParent() { pr = NULL; }
 	void initSignals();
 	virtual void borderSignals();
+	void widgetSignals();
 	void connectParent();
 	void setParent(gContainer *parent) { pr = parent; }
 	void initAll(gContainer *pr);

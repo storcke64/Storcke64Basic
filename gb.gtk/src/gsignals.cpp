@@ -356,10 +356,8 @@ void gControl::borderSignals()
 	g_signal_connect(G_OBJECT(w), "drag-end", G_CALLBACK(cb_drag_end),(gpointer)this);
 }
 
-void gControl::initSignals()
-{	
-	borderSignals();
-
+void gControl::widgetSignals()
+{
 	if (!(border != widget && !_scroll))
 	{
 		//g_signal_connect(G_OBJECT(widget),"scroll-event",G_CALLBACK(sg_scroll),(gpointer)this);
@@ -383,5 +381,11 @@ void gControl::initSignals()
 	{
 		g_signal_connect(G_OBJECT(widget), "drag-end", G_CALLBACK(cb_drag_end), (gpointer)this);
 	}*/
+}
+
+void gControl::initSignals()
+{
+	borderSignals();
+	widgetSignals();
 }
 
