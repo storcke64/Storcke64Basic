@@ -370,6 +370,8 @@ Public Sub Debug_Read(Data As String)
         Try iLine = CInt(aFrame[2])
 
         If sClass Then
+          iPos = RInStr(sClass, ":")
+          If iPos Then sClass = Mid$(sClass, iPos + 1)
           If Project.Exist(sClass) Then Break
           sClass = ""
         Endif

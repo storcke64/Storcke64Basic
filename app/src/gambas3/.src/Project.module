@@ -1185,15 +1185,15 @@ Public Sub MakeModuleIcon(sModule As String, iSize As Integer, Optional bStartup
 
     'If bExported Then MakeExportedIcon(hImage)
 
-    If bStartup Then
-      ' hStartup = New Image(hImage.W, hImage.H, Color.Transparent)
-      ' hStartup.FillRect(2, 2, hImage.W - 4, hImage.H - 4, &HFF7F7F)
-      ' hStartup.PaintImage(hImage.Copy().Colorize(&HFF7F7F), 0, 0)
-      ' hImage = hStartup
-      hImage = AddEmblem(hImage, "img/32/startup.png")
-      'hImageStartup = Image.Load("img/16/startup.png").Stretch((iSize * 2) \ 3, (iSize * 2) \ 3)
-      'hImage.PaintImage(hImageStartup, 0, (hImage.H - hImageStartup.H) \ 2)
-    Endif
+    ' If bStartup Then
+    '   ' hStartup = New Image(hImage.W, hImage.H, Color.Transparent)
+    '   ' hStartup.FillRect(2, 2, hImage.W - 4, hImage.H - 4, &HFF7F7F)
+    '   ' hStartup.PaintImage(hImage.Copy().Colorize(&HFF7F7F), 0, 0)
+    '   ' hImage = hStartup
+    '   hImage = AddEmblem(hImage, "img/32/startup.png")
+    '   'hImageStartup = Image.Load("img/16/startup.png").Stretch((iSize * 2) \ 3, (iSize * 2) \ 3)
+    '   'hImage.PaintImage(hImageStartup, 0, (hImage.H - hImageStartup.H) \ 2)
+    ' Endif
 
     $cImageCache[sKey] = hImage
   Endif
