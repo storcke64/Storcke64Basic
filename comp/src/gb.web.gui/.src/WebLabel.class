@@ -68,7 +68,7 @@ Public Sub _RenderStyleSheet()
       Case Align.Right
         Me._AddStyleSheet("justify-content:flex-end;")
       Case Align.Center
-        Me._AddStyleSheet("justify-content:center;")
+        Me._AddStyleSheet("text-align:center;justify-content:center;")
     End Select
     
     Me._EndStyleSheet
