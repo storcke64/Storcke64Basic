@@ -841,7 +841,7 @@ int main(int argc, char **argv)
 			if (main_trans)
 				compile_all_lang();
 			
-			COMPILE_exit();
+			COMPILE_exit(_ntask_max == 1);
 			FILE_exit();
 
 			puts("OK");

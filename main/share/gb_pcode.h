@@ -170,6 +170,7 @@ typedef
 
 #ifndef NO_CODE_DUMP
 short PCODE_dump(FILE *out, ushort addr, PCODE *code);
+void PCODE_dump_count(FILE *out);
 #endif
 
 #endif /* */
