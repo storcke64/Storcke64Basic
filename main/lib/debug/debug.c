@@ -648,12 +648,8 @@ void DEBUG_backtrace(FILE *out)
 {
 	int i, n;
 	STACK_CONTEXT *context;
-	ushort line;
 
-	if (CP)
-		fprintf(out, "%s", DEBUG_get_current_position());
-	else
-		fprintf(out, "?");
+	fprintf(out, "%s", DEBUG_get_current_position());
 
 	//for (i = 0; i < (STACK_frame_count - 1); i++)
 	n = 0;
@@ -663,7 +659,9 @@ void DEBUG_backtrace(FILE *out)
 		if (!context)
 			break;
 
-		if (context->pc)
+		n += fprintf(out, " %s", DEBUG_get_position(context->cp, context->fp, context->pc));
+
+		/*if (context->pc)
 		{
 			line = 0;
 			if (DEBUG_calc_line_from_position(context->cp, context->fp, context->pc, &line))
@@ -672,7 +670,7 @@ void DEBUG_backtrace(FILE *out)
 				n += fprintf(out, " %s.%s.%d", context->cp->name, context->fp->debug->name, line);
 		}
 		else if (context->cp)
-			n += fprintf(out, " ?");
+			n += fprintf(out, " ?");*/
 		
 		if (n >= (DEBUG_OUTPUT_MAX_SIZE / 2))
 		{
@@ -1063,25 +1061,30 @@ void DEBUG_breakpoint(int id)
 
 const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 {
-	if (pc)
+	const char *comp_name;
+	const char *class_name;
+	const char *func_name;
+	ushort line = 0;
+
+	if (!cp)
+		return "?";
+
+	class_name = cp->name;
+	if (cp->component)
+		comp_name = cp->component->name;
+	else
+		comp_name = "$";
+
+	if (fp && fp->debug)
 	{
-		ushort line = 0;
-
-		if (fp != NULL && fp->debug)
+		func_name = fp->debug->name;
+		if (pc)
 			DEBUG_calc_line_from_position(cp, fp, pc, &line);
-
-		snprintf(DEBUG_buffer, sizeof(DEBUG_buffer), "%.64s.%.64s.%d",
-			cp ? cp->name : "?",
-			(fp && fp->debug) ? fp->debug->name : "?",
-			line);
 	}
 	else
-	{
-		snprintf(DEBUG_buffer, sizeof(DEBUG_buffer), "%.64s.%.64s",
-			cp ? cp->name : "?",
-			(fp && fp->debug) ? fp->debug->name : "?");
-	}
+		func_name = "?";
 
+	snprintf(DEBUG_buffer, sizeof(DEBUG_buffer), "[%s].%s.%s.%d", comp_name, class_name, func_name, line);
 	return DEBUG_buffer;
 }
 

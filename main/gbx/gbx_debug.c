@@ -74,7 +74,12 @@ const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 {
 #if DEBUG_MEMORY
 	static char buffer[256];
+	const int buffer_size = sizeof(buffer);
+#else
+	char *buffer = COMMON_buffer;
+	const int buffer_size = COMMON_BUF_MAX;
 #endif
+
 	ushort line = 0;
 
 	if (!cp || !pc)
@@ -83,21 +88,22 @@ const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 	if (fp != NULL && fp->debug)
 		calc_line_from_position(cp, fp, pc, &line);
 
-#if DEBUG_MEMORY
-	snprintf(buffer, sizeof(buffer), "%s.%s.%d",
-		cp ? cp->name : "?",
-		(fp && fp->debug) ? fp->debug->name : "?",
-		line);
+	if (cp->component)
+	{
+		snprintf(buffer, buffer_size, "[%s].%s.%s.%d",
+			cp->component->name, cp->name,
+			(fp && fp->debug) ? fp->debug->name : "?",
+			line);
+	}
+	else
+	{
+		snprintf(buffer, buffer_size, "%s.%s.%d",
+			cp->name,
+			(fp && fp->debug) ? fp->debug->name : "?",
+			line);
+	}
 
 	return buffer;
-#else
-	snprintf(COMMON_buffer, COMMON_BUF_MAX, "%.64s.%.64s.%d",
-		cp->name,
-		(fp && fp->debug) ? fp->debug->name : "?",
-		line);
-
-	return COMMON_buffer;
-#endif
 }
 
 
