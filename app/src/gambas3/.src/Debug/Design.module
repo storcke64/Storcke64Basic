@@ -306,6 +306,7 @@ Public Sub Debug_Read(Data As String)
   Dim sError As String
   Dim sWhere As String
   Dim iPos As Integer
+  Dim sComp As String
 
   'Debug Quote(Data)
   $sBuffer &= Data
@@ -359,38 +360,46 @@ Public Sub Debug_Read(Data As String)
       Endif
     
       aPos = Split(Trim(aData[2]), " ")
+      While aPos.Count
+        If aPos.Last <> "?" Then Break
+        aPos.Remove(aPos.Max)
+      Wend
   
       For Each sPos In aPos
 
         If sPos = "?" Then Continue
-        aFrame = Scan(sPos, "*.*.*")
+        aFrame = Scan(sPos, "[[]*].*.*.*")
 
-        sClass = aFrame[0]
+        sComp = aFrame[0]
+        sClass = aFrame[1]
         iLine = 0
-        Try iLine = CInt(aFrame[2])
+        Try iLine = CInt(aFrame[3])
 
         If sClass Then
           iPos = RInStr(sClass, ":")
           If iPos Then sClass = Mid$(sClass, iPos + 1)
-          If Project.Exist(sClass) Then Break
+          If sComp = "$" And If iLine Then Break
           sClass = ""
         Endif
 
       Next
   
-      If iLine = 0 Then sClass = ""
+      'If iLine = 0 Then sClass = ""
       
       $sError = ""
+      
       If aData[1] Then 
         If sClass Then SetPosition(sClass, iLine)
       Else
         If Not sClass Or If SetPosition(sClass, iLine) Then 
-          If $bIgnoreNextInfo Then 
-            $bIgnoreNextInfo = False
-          Else
-            Command("", STATE_RUNNING)
+          If Not DebugInside Then
+            If $bIgnoreNextInfo Then 
+              $bIgnoreNextInfo = False
+            Else
+              Command("", STATE_RUNNING)
+            Endif
+            Return
           Endif
-          Return
         Endif
       Endif
   

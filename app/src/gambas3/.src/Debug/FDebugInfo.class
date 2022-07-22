@@ -95,30 +95,60 @@ Public Sub EnableStack(bOn As Boolean)
   
 End
 
-Public Sub FillStack(aPos As String[]) As Boolean
+Public Sub FillStack(aStack As String[]) As Boolean
   
   Dim sPos As String
   Dim iInd As Integer
   Dim sKey As String
   Dim W As Integer
+  Dim sStack As String
+  Dim iPos As Integer
+  Dim sComp As String
+  Dim sLastComp As String = "$"
+  Dim hCompFont As Font
   
   Object.Lock(lvwStack)
   
-  If lvwStack.Count And If aPos[0] = lvwStack[0].Text Then
+  If lvwStack.Count And If aStack[0] = lvwStack[0].Tag Then
     sKey = lvwStack.Key
   Else
     sKey = 0
   Endif
   
+  hCompFont = lvwStack.Font.Copy()
+  hCompFont.Bold = True
+  hCompFont.Grade = -2
+  
   lvwStack.Clear
   
   W = Desktop.Scale * 16
-  For Each sPos In aPos
-    If sPos = "?" Then
+  For Each sStack In aStack
+    If sStack = "?" Then
       lvwStack.Add(iInd, "(" & ("native code") & ")").Foreground = Color.LightForeground
     Else
-      lvwStack.Add(iInd, sPos)
-      W = Max(W, lvwStack.Font.TextWidth(sPos))
+      sPos = sStack
+      If sPos Begins "[" Then
+        iPos = InStr(sPos, "].")
+        If iPos Then
+          sComp = Mid$(sPos, 2, iPos - 2)
+          sPos = Mid$(sPos, iPos + 2)
+        Endif
+      Endif
+      
+      If sComp <> sLastComp Then
+        sLastComp = sComp
+        If sComp = "$" Then sComp = "(" & ("Project") & ")"
+        With lvwStack.Add("@" & CStr(iInd), sComp)
+          .Background = Color.Merge(Color.TextBackground, Color.LightForeground)
+          .Font = hCompFont
+        End With
+      Endif
+      
+      If sPos Not Ends ".0" Then 
+        lvwStack.Add(iInd, sPos).Tag = sStack
+        W = Max(W, lvwStack.Font.TextWidth(sPos))
+      Endif
+      
     Endif
     Inc iInd
   Next
@@ -139,14 +169,17 @@ Public Sub lvwStack_Click()
   
   Dim sLoc As String
   
+  If Not lvwStack.Current.Tag Then Return
+  
   Design.Command("@" & lvwStack.Key)
   FDebugExpr.RefreshAll
   RefreshAllWatch
   
-  sLoc = lvwStack.Current.Text
+  sLoc = lvwStack.Current.Tag
   If InStr(sLoc, "(") Then Return
+  If sLoc Not Begins "[$]." Then Return
   
-  Project.Goto(sLoc)
+  Project.Goto(Mid$(sLoc, 5))
   
 Catch
   
