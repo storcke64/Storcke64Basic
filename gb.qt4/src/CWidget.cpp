@@ -3191,6 +3191,9 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				break;
 		}
 		
+		if (GB.CanRaise(control, EVENT_Drop))
+			return true;
+
 		goto __NEXT;
 	}
 	
