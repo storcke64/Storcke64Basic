@@ -27,6 +27,8 @@ Private $iTrackId As Integer
 Private $iChangeColor As Integer
 Private $iErrorColor As Integer
 
+Private $hHeaderFont As Font
+
 Public Sub _new()
   
   With cvwVariable
@@ -104,8 +106,7 @@ Public Sub FillStack(aStack As String[]) As Boolean
   Dim sStack As String
   Dim iPos As Integer
   Dim sComp As String
-  Dim sLastComp As String = "$"
-  Dim hCompFont As Font
+  Dim sLastComp As String
   
   Object.Lock(lvwStack)
   
@@ -115,16 +116,15 @@ Public Sub FillStack(aStack As String[]) As Boolean
     sKey = 0
   Endif
   
-  hCompFont = lvwStack.Font.Copy()
-  hCompFont.Bold = True
-  hCompFont.Grade = -2
-  
   lvwStack.Clear
   
   W = Desktop.Scale * 16
   For Each sStack In aStack
     If sStack = "?" Then
-      lvwStack.Add(iInd, "(" & ("native code") & ")").Foreground = Color.LightForeground
+      With lvwStack.Add(iInd, "(" & ("native code") & ")")
+        .Foreground = Color.LightForeground
+        .Selectable = False
+      End With
     Else
       sPos = sStack
       If sPos Begins "[" Then
@@ -139,8 +139,9 @@ Public Sub FillStack(aStack As String[]) As Boolean
         sLastComp = sComp
         If sComp = "$" Then sComp = "(" & ("Project") & ")"
         With lvwStack.Add("@" & CStr(iInd), sComp)
-          .Background = Color.Merge(Color.TextBackground, Color.LightForeground)
-          .Font = hCompFont
+          .Background = Color.SetAlpha(Color.Foreground, 240)
+          .Font = $hHeaderFont
+          .Selectable = False
         End With
       Endif
       
@@ -191,9 +192,10 @@ Private Sub AddVariableHeader(hView As ColumnView, sKey As String, sText As Stri
   
   With hView.Add(sKey, sText)
     .MoveFirst()
-    .Font = lvwStack.Font
+    .Font = $hHeaderFont
     .Background = Color.SetAlpha(Color.Foreground, 240)
     .Span = True
+    .Selectable = False
   End With
 
 End
@@ -358,6 +360,7 @@ Private Sub InitFont(hView As ColumnView, fSize As Float)
   Project.SetConsoleFont(hView)
   
   For Each sKey In hView.Keys
+    If Not hView[sKey].Selectable Then Continue
     If hView[sKey].Font Then hView[sKey].Font.Size = hView.Font.Size * fSize
   Next
   hView.Font.Size *= fSize
@@ -369,6 +372,9 @@ Public Sub ReadConfig()
   Dim hCtrl As Control
   Dim fSize As Float
   Dim hImage As Image
+  
+  $hHeaderFont = Project.GetSmallFont()
+  $hHeaderFont.Bold = True
   
   Settings.Read(panDebug)
   wizDebug.TextFont = Project.GetSmallFont()
@@ -419,7 +425,7 @@ Public Sub ReadConfig()
   hImage = Image.Load("img/32/error.png")
   hImage.Colorize(lblError.Foreground)
   picError.Picture = hImage.Picture
-  
+
 End
 
 Public Sub wizDebug_Click()

@@ -1153,6 +1153,7 @@ Private Sub ToggleProcList()
   $hEditor.SetFocus
   
   If iCurrent >= 0 Then
+    FillProc ' It is reset sometimes, for unknown reason at the moment
     Try iLine = $cProc[$aProc[iCurrent]]
     GotoProc(iLine)
   Endif

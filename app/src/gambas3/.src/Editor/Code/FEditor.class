@@ -253,7 +253,7 @@ End
 '
 ' End
 
-Public Sub ResetProcList()
+Private Sub ResetProcList()
   
   $cProc.Clear
   $aProc.Clear
@@ -563,7 +563,7 @@ Private Function InsertFunction(sProc As String, sType As String, bPublic As Boo
   '   Endif
   ' Next
 
-  FillProcCombo
+  FillProc
   Try iLine = $cProc[sProc]
   If Not Error Then Return iLine
 
@@ -2734,7 +2734,7 @@ Private Sub UpdateCurrentProc()
 
 End
 
-Private Sub FillProcCombo()
+Private Sub FillProc()
 
   Dim hSymbol As CSymbolInfo
   Dim cSymbol As Collection
@@ -2901,13 +2901,13 @@ End
 
 ' Public Sub cmbProc_KeyPress()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 '
 ' Public Sub cmbProc_MouseDown()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 
@@ -2915,7 +2915,7 @@ Public Sub GetFunctionLine(sFunc As String) As Integer
   
   Dim iLine As Integer
   
-  FillProcCombo
+  FillProc
   
   Try iLine = $cProc[sFunc]
   If Not Error Then Return iLine
@@ -2969,7 +2969,7 @@ End
 '
 ' Public Sub cmbProc_MouseWheel()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 '
@@ -3184,7 +3184,7 @@ Private Sub ToggleProcList()
   Dim iCurrent As Integer
   Dim iLine As Integer
 
-  FillProcCombo
+  FillProc
   iCurrent = $aProc.Find(btnProc.Text)
 
   iCurrent = FProcedureList.Popup(Me, Me.Name, $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, btnProc.W, Me.ClientH - panToolbar.H - Desktop.Scale)
@@ -3192,6 +3192,7 @@ Private Sub ToggleProcList()
   $hEditor.SetFocus()
   
   If iCurrent >= 0 Then
+    FillProc ' It is reset sometimes, for unknown reason at the moment
     Try iLine = $cProc[$aProc[iCurrent]]
     If Not Error Then GotoFunction(iLine)
   Endif
@@ -3441,7 +3442,7 @@ Public Sub GetFunctionSource(Optional sFunc As String) As String
   Dim sLine As String
   
   If sFunc Then
-    FillProcCombo
+    FillProc
     Try iLine = $cProc[sFunc]
     If Error Then Return
   Endif
