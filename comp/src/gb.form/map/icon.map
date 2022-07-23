@@ -409,9 +409,9 @@ vector                  $(mime)/image-x-svg+xml;$(mime)/x-office-drawing
 video                   $(mime)/video-x-generic
 view-detail             actions/view-list-details
 view-icon               actions/view-list-icons;;preferences/preferences-desktop-icons
-view-normal             actions/view-close
+view-normal             actions/view-close;;actions/view-left-close;actions/view-right-close
 view-preview            actions/view-preview
-view-split-h            actions/view-split-left-right
+view-split-h            actions/view-split-left-right;;actions/view-left-new;actions/view-right-new
 view-split-v            actions/view-split-top-bottom
 view-tree               actions/view-list-tree
 volume                  apps/preferences-desktop-sound;status/audio-volume-high
