@@ -169,6 +169,39 @@ static gboolean cb_decide_policy(WebKitWebView *widget, WebKitPolicyDecision *de
 	return FALSE;
 }
 
+static bool start_callback(void *_object)
+{
+	if (THIS->cb_running)
+	{
+		GB.Error("Pending asynchronous method");
+		return TRUE;
+	}
+
+	THIS->cb_running = TRUE;
+	GB.Ref(THIS);
+	return FALSE;
+}
+
+static void run_callback(void *_object, const char *error)
+{
+	while(THIS->cb_running)
+		GB.Wait(-1);
+
+	if (THIS->cb_error)
+	{
+		GB.Error(error, THIS->cb_result);
+		GB.FreeString(&THIS->cb_result);
+	}
+	else
+	{
+		GB.ReturnString(GB.FreeStringLater(THIS->cb_result));
+		THIS->cb_result = NULL;
+	}
+
+	THIS->cb_error = FALSE;
+	GB.Unref(POINTER(&_object));
+}
+
 static void cb_javascript_finished(WebKitWebView *widget, GAsyncResult *result, void *_object)
 {
 	WebKitJavascriptResult *js_result;
@@ -180,9 +213,9 @@ static void cb_javascript_finished(WebKitWebView *widget, GAsyncResult *result, 
 	js_result = webkit_web_view_run_javascript_finish(widget, result, &error);
 	if (!js_result)
 	{
-		THIS->js_result = GB.NewZeroString(error->message);
+		THIS->cb_result = GB.NewZeroString(error->message);
 		g_error_free(error);
-		THIS->js_error = TRUE;
+		THIS->cb_error = TRUE;
 	}
 	else
 	{
@@ -192,20 +225,69 @@ static void cb_javascript_finished(WebKitWebView *widget, GAsyncResult *result, 
 		exception = jsc_context_get_exception(jsc_value_get_context (value));
 		if (exception)
 		{
-			THIS->js_result = GB.NewZeroString(jsc_exception_get_message(exception));
-			THIS->js_error = TRUE;
+			THIS->cb_result = GB.NewZeroString(jsc_exception_get_message(exception));
+			THIS->cb_error = TRUE;
 		}
 		else
 		{
-			THIS->js_result = GB.NewZeroString(json);
+			THIS->cb_result = GB.NewZeroString(json);
 		}
 		
 		g_free(json);
 		webkit_javascript_result_unref(js_result);
 	}
 	
-	GB.Unref(POINTER(&_object));
-	THIS->js_running = FALSE;
+	THIS->cb_running = FALSE;
+}
+
+static char *get_encoding(const char *mimetype)
+{
+	char *p = strstr(mimetype, ";charset=");
+
+	if (!p)
+		return NULL;
+
+	p += 9;
+	if (!strcasecmp(p, "utf-8") || !strcasecmp(p, "utf8"))
+		return NULL;
+
+	return p;
+}
+
+static void cb_html_finished(WebKitWebResource *resource, GAsyncResult *result, void *_object)
+{
+	GError *error = NULL;
+	gsize length = 0;
+	guchar *html;
+	char *encoding;
+
+	html = webkit_web_resource_get_data_finish(resource, result, &length, &error);
+
+	if (!html)
+	{
+		THIS->cb_result = GB.NewZeroString(error->message);
+		g_error_free(error);
+		THIS->cb_error = TRUE;
+		return;
+	}
+
+	encoding = get_encoding(webkit_uri_response_get_mime_type(webkit_web_resource_get_response(resource)));
+
+	if (encoding)
+	{
+		if (GB.ConvString(&THIS->cb_result, (char *)html, length, encoding, "UTF-8"))
+		{
+			THIS->cb_result = GB.NewZeroString(GB.GetErrorMessage());
+			THIS->cb_error = TRUE;
+		}
+	}
+	else
+	{
+		THIS->cb_result = GB.NewString((char *)html, length);
+	}
+
+	g_free(html);
+	THIS->cb_running = FALSE;
 }
 
 static gboolean cb_context_menu(WebKitWebView *web_view, WebKitContextMenu *context_menu, GdkEvent *event, WebKitHitTestResult *hit_test_result, void *_object)
@@ -389,27 +471,25 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	
 	script = GB.ToZeroString(ARG(script));
 	
-	THIS->js_running = TRUE;
-	GB.Ref(THIS);
+	if (start_callback(THIS))
+		return;
+
 	webkit_web_view_run_javascript(WIDGET, script, NULL, (GAsyncReadyCallback)cb_javascript_finished, (gpointer)THIS);
 	
-	while(THIS->js_running)
-		GB.Wait(-1);
-	
-	if (THIS->js_error)
-	{
-		GB.Error("Javascript error: &1", THIS->js_result);
-		GB.FreeString(&THIS->js_result);
-	}
-	else
-	{
-		GB.ReturnString(GB.FreeStringLater(THIS->js_result));
-		THIS->js_result = NULL;
-	}
-	
-	THIS->js_error = FALSE;
+	run_callback(THIS, "Javascript error: &1");
 
 END_METHOD
+
+BEGIN_METHOD_VOID(WebView_GetHtml)
+
+	if (start_callback(THIS))
+		return;
+
+	webkit_web_resource_get_data(webkit_web_view_get_main_resource(WIDGET), NULL, (GAsyncReadyCallback)cb_html_finished, (gpointer)THIS);
+
+	run_callback(THIS, "Unable to retrieve HTML contents: &1");
+
+	END_METHOD
 
 //---------------------------------------------------------------------------
 
@@ -527,6 +607,8 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
 
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
+	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),
+
 	GB_METHOD("Clear", NULL, WebView_Clear, NULL),
 
 	GB_METHOD("Back", NULL, WebView_Back, NULL),

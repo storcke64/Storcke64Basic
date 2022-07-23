@@ -56,6 +56,7 @@ typedef
 		char *link;
 		int history;
 		int progress;
+		char *cb_result;
 		unsigned cancel : 1;
 	}
 	CWEBVIEW;

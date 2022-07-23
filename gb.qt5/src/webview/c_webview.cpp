@@ -45,10 +45,10 @@
 
 #define HISTORY (WIDGET->history())
 
-static bool _js_exited = FALSE;
-static volatile bool _js_running = FALSE;
-static bool _js_error = FALSE;
-static char *_js_result = NULL;
+static bool _cb_exited = FALSE;
+static volatile bool _cb_running = FALSE;
+static bool _cb_error = FALSE;
+static char *_cb_result = NULL;
 
 /*typedef
 	struct {
@@ -227,9 +227,40 @@ static void set_link(void *_object, const QString &link)
 	THIS->link = QT.NewString(link);
 }
 
+static bool start_callback()
+{
+	if (_cb_running)
+	{
+		GB.Error("Pending asynchronous method");
+		return true;
+	}
+
+	_cb_running = true;
+	return false;
+}
+
+static void run_callback(const char *error)
+{
+	while(_cb_running)
+		GB.Wait(-1);
+
+	if (_cb_error)
+	{
+		GB.Error(error);
+		GB.FreeString(&_cb_result);
+	}
+	else
+	{
+		GB.ReturnString(GB.FreeStringLater(_cb_result));
+		_cb_result = NULL;
+	}
+
+	_cb_error = FALSE;
+}
+
 static void cb_javascript_finished(const QVariant &result)
 {
-	if (_js_exited)
+	if (_cb_exited)
 		return;
 	
 	QVariantList value;
@@ -238,17 +269,27 @@ static void cb_javascript_finished(const QVariant &result)
 	QByteArray array = QJsonDocument::fromVariant(value).toJson(QJsonDocument::Compact);
 	
 	if (array.size() > 2)
-		_js_result = GB.NewString(array.constData() + 1, array.size() - 2);
+		_cb_result = GB.NewString(array.constData() + 1, array.size() - 2);
 	
-	_js_running = FALSE;
+	_cb_running = FALSE;
+}
+
+static void cb_html_finished(const QString &result)
+{
+	if (_cb_exited)
+		return;
+
+	_cb_result = QT.NewString(result);
+
+	_cb_running = FALSE;
 }
 
 //-------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(WebView_exit)
 
-	_js_exited = TRUE;
-	GB.FreeString(&_js_result);
+	_cb_exited = TRUE;
+	GB.FreeString(&_cb_result);
 
 END_METHOD
 
@@ -446,24 +487,23 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	if (LENGTH(script) == 0)
 		return;
 	
-	_js_running = TRUE;
+	if (start_callback())
+		return;
+
 	WIDGET->page()->runJavaScript(QSTRING_ARG(script), cb_javascript_finished);
 	
-	while(_js_running)
-		GB.Wait(-1);
+	run_callback("Javascript error");
 
-	if (_js_error)
-	{
-		GB.Error("Javascript error");
-		GB.FreeString(&_js_result);
-	}
-	else
-	{
-		GB.ReturnString(GB.FreeStringLater(_js_result));
-		_js_result = NULL;
-	}
-	
-	_js_error = FALSE;
+END_METHOD
+
+BEGIN_METHOD_VOID(WebView_GetHtml)
+
+	if (start_callback())
+		return;
+
+	WIDGET->page()->toHtml(cb_html_finished);
+
+	run_callback("Unable to retrieve HTML contents");
 
 END_METHOD
 
@@ -929,6 +969,8 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
 	
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
+	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),
+
 	GB_METHOD("Clear", NULL, WebView_Clear, NULL),
 	
 	GB_METHOD("Back", NULL, WebView_Back, NULL),

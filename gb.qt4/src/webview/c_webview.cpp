@@ -336,6 +336,13 @@ BEGIN_METHOD(WebView_ExecJavascript, GB_STRING script)
 	
 END_METHOD
 
+BEGIN_METHOD_VOID(WebView_GetHtml)
+
+	RETURN_NEW_STRING(WIDGET->page()->mainFrame()->toHtml());
+
+END_METHOD
+
+
 //-------------------------------------------------------------------------
 
 static QWebHistoryItem get_item(QWebHistory *history, int index)
@@ -495,7 +502,9 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
 
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
-	GB_METHOD("Clear", NULL, WebView_Clear, NULL),
+	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),
+
+		GB_METHOD("Clear", NULL, WebView_Clear, NULL),
 	
 	GB_METHOD("Back", NULL, WebView_Back, NULL),
 	GB_METHOD("Forward", NULL, WebView_Forward, NULL),
