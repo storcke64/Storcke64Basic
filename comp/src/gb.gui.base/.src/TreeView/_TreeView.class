@@ -862,10 +862,11 @@ Public Sub GridView_MouseDown()
     If hItem.Count And If Not $bNoRoot And If Mouse.X >= X Then
       hItem.Expanded = Not hItem.Expanded
     Else
-      $hView.Row = iRow
+      If hItem.Selectable Then $hView.Row = iRow
     Endif
     Stop Event
-    Return
+  Else
+    If Not hItem.Selectable Then Stop Event
   Endif
   
 End
@@ -1430,6 +1431,8 @@ Public Sub _IsItemSelected(hItem As _TreeView_Item) As Boolean
 End
 
 Public Sub _SetItemSelected(hItem As _TreeView_Item, bSelected As Boolean)
+  
+  If Not hItem.Selectable Then Return
   
   If $hView.Mode = Select.Single Then
     SetItemVisible(hItem)

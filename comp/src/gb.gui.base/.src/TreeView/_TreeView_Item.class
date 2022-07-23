@@ -16,6 +16,7 @@ Property Height, H As Integer
 Property Editable As Boolean
 Property Selected As Boolean
 Property Span As Boolean Use $bSpan
+Property Selectable As Boolean
 
 '' @{since 3.11}
 '' 
@@ -62,6 +63,7 @@ Private $sRichText As String
 Private $hPicture As Picture
 Private $bExpanded As Boolean
 Private $bEditable As Boolean
+Private $bNotSelectable As Boolean
 Private $iBg As Integer = Color.Default
 Private $iFg As Integer = Color.Default
 Private $hFont As Font
@@ -661,3 +663,15 @@ Private Function Depth_Read() As Integer
 
 End
 
+
+Private Function Selectable_Read() As Boolean
+
+  Return Not $bNotSelectable
+
+End
+
+Private Sub Selectable_Write(Value As Boolean)
+
+  $bNotSelectable = Not Value
+
+End
