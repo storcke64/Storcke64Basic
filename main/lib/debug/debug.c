@@ -1070,6 +1070,10 @@ const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 		return "?";
 
 	class_name = cp->name;
+
+	while (*class_name == '^')
+		class_name++;
+
 	if (cp->component)
 		comp_name = cp->component->name;
 	else
