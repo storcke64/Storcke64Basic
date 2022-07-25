@@ -4,15 +4,8 @@ Public Sub Main()
 
   Dim hSettings As Settings
 
-  hSettings = New Settings("~/test.conf")
-  'hSettings["/TestSuites/Count"] = 10
-  ' For I = 1 To 10
-  '   hSettings["/TestSuites/" & CStr(I) &/ "Name"] = "Name" & CStr(I)
-  '   hSettings["/TestSuites/" & CStr(I) &/ "Tests"] = Rnd
-  ' Next
-  ' hSettings.Save
-  hSettings.Clear("/TestSuites", True)
-  hSettings.Save
+  hSettings = New Settings("~/gambas/git/stable/app/src/gambas3/.settings")
+  Print hSettings["/Debug/Projects"]
 
 End
 
