@@ -268,7 +268,7 @@ typedef
 		unsigned loaded : 1;              //          Class is loaded
 		unsigned ready : 1;               //          Class is loaded and ready
 		unsigned debug : 1;               //          Debugging information ?
-		unsigned free_name : 1;           //          Must free the class name
+		unsigned _reserved : 1;           //
 		unsigned free_event : 1;          //          Must free class->event
 		unsigned in_load : 1;             //          Class being loaded
 		unsigned exit : 1;                //          Marker used by CLASS_exit
