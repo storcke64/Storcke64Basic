@@ -80,7 +80,7 @@ typedef
 		void (*EnumKeys)(void *collection, GB_DEBUG_ENUM_CB cb);
 		void *(*GetNextSortedSymbol)(void *klass, int *index);
 		int (*GetObjectAccessType)(void *object, CLASS *klass, int *count);
-		GB_CLASS (*FindClass)(const char *name);
+		GB_CLASS (*FindClass)(const char *comp_name, const char *class_name);
 		int *(*GetArrayBounds)(void *array);
 		void (*BreakOnError)(bool);
 		void (*EnterEval)(void);

@@ -573,18 +573,33 @@ GB_ARRAY DEBUG_get_string_array_from_backtrace(STACK_BACKTRACE *bt)
 	return array;
 }
 
-GB_CLASS DEBUG_find_class(const char *name)
+GB_CLASS DEBUG_find_class(const char *comp_name, const char *class_name)
 {
 	CLASS *class;
-	CLASS *save = CP;
+	COMPONENT *save_comp;
+	CLASS *save_class;
 
-	// As the startup class is automatically exported, this is the only way for the debugger to find it.
+	if (comp_name)
+	{
+		save_comp = COMPONENT_current;
+		COMPONENT_current = COMPONENT_find(comp_name);
+	}
+	else
+	{
+		save_class = CP;
+		CP = NULL;
+	}
+
+	/*// As the startup class is automatically exported, this is the only way for the debugger to find it.
 	if (PROJECT_class && !strcmp(name, PROJECT_class->name))
-		return (GB_CLASS)PROJECT_class;
+		return (GB_CLASS)PROJECT_class;*/
 
-	CP = NULL;
-	class = CLASS_find(name);
-	CP = save;
+	class = CLASS_find(class_name);
+
+	if (comp_name)
+		COMPONENT_current = save_comp;
+	else
+		CP = save_class;
 
 	return (GB_CLASS)class;
 }

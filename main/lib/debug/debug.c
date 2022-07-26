@@ -610,37 +610,36 @@ static void command_from(char *cmd)
 }
 
 
-static void command_set_breakpoint(char *cmd)
+static void command_breakpoint(char *cmd)
 {
-	char class_name[64];
+	char *comp = NULL;
+	char class_name[256];
 	ushort line;
-	//CLASS *class;
+	bool unset = *cmd == '-';
+	char *p;
 
-	if (sscanf(cmd, "+%64[^.].%hu", class_name, &line) != 2)
-		WARNING("Cannot set breakpoint: syntax error");
-	else
+	cmd++;
+
+	if (*cmd == '[')
 	{
-		//class = (CLASS *)GB.FindClassLocal(class_name);
-		//CLASS_load_without_init(class);
-		//fprintf(stderr, "command_set_breakpoint: %s %s\n", class->name, class->component ? class->component->name : "?");
-		set_breakpoint((CLASS *)GB_DEBUG.FindClass(class_name), line);
+		p = index(cmd, ']');
+		if (p && p[1] == '.')
+		{
+			comp = &cmd[1];
+			*p = 0;
+			cmd = p + 2;
+
+			if (comp[0] == '$' && !comp[1])
+				comp = NULL;
+		}
 	}
-}
 
-
-static void command_unset_breakpoint(char *cmd)
-{
-	char class_name[64];
-	ushort line;
-
-	if (sscanf(cmd, "-%64[^.].%hu", class_name, &line) != 2)
-		WARNING("Cannot remove breakpoint: Syntax error");
+	if (sscanf(cmd, "%256[^.].%hu", class_name, &line) != 2)
+		WARNING("Cannot %s breakpoint: syntax error", unset ? "remove" : "add");
+	else if (unset)
+		unset_breakpoint((CLASS *)GB_DEBUG.FindClass(comp, class_name), line);
 	else
-	{
-		//class = CLASS_find(class_name);
-		//CLASS_load_without_init(class);
-		unset_breakpoint((CLASS *)GB_DEBUG.FindClass(class_name), line);
-	}
+		set_breakpoint((CLASS *)GB_DEBUG.FindClass(comp, class_name), line);
 }
 
 
@@ -1344,8 +1343,8 @@ void DEBUG_main(bool error)
 		{ "s", TC_STEP, command_step, FALSE },
 		{ "f", TC_FROM, command_from, FALSE },
 		{ "g", TC_GO, command_go, FALSE },
-		{ "+", TC_NONE, command_set_breakpoint, TRUE },
-		{ "-", TC_NONE, command_unset_breakpoint, TRUE },
+		{ "+", TC_NONE, command_breakpoint, TRUE },
+		{ "-", TC_NONE, command_breakpoint, TRUE },
 		{ "&", TC_NONE, command_symbol, TRUE },
 		{ "?", TC_NONE, command_eval, TRUE },
 		{ "!", TC_NONE, command_eval, TRUE },
@@ -1361,7 +1360,7 @@ void DEBUG_main(bool error)
 
 	static bool first = TRUE;
 	char *cmd = NULL;
-	char cmdbuf[64];
+	char cmdbuf[256];
 	int len;
 	DEBUG_COMMAND *tc = NULL;
 	/*static int cpt = 0;*/
