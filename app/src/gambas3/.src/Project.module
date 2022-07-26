@@ -5751,12 +5751,11 @@ Public Sub DrawTitle(hForm As Object, Optional bNoReadOnly As Boolean)
   'Endif
 
   If hForm.IsModified() Then sTitle &= " (*)" & Left(("modified"), 0)
-  If Not bNoReadOnly Then
-    If IsReadOnly(hForm.Path) Then sTitle &= " [" & ("read-only") & "]"
-  Endif
   
   If Not IsProjectPath(sPath) Then
     Try hForm.RichText = "<i>" & Html(sTitle) & "</i>"
+  Else If Not bNoReadOnly Then
+    If IsReadOnly(hForm.Path) Then sTitle &= " [" & ("read-only") & "]"
   Endif
   
   If hForm.Title <> sTitle Then
@@ -7342,10 +7341,13 @@ End
 Public Sub ClearOtherProjects()
   
   Dim hForm As Object
+  Dim hEditor As FEditor
   
   Tree.ClearOtherProjects
   For Each hForm In Files
-    If Not ProjectTree.Exist(hForm.Path) Then hForm.Close
+    Try hEditor = hForm
+    If Error Then Continue
+    If hEditor.Component Then hForm.Close
   Next
   
 End

@@ -811,7 +811,7 @@ Public Sub RunUntil(hForm As FEditor, iLine As Integer)
 
   If $iState = STATE_RUNNING Then Return
 
-  sClass = hForm.Name
+  sClass = hForm.GetNameForBreakpoint()
 
   With hForm.GetEditor()
     bOn = Not .[iLine].Breakpoint
@@ -954,8 +954,8 @@ Private Sub MakeBreakpoint(sBreakpoint As String, bOn As Boolean) As String
 
   Dim aBreak As String[]
   
-  aBreak = Split(sBreakpoint, ".")
-  Return If(bOn, "+", "-") & aBreak[0] & "." & CStr(CInt(aBreak[1]) + 1)
+  aBreak = Breakpoints.FromString(sBreakpoint)
+  Return If(bOn, "+", "-") & Breakpoints.ToString(aBreak)
   
 End
 
@@ -1898,8 +1898,9 @@ End
 Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As FEditor
   
   Dim sPath As String
+  Dim hForm As FEditor
   
-  If sComp = "$" Then
+  If sComp = "$" Or If Not sComp Then
     
     sPath = Project.FindPath(sClass)
     
@@ -1928,32 +1929,28 @@ Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As
     
   Endif
   
-  If sPath Then Return Project.LoadFile(sPath)
+  If sPath Then 
+    hForm = Project.LoadFile(sPath)
+    Return hForm
+  Endif
   
 End
 
-Public Sub Goto(sLoc As String)
+Public Sub Goto(sLoc As String) As FEditor
 
-  Dim iPos As Integer
   Dim sComp As String
   Dim iLine As Integer
-  Dim aPos As String[]
   Dim sClass As String
   Dim hForm As FEditor
+  Dim aBreak As String[]
 
-  iPos = InStr(sLoc, "].")
-  If iPos = 0 Or If sLoc Not Begins "[" Then
-    sComp = "$"
-  Else
-    sComp = Mid$(sLoc, 2, iPos - 2)
-    sLoc = Mid$(sLoc, iPos + 2)
-  Endif
-  
-  aPos = Split(sLoc, ".")
-  sClass = aPos[0]
-  Try iLine = CInt(aPos.Last)
+  aBreak = Breakpoints.FromString(sLoc)
+  sComp = aBreak[0]
+  sClass = aBreak[1]
+  Try iLine = CInt(aBreak.Last)
   
   hForm = FindEditor(sComp, sClass, True)
   If hForm Then Project.OpenFile(hForm.Path, iLine)
+  Return hForm
   
 End

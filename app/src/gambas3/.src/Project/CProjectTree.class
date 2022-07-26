@@ -428,13 +428,16 @@ Private Sub FillTree(Optional bDoNotRefreshCache As Boolean)
       .Add(sDir &/ ".src", ("Project"), Picture["icon:/small/directory"], sDir)
       
       sDir &/= ".src"
-      For Each sFile In RDir(sDir)
+      
+      For Each sFile In RDir(sDir, "*", gb.Directory).Sort(gb.Natural + gb.IgnoreCase)
         sPath = sDir &/ sFile
-        hStat = Stat(sPath)
-        If hStat.Type = gb.Directory Then
-          .Add(sPath, File.Name(sFile), Picture["icon:/small/directory"], File.Dir(sPath))
-        Else If File.Ext(sFile) = "class" Then
-          .Add(sPath, File.Name(sFile),, File.Dir(sPath)).Picture = GetFileIcon(sPath,, hStat)
+        .Add(sPath, File.Name(sFile), Picture["icon:/small/directory"], File.Dir(sPath))
+      Next
+      
+      For Each sFile In RDir(sDir, "*", gb.File).Sort(gb.Natural + gb.IgnoreCase)
+        sPath = sDir &/ sFile
+        If File.Ext(sFile) = "class" Then
+          .Add(sPath, File.Name(sFile),, File.Dir(sPath)).Picture = GetFileIcon(sPath)
         Endif
       Next
       

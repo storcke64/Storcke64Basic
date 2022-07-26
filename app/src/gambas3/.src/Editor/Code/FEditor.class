@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Public Path As String '' Source file absolute path.
+Public (Component) As String '' The name of the component the class comes from.
 Public RichText As String
 Public ParentClass As String '' The parent class.
 Public ParentComponent As String '' The component of the parent class.
@@ -112,6 +113,8 @@ Public Sub _new(sPath As String)
 
   Path = sPath
   Me.Name = File.BaseName(Path)
+
+  If Not Project.IsSourcePath(sPath) Then Component = File.Name(Project.FindProjectPath(sPath))
 
   $hEditor = edtEditor
   edtEditor.ShowIcon = True
@@ -281,8 +284,12 @@ Public Sub Modify(Optional bReset As Boolean)
 
   FDebugInfo.RefreshTabs(Me.Path, Me.Name)
 
-  $bModify = Not bReset
-  If $bModify Then FSearch.OnFileChange(Me.Path)
+  If Not Me.ReadOnly Then
+  
+    $bModify = Not bReset
+    If $bModify Then FSearch.OnFileChange(Me.Path)
+    
+  Endif
 
   DrawTitle
 
@@ -2655,7 +2662,7 @@ Public Sub ToggleBreakpoint(Y As Integer)
   Endif
   
   $hEditor[Y].Breakpoint = Not $hEditor[Y].Breakpoint
-  Design.SetBreakpoint(Me.Name, Y, $hEditor[Y].Breakpoint)
+  Design.SetBreakpoint(GetNameForBreakpoint(), Y, $hEditor[Y].Breakpoint)
 
 End
 
@@ -4025,5 +4032,15 @@ End
 Public Sub UpdateRemote()
   
   Action[".run-me", Me].Picture = Project.GetDebuggerIcon(panToolbar.Size)
+  
+End
+
+Public Sub GetNameForBreakpoint() As String
+
+  Dim sName As String
+  
+  sName = Me.Name
+  If {Component} Then sName = "[" & {Component} & "]." & sName
+  Return sName
   
 End

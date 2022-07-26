@@ -29,6 +29,8 @@ Private $iErrorColor As Integer
 
 Private $hHeaderFont As Font
 
+Private $iLastBreakpointsTimeStamp As Integer
+
 Public Sub _new()
   
   With cvwVariable
@@ -818,16 +820,35 @@ Public Sub ShowConsole()
   
 End
 
+Private Sub FormatBreakpoint(sBreakpoint As String) As String
+
+  Dim aBreakpoint As String[]
+
+  aBreakpoint = Breakpoints.FromString(sBreakpoint)
+  
+  sBreakpoint = aBreakpoint[1] & "." & aBreakpoint.Last
+  If aBreakpoint[0] Then sBreakpoint &= " ↦ <font size=\"-1\"><b>" & aBreakpoint[0] & "</b></font>"
+  Return sBreakpoint
+
+End
+
 Private Sub RefreshBreakpoints()
 
   Dim sBreakpoint As String
   Dim H As Integer
+  Dim aAllBreakpoints As String[]
   
   If wizDebug.Index <> TAB_DEBUG Then Return
+  
+  aAllBreakpoints = Breakpoints.GetAll()
+  If Breakpoints.TimeStamp = $iLastBreakpointsTimeStamp Then Return
 
   lvwBreakpoint.Clear
-  For Each sBreakpoint In Breakpoints.GetAll()
-    H = lvwBreakpoint.Add(sBreakpoint, sBreakpoint).H
+  For Each sBreakpoint In aAllBreakpoints
+    With lvwBreakpoint.Add(sBreakpoint, "")
+      .RichText = FormatBreakpoint(sBreakpoint)
+      H = .H
+    End With
   Next
   
   If lvwBreakpoint.Count = 0 Then
@@ -842,6 +863,8 @@ Private Sub RefreshBreakpoints()
     sepBreakpoint2.Show
     lvwBreakpoint.H = H * Min(4, lvwBreakpoint.Count)
   Endif
+  
+  $iLastBreakpointsTimeStamp = Project.TimeStamp
   
 End
 
@@ -1000,6 +1023,7 @@ Public Sub OnProjectChange()
   trmTest.Clear
   panTestResult.Hide
   $cTrack = New Collection
+  $iLastBreakpointsTimeStamp = 0
   
 End
 
@@ -1810,7 +1834,7 @@ End
 
 Public Sub lvwBreakpoint_Click()
 
-  Project.Goto(lvwBreakpoint.Key)
+  Design.Goto(lvwBreakpoint.Key)
 
 End
 
@@ -1820,8 +1844,8 @@ Public Sub btnRemoveBreakpoint_Click()
   
   If lvwBreakpoint.Key Then
     
-    hForm = Project.Goto(lvwBreakpoint.Key)
-    hForm.ToggleBreakpoint(hForm.GetEditor().Line)
+    hForm = Design.Goto(lvwBreakpoint.Key)
+    If hForm Then hForm.ToggleBreakpoint(hForm.GetEditor().Line)
     
   Endif
 
