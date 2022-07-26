@@ -812,7 +812,7 @@ End
 Public Sub GetBranchFromDir(sDir As String) As String
 
   sDir = CVersionControlGit.FindRoot(sDir)
-  If sDir Then Return Trim(Split(File.Load(sDir &/ "HEAD"), "/").Last)
+  If sDir Then Try Return Trim(Split(File.Load(sDir &/ "HEAD"), "/").Last)
 
 End
 

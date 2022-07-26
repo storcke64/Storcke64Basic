@@ -178,11 +178,10 @@ Public Sub lvwStack_Click()
   
   sLoc = lvwStack.Current.Tag
   If InStr(sLoc, "(") Then Return
-  If sLoc Not Begins "[$]." Then Return
   
-  Project.Goto(Mid$(sLoc, 5))
+  Design.Goto(sLoc)
   
-Catch
+'Catch
   
 End
 

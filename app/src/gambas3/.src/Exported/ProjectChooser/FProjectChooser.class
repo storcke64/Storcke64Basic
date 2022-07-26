@@ -4,6 +4,7 @@ Private $hProjectItem As ProjectBox
 Private $sLast As String
 Private $bShowButton As Boolean
 Private $bShowAnother As Boolean
+Private $bShowCancel As Boolean
 
 Public Sub _new()
   
@@ -59,6 +60,8 @@ Private Sub UpdateButtons()
     btnOpenAnother.Visible = $bShowAnother
   Endif
 
+  btnCancel.Visible = $bShowCancel And $bShowButton
+  
 End
 
 Public Sub dchProject_Change()
@@ -159,6 +162,19 @@ Public Sub SetShowAnother(Value As Boolean)
   
 End
 
+Public Sub GetShowCancel() As Boolean
+  
+  Return $bShowCancel
+  
+End
+
+Public Sub SetShowCancel(Value As Boolean)
+
+  $bShowCancel = Value
+  UpdateButtons
+  
+End
+
 Public Sub btnOpen_Click()
 
   GetParent()._RaiseOpen($sLast, False)
@@ -192,5 +208,12 @@ End
 Public Sub dchProject_Uncompress(Path As String)
   
   Util.UncompressForGmail(Path)
+  
+End
+
+Public Sub SetButtonText(sText As String)
+  
+  If Not sText Then sText = ("Open")
+  btnOpen.Text = sText
   
 End

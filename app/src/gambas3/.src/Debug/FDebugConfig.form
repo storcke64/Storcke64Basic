@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,88,68)
+  MoveScaled(0,0,102,68)
   Text = ("Debugger configuration")
   Arrangement = Arrange.Vertical
   Spacing = True
@@ -271,6 +271,15 @@
         Name = "SwitchButton4"
         MoveScaled(47,0,8,4)
         Tag = "GB_DB_DEBUG=1"
+      }
+    }
+    { HBox3 HBox
+      MoveScaled(1,55,57,4)
+      { btnResetOtherProjects Button
+        MoveScaled(0,0,35,4)
+        AutoResize = True
+        Text = ("Reset projects locations") & "..."
+        Picture = Picture["icon:/small/undo"]
       }
     }
     Index = 1

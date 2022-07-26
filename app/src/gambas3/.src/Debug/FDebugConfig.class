@@ -62,6 +62,8 @@ Private Sub LoadSettings()
   btnRedirectStderr.Value = Project.Config["/Debug/RedirectStderr"]
   btnUseHttpServer.Value = Project.Config["/Debug/UseHttpServer"]
   cmbBrowser.Index = Design.Browsers.Find(Project.Config["/Debug/Browser"])
+  
+  btnResetOtherProjects.Visible = Not IsNull(Project.Config["/Debug/Projects"])
 
   ' Environment
 
@@ -221,3 +223,11 @@ Public Sub btnUseHttpServer_Click()
 
 End
 
+
+Public Sub btnResetOtherProjects_Click()
+
+  If Message.Warning(("Do you really want to reset all projects locations?"), ("Reset"), ("Cancel")) <> 1 Then Return
+  Project.Config["/Debug/Projects"] = Null
+  btnResetOtherProjects.Hide
+
+End

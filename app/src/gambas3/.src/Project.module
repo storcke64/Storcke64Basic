@@ -2212,9 +2212,8 @@ Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn
   $bFileIsUnknown = False
   If Not LoadFile(sPath) Then Return
 
-  If Not InsideDirectory(sPath, Project.Dir) Then Tree.AddExtern(sPath)
-
   If Not ProjectTree.Exist(sPath) Then
+    If Not InsideDirectory(sPath, Project.Dir) Then Tree.AddExtern(sPath)
     RefreshKey(sPath)
   Endif
   
@@ -5934,12 +5933,13 @@ Public Sub IsReadOnly(sPath As String) As Boolean
   If IsFake() Then Return ' Allow a file located in a linked directory to be modified only in "fake" mode, i.e. when opened alone.
 
   Do
-    If sPath = Project.Dir Or If sPath = "/" Or If Not sPath Then Break
-    If Stat(sPath).Type = gb.Link Then
-      Return True
-    Endif
+    If sPath = Project.Dir Then Return
+    If sPath = "/" Or If Not sPath Then Break
+    If Stat(sPath).Type = gb.Link Then Return True
     sPath = File.Dir(sPath)
   Loop
+  
+  Return True
 
 End
 
@@ -7336,5 +7336,16 @@ WRITE_PROJECT:
 
   Project.Config["/Debug/Environment"] = aEnv
   Return True
+  
+End
+
+Public Sub ClearOtherProjects()
+  
+  Dim hForm As Object
+  
+  Tree.ClearOtherProjects
+  For Each hForm In Files
+    If Not ProjectTree.Exist(hForm.Path) Then hForm.Close
+  Next
   
 End
