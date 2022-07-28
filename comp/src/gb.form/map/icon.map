@@ -17,7 +17,7 @@ apply                   actions/dialog-apply;actions/dialog-ok-apply
 archive                 $(mime)/package-x-generic;apps/utilities-file-archiver;;apps/ark
 attach                  status/mail-attachment;actions/mail-attachment
 android                 $(mime)/application-vnd.android.package-archive
-audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop-sound;apps/preferences-desktop-sound
+audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop-sound;apps/preferences-desktop-sound;;apps/multimedia-volume-control
 average                 #
 battery                 devices/battery
 battery-high            status/battery-100
@@ -54,7 +54,7 @@ call-stop               actions/call-stop
 cap-butt                actions/stroke-cap-butt
 cap-round               actions/stroke-cap-round
 cap-square              actions/stroke-cap-square
-camera                  devices/camera-photo
+camera                  devices/camera-photo;;apps/spectacle
 cancel                  actions/dialog-cancel
 car                     places/poi-car
 cdrom                   devices/media-optical
@@ -72,7 +72,7 @@ cloud                   applets/weather-many-clouds;status/weather-many-clouds;s
 color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/preferences-desktop-color;categories/applications-graphics;;preferences/preferences-desktop-color;apps/preferences-desktop-color
 color-picker            actions/color-picker
 component               categories/applications-utilities;apps/nepomuk
-computer                devices/computer
+computer                devices/computer;;apps/virtualbox
 conflict                emblems/vcs-conflicting;emblems/emblem-cvs-conflict
 connect                 actions/network-connect
 contrast                #
@@ -91,7 +91,7 @@ difference              #
 directory               places/folder
 disconnect              actions/network-disconnect
 down                    actions/go-down
-download                actions/download;actions/edit-download;[elementary]actions/media-import-audio-cd;emblems/emblem-downloads
+download                actions/download;actions/edit-download;[elementary]actions/media-import-audio-cd;emblems/emblem-downloads;;apps/ktorrent
 draw-arrow              actions/draw-arrow
 draw-circle             actions/draw-circle;tools/draw-ellipse
 draw-line               actions/draw-line
@@ -128,7 +128,7 @@ file                    [-breeze*]actions/document-new;$(mime)/empty;$(mime)/app
 file-manager            [-breeze*]apps/toolbar/system-file-manager;apps/system-file-manager
 fill                    actions/color-fill;tools/color-fill
 filter                  actions/view-filter
-find                    actions/edit-find;;preferences/preferences-system-search;apps/preferences-system-search;preferences/preferences-desktop-search;apps/preferences-desktop-search
+find                    actions/edit-find;;preferences/preferences-system-search;apps/preferences-system-search;preferences/preferences-desktop-search;apps/preferences-desktop-search;apps/kfind
 firewall                apps/firewall;apps/config-firewall;preferences/preferences-security-firewall;apps/preferences-security-firewall;status/firewall-applet;;status/security-high
 first                   actions/go-first
 fog                     applets/weather-fog;status/weather-fog
@@ -200,7 +200,7 @@ join-round              actions/stroke-join-round
 js                      $(mime)/application-javascript
 json                    $(mime)/application-json
 jump                    actions/go-jump
-key                     [breeze*]$(mime)/application-pgp-keys;apps/password-manager;apps/keyring-manager;actions/pgp-keys
+key                     [breeze*]$(mime)/application-pgp-keys;apps/password-manager;apps/keyring-manager;actions/pgp-keys;;apps/kwalletmanager
 keyboard                devices/input-keyboard;preferences/preferences-desktop-keyboard;apps/preferences-desktop-keyboard
 lamp                    actions/help-hint
 language                [-breeze*]actions/im-google-talk;preferences/preferences-desktop-locale;apps/preferences-desktop-locale
@@ -241,7 +241,7 @@ mount                   actions/media-mount
 move                    actions/transform-move
 multimedia              categories/applications-multimedia;;preferences/preferences-desktop-multimedia;apps/preferences-desktop-multimedia
 muted                   status/audio-volume-muted
-network                 status/network-connect;places/network-workgroup;devices/network-wired;;preferences/preferences-system-network;apps/preferences-system-network
+network                 status/network-connect;places/network-workgroup;devices/network-wired;;preferences/preferences-system-network;apps/preferences-system-network;;apps/krdc
 new                     actions/document-new
 new-appointment         actions/appointment-new
 new-dir                 actions/folder-new
@@ -251,10 +251,10 @@ new-tag                 actions/tag-new
 new-window              actions/window-new
 next                    actions/go-next-view
 notification            actions/notifications;;preferences/preferences-desktop-notifications;apps/preferences-desktop-notifications;preferences/preferences-desktop-notification;apps/preferences-desktop-notification;preferences/preferences-desktop-notification-bell;apps/preferences-desktop-notification-bell
-office                  $(mime)/x-office-document
-office-calc             $(mime)/x-office-spreadsheet
-office-draw             $(mime)/x-office-drawing
-office-presentation     [elementary]$(mime)/application-vns.ms-powerpoint;$(mime)/x-office-presentation
+office                  $(mime)/x-office-document;;apps/libreoffice;apps/libreoffice-writer
+office-calc             $(mime)/x-office-spreadsheet;;apps/libreoffice-calc
+office-draw             $(mime)/x-office-drawing;;apps/libreoffice-draw
+office-presentation     [elementary]$(mime)/application-vns.ms-powerpoint;$(mime)/x-office-presentation;;apps/libreoffice-impress
 ok                      actions/dialog-ok
 opacity                 [breeze]actions/edit-opacity
 open                    actions/document-open
@@ -317,7 +317,7 @@ rss                     actions/rss;apps/akregator
 saturation              #
 save                    actions/document-save
 save-as                 actions/document-save-as
-scanner                 [breeze*]devices/scanner;devices/scanner;;preferences/preferences-devices-scanner;apps/preferences-devices-scanner
+scanner                 [breeze*]devices/scanner;devices/scanner;;preferences/preferences-devices-scanner;apps/preferences-devices-scanner;;apps/org.kde.skanlite
 science                 categories/applications-science
 screen                  devices/video-display;preferences/preferences-desktop-display;apps/preferences-desktop-display
 script                  $(mime)/text-x-script
@@ -334,7 +334,7 @@ shopping                #
 shortcut                apps/accessories-character-map;preferences/preferences-desktop-keyboard-shortcut;apps/preferences-desktop-keyboard-shortcut
 shuffle                 actions/media-playlist-shuffle
 shutdown                apps/system-shutdown;actions/system-shutdown
-smartphone              devices/smartphone;;preferences/preferences-kde-connect
+smartphone              devices/smartphone;;preferences/preferences-kde-connect;;apps/kdeconnect
 snow                    applets/weather-snow;status/weather-snow
 sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
@@ -342,7 +342,7 @@ speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
 spell-check             actions/tools-check-spelling
 star                    status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
-statistics              actions/view-statistics
+statistics              actions/view-statistics;;apps/filelight
 storm                   applets/weather-storm;status/weather-storm
 stop                    actions/media-playback-stop
 subtitle                actions/media-view-subtitles;actions/add-subtitle
@@ -357,7 +357,7 @@ table                   [breeze*]actions/table
 tablet                  devices/input-tablet;;preferences/preferences-desktop-tablet;apps/preferences-desktop-tablet
 tag                     actions/tag
 template                actions/template
-terminal                apps/utilities-terminal
+terminal                apps/utilities-terminal;;apps/mini.xterm
 text                    $(mime)/text-x-generic;$(mime)/text-plain
 text-baseline           actions/format-align-vertical-baseline;actions/align-vertical-baseline
 text-bigger             actions/format-font-size-more;actions/font-size-more
