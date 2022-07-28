@@ -1774,6 +1774,7 @@ gw = {
   
   sound:
   {
+
     pause: function(id)
     {
       var elt = $_(id);
@@ -1790,8 +1791,11 @@ gw = {
     play: function(id)
     {
       var elt = $_(id);
-      elt.pause();
-      elt.currentTime = 0;
+        if (!elt.paused) 
+        {
+          elt.pause();
+          elt.currentTime = 0;
+        }
       elt.play();
     }
   },
