@@ -28,30 +28,33 @@ Property Loop As Boolean
 '' Autoplay the audio on loading.
 Property AutoPlay As Boolean
 
-'' A list of alternative sources to try.\
-'' type can be specified using a comma or the file ext is used. (mp3 is auto converted to type audio/mpeg).
+'' A list of alternative sources to try.
+'' 
+'' The mimetype of a source is deducted from the file extension.
 ''
-'' Eg.\
-'' WebAudio1.Sources = ["/mp3/track.mp3, audio/mpeg"]\
+'' ### Example
+'' [[ code gambas
+'' WebAudio1.Sources = ["/mp3/track.mp3"]
 '' WebAudio1.Sources = ["/ogg/track.ogg"]
+'' ]]
 Property Sources As String[]
 
 '' Get or set if the audio is paused
-Property Paused As Boolean
-Private $bPaused As Boolean
+Property Paused As Boolean Use $bPaused
 
 '' Length of the loaded track.
-Property Read Duration, Length As Float
-Private $fDuration As Float
+Property Read Duration, Length As Float Use $fDuration
 
-'' get or set track position.
-Property Position, Pos As Float
-Private $fPosition As Float
+'' Get or set track position.
+Property Position, Pos As Float Use $fPosition
+
+'' Return or set if the Position property is updated in real time.
+Property Tracking As Boolean Use $bTracking
 
 Private $sAudio As String
 Private $bLoop As Boolean
 Private $bAutoPlay As Boolean
-Private $sSources As String[]
+Private $aSources As String[]
 
 Public Sub _BeforeRender()
 
@@ -63,11 +66,11 @@ Public Sub _Render()
   Print Me._GetUpdateJS("oncanplay", "duration", "$_(" & JS(Me.Name) & ").duration");
   Print Me._GetUpdateJS("onpause", "pause");
   If Object.CanRaise(Me, "End") Then Print Me._GetUpdateJS("onended", "ended");
-  Print Me._GetUpdateJS("ontimeupdate", "position", "$_(" & JS(Me.Name) & ").currentTime");
+  If $bTracking Then Print Me._GetUpdateJS("ontimeupdate", "position", "$_(" & JS(Me.Name) & ").currentTime");
   If $bLoop Then Print " loop=\"1\"";
   If $bAutoPlay Then Print " autoplay";
   Print ">"
-  If $sSources Then PrintSources
+  If $aSources Then PrintSources
   Print ("Html audio not supported")
 
   Print "</audio>";
@@ -93,21 +96,28 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
 
 End
 
+Private Sub GetMimeTypeFromSource(sSource As String) As String
+
+  Select Case LCase(File.Ext(sSource))
+    Case "mp3"
+      Return "audio/mpeg"
+    Case "wav"
+      Return "audio/x-wav"
+    Case "ogg"
+      Return "audio/x-vorbis+ogg"
+  End Select
+
+End
+
 Public Sub PrintSources()
 
-  For Each sSource As String In $sSources.Copy()
-    Dim sExt As String
-    If InStr(sSource, ",") Then
-      Dim sSplit As String = Split(sSource, ",")
-      sSource = RTrim(sSplit[0])
-      sExt = LTrim(sSplit[1])
-      If Left(sExt, 6) <> "audio/" Then sExt = "audio/" & sExt
-    Else
-      sExt = File.Ext(sSource)
-      If sExt = "mp3" Then sExt = "mpeg"
-      sExt = "audio/" & sExt
-    Endif
-    Print "<source src=\"" & sSource & "\" type=\"" & sExt & "\">"
+  Dim sType As String
+  
+  For Each sSource As String In $aSources
+    sType = GetMimeTypeFromSource(sSource)
+    Print "<source src=\""; Html(sSource); "\"";
+    If sType Then Print " type=\""; Html(sType); "\"";
+    Print ">";
   Next
 
 End
@@ -175,12 +185,6 @@ Private Sub AutoPlay_Write(Value As Boolean)
 
 End
 
-Private Function Paused_Read() As Boolean
-
-  Return $bPaused
-
-End
-
 Private Sub Paused_Write(Value As Boolean)
 
   If Value Then Pause Else Play
@@ -189,32 +193,24 @@ End
 
 Private Function Sources_Read() As String[]
 
-  Return $sSources
+  If Not $aSources Then $aSources = New String[]
+  Return $aSources
 
 End
 
 Private Sub Sources_Write(Value As String[])
 
-  $sSources = Value
-  Me.refresh
-
-End
-
-Private Function Duration_Read() As Float
-
-  Return $fDuration
-
-End
-
-Private Function Position_Read() As Float
-
-  Return $fPosition
+  If Not Value Or If Value.Count = 0 Then 
+    $aSources = Null
+  Else 
+    $aSources = Value.Copy()
+  Endif
+  Me.Refresh
 
 End
 
 Private Sub Position_Write(Value As Float)
 
-  '  $fPosition = Value
-  WebForm._AddJavascript("$_(" & JS(Me.Name) & ").currentTime = " & Str(Value))
+  WebForm._AddJavascript("$_(" & JS(Me.Name) & ").currentTime = " & JS(Value))
 
 End

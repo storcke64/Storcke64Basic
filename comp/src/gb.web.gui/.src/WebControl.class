@@ -181,6 +181,8 @@ Public Sub _attach((Parent) As Object, (EventName) As String)
     $bSendNeedKeyPress = True
   Endif
   
+  ' TODO: Refresh the control because Object.CanRaise() may change.
+  
 End
 
 Static Public Sub _PrintNeedKeyPress()

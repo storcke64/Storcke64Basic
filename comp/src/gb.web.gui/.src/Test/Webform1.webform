@@ -85,8 +85,10 @@
       }
       { WebLabel1 WebLabel
         #MoveScaled(13,1,18,4)
+        Width = "9em"
         Expand = True
         Font = "bold,1.5em"
+        Alignment = Align.Center
         Border = True
       }
       { WebSpinBox1 WebSpinBox
@@ -149,8 +151,13 @@
         Image = "icon:/huge/cancel"
       }
     }
+    { WebLabel2 WebLabel
+      #MoveScaled(1,15,133.75,4)
+      Text = ("Test label alignment")
+      Alignment = Align.Center
+    }
     { WebTable1 WebTable
-      #MoveScaled(1,15,133.75,40)
+      #MoveScaled(1,20,133.75,40)
       Expand = True
       Mode = Select.Multiple
       Header = WebTable.Both
