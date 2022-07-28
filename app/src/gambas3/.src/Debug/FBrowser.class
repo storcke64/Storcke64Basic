@@ -17,6 +17,7 @@ End
 
 Public Sub Form_Close()
 
+  wvwBrowser.Clear
   Design.Stop
 
 End
