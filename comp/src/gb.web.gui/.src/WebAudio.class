@@ -41,7 +41,7 @@ Property Paused As Boolean
 Private $bPaused As Boolean
 
 '' Length of the loaded track.
-Property Read Duration As Float
+Property Read Duration, Length As Float
 Private $fDuration As Float
 
 '' get or set track position.
