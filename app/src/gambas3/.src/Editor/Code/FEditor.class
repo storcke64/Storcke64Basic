@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Public Path As String '' Source file absolute path.
+Public (Component) As String '' The name of the component the class comes from.
 Public RichText As String
 Public ParentClass As String '' The parent class.
 Public ParentComponent As String '' The component of the parent class.
@@ -112,6 +113,8 @@ Public Sub _new(sPath As String)
 
   Path = sPath
   Me.Name = File.BaseName(Path)
+
+  If Not Project.IsSourcePath(sPath) Then Component = File.Name(Project.FindProjectPath(sPath))
 
   $hEditor = edtEditor
   edtEditor.ShowIcon = True
@@ -253,7 +256,7 @@ End
 '
 ' End
 
-Public Sub ResetProcList()
+Private Sub ResetProcList()
   
   $cProc.Clear
   $aProc.Clear
@@ -281,8 +284,12 @@ Public Sub Modify(Optional bReset As Boolean)
 
   FDebugInfo.RefreshTabs(Me.Path, Me.Name)
 
-  $bModify = Not bReset
-  If $bModify Then FSearch.OnFileChange(Me.Path)
+  If Not Me.ReadOnly Then
+  
+    $bModify = Not bReset
+    If $bModify Then FSearch.OnFileChange(Me.Path)
+    
+  Endif
 
   DrawTitle
 
@@ -563,7 +570,7 @@ Private Function InsertFunction(sProc As String, sType As String, bPublic As Boo
   '   Endif
   ' Next
 
-  FillProcCombo
+  FillProc
   Try iLine = $cProc[sProc]
   If Not Error Then Return iLine
 
@@ -2655,7 +2662,7 @@ Public Sub ToggleBreakpoint(Y As Integer)
   Endif
   
   $hEditor[Y].Breakpoint = Not $hEditor[Y].Breakpoint
-  Design.SetBreakpoint(Me.Name, Y, $hEditor[Y].Breakpoint)
+  Design.SetBreakpoint(GetNameForBreakpoint(), Y, $hEditor[Y].Breakpoint)
 
 End
 
@@ -2734,7 +2741,7 @@ Private Sub UpdateCurrentProc()
 
 End
 
-Private Sub FillProcCombo()
+Private Sub FillProc()
 
   Dim hSymbol As CSymbolInfo
   Dim cSymbol As Collection
@@ -2901,13 +2908,13 @@ End
 
 ' Public Sub cmbProc_KeyPress()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 '
 ' Public Sub cmbProc_MouseDown()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 
@@ -2915,7 +2922,7 @@ Public Sub GetFunctionLine(sFunc As String) As Integer
   
   Dim iLine As Integer
   
-  FillProcCombo
+  FillProc
   
   Try iLine = $cProc[sFunc]
   If Not Error Then Return iLine
@@ -2969,7 +2976,7 @@ End
 '
 ' Public Sub cmbProc_MouseWheel()
 '
-'   FillProcCombo
+'   FillProc
 '
 ' End
 '
@@ -3184,7 +3191,7 @@ Private Sub ToggleProcList()
   Dim iCurrent As Integer
   Dim iLine As Integer
 
-  FillProcCombo
+  FillProc
   iCurrent = $aProc.Find(btnProc.Text)
 
   iCurrent = FProcedureList.Popup(Me, Me.Name, $aProc, iCurrent, btnProc.ScreenX, btnProc.ScreenY + btnProc.H, btnProc.W, Me.ClientH - panToolbar.H - Desktop.Scale)
@@ -3192,6 +3199,7 @@ Private Sub ToggleProcList()
   $hEditor.SetFocus()
   
   If iCurrent >= 0 Then
+    FillProc ' It is reset sometimes, for unknown reason at the moment
     Try iLine = $cProc[$aProc[iCurrent]]
     If Not Error Then GotoFunction(iLine)
   Endif
@@ -3441,7 +3449,7 @@ Public Sub GetFunctionSource(Optional sFunc As String) As String
   Dim sLine As String
   
   If sFunc Then
-    FillProcCombo
+    FillProc
     Try iLine = $cProc[sFunc]
     If Error Then Return
   Endif
@@ -4024,5 +4032,15 @@ End
 Public Sub UpdateRemote()
   
   Action[".run-me", Me].Picture = Project.GetDebuggerIcon(panToolbar.Size)
+  
+End
+
+Public Sub GetNameForBreakpoint() As String
+
+  Dim sName As String
+  
+  sName = Me.Name
+  If {Component} Then sName = "[" & {Component} & "]." & sName
+  Return sName
   
 End

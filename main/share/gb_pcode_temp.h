@@ -35,6 +35,8 @@
 
 #include "gb_pcode.h"
 
+static int _code_count[256] = { 0 };
+
 /*#define DEBUG*/
 
 static void print_quoted_string(FILE *out, const char *s, bool trans)
@@ -132,6 +134,8 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 		fprintf(out, "     ");
 
 	fprintf(out, "  ");
+
+	_code_count[op >> 8]++;
 
 	digit = (op >> 12);
 	value = op & 0xFFF;
@@ -477,4 +481,10 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 	return ncode;
 }
 
+void PCODE_dump_count(FILE *out)
+{
+	int i;
 
+	for (i = 0; i < 256; i++)
+		fprintf(out, "%02X : %d\n", i, _code_count[i]);
+}

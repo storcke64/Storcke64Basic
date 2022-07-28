@@ -36,8 +36,10 @@ Private $iState As Integer
 Private $hProcess As Process
 Private $hObserver As Observer
 
+Private $sPosComp As String
 Private $sPosClass As String
 Private $iPosLine As Integer
+
 Private $sError As String
 
 Private $bStart As Boolean
@@ -85,6 +87,9 @@ Private $bGnomeTerminal As Boolean
 
 Private $bCloseWebBrowser As Boolean
 Private $hBrowser As Process
+
+Private $cProject As Collection
+Private $cIgnoreProject As Collection
 
 Public Sub Init()
  
@@ -306,6 +311,7 @@ Public Sub Debug_Read(Data As String)
   Dim sError As String
   Dim sWhere As String
   Dim iPos As Integer
+  Dim sComp As String
 
   'Debug Quote(Data)
   $sBuffer &= Data
@@ -359,38 +365,44 @@ Public Sub Debug_Read(Data As String)
       Endif
     
       aPos = Split(Trim(aData[2]), " ")
+      While aPos.Count
+        If aPos.Last <> "?" Then Break
+        aPos.Remove(aPos.Max)
+      Wend
   
       For Each sPos In aPos
 
         If sPos = "?" Then Continue
-        aFrame = Scan(sPos, "*.*.*")
+        aFrame = Scan(sPos, "[[]*].*.*.*")
 
-        sClass = aFrame[0]
+        sComp = aFrame[0]
+        sClass = aFrame[1]
         iLine = 0
-        Try iLine = CInt(aFrame[2])
+        Try iLine = CInt(aFrame[3])
 
-        If sClass Then
-          iPos = RInStr(sClass, ":")
-          If iPos Then sClass = Mid$(sClass, iPos + 1)
-          If Project.Exist(sClass) Then Break
-          sClass = ""
+        If sClass And If iLine Then
+          If DebugInside Or If sComp = "$" Then Break
         Endif
+        sClass = ""
 
       Next
   
-      If iLine = 0 Then sClass = ""
+      'If iLine = 0 Then sClass = ""
       
       $sError = ""
+      
       If aData[1] Then 
-        If sClass Then SetPosition(sClass, iLine)
+        If sClass Then SetCurrentLine(sComp, sClass, iLine)
       Else
-        If Not sClass Or If SetPosition(sClass, iLine) Then 
-          If $bIgnoreNextInfo Then 
-            $bIgnoreNextInfo = False
-          Else
-            Command("", STATE_RUNNING)
+        If Not sClass Or If SetCurrentLine(sComp, sClass, iLine) Then 
+          If Not DebugInside Then
+            If $bIgnoreNextInfo Then 
+              $bIgnoreNextInfo = False
+            Else
+              Command("", STATE_RUNNING)
+            Endif
+            Return
           Endif
-          Return
         Endif
       Endif
   
@@ -598,11 +610,13 @@ Private Sub AfterStop()
     $sPipeError = ""
   Endif
   
-  SetPosition("", 0)
+  SetCurrentLine("", "", 0)
 
   SetState(STATE_STOP)
   'UpdateMinimize
   Project.Running = False
+  
+  Project.ClearOtherProjects
 
   WriteDebugSettings()
 
@@ -738,68 +752,43 @@ End
 
 
 
-Private Function SetPosition(sClass As String, iLine As Integer) As Boolean
+Private Function SetCurrentLine(sComp As String, sClass As String, iLine As Integer) As Boolean
 
-  Dim sPath As String
+  Dim hForm As FEditor
 
-  'PRINT "SetPosition "; sClass; iLine
-
-  If Len(sClass) > 0 And iLine > 0 Then
-    If sClass = $sPosClass And iLine = $iPosLine Then Return
+  If sComp And If sClass And If iLine > 0 Then
+    If sComp = $sPosComp And If sClass = $sPosClass And If iLine = $iPosLine Then Return
   Endif
 
   If $sPosClass Then
 
-    sPath = Project.FindPath($sPosClass)
-
-    With Project.Files[sPath]
-      .GetEditor().StopLine = -1
-      'Try .GetEditor().Lines[$iPosLine - 1].Current = False
-    End With
+    hForm = FindEditor($sPosComp, $sPosClass, False)
+    If hForm Then hForm.GetEditor().StopLine = -1
 
   Endif
 
+  $sPosComp = sComp
   $sPosClass = sClass
   $iPosLine = iLine
 
   If $sPosClass Then
 
-    sPath = Project.FindPath($sPosClass)
-
-'     Project.LoadFile(sPath)
-'     'PRINT $sPosClass; " / "; sPath; " -> "; IsNull(Project.Files[sPath])
-'
-'     WITH Project.Files[sPath]
-'       IF $iPosLine <= .GetEditor().Lines.Count THEN
-'         .GetEditor().Lines.SetFlag($iPosLine - 1, Editor.Current, TRUE)
-'         .Show()
-'         .Goto($iPosLine)
-'         RETURN
-'       ENDIF
-'     END WITH
-
-    Project.LoadFile(sPath)
-
-    With Project.Files[sPath]
-      If $iPosLine <= .GetEditor().Count Then
-        Project.OpenFile(sPath, $iPosLine)
-        .GetEditor().StopLine = $iPosLine - 1
-        Return
-      Endif
-    End With
+    hForm = FindEditor($sPosComp, $sPosClass, True)
+    If hForm Then
+      With hForm
+        If $iPosLine <= .GetEditor().Count Then
+          Project.OpenFile(hForm.Path, $iPosLine)
+          .GetEditor().StopLine = $iPosLine - 1
+          Return
+        Endif
+      End With
+    Endif
 
   Endif
 
   Return True
 
 End
-
-
-' PRIVATE SUB ClearPosition()
-'
-'   SetPosition("", 0)
-'
-' END
 
 Private Sub WriteCommand(sCmd As String)
   
@@ -822,7 +811,7 @@ Public Sub RunUntil(hForm As FEditor, iLine As Integer)
 
   If $iState = STATE_RUNNING Then Return
 
-  sClass = hForm.Name
+  sClass = hForm.GetNameForBreakpoint()
 
   With hForm.GetEditor()
     bOn = Not .[iLine].Breakpoint
@@ -965,8 +954,8 @@ Private Sub MakeBreakpoint(sBreakpoint As String, bOn As Boolean) As String
 
   Dim aBreak As String[]
   
-  aBreak = Split(sBreakpoint, ".")
-  Return If(bOn, "+", "-") & aBreak[0] & "." & CStr(CInt(aBreak[1]) + 1)
+  aBreak = Breakpoints.FromString(sBreakpoint)
+  Return If(bOn, "+", "-") & Breakpoints.ToString(aBreak)
   
 End
 
@@ -1516,7 +1505,7 @@ Public Sub Command(sCmd As String, Optional iNewState As Integer = STATE_LAST)
   If iNewState <> STATE_LAST Then
     If iNewState <> $iState Then
       SetState(iNewState)
-      SetPosition("", 0)
+      SetCurrentLine("", "", 0)
     Endif
   Endif
   
@@ -1641,6 +1630,11 @@ Private Sub ReadSettings()
   UseHttpServer = Project.Config["/Debug/UseHttpServer"]
   Profiling = Project.Config["/Debug/Profiling"]
   DebugInside = Project.Config["/Debug/DebugInside"]
+  
+  $cProject = Project.Config["/Debug/Projects"]
+  If Not $cProject Then $cProject = New Collection
+  
+  $cIgnoreProject = New Collection
 
 End
 
@@ -1680,8 +1674,6 @@ Public Sub SetBreakpoint(sClass As String, iLine As Integer, bOn As Boolean)
   If Project.Running And If Not IsRunning() Then
     WriteCommand(If(bOn, "+", "-") & sClass & "." & CStr(iLine + 1))
   Endif
-  
-  
 
 End
 
@@ -1871,5 +1863,94 @@ Public Sub Browser_Kill()
     $hBrowser = Null
     {Stop}
   Endif
+  
+End
+
+Private Sub FindProject(sComp As String) As String
+
+  Dim sPath As String
+  
+  sPath = $cProject[sComp]
+  If Not sPath Then Return
+  Return Project.FindProjectPath(sPath)
+  
+End
+
+Private Sub SetProject(sComp As String, sPath As String)
+  
+  $cProject[sComp] = sPath
+  Project.Config["/Debug/Projects"] = $cProject
+  
+End
+
+Private Sub FindClassPath(sDir As String, sClass As String) As String
+
+  Dim sFile As String
+  
+  sClass &= ".class"
+  sDir &/= ".src"
+  For Each sFile In RDir(sDir)
+    If File.Name(sFile) == sClass Then Return sDir &/ sFile
+  Next
+  
+End
+
+Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As FEditor
+  
+  Dim sPath As String
+  Dim hForm As FEditor
+  
+  If sComp = "$" Or If Not sComp Then
+    
+    sPath = Project.FindPath(sClass)
+    
+  Else
+    
+    sPath = FindProject(sComp)
+    
+    If Not sPath And If bLocate And If Not $cIgnoreProject.Exist(sComp) Then
+      Do
+        sPath = FOpenProject.Locate(sComp)
+        If Not sPath Then Break
+        If File.Name(sPath) = sComp Then Break
+        Message.Warning(("Project name does not match component."))
+      Loop
+      If sPath Then
+        SetProject(sComp, sPath)
+      Else
+        $cIgnoreProject[sComp] = True
+      Endif
+    Endif
+    
+    If sPath Then
+      Project.Tree.AddOtherProject(sPath)
+      sPath = FindClassPath(sPath, sClass)
+    Endif
+    
+  Endif
+  
+  If sPath Then 
+    hForm = Project.LoadFile(sPath)
+    Return hForm
+  Endif
+  
+End
+
+Public Sub Goto(sLoc As String) As FEditor
+
+  Dim sComp As String
+  Dim iLine As Integer
+  Dim sClass As String
+  Dim hForm As FEditor
+  Dim aBreak As String[]
+
+  aBreak = Breakpoints.FromString(sLoc)
+  sComp = aBreak[0]
+  sClass = aBreak[1]
+  Try iLine = CInt(aBreak.Last)
+  
+  hForm = FindEditor(sComp, sClass, True)
+  If hForm Then Project.OpenFile(hForm.Path, iLine)
+  Return hForm
   
 End

@@ -22,6 +22,8 @@ Private $bExpandOnMouseUp As Boolean
 Private $cExtern As New Collection
 Private $sStartup As String
 
+Private $aOtherProjects As New String[]
+
 Public Sub _new(sDir As String)
   
   $sDir = sDir
@@ -377,6 +379,12 @@ End
 Private Sub FillTree(Optional bDoNotRefreshCache As Boolean)
 
   Dim sKey As String
+  Dim sDir As String
+  Dim sFile As String
+  Dim iSize As Integer = Stock.GetSize("small")
+  Dim sPath As String
+  Dim hStat As Stat
+  
   'Dim sKeyReset As String
 
   '$bDisplayForm = Settings["/DisplayForm"]
@@ -392,7 +400,7 @@ Private Sub FillTree(Optional bDoNotRefreshCache As Boolean)
     .Clear()
 
     sKey = $sDir
-    .Add(sKey, File.Name($sDir), Project.GetIcon($sDir, 16))
+    .Add(sKey, File.Name($sDir), Project.GetIcon($sDir, iSize))
 
     .Add(KEY_PROJECT, ("Project"), Picture["icon:/small/directory"], sKey)
     '.Add(KEY_MODULE, ("Modules"), Picture["icon:/small/directory"], sKey)
@@ -412,6 +420,27 @@ Private Sub FillTree(Optional bDoNotRefreshCache As Boolean)
 
     For Each sKey In $cExtern
       AddFile(File.Dir(sKey), File.Name(sKey))
+    Next
+    
+    For Each sDir In $aOtherProjects
+      
+      .Add(sDir, File.Name(sDir), Project.GetIcon(sDir, iSize))
+      .Add(sDir &/ ".src", ("Project"), Picture["icon:/small/directory"], sDir)
+      
+      sDir &/= ".src"
+      
+      For Each sFile In RDir(sDir, "*", gb.Directory).Sort(gb.Natural + gb.IgnoreCase)
+        sPath = sDir &/ sFile
+        .Add(sPath, File.Name(sFile), Picture["icon:/small/directory"], File.Dir(sPath))
+      Next
+      
+      For Each sFile In RDir(sDir, "*", gb.File).Sort(gb.Natural + gb.IgnoreCase)
+        sPath = sDir &/ sFile
+        If File.Ext(sFile) = "class" Then
+          .Add(sPath, File.Name(sFile),, File.Dir(sPath)).Picture = GetFileIcon(sPath)
+        Endif
+      Next
+      
     Next
 
   End With
@@ -660,7 +689,7 @@ Public Sub GetFileIcon(sPath As String, Optional iSize As Integer, hStat As Stat
       Select Case sExt
 
         Case "form", "class", "module", "test", "webpage", "report", "webform", "termform"
-          If IsSourcePath(sPath) Then
+          If IsSourcePath(sPath) Or If IsClassFromOtherProject(sPath) Then
             sModule = sExt
             sIcon = sExt
             'bStartup = File.BaseName(sPath) = $sStartup 'And Not bNoStartup
@@ -1194,4 +1223,31 @@ Private Sub AddCompressedEmblem(hSource As Image) As Image
 
   Return hImage
 
+End
+
+  Public Sub AddOtherProject(sDir As String)
+  
+  sDir = File.RealPath(sDir)
+  If $aOtherProjects.Exist(sDir) Then Return
+  $aOtherProjects.Add(sDir)
+  Refresh
+  
+End
+
+Public Sub ClearOtherProjects()
+  
+  If Not $aOtherProjects Or If $aOtherProjects.Count = 0 Then Return 
+  $aOtherProjects.Clear
+  Refresh
+  
+End
+
+Private Sub IsClassFromOtherProject(sPath As String) As Boolean
+
+  Dim iPos As Integer
+  
+  iPos = RInStr(sPath, "/.src/")
+  If iPos = 0 Then Return
+  Return $aOtherProjects.Exist(Left(sPath, iPos - 1))
+  
 End

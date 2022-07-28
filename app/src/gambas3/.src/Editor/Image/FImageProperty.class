@@ -68,8 +68,8 @@ Public Sub _new()
   
   palColor.Colors = $aDefaultColor
   
-  SetLineCap(Paint.LineCapRound)
-  SetLineJoin(Paint.LineJoinRound)
+  SetLineCap(Paint.LineCapButt)
+  SetLineJoin(Paint.LineJoinMiter)
   SetFillRule(Paint.FillRuleWinding)
   'RefreshTextOption
   

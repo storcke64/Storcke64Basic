@@ -74,7 +74,12 @@ const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 {
 #if DEBUG_MEMORY
 	static char buffer[256];
+	const int buffer_size = sizeof(buffer);
+#else
+	char *buffer = COMMON_buffer;
+	const int buffer_size = COMMON_BUF_MAX;
 #endif
+
 	ushort line = 0;
 
 	if (!cp || !pc)
@@ -83,21 +88,22 @@ const char *DEBUG_get_position(CLASS *cp, FUNCTION *fp, PCODE *pc)
 	if (fp != NULL && fp->debug)
 		calc_line_from_position(cp, fp, pc, &line);
 
-#if DEBUG_MEMORY
-	snprintf(buffer, sizeof(buffer), "%s.%s.%d",
-		cp ? cp->name : "?",
-		(fp && fp->debug) ? fp->debug->name : "?",
-		line);
+	if (cp->component)
+	{
+		snprintf(buffer, buffer_size, "[%s].%s.%s.%d",
+			cp->component->name, cp->name,
+			(fp && fp->debug) ? fp->debug->name : "?",
+			line);
+	}
+	else
+	{
+		snprintf(buffer, buffer_size, "%s.%s.%d",
+			cp->name,
+			(fp && fp->debug) ? fp->debug->name : "?",
+			line);
+	}
 
 	return buffer;
-#else
-	snprintf(COMMON_buffer, COMMON_BUF_MAX, "%.64s.%.64s.%d",
-		cp->name,
-		(fp && fp->debug) ? fp->debug->name : "?",
-		line);
-
-	return COMMON_buffer;
-#endif
 }
 
 
@@ -567,18 +573,33 @@ GB_ARRAY DEBUG_get_string_array_from_backtrace(STACK_BACKTRACE *bt)
 	return array;
 }
 
-GB_CLASS DEBUG_find_class(const char *name)
+GB_CLASS DEBUG_find_class(const char *comp_name, const char *class_name)
 {
 	CLASS *class;
-	CLASS *save = CP;
+	COMPONENT *save_comp;
+	CLASS *save_class;
 
-	// As the startup class is automatically exported, this is the only way for the debugger to find it.
+	if (comp_name)
+	{
+		save_comp = COMPONENT_current;
+		COMPONENT_current = COMPONENT_find(comp_name);
+	}
+	else
+	{
+		save_class = CP;
+		CP = NULL;
+	}
+
+	/*// As the startup class is automatically exported, this is the only way for the debugger to find it.
 	if (PROJECT_class && !strcmp(name, PROJECT_class->name))
-		return (GB_CLASS)PROJECT_class;
+		return (GB_CLASS)PROJECT_class;*/
 
-	CP = NULL;
-	class = CLASS_find(name);
-	CP = save;
+	class = CLASS_find(class_name);
+
+	if (comp_name)
+		COMPONENT_current = save_comp;
+	else
+		CP = save_class;
 
 	return (GB_CLASS)class;
 }

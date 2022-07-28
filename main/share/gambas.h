@@ -1015,7 +1015,8 @@ typedef
 		char *(*GetUnknown)(void);
 		
 		void (*Error)(const char *, ...);
-		bool (*HasError)();
+		bool (*HasError)(void);
+		char *(*GetErrorMessage)(void);
 		void (*Propagate)(void);
 		void (*Deprecated)(const char *, const char *, const char *);
 		void (*OnErrorBegin)(GB_ERROR_HANDLER *);

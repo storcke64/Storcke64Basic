@@ -118,6 +118,7 @@ const void *const GAMBAS_Api[] =
 
 	(void *)GB_Error,
 	(void *)GB_HasError,
+	(void *)GB_GetErrorMessage,
 	(void *)ERROR_propagate,
 	(void *)GB_Deprecated,
 	(void *)GB_OnErrorBegin,
@@ -1285,10 +1286,18 @@ void GB_Error(const char *error, ...)
 	EXEC_set_native_error(TRUE);
 }
 
+
 bool GB_HasError()
 {
 	return EXEC_has_native_error();
 }
+
+
+char *GB_GetErrorMessage()
+{
+	return ERROR_last.msg;
+}
+
 
 void GB_Deprecated(const char *msg, const char *func, const char *repl)
 {

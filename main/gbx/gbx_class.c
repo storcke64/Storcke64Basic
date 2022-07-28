@@ -119,9 +119,6 @@ static void unload_class(CLASS *class)
 		fprintf(stderr, "Unloading class %s...\n", class->name);
 	#endif
 
-	if (class->free_name)
-		FREE(&class->name);
-
 	if (class->is_struct)
 	{
 		FREE(&class->load->dyn);
@@ -202,7 +199,7 @@ static CLASS *class_keep_global(CLASS *class)
 	int len;
 	CLASS swap;
 	char *swap_name;
-	bool swap_free_name;
+	//bool swap_free_name;
 	int nprefix;
 	int i;
 
@@ -236,7 +233,7 @@ static CLASS *class_keep_global(CLASS *class)
 	*old_class = swap;
 
 	SWAP_FIELD(swap_name, class, old_class, name);
-	SWAP_FIELD(swap_free_name, class, old_class, free_name);
+	//SWAP_FIELD(swap_free_name, class, old_class, free_name);
 	SWAP_FIELD(parent, class, old_class, next);
 	SWAP_FIELD(i, class, old_class, count);
 	SWAP_FIELD(i, class, old_class, ref);
@@ -257,7 +254,7 @@ CLASS *class_replace_global(CLASS *class)
 	char *old_name;
 	CLASS *new_class;
 	char *swap_name;
-	bool swap_free_name;
+	//bool swap_free_name;
 	int index;
 	CLASS_SYMBOL *csym;
 	const char *name = class->name;
@@ -292,7 +289,7 @@ CLASS *class_replace_global(CLASS *class)
 	FREE(&old_name);
 	
 	SWAP_FIELD(swap_name, class, new_class, name);
-	SWAP_FIELD(swap_free_name, class, new_class, free_name);
+	//SWAP_FIELD(swap_free_name, class, new_class, free_name);
 
 	CLASS_inheritance(new_class, class);
 	
@@ -559,7 +556,8 @@ CLASS *CLASS_find_do(const char *name, bool global)
 	ALLOC(&csym->sym.name, len + 1);
 	strcpy(csym->sym.name, name);
 
-	class->name = csym->sym.name;
+	if (!class->name)
+		class->name = csym->sym.name;
 
 	// The first class must be the Class class!
 	if (_first == NULL)

@@ -327,10 +327,13 @@ End
 
 Private Sub GetRootKey(sKey As String) As String
   
+  Dim sParentKey As String
+  
   Do
     If Left(sKey) = "$" Then Return sKey
-    Try sKey = tvwProject[sKey].ParentKey
-    If Error Then Return
+    Try sParentKey = tvwProject[sKey].ParentKey
+    If Not sParentKey Then Return sKey
+    sKey = sParentKey
   Loop
   
 End
@@ -408,7 +411,8 @@ Public Sub mnuPopup_Show()
   sRoot = GetRootKey($sKey)
   bIsSpecial = $sKey Begins "$"
   bIsDir = IsDir(sCurrent)
-  bHasForm = $hProjectTree.HasForm(sCurrent)
+  bProject = Project.IsProjectPath(sCurrent)
+  If bProject Then bHasForm = $hProjectTree.HasForm(sCurrent)
   If sCurrent Then 
     Try bLink = Stat(sCurrent).Type = gb.Link
     If Error Then Return
@@ -426,12 +430,13 @@ Public Sub mnuPopup_Show()
     mnuRenameFile.Visible = False
   Endif
   
-  bProject = Project.IsProjectPath(sCurrent)
-
   mnuCompressAll.Hide
   mnuUncompressAll.Hide
     
   If sRoot = Project.KEY_SOURCE Then
+    
+    mnuNew.Enabled = Not Project.Running
+    mnuImportFile.Enabled = Not Project.Running
     
     mnuRenameFile.Visible = mnuRenameFile.Visible And bCurrent And Not Project.Running
     mnuDeleteFile.Visible = mnuDeleteFile.Visible And CanDelete(sCurrent) And Not Project.Running
@@ -458,9 +463,7 @@ Public Sub mnuPopup_Show()
     Else
       mnuDoNotTranslate.Hide
     Endif
-    
-    ' not shown if it is a forms *.class file
-    mnuClone.Visible = Not bHasForm 
+    mnuDoNotTranslate.Enabled = Not Project.Running
     
     mnuCompressFile.Hide
     mnuCompressNow.Hide
@@ -515,8 +518,9 @@ Public Sub mnuPopup_Show()
   
   Else
     
-    If sRoot = Project.KEY_EXTERN Then
+    If sRoot = Project.KEY_EXTERN Or If sRoot Begins "/" Then
       mnuNew.Hide
+      mnuImportFile.Hide
     Endif
     
     mnuRenameFile.Visible = mnuRenameFile.Visible And bCurrent
@@ -596,6 +600,9 @@ Public Sub mnuPopup_Show()
     
   Endif
   
+  mnuClone.Visible = mnuCopy.Visible And mnuPaste.Visible
+  mnuClone.Enabled = mnuCopy.Enabled 'And mnuPaste.Enabled
+  
   mnuOpenInProject.Hide
   mnuOpenWithFileManager.Show
   If bIsDir Or If bIsSpecial Then
@@ -627,7 +634,7 @@ Public Sub mnuPopup_Show()
     mnuAddVersionAll.Hide
   Endif
   
-  If VersionControl.Enabled And If Not bIsDir And If Not bIsSpecial Then
+  If VersionControl.Enabled And If Not bIsDir And If Not bIsSpecial And If sRoot Not Begins "/" Then
     mnuInfoVC.Show
   Else
     mnuInfoVC.Hide

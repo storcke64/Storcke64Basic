@@ -27,6 +27,10 @@ Private $iTrackId As Integer
 Private $iChangeColor As Integer
 Private $iErrorColor As Integer
 
+Private $hHeaderFont As Font
+
+Private $iLastBreakpointsTimeStamp As Integer
+
 Public Sub _new()
   
   With cvwVariable
@@ -95,16 +99,20 @@ Public Sub EnableStack(bOn As Boolean)
   
 End
 
-Public Sub FillStack(aPos As String[]) As Boolean
+Public Sub FillStack(aStack As String[]) As Boolean
   
   Dim sPos As String
   Dim iInd As Integer
   Dim sKey As String
   Dim W As Integer
+  Dim sStack As String
+  Dim iPos As Integer
+  Dim sComp As String
+  Dim sLastComp As String
   
   Object.Lock(lvwStack)
   
-  If lvwStack.Count And If aPos[0] = lvwStack[0].Text Then
+  If lvwStack.Count And If aStack[0] = lvwStack[0].Tag Then
     sKey = lvwStack.Key
   Else
     sKey = 0
@@ -113,12 +121,37 @@ Public Sub FillStack(aPos As String[]) As Boolean
   lvwStack.Clear
   
   W = Desktop.Scale * 16
-  For Each sPos In aPos
-    If sPos = "?" Then
-      lvwStack.Add(iInd, "(" & ("native code") & ")").Foreground = Color.LightForeground
+  For Each sStack In aStack
+    If sStack = "?" Then
+      With lvwStack.Add(iInd, "(" & ("native code") & ")")
+        .Foreground = Color.LightForeground
+        .Selectable = False
+      End With
     Else
-      lvwStack.Add(iInd, sPos)
-      W = Max(W, lvwStack.Font.TextWidth(sPos))
+      sPos = sStack
+      If sPos Begins "[" Then
+        iPos = InStr(sPos, "].")
+        If iPos Then
+          sComp = Mid$(sPos, 2, iPos - 2)
+          sPos = Mid$(sPos, iPos + 2)
+        Endif
+      Endif
+      
+      If sComp <> sLastComp Then
+        sLastComp = sComp
+        If sComp = "$" Then sComp = "(" & ("Project") & ")"
+        With lvwStack.Add("@" & CStr(iInd), sComp)
+          .Background = Color.SetAlpha(Color.Foreground, 240)
+          .Font = $hHeaderFont
+          .Selectable = False
+        End With
+      Endif
+      
+      If sPos Not Ends ".0" Then 
+        lvwStack.Add(iInd, sPos).Tag = sStack
+        W = Max(W, lvwStack.Font.TextWidth(sPos))
+      Endif
+      
     Endif
     Inc iInd
   Next
@@ -139,16 +172,18 @@ Public Sub lvwStack_Click()
   
   Dim sLoc As String
   
+  If Not lvwStack.Current.Tag Then Return
+  
   Design.Command("@" & lvwStack.Key)
   FDebugExpr.RefreshAll
   RefreshAllWatch
   
-  sLoc = lvwStack.Current.Text
+  sLoc = lvwStack.Current.Tag
   If InStr(sLoc, "(") Then Return
   
-  Project.Goto(sLoc)
+  Design.Goto(sLoc)
   
-Catch
+'Catch
   
 End
 
@@ -158,9 +193,10 @@ Private Sub AddVariableHeader(hView As ColumnView, sKey As String, sText As Stri
   
   With hView.Add(sKey, sText)
     .MoveFirst()
-    .Font = lvwStack.Font
+    .Font = $hHeaderFont
     .Background = Color.SetAlpha(Color.Foreground, 240)
     .Span = True
+    .Selectable = False
   End With
 
 End
@@ -325,6 +361,7 @@ Private Sub InitFont(hView As ColumnView, fSize As Float)
   Project.SetConsoleFont(hView)
   
   For Each sKey In hView.Keys
+    If Not hView[sKey].Selectable Then Continue
     If hView[sKey].Font Then hView[sKey].Font.Size = hView.Font.Size * fSize
   Next
   hView.Font.Size *= fSize
@@ -336,6 +373,9 @@ Public Sub ReadConfig()
   Dim hCtrl As Control
   Dim fSize As Float
   Dim hImage As Image
+  
+  $hHeaderFont = Project.GetSmallFont()
+  $hHeaderFont.Bold = True
   
   Settings.Read(panDebug)
   wizDebug.TextFont = Project.GetSmallFont()
@@ -386,7 +426,7 @@ Public Sub ReadConfig()
   hImage = Image.Load("img/32/error.png")
   hImage.Colorize(lblError.Foreground)
   picError.Picture = hImage.Picture
-  
+
 End
 
 Public Sub wizDebug_Click()
@@ -780,16 +820,35 @@ Public Sub ShowConsole()
   
 End
 
+Private Sub FormatBreakpoint(sBreakpoint As String) As String
+
+  Dim aBreakpoint As String[]
+
+  aBreakpoint = Breakpoints.FromString(sBreakpoint)
+  
+  sBreakpoint = aBreakpoint[1] & "." & aBreakpoint.Last
+  If aBreakpoint[0] Then sBreakpoint &= " ↦ <font size=\"-1\"><b>" & aBreakpoint[0] & "</b></font>"
+  Return sBreakpoint
+
+End
+
 Private Sub RefreshBreakpoints()
 
   Dim sBreakpoint As String
   Dim H As Integer
+  Dim aAllBreakpoints As String[]
   
   If wizDebug.Index <> TAB_DEBUG Then Return
+  
+  aAllBreakpoints = Breakpoints.GetAll()
+  If Breakpoints.TimeStamp = $iLastBreakpointsTimeStamp Then Return
 
   lvwBreakpoint.Clear
-  For Each sBreakpoint In Breakpoints.GetAll()
-    H = lvwBreakpoint.Add(sBreakpoint, sBreakpoint).H
+  For Each sBreakpoint In aAllBreakpoints
+    With lvwBreakpoint.Add(sBreakpoint, "")
+      .RichText = FormatBreakpoint(sBreakpoint)
+      H = .H
+    End With
   Next
   
   If lvwBreakpoint.Count = 0 Then
@@ -804,6 +863,8 @@ Private Sub RefreshBreakpoints()
     sepBreakpoint2.Show
     lvwBreakpoint.H = H * Min(4, lvwBreakpoint.Count)
   Endif
+  
+  $iLastBreakpointsTimeStamp = Project.TimeStamp
   
 End
 
@@ -962,6 +1023,7 @@ Public Sub OnProjectChange()
   trmTest.Clear
   panTestResult.Hide
   $cTrack = New Collection
+  $iLastBreakpointsTimeStamp = 0
   
 End
 
@@ -1772,7 +1834,7 @@ End
 
 Public Sub lvwBreakpoint_Click()
 
-  Project.Goto(lvwBreakpoint.Key)
+  Design.Goto(lvwBreakpoint.Key)
 
 End
 
@@ -1782,8 +1844,8 @@ Public Sub btnRemoveBreakpoint_Click()
   
   If lvwBreakpoint.Key Then
     
-    hForm = Project.Goto(lvwBreakpoint.Key)
-    hForm.ToggleBreakpoint(hForm.GetEditor().Line)
+    hForm = Design.Goto(lvwBreakpoint.Key)
+    If hForm Then hForm.ToggleBreakpoint(hForm.GetEditor().Line)
     
   Endif
 

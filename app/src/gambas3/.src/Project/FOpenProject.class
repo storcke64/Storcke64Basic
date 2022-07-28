@@ -10,20 +10,28 @@ Private $iSort As Integer
 Private $hRecent As CProjectList
 Private $hSoft As CProjectList
 Private $hExample As CProjectList
+Private $sLocate As String
 
 Public Sub Run(Optional bAnother As Boolean) As String
 
   $bAnother = bAnother
   $sPath = ""
+  $sLocate = ""
   
-  Inc Application.Busy
-  If Me.ShowModal() Then 
-    'Debug
-    Return $sPath
-  Endif
-  'Debug
+  If Me.ShowModal() Then Return $sPath
 
 End
+
+Public Sub Locate(sComp As String) As String
+  
+  $bAnother = False
+  $sPath = ""
+  $sLocate = sComp
+  
+  If Me.ShowModal() Then Return $sPath
+  
+End
+
 
 Public Sub _new()
   
@@ -79,11 +87,20 @@ Public Sub Form_Open()
   Next
   
   pchProject.ShowAnother = $bAnother
+  pchProject.ShowCancel = True
   
   If $bAnother Then tabProject.Index = 1
   tabProject_Click
   
-  Dec Application.Busy
+  If $sLocate Then
+    Me.Title = Subst(("Locate project for component: &1"), $sLocate)
+    pchProject.SetButtonText(("Select"))
+  Else 
+    Me.Title = ("Select a project")
+    pchProject.SetButtonText("")
+  Endif
+  
+  'Dec Application.Busy
 
 End
 
@@ -91,8 +108,6 @@ Public Sub Form_Close()
 
   Settings["/FOpenProject/SortRecent"] = $iSort
   Settings.Write(Me)  
-  ' Settings.Write(splProject)
-  ' Settings.Write(dchProject)
   Settings.Write(pchProject)
   
 End

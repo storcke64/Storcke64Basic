@@ -67,7 +67,7 @@ void DEBUG_where(void);
 bool DEBUG_get_value(const char *sym, int len, GB_VARIANT *ret);
 int DEBUG_set_value(const char *sym, int len, VALUE *value);
 int DEBUG_get_object_access_type(void *object, CLASS *class, int *count);
-GB_CLASS DEBUG_find_class(const char *name);
+GB_CLASS DEBUG_find_class(const char *comp_name, const char *class_name);
 void DEBUG_enum_keys(void *object, GB_DEBUG_ENUM_CB cb);
 
 void DEBUG_print_backtrace(STACK_BACKTRACE *bt);

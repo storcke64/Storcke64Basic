@@ -592,7 +592,7 @@ Static Private Sub WriteValue(vVal As Variant)
         For Each vVal In cCol
           If iPos Then $sStr &= ","
           WriteValue(cCol.Key)
-          $sStr &= ": "
+          $sStr &= ":"
           WriteValue(vVal)
           Inc iPos
         Next
@@ -735,7 +735,7 @@ READ_STRING:
   Do
     GoSub GET_CHAR
     If Not sCar Then Error.Raise("Non terminated string")
-    If sCar = Chr$(34) Then Return sString
+    If sCar = Chr$(34) Then Return
     If sCar = "\\" Then
       GoSub GET_CHAR
       If Not sCar Then Error.Raise("Non terminated string")
@@ -766,7 +766,7 @@ READ_OBJECT:
     If sCar <> ":" Then Error.Raise("Colon expected")
     cObject[sKey] = ReadValue()
     GoSub READ_CHAR
-    If sCar = "}" Then Return cObject
+    If sCar = "}" Then Return
     If sCar <> "," Then Error.Raise("Comma expected")
   Loop
   

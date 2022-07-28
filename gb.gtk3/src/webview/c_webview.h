@@ -35,12 +35,12 @@ typedef
 		GTK_PICTURE icon;
 		void *new_view;
 		char *link;
-		char *js_result;
+		char *cb_result;
 		unsigned error : 1;
 		unsigned accept_next : 1;
 		unsigned got_load_event : 1;
-		unsigned js_running : 1;
-		unsigned js_error : 1;
+		unsigned cb_running : 1;
+		unsigned cb_error : 1;
    }
   CWEBVIEW;
 

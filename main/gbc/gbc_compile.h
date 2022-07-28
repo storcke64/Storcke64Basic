@@ -114,7 +114,7 @@ EXTERN bool COMP_do_not_lock;
 
 void COMPILE_init(void);
 void COMPILE_load(void);
-void COMPILE_exit(void);
+void COMPILE_exit(bool can_dump_count);
 void COMPILE_begin(const char *file, bool trans, bool debug);
 void COMPILE_alloc();
 void COMPILE_free();

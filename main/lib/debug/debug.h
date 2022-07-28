@@ -47,7 +47,7 @@ EXTERN char DEBUG_buffer[];
 EXTERN char *DEBUG_fifo;
 #endif
 
-#define DEBUG_BUFFER_MAX 255
+#define DEBUG_BUFFER_MAX 512
 
 #define GB_DEBUG (*DEBUG_interface)
 
