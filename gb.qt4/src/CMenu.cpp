@@ -834,6 +834,15 @@ BEGIN_PROPERTY(Menu_Window)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Menu_Parent)
+
+	if (CMENU_is_toplevel(THIS))
+		GB.ReturnNull();
+	else
+		GB.ReturnObject(THIS->parent);
+
+END_PROPERTY
+
 BEGIN_PROPERTY(Menu_Action)
 
 	char *current = THIS_EXT ? THIS_EXT->action : NULL;
@@ -944,6 +953,7 @@ GB_DESC CMenuDesc[] =
 	GB_PROPERTY("Radio", "b", Menu_Radio),
 	GB_PROPERTY("Value", "b", Menu_Value),
 	GB_PROPERTY("Action", "s", Menu_Action),
+	GB_PROPERTY_READ("Parent", "Menu", Menu_Parent),
 	GB_PROPERTY_READ("Window", "Window", Menu_Window),
 	GB_PROPERTY("Proxy", "Menu", Menu_Proxy),
 

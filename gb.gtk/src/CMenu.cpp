@@ -429,6 +429,16 @@ BEGIN_PROPERTY(Menu_Window)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Menu_Parent)
+
+	if (MENU->isTopLevel())
+		GB.ReturnNull();
+	else
+		GB.ReturnObject(GetObject(MENU->parentMenu()));
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(Menu_Name)
 
 	if (READ_PROPERTY)
@@ -530,6 +540,7 @@ GB_DESC CMenuDesc[] =
 	GB_PROPERTY("Value", "b", Menu_Value),
 	//GB_PROPERTY("TearOff", "b", CMENU_tear_off),
 	GB_PROPERTY("Action", "s", Menu_Action),
+	GB_PROPERTY_READ("Parent", "Menu", Menu_Parent),
 	GB_PROPERTY_READ("Window", "Window", Menu_Window),
 	GB_PROPERTY("Proxy", "Menu", Menu_Proxy),
 
