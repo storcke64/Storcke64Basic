@@ -8,6 +8,8 @@ Public Const LongName As String = "Git"
 Public Const DoNotPush As Boolean = True
 Public Const CancelUpdate As Boolean = True
 Public Const NeedMove As Boolean = False
+Public Const CanCreateBranch As Boolean = True
+Public Const HasIdentity As Boolean = True
 
 Private $aConflict As String[] = ["DD", "AU", "UD", "UA", "DU", "AA", "UU"]
 
@@ -546,3 +548,12 @@ Public Sub GetRoot() As String
   Return $sRoot
   
 End
+
+Public Sub CreateBranch(sNewBranch As String) As Boolean
+  
+  RunShell("git branch " & Shell(sNewBranch))
+  If Process.LastValue Then Return True
+  
+End
+
+

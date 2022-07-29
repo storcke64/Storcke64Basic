@@ -3042,32 +3042,6 @@ Public Sub mnuCompressNow_Click()
   
 End
 
-Private Sub UpdateBranchMenu()
-
-  Dim sCurrent As String
-  Dim aBranches As String[]
-  Dim sBranch As String
-  Dim hMenu As Menu
-  
-  aBranches = VersionControl.GetBranches(ByRef sCurrent)
-  
-  If Not sCurrent Then
-    mnuVcBranch.Hide
-  Else
-    mnuVcBranch.Show
-    mnuVcBranch.Children.Clear
-    
-    For Each sBranch In aBranches
-      hMenu = New Menu(mnuVcBranch) As "mnuVcBranchSet"
-      hMenu.Text = sBranch
-      hMenu.Tag = sBranch
-      hMenu.Radio = True
-      hMenu.Checked = sBranch = sCurrent
-    Next
-  Endif
-
-End
-
 Public Sub OnVersionControlChange()
 
   Action["version-control"].Visible = VersionControl.Enabled
@@ -3075,7 +3049,7 @@ Public Sub OnVersionControlChange()
   If VersionControl.Enabled Then
     mnuVersionControl.Text = ("Version control") & " (" & VersionControl.Name & ")"
     btnVersionControl.Text = VersionControl.Name
-    UpdateBranchMenu
+    VersionControl.FillBranchMenu(mnuVcBranch)
   Endif
   
   mnuVersionControlWith.Children.Clear
@@ -3092,13 +3066,6 @@ Public Sub OnVersionControlChange()
   
   dwgBranchColor.Visible = VersionControl.Enabled
   dwgBranchColor.Refresh
-  
-End
-
-Public Sub mnuVcBranchSet_Click()
-  
-  VersionControl.SetBranch(Last.Tag)
-  UpdateBranchMenu
   
 End
 

@@ -12,6 +12,7 @@ Private $bCheckSVN As Boolean
 Private $sSvnVersion As String
 Private $bSvn17 As Boolean
 Private $bCanControl As Boolean
+Private $sRoot As String
 
 Private Sub SvnPath$(sPath As String) As String
 
@@ -54,6 +55,7 @@ Public Sub Check() As Boolean
   If $bHasSVN Then
 
     $bCanControl = False
+    FindRoot()
     
     If $bSvn17 Then
       'sResult = VersionControl.Shell("svn status " & Shell$(SvnPath$($sRealDir) &/ ".project") & " 2>&1")
@@ -312,6 +314,8 @@ Public Sub Info() As Collection
   
   If sUrl Then
   
+    cInfo[("Remote repository URL")] = sURL
+    
     If VersionControl.Run(["svn", "info", SvnPath$(sUrl)], True, False, VersionControl.LANG_ENV) = 0 Then
     
       cData.Clear
@@ -320,7 +324,6 @@ Public Sub Info() As Collection
         cData[Trim(aLine[0])] = Trim(aLine[1])
       Next
       
-      cInfo[("Remote repository URL")] = sURL
       cInfo[("Remote revision")] = cData["Revision"]
       cInfo[("Remote last commit author")] = cData["Last Changed Author"]
       cInfo[("Remote last commit date")] = FormatSvnDate(cData["Last Changed Date"])
@@ -379,6 +382,41 @@ Public Sub HasRemote() As Boolean
   
 End
 
+Private Sub FindRoot()
+  
+  Dim sLine As String
+  Dim aLine As String[]
+  
+  $sRoot = ""
+  
+  If VersionControl.Run(["svn", "info", SvnPath$($sRealDir)], False, False, VersionControl.LANG_ENV) Then Return
+  
+  For Each sLine In Split(VersionControl.Output, "\n", "", True)
+    aLine = Scan(sLine, "*: *")
+    If Trim(aLine[0]) = "Working Copy Root Path" Then 
+      $sRoot = Trim(aLine[1])
+      Break
+    Endif
+  Next
+    
+End
+
 Public Sub GetRoot() As String
+  
+  Return $sRoot
+  
+End
+
+
+' Public Sub CreateBranch(sNewBranch As String) As Boolean
+'   
+'   VersionControl.Run(["svn", "copy", $sRoot, "branches" &/ sNewBranch], True, False, VersionControl.LANG_ENV)
+'   Return Process.LastValue
+'   
+' End
+' 
+Public Sub GetCurrentBranch() As String
+  
+  Return File.Name($sRoot)
   
 End

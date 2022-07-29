@@ -537,7 +537,7 @@ Public Sub UpdateBookmarks()
   
   Bookmarks.Clear
   If Project.Dir Then Bookmarks.Add(Project.Dir, ("Current project"), "icon:/small/gambas")
-  If VersionControl.Enabled Then Bookmarks.Add(VersionControl.GetRoot(), ("Repository"), "icon:/small/record")
+  If VersionControl.Enabled Then Try Bookmarks.Add(VersionControl.GetRoot(), ("Repository"), "icon:/small/record")
   
 End
 

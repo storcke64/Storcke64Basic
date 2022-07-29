@@ -200,11 +200,6 @@
         Text = ("Commit") & "..."
         Picture = Picture["icon:/small/upload"]
       }
-      { mnuVcUpdate Menu
-        Action = "vc-update"
-        Text = ("Synchronize")
-        Picture = Picture["icon:/small/download"]
-      }
       { mnuVcCancelUpdate Menu
         Action = "vc-undo-update"
         Text = ("Undo synchronization")
@@ -221,11 +216,17 @@
         Text = ("Add everything to repository")
         Picture = Picture["icon:/small/added"]
       }
+      { Menu51 Menu
+      }
+      { mnuVcUpdate Menu
+        Action = "vc-update"
+        Text = ("Synchronize")
+        Picture = Picture["icon:/small/download"]
+      }
       { mnuVcBranch Menu
         Action = "vc-branch"
         Text = ("Branch")
-      }
-      { Menu51 Menu
+        Picture = Picture["icon:/small/tag"]
       }
       { mnuVcBrowse Menu
         Action = "vc-browse"
@@ -1969,6 +1970,7 @@
   { Action vc-branch
     Text = "Branch"
     Shortcut = ""
+    Picture = "icon:/small/tag"
   }
   { Action vc-browse
     Text = "Browse repository"

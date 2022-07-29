@@ -7,6 +7,8 @@ Public Const LongName As String = ""
 Public Const DoNotPush As Boolean = False
 Public Const CancelUpdate As Boolean = False
 Public Const NeedMove As Boolean = True
+Public Const CanCreateBranch As Boolean = False
+Public Const HasIdentity As Boolean = False
 
 Public Sub AddFile((sPath) As String, Optional (bForce) As Boolean)
   
@@ -120,3 +122,16 @@ End
 Public Sub GetRoot() As String
   
 End
+
+Public Sub CreateBranch((sNewBranch) As String) As Boolean
+  
+End
+
+Public Sub GetIdentity(ByRef (sName) As String, ByRef (sEmail) As String)
+  
+End
+
+Public Sub SetIdentity((sName) As String, (sEmail) As String)
+  
+End
+

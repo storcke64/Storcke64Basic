@@ -4,6 +4,8 @@ Property Read Name As String
 Property Read Enabled As Boolean
 Property Read Output As String
 Property Read DoNotPush As Boolean
+Property Read CanCreateBranch As Boolean
+Property Read HasIdentity As Boolean
 
 Private $hVC As CVersionControl
 
@@ -821,3 +823,96 @@ Public Sub GetRoot() As String
   Return $hVC.GetRoot()
   
 End
+
+Public Sub CreateBranch(sNewBranch As String) As Boolean
+  
+  If $hVC.CreateBranch(sNewBranch) Then
+    ShowError(("Unable to create a new branch."))
+    Return True
+  Endif
+  
+End
+
+Public Sub GetIdentity(ByRef sName As String, ByRef sEmail As String)
+  
+  $hVC.GetIdentity(ByRef sName, ByRef sEmail)
+  
+End
+
+Public Sub SetIdentity(sName As String, sEmail As String)
+  
+  $hVC.SetIdentity(sName, sEmail)
+  
+End
+
+Private Function CanCreateBranch_Read() As Boolean
+
+  Return $hVC.CanCreateBranch
+
+End
+
+Private Function HasIdentity_Read() As Boolean
+
+  Return $hVC.HasIdentity
+
+End
+
+Public Sub FillBranchMenu(hParent As Menu, Optional hMenuButton As MenuButton)
+  
+  Dim sCurrent As String
+  Dim aBranches As String[]
+  Dim sBranch As String
+  Dim hMenu As Menu
+  
+  aBranches = GetBranches(ByRef sCurrent)
+  
+  If Not sCurrent Then
+    If hMenuButton Then
+      hMenuButton.Hide
+    Else 
+      hParent.Hide
+    Endif
+  Else
+    If hMenuButton Then
+      hMenuButton.Show
+      hMenuButton.Text = sCurrent
+    Else
+      hParent.Show
+    Endif
+    hParent.Children.Clear
+    
+    For Each sBranch In aBranches
+      hMenu = New Menu(hParent) As "mnuVcBranchSet"
+      hMenu.Text = sBranch
+      hMenu.Tag = sBranch
+      hMenu.Radio = True
+      hMenu.Checked = sBranch = sCurrent
+    Next
+    
+    If VersionControl.CanCreateBranch Then
+      
+      hMenu = New Menu(hParent)
+      
+      hMenu = New Menu(hParent) As "mnuVcBranchCreate"
+      hMenu.Text = Subst(("Create new branch") & "...", sCurrent)
+      hMenu.Picture = Picture["icon:/small/new-tag"]
+      
+    Endif
+    
+  Endif
+  
+End
+
+Public Sub mnuVcBranchSet_Click()
+  
+  VersionControl.SetBranch(Last.Tag)
+  
+End
+
+Public Sub mnuVcBranchCreate_Click()
+  
+  If FCreateBranch.Run() Then Return
+  Refresh()
+  
+End
+
