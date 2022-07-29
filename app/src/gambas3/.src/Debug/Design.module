@@ -1886,11 +1886,14 @@ End
 Private Sub FindClassPath(sDir As String, sClass As String) As String
 
   Dim sFile As String
+  Dim sExt As String
   
-  sClass &= ".class"
   sDir &/= ".src"
   For Each sFile In RDir(sDir)
-    If File.Name(sFile) == sClass Then Return sDir &/ sFile
+    If File.BaseName(sFile) == sClass Then
+      sExt = File.Ext(sFile)
+      If sExt = "class" Or If sExt = "module" Then Return sDir &/ sFile
+    Endif
   Next
   
 End
