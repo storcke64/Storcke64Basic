@@ -53,8 +53,6 @@ Public Sub Main()
   Endif
   
   If Not aFile Then
-    ' TODO: Project.Browse
-    'aFile = RDir(sDir).Sort(gb.Natural)
     aFile = Project.Browse(sDir, True)
     aFile.Sort(gb.Natural)
     aSort = New String[]

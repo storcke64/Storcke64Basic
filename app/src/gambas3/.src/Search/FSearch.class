@@ -721,7 +721,7 @@ Public Sub ResetBrowse(Optional bKeepResult As Boolean)
   $bUseReplaceString = False
   'gvwFind.Rows.Count = 0
   gvwFind.Clear
-  gvwFind.Rows.Height = Max(gvwFind.Font.Height, $hFont.Height) + 4
+  gvwFind_Font '.Rows.Height = Max(gvwFind.Font.Height, $hFont.Height) + 4
   $aResult.Clear
   ClearCache
   UpdateSearchList
@@ -1014,7 +1014,7 @@ End
 
 Public Sub gvwFind_Font()
   
-  gvwFind.Rows.Height = Max(gvwFind.Font.Height, $hFont.Height) + 4
+  gvwFind.Rows.Height = Max(gvwFind.Font.Height, $hFont.Height) + Desktop.Scale
   gvwFind.Columns[0].Width = -1
   gvwFind.Columns[1].Width = -1
   gvwFind.Columns[0].Width = Max(gvwFind.Columns[0].Width, Desktop.Scale * 20)
@@ -1061,25 +1061,61 @@ End
 Public Sub gvwFind_Data(Row As Integer, Column As Integer)
 
   Dim hResult As CSearchResult
+  Dim hPrevResult As CSearchResult
   Dim iCol As Integer
+  Dim hBorder As Border
   
   If Row > $aResult.Max Then Return
 
    With gvwFind.Data
     
     hResult = $aResult[Row]
+    If Row Then hPrevResult = $aResult[Row - 1]
+    
+    hBorder = New Border
+    hBorder.Style = Border.None
+    
+    If hPrevResult And If hPrevResult.File <> hResult.File Then
+      hBorder.TopStyle = Border.Solid
+      hBorder.TopWidth = 2
+      hBorder.TopColor = Color.LightForeground
+    Else If Not hPrevResult Or If hPrevResult.Location <> hResult.Location Then
+      hBorder.TopStyle = Border.Solid
+      hBorder.TopWidth = 1
+      hBorder.TopColor = Color.LightForeground
+    Else If hPrevResult.Line <> hResult.Line Then
+      hBorder.TopStyle = Border.Solid
+      hBorder.TopWidth = 1
+      hBorder.TopColor = Color.SetAlpha(Color.LightForeground, 192)
+    Endif
+    
+    hBorder.Padding = Desktop.Scale \ 2
+    
+    If Column = 3 Then
+      hBorder.RightStyle = Border.Solid
+      hBorder.RightWidth = 1
+      hBorder.RightColor = Color.LightForeground
+    Endif
+    
+    .Border = hBorder
     
     Select Case Column
       Case 0
-        .Text = hResult.File
-        .Alignment = Align.Normal
-        .Picture = Project.GetFileIcon(Project.Dir &/ hResult.Path, 16)
+        If Not hPrevResult Or If hPrevResult.File <> hResult.File Then
+          .Text = hResult.File
+          .Alignment = Align.Normal
+          .Picture = Project.GetFileIcon(Project.Dir &/ hResult.Path, 16)
+        Endif
       Case 1
-        .Text = hResult.Location
-        .Alignment = Align.Normal
+        If Not hPrevResult Or If hPrevResult.File <> hResult.File Or If hPrevResult.Location <> hResult.Location Then
+          .Text = hResult.Location
+          .Alignment = Align.Normal
+        Endif
       Case 2
-        .Text = CStr(hResult.Line) & " "
-        .Alignment = Align.Right
+        If Not hPrevResult Or If hPrevResult.File <> hResult.File Or If hPrevResult.Location <> hResult.Location Or If hPrevResult.Line <> hResult.Line Then
+          .Text = CStr(hResult.Line) & " "
+          .Alignment = Align.Right
+        Endif
       Case 3
         .Text = CStr(hResult.Column + 1) & " "
         .Alignment = Align.Right
