@@ -310,6 +310,7 @@ Private $hImageSideBar As Image
 Private $hLabelFrame As Panel
 Private $hLabel As Label
 Private $hFind As FFind
+Private $hGoto As FGoto
 
 Private $hDoc As CDocument
 Private $hRows As _TextEditor_Rows
@@ -454,6 +455,16 @@ Public _TopHeight As Integer
 
 Private $hMultiLineImage As Image
 
+Private mnuPopup As Menu
+Private mnuUndo As Menu
+Private mnuRedo As Menu
+Private mnuCut As Menu
+Private mnuCopy As Menu
+Private mnuPaste As Menu
+Private mnuSelectAll As Menu
+Private mnuGoto As Menu
+Private mnuFind As Menu
+
 '' Create a new TextEditor
 
 Public Sub _new()
@@ -471,6 +482,7 @@ Public Sub _new()
       "SHIFT+DELETE": "Cut",
       "CTRL+Y": "Redo",
       "CTRL+Z": "Undo",
+      "CTRL+G": "Goto",
       "CTRL+F": "Find"]
   Endif
   
@@ -1927,7 +1939,9 @@ Public Sub View_KeyPress()
       Case "SelectAll"
         SelectAll
       Case "Find"
-        ShowFind
+        ShowFindPanel
+      Case "Goto"
+        ShowGotoPanel
     End Select
     Goto STOP_EVENT
   Endif
@@ -4039,6 +4053,9 @@ Public Sub View_GotFocus()
     Object.Attach($hDoc, Me, "Document")
     
   Endif
+  
+  If $hFind Then $hFind.Hide
+  If $hGoto Then $hGoto.Hide
   
 End
 
@@ -6706,12 +6723,23 @@ Public Sub FindNextDiff(Y As Integer) As Integer
   
 End
 
-Private Sub ShowFind()
+Public Sub ShowFindPanel()
 
   If Not $hFind Then $hFind = New FFind($hVPanel)
   $hFind.H = Desktop.Scale * 3
+  If $hGoto Then $hGoto.Hide
   $hFind.Show
   $hFind.SetFocus()
+
+End
+
+Public Sub ShowGotoPanel()
+
+  If Not $hGoto Then $hGoto = New FGoto($hVPanel)
+  $hGoto.H = Desktop.Scale * 3
+  If $hFind Then $hFind.Hide
+  $hGoto.Show
+  $hGoto.SetFocus()
 
 End
 
@@ -6794,7 +6822,7 @@ Private Sub Theme_Write(Value As TextHighlighterTheme)
   If Not Value Then
     $hTheme = New TextHighlighterTheme
   Else
-    $hTheme = Value.copy()
+    $hTheme = Value.Copy()
   Endif
   
   Object.Attach($hTheme, Me, "Theme")
@@ -6808,5 +6836,130 @@ Private Sub GetStyles() As TextHighlighterStyle[]
   
   If Not $aThemeStyles Then $aThemeStyles = $hTheme.Styles
   Return $aThemeStyles
+  
+End
+
+Public Sub View_Menu()
+  
+  Dim hMenu As Menu
+  
+  If Me.PopupMenu Then Return
+  If Object.CanRaise(Me, "Menu") Then Return
+  
+  If Not mnuPopup Then
+    
+    mnuPopup = New Menu(Me.Window, True)
+    
+    hMenu = New Menu(mnuPopup) As "mnuUndo"
+    hMenu.Text = ("Undo")
+    hMenu.Shortcut = "CTRL+Z"
+    hMenu.Picture = Picture["icon:/small/undo"]
+    mnuUndo = hMenu
+    
+    hMenu = New Menu(mnuPopup) As "mnuRedo"
+    hMenu.Text = ("Redo")
+    hMenu.Shortcut = "CTRL+Y"
+    hMenu.Picture = Picture["icon:/small/redo"]
+    mnuRedo = hMenu
+    
+    hMenu = New Menu(mnuPopup)
+    
+    hMenu = New Menu(mnuPopup) As "mnuCut"
+    hMenu.Text = ("Cut")
+    hMenu.Picture = Picture["icon:/small/cut"]
+    hMenu.Shortcut = "CTRL+X"
+    mnuCut = hMenu
+    
+    hMenu = New Menu(mnuPopup) As "mnuCopy"
+    hMenu.Text = ("Copy")
+    hMenu.Picture = Picture["icon:/small/copy"]
+    hMenu.Shortcut = "CTRL+C"
+    mnuCopy = hMenu
+    
+    hMenu = New Menu(mnuPopup) As "mnuPaste"
+    hMenu.Text = ("Paste")
+    hMenu.Picture = Picture["icon:/small/paste"]
+    hMenu.Shortcut = "CTRL+V"
+    mnuPaste = hMenu
+    
+    hMenu = New Menu(mnuPopup)
+    
+    hMenu = New Menu(mnuPopup) As "mnuSelectAll"
+    hMenu.Text = ("Select all")
+    hMenu.Picture = Picture["icon:/small/select-all"]
+    hMenu.Shortcut = "CTRL+A"
+    mnuSelectAll = hMenu
+
+    hMenu = New Menu(mnuPopup)
+    
+    hMenu = New Menu(mnuPopup) As "mnuGoto"
+    hMenu.Text = ("Goto line") & "..."
+    hMenu.Picture = Picture["icon:/small/jump"]
+    hMenu.Shortcut = "CTRL+G"
+    mnuGoto = hMenu
+
+    hMenu = New Menu(mnuPopup) As "mnuFind"
+    hMenu.Text = ("Find") & "..."
+    hMenu.Picture = Picture["icon:/small/find"]
+    hMenu.Shortcut = "CTRL+F"
+    mnuFind = hMenu
+
+  Endif
+  
+  mnuUndo.Enabled = Not $bReadOnly
+  mnuRedo.Enabled = Not $bReadOnly
+  mnuCut.Enabled = Not $bReadOnly And HasSelection()
+  mnuCopy.Enabled = HasSelection()
+  mnuPaste.Enabled = Not $bReadOnly
+  
+  mnuPopup.Popup
+  
+End
+
+Public Sub mnuUndo_Click()
+  
+  Undo()
+  
+End
+
+Public Sub mnuRedo_Click()
+  
+  Redo()
+  
+End
+
+Public Sub mnuCut_Click()
+  
+  Cut()
+  
+End
+
+Public Sub mnuCopy_Click()
+  
+  Copy()
+  
+End
+
+Public Sub mnuPaste_Click()
+  
+  Paste()
+  
+End
+
+Public Sub mnuSelectAll_Click()
+  
+  SelectAll()
+  
+End
+
+Public Sub mnuGoto_Click()
+
+  ShowGotoPanel  
+  
+End
+
+Public Sub mnuFind_Click()
+
+  ShowFindPanel
   
 End
