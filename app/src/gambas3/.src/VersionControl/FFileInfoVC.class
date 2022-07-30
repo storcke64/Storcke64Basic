@@ -71,11 +71,10 @@ Private Sub LoadVersionControlInfo()
   If sDiff Then
     edtChange.Highlight = "Diff"
     edtChange.Text = sDiff
-    edtChange.Show
     lblVersioning.Hide
     btnLocateChange.Show
+    tabInfo[0].Visible = True
   Else
-    edtChange.Hide
     If Project.IsLocked($sPath) Then
       lblVersioning.Text = ("This file is locked, and will be deleted on the next commit.")
     Else If Project.IsAdded($sPath) Then
@@ -87,6 +86,7 @@ Private Sub LoadVersionControlInfo()
     Endif
     lblVersioning.Show
     btnLocateChange.Hide
+    tabInfo[0].Visible = False
   Endif
   
   btnRevert.Visible = Not bHideUndoButton

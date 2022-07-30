@@ -5,20 +5,19 @@
   Arrangement = Arrange.Vertical
   Spacing = True
   Margin = True
+  { lblVersioning TextLabel
+    MoveScaled(0,0,42,6)
+    Visible = False
+    Font = Font["Italic"]
+    AutoResize = True
+  }
   { tabInfo TabPanel
-    MoveScaled(1,2,59,43)
+    MoveScaled(6,9,59,43)
     Expand = True
     Arrangement = Arrange.Vertical
     Count = 2
     Index = 0
     Text = ("Changes")
-    { lblVersioning TextLabel
-      MoveScaled(2,5,42,6)
-      Visible = False
-      Font = Font["Italic"]
-      Expand = True
-      Padding = 15
-    }
     { edtChange TextEditor
       MoveScaled(6,13,40,18)
       Expand = True

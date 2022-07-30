@@ -634,10 +634,13 @@ Public Sub mnuPopup_Show()
     mnuAddVersionAll.Hide
   Endif
   
-  If VersionControl.Enabled And If Not bIsDir And If Not bIsSpecial And If sRoot Not Begins "/" Then
-    mnuInfoVC.Show
-  Else
-    mnuInfoVC.Hide
+  mnuInfoVC.Hide
+  If VersionControl.Enabled Then
+    If $sKey = Project.Dir Then 
+      mnuInfoVC.Show
+    Else If Not bIsDir And If Not bIsSpecial And If sRoot Not Begins "/" And If Not Project.HasFlag($sKey, Project.FLAG_ADDED) Then 
+      mnuInfoVC.Show
+    Endif
   Endif
    
   UpdateRecentFile(mnuOpenRecentFile)
