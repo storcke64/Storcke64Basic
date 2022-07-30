@@ -353,10 +353,6 @@ Public Sub Info() As Collection
   Dim sText As String
   
   cInfo[("Local root path")] = $sRoot
-  Try cInfo[("User")] = RunShell("git config user.name")
-  Try cInfo[("E-mail")] = RunShell("git config user.email")
-  If Not cInfo[("User")] Then cInfo[("User")] = ("Unknown")
-  If Not cInfo[("E-mail")] Then cInfo[("E-mail")] = ("Unknown")
   
   aResult = Split(VersionControl.Shell("cd " & Shell(Project.Dir) & " && git log -n1"), "\n")
   cInfo[("Last commit")] = Trim(Mid$(aResult[0], InStr(aResult[0], " ") + 1))
@@ -557,3 +553,24 @@ Public Sub CreateBranch(sNewBranch As String) As Boolean
 End
 
 
+Public Sub GetIdentity(ByRef sName As String, ByRef sEmail As String)
+  
+  Try sName = RunShell("git config user.name")
+  Try sEmail = RunShell("git config user.email")
+  
+End
+
+Public Sub SetIdentity(sName As String, sMail As String)
+  
+  If sName Then
+    RunShell("git config user.name " & Shell$(sName))
+  Else
+    RunShell("git config user.name --unset")
+  Endif
+  If sMail Then
+    RunShell("git config user.email " & Shell$(sMail))
+  Else 
+    RunShell("git config user.email --unset")
+  Endif
+  
+End

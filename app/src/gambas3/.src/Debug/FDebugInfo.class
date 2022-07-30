@@ -1542,11 +1542,7 @@ End
 Public Sub OnVersionControlChange()
 
   UpdateView
-
-  If VersionControl.Enabled Then
-    lblVcName.Text = VersionControl.Name
-    VersionControl.FillBranchMenu(mnuVcBranch, btnVcBranch)
-  Endif
+  If VersionControl.Enabled Then VersionControl.FillBranchMenu(mnuVcBranch, btnVcBranch)
   
 End
 
@@ -1616,23 +1612,25 @@ Public Sub StopTest(iResult As Integer)
   
     Case MTest.TEST_FAIL
       lblTestResult.Text = ("Test has failed.")
-      lblTestResult.Foreground = Color.DarkRed
       picTestResult.Picture = Picture["icon:/small/emote-sad"]
-      $iTestBg = Color.Merge(Color.Red, Color.Background, 0.7)
+      lblTestResult.Foreground = Color.Foreground
+      $iTestBg = Color.Red
       
     Case MTest.TEST_ABORT
       lblTestResult.Text = ("Test has been aborted.")
-      lblTestResult.Foreground = Color.DarkYellow
       picTestResult.Picture = Picture["icon:/small/warning"]
-      $iTestBg = Color.Merge(Color.Yellow, Color.Background, 0.7)
+      lblTestResult.Foreground = Color.Foreground
+      $iTestBg = &HE0BE00
       
     Case Else
       lblTestResult.Text = ("Test has succeeded.")
-      lblTestResult.Foreground = Color.DarkGreen
       picTestResult.Picture = Picture["icon:/small/love"]
-      $iTestBg = Color.Merge(Color.Green, Color.Background, 0.7)
+      lblTestResult.Foreground = Color.Foreground
+      $iTestBg = &H00C000
       
   End Select
+  
+  $iTestBg = Color.SetAlpha($iTestBg, 128)
   
   If Application.DarkTheme Then 
     lblTestResult.Foreground = Color.Invert(lblTestResult.Foreground, True)

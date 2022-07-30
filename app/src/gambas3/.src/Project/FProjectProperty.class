@@ -16,7 +16,8 @@ Private $aLibraries As String[]
 Private Const COMPONENT_PROPERTIES_TAB As Integer = 1
 Private Const LIBRARY_TAB As Integer = 3
 Private Const ARGUMENT_TAB As Integer = 5
-'Private Const VERSION_CONTROL_TAB As Integer = 8
+Private Const VERSION_CONTROL_TAB As Integer = 6
+Private Const STAT_TAB As Integer = 7
 
 Private $bInitInfo As Boolean
 Private $aNeed As String[]
@@ -140,25 +141,13 @@ Public Sub Form_Open()
   'chkShowUsed.Value = $bShowUsed
   $bCanInitComponents = True
   
-  'ipnProject[VERSION_CONTROL_TAB].Visible = VersionControl.Enabled
-  gvwVcInfo.Visible = VersionControl.Enabled
-  lblVcInfo.Visible = VersionControl.Enabled
-  'sepVcInfo.Visible = gvwVcInfo.Visible
-  If VersionControl.Name = "Git" Then
-    btnVersionAddBranch.Enabled = True
-    btnVersionAddBranch.Value = Project.VersionAddBranch
-  Else
-    btnVersionAddBranch.Enabled = False
-    btnVersionAddBranch.Value = False
-  Endif
+  If VersionControl.Enabled Then btnVersionAddBranch.Value = Project.VersionAddBranch
 
   ipnProject.Index = 0
 
   btnOK.Enabled = Not Project.ReadOnly And Not Project.Running
 
   $bInitInfo = False
-  
-  gvwVcInfo.Rows.Count = 0
   
   Me.Center()
   
@@ -201,7 +190,7 @@ Private Function DoApply() As Boolean
       If Not IsLetter(sCar) And If Not IsNumber(sCar) Then Goto INVALID_NAMESPACE
     Next
   Endif
-
+  
   With Project
 
     .Vendor = Trim(txtVendor.Text)
@@ -256,7 +245,7 @@ Private Function DoApply() As Boolean
     .ExtraReferences = lstReferences.List
     
     If VersionControl.Enabled Then .VersionAddBranch = btnVersionAddBranch.Value
-
+      
   End With
 
   SaveComponents
@@ -285,7 +274,6 @@ INVALID_NAMESPACE:
 
 End
 
-
 Public Sub btnOK_Click()
 
   If DoApply() Then Return
@@ -294,14 +282,12 @@ Public Sub btnOK_Click()
 
 End
 
-
 Private Sub SaveComponents()
 
   Project.Components = choComponent.CheckedComponents
   Project.RefreshComponents
 
 End
-
 
 ' Public Sub gvwComponent_Data(Row As Integer, Column As Integer)
 '   
@@ -795,7 +781,6 @@ Public Sub ipnProject_Click()
       'panHttpServer.Enabled = choComponent.IsChecked("gb.web") 'Project.Components.Exist("gb.web")
     Case ("Statistics") 
       UpdateStat
-      UpdateVcInfo
     Case ("Information") 
       UpdateInfo
   End Select
@@ -1208,45 +1193,6 @@ Public Sub btnShowDeprecated_Click()
 
 End
 
-Private Sub UpdateVcInfo()
-
-  Dim cInfo As Collection
-  Dim sValue As String
-  Dim iRow As Integer
-  Dim I As Integer
-  
-  If Not VersionControl.Enabled Then Return
-  If gvwVcInfo.Rows.Count Then Return
-  
-  Inc Application.Busy
-  
-  cInfo = VersionControl.Info()
-
-  gvwVcInfo.Columns.Count = 2
-  gvwVcInfo.Rows.Count = cInfo.Count
-  
-  For Each sValue In cInfo
-    gvwVcInfo[iRow, 0].Text = cInfo.Key
-    gvwVcInfo[iRow, 0].Alignment = Align.TopNormal
-    'gvwVcInfo[iRow, 0].Foreground = Color.Merge(Color.TextBackground, Color.TextForeground, 0.7)
-    gvwVcInfo[iRow, 1].Text = sValue
-    Inc iRow
-  Next
-  
-  gvwVcInfo.Columns[0].W = -1
-  gvwVcInfo.Columns[0].W += Desktop.Scale * 2
-  
-  For I = 0 To gvwVcInfo.Rows.Count - 1
-    gvwVcInfo.Rows[I].H = -1
-  Next
-
-
-Finally
-  
-  Dec Application.Busy
-  
-End
-
 Public Sub lstReferences_Add()
 
   Dim sPath As String
@@ -1284,5 +1230,3 @@ Public Sub lvwExclude_Select()
   lvwRequire.UnSelectAll
 
 End
-
-

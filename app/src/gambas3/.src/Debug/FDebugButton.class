@@ -207,3 +207,9 @@ Public Sub btnShowProfile_Click()
   Endif
   
 End
+
+Public Sub OnVersionControlChange()
+
+  If VersionControl.Enabled Then btnVersionControl.Text = ("Version control") & " (" & VersionControl.Name & ")"
+  
+End

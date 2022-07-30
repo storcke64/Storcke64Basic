@@ -194,7 +194,7 @@
     { mnuVersionControl Menu
       Action = "version-control"
       Text = ("Version control")
-      Picture = Picture["icon:/small/record"]
+      Picture = Picture["icon:/small/version-control"]
       { mnuVcCommit Menu
         Action = "vc-commit"
         Text = ("Commit") & "..."
@@ -241,7 +241,7 @@
     }
     { mnuVersionControlWith Menu
       Text = ("Put under version control")
-      Picture = Picture["icon:/small/record"]
+      Picture = Picture["icon:/small/version-control"]
     }
     { mnuPublish Menu
       Action = "publish"

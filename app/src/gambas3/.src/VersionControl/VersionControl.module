@@ -44,6 +44,7 @@ Private Sub OnVersionControlChange()
 
   FMain.OnVersionControlChange
   FDebugInfo.OnVersionControlChange  
+  FDebugButton.OnVersionControlChange
 
 End
 
@@ -90,6 +91,7 @@ Public Sub Refresh()
   OnVersionControlChange
   
   If $bEnabled Then
+    
     If Not Env["EDITOR"] Then
       Env["EDITOR"] = GetTextEditor()
       If Not Env["EDITOR"] Then
