@@ -345,3 +345,72 @@ Static Public Sub PadRight({String} As String, Length As Integer, Optional Pad A
   
 End
 
+Static Public Sub IsEmail({String} As String) As Boolean
+
+  Dim sStr As String
+  Dim iPos As Integer
+  
+  sStr = Trim({String})
+  If Not sStr Then Return 
+  
+  If sStr Ends ">" Then
+    iPos = RInStr(sStr, " <")
+    If iPos = 0 Then Return
+    sStr = Mid$(sStr, iPos + 2, -1)
+  Endif
+  
+  iPos = InStr(sStr, "@")
+  If iPos = 0 Then Return
+  
+  sStr = Mid$(sStr, iPos + 1)
+  If InStr(sStr, ".") = 0 Then Return
+  
+  Return True
+  
+End
+
+Static Public Sub IsIP({String} As String) As Boolean
+
+  Dim aStr As String[]
+  Dim I As Integer
+  Dim iNum As Integer
+  
+  aStr = Split({String}, ".")
+  If aStr.Count <> 4 Then Return
+  
+  For I = 0 To 4
+    If Not IsDigit(aStr[I]) Then Return
+    iNum = CInt(aStr[I])
+    If iNum > 255 Then Return
+  Next
+  
+  Return True
+
+End
+
+Static Public Sub IsIPv6({String} As String) As Boolean
+
+  Dim aStr As String[]
+  Dim I As Integer
+  Dim iNum As Integer
+  Dim bVoid As Boolean
+  
+  aStr = Split({String}, ":")
+  If aStr.Count < 3 Or If aStr.Count > 8 Then Return
+  
+  If String.IsIP(aStr.Last) Then aStr.Pop()
+  
+  For I = 0 To aStr.Max
+    If Not aStr[I] Then
+      If bVoid Then Return
+      bVoid = True
+      Continue
+    Endif
+    Try iNum = Val("&H" & aStr[I] & "&")
+    If Error Then Return
+    If iNum < 0 Or If iNum > 65535 Then Return
+  Next
+  
+  Return True
+
+End
