@@ -1310,12 +1310,8 @@ Public Sub mnuForm_Click()
 End
 
 Public Sub mnuGotoLine_Click()
-
-  Dim iLine As Integer
-
-  iLine = FGotoLine.Run($hEditor.Line + 1)
-  If iLine <= 0 Then Return
-  GotoCenter(iLine - 1, 0)
+  
+  $hEditor.ShowGotoPanel
 
 End
 
