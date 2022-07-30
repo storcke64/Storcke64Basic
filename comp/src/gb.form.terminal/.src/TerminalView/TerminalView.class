@@ -152,6 +152,12 @@ Private $fLastMouseDownX As Integer
 Private $fLastMouseDownY As Integer
 
 Private mnuPopup As Menu
+Private mnuClear As Menu
+Private mnuCopy As Menu
+Private mnuOpen As Menu
+Private mnuPaste As Menu
+Private mnuSelectAll As Menu
+
 
 Private $iScrollY As Integer
 Private $iTargetY As Integer
@@ -1689,26 +1695,24 @@ Public Sub View_Menu()
     
     mnuPopup = New Menu(Me.Window, True)
     
-    If $hScreen.HasLink() Then
-      
-      hMenu = New Menu(mnuPopup) As "mnuOpen"
-      hMenu.Text = ("Open link") & "..."
-      hMenu.Picture = Picture["icon:/small/open"]
-      
-      hMenu = New Menu(mnuPopup) As "mnuOpen"
-      
-    Endif
+    hMenu = New Menu(mnuPopup) As "mnuOpen"
+    hMenu.Text = ("Open link") & "..."
+    hMenu.Picture = Picture["icon:/small/open"]
+    mnuOpen = hMenu
+    
+    hMenu = New Menu(mnuPopup)
     
     hMenu = New Menu(mnuPopup) As "mnuCopy"
     hMenu.Text = ("Copy")
     hMenu.Picture = Picture["icon:/small/copy"]
     hMenu.Shortcut = "CTRL+SHIFT+C"
+    mnuCopy = hMenu
     
     hMenu = New Menu(mnuPopup) As "mnuPaste"
     hMenu.Text = ("Paste")
     hMenu.Picture = Picture["icon:/small/paste"]
     hMenu.Shortcut = "CTRL+SHIFT+V"
-    hMenu.Enabled = Not $bReadOnly
+    mnuPaste = hMenu
     
     hMenu = New Menu(mnuPopup)
     
@@ -1716,13 +1720,18 @@ Public Sub View_Menu()
     hMenu.Text = ("Select all")
     hMenu.Picture = Picture["icon:/small/select-all"]
     hMenu.Shortcut = "CTRL+SHIFT+A"
+    mnuSelectAll = hMenu
     
     hMenu = New Menu(mnuPopup) As "mnuClear"
     hMenu.Text = ("Clear")
     hMenu.Picture = Picture["icon:/small/clear"]
-    hMenu.Enabled = Not $bReadOnly
+    mnuClear = hMenu
     
   Endif
+  
+  mnuOpen.Visible = $hScreen.HasLink()
+  mnuPaste.Enabled = Not $bReadOnly
+  mnuClear.Enabled = Not $bReadOnly
   
   mnuPopup.Popup
   
