@@ -58,6 +58,7 @@ camera                  devices/camera-photo;;apps/spectacle
 cancel                  actions/dialog-cancel
 car                     places/poi-car
 cdrom                   devices/media-optical
+chart                   actions/view-statistics
 cherry                  #
 city                    #
 column-after            actions/edit-table-insert-column-right
@@ -190,7 +191,7 @@ insert-image            actions/insert-image
 insert-link             actions/insert-link
 insert-table            actions/insert-table
 insert-text             actions/insert-text
-internet                [-breeze*]places/folder-html;categories/applications-internet
+internet                [breeze*!32]categories/applications-internet;categories/applications-internet;places/folder-html
 intersection            #
 invert                  actions/edit-select-invert
 java                    $(mime)/application-java;$(mime)/text-x-java
@@ -241,7 +242,7 @@ mount                   actions/media-mount
 move                    actions/transform-move
 multimedia              categories/applications-multimedia;;preferences/preferences-desktop-multimedia;apps/preferences-desktop-multimedia
 muted                   status/audio-volume-muted
-network                 status/network-connect;places/network-workgroup;devices/network-wired;;preferences/preferences-system-network;apps/preferences-system-network;;apps/krdc
+network                 [breeze*]status/network-wired-activated;status/network-connect;places/network-workgroup;;preferences/preferences-system-network;apps/preferences-system-network;;apps/krdc
 new                     actions/document-new
 new-appointment         actions/appointment-new
 new-dir                 actions/folder-new
@@ -254,6 +255,7 @@ notification            actions/notifications;;preferences/preferences-desktop-n
 office                  $(mime)/x-office-document;;apps/libreoffice;apps/libreoffice-writer
 office-calc             $(mime)/x-office-spreadsheet;;apps/libreoffice-calc
 office-draw             $(mime)/x-office-drawing;;apps/libreoffice-draw
+office-math             $(mime)/x-office-math;;apps/libreoffice-math
 office-presentation     [elementary]$(mime)/application-vns.ms-powerpoint;$(mime)/x-office-presentation;;apps/libreoffice-impress
 ok                      actions/dialog-ok
 opacity                 [breeze]actions/edit-opacity
@@ -342,7 +344,7 @@ speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
 spell-check             actions/tools-check-spelling
 star                    status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
-statistics              actions/view-statistics;;apps/filelight
+statistics              actions/office-chart-pie;;apps/filelight
 storm                   applets/weather-storm;status/weather-storm
 stop                    actions/media-playback-stop
 subtitle                actions/media-view-subtitles;actions/add-subtitle
@@ -405,7 +407,7 @@ update                  apps/system-software-update
 upload                  [breeze*]actions/cloud-upload
 user                    [breeze*]actions/user-identity;stock/stock_person;status/avatar-default;;preferences/preferences-desktop-user;apps/preferences-desktop-user
 user-group              [-breeze*]actions/user-group-new;apps/system-users
-vector                  $(mime)/image-x-svg+xml;$(mime)/x-office-drawing
+vector                  $(mime)/image-x-svg+xml
 version-control         actions/vcs-branch
 video                   $(mime)/video-x-generic
 view-detail             actions/view-list-details
