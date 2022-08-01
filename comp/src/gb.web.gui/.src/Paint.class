@@ -14,7 +14,7 @@ Static Public Sub Begin(Device As WebControl)
   Dim hDriver As PaintDriver
   
   Try hDriver = New ("PaintDriver_" & Object.Type(Device))
-  If Error Then Error.Raise("Not a paintable device: " & Error.Text)
+  If Error Then Error.Raise("Not a paintable device")
   
   $aStack.Push($hCurrent)
   $hCurrent = hDriver
@@ -95,15 +95,37 @@ End
 
 Static Public Sub Arc(XC As Float, YC As Float, Radius As Float, Optional Angle As Float, Length As Float)
   
-  If IsMissing(Length) Then
-    If IsMissing(Angle) Then
-      $hCurrent.Arc(XC, YC, Radius)
-    Else
-      $hCurrent.Arc(XC, YC, Radius, Angle)
-    Endif
-  Else
-    $hCurrent.Arc(XC, YC, Radius, Angle, Length)
-  Endif
+  $hCurrent.Arc(XC, YC, Radius, Angle, Length)
+  
+End
+
+Static Public Sub Ellipse(X As Float, Y As Float, Width As Float, Height As Float, Optional Angle As Float, Length As Float)
+  
+  $hCurrent.Ellipse(X, Y, Width, Height, Angle, Length)
+  
+End
+
+Static Public Sub CurveTo(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, X3 As Float, Y3 As Float)
+  
+  $hCurrent.CurveTo(X1, Y1, X2, Y2, X3, Y3)
+  
+End
+
+Static Public Sub NewPath()
+  
+  $hCurrent.NewPath()
+  
+End
+
+Static Public Sub ClosePath()
+  
+  $hCurrent.ClosePath()
+  
+End
+
+Static Public Sub Clip(Optional Preserve As Boolean)
+  
+  $hCurrent.Clip(Preserve)
   
 End
 

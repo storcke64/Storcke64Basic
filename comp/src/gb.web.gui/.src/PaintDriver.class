@@ -42,7 +42,28 @@ Public Sub SetLineWidth((LineWidth) As Float)
   
 End
 
-Public Sub Arc((XC) As Float, (YC) As Float, (Radius) As Float, Optional (Angle) As Float, (Length) As Float)
+Public Sub Arc((XC) As Float, (YC) As Float, (Radius) As Float, (Angle) As Float, (Length) As Float)
   
 End
+
+Public Sub Ellipse((X) As Float, (Y) As Float, (Width) As Float, (Height) As Float, (Angle) As Float, (Length) As Float)
+  
+End
+
+Public Sub CurveTo((X1) As Float, (Y1) As Float, (X2) As Float, (Y2) As Float, (X3) As Float, (Y3) As Float)
+  
+End
+
+Public Sub NewPath()
+  
+End
+
+Public Sub ClosePath()
+  
+End
+
+Public Sub Clip((Preserve) As Boolean)
+  
+End
+
 

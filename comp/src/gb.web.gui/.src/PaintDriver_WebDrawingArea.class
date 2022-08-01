@@ -76,23 +76,64 @@ Public Sub SetLineWidth(LineWidth As Float)
   
 End
 
-Public Sub Arc(XC As Float, YC As Float, Radius As Float, Optional Angle As Float, Length As Float)
+Public Sub Arc(XC As Float, YC As Float, Radius As Float, Angle As Float, Length As Float)
   
-  Dim bCcw As Boolean
-  
-  If IsMissing(Angle) Or If IsMissing(Length) Then
-    Angle = 0
-    Length = Pi(2)
+  If Length = 0 Then 
+    If Angle = 0 Then
+      Length = Pi(2)
+    Else 
+      Return
+    Endif
   Endif
   
-  If Length = 0 Then Return
+  WebForm._AddJavascript("$_c.arc(" & JS(XC) & "," & JS(YC) & "," & JS(Radius) & "," & JS(Angle) & "," & JS(Angle + Length) & "," & JS(Length < 0) & ")")
   
-  If Length < 0 Then
-    Length = -Length
-    bCcw = True
+End
+
+Public Sub Ellipse(X As Float, Y As Float, Width As Float, Height As Float, Angle As Float, Length As Float)
+  
+  Dim RX As Float
+  Dim RY As Float
+  
+  RX = Width / 2
+  RY = Height / 2
+  X += RX
+  Y += RY
+  
+  If Length = 0 Then 
+    If Angle = 0 Then
+      Length = Pi(2)
+    Else 
+      Return
+    Endif
   Endif
   
-  WebForm._AddJavascript("$_c.arc(" & JS(XC) & "," & JS(YC) & "," & JS(Radius) & "," & JS(Angle) & "," & JS(Length) & "," & JS(bCcw) & ")")
+  WebForm._AddJavascript("$_c.ellipse(" & JS(X) & "," & JS(Y) & "," & JS(RX) & "," & JS(RY) & ",0," & JS(Angle) & "," & JS(Angle + Length) & "," & JS(Length < 0) & ")")
+  
+End
+
+Public Sub CurveTo(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, X3 As Float, Y3 As Float)
+  
+  WebForm._AddJavascript("$_c.bezierCurveTo(" & JS(X1) & "," & JS(Y1) & "," & JS(X2) & "," & JS(Y2) & "," & JS(X3) & "," & JS(Y3) & ")")
+  
+End
+
+Public Sub NewPath()
+  
+  WebForm._AddJavascript("$_c.beginPath()")
+  
+End
+
+Public Sub ClosePath()
+  
+  WebForm._AddJavascript("$_c.closePath()")
+  
+End
+
+Public Sub Clip(Preserve As Boolean)
+  
+  WebForm._AddJavascript("$_c.clip()")
+  If Not Preserve Then WebForm._AddJavascript("$_c.beginPath()")
   
 End
 

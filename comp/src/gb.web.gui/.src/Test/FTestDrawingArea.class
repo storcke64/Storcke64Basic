@@ -18,6 +18,9 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Rectangle(80, 60, 120, 70)
   Paint.Fill(Color.SetAlpha(Color.Royal, 64))
   
+  Paint.Ellipse(80, 60, 120, 70, 0, -Pi / 2)
+  Paint.Stroke(Color.Green)
+  
 End
 
 Static Public Sub _init()
