@@ -6123,7 +6123,7 @@ Public Sub ReadComponentFile() As Collection
       Case "state"
         cComp["State"] = CInt(sLine)
       Case "hidden"
-        cComp["Hidden"] = sLine = "True"
+        cComp["Hidden"] = sLine == "True"
       Case "compatibleuntil"
         cComp["CompatibleUntil"] = sLine
       Case "include"

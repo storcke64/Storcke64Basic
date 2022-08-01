@@ -1538,11 +1538,11 @@ Public Function GetSymbolType(sSymbol As String, Optional bPoint As Boolean, Opt
 
   If bSubr Then Goto LOOK_FOR_SUBR
 
-  If sSymbol = "ME" Then
+  If sSymbol == "ME" Then
     Return Me.Name
   Endif
 
-  If sSymbol = "SUPER" Then
+  If sSymbol == "SUPER" Then
     Project.Documentation.GetClassSymbols(Me.Name)
     Return ParentClass
   Endif
@@ -1742,9 +1742,9 @@ Private Function IsTypeSymbol(sPattern As String, iType As Integer) As Boolean
   If iType = Highlight.DataType Then Return True
   If iType = Highlight.Function Then Return True
   If iType = Highlight.Keyword Then
-    If sPattern = "ME" Then Return True
-    If sPattern = "SUPER" Then Return True
-    If sPattern = "LAST" Then Return True
+    If sPattern == "ME" Then Return True
+    If sPattern == "SUPER" Then Return True
+    If sPattern == "LAST" Then Return True
   Endif
 
 End
@@ -1977,7 +1977,7 @@ Public Sub CheckCompletion()
       aTypes.Remove(aTypes.Count - 1)
       sType = GetExpressionType(aSymbols, aTypes, True)
       If sType Then
-        If aSymbols[aSymbols.Max] = "SUPER" Or If aSymbols[aSymbols.Max] = "ME" Then
+        If aSymbols[aSymbols.Max] == "SUPER" Or If aSymbols[aSymbols.Max] == "ME" Then
           bHidden = True
         Endif
         'PRINT "Type: "; sType
