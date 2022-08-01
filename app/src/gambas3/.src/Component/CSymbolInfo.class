@@ -152,6 +152,8 @@ Public Function GetIcon() As String
 
     Case "r"
       sIcon = If(bStatic, "s-property-ro", "property-ro")
+    Case "w"
+      sIcon = If(bStatic, "s-property-rw", "property-rw")
     Case "p"
       sIcon = If(bStatic, "s-property", "property")
     Case "v"
@@ -633,6 +635,8 @@ Public Function GetDescription(Optional bBalise As Boolean) As String
   
     Case "r"
       sDesc = sStatic & "Property Read"
+    Case "w"
+      sDesc = sStatic & "Property Write"
     Case "p"
       sDesc = sStatic & "Property"
     'CASE "v"
@@ -1439,6 +1443,8 @@ Public Sub WikiGetSyntax() As String[]
           sSyntax = sSyntax & Keyword("Property") & " "
         Case "r"
           sSyntax = sSyntax & Keyword("Property Read") & " "
+        Case "w"
+          sSyntax = sSyntax & Keyword("Property Write") & " "
         Case "c"
           sSyntax = sSyntax & Keyword("Const") & " "
         Case ":"

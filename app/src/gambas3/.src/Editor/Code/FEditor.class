@@ -639,18 +639,22 @@ Private Sub InsertProperty(bShift As Boolean)
   Dim iLine As Integer
   Dim iCol As Integer
   Dim aSymbols As String[]
+  Dim bWrite As Boolean
 
   aSymbols = Highlight.Symbols
 
-  If aSymbols[0] = "STATIC" Then
+  If aSymbols[0] == "STATIC" Then
     bStatic = True
     iPos = 2
   Else
     iPos = 1
   Endif
 
-  If aSymbols[iPos] = "READ" Then
+  If aSymbols[iPos] == "READ" Then
     bRead = True
+    Inc iPos
+  Else If aSymbols[iPos] == "WRITE" Then
+    bWrite = True
     Inc iPos
   Endif
 
@@ -696,10 +700,8 @@ ANOTHER_SYMBOL:
   iCol = $hEditor.Column
 
   $hEditor.Begin
-  InsertFunction(sName & "_Read", sType, False, "", bStatic)
-  If Not bRead Then
-    InsertFunction(sName & "_Write", "", False, "Value As " & sType, bStatic)
-  Endif
+  If Not bWrite Then InsertFunction(sName & "_Read", sType, False, "", bStatic)
+  If Not bRead Then InsertFunction(sName & "_Write", "", False, "Value As " & sType, bStatic)
   $hEditor.End
 
   $hEditor.Goto(iCol, iLine)

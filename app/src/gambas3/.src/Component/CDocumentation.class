@@ -670,6 +670,10 @@ Private Sub ScanClass(hModule As Object, cSymbol As Collection, bModule As Boole
           If sKind = "p" Then sKind = "r"
           Inc iInd
           Break
+        Case "WRITE"
+          If sKind = "p" Then sKind = "w"
+          Inc iInd
+          Break
         Case "EVENT"
           sKind = ":"
           bStatic = False
