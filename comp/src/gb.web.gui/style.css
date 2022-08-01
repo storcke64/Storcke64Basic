@@ -6,7 +6,7 @@ HTML, BODY {
   font-family: sans-serif;
 }
 
-HTML,BODY,DIV,INPUT,TEXTAREA {
+HTML,BODY,DIV,INPUT,TEXTAREA,SELECT,CANVAS {
   box-sizing: border-box;
 }
 
@@ -1102,4 +1102,12 @@ TD.gw-table-check {
 .gw-tree-check {
   margin: 0;
   margin-right: 0.25em;
+}
+
+.gw-drawingarea {
+  border: solid 1px #C0C0C0;
+}
+
+.gw-drawingarea.gw-noborder {
+  border: none;
 }

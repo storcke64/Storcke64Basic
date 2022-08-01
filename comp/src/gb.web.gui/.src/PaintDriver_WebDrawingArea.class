@@ -1,0 +1,52 @@
+' Gambas class file
+
+Inherits PaintDriver
+
+Public Sub Begin()
+  
+  WebForm._AddJavascript("const $_c = $_(" & JS(Me.Device.Name) & ").getContext('2d')")
+  WebForm._AddJavascript("$_c.beginPath()")
+  
+End
+
+Public Sub End()
+  
+End
+
+
+Public Sub Save()
+  
+  WebForm._AddJavascript("$_c.save()")
+  
+End
+
+Public Sub Restore()
+  
+  WebForm._AddJavascript("$_c.restore()")
+  
+End
+
+Public Sub Rectangle(X As Integer, Y As Integer, Width As Integer, Height As Integer)
+  
+  WebForm._AddJavascript("$_c.rect(" & JS(X) & "," & JS(Y) & "," & JS(Width) & "," & JS(Height) & ")")
+  
+End
+
+Public Sub Fill()
+  
+  WebForm._AddJavascript("$_c.fill()")
+
+End
+
+Public Sub MoveTo(X As Integer, Y As Integer)
+
+  WebForm._AddJavascript("$_c.moveTo(" & JS(X) & "," & JS(Y) & ")")
+  
+End
+
+Public Sub LineTo(X As Integer, Y As Integer)
+
+  WebForm._AddJavascript("$_c.lineTo(" & JS(X) & "," & JS(Y) & ")")
+  
+End
+

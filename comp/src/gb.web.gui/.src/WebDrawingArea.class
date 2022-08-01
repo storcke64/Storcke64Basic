@@ -1,0 +1,57 @@
+' Gambas class file
+
+Export
+Inherits WebControl
+
+Public Const _Properties As String = "*,Border"
+Public Const _DrawWith As String = "DrawingArea"
+Public Const _DefaultEvent As String = "Draw"
+
+Event Draw
+
+Public Sub _new()
+  
+  Me.Border = False
+  
+End
+
+
+Public Sub _BeforeRender()
+
+  Dim sWidth As String
+  Dim iWidth As Integer
+  Dim sHeight As String
+  Dim iHeight As Integer
+  
+  sWidth = Me.Width
+  If sWidth Ends "px" Then Try iWidth = CInt(Left(sWidth, -2))
+  
+  sHeight = Me.Height
+  If sHeight Ends "px" Then Try iHeight = CInt(Left(sHeight, -2))
+  
+  Print "<canvas"; Me._GetClassId();
+  Me._RenderStyleSheet()
+  If iWidth And If iHeight Then Print " width=\""; iWidth; "\" height=\""; iHeight; "\"";
+  Print ">";
+  
+End
+
+Public Sub _Render()
+  
+  If Object.CanRaise(Me, "Draw") Then
+    
+    Paint.Begin(Me)
+    Raise Draw
+    Paint.End
+    
+  Endif
+  
+End
+
+Public Sub _AfterRender()
+  
+  Raise Render
+  Print "</canvas>";
+  
+End
+

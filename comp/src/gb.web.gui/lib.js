@@ -69,6 +69,7 @@ gw = {
   focus: false,
   lock: 0,
   needKeyPress: {},
+  drawingContext: [],
   
   log: function(msg)
   {
@@ -256,7 +257,7 @@ gw = {
         /*if (gw.debug)
           console.log('--> ' + xhr.responseText);*/
         
-        var r = xhr.responseText.split('\n');
+        /*var r = xhr.responseText.split('\n');
         var i, expr;
         
         for (i = 0; i < r.length; i++)
@@ -272,9 +273,17 @@ gw = {
               gw.log('--> ' + expr);
           }
           eval(expr);
-        }
+        }*/
          
-        //eval(xhr.responseText);
+        expr = xhr.responseText;
+        if (gw.debug)
+        {
+          if (expr.length > 1024)
+            gw.log('--> ' + expr.substr(0, 1024) + '...');
+          else
+            gw.log('--> ' + expr);
+        }
+        eval(expr);
         
         if (!gw.focus)
           gw.restoreFocus(save);
@@ -1774,7 +1783,6 @@ gw = {
   
   sound:
   {
-
     pause: function(id)
     {
       var elt = $_(id);
@@ -1791,11 +1799,11 @@ gw = {
     play: function(id)
     {
       var elt = $_(id);
-        if (!elt.paused) 
-        {
-          elt.pause();
-          elt.currentTime = 0;
-        }
+      if (!elt.paused) 
+      {
+        elt.pause();
+        elt.currentTime = 0;
+      }
       elt.play();
     }
   },

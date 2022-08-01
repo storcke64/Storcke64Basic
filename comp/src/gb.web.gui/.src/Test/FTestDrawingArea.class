@@ -1,0 +1,24 @@
+' Gambas class file
+
+Export
+
+Public Sub WebDrawingArea1_Draw()
+
+  Paint.MoveTo(75, 50)
+  Paint.LineTo(100, 75)
+  Paint.LineTo(100, 25)
+  Paint.Fill()
+  
+End
+
+Static Public Sub _init()
+
+  WebForm.Debug = True
+
+End
+
+Public Sub WebButton1_Click()
+
+  WebDrawingArea1.Refresh
+
+End

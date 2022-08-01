@@ -357,7 +357,6 @@ Public Sub _BeforeRender()
   
   Print "<div"; _GetClassId();
   Me._RenderStyleSheet()
-  If $cNeedKeyPress.Exist($sName) Then Print " tabindex=\"0\"";
   Print ">";
   
 End
@@ -420,6 +419,8 @@ Public Sub _RenderStyleSheet()
   If $hStyle And If Not $hStyle.IsVoid() Then $aStyleSheet.Insert($hStyle._GetStyleSheet())
   
   _EndStyleSheet
+  
+  If $cNeedKeyPress.Exist($sName) Then Print " tabindex=\"0\"";
   
 End
 

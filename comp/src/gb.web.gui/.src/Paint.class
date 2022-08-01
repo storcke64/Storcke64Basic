@@ -1,0 +1,76 @@
+' Gambas class file
+
+Export
+
+Static Private $aStack As New PaintDriver[]
+
+Static Property Read Device As WebControl
+
+Static Private $hCurrent As New PaintDriver
+
+Static Public Sub Begin(Device As WebControl)
+
+  Dim hDriver As PaintDriver
+  
+  Try hDriver = New ("PaintDriver_" & Object.Type(Device))
+  If Error Then Error.Raise("Not a paintable device")
+  
+  $aStack.Push($hCurrent)
+  $hCurrent = hDriver
+  $hCurrent.Device = Device
+  
+  $hCurrent.Begin()
+  
+End
+
+Static Public Sub End()
+  
+  If Not $hCurrent.Device Then Return
+  
+  $hCurrent.End()
+  $hCurrent = $aStack.Pop()
+  
+End
+
+Static Private Function Device_Read() As WebControl
+
+  Return $hCurrent.Device
+
+End
+
+Static Public Sub Save()
+
+  $hCurrent.Save()
+  
+End
+
+Static Public Sub Restore()
+  
+  $hCurrent.Restore()
+  
+End
+
+Static Public Sub Rectangle(X As Integer, Y As Integer, Width As Integer, Height As Integer)
+  
+  $hCurrent.Rectangle(X, Y, Width, Height)
+  
+End
+
+Static Public Sub Fill()
+  
+  $hCurrent.Fill()
+  
+End
+
+Static Public Sub MoveTo(X As Integer, Y As Integer)
+  
+  $hCurrent.MoveTo(X, Y)
+  
+End
+
+Static Public Sub LineTo(X As Integer, Y As Integer)
+  
+  $hCurrent.LineTo(X, Y)
+  
+End
+
