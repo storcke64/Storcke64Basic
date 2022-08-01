@@ -161,7 +161,7 @@ bool PAINT_begin(void *device)
 
 	if (!desc)
 	{
-		GB.Error("Not a paintable object");
+		GB.Error("Not a paintable device");
 		return TRUE;
 	}
 

@@ -405,8 +405,8 @@ void CLASS_add_property(CLASS *class, TRANS_PROPERTY *decl)
 	prop = ARRAY_add_void(&class->prop);
 	TYPE_clear(&prop->type);
 	prop->name = NO_SYMBOL;
-	prop->read = TRUE;
-	prop->write = decl->read == 0;
+	prop->read = decl->write_only ? 0 : -1;
+	prop->write = decl->read_only ? 0 : -1;
 	prop->synonymous = -1;
 
 	sym = CLASS_declare(class, decl->index, TK_PROPERTY, TRUE);
@@ -429,8 +429,8 @@ void CLASS_add_property(CLASS *class, TRANS_PROPERTY *decl)
 		prop = ARRAY_add_void(&class->prop);
 		TYPE_clear(&prop->type);
 		prop->name = NO_SYMBOL;
-		prop->read = TRUE;
-		prop->write = decl->read == 0;
+		prop->read = decl->write_only ? 0 : -1;
+		prop->write = decl->read_only ? 0 : -1;
 		prop->synonymous = index;
 
 		sym = CLASS_declare(class, decl->synonymous[i], TK_PROPERTY, TRUE);
@@ -1004,11 +1004,10 @@ void CLASS_check_properties(CLASS *class)
 		}
 		else
 		{
-			prop->read = check_one_property_func(class, prop, FALSE);
-			if (prop->write)
-				prop->write = check_one_property_func(class, prop, TRUE);
-			else
-				prop->write = NO_SYMBOL;
+			// TODO: if COMPILER_version < 0x3180000, and if there is no prop->read, then
+			// replace it by a function that raises an error.
+			prop->read = prop->read ? check_one_property_func(class, prop, FALSE) : NO_SYMBOL;
+			prop->write = prop->write ? check_one_property_func(class, prop, TRUE) : NO_SYMBOL;
 		}
 	}
 }

@@ -203,6 +203,8 @@ CLASS *CLASS_register_class(GB_DESC *ptr, CLASS *class)
 			case CD_STATIC_PROPERTY:
 			case CD_PROPERTY_READ:
 			case CD_STATIC_PROPERTY_READ:
+			case CD_PROPERTY_WRITE:
+			case CD_STATIC_PROPERTY_WRITE:
 
 				if ((intptr_t)desc->property.read == CLASS_DESC_SELF)
 					desc->property.read = (void (*)())class_self_property;

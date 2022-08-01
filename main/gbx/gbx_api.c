@@ -602,6 +602,11 @@ void *GB_GetProperty(void *object, const char *name)
 			return NULL;
 		}
 	}
+	else if (type == CD_PROPERTY_WRITE || type == CD_STATIC_PROPERTY_WRITE)
+	{
+		error(E_NREAD, class, name);
+		return NULL;
+	}
 	else
 	{
 		error(E_NPROPERTY, class, name);
@@ -666,7 +671,7 @@ bool GB_SetProperty(void *object, const char *name, GB_VALUE *val)
 
 	type = CLASS_DESC_get_type(desc);
 
-	if (type == CD_PROPERTY || type == CD_VARIABLE)
+	if (type == CD_PROPERTY || type == CD_VARIABLE || type == CD_PROPERTY_WRITE)
 	{
 		if (!object)
 		{
@@ -679,7 +684,7 @@ bool GB_SetProperty(void *object, const char *name, GB_VALUE *val)
 			object = EXEC_auto_create(class, TRUE);
 		}
 	}
-	else if (type == CD_STATIC_PROPERTY || type == CD_STATIC_VARIABLE)
+	else if (type == CD_STATIC_PROPERTY || type == CD_STATIC_VARIABLE || type == CD_STATIC_PROPERTY_WRITE)
 	{
 		if (object)
 		{

@@ -318,7 +318,7 @@ static void add_identifier()
 	if (can_be_reserved)
 	{
 		static void *jump[] = { 
-			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN, &&__ENUM, &&__READ, &&__DATATYPE 
+			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN, &&__ENUM, &&__READ, &&__DATATYPE
 		};
 		
 		last_identifier = (flag & RSF_IDENT) != 0;
@@ -355,7 +355,7 @@ static void add_identifier()
 		__READ:
 			can_be_reserved = canres_car[car] && (!last_identifier || PATTERN_is(last_pattern, RS_PROPERTY));
 			break;
-		
+
 		__DATATYPE:
 			if (car == '[' && get_char_offset(1) == ']')
 			{

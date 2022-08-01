@@ -431,8 +431,10 @@ BEGIN_PROPERTY(Symbol_Kind)
 
 		case CD_PROPERTY:
 		case CD_PROPERTY_READ:
+		case CD_PROPERTY_WRITE:
 		case CD_STATIC_PROPERTY:
 		case CD_STATIC_PROPERTY_READ:
+		case CD_STATIC_PROPERTY_WRITE:
 			GB_ReturnInt(2);
 			return;
 

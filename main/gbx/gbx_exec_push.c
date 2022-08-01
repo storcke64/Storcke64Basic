@@ -307,6 +307,11 @@ _PUSH_GENERIC:
 
 			goto _PUSH_EXTERN_2;
 
+    case CD_PROPERTY_WRITE:
+    case CD_STATIC_PROPERTY_WRITE:
+
+      THROW(E_NREAD, CLASS_get_name(class), name);
+
 		default:
 
 			THROW(E_NSYMBOL, CLASS_get_name(class), name);

@@ -1154,6 +1154,8 @@ static void load_without_inits(CLASS *class)
 			case CD_STATIC_PROPERTY:
 			case CD_PROPERTY_READ:
 			case CD_STATIC_PROPERTY_READ:
+			case CD_PROPERTY_WRITE:
+			case CD_STATIC_PROPERTY_WRITE:
 
 				desc->property.read = (void (*)())desc->gambas.val1;
 				desc->property.write = (void (*)())desc->gambas.val2;

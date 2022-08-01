@@ -412,6 +412,9 @@ typedef
 #define GB_PROPERTY_SELF(symbol, type) \
 	{ "r" symbol, (intptr_t)type, (intptr_t)(-1) }
 
+#define GB_PROPERTY_WRITE(symbol, type, proc) \
+	{ "w" symbol, (intptr_t)type, (intptr_t)proc }
+
 #define GB_METHOD(symbol, type, exec, signature) \
 	{ "m" symbol, (intptr_t)type, (intptr_t)exec, (intptr_t)signature }
 
@@ -426,6 +429,9 @@ typedef
 
 #define GB_STATIC_PROPERTY_SELF(symbol, type) \
 	{ "R" symbol, (intptr_t)type, (-1) }
+
+#define GB_STATIC_PROPERTY_WRITE(symbol, type, proc) \
+	{ "W" symbol, (intptr_t)type, (intptr_t)proc }
 
 #define GB_STATIC_METHOD(symbol, type, exec, signature) \
 	{ "M" symbol, (intptr_t)type, (intptr_t)exec, (intptr_t)signature }

@@ -117,7 +117,7 @@ COMP_INFO COMP_res_info[] =
 	{ "Input"                                                     },
 	{ "Read",         RSF_PREV,                 0,          7     },
 	{ "Peek",                                                     },
-	{ "Write"                                                     },
+	{ "Write",        RSF_PREV,                 0,          7     },
 	{ "Open"                                                      },
 	{ "Close"                                                     },
 	{ "Seek"                                                      },

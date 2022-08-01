@@ -42,7 +42,7 @@ void EXEC_pop_unknown(void)
     /* 3 */ &&_POP_PROPERTY,
     /* 4 */ &&_POP_VARIABLE_AUTO,
     /* 5 */ &&_POP_PROPERTY_AUTO,
-		/* 6 */ &&_POP_STRUCT_FIELD
+    /* 6 */ &&_POP_STRUCT_FIELD
     };
 
   const char *name;
@@ -65,23 +65,23 @@ _POP_GENERIC:
 
   name = CP->load->unknown[PC[1]];
 
-	// The first time we access a symbol, we must not be virtual to find it
-	val = &SP[-1];
-	if (defined && object && !VALUE_is_super(val))
-  	index = CLASS_find_symbol(val->_object.class, name);
-	else
-  	index = CLASS_find_symbol(class, name);
+  // The first time we access a symbol, we must not be virtual to find it
+  val = &SP[-1];
+  if (defined && object && !VALUE_is_super(val))
+    index = CLASS_find_symbol(val->_object.class, name);
+  else
+    index = CLASS_find_symbol(class, name);
 
   if (index == NO_SYMBOL)
   {
     if (class->special[SPEC_UNKNOWN] == NO_SYMBOL)
     {
-			if (defined && object && !VALUE_is_super(val))
-				class = val->_object.class;
-			THROW(E_NSYMBOL, CLASS_get_name(class), name);
-		}
-		goto _POP_UNKNOWN_PROPERTY;
-	}
+      if (defined && object && !VALUE_is_super(val))
+        class = val->_object.class;
+      THROW(E_NSYMBOL, CLASS_get_name(class), name);
+    }
+    goto _POP_UNKNOWN_PROPERTY;
+  }
 
   desc = class->table[index].desc;
 
@@ -114,16 +114,16 @@ _POP_GENERIC:
 
       if (object == NULL)
         THROW(E_DYNAMIC, CLASS_get_name(class), name);
-      
-      if (defined) 
-			{
-				*PC |= 6;
+
+      if (defined)
+      {
+        *PC |= 6;
         PC[1] = index;
-			}
-			
-			/*if (desc->variable.ctype.id == TC_STRUCT || desc->variable.ctype.id == TC_ARRAY)
-				THROW(E_NWRITE, CLASS_get_name(class), name);*/
-			
+      }
+
+      /*if (desc->variable.ctype.id == TC_STRUCT || desc->variable.ctype.id == TC_ARRAY)
+        THROW(E_NWRITE, CLASS_get_name(class), name);*/
+
       goto _POP_STRUCT_FIELD_2;
 
     case CD_STATIC_VARIABLE:
@@ -139,6 +139,7 @@ _POP_GENERIC:
       goto _POP_STATIC_VARIABLE_2;
 
     case CD_PROPERTY:
+    case CD_PROPERTY_WRITE:
 
       if (object == NULL)
       {
@@ -157,7 +158,8 @@ _POP_GENERIC:
 
       goto _POP_PROPERTY_2;
 
-    case CD_STATIC_PROPERTY:
+			case CD_STATIC_PROPERTY:
+			case CD_STATIC_PROPERTY_WRITE:
 
       if (object)
         THROW(E_STATIC, CLASS_get_name(class), name);
@@ -217,13 +219,13 @@ _POP_STRUCT_FIELD:
 
 _POP_STRUCT_FIELD_2:
 
-	if (((CSTRUCT *)object)->ref)
-		addr = (char *)((CSTATICSTRUCT *)object)->addr + desc->variable.offset;
-	else
-		addr = (char *)object + sizeof(CSTRUCT) + desc->variable.offset;
-	
-	VALUE_class_write(class, &SP[-2], addr, desc->variable.ctype);
-	//VALUE_write(&SP[-2], (void *)addr, desc->variable.type);
+  if (((CSTRUCT *)object)->ref)
+    addr = (char *)((CSTATICSTRUCT *)object)->addr + desc->variable.offset;
+  else
+    addr = (char *)object + sizeof(CSTRUCT) + desc->variable.offset;
+
+  VALUE_class_write(class, &SP[-2], addr, desc->variable.ctype);
+  //VALUE_write(&SP[-2], (void *)addr, desc->variable.type);
   goto _FIN;
 
 
@@ -247,7 +249,7 @@ _POP_PROPERTY_2:
   else
   {
     *SP = SP[-2];
-		PUSH();
+    PUSH();
 
     EXEC.class = desc->property.class;
     EXEC.object = object;
@@ -257,34 +259,34 @@ _POP_PROPERTY_2:
 
     EXEC_function();
   }
-	
-	goto _FIN;
+
+  goto _FIN;
 
 _POP_UNKNOWN_PROPERTY:
 
-	if (class->special[SPEC_PROPERTY] == NO_SYMBOL)
-		goto _NOT_A_PROPERTY;
-	
-	EXEC_unknown_name = name;
-	if (EXEC_special(SPEC_PROPERTY, class, class->property_static ? NULL : object, 0, FALSE))
-		goto _NOT_A_PROPERTY;
+  if (class->special[SPEC_PROPERTY] == NO_SYMBOL)
+    goto _NOT_A_PROPERTY;
 
-	VALUE_conv_boolean(&SP[-1]);
-	SP--;
-	if (!SP->_boolean.value)
-		goto _NOT_A_PROPERTY;
-		
-	EXEC_unknown_name = name;
+  EXEC_unknown_name = name;
+  if (EXEC_special(SPEC_PROPERTY, class, class->property_static ? NULL : object, 0, FALSE))
+    goto _NOT_A_PROPERTY;
 
-	*SP = SP[-2];
-	PUSH();
+  VALUE_conv_boolean(&SP[-1]);
+  SP--;
+  if (!SP->_boolean.value)
+    goto _NOT_A_PROPERTY;
 
-	EXEC_special(SPEC_UNKNOWN, class, class->unknown_static ? NULL : object, 1, TRUE);
-	goto _FIN;
-	
+  EXEC_unknown_name = name;
+
+  *SP = SP[-2];
+  PUSH();
+
+  EXEC_special(SPEC_UNKNOWN, class, class->unknown_static ? NULL : object, 1, TRUE);
+  goto _FIN;
+
 _NOT_A_PROPERTY:
 
-	THROW(E_NPROPERTY, CLASS_get_name(class), name);
+  THROW(E_NPROPERTY, CLASS_get_name(class), name);
 
 _FIN:
 

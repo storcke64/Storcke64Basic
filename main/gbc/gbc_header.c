@@ -348,17 +348,16 @@ static bool header_property(TRANS_PROPERTY *prop)
 	if (!is_public)
 		THROW("A property must be public");
 
-	/* read-only property */
+	// Read-only or write-only property
 
-	if (PATTERN_is(*JOB->current, RS_READ))
-	{
-		prop->read = TRUE;
-		JOB->current++;
-	}
-	else
-		prop->read = FALSE;
+	prop->read_only = prop->write_only = FALSE;
 
-	/* property name */
+	if (TRANS_is(RS_READ))
+		prop->read_only = TRUE;
+	else if (TRANS_is(RS_WRITE))
+		prop->write_only = TRUE;
+
+	// Property name
 
 	if (!PATTERN_is_identifier(*JOB->current))
 		THROW("Syntax error. Identifier expected for property name");

@@ -121,7 +121,8 @@ typedef
 		int synonymous[3];
 		int use;
 		unsigned nsynonymous : 3;
-		unsigned read : 1;
+		unsigned read_only : 1;
+		unsigned write_only : 1;
 		}
 	TRANS_PROPERTY;
 

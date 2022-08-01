@@ -1021,10 +1021,10 @@ const char *CLASS_DESC_get_type_name(const CLASS_DESC *desc)
 {
 	switch (desc->gambas.val3._int[1])
 	{
-		case CD_PROPERTY_ID: return desc->gambas.val2 < 0 ? "r" : "p";
+		case CD_PROPERTY_ID: return desc->gambas.val2 < 0 ? "r" : desc->gambas.val1 < 0 ? "w" : "p";
 		case CD_VARIABLE_ID: return "v";
 		case CD_METHOD_ID: return "m";
-		case CD_STATIC_PROPERTY_ID: return desc->gambas.val2 < 0 ? "R" : "P";
+		case CD_STATIC_PROPERTY_ID: return desc->gambas.val2 < 0 ? "R" : desc->gambas.val1 < 0 ? "W" : "P";
 		case CD_STATIC_VARIABLE_ID: return "V";
 		case CD_STATIC_METHOD_ID: return "M";
 		case CD_CONSTANT_ID: return "C";
