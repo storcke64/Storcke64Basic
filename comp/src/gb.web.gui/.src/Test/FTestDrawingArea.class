@@ -4,10 +4,19 @@ Export
 
 Public Sub WebDrawingArea1_Draw()
 
-  Paint.MoveTo(75, 50)
-  Paint.LineTo(100, 75)
-  Paint.LineTo(100, 25)
-  Paint.Fill()
+  Paint.LineWidth = 8
+
+  ' Paint.Rectangle(50, 50, 150, 150)
+  ' Paint.Stroke(Color.Red, True)
+  ' Paint.Fill(Color.SetAlpha(Color.SoftBlue, 192))
+  ' 
+  ' Paint.Rectangle(80, 80, 150, 150)
+  ' Paint.Stroke(Color.SetAlpha(Color.Yellow, 64))
+  
+  Paint.Arc(100, 100, 60)
+  Paint.Fill(Color.Red)
+  Paint.Rectangle(80, 60, 120, 70)
+  Paint.Fill(Color.SetAlpha(Color.Royal, 64))
   
 End
 

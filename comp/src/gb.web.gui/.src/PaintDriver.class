@@ -18,18 +18,31 @@ Public Sub Restore()
   
 End
 
-Public Sub Rectangle((X) As Integer, (Y) As Integer, (Width) As Integer, (Height) As Integer)
+Public Sub Rectangle((X) As Float, (Y) As Float, (Width) As Float, (Height) As Float)
   
 End
 
-Public Sub Fill()
+Public Sub Fill((Style) As Variant, (Preserve) As Boolean)
   
 End
 
-Public Sub MoveTo((X) As Integer, (Y) As Integer)
+Public Sub Stroke((Style) As Variant, (Preserve) As Boolean)
   
 End
 
-Public Sub LineTo((X) As Integer, (Y) As Integer)
+Public Sub MoveTo((X) As Float, (Y) As Float)
   
 End
+
+Public Sub LineTo((X) As Float, (Y) As Float)
+  
+End
+
+Public Sub SetLineWidth((LineWidth) As Float)
+  
+End
+
+Public Sub Arc((XC) As Float, (YC) As Float, (Radius) As Float, Optional (Angle) As Float, (Length) As Float)
+  
+End
+

@@ -26,27 +26,73 @@ Public Sub Restore()
   
 End
 
-Public Sub Rectangle(X As Integer, Y As Integer, Width As Integer, Height As Integer)
+Public Sub Rectangle(X As Float, Y As Float, Width As Float, Height As Float)
   
   WebForm._AddJavascript("$_c.rect(" & JS(X) & "," & JS(Y) & "," & JS(Width) & "," & JS(Height) & ")")
   
 End
 
-Public Sub Fill()
-  
-  WebForm._AddJavascript("$_c.fill()")
+Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
+
+  If TypeOf(hStyle) = gb.Integer Then
+    
+    WebForm._AddJavascript("$_c." & sProperty & " = " & JS(WebControl._GetColor(hStyle)))
+    
+  Endif
 
 End
 
-Public Sub MoveTo(X As Integer, Y As Integer)
+Public Sub Fill(Style As Variant, Preserve As Boolean)
+
+  HandleStyle(Style, "fillStyle")
+  WebForm._AddJavascript("$_c.fill()")
+  If Not Preserve Then WebForm._AddJavascript("$_c.beginPath()")
+
+End
+
+Public Sub Stroke(Style As Variant, Preserve As Boolean)
+
+  HandleStyle(Style, "strokeStyle")
+  WebForm._AddJavascript("$_c.stroke()")
+  If Not Preserve Then WebForm._AddJavascript("$_c.beginPath()")
+
+End
+
+Public Sub MoveTo(X As Float, Y As Float)
 
   WebForm._AddJavascript("$_c.moveTo(" & JS(X) & "," & JS(Y) & ")")
   
 End
 
-Public Sub LineTo(X As Integer, Y As Integer)
+Public Sub LineTo(X As Float, Y As Float)
 
   WebForm._AddJavascript("$_c.lineTo(" & JS(X) & "," & JS(Y) & ")")
+  
+End
+
+Public Sub SetLineWidth(LineWidth As Float)
+  
+  WebForm._AddJavascript("$_c.lineWidth = " & JS(LineWidth))
+  
+End
+
+Public Sub Arc(XC As Float, YC As Float, Radius As Float, Optional Angle As Float, Length As Float)
+  
+  Dim bCcw As Boolean
+  
+  If IsMissing(Angle) Or If IsMissing(Length) Then
+    Angle = 0
+    Length = Pi(2)
+  Endif
+  
+  If Length = 0 Then Return
+  
+  If Length < 0 Then
+    Length = -Length
+    bCcw = True
+  Endif
+  
+  WebForm._AddJavascript("$_c.arc(" & JS(XC) & "," & JS(YC) & "," & JS(Radius) & "," & JS(Angle) & "," & JS(Length) & "," & JS(bCcw) & ")")
   
 End
 

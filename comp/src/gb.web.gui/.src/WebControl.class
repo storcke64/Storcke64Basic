@@ -875,7 +875,7 @@ Static Public Sub _GetColor(iCol As Integer) As String
   G = Lsr(iCol, 8) And 255
   B = iCol And 255
   
-  If A Then
+  If A < 255 Then
     Return "rgba(" & CStr(R) & "," & CStr(G) & "," & CStr(B) & "," & CStr(Round(A / 255, -2)) & ")"
   Else
     Return "#" & Hex$(R, 2) & Hex$(G, 2) & Hex$(B, 2)

@@ -5,6 +5,7 @@ Export
 Static Private $aStack As New PaintDriver[]
 
 Static Property Read Device As WebControl
+Static Property LineWidth As Float
 
 Static Private $hCurrent As New PaintDriver
 
@@ -13,7 +14,7 @@ Static Public Sub Begin(Device As WebControl)
   Dim hDriver As PaintDriver
   
   Try hDriver = New ("PaintDriver_" & Object.Type(Device))
-  If Error Then Error.Raise("Not a paintable device")
+  If Error Then Error.Raise("Not a paintable device: " & Error.Text)
   
   $aStack.Push($hCurrent)
   $hCurrent = hDriver
@@ -50,19 +51,25 @@ Static Public Sub Restore()
   
 End
 
-Static Public Sub Rectangle(X As Integer, Y As Integer, Width As Integer, Height As Integer)
+Static Public Sub Rectangle(X As Float, Y As Float, Width As Float, Height As Float)
   
   $hCurrent.Rectangle(X, Y, Width, Height)
   
 End
 
-Static Public Sub Fill()
+Static Public Sub Fill(Optional Style As Variant, Optional Preserve As Boolean)
   
-  $hCurrent.Fill()
+  $hCurrent.Fill(Style, Preserve)
   
 End
 
-Static Public Sub MoveTo(X As Integer, Y As Integer)
+Static Public Sub Stroke(Optional Style As Variant, Optional Preserve As Boolean)
+  
+  $hCurrent.Stroke(Style, Preserve)
+  
+End
+
+Static Public Sub MoveTo(X As Float, Y As Float)
   
   $hCurrent.MoveTo(X, Y)
   
@@ -71,6 +78,32 @@ End
 Static Public Sub LineTo(X As Integer, Y As Integer)
   
   $hCurrent.LineTo(X, Y)
+  
+End
+
+Static Private Function LineWidth_Read() As Float
+
+  Error.Raise("Write-only property")
+
+End
+
+Static Private Sub LineWidth_Write(Value As Float)
+
+  $hCurrent.SetLineWidth(Value)
+
+End
+
+Static Public Sub Arc(XC As Float, YC As Float, Radius As Float, Optional Angle As Float, Length As Float)
+  
+  If IsMissing(Length) Then
+    If IsMissing(Angle) Then
+      $hCurrent.Arc(XC, YC, Radius)
+    Else
+      $hCurrent.Arc(XC, YC, Radius, Angle)
+    Endif
+  Else
+    $hCurrent.Arc(XC, YC, Radius, Angle, Length)
+  Endif
   
 End
 
