@@ -417,7 +417,7 @@ void CWIDGET_set_allow_focus(void *_object, bool f)
 {
 	if (f)
 	{
-		WIDGET->setFocusPolicy(GB.CanRaise(THIS, EVENT_MouseWheel) ? Qt::WheelFocus : Qt::StrongFocus);
+		WIDGET->setFocusPolicy(THIS->flag.wheel | GB.CanRaise(THIS, EVENT_MouseWheel) ? Qt::WheelFocus : Qt::StrongFocus);
 		WIDGET->setAttribute(Qt::WA_InputMethodEnabled, true);
 	}
 	else
@@ -3066,6 +3066,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 	__MOUSE_WHEEL:
 	{
 		QWheelEvent *ev = (QWheelEvent *)event;
+		bool eat_wheel;
 
 		//qDebug("Event on %p %s%s%s", widget,
 		//  real ? "REAL " : "", design ? "DESIGN " : "", child ? "CHILD " : "");
@@ -3073,8 +3074,12 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		if (!original)
 			goto _DESIGN;
 
+		eat_wheel = control->flag.wheel;
+
 	__MOUSE_WHEEL_TRY_PROXY:
 		
+		//fprintf(stderr, "wheel on %p %s\n", control, control->name);
+
 		if (design || QWIDGET(control)->isEnabled())
 		{
 			if (GB.CanRaise(control, EVENT_MouseWheel))
@@ -3132,7 +3137,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 					return true;
 				}
 			}
-			
+
 			if (EXT(control) && EXT(control)->proxy_for)
 			{
 				control = (CWIDGET *)(EXT(control)->proxy_for);
@@ -3140,7 +3145,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			}
 		}
 		
-		if (!control->flag.wheel)
+		if (!eat_wheel)
 		{
 			control = (CWIDGET *)CWIDGET_get_parent(control);
 			if (control)
