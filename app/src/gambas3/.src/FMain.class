@@ -29,14 +29,19 @@ Private $iTabBarHeight As Integer
 
 Private $bFirstShowDebug As Boolean
 
+Private $bWorkspaceVisible As Boolean
+
 Public Sub _new()
 
   'Me.ResizeScaled(86, 97)
   
   'Project.ProjectTree = tvwProject
   Project.Workspace = wrkProject
-  wrkProject.TabPanel.AddButton(btnWorkspaceProject, Align.Left)
-  wrkProject.TabPanel.AddButton(btnWorkspaceProperty, Align.Right)
+  With wrkProject.TabPanel
+    .AddButton(btnWorkspaceProject, Align.Left)
+    .AddButton(btnWorkspaceBrowse, Align.Left)
+    .AddButton(btnWorkspaceProperty, Align.Right)
+  End With
   
   tabProperty.AddButton(btnPropertyToolbar, Align.Right)
   tabProperty.AddButton(btnPropertyHelp, Align.Right)
@@ -1263,7 +1268,7 @@ Private Sub UpdateProperty()
   
   Dim hCtrl As Control
   
-  Action["property"].Visible = (Not Project.ReadOnly) And $bNeedProperty
+  Action["property"].Visible = (Not Project.ReadOnly) And $bNeedProperty And Not $bWorkspaceVisible
   'Action["property"].Enabled = Not Project.Running
   For Each hCtrl In panProperty.Children
     hCtrl.Enabled = Not Project.Running
@@ -1517,10 +1522,10 @@ End
 
 Public Sub ShowTool(sType As String)
   
-  $bNeedProperty = sType = "FForm" Or sType = "FImageEditor"
+  $bNeedProperty = (sType = "FForm" Or sType = "FImageEditor") And Not $bWorkspaceVisible
   panTool.Visible = sType = "FForm"
   panTabProperty.Visible = panTool.Visible
-  panImageProperty.Visible = sType = "FImageEditor"
+  panImageProperty.Visible = sType = "FImageEditor" And Not $bWorkspaceVisible
   UpdateProperty
   UpdateWorkspaceButtons
   
@@ -2019,7 +2024,7 @@ End
 
 Public Sub mnuImportFile_Click()
   
-  FImportFile.Run(GetCurrent(), GetCurrentDir(), Last.Tag)
+  FImportFile.Run(GetCurrent(), GetCurrentDir())
   
 End
 
@@ -3195,17 +3200,23 @@ End
 
 Private Sub UpdateWorkspaceButtons()
 
-  If panProject.Hidden And If panProject.Visible Then
-    wrkProject.TabPanel.ShowButton(btnWorkspaceProject, True)
-  Else
-    wrkProject.TabPanel.ShowButton(btnWorkspaceProject, False)
-  Endif
-  
-  If panProperty.Hidden And If panProperty.Visible Then
-    wrkProject.TabPanel.ShowButton(btnWorkspaceProperty, True)
-  Else
-    wrkProject.TabPanel.ShowButton(btnWorkspaceProperty, False)
-  Endif
+  With wrkProject.TabPanel
+
+    If panProject.Hidden And If panProject.Visible Then
+      .ShowButton(btnWorkspaceProject, True)
+    Else
+      .ShowButton(btnWorkspaceProject, False)
+    Endif
+    
+    .ShowButton(btnWorkspaceBrowse, panProject.Visible And Not $bWorkspaceVisible)
+
+    If panProperty.Hidden And If panProperty.Visible And If Not $bWorkspaceVisible Then
+      .ShowButton(btnWorkspaceProperty, True)
+    Else
+      .ShowButton(btnWorkspaceProperty, False)
+    Endif
+    
+  End With
 
 End
 
@@ -3400,5 +3411,40 @@ Public Sub mnuDebugBrowser_Click()
   
   Project.Config["/Debug/Browser"] = Last.Tag
   UpdateDebugBrowser
+  
+End
+
+Public Sub btnWorkspaceBrowse_Click()
+
+  FProjectBrowser.Load(panWorkspace)
+  wrkProject.Hide
+  FProjectBrowser.Show
+  $bWorkspaceVisible = True
+  UpdateProperty
+  UpdateWorkspaceButtons
+  
+
+End
+
+Public Sub CloseProjectEditor()
+  
+  wrkProject.Show
+  FProjectBrowser.Hide
+  $bWorkspaceVisible = False
+  UpdateProperty
+  UpdateWorkspaceButtons
+  Project.UpdateStatus(True)
+  
+End
+
+Public Sub PaintStatus()
+  
+  If $bWorkspaceVisible Then
+    FProjectBrowser.PaintStatus()
+  Else
+    Project.ActiveForm.PaintStatus()
+  Endif
+  
+Catch
   
 End

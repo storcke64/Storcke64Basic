@@ -538,6 +538,7 @@
     Enabled = False
     { mnuNew Menu
       Text = ("New")
+      Picture = Picture["icon:/small/new"]
       { mnuAddDirectory Menu
         Text = Shortcut(("Directory"), "D")
         Picture = Picture["icon:/small/directory"]
@@ -631,6 +632,7 @@
     }
     { mnuImportFile Menu
       Text = ("Import") & "..."
+      Picture = Picture["icon:/small/import"]
     }
     { mnuOpenRecentFile Menu
       Text = ("Recent")
@@ -1406,17 +1408,22 @@
           Expand = True
           Arrangement = Arrange.Vertical
           { Panel2 HBox
-            MoveScaled(1,1,88,28)
+            MoveScaled(1,1,88,33)
             Expand = True
             { Separator5 Separator
               MoveScaled(1,7,0,10)
               Visible = False
             }
-            { wrkProject Workspace
-              MoveScaled(3,2,81,23)
-              Background = Color.LightForeground
+            { panWorkspace Panel
+              MoveScaled(3,5,82,25)
               Expand = True
-              Border = False
+              Arrangement = Arrange.Vertical
+              { wrkProject Workspace
+                MoveScaled(2,1,79,17)
+                Background = Color.LightForeground
+                Expand = True
+                Border = False
+              }
             }
             { Separator8 Separator
               MoveScaled(86,8,0,9)
@@ -1436,9 +1443,16 @@
               Ignore = True
               Picture = Picture["icon:/small/properties"]
             }
+            { btnWorkspaceBrowse ToolButton
+              MoveScaled(26,1,4,4)
+              Visible = False
+              ToolTip = ("Show project tree")
+              Ignore = True
+              Picture = Picture["icon:/small/directory"]
+            }
           }
           { panDebug SidePanel
-            MoveScaled(7,30,81,23)
+            MoveScaled(7,35,81,22)
             ToolTip = ("Debug")
             Arrangement = Arrange.Fill
             Orientation = Align.Bottom
@@ -1453,10 +1467,10 @@
             }
           }
           { Separator1 Separator
-            MoveScaled(19,55,29,0)
+            MoveScaled(19,58,29,0)
           }
           { panButton Panel
-            MoveScaled(3,56,85,4)
+            MoveScaled(3,59,85,4)
             Visible = False
             Arrangement = Arrange.Fill
           }

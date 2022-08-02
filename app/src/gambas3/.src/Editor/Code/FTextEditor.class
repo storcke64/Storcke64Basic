@@ -2019,3 +2019,10 @@ Public Sub mnuSaveAs_Click()
   Project.SaveFileAs(Path)
   
 End
+
+Public Sub mnuPasteSpecial_Click()
+
+  FPasteSpecial.Run($hEditor)
+
+End
+

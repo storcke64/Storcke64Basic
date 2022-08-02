@@ -352,6 +352,7 @@ Private Sub RefreshWindow()
   FOutput.ReadConfig
   FHelpBrowser.ReadConfig
   FImageProperty.ReadConfig
+  If Class.IsLoaded("FProjectBrowser") Then FProjectBrowser.ReadConfig
   For Each hFile In Project.Files
     Try hFile.ReadConfig
   Next

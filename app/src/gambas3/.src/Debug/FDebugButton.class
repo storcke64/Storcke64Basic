@@ -126,7 +126,7 @@ Public Sub dwgStatus_Draw()
     Paint.Background = Color.TextForeground
     Paint.DrawText($sMessage, X, DS \ 2, W, dwgStatus.H - DS, Align.Center)
   Else
-    Try Project.ActiveForm.PaintStatus()
+    FMain.PaintStatus()
   Endif
   
 End

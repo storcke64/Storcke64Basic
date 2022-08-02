@@ -443,6 +443,8 @@ Static Public Sub PaintEditorStatus(hEditor As TextEditor)
   
   If System.RightToLeft Then
     
+    '' TODO: Right to left
+    
   Else
   
     If hEditor.Overwrite Then

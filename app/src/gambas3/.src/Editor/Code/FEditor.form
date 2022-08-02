@@ -71,7 +71,7 @@
       { mnuPasteSpecial Menu
         Action = ".paste-special"
         Text = ("Paste special") & "..."
-        Picture = Picture["icon:/small/paste"]
+        Picture = Picture["icon:/small/paste-special"]
         Shortcut = "Ctrl+Shift+V"
       }
       { mnuPretty Menu
@@ -366,7 +366,7 @@
       Action = ".paste-special"
       AutoResize = True
       Text = ("Paste special") & "..."
-      Picture = Picture["icon:/small/paste"]
+      Picture = Picture["icon:/small/paste-special"]
     }
     { btnBookmark MenuButton
       MoveScaled(63,0,6,4)
@@ -649,7 +649,7 @@
   { Action paste-special
     Text = "Paste special"
     Shortcut = "Ctrl+Shift+V"
-    Picture = "icon:/small/paste"
+    Picture = "icon:/small/paste-special"
   }
   { Action paste-string
     Text = "Paste as string"

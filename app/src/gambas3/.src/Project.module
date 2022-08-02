@@ -814,6 +814,7 @@ _INIT_AGAIN:
     FMain.OnProjectChange
     FSearch.OnProjectChange
     If Class.IsLoaded("FHelpBrowser") Then FHelpBrowser.OnProjectChange
+    If Class.IsLoaded("FProjectEditor") Then FProjectBrowser.OnProjectChange
     FProfile.OnProjectChange
     'FOpenProject.OnUpdateRecent
     
@@ -1655,11 +1656,7 @@ Public Function LoadFile(sPath As String, Optional bNoMessage As Boolean) As Obj
 
     If Not Exist(sPath) Then Stat(sPath) ' Raise the error on purpose
 
-    If IsDir(sPath) Then
-      
-      hForm = New FProjectEditor(sPath)
-      
-    Else If IsConflict(sPath) Then 
+    If IsConflict(sPath) Then 
       
       hForm = New FConflictEditor(sPath)
       
@@ -1853,6 +1850,8 @@ Public Sub OpenFile(sPath As String, Optional iLine As Integer, Optional iColumn
   Endif
 
   CPosition.Enable
+  
+  FMain.CloseProjectEditor
 
   Return hForm
   

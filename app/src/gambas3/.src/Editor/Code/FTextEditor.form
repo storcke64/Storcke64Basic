@@ -84,7 +84,7 @@
       { mnuPasteSpecial Menu
         Action = ".paste-special"
         Text = ("Paste special") & "..."
-        Picture = Picture["icon:/small/paste"]
+        Picture = Picture["icon:/small/paste-special"]
         Shortcut = "Ctrl+Shift+V"
       }
       { mnuPretty Menu
@@ -374,8 +374,18 @@
           Action = ".paste"
           Picture = Picture["icon:/small/paste"]
         }
+        { btnPasteSpecial ToolButton mnuPasteSpecial
+          Name = "btnPasteSpecial"
+          MoveScaled(42,0,9,4)
+          Visible = False
+          ToolTip = ("Paste special")
+          Action = ".paste-special"
+          AutoResize = True
+          Text = ("Paste special") & "..."
+          Picture = Picture["icon:/small/paste-special"]
+        }
         { btnBookmark MenuButton
-          MoveScaled(43,0,6,4)
+          MoveScaled(56,0,6,4)
           Visible = False
           ToolTip = ("Bookmarks")
           Action = ".bookmark"
@@ -384,7 +394,7 @@
           Menu = "mnuBookmark"
         }
         { btnInsertColor MenuButton
-          MoveScaled(48,0,6,4)
+          MoveScaled(61,0,6,4)
           ToolTip = ("Insert color")
           Action = ".color"
           Picture = Picture["icon:/small/color"]
@@ -392,7 +402,7 @@
           Menu = "mnuColor"
         }
         { btnInsertDate MenuButton
-          MoveScaled(52,0,6,4)
+          MoveScaled(65,0,6,4)
           ToolTip = ("Insert today's date")
           Action = ".date"
           Picture = Picture["icon:/small/calendar"]
@@ -400,7 +410,7 @@
           MenuOnly = True
         }
         { btnInsertChar MenuButton
-          MoveScaled(57,0,6,4)
+          MoveScaled(70,0,6,4)
           ToolTip = ("Insert special character")
           Action = ".char"
           Picture = Picture["icon:/small/shortcut"]
@@ -408,14 +418,14 @@
           MenuOnly = True
         }
         { btnIndent ToolButton
-          MoveScaled(63,0,4,4)
+          MoveScaled(76,0,4,4)
           Visible = False
           ToolTip = ("Indent")
           Action = ".indent"
           Picture = Picture["icon:/small/indent"]
         }
         { btnUnindent ToolButton
-          MoveScaled(66,0,4,4)
+          MoveScaled(79,0,4,4)
           Visible = False
           ToolTip = ("Unindent")
           Action = ".unindent"
@@ -423,21 +433,21 @@
         }
         { btnComment ToolButton mnuComment
           Name = "btnComment"
-          MoveScaled(68,0,4,4)
+          MoveScaled(81,0,4,4)
           ToolTip = ("Comment")
           Action = ".comment"
           Picture = Picture["img/32/comment.png"]
         }
         { btnUncomment ToolButton mnuUncomment
           Name = "btnUncomment"
-          MoveScaled(71,0,4,4)
+          MoveScaled(84,0,4,4)
           ToolTip = ("Uncomment")
           Action = ".uncomment"
           Picture = Picture["img/32/uncomment.png"]
         }
         { btnPretty ToolButton mnuPretty
           Name = "btnPretty"
-          MoveScaled(74,0,4,4)
+          MoveScaled(87,0,4,4)
           Visible = False
           ToolTip = ("Make code pretty")
           Action = ".pretty"
@@ -445,7 +455,7 @@
         }
         { btnSaveAs ToolButton mnuSaveAs
           Name = "btnSaveAs"
-          MoveScaled(78,0,4,4)
+          MoveScaled(91,0,4,4)
           Visible = False
           ToolTip = ("Save as")
           Action = ".save-as"
@@ -715,7 +725,7 @@
   { Action paste-special
     Text = "Paste special"
     Shortcut = "Ctrl+Shift+V"
-    Picture = "icon:/small/paste"
+    Picture = "icon:/small/paste-special"
   }
   { Action paste-string
     Text = "Paste as string"
@@ -861,7 +871,7 @@
   }
   { Toolbar text
     Text = "Text editor"
-    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,save-as,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
+    List = "show-class,diff,diff-previous,diff-next,save,reload,print,undo,redo,cut,copy,paste,paste-special,bookmark,color,date,char,indent,unindent,comment,uncomment,pretty,save-as,view-nosplit,view-hsplit,view-vsplit,proc,wrap,tab-indent,eol,locked,preview"
     Default = "show-class,diff,diff-previous,diff-next,|,save,reload,print,|,undo,redo,|,paste,color,date,char,comment,uncomment,|,|,proc,|,~,wrap,tab-indent,locked,preview"
   }
 }

@@ -2,13 +2,13 @@
 
 Private $sPath As String
 Private $sDir As String
-Private $sType As String
+'Private $sType As String
 
-Public Sub Run(sPath As String, sDir As String, sType As String)
+Public Sub Run(sPath As String, sDir As String)
   
   $sPath = sPath
   $sDir = sDir
-  $sType = sType
+  '$sType = sType
   If Not Me.ShowModal() Then Return
   
 End
