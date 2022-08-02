@@ -13,11 +13,16 @@ Public Sub Form_Open()
   Settings.Read(fvwProject)
   $iIconSizeNormal = Settings["FProjectBrowser/IconSize", 3] 
   $iIconSizePreview = Settings["FProjectBrowser/PreviewIconSize", 3]
+  
+  btnPreview.Value = fvwProject.ShowPreview
+  btnDetail.Value = fvwProject.ShowDetailed
 
   ReadConfig
   sldIconSize_Change
   fvwProject.SetFocus
   
+  Reload
+
 End
 
 Private Sub SetDir(sDir As String)
@@ -77,12 +82,6 @@ Public Sub sldIconSize_Change()
   Else
     $iIconSizeNormal = sldIconSize.Value
   Endif
-
-End
-
-Public Sub Form_Show()
-
-  Reload
 
 End
 
@@ -195,7 +194,12 @@ End
 
 Public Sub btnPaste_Click()
   
+  Dim aPaths As String[]
   
+  aPaths = Clipboard.PastePaths()
+  If Not aPaths Or If aPaths.Count = 0 Then Return
+  
+  Message("Paste: " & aPaths.Join(", "))
   
 End
 

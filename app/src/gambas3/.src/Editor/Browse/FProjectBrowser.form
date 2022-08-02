@@ -143,9 +143,9 @@
     Separator = True
     { btnClose ToolButton
       MoveScaled(0,0,4,4)
-      ToolTip = ("Close")
-      Action = ".close"
-      Picture = Picture["icon:/small/close"]
+      ToolTip = ("Show project tabs")
+      Action = ".close-browser"
+      Picture = Picture["img/32/multicontainer.png"]
     }
     { btnReload ToolButton
       MoveScaled(4,0,4,4)
@@ -243,9 +243,9 @@
 # Gambas Action File 3.0
 
 { Actions
-  { Action close
-    Text = "Close"
-    Picture = "icon:/small/close"
+  { Action close-browser
+    Text = "Show project tabs"
+    Picture = "img/32/multicontainer.png"
   }
   { Action copy
     Text = "Copy"
@@ -339,7 +339,7 @@
 { Toolbars
   { Toolbar project
     Text = "Project browser"
-    List = "close,reload,up,image-preview,detail,copy,cut,paste,delete,zoom-out,icon-size,zoom-in"
-    Default = "close,reload,up,|,image-preview,detail,$btnProperty,|,copy,cut,paste,delete,|,zoom-out,icon-size,zoom-in"
+    List = "close-browser,reload,up,image-preview,detail,copy,cut,paste,delete,zoom-out,icon-size,zoom-in"
+    Default = "close-browser,reload,up,|,image-preview,detail,$btnProperty,|,copy,cut,paste,delete,|,zoom-out,icon-size,zoom-in"
   }
 }
