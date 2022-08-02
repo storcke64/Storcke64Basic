@@ -124,15 +124,13 @@ static void cb_activate(GtkMenuItem *menuitem, gMenu *data)
 	CB_menu_click(data);
 }
 
-static void cb_size_allocate(GtkWidget *menu, GdkRectangle *allocation, gMenu *data)
+static void cb_show(GtkWidget *menu, gMenu *data)
 {
-	//fprintf(stderr, "cb_size_allocate: %s %d x %d (%d)\n", data->name(), allocation->width, allocation->height, gtk_widget_get_mapped(menu));
-	
 	if (!data->_opened)
 	{
 		data->_opened = true;
 		CB_menu_show(data);
-		//data->hideSeparators();
+		//gtk_menu_reposition(GTK_MENU(menu));
 	}
 }
 
@@ -146,10 +144,11 @@ static gboolean cb_map(GtkWidget *menu, gMenu *data)
 	data->_mapping = true;
 	
 	data->hideSeparators();
-	gtk_widget_hide(menu);
-	gtk_widget_show(menu);
 	//gtk_menu_reposition(GTK_MENU(menu));
-	
+
+	gtk_widget_hide(gtk_widget_get_parent(menu));
+	gtk_widget_show(gtk_widget_get_parent(menu));
+
 	data->_mapping = false;
 
 	//fprintf(stderr, "cb_map: <<<\n");
@@ -165,6 +164,7 @@ static gboolean cb_unmap(GtkWidget *menu, gMenu *data)
 
 	data->_opened = false;
 	CB_menu_hide(data);
+	gtk_widget_set_size_request(menu, -1, -1);
 
 	//fprintf(stderr, "cb_unmap: <<<\n");
 	return false;
@@ -361,7 +361,8 @@ void gMenu::update()
 					
 					//fprintf(stderr, "creates a new child menu container in parent %s\n", parent->name());
 					
-					g_signal_connect(G_OBJECT(parent->_popup), "size-allocate", G_CALLBACK(cb_size_allocate), (gpointer)parent);
+					//g_signal_connect(G_OBJECT(parent->_popup), "size-allocate", G_CALLBACK(cb_size_allocate), (gpointer)parent);
+					g_signal_connect(G_OBJECT(parent->_popup), "show", G_CALLBACK(cb_show), (gpointer)parent);
 					g_signal_connect(G_OBJECT(parent->_popup), "map", G_CALLBACK(cb_map), (gpointer)parent);
 					g_signal_connect(G_OBJECT(parent->_popup), "unmap", G_CALLBACK(cb_unmap), (gpointer)parent);
 					gtk_widget_show_all(GTK_WIDGET(parent->_popup));
