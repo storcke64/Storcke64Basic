@@ -784,6 +784,10 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     
   Else
     
+    If Me Is ColumnView Then
+      X += Desktop.Scale
+      W -= Desktop.Scale * 2
+    Endif
     If hItem.Foreground <> Color.Default Then Paint.Background = hItem.Foreground
     Paint.DrawText(hItem[Column], X, Y, W, H, $hView.Columns[Column].Alignment)
     
@@ -1671,17 +1675,13 @@ End
 Private Function Selection_Read() As String[]
 
   Dim aSel As New String[]
-  Dim cSel As Collection
   Dim sKey As String
   
   If $hView.Mode = Select.Single Then
     sKey = Key_Read()
     If sKey Then aSel.Add(sKey)
   Else If $hView.Mode = Select.Multiple Then
-    cSel = $hSelection.Keys
-    For Each cSel
-      aSel.Add(cSel.Key)
-    Next
+    aSel = $hSelection.Keys.Keys
   Endif
   
   Return aSel
@@ -1802,7 +1802,7 @@ Public Sub GridView_ColumnSize(Column As Integer)
   Dim hItem As _TreeView_Item
   Dim W As Integer
   
-  W = Me.Font.TextWidth($hView.Columns[Column].Text) + 8 + If($bSorted, $iDepthW, 0)
+  W = Me.Font.TextWidth($hView.Columns[Column].Text) + 8 + If($bSorted, 16, 0)
   
   If Column = 0 Then
     For Each hItem In $cItem
@@ -1816,7 +1816,9 @@ Public Sub GridView_ColumnSize(Column As Integer)
     Next
   Endif
   
-  $hView.Columns[Column].W = W + 8
+  W += Desktop.Scale
+  If Column > 0 Then W += Desktop.Scale
+  $hView.Columns[Column].W = W
   UpdateRenameBox
   
 End

@@ -26,6 +26,7 @@ Property Editable As Boolean
 Property Sorted As Boolean
 Property Ascending As Boolean
 Property Picture As Picture
+Property Selection As String[]
 
 Property Read IconSize As Integer
 Property IconLines As Integer
@@ -1250,7 +1251,7 @@ End
 Private Sub SelectionChanged()
   
   If $bSelectionChanged Then Return
-  If $bSelRect Then Return
+  'If $bSelRect Then Return
   
   $hSelChangedTimer.Trigger
   $bSelectionChanged = True
@@ -1535,7 +1536,9 @@ End
 
 Private Sub Key_Write(Value As String)
 
-  Dim hItem As _IconView_Item = $cItems[Value]
+  Dim hItem As _IconView_Item
+  
+  Try hItem = $cItems[Value]
   
   If hItem Then
     SetCurrentItem(_FindItem(hItem))
@@ -1674,3 +1677,39 @@ Public Sub _RefreshPicture()
   Next
   
 End
+
+Private Function Selection_Read() As String[]
+
+  Dim aSel As New String[]
+  Dim sKey As String
+  
+  If $iMode = Select.Single Then
+    sKey = Key_Read()
+    If sKey Then aSel.Add(sKey)
+  Else If $iMode = Select.Multiple Then
+    aSel = $cSelection.Keys
+  Endif
+  
+  Return aSel
+
+End
+
+Private Sub Selection_Write(Value As String[])
+
+  Dim sKey As String
+  Dim hItem As _TreeView_Item
+  
+  If $iMode = Select.Single Then
+    Try sKey = Value[Value.Max] 
+    Key_Write(sKey)
+  Else If $iMode = Select.Multiple Then
+    UnselectAll
+    For Each sKey In Value
+      Try hItem = $cItems[sKey]
+      If Not hItem Then Continue
+      _SelectItem(hItem, True)
+    Next
+  Endif
+  
+End
+

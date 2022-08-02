@@ -2213,6 +2213,7 @@ Public Sub _GetPreferredWidth(iCol As Integer) As Integer
         Endif
         
         hBorder = .Border
+        If Not hBorder Then hBorder = $hRows._GetRowBorder(I)
         
         If hBorder Then
           With hBorder
@@ -2220,15 +2221,15 @@ Public Sub _GetPreferredWidth(iCol As Integer) As Integer
           End With
         Endif
         
-        If iCol = 0 Or If iCol = $hColumns.Max Then
-          hBorder = $hRows._GetRowBorder(I)
-          If hBorder Then
-            With hBorder
-              If iCol = 0 Then W += .LeftPadding + .LeftMargin + .LeftWidth
-              If iCol = $hColumns.Max Then W += .RightPadding + .RightMargin + .RightWidth
-            End With
-          Endif
-        Endif
+        ' If iCol = 0 Or If iCol = $hColumns.Max Then
+        '   hBorder = $hRows._GetRowBorder(I)
+        '   If hBorder Then
+        '     With hBorder
+        '       If iCol = 0 Then W += .LeftPadding + .LeftMargin + .LeftWidth
+        '       If iCol = $hColumns.Max Then W += .RightPadding + .RightMargin + .RightWidth
+        '     End With
+        '   Endif
+        ' Endif
         
         PW = Max(PW, (W + D - 1) \ D)
         

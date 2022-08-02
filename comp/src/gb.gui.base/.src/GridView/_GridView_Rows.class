@@ -536,7 +536,7 @@ Public Sub _GetRowBorder(iRow As Integer) As Border
   If $cBorder Then hBorder = $cBorder[iRow]
   If Not hBorder Then hBorder = $hBorder
   
-  If hBorder And If Not hBorder.IsVoid() Then Return hBorder
+  Return hBorder
   
 End
 

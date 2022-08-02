@@ -24,6 +24,7 @@ Public Sub Form_Open()
   tvwTest.Columns.Count = 3
   tvwTest.Columns[0].Text = "Alpha"
   tvwTest.Columns[1].Text = "Beta"
+  tvwTest.Columns[1].Alignment = Align.Right
   tvwTest.Columns[2].Text = "Gamma"
   
   For Each sFile In RDir(sDir)
