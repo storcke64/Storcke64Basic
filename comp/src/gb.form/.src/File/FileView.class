@@ -14,6 +14,7 @@ Event Click
 Event Activate
 Event Menu
 Event Icon(Path As String)
+Event Refresh
 
 Property {Dir} As String
 Property Current As String
@@ -37,6 +38,10 @@ Property Settings As Variant[]
 Property Read Count As Integer
 Property Background As Integer
 Property Foreground As Integer
+
+Property Read FileCount As Integer Use $nFile
+Property Read DirCount As Integer Use $nDir
+Property Read TotalSize As Long Use $iSize
 
 Static Private $cExt As New Collection(gb.IgnoreCase)
 
@@ -79,6 +84,8 @@ Static Private $iIconExecSize As Integer
 Static Private $hIconExec As Picture
 
 Private picLock As PictureBox
+
+Static Private $hLocked As Image
 
 Static Public Sub _init()
   
@@ -163,12 +170,10 @@ Public Sub _new()
   End With
   
   With $hColumnView = New ColumnView(Me) As "View"
-    .Columns.Count = 3
-    .Columns[0].Text = ("Name")
-    .Columns[0].Expand = False
-    .Columns[1].Text = ("Size")
-    .Columns[1].Alignment = Align.Right
-    .Columns[2].Text = ("Last modified")
+    .Columns[0].Text = (("Name"))
+    .AddColumn(("Size"),, Align.Right)
+    .AddColumn(("Last modified"))
+    .AddColumn(("Permissions"))
     .Visible = False
     .Sorted = True
     .Resizable = True
@@ -213,6 +218,8 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
   
   Dim sIcon As String
   Dim hPict As Picture
+  Dim S As Integer
+  Dim hImage As Image
   
   $hPict = Null
   Try Raise Icon(sPath)
@@ -257,12 +264,15 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
   If $bDesktopIsLoaded Then
     
     hPict = GetMimeIcon(sPath, iSize)
-    If hPict Then Return hPict
+    If hPict Then Goto LOCK_ICON
     
   Endif
     
   Try sIcon = $cExt[File.Ext(sPath)]
-  If sIcon Then Return Picture["icon:/" & CStr(iSize) &/ sIcon]
+  If sIcon Then 
+    hPict = Picture["icon:/" & CStr(iSize) &/ sIcon]
+    Goto LOCK_ICON
+  Endif
     
   With DirCache[File.Dir(sPath)].GetInfo(File.Name(sPath))
     
@@ -271,10 +281,27 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
         $iIconExecSize = iSize
         $hIconExec = Picture["icon:/" & CStr(iSize) &/ "exec"]
       Endif
-      Return $hIconExec
+      hPict = $hIconExec
     Endif
     
   End With
+  
+LOCK_ICON:
+
+  If Not Access(sPath, gb.Write) Then
+    If Not $hLocked Then
+      $hLocked = Picture["icon:/128/lock"].Image
+      If Not $hLocked Then $hLocked = Image.Load("locked.png")
+    Endif
+    If $hLocked Then 
+      hImage = hPict.Image
+      S = Min(hImage.W \ 2, hImage.H \ 2)
+      hImage.PaintImage($hLocked, hImage.W - S, hImage.H - S, S, S)
+      hPict = hImage.Picture
+    Endif
+  Endif
+
+  Return hPict
   
 Catch
   
@@ -376,10 +403,15 @@ Private Sub RefreshView()
   Dim bVoid As Boolean
   Dim iSort As Integer
   Dim bSortAscent As Boolean
-
+  Dim hInfo As Stat
+  
   Inc Application.Busy
   
   $bRefreshTriggered = False
+  
+  $nFile = 0
+  $nDir = 0
+  $iSize = 0
   
   iHiddenFg = _GetHiddenColor()
   
@@ -438,13 +470,17 @@ Private Sub RefreshView()
     For Each sFile In aDir
       If Not $bShowHidden And If Left(sFile) = "." Or Right(sFile) = "~" Then Continue
       'With Stat(sDir &/ sFile)
-      With hCache.GetInfo(sFile)
+      hInfo = hCache.GetInfo(sFile)
+      With hInfo
         If hCache.IsDir(sFile) Then
           If Not $bShowDir Then Continue
           sPrefix = PREFIX_DIR
+          Inc $nDir
         Else
           If $aFilter And If CheckFilter(sFile) Then Continue
           sPrefix = PREFIX_FILE
+          Inc $nFile
+          $iSize += .Size
         Endif
         
         sKey = sPrefix & sFile
@@ -482,9 +518,13 @@ Private Sub RefreshView()
               GoSub ADD_PREVIEW
             Endif
           Endif
-          $hColumnView[sKey][1] = "  " & Main.FormatSize(.Size)
-          $hColumnView[sKey][2] = "  " & Str(.Time)
-          If bRichText Then $hColumnView[sPrefix & sFile].RichText = sText
+          
+          With $hColumnView[sKey]
+            .[1] = Main.FormatSize(hInfo.Size)
+            .[2] = Str(hInfo.Time)
+            .[3] = hInfo.Auth
+            If bRichText Then .RichText = sText
+          End With
         Else
           If Not $hIconView.Exist(sKey) Then
             $hIconView.Add(sKey, sText, hPict).Editable = Access(sDir, gb.Write)
@@ -505,14 +545,6 @@ Private Sub RefreshView()
     
     hCache.Unlock
     
-    If $hColumnView.Visible Then
-      For I = 1 To $hColumnView.Columns.Max
-        $hColumnView.Columns[I].W = -1
-      Next
-      $hColumnView.Columns[0].W = -1
-      $hColumnView.Columns[0].Width = Min(Desktop.Scale * 64, $hColumnView.Columns[0].Width)
-    Endif
-    
     For Each sFile In aSel
       Try GetView()[sFile].Selected = True
     Next
@@ -530,6 +562,11 @@ Finally
     $hColumnView.Sorted = True
     $hColumnView.Columns.Sort = iSort
     $hColumnView.Columns.Ascending = bSortAscent
+    For I = 1 To $hColumnView.Columns.Max
+      $hColumnView.Columns[I].W = -1
+    Next
+    $hColumnView.Columns[0].W = -1
+    $hColumnView.Columns[0].Width = Min(Desktop.Scale * 64, $hColumnView.Columns[0].Width)
   Else
     $hIconView._End
   Endif
@@ -543,6 +580,8 @@ Finally
   Endif
   
   Dec Application.Busy
+  
+  Raise Refresh
   
 Catch 
   
@@ -850,7 +889,7 @@ Public Sub View_Compare((Key) As String, OtherKey As String)
         
     End Select
     
-    If iComp = 0 Then iComp = Comp(Key, OtherKey, gb.IgnoreCase + gb.Natural)
+    If iComp = 0 Then iComp = Comp(Mid$(Key, 2), Mid$(OtherKey, 2), gb.IgnoreCase + gb.Natural)
     
     'IF NOT $bAsc THEN iComp = (- iComp)
     
@@ -877,20 +916,14 @@ End
 
 Private Function Selection_Read() As String[]
   
-  Dim hView As Object
-  Dim aSel As New String[]
+  Dim aSel As String[]
+  Dim I As Integer
   
   EnsureRefresh
-  
-  hView = GetView()
-  hView.MoveFirst
-  While hView.Available
-    If hView.Item.Selected Then
-      aSel.Add(Mid$(hView.Item.Key, 2))
-    Endif
-    hView.MoveNext
-  Wend
-  
+  aSel = GetView().Selection
+  For I = 0 To aSel.Max
+    aSel[I] = Mid$(aSel[I], 2)
+  Next
   Return aSel
   
 End
@@ -1254,7 +1287,6 @@ Public Sub View_Draw(X As Integer, Y As Integer, Width As Integer, Height As Int
   Try hStat = DirCache[$sDir].GetInfo(Mid$(Key, 2))
   'Try hStat = Stat($sDir &/ Mid$(Key, 2))
   If Error Then Return
-  
   
   Paint.Background = Color.Merge(Style.ForegroundOf(Last), Style.BackgroundOf(Last), 0.3)
   

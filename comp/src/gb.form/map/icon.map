@@ -124,6 +124,7 @@ erase                   actions/draw-eraser
 error                   status/dialog-error
 exclusive               #
 exec                    [breeze*]actions/run-build;actions/system-run
+export                  actions/document-export
 factory                 #
 file                    [-breeze*]actions/document-new;$(mime)/empty;$(mime)/application-x-zerosize
 file-manager            [-breeze*]apps/toolbar/system-file-manager;apps/system-file-manager
@@ -183,6 +184,7 @@ hibernate               apps/system-hibernate;apps/system-suspend-hibernate;acti
 hue                     #
 identity                apps/user-info;preferences/preferences-desktop-user;apps/preferences-desktop-user
 image                   $(mime)/image-x-generic;;preferences/preferences-desktop-wallpaper;apps/preferences-desktop-wallpaper;preferences/preferences-wallpaper;apps/preferences-wallpaper;;;;apps/gwenview
+import                  actions/document-import
 important               emblems/emblem-important
 indent                  actions/format-indent-more
 info                    status/dialog-information;;apps/help-info;apps/ktip
