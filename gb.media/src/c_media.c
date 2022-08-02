@@ -1861,12 +1861,10 @@ END_METHOD
 
 BEGIN_METHOD_VOID(MediaPipeline_free)
 
+	//fprintf(stderr, "MediaPipeline_free\n");
 	MEDIA_stop_pipeline(THIS);
 	if (THIS_PIPELINE->watch)
-	{
-		//GB.Wait(THIS_PIPELINE->polling);
 		GB.Unref(POINTER(&THIS_PIPELINE->watch));
-	}
 
 END_METHOD
 
@@ -2037,13 +2035,11 @@ GB_DESC MediaMessageDesc[] =
 	GB_PROPERTY_READ("Type", "i", MediaMessage_Type),
 	GB_PROPERTY_READ("Name", "s", MediaMessage_Name),
 	
-	
 	GB_METHOD("_get", "v", MediaMessage_get, "(Name)s"),
 	GB_METHOD("_next", "v", MediaMessage_next, NULL),
 	GB_PROPERTY_READ("Key", "s", MediaMessage_Key),
 	GB_PROPERTY_READ("Keys", "String[]", MediaMessage_Keys),
 	GB_PROPERTY_READ("Count", "i", MediaMessage_Count),
-	
 	
 	//Constants
 	GB_CONSTANT("Eos", "i", GST_MESSAGE_EOS),
