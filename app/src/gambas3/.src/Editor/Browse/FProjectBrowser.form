@@ -189,25 +189,29 @@
     { Separator2 Separator
       MoveScaled(34,0,1,4)
     }
-    { btnCopy ToolButton
+    { btnCopy ToolButton mnuCopy
+      Name = "btnCopy"
       MoveScaled(35,0,4,4)
       ToolTip = ("Copy")
       Action = ".copy"
       Picture = Picture["icon:/small/copy"]
     }
-    { btnCut ToolButton
+    { btnCut ToolButton mnuCut
+      Name = "btnCut"
       MoveScaled(38,0,4,4)
       ToolTip = ("Cut")
       Action = ".cut"
       Picture = Picture["icon:/small/cut"]
     }
-    { btnPaste ToolButton
+    { btnPaste ToolButton mnuPaste
+      Name = "btnPaste"
       MoveScaled(41,0,4,4)
       ToolTip = ("Paste")
       Action = ".paste"
       Picture = Picture["icon:/small/paste"]
     }
-    { btnDelete ToolButton
+    { btnDelete ToolButton mnuDelete
+      Name = "btnDelete"
       MoveScaled(45,0,4,4)
       ToolTip = ("Delete")
       Action = ".delete"

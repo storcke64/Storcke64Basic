@@ -4759,22 +4759,30 @@ Public Sub DefineStartup(sPath As String, Optional bDoNotWrite As Boolean)
 
 End
 
-Public Sub GetUniqueName(sDir As String, sName As String, Optional sSuffix As String = "&1") As String
+Public Sub GetUniqueName(sDir As String, sName As String) As String
 
   Dim iInd As Integer
   Dim sDest As String
   Dim sExt As String
+  Dim iPos As Integer
 
   sDest = sDir &/ sName
+  If Not Exist(sDest) Then Return sName
+
+  sExt = File.Ext(sName)
+  If sExt Then sExt = "." & sExt
+  
+  sName = File.BaseName(sName)
+  
+  iPos = RInStr(sName, "-")
+  If iPos And If IsDigit(Mid$(sName, iPos + 1)) Then
+    Try iInd = CInt(Mid$(sName, iPos + 1))
+    If Not Error Then sName = Left$(sName, iPos - 1)
+  Endif
 
   While Exist(sDest)
     Inc iInd
-    sExt = File.Ext(sName)
-    If sExt Then
-      sDest = sDir &/ File.BaseName(sName) & Subst(sSuffix, CStr(iInd)) & "." & sExt
-    Else
-      sDest = sDir &/ sName & Subst(sSuffix, CStr(iInd))
-    Endif
+    sDest = sDir &/ sName & "-" & CStr(iInd) & sExt
   Wend
 
   Return File.Name(sDest)
@@ -4792,7 +4800,7 @@ Public Sub GetUniqueSourceName(sName As String) As String
   While Tree.Sources.Exist(sNewName)
     Inc iInd
     sExt = File.Ext(sName)
-    sNewName = File.BaseName(sName) & CStr(iInd) & "." & File.Ext(sName)
+    sNewName = File.BaseName(sName) & "_" & CStr(iInd) & "." & File.Ext(sName)
   Wend
 
   Return sNewName
@@ -4803,7 +4811,7 @@ Public Sub CopyFile(sSrc As String, sDst As String) As String
 
   Dim sDest As String
 
-  sDest = File.Dir(sDst) &/ GetUniqueName(File.Dir(sDst), File.Name(sDst), " (&1)")
+  sDest = File.Dir(sDst) &/ GetUniqueName(File.Dir(sDst), File.Name(sDst))
   Copy sSrc To sDest
 
   VersionControl.AddFile(sDest)
@@ -4834,7 +4842,7 @@ Public Sub LinkFile(sSrc As String, sDst As String)
   '  Return
   'Endif
 
-  sDest = File.Dir(sDst) &/ GetUniqueName(File.Dir(sDst), File.Name(sDst), " (&1)")
+  sDest = File.Dir(sDst) &/ GetUniqueName(File.Dir(sDst), File.Name(sDst))
   If sSrc Begins Project.Dir &/ "/" Then
 
     aDst = Split(File.Dir(Mid$(sDest, Len(Project.Dir) + 2)), "/")
@@ -6974,5 +6982,12 @@ Public Sub ClearOtherProjects()
     If Error Then Continue
     If hEditor.Component Then hForm.Close
   Next
+  
+End
+
+Public Sub GetMessagePrefix(sPath As String) As String
+  
+  If sPath Begins Project.Dir & "/" Then sPath = Mid$(sPath, Len(Project.Dir) + 2)
+  Return "<tt><b>" & Html(sPath) & "</b></tt>\n\n"
   
 End

@@ -2227,13 +2227,14 @@ End
 Public Sub mnuEditWith_Show()
   
   Dim hProg As DesktopFile
+  Dim hParent As Menu = Last
   Dim hMenu As Menu
   
-  mnuEditWith.Children.Clear
-  If Not mnuEditWith.Tag Then Return
+  hParent.Children.Clear
+  If Not hParent.Tag Then Return
   
-  For Each hProg In mnuEditWith.Tag
-    hMenu = New Menu(mnuEditWith) As "mnuEditWithProg"
+  For Each hProg In hParent.Tag
+    hMenu = New Menu(hParent) As "mnuEditWithProg"
     hMenu.Caption = hProg.Name & " (" & hProg.ProgramName & ")"
     Try hMenu.Picture = hProg.GetIcon().Picture
     hMenu.Tag = hProg
