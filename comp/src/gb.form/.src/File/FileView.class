@@ -1333,3 +1333,10 @@ Private Function Path_Read() As String
   If sCurrent Then Return $sDir &/ sCurrent
 
 End
+
+Public Sub _RefreshPicture()
+  
+  DirCache[GetCurrentDir()]._RefreshPicture()
+  Reload
+  
+End
