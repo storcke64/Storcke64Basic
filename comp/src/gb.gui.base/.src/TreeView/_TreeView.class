@@ -23,6 +23,7 @@ Property Read Renaming As Boolean
 Property Editable As Boolean
 Property Compare As Integer
 Property Selection As String[]
+Property Read Selected As Boolean
 
 '' @{since 3.15}
 ''
@@ -1965,5 +1966,15 @@ End
 Private Function Indent_Read() As Integer
 
   Return $iDepthW
+
+End
+
+Private Function Selected_Read() As Boolean
+
+  If $hView.Mode = Select.Single Then
+    Return Key_Read()
+  Else If $hView.Mode = Select.Multiple Then
+    Return $hSelection.Keys.Count
+  Endif
 
 End

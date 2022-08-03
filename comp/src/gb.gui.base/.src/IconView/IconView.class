@@ -27,6 +27,7 @@ Property Sorted As Boolean
 Property Ascending As Boolean
 Property Picture As Picture
 Property Selection As String[]
+Property Read Selected As Boolean
 
 Property Read IconSize As Integer
 Property IconLines As Integer
@@ -1713,3 +1714,13 @@ Private Sub Selection_Write(Value As String[])
   
 End
 
+
+Private Function Selected_Read() As Boolean
+
+  If $iMode = Select.Single Then
+    Return Key_Read()
+  Else If $iMode = Select.Multiple Then
+    Return $cSelection.Count
+  Endif
+
+End
