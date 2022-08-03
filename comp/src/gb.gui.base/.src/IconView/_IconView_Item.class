@@ -186,19 +186,22 @@ Public Sub _GetTextRect(hRect As Rect, bHorizontal As Boolean) As Rect
   Dim hText As Rect
   Dim X, Y, W, H As Integer
   Dim HT As Integer
+  Dim DS As Integer = Desktop.Scale
+  Dim PW, PH As Integer
   
-  hRect.Adjust(8)
+  hRect.Adjust(DS + DS \ 4)
+  GetIconSize(ByRef PW, ByRef PH)
   
   If bHorizontal Then
     
     X = hRect.X
-    If $hPicture Then X += $hPicture.W + 4
+    If $hPicture Then X += $hPicture.W + DS \ 2
     
     W = hRect.W - (X - hRect.X)
     If $sRichText Then
-      H = GetIconView().Font.RichTextHeight($sRichText, W - 4) + 4
+      H = GetIconView().Font.RichTextHeight($sRichText, W)
     Else
-      H = GetIconView().Font.RichTextHeight(Html($sText), W - 4) + 4
+      H = GetIconView().Font.RichTextHeight(Html($sText), W)
     Endif
     
     hText = New Rect(X, hRect.Y, W, H)
@@ -206,8 +209,7 @@ Public Sub _GetTextRect(hRect As Rect, bHorizontal As Boolean) As Rect
     
   Else
   
-    Y = hRect.Y
-    If $hPicture Then Y += $hPicture.H + 4
+    Y = hRect.Y + PH + DS \ 2
     
     If $sRichText Then
       H = GetIconView().Font.RichTextHeight($sRichText, hRect.W) '+ 4
@@ -293,9 +295,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   Dim bFrame As Boolean
   Dim sText As String
   Dim hRect1, hRectBg As Rect
-  Dim DS As Integer
-  
-  DS = Desktop.Scale
+  Dim DS As Integer = Desktop.Scale
   
   hRect.Adjust(DS \ 4)
   
@@ -386,7 +386,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   
       If $hPicture Then
         Paint.DrawPicture($hPicture, hRect.X, hRect.Y + (hRect.H - PH) / 2)
-        X += PW + 4
+        X += PW + DS \ 2
       Endif
       
     Endif
@@ -403,8 +403,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   
   Else
   
-    Y = hRect.Y
-    Y += PH + DS \ 2
+    Y = hRect.Y + PH + DS \ 2
     
     If $sText Or If $sRichText Then
 

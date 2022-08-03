@@ -766,13 +766,14 @@ Public Sub UnselectAll()
   
   Dim hItem As _IconView_Item
   
+  $iCurrent = -1
+  $iStart = -1
+
   If $cSelection.Count = 0 Then Return
   
   For Each hItem In $cSelection
     hItem.Selected = False
   Next
-  $iCurrent = -1
-  $iStart = -1
   
   SelectionChanged
   
@@ -878,6 +879,9 @@ Public Sub ScrollArea_KeyPress()
         
       Case Key.Space
         ScrollArea_DblClick
+        
+      Case Key.Escape
+        UnselectAll
         
     End Select
     
@@ -1427,7 +1431,8 @@ Public Sub _RenameItem(hItem As _IconView_Item)
   _EnsureVisible($iRename)
   GetIconGeometry($iRename, hRect)
   hRect = hItem._GetTextRect(hRect, $bHorizontal)
-  hRect.Adjust(-1)
+  hRect.Adjust(-1, 0, -1, 0)
+  'hRect.Y += 4
   
   If Not $hRenameBox Then 
     Object.Lock(Me)
