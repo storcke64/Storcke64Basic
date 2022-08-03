@@ -88,10 +88,15 @@ End
 
 Private Sub UpdateMenu()
 
+  Dim iSel As Integer
+
+  iSel = fvwProject.Selection.Count
+
   Action[".up", Me].Enabled = Len(fvwProject.Dir) > Len(Project.Dir)
   Action[".icon-size,.zoom-in,.zoom-out", Me].Visible = Not fvwProject.ShowDetailed
-  Action[".cut,.copy,.delete,.clone", Me].Visible = fvwProject.Selected
-  Action[".cut,.copy,.delete,.clone", Me].Enabled = fvwProject.Selection.Count > 0
+  'Action[".cut,.copy,.delete,.clone", Me].Visible = fvwProject.Selected
+  Action[".cut,.copy,.delete,.clone", Me].Enabled = iSel > 0
+  Action[".rename"].Enabled = iSel = 1
   Action[".paste"].Enabled = Clipboard.Format = MMime.URI
 
 End
@@ -256,7 +261,7 @@ Public Sub mnuDelete_Click()
   If aPaths.Count = 1 Then
     If Message.Delete(Project.GetMessagePrefix(aPaths[0]) & ("Do you want to delete this file?"), ("Delete"), ("Cancel")) = 2 Then Return
   Else
-    If Message.Delete(("Do you want to delete these files?"), ("Delete"), ("Cancel")) = 2 Then Return
+    If Message.Delete(("Do you want to delete the selected files?"), ("Delete"), ("Cancel")) = 2 Then Return
   Endif
   
   'Project.SetMessage()
@@ -483,4 +488,16 @@ Public Sub mnuOpenWith_Show()
   
   FMain.mnuEditWith_Show
   
+End
+
+Public Sub mnuRename_Click()
+
+  fvwProject.Rename
+
+End
+
+Public Sub fvwProject_Rename(OldName As String, NewName As String)
+
+  If Project.RenameFile(fvwProject.Dir &/ OldName, NewName) Then Stop Event
+
 End

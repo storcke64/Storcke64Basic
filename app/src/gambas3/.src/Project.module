@@ -1086,6 +1086,9 @@ Public Function CloseProject() As Boolean
 
     Path = ""
     {Dir} = ""
+    Tree = Null
+    Object.Lock(ProjectTree)
+    
     UpdateTitle
 
     Dec Application.Busy

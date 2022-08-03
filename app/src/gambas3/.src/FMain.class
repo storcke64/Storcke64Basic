@@ -1472,6 +1472,7 @@ Public Sub OnProjectChange()
   
   $hProjectTree = Project.Tree 
   $hProjectTree.SetView(tvwProject)
+  Object.Unlock(tvwProject)
   
   UpdateGlobalLayout
   UpdateMenu
