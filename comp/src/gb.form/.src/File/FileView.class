@@ -38,6 +38,7 @@ Property Settings As Variant[]
 Property Read Count As Integer
 Property Background As Integer
 Property Foreground As Integer
+Property Read Selected As Boolean
 
 Property Read FileCount As Integer Use $nFile
 Property Read DirCount As Integer Use $nDir
@@ -1339,4 +1340,10 @@ Public Sub _RefreshPicture()
   DirCache[GetCurrentDir()]._RefreshPicture()
   Reload
   
+End
+
+Private Function Selected_Read() As Boolean
+
+  Return GetView().Selected
+
 End
