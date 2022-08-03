@@ -439,7 +439,7 @@ Public Sub panList_Arrange()
 
   Dim iArr As Integer
 
-  iArr = If(panList.W >= Desktop.Scale * 70, Arrange.Row, Arrange.Vertical)
+  iArr = If(panList.W >= (Desktop.Scale * (CProjectList.PROJECT_BOX_SCALE_WIDTH * 2 + 3) + Style.ScrollbarSize + Style.ScrollbarSpacing), Arrange.Row, Arrange.Vertical)
   'Debug iArr;; panList.W;; Desktop.Scale * 64
   $hRecent.SetArrangement(iArr)
   $hExample.SetArrangement(iArr)
