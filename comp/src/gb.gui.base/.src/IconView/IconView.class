@@ -1672,7 +1672,7 @@ Public Sub _RefreshPicture()
 
   Dim hItem As _IconView_Item
   
-  For Each hItem In $cItems
+  For Each hItem In $aItems
     Picture._Refresh(ByRef hItem.Picture)
   Next
   

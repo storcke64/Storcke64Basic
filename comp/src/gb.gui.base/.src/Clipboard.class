@@ -23,6 +23,29 @@ Static Private Sub URLQuote(Path As String) As String
   
 End
 
+Static Private Sub URLUnquote(Path As String, Optional DoNotDecodePlus As Boolean) As String
+  
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+  
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = "%" Then 
+      sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
+      iInd += 2
+    Else If sCar = "+" And If Not DoNotDecodePlus Then 
+      sCar = " "
+    Endif
+    sRes &= sCar
+  Next
+
+  Return sRes  
+  
+End
+
+
+
 Static Public Sub CopyPath(Path As String)
   
   Clipboard.CopyPaths([Path])
@@ -41,5 +64,23 @@ Static Public Sub CopyPaths(Paths As String[])
   Next
   
   Clipboard.Copy(sData, "text/uri-list")
+  
+End
+
+Static Public Sub PastePaths() As String[]
+
+  Dim sData As String
+  Dim aPaths As String[]
+  Dim sUri As String
+  
+  Try sData = Clipboard.Paste("text/uri-list")
+  If Not sData Then Return
+  
+  aPaths = New String[]
+  For Each sUri In Split(Replace(sData, "\n", ""), "\r")
+    If sUri Begins "file://" Then aPaths.Add(URLUnquote(Mid$(sUri, 8)))
+  Next
+  
+  Return aPaths
   
 End
