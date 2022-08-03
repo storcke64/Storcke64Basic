@@ -7,6 +7,7 @@ Private $bCut As Boolean
 
 Private $iIconSizePreview As Integer
 Private $iIconSizeNormal As Integer
+Private $iIndent As Integer
 
 Public Sub Form_Open()
 
@@ -96,6 +97,7 @@ End
 Public Sub tlbProject_Configure()
 
   UpdateMenu
+  UpdateWorkspaceButtons($iIndent)
 
 End
 
@@ -387,4 +389,14 @@ Public Sub fvwProject_GotFocus()
 
   Project.SetCurrentPopup(mnuPopup)
 
+End
+
+Public Sub UpdateWorkspaceButtons(W As Integer)
+  
+  $iIndent = W
+  If tlbProject.Configuring Then Return
+  
+  panSpace.Lower
+  panSpace.W = W
+  
 End

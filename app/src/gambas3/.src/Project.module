@@ -232,6 +232,8 @@ Public OpenFileIgnoreUnknown As Boolean
 
 Private $hRemoteDebugIcon As Image
 
+Public WelcomeDialog As Boolean
+
 ' If GetFileIcon() has been called on an added file
 'Private $bLastAdded As Boolean
 
@@ -424,7 +426,9 @@ Public Sub Main()
   ' QT5: If the main form is shown after the MDI windows have been embeddded, then 
   ' the window drawing becomes buggy
   
-  FMain.Show
+  'FMain.Show
+  
+  FMain.Load
   
   If sPath Then 
     
@@ -447,10 +451,14 @@ Public Sub Main()
       Return
     Endif
     
-    FMain.HideWelcome
+  Else
+    
+    WelcomeDialog = True
     
   Endif
 
+  FMain.Show
+  
   RefreshActivate
   
   Dec Application.Busy

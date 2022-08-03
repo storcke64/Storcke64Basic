@@ -137,33 +137,36 @@
     }
   }
   { tlbProject ToolBar
-    MoveScaled(2,1,103,4)
+    MoveScaled(3,1,103,4)
     Key = "project"
     Text = ("Project browser")
     Separator = True
+    { panSpace HBox
+      MoveScaled(0,0,5,4)
+    }
     { btnClose ToolButton
-      MoveScaled(0,0,4,4)
+      MoveScaled(7,0,4,4)
       ToolTip = ("Show project tabs")
       Action = ".close-browser"
       Picture = Picture["img/32/multicontainer.png"]
     }
     { btnReload ToolButton
-      MoveScaled(4,0,4,4)
+      MoveScaled(11,0,4,4)
       ToolTip = ("Reload")
       Action = ".reload"
       Picture = Picture["icon:/small/refresh"]
     }
     { btnParent ToolButton
-      MoveScaled(8,0,4,4)
+      MoveScaled(15,0,4,4)
       ToolTip = ("Parent directory")
       Action = ".up"
       Picture = Picture["icon:/small/up"]
     }
     { Separator1 Separator
-      MoveScaled(14,0,1,4)
+      MoveScaled(21,0,1,4)
     }
     { btnPreview ToolButton
-      MoveScaled(16,0,4,4)
+      MoveScaled(23,0,4,4)
       ToolTip = ("Image preview")
       Action = ".image-preview"
       Picture = Picture["icon:/small/view-preview"]
@@ -171,7 +174,7 @@
     }
     { btnDetail ToolButton mnuShowDetailed
       Name = "btnDetail"
-      MoveScaled(20,0,4,4)
+      MoveScaled(27,0,4,4)
       ToolTip = ("Detailed view")
       Action = ".detail"
       Picture = Picture["icon:/small/view-detail"]
@@ -179,54 +182,54 @@
     }
     { btnProperty ToolButton mnuProperty
       Name = "btnProperty"
-      MoveScaled(23,0,4,4)
+      MoveScaled(30,0,4,4)
       ToolTip = ("File properties")
       Picture = Picture["icon:/small/info"]
     }
     { Separator2 Separator
-      MoveScaled(27,0,1,4)
+      MoveScaled(34,0,1,4)
     }
     { btnCopy ToolButton
-      MoveScaled(28,0,4,4)
+      MoveScaled(35,0,4,4)
       ToolTip = ("Copy")
       Action = ".copy"
       Picture = Picture["icon:/small/copy"]
     }
     { btnCut ToolButton
-      MoveScaled(31,0,4,4)
+      MoveScaled(38,0,4,4)
       ToolTip = ("Cut")
       Action = ".cut"
       Picture = Picture["icon:/small/cut"]
     }
     { btnPaste ToolButton
-      MoveScaled(34,0,4,4)
+      MoveScaled(41,0,4,4)
       ToolTip = ("Paste")
       Action = ".paste"
       Picture = Picture["icon:/small/paste"]
     }
     { btnDelete ToolButton
-      MoveScaled(38,0,4,4)
+      MoveScaled(45,0,4,4)
       ToolTip = ("Delete")
       Action = ".delete"
       Picture = Picture["icon:/small/delete"]
     }
     { Separator3 Separator
-      MoveScaled(42,0,1,4)
+      MoveScaled(49,0,1,4)
     }
     { btnZoomOut ToolButton
-      MoveScaled(44,0,4,4)
+      MoveScaled(51,0,4,4)
       Action = ".zoom-out"
       Picture = Picture["icon:/small/zoom-out"]
     }
     { sldIconSize Slider
-      MoveScaled(48,0,16,4)
+      MoveScaled(55,0,16,4)
       Action = ".icon-size"
       MaxValue = 8
       PageStep = 1
       Value = 3
     }
     { btnZoomIn ToolButton
-      MoveScaled(64,0,4,4)
+      MoveScaled(71,0,4,4)
       Action = ".zoom-in"
       Picture = Picture["icon:/small/zoom-in"]
     }
@@ -340,6 +343,6 @@
   { Toolbar project
     Text = "Project browser"
     List = "close-browser,reload,up,image-preview,detail,copy,cut,paste,delete,zoom-out,icon-size,zoom-in"
-    Default = "close-browser,reload,up,|,image-preview,detail,$btnProperty,|,copy,cut,paste,delete,|,zoom-out,icon-size,zoom-in"
+    Default = "$panSpace,close-browser,reload,up,|,image-preview,detail,$btnProperty,|,copy,cut,paste,delete,|,zoom-out,icon-size,zoom-in"
   }
 }

@@ -100,7 +100,7 @@ Public Sub Form_Open()
   Try Project.ActiveForm.SetFocus
   'tvwProject_LostFocus
   
-  frmWelcome = New FWelcome(dwgWelcome)
+  If Project.WelcomeDialog Then frmWelcome = New FWelcome(dwgWelcome)
   
   Project.UseInheritance = Settings["/UseInheritance", True] 
   btnUseInheritance.Value = Project.UseInheritance
@@ -3200,6 +3200,8 @@ End
 
 Private Sub UpdateWorkspaceButtons()
 
+  Dim W As Integer
+  
   With wrkProject.TabPanel
 
     If panProject.Hidden And If panProject.Visible Then
@@ -3217,6 +3219,11 @@ Private Sub UpdateWorkspaceButtons()
     Endif
     
   End With
+  
+  If $bWorkspaceVisible Then 
+    If btnWorkspaceProject.Visible Then W += btnWorkspaceProject.W
+    FProjectBrowser.UpdateWorkspaceButtons(W)
+  Endif
 
 End
 
