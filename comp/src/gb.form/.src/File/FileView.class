@@ -393,7 +393,7 @@ Private Sub RefreshView()
   Dim aDir As New String[]
   Dim I As Integer
   Dim sText As String
-  Dim bRichText As Boolean
+  Dim sRichText As String
   Dim hCache As DirCache
   Dim iHiddenFg As Integer
   Dim SX As Integer
@@ -495,17 +495,14 @@ Private Sub RefreshView()
           Endif
         Endif
         
-        bRichText = False
-        
         sText = Replace(sFile, "\n", "")
+        sRichText = ""
         
         If .Link Then
-          sText = "<i>" & sText & "</i>"
-          bRichText = True
+          sRichText = "<i>" & sText & "</i>"
         Endif
         If .Hidden Then
-          sText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
-          bRichText = True
+          sRichText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
         Endif
   
         If $hColumnView.Visible Then
@@ -524,7 +521,7 @@ Private Sub RefreshView()
             .[1] = Main.FormatSize(hInfo.Size)
             .[2] = Str(hInfo.Time)
             .[3] = hInfo.Auth
-            If bRichText Then .RichText = sText
+            If sRichText Then .RichText = sRichText
           End With
         Else
           If Not $hIconView.Exist(sKey) Then
@@ -537,7 +534,7 @@ Private Sub RefreshView()
               GoSub ADD_PREVIEW
             Endif
           Endif
-          If bRichText Then $hIconView[sKey].RichText = sText
+          If sRichText Then $hIconView[sKey].RichText = sRichText
         Endif
         
       End With
