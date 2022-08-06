@@ -1,0 +1,53 @@
+' Gambas class file
+
+Export
+
+Property Color As Variant Use $vColor
+Property Image As String Use $sImage
+Property Gradient As Gradient Use $hGradient
+Property Read Type As Integer Use $iType = -1
+
+Public Enum TypeInvalid = -1, TypeColor, TypeImage, TypeGradient
+
+' Public Sub _new((Type) As Integer, Optional Value As Variant)
+'   
+'   Select Type
+'     Case TypeColor
+'       $vColor = Value
+'       If TypeOf($vColor) = gb.Integer Then $vColor = WebForm._GetColor($vColor)
+'     Case TypeGradient
+'       $hGradient = Value
+'     Case TypeImage
+'       $sImage = Value
+'   End Select
+' 
+' $iType = Type
+'   
+' End
+
+Private Sub Color_Write(Value As Variant)
+  
+  $sImage = ""
+  $hGradient = Null
+  $vColor = Value
+  $iType = TypeColor
+  
+End
+
+Private Sub Gradient_Write(Value As Gradient)
+  
+  $sImage = ""
+  $vColor = Null
+  $hGradient = Value
+  $iType = TypeGradient
+  
+End
+
+Private Sub Image_Write(Value As String)
+  
+  $sImage = Value
+  $hGradient = Null
+  $vColor = Null
+  $iType = TypeImage
+  
+End

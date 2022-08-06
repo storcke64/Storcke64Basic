@@ -1,6 +1,7 @@
 ' Gambas class file
 
 Public Device As WebControl
+Public Brush As PaintBrush
 
 Public Sub Begin()
   
@@ -66,4 +67,7 @@ Public Sub Clip((Preserve) As Boolean)
   
 End
 
+Public Sub LinearGradient((X1) As Float, (Y1) As Float, (X2) As Float, (Y2) As Float, (Colours) As Variant[], (Positions) As Float[]) As PaintBrush
+  
+End
 

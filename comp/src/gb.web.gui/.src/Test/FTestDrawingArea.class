@@ -21,6 +21,17 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Ellipse(80, 60, 120, 70, 0, -Pi / 2)
   Paint.Stroke(Color.Green)
   
+  Paint.Rectangle(80, 200, 120, 70)
+ 
+ Paint.Brush = Paint.LinearGradient(80, 200, 80, 270, [Color.Red, Color.Green, Color.Violet], [0, 0.5, 1])
+ 
+  Paint.Fill(Paint.Brush)
+ 
+  Paint.Rectangle(220, 200, 120, 70)
+   Paint.Brush.Gradient.Coordinates = [220, 200, 340, 200]
+  Paint.Fill(Paint.Brush)
+  
+  
 End
 
 Static Public Sub _init()

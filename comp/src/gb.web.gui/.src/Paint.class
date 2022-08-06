@@ -5,7 +5,8 @@ Export
 Static Private $aStack As New PaintDriver[]
 
 Static Property Read Device As WebControl
-Static Property LineWidth As Float
+Static Property Write LineWidth As Float
+Static Property Brush As PaintBrush
 
 Static Private $hCurrent As New PaintDriver
 
@@ -81,12 +82,6 @@ Static Public Sub LineTo(X As Integer, Y As Integer)
   
 End
 
-Static Private Function LineWidth_Read() As Float
-
-  Error.Raise("Write-only property")
-
-End
-
 Static Private Sub LineWidth_Write(Value As Float)
 
   $hCurrent.SetLineWidth(Value)
@@ -129,3 +124,20 @@ Static Public Sub Clip(Optional Preserve As Boolean)
   
 End
 
+Static Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+  
+  Return $hCurrent.LinearGradient(X1, Y1, X2, Y2, Colours, Positions)
+  
+End
+
+Static Private Function Brush_Read() As PaintBrush
+
+  Return $hCurrent.Brush
+
+End
+
+Static Private Sub Brush_Write(Value As PaintBrush)
+
+  $hCurrent.Brush = Value
+
+End

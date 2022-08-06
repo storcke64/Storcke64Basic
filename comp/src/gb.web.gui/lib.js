@@ -1781,6 +1781,27 @@ gw = {
     }
   },
   
+  gradient:
+  {
+
+    getvar: function(mo,coords,stops)
+    {
+      if (mo == -1) {
+      return;
+      }else if (mo == 0) {
+        var grad = $_c.createLinearGradient(coords[0], coords[1], coords[2], coords[3]);
+      }else{
+        var grad = $_c.createRadialGradient(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+      }
+      for (let i = 0; i < stops.length; i++) {
+        var st = stops[i];
+        grad.addColorStop(st[0] ,st[1]);
+      }
+
+     return grad;
+    }
+  },
+  
   sound:
   {
     pause: function(id)
