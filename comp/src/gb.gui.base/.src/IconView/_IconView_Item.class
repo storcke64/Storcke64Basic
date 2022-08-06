@@ -34,7 +34,6 @@ Private $sText As String
 Private $sRichText As String
 Private $hPicture As Picture
 Private $vTag As Variant
-Private $bSelected As Boolean
 Private $bEditable As Boolean
 Private $bEllipsized As Boolean
 
@@ -296,6 +295,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   Dim sText As String
   Dim hRect1, hRectBg As Rect
   Dim DS As Integer = Desktop.Scale
+  Dim bSelected As Boolean
   
   hRect.Adjust(DS \ 4)
   
@@ -310,7 +310,9 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   'If $bSelected Then iColor = Color.SelectedBackground
   'If bHover Then iColor = Color.Merge(iColor, Color.LightBackground)
   
-  iColor = GetBackground(hIconView, $bSelected, bFocus)
+  bSelected = hIconView._IsItemSelected(Me)
+  
+  iColor = GetBackground(hIconView, bSelected, bFocus)
 
   ' If bHover And Not $bSelected Then
   '   Paint.Begin(Draw.Device)
@@ -461,7 +463,7 @@ PAINT_RECTS:
 
 PAINT_BACKGROUND:
 
-  If bHover Or If $bSelected Or If bCurrent Then
+  If bHover Or If bSelected Or If bCurrent Then
     
     Paint.Save
     Paint.ClipRect = hClip
@@ -469,7 +471,7 @@ PAINT_BACKGROUND:
     If bHover Then
     
       GoSub PAINT_RECTS
-      If bCurrent Or If $bSelected Then
+      If bCurrent Or If bSelected Then
         Paint.Background = Color.Merge(iColor, Color.TextForeground, 0.2)
       Else
         Paint.Background = GetBackground(hIconView, True, bFocus)
@@ -507,17 +509,14 @@ End
 
 Private Function Selected_Read() As Boolean
 
-  Return $bSelected
+  Return GetIconView()._IsItemSelected(Me)
 
 End
 
 Private Sub Selected_Write(Value As Boolean)
 
-  If $bSelected = Value Then Return
-  
-  $bSelected = Value
+  If Selected_Read() = Value Then Return
   GetIconView()._SelectItem(Me, Value)
-  RefreshView
 
 End
 
@@ -585,7 +584,6 @@ Public Sub _Intersect(hRect As Rect, hOther As Rect, bHorizontal As Boolean) As 
   
 End
 
-
 Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean, X As Integer, Y As Integer) As Boolean
   
   Dim H, YT, HT, PW, PH As Integer
@@ -595,8 +593,8 @@ Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean,
   
   DS = Desktop.Scale
   hRect.Adjust(DS \ 2)
-  Return hRect.Contains(X, Y)
-  'If Not hRect.Contains(X, Y) Then Return False
+  'Return hRect.Contains(X, Y)
+  If Not hRect.Contains(X, Y) Then Return False
   
   If bHorizontal Then
   
@@ -609,9 +607,9 @@ Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean,
     YT = hRect.Y
     
     If PW Then 
-      hInside = New Rect(hRect.X + (hRect.W - PW) / 2 - 4, hRect.Y - 4, PW + 8, PH + 8)
+      hInside = New Rect(hRect.X + (hRect.W - PW) / 2 - (DS \ 2), hRect.Y - (DS \ 2), PW + DS, PH + DS)
       If hInside.Contains(X, Y) Then Return True
-      YT += PH + 4
+      YT += PH + DS \ 2
     Endif
     
     If $sText Then
@@ -621,7 +619,7 @@ Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean,
       If H > HT Then 
         sText = Ellipsize(sText, hIconView.Font, hRect.W, HT)
       Endif
-      hInside = New Rect(hRect.X - 4, YT - 6, hRect.W + 8, hIconView.Font.RichTextHeight(sText, hRect.W) + 10)
+      hInside = New Rect(hRect.X - DS \ 2, YT - DS \ 2, hRect.W + DS, hIconView.Font.RichTextHeight(sText, hRect.W) + DS)
       If hInside.Contains(X, Y) Then Return True
     Endif
     

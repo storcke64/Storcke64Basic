@@ -31,7 +31,7 @@ Private $XMax As Integer
 Private $iNoArrange As Integer
 Private $bVertical As Boolean
 Private $bBorder As Boolean = True
-Private $iMinSize As Integer = Desktop.Scale * 2
+Private $iMinSize As Integer = Desktop.Scale * 4
 
 Public Sub _new()
   
@@ -152,7 +152,7 @@ Public Sub Container_Arrange()
         If $aResize[I] Then Break
         $aResize[I] = New DrawingArea(Me) As "Resize"
         With $aResize[I]
-          .NoBackground = True
+          '.NoBackground = True
           .Raise
           .Tag = I
         End With

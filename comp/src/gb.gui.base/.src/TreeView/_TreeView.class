@@ -1199,7 +1199,11 @@ Public Sub _EnsureVisible(hItem As _TreeView_Item, Optional bChild As Boolean)
     iRow = Min(iRow + $hView.RowAt($hView.ClientH) - $hView.RowAt($hView.Columns.Height) - 2, iRow + hItem._Rows - 1)
   Endif
   
-  If iRow >= 0 Then $hView[iRow, 0].EnsureVisible
+  If iRow >= 0 Then
+    Try $hView[iRow - 1, 0].EnsureVisible
+    Try $hView[iRow + 1, 0].EnsureVisible
+    $hView[iRow, 0].EnsureVisible
+  Endif
   
 End
 

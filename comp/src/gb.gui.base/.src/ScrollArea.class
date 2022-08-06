@@ -936,6 +936,8 @@ End
 
 Public Sub DrawingArea_DragMove()
   
+  'Debug
+  
   If Not $hTimerAutoScroll Then
     $hTimerAutoScroll = New Timer As "TimerAutoScroll"
     $hTimerAutoScroll.Delay = 50
@@ -948,6 +950,8 @@ Public Sub DrawingArea_DragMove()
 End
 
 Public Sub DrawingArea_DragLeave()
+  
+  'Debug
   
   If $hTimerAutoScroll Then
     $hTimerAutoScroll.Stop
@@ -969,7 +973,30 @@ End
 
 Public Sub TimerAutoScroll_Timer()
   
-  Me._EnsureVisibleScroll($DX, $DY)
+  Dim DS As Integer
+  Dim SX, SY As Integer
+
+  'Debug $DX;; $DY
+
+  GetActualScroll(ByRef SX, ByRef SY)
+  
+  'Me._EnsureVisibleScroll($DX, $DY)
+  DS = Desktop.Scale * 2
+  
+  If $DX < DS Then
+    SX -= DS
+  Else If $DX >= (ClientWidth_Read() - DS) Then
+    SX += DS
+  Endif
+  
+  If $DY < DS Then
+    SY -= DS
+  Else If $DY >= (ClientHeight_Read() - DS) Then
+    SY += DS
+  Endif
+  
+  If Scroll(SX, SY) Then Return
+  Drag.Hide
   
 End
 
