@@ -28,9 +28,8 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Fill(Paint.Brush)
  
   Paint.Rectangle(220, 200, 120, 70)
-   Paint.Brush.Gradient.Coordinates = [220, 200, 340, 200]
+  Paint.Brush.Gradient.Coordinates = [220, 200, 340, 200]
   Paint.Fill(Paint.Brush)
-  
   
 End
 

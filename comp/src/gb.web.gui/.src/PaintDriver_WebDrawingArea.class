@@ -147,10 +147,9 @@ End
 
 Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
 
-  Dim hBrush As PaintBrush = New PaintBrush
   Dim hGrad As Gradient = New Gradient(Gradient.Linear, [X1, Y1, X2, Y2])
   hGrad.AddColorStops(Positions, Colours)
-  hBrush.Gradient = hGrad
+  Dim hBrush As PaintBrush = New PaintBrush(PaintBrush.TypeGradient, hGrad)
   Return hBrush
 
 End
