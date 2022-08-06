@@ -1800,32 +1800,9 @@ Private Function Link_Read() As TerminalLink
 
 End
 
-Private Sub UrlUnquote(Path As String) As String
-  
-  Dim iInd As Integer
-  Dim sRes As String
-  Dim sCar As String
-  
-  For iInd = 1 To Len(Path)
-    sCar = Mid$(Path, iInd, 1)
-    If sCar = "%" Then 
-      sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
-      iInd += 2
-    Else If sCar = "+" Then 
-      sCar = " "
-    Endif
-    sRes &= sCar
-  Next
-
-  Return sRes  
-  
-End
-
 Public Sub View_Drop()
   
-  Dim sText As String
-  Dim aText As String[]
-  Dim I As Integer
+  Dim aPaths As String[]
   
   If Object.CanRaise(Me, "Drop") Then
     Raise Drop
@@ -1834,16 +1811,12 @@ Public Sub View_Drop()
   Endif
   
   If Drag.Formats.Exist("text/uri-list") Then
-    sText = Trim(Drag.Paste("text/uri-list"))
-    If sText Then
-      aText = Split(sText, "\r\n", "", True)
-      For I = 0 To aText.Max
-        sText = aText[I]
-        If sText Begins "file://" Then aText[I] = UrlUnquote(Mid$(sText, 8))
-        aText[I] = Shell$(aText[I])
-      Next
-      PasteText(aText.Join(" ") & " ")
-    Endif
+    
+    Try aPaths = Drag.Paste("text/uri-list")
+    If Not aPaths Or If aPaths.Count = 0 Then Return
+    
+    PasteText(aPaths.Join(" ") & " ")
+    
   Endif
   
 End
