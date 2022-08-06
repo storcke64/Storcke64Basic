@@ -2,7 +2,7 @@
 
   gcontrol.h
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+  (c) Benoît Minisini <benoit.minisini@gambas-basic.org>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -309,7 +309,7 @@ public:
 	unsigned _has_css_id : 1;              // If the widget has a css id
 #endif
 	
-  void removeParent() { pr = NULL; }
+ 	void removeParent() { pr = NULL; }
 	void initSignals();
 	virtual void borderSignals();
 	void connectParent();

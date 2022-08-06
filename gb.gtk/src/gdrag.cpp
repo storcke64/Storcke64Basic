@@ -796,14 +796,18 @@ bool gDrag::setCurrent(gControl *control)
 		while (current)
 		{
 			CB_control_drag_leave(current);
-			current = current->_proxy;
+			current = current->_proxy_for;
 		}
 	}
 	
 	_current = control;
 	
-	if (control)
-		return !CB_control_drag(control);
-	else
-		return false;
+	while (control)
+	{
+		if (CB_control_drag(control))
+			return true;
+		control = control->_proxy_for;
+	}
+	
+	return false;
 }

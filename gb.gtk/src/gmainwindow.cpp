@@ -1461,6 +1461,7 @@ void gMainWindow::reparent(gContainer *newpr, int x, int y)
 
 		setParent(newpr);
 		connectParent();
+		//newpr->insert(this);
 		borderSignals();
 
 		initWindow();

@@ -251,7 +251,7 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 				if (!retval)
 					break;
 			}
-			control = control->_proxy;
+			control = control->_proxy_for;
 		}
 	}
 	
@@ -301,7 +301,12 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	context = gDrag::enable(context, data, time);
 	data->_drag_get_data = true;
 	
-	CB_control_drop(data);
+	while (data)
+	{
+		if (CB_control_drop(data))
+			break;
+		data = data->_proxy_for;
+	}
 	
 	context = gDrag::disable(context);
 

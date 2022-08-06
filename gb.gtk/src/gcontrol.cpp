@@ -3,6 +3,7 @@
 	gcontrol.cpp
 
 	(c) 2004-2006 - Daniel Campos Fernández <dcamposf@gmail.com>
+	(c) Benoît Minisini <benoit.minisini@gambas-basic.org>
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -1534,6 +1535,12 @@ void gControl::setAcceptDrops(bool vl)
 {
 	GtkWidget *w;
 
+	if (_proxy)
+	{
+		_proxy->setAcceptDrops(vl);
+		return;
+	}
+	
 	if (vl == _accept_drops)
 		return;
 
