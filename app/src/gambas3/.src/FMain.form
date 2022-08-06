@@ -540,7 +540,7 @@
       Text = ("New")
       Picture = Picture["icon:/small/new"]
       { mnuAddDirectory Menu
-        Text = Shortcut(("Directory"), "D")
+        Text = Shortcut(("Directory"), "D") & "..."
         Picture = Picture["icon:/small/directory"]
       }
       { mnuAddProjectLink Menu
@@ -614,19 +614,19 @@
       { mnuNewCSS Menu mnuNewFile
         Name = "mnuNewCSS"
         Text = Shortcut(("Style sheet"), "S") & "..."
-        Picture = Picture["icon:/small/html"]
+        Picture = Picture["icon:/small/css"]
         Tag = "css"
       }
       { mnuNewJS Menu mnuNewFile
         Name = "mnuNewJS"
         Text = Shortcut(("Javascript file"), "J") & "..."
-        Picture = Picture["icon:/small/script"]
+        Picture = Picture["icon:/small/js"]
         Tag = "js"
       }
       { mnuNewFile Menu mnuNewFile
         Name = "mnuNewFile"
         Text = Shortcut(("Other"), "O") & "..."
-        Picture = Picture["icon:/small/new"]
+        Picture = Picture["icon:/small/text"]
         Tag = "text"
       }
     }

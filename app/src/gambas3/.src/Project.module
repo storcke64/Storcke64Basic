@@ -822,7 +822,7 @@ _INIT_AGAIN:
     FMain.OnProjectChange
     FSearch.OnProjectChange
     If Class.IsLoaded("FHelpBrowser") Then FHelpBrowser.OnProjectChange
-    If Class.IsLoaded("FProjectEditor") Then FProjectBrowser.OnProjectChange
+    If Class.IsLoaded("FProjectBrowser") Then FProjectBrowser.OnProjectChange
     FProfile.OnProjectChange
     'FOpenProject.OnUpdateRecent
     
@@ -2932,7 +2932,7 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       If sErr Then FMain.ShowWarning(sErr)
     Endif
     
-    If Not bSilent Then Clipboard.CopyPath(sExecPath)
+    If Not bSilent Then Clipboard.Copy(sExecPath, "text/uri-list")
 
     If RunAfterMakingExec Then
       'Shell Replace(RunAfterMakingExec, "$(FILE)", Shell$(sExecPath)) Wait
@@ -3891,6 +3891,7 @@ Public Sub DeleteFile(sPath As String)
   Dim bConnection As Boolean
 
   If Not Exist(sPath) Then Return
+  If sPath Ends "~" Then Return
 
   bLink = Stat(sPath).Type = gb.Link
   
@@ -3960,6 +3961,8 @@ Public Sub DeleteDir(sDir As String, Optional bNoVerCtrl As Boolean)
     Try Kill sDir &/ sFile
   Next
 
+  If IsSourcePath(sDir) And If Dir(sDir).Count Then Error.Raise(("Directory must be empty."))
+
   If Not bNoVerCtrl And If VersionControl.Enabled Then
 
     VersionControl.RemoveDir(sDir)
@@ -3970,7 +3973,7 @@ Public Sub DeleteDir(sDir As String, Optional bNoVerCtrl As Boolean)
 
   Else
 
-    Rmdir sDir
+    Shell.RmDir(sDir)
 
   Endif
 
@@ -4717,6 +4720,7 @@ Public Function StripPath(sPath As String) As String
   Dim sDir As String
 
   sDir = Project.Dir
+  If sPath = sDir Then Return
   If Right$(sDir) <> "/" Then sDir = sDir & "/"
 
   If Left$(sPath, Len(sDir)) = sDir Then
@@ -4810,12 +4814,31 @@ Public Sub GetUniqueSourceName(sName As String) As String
 
 End
 
+Private Sub CopyRec(sSrc As String, sDest As String)
+  
+  Dim sFile As String
+  
+  If IsDir(sSrc) Then
+    Try Mkdir sDest
+    For Each sFile In Dir(sSrc)
+      CopyRec(sSrc &/ sFile, sDest &/ sFile)
+    Next
+  Else
+    Copy sSrc To sDest
+  Endif
+  
+End
+
+
 Public Sub CopyFile(sSrc As String, sDst As String) As String
 
   Dim sDest As String
 
+  If sDst Begins (sSrc & "/") Then Error.Raise(("Cannot copy a directory inside itself."))
+  
   sDest = File.Dir(sDst) &/ GetUniqueName(File.Dir(sDst), File.Name(sDst))
-  Copy sSrc To sDest
+  
+  CopyRec(sSrc, sDest)
 
   VersionControl.AddFile(sDest)
   

@@ -267,10 +267,10 @@ Public Sub mnuDeleteFile_Click()
   If IsDir(sPath) Then
     
     If Stat(sPath).Type = gb.Link Then
-      If Message.Delete(File.Name(sPath) & "\n\n" & ("Do you really want to delete this link ?"), ("Delete"), ("Cancel")) <> 1 Then Return
+      If Message.Delete(Project.GetMessagePrefix(sPath) & ("Do you really want to delete this link ?"), ("Delete"), ("Cancel")) <> 1 Then Return
       Project.DeleteFile(sPath)
     Else
-      If Message.Delete(File.Name(sPath) & "\n\n" & ("Do you really want to delete this directory ?"), ("Delete"), ("Cancel")) <> 1 Then Return
+      If Message.Delete(Project.GetMessagePrefix(sPath) & ("Do you really want to delete this directory ?"), ("Delete"), ("Cancel")) <> 1 Then Return
       Project.DeleteDir(sPath)
     Endif
     
@@ -282,7 +282,7 @@ Public Sub mnuDeleteFile_Click()
       sName = File.Name(sPath)
     Endif
     
-    If Message.Delete(sName & "\n\n" & ("Do you really want to delete this file ?"), ("Delete"), ("Cancel")) <> 1 Then Return
+    If Message.Delete(Project.GetMessagePrefix(sName) & "\n\n" & ("Do you really want to delete this file ?"), ("Delete"), ("Cancel")) <> 1 Then Return
     Project.DeleteFile(sPath)
     
   Endif
@@ -295,7 +295,6 @@ End
 
 Public Sub tvwProject_Menu()
   
-  'mnuPopup.Enabled = TRUE
   GetCurrent()
   If Not $sKey Then Return
   $hProjectTree.FillDir($sKey)
@@ -314,7 +313,6 @@ Public Sub tvwProject_Menu()
     
     mnuPopup.Popup
   Endif
-  'mnuPopup.Enabled = FALSE
   
 End
 
@@ -998,22 +996,29 @@ Private Sub Rename(sKey As String)
 End
 
 Public Sub mnuAddDirectory_Click()
+
+  Dim sDir As String
   
-  Dim sPath As String
-  Dim iInd As Integer = 1
+  sDir = GetCurrentDir()
+  If Not sDir Then Return
   
-  sPath = GetCurrentDir() &/ ("New folder")
-  While Exist(sPath)
-    Inc iInd
-    sPath = GetCurrentDir() &/ ("New folder") & " (" & iInd & ")"
-  Wend
+  If FCreateFile.Run(sDir, sDir, FCreateFile.DIRECTORY) Then Return
   
-  If Project.InsertDirectory(sPath, True) Then Return
-  $sDeleteKey = sPath
-  
-  Rename(sPath)  
-  'IF FNewDirectory.Run(GetCurrentDir()) THEN RETURN
-  'Project.InsertDirectory(FNewDirectory.ParentDir &/ FNewDirectory.Name)
+  ' Dim sPath As String
+  ' Dim iInd As Integer = 1
+  ' 
+  ' sPath = GetCurrentDir() &/ ("New folder")
+  ' While Exist(sPath)
+  '   Inc iInd
+  '   sPath = GetCurrentDir() &/ ("New folder") & " (" & iInd & ")"
+  ' Wend
+  ' 
+  ' If Project.InsertDirectory(sPath, True) Then Return
+  ' $sDeleteKey = sPath
+  ' 
+  ' Rename(sPath)  
+  ' 'IF FNewDirectory.Run(GetCurrentDir()) THEN RETURN
+  ' 'Project.InsertDirectory(FNewDirectory.ParentDir &/ FNewDirectory.Name)
   
 End
 
@@ -1037,7 +1042,7 @@ Private Function CanDelete(sPath As String) As Boolean
   If CFamily.List.Exist(Lower(File.Ext(sPath))) Then Return True
   ' not on .class files 
   If Lower(File.Ext(sPath)) = "class" Then Return Not $hProjectTree.HasForm(sPath)
-  If tvwProject[sPath].Count = 0 Then Return True
+  Return True
 
 Catch
   
@@ -1133,15 +1138,8 @@ End
 
 Public Sub mnuCopyPath_Click()
   
-  Dim sPath As String
-  
-  sPath = GetCurrent()
-  If Left(sPath, Len(Project.Dir)) = Project.Dir Then
-    sPath = Mid$(sPath, Len(Project.Dir) + 2)
-    'IF Left(sPath) = "/" THEN sPath = Mid$(sPath, 2)
-  Endif
-  
-  Clipboard.Copy(sPath)
+  Dim sPath As String = Project.StripPath(GetCurrent())
+  If sPath Then Clipboard.Copy(sPath)
   
 End
 
@@ -2225,10 +2223,9 @@ End
 '   
 ' End
 
-Public Sub mnuEditWith_Show()
+Public Sub CreateRunWithMenu(hParent As Menu, sPath As String)
   
   Dim hProg As DesktopFile
-  Dim hParent As Menu = Last
   Dim hMenu As Menu
   
   hParent.Children.Clear
@@ -2241,11 +2238,19 @@ Public Sub mnuEditWith_Show()
     hMenu.Tag = hProg
   Next
   
+  hParent.Tag = sPath
+
+End
+
+Public Sub mnuEditWith_Show()
+
+  CreateRunWithMenu(Last, tvwProject.Key)  
+  
 End
 
 Public Sub mnuEditWithProg_Click()
   
-  Dim sKey As String = tvwProject.Key
+  Dim sKey As String = Last.Parent.Tag
   Dim hProcess As Process
   
   If sKey Then
@@ -3431,11 +3436,12 @@ Public Sub btnWorkspaceBrowse_Click()
   $bWorkspaceVisible = True
   UpdateProperty
   UpdateWorkspaceButtons
-  
 
 End
 
 Public Sub CloseProjectEditor()
+  
+  If Not $bWorkspaceVisible Then Return
   
   wrkProject.Show
   FProjectBrowser.Hide

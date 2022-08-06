@@ -336,7 +336,6 @@ Public Sub RemoveFile(sPath As String, Optional (bForce) As Boolean)
 End
 
 ' Must be called *after* the directory has been deleted
-' The directory must be empty
 
 Public Sub RemoveDir(sPath As String)
 

@@ -313,10 +313,10 @@ Public Sub RemoveFile(sPath As String, Optional (bForce) As Boolean)
   
 End
 
-Public Sub RemoveDir((sPath) As String)
+Public Sub RemoveDir(sPath As String)
 
-  ' git does not track directories
-  ' RemoveFile(sPath)
+  RunShell("git rm -rf --cached " & Shell(sPath))
+  Shell.RmDir(sPath)
 
 End
 
