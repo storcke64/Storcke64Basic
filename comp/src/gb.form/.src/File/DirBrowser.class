@@ -1,0 +1,143 @@
+' Gambas class file
+
+Export
+
+Inherits UserControl
+
+Public Const _Properties As String = "*,Border=True,Dir,Root,Text,Picture"
+Public Const _DefaultEvent As String = "Click"
+Public Const _Group As String = "View"
+
+Event Click(Dir As String)
+
+Property Dir As String
+Property Root As String
+Property Text As String
+Property Picture As Picture
+Property Border As Boolean
+
+Private $sRoot As String
+Private $sText As String
+Private $hPict As Picture
+Private $sDir As String
+Private $hBorder As Panel
+
+Public Sub _new()
+  
+  $hBorder = New Panel(Me)
+  $hBorder.Border = Border.Plain
+  $hBorder.Arrangement = Arrange.Horizontal
+  
+  UpdateBrowser
+  
+End
+
+Private Function Root_Read() As String
+
+  Return $sRoot
+
+End
+
+Private Sub Root_Write(Value As String)
+
+  $sRoot = Value
+  UpdateBrowser
+
+End
+
+Private Function Text_Read() As String
+
+  Return $sText
+
+End
+
+Private Sub Text_Write(Value As String)
+
+  $sText = Value
+  UpdateBrowser
+
+End
+
+Private Function Picture_Read() As Picture
+
+  Return $hPict
+
+End
+
+Private Sub Picture_Write(Value As Picture)
+
+  $hPict = Value
+  UpdateBrowser
+
+End
+
+Private Sub UpdateBrowser()
+
+  Dim sPath As String
+  Dim sName As String
+  Dim hDirButton As DirButton
+  Dim sDir As String
+  Dim sRoot As String
+  
+  $hBorder.Children.Clear
+  
+  sDir = $sDir
+  If Not sDir Then sDir = User.Home
+  
+  sRoot = $sRoot
+  If Not sRoot Then sRoot = "/"
+  
+  hDirButton = New DirButton($hBorder) As "DirButton"
+  hDirButton.Path = sRoot
+  If $sText Then hDirButton.Label = $sText
+  If $hPict Then
+    hDirButton.Picture = $hPict
+  Else 
+    hDirButton.Picture = Picture["icon:/small/harddisk-root"]
+  Endif
+
+  sPath = "/"
+  For Each sName In Split(Mid$(sDir, 2), "/")
+    
+    sPath &/= sName
+    
+    If sRoot Begins sPath Then Continue
+    
+    hDirButton = New DirButton($hBorder) As "DirButton"
+    hDirButton.Path = sPath
+    
+  Next
+
+End
+
+Private Function Dir_Read() As String
+
+  Return $sDir
+
+End
+
+Private Sub Dir_Write(Value As String)
+
+  $sDir = Value
+  UpdateBrowser
+
+End
+
+Private Function Border_Read() As Boolean
+
+  Return $hBorder.Border <> Border.None
+
+End
+
+Private Sub Border_Write(Value As Boolean)
+
+  $hBorder.Border = If(Value, Border.Plain, Border.None)
+
+End
+
+Public Sub DirButton_Click()
+  
+  Raise Click(Last.Path)
+  
+End
+
