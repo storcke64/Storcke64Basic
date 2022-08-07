@@ -10,7 +10,6 @@ Private $iIconSizeNormal As Integer
 Private $iIndent As Integer
 
 Private $hView As FileView
-Private fvwProject2 As FileView
 
 Public Sub _new()
   
@@ -50,6 +49,8 @@ Private Sub Reload()
 
   If $bProjectHasChanged Then 
     mnuViewNormal_Click
+    dbrProject.Root = Project.Dir
+    dbrProject2.Root = Project.Dir
     SetDir(Project.Dir)
     $bProjectHasChanged = False
   Endif
@@ -65,8 +66,8 @@ End
 
 Public Sub ReadConfig()
   
-  Project.SetNormalFont(fvwProject)
-  If fvwProject2 Then Project.SetNormalFont(fvwProject2)
+  If panProject.Visible Then Project.SetNormalFont(fvwProject)
+  If panProject2.Visible Then Project.SetNormalFont(fvwProject2)
   
 End
 
@@ -98,7 +99,7 @@ Public Sub sldIconSize_Change()
     $iIconSizeNormal = sldIconSize.Value
   Endif
   
-  If fvwProject2 Then fvwProject2.IconSize = fvwProject.IconSize
+  fvwProject2.IconSize = fvwProject.IconSize
 
 End
 
@@ -115,8 +116,8 @@ Private Sub UpdateMenu()
   Action[".cut,.copy,.delete,.clone", Me].Enabled = iSel > 0
   Action[".rename"].Enabled = iSel = 1
   Action[".paste"].Enabled = Clipboard.Format = MMime.URI
-  Action[".view-split"].Visible = IsNull(fvwProject2)
-  Action[".view-normal"].Visible = fvwProject2
+  Action[".view-normal"].Visible = panProject.Visible And panProject2.Visible
+  Action[".view-split"].Visible = Not (panProject.Visible And panProject2.Visible)
   
 End
 
@@ -143,11 +144,11 @@ Public Sub btnPreview_Click()
 
   Dim iIconSize As Integer
   
-  fvwProject.ShowPreview = btnPreview.Value
-  If fvwProject2 Then fvwProject2.ShowPreview = fvwProject.ShowPreview
+  If panProject.Visible Then fvwProject.ShowPreview = btnPreview.Value
+  If panProject2.Visible Then fvwProject2.ShowPreview = btnPreview.Value
   'mnuShowPreview.Checked = btnPreview.Value
 
-  If fvwProject.ShowPreview Then
+  If btnPreview.Value Then
     iIconSize = $iIconSizePreview
   Else 
     iIconSize = $iIconSizeNormal
@@ -156,14 +157,10 @@ Public Sub btnPreview_Click()
 
 End
 
-Public Sub mnuShowDetailed_Click()
+Public Sub btnDetail_Click()
 
-  fvwProject.ShowDetailed = Not fvwProject.ShowDetailed
-  If fvwProject2 Then fvwProject2.ShowDetailed = fvwProject.ShowDetailed
-  'mnuShowDetailed.Checked = fvwProject.ShowDetailed
-  Object.Lock(btnDetail)
-  btnDetail.Value = fvwProject.ShowDetailed
-  Object.Unlock(btnDetail)
+  If panProject.Visible Then fvwProject.ShowDetailed = btnDetail.Value
+  If panProject2.Visible Then fvwProject2.ShowDetailed = btnDetail.Value
   UpdateMenu
   
 End
@@ -176,8 +173,8 @@ End
 
 Public Sub btnReload_Click()
 
-  fvwProject.Reload
-  If fvwProject2 Then fvwProject2.Reload
+  If panProject.Visible Then fvwProject.Reload
+  If panProject2.Visible Then fvwProject2.Reload
 
 End
 
@@ -414,7 +411,7 @@ End
 
 Public Sub Form_Close()
 
-  Settings.Write(fvwProject)
+  Settings.Write($hView)
   Settings["FProjectBrowser/IconSize"] = $iIconSizeNormal
   Settings["FProjectBrowser/PreviewIconSize"] = $iIconSizePreview
 
@@ -495,17 +492,15 @@ Public Sub PaintStatus()
   
 End
 
+Private Sub GetBrowser() As DirBrowser
+
+  Return $hView.Parent.Children[0]
+
+End
+
 Public Sub fvwProject_Refresh()
   
-  Dim hView As FileView = Last
-  Dim sDir As String
-  
-  sDir = hView.Dir
-  If sDir = Project.Dir Then 
-    hView.Title = ("Project data")
-  Else 
-    hView.Title = "▸  " & Replace(Project.StripPath(sDir), "/", "  ▸  ")
-  Endif
+  GetBrowser().Dir = $hView.Dir
   Project.UpdateStatus(True)
   
 End
@@ -587,8 +582,14 @@ End
 
 Private Sub UpdateBackground()
 
-  fvwProject.Background = If($hView = fvwProject, Color.Default, Color.Background)
-  If fvwProject2 Then fvwProject2.Background = If($hView = fvwProject2, Color.Default, Color.Background)
+  If panProject.Visible Then
+    panProject.Background = If($hView = fvwProject, Color.TextBackground, Color.Background)
+    fvwProject.Background = panProject.Background
+  Endif 
+  If panProject2.Visible Then
+    panProject2.Background = If($hView = fvwProject2, Color.TextBackground, Color.Background)
+    fvwProject2.Background = panProject2.Background
+  Endif
 
 End
 
@@ -597,6 +598,7 @@ Private Sub SetCurrentView(hView As FileView)
   $hView = hView
   $hView.SetFocus
   Project.SetCurrentPopup(mnuPopup)
+  fvwProject_Refresh
   UpdateMenu
   UpdateBackground
 
@@ -656,44 +658,44 @@ Public Sub mnuClone_Click()
 
 End
 
+Private Sub GetOtherView() As FileView
+
+  If $hView = fvwProject Then
+    Return fvwProject2
+  Else 
+    Return fvwProject
+  Endif
+
+End
+
 Public Sub mnuViewNormal_Click()
 
-  If Not fvwProject2 Then Return
+  If Not (panProject.Visible And panProject2.Visible) Then Return
   
-  If $hView = fvwProject Then
-    fvwProject.Delete
-    fvwProject = fvwProject2
-  Else
-    fvwProject2.Delete
-  Endif
-  fvwProject2 = Null
-  
-  SetCurrentView(fvwProject)
+  $hView.Parent.Hide
+  SetCurrentView(GetOtherView())
 
 End
 
 Public Sub mnuViewSplit_Click()
 
-  If fvwProject2 Then Return
+  If panProject.Visible And panProject2.Visible Then Return
   
-  fvwProject2 = New FileView(splProject) As "fvwProject"
-  fvwProject2.Border = False
-  fvwProject2.Mode = Select.Multiple
-  fvwProject2.ShowDirectory = True
-  fvwProject2.Settings = fvwProject.Settings
-  fvwProject2.ShowTitle = True
-  
-  fvwProject2.Dir = fvwProject.Dir
+  With GetOtherView()
+    .Settings = $hView.Settings
+    .Dir = $hView.Dir
+    .Parent.Show
+  End With
   
   splProject.Layout = [1, 1]
   
   ReadConfig
   
+  SetCurrentView(GetOtherView())
+  
   UpdateMenu
   UpdateBackground
   
-  fvwProject2.SetFocus
-
 End
 
 Public Sub mnuNewDirectory_Click()
@@ -761,4 +763,12 @@ Public Sub fvwProject_Filter(Name As String, (Info) As Stat)
     Stop Event
   Endif
   
+End
+
+Public Sub dbrProject_Click(Dir As String)
+
+  Dim hView As FileView = Last.Next.Next
+  SetCurrentView(hView)
+  SetDir(Dir)
+
 End

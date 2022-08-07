@@ -187,8 +187,7 @@
       Picture = Picture["icon:/small/view-preview"]
       Toggle = True
     }
-    { btnDetail ToolButton mnuShowDetailed
-      Name = "btnDetail"
+    { btnDetail ToolButton
       MoveScaled(35,0,4,4)
       ToolTip = ("Detailed view")
       Action = ".detail"
@@ -257,12 +256,48 @@
   { splProject Splitter
     MoveScaled(2,9,106,51)
     Expand = True
-    { fvwProject FileView
-      MoveScaled(18,8,51,37)
-      Border = False
-      Mode = Select.Multiple
-      ShowDirectory = True
-      ShowTitle = True
+    { panProject VBox
+      MoveScaled(3,10,48,38)
+      { dbrProject DirBrowser
+        MoveScaled(9,2,36,3)
+        Font = Font["-1"]
+        Border = False
+        Text = ("Project data")
+        Picture = Picture["icon:/small/directory"]
+      }
+      { Separator4 Separator
+        MoveScaled(14,7,29,0)
+      }
+      { fvwProject FileView
+        MoveScaled(3,11,39,25)
+        Expand = True
+        Border = False
+        Mode = Select.Multiple
+        ShowDirectory = True
+      }
+    }
+    { panProject2 VBox
+      MoveScaled(54,10,48,38)
+      Visible = False
+      { dbrProject2 DirBrowser dbrProject
+        Name = "dbrProject2"
+        MoveScaled(9,2,36,3)
+        Font = Font["-1"]
+        Border = False
+        Text = ("Project data")
+        Picture = Picture["icon:/small/directory"]
+      }
+      { Separator5 Separator
+        MoveScaled(14,7,29,0)
+      }
+      { fvwProject2 FileView fvwProject
+        Name = "fvwProject2"
+        MoveScaled(3,11,39,25)
+        Expand = True
+        Border = False
+        Mode = Select.Multiple
+        ShowDirectory = True
+      }
     }
   }
 }
