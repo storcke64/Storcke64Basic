@@ -31,6 +31,10 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Brush.Gradient.Coordinates = [220, 200, 340, 200]
   Paint.Fill(Paint.Brush)
   
+  Paint.Arc(100, 320, 40)
+  Paint.Brush = Paint.RadialGradient(100, 320, 2, 100, 320, 40, ["red", "yellow", "lightblue"], [0, 0.6, 1])
+  Paint.Fill(Paint.Brush)
+
 End
 
 Static Public Sub _init()

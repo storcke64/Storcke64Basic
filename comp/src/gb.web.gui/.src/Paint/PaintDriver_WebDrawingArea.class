@@ -153,3 +153,12 @@ Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Co
   Return hBrush
 
 End
+
+Public Sub RadialGradient(X1 As Float, Y1 As Float, R1 As Float, X2 As Float, Y2 As Float, R2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+
+  Dim hGrad As Gradient = New Gradient(Gradient.Radial, [X1, Y1, R1, X2, Y2, R2])
+  hGrad.AddColorStops(Positions, Colours)
+  Dim hBrush As PaintBrush = New PaintBrush(PaintBrush.TypeGradient, hGrad)
+  Return hBrush
+
+End
