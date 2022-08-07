@@ -733,6 +733,7 @@ Private Sub SetCurrentItem(iCurrent As Integer, Optional bIgnoreOutside As Boole
       $iCurrent = iCurrent
       $iStart = $iCurrent
       $cSelRect = Null
+      SelectionChanged
     Endif
     
   Else
