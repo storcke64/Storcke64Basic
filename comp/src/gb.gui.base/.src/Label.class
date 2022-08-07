@@ -145,7 +145,7 @@ Public Sub _UpdateSize()
   
   'Debug Me.Name; ": "; Me.Font.ToString();; W
     
-  If Align.IsMiddle($iAlign) Then
+  If Align.IsMiddle($iAlign) And If Not $bRichText Then
     If H < Me.H Then H = Me.H
   Endif
   
