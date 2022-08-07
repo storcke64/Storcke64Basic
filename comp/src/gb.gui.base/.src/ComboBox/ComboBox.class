@@ -215,11 +215,12 @@ End
 
 Private Sub ResetIndex()
   
+  Me.Refresh
   If $bReadOnly And If $aList.Count And If $iIndex < 0 Then
     Sort()
     $iIndex = 0
+    Raise Click
   Endif
-  Me.Refresh
   
 End
 

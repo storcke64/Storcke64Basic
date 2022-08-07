@@ -944,6 +944,7 @@ Public Sub _SetSelected(sKey As String, bSelected As Boolean)
     If bSelected Then
       $sKey = sKey
       Me.Refresh
+      Raise Select
     Else
       If $sKey = sKey Then
         $sKey = ""

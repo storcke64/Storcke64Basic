@@ -6,3 +6,10 @@ Public Sub Button1_Click()
   Print FileView1.Selection.Join("\n")
 
 End
+
+Public Sub Form_Open()
+
+  FileView1.Dir = "~/Musique/toto"
+  FileView1.ShowTitle = True
+
+End

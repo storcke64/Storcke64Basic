@@ -37,14 +37,31 @@ static void connect_signals(GtkWidget *wid, void *_object);
 
 static void raise_show(GtkWidget *widget, CWATCHER *_object)
 {
-	if (!gApplication::_disable_mapping_events)
+	//fprintf(stderr, "raise_show: %p %s [%d]\n", THIS->wid, THIS->wid->widget->name(), gApplication::_disable_mapping_events);
+	if (!gApplication::_disable_mapping_events && !THIS->visible)
+	{
+		THIS->visible = true;
 		GB.Raise(THIS, EVENT_Show, 0);
+	}
 }
 
 static void raise_hide(GtkWidget *widget, CWATCHER *_object)
 {
-	if (!gApplication::_disable_mapping_events)
+	//fprintf(stderr, "raise_hide: %p %s [%d]\n", THIS->wid, THIS->wid->widget->name(), gApplication::_disable_mapping_events);
+	if (!gApplication::_disable_mapping_events && THIS->visible)
+	{
+		THIS->visible = false;
 		GB.Raise(THIS, EVENT_Hide, 0);
+	}
+}
+
+static void cb_init_later(void *_object)
+{
+	if (THIS->wid->widget->isReallyVisible())
+		raise_show(NULL, THIS);
+	else
+		raise_hide(NULL, THIS);
+	GB.Unref(&_object);
 }
 
 static void raise_configure(GtkWidget *widget, GdkEventConfigure *e, CWATCHER *_object)
@@ -72,6 +89,7 @@ static void cb_destroy(GtkWidget *widget, CWATCHER *_object)
 {
 	gControl *ctrl = THIS->wid->widget;
 	
+	//fprintf(stderr, "cb_destroy: %p %s\n", THIS->wid, ctrl->name());
 	if (ctrl->_no_delete)
 	{
 		connect_signals(ctrl->border, _object);
@@ -112,8 +130,13 @@ BEGIN_METHOD(CWATCHER_new, GB_OBJECT control)
 	THIS->w = control->width() - 1;
 	THIS->h = control->height() - 1;
 
-	connect_signals(control->border, THIS);
+	//fprintf(stderr, "new watcher %s %d\n", control->name(), control->isReallyVisible());
 
+	connect_signals(control->border, THIS);
+	
+	GB.Ref(THIS);
+	GB.Post((GB_CALLBACK)cb_init_later, (intptr_t)THIS);
+	
 END_METHOD
 
 BEGIN_METHOD_VOID(CWATCHER_free)

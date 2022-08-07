@@ -1828,6 +1828,8 @@ END_METHOD
 
 BEGIN_PROPERTY(Control_Drop)
 
+	HANDLE_PROXY(_object);
+
 	if (READ_PROPERTY)
 		GB.ReturnBoolean(THIS->flag.drop);
 	else
@@ -3159,12 +3161,20 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 	{
 		if (!control->flag.drop)
 			goto __NEXT;
-
-		if (CDRAG_drag_enter((QWidget *)widget, control, (QDropEvent *)event))
+			
+		for(;;)
 		{
-			if (!((QDropEvent *)event)->isAccepted())
-				CDRAG_hide_frame(control);
-			return true;
+			if (CDRAG_drag_enter((QWidget *)widget, control, (QDropEvent *)event))
+			{
+				if (!((QDropEvent *)event)->isAccepted())
+					CDRAG_hide_frame(control);
+				return true;
+			}
+			
+			if (!EXT(control) || !EXT(control)->proxy_for)
+				break;
+				
+			control = (CWIDGET *)(EXT(control)->proxy_for);
 		}
 		
 		goto __NEXT;
@@ -3187,13 +3197,10 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				}
 			}
 
-			if (EXT(control) && EXT(control)->proxy)
-			{
-				control = (CWIDGET *)(EXT(control)->proxy);
-				continue;
-			}
-			else
+			if (!EXT(control) || !EXT(control)->proxy_for)
 				break;
+				
+			control = (CWIDGET *)(EXT(control)->proxy_for);
 		}
 		
 		if (GB.CanRaise(control, EVENT_Drop))
@@ -3206,8 +3213,16 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 	{
 		if (!control->flag.drop)
 			goto __NEXT;
-
-		CDRAG_drag_leave(control);
+			
+		for(;;)
+		{
+			CDRAG_drag_leave(control);
+			
+			if (!EXT(control) || !EXT(control)->proxy_for)
+				break;
+				
+			control = (CWIDGET *)(EXT(control)->proxy_for);
+		}
 		goto __NEXT;
 	}
 	
@@ -3216,10 +3231,18 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		if (!control->flag.drop)
 			goto __NEXT;
 
-		//if (!CWIDGET_test_flag(control, WF_NO_DRAG))
-		CDRAG_drag_leave(control);
-		if (CDRAG_drag_drop((QWidget *)widget, control, (QDropEvent *)event))
-			return true;
+		for(;;)
+		{
+			CDRAG_drag_leave(control);
+			if (CDRAG_drag_drop((QWidget *)widget, control, (QDropEvent *)event))
+				return true;
+		
+			if (!EXT(control) || !EXT(control)->proxy_for)
+				break;
+				
+			control = (CWIDGET *)(EXT(control)->proxy_for);
+		}
+
 		goto __NEXT;
 	}
 	

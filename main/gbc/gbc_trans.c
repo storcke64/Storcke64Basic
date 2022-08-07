@@ -780,6 +780,7 @@ void TRANS_get_constant_value(TRANS_DECL *decl)
 				if (PATTERN_is_integer(value))
 				{
 					decl->is_integer = TRUE;
+					index = PATTERN_signed_index(value);
 				}
 				else
 				{

@@ -23,6 +23,7 @@ Property Read Renaming As Boolean
 Property Editable As Boolean
 Property Compare As Integer
 Property Selection As String[]
+Property Read Selected As Boolean
 
 '' @{since 3.15}
 ''
@@ -1198,7 +1199,11 @@ Public Sub _EnsureVisible(hItem As _TreeView_Item, Optional bChild As Boolean)
     iRow = Min(iRow + $hView.RowAt($hView.ClientH) - $hView.RowAt($hView.Columns.Height) - 2, iRow + hItem._Rows - 1)
   Endif
   
-  If iRow >= 0 Then $hView[iRow, 0].EnsureVisible
+  If iRow >= 0 Then
+    Try $hView[iRow - 1, 0].EnsureVisible
+    Try $hView[iRow + 1, 0].EnsureVisible
+    $hView[iRow, 0].EnsureVisible
+  Endif
   
 End
 
@@ -1965,5 +1970,15 @@ End
 Private Function Indent_Read() As Integer
 
   Return $iDepthW
+
+End
+
+Private Function Selected_Read() As Boolean
+
+  If $hView.Mode = Select.Single Then
+    Return Key_Read()
+  Else If $hView.Mode = Select.Multiple Then
+    Return $hSelection.Keys.Count
+  Endif
 
 End

@@ -5,7 +5,7 @@ Inherits UserControl
 
 Class Watch
 
-Public Const _Properties As String = "*,Border=True,Mode{Select.*}=Single,Dir,ShowDetailed,ShowHidden,ShowDirectory,ShowPreview"
+Public Const _Properties As String = "*,Border=True,Mode{Select.*}=Single,Dir,ShowDetailed,ShowHidden,ShowDirectory,ShowPreview,ShowTitle"
 Public Const _DefaultEvent As String = "Click"
 Public Const _Group As String = "View"
 
@@ -15,6 +15,8 @@ Event Activate
 Event Menu
 Event Icon(Path As String)
 Event Refresh
+Event Rename(OldName As String, NewName As String)
+Event Filter(Name As String, Info As Stat)
 
 Property {Dir} As String
 Property Current As String
@@ -24,11 +26,17 @@ Property Current As String
 '' It's an equivalent of '[../dir] &/ [../current]'.
 Property Read Path As String
 
+'' Return the absolute paths of the selected elements
+Property Read Paths As String[]
+
 Property ShowHidden As Boolean
 Property ShowDirectory As Boolean
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
+Property ShowTitle As Boolean
+Property Title As String Use $sTitle
+
 Property Selection As String[]
 Property Filter As String[]
 Property Icon As Picture
@@ -38,6 +46,7 @@ Property Settings As Variant[]
 Property Read Count As Integer
 Property Background As Integer
 Property Foreground As Integer
+Property Read Selected As Boolean
 
 Property Read FileCount As Integer Use $nFile
 Property Read DirCount As Integer Use $nDir
@@ -86,6 +95,16 @@ Static Private $hIconExec As Picture
 Private picLock As PictureBox
 
 Static Private $hLocked As Image
+Private $DX As Integer
+Private $DY As Integer
+
+Private $sHighlight As String
+Private $hHighlightPicture As Picture
+
+Private $hTitle As HBox
+Private $hTitleLabel As Label
+Private $hBorder As Panel
+Private $hTitleSeparator As Separator
 
 Static Public Sub _init()
   
@@ -162,14 +181,21 @@ Public Sub _new()
   
   $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
   $bWatch = Component.IsLoaded("gb.inotify")
-  If $bWatch Then $hWatcher = New Watcher(Me) As "Watcher"
+  $hWatcher = New Watcher(Me) As "Watcher"
   
-  With $hIconView = New IconView(Me) As "View"
+  $hBorder = New Panel(Me)
+  $hBorder.Arrangement = Arrange.Vertical
+  $hBorder.Border = Border.Plain
+  
+  With $hIconView = New IconView($hBorder) As "View"
     .Sorted = True
     .IconLines = 3
+    .Drop = True
+    .Expand = True
+    .Border = False
   End With
   
-  With $hColumnView = New ColumnView(Me) As "View"
+  With $hColumnView = New ColumnView($hBorder) As "View"
     .Columns[0].Text = (("Name"))
     .AddColumn(("Size"),, Align.Right)
     .AddColumn(("Last modified"))
@@ -178,14 +204,19 @@ Public Sub _new()
     .Sorted = True
     .Resizable = True
     .AutoResize = False
+    .Drop = True
+    .Expand = True
+    .Border = False
   End With
   
-  $hVoidView = New TextLabel(Me)
+  $hVoidView = New TextLabel(Me) As "View"
   $hVoidView.Alignment = Align.Center
   $hVoidView.Text = ("No file in this folder.")
   $hVoidView.Font.Grade = 2
   $hVoidView.Foreground = Color.LightForeground
   $hVoidView.Visible = False
+  $hVoidView.Ignore = True
+  $hVoidView.AutoResize = True
   
   Me.Proxy = GetView()
   
@@ -199,6 +230,8 @@ End
 Private Function CheckFilter(sFile As String) As Boolean
   
   Dim sFilter As String
+  
+  If Not $aFilter Then Return
   
   For Each sFilter In $aFilter
     If sFile Like sFilter Then Return
@@ -309,29 +342,6 @@ Catch
   
 End
 
-Private Sub GetSelection() As String[]
-  
-  Dim hView As Object
-  Dim aSel As New String[]
-  
-  If $hIconView.Visible Then
-    hView = $hIconView
-  Else
-    hView = $hColumnView
-  Endif
-  
-  hView.MoveFirst
-  While hView.Available
-    If hView.Item.Selected Then
-      aSel.Add(hView.Item.Key)
-    Endif
-    hView.MoveNext
-  Wend
-  
-  Return aSel
-  
-End
-
 Private Sub GetIconSize() As Integer
 
   If $hColumnView.Visible Then
@@ -361,15 +371,16 @@ End
 Private Sub ShowLock()
   
   If Not picLock Then
-    picLock = New PictureBox(Me)
+    picLock = New PictureBox($hBorder)
     picLock.Picture = Picture["img/lock.png"]
     picLock.Ignore = True
     picLock.Mode = PictureBox.Cover
     picLock.ResizeScaled(8, 8)
-    Watcher_Resize
   Endif
+  
   picLock.Show
   picLock.Raise
+  Watcher_Resize
   
 End
 
@@ -392,7 +403,7 @@ Private Sub RefreshView()
   Dim aDir As New String[]
   Dim I As Integer
   Dim sText As String
-  Dim bRichText As Boolean
+  Dim sRichText As String
   Dim hCache As DirCache
   Dim iHiddenFg As Integer
   Dim SX As Integer
@@ -404,10 +415,13 @@ Private Sub RefreshView()
   Dim iSort As Integer
   Dim bSortAscent As Boolean
   Dim hInfo As Stat
+  Dim bFilter As Boolean
+  Dim bCancel As Boolean
   
   Inc Application.Busy
   
   $bRefreshTriggered = False
+  bFilter = Object.CanRaise(Me, "Filter")
   
   $nFile = 0
   $nDir = 0
@@ -415,7 +429,7 @@ Private Sub RefreshView()
   
   iHiddenFg = _GetHiddenColor()
   
-  aSel = GetSelection()
+  aSel = GetView().Selection
   
   If $hColumnView.Visible Then
     SX = $hColumnView.ScrollX
@@ -471,13 +485,17 @@ Private Sub RefreshView()
       If Not $bShowHidden And If Left(sFile) = "." Or Right(sFile) = "~" Then Continue
       'With Stat(sDir &/ sFile)
       hInfo = hCache.GetInfo(sFile)
+      If bFilter Then
+        bCancel = Raise Filter(sFile, hInfo)
+        If bCancel Then Continue
+      Endif
       With hInfo
         If hCache.IsDir(sFile) Then
           If Not $bShowDir Then Continue
           sPrefix = PREFIX_DIR
           Inc $nDir
         Else
-          If $aFilter And If CheckFilter(sFile) Then Continue
+          If CheckFilter(sFile) Then Continue
           sPrefix = PREFIX_FILE
           Inc $nFile
           $iSize += .Size
@@ -494,17 +512,14 @@ Private Sub RefreshView()
           Endif
         Endif
         
-        bRichText = False
-        
         sText = Replace(sFile, "\n", "")
+        sRichText = ""
         
         If .Link Then
-          sText = "<i>" & sText & "</i>"
-          bRichText = True
+          sRichText = "<i>" & sText & "</i>"
         Endif
         If .Hidden Then
-          sText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
-          bRichText = True
+          sRichText = "<font color=\"#" & Hex$(iHiddenFg, 6) & "\">" & sText & "</font>"
         Endif
   
         If $hColumnView.Visible Then
@@ -523,7 +538,7 @@ Private Sub RefreshView()
             .[1] = Main.FormatSize(hInfo.Size)
             .[2] = Str(hInfo.Time)
             .[3] = hInfo.Auth
-            If bRichText Then .RichText = sText
+            If sRichText Then .RichText = sRichText
           End With
         Else
           If Not $hIconView.Exist(sKey) Then
@@ -536,7 +551,7 @@ Private Sub RefreshView()
               GoSub ADD_PREVIEW
             Endif
           Endif
-          If bRichText Then $hIconView[sKey].RichText = sText
+          If sRichText Then $hIconView[sKey].RichText = sRichText
         Endif
         
       End With
@@ -544,10 +559,6 @@ Private Sub RefreshView()
     bVoid = aDir.Count = 0
     
     hCache.Unlock
-    
-    For Each sFile In aSel
-      Try GetView()[sFile].Selected = True
-    Next
     
     If aPreview.Count Then RunPreview(aPreview)
   
@@ -571,6 +582,8 @@ Finally
     $hIconView._End
   Endif
   Try GetView().Scroll(SX, SY)
+  Try GetView().Selection = aSel
+    
   
   If bVoid Then
     $hVoidView.Show
@@ -686,10 +699,23 @@ Private Function Dir_Read() As String
   
 End
 
+Private Sub UpdateTitle()
+
+  Dim sTitle As String
+  
+  If $hTitleLabel Then
+    sTitle = $sTitle
+    If Not sTitle Then sTitle = Main.FormatPath(GetCurrentDir())
+    $hTitleLabel.Text = sTitle
+  Endif
+
+End
+
 Private Sub Dir_Write(sDir As String)
   
   $sDir = sDir
   RefreshViewLater(True)
+  UpdateTitle
   
 End
 
@@ -847,6 +873,11 @@ End
 
 Public Sub View_Menu()
   
+  If picLock And If picLock.Visible Then
+    Stop Event 
+    Return
+  Endif
+  
   Raise Menu
   
 End
@@ -991,7 +1022,12 @@ End
 
 Private Sub Filter_Write(aFilter As String[])
   
-  $aFilter = aFilter.Copy()
+  If aFilter Then
+    $aFilter = aFilter.Copy()
+  Else 
+    $aFilter = Null
+  Endif 
+  
   RefreshViewLater(True)
   
 End
@@ -1010,14 +1046,13 @@ End
 
 Private Function Border_Read() As Boolean
   
-  Return $hColumnView.Border
+  Return $hBorder.Border
   
 End
 
 Private Sub Border_Write(Value As Boolean)
   
-  $hColumnView.Border = Value
-  $hIconView.Border = Value
+  $hBorder.Border = If(Value, Border.Plain, Border.None)
   
 End
 
@@ -1108,6 +1143,7 @@ Private Sub Background_Write(Value As Integer)
   
   $hIconView.Background = Value
   $hColumnView.Background = Value
+  UpdateTitle
   
 End
 
@@ -1151,13 +1187,6 @@ Public Sub Rename()
   
 End
 
-Public Sub View_Cancel()
-  
-  Reload
-  
-End
-
-
 Public Sub View_Rename()
   
   Dim hView As Object = GetView()
@@ -1165,8 +1194,15 @@ Public Sub View_Rename()
   Dim sOldPath As String = GetCurrentDir() &/ Mid$(sKey, 2)
   Dim sNewName As String = hView.Item.Text
   Dim sMsg As String
+  Dim bCancel As Boolean
   
   If sNewName = File.Name(sOldPath) Then Return 
+  
+  If Object.CanRaise(Me, "Rename") Then
+    bCancel = Raise Rename(File.Name(Mid$(sKey, 2)), hView.Item.Text)
+    If bCancel Then hView[sKey].Text = File.Name(sOldPath)
+    Return
+  Endif
   
   sMsg = Help.CheckFileName(sNewName)
   If sMsg Then
@@ -1261,6 +1297,8 @@ End
 
 Public Sub Watcher_Resize()
   
+  $hVoidView.W = Desktop.Scale * 30
+  $hVoidView.Move((Me.W - $hVoidView.W) \ 2, (Me.H - $hVoidView.H) \ 2)
   If picLock And If picLock.Visible Then
     picLock.Move((Me.W - picLock.W) \ 2, (Me.H - picLock.H) \ 2)
   Endif
@@ -1332,4 +1370,199 @@ Private Function Path_Read() As String
   Dim sCurrent As String = Current_Read()
   If sCurrent Then Return $sDir &/ sCurrent
 
+End
+
+Public Sub _RefreshPicture()
+  
+  DirCache[GetCurrentDir()]._RefreshPicture()
+  Reload
+  
+End
+
+Private Function Selected_Read() As Boolean
+
+  Return GetView().Selected
+
+End
+
+Private Sub GetSelection() As String[]
+
+  Dim hView As Object = GetView()
+  Dim aPaths As String[]
+  Dim I As Integer
+  
+  aPaths = hView.Selection
+  If Not aPaths Or If aPaths.Count = 0 Then Return
+  
+  For I = 0 To aPaths.Max
+    aPaths[I] = GetCurrentDir() &/ Mid(aPaths[I], 2)
+  Next
+  
+  Return aPaths
+
+End
+
+Public Sub View_MouseDrag()
+
+  Dim hView As Object = GetView()
+  Dim aPaths As String[] = GetSelection()
+  If Not aPaths Then Return
+  
+  Try Drag.Icon = hView[hView.Selection[0]].Picture
+  Drag(GetView(), aPaths, "text/uri-list")
+  
+End
+
+Public Sub Copy()
+  
+  Dim aPaths As String[] = GetSelection()
+  If Not aPaths Then Return
+  Clipboard.Copy(aPaths, "text/uri-list")
+  
+End
+
+Public Sub View_DragLeave()
+  
+  HighlightItem
+  
+End
+
+Public Sub View_Drop()
+  
+  Raise Drop
+  
+End
+
+Private Function Paths_Read() As String[]
+
+  Dim aSel As String[]
+  Dim I As Integer
+  Dim sDir As String
+  
+  EnsureRefresh
+  sDir = GetCurrentDir()
+  aSel = GetView().Selection
+  For I = 0 To aSel.Max
+    aSel[I] = sDir &/ Mid$(aSel[I], 2)
+  Next
+  Return aSel
+  
+End
+
+Public Sub View_DragMove()
+
+  $DX = Drag.X
+  $DY = Drag.Y
+  
+  CheckDragMove()
+  
+End
+
+Private Sub HighlightItem(Optional sKey As String)
+
+  Dim hView As Object
+  Dim hImage As Image
+
+  hView = GetView()
+  
+  If $sHighlight Then
+    If $hHighlightPicture Then hView[$sHighlight].Picture = $hHighlightPicture
+    $hHighlightPicture = Null
+    $sHighlight = ""
+  Endif
+  
+  If sKey Then
+    $sHighlight = sKey
+    $hHighlightPicture = hView[$sHighlight].Picture
+    If $hHighlightPicture Then
+      hImage = $hHighlightPicture.Image
+      hImage.PaintRect(0, 0, hImage.W, hImage.H, Color.SetAlpha(Color.LightBackground, 192))
+      hView[$sHighlight].Picture = hImage.Picture
+    Endif
+  Endif
+
+End
+
+Private Sub CheckDragMove()
+
+  Dim hView As Object = GetView()
+  
+  Drag.Item = Null
+  If hView.FindAt($DX, $DY) Then
+    
+    HighlightItem
+    
+  Else
+  
+    With hView.Item
+      If IsDir(GetCurrentDir() &/ .Text) Then
+        HighlightItem(.Key)
+        Drag.Item = .Key
+      Else 
+        HighlightItem()
+      Endif
+    End With
+    
+  Endif
+  
+End
+
+Public Sub View_Scroll()
+  
+  If Drag.Pending Then CheckDragMove()
+  
+End
+
+Private Function ShowTitle_Read() As Boolean
+
+  Return $hTitle
+
+End
+
+Private Sub ShowTitle_Write(Value As Boolean)
+
+  Dim hPict As PictureBox
+  
+  If ShowTitle_Read() = Value Then Return
+  
+  If Value Then
+    
+    $hTitle = New HBox($hBorder)
+    $hTitle.Lower
+    $hTitle.ResizeScaled(4, 4)
+    $hTitle.Background = Color.Background
+    
+    $hTitleSeparator = New Separator($hBorder)
+    $hTitleSeparator.H = 1
+    $hTitleSeparator.Previous = $hTitle
+    
+    hPict = New PictureBox($hTitle)
+    hPict.ResizeScaled(4, 4)
+    hPict.Picture = Picture["icon:/small/directory"]
+    hPict.Alignment = Align.Center
+    
+    $hTitleLabel = New Label($hTitle)
+    $hTitleLabel.Expand = True
+    $hTitleLabel.Font.Grade = -2
+    '$hTitleLabel.Foreground = Color.LightForeground
+    
+    UpdateTitle
+    
+  Else
+    
+    $hTitle.Delete
+    $hTitleSeparator.Delete
+    $hTitle = Null
+    $hTitleSeparator = Null
+    $hTitleLabel = Null
+    
+  Endif
+
+End
+
+Private Sub Title_Write(Value As String)
+  
+  $sTitle = Value
+  UpdateTitle
+  
 End

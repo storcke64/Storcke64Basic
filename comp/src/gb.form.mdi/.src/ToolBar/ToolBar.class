@@ -21,6 +21,7 @@ Property Text As String
 Property Separator As Boolean
 Property Size As String
 Property Settings, Layout As String
+Property Read Configuring As Boolean
 
 Private $hForm As FToolBar
 
@@ -204,3 +205,9 @@ Static Public Sub SetLayout((Key) As String, sLayout As String)
   
 End
 
+
+Private Function Configuring_Read() As Boolean
+
+  Return $hForm.Drop
+
+End

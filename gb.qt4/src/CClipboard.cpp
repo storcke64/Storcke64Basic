@@ -609,18 +609,7 @@ void CDRAG_drag_leave(CWIDGET *control)
 
 	CDRAG_hide_frame(control);
 	
-	//while (EXT(control) && EXT(control)->proxy)
-	//	control = (CWIDGET *)(EXT(control)->proxy);
-
-__DRAG_LEAVE_TRY_PROXY:
-
 	GB.Raise(control, EVENT_DragLeave, 0);
-
-	if (EXT(control) && EXT(control)->proxy)
-	{
-		control = (CWIDGET *)(EXT(control)->proxy);
-		goto __DRAG_LEAVE_TRY_PROXY;
-	}
 }
 
 

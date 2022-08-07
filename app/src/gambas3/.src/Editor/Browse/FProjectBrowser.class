@@ -9,6 +9,16 @@ Private $iIconSizePreview As Integer
 Private $iIconSizeNormal As Integer
 Private $iIndent As Integer
 
+Private $hView As FileView
+Private fvwProject2 As FileView
+
+Public Sub _new()
+  
+  splProject.MinSize = Desktop.Scale * 12
+  
+End
+
+
 Public Sub Form_Open()
 
   Settings.Read(fvwProject)
@@ -17,18 +27,20 @@ Public Sub Form_Open()
   
   btnPreview.Value = fvwProject.ShowPreview
   btnDetail.Value = fvwProject.ShowDetailed
-
+  
   ReadConfig
   sldIconSize_Change
   fvwProject.SetFocus
+  $hView = fvwProject
   
+  $bProjectHasChanged = True
   Reload
 
 End
 
 Private Sub SetDir(sDir As String)
   
-  fvwProject.Dir = sDir
+  $hView.Dir = sDir
   UpdateMenu
   
 End
@@ -37,6 +49,7 @@ End
 Private Sub Reload()
 
   If $bProjectHasChanged Then 
+    mnuViewNormal_Click
     SetDir(Project.Dir)
     $bProjectHasChanged = False
   Endif
@@ -46,13 +59,14 @@ End
 Public Sub OnProjectChange()
   
   $bProjectHasChanged = True
-  If Me.Visible Then Reload
+  Reload
   
 End
 
 Public Sub ReadConfig()
   
   Project.SetNormalFont(fvwProject)
+  If fvwProject2 Then Project.SetNormalFont(fvwProject2)
   
 End
 
@@ -83,15 +97,27 @@ Public Sub sldIconSize_Change()
   Else
     $iIconSizeNormal = sldIconSize.Value
   Endif
+  
+  If fvwProject2 Then fvwProject2.IconSize = fvwProject.IconSize
 
 End
 
 Private Sub UpdateMenu()
 
-  Action[".up", Me].Enabled = Len(fvwProject.Dir) > Len(Project.Dir)
-  Action[".icon-size,.zoom-in,.zoom-out", Me].Visible = Not fvwProject.ShowDetailed
-  Action[".cut,.copy,.delete", Me].Enabled = fvwProject.Selection.Count > 0
+  Dim iSel As Integer
 
+  If Not $hView Then Return
+  iSel = $hView.Selection.Count
+
+  Action[".up", Me].Enabled = Len($hView.Dir) > Len(Project.Dir)
+  Action[".icon-size,.zoom-in,.zoom-out", Me].Visible = Not $hView.ShowDetailed
+  'Action[".cut,.copy,.delete,.clone", Me].Visible = fvwProject.Selected
+  Action[".cut,.copy,.delete,.clone", Me].Enabled = iSel > 0
+  Action[".rename"].Enabled = iSel = 1
+  Action[".paste"].Enabled = Clipboard.Format = MMime.URI
+  Action[".view-split"].Visible = IsNull(fvwProject2)
+  Action[".view-normal"].Visible = fvwProject2
+  
 End
 
 Public Sub tlbProject_Configure()
@@ -103,10 +129,11 @@ End
 
 Public Sub fvwProject_Activate()
 
-  If IsDir(fvwProject.Path) Then
-    SetDir(fvwProject.Path)
+  If IsDir($hView.Path) Then
+    SetDir($hView.Path)
   Else 
-    Project.OpenFile(fvwProject.Path)
+    FMain.CloseProjectEditor()
+    Project.OpenFile($hView.Path)
     Stop Event
   Endif
 
@@ -117,6 +144,7 @@ Public Sub btnPreview_Click()
   Dim iIconSize As Integer
   
   fvwProject.ShowPreview = btnPreview.Value
+  If fvwProject2 Then fvwProject2.ShowPreview = fvwProject.ShowPreview
   'mnuShowPreview.Checked = btnPreview.Value
 
   If fvwProject.ShowPreview Then
@@ -131,6 +159,7 @@ End
 Public Sub mnuShowDetailed_Click()
 
   fvwProject.ShowDetailed = Not fvwProject.ShowDetailed
+  If fvwProject2 Then fvwProject2.ShowDetailed = fvwProject.ShowDetailed
   'mnuShowDetailed.Checked = fvwProject.ShowDetailed
   Object.Lock(btnDetail)
   btnDetail.Value = fvwProject.ShowDetailed
@@ -141,70 +170,240 @@ End
 
 Public Sub btnParent_Click()
 
-  SetDir(File.Dir(fvwProject.Dir))
+  SetDir(File.Dir($hView.Dir))
 
 End
 
 Public Sub btnReload_Click()
 
   fvwProject.Reload
+  If fvwProject2 Then fvwProject2.Reload
 
 End
 
 Public Sub mnuProperty_Click()
   
-  FFileProperty.Run(fvwProject.Path)
+  FFileProperty.Run($hView.Path)
   
 End
 
-Private Sub GetPaths() As String[]
-
-  Dim sFile As String
-  Dim aPath As New String[]
-
-  For Each sFile In fvwProject.Selection
-    aPath.Add(fvwProject.Dir &/ sFile)
-  Next
-
-  Return aPath
-
-End
+' Private Sub GetPaths() As String[]
+' 
+'   Dim sFile As String
+'   Dim aPath As New String[]
+' 
+'   For Each sFile In $hView.Selection
+'     aPath.Add($hView.Dir &/ sFile)
+'   Next
+' 
+'   Return aPath
+' 
+' End
 
 Private Sub CopyCut(bCut As Boolean)
   
-  Dim aPath As String[]
-
-  aPath = GetPaths()
-  If aPath.Count = 0 Then Return
-  
   $bCut = bCut
-  Clipboard.CopyPaths(aPath)
+  $hView.Copy()
+  UpdateMenu
   
 End
 
-Public Sub btnCopy_Click()
-
-  CopyCut(False)
-
-End
-
-Public Sub btnCut_Click()
-
-  CopyCut(True)
-
-End
-
-Public Sub btnPaste_Click()
+Private Sub Paste(aPaths As String[], Optional sSubDir As String, Optional bClone As Boolean) As Boolean
   
-  Dim aPaths As String[]
+  Dim aFiles As New String[]
+  Dim aDirs As New String[]
+  Dim sPath As String
+  Dim sDir As String
+  Dim sDest As String
+  Dim sName As String
+  Dim sMsg As String
+  Dim sMsg2 As String
+  Dim sStrip As String
+  Dim sText As String
+  Dim sButton As String
   
-  aPaths = Clipboard.PastePaths()
   If Not aPaths Or If aPaths.Count = 0 Then Return
   
-  Message("Paste: " & aPaths.Join(", "))
+  AddFiles(aDirs, aFiles, aPaths)
+  
+  If aFiles.Count = 1 Then
+    sMsg = ("one file")
+  Else If aFiles.Count > 1 Then
+    sMsg = Subst(("&1 files"), Format(aFiles.Count, ",0"))
+  Endif
+  If aDirs.Count = 1 Then
+    sMsg2 = ("one directory")
+  Else If aDirs.Count > 1 Then
+    sMsg2 = Subst(("&1 directories"), Format(aDirs.Count, ",0"))
+  Endif
+  If sMsg And If sMsg2 Then 
+    sMsg = Subst(("&1 and &2"), sMsg, sMsg2)
+  Else If sMsg2 Then
+    sMsg = sMsg2
+  Endif
+  
+  sDir = $hView.Dir &/ sSubDir
+  If sDir = Project.Dir Then
+    sStrip = ("the project directory")
+  Else
+    sStrip = Subst(("the <b>&1</b> directory"), Html(Project.StripPath(sDir)))
+  Endif
+  
+  If bClone Then
+    sText = ("Do you want to duplicate &1?")
+    sButton = ("Duplicate")
+  Else If $bCut Then
+    sText = ("Do you want to move &1 in &2?")
+    sButton = ("Move")
+  Else
+    sText = ("Do you want to copy &1 in &2?")
+    sButton = ("Copy")
+  Endif
+  
+  If Message.Question(Subst(sText, sMsg, sStrip), sButton, ("Cancel")) = 2 Then Return True
+  
+  Inc Application.Busy
+  
+  For Each sPath In aPaths
+    
+    If sPath Not Begins "/" Then Continue
+    
+    sName = File.Name(sPath)
+    sDest = sDir &/ sName
+    If Exist(sDest) Then
+      If bClone Then 
+        sDest = sDir &/ Project.GetUniqueName(sDir, sName)
+      Else
+        Select Case Message.Question(Project.GetMessagePrefix(sDest) & ("Destination already exists.") & "\n\n" & Subst(("Do you want to rename it as <b><tt>&1</tt></b>?"), Project.GetUniqueName(sDir, sName)), ("Rename"), ("Ignore"), ("Cancel"))
+          Case 1
+            sDest = sDir &/ Project.GetUniqueName(sDir, sName)
+          Case 2
+            Continue
+          Case 3
+            Break
+        End Select
+      Endif
+    Endif
+    
+    If $bCut Then
+      Try Project.MoveFile(sPath, sDest)
+    Else
+      Try Project.CopyFile(sPath, sDest)
+    Endif
+    
+    If Error Then 
+      Select Case Message.Warning(Project.GetMessagePrefix(sPath) & Error.Text, ("Ignore"), ("Cancel"))
+        Case 1
+          Continue 
+        Case 2
+          Break
+      End Select
+    Endif
+    
+  Next
+  
+  Dec Application.Busy
+  
+  $bCut = False
   
 End
 
+Public Sub mnuPaste_Click()
+
+  Dim aPaths As String[]
+  
+  Try aPaths = Clipboard.Paste("text/uri-list")
+  If Error Then Return
+  If Paste(aPaths) Then Return
+  Clipboard.Clear
+  
+End
+
+Private Sub AddFiles(aDirs As String[], aFiles As String[], aSel As String[], Optional sDir As String)
+
+  Dim sFile As String
+  Dim sPath As String
+
+  For Each sFile In aSel.Sort(gb.Language + gb.Natural)
+    If sFile Ends "~" Then Continue
+    sPath = sDir &/ sFile
+    If IsDir(sPath) Then
+      AddFiles(aDirs, aFiles, Dir(sPath), sPath)
+      aDirs.Add(sPath)
+    Else
+      aFiles.Add(sPath)
+    Endif
+  Next
+
+End
+
+Public Sub mnuDelete_Click()
+  
+  Dim aFiles As New String[]
+  Dim aDirs As New String[]
+  Dim sPath As String
+  Dim sMsg As String
+  Dim sMsg2 As String
+  Dim N, I, P, NP As Integer
+  Dim aPaths As String[]
+  
+  aPaths = $hView.Paths
+  If Not aPaths Or If aPaths.Count = 0 Then Return
+  
+  AddFiles(aDirs, aFiles, aPaths)
+  
+  If aFiles.Count = 1 Then
+    sMsg = ("this file")
+  Else If aFiles.Count > 1 Then
+    sMsg = Subst(("these &1 files"), Format(aFiles.Count, ",0"))
+  Endif
+  If aDirs.Count = 1 Then
+    sMsg2 = ("this directory")
+  Else If aDirs.Count > 1 Then
+    sMsg2 = Subst(("these &1 directories"), Format(aDirs.Count, ",0"))
+  Endif
+  If sMsg And If sMsg2 Then 
+    sMsg = Subst(("&1 and &2"), sMsg, sMsg2)
+  Else If sMsg2 Then
+    sMsg = sMsg2
+  Endif
+  
+  If Message.Delete(Subst(("Do you really want to delete &1?"), sMsg), ("Delete"), ("Cancel")) = 2 Then Return
+  
+  'Project.SetMessage()
+  
+  Inc Application.Busy
+  
+  N = aPaths.Count
+  
+  For Each sPath In aPaths
+    
+    If IsDir(sPath) Then
+      Try Project.DeleteDir(sPath)
+    Else
+      Try Project.DeleteFile(sPath)
+    Endif
+    If Error Then 
+      Select Case Message.Warning(Project.GetMessagePrefix(sPath) & "\n\n<b>" & If(IsDir(sPath), ("Cannot delete directory"), ("Cannot delete file")) & "<b>\n\n" & Error.Text, ("Ignore"), ("Cancel"))
+        Case 1
+          Continue 
+        Case 2
+          Break
+      End Select
+    Endif
+
+    Inc I
+    NP = (100 * I) \ N
+    If NP <> P Then 
+      P = NP
+      Project.SetMessage(("Deleting files...") & CInt(P) & "%")
+    Endif
+    
+  Next
+  
+  Dec Application.Busy
+
+End
 
 Public Sub fvwProject_Select()
 
@@ -232,35 +431,35 @@ Public Sub PaintStatus()
   Dim iSize As Long
   Dim sDir As String
   
-  If fvwProject.FileCount = 0 And If fvwProject.DirCount = 0 Then Return
+  If $hView.FileCount = 0 And If $hView.DirCount = 0 Then Return
   
-  aSel = fvwProject.Selection
+  aSel = $hView.Selection
   
   If aSel.Count = 0 Then
   
-    If fvwProject.FileCount = 0 Then 
+    If $hView.FileCount = 0 Then 
       sText = ("No files")
-    Else If fvwProject.FileCount = 1 Then
+    Else If $hView.FileCount = 1 Then
       sText &= ("One file")
     Else
-      sText &= Subst(("&1 files"), fvwProject.FileCount)
+      sText &= Subst(("&1 files"), $hView.FileCount)
     Endif
     
     sText &= "   "
     
-    If fvwProject.DirCount = 0 Then 
+    If $hView.DirCount = 0 Then 
         sText &= ("No directories")
-    Else If fvwProject.DirCount = 1 Then
+    Else If $hView.DirCount = 1 Then
       sText &= ("One directory")
     Else
-      sText &= Subst(("&1 directories"), fvwProject.DirCount)
+      sText &= Subst(("&1 directories"), $hView.DirCount)
     Endif
     
-    If fvwProject.FileCount Then sText &= "   " & File.FormatSize(fvwProject.TotalSize)
+    If $hView.FileCount Then sText &= "   " & File.FormatSize($hView.TotalSize)
     
   Else 
     
-    sDir = fvwProject.Dir
+    sDir = $hView.Dir
     For Each sFile In aSel
       Try hStat = Stat(sDir &/ sFile)
       If Error Then Continue
@@ -298,12 +497,22 @@ End
 
 Public Sub fvwProject_Refresh()
   
+  Dim hView As FileView = Last
+  Dim sDir As String
+  
+  sDir = hView.Dir
+  If sDir = Project.Dir Then 
+    hView.Title = ("Project data")
+  Else 
+    hView.Title = "▸  " & Replace(Project.StripPath(sDir), "/", "  ▸  ")
+  Endif
   Project.UpdateStatus(True)
   
 End
 
 Public Sub fvwProject_Menu()
 
+  SetCurrentView(Last)
   mnuPopup.Popup
 
 End
@@ -316,21 +525,13 @@ Public Sub mnuPopup_Show()
   Dim sPath As String
   Dim bIsDir As Boolean
 
-  sPath = fvwProject.Path
-  If Not sPath Then
-    sPath = fvwProject.Dir
-    mnuCopy.Hide
-  Else 
-    mnuCopy.Show
-  Endif
-  
+  sPath = $hView.Path
   bIsDir = IsDir(sPath)
   Try bLink = Stat(sPath).Type = gb.Link
   If Error Then Return
   
   mnuOpen.Visible = Not bIsDir
   mnuCut.Visible = mnuCopy.Visible
-  mnuPaste.Enabled = Clipboard.Format = MMime.FILE
   
   mnuOpenWith.Visible = False
   If mnuOpen.Visible Then
@@ -347,7 +548,6 @@ Public Sub mnuPopup_Show()
   mnuCopyPath.Visible = mnuCopy.Visible
   
   mnuClone.Visible = mnuCopy.Visible
-  mnuClone.Enabled = mnuCopy.Enabled
   
   mnuOpenInProject.Hide
   mnuOpenWithFileManager.Show
@@ -368,26 +568,43 @@ End
 
 Public Sub mnuNewFile_Click()
   
-  FCreateFile.Run(fvwProject.Path, fvwProject.Dir, Last.Tag)
+  FCreateFile.Run($hView.Path, $hView.Dir, Last.Tag)
   
 End
 
 Public Sub mnuImport_Click()
   
-  FImportFile.Run(fvwProject.Path, fvwProject.Dir)
+  FImportFile.Run($hView.Path, $hView.Dir)
   
 End
 
 
 Public Sub mnuSelectAll_Click()
 
-  fvwProject.SelectAll()
+  $hView.SelectAll()
+
+End
+
+Private Sub UpdateBackground()
+
+  fvwProject.Background = If($hView = fvwProject, Color.Default, Color.Background)
+  If fvwProject2 Then fvwProject2.Background = If($hView = fvwProject2, Color.Default, Color.Background)
+
+End
+
+Private Sub SetCurrentView(hView As FileView)
+
+  $hView = hView
+  $hView.SetFocus
+  Project.SetCurrentPopup(mnuPopup)
+  UpdateMenu
+  UpdateBackground
 
 End
 
 Public Sub fvwProject_GotFocus()
 
-  Project.SetCurrentPopup(mnuPopup)
+  SetCurrentView(Last)
 
 End
 
@@ -398,5 +615,150 @@ Public Sub UpdateWorkspaceButtons(W As Integer)
   
   panSpace.Lower
   panSpace.W = W
+  
+End
+
+Public Sub mnuCopy_Click()
+
+  CopyCut(False)
+
+End
+
+Public Sub mnuCut_Click()
+
+  CopyCut(True)
+
+End
+
+Public Sub mnuOpenWith_Show()
+
+  FMain.CreateRunWithMenu(mnuOpenWith, $hView.Path)
+  
+End
+
+Public Sub mnuRename_Click()
+
+  $hView.Rename
+
+End
+
+Public Sub fvwProject_Rename(OldName As String, NewName As String)
+
+  If Project.RenameFile($hView.Dir &/ OldName, NewName) Then Stop Event
+
+End
+
+Public Sub mnuClone_Click()
+
+  Dim aPaths As String[] = $hView.Paths
+  
+  Paste(aPaths, False, True)
+
+End
+
+Public Sub mnuViewNormal_Click()
+
+  If Not fvwProject2 Then Return
+  
+  If $hView = fvwProject Then
+    fvwProject.Delete
+    fvwProject = fvwProject2
+  Else
+    fvwProject2.Delete
+  Endif
+  fvwProject2 = Null
+  
+  SetCurrentView(fvwProject)
+
+End
+
+Public Sub mnuViewSplit_Click()
+
+  If fvwProject2 Then Return
+  
+  fvwProject2 = New FileView(splProject) As "fvwProject"
+  fvwProject2.Border = False
+  fvwProject2.Mode = Select.Multiple
+  fvwProject2.ShowDirectory = True
+  fvwProject2.Settings = fvwProject.Settings
+  fvwProject2.ShowTitle = True
+  
+  fvwProject2.Dir = fvwProject.Dir
+  
+  splProject.Layout = [1, 1]
+  
+  ReadConfig
+  
+  UpdateMenu
+  UpdateBackground
+  
+  fvwProject2.SetFocus
+
+End
+
+Public Sub mnuNewDirectory_Click()
+
+  FCreateFile.Run($hView.Path, $hView.Dir, FCreateFile.DIRECTORY)
+
+End
+
+Public Sub fvwProject_Drop()
+
+  Dim sDir As String
+  Dim hView As FileView
+  
+  hView = Last
+
+  If Drag.Item Then
+    sDir = Mid$(Drag.Item, 2)
+    If hView = $hView And If $hView.Selection.Exist(sDir) Then Return
+  Else
+    If hView = $hView Then Return
+  Endif
+
+  SetCurrentView(hView)
+  
+  Select Case Drag.Action
+    Case Drag.Copy
+      $bCut = False
+    Case Drag.Move
+      $bCut = True
+    Case Else
+      Return
+  End Select
+  
+  Paste(Drag.Paste("text/uri-list"), sDir)
+
+End
+
+
+Public Sub mnuOpenWithFileManager_Click()
+
+  If Not $hView.Path Then
+    Desktop.Open($hView.Dir)
+  Else
+    Desktop.Open($hView.Path)
+  Endif
+
+End
+
+Public Sub mnuCopyPath_Click()
+
+  Dim sPath As String = Project.StripPath($hView.Path)
+  If sPath Then Clipboard.Copy(sPath)
+
+End
+
+Public Sub mnuInfoVC_Click()
+
+  FFileInfoVC.Run($hView.Path)
+
+End
+
+Public Sub fvwProject_Filter(Name As String, (Info) As Stat)
+  
+  If fvwProject.Dir = Project.Dir And If File.Ext(Name) = "gambas" Then 
+    Stop Event
+  Endif
   
 End

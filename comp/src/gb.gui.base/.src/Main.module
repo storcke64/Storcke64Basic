@@ -33,13 +33,15 @@
 
 Public Sub Main()
 
-  Component.Load("gb.form")
-  
-  Message.Style = "integrated"
-  'Message.ColoredButtons = True
-  
-  Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
-  'Message.Warning("Ceci est un message.") ', "Oui", "Non")
+  ' Component.Load("gb.form")
+  ' 
+  ' Message.Style = "integrated"
+  ' 'Message.ColoredButtons = True
+  ' 
+  ' Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
+  ' 'Message.Warning("Ceci est un message.") ', "Oui", "Non")
+
+  Clipboard.Copy("/home/benoit/20091225.jpg", "text/uri-list")
 
 End
 
@@ -163,5 +165,77 @@ ADD_RESULT:
     sResult = ""
   Endif
   Return
+  
+End
+
+Public Sub URLQuote(Path As String) As String
+  
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+  
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = " " Then 
+      sCar = "+"
+    Else If IsLetter(sCar) Or If IsDigit(sCar) Or If InStr("-._~,$!/", sCar) Then 
+    Else 
+      sCar = "%" & Hex$(Asc(sCar), 2)
+    Endif
+    sRes &= sCar
+  Next
+
+  Return sRes
+  
+End
+
+Public Sub URLUnquote(Path As String, Optional DoNotDecodePlus As Boolean) As String
+  
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+  
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = "%" Then 
+      sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
+      iInd += 2
+    Else If sCar = "+" And If Not DoNotDecodePlus Then 
+      sCar = " "
+    Endif
+    sRes &= sCar
+  Next
+
+  Return sRes  
+  
+End
+
+Public Sub PathToUrlList(aPath As String[]) As String
+
+  Dim I As Integer
+  
+  aPath = aPath.Copy()
+  For I = 0 To aPath.Max
+    If aPath[I] Begins "/" Then aPath[I] = "file://" & URLQuote(aPath[I])
+  Next
+  Return aPath.Join(gb.CrLf)
+  
+End
+
+Public Sub UrlListToPath(sData As String) As String[]
+  
+  Dim sUri As String
+  Dim aPaths As String[]
+  
+  aPaths = New String[]
+  For Each sUri In Split(Replace(sData, "\n", ""), "\r", "", True)
+    If sUri Begins "file://" Then
+      aPaths.Add(Main.URLUnquote(Mid$(sUri, 8)))
+    Else 
+      aPaths.Add(sUri)
+    Endif
+  Next
+  
+  Return aPaths
   
 End
