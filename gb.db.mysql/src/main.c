@@ -1952,7 +1952,7 @@ static int table_create(DB_DATABASE *db, const char *table, DB_FIELD *fields, ch
 				case GB_T_DATE: type = "DATETIME"; break;
 				case GB_T_STRING:
 
-					if (fp->length <= 0 || fp->length > 255) //mysql supports upto 255 as varchar
+					if (fp->length <= 0 || fp->length > 65535)
 						type = "MEDIUMTEXT";
 					else
 					{
