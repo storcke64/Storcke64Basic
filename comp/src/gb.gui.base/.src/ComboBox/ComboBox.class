@@ -89,7 +89,7 @@ Public Sub UserControl_Draw()
   If iBg = Color.Default Then iBg = If($bReadOnly, Color.ButtonBackground, Color.TextBackground)
   If Not Me.Enabled And Not $bReadOnly Then iBg = Style.BackgroundOf($hTextBox) 'Color.Merge(iBg, Color.TextForeground)
   
-  If $bBorder Or If bHovered Or If bHasFocus Then
+  If $bBorder Or If bHovered Or If bHasFocus Or If $hPopup Then
     If $bReadOnly Then
       Style.PaintButton(0, 0, Paint.W, Paint.H, False, iState, False, iBg)
     Else
@@ -145,6 +145,18 @@ Private Function ReadOnly_Read() As Boolean
 
 End
 
+Private Sub UpdatePadding()
+
+  If $bReadOnly Then
+    Me._Padding = 0
+  Else If $bBorder Then
+    Me._Padding = Style.BoxFrameHeight
+  Else
+    Me._Padding = Style.FrameWidth + 1
+  Endif
+
+End
+
 Private Sub ReadOnly_Write(Value As Boolean)
 
   Dim bHasFocus As Boolean
@@ -158,10 +170,8 @@ Private Sub ReadOnly_Write(Value As Boolean)
   If $bReadOnly Then
     $hTextBox.Delete
     $hTextBox = Null
-    Me._Padding = 0
     Me._Focus = True
   Else 
-    Me._Padding = Style.BoxFrameHeight
     Me._Focus = False
     $hTextBox = New TextBox(Me) As "TextBox"
     $hTextBox.Border = False
@@ -169,6 +179,8 @@ Private Sub ReadOnly_Write(Value As Boolean)
     $hTextBox.Background = $iBg
     Me.Proxy = $hTextBox
   Endif
+  
+  UpdatePadding
   
   If bHasFocus Then Me.SetFocus
   
@@ -188,6 +200,7 @@ End
 Private Sub Border_Write(Value As Boolean)
 
   $bBorder = Value
+  UpdatePadding
   Me.Refresh
 
 End
