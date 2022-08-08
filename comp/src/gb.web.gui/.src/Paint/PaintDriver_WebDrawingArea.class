@@ -2,42 +2,58 @@
 
 Inherits PaintDriver
 
+Private $hBrush As PaintBrush
+
 Public Sub Begin()
-  
+
   WebForm._AddJavascript("const $_c = $_(" & JS(Me.Device.Name) & ").getContext('2d')")
   WebForm._AddJavascript("$_c.beginPath()")
-  
+
 End
 
 Public Sub End()
-  
+
 End
 
-
 Public Sub Save()
-  
+
   WebForm._AddJavascript("$_c.save()")
-  
+
 End
 
 Public Sub Restore()
-  
+
   WebForm._AddJavascript("$_c.restore()")
-  
+
 End
 
 Public Sub Rectangle(X As Float, Y As Float, Width As Float, Height As Float)
-  
+
   WebForm._AddJavascript("$_c.rect(" & JS(X) & "," & JS(Y) & "," & JS(Width) & "," & JS(Height) & ")")
-  
+
 End
 
 Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
 
+  If Not hStyle Then hStyle = $hBrush
+
   If TypeOf(hStyle) = gb.Integer Then
-    
+
     WebForm._AddJavascript("$_c." & sProperty & " = " & JS(WebControl._GetColor(hStyle)))
-    
+
+  Else If Object.Type(hStyle) = "PaintBrush" Then
+    Select hStyle._Type
+      Case PaintBrush.TypeGradient
+        WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Gradient())
+      Case PaintBrush.TypeColor
+        WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Color)
+    End Select
+
+  Else If TypeOf(hStyle) = gb.String
+    WebForm._AddJavascript("$_c." & sProperty & " = " & JS(hStyle))
+
+  Else 
+    Error.Raise("Incorrect style/brush type")
   Endif
 
 End
@@ -61,79 +77,110 @@ End
 Public Sub MoveTo(X As Float, Y As Float)
 
   WebForm._AddJavascript("$_c.moveTo(" & JS(X) & "," & JS(Y) & ")")
-  
+
 End
 
 Public Sub LineTo(X As Float, Y As Float)
 
   WebForm._AddJavascript("$_c.lineTo(" & JS(X) & "," & JS(Y) & ")")
-  
+
 End
 
 Public Sub SetLineWidth(LineWidth As Float)
-  
+
   WebForm._AddJavascript("$_c.lineWidth = " & JS(LineWidth))
-  
+
 End
 
 Public Sub Arc(XC As Float, YC As Float, Radius As Float, Angle As Float, Length As Float)
-  
-  If Length = 0 Then 
+
+  If Length = 0 Then
     If Angle = 0 Then
       Length = Pi(2)
-    Else 
+    Else
       Return
     Endif
   Endif
-  
+
   WebForm._AddJavascript("$_c.arc(" & JS(XC) & "," & JS(YC) & "," & JS(Radius) & "," & JS(Angle) & "," & JS(Angle + Length) & "," & JS(Length < 0) & ")")
-  
+
 End
 
 Public Sub Ellipse(X As Float, Y As Float, Width As Float, Height As Float, Angle As Float, Length As Float)
-  
+
   Dim RX As Float
   Dim RY As Float
-  
+
   RX = Width / 2
   RY = Height / 2
   X += RX
   Y += RY
-  
-  If Length = 0 Then 
+
+  If Length = 0 Then
     If Angle = 0 Then
       Length = Pi(2)
-    Else 
+    Else
       Return
     Endif
   Endif
-  
+
   WebForm._AddJavascript("$_c.ellipse(" & JS(X) & "," & JS(Y) & "," & JS(RX) & "," & JS(RY) & ",0," & JS(Angle) & "," & JS(Angle + Length) & "," & JS(Length < 0) & ")")
-  
+
 End
 
 Public Sub CurveTo(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, X3 As Float, Y3 As Float)
-  
+
   WebForm._AddJavascript("$_c.bezierCurveTo(" & JS(X1) & "," & JS(Y1) & "," & JS(X2) & "," & JS(Y2) & "," & JS(X3) & "," & JS(Y3) & ")")
-  
+
 End
 
 Public Sub NewPath()
-  
+
   WebForm._AddJavascript("$_c.beginPath()")
-  
+
 End
 
 Public Sub ClosePath()
-  
+
   WebForm._AddJavascript("$_c.closePath()")
-  
+
 End
 
 Public Sub Clip(Preserve As Boolean)
-  
+
   WebForm._AddJavascript("$_c.clip()")
   If Not Preserve Then WebForm._AddJavascript("$_c.beginPath()")
+
+End
+
+Public Sub SetBrush(Brush As PaintBrush)
+  
+  $hBrush = Brush
   
 End
 
+Public Sub _GetBrush() As PaintBrush
+  
+  Return $hBrush
+  
+End
+
+Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+
+  Dim hGrad As Gradient = New Gradient(Gradient.Linear, [X1, Y1, X2, Y2])
+  hGrad.AddColorStops(Positions, Colours)
+  $hBrush = New PaintBrush
+  $hBrush._Gradient = hGrad
+  Return $hBrush
+
+End
+
+Public Sub RadialGradient(X1 As Float, Y1 As Float, R1 As Float, X2 As Float, Y2 As Float, R2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+
+  Dim hGrad As Gradient = New Gradient(Gradient.Radial, [X1, Y1, R1, X2, Y2, R2])
+  hGrad.AddColorStops(Positions, Colours)
+  $hBrush = New PaintBrush
+  $hBrush._Gradient = hGrad
+  Return $hBrush
+
+End

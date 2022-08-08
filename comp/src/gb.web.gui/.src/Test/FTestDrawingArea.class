@@ -5,7 +5,6 @@ Export
 Public Sub WebDrawingArea1_Draw()
 
   Paint.LineWidth = 8
-  Debug Paint.LineWidth
 
   ' Paint.Rectangle(50, 50, 150, 150)
   ' Paint.Stroke(Color.Red, True)
@@ -22,6 +21,20 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Ellipse(80, 60, 120, 70, 0, -Pi / 2)
   Paint.Stroke(Color.Green)
   
+  Paint.Rectangle(80, 200, 120, 70)
+
+  Paint.SetBrush(Paint.LinearGradient(80, 200, 80, 270, [Color.Red, Color.Green, Color.Violet], [0, 0.5, 1]))
+ 
+  Paint.Fill()
+ 
+  Paint.Rectangle(220, 200, 120, 70)
+  Paint._GetBrush()._Gradient.Coordinates = [220, 200, 340, 200]
+  Paint.Fill()
+  
+  Paint.Arc(100, 320, 40)
+  Paint.SetBrush(Paint.RadialGradient(100, 320, 2, 100, 320, 40, ["red", "yellow", "lightblue"], [0, 0.6, 1]))
+  Paint.Fill()
+
 End
 
 Static Public Sub _init()

@@ -122,3 +122,29 @@ Static Public Sub Clip(Optional Preserve As Boolean)
   $hCurrent.Clip(Preserve)
   
 End
+
+Static Public Sub SetBrush(Brush As PaintBrush)
+  
+  $hCurrent.SetBrush(Brush)
+  
+End
+
+Static Public Sub _GetBrush() As PaintBrush
+  
+  Return $hCurrent._GetBrush()
+  
+End
+
+
+Static Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+  
+  Return $hCurrent.LinearGradient(X1, Y1, X2, Y2, Colours, Positions)
+  
+End
+
+Static Public Sub RadialGradient(X1 As Float, Y1 As Float, R1 As Float, X2 As Float, Y2 As Float, R2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
+  
+  Return $hCurrent.RadialGradient(X1, Y1, R1, X2, Y2, R2, Colours, Positions)
+  
+End
+
