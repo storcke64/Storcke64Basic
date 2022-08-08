@@ -1117,7 +1117,8 @@ Private Sub Breakpoints_Write(Value As Integer[])
   Endif
   
   Refresh
-
+  RaiseChange
+  
 End
 
 Public Sub HasBookmark(iLine As Integer) As Boolean
