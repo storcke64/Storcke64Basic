@@ -22,18 +22,18 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Stroke(Color.Green)
   
   Paint.Rectangle(80, 200, 120, 70)
+
+  Paint.SetBrush(Paint.LinearGradient(80, 200, 80, 270, [Color.Red, Color.Green, Color.Violet], [0, 0.5, 1]))
  
- Paint.Brush = Paint.LinearGradient(80, 200, 80, 270, [Color.Red, Color.Green, Color.Violet], [0, 0.5, 1])
- 
-  Paint.Fill(Paint.Brush)
+  Paint.Fill()
  
   Paint.Rectangle(220, 200, 120, 70)
-  Paint.Brush.Gradient.Coordinates = [220, 200, 340, 200]
-  Paint.Fill(Paint.Brush)
+  Paint._GetBrush()._Gradient.Coordinates = [220, 200, 340, 200]
+  Paint.Fill()
   
   Paint.Arc(100, 320, 40)
-  Paint.Brush = Paint.RadialGradient(100, 320, 2, 100, 320, 40, ["red", "yellow", "lightblue"], [0, 0.6, 1])
-  Paint.Fill(Paint.Brush)
+  Paint.SetBrush(Paint.RadialGradient(100, 320, 2, 100, 320, 40, ["red", "yellow", "lightblue"], [0, 0.6, 1]))
+  Paint.Fill()
 
 End
 

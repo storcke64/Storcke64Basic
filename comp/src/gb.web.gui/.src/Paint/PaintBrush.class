@@ -2,14 +2,19 @@
 
 Export
 
-Property Color As Variant Use $vColor
-Property Image As String Use $sImage
-Property Gradient As Gradient Use $hGradient
-Property Read Type As Integer Use $iType = -1
+Property _Color As Variant Use $vColor
+Property _Image As String Use $sImage
+Property _Gradient As Gradient Use $hGradient
+Property Read _Type As Integer Use $iType = -1
 
 Public Enum TypeInvalid = -1, TypeColor, TypeImage, TypeGradient
 
-Public Sub _new(Optional (Type) As Integer, Optional Value As Variant)
+Public Sub _new()
+  
+End
+
+
+Public Sub _InitBrush(Optional (Type) As Integer, Optional Value As Variant)
   
   If Not Type Then Return
   
@@ -27,7 +32,7 @@ $iType = Type
   
 End
 
-Private Sub Color_Write(Value As Variant)
+Private Sub _Color_Write(Value As Variant)
   
   $sImage = ""
   $hGradient = Null
@@ -36,7 +41,7 @@ Private Sub Color_Write(Value As Variant)
   
 End
 
-Private Sub Gradient_Write(Value As Gradient)
+Private Sub _Gradient_Write(Value As Gradient)
   
   $sImage = ""
   $vColor = Null
@@ -45,7 +50,7 @@ Private Sub Gradient_Write(Value As Gradient)
   
 End
 
-Private Sub Image_Write(Value As String)
+Private Sub _Image_Write(Value As String)
   
   $sImage = Value
   $hGradient = Null

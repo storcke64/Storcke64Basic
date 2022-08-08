@@ -1,7 +1,6 @@
 ' Gambas class file
 
 Public Device As WebControl
-Public Brush As PaintBrush
 
 Public Sub Begin()
   
@@ -64,6 +63,14 @@ Public Sub ClosePath()
 End
 
 Public Sub Clip((Preserve) As Boolean)
+  
+End
+
+Public Sub SetBrush((Brush) As PaintBrush)
+  
+End
+
+Public Sub _GetBrush() As PaintBrush
   
 End
 

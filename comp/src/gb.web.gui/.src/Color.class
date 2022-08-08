@@ -67,10 +67,10 @@ Static Public Sub RGB((Red) As Integer, (Green) As Integer, (Blue) As Integer, O
   
 End
 
-'' Convert a gambas colour integer into javascript compliant code.
+'' Convert a gambas colour integer into HTML compliant code.
 ''
 '' The resulting string will be either a hash prefixed hex value. eg. '#00FF00' or an rgba() call with integer values if alpha (transparency) is set. eg. 'rgba(0,128,255,0.75)'
-Static Public Sub ToJS({Color} As Integer) As String
+Static Public Sub ToHTML({Color} As Integer) As String
 
     Return WebForm._GetColor({Color})
 

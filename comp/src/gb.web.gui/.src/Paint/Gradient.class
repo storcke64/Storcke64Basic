@@ -1,6 +1,5 @@
 ' Gambas class file
 
-Export
 
 '' Get or set the gradient area, Coordinates are the Gradients \[x1,y1,x2,y2\] for linear or \[x1,y1,r1,x2,y2,r2\] for radial.
 Property Coordinates As Float[] Use $aCoordinates
@@ -49,7 +48,7 @@ Public Sub _call() As String
   If Not $aCoordinates Then Error.Raise("No Coordinates")
   If Not $aCoordinates.Count Then Error.Raise("No Coordinates")
   If Not $aColorStops Then Error.Raise("No ColorStops")
-  Dim sText As String = "gw.gradient.getvar(" & JS($iType) & "," & JS($aCoordinates) & "," & JS($aColorStops) & ")"
+  Dim sText As String = "gw.paint.makeGradient(" & JS($iType) & "," & JS($aCoordinates) & "," & JS($aColorStops) & ")"
   Return sText
   
 End

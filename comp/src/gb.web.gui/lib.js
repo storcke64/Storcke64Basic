@@ -1781,10 +1781,10 @@ gw = {
     }
   },
   
-  gradient:
+  paint:
   {
 
-    getvar: function(mo,coords,stops)
+    makeGradient: function(mo,coords,stops)
     {
       if (mo == -1) {
       return;
