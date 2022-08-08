@@ -45,6 +45,8 @@ Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
     Select hStyle._Type
       Case PaintBrush.TypeGradient
         WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Gradient())
+      Case PaintBrush.TypeColor
+        WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Color)
     End Select
 
   Else If TypeOf(hStyle) = gb.String

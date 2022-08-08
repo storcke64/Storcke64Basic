@@ -10,14 +10,13 @@ Property Read _Type As Integer Use $iType = -1
 Public Enum TypeInvalid = -1, TypeColor, TypeImage, TypeGradient
 
 Public Sub _new()
-  
+
 End
 
-
 Public Sub _InitBrush(Optional (Type) As Integer, Optional Value As Variant)
-  
+
   If Not Type Then Return
-  
+
   Select Type
     Case TypeColor
       $vColor = Value
@@ -28,33 +27,39 @@ Public Sub _InitBrush(Optional (Type) As Integer, Optional Value As Variant)
       $sImage = Value
   End Select
 
-$iType = Type
-  
+  $iType = Type
+
 End
 
 Private Sub _Color_Write(Value As Variant)
-  
+
   $sImage = ""
   $hGradient = Null
-  $vColor = Value
+  If TypeOf(Value) = gb.Integer Then
+    $vColor = Color.ToHTML(Value)
+  Else If TypeOf(Value) = gb.String Then
+    $vColor = Value
+  Else 
+    Error.Raise("Incorrect type")
+  Endif
   $iType = TypeColor
-  
+
 End
 
 Private Sub _Gradient_Write(Value As Gradient)
-  
+
   $sImage = ""
   $vColor = Null
   $hGradient = Value
   $iType = TypeGradient
-  
+
 End
 
 Private Sub _Image_Write(Value As String)
-  
+
   $sImage = Value
   $hGradient = Null
   $vColor = Null
   $iType = TypeImage
-  
+
 End
