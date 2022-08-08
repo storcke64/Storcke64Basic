@@ -36,7 +36,7 @@ Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
   Dim hBrush As PaintBrush
   Dim hGradient As Gradient
   
-  If Not hStyle Then hStyle = Me.Brush
+  If IsNull(hStyle) Then hStyle = Me.Brush
 
   If TypeOf(hStyle) = gb.Integer Then
 
