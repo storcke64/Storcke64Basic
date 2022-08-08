@@ -699,6 +699,8 @@ void MAIN_do_iteration(bool do_not_block)
 
 	gApplication::_loopLevel--;
 
+	gContainer::postArrange();
+
 	if (_post_check)
 	{
 		_post_check = false;
@@ -706,6 +708,5 @@ void MAIN_do_iteration(bool do_not_block)
 	}
 
 	gControl::postDelete();
-	gContainer::postArrange();
 }
 

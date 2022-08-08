@@ -205,7 +205,10 @@ gMainWindow *CB_window_activate(gControl *control)
 	gMainWindow *active;
 	CWINDOW *active_ob;
 
-	//fprintf(stderr, "CB_window_activate: %s\n", control ? control->name() : "NULL");
+	/*if (!control)
+		fprintf(stderr, "CB_window_activate: NULL\n");
+	else
+		fprintf(stderr, "CB_window_activate: %s.%s\n", control->window()->name(), control->name());*/
 
 	if (control)
 	{
@@ -232,7 +235,7 @@ gMainWindow *CB_window_activate(gControl *control)
 		{
 			//fprintf(stderr, "deactivate: %p %s\n", CWINDOW_Active, CWINDOW_Active->ob.widget->name());
 			GB.Raise(CWINDOW_Active, EVENT_Deactivate, 0);
-			CWINDOW_Active = 0;
+			CWINDOW_Active = NULL;
 		}
 
 		if (active)
@@ -240,9 +243,10 @@ gMainWindow *CB_window_activate(gControl *control)
 			//fprintf(stderr, "activate: %p %s\n", active, active->name());
 			GB.Raise(active_ob, EVENT_Activate, 0);
 		}
+
+		CWINDOW_Active = active_ob;
 	}
 
-	CWINDOW_Active = active_ob;
 	return active;
 }
 
