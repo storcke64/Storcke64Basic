@@ -43,6 +43,21 @@ Public Sub Load(hModule As FEditor)
   
 End
 
+Public Sub Clear()
+
+  Dim hEditor As TextEditor
+  Dim hForm As Object
+  
+  For Each hForm In Project.Files
+    If hForm Not Is FEditor Then Continue
+    hEditor = hForm.GetEditor()
+    hEditor.Breakpoints = Null
+  Next
+  
+  $cBreakpoints.Clear
+  
+End
+
 Private Sub Synchronize()
   
   Dim hForm As Object

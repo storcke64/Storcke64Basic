@@ -11,7 +11,7 @@
     { btnTitle ToolButton
       MoveScaled(0,0,4,4)
       Action = ".database"
-      Picture = Picture["icon:/small/server"]
+      Picture = Picture["icon:/small/database"]
     }
     { btnShowSystem ToolButton
       MoveScaled(4,0,12,4)
@@ -434,7 +434,7 @@
   }
   { Action database
     Text = ""
-    Picture = "icon:/small/server"
+    Picture = "icon:/small/database"
   }
   { Action delete-data
     Text = "Delete"

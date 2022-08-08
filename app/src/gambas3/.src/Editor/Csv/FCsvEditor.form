@@ -1,0 +1,43 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,101,75)
+  Arrangement = Arrange.Vertical
+  { ToolBar1 ToolBar
+    MoveScaled(2,1,93,4)
+    Text = ("CSV editor")
+    { btnSave ToolButton mnuSave
+      Name = "btnSave"
+      MoveScaled(0,0,4,4)
+      ToolTip = ("Save")
+      Action = ".save"
+      Picture = Picture["icon:/small/save"]
+    }
+    { btnReload ToolButton mnuReload
+      Name = "btnReload"
+      MoveScaled(4,0,4,4)
+      ToolTip = ("Reload")
+      Action = ".reload"
+      Picture = Picture["icon:/small/refresh"]
+    }
+  }
+  { tvwEditor TableView
+    MoveScaled(6,11,57,25)
+    Expand = True
+    Mode = Select.Multiple
+    Header = GridView.Both
+  }
+}
+
+# Gambas Action File 3.0
+
+{ Actions
+  { Action reload
+    Text = "Reload"
+    Picture = "icon:/small/refresh"
+  }
+  { Action save
+    Text = "Save"
+    Picture = "icon:/small/save"
+  }
+}

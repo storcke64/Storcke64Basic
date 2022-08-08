@@ -1941,10 +1941,11 @@ End
 
 Public Sub Goto(sLoc As String) As FEditor
 
+  Dim hForm As FEditor
+
   Dim sComp As String
   Dim iLine As Integer
   Dim sClass As String
-  Dim hForm As FEditor
   Dim aBreak As String[]
 
   aBreak = Breakpoints.FromString(sLoc)
@@ -1955,5 +1956,14 @@ Public Sub Goto(sLoc As String) As FEditor
   hForm = FindEditor(sComp, sClass, True)
   If hForm Then Project.OpenFile(hForm.Path, iLine)
   Return hForm
+  
+End
+
+Public Sub ClearBreakpoints()
+
+  If Project.Running And If Not IsRunning() Then 
+    Breakpoints.Clear()
+    WriteCommand("-*")
+  Endif
   
 End

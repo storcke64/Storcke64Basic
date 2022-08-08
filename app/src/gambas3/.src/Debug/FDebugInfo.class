@@ -1816,17 +1816,9 @@ End
 
 Public Sub RemoveAllBreakpoints()
 
-  Dim hForm As FEditor
-  Dim sBreakpoint As String
-  Dim aBreakpoint As String[]
-  
   If Message.Delete(("Do you really want to remove all breakpoints?"), ("Remove"), ("Cancel")) <> 1 Then Return
 
-  For Each sBreakpoint In Breakpoints.GetAll()
-    aBreakpoint = Split(sBreakpoint, ".")
-    hForm = Project.LoadFile(Project.FindPath(aBreakpoint[0]))
-    hForm.ToggleBreakpoint(CInt(aBreakpoint[1]) - 1)
-  Next
+  Design.ClearBreakpoints()
 
 End
 
