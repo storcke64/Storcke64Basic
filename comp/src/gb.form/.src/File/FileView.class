@@ -5,7 +5,7 @@ Inherits UserControl
 
 Class Watch
 
-Public Const _Properties As String = "*,Border=True,Mode{Select.*}=Single,Dir,ShowDetailed,ShowHidden,ShowDirectory,ShowPreview,ShowTitle"
+Public Const _Properties As String = "*,Border=True,Mode{Select.*}=Single,Dir,ShowDetailed,ShowHidden,ShowDirectory,ShowPreview"
 Public Const _DefaultEvent As String = "Click"
 Public Const _Group As String = "View"
 
@@ -34,8 +34,6 @@ Property ShowDirectory As Boolean
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
-Property ShowTitle As Boolean
-Property Title As String Use $sTitle
 
 Property Selection As String[]
 Property Filter As String[]
@@ -101,10 +99,7 @@ Private $DY As Integer
 Private $sHighlight As String
 Private $hHighlightPicture As Picture
 
-Private $hTitle As HBox
-Private $hTitleLabel As Label
 Private $hBorder As Panel
-Private $hTitleSeparator As Separator
 
 Static Public Sub _init()
   
@@ -583,7 +578,6 @@ Finally
   Endif
   Try GetView().Scroll(SX, SY)
   Try GetView().Selection = aSel
-    
   
   If bVoid Then
     $hVoidView.Show
@@ -699,23 +693,10 @@ Private Function Dir_Read() As String
   
 End
 
-Private Sub UpdateTitle()
-
-  Dim sTitle As String
-  
-  If $hTitleLabel Then
-    sTitle = $sTitle
-    If Not sTitle Then sTitle = Main.FormatPath(GetCurrentDir())
-    $hTitleLabel.Text = sTitle
-  Endif
-
-End
-
 Private Sub Dir_Write(sDir As String)
   
   $sDir = sDir
   RefreshViewLater(True)
-  UpdateTitle
   
 End
 
@@ -1143,7 +1124,6 @@ Private Sub Background_Write(Value As Integer)
   
   $hIconView.Background = Value
   $hColumnView.Background = Value
-  UpdateTitle
   
 End
 
@@ -1513,56 +1493,3 @@ Public Sub View_Scroll()
   
 End
 
-Private Function ShowTitle_Read() As Boolean
-
-  Return $hTitle
-
-End
-
-Private Sub ShowTitle_Write(Value As Boolean)
-
-  Dim hPict As PictureBox
-  
-  If ShowTitle_Read() = Value Then Return
-  
-  If Value Then
-    
-    $hTitle = New HBox($hBorder)
-    $hTitle.Lower
-    $hTitle.ResizeScaled(4, 4)
-    $hTitle.Background = Color.Background
-    
-    $hTitleSeparator = New Separator($hBorder)
-    $hTitleSeparator.H = 1
-    $hTitleSeparator.Previous = $hTitle
-    
-    hPict = New PictureBox($hTitle)
-    hPict.ResizeScaled(4, 4)
-    hPict.Picture = Picture["icon:/small/directory"]
-    hPict.Alignment = Align.Center
-    
-    $hTitleLabel = New Label($hTitle)
-    $hTitleLabel.Expand = True
-    $hTitleLabel.Font.Grade = -2
-    '$hTitleLabel.Foreground = Color.LightForeground
-    
-    UpdateTitle
-    
-  Else
-    
-    $hTitle.Delete
-    $hTitleSeparator.Delete
-    $hTitle = Null
-    $hTitleSeparator = Null
-    $hTitleLabel = Null
-    
-  Endif
-
-End
-
-Private Sub Title_Write(Value As String)
-  
-  $sTitle = Value
-  UpdateTitle
-  
-End
