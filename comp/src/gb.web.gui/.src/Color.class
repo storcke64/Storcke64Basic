@@ -73,6 +73,20 @@ End
 '' 
 Static Public Sub ToHTML({Color} As Integer) As String
 
-    Return WebForm._GetColor({Color})
+  Dim A As Integer
+  Dim R As Integer
+  Dim G As Integer
+  Dim B As Integer
+
+  A = 255 - Lsr({Color}, 24)
+  R = Lsr({Color}, 16) And 255
+  G = Lsr({Color}, 8) And 255
+  B = {Color} And 255
+  
+  If A < 255 Then
+    Return "rgba(" & CStr(R) & "," & CStr(G) & "," & CStr(B) & "," & CStr(Round(A / 255, -2)) & ")"
+  Else
+    Return "#" & Hex$(R, 2) & Hex$(G, 2) & Hex$(B, 2)
+  Endif
 
 End

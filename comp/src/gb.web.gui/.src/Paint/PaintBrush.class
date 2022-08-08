@@ -5,29 +5,11 @@ Export
 Property _Color As Variant Use $vColor
 Property _Image As String Use $sImage
 Property _Gradient As Gradient Use $hGradient
-Property Read _Type As Integer Use $iType = -1
-
-Public Enum TypeInvalid = -1, TypeColor, TypeImage, TypeGradient
+Property Read _Type As Integer Use $iType
 
 Public Sub _new()
 
-End
-
-Public Sub _InitBrush(Optional (Type) As Integer, Optional Value As Variant)
-
-  If Not Type Then Return
-
-  Select Type
-    Case TypeColor
-      $vColor = Value
-      If TypeOf($vColor) = gb.Integer Then $vColor = WebForm._GetColor($vColor)
-    Case TypeGradient
-      $hGradient = Value
-    Case TypeImage
-      $sImage = Value
-  End Select
-
-  $iType = Type
+  _Color_Write(0)
 
 End
 
@@ -40,9 +22,9 @@ Private Sub _Color_Write(Value As Variant)
   Else If TypeOf(Value) = gb.String Then
     $vColor = Value
   Else 
-    Error.Raise("Incorrect type")
+    Error.Raise("Incorrect color")
   Endif
-  $iType = TypeColor
+  $iType = PaintDriver.BRUSH_COLOR
 
 End
 
@@ -51,7 +33,7 @@ Private Sub _Gradient_Write(Value As Gradient)
   $sImage = ""
   $vColor = Null
   $hGradient = Value
-  $iType = TypeGradient
+  $iType = PaintDriver.BRUSH_GRADIENT
 
 End
 
@@ -60,6 +42,6 @@ Private Sub _Image_Write(Value As String)
   $sImage = Value
   $hGradient = Null
   $vColor = Null
-  $iType = TypeImage
+  $iType = PaintDriver.BRUSH_IMAGE
 
 End

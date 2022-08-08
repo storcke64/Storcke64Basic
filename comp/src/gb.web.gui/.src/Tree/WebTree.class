@@ -1364,8 +1364,8 @@ Private Sub PrintItem(hItem As _WebTreeItem, iLevel As Integer, bVisible As Bool
     Endif
     
     If bData Then
-      If hData.Background <> Color.Default Then sStyle &= "background-color:" & WebControl._GetColor(hData.Background) & ";"
-      If hData.Foreground <> Color.Default Then sStyle &= "color:" & WebControl._GetColor(hData.Foreground) & ";"
+      If hData.Background <> Color.Default Then sStyle &= "background-color:" & Color.ToHTML(hData.Background) & ";"
+      If hData.Foreground <> Color.Default Then sStyle &= "color:" & Color.ToHTML(hData.Foreground) & ";"
     Endif
     
     If sStyle Then Print " style=\""; sStyle; "\"";

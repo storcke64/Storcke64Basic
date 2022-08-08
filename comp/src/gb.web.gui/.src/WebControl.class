@@ -413,8 +413,8 @@ Public Sub _RenderStyleSheet()
     
   Endif
   
-  If $iBackground <> Color.Default Then _AddStyleSheet("background-color:" & _GetColor($iBackground) & ";")
-  If $iForeground <> Color.Default Then _AddStyleSheet("color:" & _GetColor($iForeground) & ";")
+  If $iBackground <> Color.Default Then _AddStyleSheet("background-color:" & Color.ToHTML($iBackground) & ";")
+  If $iForeground <> Color.Default Then _AddStyleSheet("color:" & Color.ToHTML($iForeground) & ";")
   
   If $hStyle And If Not $hStyle.IsVoid() Then $aStyleSheet.Insert($hStyle._GetStyleSheet())
   
@@ -860,26 +860,6 @@ Private Sub Foreground_Write(Value As Integer)
   $iForeground = Value
   Me.Refresh
   
-
-End
-
-Static Public Sub _GetColor(iCol As Integer) As String
-
-  Dim A As Integer
-  Dim R As Integer
-  Dim G As Integer
-  Dim B As Integer
-
-  A = 255 - Lsr(iCol, 24)
-  R = Lsr(iCol, 16) And 255
-  G = Lsr(iCol, 8) And 255
-  B = iCol And 255
-  
-  If A < 255 Then
-    Return "rgba(" & CStr(R) & "," & CStr(G) & "," & CStr(B) & "," & CStr(Round(A / 255, -2)) & ")"
-  Else
-    Return "#" & Hex$(R, 2) & Hex$(G, 2) & Hex$(B, 2)
-  Endif
 
 End
 

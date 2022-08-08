@@ -2,8 +2,6 @@
 
 Inherits PaintDriver
 
-Private $hBrush As PaintBrush
-
 Public Sub Begin()
 
   WebForm._AddJavascript("const $_c = $_(" & JS(Me.Device.Name) & ").getContext('2d')")
@@ -35,25 +33,40 @@ End
 
 Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
 
-  If Not hStyle Then hStyle = $hBrush
+  Dim hBrush As PaintBrush
+  Dim hGradient As Gradient
+  
+  If Not hStyle Then hStyle = Me.Brush
 
   If TypeOf(hStyle) = gb.Integer Then
 
-    WebForm._AddJavascript("$_c." & sProperty & " = " & JS(WebControl._GetColor(hStyle)))
-
-  Else If Object.Type(hStyle) = "PaintBrush" Then
-    Select hStyle._Type
-      Case PaintBrush.TypeGradient
-        WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Gradient())
-      Case PaintBrush.TypeColor
-        WebForm._AddJavascript("$_c." & sProperty & " = " & Paint._GetBrush()._Color)
-    End Select
+    WebForm._AddJavascript("$_c." & sProperty & " = " & JS(Color.ToHTML(hStyle)))
 
   Else If TypeOf(hStyle) = gb.String
+    
     WebForm._AddJavascript("$_c." & sProperty & " = " & JS(hStyle))
 
+  Else If TypeOf(hStyle) = gb.Object And If hStyle Is PaintBrush Then
+    
+    hBrush = hStyle
+    
+    Select hBrush._Type
+      
+      Case Me.BRUSH_GRADIENT
+        
+        hGradient = hBrush._Gradient
+        WebForm._AddJavascript("$_c." & sProperty & " = gw.paint.makeGradient(" & JS(hGradient.Type) & "," & JS(hGradient.Coordinates) & "," & JS(hGradient.ColorStops) & ")")
+        
+      Case Me.BRUSH_COLOR
+        
+        WebForm._AddJavascript("$_c." & sProperty & " = " & hBrush._Color)
+        
+    End Select
+
   Else 
+    
     Error.Raise("Incorrect style/brush type")
+    
   Endif
 
 End
@@ -150,37 +163,5 @@ Public Sub Clip(Preserve As Boolean)
 
   WebForm._AddJavascript("$_c.clip()")
   If Not Preserve Then WebForm._AddJavascript("$_c.beginPath()")
-
-End
-
-Public Sub SetBrush(Brush As PaintBrush)
-  
-  $hBrush = Brush
-  
-End
-
-Public Sub _GetBrush() As PaintBrush
-  
-  Return $hBrush
-  
-End
-
-Public Sub LinearGradient(X1 As Float, Y1 As Float, X2 As Float, Y2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
-
-  Dim hGrad As Gradient = New Gradient(Gradient.Linear, [X1, Y1, X2, Y2])
-  hGrad.AddColorStops(Positions, Colours)
-  $hBrush = New PaintBrush
-  $hBrush._Gradient = hGrad
-  Return $hBrush
-
-End
-
-Public Sub RadialGradient(X1 As Float, Y1 As Float, R1 As Float, X2 As Float, Y2 As Float, R2 As Float, Colours As Variant[], Positions As Float[]) As PaintBrush
-
-  Dim hGrad As Gradient = New Gradient(Gradient.Radial, [X1, Y1, R1, X2, Y2, R2])
-  hGrad.AddColorStops(Positions, Colours)
-  $hBrush = New PaintBrush
-  $hBrush._Gradient = hGrad
-  Return $hBrush
 
 End
