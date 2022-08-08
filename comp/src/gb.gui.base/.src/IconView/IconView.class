@@ -1753,7 +1753,7 @@ End
 Private Sub Selection_Write(Value As String[])
 
   Dim sKey As String
-  Dim hItem As _TreeView_Item
+  Dim hItem As _IconView_Item
   
   If $iMode = Select.Single Then
     Try sKey = Value[Value.Max] 
