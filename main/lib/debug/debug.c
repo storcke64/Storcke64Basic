@@ -441,6 +441,22 @@ static bool unset_breakpoint(CLASS *class, ushort line)
 }
 
 
+static void unset_all_breakpoints()
+{
+	int i;
+	DEBUG_BREAK *brk;
+
+	for (i = 0; i < GB.Count(_breakpoints); i++)
+	{
+		brk = &_breakpoints[i];
+		if (brk->addr)
+			*(brk->addr) = PCODE_BREAKPOINT(0);
+	}
+
+	GB.Remove(&_breakpoints, 0, GB.Count(_breakpoints));
+}
+
+
 void DEBUG_init_breakpoints(CLASS *class)
 {
 	int i;
@@ -619,6 +635,12 @@ static void command_breakpoint(char *cmd)
 	char *p;
 
 	cmd++;
+
+	if (unset && cmd[0] == '*' && cmd[1] == 0)
+	{
+		unset_all_breakpoints();
+		return;
+	}
 
 	if (*cmd == '[')
 	{
