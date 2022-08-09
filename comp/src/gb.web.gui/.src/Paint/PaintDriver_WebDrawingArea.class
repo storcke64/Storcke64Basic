@@ -6,8 +6,15 @@ Private $aEnd As New String[]
 
 Public Sub Begin()
 
-  WebForm._AddJavascript("{ var $_c = $_(" & JS(Me.Device.Name) & ").getContext('2d');")
+  Dim hDrawingArea As WebDrawingArea
+  
+  WebForm._AddJavascript("{ var $_c = $_(" & JS(Me.Device.Name & ":canvas") & ").getContext('2d');")
   WebForm._AddJavascript("$_c.beginPath();")
+  
+  hDrawingArea = Me.Device
+  
+  Paint.W = hDrawingArea._Width
+  Paint.H = hDrawingArea._Height
 
 End
 
@@ -196,5 +203,62 @@ Public Sub DrawImage(Image As String, X As Float, Y As Float, Width As Float, He
   If Opacity < 1.0 Then WebForm._AddJavascript("$_c.globalAlpha = 1;")
 
   $aEnd.Add("});\n")
+  
+End
+
+Public Sub Translate(TX As Float, TY As Float)
+  
+  WebForm._AddJavascript("$_c.translate(" & JS(TX) & "," & JS(TY) & ");")
+  
+End
+
+Public Sub Rotate(Angle As Float)
+  
+  WebForm._AddJavascript("$_c.rotate(" & JS(Angle) & ");")
+  
+End
+
+Public Sub Scale(SX As Float, SY As Float)
+  
+  WebForm._AddJavascript("$_c.scale(" & JS(SX) & "," & JS(SY) & ");")
+  
+End
+
+Public Sub Reset()
+  
+  WebForm._AddJavascript("$_c.resetTransform();")
+  
+End
+
+Public Sub SetOperator(Op As Integer)
+  
+  Dim sOp As String
+  
+  Select Case Op
+    Case Paint.OperatorOver
+      sOp = "source-over"
+    Case Paint.OperatorIn
+      sOp = "source-in"
+    Case Paint.OperatorOut
+      sOp = "source-out"
+    Case Paint.OperatorATop
+      sOp = "source-atop"
+    Case Paint.OperatorDestOver
+      sOp = "destination-over"
+    Case Paint.OperatorDestIn
+      sOp = "destination-in"
+    Case Paint.OperatorDestOut
+      sOp = "destination-out"
+    Case Paint.OperatorDestATop
+      sOp = "destination-atop"
+    Case Paint.OperatorAdd
+      sOp = "lighter"
+    Case Paint.OperatorSource
+      sOp = "copy"
+    Case Paint.OperatorXor
+      sOp = "xor"
+  End Select
+  
+  If sOp Then WebForm._AddJavascript("$_c.globalCompositeOperation = " & JS(sOp) & ";")
   
 End

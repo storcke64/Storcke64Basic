@@ -791,7 +791,7 @@ Public Sub Render()
   
   $aJavascript.Clear
   
-  Print "<body onload=\"gw.onload();\">"
+  Print "<body onload=\"gw.body.onLoad();\" onresize=\"gw.body.onResize();\">"
   
   If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ");")
   
@@ -1684,3 +1684,4 @@ Static Public Function _GetActiveControl() As WebControl
   Endif
 
 End
+

@@ -7,6 +7,9 @@ Public Const _Properties As String = "*,Border"
 Public Const _DrawWith As String = "DrawingArea"
 Public Const _DefaultEvent As String = "Draw"
 
+Public _Width As Integer
+Public _Height As Integer
+
 Event Draw
 ' Event MouseDown
 ' Event MouseMove
@@ -19,46 +22,21 @@ Public Sub _new()
 End
 
 
-Public Sub _BeforeRender()
-
-  Dim sWidth As String
-  Dim iWidth As Integer
-  Dim sHeight As String
-  Dim iHeight As Integer
-  
-  sWidth = Me.Width
-  If sWidth Ends "px" Then Try iWidth = CInt(Left(sWidth, -2))
-  
-  sHeight = Me.Height
-  If sHeight Ends "px" Then Try iHeight = CInt(Left(sHeight, -2))
-  
-  Print "<canvas"; Me._GetClassId();
-  Me._RenderStyleSheet()
-  If iWidth And If iHeight Then Print " width=\""; iWidth; "\" height=\""; iHeight; "\"";
-  Print ">";
-  
-End
-
 Public Sub _Render()
   
-  If Object.CanRaise(Me, "Draw") Then WebForm._AddJavascript("gw.update(" & JS(Me.Name) & ",'#',null);")
+  Print "<canvas id=\""; Html(Me.Name & ":canvas"); "\"></canvas>";
+  WebForm._AddJavascript("gw.paint.init(" & JS(Me.Name) & ");")
   
 End
 
-Public Sub _UpdateProperty(sProp As String, (vValue) As Variant)
+Public Sub _UpdateProperty(sProp As String, vValue As Variant)
 
   If sProp = "#" Then
+    _Width = vValue[0]
+    _Height = vValue[1]
     Paint.Begin(Me)
     Raise Draw
     Paint.End
   Endif
   
 End
-
-Public Sub _AfterRender()
-  
-  Raise Render
-  Print "</canvas>";
-  
-End
-

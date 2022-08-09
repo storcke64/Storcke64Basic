@@ -249,7 +249,8 @@ gw = {
     {
       if (xhr.status == 200 && xhr.responseText)
       {
-        xhr.gw_command && gw.log('==> ' + xhr.gw_command + '...');
+        if (gw.debug && xhr.gw_command)
+           gw.log('==> ' + xhr.gw_command + '...');
         
         gw.focus = false;
         var save = gw.saveFocus();
@@ -1783,6 +1784,31 @@ gw = {
   
   paint:
   {
+    init: function(id)
+    {
+      if (!gw.resizeObserver)
+      {
+        gw.resizeObserver = new ResizeObserver(function(entries)
+          {
+            for (let elt of entries)
+              gw.paint.update(elt.target.id);
+          });
+      }
+
+      gw.resizeObserver.observe($_(id));
+      gw.paint.update(id);
+    },
+    
+    update: function(id)
+    {
+      var w = $_(id + ':canvas').offsetWidth;
+      var h = $_(id + ':canvas').offsetHeight;
+      $_(id + ':canvas').width = w;
+      $_(id + ':canvas').height = h;
+      console.log('gw.paint.update: ' + w + ',' + h);
+      gw.update(id, '#', [w, h]);
+    },
+    
     makeGradient: function(ctx, mo, coords, stops)
     {
       var grad, i, st;
@@ -1898,14 +1924,23 @@ gw = {
       gw.sendKeyPress(event, id);
   },
   
-  onload: function()
+  body:
   {
-    document.body.addEventListener('focusin', gw.onFocus);
-    document.body.addEventListener('focusout', gw.onFocus);
-    gw.raise(null, 'open');
-    document.body.style.opacity = '1';
-    document.body.style.pointerEvents = 'auto';
+    onLoad: function()
+    {
+      document.body.addEventListener('focusin', gw.onFocus);
+      document.body.addEventListener('focusout', gw.onFocus);
+      gw.raise(null, 'open');
+      document.body.style.opacity = '1';
+      document.body.style.pointerEvents = 'auto';
+    },
+    
+    onResize: function()
+    {
+      gw.onFocus();
+    }
   }
+  
 }
 
 document.onkeydown = gw.onKeyDown;
