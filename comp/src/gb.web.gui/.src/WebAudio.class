@@ -135,13 +135,13 @@ End
 
 Public Sub Pause()
 
-  WebForm._AddJavascript("gw.sound.pause(" & JS(Me.Name) & ")")
+  WebForm._AddJavascript("gw.sound.pause(" & JS(Me.Name) & ");")
 
 End
 
 Public Sub Stop()
 
-  WebForm._AddJavascript("gw.sound.stop(" & JS(Me.Name) & ")")
+  WebForm._AddJavascript("gw.sound.stop(" & JS(Me.Name) & ");")
   $bPaused = False
 
 End
@@ -211,6 +211,6 @@ End
 
 Private Sub Position_Write(Value As Float)
 
-  WebForm._AddJavascript("$_(" & JS(Me.Name) & ").currentTime = " & JS(Value))
+  WebForm._AddJavascript("$_(" & JS(Me.Name) & ").currentTime = " & JS(Value) & ";")
 
 End

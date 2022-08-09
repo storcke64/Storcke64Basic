@@ -78,7 +78,7 @@ End
 Public Sub _AfterRender()
   
   Print "</textarea>"
-  WebForm._AddJavascript("gw.textarea.moveEnd(" & JS(Me.Name) & ")")
+  WebForm._AddJavascript("gw.textarea.moveEnd(" & JS(Me.Name) & ");")
   
 End
 
@@ -140,7 +140,7 @@ End
 
 Public Sub Copy()
   
-  WebForm._AddJavascript("gw.textarea.copy(" & JS(Me.Name) & ")")
+  WebForm._AddJavascript("gw.textarea.copy(" & JS(Me.Name) & ");")
   
 End
 

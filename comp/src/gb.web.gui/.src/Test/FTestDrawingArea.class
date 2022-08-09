@@ -32,6 +32,8 @@ Public Sub WebDrawingArea1_Draw()
   Paint.Arc(100, 320, 40)
   Paint.Brush = Paint.RadialGradient(100, 320, 2, 100, 320, 40, ["red", "yellow", "lightblue"], [0, 0.6, 1])
   Paint.Fill()
+  
+  Paint.DrawImage("favicon.png", 150, 10, 200, 200, 0.5, Rect(10, 10, 100, 100))
 
 End
 

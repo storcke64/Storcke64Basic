@@ -93,7 +93,7 @@ Public Sub _Render()
   
   If Not $bReadOnly Then
     Print "</div>";
-    WebForm._AddJavascript("gw.combobox.resize(" & JS(Me.Name) & ")")
+    WebForm._AddJavascript("gw.combobox.resize(" & JS(Me.Name) & ");")
   Endif
   Print
   
@@ -130,7 +130,7 @@ Private Sub Index_Write(Value As Integer)
   Endif
 
   'Me.Refresh
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.combobox.update(" & JS(Me.Name) & "," & CStr($iIndex) & If($bReadOnly, "", "," & JS($sText)) & ")")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.combobox.update(" & JS(Me.Name) & "," & CStr($iIndex) & If($bReadOnly, "", "," & JS($sText)) & ");")
 
   Raise Click
 
@@ -254,7 +254,7 @@ Private Sub Text_Write(Value As String)
     
     $sText = Value
     
-    If Me._CanRefresh() Then WebForm._AddJavascript("gw.combobox.update(" & JS(Me.Name) & "," & CStr(iIndex) & "," & JS($sText) & ")")
+    If Me._CanRefresh() Then WebForm._AddJavascript("gw.combobox.update(" & JS(Me.Name) & "," & CStr(iIndex) & "," & JS($sText) & ");")
     'WebForm._AddJavascript("$_(" & JS(Me.Name & ":entry") & ").value = " & JS($sText))
     
     If iIndex <> $iIndex Then 

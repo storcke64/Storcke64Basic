@@ -77,11 +77,11 @@ Public Sub _Render()
   Endif
   
   If $hHeaderH Or If $hHeaderV Then
-    WebForm._AddJavascript("gw.scrollview.setHeaders(" & JS(Me.Name) & "," & sHeaderH & "," & sHeaderV & ")")
+    WebForm._AddJavascript("gw.scrollview.setHeaders(" & JS(Me.Name) & "," & sHeaderH & "," & sHeaderV & ");")
   Endif
   
   If $sEnsureVisible Then
-    WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS($sEnsureVisible) & ")")
+    WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS($sEnsureVisible) & ");")
     $sEnsureVisible = ""
   Else
     WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _Render")
@@ -116,7 +116,7 @@ Private Sub ScrollY_Write(Value As Integer)
   If $iScrollY = Value Then Return
   $iScrollY = Value
 
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ") // _ScrollY")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & "); // _ScrollY")
 
 End
 
@@ -126,7 +126,7 @@ Public Sub Scroll(X As Integer, Y As Integer)
   $iScrollX = X
   $iScrollY = Y
   
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ");")
   
 End
 
@@ -137,7 +137,7 @@ Public Sub EnsureVisible(Child As WebControl)
   Try hParent = Child.Parent.Parent
   If hParent <> Me Then Error.Raise("Not a direct child")
   
-  WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS(Child.Name) & ")")
+  WebForm._AddJavascript("gw.scrollview.ensureVisible(" & JS(Me.Name) & "," & JS(Child.Name) & ");")
   ' $sEnsureVisible = Child.Name
   ' Me.Refresh
   

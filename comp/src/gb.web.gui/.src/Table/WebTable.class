@@ -228,14 +228,14 @@ Public Sub _Render()
     $bNoScrolling = False
   Else
     If $iEnsureVisible >= 0 Then
-      WebForm._AddJavascript("gw.table.ensureVisible(" & JS(Me.Name) & "," & CStr($iEnsureVisible) & ")")
+      WebForm._AddJavascript("gw.table.ensureVisible(" & JS(Me.Name) & "," & CStr($iEnsureVisible) & ");")
       $iEnsureVisible = -1
     Else
-      WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ")")
+      WebForm._AddJavascript("gw.scrollview.scroll(" & JS(Me.Name) & "," & JS($iScrollX) & "," & JS($iScrollY) & ");")
     Endif
   Endif
   
-  If $iMode = Select.Single Then WebForm._AddJavascript("$_(" & JS(Me.Name) & ").gw_current = " & Current_Read())
+  If $iMode = Select.Single Then WebForm._AddJavascript("$_(" & JS(Me.Name) & ").gw_current = " & Current_Read() & ";")
 
 End
 
@@ -352,7 +352,7 @@ Private Sub SendMoreJavascript()
   sResult = Close #hFile
   Output To Default
   
-  WebForm._AddJavascript("$_(" & JS(Me.Name & ":more") & ").outerHTML = " & JS(sResult))
+  WebForm._AddJavascript("$_(" & JS(Me.Name & ":more") & ").outerHTML = " & JS(sResult) & ";")
 
 End
 

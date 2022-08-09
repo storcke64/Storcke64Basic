@@ -8,6 +8,9 @@ Public Const _DrawWith As String = "DrawingArea"
 Public Const _DefaultEvent As String = "Draw"
 
 Event Draw
+' Event MouseDown
+' Event MouseMove
+' Event MouseUp
 
 Public Sub _new()
   
@@ -38,12 +41,16 @@ End
 
 Public Sub _Render()
   
-  If Object.CanRaise(Me, "Draw") Then
-    
+  If Object.CanRaise(Me, "Draw") Then WebForm._AddJavascript("gw.update(" & JS(Me.Name) & ",'#',null);")
+  
+End
+
+Public Sub _UpdateProperty(sProp As String, (vValue) As Variant)
+
+  If sProp = "#" Then
     Paint.Begin(Me)
     Raise Draw
     Paint.End
-    
   Endif
   
 End

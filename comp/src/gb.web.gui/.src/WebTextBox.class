@@ -47,7 +47,7 @@ Private Sub SetText(Value As String, Optional bNoRefresh As Boolean)
   
   $sText = Value
 
-  If Not bNoRefresh And If Me._CanRefresh() Then WebForm._AddJavascript("$_(" & JS(Me.Name & ":entry") & ").value = " & JS($sText))
+  If Not bNoRefresh And If Me._CanRefresh() Then WebForm._AddJavascript("$_(" & JS(Me.Name & ":entry") & ").value = " & JS($sText) & ";")
   
   Raise Change
 
@@ -68,7 +68,7 @@ End
 
 Public Sub Copy()
   
-  WebForm._AddJavascript("gw.textbox.copy(" & JS(Me.Name) & ")")
+  WebForm._AddJavascript("gw.textbox.copy(" & JS(Me.Name) & ");")
   
 End
 
@@ -97,7 +97,7 @@ Public Sub _Render()
   Print ">"
   
   If Object.CanRaise(Me, "Completion") Then
-    WebForm._AddJavascript("gw.autocomplete(" & JS(Me.Name) & ")")
+    WebForm._AddJavascript("gw.autocomplete(" & JS(Me.Name) & ");")
   Endif
   
 End
@@ -127,7 +127,7 @@ End
 
 Public Sub CompleteWith(CompletionList As String[])
   
-  WebForm._AddJavascript("gw.autocompletion = " & JSON.Encode(CompletionList))
+  WebForm._AddJavascript("gw.autocompletion = " & JSON.Encode(CompletionList) & ";")
   
 End
 

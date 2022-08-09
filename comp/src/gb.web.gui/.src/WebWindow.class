@@ -63,7 +63,7 @@ Public Sub _RenderStyleSheet()
     ' If $sX Then Me._AddStyleSheet("left:" & $sX & ";")
     ' If $sY Then Me._AddStyleSheet("top:" & $sY & ";")
     
-      WebForm._AddJavascript("gw.window.center(" & JS(Me.Name) & ")")
+      WebForm._AddJavascript("gw.window.center(" & JS(Me.Name) & ");")
     Endif
     
   Endif
@@ -122,7 +122,7 @@ Public Sub _Render()
     
   Endif
   
-  WebForm._AddJavascript(sOpen)
+  WebForm._AddJavascript(sOpen & ";")
   
 End
 
@@ -309,9 +309,9 @@ End
 Public Sub Close()
   
   'If Not Me.Child.Persistent Then
-    WebForm._AddJavascriptBefore("gw.window.close(" & JS(Me.Name) & ")")
+    WebForm._AddJavascriptBefore("gw.window.close(" & JS(Me.Name) & ");")
   'Endif
-  WebForm._AddJavascriptBefore("gw.window.refresh()")
+  WebForm._AddJavascriptBefore("gw.window.refresh();")
   
   If IsPopup() Then WebControl.FromName($sPopupControl).SetFocus
   'If $sParentControl Then Object.Raise(WebControl.FromName($sParentControl), "Dialog", [Child_Read(), vReturnValue])
@@ -350,7 +350,7 @@ Private Sub Maximized_Write(Value As Boolean)
 
   If $bMaximized = Value Then Return
   $bMaximized = Value
-  If Me._CanRefresh() Then WebForm._AddJavascript("gw.window.maximize(" & JS(Me.Name) & ")")
+  If Me._CanRefresh() Then WebForm._AddJavascript("gw.window.maximize(" & JS(Me.Name) & ");")
 
 End
 

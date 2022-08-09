@@ -709,7 +709,7 @@ End
 Static Private Sub PrintJavascript()
   
   If $aJavascriptBefore.Count Then 
-    Print $aJavascriptBefore.Join(";\n"); ";"
+    Print $aJavascriptBefore.Join("\n")
     $aJavascriptBefore.Clear
   Endif
   
@@ -719,7 +719,7 @@ Static Private Sub PrintJavascript()
   Endif
   
   If $aJavascript.Count Then 
-    Print $aJavascript.Join(";\n"); ";"
+    Print $aJavascript.Join("\n")
     $aJavascript.Clear
   Endif
   
@@ -793,7 +793,7 @@ Public Sub Render()
   
   Print "<body onload=\"gw.onload();\">"
   
-  If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ")")
+  If $sActiveControl Then $aJavascript.Add("gw.setFocus(" & JS($sActiveControl) & ");")
   
   For Each sImage In ["error.png", "info.png", "question.png", "warning.png"]
     _AddPreload(Application.Root &/ "message" &/ sImage)
@@ -808,7 +808,7 @@ Public Sub Render()
     aPreload.Add($cPreload.Key)
   Next
   
-  $aJavascript.Add("gw.image.preload(" & JS(aPreload) & ")")
+  $aJavascript.Add("gw.image.preload(" & JS(aPreload) & ");")
   
   Print "<div id=\"gw-modal\" onclick=\"gw.window.onDownModal();\" onmouseover=\"gw.window.onDownModal(true);\"></div>"
   Print "<div id=\"gw-lock\">"
@@ -847,7 +847,7 @@ Static Private Sub Debug_Write(Value As Boolean)
 
   If $bDebug = Value Then Return
   $bDebug = Value
-  _AddJavascript("gw.debug = " & JS($bDebug))
+  _AddJavascript("gw.debug = " & JS($bDebug) & ";")
 
 End
 
@@ -1063,7 +1063,7 @@ End
 
 Static Public Sub Print(Text As String)
   
-  $aJavascript.Add("console.log(" & JS(Text) & ")")
+  $aJavascript.Add("console.log(" & JS(Text) & ");")
   
 End
 
@@ -1151,7 +1151,7 @@ Public Sub Close(Optional ReturnValue As Variant)
   Else
     
     Session.Abandon()
-    _AddJavascript("window.location.reload(true)")
+    _AddJavascript("window.location.reload(true);")
     
   Endif
   
@@ -1446,7 +1446,7 @@ End
 Public Sub Reload()
   
   If Me = _Current Then
-    _AddJavascript("location.reload(true)")
+    _AddJavascript("location.reload(true);")
   Else
     Me.Refresh
   Endif
@@ -1554,7 +1554,7 @@ Private Sub DisableShortcuts()
   
   If cShortcut.Count = 0 Then Return
   
-  _AddJavascript("gw.shortcuts = " & JS(cShortcut))
+  _AddJavascript("gw.shortcuts = " & JS(cShortcut) & ";")
   
 End
 
@@ -1592,11 +1592,11 @@ Private Sub TriggerShortcut(sShortcut As String) As Boolean
   
   If $iDefault And If sShortcut = "ENTER" Then
     hButton = WebControl.FromId($iDefault)
-    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ")")
+    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ");")
     Return True
   Else If $iCancel And If sShortcut = "ESCAPE" Then
     hButton = WebControl.FromId($iCancel)
-    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ")")
+    If hButton Then _AddJavascript("gw.button.click(" & JS(hButton.Name) & ");")
     Return True
   Endif
 
