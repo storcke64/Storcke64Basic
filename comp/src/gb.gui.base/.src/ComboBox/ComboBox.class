@@ -232,11 +232,10 @@ Private Sub ResetIndex()
   If $bReadOnly And If $aList.Count And If $iIndex < 0 Then
     Sort()
     $iIndex = 0
-    Raise Click
+    'Raise Click
   Endif
   
 End
-
 
 Private Sub List_Write(Value As String[])
 
