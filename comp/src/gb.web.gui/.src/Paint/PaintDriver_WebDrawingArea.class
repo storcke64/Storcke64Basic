@@ -262,3 +262,56 @@ Public Sub SetOperator(Op As Integer)
   If sOp Then WebForm._AddJavascript("$_c.globalCompositeOperation = " & JS(sOp) & ";")
   
 End
+
+Public Sub SetLineCap(Value As Integer)
+  
+  Dim sValue As String
+  
+  Select Case Value
+    Case Paint.LineCapButt
+      sValue = "butt"
+    Case Paint.LineCapRound
+      sValue = "round"
+    Case Paint.LineCapSquare
+      sValue = "square"
+  End Select
+  
+  If sValue Then WebForm._AddJavascript("$_c.lineCap = " & JS(sValue) & ";")
+  
+End
+
+Public Sub SetLineJoin(Value As Integer)
+  
+  Dim sValue As String
+  
+  Select Case Value
+    Case Paint.LineJoinMiter
+      sValue = "miter"
+    Case Paint.LineJoinRound
+      sValue = "round"
+    Case Paint.LineJoinBevel
+      sValue = "bevel"
+  End Select
+  
+  If sValue Then WebForm._AddJavascript("$_c.lineJoin = " & JS(sValue) & ";")
+  
+End
+
+Public Sub SetMiterLimit(Value As Float)
+  
+  WebForm._AddJavascript("$_c.miterLimit = " & JS(Value) & ";")
+  
+End
+
+Public Sub SetLineDash(Value As Float[])
+  
+  WebForm._AddJavascript("$_c.setLineDash(" & JS(Value) & ");")
+  
+End
+
+Public Sub SetLineDashOffset(Value As Float)
+  
+  WebForm._AddJavascript("$_c.lineDashOffset = " & JS(Value) & ";")
+  
+End
+

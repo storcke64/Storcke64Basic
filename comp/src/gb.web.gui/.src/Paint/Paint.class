@@ -10,9 +10,16 @@ Static Property W, Width As Integer Use $iWidth
 Static Property H, Height As Integer Use $iHeight
 
 Static Property Write LineWidth As Float
+Static Property Write LineCap As Integer
+Static Property Write LineJoin As Integer
+Static Property Write MiterLimit As Float
+Static Property Write LineDash, Dash As Float[]
+Static Property Write LineDashOffset, DashOffset As Float
 Static Property Write Operator As Integer
 
 Public Enum OperatorOver, OperatorIn, OperatorOut, OperatorATop, OperatorDestOver, OperatorDestIn, OperatorDestOut, OperatorDestATop, OperatorAdd, OperatorSource, OperatorXor
+Public Enum LineCapButt, LineCapRound, LineCapSquare
+Public Enum LineJoinMiter, LineJoinRound, LineJoinBevel
 
 Static Private $hCurrent As New PaintDriver
 
@@ -207,5 +214,35 @@ End
 Static Private Sub Operator_Write(Value As Integer)
 
   $hCurrent.SetOperator(Value)
+
+End
+
+Static Private Sub LineCap_Write(Value As Integer)
+
+  $hCurrent.SetLineCap(Value)
+
+End
+
+Static Private Sub LineJoin_Write(Value As Integer)
+
+  $hCurrent.SetLineJoin(Value)
+
+End
+
+Static Private Sub MiterLimit_Write(Value As Float)
+
+  $hCurrent.SetMiterLimit(Value)
+
+End
+
+Static Private Sub LineDash_Write(Value As Float[])
+
+  $hCurrent.SetLineDash(Value)
+
+End
+
+Static Private Sub LineDashOffset_Write(Value As Float)
+
+  $hCurrent.SetLineDashOffset(Value)
 
 End
