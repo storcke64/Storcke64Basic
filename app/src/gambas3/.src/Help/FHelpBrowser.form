@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,93,64)
+  MoveScaled(0,0,68,34)
   Action = "help"
   Text = ("Help browser")
   Icon = Picture["icon:/small/help"]
@@ -9,13 +9,13 @@
   Utility = True
   Arrangement = Arrange.Horizontal
   { sdpHelp SidePanel
-    MoveScaled(2,3,28,53)
+    MoveScaled(1,1,28,31)
     Arrangement = Arrange.Fill
     Orientation = Align.Left
     Transparent = True
     Hidden = True
     { tabClass TabPanel
-      MoveScaled(0,0,27,41)
+      MoveScaled(0,0,27,28)
       Arrangement = Arrange.Vertical
       Count = 2
       CloseButton = True
@@ -61,7 +61,7 @@
     }
   }
   { Panel1 VBox
-    MoveScaled(31,2,58,55)
+    MoveScaled(30,1,37,32)
     Expand = True
     { panToolbar HBox
       MoveScaled(0,0,81,4)
@@ -142,12 +142,12 @@
       MoveScaled(2,6,28,0)
     }
     { webHelp HelpView
-      MoveScaled(4,29,24,18)
+      MoveScaled(3,9,24,18)
       Expand = True
     }
   }
   { Printer1 #Printer
-    #MoveScaled(80,47)
+    #MoveScaled(59,17)
   }
 }
 

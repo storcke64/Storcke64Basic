@@ -2795,6 +2795,7 @@ Public Sub InstallLibrary(sExecPath As String, sVendor As String, sVersion As St
 
   Dim sDir As String
   Dim sLink As String
+  Dim sName As String
   
   sDir = CLibraryInfo.UserPath
   If sVendor Then 
@@ -2805,7 +2806,9 @@ Public Sub InstallLibrary(sExecPath As String, sVendor As String, sVersion As St
   
   MakeDir(sDir)
   
-  sLink = sDir &/ File.BaseName(sExecPath) & ":" & sVersion & ".gambas"
+  sName = File.BaseName(sExecPath)
+  If sName Begins (Vendor & ".") Then sName = Mid$(sName, Len(Vendor) + 2)
+  sLink = sDir &/ sName & ":" & sVersion & ".gambas"
   
   Try Kill sLink
   Try Copy sExecPath To sLink

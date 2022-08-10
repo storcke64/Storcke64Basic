@@ -105,7 +105,7 @@
       }
     }
     { Menu14 Menu
-      Text = ("Embedded HTTP server")
+      Text = ("Web development")
       { Menu7 Menu mnuInsertEnv
         Name = "Menu7"
         #Translate = False
@@ -117,6 +117,12 @@
         #Translate = False
         Text = "GB_HTTPD_PORT=8080"
         Tag = "GB_HTTPD_PORT=8080"
+      }
+      { Menu25 Menu mnuInsertEnv
+        Name = "Menu25"
+        #Translate = False
+        Text = "GB_WEB_GUI_DEBUG=1"
+        Tag = "GB_WEB_GUI_DEBUG=1"
       }
     }
     { Menu24 Menu

@@ -220,7 +220,7 @@
       }
       { mnuVcUpdate Menu
         Action = "vc-update"
-        Text = ("Synchronize")
+        Text = ("Synchronize repository") & "..."
         Picture = Picture["icon:/small/download"]
       }
       { mnuVcBranch Menu
@@ -1344,7 +1344,7 @@
         }
         { btnVcUpdate ToolButton
           MoveScaled(18,0,4,4)
-          ToolTip = ("Synchronize") & "..."
+          ToolTip = ("Synchronize repository") & "..."
           Picture = Picture["icon:/small/download"]
         }
         { btnCloseTree ToolButton
@@ -2014,7 +2014,7 @@
     Picture = "icon:/small/undo"
   }
   { Action vc-update
-    Text = "Synchronize"
+    Text = "Synchronize repository"
     Shortcut = ""
     Picture = "icon:/small/download"
   }

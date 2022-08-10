@@ -1916,7 +1916,7 @@ Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As
         sPath = FOpenProject.Locate(sComp)
         If Not sPath Then Break
         If File.Name(sPath) = sComp Then Break
-        Message.Warning(("Project name does not match component."))
+        If Message.Warning(("Project name does not match component.\n\nDo you want to use it anyway?"), ("Use this project"), ("Cancel")) = 1 Then Break
       Loop
       If sPath Then
         SetProject(sComp, sPath)

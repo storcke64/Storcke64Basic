@@ -41,7 +41,8 @@ Static Private $sName As String
 
 Private $hEditor As TextEditor
 Private $bModify As Boolean
-'PRIVATE $cLine AS NEW Collection
+Private $bIgnoreNextChange As Boolean
+
 Private $bToolbar As Boolean
 Private $iLastLine As Integer
 Private $hSymbol As CSymbolInfo
@@ -250,6 +251,17 @@ Private Sub DrawTitle()
 
 End
 
+Public Sub GetTitle() As String
+
+  Dim sTitle As String
+  
+  sTitle = File.Name(Path)
+  If {Component} Then sTitle = "[" & {Component} & "] " & sTitle
+  Return sTitle
+  
+End
+
+
 ' Private Sub DrawInfo()
 '
 '   lblEditor.Text = CStr(Editor.Line + 1) & ":" & CStr(Editor.Column + 1)
@@ -362,6 +374,10 @@ End
 
 Public Sub Editors_Change()
   
+  If $bIgnoreNextChange Then 
+    $bIgnoreNextChange = False
+    Return
+  Endif
   Modify
 
 End
@@ -2258,6 +2274,8 @@ End
 
 Public Sub Reload()
 
+  $bIgnoreNextChange = True
+  
   edtEditor.Load(Path, True)
   $hBookmark.Load()
   Breakpoints.Load(Me)
