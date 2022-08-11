@@ -9,6 +9,7 @@ Public Sub Begin()
   Dim hDrawingArea As WebDrawingArea
   
   WebForm._AddJavascript("{ var $_c = $_(" & JS(Me.Device.Name & ":canvas") & ").getContext('2d');")
+  WebForm._AddJavascript("$_c.save();")
   WebForm._AddJavascript("$_c.beginPath();")
   
   hDrawingArea = Me.Device
@@ -20,6 +21,7 @@ End
 
 Public Sub End()
 
+  WebForm._AddJavascript("$_c.restore();")
   WebForm._AddJavascript($aEnd.Join(""))
   WebForm._AddJavascript("}")
 End
@@ -48,6 +50,7 @@ Private Sub HandleStyle(hStyle As Variant, sProperty As String) As Boolean
   Dim hGradient As Gradient
   
   If IsNull(hStyle) Then hStyle = Me.Brush
+  If IsNull(hStyle) Then Return ' default brush
 
   If TypeOf(hStyle) = gb.Integer Then
 

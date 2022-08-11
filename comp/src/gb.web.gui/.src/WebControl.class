@@ -18,6 +18,12 @@ Event Render
 '' This event is raised when a keyboard key is pressed while the control has the focus.
 Event KeyPress
 
+'' This event is raised when the mouse cursor enters the control.
+Event Enter
+
+'' This event is raised when the mouse cursor leaves the control.
+Event Leave
+
 '' Return the server control identifier.
 Property Read Id As Integer
 
@@ -334,7 +340,6 @@ Private Sub GetCellName() As String
   
 End
 
-
 Public Sub _GetClassId(Optional sClass As String) As String
 
   Dim sResult As String
@@ -346,6 +351,9 @@ Public Sub _GetClassId(Optional sClass As String) As String
   If $bHidden And If Not $hCellParent Then sClass &= " gw-hidden"
   sResult = " class=\"" & Html(sClass) & "\" id=\"" & Html(GetCellName()) & "\""
   If $sTooltip Then sResult &= " title=\"" & Html($sTooltip) & "\""
+  
+  If Object.CanRaise(Me, "Enter") Then sResult &= _GetEventJS("onmouseover", "Enter")
+  If Object.CanRaise(Me, "Leave") Then sResult &= _GetEventJS("onmouseout", "Leave")
   
   Return sResult
   
@@ -679,7 +687,7 @@ Catch
   
 End
 
-Public Sub _GetEventJS(sProp As String, sEvent As String, Optional sArg As String) As String
+Public Sub _GetEventJS(sProp As String, sEvent As String, Optional sArg As String, sMore As String) As String
   
   Dim sStr As String
   
@@ -696,7 +704,7 @@ Public Sub _GetEventJS(sProp As String, sEvent As String, Optional sArg As Strin
   Endif
   sStr &= "," & JS(sEvent)
   If sArg Then sStr &= "," & sArg
-  sStr &= ");"
+  sStr &= ");" & sMore
   sStr &= "\""
   
   If sProp = "onclick" Then sStr &= " onmousedown=\"event.stopPropagation();\""
@@ -1273,5 +1281,12 @@ Static Public Sub _SetCurrentCell(Optional hCtrl As WebControl, sCell As String)
   
   $hCellParent = hCtrl
   $sCellId = sCell
+  
+End
+
+Public Sub _RaiseMouseEvent(sEvent As String, cEvent As Variant)
+  
+  Mouse._Define(sEvent, cEvent)
+  Object.Raise(Me, sEvent)
   
 End

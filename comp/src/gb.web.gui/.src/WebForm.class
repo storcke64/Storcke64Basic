@@ -1003,6 +1003,10 @@ Public Sub _HandleMessage()
         hForm._RaiseKeyPress(aCmd[2])
       Endif
       
+    Case "mouse"
+      GoSub GET_TARGET
+      If hCtrl Then hCtrl._RaiseMouseEvent(aCmd[2], aCmd[3])
+      
     Case "finish"
       
       Upload.Finish(aCmd[1])

@@ -70,6 +70,7 @@ gw = {
   lock: 0,
   needKeyPress: {},
   drawingContext: [],
+  images: {},
   
   log: function(msg)
   {
@@ -208,18 +209,15 @@ gw = {
   },
   
   wait: function(lock) {
-    var elt;
-    
     if (lock)
     {
       if (gw.lock == 0)
       {
-        elt = $_('gw-lock');
-        elt.style.zIndex = 1000;
-        elt.style.display = 'block';
-        
         gw.lock_id = setTimeout(function() {
-          $_('gw-lock').style.opacity = '1';
+          var elt = $_('gw-lock');
+          elt.style.zIndex = 1000;
+          elt.style.display = 'block';
+          elt.style.opacity = '1';
           gw.lock_id = undefined;
           }, 500);
       }
@@ -236,7 +234,7 @@ gw = {
           clearTimeout(gw.lock_id);
           gw.lock_id = undefined;
         }
-        elt = $_('gw-lock');
+        var elt = $_('gw-lock');
         elt.style.display = 'none';
         elt.style.opacity = '0';
       }
@@ -1782,7 +1780,7 @@ gw = {
     }
   },
   
-  paint:
+  drawingarea:
   {
     init: function(id)
     {
@@ -1791,24 +1789,71 @@ gw = {
         gw.resizeObserver = new ResizeObserver(function(entries)
           {
             for (let elt of entries)
-              gw.paint.update(elt.target.id);
+              gw.drawingarea.update(elt.target.id);
           });
       }
 
       gw.resizeObserver.observe($_(id));
-      gw.paint.update(id);
+      gw.drawingarea.update(id);
     },
     
     update: function(id)
     {
       var w = $_(id + ':canvas').offsetWidth;
       var h = $_(id + ':canvas').offsetHeight;
-      $_(id + ':canvas').width = w;
-      $_(id + ':canvas').height = h;
-      console.log('gw.paint.update: ' + w + ',' + h);
+      if (w != $_(id + ':canvas').width || h != $_(id + ':canvas').height)
+      {
+        $_(id + ':canvas').width = w;
+        $_(id + ':canvas').height = h;
+      }
       gw.update(id, '#', [w, h]);
     },
     
+    onMouseDown: function(event, id, down, move, up)
+    {
+      window.addEventListener('mouseup', gw.drawingarea.onMouseUp);
+      
+      if (move)
+        window.addEventListener('mousemove', gw.drawingarea.onMouseMove);
+      
+      gw.grab = {
+        'id': id,
+        'move': move,
+        'up': up,
+        'dx': event.screenX - event.offsetX,
+        'dy': event.screenY - event.offsetY,
+        'sx': event.offsetX,
+        'sy': event.offsetY
+        };
+        
+      if (down)
+        gw.sendMouseEvent(event, 'MouseDown');
+    },
+    
+    onMouseUp: function(event)
+    {
+      if (gw.grab.up) gw.sendMouseEvent(event, 'MouseUp');
+      if (gw.grab.move) window.removeEventListener('mousemove', gw.drawingarea.onMouseMove);
+      window.removeEventListener('mouseup', gw.drawingarea.onMouseUp);
+      gw.grab = undefined;
+    },
+    
+    sendMouseMoveEvent: function()
+    {
+      gw.sendMouseEvent(gw.mouseMove, 'MouseMove', function() { gw.mouseMove = undefined; })
+    },
+    
+    onMouseMove: function(event)
+    {
+      var send = gw.mouseMove == undefined;
+      gw.mouseMove = event;
+      if (send)
+        gw.drawingarea.sendMouseMoveEvent();
+    }
+  },
+  
+  paint:
+  {
     makeGradient: function(ctx, mo, coords, stops)
     {
       var grad, i, st;
@@ -1832,9 +1877,18 @@ gw = {
     
     loadImage: function(url, func)
     {
-      var img = new Image();
-      img.onload = function() { func(img); }
-      img.src = url;
+      var img = gw.images[url];
+      
+      if (img)
+      {
+        func(img);
+      }
+      else
+      {
+        img = new Image();
+        img.onload = function() { func(img); gw.images[url] = img; }
+        img.src = url;
+      }
     }
   },
   
@@ -1890,6 +1944,29 @@ gw = {
       null);
   },
   
+  sendMouseEvent: function(event, type, func)
+  {
+    gw.send(['mouse', gw.grab.id, type, 
+      {
+        'x': event.screenX - gw.grab.dx,
+        'y': event.screenY - gw.grab.dy,
+        'sx': event.screenX,
+        'sy': event.screenY,
+        'button': event.button,
+        'buttons': event.buttons,
+        'altKey': event.altKey,
+        'ctrlKey': event.ctrlKey,
+        'metaKey': event.meta,
+        'shiftKey': event.shiftKey
+      }],
+      func);
+  },
+  
+  raise: function(id, event, args, no_wait)
+  {
+    gw.send(['raise', id, event, args, no_wait]);
+  },
+
   onKeyDown: function(event)
   {
     var elt;
@@ -1944,6 +2021,3 @@ gw = {
 }
 
 document.onkeydown = gw.onKeyDown;
-
-
-
