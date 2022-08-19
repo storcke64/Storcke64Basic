@@ -1089,6 +1089,12 @@ Public Sub gvwFind_Data(Row As Integer, Column As Integer)
       hBorder.TopColor = Color.SetAlpha(Color.LightForeground, 192)
     Endif
     
+    If Row = $aResult.Max Then
+      hBorder.BottomStyle = Border.Solid
+      hBorder.BottomWidth = 1
+      hBorder.BottomColor = Color.LightForeground
+    Endif
+    
     hBorder.Padding = Desktop.Scale \ 2
     
     If Column = 3 Then
