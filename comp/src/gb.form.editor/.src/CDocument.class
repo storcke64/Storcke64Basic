@@ -163,6 +163,8 @@ Public Sub Load(sPath As String, bAddNewLine As Boolean)
   'HighlightFrom(0)
   LayoutLines
   
+  RaiseChange
+  
 End
 
 Public Sub Save(sPath As String)
@@ -1178,6 +1180,7 @@ Private Sub Bookmarks_Write(Value As Integer[])
   Endif
   
   Refresh
+  RaiseChange
 
 End
 
@@ -1569,6 +1572,7 @@ Private Sub DisabledBreakpoints_Write(Value As Integer[])
   Endif
   
   Refresh
+  RaiseChange
 
 End
 
