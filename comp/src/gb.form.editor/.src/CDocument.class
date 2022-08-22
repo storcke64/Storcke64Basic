@@ -124,6 +124,8 @@ Private Sub Text_Write(Value As String)
     LayoutLines
   Endif
   
+  RaiseChange
+  
 End
 
 Private Sub LayoutLines()
