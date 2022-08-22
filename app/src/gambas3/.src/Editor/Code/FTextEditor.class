@@ -731,6 +731,8 @@ Public Sub Reload()
   If Settings["/FormatCode/FormatOnLoad"] Then MPrettyCode.Run(Me)
 
   UpdateDiffAction
+  
+  $hEditor.Reset
 
 End
 

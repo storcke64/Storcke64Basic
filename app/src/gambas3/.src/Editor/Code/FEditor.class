@@ -41,7 +41,6 @@ Static Private $sName As String
 
 Private $hEditor As TextEditor
 Private $bModify As Boolean
-Private $bIgnoreNextChange As Boolean
 
 Private $bToolbar As Boolean
 Private $iLastLine As Integer
@@ -374,10 +373,6 @@ End
 
 Public Sub Editors_Change()
   
-  If $bIgnoreNextChange Then 
-    $bIgnoreNextChange = False
-    Return
-  Endif
   Modify
 
 End
@@ -2274,8 +2269,6 @@ End
 
 Public Sub Reload()
 
-  $bIgnoreNextChange = True
-  
   edtEditor.Load(Path, True)
   $hBookmark.Load()
   Breakpoints.Load(Me)
@@ -2287,6 +2280,8 @@ Public Sub Reload()
   SetReadOnly
   
   UpdateDiffAction
+  
+  $hEditor.Reset
 
 End
 
