@@ -4,7 +4,7 @@ Export
 
 Inherits UserControl
 
-Public Const _Properties As String = "*,List,Border=True,Moveable=True,ReadOnly,Wrap,Unique"
+Public Const _Properties As String = "*,List,Border=True,Grid,Moveable=True,ReadOnly,Wrap,Unique"
 Public Const _DefaultSize As String = "24,32"
 Public Const _Similar As String = "ListBox"
 Public Const _Group As String = "View"
@@ -16,6 +16,7 @@ Property Moveable As Boolean
 Property ReadOnly As Boolean
 Property Read Editor As Control
 Property Wrap As Boolean
+Property Grid As Boolean
 
 '' Return or set if duplicates are allowed in the list.
 ''
@@ -203,5 +204,17 @@ End
 Private Sub Wrap_Write(Value As Boolean)
 
   $hForm.SetWrap(Value)
+
+End
+
+Private Function Grid_Read() As Boolean
+
+  Return $hForm.GetGrid()
+
+End
+
+Private Sub Grid_Write(Value As Boolean)
+
+  $hForm.SetGrid(Value)
 
 End

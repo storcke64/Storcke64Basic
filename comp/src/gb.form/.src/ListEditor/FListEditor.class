@@ -376,3 +376,16 @@ Public Sub SetWrap(bVal As Boolean)
   
 End
 
+Public Sub GetGrid() As Boolean
+  
+  Return lstData.Grid
+  
+End
+
+Public Sub SetGrid(Value As Boolean)
+  
+  lstData.Grid = Value
+  
+End
+
+
