@@ -402,7 +402,7 @@ End
 Static Public Sub MustAnimate(hCtrl As Control) As Boolean
   
   If Not Application.Animations Then Return
-  Return GetTopLevel(hCtrl) = GetTopLevel(Application.ActiveWindow) 
+  Try Return GetTopLevel(hCtrl) = GetTopLevel(Application.ActiveWindow) 
   
 End
 
