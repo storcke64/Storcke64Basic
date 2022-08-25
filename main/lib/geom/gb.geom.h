@@ -50,6 +50,7 @@ enum
 #define ALIGN_IS_RIGHT(_align) (((_align) & 0xF) == 0x2 || (((_align) & 0xF) == 0x0 && GB.System.IsRightToLeft()))
 #define ALIGN_IS_CENTER(_align) (((_align) & 0xF) == 0x3)
 #define ALIGN_IS_NORMAL(_align) (((_align) & 0xF) == 0x0)
+#define ALIGN_MAKE(_halign, _valign) (((_halign) & 0xF) | ((_valign) & 0xF0))
 
 typedef
 	struct {
