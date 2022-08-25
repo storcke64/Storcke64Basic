@@ -9,6 +9,7 @@ Property Resizable As Boolean
 Property Width, W As Integer
 Property Sort As Integer
 Property Ascending As Boolean
+Property Padding As Integer Use $iPadding
 
 Event _Refresh
 
@@ -257,4 +258,11 @@ Private Sub Ascending_Write(Value As Boolean)
     .Refresh
   End With
 
+End
+
+Private Sub Padding_Write(Value As Integer)
+  
+  $iPadding = Value
+  _Layout
+  
 End

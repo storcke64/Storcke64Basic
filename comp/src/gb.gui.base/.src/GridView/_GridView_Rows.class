@@ -9,6 +9,7 @@ Property Resizable As Boolean
 Property Height, H As Integer
 Property Selection As Integer[]
 Property Border As Border
+Property Padding As Integer Use $iPadding
 
 Event _Refresh
 
@@ -117,7 +118,7 @@ Public Sub _GetDefaultRowHeight() As Integer
   If $iDefaultHeight > 0 Then Return $iDefaultHeight
   hView = GetView()
 
-  H = hView._GetTextHeight() + hView.Padding * 2 + 2
+  H = hView._GetTextHeight() + hView.Padding * 2 + $iPadding * 2 + 2
   If $hBorder Then
     With $hBorder
       H += .TopPadding + .BottomPadding + .TopWidth + .BottomWidth + .TopMargin + .BottomMargin
@@ -571,5 +572,12 @@ Public Sub _GetRowTextAlign(iRow As Integer) As Integer
   Else
     Return Align.Normal
   Endif
+  
+End
+
+Private Sub Padding_Write(Value As Integer)
+  
+  $iPadding = Value
+  GetView()._ResizeContents()
   
 End

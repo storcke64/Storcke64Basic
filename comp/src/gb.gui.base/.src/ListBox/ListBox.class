@@ -3,7 +3,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,List,Border=True,Mode{Select.*}=Single,ScrollBar{Scroll.*}=Vertical,Wrap,Sorted"
+Public Const _Properties As String = "*,List,Border=True,Grid,Mode{Select.*}=Single,ScrollBar{Scroll.*}=Vertical,Wrap,Sorted"
 Public Const _Group As String = "View"
 Public Const _DefaultEvent As String = "Click"
 Public Const _DefaultSize As String = "16,16"
@@ -20,6 +20,7 @@ Property Read Text As String
 Property List As String[]
 Property Font As Font
 Property Wrap As Boolean
+Property Grid As Boolean
 
 Property ScrollX As Integer
 Property ScrollY As Integer
@@ -510,3 +511,16 @@ Public Sub GridView_Arrange()
   If $bWrap Then ResizeLater
   
 End 
+
+Private Function Grid_Read() As Boolean
+
+  Return $hView.Grid
+
+End
+
+Private Sub Grid_Write(Value As Boolean)
+
+  $hView.Grid = Value
+  $hView.Rows.Padding = If(Value, Desktop.Scale, 0)
+
+End
