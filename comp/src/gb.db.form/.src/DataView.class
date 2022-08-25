@@ -394,6 +394,8 @@ Public Sub TableView_Data(Row As Integer, Column As Integer)
   Dim iIndex As Integer
   Dim iType As Integer
   Dim vVal As Variant
+  Dim iAlign As Integer
+  
   'Dim hFont As Font
   
   If $iNoRefresh Then Return
@@ -437,6 +439,9 @@ Public Sub TableView_Data(Row As Integer, Column As Integer)
         
     End Select
     
+    iAlign = $hCtrl.Columns[Column].Alignment
+    If iAlign <> Align.Normal Then .Alignment = Align.Make(iAlign, .Alignment)
+    
   End With
   
   If Draw.Device Then Raise Data(Row, Column, vVal)
@@ -455,8 +460,8 @@ Public Sub TableView_Data(Row As Integer, Column As Integer)
   
 Catch
 
-  $hCtrl.Data.Background = Color.HSV(360, 128, 255)
-  $hCtrl.Data.Text = Error.Where & ": " & Error.Text
+  $hCtrl.Data.Foreground = Color.LightForeground
+  $hCtrl.Data.Text = Error.Text
   
 End
 
