@@ -1624,30 +1624,6 @@ MyMainWindow::~MyMainWindow()
 	//qDebug("~MyMainWindow %p (end)", this);
 }
 
-#if 0
-bool MyMainWindow::event(QEvent *e)
-{
-	if (e->spontaneous() && !CWIDGET_test_flag(THIS, WF_DELETED))
-	{
-		/*if (e->type() == QEvent::WindowActivate)
-		{
-			qDebug("activate: %s %p", GB.GetClassName(THIS), THIS);
-			//CWINDOW_activate((CWIDGET *)THIS);
-			GB.Ref(THIS);
-			GB.Post((void (*)())activate_later, (intptr_t)THIS);
-
-		}
-		else*/ if (e->type() == QEvent::WindowDeactivate)
-		{
-			qDebug("deactivate: %s %p", GB.GetClassName(THIS), THIS);
-			if (THIS == CWINDOW_Active)
-				CWINDOW_activate(NULL);
-		}
-	}
-
-	return QWidget::event(e);
-}
-#endif
 
 void MyMainWindow::showEvent(QShowEvent *e)
 {
@@ -3008,7 +2984,7 @@ void CWINDOW_activate(CWIDGET *ob)
 	if (CWINDOW_Active)
 	{
 		GB.Raise(CWINDOW_Active, EVENT_Deactivate, 0);
-		CWINDOW_Active = 0;
+		CWINDOW_Active = NULL;
 	}
 
 	if (active)

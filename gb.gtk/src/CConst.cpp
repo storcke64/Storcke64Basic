@@ -43,6 +43,14 @@ IMPLEMENT_ALIGN(Align_IsLeft, ALIGN_IS_LEFT(a))
 IMPLEMENT_ALIGN(Align_IsRight, ALIGN_IS_RIGHT(a))
 IMPLEMENT_ALIGN(Align_IsCenter, ALIGN_IS_CENTER(a))
 
+BEGIN_METHOD(Align_Make, GB_INTEGER halign; GB_INTEGER valign)
+
+  GB.ReturnInteger(ALIGN_MAKE(VARG(halign), VARG(valign)));
+
+END_METHOD
+
+//-------------------------------------------------------------------------
+
 GB_DESC AlignDesc[] =
 {
   GB_DECLARE("Align", 0), GB_VIRTUAL_CLASS(),
@@ -70,6 +78,8 @@ GB_DESC AlignDesc[] =
   GB_STATIC_METHOD("IsLeft", "b", Align_IsLeft, "(Alignment)i"),
   GB_STATIC_METHOD("IsCenter", "b", Align_IsCenter, "(Alignment)i"),
   GB_STATIC_METHOD("IsRight", "b", Align_IsRight, "(Alignment)i"),
+
+  GB_STATIC_METHOD("Make", "i", Align_Make, "(Horizontal)i(Vertical)i"),
 
   GB_END_DECLARE
 };
