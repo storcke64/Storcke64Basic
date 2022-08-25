@@ -217,7 +217,7 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
   Dim A As Integer
   Dim iColor As Integer
   Dim bCancel As Boolean
-  Dim iPadding As Integer
+  Dim iPaddingH, iPaddingV As Integer
   Dim iBg As Integer
 
   Paint.Save
@@ -266,14 +266,13 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
       End With
     Endif
 
-    iPadding = Max($iPadding, .Padding)
+    iPaddingH = Max($iPadding, .Padding) + $hColumns.Padding
+    iPaddingV = Max($iPadding, .Padding) + $hRows.Padding
     
-    If iPadding Then
-      X += iPadding
-      Y += iPadding
-      W -= iPadding * 2
-      H -= iPadding * 2
-    Endif
+    X += iPaddingH
+    Y += iPaddingV
+    W -= iPaddingH * 2
+    H -= iPaddingV * 2
     
     If W <= 0 Or If H <= 0 Then Goto DRAW_GRID
     
@@ -319,8 +318,8 @@ Private Sub DrawCell(X As Integer, Y As Integer, W As Integer, H As Integer, iRo
       
         DrawAlignedPicture(hPict, X, Y, W, H, A)
         
-        W -= hPict.W + iPadding
-        If Not Me.RightToLeft Then X += hPict.W + iPadding
+        W -= hPict.W + iPaddingH
+        If Not Me.RightToLeft Then X += hPict.W + iPaddingH
         
       Endif
       

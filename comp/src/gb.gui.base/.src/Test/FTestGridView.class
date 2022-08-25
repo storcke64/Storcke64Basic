@@ -108,6 +108,7 @@ Public Sub Form_Open()
   txtPadding.Value = gvwInfo.Padding
   
   gvwInfo.Rows.Padding = Desktop.Scale \ 2
+  gvwInfo.Columns.Padding = Desktop.Scale
   
   Me.Height += 2
 
