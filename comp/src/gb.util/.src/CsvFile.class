@@ -57,10 +57,6 @@ Private $bWrite As Boolean
 '' - ~Escape~ is the escape character, '"' by default.
 '' - ~Charset~ is the file charset. If not specified, it will be guessed.
 ''
-'' [[ warning
-'' If another file with the same name already exists, it is erased.
-'' ]]
-''
 '' Field names are automatically formatted: trailing and double white spaces are removed, and characters are converted to lower case.
 ''
 '' If you want to keep the original field names, set the [../KeepNames] property just after the creation of the CsvFile object.

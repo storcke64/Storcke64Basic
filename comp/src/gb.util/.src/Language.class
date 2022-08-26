@@ -357,7 +357,7 @@ Static Public Sub GetTranslations(Optional Dir As String) As String[]
     Dir = "../.lang"
   Endif
   
-  For Each sStr In Dir(Dir, "*.po")
+  For Each sStr In Dir(Dir, "*.mo")
     aLang.Add(File.BaseName(sStr))
   Next
   
