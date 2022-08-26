@@ -10,7 +10,6 @@ End
 Public Sub Form_Open()
 
   Dim UserQueues As String[] = ["entry1", "entry2", "entry3", "entry4"]
-  Dim i As Integer
   Dim QMenuEntry As Menu
   Dim MainMenu As New Menu(FMain)
   
