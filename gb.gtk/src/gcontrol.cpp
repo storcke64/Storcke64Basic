@@ -1531,6 +1531,14 @@ Drag & Drop
 
 **********************************************************************/
 
+bool gControl::acceptDrops() const
+{
+	if (_proxy)
+		return _proxy->acceptDrops();
+	else
+		return _accept_drops;
+}
+
 void gControl::setAcceptDrops(bool vl)
 {
 	GtkWidget *w;

@@ -244,8 +244,8 @@ bool CB_control_drag(gControl *sender)
 {
 	CWIDGET *_object = GetObject(sender);
 
-	if (!THIS)
-		return true;
+	/*if (!THIS)
+		return true;*/
 
 	if (!GB.CanRaise(THIS, EVENT_Drag))
 	{

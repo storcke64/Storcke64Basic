@@ -113,7 +113,7 @@ public:
 	void setExpand (bool vl);
 	void setIgnore (bool vl);
 
-	bool acceptDrops() const { return _accept_drops; }
+	bool acceptDrops() const;
 	void setAcceptDrops(bool vl);
 	
 	const char *name() const { return _name; }

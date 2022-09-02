@@ -176,7 +176,7 @@ static void cb_drag_leave(GtkWidget *widget, GdkDragContext *context, guint time
 
 static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint x, gint y, guint time, gControl *data)
 {
-	bool retval = true;
+	bool cancel;
 	
 	GdkModifierType mask;
 	GdkDragAction dnd_action;
@@ -230,9 +230,12 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	
 	context = gDrag::enable(context, data, time);
 	
-	retval = gDrag::setCurrent(data);
-	
-	if (retval)
+	cancel = gDrag::setCurrent(data);
+	#if DEBUG_DND
+	fprintf(stderr, "setCurrent -> %d\n", cancel);
+	#endif
+
+	if (!cancel)
 	{
 		//fprintf(stderr, "cb_drag_motion: onDragMove: %p\n", widget);
 		gControl *control = data;
@@ -247,8 +250,8 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 			#endif
 			if (CB_control_can_raise(control, gEvent_DragMove))
 			{
-				retval = !CB_control_drag_move(control);
-				if (!retval)
+				cancel = CB_control_drag_move(control);
+				if (cancel)
 					break;
 			}
 			control = control->_proxy_for;
@@ -257,7 +260,14 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 	
 	context = gDrag::disable(context);
 	
-	if (retval) 
+	if (cancel)
+	{
+		#if DEBUG_DND
+		fprintf(stderr, "cb_drag_motion: cancel\n");
+		#endif
+		gDrag::hide(data);
+	}
+	else
 	{
 		#if DEBUG_DND
 		fprintf(stderr, "cb_drag_motion: accept %d / %d\n", action, gdk_drag_context_get_selected_action(context));
@@ -266,10 +276,6 @@ static gboolean cb_drag_motion(GtkWidget *widget, GdkDragContext *context, gint 
 		return true;
 	}
 	
-	#if DEBUG_DND
-	fprintf(stderr, "cb_drag_motion: cancel\n");
-	#endif
-	gDrag::hide(data);
 	return false;
 }
 
@@ -288,11 +294,14 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	// cb_drag_leave() is automatically called when a drop occurs
 	//cb_drag_leave(widget, context, time, data);
 	
-	if (!CB_control_can_raise(data, gEvent_Drop))
+	/*if (!data->_accept_drops) //acceptDrops())
+		return false;*/
+
+	/*if (!CB_control_can_raise(data, gEvent_Drop))
 	{
 		gtk_drag_finish(context, false, false, time);
 		return false;
-	}
+	}*/
 
 	source = gApplication::controlItem(gtk_drag_get_source_widget(context));
 

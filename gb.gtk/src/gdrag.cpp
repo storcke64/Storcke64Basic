@@ -787,8 +787,10 @@ bool gDrag::setCurrent(gControl *control)
 {
 	gControl *current;
 	
+	//fprintf(stderr, "gDrag::setCurrent: %s -> %s\n", _current ? _current->name() : "NULL", control ? control->name() : "NULL");
+
 	if (_current == control)
-		return true;
+		return false;
 	
 	if (_current)
 	{
