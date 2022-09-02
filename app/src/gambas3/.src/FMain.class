@@ -1813,6 +1813,9 @@ End
 
 Public Sub tvwProject_GotFocus()
   
+  ' As opening a project with version control run external processes and the event loop,
+  ' we can arrive here while the new project is not initialized
+  If Not Project.Tree Then Return
   RefreshMenu
   'ShowTreeToolbar
   'txtSearchProject.SetFocus
