@@ -70,8 +70,13 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 		if (HANDLE)
 		{
 			cairo_t *context = cairo_create(SURFACE);
-			//rsvg_handle_render_cairo(HANDLE, context);
-			rsvg_handle_render_document(HANDLE, context, NULL, NULL);
+
+#if LIBRSVG_CHECK_VERSION(2,46,0)
+			RsvgRectangle view = { 0, 0, THIS->width, THIS->height };
+			rsvg_handle_render_document(HANDLE, context, &view, NULL);
+#else
+			rsvg_handle_render_cairo(HANDLE, context);
+#endif
 			cairo_destroy(context);
 		}
 	}
@@ -135,6 +140,7 @@ static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
 	if (!handle)
 	{
 		err = "Unable to load SVG file: invalid format";
+		g_object_unref(G_OBJECT(handle));
 		goto __RETURN;
 	}
 
@@ -142,13 +148,17 @@ static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
 
 	release(THIS);
 	THIS->handle = handle;
+
+#if LIBRSVG_CHECK_VERSION(2,52,0)
 	rsvg_handle_get_intrinsic_size_in_pixels(handle, &THIS->width, &THIS->height);
-	handle = NULL;
+#else
+	RsvgDimensionData dim;
+	rsvg_handle_get_dimensions(handle, &dim);
+	THIS->width = dim.width;
+	THIS->height = dim.height;
+#endif
 
 __RETURN:
-
-	if (handle)
-		g_object_unref(G_OBJECT(handle));
 
 	GB.ReleaseFile(addr, len);
 	return err;
@@ -178,6 +188,8 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 	const char *err;
 	double tx, ty;
 	RsvgRectangle view;
+	cairo_matrix_t matrix;
+	double sx, sy;
 
 	if (!context)
 		return;
@@ -198,20 +210,42 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 	if (THIS->width <= 0 || THIS->height <= 0)
 		return;
 
-	//rsvg_handle_get_dimensions(HANDLE, &dim);
-	//sx = VARGOPT(w, THIS->width) / dim.width;
-	//sy = VARGOPT(h, THIS->height) / dim.height;
+#if LIBRSVG_CHECK_VERSION(2,52,0)
+	rsvg_handle_get_intrinsic_size_in_pixels(HANDLE, &sx, &sy);
+	if (sx == 0 || sy == 0)
+		return;
+	sx = VARGOPT(w, THIS->width) / sx;
+	sy = VARGOPT(h, THIS->height) / sy;
+#else
+	RsvgDimensionData dim;
+	rsvg_handle_get_dimensions(HANDLE, &dim);
+	if (dim.width == 0 || dim.height == 0)
+		return;
+	sx = (double)VARGOPT(w, THIS->width) / dim.width;
+	sy = (double)VARGOPT(h, THIS->height) / dim.height;
+#endif
 
-	//cairo_get_matrix(context, &matrix);
-	//cairo_scale(context, sx, sy);
+	cairo_get_matrix(context, &matrix);
+	cairo_scale(context, sx, sy);
 	cairo_get_current_point(context, &tx, &ty);
-	//cairo_translate(context, VARGOPT(x, tx), VARGOPT(y, ty));
-	view.x = VARGOPT(x, tx);
-	view.y = VARGOPT(y, ty);
-	view.width = VARGOPT(w, THIS->width);
-	view.height = VARGOPT(h, THIS->height);
+	cairo_translate(context, VARGOPT(x, tx), VARGOPT(y, ty));
+
+#if LIBRSVG_CHECK_VERSION(2,46,0)
+
+	view.x = 0;
+	view.y = 0;
+	view.width = THIS->width;
+	view.height = THIS->height;
+
 	rsvg_handle_render_document(HANDLE, context, &view, NULL);
-	//cairo_set_matrix(context, &matrix);
+
+#else
+
+	rsvg_handle_render_cairo(HANDLE, context);
+
+#endif
+
+	cairo_set_matrix(context, &matrix);
 
 END_METHOD
 
