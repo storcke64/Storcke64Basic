@@ -70,7 +70,8 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 		if (HANDLE)
 		{
 			cairo_t *context = cairo_create(SURFACE);
-			rsvg_handle_render_cairo(HANDLE, context);
+			//rsvg_handle_render_cairo(HANDLE, context);
+			rsvg_handle_render_document(HANDLE, context, NULL, NULL);
 			cairo_destroy(context);
 		}
 	}
@@ -123,7 +124,6 @@ END_METHOD
 static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
 {
 	RsvgHandle *handle = NULL;
-	RsvgDimensionData dim;
 	char *addr;
 	int len;
 	const char *err = NULL;
@@ -142,10 +142,7 @@ static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
 
 	release(THIS);
 	THIS->handle = handle;
-	rsvg_handle_get_dimensions(handle, &dim);
-	THIS->width = dim.width;
-	THIS->height = dim.height;
-
+	rsvg_handle_get_intrinsic_size_in_pixels(handle, &THIS->width, &THIS->height);
 	handle = NULL;
 
 __RETURN:
@@ -179,9 +176,8 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 
 	cairo_t *context = PAINT_get_current_context();
 	const char *err;
-	cairo_matrix_t matrix;
-	double tx, ty, sx, sy;
-	RsvgDimensionData dim;
+	double tx, ty;
+	RsvgRectangle view;
 
 	if (!context)
 		return;
@@ -202,16 +198,20 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 	if (THIS->width <= 0 || THIS->height <= 0)
 		return;
 
-	rsvg_handle_get_dimensions(HANDLE, &dim);
-	sx = VARGOPT(w, THIS->width) / dim.width;
-	sy = VARGOPT(h, THIS->height) / dim.height;
+	//rsvg_handle_get_dimensions(HANDLE, &dim);
+	//sx = VARGOPT(w, THIS->width) / dim.width;
+	//sy = VARGOPT(h, THIS->height) / dim.height;
 
-	cairo_get_matrix(context, &matrix);
-	cairo_scale(context, sx, sy);
+	//cairo_get_matrix(context, &matrix);
+	//cairo_scale(context, sx, sy);
 	cairo_get_current_point(context, &tx, &ty);
-	cairo_translate(context, VARGOPT(x, tx), VARGOPT(y, ty));
-	rsvg_handle_render_cairo(HANDLE, context);
-	cairo_set_matrix(context, &matrix);
+	//cairo_translate(context, VARGOPT(x, tx), VARGOPT(y, ty));
+	view.x = VARGOPT(x, tx);
+	view.y = VARGOPT(y, ty);
+	view.width = VARGOPT(w, THIS->width);
+	view.height = VARGOPT(h, THIS->height);
+	rsvg_handle_render_document(HANDLE, context, &view, NULL);
+	//cairo_set_matrix(context, &matrix);
 
 END_METHOD
 
