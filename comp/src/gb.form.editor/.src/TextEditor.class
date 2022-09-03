@@ -6735,6 +6735,7 @@ End
 
 Public Sub ShowGotoPanel()
 
+  If $hDoc.Count <= 1 Then Return
   If Not $hGoto Then $hGoto = New FGoto($hVPanel)
   $hGoto.H = Desktop.Scale * 3
   If $hFind Then $hFind.Hide

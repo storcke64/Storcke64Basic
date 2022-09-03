@@ -11,10 +11,10 @@ Public Sub Form_GotFocus()
   With GetEditor()
     spnLine.MinValue = 1
     spnLine.MaxValue = .Count
-    lblCount.Text = " / " & CStr(.Count)
+    lblCount.Text = Subst(("&1 lines"), Format(.Count, ",0"))
   End With
   
-  spnLine.W = spnLine.Font.TextWidth(String$(Len(CStr(spnLine.MaxValue)), "9")) + Desktop.Scale * 6
+  spnLine.W = spnLine.Font.TextWidth(String$(Len(CStr(spnLine.MaxValue)), "9")) + Desktop.Scale * 10
 
   spnLine.SetFocus
   spnLine.SelectAll()
