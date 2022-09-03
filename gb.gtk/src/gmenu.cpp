@@ -143,11 +143,10 @@ static gboolean cb_map(GtkWidget *menu, gMenu *data)
 
 	data->_mapping = true;
 	
-	data->hideSeparators();
-	//gtk_menu_reposition(GTK_MENU(menu));
-
 	gtk_widget_hide(gtk_widget_get_parent(menu));
+	data->hideSeparators();
 	gtk_widget_show(gtk_widget_get_parent(menu));
+	gtk_menu_reposition(GTK_MENU(menu));
 
 	data->_mapping = false;
 
@@ -164,7 +163,7 @@ static gboolean cb_unmap(GtkWidget *menu, gMenu *data)
 
 	data->_opened = false;
 	CB_menu_hide(data);
-	gtk_widget_set_size_request(menu, -1, -1);
+	//gtk_widget_set_size_request(menu, -1, -1);
 
 	//fprintf(stderr, "cb_unmap: <<<\n");
 	return false;

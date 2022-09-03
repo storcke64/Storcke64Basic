@@ -329,7 +329,6 @@ void gControl::initAll(gContainer *parent)
 	_inverted = false;
 	_accept_drops = false;
 	_dragging = false;
-	_drag_get_data = false;
 	frame_border = 0;
 	frame_padding = 0;
 	_bg_set = false;
@@ -649,13 +648,8 @@ static void send_configure(gControl *control)
 
 	widget = control->border;
 
-#if GTK_CHECK_VERSION(2, 20, 0)
 	if (!gtk_widget_get_realized(widget))
 		return;
-#else
-	if (!GTK_WIDGET_REALIZED(widget))
-		return;
-#endif
 
 // 	if (control->isWindow())
 // 	 g_debug("send configure to window: %s", control->name());
@@ -1531,6 +1525,36 @@ Drag & Drop
 
 **********************************************************************/
 
+/*static void print_full_name(gControl *ctrl)
+{
+	if (ctrl->parent())
+	{
+		print_full_name(ctrl->parent());
+		fprintf(stderr, ">");
+	}
+
+	fprintf(stderr, "%s", ctrl->name() ? ctrl->name() : "?");
+}*/
+
+void gControl::updateAcceptDrops()
+{
+	GtkWidget *w = _scroll ? widget : border;
+
+	if (_accept_drops)
+	{
+		gtk_drag_dest_set(w, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+		gtk_drag_dest_set_track_motion(w, TRUE);
+	}
+	else
+	{
+		gtk_drag_dest_unset(w);
+	}
+
+	/*fprintf(stderr, "updateAcceptDrops: ");
+	print_full_name(this);
+	fprintf(stderr, " -> %d\n", _accept_drops);*/
+}
+
 bool gControl::acceptDrops() const
 {
 	if (_proxy)
@@ -1541,8 +1565,6 @@ bool gControl::acceptDrops() const
 
 void gControl::setAcceptDrops(bool vl)
 {
-	GtkWidget *w;
-
 	if (_proxy)
 	{
 		_proxy->setAcceptDrops(vl);
@@ -1553,12 +1575,7 @@ void gControl::setAcceptDrops(bool vl)
 		return;
 
 	_accept_drops = vl;
-
-	w = _scroll ? widget : border;
-	if (vl)
-		gtk_drag_dest_set(w, (GtkDestDefaults)0, NULL, 0, (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-	else
-		gtk_drag_dest_unset(w);
+	updateAcceptDrops();
 }
 
 /*********************************************************************
@@ -1969,7 +1986,6 @@ void gControl::realize(bool draw_frame)
 #endif
 
 	updateEventMask();
-	
 	registerControl();
 	updateFont();
 }
@@ -2960,6 +2976,8 @@ void gControl::createBorder(GtkWidget *new_border, bool keep_widget)
 		_no_delete = false;
 		createWidget();
 	}
+
+	updateAcceptDrops();
 }
 
 int gControl::actualDirection() const

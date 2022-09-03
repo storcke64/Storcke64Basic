@@ -32,7 +32,7 @@
 #include "gdrag.h"
 #include "gdesktop.h"
 
-//#define DEBUG_DND 1
+#define DEBUG_DND 1
 
 static void cb_destroy(GtkWidget *object, gControl *data)
 {
@@ -308,7 +308,6 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	gDrag::setDropData(gDrag::getAction(), x, y, source, data);
 	
 	context = gDrag::enable(context, data, time);
-	data->_drag_get_data = true;
 	
 	while (data)
 	{
@@ -324,7 +323,6 @@ static gboolean cb_drag_drop(GtkWidget *widget, GdkDragContext *context, gint x,
 	gtk_drag_finish(context, true, false, time);
 	
 	//data->_drag_enter = false;
-	data->_drag_get_data = false;
 
 	return true;
 }

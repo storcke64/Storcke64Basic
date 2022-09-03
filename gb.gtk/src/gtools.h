@@ -241,4 +241,9 @@ void gt_widget_update_css(GtkWidget *widget, gFont *font, gColor bg, gColor fg);
 void gt_define_style_sheet(GtkStyleProvider **provider, GString *css);
 #endif
 
+#if GTK_CHECK_VERSION(2, 20, 0)
+#else
+#define gtk_widget_get_realized(_widget) GTK_WIDGET_REALIZED(_widget)
+#endif
+
 #endif
