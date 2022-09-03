@@ -1,11 +1,11 @@
 dnl ---- configure.ac for gb.pcre
 
 m4_include([../version.m4])
-AC_INIT(gambas3-gb-pcre, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-gb-pcre],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.pcre)
-AC_PROG_LIBTOOL
+LT_INIT
 
 GB_COMPONENT_PKG_CONFIG(
   pcre, PCRE, gb.pcre, [src],
@@ -27,9 +27,10 @@ fi
 
 AM_CONDITIONAL(USE_PCRE2, test "$gb_use_pcre2" = 1)
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 Makefile \
 src/Makefile \
-)
+])
+AC_OUTPUT
 
 GB_PRINT_MESSAGES

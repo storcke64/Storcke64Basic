@@ -1,11 +1,11 @@
 dnl ---- configure.ac for gb.gtk3 component
 
 m4_include([../version.m4])
-AC_INIT(gambas3-gb-gtk3, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-gb-gtk3],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.gtk3)
-AC_PROG_LIBTOOL
+LT_INIT
 
 GB_CHECK_XWINDOW()
 
@@ -39,13 +39,14 @@ GB_COMPONENT_PKG_CONFIG(
   'gtk+-3.0 >= 3.16' gl
 )
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 Makefile \
 src/Makefile \
 src/x11/Makefile \
 src/wayland/Makefile \
 src/webview/Makefile \
 src/opengl/Makefile
-)
+])
+AC_OUTPUT
 
 GB_PRINT_MESSAGES

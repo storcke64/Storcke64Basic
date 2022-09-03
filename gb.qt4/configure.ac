@@ -1,11 +1,11 @@
 dnl ---- configure.ac for gb.qt
 
 m4_include([../version.m4])
-AC_INIT(gambas3-gb-qt4, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-gb-qt4],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.qt4)
-AC_PROG_LIBTOOL
+LT_INIT
 PKG_PROG_PKG_CONFIG
 
 AC_ARG_ENABLE(
@@ -50,13 +50,14 @@ GB_COMPONENT_PKG_CONFIG(
 MOC=`$PKG_CONFIG --variable=moc_location QtCore`
 AC_SUBST(MOC)
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 Makefile \
 src/Makefile \
 src/ext/Makefile \
 src/webkit/Makefile \
 src/webview/Makefile \
 src/opengl/Makefile \
-)
+])
+AC_OUTPUT
 
 GB_PRINT_MESSAGES

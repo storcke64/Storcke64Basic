@@ -1,13 +1,13 @@
 dnl ---- configure.ac for main programs
 
 m4_include([../version.m4])
-AC_INIT(gambas3-main, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-main],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
-GB_INIT(main)
+GB_INIT([main])
 GB_TRUNK_VERSION
 GB_MATH_FUNC
-LT_INIT 
+LT_INIT([dlopen win32-dll])
 AM_PROG_CC_C_O
 
 if test "x${GAMBAS_CONFIG_FAILURE}" != "x"; then

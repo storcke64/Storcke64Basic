@@ -1,11 +1,11 @@
 dnl ---- configure.ac for gb.qt5
 
 m4_include([../version.m4])
-AC_INIT(gambas3-gb-qt5, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-gb-qt5],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.qt5)
-AC_PROG_LIBTOOL
+LT_INIT
 PKG_PROG_PKG_CONFIG
 
 GB_CHECK_XWINDOW
@@ -58,7 +58,7 @@ GB_COMPONENT_PKG_CONFIG(
 MOC=`$PKG_CONFIG --variable=host_bins Qt5Core`/moc
 AC_SUBST(MOC)
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 Makefile \
 src/Makefile \
 src/x11/Makefile \
@@ -67,6 +67,7 @@ src/webkit/Makefile \
 src/webview/Makefile \
 src/opengl/Makefile \
 src/ext/Makefile \
-)
+])
+AC_OUTPUT
 
 GB_PRINT_MESSAGES

@@ -6,7 +6,7 @@ dnl ****************************************************************************
 dnl ---- Initialization
 
 m4_include([version.m4])
-AC_INIT(gambas3, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_LN_S
 
@@ -72,7 +72,8 @@ AC_SUBST(gblibdir)
 gbdatadir=$datadir/gambas$GAMBAS_VERSION/
 AC_SUBST(gbdatadir)
 
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
 
 GB_CLEAR_MESSAGES
 

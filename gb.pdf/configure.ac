@@ -1,11 +1,11 @@
 dnl ---- configure.ac for gb.pdf
 
 m4_include([../version.m4])
-AC_INIT(gambas3-gb-pdf, GB_VERSION, GB_MAIL, [], GB_URL)
+AC_INIT([gambas3-gb-pdf],[GB_VERSION],[GB_MAIL],[],[GB_URL])
 AC_CONFIG_MACRO_DIR([m4])
 
 GB_INIT(gb.pdf)
-AC_PROG_LIBTOOL
+LT_INIT
 PKG_PROG_PKG_CONFIG
 
 GB_COMPONENT_PKG_CONFIG(
@@ -36,9 +36,10 @@ if test "$have_poppler" = "yes"; then
   AC_DEFINE_UNQUOTED(POPPLER_VERSION_22_06_0, $((1-$?)), Poppler version >= 22.06.0)
 fi
 
-AC_OUTPUT( \
+AC_CONFIG_FILES([\
 Makefile \
 src/Makefile \
-)
+])
+AC_OUTPUT
 
 GB_PRINT_MESSAGES

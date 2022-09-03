@@ -72,7 +72,7 @@ AC_DEFUN([GB_INIT_AUTOMAKE],
 [
   AM_INIT_AUTOMAKE([subdir-objects])
   m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES(yes)])
-  AC_CONFIG_HEADER([config.h])
+  AC_CONFIG_HEADERS([config.h])
   AC_PREFIX_DEFAULT(/usr)
 
   GAMBAS_VERSION=GB_VERSION_MAJOR
@@ -190,9 +190,8 @@ AC_DEFUN([GB_INIT_SHORT],
 
 AC_DEFUN([GB_LIBTOOL],
 [
-  AC_LIBTOOL_DLOPEN
-  ##AC_LIBLTDL_CONVENIENCE
-  AC_LIBTOOL_WIN32_DLL
+  dnl AC_LIBTOOL_DLOPEN
+  dnl AC_LIBTOOL_WIN32_DLL
   AC_DISABLE_STATIC
 
   AC_SUBST(INCLTDL)
@@ -218,7 +217,6 @@ AC_DEFUN([GB_INIT],
   dnl ---- Checks for header files.
 
   dnl AC_HEADER_DIRENT
-  dnl AC_HEADER_STDC
   dnl AC_HEADER_SYS_WAIT
 
   dnl ---- Checks for typedefs, structures, and compiler characteristics.
@@ -226,15 +224,21 @@ AC_DEFUN([GB_INIT],
   dnl AC_C_CONST
   dnl AC_TYPE_PID_T
   dnl AC_TYPE_SIZE_T
-  dnl AC_HEADER_TIME
+  dnl AC_CHECK_HEADERS_ONCE([sys/time.h])
+
   dnl AC_STRUCT_TM
-  dnl AC_C_LONG_DOUBLE
+
+  AC_TYPE_LONG_DOUBLE_WIDER
+  ac_cv_c_long_double=$ac_cv_type_long_double_wider
+  if test $ac_cv_c_long_double = yes; then
+    AC_DEFINE([HAVE_LONG_DOUBLE],[1],[Define to 1 if the type `long double' works and has more range or
+    precision than `double'.])
+  fi
 
   dnl ---- Checks for library functions.
 
   dnl AC_FUNC_ALLOCA
   dnl AC_PROG_GCC_TRADITIONAL
-  dnl AC_TYPE_SIGNAL
   dnl AC_FUNC_STRCOLL
   dnl AC_FUNC_STRFTIME
   dnl AC_FUNC_VPRINTF
@@ -554,19 +558,16 @@ AC_DEFUN([GB_MATH],
 AC_DEFUN([GB_CHECK_MATH_FUNC],
 [AC_CACHE_CHECK(for $1,
   gb_cv_math_$1,
-  [AC_TRY_COMPILE(
-    [
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #define _ISOC9X_SOURCE	1
       #define _ISOC99_SOURCE	1
       #define __USE_ISOC99	1
       #define __USE_ISOC9X	1
       #include <math.h>
-    ],
-    [
+    ]], [[
       int value = $1 (1.0);
-    ],
-    gb_cv_math_$1=yes, gb_cv_math_$1=no
-    )])
+    ]])],[gb_cv_math_$1=yes],[gb_cv_math_$1=no
+    ])])
   
   if test $gb_cv_math_$1 = yes; then
     AC_DEFINE(HAVE_$2, 1, [Define if you have $1 function.])
@@ -1505,12 +1506,12 @@ rm -f conftest*
 dnl Check if the type socklen_t is defined anywhere
 AC_DEFUN([AC_C_SOCKLEN_T],
 [AC_CACHE_CHECK(for socklen_t, ac_cv_c_socklen_t,
-[ AC_TRY_COMPILE([
+[ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
-],[
+]], [[
 socklen_t foo;
-],[
+]])],[
   ac_cv_c_socklen_t=yes
 ],[
   ac_cv_c_socklen_t=no
@@ -1522,11 +1523,9 @@ dnl Check nicked from aclocal.m4 from GNU bash 2.01
 AC_DEFUN([AC_SYS_ERRLIST],
 [AC_MSG_CHECKING([for sys_errlist and sys_nerr])
 AC_CACHE_VAL(ac_cv_sys_errlist,
-[AC_TRY_LINK([#include <errno.h>],
-[extern char *sys_errlist[];
+[AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <errno.h>]], [[extern char *sys_errlist[];
  extern int sys_nerr;
- char *msg = sys_errlist[sys_nerr - 1];],
-    ac_cv_sys_errlist=yes, ac_cv_sys_errlist=no)])dnl
+ char *msg = sys_errlist[sys_nerr - 1];]])],[ac_cv_sys_errlist=yes],[ac_cv_sys_errlist=no])])dnl
 AC_MSG_RESULT($ac_cv_sys_errlist)
 if test $ac_cv_sys_errlist = yes; then
 AC_DEFINE(HAVE_SYS_ERRLIST)
@@ -1585,14 +1584,13 @@ AS_VAR_PUSHDEF([VAR],[ac_cv_cflags_gcc_option_$2])dnl
 AC_CACHE_CHECK([m4_ifval($1,$1,FLAGS) for gcc m4_ifval($2,$2,-option)],
 VAR,[VAR="no, unknown"
  AC_LANG_SAVE
- AC_LANG_C
+ AC_LANG([C])
  ac_save_[]FLAGS="$[]FLAGS"
 for ac_arg dnl
 in "-pedantic  % m4_ifval($2,$2,-option)"  dnl   GCC
    #
 do FLAGS="$ac_save_[]FLAGS "`echo $ac_arg | sed -e 's,%%.*,,' -e 's,%,,'`
-   AC_TRY_COMPILE([],[return 0;],
-   [VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break])
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[return 0;]])],[VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break],[])
 done
  FLAGS="$ac_save_[]FLAGS"
  AC_LANG_RESTORE
@@ -1626,8 +1624,7 @@ for ac_arg dnl
 in "-pedantic  % m4_ifval($2,$2,-option)"  dnl   GCC
    #
 do FLAGS="$ac_save_[]FLAGS "`echo $ac_arg | sed -e 's,%%.*,,' -e 's,%,,'`
-   AC_TRY_COMPILE([],[return 0;],
-   [VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break])
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[return 0;]])],[VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break],[])
 done
  FLAGS="$ac_save_[]FLAGS"
  AC_LANG_RESTORE
@@ -1654,14 +1651,13 @@ AS_VAR_PUSHDEF([VAR],[ac_cv_cflags_gcc_option_$1])dnl
 AC_CACHE_CHECK([m4_ifval($2,$2,FLAGS) for gcc m4_ifval($1,$1,-option)],
 VAR,[VAR="no, unknown"
  AC_LANG_SAVE
- AC_LANG_C
+ AC_LANG([C])
  ac_save_[]FLAGS="$[]FLAGS"
 for ac_arg dnl
 in "-pedantic  % m4_ifval($1,$1,-option)"  dnl   GCC
    #
 do FLAGS="$ac_save_[]FLAGS "`echo $ac_arg | sed -e 's,%%.*,,' -e 's,%,,'`
-   AC_TRY_COMPILE([],[return 0;],
-   [VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break])
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[return 0;]])],[VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break],[])
 done
  FLAGS="$ac_save_[]FLAGS"
  AC_LANG_RESTORE
@@ -1695,8 +1691,7 @@ for ac_arg dnl
 in "-pedantic  % m4_ifval($1,$1,-option)"  dnl   GCC
    #
 do FLAGS="$ac_save_[]FLAGS "`echo $ac_arg | sed -e 's,%%.*,,' -e 's,%,,'`
-   AC_TRY_COMPILE([],[return 0;],
-   [VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break])
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[return 0;]])],[VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break],[])
 done
  FLAGS="$ac_save_[]FLAGS"
  AC_LANG_RESTORE
