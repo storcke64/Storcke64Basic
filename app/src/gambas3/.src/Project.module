@@ -35,6 +35,7 @@ Public ActiveForm As Object
 Public Path As String
 Public Name As String
 Public Dir As String
+Public PreviousDir As String
 Public SourceDir As String
 Public ReadOnly As Boolean
 
@@ -648,6 +649,8 @@ Public Function Open(sDir As String, Optional bInAnotherWindow As Boolean, sOpen
     
   Endif
 
+  PreviousDir = Project.Dir
+  
   If Not $bTesting Then
     If CloseProject() Then Return True
   Endif

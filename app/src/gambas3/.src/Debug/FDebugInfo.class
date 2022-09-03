@@ -1017,8 +1017,10 @@ Public Sub OnProjectChange()
   UpdateTask
   SetCompilation()
   CloseSearch
-  trmVersionControl.Clear
-  trmTest.Clear
+  If Project.Dir <> Project.PreviousDir Then 
+    trmVersionControl.Clear
+    trmTest.Clear
+  Endif
   panTestResult.Hide
   $cTrack = New Collection
   $iLastBreakpointsTimeStamp = 0
