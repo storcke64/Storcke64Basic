@@ -389,10 +389,17 @@ bool TrayIconManager::eventFilter(QObject *o, QEvent *e)
 		CTRAYICON *_object = find_trayicon(o);
 		if (THIS)
 		{
-			bool cancel;
+			bool cancel = true;
 			QWheelEvent *ev = (QWheelEvent *)e;
 			
+#ifdef QT5
+			if (ev->angleDelta().x())
+				cancel = GB.Raise(THIS, EVENT_Scroll, 2, GB_T_FLOAT, ev->angleDelta().x() / 120.0, GB_T_INTEGER, false);
+			if (ev->angleDelta().y())
+				cancel = GB.Raise(THIS, EVENT_Scroll, 2, GB_T_FLOAT, ev->angleDelta().y() / 120.0, GB_T_INTEGER, true);
+#else
 			cancel = GB.Raise(THIS, EVENT_Scroll, 2, GB_T_FLOAT, ev->delta() / 120.0, GB_T_INTEGER, ev->orientation() == Qt::Vertical);
+#endif
 			
 			if (cancel)
 				return true;

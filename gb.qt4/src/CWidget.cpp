@@ -3118,18 +3118,20 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 				{
 					MOUSE_info.orientation = Qt::Horizontal;
 					MOUSE_info.delta = delta.x();
+					cancel = GB.Raise(control, EVENT_MouseWheel, 0);
 				}
-				else
+				if (delta.y())
 				{
 					MOUSE_info.orientation = Qt::Vertical;
 					MOUSE_info.delta = delta.y();
+					cancel = GB.Raise(control, EVENT_MouseWheel, 0);
 				}
 #else
 				MOUSE_info.orientation = ev->orientation();
 				MOUSE_info.delta = ev->delta();
+				cancel = GB.Raise(control, EVENT_MouseWheel, 0);
 #endif
 
-				cancel = GB.Raise(control, EVENT_MouseWheel, 0);
 
 				CMOUSE_clear(false);
 				
