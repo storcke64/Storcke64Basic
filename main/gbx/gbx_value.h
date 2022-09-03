@@ -276,7 +276,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 #define VALUE_conv_boolean(_value) \
 ({ \
 	VALUE *v = _value; \
-	if (UNLIKELY(v->type != T_BOOLEAN)) \
+	if (v->type != T_BOOLEAN) \
 	{ \
 		VALUE_convert_boolean(v); \
 	} \
@@ -285,7 +285,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 #define VALUE_conv_integer(_value) \
 ({ \
 	VALUE *v = _value; \
-	if (UNLIKELY(v->type != T_INTEGER)) \
+	if (v->type != T_INTEGER) \
 	{ \
 		if (TYPE_is_object(v->type)) \
 			THROW_TYPE_INTEGER(v->type); \
@@ -296,7 +296,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 #define VALUE_conv_float(_value) \
 ({ \
 	VALUE *v = _value; \
-	if (UNLIKELY(v->type != T_FLOAT)) \
+	if (v->type != T_FLOAT) \
 	{ \
 		if (TYPE_is_object(v->type)) \
 			THROW_TYPE_FLOAT(v->type); \
@@ -307,7 +307,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 #define VALUE_conv_string(_value) \
 ({ \
 	VALUE *v = _value; \
-	if (UNLIKELY(v->type != T_STRING && v->type != T_CSTRING)) \
+	if (v->type != T_STRING && v->type != T_CSTRING) \
 	{ \
 		if (TYPE_is_object(v->type)) \
 			THROW_TYPE_STRING(v->type); \
@@ -317,13 +317,13 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 
 #define VALUE_conv_variant(_value) \
 ({ \
-	if (UNLIKELY((_value)->type != T_VARIANT)) \
+	if ((_value)->type != T_VARIANT) \
 		VALUE_convert_variant(_value); \
 })
 
 #define VALUE_conv_object(_value, _type) \
 ({ \
-	if (UNLIKELY((_value)->type != (_type))) \
+	if ((_value)->type != (_type)) \
 		VALUE_convert_object(_value, _type); \
 })
 
@@ -331,19 +331,19 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 
 #define VALUE_conv_boolean(_value) \
 ({ \
-	if (UNLIKELY((_value)->type != T_BOOLEAN)) \
+	if ((_value)->type != T_BOOLEAN) \
 		VALUE_convert_boolean(_value); \
 })
 
 #define VALUE_conv_float(_value) \
 ({ \
-	if (UNLIKELY((_value)->type != T_FLOAT)) \
+	if ((_value)->type != T_FLOAT) \
 		VALUE_convert_float(_value); \
 })
 
 #define VALUE_conv_variant(_value) \
 ({ \
-	if (UNLIKELY((_value)->type != T_VARIANT)) \
+	if ((_value)->type != T_VARIANT) \
 		VALUE_convert_variant(_value); \
 })
 
@@ -355,7 +355,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 
 #define VALUE_conv_string(_value) \
 ({ \
-	if (UNLIKELY((_value)->type != T_STRING && (_value)->type != T_CSTRING)) \
+	if ((_value)->type != T_STRING && (_value)->type != T_CSTRING) \
 		VALUE_conv(_value, T_STRING); \
 })
 

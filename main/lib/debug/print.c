@@ -111,9 +111,9 @@ static void print_object(void *object)
 	CLASS *class = OBJECT_class(object);
 	
 	if (*class->name == '$')
-		fprintf(_where, "(Struct %s %p) [%ld]", &class->name[1], object, OBJECT_count(object));
+		fprintf(_where, "(Struct %s %p) [%ld]", &class->name[1], object, (long)OBJECT_count(object));
 	else
-		fprintf(_where, "(%s %p) [%ld]", class->name, object, OBJECT_count(object));
+		fprintf(_where, "(%s %p) [%ld]", class->name, object, (long)OBJECT_count(object));
 
 /*
 	if (GB.Is(object, GB.FindClass("Collection")))

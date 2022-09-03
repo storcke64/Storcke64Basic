@@ -72,7 +72,7 @@ static char *_const_buffer = NULL;
 
 static const char *get_symbol_name(TABLE *table, int index, int *len)
 {
-	if (UNLIKELY((index < 0) || (index >= ARRAY_count(table->symbol))))
+	if (index < 0 || index >= ARRAY_count(table->symbol))
 	{
 		*len = 1;
 		return "?";

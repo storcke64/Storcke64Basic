@@ -172,6 +172,8 @@ static void check_version(CLASS *class, int loaded)
 		THROW_CLASS(class, "Bytecode too recent. Please upgrade Gambas.", "");
 	if (loaded < GAMBAS_PCODE_VERSION_MIN)
 		THROW_CLASS(class, "Bytecode too old. Please recompile the project.", "");
+
+	class->not_3_18 = loaded < 0x3180000;
 }
 
 

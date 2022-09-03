@@ -280,9 +280,9 @@ bool JIT_exec(bool ret_on_stack)
 	if (JIT_disabled)
 		return TRUE;
 	
-	if (UNLIKELY(nparam < func->npmin))
+	if (nparam < func->npmin)
 		THROW(E_NEPARAM);
-	else if (UNLIKELY(nparam > func->n_param && !func->vararg))
+	else if (nparam > func->n_param && !func->vararg)
 		THROW(E_TMPARAM);
 
 	if (!func->fast_linked)

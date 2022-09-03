@@ -268,7 +268,7 @@ typedef
 		unsigned loaded : 1;              //          Class is loaded
 		unsigned ready : 1;               //          Class is loaded and ready
 		unsigned debug : 1;               //          Debugging information ?
-		unsigned _reserved : 1;           //
+		unsigned swap : 1;                //          Class endianness was swapped
 		unsigned free_event : 1;          //          Must free class->event
 		unsigned in_load : 1;             //          Class being loaded
 		unsigned exit : 1;                //          Marker used by CLASS_exit
@@ -277,28 +277,28 @@ typedef
 		unsigned quick_array : 2;         //          Array accessor optimization type
 		unsigned no_create : 1;           //          Cannot instanciate this class
 		unsigned is_virtual : 1;          //          Virtual class (name beginning with a dot)
-		unsigned swap : 1;                //          Class endianness was swapped
 		unsigned enum_static : 1;         //          If class enumeration is static
 		unsigned is_stream : 1;           //          If the class inherits stream
 		unsigned global : 1;              //          If the class is in the global table
+		unsigned error : 1;               //          Loading or registering the class has failed
 
 		unsigned is_native : 1;           //          If the class is native (i.e. written in C/C++)
-		unsigned error : 1;               //          Loading or registering the class has failed
 		unsigned is_observer : 1;         //          This is the Observer class
 		unsigned is_struct : 1;           //          This class is a structure
 		unsigned is_array : 1;            //          This class is an array
 		unsigned is_array_of_struct : 1;  //          This class is an array of struct
 		unsigned init_dynamic : 1;        //          If there is a special function to call at instanciation
 		unsigned must_check : 1;          //          The class has a check function
-
 		unsigned has_child : 1;           //          The class has an inherited child class
+
 		unsigned unknown_static : 1;      //          If _unknown is static
 		unsigned property_static : 1;     //          If _property is static
 		unsigned has_convert : 1;         //          If the _convert interface is implemented
 		unsigned has_operators : 1;       //          If the _operators interface is implemented
 		unsigned is_simple : 1;           //          Class has no parent, no child, is not virtual, and has no 'check' function.
 		unsigned has_free : 1;            //          The class has a free function
-		unsigned is_test : 1;             //  24  36  The class is a test module
+		unsigned is_test : 1;             //          The class is a test module
+		unsigned not_3_18 : 1;            //  24  36  If bytecode version is strictly older than 3.18
 
 		short n_desc;                     //  26  38  number of descriptions
 		short n_event;                    //  28  40  number of events

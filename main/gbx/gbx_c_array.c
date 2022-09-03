@@ -601,7 +601,7 @@ END_PROPERTY
 
 static bool copy_remove(CARRAY *_object, int start, int length, bool copy, bool remove)
 {
-	CARRAY *array;
+	CARRAY *array = NULL;
 	int count = THIS->count;
 	void *data;
 	int i, nsize;
@@ -1537,7 +1537,7 @@ BEGIN_METHOD(Array_String_join, GB_STRING sep; GB_STRING esc)
 	uint lsep = 1;
 	char *esc = "";
 	uint lesc = 0;
-	char escl, NO_WARNING(escr);
+	char escl, escr;
 	int i;
 	char **data = (char **)THIS->data;
 	char *p, *p2;

@@ -194,11 +194,6 @@ typedef
 	"published by the Free Software Foundation; either version 2, or \n" \
 	"(at your option) any later version.\n\n"
 
-//#define LIKELY(_x) __builtin_expect((_x), 1)
-//#define UNLIKELY(_x) __builtin_expect((_x), 0)
-#define LIKELY(_x) (_x)
-#define UNLIKELY(_x) (_x)
-
 #define $(_x) _x
 
 #define RESTART_SYSCALL(_code) \

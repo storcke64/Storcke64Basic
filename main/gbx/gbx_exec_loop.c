@@ -684,7 +684,7 @@ _POP_OPTIONAL:
 	{
 		VALUE *val = &PP[GET_XX()];
 
-		if (LIKELY(val->type == T_VOID))
+		if (val->type == T_VOID)
 		{
 			if (SP[-1].type == T_VOID)
 				VALUE_default(&SP[-1], val->_void.ptype);
@@ -1915,7 +1915,7 @@ _QUIT:
 
 _BYREF:
 
-	if (LIKELY(PC == FP->code))
+	if (PC == FP->code)
 	{
 		PC += GET_UX() + 2;
 		goto _MAIN;
@@ -4079,7 +4079,7 @@ void SUBR_left(ushort code)
 
 	SUBR_ENTER();
 
-	if (LIKELY(!SUBR_check_string(PARAM)))
+	if (!SUBR_check_string(PARAM))
 	{
 		if (NPARAM == 1)
 			val = 1;
@@ -4161,7 +4161,7 @@ void SUBR_right(ushort code)
 
 	SUBR_ENTER();
 
-	if (LIKELY(!SUBR_check_string(PARAM)))
+	if (!SUBR_check_string(PARAM))
 	{
 		if (NPARAM == 1)
 			val = 1;

@@ -188,7 +188,7 @@ void EXEC_loop(void);
 })
 
 #define EXEC_object(_val, _pclass, _pobject) \
-	((LIKELY(TYPE_is_pure_object((_val)->type))) ? EXEC_object_2(_val, _pclass, _pobject), TRUE : \
+	((TYPE_is_pure_object((_val)->type)) ? EXEC_object_2(_val, _pclass, _pobject), TRUE : \
 	TYPE_is_variant((_val)->type) ? (*(_pclass) = EXEC_object_variant(_val, _pobject)), FALSE : \
 	EXEC_object_other(_val, _pclass, _pobject))
 
