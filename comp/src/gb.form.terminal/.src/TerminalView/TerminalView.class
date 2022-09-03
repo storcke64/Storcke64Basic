@@ -369,13 +369,24 @@ Private Sub UpdateFont()
   ' Dim hZoom As Image
   Dim X As Integer
   Dim C As Integer
+  Dim sTest As String
+  Dim WM As Integer
   
   With $hView.Font
     
     $LH = .Height
     $iAscent = .Ascent
     
-    sText = String$(8, "mM0_@$#W")
+    sTest = "mMOYW0_@$#%"
+    For I = 1 To Len(sTest)
+      W = .TextWidth(Mid$(sTest, I, 1))
+      If W > WM Then
+        WM = W
+        sText = Mid$(sTest, I, 1)
+      Endif
+    Next
+    
+    sText = String$(64, sText)
     $CW = CInt(.TextWidth(sText) / Len(sText) + 0.5)
     
     W = $CW \ 8
