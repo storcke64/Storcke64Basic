@@ -34,10 +34,10 @@ int STRING_compare(const char *str1, int len1, const char *str2, int len2)
 	{
 		c1 = str1[i];
 		c2 = str2[i];
-		if (LIKELY(c1 > c2)) return 1;
-		if (LIKELY(c1 < c2)) return -1;
+		if (c1 > c2) return 1;
+		if (c1 < c2) return -1;
 	}
 
 	diff = len1 - len2;
-	return LIKELY(diff < 0) ? (-1) : LIKELY(diff > 0) ? 1 : 0;
+	return diff < 0 ? (-1) : diff > 0 ? 1 : 0;
 }

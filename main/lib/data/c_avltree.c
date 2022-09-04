@@ -445,13 +445,13 @@ static void CAVLTREE_remove(CAVLTREE *tree, char *key, size_t length)
 
 	/* Detach replacement node */
 	reb = rep->parent;
-	d = LIKELY(rep == reb->left) ? 1 : -1;
+	d = rep == reb->left ? 1 : -1;
 	if (reb == node)
 		goto replace;
 	child = rep->left ? : rep->right;
 	if (child)
 		child->parent = reb;
-	if (LIKELY(rep == reb->left))
+	if (rep == reb->left)
 		reb->left = child;
 	else
 		reb->right = child;
