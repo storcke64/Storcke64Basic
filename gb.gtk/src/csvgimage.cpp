@@ -54,6 +54,48 @@ static void release(CSVGIMAGE *_object)
 	THIS->width = THIS->height = 0;
 }
 
+
+static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
+{
+	RsvgHandle *handle = NULL;
+	char *addr;
+	int len;
+	const char *err = NULL;
+
+	if (GB.LoadFile(path, len_path, &addr, &len))
+		return "Unable to load SVG file";
+
+	handle = rsvg_handle_new_from_data((const guint8 *)addr, len / sizeof(guint8), NULL);
+	if (!handle)
+	{
+		err = "Unable to load SVG file: invalid format";
+		g_object_unref(G_OBJECT(handle));
+		goto __RETURN;
+	}
+
+	rsvg_handle_set_dpi(handle, 72);
+
+	if (HANDLE)
+		g_object_unref(G_OBJECT(HANDLE));
+
+	THIS->handle = handle;
+
+#if LIBRSVG_CHECK_VERSION(2,52,0)
+	rsvg_handle_get_intrinsic_size_in_pixels(handle, &THIS->width, &THIS->height);
+#else
+	RsvgDimensionData dim;
+	rsvg_handle_get_dimensions(handle, &dim);
+	THIS->width = dim.width;
+	THIS->height = dim.height;
+#endif
+
+__RETURN:
+
+	GB.ReleaseFile(addr, len);
+	return err;
+}
+
+
 cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 {
 	if (!SURFACE)
@@ -84,9 +126,21 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 	return SURFACE;
 }
 
+
 void SVGIMAGE_end(CSVGIMAGE *_object)
 {
+	const char *err;
+
+	cairo_surface_finish(SURFACE);
+
+	if ((err = load_file(THIS, THIS->file, GB.StringLength(THIS->file))))
+	{
+		GB.Error(err);
+		return;
+	}
 }
+
+//-------------------------------------------------------------------------
 
 BEGIN_METHOD(SvgImage_new, GB_FLOAT width; GB_FLOAT height)
 
@@ -95,11 +149,13 @@ BEGIN_METHOD(SvgImage_new, GB_FLOAT width; GB_FLOAT height)
 
 END_METHOD
 
+
 BEGIN_METHOD_VOID(SvgImage_free)
 
 	release(THIS);
 
 END_METHOD
+
 
 BEGIN_PROPERTY(SvgImage_Width)
 
@@ -110,6 +166,7 @@ BEGIN_PROPERTY(SvgImage_Width)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(SvgImage_Height)
 
 	if (READ_PROPERTY)
@@ -119,6 +176,7 @@ BEGIN_PROPERTY(SvgImage_Height)
 
 END_PROPERTY
 
+
 BEGIN_METHOD(SvgImage_Resize, GB_FLOAT width; GB_FLOAT height)
 
 	THIS->width = VARG(width);
@@ -126,43 +184,6 @@ BEGIN_METHOD(SvgImage_Resize, GB_FLOAT width; GB_FLOAT height)
 
 END_METHOD
 
-static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
-{
-	RsvgHandle *handle = NULL;
-	char *addr;
-	int len;
-	const char *err = NULL;
-
-	if (GB.LoadFile(path, len_path, &addr, &len))
-		return "Unable to load SVG file";
-
-	handle = rsvg_handle_new_from_data((const guint8 *)addr, len / sizeof(guint8), NULL);
-	if (!handle)
-	{
-		err = "Unable to load SVG file: invalid format";
-		g_object_unref(G_OBJECT(handle));
-		goto __RETURN;
-	}
-
-	rsvg_handle_set_dpi(handle, 72);
-
-	release(THIS);
-	THIS->handle = handle;
-
-#if LIBRSVG_CHECK_VERSION(2,52,0)
-	rsvg_handle_get_intrinsic_size_in_pixels(handle, &THIS->width, &THIS->height);
-#else
-	RsvgDimensionData dim;
-	rsvg_handle_get_dimensions(handle, &dim);
-	THIS->width = dim.width;
-	THIS->height = dim.height;
-#endif
-
-__RETURN:
-
-	GB.ReleaseFile(addr, len);
-	return err;
-}
 
 BEGIN_METHOD(SvgImage_Load, GB_STRING path)
 
@@ -182,27 +203,16 @@ BEGIN_METHOD(SvgImage_Load, GB_STRING path)
 
 END_METHOD
 
+
 BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 
 	cairo_t *context = PAINT_get_current_context();
-	const char *err;
 	double tx, ty;
-	RsvgRectangle view;
 	cairo_matrix_t matrix;
 	double sx, sy;
 
 	if (!context)
 		return;
-
-	if (THIS->file)
-	{
-		cairo_surface_finish(SURFACE);
-		if ((err = load_file(THIS, THIS->file, GB.StringLength(THIS->file))))
-		{
-			GB.Error(err);
-			return;
-		}
-	}
 
 	if (!HANDLE)
 		return;
@@ -232,6 +242,7 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 
 #if LIBRSVG_CHECK_VERSION(2,46,0)
 
+	RsvgRectangle view;
 	view.x = 0;
 	view.y = 0;
 	view.width = THIS->width;
