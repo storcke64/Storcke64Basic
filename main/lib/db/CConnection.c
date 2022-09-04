@@ -462,7 +462,7 @@ static char *make_query(CCONNECTION *_object, char *pattern, int len, int narg, 
 	const char *keyword;
 	char buffer[32];
 
-	query = DB_MakeQuery(THIS->driver, pattern, len, narg, arg);
+	query = DB_MakeQuery(THIS->driver, &THIS->db, pattern, len, narg, arg);
 
 	if (query && THIS->limit > 0 && strncasecmp(query, "SELECT ", 7) == 0)
 	{

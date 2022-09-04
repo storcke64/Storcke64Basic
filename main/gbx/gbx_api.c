@@ -197,6 +197,7 @@ const void *const GAMBAS_Api[] =
 
 	(void *)STRING_subst,
 	(void *)STRING_subst_add,
+	(void *)STRING_subst_add_unquote,
 	(void *)STRING_make,
 	(void *)GB_ConvString,
 	(void *)STRING_conv_file_name,

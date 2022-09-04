@@ -38,7 +38,7 @@ extern DB_DATABASE *DB_CurrentDatabase;
 #define MAX_DRIVER 8
 
 bool DB_Open(DB_DESC *desc, DB_DRIVER **driver, DB_DATABASE *db, GB_COLLECTION options);
-char *DB_MakeQuery(DB_DRIVER *driver, const char *pattern, int len, int narg, GB_VALUE *arg);
+char *DB_MakeQuery(DB_DRIVER *driver, DB_DATABASE *db, const char *pattern, int len, int narg, GB_VALUE *arg);
 void DB_Format(DB_DRIVER *driver, GB_VALUE *arg, DB_FORMAT_CALLBACK func);
 void DB_FormatVariant(DB_DRIVER *driver, GB_VARIANT_VALUE *arg, DB_FORMAT_CALLBACK func);
 char *DB_GetQuotedTable(DB_DRIVER *driver, DB_DATABASE *db, const char *table, int len_table);

@@ -115,6 +115,7 @@ static int _index = 0;
 
 STRING_MAKE STRING_make_buffer;
 #define _make STRING_make_buffer
+static bool _subst_add_unquote;
 
 static iconv_t _conv_unicode_utf8 = (iconv_t)-1;
 static iconv_t _conv_utf8_unicode = (iconv_t)-1;
@@ -789,7 +790,7 @@ char *STRING_subst(const char *str, int len, SUBST_FUNC get_param)
 char *STRING_subst_add(const char *str, int len, SUBST_ADD_FUNC add_param)
 {
 	uint i;
-	char c;
+	char c, before;
 	int np;
 
 	if (!str)
@@ -799,10 +800,14 @@ char *STRING_subst_add(const char *str, int len, SUBST_ADD_FUNC add_param)
 		len = strlen(str);
 
 	STRING_start_len(len);
+	_subst_add_unquote = FALSE;
+
+	before = 0;
 
 	for (i = 0; i < len; i++)
 	{
 		c = str[i];
+
 		if (c == '&')
 		{
 			np = get_param_index(str, len, &i, NULL);
@@ -818,14 +823,30 @@ char *STRING_subst_add(const char *str, int len, SUBST_ADD_FUNC add_param)
 				case INDEX_ERROR:
 					break;
 				default:
-					(*add_param)(np);
+					(*add_param)(np, before, (i < (len - 1)) ? str[i + 1] : 0);
+					if (_subst_add_unquote)
+					{
+						i++;
+						_subst_add_unquote = FALSE;
+					}
 			}
 		}
 		else
 			STRING_make_char(c);
+
+		before = c;
 	}
 
 	return STRING_end_temp();
+}
+
+
+void STRING_subst_add_unquote()
+{
+	if (_subst_add_unquote)
+		return;
+	STRING_make_undo_char();
+	_subst_add_unquote = TRUE;
 }
 
 
@@ -942,7 +963,7 @@ char *STRING_end()
 	if (_make.ntemp)
 		STRING_make_dump();
 
-	if (_make.len)
+	if (_make.len > 0)
 	{
 		_make.buffer = STRING_extend(_make.buffer, _make.len);
 		_make.buffer[_make.len] = 0;

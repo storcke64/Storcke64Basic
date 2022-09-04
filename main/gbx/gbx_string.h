@@ -41,7 +41,7 @@ typedef
   void (*SUBST_FUNC)(int, char **, int *);
 
 typedef
-  void (*SUBST_ADD_FUNC)(int);
+  void (*SUBST_ADD_FUNC)(int, char, char);
 
 #define STRING_MAKE_TEMP 32
 
@@ -148,6 +148,8 @@ void STRING_void_value(VALUE *value);
 
 char *STRING_subst(const char *str, int len, SUBST_FUNC get_param);
 char *STRING_subst_add(const char *str, int len, SUBST_ADD_FUNC add_param);
+void STRING_subst_add_unquote();
+
 int STRING_conv(char **result, const char *str, int len, const char *src, const char *dst, bool throw);
 char *STRING_conv_file_name(const char *name, int len);
 char *STRING_conv_to_UTF8(const char *name, int len);
@@ -221,6 +223,14 @@ void STRING_make_dump();
 	if (STRING_make_buffer.ntemp == STRING_MAKE_TEMP) \
 		STRING_make_dump(); \
 	STRING_make_buffer.temp[STRING_make_buffer.ntemp++] = (_c); \
+})
+
+#define STRING_make_undo_char() \
+({ \
+	if (STRING_make_buffer.ntemp) \
+		STRING_make_buffer.ntemp--; \
+	else if (STRING_make_buffer.len > 0) \
+		STRING_make_buffer.len--; \
 })
 
 #endif

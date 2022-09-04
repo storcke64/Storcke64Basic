@@ -645,7 +645,7 @@ typedef
 /* Type of the GB.SubstStringAdd() callback */
 
 typedef
-	void (*GB_SUBST_ADD_CALLBACK)(int);
+	void (*GB_SUBST_ADD_CALLBACK)(int, char, char);
 
 
 /* Type of the GB.BrowseProject() callback */
@@ -1101,6 +1101,7 @@ typedef
 
 		char *(*SubstString)(const char *, int, GB_SUBST_CALLBACK);
 		char *(*SubstStringAdd)(const char *, int, GB_SUBST_ADD_CALLBACK);
+		void (*SubstStringUnquote)(void);
 		void (*SubstAddCallback)(const char *, int);
 		bool (*ConvString)(char **, const char *, int, const char *, const char *);
 		char *(*FileName)(char *, int);
