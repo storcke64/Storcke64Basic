@@ -47,8 +47,6 @@ static void release(CSVGIMAGE *_object)
 	{
 		cairo_surface_destroy(SURFACE);
 		THIS->surface = NULL;
-		unlink(THIS->file);
-		GB.FreeString(&THIS->file);
 	}
 
 	THIS->width = THIS->height = 0;
@@ -96,6 +94,74 @@ __RETURN:
 }
 
 
+static void paint_svg(CSVGIMAGE *_object, cairo_t *context, double x, double y, double w, double h)
+{
+	cairo_matrix_t matrix;
+	double sx, sy;
+
+	if (!context)
+		return;
+
+	if (THIS->width <= 0 || THIS->height <= 0)
+		return;
+
+	if (!HANDLE && !SURFACE)
+		return;
+
+	if (w <= 0)
+	{
+		w = THIS->width;
+		sx = 1;
+	}
+	else
+		sx = w / THIS->width;
+
+	if (h <= 0)
+	{
+		h = THIS->height;
+		sy = 1;
+	}
+	else
+		sy = h / THIS->height;
+
+	cairo_get_matrix(context, &matrix);
+	cairo_scale(context, sx, sy);
+	cairo_translate(context, x, y);
+
+	if (HANDLE)
+	{
+	#if LIBRSVG_CHECK_VERSION(2,46,0)
+
+		RsvgRectangle view;
+		view.x = 0;
+		view.y = 0;
+		view.width = THIS->width;
+		view.height = THIS->height;
+
+		rsvg_handle_render_document(HANDLE, context, &view, NULL);
+
+	#else
+
+		rsvg_handle_render_cairo(HANDLE, context);
+
+	#endif
+
+	}
+
+	if (SURFACE)
+	{
+		//cairo_surface_finish(SURFACE);
+
+		cairo_save(context);
+		cairo_set_source_surface(context, SURFACE, 0, 0);
+		cairo_paint(context);
+		cairo_restore(context);
+	}
+
+	cairo_set_matrix(context, &matrix);
+}
+
+
 cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 {
 	if (!SURFACE)
@@ -106,9 +172,12 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 			return NULL;
 		}
 
-		THIS->file = GB.NewZeroString(GB.TempFile(NULL));
-		SURFACE = cairo_svg_surface_create(THIS->file, THIS->width, THIS->height);
+		/*THIS->file = GB.NewZeroString(GB.TempFile(NULL));
+		SURFACE = cairo_svg_surface_create(THIS->file, THIS->width, THIS->height);*/
 
+		SURFACE = cairo_recording_surface_create (CAIRO_CONTENT_COLOR_ALPHA, NULL);
+
+#if 0
 		if (HANDLE)
 		{
 			cairo_t *context = cairo_create(SURFACE);
@@ -121,6 +190,7 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 #endif
 			cairo_destroy(context);
 		}
+#endif
 	}
 
 	return SURFACE;
@@ -129,18 +199,19 @@ cairo_surface_t *SVGIMAGE_begin(CSVGIMAGE *_object)
 
 void SVGIMAGE_end(CSVGIMAGE *_object)
 {
-	const char *err;
+	//const char *err;
 
-	cairo_surface_finish(SURFACE);
+	//cairo_surface_finish(SURFACE);
 
-	if ((err = load_file(THIS, THIS->file, GB.StringLength(THIS->file))))
+	/*if ((err = load_file(THIS, THIS->file, GB.StringLength(THIS->file))))
 	{
 		GB.Error(err);
 		return;
-	}
+	}*/
 }
 
 //-------------------------------------------------------------------------
+
 
 BEGIN_METHOD(SvgImage_new, GB_FLOAT width; GB_FLOAT height)
 
@@ -208,82 +279,51 @@ BEGIN_METHOD(SvgImage_Paint, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h)
 
 	cairo_t *context = PAINT_get_current_context();
 	double tx, ty;
-	cairo_matrix_t matrix;
-	double sx, sy;
 
 	if (!context)
-		return;
-
-	if (!HANDLE)
 		return;
 
 	if (THIS->width <= 0 || THIS->height <= 0)
 		return;
 
-#if LIBRSVG_CHECK_VERSION(2,52,0)
-	rsvg_handle_get_intrinsic_size_in_pixels(HANDLE, &sx, &sy);
-	if (sx == 0 || sy == 0)
-		return;
-	sx = VARGOPT(w, THIS->width) / sx;
-	sy = VARGOPT(h, THIS->height) / sy;
-#else
-	RsvgDimensionData dim;
-	rsvg_handle_get_dimensions(HANDLE, &dim);
-	if (dim.width == 0 || dim.height == 0)
-		return;
-	sx = (double)VARGOPT(w, THIS->width) / dim.width;
-	sy = (double)VARGOPT(h, THIS->height) / dim.height;
-#endif
-
-	cairo_get_matrix(context, &matrix);
-	cairo_scale(context, sx, sy);
 	cairo_get_current_point(context, &tx, &ty);
-	cairo_translate(context, VARGOPT(x, tx), VARGOPT(y, ty));
-
-#if LIBRSVG_CHECK_VERSION(2,46,0)
-
-	RsvgRectangle view;
-	view.x = 0;
-	view.y = 0;
-	view.width = THIS->width;
-	view.height = THIS->height;
-
-	rsvg_handle_render_document(HANDLE, context, &view, NULL);
-
-#else
-
-	rsvg_handle_render_cairo(HANDLE, context);
-
-#endif
-
-	cairo_set_matrix(context, &matrix);
+	paint_svg(THIS, context, VARGOPT(x, tx), VARGOPT(y, ty), VARGOPT(w, -1), VARGOPT(h, -1));
 
 END_METHOD
+
 
 BEGIN_METHOD(SvgImage_Save, GB_STRING file)
 
-	if (!THIS->file)
+	cairo_surface_t *svg;
+	cairo_t *context;
+
+	if (THIS->width <= 0 || THIS->height <= 0)
 	{
-		if (!SVGIMAGE_begin(THIS))
-		{
-			GB.Error("Void image");
-			return;
-		}
+		GB.Error("SvgImage size is not defined");
+		return;
 	}
 
-	cairo_surface_finish(SURFACE);
-	if (GB.CopyFile(THIS->file, GB.FileName(STRING(file), LENGTH(file))))
-		return;
+	svg = cairo_svg_surface_create(GB.FileName(STRING(file), LENGTH(file)), THIS->width, THIS->height);
 
-	load_file(THIS, THIS->file, GB.StringLength(THIS->file));
+	context = cairo_create(svg);
+
+	paint_svg(THIS, context, 0, 0, -1, -1);
+
+	cairo_destroy(context);
+
+	cairo_surface_destroy(svg);
 
 END_METHOD
+
 
 BEGIN_METHOD_VOID(SvgImage_Clear)
 
 	release(THIS);
 
 END_METHOD
+
+
+//-------------------------------------------------------------------------
 
 GB_DESC SvgImageDesc[] =
 {
