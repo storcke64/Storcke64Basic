@@ -110,6 +110,8 @@ Public Sub Form_Open()
   AddClipboard(Null, "")
   'UpdateClipboard
   
+  cmbOperator.Index = Paint.OperatorOver
+  
 End
 
 Public Sub Form_Close()
@@ -774,6 +776,11 @@ Public Sub GetRoundness() As Integer
   
 End
 
+Public Sub GetOperator() As Integer
+  
+  Return cmbOperator.Index
+  
+End
 
 Public Sub ReadConfig()
   
@@ -1252,6 +1259,13 @@ Private Sub UpdateGrid()
 
 End
 
+Private Sub UpdateOperator()
+  
+  Try GetCurrent().UpdateOperator()
+  
+End
+
+
 Public Sub txtGridRes_Change()
 
   txtGridSnap.MaxValue = txtGridRes.Value
@@ -1390,6 +1404,7 @@ Public Sub OnToolChange(sTool As String)
   ShowTextOption(sTool = "text")
   panRoundness.Visible = sTool = "rectangle"
   panTolerance.Visible = sTool = "magic"
+  panOperator.Visible = sTool = "paste"
   
 End
 
@@ -1554,5 +1569,11 @@ Private Sub LoadAllSelections()
     Endif
     AddSelection(hSel)
   Next
+
+End
+
+Public Sub cmbOperator_Click()
+
+  UpdateOperator
 
 End

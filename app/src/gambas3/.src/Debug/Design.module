@@ -312,6 +312,7 @@ Public Sub Debug_Read(Data As String)
   Dim sWhere As String
   Dim iPos As Integer
   Dim sComp As String
+  Dim bLineChanged As Boolean
 
   'Debug Quote(Data)
   $sBuffer &= Data
@@ -391,10 +392,13 @@ Public Sub Debug_Read(Data As String)
       
       $sError = ""
       
-      If aData[1] Then 
-        If sClass Then SetCurrentLine(sComp, sClass, iLine)
-      Else
-        If Not sClass Or If SetCurrentLine(sComp, sClass, iLine) Then 
+      If sClass Then 
+        bLineChanged = SetCurrentLine(sComp, sClass, iLine)
+      Endif
+      
+      If Not aData[1] Then 
+        
+        If Not sClass Or If bLineChanged Then 
           If Not DebugInside Then
             If $bIgnoreNextInfo Then 
               $bIgnoreNextInfo = False
@@ -404,11 +408,12 @@ Public Sub Debug_Read(Data As String)
             Return
           Endif
         Endif
+        
       Endif
   
       FDebugInfo.DefineVariable(Trim(aData[3]), Trim(aData[4]))
 
-      FDebugInfo.FillStack(aPos)
+      FDebugInfo.FillStack(aPos, bLineChanged)
       
       If aData[1] Then 
         

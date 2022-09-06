@@ -99,7 +99,7 @@ Public Sub EnableStack(bOn As Boolean)
   
 End
 
-Public Sub FillStack(aStack As String[])
+Public Sub FillStack(aStack As String[], bSelectCurrent As Boolean)
   
   Dim sPos As String
   Dim iInd As Integer
@@ -112,11 +112,12 @@ Public Sub FillStack(aStack As String[])
   
   Object.Lock(lvwStack)
   
-  sKey = "0"
-  If lvwStack.Count Then
-    lvwStack.MoveFirst()
-    If aStack[0] = lvwStack.Item.Tag Then sKey = lvwStack.Key
-  Endif
+  ' sKey = "0"
+  ' If lvwStack.Count Then
+  '   lvwStack.MoveFirst()
+  '   If aStack[0] = lvwStack.Item.Tag Then sKey = lvwStack.Key
+  ' Endif
+  sKey = lvwStack.Key
   
   lvwStack.Clear
   
@@ -149,6 +150,10 @@ Public Sub FillStack(aStack As String[])
       
       If sPos Not Ends ".0" Then 
         lvwStack.Add(iInd, sPos).Tag = sStack
+        If bSelectCurrent Then
+          sKey = iInd
+          bSelectCurrent = False
+        Endif
         W = Max(W, lvwStack.Font.TextWidth(sPos))
       Endif
       

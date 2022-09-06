@@ -681,8 +681,8 @@ Private Sub GetImagePos() As PointF
   Else If $sTool = "draw" Or If $sTool = "erase" Then
     
     If FImageProperty.GetSize() Then
-      X = Floor(X * 2) / 2
-      Y = Floor(Y * 2) / 2
+      X = Floor(X * 2 + 0.5) / 2
+      Y = Floor(Y * 2 + 0.5) / 2
     Else
       X = Floor(X)
       Y = Floor(Y)
@@ -692,8 +692,8 @@ Private Sub GetImagePos() As PointF
     
     If $sTool = "line" And If $bShift Then
     Else
-      X = Floor(X * 2) / 2
-      Y = Floor(Y * 2) / 2
+      X = Floor(X * 2 + 0.5) / 2
+      Y = Floor(Y * 2 + 0.5) / 2
     Endif
   
   Endif
@@ -1774,7 +1774,90 @@ Public Sub imvImage_Draw(hZoom As Image)
     Endif
   Endif
   
-  imvImage._Paint(hZoom, hOffset.X, hOffset.Y)
+  If $hPaste Then
+    
+    'Paint.AntiAlias = False
+    
+    If $hSelect Then 
+      Paint.Translate(hOffset.X, hOffset.Y)
+      Paint.Scale(imvImage.Zoom, imvImage.Zoom)
+      $hSelect.Paint($hImage, CImageSelection.ACTION_CLIP)
+      Paint.Reset
+      'imvImage._Paint($hPaste, hOffset.X + $iPasteX * imvImage.Zoom, hOffset.Y + $iPasteY * imvImage.Zoom)
+    Endif
+    
+    With $hPasteSelect.GetExtents()
+      If .Width > 0 And If .Height > 0 Then
+
+        Paint.Save
+        
+        Paint.MoveTo(hOffset.X, hOffset.Y)
+        Paint.RelLineTo(hZoom.W * imvImage.Zoom, 0)
+        Paint.RelLineTo(0, hZoom.H * imvImage.Zoom)
+        Paint.RelLineTo(-hZoom.W * imvImage.Zoom, 0)
+        Paint.RelLineTo(0, -hZoom.H * imvImage.Zoom)
+        
+        Paint.MoveTo(hOffset.X + Floor(.X) * imvImage.Zoom, hOffset.Y + Floor(.Y) * imvImage.Zoom)
+        Paint.RelLineTo(0, Ceil(.Height) * imvImage.Zoom)
+        Paint.RelLineTo(Ceil(.Width) * imvImage.Zoom, 0)
+        Paint.RelLineTo(0, -Ceil(.Height) * imvImage.Zoom)
+        Paint.RelLineTo(-Ceil(.Width) * imvImage.Zoom, 0)
+        
+        Paint.Save
+        Paint.Clip()
+        imvImage._Paint(hZoom, hOffset.X, hOffset.Y)
+        Paint.Restore
+        
+        hImage = New Image(Ceil(.Width), Ceil(.Height), Color.Transparent)
+        
+        Paint.Begin(hImage)
+        Paint.DrawImage(hZoom, -Floor(.X), -Floor(.Y))
+        
+        $hPasteSelect.Translate(-Floor(.X), -Floor(.Y))
+        Paint.Matrix = $hPasteSelect._BrushMatrix.Copy()
+
+        Paint.Operator = FImageProperty.GetOperator()
+        Paint.DrawImage($hPaste, 0, 0)
+        
+        $hPasteSelect.Translate(Floor(.X), Floor(.Y))
+        
+        Paint.End
+      
+        Paint.ClipRect = Rect(hOffset.X, hOffset.Y, Ceil($hImage.W * imvImage.Zoom), Ceil($hImage.H * imvImage.Zoom))
+        'Paint.Operator = Paint.OperatorDestOut
+        'Paint.FillRect(hOffset.X + Floor(.X) * imvImage.Zoom, hOffset.Y + Floor(.Y) * imvImage.Zoom, hImage.W * imvImage.Zoom, hImage.H * imvImage.Zoom, Color.Yellow)
+        'Paint.Operator = Paint.OperatorOver
+        imvImage._Paint(hImage, hOffset.X + Floor(.X) * imvImage.Zoom, hOffset.Y + Floor(.Y) * imvImage.Zoom)
+        Paint.Operator = Paint.OperatorOver
+        
+        If $bPress Then
+          Paint.LineWidth = 1 / imvImage.Zoom
+          Paint.AntiAlias = False
+          Paint.LineJoin = Paint.LineJoinMiter
+          Paint.Translate(hOffset.X + 0.5, hOffset.Y + 0.5)
+          Paint.Scale(imvImage.Zoom, imvImage.Zoom)
+          Paint.Rectangle(.X, .Y, .W, .H)
+          Paint.Background = Color.White
+          Paint.Stroke(True)
+          Paint.Background = Color.Black
+          Paint.Dash = [4.0, 4.0]
+          Paint.DashOffset = 0
+          Paint.Stroke
+        Endif
+        
+        Paint.Restore
+      
+      Endif
+    
+    End With
+    
+  Else
+    
+    imvImage._Paint(hZoom, hOffset.X, hOffset.Y)
+    
+  Endif
+  
+  
   ' If $hMagic Then 
   ' 
   '   Paint.Save
@@ -1921,17 +2004,18 @@ Public Sub imvImage_Draw(hZoom As Image)
         If $sTool = "line" Then
           Paint.LineWidth = 1
           'FImageProperty.PaintForStroke
-          Paint.AntiAlias = True
+          'Paint.AntiAlias = True
           'Paint.LineWidth *= imvImage.Zoom
-          Paint.LineJoin = Paint.LineJoinRound
+          Paint.LineJoin = Paint.LineJoinBevel
+          Paint.Translate(0.5, 0.5)
         Else
           FImageProperty.PaintForStroke
           If $sTool = "erase" Then Paint.Background = Color.SetAlpha(Color.Gray, 128)
           Paint.LineWidth *= imvImage.Zoom
+          If FImageProperty.GetSize() = 0 Then Paint.Translate(Paint.LineWidth / 2, Paint.LineWidth / 2)
         Endif
         
         'Paint.Background = Color.SetAlpha(Color.White, 128)
-        If Not Paint.Antialias Then Paint.Translate(imvImage.Zoom / 2, imvImage.Zoom / 2)
         Paint.MoveTo($hLastPoint.X * imvImage.Zoom + hOffset.X, $hLastPoint.Y * imvImage.Zoom + hOffset.Y)
         Paint.LineTo($hCurrentPoint.X * imvImage.Zoom + hOffset.X, $hCurrentPoint.Y * imvImage.Zoom + hOffset.Y)
         
@@ -1989,62 +2073,6 @@ Public Sub imvImage_Draw(hZoom As Image)
         Paint.Restore
       
     End Select
-    
-  Endif
-  
-  If $hPaste Then
-    
-    Paint.Save
-    
-    'Paint.AntiAlias = False
-    
-    If $hSelect Then 
-      Paint.Translate(hOffset.X, hOffset.Y)
-      Paint.Scale(imvImage.Zoom, imvImage.Zoom)
-      $hSelect.Paint($hImage, CImageSelection.ACTION_CLIP)
-      Paint.Reset
-      'imvImage._Paint($hPaste, hOffset.X + $iPasteX * imvImage.Zoom, hOffset.Y + $iPasteY * imvImage.Zoom)
-    Endif
-    
-    With $hPasteSelect.GetExtents()
-      If .Width > 0 And If .Height > 0 Then
-        hImage = New Image(Ceil(.Width), Ceil(.Height), Color.Transparent)
-        
-        Paint.Begin(hImage)
-        
-        $hPasteSelect.Translate(-Floor(.X), -Floor(.Y))
-        
-        ' Paint.Brush = Paint.Image($hPaste)
-        ' Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
-        ' $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
-        Paint.Matrix = $hPasteSelect._BrushMatrix.Copy()
-        Paint.DrawImage($hPaste, 0, 0)
-        
-        $hPasteSelect.Translate(Floor(.X), Floor(.Y))
-        Paint.End
-      
-        Paint.ClipRect = Rect(hOffset.X, hOffset.Y, Ceil($hImage.W * imvImage.Zoom), Ceil($hImage.H * imvImage.Zoom))
-        imvImage._Paint(hImage, hOffset.X + Floor(.X) * imvImage.Zoom, hOffset.Y + Floor(.Y) * imvImage.Zoom)
-        
-        If $bPress Then
-          Paint.LineWidth = 1 / imvImage.Zoom
-          Paint.AntiAlias = False
-          Paint.LineJoin = Paint.LineJoinMiter
-          Paint.Translate(hOffset.X + 0.5, hOffset.Y + 0.5)
-          Paint.Scale(imvImage.Zoom, imvImage.Zoom)
-          Paint.Rectangle(.X, .Y, .W, .H)
-          Paint.Background = Color.White
-          Paint.Stroke(True)
-          Paint.Background = Color.Black
-          Paint.Dash = [4.0, 4.0]
-          Paint.DashOffset = 0
-          Paint.Stroke
-        Endif
-      Endif
-    
-    End With
-    
-    Paint.Restore
     
   Endif
   
@@ -2594,6 +2622,7 @@ Private Sub DoPaste()
   ' Paint.Brush.Matrix = $hPasteSelect._BrushMatrix.Copy()
   ' $hPasteSelect.Paint(hImage, CImageSelection.ACTION_FILL)
   Paint.Matrix = $hPasteSelect._BrushMatrix.Copy()
+  Paint.Operator = FImageProperty.GetOperator()
   Paint.DrawImage($hPaste, 0, 0)
   
   Paint.End
@@ -2832,6 +2861,11 @@ Public Sub UpdateClipboard()
   
 End
 
+Public Sub UpdateOperator()
+  
+  imvImage.Refresh
+  
+End
 
 Public Sub btnGrid_Click()
 
