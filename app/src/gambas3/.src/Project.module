@@ -5226,7 +5226,7 @@ Public Sub OpenBrowser(sBrowser As String, sUrl As String, Optional bNewInstance
   Select Case sBrowser
     
       Case "firefox"
-        aTest = ["firefox", "mozilla-firefox"]
+        aTest = ["firefox", "mozilla-firefox", "iceweasel"]
 
       Case "chromium"
         aTest = ["chromium", "chromium-browser", "google-chrome-stable"]
@@ -5240,9 +5240,10 @@ Public Sub OpenBrowser(sBrowser As String, sUrl As String, Optional bNewInstance
           aTest.Add("konqueror")
         Else If Env["GNOME_DESKTOP_SESSION_ID"] Then
           aTest.Add("epiphany")
-          aTest.Add("firefox")
-          aTest.Add("iceweasel")
         Endif
+
+        aTest.Insert(["firefox", "mozilla-firefox", "iceweasel"])
+        aTest.Insert(["chromium", "chromium-browser", "google-chrome-stable"])
     
   End Select
   

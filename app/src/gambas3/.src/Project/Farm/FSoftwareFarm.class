@@ -410,7 +410,7 @@ Private Sub UpdateSoftware()
     Else
     
       txtDescription.Text = sText
-      txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(sText), "\n", "<br>"), txtDescription.W) + Desktop.Scale
+      txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(sText), "\n", "<br>"), txtDescription.W) + Desktop.Scale * 2
       txtDescription.Show
       
     Endif
@@ -525,14 +525,13 @@ Public Sub panTextDesc_Arrange()
       $hTimerArrange = New Timer As "TimerArrange"
       $hTimerArrange.Trigger
     Endif
-    
   Endif
 
 End
 
 Public Sub TimerArrange_Timer()
   
-  txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(txtDescription.Text), "\n", "<br>"), txtDescription.W) + Desktop.Scale
+  txtDescription.H = txtDescription.Font.RichTextHeight(Replace(Html(txtDescription.Text), "\n", "<br>"), txtDescription.W) + Desktop.Scale * 2
   $hTimerArrange.Stop
   $hTimerArrange = Null
   

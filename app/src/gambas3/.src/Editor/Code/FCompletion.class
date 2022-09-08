@@ -1022,7 +1022,7 @@ Private Function InsertItem(Optional bNoSpace As Boolean, sMore As String) As Bo
   If Not sText Then Return True
   
   If gvwComp[gvwComp.Row, 0].Picture = Picture["$symbol:event"] Then
-    If $hForm.IsProc($hEditor[$hEditor.Line].Text) Then
+    If $hForm Is FEditor And If $hForm.IsProc($hEditor[$hEditor.Line].Text) Then
       hClass = Project.Documentation.Classes[$sEventClass]
       sEvent = Mid$(sText, RInStr(sText, "_") + 1)
       hEvent = hClass.Symbols[":" & sEvent]
