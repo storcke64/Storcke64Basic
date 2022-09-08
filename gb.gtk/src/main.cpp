@@ -594,6 +594,7 @@ static void hook_wait(int duration)
 	else if (duration == -1)
 	{
 		bool d = gApplication::disableInputEvents(true);
+		MAIN_do_iteration(true); // To process deferred routines
 		while (gApplication::eventsPending())
 			MAIN_do_iteration(false);
 		gApplication::disableInputEvents(d);
