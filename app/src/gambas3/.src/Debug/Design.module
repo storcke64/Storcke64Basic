@@ -314,7 +314,6 @@ Public Sub Debug_Read(Data As String)
   Dim sComp As String
   Dim bLineChanged As Boolean
 
-  'Debug Quote(Data)
   $sBuffer &= Data
   iPos = InStr($sBuffer, "\n") 
   If iPos = 0 Then Return
@@ -333,6 +332,7 @@ Public Sub Debug_Read(Data As String)
     Return
   Endif
   
+  'Debug Quote(Data)
   aData = Split(Data, "\t")
   
   Select Left$(aData[0])
@@ -399,7 +399,7 @@ Public Sub Debug_Read(Data As String)
       If Not aData[1] Then 
         
         If Not sClass Or If bLineChanged Then 
-          If Not DebugInside Then
+          If Not sClass Or If Not DebugInside Then
             If $bIgnoreNextInfo Then 
               $bIgnoreNextInfo = False
             Else
