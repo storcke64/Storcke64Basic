@@ -35,4 +35,6 @@
 #include "gb_limit.h"
 #include "eval.h"
 
+#define COMP_version 0x03180000
+
 #include "gb_code_temp.h"

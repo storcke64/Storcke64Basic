@@ -30,7 +30,6 @@
 EXTERN short CODE_stack_usage;
 #endif
 
-
 PUBLIC void CODE_begin_function(FUNCTION *func);
 PUBLIC void CODE_end_function(FUNCTION *func);
 
