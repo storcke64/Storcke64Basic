@@ -4,7 +4,7 @@
 
   gb.mime component
 
-  (c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+  (c) 2000-2017 Benoît Minisini <benoit.minisini@gambas-basic.org>
   (c) 2018      Bastian Germann <bastiangermann@fishpost.de>
 
   This program is free software; you can redistribute it and/or modify

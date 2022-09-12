@@ -3,7 +3,7 @@
   main.cpp
 
   (c) Daniel Campos Fernández <dcamposf@gmail.com>
-  (c) Benoît Minisini <g4mba5@gmail.com>
+  (c) Benoît Minisini <benoit.minisini@gambas-basic.org>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

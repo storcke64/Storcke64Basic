@@ -3,7 +3,7 @@
 	main.c
 
 	(c) 2004-2007 Andrea Bortolan <andrea_bortolan@yahoo.it>
-	(c) 2000-2017 Benoît Minisini <g4mba5@gmail.com>
+	(c) 2000-2017 Benoît Minisini <benoit.minisini@gambas-basic.org>
 	(c) 2015-2021 zxMarce <d4t4full@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
