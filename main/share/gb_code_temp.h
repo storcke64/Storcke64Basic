@@ -899,27 +899,30 @@ void CODE_op(short op, short subcode, short nparam, bool fixed)
 			printf("ADD QUICK %d\n", value);
 			#endif
 
-			*last_code = C_ADD_QUICK | (value & 0x0FFF);
-
-			use_stack(1 - nparam);
-
-			// Now, look if we are PUSH QUICK then ADD QUICK
-
-			last_code = get_last_code2();
-			if (last_code && ((*last_code & 0xF000) == C_PUSH_QUICK))
+			if (COMP_version < 0x03180000 || (value >= -255 && value <= 255))
 			{
-				value2 = *last_code & 0xFFF;
-				if (value2 >= 0x800) value2 |= 0xF000;
-				value += value2;
+				*last_code = C_ADD_QUICK | (value & 0x0FFF);
 
-				if (value >= -2048L && value < 2048L)
+				use_stack(1 - nparam);
+
+				// Now, look if we are PUSH QUICK then ADD QUICK
+
+				last_code = get_last_code2();
+				if (last_code && ((*last_code & 0xF000) == C_PUSH_QUICK))
 				{
-					*last_code = C_PUSH_QUICK | (value & 0x0FFF);
-					CODE_undo();
-				}
-			}
+					value2 = *last_code & 0xFFF;
+					if (value2 >= 0x800) value2 |= 0xF000;
+					value += value2;
 
-			return;
+					if (value >= -2048L && value < 2048L)
+					{
+						*last_code = C_PUSH_QUICK | (value & 0x0FFF);
+						CODE_undo();
+					}
+				}
+
+				return;
+			}
 		}
 	}
 
