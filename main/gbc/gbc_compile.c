@@ -64,7 +64,7 @@ char *COMP_info_path;
 char *COMP_lib_path;
 char *COMP_classes = NULL;
 COMPILE COMP_current;
-uint COMPILE_version = GAMBAS_PCODE_VERSION;
+uint COMP_version = GAMBAS_PCODE_VERSION;
 char *COMP_default_namespace = NULL;
 bool COMP_do_not_lock = FALSE;
 
@@ -462,7 +462,7 @@ static void init_version(void)
 			}
 		}
 
-		COMPILE_version = v;
+		COMP_version = v;
 	}
 }
 

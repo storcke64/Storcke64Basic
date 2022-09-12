@@ -490,7 +490,7 @@ static void class_update_exported(CLASS *class)
 			if (COMP_verbose)
 				printf("Insert '%s%s' into .list file\n", export_name, class->optional ? "?" : "");
 			fputs(export_name, fw);
-			if (class->has_static && COMPILE_version >= 0x03060090)
+			if (class->has_static && COMP_version >= 0x03060090)
 				fputc('!', fw);
 			if (class->optional)
 				fputc('?', fw);
@@ -516,7 +516,7 @@ static void class_update_exported(CLASS *class)
 
 			COMPILE_create_file(&fw, ".list#");
 			fputs(name, fw);
-			if (has_static && COMPILE_version >= 0x03060090)
+			if (has_static && COMP_version >= 0x03060090)
 				fputc('!', fw);
 			if (optional)
 				fputc('?', fw);

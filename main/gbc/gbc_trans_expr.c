@@ -1119,7 +1119,7 @@ bool TRANS_affectation(bool dup)
 		{
 			push_type(_last_type);
 			push_type(type);
-			/*if (op == RS_AMP && COMPILE_version >= 0x03150000)
+			/*if (op == RS_AMP && COMP_version >= 0x03150000)
 				trans_operation(op, 1, NULL_PATTERN);
 			else*/
 				trans_operation(op, 2, NULL_PATTERN);
@@ -1132,7 +1132,7 @@ bool TRANS_affectation(bool dup)
 	if (dup)
 		CODE_dup();
 
-	if (COMPILE_version >= 0x03070000)
+	if (COMP_version >= 0x03070000)
 	{
 		if (id == RS_EXEC || id == RS_SHELL)
 			CODE_dup();
@@ -1144,12 +1144,12 @@ bool TRANS_affectation(bool dup)
 	if (!PATTERN_is_newline(*JOB->current))
 		THROW(E_SYNTAX);
 
-	if (COMPILE_version >= 0x03150000 && op == RS_AMP)
+	if (COMP_version >= 0x03150000 && op == RS_AMP)
 		CODE_check_fast_cat();
 	
 	JOB->current = after;
 
-	if (COMPILE_version >= 0x03070000)
+	if (COMP_version >= 0x03070000)
 	{
 		if (id == RS_EXEC || id == RS_SHELL)
 		{

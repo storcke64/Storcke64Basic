@@ -349,7 +349,7 @@ static void output_header(void)
 	/* magic */
 	write_int(OUTPUT_MAGIC);
 	/* version */
-	write_int(COMPILE_version);
+	write_int(COMP_version);
 	/* endianness */
 	write_int(OUTPUT_ENDIAN);
 	/* flag */

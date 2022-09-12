@@ -354,7 +354,7 @@ static bool header_property(TRANS_PROPERTY *prop)
 
 	if (TRANS_is(RS_READ))
 		prop->read_only = TRUE;
-	else if (TRANS_is(RS_WRITE))
+	else if (COMP_version >= 0x03180000 && TRANS_is(RS_WRITE))
 		prop->write_only = TRUE;
 
 	// Property name
