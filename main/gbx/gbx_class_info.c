@@ -309,7 +309,7 @@ static GB_DESC NATIVE_GambasLanguage[] =
 
 	GB_METHOD("Quote", "s", NULL, "(String)s"),
 	GB_METHOD("Quote$", "s", NULL, "(String)s"),
-	
+
 	GB_METHOD("Shell", "s", NULL, "(String)s"),
 	GB_METHOD("Shell$", "s", NULL, "(String)s"),
 	
@@ -321,6 +321,18 @@ static GB_DESC NATIVE_GambasLanguage[] =
 
 	GB_METHOD("Url", "s", NULL, "(String)s"),
 	GB_METHOD("Url$", "s", NULL, "(String)s"),
+
+	GB_METHOD("Md5", "s", NULL, "(String)s"),
+	GB_METHOD("Md5$", "s", NULL, "(String)s"),
+
+	GB_METHOD("Sha1", "s", NULL, "(String)s"),
+	GB_METHOD("Sha1$", "s", NULL, "(String)s"),
+
+	GB_METHOD("Sha256", "s", NULL, "(String)s"),
+	GB_METHOD("Sha256$", "s", NULL, "(String)s"),
+
+	GB_METHOD("Sha512", "s", NULL, "(String)s"),
+	GB_METHOD("Sha512$", "s", NULL, "(String)s"),
 
 	GB_METHOD("Unquote", "s", NULL, "(String)s"),
 	GB_METHOD("Unquote$", "s", NULL, "(String)s"),

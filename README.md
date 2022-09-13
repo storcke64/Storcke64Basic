@@ -43,6 +43,10 @@ The following pieces of code were borrowed and adapted:
 
 - The 'gb.form.htmlview' component embeds the 'litehtml' library from Yuri 
   Kobets. See http://www.litehtml.com for more details.
+
+- The 'gb.hash' component embeds the code of the hashing routines of BusyBox made
+  by Denys Vlasenko and Bernhard Reutner-Fischer. See https://www.busybox.net/
+  for more details.
   
 If I forget some borrowed code in the list above, just tell me.
 

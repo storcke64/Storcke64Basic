@@ -144,6 +144,7 @@ lib/clipper/Makefile \
 lib/inotify/Makefile \
 lib/jit/Makefile \
 lib/test/Makefile \
+lib/hash/Makefile \
 ])
 AC_OUTPUT
 

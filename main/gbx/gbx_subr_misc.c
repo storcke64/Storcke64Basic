@@ -43,7 +43,7 @@
 static EVAL_INTERFACE EVAL;
 static CCOLLECTION *eval_env;
 
-static void init_eval()
+static void init_eval(void)
 {
 	static bool init = FALSE;
 	

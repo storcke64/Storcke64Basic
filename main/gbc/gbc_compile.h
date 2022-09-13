@@ -108,6 +108,7 @@ EXTERN uint COMP_version;
 EXTERN char *COMP_default_namespace;
 EXTERN char *COMP_classes;
 EXTERN bool COMP_do_not_lock;
+
 #endif
 
 #define JOB (&COMP_current)

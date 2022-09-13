@@ -38,8 +38,34 @@
 #include "gbx_c_array.h"
 #include "gbx_local.h"
 #include "gbx_compare.h"
+#include "../lib/hash/gb.hash.h"
 
 //static int _count = 0;
+
+static HASH_INTERFACE HASH;
+
+static void hash_string(const char *str, int lstr, int algo)
+{
+	static bool init = FALSE;
+
+	char *result;
+
+	if (!init)
+	{
+		COMPONENT_load(COMPONENT_create("gb.hash"));
+		LIBRARY_get_interface_by_name("gb.hash", HASH_INTERFACE_VERSION, &HASH);
+		init = TRUE;
+	}
+
+	HASH.Begin(algo);
+	HASH.Process(str, lstr);
+	result = HASH.End();
+
+	RETURN->type = T_STRING;
+	RETURN->_string.addr = result;
+	RETURN->_string.start = 0;
+	RETURN->_string.len = STRING_length(result);
+}
 
 //---------------------------------------------------------------------------
 
@@ -935,7 +961,11 @@ static void make_hex_char(uchar c)
 
 void SUBR_quote(ushort code)
 {
-	static void *jump[8] = { &&__QUOTE, &&__SHELL, &&__HTML, &&__BASE64, &&__URL , &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL };
+	static void *jump[16] = {
+		&&__QUOTE, &&__SHELL, &&__HTML, &&__BASE64, &&__URL , &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL,
+		&&__HASH, &&__HASH, &&__HASH, &&__HASH, &&__HASH, &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL
+	};
+
 	char *str;
 	int lstr;
 	int i;
@@ -949,9 +979,12 @@ void SUBR_quote(ushort code)
 	str = PARAM->_string.addr + PARAM->_string.start;
 	lstr = PARAM->_string.len;
 
-	STRING_start_len(lstr);
+	code &= 0xF;
 
-	goto *jump[code & 0x7];
+	if (code <= 7)
+		STRING_start_len(lstr);
+
+	goto *jump[code];
 
 __QUOTE:
 
@@ -1107,41 +1140,10 @@ __URL:
 
 	goto __END;
 
-#if 0
-__JAVASCRIPT:
-	{
-		STRING_make_char('\'');
+__HASH:
 
-		for (i = 0; i < lstr; i++)
-		{
-			c = str[i];
-			if (c >= ' ' && c <= 126 && c != '\\' && c != '\'')
-				STRING_make_char(c);
-			else
-			{
-				STRING_make_char('\\');
-				if (c == '\n')
-					c = 'n';
-				else if (c == '\r')
-					c = 'r';
-				else if (c == '\t')
-					c = 't';
-				else if (!(c == '\'' || c == '\\'))
-				{
-					snprintf(buf, sizeof(buf), "x%02X", c);
-					STRING_make(buf, 3);
-					continue;
-				}
-				STRING_make_char(c);
-			}
-		}
-
-		STRING_make_char('\'');
-	}
-
-	goto __END;
-
-#endif
+	hash_string(str, lstr, (code & 0x7));
+	goto __LEAVE;
 
 __ILLEGAL:
 
@@ -1153,6 +1155,8 @@ __END:
 	RETURN->_string.addr = STRING_end_temp();
 	RETURN->_string.start = 0;
 	RETURN->_string.len = STRING_length(RETURN->_string.addr);
+
+__LEAVE:
 
 	SUBR_LEAVE();
 }
