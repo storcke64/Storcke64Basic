@@ -2,6 +2,6 @@
 
 Public Sub Main()
 
-  File.Save("~/test.html", Markdown.ToHTML(File.Load("test2.txt")))
+  Print Markdown.ToHTML(File.Load("test3.txt"))
 
 End

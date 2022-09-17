@@ -1091,6 +1091,6 @@ Private Sub ProcessCode(sClass As String, aLines As String[]) As String[]
   
 Catch
   
-  Return ["<div class=\"error\">" & Html(Error.Text) & "</div>"]
+  Return ["<div class=\"error\">" & Html(Error.Where & ": " & Error.Text) & "</div>"]
 
 End
