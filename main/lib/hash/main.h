@@ -34,4 +34,8 @@ extern GB_INTERFACE *GB_PTR;
 
 #define GB (*GB_PTR)
 
+bool HASH_begin(int algo);
+void HASH_process(const void *data, size_t len);
+char *HASH_end(void);
+
 #endif /* __MAIN_H */

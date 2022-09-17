@@ -31,6 +31,7 @@
 
 #include "gb_common.h"
 #include "hash.h"
+#include "c_hash.h"
 #include "main.h"
 
 const GB_INTERFACE *GB_PTR EXPORT;
@@ -48,7 +49,7 @@ static void (*_update)(void*, const void*, size_t);
 static unsigned (*_final)(void*, void*);
 static int _hash_len;
 
-static bool hash_begin(int algo)
+bool HASH_begin(int algo)
 {
 	switch(algo)
 	{
@@ -88,7 +89,7 @@ static bool hash_begin(int algo)
 	return FALSE;
 }
 
-static void hash_process(const void *data, size_t len)
+void HASH_process(const void *data, size_t len)
 {
 	if (_algo < 0)
 		return;
@@ -96,7 +97,7 @@ static void hash_process(const void *data, size_t len)
 	(*_update)(&_context, data, len);
 }
 
-static char *hash_end(void)
+char *HASH_end(void)
 {
 	static const char hex_digit[16] = "0123456789ABCDEF";
 
@@ -122,14 +123,20 @@ static char *hash_end(void)
 	return result;
 }
 
-void *GB_HASH_1[] EXPORT = {
+/*void *GB_HASH_1[] EXPORT = {
 
   (void *)1,
-  hash_begin,
-  hash_process,
-  hash_end,
+  HASH_begin,
+  HASH_process,
+  HASH_end,
   NULL
-  };
+  };*/
+
+GB_DESC *GB_CLASSES[] EXPORT =
+{
+	HashDesc,
+  NULL
+};
 
 int EXPORT GB_INIT(void)
 {

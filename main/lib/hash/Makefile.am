@@ -7,7 +7,8 @@ gb_hash_la_LDFLAGS = -module @LD_FLAGS@
 gb_hash_la_CFLAGS = -I$(top_srcdir)/share $(AM_CFLAGS)
 
 gb_hash_la_SOURCES = \
- gb.hash.h main.h main.c \
- hash.h hash.c platform.h
+ main.h main.c \
+ hash.h hash.c platform.h \
+ c_hash.h c_hash.c
 
 

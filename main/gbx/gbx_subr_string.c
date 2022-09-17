@@ -38,34 +38,6 @@
 #include "gbx_c_array.h"
 #include "gbx_local.h"
 #include "gbx_compare.h"
-#include "../lib/hash/gb.hash.h"
-
-//static int _count = 0;
-
-static HASH_INTERFACE HASH;
-
-static void hash_string(const char *str, int lstr, int algo)
-{
-	static bool init = FALSE;
-
-	char *result;
-
-	if (!init)
-	{
-		COMPONENT_load(COMPONENT_create("gb.hash"));
-		LIBRARY_get_interface_by_name("gb.hash", HASH_INTERFACE_VERSION, &HASH);
-		init = TRUE;
-	}
-
-	HASH.Begin(algo);
-	HASH.Process(str, lstr);
-	result = HASH.End();
-
-	RETURN->type = T_STRING;
-	RETURN->_string.addr = result;
-	RETURN->_string.start = 0;
-	RETURN->_string.len = STRING_length(result);
-}
 
 //---------------------------------------------------------------------------
 
@@ -961,9 +933,8 @@ static void make_hex_char(uchar c)
 
 void SUBR_quote(ushort code)
 {
-	static void *jump[16] = {
-		&&__QUOTE, &&__SHELL, &&__HTML, &&__BASE64, &&__URL , &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL,
-		&&__HASH, &&__HASH, &&__HASH, &&__HASH, &&__HASH, &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL
+	static void *jump[8] = {
+		&&__QUOTE, &&__SHELL, &&__HTML, &&__BASE64, &&__URL , &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL
 	};
 
 	char *str;
@@ -979,10 +950,9 @@ void SUBR_quote(ushort code)
 	str = PARAM->_string.addr + PARAM->_string.start;
 	lstr = PARAM->_string.len;
 
-	code &= 0xF;
+	code &= 0x7;
 
-	if (code <= 7)
-		STRING_start_len(lstr);
+	STRING_start_len(lstr);
 
 	goto *jump[code];
 
@@ -1140,11 +1110,6 @@ __URL:
 
 	goto __END;
 
-__HASH:
-
-	hash_string(str, lstr, (code & 0x7));
-	goto __LEAVE;
-
 __ILLEGAL:
 
 	THROW_ILLEGAL();
@@ -1155,8 +1120,6 @@ __END:
 	RETURN->_string.addr = STRING_end_temp();
 	RETURN->_string.start = 0;
 	RETURN->_string.len = STRING_length(RETURN->_string.addr);
-
-__LEAVE:
 
 	SUBR_LEAVE();
 }
