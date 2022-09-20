@@ -38,6 +38,13 @@
 #define CONFIG_MD5_SMALL 0
 #define CONFIG_SHA3_SMALL 0
 
+#if !(ULONG_MAX > 0xffffffff)
+static uint64_t FAST_FUNC bb_bswap_64(uint64_t x)
+{
+	return bswap_64(x);
+}
+#endif
+
 /* gcc 4.2.1 optimizes rotr64 better with inline than with macro
  * (for rotX32, there is no difference). Why? My guess is that
  * macro requires clever common subexpression elimination heuristics
