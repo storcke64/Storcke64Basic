@@ -18,6 +18,60 @@ Property Options As Collection
 
 Private $hOptions As Collection
 
+Public Sub _new(Optional DatabaseURL As String)
+  
+  Dim iPos As Integer
+  Dim sIdent As String
+  
+  If Not DatabaseURL Then Return
+  
+  ' <type>://<user>:<password>@<host>:<port>/<name>
+  
+  iPos = InStr(DatabaseURL, "://")
+  If iPos = 0 Then Goto BAD_URL
+  
+  Me.Type = Left(DatabaseURL, iPos - 1)
+  DatabaseURL = Mid$(DatabaseURL, iPos + 3)
+  
+  iPos = RInStr(DatabaseURL, "/")
+  If iPos Then
+    Me.Name = FromUrl(Mid$(DatabaseURL, iPos + 1))
+    DatabaseURL = Left(DatabaseURL, iPos - 1)
+  Endif
+  
+  iPos = InStr(DatabaseURL, "@")
+  If iPos Then
+    
+    sIdent = Left(DatabaseURL, iPos - 1)
+    DatabaseURL = Mid$(DatabaseURL, iPos + 1)
+    
+    iPos = InStr(sIdent, ":")
+    If iPos Then
+      Me.Password = FromUrl(Mid$(sIdent, iPos + 1))
+      Me.User = FromUrl(Left$(sIdent, iPos - 1))
+    Else
+      Me.User = FromUrl(sIdent)
+    Endif
+    
+  Endif
+  
+  iPos = InStr(DatabaseURL, ":")
+  If iPos Then
+    Me.Host = FromUrl(Left$(DatabaseURL, iPos - 1))
+    Me.Port = FromUrl(Mid$(DatabaseURL, iPos + 1))
+  Else
+    Me.Host = FromUrl(DatabaseURL)
+  Endif
+  
+  Return
+  
+BAD_URL:
+
+  Error.Raise("Malformed URL")
+  
+End
+
+
 Private Function GetTempTableName() As String
 
   Dim iInd As Integer
@@ -529,6 +583,10 @@ End
 
 Private Sub Options_Write(Value As Collection)
 
-  $hOptions = Value.Copy()
+  If Not Value Then
+    $hOptions = Null
+  Else
+    $hOptions = Value.Copy()
+  Endif
 
 End

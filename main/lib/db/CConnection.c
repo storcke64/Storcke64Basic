@@ -151,9 +151,7 @@ static void close_connection(CCONNECTION *_object)
 }
 
 
-BEGIN_METHOD(Connection_new, GB_STRING url)
-
-	char *url, *name, *p;
+BEGIN_METHOD_VOID(Connection_new)
 
 	THIS->db.handle = NULL;
 	THIS->db.ignore_case = FALSE; // Now case is sensitive by default!
@@ -162,51 +160,6 @@ BEGIN_METHOD(Connection_new, GB_STRING url)
 
 	if (_current == NULL)
 		_current = THIS;
-
-	if (MISSING(url))
-		return;
-
-	url = GB.ToZeroString(ARG(url));
-
-	p = index(url, ':');
-	if (!p || p == url) goto __BAD_URL;
-	*p++ = 0;
-	if (p[0] != '/' || p[1] != '/') goto __BAD_URL;
-	p += 2;
-
-	THIS->desc.type = GB.NewZeroString(url);
-	url = p;
-
-	p = rindex(url, '/');
-	if (!p || p == url) goto __BAD_URL;
-	*p++ = 0;
-
-	name = p;
-
-	p = index(url, '@');
-	if (p)
-	{
-		if (p == url)
-			goto __BAD_URL;
-		*p = 0;
-		THIS->desc.user = GB.NewZeroString(url);
-		url = p + 1;
-	}
-
-	p = index(url, ':');
-	if (p)
-	{
-		*p = 0;
-		THIS->desc.port = GB.NewZeroString(p + 1);
-	}
-
-	THIS->desc.host = GB.NewZeroString(url);
-	THIS->desc.name = GB.NewZeroString(name);
-	return;
-
-__BAD_URL:
-
-	GB.Error("Malformed URL");
 
 END_METHOD
 
@@ -792,7 +745,7 @@ GB_DESC CConnectionDesc[] =
 {
 	GB_DECLARE("_Connection", sizeof(CCONNECTION)),
 
-	GB_METHOD("_new", NULL, Connection_new, "[(DatabaseURL)s]"),
+	GB_METHOD("_new", NULL, Connection_new, NULL),
 	GB_METHOD("_free", NULL, Connection_free, NULL),
 
 	GB_PROPERTY("Type", "s", Connection_Type),
