@@ -50,6 +50,7 @@ Private $sError As String
 Private Const ACTION_SAVE As Integer = 0
 Private Const ACTION_CONTINUE As Integer = 1
 Private Const ACTION_CANCEL As Integer = 2
+Private $bSaving As Boolean
 
 Public Sub _new()
   
@@ -412,6 +413,8 @@ Public Function Save(Optional bMessage As Boolean = True) As Boolean
   Dim aVal As Variant[]
   Dim bCancel As Boolean
 
+  If $bSaving Then Return True
+
   Inc Application.Busy
   
   For Each hChild In GetChildren()
@@ -424,6 +427,8 @@ Public Function Save(Optional bMessage As Boolean = True) As Boolean
       Endif
     Endif
   Next
+  
+  $bSaving = True
     
   aKey = $hTable.Keys
   
@@ -495,6 +500,7 @@ Public Function Save(Optional bMessage As Boolean = True) As Boolean
   
 Finally
 
+  $bSaving = False
   Dec Application.Busy
 
 Catch
