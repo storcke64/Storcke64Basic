@@ -39,7 +39,7 @@
 #define CONFIG_SHA3_SMALL 0
 
 #if !(ULONG_MAX > 0xffffffff)
-static uint64_t FAST_FUNC bb_bswap_64(uint64_t x)
+static uint64_t bb_bswap_64(uint64_t x)
 {
 	return bswap_64(x);
 }
@@ -74,7 +74,7 @@ static ALWAYS_INLINE uint64_t rotl64(uint64_t x, unsigned n)
 }
 
 /* Process the remaining bytes in the buffer */
-static void FAST_FUNC common64_end(md5_ctx_t *ctx, int swap_needed)
+static void common64_end(md5_ctx_t *ctx, int swap_needed)
 {
 	unsigned bufpos = ctx->total64 & 63;
 	/* Pad the buffer to the next 64-byte boundary with 0x80,0,0,0... */
@@ -139,7 +139,7 @@ static void FAST_FUNC common64_end(md5_ctx_t *ctx, int swap_needed)
 #define FI(b, c, d) (c ^ (b | ~d))
 
 /* Hash a single block, 64 bytes long and 4-byte aligned */
-static void FAST_FUNC md5_process_block64(md5_ctx_t *ctx)
+static void md5_process_block64(md5_ctx_t *ctx)
 {
 #if MD5_SMALL > 0
 	/* Before we start, one word to the strange constants.
@@ -442,7 +442,7 @@ static void FAST_FUNC md5_process_block64(md5_ctx_t *ctx)
 /* Initialize structure containing state of computation.
  * (RFC 1321, 3.3: Step 3)
  */
-void FAST_FUNC md5_begin(md5_ctx_t *ctx)
+void md5_begin(md5_ctx_t *ctx)
 {
 	ctx->hash[0] = 0x67452301;
 	ctx->hash[1] = 0xefcdab89;
@@ -453,7 +453,7 @@ void FAST_FUNC md5_begin(md5_ctx_t *ctx)
 }
 
 /* Used also for sha1 and sha256 */
-void FAST_FUNC md5_hash(md5_ctx_t *ctx, const void *buffer, size_t len)
+void md5_hash(md5_ctx_t *ctx, const void *buffer, size_t len)
 {
 	unsigned bufpos = ctx->total64 & 63;
 
@@ -485,7 +485,7 @@ void FAST_FUNC md5_hash(md5_ctx_t *ctx, const void *buffer, size_t len)
  * endian byte order, so that a byte-wise output yields to the wanted
  * ASCII representation of the message digest.
  */
-unsigned FAST_FUNC md5_end(md5_ctx_t *ctx, void *resbuf)
+unsigned md5_end(md5_ctx_t *ctx, void *resbuf)
 {
 	/* MD5 stores total in LE, need to swap on BE arches: */
 	common64_end(ctx, /*swap_needed:*/ BB_BIG_ENDIAN);
@@ -525,7 +525,7 @@ unsigned FAST_FUNC md5_end(md5_ctx_t *ctx, void *resbuf)
  * then rebuild and compare "shaNNNsum bigfile" results.
  */
 
-static void FAST_FUNC sha1_process_block64(sha1_ctx_t *ctx)
+static void sha1_process_block64(sha1_ctx_t *ctx)
 {
 	static const uint32_t rconsts[] ALIGN4 = {
 		0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6
@@ -655,7 +655,7 @@ static const sha_K_int sha_K[] ALIGN8 = {
 #undef R0
 #undef R1
 
-static void FAST_FUNC sha256_process_block64(sha256_ctx_t *ctx)
+static void sha256_process_block64(sha256_ctx_t *ctx)
 {
 	unsigned t;
 	uint32_t W[64], a, b, c, d, e, f, g, h;
@@ -721,7 +721,7 @@ static void FAST_FUNC sha256_process_block64(sha256_ctx_t *ctx)
 }
 
 #if NEED_SHA512
-static void FAST_FUNC sha512_process_block128(sha512_ctx_t *ctx)
+static void sha512_process_block128(sha512_ctx_t *ctx)
 {
 	unsigned t;
 	uint64_t W[80];
@@ -784,7 +784,7 @@ static void FAST_FUNC sha512_process_block128(sha512_ctx_t *ctx)
 }
 #endif /* NEED_SHA512 */
 
-void FAST_FUNC sha1_begin(sha1_ctx_t *ctx)
+void sha1_begin(sha1_ctx_t *ctx)
 {
 	ctx->hash[0] = 0x67452301;
 	ctx->hash[1] = 0xefcdab89;
@@ -829,7 +829,7 @@ static const uint32_t init512_lo[] ALIGN4 = {
 
 /* Initialize structure containing state of computation.
    (FIPS 180-2:5.3.2)  */
-void FAST_FUNC sha256_begin(sha256_ctx_t *ctx)
+void sha256_begin(sha256_ctx_t *ctx)
 {
 	memcpy(&ctx->total64, init256, sizeof(init256));
 	/*ctx->total64 = 0; - done by prepending two 32-bit zeros to init256 */
@@ -839,7 +839,7 @@ void FAST_FUNC sha256_begin(sha256_ctx_t *ctx)
 #if NEED_SHA512
 /* Initialize structure containing state of computation.
    (FIPS 180-2:5.3.3)  */
-void FAST_FUNC sha512_begin(sha512_ctx_t *ctx)
+void sha512_begin(sha512_ctx_t *ctx)
 {
 	int i;
 	/* Two extra iterations zero out ctx->total64[2] */
@@ -849,7 +849,7 @@ void FAST_FUNC sha512_begin(sha512_ctx_t *ctx)
 	/*ctx->total64[0] = ctx->total64[1] = 0; - already done */
 }
 
-void FAST_FUNC sha512_hash(sha512_ctx_t *ctx, const void *buffer, size_t len)
+void sha512_hash(sha512_ctx_t *ctx, const void *buffer, size_t len)
 {
 	unsigned bufpos = ctx->total64[0] & 127;
 	unsigned remaining;
@@ -884,7 +884,7 @@ void FAST_FUNC sha512_hash(sha512_ctx_t *ctx, const void *buffer, size_t len)
 #endif /* NEED_SHA512 */
 
 /* Used also for sha256 */
-unsigned FAST_FUNC sha1_end(sha1_ctx_t *ctx, void *resbuf)
+unsigned sha1_end(sha1_ctx_t *ctx, void *resbuf)
 {
 	unsigned hash_size;
 
@@ -904,7 +904,7 @@ unsigned FAST_FUNC sha1_end(sha1_ctx_t *ctx, void *resbuf)
 }
 
 #if NEED_SHA512
-unsigned FAST_FUNC sha512_end(sha512_ctx_t *ctx, void *resbuf)
+unsigned sha512_end(sha512_ctx_t *ctx, void *resbuf)
 {
 	unsigned bufpos = ctx->total64[0] & 127;
 
@@ -1387,14 +1387,14 @@ static void sha3_process_block72(uint64_t *state)
 #endif
 }
 
-void FAST_FUNC sha3_begin(sha3_ctx_t *ctx)
+void sha3_begin(sha3_ctx_t *ctx)
 {
 	memset(ctx, 0, sizeof(*ctx));
 	/* SHA3-512, user can override */
 	ctx->input_block_bytes = (1600 - 512*2) / 8; /* 72 bytes */
 }
 
-void FAST_FUNC sha3_hash(sha3_ctx_t *ctx, const void *buffer, size_t len)
+void sha3_hash(sha3_ctx_t *ctx, const void *buffer, size_t len)
 {
 #if SHA3_SMALL
 	const uint8_t *data = buffer;
@@ -1474,7 +1474,7 @@ void FAST_FUNC sha3_hash(sha3_ctx_t *ctx, const void *buffer, size_t len)
 #endif
 }
 
-unsigned FAST_FUNC sha3_end(sha3_ctx_t *ctx, void *resbuf)
+unsigned sha3_end(sha3_ctx_t *ctx, void *resbuf)
 {
 	/* Padding */
 	uint8_t *buf = (uint8_t*)ctx->state;
