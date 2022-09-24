@@ -17,11 +17,13 @@ if test "$have_pcre" != "yes"; then
     pcre, PCRE, gb.pcre, [src],
     libpcre, [trying with pcre])
   gb_use_pcre2=0
+  AC_MSG_NOTICE([Using libpcre])
 
 else
 
   AC_DEFINE_UNQUOTED(PCRE2, 1, libpcre2 is used)
   gb_use_pcre2=1
+  AC_MSG_NOTICE([Using libpcre2])
 
 fi
 
