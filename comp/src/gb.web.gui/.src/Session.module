@@ -46,7 +46,7 @@ Private Sub MakeSessionId() As String
   If $sPrefix Then
     sId = $sPrefix & ":" & sId
   Else
-    sId = CGI["REMOTE_ADDR"] & ":" & sId
+    sId = CGI["REMOTE_ADDR"] & ":" & CGI["SERVER_PORT"] & ":" & sId
   Endif
 
   Return sId

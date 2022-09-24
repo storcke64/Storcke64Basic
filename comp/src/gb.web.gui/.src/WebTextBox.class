@@ -53,7 +53,6 @@ Private Sub SetText(Value As String, Optional bNoRefresh As Boolean)
 
 End
 
-
 Private Sub Text_Write(Value As String)
 
   SetText(Value)
@@ -84,8 +83,12 @@ Public Sub _Render()
   
   Print "<input id=\""; Me.Name; ":entry\"";
   If $bShowClear Then Print " style=\"padding-right:2.25em;\"";
-  Print " type=\""; If($bPassword, "password", "text"); "\""; Me._GetUpdateJS("onblur", "text", "this.value"); 'Me._GetUpdateJS("oninput", "text", "this.value"); '
-  If Object.CanRaise(Me, "Change") Then Print " oninput=\"gw.textbox.onChange("; JS(Me.Name); ");\"";
+  Print " type=\""; If($bPassword, "password", "text"); "\""; 
+  If Object.CanRaise(Me, "Change") Then
+    Print " oninput=\"gw.textbox.onChange("; JS(Me.Name); ");\"";
+  Else 
+    Print " oninput=\"gw.textbox.onUpdate("; JS(Me.Name); ");\"";
+  Endif
   If Object.CanRaise(Me, "Activate") Then Print " onkeydown=\"gw.textbox.onActivate("; JS(Me.Name); ",event);\"";
   'WebForm._AddJavascript("gw.textbox.onActivate(" & JS(Me.Name) & ")")
   'Print Me._GetKeyPressHandler();
@@ -117,11 +120,7 @@ End
 
 Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   
-  If sProp = "text" Then 
-    SetText(vValue)
-  Else If sProp = "change"
-    SetText(vValue, True)
-  Endif
+  If sProp = "text" Then SetText(vValue, True)
   
 End
 

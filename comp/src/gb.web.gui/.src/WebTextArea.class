@@ -58,8 +58,13 @@ End
 Public Sub _BeforeRender()
   
   Print "<textarea"; Me._GetClassId(); " autocomplete=\"off\""; 
-  If Object.CanRaise(Me, "Change") Then Print " oninput=\"gw.textarea.onChange("; JS(Me.Name); ");\"";
-  Print Me._GetUpdateJS("onblur", "text", "this.value");
+  If Object.CanRaise(Me, "Change") Then
+    Print " oninput=\"gw.textarea.onChange("; JS(Me.Name); ");\"";
+  Else 
+    Print " oninput=\"gw.textarea.onUpdate("; JS(Me.Name); ");\"";
+  Endif
+  'If Object.CanRaise(Me, "Change") Then Print " oninput=\"gw.textarea.onChange("; JS(Me.Name); ");\"";
+  'Print Me._GetUpdateJS("onblur", "text", "this.value");
   If Not Me.Enabled Then Print " disabled";
   If $bReadOnly Then Print " readonly";
   If $sPlaceHolder Then Print " placeholder=\""; Html($sPlaceHolder); "\"";
@@ -73,7 +78,6 @@ Public Sub _Render()
   Print Html($sText);
   
 End
-
 
 Public Sub _AfterRender()
   
@@ -97,14 +101,9 @@ End
 
 Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   
-  If sProp = "text" Then 
-    SetText(vValue, False)
-  Else If sProp = "change" Then
-    SetText(vValue, True)
-  Endif
+  If sProp = "text" Then SetText(vValue, True)
   
 End
-
 
 Private Function Wrap_Read() As Boolean
 

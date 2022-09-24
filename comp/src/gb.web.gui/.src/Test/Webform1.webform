@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { WebForm WebForm
-  #MoveScaled(0,0,138,91)
+  #MoveScaled(0,0,133,91)
   Height = "100%"
   Arrangement = Arrange.Vertical
   Shortcuts = ["F11"]
@@ -67,7 +67,7 @@
     }
   }
   { WebTabPanel1 WebTabPanel
-    #MoveScaled(1,1,136,72)
+    #MoveScaled(1,1,131,72)
     Expand = True
     Arrangement = Arrange.Vertical
     Margin = True
@@ -76,7 +76,7 @@
     Index = 0
     Text = ("Tab 1")
     { WebHBox1 WebHBox
-      #MoveScaled(1,1,133.75,6)
+      #MoveScaled(1,1,128.75,6)
       Spacing = True
       { WebButton1 WebButton
         #MoveScaled(1,1,11,4)
@@ -95,32 +95,32 @@
         #MoveScaled(32,1,10,4)
       }
       { lblSpinBox WebLabel
-        #MoveScaled(43,1,17,4)
+        #MoveScaled(43,1,11,4)
         Border = True
       }
       { WebButton6 WebButton
-        #MoveScaled(61,1,16,4)
+        #MoveScaled(55,1,16,4)
         Text = ("Remove tab 2")
       }
       { WebButton2 WebButton
-        #MoveScaled(78,1,11,4)
+        #MoveScaled(72,1,11,4)
         Text = ("Logout")
       }
       { WebButton9 WebButton
-        #MoveScaled(90,1,16,4)
+        #MoveScaled(84,1,16,4)
         Text = ("Select first")
       }
       { WebButton10 WebButton
-        #MoveScaled(107,1,10,4)
+        #MoveScaled(101,1,10,4)
         Text = ("Bip")
       }
       { btnCheck WebButton
-        #MoveScaled(118,1,11,4)
+        #MoveScaled(112,1,11,4)
         Text = ("Check")
       }
     }
     { WebHBox3 WebHBox
-      #MoveScaled(1,8,133.75,6)
+      #MoveScaled(1,8,128.75,6)
       Font = "serif,bold"
       Spacing = True
       { WebComboBox1 WebComboBox
@@ -153,12 +153,12 @@
       }
     }
     { WebLabel2 WebLabel
-      #MoveScaled(1,15,133.75,4)
+      #MoveScaled(1,15,128.75,4)
       Text = ("Test label alignment")
       Alignment = Align.Center
     }
     { WebTable1 WebTable
-      #MoveScaled(1,20,133.75,40)
+      #MoveScaled(1,20,128.75,40)
       Expand = True
       Mode = Select.Multiple
       Header = WebTable.Both
@@ -176,34 +176,34 @@
     Index = 1
     Text = ("Tab 2")
     { WebVBox1 WebVBox
-      #MoveScaled(1,1,133.75,12)
+      #MoveScaled(1,1,128.75,12)
       { WebRadioButton1 WebRadioButton
-        #MoveScaled(1,1,131.75,3)
+        #MoveScaled(1,1,126.75,3)
         Text = ("Alpha")
       }
       { WebRadioButton2 WebRadioButton
-        #MoveScaled(1,4,131.75,3)
+        #MoveScaled(1,4,126.75,3)
         Text = ("Beta")
       }
       { WebRadioButton3 WebRadioButton
-        #MoveScaled(1,7,131.75,3)
+        #MoveScaled(1,7,126.75,3)
         Text = ("Gamma")
       }
     }
     { WebListBox1 WebListBox
-      #MoveScaled(1,14,133.75,31)
+      #MoveScaled(1,14,128.75,31)
       Height = "14em"
       List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("<i>Élément 5</i>"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("<span style=\"color:red;\">Élément 9</span>"), ("Élément 10"), ("Élément 11"), ("Élément 12")]
       UseHTML = True
     }
     { WebTextArea1 WebTextArea
-      #MoveScaled(1,46,133.75,16)
+      #MoveScaled(1,46,128.75,16)
       Height = "8em"
     }
     Index = 2
     Text = ("Tab 3")
     { WebHBox2 WebHBox
-      #MoveScaled(1,1,133.75,6)
+      #MoveScaled(1,1,128.75,6)
       Spacing = True
       { WebCheckBox1 WebCheckBox
         #MoveScaled(1,1,18,4)
@@ -231,12 +231,26 @@
       }
     }
     { WebImage1 WebImage
-      #MoveScaled(1,8,133.75,6)
+      #MoveScaled(1,8,128.75,6)
       Image = "message/question.png"
     }
     { lblTime WebLabel
-      #MoveScaled(1,15,133.75,4)
+      #MoveScaled(1,15,128.75,4)
       Font = "4em"
+    }
+    { WebHBox5 WebHBox
+      #MoveScaled(1,20,128.75,22)
+      { WebVBox2 WebVBox
+        #MoveScaled(1,1,8,20)
+        Width = "5em"
+        Margin = True
+        Border = True
+        { WebButton12 WebButton
+          #MoveScaled(1,1,6,4)
+          Height = "4em"
+          Image = "icon:/large/add"
+        }
+      }
     }
     Index = 3
     Text = ("Tab 4")
@@ -256,7 +270,6 @@
     { WebTree1 WebTree
       #MoveScaled(1,8,133.75,49)
       Expand = True
-      Mode = Select.Multiple
       ShowHeader = True
     }
     Index = 0

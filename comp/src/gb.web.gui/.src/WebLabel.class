@@ -29,7 +29,7 @@ End
 Private Sub GetRenderText() As String
   
   If Not $sText Then
-    Return "&nbsp;"
+    'Return "&nbsp;"
   Else
     Return Replace(Replace(Html($sText), "\n", "<br>"), " ", "&nbsp;")
   Endif

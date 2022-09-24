@@ -71,6 +71,7 @@ gw = {
   needKeyPress: {},
   drawingContext: [],
   images: {},
+  updates: {},
   
   log: function(msg)
   {
@@ -166,7 +167,7 @@ gw = {
     elt.id = id;
     pelt.appendChild(elt);
   },
-
+  
   setVisible: function(id, visible)
   {
     var elt = $_(id);
@@ -343,6 +344,15 @@ gw = {
 
   send: function(command, after)
   {
+    if (Object.keys(gw.updates).length)
+    {
+      var updates = gw.updates;
+      gw.updates = {};
+      
+      for (const [key, value] of Object.entries(updates))
+        value(key);
+    }
+  
     gw.log('gw.send: ' + command + ' ' + JSON.stringify(gw.commands));
     
     gw.commands.push(command);
@@ -1563,16 +1573,26 @@ gw = {
   
   textbox:
   {
+    updateText: function(id)
+    {
+      gw.update(id, 'text', $_(id + ':entry').value);
+    },
+    
     onActivate: function(id, e)
     {
       if (e.keyCode == 13)
-        setTimeout(function() { gw.update(id, 'text', $_(id + ':entry').value); gw.raise(id, 'activate', [], false); }, 20);
+        setTimeout(function() { gw.textbox.updateText(id); gw.raise(id, 'activate', [], false); }, 20);
+    },
+    
+    onUpdate: function(id)
+    {
+      gw.updates[id] = gw.textbox.updateText;
     },
     
     onChange: function(id)
     {
       if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
-      $_(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $_(id + ':entry').value, null); }, 20);
+      $_(id).gw_timer = setTimeout(gw.textbox.updateText, 20);
     },
     
     getText: function(id)
@@ -1609,10 +1629,20 @@ gw = {
 
   textarea:
   {
+    updateText: function(id)
+    {
+      gw.update(id, 'text', $_(id).value);
+    },
+    
+    onUpdate: function(id)
+    {
+      gw.updates[id] = gw.textarea.updateText;
+    },
+    
     onChange: function(id)
     {
       if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
-      $_(id).gw_timer = setTimeout(function() { gw.update(id, 'change', $_(id).value, null); }, 50);
+      $_(id).gw_timer = setTimeout(gw.textarea.updateText, 20);
     },
     
     copy: function(id)

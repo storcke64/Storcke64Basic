@@ -157,8 +157,8 @@ Public Sub Clear()
   $sKey = ""
   $hSelection.UnSelectAll()
   $sCursor = ""
-  $sLastKey = ""
   $hRoot = New _WebTreeItem("", "") As "Item"
+  _RefreshView
   
 End
 
@@ -938,17 +938,17 @@ Public Sub _IsSelected(sKey As String) As Boolean
   
 End
 
-Public Sub _SetSelected(sKey As String, bSelected As Boolean)
+Public Sub _SetSelected(sKey As String, bSelected As Boolean, Optional bNoRefresh As Boolean)
   
   If $iMode = Select.Single Then
     If bSelected Then
       $sKey = sKey
-      Me.Refresh
+      If Not bNoRefresh Then Me.Refresh
       Raise Select
     Else
       If $sKey = sKey Then
         $sKey = ""
-        Me.Refresh
+        If Not bNoRefresh Then Me.Refresh
       Endif
     Endif
     Return
@@ -1485,9 +1485,7 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
       Endif
     Else
       aProp = Split(Mid$(sProp, 2), ":")
-      Inc Me._NoRefresh
-      Try _SetSelected(FromBase64(aProp[0]), vValue)
-      Dec Me._NoRefresh
+      Try _SetSelected(FromBase64(aProp[0]), vValue, True)
     Endif
     
   Else If Left(sProp) = "?" Then
@@ -1496,14 +1494,12 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
     
   Else If Left(sProp) = "$" Then
     
-    Inc Me._NoRefresh
     sKey = FromBase64(Mid$(sProp, 2))
     If _IsSelected(sKey) Then
-      If $iMode = Select.Multiple Then _SetSelected(sKey, False)
+      If $iMode = Select.Multiple Then _SetSelected(sKey, False, True)
     Else
-      _SetSelected(sKey, True)
+      _SetSelected(sKey, True, True)
     Endif
-    Dec Me._NoRefresh
     
   Else If sProp Begins "%" Then
     

@@ -347,3 +347,9 @@ Public Sub WebComboBox1_KeyPress()
   WebForm.Print("WebComboBox1: keypress: " & Key.Shortcut)
 
 End
+
+Public Sub WebTree1_Activate()
+
+  lblTreeEvent.Text = "Activate: " & WebTree1.Item.Key
+
+End
