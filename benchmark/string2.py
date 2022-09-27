@@ -8,4 +8,4 @@ for i in range(0, 1000000):
 		c = chr(j)
 		str += '.(' + c + ')'
 
-print len(str)
+print(len(str))
