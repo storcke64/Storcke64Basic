@@ -677,7 +677,6 @@ _INIT_AGAIN:
   Name = File.Name(Project.Dir)
   SourceDir = Project.Dir &/ ".src"
   Config = New Settings(Project.Dir &/ ".settings")
-  Tree = New CProjectTree(Project.Dir)
   
   ProjectFilter = ""
 
@@ -689,6 +688,8 @@ _INIT_AGAIN:
     VersionControl.Refresh
   Endif
 
+  Tree = New CProjectTree(Project.Dir)
+  
   If bConvert Then
 
     If ReadOnly Then

@@ -848,17 +848,17 @@ Private Sub RemoveCategory(sAdd As String)
   
 End
 
-
-
 Public Sub tvwMenu_Select()
 
   Dim sMenu As String
 
   If tvwMenu.Item.Children Then Return
 
+  Object.Lock(cmbCategories)
   RemoveCategory($sLastCat)
   $sLastCat = $cCatCache[tvwMenu.Key]
   AddCategory($sLastCat)
+  Object.Unlock(cmbCategories)
 
   tvwMenu.MoveCurrent
   While tvwMenu.Item.Key <> "/"
