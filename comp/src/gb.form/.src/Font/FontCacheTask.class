@@ -2,6 +2,8 @@
 
 Inherits Task
 
+Public Foreground As Integer
+
 Static Public Sub Normalize(sFont As String) As String
 
   Dim I As Integer
@@ -47,7 +49,7 @@ Static Public Sub GetDir() As String
 End
 
 
-Static Public Sub CreateFontCacheImage(sFont As String) As Image
+Static Public Sub CreateFontCacheImage(sFont As String, iColor As Integer) As Image
 
   Dim sDir As String
   Dim sPath As String
@@ -73,6 +75,7 @@ Static Public Sub CreateFontCacheImage(sFont As String) As Image
   hImage = New Image(hSize.W + 1, hSize.H, Color.Transparent)
   Paint.Begin(hImage)
   Paint.Font = hFont
+  Paint.Background = iColor
   Paint.DrawText(sFont, 0, 0, hImage.W, hImage.H, Align.Normal)
   Paint.End
   
@@ -97,7 +100,7 @@ Public Sub Main()
   
   For Each sFont In Fonts
     
-    CreateFontCacheImage(sFont)
+    CreateFontCacheImage(sFont, Foreground)
     
     Inc I
     Print I;; N

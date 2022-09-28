@@ -608,6 +608,7 @@ Private Sub StartCacheTask()
   If Me.Window.Minimized Then Return
   
   $hTask = New FontCacheTask As "FontCacheTask"
+  $hTask.Foreground = Color.TextForeground
   spnCache.Value = 0
   spnCache.Show
   spnCache.Start
@@ -803,7 +804,7 @@ Public Sub tvwFamily_Draw(X As Integer, Y As Integer, (Width) As Integer, Height
     sPath = sDir &/ sFontKey & ".png"
   
     Try hImage = Image.Load(sPath)
-    If Not hImage Then hImage = FontCacheTask.CreateFontCacheImage(sFont)
+    If Not hImage Then hImage = FontCacheTask.CreateFontCacheImage(sFont, Color.Foreground)
     
     $cCache[sFont] = hImage
     
