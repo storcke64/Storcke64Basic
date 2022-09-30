@@ -473,8 +473,8 @@ void EXEC_loop(void)
 		not_3_18 = !not_3_18;
 		if (not_3_18)
 		{
-			for (int i = 0xA1; i <= 0xAE; i++)
-				jump_table[i] = &&_ADD_QUICK;
+			for (ind = 0xA1; ind <= 0xAE; ind++)
+				jump_table[ind] = &&_ADD_QUICK;
 		}
 		else
 		{
