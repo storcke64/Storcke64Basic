@@ -479,7 +479,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 		&&__ILLEGAL, &&__STRING, &&__CSTRING, &&__POINTER, &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL, &&__ILLEGAL \
 	}; \
 	\
-	CLASS_CONST *cc; \
+	CLASS_CONST *NO_WARNING(cc); \
 	\
 	for(;;) \
 	{ \

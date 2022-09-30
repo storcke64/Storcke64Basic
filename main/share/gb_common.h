@@ -137,11 +137,12 @@ typedef
 	size_t offset_t;
 
 #define PUBLIC
-#define INLINE __inline__
+#define INLINE __attribute__((always_inline)) inline
 #define EXTERN extern
 #define PACKED __attribute__((packed))
 #define NORETURN __attribute__((noreturn))
 #define CONST __attribute__((const))
+
 
 #if __WORDSIZE == 64
 #define OS_64BITS 1

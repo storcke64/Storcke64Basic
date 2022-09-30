@@ -40,6 +40,21 @@
 
 #define C_ADD_QUICK             0xA000
 
+#define C_PUSH_ARRAY_NATIVE_INTEGER     0xA100
+#define C_POP_ARRAY_NATIVE_INTEGER      0xA200
+#define C_PUSH_ARRAY_NATIVE_FLOAT       0xA300
+#define C_POP_ARRAY_NATIVE_FLOAT        0xA400
+#define C_PUSH_ARRAY_NATIVE_COLLECTION  0xA500
+#define C_POP_ARRAY_NATIVE_COLLECTION   0xA600
+#define C_ADD_INTEGER                   0xA700
+#define C_ADD_FLOAT                     0xA800
+#define C_SUB_INTEGER                   0xA900
+#define C_SUB_FLOAT                     0xAA00
+#define C_MUL_INTEGER                   0xAB00
+#define C_MUL_FLOAT                     0xAC00
+#define C_DIV_INTEGER                   0xAD00
+#define C_DIV_FLOAT                     0xAE00
+
 #define C_PUSH_LOCAL            0x0100
 #define C_PUSH_PARAM            0x0200
 #define C_PUSH_ARRAY            0x0300

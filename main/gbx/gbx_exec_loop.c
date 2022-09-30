@@ -67,7 +67,7 @@
 #define TEST_XX()   (code & 1)
 
 static void my_VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref);
-static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind);
+//static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind);
 static void _break(ushort code);
 
 //static void _SUBR_comp(ushort code);
@@ -366,20 +366,20 @@ void EXEC_loop(void)
 		/* 9E MkInt$...       */  &&_SUBR_CODE,
 		/* 9F Byte@...        */  &&_SUBR_CODE,
 		/* A0 ADD QUICK       */  &&_ADD_QUICK,
-		/* A1 ADD QUICK       */  &&_ADD_QUICK,
-		/* A2 ADD QUICK       */  &&_ADD_QUICK,
-		/* A3 ADD QUICK       */  &&_ADD_QUICK,
-		/* A4 ADD QUICK       */  &&_ADD_QUICK,
-		/* A5 ADD QUICK       */  &&_ADD_QUICK,
-		/* A6 ADD QUICK       */  &&_ADD_QUICK,
-		/* A7 ADD QUICK       */  &&_ADD_QUICK,
-		/* A8 ADD QUICK       */  &&_ADD_QUICK,
-		/* A9 ADD QUICK       */  &&_ADD_QUICK,
-		/* AA ADD QUICK       */  &&_ADD_QUICK,
-		/* AB ADD QUICK       */  &&_ADD_QUICK,
-		/* AC ADD QUICK       */  &&_ADD_QUICK,
-		/* AD ADD QUICK       */  &&_ADD_QUICK,
-		/* AE ADD QUICK       */  &&_ADD_QUICK,
+		/* A1 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_INTEGER,
+		/* A2 ADD QUICK       */  &&_POP_ARRAY_NATIVE_INTEGER,
+		/* A3 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_FLOAT,
+		/* A4 ADD QUICK       */  &&_POP_ARRAY_NATIVE_FLOAT,
+		/* A5 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_COLLECTION,
+		/* A6 ADD QUICK       */  &&_POP_ARRAY_NATIVE_COLLECTION,
+		/* A7 ADD QUICK       */  &&_ADD_INTEGER,
+		/* A8 ADD QUICK       */  &&_ADD_FLOAT,
+		/* A9 ADD QUICK       */  &&_SUB_INTEGER,
+		/* AA ADD QUICK       */  &&_SUB_FLOAT,
+		/* AB ADD QUICK       */  &&_MUL_INTEGER,
+		/* AC ADD QUICK       */  &&_MUL_FLOAT,
+		/* AD ADD QUICK       */  &&_DIV_INTEGER,
+		/* AE ADD QUICK       */  &&_DIV_FLOAT,
 		/* AF ADD QUICK       */  &&_ADD_QUICK,
 		/* B0 PUSH CLASS      */  &&_PUSH_CLASS,
 		/* B1 PUSH CLASS      */  &&_PUSH_CLASS,
@@ -463,8 +463,37 @@ void EXEC_loop(void)
 		/* FF PUSH QUICK      */  &&_PUSH_QUICK
 	};
 
+	static bool not_3_18 = FALSE;
+
 	int NO_WARNING(ind);
 	ushort code;
+
+	if (CP->not_3_18 != not_3_18)
+	{
+		not_3_18 = !not_3_18;
+		if (not_3_18)
+		{
+			for (int i = 0xA1; i <= 0xAE; i++)
+				jump_table[i] = &&_ADD_QUICK;
+		}
+		else
+		{
+			jump_table[0xA1] = &&_PUSH_ARRAY_NATIVE_INTEGER;
+			jump_table[0xA2] = &&_POP_ARRAY_NATIVE_INTEGER;
+			jump_table[0xA3] = &&_PUSH_ARRAY_NATIVE_FLOAT;
+			jump_table[0xA4] = &&_POP_ARRAY_NATIVE_FLOAT;
+			jump_table[0xA5] = &&_PUSH_ARRAY_NATIVE_COLLECTION;
+			jump_table[0xA6] = &&_POP_ARRAY_NATIVE_COLLECTION;
+			jump_table[0xA7] = &&_ADD_INTEGER;
+			jump_table[0xA8] = &&_ADD_FLOAT;
+			jump_table[0xA9] = &&_SUB_INTEGER;
+			jump_table[0xAA] = &&_SUB_FLOAT;
+			jump_table[0xAB] = &&_MUL_INTEGER;
+			jump_table[0xAC] = &&_MUL_FLOAT;
+			jump_table[0xAD] = &&_DIV_INTEGER;
+			jump_table[0xAE] = &&_DIV_FLOAT;
+		}
+	}
 
 	goto _MAIN;
 
@@ -1732,23 +1761,23 @@ __WRITE:
 
 /*-----------------------------------------------*/
 
-_PUSH_CONST:
-
-	ind = GET_UXX();
-	my_VALUE_class_constant(CP, SP, ind);
-	SP++;
-	goto _NEXT;
-
-
-/*-----------------------------------------------*/
-
 _PUSH_CONST_EX:
 
 	PC++;
-	my_VALUE_class_constant(CP, SP, *PC);
+	ind = *PC;
+	goto _PUSH_CONSTANT;
+
+/*-----------------------------------------------*/
+
+_PUSH_CONST:
+
+	ind = GET_UXX();
+
+_PUSH_CONSTANT:
+
+	VALUE_class_constant_inline(CP, SP, ind);
 	SP++;
 	goto _NEXT;
-
 
 /*-----------------------------------------------*/
 
@@ -1855,6 +1884,238 @@ _ADD_QUICK:
 		VALUE_conv_variant(P1);
 
 	__AQ_END:
+		goto _NEXT;
+	}
+
+/*-----------------------------------------------*/
+
+_PUSH_ARRAY_NATIVE_INTEGER:
+
+	{
+		VALUE *val;
+		CARRAY *array;
+		int i;
+
+		val = &SP[-2];
+		array = (CARRAY *)val->_object.object;
+		if (!array)
+			THROW_NULL();
+
+		VALUE_conv_integer(&val[1]);
+		i = val[1]._integer.value;
+
+		if (i < 0 || i >= array->count)
+			THROW(E_BOUND);
+
+		val->_integer.value = ((int *)(array->data))[i];
+		val->type = GB_T_INTEGER;
+
+		SP = val + 1;
+		OBJECT_UNREF(array);
+		goto _NEXT;
+	}
+
+_PUSH_ARRAY_NATIVE_FLOAT:
+
+	{
+		VALUE *val;
+		CARRAY *array;
+		int i;
+
+		val = &SP[-2];
+		array = (CARRAY *)val->_object.object;
+		if (!array)
+			THROW_NULL();
+
+		VALUE_conv_integer(&val[1]);
+		i = val[1]._integer.value;
+
+		if (i < 0 || i >= array->count)
+			THROW(E_BOUND);
+
+		val->_float.value = ((double *)(array->data))[i];
+		val->type = GB_T_FLOAT;
+
+		SP = val + 1;
+		OBJECT_UNREF(array);
+		goto _NEXT;
+	}
+
+_PUSH_ARRAY_NATIVE_COLLECTION:
+
+	{
+		VALUE *val;
+		GB_COLLECTION col;
+
+		val = &SP[-2];
+		col = (GB_COLLECTION)val->_object.object;
+		if (!col)
+			THROW_NULL();
+
+		VALUE_conv_string(&val[1]);
+		GB_CollectionGet(col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)val);
+
+		RELEASE_STRING(&val[1]);
+		SP = val;
+		PUSH();
+		OBJECT_UNREF(col);
+		goto _NEXT;
+	}
+
+/*-----------------------------------------------*/
+
+_POP_ARRAY_NATIVE_INTEGER:
+
+	{
+		VALUE *val;
+		CARRAY *array;
+		int i;
+
+		val = &SP[-2];
+		array = (CARRAY *)val->_object.object;
+		if (!array)
+			THROW(E_NULL);
+
+		CARRAY_check_not_read_only(array);
+
+		VALUE_conv_integer(&val[-1]);
+		VALUE_conv_integer(&val[1]);
+
+		i = val[1]._integer.value;
+		if (i < 0 || i >= array->count)
+			THROW(E_BOUND);
+
+		((int *)(array->data))[i] = val[-1]._integer.value;
+
+		SP = val + 1;
+		OBJECT_UNREF(array);
+		SP -= 2;
+		goto _NEXT;
+	}
+
+_POP_ARRAY_NATIVE_FLOAT:
+
+	{
+		VALUE *val;
+		CARRAY *array;
+		int i;
+
+		val = &SP[-2];
+		array = (CARRAY *)val->_object.object;
+		if (!array)
+			THROW_NULL();
+
+		CARRAY_check_not_read_only(array);
+
+		VALUE_conv_float(&val[-1]);
+		VALUE_conv_integer(&val[1]);
+
+		i = val[1]._integer.value;
+		if (i < 0 || i >= array->count)
+			THROW(E_BOUND);
+
+		((double *)(array->data))[i] = val[-1]._float.value;
+
+		SP = val + 1;
+		OBJECT_UNREF(array);
+		SP -= 2;
+		goto _NEXT;
+	}
+
+_POP_ARRAY_NATIVE_COLLECTION:
+
+	{
+		VALUE *val;
+		GB_COLLECTION col;
+
+		val = &SP[-2];
+		col = (GB_COLLECTION)val->_object.object;
+		if (!col)
+			THROW_NULL();
+
+		VALUE_conv_variant(&val[-1]);
+		VALUE_conv_string(&val[1]);
+
+		if (GB_CollectionSet((GB_COLLECTION)col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)&val[-1]))
+			PROPAGATE();
+
+		RELEASE_MANY(SP, 3);
+		goto _NEXT;
+	}
+
+/*-----------------------------------------------*/
+
+	{
+		VALUE *P1, *P2;
+
+_ADD_INTEGER:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_integer.value += P2->_integer.value;
+		SP--;
+		goto _NEXT;
+
+_ADD_FLOAT:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_float.value += P2->_float.value;
+		SP--;
+		goto _NEXT;
+
+_SUB_INTEGER:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_integer.value -= P2->_integer.value;
+		SP--;
+		goto _NEXT;
+
+_SUB_FLOAT:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_float.value -= P2->_float.value;
+		SP--;
+		goto _NEXT;
+
+_MUL_INTEGER:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_integer.value *= P2->_integer.value;
+		SP--;
+		goto _NEXT;
+
+_MUL_FLOAT:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		P1->_float.value *= P2->_float.value;
+		SP--;
+		goto _NEXT;
+
+_DIV_INTEGER:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+		VALUE_conv_float(P1);
+		VALUE_conv_float(P2);
+		goto _DIV_FLOAT_2;
+
+_DIV_FLOAT:
+
+		P1 = SP - 2;
+		P2 = P1 + 1;
+
+_DIV_FLOAT_2:
+
+		P1->_float.value /= P2->_float.value;
+		if (!isfinite(P1->_float.value))
+			THROW(E_ZERO);
+
+		SP--;
 		goto _NEXT;
 	}
 
@@ -2658,12 +2919,12 @@ __END:
   result; \
 })*/
 
-static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
+/*static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
 {
 	VALUE_class_constant_inline(class, value, ind);
-}
+}*/
 
-#define MANAGE_VARIANT_OBJECT(_func, _op) \
+#define MANAGE_VARIANT_OBJECT(_func, _op, _opcode) \
 ({ \
 	type = Max(P1->type, P2->type); \
 	if (TYPE_is_void(P1->type) || TYPE_is_void(P2->type)) \
@@ -2673,7 +2934,13 @@ static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
 	{ \
 		*PC |= type; \
 		if (P1->type == P2->type) \
+		{ \
 			*PC |= 0x10; \
+			if (type == T_INTEGER) \
+				*PC = _opcode##_INTEGER; \
+			else if (type == T_FLOAT) \
+				*PC = _opcode##_FLOAT; \
+		} \
 		goto *jump[type]; \
 	} \
 	\
@@ -2716,7 +2983,7 @@ static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
 	} \
 })
 
-#define MANAGE_VARIANT_POINTER_OBJECT(_func, _op) \
+#define MANAGE_VARIANT_POINTER_OBJECT(_func, _op, _opcode) \
 ({ \
 	type = Max(P1->type, P2->type); \
 	if (TYPE_is_void(P1->type) || TYPE_is_void(P2->type)) \
@@ -2726,7 +2993,16 @@ static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
 	{ \
 		*PC |= type; \
 		if (P1->type == P2->type) \
+		{ \
 			*PC |= 0x10; \
+			if (!CP->not_3_18) \
+			{ \
+				if (type == T_INTEGER) \
+					*PC = _opcode##_INTEGER; \
+				else if (type == T_FLOAT) \
+					*PC = _opcode##_FLOAT; \
+			} \
+		} \
 		goto *jump[type]; \
 	} \
 	\
@@ -2867,7 +3143,7 @@ __OBJECT:
 
 __VARIANT:
 
-	MANAGE_VARIANT_POINTER_OBJECT(_SUBR_add, CO_ADD);
+	MANAGE_VARIANT_POINTER_OBJECT(_SUBR_add, CO_ADD, C_ADD);
 	goto __ERROR;
 
 __ERROR:
@@ -2972,7 +3248,7 @@ __OBJECT:
 
 __VARIANT:
 
-	MANAGE_VARIANT_POINTER_OBJECT(_SUBR_sub, CO_SUB);
+	MANAGE_VARIANT_POINTER_OBJECT(_SUBR_sub, CO_SUB, C_SUB);
 	goto __ERROR;
 
 __ERROR:
@@ -3066,7 +3342,7 @@ __OBJECT:
 
 __VARIANT:
 
-	MANAGE_VARIANT_OBJECT(_SUBR_mul, CO_MUL);
+	MANAGE_VARIANT_OBJECT(_SUBR_mul, CO_MUL, C_MUL);
 	goto __ERROR;
 
 __ERROR:
@@ -3155,7 +3431,7 @@ __OBJECT:
 
 __VARIANT:
 
-	MANAGE_VARIANT_OBJECT(_SUBR_div, CO_DIV);
+	MANAGE_VARIANT_OBJECT(_SUBR_div, CO_DIV, C_DIV);
 	goto __ERROR;
 
 __ERROR:
@@ -3616,9 +3892,29 @@ __PUSH_GENERIC:
 			{
 				array = (CARRAY *)object;
 				if (array->type == GB_T_INTEGER)
-					fast = 0xD0;
+				{
+					if (CP->not_3_18)
+					{
+						fast = 0xD0;
+					}
+					else
+					{
+						*PC = C_PUSH_ARRAY_NATIVE_INTEGER;
+						goto __PUSH_ARRAY_2;
+					}
+				}
 				else if (array->type == GB_T_FLOAT)
-					fast = 0xE0;
+				{
+					if (CP->not_3_18)
+					{
+						fast = 0xE0;
+					}
+					else
+					{
+						*PC = C_PUSH_ARRAY_NATIVE_FLOAT;
+						goto __PUSH_ARRAY_2;
+					}
+				}
 				else if (TYPE_is_object(array->type))
 					fast = 0xB0;
 				else
@@ -3639,7 +3935,15 @@ __PUSH_GENERIC:
 			else if (np > 1)
 				THROW(E_TMPARAM);
 
-			fast = 0xC0;
+			if (CP->not_3_18)
+			{
+				fast = 0xC0;
+			}
+			else
+			{
+				*PC = C_PUSH_ARRAY_NATIVE_COLLECTION;
+				goto __PUSH_ARRAY_2;
+			}
 		}
 		else
 		{
@@ -3781,7 +4085,6 @@ void EXEC_pop_array(ushort code)
 		&&__POP_NATIVE_COLLECTION, &&__POP_NATIVE_ARRAY_INTEGER, &&__POP_NATIVE_ARRAY_FLOAT, NULL
 	};
 
-
 	CLASS *class;
 	OBJECT *object;
 	ushort np;
@@ -3812,9 +4115,29 @@ __POP_GENERIC:
 			{
 				array = (CARRAY *)object;
 				if (array->type == GB_T_INTEGER)
-					fast = 0xD0;
+				{
+					if (CP->not_3_18)
+					{
+						fast = 0xD0;
+					}
+					else
+					{
+						*PC = C_POP_ARRAY_NATIVE_INTEGER;
+						goto __POP_ARRAY_2;
+					}
+				}
 				else if (array->type == GB_T_FLOAT)
-					fast = 0xE0;
+				{
+					if (CP->not_3_18)
+					{
+						fast = 0xE0;
+					}
+					else
+					{
+						*PC = C_POP_ARRAY_NATIVE_FLOAT;
+						goto __POP_ARRAY_2;
+					}
+				}
 				else if (TYPE_is_object(array->type))
 					fast = 0xB0;
 				else
@@ -3835,7 +4158,15 @@ __POP_GENERIC:
 			else if (np > 2)
 				THROW(E_TMPARAM);
 
-			fast = 0xC0;
+			if (CP->not_3_18)
+			{
+				fast = 0xC0;
+			}
+			else
+			{
+				*PC = C_POP_ARRAY_NATIVE_COLLECTION;
+				goto __POP_ARRAY_2;
+			}
 		}
 		else
 		{
