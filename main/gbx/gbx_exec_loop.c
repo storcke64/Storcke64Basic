@@ -2588,6 +2588,8 @@ _PUSH_VARIABLE:
 
 	{
 		void *object = SP[-1]._object.object;
+		if (!object)
+			THROW_NULL();
 		CLASS_DESC *desc = SP[-1]._object.class->table[PC[1]].desc;
 		my_VALUE_class_read(desc->variable.class, &SP[-1], (char *)object + desc->variable.offset, desc->variable.ctype, object);
 		//BORROW(&SP[-1]);
