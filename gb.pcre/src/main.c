@@ -29,7 +29,11 @@
 #include <stdarg.h>
 #include <string.h>
 
+#if PCRE2
+#include "regexp2.h"
+#else
 #include "regexp.h"
+#endif
 
 #include "main.h"
 
