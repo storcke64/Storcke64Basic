@@ -138,6 +138,7 @@ typedef
 
 #define PUBLIC
 #define INLINE __attribute__((always_inline)) inline
+#define NOINLINE __attribute__((noinline))
 #define EXTERN extern
 #define PACKED __attribute__((packed))
 #define NORETURN __attribute__((noreturn))

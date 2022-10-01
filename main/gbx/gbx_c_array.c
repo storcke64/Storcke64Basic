@@ -1830,7 +1830,7 @@ static void array_of_struct_put(CARRAY *_object, void *data, void *object)
 			THROW(E_ILLEGAL);
 		
 		VALUE_class_read(desc->variable.class, &temp, (void *)addr, ctype, object);
-		BORROW(&temp);
+		//BORROW(&temp);
 		addr = (char *)data + desc->variable.offset;
 		VALUE_write(&temp, (void *)addr, desc->variable.type);
 		RELEASE(&temp);

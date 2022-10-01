@@ -438,7 +438,7 @@ void CODE_push_number(int value)
 
 	use_stack(1);
 
-	if (value >= -2048L && value < 2048L)
+	if (value >= -256 && value < 256)
 	{
 		#ifdef DEBUG
 		printf("PUSH QUICK %d\n", value);
@@ -899,7 +899,7 @@ void CODE_op(short op, short subcode, short nparam, bool fixed)
 			printf("ADD QUICK %d\n", value);
 			#endif
 
-			if (COMP_version < 0x03180000 || (value >= -255 && value <= 255))
+			if (COMP_version < 0x03180000 || (value >= -256 && value < 256))
 			{
 				*last_code = C_ADD_QUICK | (value & 0x0FFF);
 
@@ -914,7 +914,7 @@ void CODE_op(short op, short subcode, short nparam, bool fixed)
 					if (value2 >= 0x800) value2 |= 0xF000;
 					value += value2;
 
-					if (value >= -2048L && value < 2048L)
+					if (value >= -256 && value < 256)
 					{
 						*last_code = C_PUSH_QUICK | (value & 0x0FFF);
 						CODE_undo();

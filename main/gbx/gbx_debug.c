@@ -238,6 +238,7 @@ bool DEBUG_get_value(const char *sym, int len, GB_VARIANT *ret)
 					addr = (char *)DEBUG_info->cp->stat + var->pos;
 					ref = DEBUG_info->cp;
 					VALUE_class_read(DEBUG_info->cp, &value, addr, var->type, ref);
+					goto __FOUND_NO_BORROW;
 				}
 				else if (lp->value >= 0)
 					value = DEBUG_info->bp[lp->value];
@@ -274,7 +275,7 @@ bool DEBUG_get_value(const char *sym, int len, GB_VARIANT *ret)
 				}
 
 				VALUE_class_read(DEBUG_info->cp, &value, addr, var->type, ref);
-				goto __FOUND;
+				goto __FOUND_NO_BORROW;
 			}
 			else if (CTYPE_get_kind(gp->ctype) == TK_CONST)
 			{
@@ -308,6 +309,9 @@ bool DEBUG_get_value(const char *sym, int len, GB_VARIANT *ret)
 __FOUND:
 
 	BORROW(&value);
+
+__FOUND_NO_BORROW:
+
 	VALUE_conv_variant(&value);
 	UNBORROW(&value);
 

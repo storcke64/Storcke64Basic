@@ -192,7 +192,13 @@ _PUSH_GENERIC:
 			}
 			else
 			{
-				if (defined) *PC |= 2;
+				if (defined)
+				{
+					if (!CP->not_3_18 && TYPE_is_pure_object(val->type) && !VALUE_is_super(val) && class->is_simple)
+						*PC = C_PUSH_VARIABLE;
+					else
+						*PC |= 2;
+				}
 			}
 
 			if (defined)
@@ -218,7 +224,8 @@ _PUSH_GENERIC:
 			if (object)
 				THROW(E_STATIC, CLASS_get_name(class), name);
 
-			if (defined) *PC |= 3;
+			if (defined)
+				*PC |= 3;
 
 			if (defined)
 				PC[1] = index;
@@ -401,7 +408,7 @@ _PUSH_STRUCT_FIELD_2:
 _READ_VARIABLE:
 
 	VALUE_class_read(desc->variable.class, &SP[-1], (void *)addr, desc->variable.ctype, ref);
-	goto _FIN_DEFINED;
+	goto _FIN_DEFINED_NO_BORROW;
 
 
 _PUSH_PROPERTY_AUTO:

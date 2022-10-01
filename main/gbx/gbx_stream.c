@@ -1883,7 +1883,7 @@ void STREAM_write_type(STREAM *stream, TYPE type, VALUE *value)
 				addr = (char *)structure + sizeof(CSTRUCT) + desc->variable.offset;
 
 			VALUE_class_read(desc->variable.class, &temp, (void *)addr, desc->variable.ctype, (void *)structure);
-			BORROW(&temp);
+			//BORROW(&temp);
 			STREAM_write_type(stream, temp.type, &temp);
 			RELEASE(&temp);
 		}

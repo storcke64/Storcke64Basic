@@ -536,6 +536,11 @@ void THROW_STACK(void)
 	THROW(E_STACK);
 }
 
+void THROW_BOUND(void)
+{
+	THROW(E_BOUND);
+}
+
 void THROW_SYSTEM(int err, const char *path)
 {
 	char buf[6];

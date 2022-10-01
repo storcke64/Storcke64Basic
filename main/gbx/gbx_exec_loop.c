@@ -68,7 +68,7 @@
 
 static void my_VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref);
 //static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind);
-static void _break(ushort code);
+NOINLINE static void _break(ushort code);
 
 //static void _SUBR_comp(ushort code);
 static void _SUBR_compe(ushort code);
@@ -446,8 +446,8 @@ void EXEC_loop(void)
 		/* EE PUSH CONST      */  &&_PUSH_CONST,
 		/* EF PUSH CONST      */  &&_PUSH_CONST_EX,
 		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F1 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F2 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F1 PUSH QUICK      */  &&_PUSH_VARIABLE,
+		/* F2 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F5 PUSH QUICK      */  &&_PUSH_QUICK,
@@ -467,14 +467,18 @@ void EXEC_loop(void)
 
 	int NO_WARNING(ind);
 	ushort code;
+	VALUE *NO_WARNING(val);
 
 	if (CP->not_3_18 != not_3_18)
 	{
 		not_3_18 = !not_3_18;
+		//fprintf(stderr, "switching to bytecode: %s\n", not_3_18 ? "NOT 3.18" : "3.18");
 		if (not_3_18)
 		{
 			for (ind = 0xA1; ind <= 0xAE; ind++)
 				jump_table[ind] = &&_ADD_QUICK;
+			for (ind = 0xF1; ind <= 0xFE; ind++)
+				jump_table[ind] = &&_PUSH_QUICK;
 		}
 		else
 		{
@@ -492,6 +496,8 @@ void EXEC_loop(void)
 			jump_table[0xAC] = &&_MUL_FLOAT;
 			jump_table[0xAD] = &&_DIV_INTEGER;
 			jump_table[0xAE] = &&_DIV_FLOAT;
+			jump_table[0xF1] = &&_PUSH_VARIABLE;
+			jump_table[0xF2] = &&_POP_VARIABLE;
 		}
 	}
 
@@ -658,7 +664,7 @@ _PUSH_EVENT:
 _POP_LOCAL:
 
 	{
-		VALUE *val = &BP[GET_XX()];
+		val = &BP[GET_XX()];
 
 		VALUE_conv(&SP[-1], val->type);
 
@@ -674,7 +680,7 @@ _POP_LOCAL:
 _POP_PARAM:
 
 	{
-		VALUE *val = &PP[GET_XX()];
+		val = &PP[GET_XX()];
 
 		VALUE_conv(&SP[-1], val->type);
 
@@ -711,7 +717,7 @@ _POP_UNKNOWN:
 _POP_OPTIONAL:
 
 	{
-		VALUE *val = &PP[GET_XX()];
+		val = &PP[GET_XX()];
 
 		if (val->type == T_VOID)
 		{
@@ -981,9 +987,6 @@ _ON_GOTO_GOSUB:
 _GOSUB:
 
 	{
-		VALUE *ctrl;
-		int i;
-
 		STACK_check(1 + FP->stack_usage - FP->n_local);
 
 		SP->type = T_VOID;
@@ -994,11 +997,11 @@ _GOSUB:
 
 		SP++;
 
-		ctrl = &BP[FP->n_local];
-		for (i = 0; i < FP->n_ctrl; i++)
+		val = &BP[FP->n_local];
+		for (ind = 0; ind < FP->n_ctrl; ind++)
 		{
-			*SP++ = ctrl[i];
-			ctrl[i].type = T_NULL;
+			*SP++ = val[ind];
+			val[ind].type = T_NULL;
 		}
 	}
 
@@ -1041,10 +1044,6 @@ _RETURN:
 	{
 		static const void *return_jump[] = { &&__RETURN_GOSUB, &&__RETURN_VALUE, &&__RETURN_VOID };
 
-		TYPE type;
-		VALUE *ctrl;
-		int i;
-
 		goto *return_jump[GET_UX()];
 
 	__RETURN_GOSUB:
@@ -1052,13 +1051,13 @@ _RETURN:
 		if (!GP)
 			goto __RETURN_VOID;
 
-		ctrl = &BP[FP->n_local];
+		val = &BP[FP->n_local];
 		GP++;
 
-		for (i = 0; i < FP->n_ctrl; i++)
+		for (ind = 0; ind < FP->n_ctrl; ind++)
 		{
-			RELEASE(&ctrl[i]);
-			ctrl[i] = GP[i];
+			RELEASE(&val[ind]);
+			val[ind] = GP[ind];
 		}
 
 		GP--;
@@ -1071,11 +1070,7 @@ _RETURN:
 
 	__RETURN_VALUE:
 
-		type = FP->type;
-		//if (TYPE_is_pure_object(type) && ((CLASS *)type)->override)
-		//	type = (TYPE)(((CLASS *)type)->override);
-
-		VALUE_conv(&SP[-1], type);
+		VALUE_conv(&SP[-1], FP->type);
 		SP--;
 		*RP = *SP;
 
@@ -1100,91 +1095,173 @@ _RETURN:
 _CALL:
 
 	{
-		VALUE * NO_WARNING(val);
-
+		static const void *call_jump[] =
 		{
-			static const void *call_jump[] =
-			{
-				&&__CALL_NULL, &&__CALL_NATIVE, &&__CALL_PRIVATE, &&__CALL_PUBLIC,
-				&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
-				&&__CALL_SUBR
-			};
+			&&__CALL_NULL, &&__CALL_NATIVE, &&__CALL_PRIVATE, &&__CALL_PUBLIC,
+			&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
+			&&__CALL_SUBR
+		};
 
-			ind = GET_3X();
-			val = &SP[-(ind + 1)];
+		ind = GET_3X();
+		val = &SP[-(ind + 1)];
 
-			if (!TYPE_is_function(val->type))
-			{
-				bool defined = EXEC_object(val, &EXEC.class, (OBJECT **)&EXEC.object);
+		if (!TYPE_is_function(val->type))
+		{
+			bool defined = EXEC_object(val, &EXEC.class, (OBJECT **)&EXEC.object);
 
-				val->type = T_FUNCTION;
-				val->_function.kind = FUNCTION_CALL;
-				val->_function.defined = defined;
-				val->_function.class = EXEC.class;
-				val->_function.object = EXEC.object;
-				//goto _CALL;
-			}
-			else
-			{
-				EXEC.class = val->_function.class;
-				EXEC.object = val->_function.object;
-			}
+			val->type = T_FUNCTION;
+			val->_function.kind = FUNCTION_CALL;
+			val->_function.defined = defined;
+			val->_function.class = EXEC.class;
+			val->_function.object = EXEC.object;
+			//goto _CALL;
+		}
+		else
+		{
+			EXEC.class = val->_function.class;
+			EXEC.object = val->_function.object;
+		}
 
-			EXEC.nparam = ind;
-			EXEC.use_stack = TRUE;
+		EXEC.nparam = ind;
+		EXEC.use_stack = TRUE;
 
-			if (!val->_function.defined)
-				*PC |= CODE_CALL_VARIANT;
+		if (!val->_function.defined)
+			*PC |= CODE_CALL_VARIANT;
 
-			goto *call_jump[(int)val->_function.kind];
+		goto *call_jump[(int)val->_function.kind];
 
-		__CALL_NULL:
+	__CALL_NULL:
 
-			while (ind > 0)
-			{
-				POP();
-				ind--;
-			}
-
+		while (ind > 0)
+		{
 			POP();
+			ind--;
+		}
 
-			//if (!PCODE_is_void(code))
+		POP();
+
+		//if (!PCODE_is_void(code))
+		{
+			/*VALUE_default(SP, (TYPE)(val->_function.function));*/
+			VALUE_null(SP);
+			SP++;
+		}
+
+		goto _NEXT;
+
+	__CALL_NATIVE:
+
+		EXEC.native = TRUE;
+		EXEC.index = val->_function.index;
+		EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
+		//EXEC.use_stack = TRUE;
+
+		goto __EXEC_NATIVE;
+
+	__CALL_PRIVATE:
+
+		EXEC.native = FALSE;
+		EXEC.index = val->_function.index;
+		EXEC.func = &EXEC.class->load->func[EXEC.index];
+
+		goto __EXEC_ENTER;
+
+	__CALL_PUBLIC:
+
+		EXEC.native = FALSE;
+		EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
+		EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
+		EXEC.class = EXEC.desc->class;
+		EXEC.func = &EXEC.class->load->func[EXEC.index];
+
+		goto __EXEC_ENTER;
+
+	__EXEC_ENTER:
+
+		if (EXEC.func->fast && !JIT_exec(TRUE))
+		{
+			goto _NEXT;
+		}
+		else
+		{
+			EXEC_enter_check(val->_function.defined);
+			goto _MAIN;
+		}
+
+	__EXEC_NATIVE:
+
+		EXEC_native_check(val->_function.defined);
+		goto _NEXT;
+
+	__CALL_EVENT:
+
+		//if (OP && !strcmp(OBJECT_class(OP)->name, "Workspace"))
+		//	BREAKPOINT();
+		ind = GB_Raise(OP, val->_function.index, (-EXEC.nparam));
+
+		POP(); // function
+
+		//if (!PCODE_is_void(code))
+		{
+			SP->type = T_BOOLEAN;
+			SP->_boolean.value = ind ? -1 : 0;
+			SP++;
+		}
+
+		//EVENT_Last = old_last;
+
+		goto _NEXT;
+
+	__CALL_UNKNOWN:
+
+		EXEC_unknown_name = CP->load->unknown[val->_function.index];
+		EXEC.desc = CLASS_get_special_desc(EXEC.class, SPEC_UNKNOWN);
+		//EXEC.use_stack = TRUE;
+		goto __CALL_SPEC;
+
+	__CALL_CALL:
+
+		EXEC.desc = CLASS_get_special_desc(EXEC.class, SPEC_CALL);
+
+		if (EXEC.desc)
+		{
+			if (!CLASS_DESC_is_static_method(EXEC.desc) && !EXEC.object)
 			{
-				/*VALUE_default(SP, (TYPE)(val->_function.function));*/
-				VALUE_null(SP);
-				SP++;
+				if (!EXEC.class->auto_create)
+					THROW(E_DYNAMIC, CLASS_get_name(EXEC.class), $("_call"));
+
+				EXEC.object = EXEC_auto_create(EXEC.class, FALSE);
+				EXEC.nparam = ind;
 			}
 
+			goto __CALL_SPEC;
+		}
+
+		if (!EXEC.object && EXEC.nparam == 1 && !EXEC.class->is_virtual)
+		{
+			SP[-2] = SP[-1];
+			SP--;
+			VALUE_conv_object(SP - 1, (TYPE)EXEC.class);
 			goto _NEXT;
+		}
 
-		__CALL_NATIVE:
+	__CALL_SPEC:
 
-			EXEC.native = TRUE;
-			EXEC.index = val->_function.index;
-			EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
-			//EXEC.use_stack = TRUE;
+		if (!EXEC.desc)
+			THROW(E_NFUNC);
 
-			goto __EXEC_NATIVE;
+		EXEC.native = FUNCTION_is_native(EXEC.desc);
 
-		__CALL_PRIVATE:
-
-			EXEC.native = FALSE;
-			EXEC.index = val->_function.index;
-			EXEC.func = &EXEC.class->load->func[EXEC.index];
-
-			goto __EXEC_ENTER;
-
-		__CALL_PUBLIC:
-
-			EXEC.native = FALSE;
-			EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
+		if (EXEC.native)
+		{
+			EXEC_native();
+			goto _NEXT;
+		}
+		else
+		{
 			EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
 			EXEC.class = EXEC.desc->class;
 			EXEC.func = &EXEC.class->load->func[EXEC.index];
-
-			goto __EXEC_ENTER;
-
-		__EXEC_ENTER:
 
 			if (EXEC.func->fast && !JIT_exec(TRUE))
 			{
@@ -1192,176 +1269,37 @@ _CALL:
 			}
 			else
 			{
-				EXEC_enter_check(val->_function.defined);
+				EXEC_enter();
 				goto _MAIN;
 			}
-
-		__EXEC_NATIVE:
-
-			EXEC_native_check(val->_function.defined);
-			goto _NEXT;
-
-		__CALL_EVENT:
-
-			//if (OP && !strcmp(OBJECT_class(OP)->name, "Workspace"))
-			//	BREAKPOINT();
-			ind = GB_Raise(OP, val->_function.index, (-EXEC.nparam));
-
-			POP(); // function
-
-			//if (!PCODE_is_void(code))
-			{
-				SP->type = T_BOOLEAN;
-				SP->_boolean.value = ind ? -1 : 0;
-				SP++;
-			}
-
-			//EVENT_Last = old_last;
-
-			goto _NEXT;
-
-		__CALL_UNKNOWN:
-
-			EXEC_unknown_name = CP->load->unknown[val->_function.index];
-			EXEC.desc = CLASS_get_special_desc(EXEC.class, SPEC_UNKNOWN);
-			//EXEC.use_stack = TRUE;
-			goto __CALL_SPEC;
-
-		__CALL_CALL:
-
-			EXEC.desc = CLASS_get_special_desc(EXEC.class, SPEC_CALL);
-
-			if (EXEC.desc)
-			{
-				if (!CLASS_DESC_is_static_method(EXEC.desc) && !EXEC.object)
-				{
-					if (!EXEC.class->auto_create)
-						THROW(E_DYNAMIC, CLASS_get_name(EXEC.class), $("_call"));
-
-					EXEC.object = EXEC_auto_create(EXEC.class, FALSE);
-					EXEC.nparam = ind;
-				}
-
-				goto __CALL_SPEC;
-			}
-
-			if (!EXEC.object && EXEC.nparam == 1 && !EXEC.class->is_virtual)
-			{
-				SP[-2] = SP[-1];
-				SP--;
-				VALUE_conv_object(SP - 1, (TYPE)EXEC.class);
-				goto _NEXT;
-			}
-
-		__CALL_SPEC:
-
-			if (!EXEC.desc)
-				THROW(E_NFUNC);
-
-			EXEC.native = FUNCTION_is_native(EXEC.desc);
-
-			if (EXEC.native)
-			{
-				EXEC_native();
-				goto _NEXT;
-			}
-			else
-			{
-				EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
-				EXEC.class = EXEC.desc->class;
-				EXEC.func = &EXEC.class->load->func[EXEC.index];
-				
-				if (EXEC.func->fast && !JIT_exec(TRUE))
-				{
-					goto _NEXT;
-				}
-				else
-				{
-					EXEC_enter();
-					goto _MAIN;
-				}
-			}
-
-		__CALL_EXTERN:
-
-			EXEC.index = val->_function.index;
-			EXTERN_call();
-			goto _NEXT;
-
-		__CALL_SUBR:
-
-			ind = GET_3X();
-			((EXEC_FUNC_CODE_SP)(EXEC.class->table[val->_function.index].desc->method.exec))(ind, SP);
-			SP -= ind;
-			SP[-1] = SP[0];
-			goto _NEXT;
 		}
+
+	__CALL_EXTERN:
+
+		EXEC.index = val->_function.index;
+		EXTERN_call();
+		goto _NEXT;
+
+	__CALL_SUBR:
+
+		ind = GET_3X();
+		((EXEC_FUNC_CODE_SP)(EXEC.class->table[val->_function.index].desc->method.exec))(ind, SP);
+		SP -= ind;
+		SP[-1] = SP[0];
+		goto _NEXT;
+	}
 
 /*-----------------------------------------------*/
 
 _CALL_QUICK:
 
-		{
-			static const void *call_jump[] =
-			{
-				&&__CALL_NULL, &&__CALL_NATIVE_Q, &&__CALL_PRIVATE_Q, &&__CALL_PUBLIC_Q,
-				&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
-				&&__CALL_SUBR
-			};
-
-			ind = GET_3X();
-			val = &SP[-(ind + 1)];
-
-			EXEC.class = val->_function.class;
-			EXEC.object = val->_function.object;
-			EXEC.nparam = ind;
-
-			if (!val->_function.defined)
-				*PC |= CODE_CALL_VARIANT;
-
-			//if (call_jump[(int)val->_function.kind] == 0)
-			//  fprintf(stderr, "val->_function.kind = %d ?\n", val->_function.kind);
-
-			goto *call_jump[(int)val->_function.kind];
-
-		__CALL_PRIVATE_Q:
-
-			EXEC.native = FALSE;
-			EXEC.index = val->_function.index;
-
-			goto __EXEC_ENTER_Q;
-
-		__CALL_PUBLIC_Q:
-
-			EXEC.native = FALSE;
-			EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
-			EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
-			EXEC.class = EXEC.desc->class;
-
-		__EXEC_ENTER_Q:
-
-			EXEC_enter_quick();
-			goto _MAIN;
-
-		__CALL_NATIVE_Q:
-
-			EXEC.native = TRUE;
-			EXEC.index = val->_function.index;
-			EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
-
-			EXEC_native_quick();
-			goto _NEXT;
-		}
-
-/*-----------------------------------------------*/
-
-#if 0
-_CALL_EASY:
 	{
 		static const void *call_jump[] =
-			{ &&__CALL_NULL, &&__CALL_NATIVE_E, &&__CALL_PRIVATE_E, &&__CALL_PUBLIC_E };
-
-		VALUE * NO_WARNING(val);
+		{
+			&&__CALL_NULL, &&__CALL_NATIVE_Q, &&__CALL_PRIVATE_Q, &&__CALL_PUBLIC_Q,
+			&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
+			&&__CALL_SUBR
+		};
 
 		ind = GET_3X();
 		val = &SP[-(ind + 1)];
@@ -1378,98 +1316,151 @@ _CALL_EASY:
 
 		goto *call_jump[(int)val->_function.kind];
 
-	__CALL_PRIVATE_E:
+	__CALL_PRIVATE_Q:
 
 		EXEC.native = FALSE;
 		EXEC.index = val->_function.index;
 
-		goto __EXEC_ENTER_E;
+		goto __EXEC_ENTER_Q;
 
-	__CALL_PUBLIC_E:
+	__CALL_PUBLIC_Q:
 
 		EXEC.native = FALSE;
 		EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
 		EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
 		EXEC.class = EXEC.desc->class;
 
-	__EXEC_ENTER_E:
+	__EXEC_ENTER_Q:
 
-		EXEC_enter_easy();
+		EXEC_enter_quick();
 		goto _MAIN;
 
-	__CALL_NATIVE_E:
+	__CALL_NATIVE_Q:
 
 		EXEC.native = TRUE;
 		EXEC.index = val->_function.index;
 		EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
 
-		EXEC_native_easy();
+		EXEC_native_quick();
 		goto _NEXT;
 	}
+
+/*-----------------------------------------------*/
+
+#if 0
+_CALL_EASY:
+{
+	static const void *call_jump[] =
+		{ &&__CALL_NULL, &&__CALL_NATIVE_E, &&__CALL_PRIVATE_E, &&__CALL_PUBLIC_E };
+
+	VALUE * NO_WARNING(val);
+
+	ind = GET_3X();
+	val = &SP[-(ind + 1)];
+
+	EXEC.class = val->_function.class;
+	EXEC.object = val->_function.object;
+	EXEC.nparam = ind;
+
+	if (!val->_function.defined)
+		*PC |= CODE_CALL_VARIANT;
+
+	//if (call_jump[(int)val->_function.kind] == 0)
+	//  fprintf(stderr, "val->_function.kind = %d ?\n", val->_function.kind);
+
+	goto *call_jump[(int)val->_function.kind];
+
+__CALL_PRIVATE_E:
+
+	EXEC.native = FALSE;
+	EXEC.index = val->_function.index;
+
+	goto __EXEC_ENTER_E;
+
+__CALL_PUBLIC_E:
+
+	EXEC.native = FALSE;
+	EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
+	EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
+	EXEC.class = EXEC.desc->class;
+
+__EXEC_ENTER_E:
+
+	EXEC_enter_easy();
+	goto _MAIN;
+
+__CALL_NATIVE_E:
+
+	EXEC.native = TRUE;
+	EXEC.index = val->_function.index;
+	EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
+
+	EXEC_native_easy();
+	goto _NEXT;
+}
 #endif
 
 /*-----------------------------------------------*/
 
 _CALL_SLOW:
 
+	{
+		static const void *call_jump[] =
 		{
-			static const void *call_jump[] =
-			{
-				&&__CALL_NULL, &&__CALL_NATIVE_S, &&__CALL_PRIVATE_S, &&__CALL_PUBLIC_S,
-				&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
-				&&__CALL_SUBR
-			};
+			&&__CALL_NULL, &&__CALL_NATIVE_S, &&__CALL_PRIVATE_S, &&__CALL_PUBLIC_S,
+			&&__CALL_EVENT, &&__CALL_EXTERN, &&__CALL_UNKNOWN, &&__CALL_CALL,
+			&&__CALL_SUBR
+		};
 
-			ind = GET_3X();
-			val = &SP[-(ind + 1)];
+		ind = GET_3X();
+		val = &SP[-(ind + 1)];
 
-			EXEC.class = val->_function.class;
-			EXEC.object = val->_function.object;
-			EXEC.nparam = ind;
-			EXEC.use_stack = TRUE;
+		EXEC.class = val->_function.class;
+		EXEC.object = val->_function.object;
+		EXEC.nparam = ind;
+		EXEC.use_stack = TRUE;
 
-			if (!val->_function.defined)
-				*PC |= CODE_CALL_VARIANT;
+		if (!val->_function.defined)
+			*PC |= CODE_CALL_VARIANT;
 
-			goto *call_jump[(int)val->_function.kind];
+		goto *call_jump[(int)val->_function.kind];
 
-		__CALL_PRIVATE_S:
+	__CALL_PRIVATE_S:
 
-			EXEC.native = FALSE;
-			EXEC.index = val->_function.index;
+		EXEC.native = FALSE;
+		EXEC.index = val->_function.index;
 
-			goto __EXEC_ENTER_S;
+		goto __EXEC_ENTER_S;
 
-		__CALL_PUBLIC_S:
+	__CALL_PUBLIC_S:
 
-			EXEC.native = FALSE;
-			EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
-			EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
-			EXEC.class = EXEC.desc->class;
+		EXEC.native = FALSE;
+		EXEC.desc = &EXEC.class->table[val->_function.index].desc->method;
+		EXEC.index = (int)(intptr_t)(EXEC.desc->exec);
+		EXEC.class = EXEC.desc->class;
 
-		__EXEC_ENTER_S:
+	__EXEC_ENTER_S:
 
-			EXEC.func = &EXEC.class->load->func[EXEC.index];
+		EXEC.func = &EXEC.class->load->func[EXEC.index];
 
-			if (EXEC.func->fast && !JIT_exec(TRUE))
-			{
-				goto _NEXT;
-			}
-			else
-			{
-				EXEC_enter();
-				goto _MAIN;
-			}
-
-		__CALL_NATIVE_S:
-
-			EXEC.native = TRUE;
-			EXEC.index = val->_function.index;
-			EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
-
-			EXEC_native();
+		if (EXEC.func->fast && !JIT_exec(TRUE))
+		{
 			goto _NEXT;
 		}
+		else
+		{
+			EXEC_enter();
+			goto _MAIN;
+		}
+
+	__CALL_NATIVE_S:
+
+		EXEC.native = TRUE;
+		EXEC.index = val->_function.index;
+		EXEC.desc = &EXEC.class->table[EXEC.index].desc->method;
+
+		EXEC_native();
+		goto _NEXT;
 	}
 
 /*-----------------------------------------------*/
@@ -1484,7 +1475,6 @@ _JUMP_FIRST:
 
 		TYPE type;
 		VALUE * NO_WARNING(inc);
-		VALUE * NO_WARNING(val);
 		VALUE * NO_WARNING(end);
 
 		ind = GET_XX();
@@ -1650,19 +1640,9 @@ _ENUM_NEXT:
 
 _PUSH_CLASS:
 
-	{
-		CLASS *class = CP->load->class_ref[GET_7XX()];
-
-		//CLASS_load(class);
-		//fprintf(stderr, "PUSH CLASS: %s %s\n", class->name, class->auto_create ? "AUTO CREATE" : "");
-
-		SP->type = T_CLASS;
-		SP->_class.class = class;
-		SP++;
-
-		//fprintf(stderr, "PUSH CLASS: %s in %s\n", SP->_class.class->name, SP->_class.class->component ? SP->_class.class->component->name : NULL);
-	}
-
+	SP->type = T_CLASS;
+	SP->_class.class = CP->load->class_ref[GET_7XX()];;
+	SP++;
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -1729,8 +1709,7 @@ _PUSH_STATIC:
 __READ:
 
 		my_VALUE_class_read(CP, SP, addr, var->type, ref);
-
-		PUSH();
+		SP++;
 		goto _NEXT;
 
 
@@ -1799,15 +1778,13 @@ _ADD_QUICK:
 			};
 
 		TYPE NO_WARNING(type);
-		int NO_WARNING(value);
-		VALUE * NO_WARNING(P1);
 		void * NO_WARNING(jump_end);
 
-		P1 = SP - 1;
+		val = SP - 1;
 
-		jump_end = &&__AQ_END;
-		type = P1->type;
-		value = GET_XXX();
+		jump_end = &&_NEXT;
+		type = val->type;
+		ind = GET_XXX();
 
 	__AQ_JUMP:
 
@@ -1822,56 +1799,56 @@ _ADD_QUICK:
 
 	__AQ_BYTE:
 
-		P1->_integer.value = (unsigned char)(P1->_integer.value + value);
+		val->_integer.value = (unsigned char)(val->_integer.value + ind);
 		goto *jump_end;
 
 	__AQ_SHORT:
 
-		P1->_integer.value = (short)(P1->_integer.value + value);
+		val->_integer.value = (short)(val->_integer.value + ind);
 		goto *jump_end;
 
 	__AQ_INTEGER:
 
-		P1->_integer.value += value;
+		val->_integer.value += ind;
 		goto *jump_end;
 
 	__AQ_LONG:
 
-		P1->_long.value += (int64_t)value;
+		val->_long.value += (int64_t)ind;
 		goto *jump_end;
 
 	__AQ_SINGLE:
 
-		P1->_single.value += (float)value;
+		val->_single.value += (float)ind;
 		goto *jump_end;
 
 	__AQ_DATE:
 	__AQ_STRING:
 
-		VALUE_conv_float(P1);
+		VALUE_conv_float(val);
 
 	__AQ_FLOAT:
 
-		P1->_float.value += (double)value;
+		val->_float.value += (double)ind;
 		goto *jump_end;
 
 	__AQ_POINTER:
 
-		P1->_pointer.value += value;
+		val->_pointer.value += ind;
 		goto *jump_end;
 
 	__AQ_VARIANT:
 
 		jump_end = &&__AQ_VARIANT_END;
-		VARIANT_undo(P1);
-		type = P1->type;
+		VARIANT_undo(val);
+		type = val->type;
 		goto __AQ_JUMP;
 
 	__AQ_OBJECT:
 
-		if (EXEC_check_operator_single(P1, CO_ADDF))
+		if (EXEC_check_operator_single(val, CO_ADDF))
 		{
-			EXEC_operator_object_add_quick(P1, value);
+			EXEC_operator_object_add_quick(val, ind);
 			goto *jump_end;
 		}
 
@@ -1881,9 +1858,7 @@ _ADD_QUICK:
 
 	__AQ_VARIANT_END:
 
-		VALUE_conv_variant(P1);
-
-	__AQ_END:
+		VALUE_conv_variant(val);
 		goto _NEXT;
 	}
 
@@ -1892,9 +1867,7 @@ _ADD_QUICK:
 _PUSH_ARRAY_NATIVE_INTEGER:
 
 	{
-		VALUE *val;
 		CARRAY *array;
-		int i;
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
@@ -1902,12 +1875,12 @@ _PUSH_ARRAY_NATIVE_INTEGER:
 			THROW_NULL();
 
 		VALUE_conv_integer(&val[1]);
-		i = val[1]._integer.value;
+		ind = val[1]._integer.value;
 
-		if (i < 0 || i >= array->count)
-			THROW(E_BOUND);
+		if (ind < 0 || ind >= array->count)
+			THROW_BOUND();
 
-		val->_integer.value = ((int *)(array->data))[i];
+		val->_integer.value = ((int *)(array->data))[ind];
 		val->type = GB_T_INTEGER;
 
 		SP = val + 1;
@@ -1918,9 +1891,7 @@ _PUSH_ARRAY_NATIVE_INTEGER:
 _PUSH_ARRAY_NATIVE_FLOAT:
 
 	{
-		VALUE *val;
 		CARRAY *array;
-		int i;
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
@@ -1928,12 +1899,12 @@ _PUSH_ARRAY_NATIVE_FLOAT:
 			THROW_NULL();
 
 		VALUE_conv_integer(&val[1]);
-		i = val[1]._integer.value;
+		ind = val[1]._integer.value;
 
-		if (i < 0 || i >= array->count)
-			THROW(E_BOUND);
+		if (ind < 0 || ind >= array->count)
+			THROW_BOUND();
 
-		val->_float.value = ((double *)(array->data))[i];
+		val->_float.value = ((double *)(array->data))[ind];
 		val->type = GB_T_FLOAT;
 
 		SP = val + 1;
@@ -1944,7 +1915,6 @@ _PUSH_ARRAY_NATIVE_FLOAT:
 _PUSH_ARRAY_NATIVE_COLLECTION:
 
 	{
-		VALUE *val;
 		GB_COLLECTION col;
 
 		val = &SP[-2];
@@ -1967,9 +1937,7 @@ _PUSH_ARRAY_NATIVE_COLLECTION:
 _POP_ARRAY_NATIVE_INTEGER:
 
 	{
-		VALUE *val;
 		CARRAY *array;
-		int i;
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
@@ -1981,11 +1949,11 @@ _POP_ARRAY_NATIVE_INTEGER:
 		VALUE_conv_integer(&val[-1]);
 		VALUE_conv_integer(&val[1]);
 
-		i = val[1]._integer.value;
-		if (i < 0 || i >= array->count)
-			THROW(E_BOUND);
+		ind = val[1]._integer.value;
+		if (ind < 0 || ind >= array->count)
+			THROW_BOUND();
 
-		((int *)(array->data))[i] = val[-1]._integer.value;
+		((int *)(array->data))[ind] = val[-1]._integer.value;
 
 		SP = val + 1;
 		OBJECT_UNREF(array);
@@ -1996,9 +1964,7 @@ _POP_ARRAY_NATIVE_INTEGER:
 _POP_ARRAY_NATIVE_FLOAT:
 
 	{
-		VALUE *val;
 		CARRAY *array;
-		int i;
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
@@ -2010,11 +1976,11 @@ _POP_ARRAY_NATIVE_FLOAT:
 		VALUE_conv_float(&val[-1]);
 		VALUE_conv_integer(&val[1]);
 
-		i = val[1]._integer.value;
-		if (i < 0 || i >= array->count)
-			THROW(E_BOUND);
+		ind = val[1]._integer.value;
+		if (ind < 0 || ind >= array->count)
+			THROW_BOUND();
 
-		((double *)(array->data))[i] = val[-1]._float.value;
+		((double *)(array->data))[ind] = val[-1]._float.value;
 
 		SP = val + 1;
 		OBJECT_UNREF(array);
@@ -2025,7 +1991,6 @@ _POP_ARRAY_NATIVE_FLOAT:
 _POP_ARRAY_NATIVE_COLLECTION:
 
 	{
-		VALUE *val;
 		GB_COLLECTION col;
 
 		val = &SP[-2];
@@ -2045,79 +2010,59 @@ _POP_ARRAY_NATIVE_COLLECTION:
 
 /*-----------------------------------------------*/
 
-	{
-		VALUE *P1, *P2;
-
 _ADD_INTEGER:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_integer.value += P2->_integer.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._integer.value += SP->_integer.value;
+	goto _NEXT;
 
 _ADD_FLOAT:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_float.value += P2->_float.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._float.value += SP->_float.value;
+	goto _NEXT;
 
 _SUB_INTEGER:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_integer.value -= P2->_integer.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._integer.value -= SP->_integer.value;
+	goto _NEXT;
 
 _SUB_FLOAT:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_float.value -= P2->_float.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._float.value -= SP->_float.value;
+	goto _NEXT;
 
 _MUL_INTEGER:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_integer.value *= P2->_integer.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._integer.value *= SP->_integer.value;
+	goto _NEXT;
 
 _MUL_FLOAT:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		P1->_float.value *= P2->_float.value;
-		SP--;
-		goto _NEXT;
+	SP--;
+	SP[-1]._float.value *= SP->_float.value;
+	goto _NEXT;
 
 _DIV_INTEGER:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-		VALUE_conv_float(P1);
-		VALUE_conv_float(P2);
-		goto _DIV_FLOAT_2;
+	SP--;
+	VALUE_conv_float(&SP[-1]);
+	VALUE_conv_float(SP);
+	SP[-1]._float.value /= SP->_float.value;
+	if (!isfinite(SP[-1]._float.value))
+		THROW(E_ZERO);
+	goto _NEXT;
 
 _DIV_FLOAT:
 
-		P1 = SP - 2;
-		P2 = P1 + 1;
-
-_DIV_FLOAT_2:
-
-		P1->_float.value /= P2->_float.value;
-		if (!isfinite(P1->_float.value))
-			THROW(E_ZERO);
-
-		SP--;
-		goto _NEXT;
-	}
+	SP--;
+	SP[-1]._float.value /= SP->_float.value;
+	if (!isfinite(SP[-1]._float.value))
+		THROW(E_ZERO);
+	goto _NEXT;
 
 /*-----------------------------------------------*/
 
@@ -2162,7 +2107,10 @@ _CATCH:
 
 _BREAK:
 
-	_break(code);
+	if (!EXEC_trace && !EXEC_debug)
+		*PC = C_NOP;
+	else
+		_break(code);
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -2636,7 +2584,30 @@ _SUBR_COMPI:
 
 /*-----------------------------------------------*/
 
-#define EXEC_code code
+_PUSH_VARIABLE:
+
+	{
+		void *object = SP[-1]._object.object;
+		CLASS_DESC *desc = SP[-1]._object.class->table[PC[1]].desc;
+		my_VALUE_class_read(desc->variable.class, &SP[-1], (char *)object + desc->variable.offset, desc->variable.ctype, object);
+		//BORROW(&SP[-1]);
+		OBJECT_UNREF(object);
+	}
+	goto _NEXT;
+
+_POP_VARIABLE:
+
+	{
+		void *object = SP[-1]._object.object;
+		CLASS_DESC *desc = SP[-1]._object.class->table[PC[1]].desc;
+		VALUE_write(&SP[-2], (char *)object + desc->variable.offset, desc->variable.type);
+		RELEASE(&SP[-2]);
+		OBJECT_UNREF(object);
+		SP -= 2;
+	}
+	goto _NEXT;
+
+/*-----------------------------------------------*/
 
 _SUBR_CONV:
 
@@ -2908,21 +2879,6 @@ __END:
 	P1->_boolean.value = result - 1; // ? 0 : -1;
 }
 #endif
-
-/*#define sgn(_x) \
-({ \
-	int x = _x; \
-	int minusOne = x >> 31; \
-	unsigned int negateX = (unsigned int) -x; \
-	int plusOne = (int)(negateX >> 31); \
-  int result = minusOne | plusOne; \
-  result; \
-})*/
-
-/*static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind)
-{
-	VALUE_class_constant_inline(class, value, ind);
-}*/
 
 #define MANAGE_VARIANT_OBJECT(_func, _op, _opcode) \
 ({ \
@@ -4020,7 +3976,7 @@ __PUSH_NATIVE_ARRAY_INTEGER:
 	i = val[1]._integer.value;
 
 	if (i < 0 || i >= array->count)
-		THROW(E_BOUND);
+		THROW_BOUND();
 
 	val->_integer.value = ((int *)(array->data))[i];
 	val->type = GB_T_INTEGER;
@@ -4036,7 +3992,7 @@ __PUSH_NATIVE_ARRAY_FLOAT:
 	i = val[1]._integer.value;
 
 	if (i < 0 || i >= array->count)
-		THROW(E_BOUND);
+		THROW_BOUND();
 
 	val->_float.value = ((double *)(array->data))[i];
 	val->type = GB_T_FLOAT;
@@ -4249,7 +4205,7 @@ __POP_NATIVE_ARRAY_INTEGER:
 
 	i = val[1]._integer.value;
 	if (i < 0 || i >= array->count)
-		THROW(E_BOUND);
+		THROW_BOUND();
 
 	((int *)(array->data))[i] = val[-1]._integer.value;
 	goto __POP_NATIVE_FAST_END;
@@ -4267,7 +4223,7 @@ __POP_NATIVE_ARRAY_FLOAT:
 
 	i = val[1]._integer.value;
 	if (i < 0 || i >= array->count)
-		THROW(E_BOUND);
+		THROW_BOUND();
 
 	((double *)(array->data))[i] = val[-1]._float.value;
 
@@ -4333,14 +4289,8 @@ void EXEC_quit(ushort code)
 	}
 }
 
-static void _break(ushort code)
+NOINLINE static void _break(ushort code)
 {
-	if (!EXEC_trace && !EXEC_debug)
-	{
-		*PC = C_NOP;
-		return;
-	}
-	
 	if (EXEC_trace)
 	{
 		double timer;

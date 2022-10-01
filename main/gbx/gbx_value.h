@@ -416,6 +416,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 			(_value)->_string.addr = str; \
 			(_value)->_string.start = 0; \
 			(_value)->_string.len = STRING_length(str); \
+			STRING_ref(str); \
 			\
 			break; \
 		} \
@@ -435,6 +436,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 	__OBJECT: \
 		(_value)->_object.object = *((void **)(_addr)); \
 		(_value)->type = ((_ctype).value >= 0) ? (TYPE)(_class)->load->class_ref[(_ctype).value] : T_OBJECT; \
+		OBJECT_REF_CHECK((_value)->_object.object); \
 		break; \
 		\
 	__POINTER: \
@@ -447,6 +449,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 		if ((_value)->_variant.vtype == T_VOID) \
 			(_value)->_variant.vtype = T_NULL; \
 		VARIANT_copy_value(&(_value)->_variant, ((VARIANT *)(_addr))); \
+		EXEC_borrow(T_VARIANT, _value); \
 		break; \
 		\
 	__ARRAY: \
@@ -454,6 +457,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 			void *object = CARRAY_create_static((_class), (_ref), (_class)->load->array[(_ctype).value], (_addr)); \
 			(_value)->_object.class = OBJECT_class(object); \
 			(_value)->_object.object = object; \
+			OBJECT_REF(object); \
 			break; \
 		} \
 		\
@@ -462,6 +466,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 			void *object = CSTRUCT_create_static((_ref), (_class)->load->class_ref[(_ctype).value], (_addr)); \
 			(_value)->_object.class = OBJECT_class(object); \
 			(_value)->_object.object = object; \
+			OBJECT_REF(object); \
 			break; \
 		} \
 		\

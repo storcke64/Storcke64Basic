@@ -1552,7 +1552,7 @@ void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)
 				saddr = (char *)src + sizeof(CSTRUCT);
 		
 			VALUE_class_read(desc->variable.class, &temp, &saddr[offset], ctype, src);
-			BORROW(&temp);
+			//BORROW(&temp);
 			VALUE_class_write(sclass, &temp, &addr[offset], ctype);
 			RELEASE(&temp);
 		}	
@@ -1581,7 +1581,7 @@ void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)
 		for (i = 0; i < count; i++)
 		{
 			VALUE_class_read(class, &temp, saddr, ctype, src);
-			BORROW(&temp);
+			//BORROW(&temp);
 			VALUE_class_write(class, &temp, addr, ctype);
 			RELEASE(&temp);
 			saddr += src->size;
