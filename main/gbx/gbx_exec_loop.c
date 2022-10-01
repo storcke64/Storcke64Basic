@@ -2601,6 +2601,8 @@ _POP_VARIABLE:
 
 	{
 		void *object = SP[-1]._object.object;
+		if (!object)
+			THROW_NULL();
 		CLASS_DESC *desc = SP[-1]._object.class->table[PC[1]].desc;
 		VALUE_write(&SP[-2], (char *)object + desc->variable.offset, desc->variable.type);
 		RELEASE(&SP[-2]);
