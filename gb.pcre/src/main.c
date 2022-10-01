@@ -29,6 +29,8 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "config.h"
+
 #if PCRE2
 #include "regexp2.h"
 #else
