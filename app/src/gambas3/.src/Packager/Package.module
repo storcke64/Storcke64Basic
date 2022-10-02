@@ -53,7 +53,7 @@ Private Const GTK3_SUPPORT As String = "gtk3"
 Private GTK3_SUPPORT_PACKAGES As String[] = ["gb.gtk3:gb.gui"] ', "gb.gtk.opengl:gb.gui.opengl"]
 
 Private Const DEBIAN_STANDARD As String = "3.9.6"
-Private Const DEBIAN_DEBHELPER_VERSION As String = "9"
+Private Const DEBIAN_DEBHELPER_VERSION As String = "10"
 Private DEBIAN_ICON_SIZES As Integer[] = [16, 22, 32, 48, 64, 128, 256, 512, 1024]
 
 Public Sub CheckProgram()
