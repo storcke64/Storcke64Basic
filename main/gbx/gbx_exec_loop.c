@@ -469,10 +469,12 @@ void EXEC_loop(void)
 	ushort code;
 	VALUE *NO_WARNING(val);
 
+_CHECK_BYTECODE:
+
 	if (CP->not_3_18 != not_3_18)
 	{
 		not_3_18 = !not_3_18;
-		//fprintf(stderr, "switching to bytecode: %s\n", not_3_18 ? "NOT 3.18" : "3.18");
+		//fprintf(stderr, "switching to bytecode: %s (%s)\n", not_3_18 ? "NOT 3.18" : "3.18", CP->name);
 		if (not_3_18)
 		{
 			for (ind = 0xA1; ind <= 0xAE; ind++)
@@ -1185,7 +1187,7 @@ _CALL:
 		else
 		{
 			EXEC_enter_check(val->_function.defined);
-			goto _MAIN;
+			goto _CHECK_BYTECODE;
 		}
 
 	__EXEC_NATIVE:
@@ -1270,7 +1272,7 @@ _CALL:
 			else
 			{
 				EXEC_enter();
-				goto _MAIN;
+				goto _CHECK_BYTECODE;
 			}
 		}
 
@@ -1333,7 +1335,7 @@ _CALL_QUICK:
 	__EXEC_ENTER_Q:
 
 		EXEC_enter_quick();
-		goto _MAIN;
+		goto _CHECK_BYTECODE;
 
 	__CALL_NATIVE_Q:
 
@@ -1450,7 +1452,7 @@ _CALL_SLOW:
 		else
 		{
 			EXEC_enter();
-			goto _MAIN;
+			goto _CHECK_BYTECODE;
 		}
 
 	__CALL_NATIVE_S:
