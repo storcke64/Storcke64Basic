@@ -146,7 +146,27 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 		#ifdef PROJECT_COMP
 
 		case 0xF:
-			fprintf(out, "PUSH QUICK %d", (short)value);
+			switch (op & 0xFF00)
+			{
+				case C_PUSH_LOCAL_NOREF:
+					fprintf(out, "PUSH LOCAL NOREF %d", (op & 0xFF));
+					break;
+
+				case C_PUSH_PARAM_NOREF:
+					fprintf(out, "PUSH PARAM NOREF %d", (char)(op & 0xFF));
+					break;
+
+				case C_POP_LOCAL_NOREF:
+					fprintf(out, "POP LOCAL NOREF %d", (op & 0xFF));
+					break;
+
+				case C_POP_PARAM_NOREF:
+					fprintf(out, "POP PARAM NOREF %d", (char)(op & 0xFF));
+					break;
+
+				default:
+					fprintf(out, "PUSH QUICK %d", (short)value);
+			}
 			break;
 
 		case 0xE:
@@ -208,7 +228,27 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 		#else
 
 		case 0xF:
-			fprintf(out, "PUSH QUICK %d", (short)value);
+			switch (op & 0xFF00)
+			{
+				case C_PUSH_LOCAL_NOREF:
+					fprintf(out, "PUSH LOCAL NOREF %d", (op & 0xFF));
+					break;
+
+				case C_PUSH_PARAM_NOREF:
+					fprintf(out, "PUSH PARAM NOREF %d", (char)(op & 0xFF));
+					break;
+
+				case C_POP_LOCAL_NOREF:
+					fprintf(out, "POP LOCAL NOREF %d", (op & 0xFF));
+					break;
+
+				case C_POP_PARAM_NOREF:
+					fprintf(out, "POP PARAM NOREF %d", (char)(op & 0xFF));
+					break;
+
+				default:
+					fprintf(out, "PUSH QUICK %d", (short)value);
+			}
 			break;
 
 		case 0xE:

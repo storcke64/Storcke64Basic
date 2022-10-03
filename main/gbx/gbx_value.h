@@ -363,11 +363,11 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 
 #define VALUE_is_super(_value) (EXEC_super && EXEC_super == (_value)->_object.super)
 
-#define VALUE_class_read_inline(_class, _value, _addr, _ctype, _ref) \
+#define VALUE_class_read_inline(_class, _value, _addr, _ctype, _ref, _prefix) \
 ({ \
 	static void *jump[17] = { \
-		&&__VOID, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT, &&__DATE, \
-		&&__STRING, &&__CSTRING, &&__POINTER, &&__VARIANT, &&__ARRAY, &&__STRUCT, &&__NULL, &&__OBJECT \
+		&&__##_prefix##VOID, &&__##_prefix##BOOLEAN, &&__##_prefix##BYTE, &&__##_prefix##SHORT, &&__##_prefix##INTEGER, &&__##_prefix##LONG, &&__##_prefix##SINGLE, &&__##_prefix##FLOAT, &&__##_prefix##DATE, \
+		&&__##_prefix##STRING, &&__##_prefix##CSTRING, &&__##_prefix##POINTER, &&__##_prefix##VARIANT, &&__##_prefix##ARRAY, &&__##_prefix##STRUCT, &&__##_prefix##NULL, &&__##_prefix##OBJECT \
 		}; \
 	\
 	for(;;) \
@@ -375,40 +375,40 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 		(_value)->type = (_ctype).id; \
 		goto *jump[(_ctype).id]; \
 		\
-	__BOOLEAN: \
+	__##_prefix##BOOLEAN: \
 		(_value)->_boolean.value = -(*((unsigned char *)(_addr)) != 0); \
 		break; \
 		\
-	__BYTE: \
+	__##_prefix##BYTE: \
 		(_value)->_byte.value = *((unsigned char *)(_addr)); \
 		break; \
 		\
-	__SHORT: \
+	__##_prefix##SHORT: \
 		(_value)->_short.value = *((short *)(_addr)); \
 		break; \
 		\
-	__INTEGER: \
+	__##_prefix##INTEGER: \
 		(_value)->_integer.value = *((int *)(_addr)); \
 		break; \
 		\
-	__LONG: \
+	__##_prefix##LONG: \
 		(_value)->_long.value = *((int64_t *)(_addr)); \
 		break; \
 		\
-	__SINGLE: \
+	__##_prefix##SINGLE: \
 		(_value)->_single.value = *((float *)(_addr)); \
 		break; \
 		\
-	__FLOAT: \
+	__##_prefix##FLOAT: \
 		(_value)->_float.value = *((double *)(_addr)); \
 		break; \
 		\
-	__DATE: \
+	__##_prefix##DATE: \
 		(_value)->_date.date = ((int *)(_addr))[0]; \
 		(_value)->_date.time = ((int *)(_addr))[1]; \
 		break; \
 		\
-	__STRING: \
+	__##_prefix##STRING: \
 		{ \
 			char *str = *((char **)(_addr)); \
 			\
@@ -421,7 +421,7 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 			break; \
 		} \
 		\
-	__CSTRING: \
+	__##_prefix##CSTRING: \
 		{ \
 			char *str = *((char **)(_addr)); \
 			\
@@ -433,17 +433,17 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 			break; \
 		} \
 		\
-	__OBJECT: \
+	__##_prefix##OBJECT: \
 		(_value)->_object.object = *((void **)(_addr)); \
 		(_value)->type = ((_ctype).value >= 0) ? (TYPE)(_class)->load->class_ref[(_ctype).value] : T_OBJECT; \
 		OBJECT_REF_CHECK((_value)->_object.object); \
 		break; \
 		\
-	__POINTER: \
+	__##_prefix##POINTER: \
 		(_value)->_pointer.value = *((void **)(_addr)); \
 		break; \
 		\
-	__VARIANT: \
+	__##_prefix##VARIANT: \
 		(_value)->_variant.type = T_VARIANT; \
 		(_value)->_variant.vtype = ((VARIANT *)(_addr))->type; \
 		if ((_value)->_variant.vtype == T_VOID) \
@@ -452,26 +452,26 @@ void THROW_TYPE(TYPE wanted, TYPE got) NORETURN;
 		EXEC_borrow(T_VARIANT, _value); \
 		break; \
 		\
-	__ARRAY: \
+	__##_prefix##ARRAY: \
 		{ \
-			void *object = CARRAY_create_static((_class), (_ref), (_class)->load->array[(_ctype).value], (_addr)); \
-			(_value)->_object.class = OBJECT_class(object); \
-			(_value)->_object.object = object; \
-			OBJECT_REF(object); \
+			void *_array = CARRAY_create_static((_class), (_ref), (_class)->load->array[(_ctype).value], (_addr)); \
+			(_value)->_object.class = OBJECT_class(_array); \
+			(_value)->_object.object = _array; \
+			OBJECT_REF(_array); \
 			break; \
 		} \
 		\
-	__STRUCT: \
+	__##_prefix##STRUCT: \
 		{ \
-			void *object = CSTRUCT_create_static((_ref), (_class)->load->class_ref[(_ctype).value], (_addr)); \
-			(_value)->_object.class = OBJECT_class(object); \
-			(_value)->_object.object = object; \
-			OBJECT_REF(object); \
+			void *_struct = CSTRUCT_create_static((_ref), (_class)->load->class_ref[(_ctype).value], (_addr)); \
+			(_value)->_object.class = OBJECT_class(_struct); \
+			(_value)->_object.object = _struct; \
+			OBJECT_REF(_struct); \
 			break; \
 		} \
 		\
-	__VOID: \
-	__NULL: \
+	__##_prefix##VOID: \
+	__##_prefix##NULL: \
 		THROW_ILLEGAL(); \
 	} \
 })

@@ -122,7 +122,8 @@ void CODE_dump(PCODE *code, int count);
 void CODE_push_number(int value);
 void CODE_push_const(ushort value);
 
-void CODE_push_local(short num);
+void CODE_push_local_ref(short num, bool noref);
+#define CODE_push_local(_num) CODE_push_local_ref(_num, TRUE);
 //void CODE_push_param(short num);
 void CODE_push_array(short nparam);
 void CODE_push_global(short global, bool is_static, bool is_function);

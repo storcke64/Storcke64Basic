@@ -66,8 +66,6 @@
 #define GET_0X()    (code & 0xF)
 #define TEST_XX()   (code & 1)
 
-static void my_VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref);
-//static void my_VALUE_class_constant(CLASS *class, VALUE *value, int ind);
 NOINLINE static void _break(ushort code);
 
 //static void _SUBR_comp(ushort code);
@@ -77,6 +75,13 @@ static void _SUBR_add(ushort code);
 static void _SUBR_sub(ushort code);
 static void _SUBR_mul(ushort code);
 static void _SUBR_div(ushort code);
+
+#define my_VALUE_class_read VALUE_class_read_inline
+
+NOINLINE static void SUBR_left(ushort code);
+NOINLINE static void SUBR_right(ushort code);
+NOINLINE static void SUBR_mid(ushort code);
+NOINLINE static void SUBR_len(void);
 
 //---- Subroutine dispatch table --------------------------------------------
 
@@ -193,12 +198,72 @@ const void *EXEC_subr_table[] =
 
 //---- Main interpreter loop ------------------------------------------------
 
+/*static void my_VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref)
+{
+	VALUE_class_read_inline(class, value, addr, ctype, ref);
+}*/
+
+static void _switch_bytecode(bool not_3_18, const void *jump_table[], const void *jump_table_3_18_AXXX[], const void *jump_table_3_18_FXXX[])
+{
+	int i;
+
+	if (not_3_18)
+	{
+		for (i = 0xA1; i <= 0xAE; i++)
+			jump_table[i] = jump_table[0xA0];
+		for (i = 0xF1; i <= 0xFE; i++)
+			jump_table[i] = jump_table[0xF0];
+	}
+	else
+	{
+		for(i = 1; i <= 14; i++)
+		{
+			jump_table[0xA0 + i] = jump_table_3_18_AXXX[i];
+			jump_table[0xF0 + i] = jump_table_3_18_FXXX[i];
+		}
+	}
+}
+
 static void _pop_ctrl(int ind)
 {
 	VALUE *val = &BP[ind];
 	RELEASE(val);
 	SP--;
 	*val = *SP;
+}
+
+NOINLINE static void _push_event(int ind)
+{
+	if (ind >= 0xFE)
+		ind = EXEC_push_unknown_event(ind & 1);
+	else if (CP->parent)
+		ind += CP->parent->n_event;
+
+	SP->type = T_FUNCTION;
+	SP->_function.kind = FUNCTION_EVENT;
+	SP->_function.index = ind;
+	SP->_function.defined = FALSE;
+	SP->_function.class = NULL;
+	SP->_function.object = NULL;
+	SP++;
+}
+
+NOINLINE static void _pop_optional(int ind)
+{
+	VALUE *val = &PP[ind];
+
+	if (val->type == T_VOID)
+	{
+		if (SP[-1].type == T_VOID)
+			VALUE_default(&SP[-1], val->_void.ptype);
+		else
+			VALUE_conv(&SP[-1], val->_void.ptype);
+
+		SP--;
+		*val = *SP;
+	}
+	else
+		POP();
 }
 
 void EXEC_loop(void)
@@ -446,16 +511,54 @@ void EXEC_loop(void)
 		/* EE PUSH CONST      */  &&_PUSH_CONST,
 		/* EF PUSH CONST      */  &&_PUSH_CONST_EX,
 		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F1 PUSH QUICK      */  &&_PUSH_VARIABLE,
-		/* F2 PUSH QUICK      */  &&_POP_VARIABLE,
+		/* F1 PUSH QUICK      */  &&_PUSH_LOCAL_NOREF,
+		/* F2 PUSH QUICK      */  &&_PUSH_PARAM_NOREF,
 		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F5 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F6 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
+		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F7 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F9 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FA PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
+		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
+		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FE PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FF PUSH QUICK      */  &&_PUSH_QUICK
+	};
+
+	static const void *jump_table_3_18_AXXX[] = {
+		/* A0 ADD QUICK       */  &&_ADD_QUICK,
+		/* A1 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_INTEGER,
+		/* A2 ADD QUICK       */  &&_POP_ARRAY_NATIVE_INTEGER,
+		/* A3 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_FLOAT,
+		/* A4 ADD QUICK       */  &&_POP_ARRAY_NATIVE_FLOAT,
+		/* A5 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_COLLECTION,
+		/* A6 ADD QUICK       */  &&_POP_ARRAY_NATIVE_COLLECTION,
+		/* A7 ADD QUICK       */  &&_ADD_INTEGER,
+		/* A8 ADD QUICK       */  &&_ADD_FLOAT,
+		/* A9 ADD QUICK       */  &&_SUB_INTEGER,
+		/* AA ADD QUICK       */  &&_SUB_FLOAT,
+		/* AB ADD QUICK       */  &&_MUL_INTEGER,
+		/* AC ADD QUICK       */  &&_MUL_FLOAT,
+		/* AD ADD QUICK       */  &&_DIV_INTEGER,
+		/* AE ADD QUICK       */  &&_DIV_FLOAT,
+		/* AF ADD QUICK       */  &&_ADD_QUICK
+	};
+
+	static const void *jump_table_3_18_FXXX[] = {
+		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F1 PUSH QUICK      */  &&_PUSH_LOCAL_NOREF,
+		/* F2 PUSH QUICK      */  &&_PUSH_PARAM_NOREF,
+		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
+		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
+		/* F7 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
+		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
 		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
@@ -474,33 +577,7 @@ _CHECK_BYTECODE:
 	if (CP->not_3_18 != not_3_18)
 	{
 		not_3_18 = !not_3_18;
-		//fprintf(stderr, "switching to bytecode: %s (%s)\n", not_3_18 ? "NOT 3.18" : "3.18", CP->name);
-		if (not_3_18)
-		{
-			for (ind = 0xA1; ind <= 0xAE; ind++)
-				jump_table[ind] = &&_ADD_QUICK;
-			for (ind = 0xF1; ind <= 0xFE; ind++)
-				jump_table[ind] = &&_PUSH_QUICK;
-		}
-		else
-		{
-			jump_table[0xA1] = &&_PUSH_ARRAY_NATIVE_INTEGER;
-			jump_table[0xA2] = &&_POP_ARRAY_NATIVE_INTEGER;
-			jump_table[0xA3] = &&_PUSH_ARRAY_NATIVE_FLOAT;
-			jump_table[0xA4] = &&_POP_ARRAY_NATIVE_FLOAT;
-			jump_table[0xA5] = &&_PUSH_ARRAY_NATIVE_COLLECTION;
-			jump_table[0xA6] = &&_POP_ARRAY_NATIVE_COLLECTION;
-			jump_table[0xA7] = &&_ADD_INTEGER;
-			jump_table[0xA8] = &&_ADD_FLOAT;
-			jump_table[0xA9] = &&_SUB_INTEGER;
-			jump_table[0xAA] = &&_SUB_FLOAT;
-			jump_table[0xAB] = &&_MUL_INTEGER;
-			jump_table[0xAC] = &&_MUL_FLOAT;
-			jump_table[0xAD] = &&_DIV_INTEGER;
-			jump_table[0xAE] = &&_DIV_FLOAT;
-			jump_table[0xF1] = &&_PUSH_VARIABLE;
-			jump_table[0xF2] = &&_POP_VARIABLE;
-		}
+		_switch_bytecode(not_3_18, jump_table, jump_table_3_18_AXXX, jump_table_3_18_FXXX);
 	}
 
 	goto _MAIN;
@@ -600,6 +677,11 @@ _PUSH_LOCAL:
 
 	goto _NEXT;
 
+_PUSH_LOCAL_NOREF:
+
+	*SP++ = BP[GET_XX()];
+	goto _NEXT;
+
 /*-----------------------------------------------*/
 
 _PUSH_PARAM:
@@ -607,6 +689,11 @@ _PUSH_PARAM:
 	*SP = PP[GET_XX()];
 	PUSH();
 
+	goto _NEXT;
+
+_PUSH_PARAM_NOREF:
+
+	*SP++ = PP[GET_XX()];
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -644,36 +731,27 @@ _PUSH_EVENT:
 		Then CALL QUICK must know how to handle these functions.
 	*/
 
-	ind = GET_UX();
-
-	if (ind >= 0xFE)
-		ind = EXEC_push_unknown_event(ind & 1);
-	else if (CP->parent)
-		ind += CP->parent->n_event;
-
-	SP->type = T_FUNCTION;
-	SP->_function.kind = FUNCTION_EVENT;
-	SP->_function.index = ind;
-	SP->_function.defined = FALSE;
-	SP->_function.class = NULL;
-	SP->_function.object = NULL;
-	SP++;
-
+	_push_event(GET_UX());
 	goto _NEXT;
 
 /*-----------------------------------------------*/
 
 _POP_LOCAL:
 
-	{
-		val = &BP[GET_XX()];
+	val = &BP[GET_XX()];
+	VALUE_conv(&SP[-1], val->type);
+	RELEASE(val);
+	SP--;
+	*val = *SP;
 
-		VALUE_conv(&SP[-1], val->type);
+	goto _NEXT;
 
-		RELEASE(val);
-		SP--;
-		*val = *SP;
-	}
+_POP_LOCAL_NOREF:
+
+	val = &BP[GET_XX()];
+	VALUE_conv(&SP[-1], val->type);
+	SP--;
+	*val = *SP;
 
 	goto _NEXT;
 
@@ -681,16 +759,19 @@ _POP_LOCAL:
 
 _POP_PARAM:
 
-	{
-		val = &PP[GET_XX()];
+	val = &PP[GET_XX()];
+	VALUE_conv(&SP[-1], val->type);
+	RELEASE(val);
+	SP--;
+	*val = *SP;
+	goto _NEXT;
 
-		VALUE_conv(&SP[-1], val->type);
+_POP_PARAM_NOREF:
 
-		RELEASE(val);
-		SP--;
-		*val = *SP;
-	}
-
+	val = &PP[GET_XX()];
+	VALUE_conv(&SP[-1], val->type);
+	SP--;
+	*val = *SP;
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -718,23 +799,7 @@ _POP_UNKNOWN:
 
 _POP_OPTIONAL:
 
-	{
-		val = &PP[GET_XX()];
-
-		if (val->type == T_VOID)
-		{
-			if (SP[-1].type == T_VOID)
-				VALUE_default(&SP[-1], val->_void.ptype);
-			else
-				VALUE_conv(&SP[-1], val->_void.ptype);
-
-			SP--;
-			*val = *SP;
-		}
-		else
-			POP();
-	}
-
+	_pop_optional(GET_XX());
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -1475,41 +1540,41 @@ _JUMP_FIRST:
 				NULL, &&_JN_INTEGER_INC, &&_JN_BYTE, &&_JN_SHORT, &&_JN_INTEGER_DEC, &&_JN_LONG, &&_JN_SINGLE, &&_JN_FLOAT
 			};
 
-		TYPE type;
 		VALUE * NO_WARNING(inc);
 		VALUE * NO_WARNING(end);
+		TYPE type;
 
 		ind = GET_XX();
-		
+
 		end = &BP[ind];
 		inc = &BP[ind + 1];
 		val = &BP[PC[3] & 0xFF];
-		
+
 		type = val->type;
-	
+
 		if (type < T_BYTE || type > T_FLOAT)
 			THROW(E_TYPE, "Number", TYPE_get_name(type));
-		
+
 		if (type > T_INTEGER)
 			VALUE_conv(&SP[-1], type);
 		else
 			VALUE_conv_integer(&SP[-1]);
 
 		VALUE_conv(&SP[-2], type);
-		
+
 		_pop_ctrl(ind + 1); /* modifie val ! */
 		_pop_ctrl(ind);
-		val = &BP[PC[3] & 0xFF];
-		
+		//val = &BP[PC[3] & 0xFF];
+
 		// loop mode is stored in the inc type. It must be strictly lower than T_STRING
-		
+
 		if (type == T_INTEGER && inc->_integer.value > 0)
 			type = 1;
 
 		inc->type = type;
-		
+
 		PC++;
-		
+
 		if (type <= T_INTEGER)
 		{
 			if (inc->_integer.value < 0)
@@ -1686,9 +1751,9 @@ _PUSH_EXTERN:
 /*-----------------------------------------------*/
 
 	{
-		CLASS_VAR *var;
-		char *addr;
-		void *ref;
+		CLASS_VAR *NO_WARNING(var);
+		char *NO_WARNING(addr);
+		void *NO_WARNING(ref);
 
 _PUSH_DYNAMIC:
 
@@ -1710,7 +1775,7 @@ _PUSH_STATIC:
 
 __READ:
 
-		my_VALUE_class_read(CP, SP, addr, var->type, ref);
+		my_VALUE_class_read(CP, SP, addr, var->type, ref, PDS);
 		SP++;
 		goto _NEXT;
 
@@ -1873,10 +1938,11 @@ _PUSH_ARRAY_NATIVE_INTEGER:
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
+
 		if (!array)
 			THROW_NULL();
 
-		VALUE_conv_integer(&val[1]);
+		//VALUE_conv_integer(&SP[-1]);
 		ind = val[1]._integer.value;
 
 		if (ind < 0 || ind >= array->count)
@@ -1885,8 +1951,8 @@ _PUSH_ARRAY_NATIVE_INTEGER:
 		val->_integer.value = ((int *)(array->data))[ind];
 		val->type = GB_T_INTEGER;
 
-		SP = val + 1;
 		OBJECT_UNREF(array);
+		SP--;
 		goto _NEXT;
 	}
 
@@ -1897,10 +1963,11 @@ _PUSH_ARRAY_NATIVE_FLOAT:
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
+
 		if (!array)
 			THROW_NULL();
 
-		VALUE_conv_integer(&val[1]);
+		//VALUE_conv_integer(&SP[-1]);
 		ind = val[1]._integer.value;
 
 		if (ind < 0 || ind >= array->count)
@@ -1909,30 +1976,33 @@ _PUSH_ARRAY_NATIVE_FLOAT:
 		val->_float.value = ((double *)(array->data))[ind];
 		val->type = GB_T_FLOAT;
 
-		SP = val + 1;
 		OBJECT_UNREF(array);
+		SP--;
 		goto _NEXT;
 	}
 
 _PUSH_ARRAY_NATIVE_COLLECTION:
 
+#if 0
 	{
 		GB_COLLECTION col;
 
 		val = &SP[-2];
 		col = (GB_COLLECTION)val->_object.object;
+
 		if (!col)
 			THROW_NULL();
 
 		VALUE_conv_string(&val[1]);
-		GB_CollectionGet(col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)val);
+		GB_CollectionGet(col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)&SP[-2]);
 
 		RELEASE_STRING(&val[1]);
-		SP = val;
-		PUSH();
+		SP--;
+		BORROW(&SP[-1]);
 		OBJECT_UNREF(col);
 		goto _NEXT;
 	}
+#endif
 
 /*-----------------------------------------------*/
 
@@ -1943,13 +2013,11 @@ _POP_ARRAY_NATIVE_INTEGER:
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
+
 		if (!array)
-			THROW(E_NULL);
+			THROW_NULL();
 
 		CARRAY_check_not_read_only(array);
-
-		VALUE_conv_integer(&val[-1]);
-		VALUE_conv_integer(&val[1]);
 
 		ind = val[1]._integer.value;
 		if (ind < 0 || ind >= array->count)
@@ -1957,9 +2025,8 @@ _POP_ARRAY_NATIVE_INTEGER:
 
 		((int *)(array->data))[ind] = val[-1]._integer.value;
 
-		SP = val + 1;
 		OBJECT_UNREF(array);
-		SP -= 2;
+		SP -= 3;
 		goto _NEXT;
 	}
 
@@ -1970,28 +2037,29 @@ _POP_ARRAY_NATIVE_FLOAT:
 
 		val = &SP[-2];
 		array = (CARRAY *)val->_object.object;
+
 		if (!array)
 			THROW_NULL();
 
 		CARRAY_check_not_read_only(array);
 
-		VALUE_conv_float(&val[-1]);
-		VALUE_conv_integer(&val[1]);
+		//VALUE_conv_float(&SP[-3]);
+		//VALUE_conv_integer(&SP[-1]);
 
 		ind = val[1]._integer.value;
 		if (ind < 0 || ind >= array->count)
 			THROW_BOUND();
 
-		((double *)(array->data))[ind] = val[-1]._float.value;
+		((double *)(array->data))[ind] = SP[-3]._float.value;
 
-		SP = val + 1;
 		OBJECT_UNREF(array);
-		SP -= 2;
+		SP -= 3;
 		goto _NEXT;
 	}
 
 _POP_ARRAY_NATIVE_COLLECTION:
 
+#if 0
 	{
 		GB_COLLECTION col;
 
@@ -2003,12 +2071,16 @@ _POP_ARRAY_NATIVE_COLLECTION:
 		VALUE_conv_variant(&val[-1]);
 		VALUE_conv_string(&val[1]);
 
-		if (GB_CollectionSet((GB_COLLECTION)col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)&val[-1]))
+		if (GB_CollectionSet((GB_COLLECTION)col, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)&SP[-3]))
 			PROPAGATE();
 
-		RELEASE_MANY(SP, 3);
+		RELEASE_STRING(&val[1]);
+		OBJECT_UNREF(col);
+		RELEASE_VARIANT(&val[-1]);
+		SP -= 3;
 		goto _NEXT;
 	}
+#endif
 
 /*-----------------------------------------------*/
 
@@ -2589,11 +2661,15 @@ _SUBR_COMPI:
 _PUSH_VARIABLE:
 
 	{
-		void *object = SP[-1]._object.object;
+		void *NO_WARNING(object);
+		CLASS_DESC *NO_WARNING(desc);
+
+		val = &SP[-1];
+		object = val->_object.object;
 		if (!object)
 			THROW_NULL();
-		CLASS_DESC *desc = SP[-1]._object.class->table[PC[1]].desc;
-		my_VALUE_class_read(desc->variable.class, &SP[-1], (char *)object + desc->variable.offset, desc->variable.ctype, object);
+		desc = val->_object.class->table[PC[1]].desc;
+		my_VALUE_class_read(desc->variable.class, val, (char *)object + desc->variable.offset, desc->variable.ctype, object, PV);
 		//BORROW(&SP[-1]);
 		OBJECT_UNREF(object);
 	}
@@ -2645,21 +2721,7 @@ _SUBR_MID:
 
 _SUBR_LEN:
 
-	{
-		int len;
-
-		SUBR_GET_PARAM(1);
-
-		if (SUBR_check_string(PARAM))
-			len = 0;
-		else
-			len = PARAM->_string.len;
-
-		RELEASE_STRING(PARAM);
-
-		PARAM->type = T_INTEGER;
-		PARAM->_integer.value = len;
-	}
+	SUBR_len();
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -2692,11 +2754,6 @@ _SUBR_DIV:
 
 }
 
-
-static void my_VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref)
-{
-	VALUE_class_read_inline(class, value, addr, ctype, ref);
-}
 
 
 #if 0
@@ -3858,26 +3915,24 @@ __PUSH_GENERIC:
 				array = (CARRAY *)object;
 				if (array->type == GB_T_INTEGER)
 				{
-					if (CP->not_3_18)
-					{
-						fast = 0xD0;
-					}
-					else
+					if (!CP->not_3_18 && SP[-1].type == T_INTEGER)
 					{
 						*PC = C_PUSH_ARRAY_NATIVE_INTEGER;
 						goto __PUSH_ARRAY_2;
 					}
+
+					fast = 0xD0;
 				}
 				else if (array->type == GB_T_FLOAT)
 				{
-					if (CP->not_3_18)
-					{
-						fast = 0xE0;
-					}
-					else
+					if (!CP->not_3_18 && SP[-1].type == T_INTEGER)
 					{
 						*PC = C_PUSH_ARRAY_NATIVE_FLOAT;
 						goto __PUSH_ARRAY_2;
+					}
+					else
+					{
+						fast = 0xE0;
 					}
 				}
 				else if (TYPE_is_object(array->type))
@@ -3900,7 +3955,7 @@ __PUSH_GENERIC:
 			else if (np > 1)
 				THROW(E_TMPARAM);
 
-			if (CP->not_3_18)
+			if (TRUE) //CP->not_3_18)
 			{
 				fast = 0xC0;
 			}
@@ -4081,26 +4136,26 @@ __POP_GENERIC:
 				array = (CARRAY *)object;
 				if (array->type == GB_T_INTEGER)
 				{
-					if (CP->not_3_18)
-					{
-						fast = 0xD0;
-					}
-					else
+					if (!CP->not_3_18 && SP[-1].type == T_INTEGER && SP[-3].type == T_INTEGER)
 					{
 						*PC = C_POP_ARRAY_NATIVE_INTEGER;
 						goto __POP_ARRAY_2;
 					}
+					else
+					{
+						fast = 0xD0;
+					}
 				}
 				else if (array->type == GB_T_FLOAT)
 				{
-					if (CP->not_3_18)
-					{
-						fast = 0xE0;
-					}
-					else
+					if (!CP->not_3_18 && SP[-1].type == T_INTEGER && SP[-3].type == T_FLOAT)
 					{
 						*PC = C_POP_ARRAY_NATIVE_FLOAT;
 						goto __POP_ARRAY_2;
+					}
+					else
+					{
+						fast = 0xE0;
 					}
 				}
 				else if (TYPE_is_object(array->type))
@@ -4123,7 +4178,7 @@ __POP_GENERIC:
 			else if (np > 2)
 				THROW(E_TMPARAM);
 
-			if (CP->not_3_18)
+			if (TRUE) //CP->not_3_18)
 			{
 				fast = 0xC0;
 			}
@@ -4181,7 +4236,10 @@ __POP_NATIVE_COLLECTION:
 	if (GB_CollectionSet((GB_COLLECTION)object, val[1]._string.addr + val[1]._string.start, val[1]._string.len, (GB_VARIANT *)&val[-1]))
 		PROPAGATE();
 
-	RELEASE_MANY(SP, 3);
+	RELEASE_STRING(&val[1]);
+	OBJECT_UNREF(object)
+	RELEASE_VARIANT(&val[-1]);
+	SP -= 3;
 	return;
 
 __POP_NATIVE_ARRAY_SIMPLE:
@@ -4363,7 +4421,7 @@ NOINLINE static void _break(ushort code)
 	}
 }
 
-void SUBR_left(ushort code)
+NOINLINE static void SUBR_left(ushort code)
 {
 	int val;
 
@@ -4389,7 +4447,7 @@ void SUBR_left(ushort code)
 	SP++;
 }
 
-void SUBR_mid(ushort code)
+NOINLINE static void SUBR_mid(ushort code)
 {
 	int start;
 	int len;
@@ -4444,7 +4502,7 @@ _SUBR_MID_FIN:
 	SP++;
 }
 
-void SUBR_right(ushort code)
+NOINLINE static void SUBR_right(ushort code)
 {
 	int val;
 	int new_len;
@@ -4474,3 +4532,20 @@ void SUBR_right(ushort code)
 	SP++;
 }
 
+
+NOINLINE static void SUBR_len(void)
+{
+	int len;
+
+	SUBR_GET_PARAM(1);
+
+	if (SUBR_check_string(PARAM))
+		len = 0;
+	else
+		len = PARAM->_string.len;
+
+	RELEASE_STRING(PARAM);
+
+	PARAM->type = T_INTEGER;
+	PARAM->_integer.value = len;
+}

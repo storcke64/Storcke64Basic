@@ -1511,7 +1511,7 @@ void VALUE_from_local_string(VALUE *value, const char *addr, int len)
 
 void VALUE_class_read(CLASS *class, VALUE *value, char *addr, CTYPE ctype, void *ref)
 {
-	VALUE_class_read_inline(class, value, addr, ctype, ref);
+	VALUE_class_read_inline(class, value, addr, ctype, ref, VCR);
 }
 
 void VALUE_class_write(CLASS *class, VALUE *value, char *addr, CTYPE ctype)

@@ -100,6 +100,8 @@ EXTERN char *TYPE_name[];
 #define TYPE_make_simple(_id) ({ TYPE _t; _t.t.flag = 0; _t.t.id = (_id); _t.t.value = -1; _t; })
 #define TYPE_make(_id, _value, _flag) ({ TYPE _t; _t.t.flag = (_flag); _t.t.id = (_id); _t.t.value = ((_id) == T_OBJECT || (_id) == T_ARRAY || (_id) == T_STRUCT) ? (_value) : -1; _t; })
 
+#define TYPE_must_ref(type)  (TYPE_get_id(type) >= T_STRING)
+
 /*PUBLIC long TYPE_get_class(TYPE type);*/
 //TYPE TYPE_make(TYPE_ID id, short value, int flag);
 const char *TYPE_get_short_desc(TYPE type);

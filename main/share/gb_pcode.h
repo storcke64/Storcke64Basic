@@ -30,8 +30,12 @@
 
 #define C_PUSH_QUICK            0xF000
 
-#define C_PUSH_VARIABLE           0xF100
-#define C_POP_VARIABLE            0xF200
+#define C_PUSH_LOCAL_NOREF        0xF100
+#define C_PUSH_PARAM_NOREF        0xF200
+#define C_PUSH_VARIABLE           0xF500
+#define C_POP_VARIABLE            0xF600
+#define C_POP_LOCAL_NOREF         0xF900
+#define C_POP_PARAM_NOREF         0xFA00
 
 #define C_PUSH_CONST            0xE000
 

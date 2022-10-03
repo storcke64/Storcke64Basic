@@ -178,9 +178,10 @@ void SUBR_varptr(ushort code)
 	}
 	else
 	{
-		if ((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_PARAM)
+		if ((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_PARAM
+			  || (op & 0xFF00) == C_PUSH_LOCAL_NOREF || (op & 0xFF00) == C_PUSH_PARAM_NOREF)
 		{
-			if ((op & 0xFF00) == C_PUSH_PARAM)
+			if ((op & 0xFF00) == C_PUSH_PARAM || (op & 0xFF00) == C_PUSH_PARAM_NOREF)
 				val = &PP[(signed char)(op & 0xFF)];
 			else
 				val = &BP[op & 0xFF];

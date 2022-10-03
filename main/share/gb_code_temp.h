@@ -272,7 +272,7 @@ bool CODE_popify_last(void)
 
 	op = *last_code & 0xFF00;
 
-	if ((op >= C_PUSH_LOCAL) && (op <= C_PUSH_UNKNOWN))
+	if ((op >= C_PUSH_LOCAL && op <= C_PUSH_UNKNOWN) || op == C_PUSH_LOCAL_NOREF || op == C_PUSH_PARAM_NOREF)
 	{
 		*last_code += 0x0800;
 		use_stack(-2);
@@ -345,7 +345,7 @@ bool CODE_check_pop_local_last(short *local)
 	if (!last_code)
 		return FALSE;
 
-	if ((*last_code & 0xFF00) == C_POP_LOCAL)
+	if ((*last_code & 0xFF00) == C_POP_LOCAL || (*last_code & 0xFF00) == C_POP_LOCAL_NOREF)
 	{
 		*local = *last_code & 0xFF;
 		return TRUE;
@@ -382,7 +382,9 @@ bool CODE_check_varptr(void)
 		return TRUE;
 
 	op = *last_code;
-	if (!((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_PARAM || (op & 0xF800) == C_PUSH_STATIC || (op & 0xF800) == C_PUSH_DYNAMIC))
+	if (!((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_LOCAL_NOREF
+			|| (op & 0xFF00) == C_PUSH_PARAM || (op & 0xF800) == C_PUSH_STATIC
+			|| (op & 0xF800) == C_PUSH_DYNAMIC))
 		return TRUE;
 
 	*last_code = C_PUSH_INTEGER;
@@ -419,7 +421,7 @@ bool CODE_check_ismissing(void)
 		return TRUE;
 
 	op = *last_code;
-	if ((op & 0xFF00) != C_PUSH_PARAM)
+	if ((op & 0xFF00) != C_PUSH_PARAM && ((op & 0xFF00) != C_PUSH_PARAM_NOREF))
 		return TRUE;
 
 	*last_code = C_PUSH_QUICK | (op & 0xFF);
@@ -488,7 +490,7 @@ void CODE_push_const(ushort value)
 }
 
 
-void CODE_push_local(short num)
+void CODE_push_local_ref(short num, bool ref)
 {
 	LAST_CODE;
 
@@ -500,10 +502,20 @@ void CODE_push_local(short num)
 	else
 		printf("PUSH PARAM %d\n", (-1) - num);
 	#endif
-	if (num >= 0)
-		write_ZZxx(C_PUSH_LOCAL, num);
+	if (!ref && COMP_version >= 0x03180000)
+	{
+		if (num >= 0)
+			write_ZZxx(C_PUSH_LOCAL_NOREF, num);
+		else
+			write_ZZxx(C_PUSH_PARAM_NOREF, num);
+	}
 	else
-		write_ZZxx(C_PUSH_PARAM, num);
+	{
+		if (num >= 0)
+			write_ZZxx(C_PUSH_LOCAL, num);
+		else
+			write_ZZxx(C_PUSH_PARAM, num);
+	}
 }
 
 
@@ -893,13 +905,13 @@ void CODE_op(short op, short subcode, short nparam, bool fixed)
 		{
 			value = *last_code & 0xFFF;
 			if (value >= 0x800) value |= 0xF000;
-			if (op == C_SUB) value = (-value);
+			if (op == C_SUB) value = (-value); // prevent -256 to be valid!
 
 			#ifdef DEBUG
 			printf("ADD QUICK %d\n", value);
 			#endif
 
-			if (COMP_version < 0x03180000 || (value >= -256 && value < 256))
+			if (COMP_version < 0x03180000 || (value > -256 && value < 256))
 			{
 				*last_code = C_ADD_QUICK | (value & 0x0FFF);
 
@@ -912,12 +924,16 @@ void CODE_op(short op, short subcode, short nparam, bool fixed)
 				{
 					value2 = *last_code & 0xFFF;
 					if (value2 >= 0x800) value2 |= 0xF000;
-					value += value2;
 
-					if (value >= -256 && value < 256)
+					if (value2 > -256 && value2 < 256)
 					{
-						*last_code = C_PUSH_QUICK | (value & 0x0FFF);
-						CODE_undo();
+						value += value2;
+
+						if (value >= -256 && value < 256)
+						{
+							*last_code = C_PUSH_QUICK | (value & 0x0FFF);
+							CODE_undo();
+						}
 					}
 				}
 

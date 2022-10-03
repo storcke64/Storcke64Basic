@@ -2511,9 +2511,10 @@ static void push_subr_varptr(ushort code)
 		return;
 	}
 
-	if ((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_PARAM)
+	if ((op & 0xFF00) == C_PUSH_LOCAL || (op & 0xFF00) == C_PUSH_PARAM
+		  || (op & 0xFF00) == C_PUSH_LOCAL_NOREF || (op & 0xFF00) == C_PUSH_PARAM_NOREF)
 	{
-		if ((op & 0xFF00) == C_PUSH_PARAM)
+		if ((op & 0xFF00) == C_PUSH_PARAM || (op & 0xFF00) == C_PUSH_PARAM_NOREF)
 		{
 			index = _func->n_param + (signed char)(op & 0xFF);
 			type = _func->param[index].type;
@@ -2868,16 +2869,16 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* EE PUSH CONST      */  &&_PUSH_CONST,
 		/* EF PUSH CONST      */  &&_PUSH_CONST_EX,
 		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F1 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F2 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F1 PUSH QUICK      */  &&_PUSH_LOCAL_NOREF,
+		/* F2 PUSH QUICK      */  &&_PUSH_PARAM_NOREF,
 		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F5 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F6 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F7 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F9 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FA PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
+		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
 		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
@@ -2959,6 +2960,13 @@ _PUSH_LOCAL:
 	
 	goto _MAIN;
 
+_PUSH_LOCAL_NOREF:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+	else
+		goto _PUSH_LOCAL;
+
 _POP_LOCAL:
 
 	index = GET_XX();
@@ -2976,6 +2984,13 @@ _POP_LOCAL:
 	
 	goto _MAIN;
 
+_POP_LOCAL_NOREF:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+	else
+		goto _POP_LOCAL;
+
 _POP_CTRL:
 
 	pop_ctrl(GET_XX() - func->n_local, T_VOID);
@@ -2987,6 +3002,13 @@ _PUSH_PARAM:
 	push(func->param[index].type, "p%d", index);
 	goto _MAIN;
 
+_PUSH_PARAM_NOREF:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+	else
+		goto _PUSH_PARAM;
+
 _POP_PARAM:
 
 	index = func->n_param + GET_XX();
@@ -2996,6 +3018,13 @@ _POP_PARAM:
 		pop(type, "p%d", index);
 	
 	goto _MAIN;
+
+_POP_PARAM_NOREF:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+	else
+		goto _POP_PARAM;
 
 _PUSH_QUICK:
 

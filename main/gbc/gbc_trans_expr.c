@@ -279,7 +279,7 @@ static void trans_identifier(int index, bool point, PATTERN next)
 		if (TYPE_is_static(sym->local.type))
 			CODE_push_global(sym->local.value, TRUE, FALSE);
 		else
-			CODE_push_local(sym->local.value);
+			CODE_push_local_ref(sym->local.value, TYPE_must_ref(sym->local.type));
 		
 		push_type(sym->local.type);
 		sym->local_used = TRUE;

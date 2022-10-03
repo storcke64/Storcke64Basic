@@ -320,6 +320,15 @@ do { \
 	OBJECT_UNREF(_v->_object.object); \
 } while (0)
 
+#define RELEASE_VARIANT(_value) \
+do { \
+	VALUE *_v = (_value); \
+	if (_v->_variant.vtype == T_STRING) \
+		STRING_unref(&_v->_variant.value._string); \
+	else if (TYPE_is_object(_v->_variant.vtype)) \
+		OBJECT_UNREF(_v->_variant.value._object); \
+} while (0)
+
 #define RELEASE_MANY(_val, _n) \
 do { \
 	if (_n) \
@@ -376,10 +385,6 @@ int EXEC_comparator(uchar what, uchar op, VALUE *P1, VALUE *P2);
 void EXEC_operator_object_sgn(VALUE *P1);
 void EXEC_operator_object_fabs(VALUE *P1);
 void EXEC_operator_object_single(uchar op, VALUE *P1);
-
-void SUBR_left(ushort code);
-void SUBR_mid(ushort code);
-void SUBR_right(ushort code);
 
 void EXEC_quit(ushort code);
 
