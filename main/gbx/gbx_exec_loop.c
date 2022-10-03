@@ -2898,10 +2898,13 @@ __END:
 		if (P1->type == P2->type) \
 		{ \
 			*PC |= 0x10; \
-			if (type == T_INTEGER) \
-				*PC = _opcode##_INTEGER; \
-			else if (type == T_FLOAT) \
-				*PC = _opcode##_FLOAT; \
+			if (!CP->not_3_18) \
+			{ \
+				if (type == T_INTEGER) \
+					*PC = _opcode##_INTEGER; \
+				else if (type == T_FLOAT) \
+					*PC = _opcode##_FLOAT; \
+			} \
 		} \
 		goto *jump[type]; \
 	} \
