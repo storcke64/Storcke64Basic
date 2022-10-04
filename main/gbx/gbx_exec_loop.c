@@ -203,28 +203,51 @@ const void *EXEC_subr_table[] =
 	VALUE_class_read_inline(class, value, addr, ctype, ref);
 }*/
 
-static void _switch_bytecode(bool not_3_18, const void *jump_table[], const void *jump_table_3_18_AXXX[], const void *jump_table_3_18_FXXX[])
+static const void **_sb_jump_table;
+static const void **_sb_jump_table_3_18_AXXX;
+static const void **_sb_jump_table_3_18_FXXX;
+static bool _sb_not_3_18 = FALSE;
+
+void EXEC_init_bytecode_check()
+{
+	ushort opcode = C_RETURN + 3;
+	PC = &opcode;
+	EXEC_loop();
+}
+
+void EXEC_check_bytecode()
 {
 	int i;
 
-	if (not_3_18)
+	if (!CP)
+		return;
+
+	//fprintf(stderr, "EXEC_check_bytecode: %s / %d\n", CP->name, CP->not_3_18);
+
+	if (CP->not_3_18 == _sb_not_3_18)
+		return;
+
+	_sb_not_3_18 = !_sb_not_3_18;
+	//fprintf(stderr, "switch bytecode to %s\n", _sb_not_3_18 ? "< 3.18" : "3.18");
+
+	if (_sb_not_3_18)
 	{
 		for (i = 0xA1; i <= 0xAE; i++)
-			jump_table[i] = jump_table[0xA0];
+			_sb_jump_table[i] = _sb_jump_table[0xA0];
 		for (i = 0xF1; i <= 0xFE; i++)
-			jump_table[i] = jump_table[0xF0];
+			_sb_jump_table[i] = _sb_jump_table[0xF0];
 	}
 	else
 	{
 		for(i = 1; i <= 14; i++)
 		{
-			jump_table[0xA0 + i] = jump_table_3_18_AXXX[i];
-			jump_table[0xF0 + i] = jump_table_3_18_FXXX[i];
+			_sb_jump_table[0xA0 + i] = _sb_jump_table_3_18_AXXX[i];
+			_sb_jump_table[0xF0 + i] = _sb_jump_table_3_18_FXXX[i];
 		}
 	}
 }
 
-static void _pop_ctrl(int ind)
+INLINE static void _pop_ctrl(int ind)
 {
 	VALUE *val = &BP[ind];
 	RELEASE(val);
@@ -264,6 +287,70 @@ NOINLINE static void _pop_optional(int ind)
 	}
 	else
 		POP();
+}
+
+NOINLINE static void _push_me(ushort code)
+{
+	if (GET_UX() & 1)
+	{
+		if (DEBUG_info)
+		{
+			if (DEBUG_info->op)
+			{
+				SP->_object.class = DEBUG_info->cp;
+				SP->_object.object = DEBUG_info->op;
+			}
+			else if (DEBUG_info->cp)
+			{
+				SP->type = T_CLASS;
+				SP->_class.class = DEBUG_info->cp;
+			}
+		}
+		else
+			VALUE_null(SP);
+	}
+	else
+	{
+		if (OP)
+		{
+			SP->_object.class = CP;
+			SP->_object.object = OP;
+		}
+		/*else if (CP->auto_create)
+		{
+			OP = EXEC_auto_create(CP, FALSE);
+			SP->_object.class = CP;
+			SP->_object.object = OP;
+			OP = NULL;
+		}*/
+		else
+		{
+			SP->type = T_CLASS;
+			SP->_class.class = CP;
+		}
+	}
+
+	if (GET_UX() & 2)
+	{
+		// The used class must be in the stack, because it is tested by exec_push && exec_pop
+		if (OP)
+		{
+			SP->_object.class = SP->_object.class->parent;
+			SP->_object.super = EXEC_super;
+		}
+		else
+		{
+			SP->_class.class = SP->_class.class->parent;
+			SP->_class.super = EXEC_super;
+		}
+
+		EXEC_super = SP;
+
+		//fprintf(stderr, "%s\n", DEBUG_get_current_position());
+		//BREAKPOINT();
+	}
+
+	PUSH();
 }
 
 void EXEC_loop(void)
@@ -521,10 +608,10 @@ void EXEC_loop(void)
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
-		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FB PUSH QUICK      */  &&_POP_LOCAL_FAST,
+		/* FC PUSH QUICK      */  &&_POP_PARAM_FAST,
 		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FE PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FE PUSH QUICK      */  &&_JUMP_NEXT_INTEGER,
 		/* FF PUSH QUICK      */  &&_PUSH_QUICK
 	};
 
@@ -559,26 +646,18 @@ void EXEC_loop(void)
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
-		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FB PUSH QUICK      */  &&_POP_LOCAL_FAST,
+		/* FC PUSH QUICK      */  &&_POP_PARAM_FAST,
 		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FE PUSH QUICK      */  &&_PUSH_QUICK,
+		/* FE PUSH QUICK      */  &&_JUMP_NEXT_INTEGER,
 		/* FF PUSH QUICK      */  &&_PUSH_QUICK
 	};
-
-	static bool not_3_18 = FALSE;
 
 	int NO_WARNING(ind);
 	ushort code;
 	VALUE *NO_WARNING(val);
 
 _CHECK_BYTECODE:
-
-	if (CP->not_3_18 != not_3_18)
-	{
-		not_3_18 = !not_3_18;
-		_switch_bytecode(not_3_18, jump_table, jump_table_3_18_AXXX, jump_table_3_18_FXXX);
-	}
 
 	goto _MAIN;
 
@@ -605,11 +684,11 @@ _MAIN:
 
 #if DEBUG_PCODE
 		DEBUG_where();
-		fprintf(stderr, "[%4d] ", (int)(intptr_t)(SP - (VALUE *)STACK_base));
-		if (*PC >> 8)
+		fprintf(stderr, "[%4d %ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
+		if (*PC >> 8 && FP)
 			PCODE_dump(stderr, PC - FP->code, PC);
 		else
-			fprintf(stderr, "\n");
+			fprintf(stderr, "?\n");
 		fflush(stderr);
 #endif
 
@@ -651,8 +730,8 @@ _NEXT:
 
 #if DEBUG_PCODE
 		DEBUG_where();
-		fprintf(stderr, "[%4d] ", (int)(intptr_t)(SP - (VALUE *)STACK_base));
-		if (*PC >> 8)
+		fprintf(stderr, "[%4d %ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
+		if (*PC >> 8 && FP)
 			PCODE_dump(stderr, PC - FP->code, PC);
 		else
 			fprintf(stderr, "\n");
@@ -755,6 +834,13 @@ _POP_LOCAL_NOREF:
 
 	goto _NEXT;
 
+_POP_LOCAL_FAST:
+
+	SP--;
+	BP[GET_XX()] = *SP;
+
+	goto _NEXT;
+
 /*-----------------------------------------------*/
 
 _POP_PARAM:
@@ -772,6 +858,13 @@ _POP_PARAM_NOREF:
 	VALUE_conv(&SP[-1], val->type);
 	SP--;
 	*val = *SP;
+	goto _NEXT;
+
+_POP_PARAM_FAST:
+
+	SP--;
+	PP[GET_XX()] = *SP;
+
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -835,66 +928,7 @@ _PUSH_CHAR:
 
 _PUSH_ME:
 
-	if (GET_UX() & 1)
-	{
-		if (DEBUG_info)
-		{
-			if (DEBUG_info->op)
-			{
-				SP->_object.class = DEBUG_info->cp;
-				SP->_object.object = DEBUG_info->op;
-			}
-			else if (DEBUG_info->cp)
-			{
-				SP->type = T_CLASS;
-				SP->_class.class = DEBUG_info->cp;
-			}
-		}
-		else
-			VALUE_null(SP);
-	}
-	else
-	{
-		if (OP)
-		{
-			SP->_object.class = CP;
-			SP->_object.object = OP;
-		}
-		/*else if (CP->auto_create)
-		{
-			OP = EXEC_auto_create(CP, FALSE);
-			SP->_object.class = CP;
-			SP->_object.object = OP;
-			OP = NULL;
-		}*/
-		else
-		{
-			SP->type = T_CLASS;
-			SP->_class.class = CP;
-		}
-	}
-	
-	if (GET_UX() & 2)
-	{
-		// The used class must be in the stack, because it is tested by exec_push && exec_pop
-		if (OP)
-		{
-			SP->_object.class = SP->_object.class->parent;
-			SP->_object.super = EXEC_super;
-		}
-		else
-		{
-			SP->_class.class = SP->_class.class->parent;
-			SP->_class.super = EXEC_super;
-		}
-
-		EXEC_super = SP;
-
-		//fprintf(stderr, "%s\n", DEBUG_get_current_position());
-		//BREAKPOINT();
-	}
-
-	PUSH();
+	_push_me(code);
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -1109,7 +1143,7 @@ _JUMP_IF_FALSE:
 _RETURN:
 
 	{
-		static const void *return_jump[] = { &&__RETURN_GOSUB, &&__RETURN_VALUE, &&__RETURN_VOID };
+		static const void *return_jump[] = { &&__RETURN_GOSUB, &&__RETURN_VALUE, &&__RETURN_VOID, &&__INIT_BYTECODE_CHECK };
 
 		goto *return_jump[GET_UX()];
 
@@ -1151,10 +1185,17 @@ _RETURN:
 
 		EXEC_leave_keep();
 
-		if (PC == NULL)
+		if (!PC)
 			return;
 
 		goto _NEXT;
+
+	__INIT_BYTECODE_CHECK:
+
+		_sb_jump_table = jump_table;
+		_sb_jump_table_3_18_AXXX = jump_table_3_18_AXXX;
+		_sb_jump_table_3_18_FXXX = jump_table_3_18_FXXX;
+		return;
 	}
 
 /*-----------------------------------------------*/
@@ -1562,38 +1603,63 @@ _JUMP_FIRST:
 
 		VALUE_conv(&SP[-2], type);
 
-		_pop_ctrl(ind + 1); /* modifie val ! */
+		_pop_ctrl(ind + 1);
 		_pop_ctrl(ind);
-		//val = &BP[PC[3] & 0xFF];
 
 		// loop mode is stored in the inc type. It must be strictly lower than T_STRING
 
-		if (type == T_INTEGER && inc->_integer.value > 0)
-			type = 1;
-
-		inc->type = type;
-
-		PC++;
-
-		if (type <= T_INTEGER)
+		if (type == T_INTEGER && inc->_integer.value == 1 && !CP->not_3_18)
 		{
-			if (inc->_integer.value < 0)
-				goto _JN_INTEGER_TEST_DEC;
-			else
-				goto _JN_INTEGER_TEST_INC;
+			PC++;
+			*PC = C_JUMP_NEXT_INTEGER | ind;
+			goto _JN_INTEGER_TEST_INC;
 		}
-		else if (type == T_LONG)
-			goto _JN_LONG_TEST;
-		else if (type == T_SINGLE)
-			goto _JN_SINGLE_TEST;
-		else //if (type == T_FLOAT)
-			goto _JN_FLOAT_TEST;
+		else
+		{
+			if (type == T_INTEGER && inc->_integer.value > 0)
+				type = 1;
+
+			inc->type = type;
+
+			PC++;
+			*PC |= ind;
+
+			if (type <= T_INTEGER)
+			{
+				if (inc->_integer.value < 0)
+					goto _JN_INTEGER_TEST_DEC;
+				else
+					goto _JN_INTEGER_TEST_INC;
+			}
+			else if (type == T_LONG)
+				goto _JN_LONG_TEST;
+			else if (type == T_SINGLE)
+				goto _JN_SINGLE_TEST;
+			else //if (type == T_FLOAT)
+				goto _JN_FLOAT_TEST;
+		}
 		
+/*-----------------------------------------------*/
+
+_JUMP_NEXT_INTEGER:
+
+		end = &BP[GET_XX()];
+		val = &BP[PC[2] & 0xFF];
+
+		val->_integer.value++;
+
+		if (val->_integer.value <= end->_integer.value)
+			PC += 3;
+		else
+			PC += (signed short)PC[1] + 2;
+
+		goto _MAIN;
+
 /*-----------------------------------------------*/
 
 _JUMP_NEXT:
 
-		end = &BP[PC[-1] & 0xFF];
+		end = &BP[GET_XX()];
 		inc = end + 1;
 		val = &BP[PC[2] & 0xFF];
 

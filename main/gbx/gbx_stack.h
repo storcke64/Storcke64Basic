@@ -127,6 +127,7 @@ STACK_CONTEXT *STACK_get_frame(uint frame);
 	STACK_frame++; \
 	STACK_frame_count--; \
 	STACK_limit += sizeof(STACK_CONTEXT); \
+	EXEC_check_bytecode(); \
 })
 
 #define STACK_enable_for_eval() STACK_limit += STACK_FOR_EVAL * sizeof(VALUE)

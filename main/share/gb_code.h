@@ -43,7 +43,7 @@ EXTERN unsigned char CODE_disabled;
 
 void CODE_begin_function(void);
 void CODE_end_function(void);
-bool CODE_popify_last(void);
+bool CODE_popify_last(bool no_conv);
 
 #else
 
@@ -58,7 +58,7 @@ void CODE_begin_function(FUNCTION *func);
 void CODE_end_function(FUNCTION *func);
 FUNCTION *CODE_set_function(FUNCTION *func);
 
-bool CODE_popify_last(void);
+bool CODE_popify_last(bool no_conv);
 bool CODE_check_statement_last(void);
 bool CODE_check_pop_local_last(short *local);
 bool CODE_check_jump_not(void);
@@ -71,6 +71,7 @@ bool CODE_check_ismissing(void);
 //void CODE_break(void);
 
 void CODE_pop_local(short num);
+void CODE_pop_local_noref(short num);
 //void CODE_pop_param(short num);
 void CODE_pop_global(short global, bool is_static);
 void CODE_pop_symbol(short symbol);

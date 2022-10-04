@@ -173,7 +173,7 @@ int TRANS_loop_local(bool allow_arg);
 
 void TRANS_expression(bool check);
 void TRANS_ignore_expression(void);
-bool TRANS_popify_last(void);
+bool TRANS_popify_last(bool no_conv);
 void TRANS_reference(void);
 bool TRANS_affectation(bool dup);
 void TRANS_operation(short op, short nparam, bool output, PATTERN previous);

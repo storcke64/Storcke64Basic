@@ -36,6 +36,9 @@
 #define C_POP_VARIABLE            0xF600
 #define C_POP_LOCAL_NOREF         0xF900
 #define C_POP_PARAM_NOREF         0xFA00
+#define C_POP_LOCAL_FAST          0xFB00
+#define C_POP_PARAM_FAST          0xFC00
+#define C_JUMP_NEXT_INTEGER       0xFE00
 
 #define C_PUSH_CONST            0xE000
 

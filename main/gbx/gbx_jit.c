@@ -294,6 +294,7 @@ bool JIT_exec(bool ret_on_stack)
 	STACK_push_frame(&EXEC_current, func->stack_usage);
 	
 	CP = class;
+	EXEC_check_bytecode();
 	OP = object;
 	FP = func;
 	EC = NULL;

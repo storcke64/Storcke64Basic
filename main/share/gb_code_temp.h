@@ -254,7 +254,7 @@ static ushort *get_last_code2()
 	return &cur_func->code[cur_func->last_code2];
 }
 
-bool CODE_popify_last(void)
+bool CODE_popify_last(bool no_conv)
 {
 	/*
 	#ifdef DEBUG
@@ -272,43 +272,33 @@ bool CODE_popify_last(void)
 
 	op = *last_code & 0xFF00;
 
-	if ((op >= C_PUSH_LOCAL && op <= C_PUSH_UNKNOWN) || op == C_PUSH_LOCAL_NOREF || op == C_PUSH_PARAM_NOREF)
+	if ((op >= C_PUSH_LOCAL && op <= C_PUSH_UNKNOWN))
 	{
 		*last_code += 0x0800;
-		use_stack(-2);
-		#ifdef DEBUG
-		printf("Popify Last\n");
-		#endif
-		return TRUE;
 	}
-
-	if ((op & 0xF000) == C_PUSH_DYNAMIC)
+	else if (op == C_PUSH_LOCAL_NOREF)
+	{
+		if (no_conv)
+			*last_code = C_POP_LOCAL_FAST | (*last_code & 0xFF);
+		else
+			*last_code = C_POP_LOCAL_NOREF | (*last_code & 0xFF);
+	}
+	else if (op == C_PUSH_PARAM_NOREF)
+	{
+		if (no_conv)
+			*last_code = C_POP_PARAM_FAST | (*last_code & 0xFF);
+		else
+			*last_code = C_POP_PARAM_NOREF | (*last_code & 0xFF);
+	}
+	else if ((op & 0xF000) == C_PUSH_DYNAMIC)
 	{
 		*last_code += 0x1000;
-		use_stack(-2);
-		#ifdef DEBUG
-		printf("Popify Last\n");
-		#endif
-		return TRUE;
 	}
+	else
+		return FALSE;
 
-	/*
-	if (*last_code == (C_PUSH_MISC | CPM_LAST))
-	{
-		*last_code = C_PUSH_MISC | CPM_POP_LAST;
-		use_stack(-2);
-		return TRUE;
-	}
-	*/
-	/*
-	if (op == C_CALL)
-	{
-		*last_code = C_CALL_POP | (*last_code & 0xFF);
-		return TRUE;
-	}
-	*/
-
-	return FALSE;
+	use_stack(-2);
+	return TRUE;
 }
 
 
@@ -537,6 +527,30 @@ void CODE_pop_local(short num)
 		write_ZZxx(C_POP_LOCAL, num);
 	else
 		write_ZZxx(C_POP_PARAM, num);
+}
+
+void CODE_pop_local_noref(short num)
+{
+	if (COMP_version < 0x03180000)
+	{
+		CODE_pop_local(num);
+		return;
+	}
+
+	LAST_CODE;
+
+	use_stack(-1);
+
+	#ifdef DEBUG
+	if (num >= 0)
+		printf("POP LOCAL NOREF #%d\n", num);
+	else
+		printf("POP PARAM NOREF #%d\n", (-1) - num);
+	#endif
+	if (num >= 0)
+		write_ZZxx(C_POP_LOCAL_NOREF, num);
+	else
+		write_ZZxx(C_POP_PARAM_NOREF, num);
 }
 
 

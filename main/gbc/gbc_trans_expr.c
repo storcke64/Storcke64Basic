@@ -720,7 +720,7 @@ static void trans_expr_from_tree(TRANS_TREE *tree, int count)
 		}
 		else if (PATTERN_is(pattern, RS_AT))
 		{
-			if (TRANS_popify_last())
+			if (TRANS_popify_last(FALSE))
 				THROW("This expression cannot be passed by reference");
 		}
 		else if (PATTERN_is(pattern, RS_COMMA))
@@ -981,9 +981,9 @@ TYPE TRANS_variable_get_type()
 }
 
 
-bool TRANS_popify_last()
+bool TRANS_popify_last(bool no_conv)
 {
-	if (!CODE_popify_last())
+	if (!CODE_popify_last(no_conv))
 		return TRUE;
 	
 	if (_last_symbol_used)
@@ -1001,7 +1001,15 @@ bool TRANS_popify_last()
 void TRANS_reference(void)
 {
 	TRANS_expression(FALSE);
-	if (TRANS_popify_last())
+	if (TRANS_popify_last(FALSE))
+		THROW("Invalid assignment");
+}
+
+
+void TRANS_reference_type(TYPE type)
+{
+	TRANS_expression(FALSE);
+	if (TRANS_popify_last(TYPE_get_id(_last_type) == TYPE_get_id(type)))
 		THROW("Invalid assignment");
 }
 
@@ -1123,7 +1131,7 @@ bool TRANS_affectation(bool dup)
 				trans_operation(op, 1, NULL_PATTERN);
 			else*/
 				trans_operation(op, 2, NULL_PATTERN);
-			pop_type();
+			_last_type = pop_type();
 		}
 	}
 
@@ -1139,7 +1147,7 @@ bool TRANS_affectation(bool dup)
 	}
 
 	JOB->current = left;
-	TRANS_reference();
+	TRANS_reference_type(_last_type);
 
 	if (!PATTERN_is_newline(*JOB->current))
 		THROW(E_SYNTAX);

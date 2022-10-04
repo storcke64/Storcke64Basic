@@ -1009,7 +1009,7 @@ void TRANS_for(void)
 	
 	TRANS_expression(FALSE);
 	
-	CODE_pop_local(local);
+	CODE_pop_local_noref(local);
 
 	control_check_loop_var(local);
 
@@ -1032,9 +1032,6 @@ void TRANS_for(void)
 		CODE_push_number(downto ? -1 : 1);
 	}
 
-	/*CODE_pop_ctrl(current_ctrl->local + 1);
-	CODE_pop_ctrl(current_ctrl->local);*/
-
 	if (!PATTERN_is_newline(*JOB->current))
 		THROW(E_UNEXPECTED, READ_get_pattern(JOB->current));
 
@@ -1043,17 +1040,10 @@ void TRANS_for(void)
 
 	control_set_value(CODE_get_current_pos());
 
-	/*
-	current = JOB->current;
-	JOB->current = loop_var;
-	TRANS_expression(FALSE);
-	JOB->current = current;
-	*/
-
 	control_add_current_pos();
 	CODE_jump_next();
 	
-	CODE_pop_local(local);
+	CODE_pop_local_noref(local);
 }
 
 

@@ -169,6 +169,8 @@ void EXEC_enter_quick(void);
 void EXEC_leave_keep();
 void EXEC_leave_drop();
 void EXEC_loop(void);
+void EXEC_init_bytecode_check(void);
+void EXEC_check_bytecode(void);
 
 #define EXEC_object_2(_val, _pclass, _pobject) \
 ({ \

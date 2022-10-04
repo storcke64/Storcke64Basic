@@ -50,6 +50,8 @@ static void EVAL_enter()
 
 	OP = NULL;
 	CP = &EVAL->exec_class;
+	EXEC_check_bytecode();
+
 	//AP = ARCH_from_class(CP);
 
 	EP = NULL;

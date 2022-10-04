@@ -2879,8 +2879,8 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
-		/* FB PUSH QUICK      */  &&_PUSH_QUICK,
-		/* FC PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F9 PUSH QUICK      */  &&_POP_LOCAL_FAST,
+		/* FA PUSH QUICK      */  &&_POP_PARAM_FAST,
 		/* FD PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FE PUSH QUICK      */  &&_PUSH_QUICK,
 		/* FF PUSH QUICK      */  &&_PUSH_QUICK
@@ -2985,6 +2985,7 @@ _POP_LOCAL:
 	goto _MAIN;
 
 _POP_LOCAL_NOREF:
+_POP_LOCAL_FAST:
 
 	if (class->not_3_18)
 		goto _PUSH_QUICK;
@@ -3020,6 +3021,7 @@ _POP_PARAM:
 	goto _MAIN;
 
 _POP_PARAM_NOREF:
+_POP_PARAM_FAST:
 
 	if (class->not_3_18)
 		goto _PUSH_QUICK;

@@ -483,7 +483,7 @@ void TRANS_reference(void)
 {
 	TRANS_expression();
 
-	if (!CODE_popify_last())
+	if (!CODE_popify_last(FALSE))
 		THROW("Invalid assignment");
 
 	EVAL->assign_code = EVAL->code[EVAL->ncode - 1];

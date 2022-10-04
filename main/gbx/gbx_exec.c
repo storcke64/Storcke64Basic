@@ -109,6 +109,8 @@ void EXEC_init(void)
 		ERROR_warning("CPU is big endian");
 
 	DATE_init();
+
+	EXEC_init_bytecode_check();
 }
 
 
@@ -506,6 +508,7 @@ void EXEC_enter(void)
 	PC = func->code;
 	OP = object;
 	CP = class;
+	EXEC_check_bytecode();
 	EP = NULL;
 	GP = NULL;
 
@@ -608,6 +611,7 @@ void EXEC_enter_quick(void)
 	PC = func->code;
 	OP = object;
 	CP = class;
+	EXEC_check_bytecode();
 	EP = NULL;
 	GP = NULL;
 
