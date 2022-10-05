@@ -1592,7 +1592,7 @@ gw = {
     onChange: function(id)
     {
       if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
-      $_(id).gw_timer = setTimeout(gw.textbox.updateText, 20);
+      $_(id).gw_timer = setTimeout(function() { gw.textbox.updateText(id); }, 20);
     },
     
     getText: function(id)
@@ -1642,7 +1642,7 @@ gw = {
     onChange: function(id)
     {
       if ($_(id).gw_timer) clearTimeout($_(id).gw_timer);
-      $_(id).gw_timer = setTimeout(gw.textarea.updateText, 20);
+      $_(id).gw_timer = setTimeout(function() { gw.textarea.updateText(id); }, 20);
     },
     
     copy: function(id)

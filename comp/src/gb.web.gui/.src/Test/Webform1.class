@@ -77,7 +77,7 @@ End
 
 Public Sub WebTextBox1_Change()
 
-  WebLabel1.Text = WebTextBox1.Text
+  WebLabel3.Text = WebTextBox1.Text
 
 End
 
@@ -351,5 +351,11 @@ End
 Public Sub WebTree1_Activate()
 
   lblTreeEvent.Text = "Activate: " & WebTree1.Item.Key
+
+End
+
+Public Sub WebTextArea1_KeyPress()
+
+  WebForm.Print("WebTextArea1: keypress: " & Key.Shortcut)
 
 End
