@@ -1385,6 +1385,7 @@ void DEBUG_main(bool error)
 	char cmdbuf[256];
 	int len;
 	DEBUG_COMMAND *tc = NULL;
+	int save_errno = errno;
 	/*static int cpt = 0;*/
 
 	GB.FreeString(&_error);
@@ -1493,6 +1494,8 @@ void DEBUG_main(bool error)
 	while (last_command == TC_NONE || tc->pattern == NULL || tc->loop);
 
 	GB.FreeString(&cmd);
+
+	errno = save_errno;
 
 	#ifdef DEBUG_ME
 	fprintf(stderr, "} DEBUG_main\n");
