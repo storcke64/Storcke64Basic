@@ -121,6 +121,7 @@ void CODE_ignore_next_stack_usage(void);
 void CODE_dump(PCODE *code, int count);
 
 void CODE_push_number(int value);
+void CODE_push_float(int value);
 void CODE_push_const(ushort value);
 
 void CODE_push_local_ref(short num, bool noref);

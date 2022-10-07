@@ -2875,7 +2875,7 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F5 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F6 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F7 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
 		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
@@ -3031,6 +3031,14 @@ _POP_PARAM_FAST:
 _PUSH_QUICK:
 
 	push(T_INTEGER, "%d", GET_XXX());
+	goto _MAIN;
+
+_PUSH_FLOAT:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+
+	push(T_FLOAT, "%d", GET_XX());
 	goto _MAIN;
 
 _PUSH_SHORT:

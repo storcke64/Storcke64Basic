@@ -172,6 +172,10 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 					fprintf(out, "POP PARAM FAST %d", (char)(op & 0xFF));
 					break;
 
+				case C_PUSH_FLOAT:
+					fprintf(out, "PUSH FLOAT %d", (char)(op & 0xFF));
+					break;
+
 				default:
 					fprintf(out, "PUSH QUICK %d", (short)value);
 			}
@@ -260,6 +264,10 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 
 				case C_POP_PARAM_FAST:
 					fprintf(out, "POP PARAM FAST %d", (char)(op & 0xFF));
+					break;
+
+				case C_PUSH_FLOAT:
+					fprintf(out, "PUSH FLOAT %d", (char)(op & 0xFF));
 					break;
 
 				default:

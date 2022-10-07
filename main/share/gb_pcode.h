@@ -34,6 +34,7 @@
 #define C_PUSH_PARAM_NOREF        0xF200
 #define C_PUSH_VARIABLE           0xF500
 #define C_POP_VARIABLE            0xF600
+#define C_PUSH_FLOAT              0xF700
 #define C_POP_LOCAL_NOREF         0xF900
 #define C_POP_PARAM_NOREF         0xFA00
 #define C_POP_LOCAL_FAST          0xFB00

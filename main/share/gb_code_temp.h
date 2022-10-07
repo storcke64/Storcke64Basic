@@ -455,6 +455,15 @@ void CODE_push_number(int value)
 	}
 }
 
+void CODE_push_float(int value)
+{
+	LAST_CODE;
+
+	use_stack(1);
+
+	write_ZZxx(C_PUSH_FLOAT, value);
+}
+
 
 void CODE_push_const(ushort value)
 {

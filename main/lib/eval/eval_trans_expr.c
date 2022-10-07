@@ -83,6 +83,10 @@ static void push_number(int index)
 	{
 		CODE_push_number(number.ival);
 	}
+	else if (number.type == T_FLOAT && number.dval == (double)(int)number.dval && number.dval >= -128 && number.dval <= 127)
+	{
+		CODE_push_float(number.dval);
+	}
 	else
 	{
 		cst.type = number.type;
