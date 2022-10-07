@@ -71,6 +71,7 @@ Private Sub CreateProject() As Boolean
   Dim hDest As File
   Dim sLine As String
   Dim sTemp As String
+  Dim sLang As String
   
   'DIM hIcon AS Picture
 
@@ -111,6 +112,8 @@ Private Sub CreateProject() As Boolean
         sLine = "Title=" & txtTitle.Text
       Else If sLine Begins "Translate=" Then
         If Not chkTranslate.Value Then Continue
+        sLang = MyLanguage.FromName(MyLanguage.ToName(System.Language))
+        If sLang Then Print #hDest, "Language="; sLang
         sLine = "Translate=1"
         Mkdir sDir &/ ".lang"
       Else If sLine Begins "Version=" Then
@@ -120,6 +123,8 @@ Private Sub CreateProject() As Boolean
       Else If sLine Begins "Icon=" Then
         Continue
       Else If sLine Begins "TabSize=" Then
+        Continue
+      Else If sLine Begins "Language=" Then
         Continue
       Endif
       
