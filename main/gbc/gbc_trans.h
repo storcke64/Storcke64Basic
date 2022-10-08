@@ -278,6 +278,7 @@ void TRANS_scan(void);
 void TRANS_randomize(void);
 void TRANS_mid(void);
 void TRANS_use(void);
+void TRANS_poke(void);
 
 #endif
 

@@ -390,6 +390,7 @@ const void *const GAMBAS_JitApi[] =
 	(void *)JIT_add_string_local,
 	(void *)JIT_add_string_global,
 	(void *)VALUE_class_write,
+	(void *)SUBR_poke,
 	NULL
 };
 

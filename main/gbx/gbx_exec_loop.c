@@ -193,7 +193,7 @@ const void *EXEC_subr_table[] =
 	SUBR_quote,      /* 92 9C */
 	SUBR_unquote,    /* 93 9D */
 	SUBR_make,       /* 94 9E */
-	SUBR_ptr,        /* 95 9F */
+	SUBR_peek,       /* 95 9F */
 };
 
 //---- Main interpreter loop ------------------------------------------------
@@ -605,7 +605,7 @@ void EXEC_loop(void)
 		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
 		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
-		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F8 PUSH QUICK      */  &&_SUBR_POKE,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
 		/* FB PUSH QUICK      */  &&_POP_LOCAL_FAST,
@@ -643,7 +643,7 @@ void EXEC_loop(void)
 		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
 		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
-		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F8 PUSH QUICK      */  &&_SUBR_POKE,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
 		/* FB PUSH QUICK      */  &&_POP_LOCAL_FAST,
@@ -2825,6 +2825,13 @@ _SUBR_MUL:
 _SUBR_DIV:
 
 	_SUBR_div(code);
+	goto _NEXT;
+
+/*-----------------------------------------------*/
+
+_SUBR_POKE:
+
+	SUBR_poke(code);
 	goto _NEXT;
 
 }

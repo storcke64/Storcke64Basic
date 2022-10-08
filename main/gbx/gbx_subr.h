@@ -242,8 +242,9 @@ void SUBR_free(void);
 void SUBR_realloc(ushort code);
 void SUBR_strptr(ushort code);
 void SUBR_varptr(ushort code);
-void SUBR_ptr(ushort code);
+void SUBR_peek(ushort code);
 void SUBR_make(ushort code);
+void SUBR_poke(ushort code);
 
 /* subr_misc.c */
 

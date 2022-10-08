@@ -1007,6 +1007,25 @@ void TRANS_mid(void)
 }
 
 
+void TRANS_poke(void)
+{
+	int index;
+
+	index = PATTERN_index(*JOB->current);
+	JOB->current++;
+
+	TRANS_want(RS_LBRA, "Left bracket");
+	TRANS_expression(FALSE);
+	TRANS_want(RS_RBRA, "Right bracket");
+
+	TRANS_want(RS_EQUAL, "Equal");
+
+	TRANS_expression(FALSE);
+
+	CODE_op(C_POKE, COMP_subr_info[index].optype, 2, TRUE);
+	CODE_drop();
+}
+
 
 #if 0
 void TRANS_scan(void)

@@ -341,6 +341,7 @@ void TRANS_statement(void)
 	PATTERN *look = JOB->current;
 	TRANS_STATEMENT *st;
 	COMP_INFO *info;
+	int index;
 
 	if (PATTERN_is_reserved(look[0]))
 	{
@@ -367,11 +368,21 @@ void TRANS_statement(void)
 			return;
 		}
 	}
-	else if (PATTERN_is_subr(look[0]) && (PATTERN_index(look[0]) == SUBR_Mid || PATTERN_index(look[0]) == SUBR_MidS))
+	else if (PATTERN_is_subr(look[0]))
 	{
-		JOB->current++;
-		TRANS_mid();
-		return;
+		index = PATTERN_index(look[0]);
+
+		if (index == SUBR_Mid || index == SUBR_MidS)
+		{
+			JOB->current++;
+			TRANS_mid();
+			return;
+		}
+		else if (COMP_version >= 0x03180000 && COMP_subr_info[index].opcode == (CODE_POKE - CODE_FIRST_SUBR))
+		{
+			TRANS_poke();
+			return;
+		}
 	}
 
 	if (!TRANS_affectation(FALSE))

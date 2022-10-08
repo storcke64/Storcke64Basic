@@ -252,24 +252,45 @@ void SUBR_varptr(ushort code)
 }
 
 
-void SUBR_ptr(ushort code)
+void SUBR_peek(ushort code)
 {
   void *ptr;
-  
+
 	SUBR_ENTER_PARAM(1);
-	
+
   ptr = SUBR_get_pointer_or_string(PARAM);
-	
+
 	CHECK_enter();
-  if (sigsetjmp(CHECK_jump, TRUE) == 0)	
+  if (sigsetjmp(CHECK_jump, TRUE) == 0)
 		VALUE_read(RETURN, ptr, code & 0xF);
 	CHECK_leave();
-	
+
 	if (CHECK_got_error())
 		THROW(E_ARG);
 
 	SUBR_LEAVE();
 }
+
+
+void SUBR_poke(ushort code)
+{
+  void *ptr;
+
+	SUBR_ENTER_PARAM(2);
+
+  ptr = SUBR_get_pointer_or_string(PARAM);
+
+	CHECK_enter();
+  if (sigsetjmp(CHECK_jump, TRUE) == 0)
+		VALUE_write(&PARAM[1], ptr, code & 0xF);
+	CHECK_leave();
+
+	if (CHECK_got_error())
+		THROW(E_ARG);
+
+	SUBR_LEAVE_VOID();
+}
+
 
 void SUBR_make(ushort code)
 {

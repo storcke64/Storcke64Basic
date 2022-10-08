@@ -2581,13 +2581,13 @@ _ILLEGAL:
 }
 
 
-static void push_subr_ptr(ushort code)
+static void push_subr_peek(ushort code)
 {
 	char *expr;
 	TYPE type;
-	
+
 	check_stack(1);
-	
+
 	if (_unsafe)
 	{
 		type = get_type(-1);
@@ -2599,14 +2599,14 @@ static void push_subr_ptr(ushort code)
 
 				expr = STR_copy(peek(-1, type));
 				pop_stack(1);
-				
+
 				code &= 0xF;
 
 				if (type == T_POINTER)
 					push(code, "*(%s *)(%s)", JIT_get_ctype(code), expr);
 				else
 					push(code, "*(%s *)GET_STRING_ADDR(%s)", JIT_get_ctype(code), expr);
-			
+
 				STR_free(expr);
 				return;
 		}
@@ -2614,6 +2614,67 @@ static void push_subr_ptr(ushort code)
 
 	push_subr(CALL_SUBR_CODE, code);
 }
+
+
+static void push_subr_poke(ushort code)
+{
+	char *expr = NULL;
+	char *expr1;
+	char *expr2;
+	TYPE type;
+	int i;
+
+	check_stack(2);
+
+	code &= 0xF;
+
+	if (_unsafe)
+	{
+		type = get_type(-2);
+		switch (type)
+		{
+			case T_POINTER:
+			case T_STRING:
+			case T_CSTRING:
+
+				expr1 = peek(-2, type);
+				expr2 = peek(-1, code);
+
+				if (type == T_POINTER)
+					STR_add(&expr, "*(%s *)(%s) = %s;", JIT_get_ctype(code), expr1, expr2);
+				else
+					STR_add(&expr, "*(%s *)GET_STRING_ADDR(%s) = %s;", JIT_get_ctype(code), expr1, expr2);
+
+				pop_stack(2);
+
+				push(T_VOID, "({%s})", expr);
+
+				/*if (check_swap(type, "({%s})", expr))
+					pop(T_VOID, NULL);*/
+
+				STR_free(expr);
+				return;
+		}
+	}
+
+	for (i = _stack_current - 2; i < _stack_current; i++)
+	{
+		STR_add(&expr, "%s;", push_expr(i, get_type(i)));
+		free_stack(i);
+	}
+
+	_stack_current -= 2;
+
+	STR_add(&expr, "CALL_SUBR_CODE(%d, %p, %d); POP_V();", _pc, JIT.subr_poke, code);
+
+	push(T_VOID, "({%s})", expr);
+
+	/*if (check_swap(code & 0xF, "({%s})", expr))
+		pop(T_VOID, NULL);*/
+
+	STR_free(expr);
+}
+
 
 #define GET_XXX()   (((signed short)(code << 4)) >> 4)
 #define GET_UXX()   (code & 0xFFF)
@@ -2787,7 +2848,7 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* 9C Quote$...       */  &&_SUBR_CODE,
 		/* 9D Unquote$...     */  &&_SUBR_CODE,
 		/* 9E MkInt$...       */  &&_SUBR_CODE,
-		/* 9F Byte@...        */  &&_SUBR_PTR,
+		/* 9F Byte@...        */  &&_SUBR_PEEK,
 		/* A0 ADD QUICK       */  &&_ADD_QUICK,
 		/* A1 ADD QUICK       */  &&_ADD_QUICK,
 		/* A2 ADD QUICK       */  &&_ADD_QUICK,
@@ -2876,7 +2937,7 @@ bool JIT_translate_body(FUNCTION *func, int ind)
 		/* F5 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F6 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
-		/* F8 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F8 PUSH QUICK      */  &&_SUBR_POKE,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_NOREF,
 		/* FA PUSH QUICK      */  &&_POP_PARAM_NOREF,
 		/* F9 PUSH QUICK      */  &&_POP_LOCAL_FAST,
@@ -3562,11 +3623,18 @@ _SUBR_VARPTR:
 	push_subr_varptr(code);
 	goto _MAIN;
 	
-_SUBR_PTR:
+_SUBR_PEEK:
 
-	push_subr_ptr(code);
+	push_subr_peek(code);
 	goto _MAIN;
-	
+
+_SUBR_POKE:
+
+	if (class->not_3_18)
+		goto _PUSH_QUICK;
+	push_subr_poke(code);
+	goto _MAIN;
+
 _BREAK:
 
 	goto _MAIN;

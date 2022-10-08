@@ -112,6 +112,7 @@ typedef
 		void (*add_string_local)(GB_STRING *str, GB_STRING val);
 		void (*add_string_global)(char **str, GB_STRING val);
 		void (*value_class_write)(void *class, GB_VALUE *value, void *addr, JIT_CTYPE ctype);
+		void (*subr_poke)(ushort code);
 	}
 	JIT_INTERFACE;
 
