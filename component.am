@@ -1,5 +1,5 @@
 dist_gblib_DATA = $(COMPONENT).component
-gblib_DATA = $(COMPONENT).component
+## gblib_DATA = $(COMPONENT).component
 
 install-data-hook:
 	@$(INSTALL) -d $(DESTDIR)$(gbdatadir)/info
@@ -26,9 +26,9 @@ install-data-hook:
 		$(INSTALL) -d $(DESTDIR)$(gbdatadir)/$(COMPONENT); \
 		$(INSTALL) data/* $(DESTDIR)$(gbdatadir)/$(COMPONENT); \
 	fi
-	@echo "Installing '$(COMPONENT)' control icons if needed...";
 	@rm -rf $(DESTDIR)$(gbdatadir)/control/$(COMPONENT);
 	@if test -d control; then \
+		echo "Installing '$(COMPONENT)' control icons..."; \
 		$(INSTALL) -d $(DESTDIR)$(gbdatadir)/control; \
 		$(INSTALL) -d $(DESTDIR)$(gbdatadir)/control/$(COMPONENT); \
 		$(INSTALL) control/*.png $(DESTDIR)$(gbdatadir)/control/$(COMPONENT); \
