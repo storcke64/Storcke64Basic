@@ -57,6 +57,8 @@ EXTERN int DEBUG_inside_eval;
 void DEBUG_init(void);
 void DEBUG_exit(void);
 
+void DEBUG_breakpoint(ushort code);
+
 void DEBUG_enter_event_loop(void);
 void DEBUG_leave_event_loop(void);
 

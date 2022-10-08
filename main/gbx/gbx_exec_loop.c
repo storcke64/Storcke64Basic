@@ -56,6 +56,7 @@
 #endif
 
 #define SUBR_beep EXEC_ILLEGAL
+//#define _SUBR_POKE _NEXT
 
 #define GET_XXX()   (((signed short)(code << 4)) >> 4)
 #define GET_UXX()   (code & 0xFFF)
@@ -66,15 +67,13 @@
 #define GET_0X()    (code & 0xF)
 #define TEST_XX()   (code & 1)
 
-NOINLINE static void _break(ushort code);
-
 //static void _SUBR_comp(ushort code);
-static void _SUBR_compe(ushort code);
+NOINLINE static void _SUBR_compe(ushort code);
 //static void _SUBR_compi(ushort code);
-static void _SUBR_add(ushort code);
-static void _SUBR_sub(ushort code);
-static void _SUBR_mul(ushort code);
-static void _SUBR_div(ushort code);
+NOINLINE static void _SUBR_add(ushort code);
+NOINLINE static void _SUBR_sub(ushort code);
+NOINLINE static void _SUBR_mul(ushort code);
+NOINLINE static void _SUBR_div(ushort code);
 
 #define my_VALUE_class_read VALUE_class_read_inline
 
@@ -657,10 +656,6 @@ void EXEC_loop(void)
 	ushort code;
 	VALUE *NO_WARNING(val);
 
-_CHECK_BYTECODE:
-
-	goto _MAIN;
-
 /*-----------------------------------------------*/
 
 _MAIN:
@@ -1033,15 +1028,6 @@ _PUSH_MISC:
 
 /*-----------------------------------------------*/
 
-/*
-_PUSH_RETURN:
-
-	*SP++ = *RP;
-	goto _NEXT;
-*/
-
-/*-----------------------------------------------*/
-
 _DUP:
 
 	*SP = SP[-1];
@@ -1293,7 +1279,7 @@ _CALL:
 		else
 		{
 			EXEC_enter_check(val->_function.defined);
-			goto _CHECK_BYTECODE;
+			goto _MAIN;;
 		}
 
 	__EXEC_NATIVE:
@@ -1378,7 +1364,7 @@ _CALL:
 			else
 			{
 				EXEC_enter();
-				goto _CHECK_BYTECODE;
+				goto _MAIN;;
 			}
 		}
 
@@ -1441,7 +1427,7 @@ _CALL_QUICK:
 	__EXEC_ENTER_Q:
 
 		EXEC_enter_quick();
-		goto _CHECK_BYTECODE;
+		goto _MAIN;;
 
 	__CALL_NATIVE_Q:
 
@@ -1558,7 +1544,7 @@ _CALL_SLOW:
 		else
 		{
 			EXEC_enter();
-			goto _CHECK_BYTECODE;
+			goto _MAIN;;
 		}
 
 	__CALL_NATIVE_S:
@@ -2259,7 +2245,7 @@ _BREAK:
 	if (!EXEC_trace && !EXEC_debug)
 		*PC = C_NOP;
 	else
-		_break(code);
+		DEBUG_breakpoint(code);
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -3150,7 +3136,7 @@ __END:
 })
 
 
-static void _SUBR_add(ushort code)
+NOINLINE static void _SUBR_add(ushort code)
 {
 	static void *jump[] = {
 		&&__VARIANT, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT,
@@ -3255,7 +3241,8 @@ __ERROR:
 	THROW(E_TYPE, "Number", TYPE_get_name(type));
 }
 
-static void _SUBR_sub(ushort code)
+
+NOINLINE static void _SUBR_sub(ushort code)
 {
 	static void *jump[] = {
 		&&__VARIANT, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT,
@@ -3360,7 +3347,8 @@ __ERROR:
 	THROW(E_TYPE, "Number", TYPE_get_name(type));
 }
 
-static void _SUBR_mul(ushort code)
+
+NOINLINE static void _SUBR_mul(ushort code)
 {
 	static void *jump[] = {
 		&&__VARIANT, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT,
@@ -3454,7 +3442,8 @@ __ERROR:
 	THROW(E_TYPE, "Number", TYPE_get_name(type));
 }
 
-static void _SUBR_div(ushort code)
+
+NOINLINE static void _SUBR_div(ushort code)
 {
 	static void *jump[] = {
 		&&__VARIANT, &&__BOOLEAN, &&__BYTE, &&__SHORT, &&__INTEGER, &&__LONG, &&__SINGLE, &&__FLOAT,
@@ -3549,7 +3538,7 @@ __CHECK_OBJECT:
 	SP--;
 }
 
-static void _SUBR_compe(ushort code)
+NOINLINE static void _SUBR_compe(ushort code)
 {
 	static void *jump[] = {
 		&&__SC_VARIANT, &&__SC_BOOLEAN, &&__SC_BYTE, &&__SC_SHORT, &&__SC_INTEGER, &&__SC_LONG, &&__SC_SINGLE, &&__SC_FLOAT,
@@ -4412,6 +4401,7 @@ __POP_ARRAY_2:
 	POP(); /* free the object */
 }
 
+
 void EXEC_quit(ushort code)
 {
 	switch(code & 3)
@@ -4438,70 +4428,6 @@ void EXEC_quit(ushort code)
 	}
 }
 
-NOINLINE static void _break(ushort code)
-{
-	if (EXEC_trace)
-	{
-		double timer;
-		int i;
-		
-		DATE_timer(&timer, TRUE);
-		fprintf(stderr, "[%d.%06d] ", (int)timer, (int)(timer * 1000000) % 1000000);
-		for (i = 0; i < STACK_frame_count; i++)
-			fputs(". ", stderr);
-		fputs(DEBUG_get_current_position(), stderr);
-		fputc('\n', stderr);
-		fflush(stderr);
-	}
-	
-	if (EXEC_debug)
-	{
-		/*TC = PC + 1;
-		TP = SP;*/
-
-		//fprintf(stderr, "%s %d\n", DEBUG_get_current_position(), DEBUG_info->watch);
-
-		if (CP && (EXEC_debug_inside || !CP->component))
-		{
-			if (EXEC_profile_instr)
-				DEBUG.Profile.Add(CP, FP, PC);
-
-			if (DEBUG_info->watch)
-			{
-				if (DEBUG.CheckWatches())
-					return;
-			}
-			
-			code = (uchar)code;
-
-			if (code == 0)
-			{
-				if (!DEBUG_info->stop)
-					return;
-
-				// Return from (void stack)
-				if (DEBUG_info->leave)
-				{
-					if (STACK_get_current()->pc)
-						return;
-					if (FP == DEBUG_info->fp)
-						return;
-					if (BP > DEBUG_info->bp)
-						return;
-				}
-				// Forward or Return From
-				else if (DEBUG_info->fp != NULL)
-				{
-					if (BP > DEBUG_info->bp)
-						return;
-				}
-				// otherwise, Next
-			}
-
-			DEBUG.Breakpoint(code);
-		}
-	}
-}
 
 NOINLINE static void SUBR_left(ushort code)
 {

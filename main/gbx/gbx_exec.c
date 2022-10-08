@@ -2044,3 +2044,4 @@ void EXEC_drop_vargs(void)
 	RELEASE_MANY(SP, nargs);
 	PC[-1] -= nargs;
 }
+

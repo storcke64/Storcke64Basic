@@ -695,3 +695,68 @@ void DEBUG_leave_eval()
 {
 	DEBUG_inside_eval--;
 }
+
+void DEBUG_breakpoint(ushort code)
+{
+	if (EXEC_trace)
+	{
+		double timer;
+		int i;
+
+		DATE_timer(&timer, TRUE);
+		fprintf(stderr, "[%d.%06d] ", (int)timer, (int)(timer * 1000000) % 1000000);
+		for (i = 0; i < STACK_frame_count; i++)
+			fputs(". ", stderr);
+		fputs(DEBUG_get_current_position(), stderr);
+		fputc('\n', stderr);
+		fflush(stderr);
+	}
+
+	if (EXEC_debug)
+	{
+		/*TC = PC + 1;
+		TP = SP;*/
+
+		//fprintf(stderr, "%s %d\n", DEBUG_get_current_position(), DEBUG_info->watch);
+
+		if (CP && (EXEC_debug_inside || !CP->component))
+		{
+			if (EXEC_profile_instr)
+				DEBUG.Profile.Add(CP, FP, PC);
+
+			if (DEBUG_info->watch)
+			{
+				if (DEBUG.CheckWatches())
+					return;
+			}
+
+			code = (uchar)code;
+
+			if (code == 0)
+			{
+				if (!DEBUG_info->stop)
+					return;
+
+				// Return from (void stack)
+				if (DEBUG_info->leave)
+				{
+					if (STACK_get_current()->pc)
+						return;
+					if (FP == DEBUG_info->fp)
+						return;
+					if (BP > DEBUG_info->bp)
+						return;
+				}
+				// Forward or Return From
+				else if (DEBUG_info->fp != NULL)
+				{
+					if (BP > DEBUG_info->bp)
+						return;
+				}
+				// otherwise, Next
+			}
+
+			DEBUG.Breakpoint(code);
+		}
+	}
+}
