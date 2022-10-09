@@ -661,6 +661,8 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 	
 	//fprintf(stderr, "CDRAG_drag_drop: %s %s\n", GB.GetClassName(control), control->name);
 
+	e->accept();
+
 	CDRAG_clear(true);
 	CDRAG_info.event = e;
 	CDRAG_destination = control;

@@ -2647,6 +2647,23 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 			}
 		}
 		
+		if (type == QEvent::MouseMove)
+		{
+			// Ignore spurious move events
+
+			static int last_move_x = -1;
+			static int last_move_y = -1;
+
+			if (last_move_x == mevent->globalX() && last_move_y == mevent->globalY())
+			{
+				//fprintf(stderr, "same mouse move! %d %d\n", last_move_x, last_move_y);
+				goto _STANDARD;
+			}
+
+			last_move_x = mevent->globalX();
+			last_move_y = mevent->globalY();
+		}
+
 		if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick)
 		{
 			GB.GetTime(&timer, TRUE);
