@@ -1014,8 +1014,6 @@ Public Sub ScrollArea_MouseMove()
 
   If $hRows.Count = 0 And If $hColumns.Count = 0 Then Return
   
-  If $bInCell And If Mouse.Left Then StartScrollTimer
-
   MX = Mouse.X - F
   MY = Mouse.Y - F
   
@@ -1169,6 +1167,8 @@ Public Sub ScrollArea_MouseMove()
 
   Endif
     
+  If $bInCell And If Mouse.Left Then StartScrollTimer
+
 End
 
 Public Sub TimerScroll_Timer()
@@ -1377,7 +1377,6 @@ Public Sub ScrollArea_DragLeave()
   AfterMouseUp
   
 End
-
 
 Public Sub ScrollArea_GotFocus()
   
