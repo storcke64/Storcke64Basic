@@ -9,14 +9,14 @@ Property Timeout As Float
 Property Prefix As String
 Property Unique As Boolean
 Property Modified As Boolean
-Property CookiePath As String
+Property CookiePath As String Use $sCookiePath
+Property CookieName As String Use $sCookieName
 Property Read Keys As String[]
 Property Read Size As Long
 Property Read Path As String
 
 Property User As String
 
-Private $sCookiePath As String
 Private $sCookie As String
 Private $fTimeout As Float = 300
 Private $sUser As String
@@ -63,9 +63,16 @@ Private Sub GetCookiePath() As String
 
 End
 
+Private Sub GetCookieName() As String
+
+  If $sCookieName Then Return $sCookieName
+  Return "GBSESSIONID"
+
+End
+
 Public Sub _SendCookie()
   
-  Response.SetCookie("GBSESSIONID", $sCookie, "", GetCookiePath(),, True)
+  Response.SetCookie(GetCookieName(), $sCookie, "", GetCookiePath(),, True)
   
 End
 
@@ -83,7 +90,7 @@ End
 
 Public Sub Abandon()
   
-  Response.RemoveCookie("GBSESSIONID", $sCookie, "", GetCookiePath())
+  Response.RemoveCookie(GetCookieName(), $sCookie, "", GetCookiePath())
   $sCookie = ""
   $cData.Clear
 
@@ -172,19 +179,6 @@ Private Sub Modified_Write((Value) As Boolean)
 
 End
 
-Private Function CookiePath_Read() As String
-
-  Return $sCookiePath
-
-End
-
-Private Sub CookiePath_Write(Value As String)
-
-  $sCookiePath = Value
-
-End
-
-
 Private Function Keys_Read() As String[]
 
   'Return $hManager.GetKeys()
@@ -225,3 +219,9 @@ Private Sub User_Write(Value As String)
   $sUser = Value
 
 End
+
+Private Sub CookieName_Read() As String
+
+  Return GetCookieName()
+  
+End 

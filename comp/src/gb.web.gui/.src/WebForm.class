@@ -169,7 +169,7 @@ Static Private Sub Upload(sKey As String) As Boolean
   
   sTarget = Upload.Path &/ sKey
   
-  If Not Request.Cookies["GBSESSIONID"] Or If Not Exist(sTarget) Then 
+  If Not Request.Cookies[Session.CookieName] Or If Not Exist(sTarget) Then 
     PrintLog("UPLOAD DOES NOT EXIST")
     Response.Status = "404 Not Found"
     Response.Begin
@@ -201,6 +201,23 @@ Catch
     
 End
 
+Static Private Sub GetCookieName() As String
+
+  Dim sApp As String
+  Dim I As Integer
+  Dim sCookie As String
+  
+  sApp = Application.Name
+  
+  For I = 1 To Len(sApp)
+    sCookie &= Hex$(Asc(sApp, I))
+  Next
+  
+  Return "GBSESSIONID-" & UCase(sCookie)
+  
+End
+
+
 Static Public Sub Main()
 
   Dim hProcess As Process
@@ -216,6 +233,7 @@ Static Public Sub Main()
   Dim iPid As Integer
   Dim sExec As String
   
+  Session.CookieName = GetCookieName()
   sTemp = Session.Path
   
   ' Beware that a CGI script receives the Request query in its first argument as soon as there is no "=" character in it!
@@ -243,9 +261,9 @@ Static Public Sub Main()
     $hTimeout.Delay = Session.Timeout * 1000
     $hTimeout.Start
     
-    PrintLog("Create session file")
     Try Kill sTemp &/ Session.Id
     Link "/proc" &/ CStr(Application.Id) To sTemp &/ Session.Id
+    PrintLog("Create session file: " & sTemp &/ Session.Id)
 
     PrintLog("Waiting for SIGUSR1")
     Return
@@ -323,7 +341,7 @@ Static Public Sub Main()
     
   PrintLog("================ NEW REQUEST: " & Application.Request)
 
-  sCookie = Request.Cookies["GBSESSIONID"]
+  sCookie = Request.Cookies[Session.CookieName]
   PrintLog("COOKIE = " & If(sCookie, sCookie, "<none>"))
   
   If sCookie Then
@@ -364,7 +382,7 @@ Static Public Sub Main()
     sExec = Application.Path &/ File.Name(Args[0])
 
     If Not Exist(sExec) Then
-      If Class.IsLoaded("Debug") Then
+      If Class.IsLoaded("Debug") And If Debug.Fifo Then
         PrintLog("---------------- EXEC gbx3 -g -f " & Debug.Fifo & " " & Application.Path & " -- " & Application.Handle & " " & sCookie)
         hProcess = Exec ["gbx3", "-g", "-f", Debug.Fifo, Application.Path, "--", Application.Handle, sCookie] Wait
       Else
@@ -376,6 +394,7 @@ Static Public Sub Main()
       hProcess = Exec [sExec, Application.Handle, sCookie] Wait
     Endif
     
+    PrintLog("Waiting for: " & sTemp &/ sCookie & "...")
     While Not Exist(sTemp &/ sCookie, True)
       Sleep 0.05
     Wend
