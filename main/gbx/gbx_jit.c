@@ -144,7 +144,7 @@ void JIT_compile(ARCHIVE *arch)
 	COMPONENT_current = current;
 }
 
-bool wait_for_compilation(ARCHIVE *arch)
+static bool wait_for_compilation(ARCHIVE *arch)
 {
 	COMPONENT *current;
 	void *lib;

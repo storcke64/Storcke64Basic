@@ -2108,6 +2108,9 @@ static void push_subr_left_right(ushort code, const char *func)
 	}
 	
 	type = get_type(-1);
+	if (type == T_VARIANT || type == T_UNKNOWN)
+		type = T_STRING;
+
 	expr_str = STR_copy(peek(-1, T_STRING));
 	pop_stack(1);
 	
@@ -2137,6 +2140,9 @@ static void push_subr_mid(ushort code)
 	pop_stack(1);
 	
 	type = get_type(-1);
+	if (type == T_VARIANT || type == T_UNKNOWN)
+		type = T_STRING;
+
 	expr_str = STR_copy(peek(-1, T_STRING));
 	pop_stack(1);
 	

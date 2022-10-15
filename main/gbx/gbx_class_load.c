@@ -1335,8 +1335,6 @@ void CLASS_load_real(CLASS *class)
 	char *name = class->name;
 	int len = strlen(name);
 
-	_load_without_init = FALSE;
-
 	if (!CLASS_is_loaded(class))
 	{
 		if (len >= 3 && name[len - 2] == '[' && name[len - 1] == ']' && !class->array_type)
@@ -1351,7 +1349,10 @@ void CLASS_load_real(CLASS *class)
 	class->ready = FALSE;
 
 	if (load_without_init)
+	{
+		_load_without_init = FALSE;
 		return;
+	}
 
 	class->ready = TRUE;
 	CLASS_run_inits(class);
