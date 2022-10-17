@@ -331,32 +331,7 @@ void EXTERN_call(void)
 		continue;
 	
 	__OBJECT:	
-		{
-			void *ob = value->_object.object;
-			void *addr;
-			CLASS *class;
-			
-			if (!ob)
-				goto __NULL;
-			
-			class = OBJECT_class(ob);
-			
-			if (class == CLASS_Class && !CLASS_is_native((CLASS *)ob))
-				addr = ((CLASS *)ob)->stat;
-			else if (CLASS_is_array(class))
-				addr = ((CARRAY *)ob)->data;
-			else if (CLASS_is_struct(class))
-			{
-				if (((CSTRUCT *)ob)->ref)
-					addr = (char *)((CSTATICSTRUCT *)ob)->addr;
-				else
-					addr = (char *)ob + sizeof(CSTRUCT);
-			}
-			else
-				addr = (char *)ob + sizeof(OBJECT);
-			
-			*((void **)tmp) = addr;
-		}
+		*((void **)tmp) = OBJECT_get_addr(value->_object.object);
 		continue;
 	
 	__POINTER:

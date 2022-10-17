@@ -2343,12 +2343,22 @@ static void push_call(ushort code)
 			}
 			else
 			{
+				TYPE type;
+				char *expr;
+
 				STR_add(&call,"SP = sp;(*(%s (*)())%p)(", JIT_get_ctype(ext->type), JIT.get_extern(ext));
 				
 				for (i = 0; i < ext->n_param; i++)
 				{
 					if (i) STR_add(&call, ",");
-					STR_add(&call, "%s", peek(i - narg, ext->param[i].type));
+					type = ext->param[i].type;
+					expr = peek(i - narg, type);
+					if (type == T_STRING || type == T_CSTRING)
+						STR_add(&call, "GET_STRING_ADDR(%s)", expr);
+					else if (type >= T_OBJECT)
+						STR_add(&call, "JIT.get_object_addr((%s)._object.value)", expr);
+					else
+						STR_add(&call, "%s", expr);
 				}
 				
 				STR_add(&call, ");");

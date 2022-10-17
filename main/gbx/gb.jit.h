@@ -113,6 +113,7 @@ typedef
 		void (*add_string_global)(char **str, GB_STRING val);
 		void (*value_class_write)(void *class, GB_VALUE *value, void *addr, JIT_CTYPE ctype);
 		void (*subr_poke)(ushort code);
+		void *(*get_object_addr)(void *ob);
 	}
 	JIT_INTERFACE;
 

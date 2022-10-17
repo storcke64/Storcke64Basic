@@ -326,8 +326,8 @@ enum
 #define GET_FUNCTION(_pc) ({ CALL_UNKNOWN(_pc); POP_u(); })
 
 #define GET_STRING_ADDR(_val) ({ \
-  GB_STRING *temp = &(_val); \
-  temp->value.addr + temp->value.start; \
+  GB_STRING temp = (_val); \
+  temp.value.addr + temp.value.start; \
 })
 
 // TODO: automatic class

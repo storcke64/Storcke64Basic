@@ -89,6 +89,8 @@ OBJECT *OBJECT_active_parent(void *object);
 
 int OBJECT_check_valid(void *object);
 
+void *OBJECT_get_addr(void *ob);
+
 /*
 static INLINE CLASS *OBJECT_class(void *object)
 {

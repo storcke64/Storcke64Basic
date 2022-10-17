@@ -520,3 +520,30 @@ int OBJECT_check_valid(void *object)
 {
 	return *((char *)object + OBJECT_class(object)->special[SPEC_INVALID]);
 }
+
+void *OBJECT_get_addr(void *ob)
+{
+	CLASS *class;
+	void *addr;
+
+	if (!ob)
+		return NULL;
+
+	class = OBJECT_class(ob);
+
+	if (class == CLASS_Class && !CLASS_is_native((CLASS *)ob))
+		addr = ((CLASS *)ob)->stat;
+	else if (CLASS_is_array(class))
+		addr = ((CARRAY *)ob)->data;
+	else if (CLASS_is_struct(class))
+	{
+		if (((CSTRUCT *)ob)->ref)
+			addr = (char *)((CSTATICSTRUCT *)ob)->addr;
+		else
+			addr = (char *)ob + sizeof(CSTRUCT);
+	}
+	else
+		addr = (char *)ob + sizeof(OBJECT);
+
+	return addr;
+}
