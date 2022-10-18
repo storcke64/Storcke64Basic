@@ -25,6 +25,7 @@
 #define __C_WEBVIEW_H
 
 #include <QUrl>
+#include <QWebEngineProfile>
 #include <QWebEnginePage>
 #include <QWebEngineView>
 
@@ -56,7 +57,7 @@ typedef
 		char *link;
 		int history;
 		int progress;
-		char *cb_result;
+		char *language;
 		unsigned cancel : 1;
 	}
 	CWEBVIEW;
@@ -67,7 +68,7 @@ class MyWebPage : public QWebEnginePage
 
 public:
 	
-	MyWebPage(QObject *parent);
+	MyWebPage(QWebEngineProfile *profile, QObject *parent);
 
 protected:
 	
@@ -81,12 +82,18 @@ class MyWebEngineView : public QWebEngineView
 public:
 	
 	MyWebEngineView(QWidget *parent);
+	~MyWebEngineView();
 	void clearPage(bool destroy);
 
 protected:
 	
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 	virtual QWebEngineView *createWindow(QWebEnginePage::WebWindowType type);
+
+
+private:
+
+	QWebEngineProfile *profile;
 };
 
 class WebViewSignalManager : public QObject

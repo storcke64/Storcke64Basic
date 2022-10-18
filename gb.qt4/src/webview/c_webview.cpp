@@ -128,6 +128,11 @@ static void set_link(void *_object, const QString &link)
 	THIS->link = QT.NewString(link);
 }
 
+static void update_language(void *_object)
+{
+	// TODO: it seems that Qt4 QWebView does not support setting the language.
+}
+
 //-------------------------------------------------------------------------
 
 BEGIN_METHOD(WebView_new, GB_OBJECT parent)
@@ -180,6 +185,9 @@ BEGIN_METHOD(WebView_new, GB_OBJECT parent)
 
 	/*QObject::connect(wid->page()->networkAccessManager(), SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), &CWebView::manager,
 										SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));*/
+
+	update_language(THIS);
+
 END_METHOD
 
 BEGIN_METHOD_VOID(WebView_free)
@@ -190,6 +198,7 @@ BEGIN_METHOD_VOID(WebView_free)
 	//GB.FreeString(&THIS->status);
 	//GB.FreeString(&THIS->userAgent);
 	GB.FreeString(&THIS->link);
+	GB.FreeString(&THIS->language);
 	GB.Unref(POINTER(&THIS->icon));
 	GB.Unref(POINTER(&THIS->new_view));
 
@@ -342,6 +351,17 @@ BEGIN_METHOD_VOID(WebView_GetHtml)
 
 END_METHOD
 
+BEGIN_PROPERTY(WebView_Language)
+
+	if (READ_PROPERTY)
+		GB.ReturnString(THIS->language);
+	else
+	{
+		GB.StoreString(PROP(GB_STRING), &THIS->language);
+		update_language(THIS);
+	}
+
+END_PROPERTY
 
 //-------------------------------------------------------------------------
 
@@ -500,11 +520,12 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Progress", "f", WebView_Progress),
 	GB_PROPERTY("NewView", "WebView", WebView_NewView),
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
+	GB_PROPERTY("Language", "s", WebView_Language),
 
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
 	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),
 
-		GB_METHOD("Clear", NULL, WebView_Clear, NULL),
+	GB_METHOD("Clear", NULL, WebView_Clear, NULL),
 	
 	GB_METHOD("Back", NULL, WebView_Back, NULL),
 	GB_METHOD("Forward", NULL, WebView_Forward, NULL),

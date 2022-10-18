@@ -31,11 +31,13 @@ typedef
   struct {
     GTK_CONTROL control;
 		GtkWidget *widget;
+    WebKitWebContext *context;
 		WebKitBackForwardListItem *item;
 		GTK_PICTURE icon;
 		void *new_view;
 		char *link;
 		char *cb_result;
+    char *language;
 		unsigned error : 1;
 		unsigned accept_next : 1;
 		unsigned got_load_event : 1;

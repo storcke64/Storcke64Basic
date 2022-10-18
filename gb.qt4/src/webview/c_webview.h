@@ -83,6 +83,7 @@ typedef
 		QT_PICTURE icon;
 		void *new_view;
 		char *link;
+		char *language;
 		int history;
 		int progress;
 		unsigned cancel : 1;

@@ -298,6 +298,28 @@ static gboolean cb_context_menu(WebKitWebView *web_view, WebKitContextMenu *cont
 	return GB.CanRaise(THIS, EVENT_MENU);
 }
 
+static void update_language(void *_object)
+{
+	if (THIS->language && *THIS->language)
+	{
+		gchar **languages = g_strsplit(THIS->language, ",", -1);
+		webkit_web_context_set_preferred_languages(THIS->context, (const gchar **)languages);
+		g_strfreev(languages);
+	}
+	else
+	{
+		const gchar *languages[2] = { NULL, NULL };
+		char *lang, *p;
+
+		lang = g_strdup(GB.System.Language());
+		p = index(lang, '_');
+		if (p) *p = '-';
+		languages[0] = lang;
+		webkit_web_context_set_preferred_languages(THIS->context, languages);
+		g_free(lang);
+	}
+}
+
 //---------------------------------------------------------------------------
 
 #define must_patch(_widget) (true)
@@ -307,7 +329,8 @@ PATCH_DECLARE(WEBKIT_TYPE_WEB_VIEW)
 
 static void create_widget(void *_object, void *parent)
 {
-	THIS->widget = webkit_web_view_new();
+	THIS->context = webkit_web_context_new_ephemeral();
+	THIS->widget = webkit_web_view_new_with_context(THIS->context);
 	
 	GTK.CreateControl(THIS, parent, THIS->widget, CCF_HAS_INPUT_METHOD);
 	
@@ -340,15 +363,19 @@ static void create_widget(void *_object, void *parent)
 BEGIN_METHOD(WebView_new, GB_OBJECT parent)
 
 	create_widget(THIS, VARG(parent));
+	update_language(THIS);
 
 END_METHOD
 
 BEGIN_METHOD_VOID(WebView_free)
 
 	GB.FreeString(&THIS->link);
+	GB.FreeString(&THIS->language);
 
 	GB.Unref(POINTER(&THIS->icon));
 	GB.Unref(POINTER(&THIS->new_view));
+
+	g_object_unref(THIS->context);
 
 END_METHOD
 
@@ -489,7 +516,19 @@ BEGIN_METHOD_VOID(WebView_GetHtml)
 
 	run_callback(THIS, "Unable to retrieve HTML contents: &1");
 
-	END_METHOD
+END_METHOD
+
+BEGIN_PROPERTY(WebView_Language)
+
+	if (READ_PROPERTY)
+		GB.ReturnString(THIS->language);
+	else
+	{
+		GB.StoreString(PROP(GB_STRING), &THIS->language);
+		update_language(THIS);
+	}
+
+END_PROPERTY
 
 //---------------------------------------------------------------------------
 
@@ -605,6 +644,7 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Progress", "f", WebView_Progress),
 	GB_PROPERTY("NewView", "WebView", WebView_NewView),
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
+	GB_PROPERTY("Language", "s", WebView_Language),
 
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
 	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),

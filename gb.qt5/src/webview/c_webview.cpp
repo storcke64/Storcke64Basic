@@ -284,6 +284,18 @@ static void cb_html_finished(const QString &result)
 	_cb_running = FALSE;
 }
 
+static void update_language(void *_object)
+{
+	QString lang;
+
+	if (THIS->language && *THIS->language)
+		lang = TO_QSTRING(THIS->language);
+	else
+		lang = TO_QSTRING(GB.System.Language()).replace("_", "-");
+
+	WIDGET->page()->profile()->setHttpAcceptLanguage(lang);
+}
+
 //-------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(WebView_exit)
@@ -333,6 +345,7 @@ BEGIN_METHOD(WebView_new, GB_OBJECT parent)
 	//QObject::connect(wid, SIGNAL(destroyed()), &WebViewSignalManager::manager, SLOT(destroy()));
 
 	wid->clearPage(false);
+	update_language(THIS);
 
 	//QObject::connect(wid, SIGNAL(linkClicked(const QUrl &)), &CWebView::manager, SLOT(linkClicked(const QUrl &)));
 #if 0
@@ -354,6 +367,7 @@ END_METHOD
 BEGIN_METHOD_VOID(WebView_free)
 
 	GB.FreeString(&THIS->link);
+	GB.FreeString(&THIS->language);
 
 	GB.Unref(POINTER(&THIS->icon));
 	GB.Unref(POINTER(&THIS->new_view));
@@ -506,6 +520,18 @@ BEGIN_METHOD_VOID(WebView_GetHtml)
 	run_callback("Unable to retrieve HTML contents");
 
 END_METHOD
+
+BEGIN_PROPERTY(WebView_Language)
+
+	if (READ_PROPERTY)
+		GB.ReturnString(THIS->language);
+	else
+	{
+		GB.StoreString(PROP(GB_STRING), &THIS->language);
+		update_language(THIS);
+	}
+
+END_PROPERTY
 
 #if 0
 BEGIN_PROPERTY(WebView_HTML)
@@ -967,6 +993,7 @@ GB_DESC WebViewDesc[] =
 	GB_PROPERTY_READ("Progress", "f", WebView_Progress),
 	GB_PROPERTY("NewView", "WebView", WebView_NewView),
 	GB_PROPERTY_READ("Link", "s", WebView_Link),
+	GB_PROPERTY("Language", "s", WebView_Language),
 	
 	GB_METHOD("SetHtml", NULL, WebView_SetHtml, "(Html)s[(Root)s]"),
 	GB_METHOD("GetHtml", "s", WebView_GetHtml, NULL),
@@ -1004,8 +1031,15 @@ GB_DESC WebViewDesc[] =
 
 MyWebEngineView::MyWebEngineView(QWidget *parent) : QWebEngineView(parent)
 {
+	profile = new QWebEngineProfile(this);
 	//settings()->setFontFamily(QWebSettings::FixedFont, "monospace");
-	setPage(new MyWebPage(this));
+	//setPage(new MyWebPage(profile, this));
+}
+
+MyWebEngineView::~MyWebEngineView()
+{
+	delete page();
+	delete profile;
 }
 
 void MyWebEngineView::clearPage(bool destroy)
@@ -1014,7 +1048,7 @@ void MyWebEngineView::clearPage(bool destroy)
 	if (destroy)
 		p = page();
 	
-	setPage(new MyWebPage(this));
+	setPage(new MyWebPage(profile, this));
 	QObject::connect(page(), SIGNAL(linkHovered(const QString &)), &WebViewSignalManager::manager, SLOT(linkHovered(const QString &)));
 	
 	if (destroy && p)
@@ -1054,7 +1088,7 @@ void MyWebEngineView::contextMenuEvent(QContextMenuEvent *event)
 
 //-------------------------------------------------------------------------
 
-MyWebPage::MyWebPage(QObject *parent) : QWebEnginePage(parent)
+MyWebPage::MyWebPage(QWebEngineProfile *profile, QObject *parent) : QWebEnginePage(profile, parent)
 {
 }
 
