@@ -7,6 +7,9 @@ Public Sub Link(hLink As MarkdownLink)
   Dim sPath As String
   Dim sLink As String = hLink.Link
   Dim iPos As Integer
+  Dim sClass As String
+  Dim sSymbol As String
+  Dim hClass As CClassInfo
   
   If sLink Begins "/" Then
     sPath = sLink
@@ -18,10 +21,28 @@ Public Sub Link(hLink As MarkdownLink)
     
     sLink = hLink.Text
     iPos = InStr(sLink, ".")
-    If iPos Then
-      hLink.Text = ""
-      sPath = "/comp/gb" &/ Trim(Left$(sLink, iPos - 1)) &/ Trim(Mid$(sLink, iPos + 1))
+    
+    If iPos Then 
+      
+      sClass = Left$(sLink, iPos - 1)
+      sSymbol = Mid$(sLink, iPos + 1)
+      
+    Else 
+      
+      sClass = sLink
+    
     Endif
+      
+    Try hClass = Project.Documentation.Classes[sClass]
+    If hClass And If hClass.Component = CComponent.PROJECT_NAME Then 
+      hLink.Link = "gambas://project/" & sClass &/ sSymbol
+      hLink.Text = sLink
+      hLink.Blank = True
+      Return
+    Endif
+    
+    hLink.Text = ""
+    sPath = "/comp/gb" &/ sClass &/ sSymbol
     
   Else
     

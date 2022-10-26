@@ -872,6 +872,17 @@ Public Function GetHelpURL(Optional bShowFile As Boolean) As String
   
 End
 
+Public Sub HasHelp() As Boolean
+  
+  If Component = CComponent.PROJECT_NAME Or If Not Component Then
+    Return GetHelpMarkup()
+  Else
+    Return True
+  Endif
+  
+End
+
+
 '' Transform one line of help into HTML by decoding some sort of light wiki syntax.
 ''
 '' - #sLine# is the line of help text.
@@ -1054,7 +1065,7 @@ Public Function GetHelpHTML() As String
   
   sMarkup = GetHelpMarkup()
   If sMarkup Then 
-    Try sHelp = Markdown.ToHTML(sMarkup)
+    Try sHelp = WikiMarkdown.ToHTML(sMarkup)
     If Error Then sHelp = "<b>" & Error.Text & "</b>"
   Endif
   

@@ -23,6 +23,11 @@ Public Sub ReadConfig() As Boolean
   
   Dim bOffline As Boolean
   Dim bRet As Boolean
+  Dim hDefaultFont As Font
+  Dim hFixedFont As Font
+
+  hDefaultFont = Font[Settings["/Help/Font"]]
+  hFixedFont = Font[Settings["/Help/FixedFont", Project.DEFAULT_FONT]]
   
   bOffline = Settings["/UseOfflineHelp"]
   If Not $hView Or If bOffline Xor $hView Is HtmlView Then
@@ -41,8 +46,19 @@ Public Sub ReadConfig() As Boolean
   Endif
   
   If bOffLine Then
-    $hView.Font = Font[Settings["/Help/Font"]]
-    $hView.MonospaceFont = Font[Settings["/Help/FixedFont"]]
+    
+    $hView.Font = hDefaultFont
+    $hView.MonospaceFont = hFixedFont
+    
+  Else 
+  
+    $hView.Settings.Fonts.Serif = hDefaultFont.Name
+    $hView.Settings.Fonts.SansSerif = hDefaultFont.Name
+    $hView.Settings.Fonts.DefaultSize = hDefaultFont.Size
+  
+    $hView.Settings.Fonts.Fixed = hFixedFont.Name
+    $hView.Settings.Fonts.DefaultFixedSize = hFixedFont.Size
+    
   Endif
   
   Return bRet
