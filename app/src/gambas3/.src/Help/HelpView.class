@@ -52,6 +52,7 @@ Public Sub ReadConfig() As Boolean
     
   Else 
   
+    $hView.Settings.Fonts.Default = hDefaultFont.Name
     $hView.Settings.Fonts.Serif = hDefaultFont.Name
     $hView.Settings.Fonts.SansSerif = hDefaultFont.Name
     $hView.Settings.Fonts.DefaultSize = hDefaultFont.Size

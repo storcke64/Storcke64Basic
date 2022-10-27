@@ -37,7 +37,6 @@ Public Sub Link(hLink As MarkdownLink)
     If hClass And If hClass.Component = CComponent.PROJECT_NAME Then 
       hLink.Link = "gambas://project/" & sClass &/ sSymbol
       hLink.Text = sLink
-      hLink.Blank = True
       Return
     Endif
     

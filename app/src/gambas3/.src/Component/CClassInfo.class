@@ -609,7 +609,7 @@ Public Sub GetHelpHTML() As String
     ' Endif
     
     sSymbols = ""
-    sSpace = " &nbsp; "
+    sSpace = "&nbsp;&nbsp; "
     
     If aStaticMethod.Count + aStaticProperty.Count + aStaticVar.Count + aConst.Count Then
       
