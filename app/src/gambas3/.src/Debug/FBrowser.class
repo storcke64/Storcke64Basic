@@ -1,5 +1,12 @@
 ' Gambas class file
 
+Public Sub _new()
+  
+  wvwBrowser.Settings[WebSettings.JavascriptCanAccessClipboard] = True
+  
+End
+
+
 Public Sub Run(sUrl As String)
   
   wvwBrowser.Clear
