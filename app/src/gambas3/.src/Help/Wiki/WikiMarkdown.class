@@ -9,7 +9,6 @@ Public Sub Link(hLink As MarkdownLink)
   Dim iPos As Integer
   Dim sClass As String
   Dim sSymbol As String
-  Dim hClass As CClassInfo
   
   If sLink Begins "/" Then
     sPath = sLink
@@ -32,12 +31,13 @@ Public Sub Link(hLink As MarkdownLink)
       sClass = sLink
     
     Endif
-      
-    Try hClass = Project.Documentation.Classes[sClass]
-    If hClass And If hClass.Component = CComponent.PROJECT_NAME Then 
+    
+    If Project.ExistClass(sClass) Then
+    
       hLink.Link = "gambas://project/" & sClass &/ sSymbol
       hLink.Text = sLink
       Return
+      
     Endif
     
     hLink.Text = ""
