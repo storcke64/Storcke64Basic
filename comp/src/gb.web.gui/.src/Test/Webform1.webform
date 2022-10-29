@@ -196,8 +196,15 @@
       List = [("Élément 1"), ("Élément 2"), ("Élément 3"), ("Élément 4"), ("<i>Élément 5</i>"), ("Élément 6"), ("Élément 7"), ("Élément 8"), ("<span style=\"color:red;\">Élément 9</span>"), ("Élément 10"), ("Élément 11"), ("Élément 12")]
       UseHTML = True
     }
+    { WebHBox6 WebHBox
+      #MoveScaled(1,46,128.75,6)
+      { btnCopy WebButton
+        #MoveScaled(1,1,16,4)
+        Text = ("Copy")
+      }
+    }
     { WebTextArea1 WebTextArea
-      #MoveScaled(1,46,128.75,16)
+      #MoveScaled(1,53,128.75,16)
       Height = "8em"
     }
     Index = 2
@@ -264,8 +271,12 @@
         #MoveScaled(1,1,15,4)
         Text = ("Check")
       }
+      { btnMultiple WebButton
+        #MoveScaled(17,1,15,4)
+        Text = ("Multiple")
+      }
       { lblTreeEvent WebLabel
-        #MoveScaled(17,1,30,4)
+        #MoveScaled(33,1,30,4)
         Expand = True
         Border = True
       }

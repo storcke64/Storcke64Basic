@@ -359,3 +359,15 @@ Public Sub WebTextArea1_KeyPress()
   WebForm.Print("WebTextArea1: keypress: " & Key.Shortcut)
 
 End
+
+Public Sub btnCopy_Click()
+
+  WebTextArea1.Copy()
+
+End
+
+Public Sub btnMultiple_Click()
+
+  WebTree1.Mode = If(WebTree1.Mode = Select.Single, Select.Multiple, Select.Single)
+
+End

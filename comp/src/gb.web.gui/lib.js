@@ -1298,6 +1298,9 @@ gw = {
       
       elt.focus();
       
+      if (!event && !checked)
+        return;
+      
       if (event && event.shiftKey && last)
         gw.table.checkRange(id, last, row, checked);
       else
