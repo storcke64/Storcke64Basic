@@ -2,10 +2,10 @@
 
 Public Sub _new()
   
+  wvwBrowser.Settings[WebSettings.Javascript] = True
   wvwBrowser.Settings[WebSettings.JavascriptCanAccessClipboard] = True
   
 End
-
 
 Public Sub Run(sUrl As String)
   
