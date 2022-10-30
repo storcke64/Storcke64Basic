@@ -325,6 +325,9 @@ Public Sub ToLanguage(sLang As String) As String
   Dim iPos As Integer
   Dim sFind As String
   
+  iPos = RInStr(sLang, ".")
+  If iPos Then sLang = Left(sLang, iPos - 1)
+  
   If InStr(sLang, "-") = 0 Then
     
     sFind = ":" & LCase(sLang) & "="
