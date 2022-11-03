@@ -1682,16 +1682,16 @@ static void table_release(DB_DATABASE *db, DB_INFO *info)
 static int table_exist(DB_DATABASE *db, const char *table)
 {
 	const char *query =
-		"select relname from pg_class where (relkind = 'r' or relkind = 'v'or relkind = 'm') "
+		"select relname from pg_class where (relkind in ('r', 'v', 'm', 'p')) "
 		"and (relname = '&1') "
 		"and (relnamespace not in (select oid from pg_namespace where nspname = 'information_schema'))";
 
 	const char *query_schema =
-		"select relname from pg_class where (relkind = 'r' or relkind = 'v' or relkind = 'm') "
+		"select relname from pg_class where (relkind in ('r', 'v', 'm', 'p')) "
 		"and (relname = '&1') "
 		"and (relnamespace in (select oid from pg_namespace where nspname = '&2'))";
 
-		/*"select pg_class.relname,pg_namespace.nspname from pg_class,pg_namespace where (pg_class.relkind = 'r' or pg_class.relkind = 'v') "
+/*"select pg_class.relname,pg_namespace.nspname from pg_class,pg_namespace where (pg_class.relkind = 'r' or pg_class.relkind = 'v') "
 		"and (pg_namespace.oid = pg_class.relnamespace) "
 		"and (pg_class.relname = '&1') "
 		"and (pg_namespace.nspname = '&2') "
@@ -1740,7 +1740,7 @@ static int table_exist(DB_DATABASE *db, const char *table)
 static int table_list_73(DB_DATABASE *db, char ***tables)
 {
 	const char *query =
-		"select pg_class.relname,pg_namespace.nspname from pg_class,pg_namespace where (pg_class.relkind = 'r' or pg_class.relkind = 'v' or pg_class.relkind = 'm') "
+		"select pg_class.relname,pg_namespace.nspname from pg_class,pg_namespace where (pg_class.relkind in ('r', 'v', 'm', 'p')) "
 		"and (pg_namespace.oid = pg_class.relnamespace) "
 		"and (pg_namespace.oid not in (select oid from pg_namespace where nspname = 'information_schema'))";
 
@@ -1932,7 +1932,7 @@ static int table_primary_key(DB_DATABASE *db, const char *table, char ***primary
 static int table_is_system(DB_DATABASE *db, const char *table)
 {
 	const char *query =
-		"select 1 from pg_class where (relkind = 'r' or relkind = 'v'or relkind = 'm') "
+		"select 1 from pg_class where (relkind in ('r', 'v', 'm', 'p')) "
 		"and (relname = '&1') "
 		"and (relnamespace in (select oid from pg_namespace where nspname = 'pg_catalog'))";
 
