@@ -2,7 +2,7 @@
 
 { Form Form
   MoveScaled(0,0,100,73)
-  Text = ("Make executable")
+  Text = ("Configure executable")
   Icon = Picture["icon:/small/exec"]
   Persistent = True
   Arrangement = Arrange.Vertical
@@ -115,8 +115,10 @@
       MoveScaled(7,2,9,1)
     }
     { btnOK Button
-      MoveScaled(40,0,16,4)
-      Text = ("OK")
+      MoveScaled(36,0,20,4)
+      AutoResize = True
+      Text = ("Make executable")
+      Picture = Picture["icon:/small/exec"]
       Default = True
     }
     { btnCancel Button

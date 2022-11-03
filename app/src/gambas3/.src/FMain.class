@@ -1286,7 +1286,7 @@ Public Sub UpdateMenu()
   
   UpdateTranslate
   
-  For Each sAction In ["exec", "install", "compile", "compile-all"]
+  For Each sAction In ["exec", "exec-now", "install", "compile", "compile-all"]
     Action[sAction].Visible = bVisible
     Action[sAction].Enabled = bEnabled
   Next
@@ -1650,6 +1650,8 @@ Public Sub Action_Activate((Key) As String) As Boolean
       Project.SendMail
     Case "exec"
       Project.MakeExecutable
+    Case "exec-now"
+      Project.MakeExecutable(False, True)
     Case "install"
       Project.MakeInstall
     Case "shortcut"
@@ -3320,7 +3322,7 @@ End
 
 Public Sub OnRefreshSources()
   
-  Action["test,test-suite"].Visible = Project.HasTest()
+  mnuTest.Visible = Project.HasTest()
   
 End
 
