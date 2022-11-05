@@ -50,21 +50,24 @@ End
 
 Private Sub GetTextEditor() As String
 
+  Dim aProg As String[]
   Dim sProg As String
   
   If Desktop.Is("kde4") Or If Desktop.Is("kde5") Then
-    sProg = "kwrite"
+    aProg = ["kwrite"]
   Else If Desktop.Is("xfce") Then
-    sProg = "mousepad"
+    aProg = ["mousepad"]
   Else If Desktop.Is("lxde") Then
-    sProg = "leafpad"
+    aProg = ["leafpad"]
   Else If Desktop.Is("mate") Then
-    sProg = "pluma"
+    aProg = ["pluma"]
   Else
-    sProg = "gedit"
+    aProg = ["gnome-text-editor", "gedit"]
   Endif
   
-  For Each sProg In [sProg, "kwrite", "kate", "gedit", "emacs"]
+  aProg.Insert(["kwrite", "kate", "gnome-text-editor", "gedit", "editor", "emacs", "vim"])
+  
+  For Each sProg In aProg
     If System.Exist(sProg) Then Return sProg
   Next
 
