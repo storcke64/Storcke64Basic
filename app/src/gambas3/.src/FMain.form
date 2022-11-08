@@ -136,34 +136,32 @@
       Shortcut = "Alt+F7"
     }
     { Menu52 Menu
-      Text = ("Executable")
-      { mnuExecNow Menu
-        Action = "exec-now"
-        Text = ("Make executable")
-        Picture = Picture["icon:/huge/exec"]
-        Shortcut = "Alt+X"
-      }
-      { mnuExec Menu
-        Action = "exec"
-        Text = ("Configure executable") & "..."
-        Picture = Picture["icon:/small/development"]
-        Shortcut = "Ctrl+Alt+X"
-      }
     }
-    { mnuTest Menu
-      Text = ("Test")
-      { mnuRunTest Menu
-        Action = "test"
-        Text = ("Run test")
-        Picture = Picture["icon:/small/ok"]
-        Shortcut = "F4"
-      }
-      { mnuTestSuites Menu
-        Action = "test-suite"
-        Text = ("Configure test suites") & "..."
-        Picture = Picture["icon:/small/text-list"]
-        Shortcut = "Shift+F4"
-      }
+    { mnuExecNow Menu
+      Action = "exec-now"
+      Text = ("Make executable")
+      Picture = Picture["icon:/huge/exec"]
+      Shortcut = "Alt+X"
+    }
+    { mnuExec Menu
+      Action = "exec"
+      Text = ("Configure executable") & "..."
+      Picture = Picture["icon:/small/development"]
+      Shortcut = "Ctrl+Alt+X"
+    }
+    { Menu12 Menu
+    }
+    { mnuRunTest Menu
+      Action = "test"
+      Text = ("Run test")
+      Picture = Picture["icon:/small/ok"]
+      Shortcut = "F4"
+    }
+    { mnuTestSuites Menu
+      Action = "test-suite"
+      Text = ("Configure test suites") & "..."
+      Picture = Picture["icon:/small/text-list"]
+      Shortcut = "Shift+F4"
     }
     { Menu47 Menu
     }

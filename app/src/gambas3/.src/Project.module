@@ -2841,7 +2841,7 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
 
   sExecPath = GetExecPath()
   
-  If Not bSilent Then
+  If Not bSilent Or If Not Exist(sExecPath) Then
 
     'IF Dialog.SaveFile() THEN RETURN TRUE
     sExecPath = FMakeExecutable.Run(sExecPath)
