@@ -2,19 +2,47 @@
 
 Export
 
+'' Return the item key
 Property Read Key As String
+
+'' Return the key of the parent item, or 'NULL' if the item has no parent.
 Property Read ParentKey As String
+
+'' Return or set the item text.
 Property Text As String
+
+'' Return or set the item HTML text.
+''
+'' If the Html property is defined, the [Text](../text) property is ignored.
 Property Html As String
+
+'' Return or set the item image.
 Property Image As String
+
+'' Return the number of children items.
 Property Read Count, Children As Integer
+
+'' Return of set if the item is expanded.
 Property Expanded As Boolean
 
+'' Return or set if the item is editable.
+''
+'' This property has no effect at the moment.
 Property Editable As Boolean
+
+'' Return or set if the item is selected.
 Property Selected As Boolean
+
+'' Return or set the item background color.
 Property Background As Integer
+
+'' Return or set the item foreground color.
 Property Foreground As Integer
+
+'' This property is intended for the programmer and is never used by the component. It can contain any [/lang/type/variant] value.
 Property Tag As Variant
+
+'' Return the item depth inside the whole tree.
 Property Read Depth As Integer
 
 Private $sKey As String
@@ -266,6 +294,8 @@ Private Sub Expanded_Write(Value As Boolean)
   
 End
 
+'' Remove all item children.
+
 Public Sub Clear()
   
   Dim hTree As WebTree = GetTree()
@@ -276,12 +306,16 @@ Public Sub Clear()
   
 End
 
+'' Remove the item.
+
 Public Sub Delete()
   
   Dim hTree As WebTree = GetTree()
   hTree.Remove($sKey)
   
 End
+
+'' Ensure that the item is visible on the screen.
 
 Public Sub EnsureVisible()
   
@@ -290,12 +324,24 @@ Public Sub EnsureVisible()
   
 End
 
+'' Move the item just before another item.
+''
+'' - ~Key~ : key of the reference item. The reference item must have the same parent as the moved item.
+''
+'' If no reference item is specified, the item is moved so that it becomes the last child of its parent.
+
 Public Sub MoveBefore(Optional (Key) As String)
   
   Dim hTree As WebTree = GetTree()
   hTree._MoveItem(Me, Key, True)
   
 End
+
+'' Move the item just after another item.
+''
+'' - ~Key~ : key of the reference item. The reference item must have the same parent as the moved item.
+''
+'' If no reference item is specified, the item is moved so that it becomes the first child of its parent.
 
 Public Sub MoveAfter(Optional (Key) As String)
   
@@ -304,11 +350,15 @@ Public Sub MoveAfter(Optional (Key) As String)
   
 End
 
+'' Move the item so that it becomes the first child of its parent.
+
 Public Sub MoveFirst()
   
   MoveAfter()
   
 End
+
+'' Move the item so that it becomes the last child of its parent.
 
 Public Sub MoveLast()
   
@@ -331,13 +381,13 @@ End
 
 Private Function Selected_Read() As Boolean
 
-  Return GetTree()._IsSelected(Me)
+  Return GetTree()._IsSelected($sKey)
 
 End
 
 Private Sub Selected_Write(Value As Boolean)
 
-  GetTree()._SetSelected(Me, Value)
+  GetTree()._SetSelected($sKey, Value)
 
 End
 
@@ -371,6 +421,10 @@ Public Sub _compare(hOther As _WebTreeItem) As Integer
   
 End
 
+'' Set the text contents of a column for the item.
+''
+'' - ~Column~ : the column index.
+
 Public Sub _put(Text As String, Column As Integer)
   
   Dim hTree As WebTree
@@ -397,6 +451,10 @@ Public Sub _put(Text As String, Column As Integer)
   
 End
 
+'' Return the text contents of a column for the item.
+''
+'' - ~Column~ : the column index.
+
 Public Sub _get(Column As Integer) As String
   
   If Column = 0 Then Return $sText
@@ -406,6 +464,9 @@ Public Sub _get(Column As Integer) As String
   
 End
 
+'' Change the parent of the item.
+''
+'' - ~NewParent~ : key of the new parent.
 
 Public Sub Reparent(NewParent As String)
   

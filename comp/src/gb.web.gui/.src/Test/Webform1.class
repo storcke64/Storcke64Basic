@@ -371,3 +371,10 @@ Public Sub btnMultiple_Click()
   WebTree1.Mode = If(WebTree1.Mode = Select.Single, Select.Multiple, Select.Single)
 
 End
+
+Public Sub btnSelectFirst_Click()
+
+  WebTree1.MoveFirst()
+  WebTree1[WebTree1.Item.Key].Selected = True
+
+End

@@ -895,6 +895,7 @@ Public Sub _MoveItem(hItem As _WebTreeItem, sKey As String, bBefore As Boolean) 
   If iPos < 0 Then Return
   
   If sKey Then
+    ' FIXME: check we have the same parent!
     iPosKey = $cItem[sKey]._Index 'aChildren.Find(sKey)
     If iPosKey < 0 Then Return
     If iPos <= iPosKey Then Dec iPosKey
