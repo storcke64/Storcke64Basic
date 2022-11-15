@@ -831,6 +831,12 @@ BEGIN_PROPERTY(Result_Connection)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Result_Editable)
+
+	GB.ReturnBoolean(THIS->mode == RESULT_CREATE || THIS->mode == RESULT_EDIT);
+
+END_PROPERTY
+
 //-------------------------------------------------------------------------
 
 GB_DESC CResultDesc[] =
@@ -846,6 +852,7 @@ GB_DESC CResultDesc[] =
 	GB_PROPERTY_READ("Available", "b", Result_Available),
 	GB_PROPERTY_READ("Index", "i", Result_Index),
 	GB_PROPERTY_READ("Max", "i", Result_Max),
+	GB_PROPERTY_READ("Editable", "b", Result_Editable),
 
 	GB_METHOD("_get", "v", Result_get, "(Field)s"),
 	GB_METHOD("_put", NULL, Result_put, "(Value)v(Field)s"),
