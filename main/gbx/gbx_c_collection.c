@@ -135,6 +135,13 @@ BEGIN_PROPERTY(Collection_Count)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Collection_Empty)
+
+	GB_ReturnBoolean(CCOLLECTION_get_count(THIS) == 0);
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(Collection_Key)
 
 	char *key;
@@ -338,6 +345,7 @@ GB_DESC NATIVE_Collection[] =
 	GB_METHOD("_free", NULL, Collection_free, NULL),
 
 	GB_PROPERTY_READ("Count", "i", Collection_Count),
+	GB_PROPERTY_READ("Empty", "b", Collection_Empty),
 	GB_PROPERTY_READ("Length", "i", Collection_Count),
 	GB_PROPERTY_READ("First", "s", Collection_First),
 	GB_PROPERTY_READ("Last", "s", Collection_Last),

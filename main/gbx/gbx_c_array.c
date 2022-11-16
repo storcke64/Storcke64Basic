@@ -599,6 +599,13 @@ BEGIN_PROPERTY(Array_Max)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Array_Empty)
+
+	GB_ReturnBoolean(THIS->count == 0);
+
+END_PROPERTY
+
+
 static bool copy_remove(CARRAY *_object, int start, int length, bool copy, bool remove)
 {
 	CARRAY *array = NULL;
@@ -1991,6 +1998,7 @@ GB_DESC NATIVE_Array[] =
 
 	GB_PROPERTY_READ("Type", "i", Array_Type),
 	GB_PROPERTY_READ("Count", "i", Array_Count),
+	GB_PROPERTY_READ("Empty", "b", Array_Empty),
 	GB_PROPERTY_READ("Max", "i", Array_Max),
 	GB_PROPERTY_READ("Length", "i", Array_Count),
 	GB_PROPERTY_READ("Dim", "i", Array_Dim),
