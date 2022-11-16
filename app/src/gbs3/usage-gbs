@@ -13,6 +13,7 @@ Options:
   -g --debug               add debugging information to application
   -f --fast                use just-in-time compiler
   -h --help                display this help
+  -l --list                Display the list of available '-l component' or '-l library' 
   -L --license             display license
   -p --plugin              Compile the script, no main, define the class name as script base name entry point _Call(...)
   -S --strict              fail if 'Public' or 'Sub' are defined without a 'main' function
@@ -23,7 +24,7 @@ Options:
   -v --verbose             be verbose
   -V --version             display version
   -w --warnings            display warnings during compilation
-  --convert-project        convert a simple project to a script 
+  --convert-project        convert a simple project to a script
   --convert-script         convert a simple script to a project
-  --                       stop any further option processing  
+  --                       stop any further option processing
   -                        read the script from standard input
