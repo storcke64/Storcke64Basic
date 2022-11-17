@@ -763,6 +763,7 @@ Public Sub GetBranchColor(sBranch As String) As Integer
   Dim I As Integer
   Dim iHash As Integer
   Dim iPos As Integer
+  Dim sCar As String
   
   If Not sBranch Then 
   
@@ -794,9 +795,9 @@ Public Sub GetBranchColor(sBranch As String) As Integer
           
           iHash = 5381
           For I = 1 To Len(sBranch)
-            iPos = Asc(sBranch, I) - Asc("a") + 1
-            If iPos < 1 Or If iPos > 26 Then iPos = 27
-            iHash += iPos
+            sCar = Mid$(sBranch, I, 1)
+            If Not IsAlnum(sCar) Then sCar = "-"
+            iHash += Asc(sCar)
             iHash = (iHash * 33) Mod $aBranchColor.Count
           Next
           
