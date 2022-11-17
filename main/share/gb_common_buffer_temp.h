@@ -56,7 +56,6 @@ void COMMON_jump_space(void)
 }
 
 
-
 bool COMMON_has_string(const char *str, int len)
 {
 	if (COMMON_get_size_left() < len)

@@ -206,11 +206,10 @@ DATE_SERIAL *DATE_split_local(VALUE *value, bool local)
 }
 
 
-bool DATE_make_local(DATE_SERIAL *date, VALUE *val, bool local)
+static bool make_date(DATE_SERIAL *date, VALUE *val)
 {
 	short year;
 	int nday;
-	bool timezone;
 
 	if (!date_is_valid(date))
 		return TRUE;
@@ -218,7 +217,6 @@ bool DATE_make_local(DATE_SERIAL *date, VALUE *val, bool local)
 	if (date->year == 0)
 	{
 		nday = 0; /*(-DATE_NDAY_BC - 1);*/
-		timezone = FALSE;
 	}
 	else
 	{
@@ -236,28 +234,41 @@ bool DATE_make_local(DATE_SERIAL *date, VALUE *val, bool local)
 		nday += days_in_year[date_is_leap_year(date->year)][(short)date->month] + date->day;
 
 		/*nday -= DATE_NDAY_BC;*/
-
-		timezone = local;
 	}
 
 	val->_date.date = nday;
-	val->_date.time = ((date->hour * 60) + date->min) * 60 + date->sec;
-	if (timezone)
-		val->_date.time += DATE_get_timezone();
+	val->_date.time = (((date->hour * 60) + date->min) * 60 + date->sec) * 1000 + date->msec;
+
+	val->type = T_DATE;
+
+	return FALSE;
+
+}
+
+static void add_timezone(VALUE *val, int timezone)
+{
+	val->_date.time += timezone * 1000;
 
 	if (val->_date.time < 0)
 	{
 		val->_date.date--;
-		val->_date.time += 86400;
+		val->_date.time += 86400000;
 	}
-	else if (val->_date.time >= 86400)
+	else if (val->_date.time >= 86400000)
 	{
 		val->_date.date++;
-		val->_date.time -= 86400;
+		val->_date.time -= 86400000;
 	}
+}
 
-	val->_date.time = val->_date.time * 1000 + date->msec;
-	val->type = T_DATE;
+
+bool DATE_make_local(DATE_SERIAL *date, VALUE *val, bool local)
+{
+	if (make_date(date, val))
+		return TRUE;
+
+	if (local && date->year)
+		add_timezone(val, DATE_get_timezone());
 
 	return FALSE;
 }
@@ -460,6 +471,78 @@ static void set_time(DATE_SERIAL *date, int which, int value)
 }
 
 
+static bool read_timezone(int *timezone)
+{
+	int c;
+	int nbr;
+	bool neg;
+	int save_pos = COMMON_pos;
+
+	if (!COMMON_has_string("UTC", 3) && !COMMON_has_string("GMT", 3))
+		goto __ERROR;
+
+	COMMON_pos += 3;
+	*timezone = 0;
+
+	c = COMMON_look_char();
+	if (c < 0)
+		return TRUE;
+
+	if (c != '+' && c != '-')
+		goto __ERROR;
+
+	neg = c == '-';
+	COMMON_pos++;
+
+	if (read_integer(&nbr, NULL))
+		goto __ERROR;
+
+	if (nbr < 0 || nbr > 24)
+		goto __ERROR;
+
+	*timezone = nbr * 3600;
+
+	c = COMMON_look_char();
+	if (c < 0)
+		goto __OK;
+
+	if (c != ':')
+		goto __ERROR;
+
+	COMMON_pos++;
+
+	nbr = 0;
+	c = COMMON_look_char();
+	if (c < 0 || !isdigit(c))
+		goto __ERROR;
+	nbr += (c - '0') * 10;
+	COMMON_pos++;
+
+	c = COMMON_look_char();
+	if (c < 0 || !isdigit(c))
+		goto __ERROR;
+	nbr += c - '0';
+
+	if (nbr > 59)
+		goto __ERROR;
+
+	COMMON_pos++;
+
+	*timezone += nbr * 60;
+
+__OK:
+
+	if (!neg)
+		*timezone = (- *timezone);
+
+	return TRUE;
+
+__ERROR:
+
+	COMMON_pos = save_pos;
+	return FALSE;
+}
+
 bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 {
 	DATE_SERIAL date;
@@ -468,7 +551,8 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 	int c, i;
 	bool has_date = FALSE;
 	bool zero, zero2;
-	//bool has_time = FALSE;
+	bool has_timezone = FALSE;
+	int timezone;
 
 	if (!len)
 	{
@@ -579,7 +663,6 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 				if (c > 0 && c != info->time_sep[info->time_order[2]])
 					return TRUE;
 			}
-
 		}
 		else if ((c < 0) || isspace(c))
 		{
@@ -592,8 +675,18 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 			set_time(&date, info->time_order[i], nbr2);
 		}
 
+		COMMON_jump_space();
+
+		if (has_date)
+		{
+			has_timezone = read_timezone(&timezone);
+
+			if (has_timezone)
+				COMMON_jump_space();
+		}
+
 		c = COMMON_get_char();
-		if ((c < 0) || isspace(c))
+		if (c < 0)
 			goto _OK;
 	}
 
@@ -601,8 +694,16 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 
 _OK:
 
-	if (DATE_make_local(&date, val, local))
+	if (make_date(&date, val))
 		return TRUE;
+
+	if (date.year)
+	{
+		if (has_timezone)
+			add_timezone(val, timezone);
+		else if (local)
+			add_timezone(val, DATE_get_timezone());
+	}
 
 	if (!has_date)
 		val->_date.date = 0;
