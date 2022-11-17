@@ -1530,7 +1530,7 @@ _FORMAT:
 				if (n == after)
 				{
 					add_zero(after_zero, NULL);
-					goto _EXPOSANT;
+					goto _EXPONENT;
 				}
 				else
 				{
@@ -1560,7 +1560,7 @@ _FORMAT:
 		else
 			add_zero(after_zero, NULL);
 
-	_EXPOSANT:
+	_EXPONENT:
 
 		// The decimal point is removed if it is located at the end
 
@@ -1572,10 +1572,17 @@ _FORMAT:
 
 		if (exponent != 0) // && number != 0.0)
 		{
+			number_real_exp--;
+
 			COMMON_put_char(exponent);
-			if (exp_sign && number_real_exp >= 1)
+			if (exp_sign && number_real_exp >= 0)
 				COMMON_put_char('+');
-			n = int_to_string(number_real_exp - 1, &buf_addr);
+			if (number_real_exp < 0)
+			{
+				COMMON_put_char('-');
+				number_real_exp = (- number_real_exp);
+			}
+			n = int_to_string(number_real_exp, &buf_addr);
 			while (exp_zero > n)
 			{
 				COMMON_put_char('0');
