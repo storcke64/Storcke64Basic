@@ -121,7 +121,7 @@ End
 Private Sub SetCurrent(iIndex As Integer)
 
   Dim I As Integer
-  
+
   $iIndex = iIndex
   Me._SetContainer($aTab[iIndex])
   For I = 0 To $aTab.Max
@@ -138,7 +138,6 @@ Private Sub Index_Write(Value As Integer)
   Raise Click
 
 End
-
 
 Public Sub _Render()
   
@@ -162,7 +161,10 @@ Public Sub _Render()
   If Not Me.Border Then Print " gw-noborder";
   Print "\">"
   
-  $aTab[$iIndex]._Redraw()
+  '$aTab[$iIndex]._Redraw()
+  For I = 0 To $aTab.Max
+    $aTab[I]._Redraw()
+  Next
   
   Print "</div>"
   

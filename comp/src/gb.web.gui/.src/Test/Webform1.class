@@ -51,6 +51,8 @@ Public Sub WebForm_Open()
 
   WebTimer1_Timer
   
+  'WebTabPanel1.Index = 1
+  
 End
 
 Public Sub WebButton1_Click()
@@ -376,5 +378,11 @@ Public Sub btnSelectFirst_Click()
 
   WebTree1.MoveFirst()
   WebTree1[WebTree1.Item.Key].Selected = True
+
+End
+
+Public Sub WebButton13_Click()
+
+  FTestDialog.ShowModal()
 
 End

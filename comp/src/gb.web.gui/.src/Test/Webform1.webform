@@ -221,20 +221,24 @@
         Enabled = False
       }
       { WebButton5 WebButton
-        #MoveScaled(48,1,16,4)
+        #MoveScaled(48,1,11,4)
         Text = ("Show me")
       }
       { WebButton3 WebButton
-        #MoveScaled(65,1,16,4)
+        #MoveScaled(60,1,13,4)
         Text = ("Progress") & "..."
       }
       { WebButton8 WebButton
-        #MoveScaled(82,1,16,4)
+        #MoveScaled(74,1,11,4)
         Text = ("Highlight")
       }
       { WebButton11 WebButton
-        #MoveScaled(99,1,16,4)
+        #MoveScaled(86,1,12,4)
         Text = ("InputBox")
+      }
+      { WebButton13 WebButton
+        #MoveScaled(99,1,16,4)
+        Text = ("Test dialog")
       }
     }
     { WebImage1 WebImage

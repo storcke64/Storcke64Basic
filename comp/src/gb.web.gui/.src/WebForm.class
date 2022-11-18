@@ -1222,13 +1222,26 @@ Private Sub DoShow()
   
 End
 
+Private Sub RaiseOpen()
+  
+  Dim hWindow As WebControl
+  
+  Raise Open
+  If _Window Then
+    hWindow = WebControl.FromId(_Window)
+    hWindow._CancelChildrenRefresh()
+  Endif
+
+End
+
+
 '' Show the form.
 
 Public Sub Show()
 
   If Me.Parent Then Return
   DoShow  
-  Raise Open
+  RaiseOpen
   
 End
 
@@ -1240,8 +1253,8 @@ Private Sub RunEventLoop()
   iLevel = $iEventLoopLevel
   PrintLog("RunEventLoop -> " & $iEventLoopLevel)
   
-  Raise Open
-
+  RaiseOpen
+  
   If $iEventLoopLevel = iLevel Then
 
     PrintLog("Send response before entering event loop")
