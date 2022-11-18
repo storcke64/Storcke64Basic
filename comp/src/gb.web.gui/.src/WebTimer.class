@@ -95,13 +95,10 @@ End
 
 Public Sub Delete()
   
-  Dim iSave As Integer
-  
-  ' Virtual controls must be refreshed
-  iSave = WebForm._DisableRefresh
-  WebForm._DisableRefresh = 0
-  Stop()
-  WebForm._DisableRefresh = iSave
+  If $bEnabled Then
+    $bEnabled = False
+    WebForm._AddJavascript("gw.removeTimer(" & JS(Me.Name) & ");")
+  Endif
   
   Super.Delete
   

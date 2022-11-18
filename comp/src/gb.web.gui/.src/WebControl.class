@@ -573,9 +573,7 @@ Public Sub IsHidden() As Boolean
   
 End
 
-Public Sub _CanRefresh() As Boolean
-  
-  'WebForm.PrintLog("_CanRefresh " & Me.Name & " ?")
+Public Sub _CanRefreshDyn() As Boolean
   
   If _Refresh Then 
     'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_Refresh)")
@@ -584,16 +582,6 @@ Public Sub _CanRefresh() As Boolean
   
   If _NoRefresh Then 
     'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_NoRefresh)")
-    Return
-  Endif
-  
-  If WebForm._InMessage = 0 Then 
-    'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_InMessage)")
-    Return
-  Endif
-  
-  If WebForm._DisableRefresh Then 
-    'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_DisableRefresh)")
     Return
   Endif
   
@@ -607,13 +595,36 @@ Public Sub _CanRefresh() As Boolean
     Return
   Endif
 
-  If $iParentId And If Not Parent_Read()._CanRefresh() Then
+  If Not Form_Read()._Loaded Then
+    'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (Form not loaded)")
+    Return
+  Endif
+  
+  If $iParentId And If Not Parent_Read()._CanRefreshDyn() Then
     'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (Parent)")
     Return
   Endif
 
   'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> yes !")
   Return True
+
+End
+
+Public Sub _CanRefresh() As Boolean
+  
+  'WebForm.PrintLog("_CanRefresh " & Me.Name & " ?")
+  
+  If WebForm._InMessage = 0 Then 
+    'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_InMessage)")
+    Return
+  Endif
+  
+  If WebForm._DisableRefresh Then 
+    'WebForm.PrintLog("_CanRefresh " & Me.Name & " --> no (_DisableRefresh)")
+    Return
+  Endif
+  
+  Return _CanRefreshDyn()
   
 End
 
