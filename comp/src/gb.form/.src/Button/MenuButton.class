@@ -235,7 +235,7 @@ Private Sub Arrow_Click()
     Return
   Endif
   
-  DrawingArea_MouseUp
+  Try DrawingArea_MouseUp
   HandleMenu(Me)
   
 End
