@@ -71,6 +71,9 @@ Public Sub _new()
   
   lblError.Padding = Desktop.Scale \ 2
   
+  splDbusExplorer.MinSize = Desktop.Scale * 24
+  splDbusExplorer.Layout = [1, 2]
+  
   ReadConfig
   'UpdateLocal
   
@@ -1909,6 +1912,7 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
   Dim sName As String
   Dim sKey As String
   Dim hPict As Picture
+  Dim hProxy As DBusProxy
 
   If Not sPath Then
 
@@ -1924,7 +1928,9 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
     If sPath = "/" And If Not sInterface Then tvwDbusExplorer.Clear
     
     hApp = GetDBus()[lstDbusExplorer.Text]
-    aSym = hApp[sPath, sInterface]._GetSymbols()
+    hProxy = hApp[sPath, sInterface]
+    
+    aSym = hProxy._GetSymbols()
     If aSym.Count <> 1 Then bCollapse = True
     
     For Each sSym In aSym
@@ -1936,16 +1942,22 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
       Select Case Left(sSym)
         Case "n"
           hPict = Picture["$symbol:symbol"]
-        Case "p"
-          hPict = Picture["$symbol:property"]
-        Case "m"
-          hPict = Picture["$symbol:method"]
-        Case "s"
-          hPict = Picture["$symbol:event"]
         Case "i"
           hPict = Picture["$symbol:special"]
+        Case "p"
+          hPict = Picture["$symbol:property"]
+          sName = hProxy._GetSignature(sName, True)
+          sName = TextHighlighter["gambas"].ToHTML(sName)
+        Case "m"
+          hPict = Picture["$symbol:method"]
+          sName = hProxy._GetSignature(sName, True)
+          sName = TextHighlighter["gambas"].ToHTML(sName)
+        Case "s"
+          hPict = Picture["$symbol:event"]
+          sName = hProxy._GetSignature(sName, True)
+          sName = TextHighlighter["gambas"].ToHTML(sName)
       End Select
-      tvwDbusExplorer.Add(sKey, sName, hPict, sParent)
+      tvwDbusExplorer.Add(sKey, "", hPict, sParent).RichText = sName
       If sSym Begins "n:" Then
         FillDBusExplorer(sPath &/ sName, sKey,, bCollapse)
       Else If sSym Begins "i:" Then
