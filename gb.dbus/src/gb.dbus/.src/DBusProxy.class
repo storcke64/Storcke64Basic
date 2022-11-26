@@ -143,10 +143,10 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
     
   Else If Mid$($sIntrospection, iStart) Begins "<method " Or If Mid$($sIntrospection, iStart) Begins "<signal " Then
     
+    bSignal = Mid$($sIntrospection, iStart) Begins "<s"
+      
     If Mid$($sIntrospection, iEnd - 1, 2) <> "/>" Then
   
-      bSignal = Mid$($sIntrospection, iStart) Begins "<s"
-      
       iEnd = InStr($sIntrospection, If(bSignal, "</signal>", "</method>"), iStart)
       
       Do
@@ -217,7 +217,7 @@ RETURN_SIGNATURE:
         
       Case "m", "s"
         
-        If sType = "s" Then 
+        If aSign[0] = "s" Then 
           sType = "Event"
         Else If aSign[2] Then
           sType = "Function"
@@ -262,15 +262,19 @@ RETURN_SIGNATURE:
           
         Endif
         
-        sComment = aSign[1] & " " & aSign[2]
-        Do
-          iPos = InStr(sComment, "'")
-          If iPos = 0 Then Break 
-          iPos2 = InStr(sComment, "'", iPos + 1)
-          If iPos2 = 0 Then iPos2 = Len(sComment)
-          sComment = Left(sComment, iPos - 1) & Mid$(sComment, iPos2 + 1)
-        Loop
-        sType &= " ' " & sComment
+        sComment = Trim(aSign[1] & " " & aSign[2])
+        If sComment Then
+          
+          Do
+            iPos = InStr(sComment, "'")
+            If iPos = 0 Then Break 
+            iPos2 = InStr(sComment, "'", iPos + 1)
+            If iPos2 = 0 Then iPos2 = Len(sComment)
+            sComment = Left(sComment, iPos - 1) & Mid$(sComment, iPos2 + 1)
+          Loop
+        
+          sType &= " ' " & sComment
+        Endif
         
     End Select
     
