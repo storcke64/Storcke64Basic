@@ -15,7 +15,7 @@
   { wizDebug Wizard
     MoveScaled(1,2,137,46)
     Arrangement = Arrange.Vertical
-    Count = 7
+    Count = 8
     ShowTitle = False
     ShowButton = False
     Border = False
@@ -553,6 +553,55 @@
         Font = Font["Bold,+2"]
         Padding = 8
         Text = ("Search string cannot be found.")
+      }
+    }
+    Index = 7
+    Text = ("DBus explorer")
+    { panDbusExplorer HBox
+      MoveScaled(1,1,81,4)
+      { btnDbusSystem ToolButton btnDBusBus
+        Name = "btnDbusSystem"
+        MoveScaled(4,0,12,4)
+        AutoResize = True
+        Text = ("System")
+        Picture = Picture["icon:/small/system"]
+        Radio = True
+        Toggle = True
+        Value = True
+      }
+      { btnDBusUser ToolButton btnDBusBus
+        Name = "btnDBusUser"
+        MoveScaled(16,0,12,4)
+        AutoResize = True
+        Text = ("Session")
+        Picture = Picture["icon:/small/user"]
+        Radio = True
+        Toggle = True
+      }
+      { Separator9 Separator
+        MoveScaled(28,0,1,4)
+      }
+      { btnDbusRefresh ToolButton
+        MoveScaled(31,0,11,4)
+        AutoResize = True
+        Text = ("Refresh")
+        Picture = Picture["icon:/small/refresh"]
+      }
+    }
+    { Separator10 Separator
+      MoveScaled(63,6,13,0)
+    }
+    { splDbusExplorer Splitter
+      MoveScaled(2,7,127,36)
+      Expand = True
+      Border = False
+      { lstDbusExplorer ListBox
+        MoveScaled(4,5,26,28)
+        Border = False
+      }
+      { tvwDbusExplorer TreeView
+        MoveScaled(54,5,37,27)
+        Border = False
       }
     }
     Index = 0

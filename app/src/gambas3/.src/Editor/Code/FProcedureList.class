@@ -212,7 +212,7 @@ Public Sub gvwProc_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
     
   If Left(sName) = "_" Then 
     If CSymbolInfo.SpecialMethods.Exist(sName, gb.IgnoreCase) Then 
-      Paint.Background = Color.SelectedBackground
+      Paint.Background = Color.Blend(Color.SetAlpha(Color.TextForeground, 128), Color.SelectedBackground)
     Endif
   Else If InStr(sName, "_") Then
     'gvwProc.Data.Picture = Picture["img/16/event.png"]

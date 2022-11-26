@@ -2,7 +2,7 @@
 
 Public Shown As Boolean
 
-Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH
+Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH, TAB_DBUS
 
 Private $cRefreshTask As New Collection
 Private $aTask As CTask[]
@@ -405,7 +405,7 @@ Public Sub ReadConfig()
   Project.SetConsoleFont(trmTest)
   MTheme.InitControl(trmTest)
 
-  For Each hCtrl In [panBreakpoint, panSearch, panVersionControl, panTest]
+  For Each hCtrl In [panBreakpoint, panSearch, panVersionControl, panTest, panDbusExplorer]
     Project.SetSmallFont(hCtrl)
   Next
   
@@ -464,6 +464,8 @@ Public Sub wizDebug_Click()
       Endif
     Case TAB_TEST
       UpdateTestSuites
+    Case TAB_DBUS
+      FillDBusExplorer
       
   End Select   
   
@@ -1864,5 +1866,109 @@ End
 Public Sub btnVcBrowse_Click()
 
   Desktop.Open(VersionControl.GetRoot())
+
+End
+
+Public Sub btnDBusBus_Click()
+
+  FillDBusExplorer
+
+End
+
+Private Sub RemoveIds(aList As String[])
+
+  Dim iInd As Integer
+
+  While iInd < aList.Count
+    If Left(aList[iInd]) = ":" Then
+      aList.Remove(iInd)
+    Else
+      Inc iInd
+    Endif
+  Wend
+
+End
+
+Private Sub GetDBus() As DBusConnection
+  
+  If btnDbusSystem.Value Then
+    Return DBus.System
+  Else
+    Return DBus.Session
+  Endif
+  
+End
+
+
+Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInterface As String, bCollapse As Boolean)
+
+  Dim aList As String[]
+  Dim aSym As String[]
+  Dim hApp As DBusApplication
+  Dim sSym As String
+  Dim sName As String
+  Dim sKey As String
+  Dim hPict As Picture
+
+  If Not sPath Then
+
+    aList = GetDBus().Applications.Sort(gb.Natural)
+    RemoveIds(aList)
+    lstDbusExplorer.List = aList
+    tvwDbusExplorer.Clear
+    
+  Else
+    
+    Inc Application.Busy
+    
+    If sPath = "/" And If Not sInterface Then tvwDbusExplorer.Clear
+    
+    hApp = GetDBus()[lstDbusExplorer.Text]
+    aSym = hApp[sPath, sInterface]._GetSymbols()
+    If aSym.Count <> 1 Then bCollapse = True
+    
+    For Each sSym In aSym
+      sKey = sPath 
+      If sInterface Then sKey &/= sInterface
+      sKey &/= sSym
+      If tvwDbusExplorer.Exist(sKey) Then Continue
+      sName = Mid$(sSym, 3)
+      Select Case Left(sSym)
+        Case "n"
+          hPict = Picture["$symbol:symbol"]
+        Case "p"
+          hPict = Picture["$symbol:property"]
+        Case "m"
+          hPict = Picture["$symbol:method"]
+        Case "s"
+          hPict = Picture["$symbol:event"]
+        Case "i"
+          hPict = Picture["$symbol:special"]
+      End Select
+      tvwDbusExplorer.Add(sKey, sName, hPict, sParent)
+      If sSym Begins "n:" Then
+        FillDBusExplorer(sPath &/ sName, sKey,, bCollapse)
+      Else If sSym Begins "i:" Then
+        FillDBusExplorer(sPath, sKey, sName, bCollapse)
+      Endif
+    Next
+    
+    If Not bCollapse And If sParent Then tvwDbusExplorer[sParent].Expanded = True
+    
+    Dec Application.Busy
+    
+  Endif
+
+End
+
+Public Sub btnDbusRefresh_Click()
+
+  FillDBusExplorer
+
+End
+
+Public Sub lstDbusExplorer_Select()
+
+  FillDBusExplorer("/")
 
 End

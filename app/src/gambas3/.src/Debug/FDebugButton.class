@@ -3,6 +3,12 @@
 Private $bNoSelectButton As Boolean
 Private $sMessage As String
 
+Public Sub _new()
+  
+  btnDbusExplorer.Picture = Picture["img/32/dbus.png"].Stretch(Stock.GetSize("small"))
+  
+End
+
 Public Sub ReadConfig()
   
   Project.SetSmallFont(Me)
