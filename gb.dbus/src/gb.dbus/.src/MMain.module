@@ -157,12 +157,14 @@ Public Sub Main()
 
  Dim cManaged As Collection
  
- Try Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.Introspectable"].Introspect()
+ 'Try Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.Introspectable"].Introspect()
  
- Try cManaged = DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager"].GetManagedObjects()
+ 'Try cManaged = DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager"].GetManagedObjects()
  
- If Error Then
-    Print Error.Text
- Endif
+ Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2/drives/ST1000LM024_HN_M101MBB_S2ZUJ9BCB04136", "org.freedesktop.UDisks2.Drive"]._GetSymbols().Join("\n")
+ 
+ 'Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2/drives"]._GetSymbols("node").Join("\n")
+ 
+ 'Print DBus.System._Name
  
 End

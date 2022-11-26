@@ -259,51 +259,41 @@ End
 
 Private Function Children_Read() As String[]
 
-  Dim sIntr As String
-  Dim aChildren As New String[]
-  Dim iPos, iPos2, iLevel As Integer
-  Dim sNode, sChild As String
   Dim hApp As DBusApplication
   
   hApp = DBus._ApplicationCache[$hAppIndex]
-  sIntr = hApp._Introspect($sObjectPath)
-  
-  Do
-    iPos2 = iPos
-    iPos = InStr(sIntr, "<node", iPos + 1)
-    If iPos = 0 Then iPos = Len(sIntr) + 1
-    iPos2 = InStr(sIntr, "</node>", iPos2 + 1)
-    If iPos2 = 0 Then iPos2 = Len(sIntr) + 1
-    
-    If iPos > Len(sIntr) And If iPos2 > Len(sIntr) Then Return aChildren
-    
-    If iPos < iPos2 Then
-    
-      Inc iLevel
-      If iLevel <> 2 Then Continue
-    
-      iPos2 = InStr(sIntr, ">", iPos + 1)
-      If iPos2 = 0 Then Continue
-      
-      sNode = Mid$(sIntr, iPos, iPos2 - iPos + 1)
-      Try sChild = Scan(sNode, "*name=\"*\"*")[1]
-      If sChild Then aChildren.Add(sChild)
-      
-      If Right(sNode, 2) = "/>" Then Dec iLevel
-    
-    Else
-    
-      iPos = iPos2
-      Dec iLevel
-    
-    Endif
-    
-  Loop
+  $sIntrospection = hApp._Introspect($sObjectPath)
+  Return _GetSymbols("node")
 
 End
 
 Private Function _Introspection_Read() As String
 
   Return $sIntrospection
+
+End
+
+Public Sub _GetSymbols(Optional Which As String) As String[]
+
+  Dim hIntr As CIntrospection
+  Dim aSym As New String[]
+  Dim sName As String
+
+  hIntr = New CIntrospection($sIntrospection)
+  
+  While Not hIntr.MoveNext()
+    
+    If Not hIntr.Open Then Continue
+    If hIntr.Level <> 2 Then Continue
+    If Which And If hIntr.Node <> Which Then Continue
+    
+    sName = hIntr.GetAttribute("name")
+    If Not sName Then Continue
+    If Not Which Then sName = Left(hIntr.Node) & ":" & sName
+    aSym.Add(sName)
+    
+  Wend
+  
+  Return aSym
 
 End
