@@ -3,12 +3,13 @@
 Private $sText As String
 Private $iPos As Integer
 
-Property Read Text As String Use $sBefore
+Property Read Pos As Integer Use $iStart
 Property Read Open As Boolean Use $bOpen
 Property Read Close As Boolean Use $bClose
 Property Read Node As String Use $sNode
 Property Read Level As Integer Use $iLevel
 
+Private $sBefore As String
 Private $cAttr As Collection
 
 Public Sub _new(sText As String)
@@ -47,7 +48,7 @@ Public Sub MoveNext() As Boolean
 READ_MARKUP:
 
   $sBefore = Mid$($sText, iStart + 1, $iPos - 1)
-  iStart = $iPos
+  $iStart = $iPos
 
   Do
 
@@ -55,7 +56,7 @@ READ_MARKUP:
     If sCar = "\"" Or If sCar = "'" Then
       GoSub READ_STRING
     Else If sCar = ">" Then
-      AnalyzeMarkup(Mid$($sText, iStart, $iPos - iStart + 1))
+      AnalyzeMarkup(Mid$($sText, $iStart, $iPos - $iStart + 1))
       If $bOpen Then Inc $iLevel
       Return
     Else If Not sCar Then 
