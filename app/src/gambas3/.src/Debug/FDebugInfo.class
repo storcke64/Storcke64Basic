@@ -1917,18 +1917,20 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
   If Not sPath Then
 
     aList = GetDBus().Applications.Sort(gb.Natural)
-    RemoveIds(aList)
+    If Not btnDBusId.Value Then RemoveIds(aList)
     lstDbusExplorer.List = aList
     tvwDbusExplorer.Clear
     
   Else
     
-    Inc Application.Busy
-    
     If sPath = "/" And If Not sInterface Then tvwDbusExplorer.Clear
     
-    hApp = GetDBus()[lstDbusExplorer.Text]
-    hProxy = hApp[sPath, sInterface]
+    Try hApp = GetDBus()[lstDbusExplorer.Text]
+    If Error Then Return
+    Try hProxy = hApp[sPath, sInterface]
+    If Error Then Return
+    
+    Inc Application.Busy
     
     aSym = hProxy._GetSymbols()
     If aSym.Count <> 1 Then bCollapse = True
@@ -1982,5 +1984,11 @@ End
 Public Sub lstDbusExplorer_Select()
 
   FillDBusExplorer("/")
+
+End
+
+Public Sub btnDBusId_Click()
+
+  FillDBusExplorer
 
 End

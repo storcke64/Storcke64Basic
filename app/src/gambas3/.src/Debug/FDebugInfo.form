@@ -587,6 +587,13 @@
         Text = ("Refresh")
         Picture = Picture["icon:/small/refresh"]
       }
+      { btnDBusId ToolButton
+        MoveScaled(42,0,25,4)
+        AutoResize = True
+        Text = ("Show DBus identifiers")
+        Picture = Picture["icon:/small/key"]
+        Toggle = True
+      }
     }
     { Separator10 Separator
       MoveScaled(63,6,13,0)
