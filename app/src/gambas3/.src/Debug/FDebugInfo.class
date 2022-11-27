@@ -1913,6 +1913,7 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
   Dim sKey As String
   Dim hPict As Picture
   Dim hProxy As DBusProxy
+  Dim hFont As Font
 
   If Not sPath Then
 
@@ -1935,12 +1936,16 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
     aSym = hProxy._GetSymbols()
     If aSym.Count <> 1 Then bCollapse = True
     
+    hFont = Project.GetEditorFont()
+    
     For Each sSym In aSym
       sKey = sPath 
       If sInterface Then sKey &/= sInterface
       sKey &/= sSym
       If tvwDbusExplorer.Exist(sKey) Then Continue
+      
       sName = Mid$(sSym, 3)
+      
       Select Case Left(sSym)
         Case "n"
           hPict = Picture["$symbol:symbol"]
@@ -1948,18 +1953,21 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
           hPict = Picture["$symbol:special"]
         Case "p"
           hPict = Picture["$symbol:property"]
-          sName = hProxy._GetSignature(sName, True)
-          sName = TextHighlighter["gambas"].ToHTML(sName)
         Case "m"
           hPict = Picture["$symbol:method"]
-          sName = hProxy._GetSignature(sName, True)
-          sName = TextHighlighter["gambas"].ToHTML(sName)
         Case "s"
           hPict = Picture["$symbol:event"]
-          sName = hProxy._GetSignature(sName, True)
-          sName = TextHighlighter["gambas"].ToHTML(sName)
       End Select
-      tvwDbusExplorer.Add(sKey, "", hPict, sParent).RichText = sName
+      
+      With tvwDbusExplorer.Add(sKey, "", hPict, sParent)
+        If InStr("pms", Left(sSym)) Then
+          sName = hProxy._GetSignature(sName, True)
+          sName = TextHighlighter["gambas"].ToRichText(sName)
+          .Font = hFont
+        Endif
+        .RichText = sName
+      End With
+      
       If sSym Begins "n:" Then
         FillDBusExplorer(sPath &/ sName, sKey,, bCollapse)
       Else If sSym Begins "i:" Then
