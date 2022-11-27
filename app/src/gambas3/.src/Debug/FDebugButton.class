@@ -219,3 +219,9 @@ Public Sub OnVersionControlChange()
   If VersionControl.Enabled Then btnVersionControl.Text = ("Version control") & " (" & VersionControl.Name & ")"
   
 End
+
+Public Sub OnRefreshComponents()
+  
+  btnDbusExplorer.Visible = Project.Components.Exist("gb.dbus")
+  
+End

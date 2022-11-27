@@ -1,5 +1,10 @@
 ' Gambas class file
 
+Class DBus
+Class DBusConnection
+Class DBusApplication
+Class DBusProxy
+
 Public Shown As Boolean
 
 Private Enum TAB_DEBUG, TAB_CONSOLE, TAB_COMPILATION, TAB_TASK, TAB_TEST, TAB_VERSION_CONTROL, TAB_SEARCH, TAB_DBUS
@@ -1917,6 +1922,7 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
 
   If Not sPath Then
 
+    Component.Load("gb.dbus")
     aList = GetDBus().Applications.Sort(gb.Natural)
     If Not btnDBusId.Value Then RemoveIds(aList)
     lstDbusExplorer.List = aList

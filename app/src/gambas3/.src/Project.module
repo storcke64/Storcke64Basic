@@ -4581,6 +4581,14 @@ Public Sub RefreshEditor()
 
 End
 
+Public Sub OnRefreshComponents()
+
+  FCompletion.OnRefreshComponents
+  FMain.OnRefreshComponents
+  FDebugButton.OnRefreshComponents
+
+End
+
 Public Sub RefreshComponents(Optional bForce As Boolean)
 
   Dim sLib As String
@@ -4628,8 +4636,7 @@ Public Sub RefreshComponents(Optional bForce As Boolean)
     If Not $bTesting Then
       Documentation.LoadProjectComponent
       FToolBox.RefreshToolbar(bForce)
-      FCompletion.OnRefreshComponents
-      FMain.OnRefreshComponents
+      OnRefreshComponents
       FProperty.RefreshAll
       Tree.RefreshInfo
     Endif
