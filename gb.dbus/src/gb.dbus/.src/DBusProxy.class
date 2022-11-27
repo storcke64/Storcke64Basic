@@ -89,10 +89,26 @@ Public Sub _new((Application) As DBusApplication, ObjectPath As String, Optional
 End
 
 Static Private Sub FormatType(sType As String) As String
+
+  Dim sGambasType As String
   
-  sType = $cType[sType]
-  If Not sType Then sType = "Variant"
-  Return sType
+  sGambasType = $cType[sType]
+  
+  If Not sGambasType Then
+    
+    If sType Begins "a{" Then
+      If sType Like "a\\{[os]*}" Then
+        sGambasType = "Collection"
+      Endif
+    Else If sType Begins "a" Then
+      sType = Mid$(sType, 2)
+      sGambasType = FormatType(sType) & "[]"
+    Endif
+    
+  Endif
+  
+  If Not sGambasType Then sGambasType = "Variant"
+  Return sGambasType
   
 End
 
