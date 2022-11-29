@@ -2187,16 +2187,16 @@ _DIV_INTEGER:
 	VALUE_conv_float(&SP[-1]);
 	VALUE_conv_float(SP);
 	SP[-1]._float.value /= SP->_float.value;
-	if (!isfinite(SP[-1]._float.value) && SP->_float.value == 0)
-		THROW(E_ZERO);
+	if (!isfinite(SP[-1]._float.value))
+		THROW_MATH(SP->_float.value == 0);
 	goto _NEXT;
 
 _DIV_FLOAT:
 
 	SP--;
 	SP[-1]._float.value /= SP->_float.value;
-	if (!isfinite(SP[-1]._float.value) && SP->_float.value == 0)
-		THROW(E_ZERO);
+	if (!isfinite(SP[-1]._float.value))
+		THROW_MATH(SP->_float.value == 0);
 	goto _NEXT;
 
 /*-----------------------------------------------*/
@@ -3473,13 +3473,13 @@ __FLOAT:
 __FLOAT_NC:
 
 	P1->_float.value /= P2->_float.value;
-	if (isfinite(P1->_float.value) || P2->_float.value)
+	if (isfinite(P1->_float.value))
 	{
 		SP--;
 		return;
 	}
 
-	THROW(E_ZERO);
+	THROW_MATH(P2->_float.value == 0);
 
 __SINGLE:
 
@@ -3489,13 +3489,13 @@ __SINGLE:
 __SINGLE_NC:
 
 	P1->_single.value /= P2->_single.value;
-	if (isfinite(P1->_single.value) || P2->_single.value)
+	if (isfinite(P1->_single.value))
 	{
 		SP--;
 		return;
 	}
 
-	THROW(E_ZERO);
+	THROW_MATH(P2->_single.value == 0);
 
 __OBJECT_FLOAT:
 

@@ -577,6 +577,11 @@ void THROW_SYSTEM(int err, const char *path)
 	}
 }
 
+void THROW_MATH(bool zero)
+{
+	THROW(zero ? E_ZERO : E_MATH);
+}
+
 
 void ERROR_fatal(const char *error, ...)
 {
