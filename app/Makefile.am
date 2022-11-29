@@ -29,6 +29,7 @@ install-exec-local:
 	@if test x"$(XDG_UTILS)" != x; then \
 	  echo "Installing IDE application icon..."; \
 	  xdg-icon-resource install --novendor --context apps --size 256 $(srcdir)/desktop/gambas3.png gambas3; \
+	  xdg-icon-resource install --novendor --context apps --size 48 $(srcdir)/desktop/gambas3-48.png gambas3; \
 	  echo "Installing IDE application menu..."; \
 	  $(INSTALL) -d $(DESTDIR)$(datarootdir)/desktop-directories; \
 	  xdg-desktop-menu install --novendor $(srcdir)/desktop/gambas3.desktop; \
@@ -41,9 +42,11 @@ install-exec-local:
 	@if test x"$(XDG_UTILS)" != x; then \
 	  echo "Registering Gambas script mimetype..."; \
 	  xdg-icon-resource install --context mimetypes --size 256 $(srcdir)/mime/application-x-gambasscript.png application-x-gambasscript; \
+	  xdg-icon-resource install --context mimetypes --size 48 $(srcdir)/mime/application-x-gambasscript-48.png application-x-gambasscript; \
 	  xdg-mime install $(srcdir)/mime/application-x-gambasscript.xml; \
 	  echo "Registering Gambas server page mimetype..."; \
 	  xdg-icon-resource install --context mimetypes --size 256 $(srcdir)/mime/application-x-gambasserverpage.png application-x-gambasserverpage; \
+	  xdg-icon-resource install --context mimetypes --size 48 $(srcdir)/mime/application-x-gambasserverpage-48.png application-x-gambasserverpage; \
 	  xdg-mime install $(srcdir)/mime/application-x-gambasserverpage.xml; \
 	fi
 

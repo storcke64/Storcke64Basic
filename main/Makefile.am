@@ -19,6 +19,7 @@ install-exec-local:
 	@if test x"$(XDG_UTILS)" != x; then \
 	  echo "Registering Gambas executable mimetype"; \
 	  xdg-icon-resource install --novendor --context mimetypes --size 256 $(srcdir)/mime/application-x-gambas3.png application-x-gambas3; \
+	  xdg-icon-resource install --novendor --context mimetypes --size 48 $(srcdir)/mime/application-x-gambas3-48.png application-x-gambas3; \
 	  xdg-mime install $(srcdir)/mime/application-x-gambas3.xml; \
 	fi
 
