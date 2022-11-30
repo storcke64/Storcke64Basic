@@ -127,23 +127,23 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
   Dim I As Integer
   Dim sArg As String
   Dim sComment As String
+  Dim hIntr As CIntrospection
   
   sType = $cSignature[sSymbol]
   If sType Then Goto RETURN_SIGNATURE
   
   iStart = $cPos[sSymbol] 'InStr($sIntrospection, " name=\"" & sSymbol & "\"", 1, gb.IgnoreCase)
-  If iStart = 0 Then Error.Raise("Unknown symbol")
+  If iStart = 0 Then Goto UNKNOWN_SYMBOL
   
-  iEnd = InStr($sIntrospection, ">", iStart)
-  If iEnd = 0 Then Error.Raise("Malformed introspection")
+  hIntr = New CIntrospection(Mid$($sIntrospection, iStart))
   
-  If Mid$($sIntrospection, iStart) Begins "<property " Then
-    
-    Try sType = Scan(Mid$($sIntrospection, iStart, iEnd - iStart), "*type=\"*\"*")[1]
-    If Error Then Error.Raise("Malformed property")
-
-    Try sAccess = Scan(Mid$($sIntrospection, iStart, iEnd - iStart), "*access=\"*\"*")[1]
-    If Error Then Error.Raise("Malformed property")
+  If hIntr.MoveNext() Then Goto UNKNOWN_SYMBOL
+  
+  If hIntr.Node = "property" Then
+  
+    sType = hIntr.GetAttribute("type")
+    If Not sType Then Goto MALFORMED_SIGNATURE
+    sAccess = hIntr.GetAttribute("access")
     
     If sAccess = "read" Then
       sType &= ":r"
@@ -157,30 +157,25 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
     
     sType = "p:" & sType
     
-  Else If Mid$($sIntrospection, iStart) Begins "<method " Or If Mid$($sIntrospection, iStart) Begins "<signal " Then
+  Else If hIntr.Node = "method" Or If hIntr.Node = "signal" Then
     
-    bSignal = Mid$($sIntrospection, iStart) Begins "<s"
+    bSignal = hIntr.Node Begins "s"
+    
+    If Not hIntr.Close Then
+    
+      While Not hIntr.MoveNext()
       
-    If Mid$($sIntrospection, iEnd - 1, 2) <> "/>" Then
-  
-      iEnd = InStr($sIntrospection, If(bSignal, "</signal>", "</method>"), iStart)
+        If hIntr.Node <> "arg" Then Break
       
-      Do
-        iPos = InStr($sIntrospection, "<arg ", iPos)
-        If iPos = 0 Or If iPos > iEnd Then Break
-        iPos2 = InStr($sIntrospection, ">", iPos + 1)
-        If iPos2 = 0 Or If iPos2 > iEnd Then Break
+        sDir = hIntr.GetAttribute("direction")
+        If Not sDir Then sDir = "in"
         
-        sDir = "in"
-        Try sDir = Scan(Mid$($sIntrospection, iPos, iPos2 - iPos), "*direction=\"*\"*")[1]
-        
-        Try sType = Scan(Mid$($sIntrospection, iPos, iPos2 - iPos), "*type=\"*\"*")[1]
-        If Error Then Break
-        
+        sType = hIntr.GetAttribute("type")
+        If Not sType Then Goto MALFORMED_SIGNATURE
+          
         If sDir = "in" Then
           If bFormat Then 
-            sName = ""
-            Try sName = Scan(Mid$($sIntrospection, iPos, iPos2 - iPos), "*name=\"*\"*")[1]
+            sName = hIntr.GetAttribute("name")
             If sSignIn Then sSignIn &= "|"
             sSignIn &= "'" & sName & "'"
           Endif
@@ -191,18 +186,16 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
           Endif
           sSignOut &= sType
         Endif
-        
-        iPos = iPos2
-        
-      Loop
+          
+      Wend 
       
     Endif
-    
+        
     sType = If(bSignal, "s:", "m:") & sSignIn & ":" & sSignOut
     
   Else
     
-    Error.Raise("Unknown symbol")
+    Goto UNKNOWN_SYMBOL
     
   Endif
   
@@ -278,7 +271,7 @@ RETURN_SIGNATURE:
           
         Endif
         
-        sComment = Trim(aSign[1] & " " & aSign[2])
+        sComment = Trim(aSign[1] & " -> " & aSign[2])
         If sComment Then
           
           Do
@@ -297,6 +290,14 @@ RETURN_SIGNATURE:
   Endif 
   
   Return sType
+  
+UNKNOWN_SYMBOL:
+
+  Error.Raise("Unknown symbol")
+  
+MALFORMED_SIGNATURE:
+
+  Error.Raise("Malformed signature")
   
 End
 

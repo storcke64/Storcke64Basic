@@ -161,7 +161,7 @@ Public Sub Main()
  
  'Try cManaged = DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager"].GetManagedObjects()
  
- Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2/drives/ST1000LM024_HN_M101MBB_S2ZUJ9BCB04136", "org.freedesktop.UDisks2.Drive"]._GetSignature("SetConfiguration", True)
+ Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2/block_devices/nvme0n1p1", "org.freedesktop.UDisks2.Filesystem"]._GetSignature("Mount", True)
  '_GetSymbols().Join("\n")
  
  'Print DBus["system://org.freedesktop.UDisks2"]["/org/freedesktop/UDisks2/drives"]._GetSymbols("node").Join("\n")
