@@ -166,6 +166,7 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
       While Not hIntr.MoveNext()
       
         If hIntr.Node <> "arg" Then Break
+        If hIntr.Close Then Continue
       
         sDir = hIntr.GetAttribute("direction")
         If Not sDir Then sDir = "in"
@@ -271,7 +272,9 @@ RETURN_SIGNATURE:
           
         Endif
         
-        sComment = Trim(aSign[1] & " -> " & aSign[2])
+        sComment = aSign[1]
+        If aSign[2] Then sComment &= " -> " & aSign[2]
+        
         If sComment Then
           
           Do
