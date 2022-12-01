@@ -72,7 +72,7 @@ close                   actions/window-close
 cloud                   applets/weather-many-clouds;status/weather-many-clouds;status/weather-cloudy;;applets/weather-overcast
 color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/preferences-desktop-color;categories/applications-graphics;;preferences/preferences-desktop-color;apps/preferences-desktop-color
 color-picker            actions/color-picker
-component               categories/applications-utilities;apps/nepomuk
+component               categories/applications-utilities;apps/nepomuk;;apps/synaptic
 computer                devices/computer;;apps/virtualbox
 conflict                emblems/vcs-conflicting;emblems/emblem-cvs-conflict
 connect                 actions/network-connect
@@ -92,7 +92,7 @@ difference              #
 directory               places/folder
 disconnect              actions/network-disconnect
 down                    actions/go-down
-download                actions/download;actions/edit-download;[elementary]actions/media-import-audio-cd;emblems/emblem-downloads;;apps/ktorrent;apps/transmission
+download                actions/download;actions/edit-download;[elementary]actions/media-import-audio-cd;emblems/emblem-downloads
 draw-arrow              actions/draw-arrow
 draw-circle             actions/draw-circle;tools/draw-ellipse
 draw-line               actions/draw-line
@@ -211,7 +211,7 @@ last                    actions/go-last
 layer                   actions/dialog-layer
 layout                  actions/document-page-setup
 left                    actions/go-previous
-library                 $(mime)/application-x-sharedlib;;;apps/synaptic
+library                 $(mime)/application-x-sharedlib
 lightness               #
 line-style              actions/object-stroke-style
 line-width              actions/edit-line-width
@@ -333,7 +333,7 @@ security-medium         status/security-medium
 select                  actions/select-rectangular
 select-all              actions/edit-select-all
 server                  [breeze*!16]places/server-database;places/network-server
-share                   actions/document-share;actions/send-to;preferences/preferences-system-network-sharing;apps/preferences-system-network-sharing;preferences/preferences-system-sharing
+share                   actions/document-share;actions/send-to;preferences/preferences-system-network-sharing;apps/preferences-system-network-sharing;preferences/preferences-system-sharing;;;;apps/ktorrent;apps/transmission
 shopping                #
 shortcut                apps/accessories-character-map;preferences/preferences-desktop-keyboard-shortcut;apps/preferences-desktop-keyboard-shortcut;;apps/org.gnome.Characters
 shuffle                 actions/media-playlist-shuffle
