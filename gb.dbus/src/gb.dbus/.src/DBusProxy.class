@@ -166,7 +166,7 @@ Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As Stri
       While Not hIntr.MoveNext()
       
         If hIntr.Node <> "arg" Then Break
-        If hIntr.Close Then Continue
+        If hIntr.Close And If Not hIntr.Open Then Continue
       
         sDir = hIntr.GetAttribute("direction")
         If Not sDir Then sDir = "in"
