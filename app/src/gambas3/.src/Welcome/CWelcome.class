@@ -164,7 +164,7 @@ Public Sub dwgWelcome_Draw()
     sText = ("This program is published under the GNU General Public License.") & "<br>" & ("The Gambas font is published under the SIL Open Font License.")
     Paint.Background = Color.Black
     Paint.DrawRichTextShadow(sText, 12, Y, Paint.W - 24, Paint.H - Y - 6, Align.TopNormal, Paint.Font.Height \ 4, 1)
-    Paint.Background = Color.SelectedForeground
+    Paint.Background = Color.RGB(240, 240, 240)
     Paint.DrawRichText(sText, 12, Y, Paint.W - 24, Paint.H - Y - 6, Align.TopNormal)
     
     If $bWithPlatform Then

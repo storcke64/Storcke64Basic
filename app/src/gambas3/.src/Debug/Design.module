@@ -163,6 +163,8 @@ Private Sub SetState(iState As Integer)
   Endif
   '$hTimerDebugPanel.Restart
   
+  If $iState = STATE_DEBUG Then FMain.Activate()
+  
 End
 
 ' Public Sub TimerDebugPanel_Timer()
@@ -1968,8 +1970,9 @@ End
 
 Public Sub ClearBreakpoints()
 
+  Breakpoints.Clear()
+  
   If Project.Running And If Not IsRunning() Then 
-    Breakpoints.Clear()
     WriteCommand("-*")
   Endif
   

@@ -1230,8 +1230,6 @@ End
 
 Public Sub DefineVariable(sLocal As String, sObject As String)
   
-  Dim aLocal As String[]
-  Dim aObject As String[]
   Dim sVar As String
   Dim hPict As Picture
   Dim sParent As String
@@ -1240,9 +1238,8 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
   Dim vLayout As Variant
   Dim I As Integer
   Dim sPrefix As String
-  
-  aLocal = Split(sLocal, " ")
-  aObject = Split(sObject, " ")
+  Dim aObject As String[]
+  Dim aLocal As String[]
   
   If sObject <> $sLastObject Then
     
@@ -1253,6 +1250,7 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
     Endif
   
     $sLastObject = sObject
+    aObject = Split(sObject, " ").Sort(gb.Natural + gb.IgnoreCase)
     
     Try cvwObject.Remove("^")
     
@@ -1304,6 +1302,7 @@ Public Sub DefineVariable(sLocal As String, sObject As String)
     Endif
   
     $sLastLocal = sLocal
+    aLocal = Split(sLocal, " ").Sort(gb.Natural + gb.IgnoreCase)
     
     Try cvwVariable.Remove("~")
     
@@ -1967,9 +1966,13 @@ Private Sub FillDBusExplorer(Optional sPath As String, sParent As String, sInter
       
       With tvwDbusExplorer.Add(sKey, "", hPict, sParent)
         If InStr("pms", Left(sSym)) Then
-          sName = hProxy._GetSignature(sName, True)
-          sName = TextHighlighter["gambas"].ToRichText(sName)
-          .Font = hFont
+          Try sName = hProxy._GetSignature(sName, True)
+          If Error Then 
+            sName = "<b><i>" & Error.Text & "</i></b>"
+          Else
+            sName = TextHighlighter["gambas"].ToRichText(sName)
+            .Font = hFont
+          Endif
         Endif
         .RichText = sName
       End With
