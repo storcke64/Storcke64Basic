@@ -26,47 +26,59 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.form 3.16.90\n"
-"PO-Revision-Date: 2022-01-14 20:41 UTC\n"
-"Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
+"Project-Id-Version: gb.form 3.17.90\n"
+"PO-Revision-Date: 2022-12-04 20:56 UTC\n"
+"Last-Translator: Benoît Minisini <benoit@benoit-TOWER>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: FFileProperties.class:216 Main.module:307
+#: FFileProperties.class:219 Main.module:366
 msgid "&1 B"
 msgstr "&1 o"
 
-#: Main.module:313
+#: Main.module:382
+msgid "&1 GB"
+msgstr ""
+
+#: Main.module:372
 msgid "&1 GiB"
 msgstr "&1 Gio"
 
-#: Main.module:309
+#: Main.module:378
+msgid "&1 KB"
+msgstr ""
+
+#: Main.module:368
 msgid "&1 KiB"
 msgstr "&1 Kio"
 
-#: Main.module:311
+#: Main.module:380
+msgid "&1 MB"
+msgstr ""
+
+#: Main.module:370
 msgid "&1 MiB"
 msgstr "&1 Mio"
 
-#: FFileProperties.class:185
+#: FFileProperties.class:188
 msgid "&1 properties"
 msgstr "Propriétés de &1"
 
-#: FDirChooser.class:1011
+#: FDirChooser.class:1025
 msgid "&Bookmark current directory"
 msgstr "&Marquer le répertoire courant"
 
-#: FDirChooser.class:1077
+#: FDirChooser.class:1096
 msgid "&Create directory"
 msgstr "&Créer un répertoire"
 
-#: FDirChooser.class:1060
+#: FDirChooser.class:1436
 msgid "&Delete"
 msgstr "&Supprimer"
 
-#: FDirChooser.class:1019
+#: FDirChooser.class:1033
 msgid "&Edit bookmarks..."
 msgstr "&Editer les signets..."
 
@@ -74,27 +86,23 @@ msgstr "&Editer les signets..."
 msgid "&Next"
 msgstr "&Suivant"
 
-#: FDirChooser.class:893
+#: FDirChooser.class:907
 msgid "&Overwrite"
 msgstr "&Remplacer"
 
-#: FDirChooser.class:1095
+#: FDirChooser.class:1114
 msgid "&Properties"
 msgstr "&Propriétés"
 
-#: FDirChooser.class:1087
+#: FDirChooser.class:1106
 msgid "&Refresh"
 msgstr "&Actualiser"
 
-#: FDirChooser.class:1050
-msgid "&Rename"
-msgstr "&Renommer"
-
-#: FDirChooser.class:1072
+#: FDirChooser.class:1091
 msgid "&Uncompress file"
 msgstr "&Décompresser le fichier"
 
-#: FListEditor.class:264
+#: FListEditor.class:276
 msgid "Add"
 msgstr "Ajouter"
 
@@ -106,7 +114,7 @@ msgstr "Ajouter un élément"
 msgid "A file or directory name cannot be void."
 msgstr "Le nom d'un fichier ou d'un répertoire ne peut être vide."
 
-#: FDirChooser.class:550
+#: FDirChooser.class:560
 msgid "All files (*)"
 msgstr "Tous les fichiers (*)"
 
@@ -114,11 +122,11 @@ msgstr "Tous les fichiers (*)"
 msgid "Apply"
 msgstr "Appliquer"
 
-#: FFileProperties.class:122
+#: FFileProperties.class:125
 msgid "Audio"
 msgstr "Audio"
 
-#: FFontChooser.form:97
+#: FFontChooser.form:110
 msgid "Bold"
 msgstr "Gras"
 
@@ -126,11 +134,11 @@ msgstr "Gras"
 msgid "Bookmarks"
 msgstr "Signets"
 
-#: FFontChooser.form:60
+#: FFontChooser.form:73
 msgid "Building cache"
 msgstr "Construction du cache"
 
-#: FDirChooser.form:254 FEditBookmark.class:119 FInputBox.form:51 FSidePanel.class:1170 FWizard.form:52
+#: FDirChooser.form:254 FEditBookmark.class:119 FInputBox.form:51 FSidePanel.class:1191 FWizard.form:52
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -138,7 +146,7 @@ msgstr "Annuler"
 msgid "Cannot create directory."
 msgstr "Impossible de créer le répertoire."
 
-#: FDirChooser.class:1331
+#: FDirChooser.class:1324
 msgid "Cannot list archive contents"
 msgstr "Impossible de lister le contenu de l'archive"
 
@@ -146,27 +154,31 @@ msgstr "Impossible de lister le contenu de l'archive"
 msgid "Cannot rename directory."
 msgstr "Impossible de renommer le répertoire."
 
-#: FileView.class:1164
+#: FileView.class:1221
 msgid "Cannot rename file."
 msgstr "Impossible de renommer le fichier."
 
-#: FDirChooser.class:1371
+#: FDirChooser.class:1364
 msgid "Cannot uncompress file."
 msgstr "Impossible de décompresser le fichier."
 
-#: FEditBookmark.form:57 FFileProperties.form:270
+#: FEditBookmark.form:57 FFileProperties.form:275
 msgid "Close"
 msgstr "Fermer"
 
-#: FDirChooser.class:1055
+#: FDirChooser.class:1074
 msgid "Copy"
 msgstr "Copier"
 
-#: FDirChooser.class:1460
+#: FDirChooser.class:1079
+msgid "Delete"
+msgstr "Supprimer"
+
+#: FDirChooser.class:1453
 msgid "Delete directory"
 msgstr "Supprimer le répertoire"
 
-#: FDirChooser.class:1442
+#: FDirChooser.class:1435
 msgid "Delete file"
 msgstr "Supprimer le fichier"
 
@@ -178,15 +190,15 @@ msgstr "Bureau"
 msgid "Detailed view"
 msgstr "Vue détaillée"
 
-#: FFileProperties.class:233
+#: FFileProperties.class:236
 msgid "directories"
 msgstr "répertoires"
 
-#: FFileProperties.form:109
+#: FFileProperties.form:110
 msgid "Directory"
 msgstr "Répertoire"
 
-#: FDirChooser.class:441
+#: FDirChooser.class:451
 msgid "Directory not found."
 msgstr "Répertoire introuvable."
 
@@ -198,11 +210,11 @@ msgstr "Ne plus afficher ce message"
 msgid "Down"
 msgstr "Bas"
 
-#: FDirChooser.class:1461
+#: FDirChooser.class:1454
 msgid "Do you really want to delete that directory?"
 msgstr "Désirez-vous vraiment supprimer ce répertoire ?"
 
-#: FDirChooser.class:1443
+#: FDirChooser.class:1436
 msgid "Do you really want to delete that file?"
 msgstr "Désirez-vous réellement supprimer ce fichier ?"
 
@@ -214,7 +226,7 @@ msgstr "Désirez-vous réellement supprimer ce signet ?"
 msgid "Edit bookmarks"
 msgstr "Edition des signets"
 
-#: FFileProperties.form:245
+#: FFileProperties.form:246
 msgid "Errors"
 msgstr "Erreurs"
 
@@ -222,7 +234,7 @@ msgstr "Erreurs"
 msgid "File properties"
 msgstr "Propriétés du fichier"
 
-#: FFileProperties.class:225
+#: FFileProperties.class:228
 msgid "files"
 msgstr "fichiers"
 
@@ -230,19 +242,19 @@ msgstr "fichiers"
 msgid "Follow color grid"
 msgstr "Suivre la grille de couleurs"
 
-#: FFileProperties.form:52
+#: FFileProperties.form:54
 msgid "General"
 msgstr "Général"
 
-#: FFileProperties.form:170
+#: FFileProperties.form:171
 msgid "Group"
 msgstr "Groupe"
 
-#: FSidePanel.class:1153
+#: FSidePanel.class:1170
 msgid "Hidden"
 msgstr "Masqué"
 
-#: FSidePanel.class:1164
+#: FSidePanel.class:1185
 msgid "Hide automatically"
 msgstr "Cacher automatiquement"
 
@@ -254,7 +266,7 @@ msgstr "Dossier personnel"
 msgid "How quickly daft jumping zebras vex"
 msgstr "Portez ce vieux whisky au juge blond qui fume"
 
-#: FFileProperties.class:117
+#: FFileProperties.class:120
 msgid "Image"
 msgstr "Image"
 
@@ -262,19 +274,19 @@ msgstr "Image"
 msgid "Image preview"
 msgstr "Prévisualisation des images"
 
-#: FFontChooser.form:104
+#: FFontChooser.form:117
 msgid "Italic"
 msgstr "Italique"
 
-#: ColorPalette.class:143
+#: ColorPalette.class:146
 msgid "Last colors"
 msgstr "Dernières couleurs"
 
-#: FFileProperties.form:133 FileView.class:171
+#: FFileProperties.form:134 FileView.class:198
 msgid "Last modified"
 msgstr "Modifié le"
 
-#: FFileProperties.form:95
+#: FFileProperties.form:96
 msgid "Link"
 msgstr "Lien"
 
@@ -282,15 +294,15 @@ msgstr "Lien"
 msgid "More controls for graphical components"
 msgstr "Contrôles graphiques supplémentaires"
 
-#: FListEditor.form:66
+#: FListEditor.form:69
 msgid "Move item down"
 msgstr "Déplacer l'élément vers le bas"
 
-#: FListEditor.form:59
+#: FListEditor.form:61
 msgid "Move item up"
 msgstr "Déplacer l'élément vers le haut"
 
-#: FEditBookmark.class:23 FileView.class:167
+#: FEditBookmark.class:23 FileView.class:196
 msgid "Name"
 msgstr "Nom"
 
@@ -306,43 +318,39 @@ msgstr "Suivant"
 msgid "Next month"
 msgstr "Mois suivant"
 
-#: FFileProperties.class:229
+#: FFileProperties.class:232
 msgid "no directory"
 msgstr "aucun répertoire"
 
-#: FFileProperties.class:221
+#: FFileProperties.class:224
 msgid "no file"
 msgstr "aucun fichier"
-
-#: FileView.class:180
-msgid "No file in this folder."
-msgstr "Aucun fichier dans ce répertoire."
 
 #: FDirChooser.form:248 FInputBox.form:45 FWizard.class:76
 msgid "OK"
 msgstr "OK"
 
-#: FFileProperties.class:231
+#: FFileProperties.class:234
 msgid "one directory"
 msgstr "un répertoire"
 
-#: FFileProperties.class:223
+#: FFileProperties.class:226
 msgid "one file"
 msgstr "un fichier"
 
-#: FDirChooser.class:1082
+#: FDirChooser.class:1101
 msgid "Open in &file manager..."
 msgstr "Ouvrir dans le gestionnaire de &fichiers..."
 
-#: FDirChooser.class:1310
+#: FDirChooser.class:1303
 msgid "Overwrite"
 msgstr "Ecraser"
 
-#: FDirChooser.class:1310
+#: FDirChooser.class:1303
 msgid "Overwrite all"
 msgstr "Tout écraser"
 
-#: FFileProperties.form:158
+#: FFileProperties.form:159
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -354,13 +362,17 @@ msgstr "Répertoire parent"
 msgid "Path"
 msgstr "Emplacement"
 
-#: FFileProperties.form:145
+#: FFileProperties.form:146 FileView.class:199
 msgid "Permissions"
 msgstr "Permissions"
 
-#: FFileProperties.form:180
+#: FFileProperties.form:181
 msgid "Preview"
 msgstr "Aperçu"
+
+#: FDirChooser.class:1062
+msgid "Preview big files"
+msgstr "Aperçu des gros fichiers"
 
 #: FWizard.form:64
 msgid "Previous"
@@ -370,59 +382,63 @@ msgstr "Précédent"
 msgid "Previous month"
 msgstr "Mois précédent"
 
-#: FFontChooser.form:67
+#: FFontChooser.form:80
 msgid "Refresh cache"
 msgstr "Rafraîchir le cache"
 
-#: FFontChooser.form:127
+#: FFontChooser.form:140
 msgid "Relative"
 msgstr "Relatif"
 
-#: FEditBookmark.form:46 FListEditor.class:265
+#: FEditBookmark.form:46 FListEditor.class:277
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ColorPalette.class:248
+#: ColorPalette.class:253
 msgid "Remove all colors"
 msgstr "Retirer toutes les couleurs"
 
-#: ColorPalette.class:244
+#: ColorPalette.class:249
 msgid "Remove color"
 msgstr "Retirer la couleur"
 
-#: FListEditor.form:52
+#: FListEditor.form:53
 msgid "Remove item"
 msgstr "Supprimer l'élément"
+
+#: FDirChooser.class:1069
+msgid "Rename"
+msgstr "Renommer"
 
 #: FDirChooser.form:74
 msgid "Root directory"
 msgstr "Répertoire racine"
 
-#: FDirChooser.class:1030
-msgid "Show &details"
-msgstr "Vue &détaillée"
-
-#: FDirChooser.class:1036
-msgid "Show &hidden files"
-msgstr "Afficher les fichiers &cachés"
-
-#: FDirChooser.class:1042
-msgid "Show &image preview"
-msgstr "Prévisualisation des &images"
+#: FDirChooser.class:1044
+msgid "Show details"
+msgstr "Afficher les détails"
 
 #: FDirChooser.form:161
 msgid "Show files"
 msgstr "Afficher les fichiers"
 
-#: FFontChooser.form:73
+#: FFontChooser.form:86
 msgid "Show font preview"
 msgstr "Afficher l'aperçu des polices"
 
-#: FFileProperties.form:121 FileView.class:169
+#: FDirChooser.class:1050
+msgid "Show hidden files"
+msgstr "Afficher les fichiers cachés"
+
+#: FDirChooser.class:1056
+msgid "Show image preview"
+msgstr "Afficher les aperçus"
+
+#: FFileProperties.form:122 FileView.class:197
 msgid "Size"
 msgstr "Taille"
 
-#: ColorPalette.class:252
+#: ColorPalette.class:257
 msgid "Sort colors"
 msgstr "Trier les couleurs"
 
@@ -430,7 +446,7 @@ msgstr "Trier les couleurs"
 msgid "Step #&1"
 msgstr "Étape n°&1"
 
-#: FFontChooser.form:118
+#: FFontChooser.form:131
 msgid "Strikeout"
 msgstr "Barré"
 
@@ -442,39 +458,43 @@ msgstr "Système"
 msgid "The '/' character is forbidden inside file or directory names."
 msgstr "Le caractère '/' est interdit dans les noms de fichiers ou de répertoires."
 
-#: FDirChooser.class:893
+#: FDirChooser.class:907
 msgid "This file already exists.\n\nDo you want to overwrite it?"
 msgstr "Ce fichier existe déjà.\n\nDésirez-vous le remplacer ?"
 
-#: FDirChooser.class:1310
+#: FDirChooser.class:1303
 msgid "This file or directory already exists."
 msgstr "Ce fichier ou ce répertoire existe déjà."
+
+#: FileView.class:211
+msgid "This folder is empty."
+msgstr "Ce répertoire est vide."
 
 #: FCalendar.form:48
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: FSidePanel.class:1160
+#: FSidePanel.class:1177
 msgid "Transparent handle"
 msgstr "Poignée transparente"
 
-#: FFileProperties.form:82
+#: FFileProperties.form:83
 msgid "Type"
 msgstr "Type"
 
-#: FDirChooser.class:1468
+#: FDirChooser.class:1461
 msgid "Unable to delete directory."
 msgstr "Impossible de supprimer le répertoire."
 
-#: FDirChooser.class:1450
+#: FDirChooser.class:1443
 msgid "Unable to delete file."
 msgstr "Impossible de supprimer le fichier."
 
-#: FFontChooser.form:111
+#: FFontChooser.form:124
 msgid "Underline"
 msgstr "Souligné"
 
-#: FDirChooser.class:1371
+#: FDirChooser.class:1364
 msgid "Unknown archive."
 msgstr "Archive inconnue."
 
@@ -482,7 +502,7 @@ msgstr "Archive inconnue."
 msgid "Up"
 msgstr "Haut"
 
-#: FFileProperties.class:126
+#: FFileProperties.class:129
 msgid "Video"
 msgstr "Vidéo"
 

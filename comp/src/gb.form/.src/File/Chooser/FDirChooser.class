@@ -92,7 +92,7 @@ Public Sub _new(Optional bFile As Boolean)
   
   '$hWatch = New Watcher(fvwChoose) As "FileView"
 
-  FillMenu
+  '''FillMenu
 
   SetRoot()
   
@@ -239,12 +239,10 @@ End
 Private Sub UpdateView()
 
   panView.Visible = $bView
-  mnuShowDetailed.Visible = $bView
-  mnuShowPreview.Visible = $bView
   btnDetail.Visible = $bView
   btnPreview.Visible = $bView
 
-  FillMenu
+  '''FillMenu
   UpdateZoom
   
 End
@@ -264,7 +262,6 @@ End
 Public Sub mnuShowDetailed_Click()
 
   fvwChoose.ShowDetailed = Not fvwChoose.ShowDetailed
-  mnuShowDetailed.Checked = fvwChoose.ShowDetailed
   Object.Lock(btnDetail)
   btnDetail.Value = fvwChoose.ShowDetailed
   Object.Unlock(btnDetail)
@@ -300,7 +297,6 @@ Private Sub UpdateBookmarkButton()
     btnBookmark.Text = Replace($hCurrentBookmark.Name, "&", "&&")
     btnBookmark.Picture = Picture[$hCurrentBookmark.Icon]
     btnRoot.Picture = Picture["icon:/small/system"]
-    mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
     btnBookmark.Show
     sepBookmark.Show
     dvwChoose.HideRoot = True
@@ -383,7 +379,6 @@ End
 Private Sub UpdateShowHidden()
   
   dvwChoose.ShowHidden = fvwChoose.ShowHidden
-  mnuShowHiddenFiles.Checked = fvwChoose.ShowHidden
   
 End
 
@@ -399,6 +394,17 @@ End
 Public Sub mnuShowPreview_Click()
 
   btnPreview.Value = Not btnPreview.Value
+
+End
+
+
+Public Sub mnuNoPreviewMax_Click()
+
+  If fvwChoose.MaxPreviewSize = 0 Then
+    fvwChoose.MaxPreviewSize = -1
+  Else
+    fvwChoose.MaxPreviewSize = 0
+  Endif
 
 End
 
@@ -705,7 +711,7 @@ End
 Public Sub SetPrivateBookmarks(aBookmark As Collection[])
   
   $hBookmarkList.Private = aBookmark
-  FillMenu
+  '''FillMenu
   
 End
 
@@ -724,7 +730,7 @@ Public Sub mnuAddBookmark_Click()
   Inc Application.Busy
   $hBookmarkList.AddBookmark(sLink)
   $hBookmarkList.Save
-  FillMenu
+  '''FillMenu
   SetRoot(sLink)
   
 Finally
@@ -737,7 +743,7 @@ Public Sub mnuRemoveBookmark_Click()
   Inc Application.Busy
   $hBookmarkList.RemoveBookmark(dvwChoose.Root)
   $hBookmarkList.Save
-  FillMenu
+  '''FillMenu
   SetDir(dvwChoose.Current)
   
 Finally
@@ -988,6 +994,7 @@ Private Sub FillMenu()
   Dim hMenu As Menu
   Dim sType As String
   Dim sOldType As String
+  Dim sFile As String
   
   mnuPopup.Children.Clear
   
@@ -1030,27 +1037,32 @@ Private Sub FillMenu()
   Endif
   
   hMenu = New Menu(mnuPopup) As "mnuShowDetailed"
-  hMenu.Text = ("Show &details")
+  hMenu.Text = ("Show details")
   hMenu.Checked = fvwChoose.ShowDetailed
-  hMenu.Visible = fvwChoose.Visible
+  hMenu.Visible = fvwChoose.Visible And $bView
   mnuShowDetailed = hMenu
     
   hMenu = New Menu(mnuPopup) As "mnuShowHiddenFiles"
-  hMenu.Text = ("Show &hidden files")
+  hMenu.Text = ("Show hidden files")
   hMenu.Checked = fvwChoose.ShowHidden
   'hMenu.Visible = fvwChoose.Visible
   mnuShowHiddenFiles = hMenu
   
   hMenu = New Menu(mnuPopup) As "mnuShowPreview"
-  hMenu.Text = ("Show &image preview")
+  hMenu.Text = ("Show image preview")
   hMenu.Checked = fvwChoose.ShowPreview
-  hMenu.Visible = fvwChoose.Visible
+  hMenu.Visible = fvwChoose.Visible And $bView
   mnuShowPreview = hMenu
+  
+  hMenu = New Menu(mnuPopup) As "mnuNoPreviewMax"
+  hMenu.Text = ("Preview big files")
+  hMenu.Visible = fvwChoose.ShowPreview
+  hMenu.Checked = fvwChoose.MaxPreviewSize < 0
   
   hMenu = New Menu(mnuPopup)
   
   hMenu = New Menu(mnuPopup) As "mnuRename"
-  hMenu.Text = ("&Rename")
+  hMenu.Text = ("Rename")
   'hMenu.Picture = Picture["icon:/small/archive"]
   mnuRename = hMenu
   
@@ -1060,12 +1072,12 @@ Private Sub FillMenu()
   mnuCopy = hMenu
   
   hMenu = New Menu(mnuPopup) As "mnuDelete"
-  hMenu.Text = ("&Delete")
+  hMenu.Text = ("Delete")
   hMenu.Picture = Picture["icon:/small/delete"]
   mnuDelete = hMenu
   
   hMenu = New Menu(mnuPopup) As "mnuDeleteDir"
-  hMenu.Text = ("&Delete")
+  hMenu.Text = ("Delete")
   hMenu.Picture = Picture["icon:/small/delete"]
   mnuDeleteDir = hMenu
   
@@ -1099,6 +1111,30 @@ Private Sub FillMenu()
     hMenu.Picture = Picture["icon:/small/info"]
     mnuProperty = hMenu
     
+  Endif
+  
+  If $hBookmarkList Then mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
+  
+  If dvwChoose.HasFocus Then
+
+    mnuUncompress.Hide
+    mnuShowDetailed.Hide
+    mnuShowPreview.Hide
+    mnuRename.Show
+    mnuDelete.Hide
+    mnuDeleteDir.Hide
+    Try mnuDeleteDir.Visible = Dir(dvwChoose.Current).Count = 0
+    
+  Else
+
+    sFile = fvwChoose.Current
+    mnuUncompress.Visible = IsCompressedFile(sFile)
+    mnuShowDetailed.Show
+    mnuShowPreview.Show
+    mnuRename.Visible = sFile
+    mnuDelete.Visible = sFile
+    mnuDeleteDir.Hide
+
   Endif
   
 End
@@ -1162,14 +1198,6 @@ End
 
 Public Sub dvwChoose_Menu()
 
-  mnuUncompress.Hide
-  mnuShowDetailed.Hide
-  mnuShowPreview.Hide
-  mnuRename.Show
-  mnuDelete.Hide
-  mnuDeleteDir.Hide
-  Try mnuDeleteDir.Visible = Dir(dvwChoose.Current).Count = 0
-
   dvwChoose.SetFocus
   mnuPopup.Popup
 
@@ -1177,15 +1205,7 @@ End
 
 Public Sub fvwChoose_Menu()
 
-  Dim sFile As String = fvwChoose.Current
-  
-  mnuUncompress.Visible = IsCompressedFile(sFile)
-  mnuShowDetailed.Show
-  mnuShowPreview.Show
-  mnuRename.Visible = sFile
-  mnuDelete.Visible = sFile
-  mnuDeleteDir.Hide
-
+  fvwChoose.SetFocus
   mnuPopup.Popup
 
 End
@@ -1581,7 +1601,6 @@ End
 Public Sub btnPreview_Click()
 
   fvwChoose.ShowPreview = btnPreview.Value
-  mnuShowPreview.Checked = btnPreview.Value
 
 End
 
@@ -1761,6 +1780,12 @@ Public Sub txtFile_LostFocus()
 End
 
 Public Sub UpdateBookmark()
+  
+  '''FillMenu
+  
+End
+
+Public Sub mnuPopup_Show()
   
   FillMenu
   

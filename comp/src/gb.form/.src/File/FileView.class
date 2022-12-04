@@ -50,6 +50,12 @@ Property Read FileCount As Integer Use $nFile
 Property Read DirCount As Integer Use $nDir
 Property Read TotalSize As Long Use $iSize
 
+'' Return or set the size limit in bytes of files that will be previewed.
+''
+'' - If 'MaxPreviewSize' is zero (the default), the size limit is 4Mb.
+'' - If 'MaxPreviewSize' is negative, there is no size limit.
+Property MaxPreviewSize As Integer Use $iMaxPreviewSize
+
 Static Private $cExt As New Collection(gb.IgnoreCase)
 
 Private Const PREFIX_DIR As String = "0"
@@ -78,6 +84,9 @@ Private $iIconSize As Integer = 32
 Private $bDesktopIsLoaded As Boolean
 
 Private $hPreview As CTaskPreview
+Private $iPreviewMax As Integer
+Private $iPreviewCount As Integer
+
 Private $hEnsureVisible As Timer
 Private $hWatch As Watch
 Private $bWatch As Boolean
@@ -100,6 +109,7 @@ Private $sHighlight As String
 Private $hHighlightPicture As Picture
 
 Private $hBorder As Panel
+Private $hProgress As ProgressBar
 
 Static Public Sub _init()
   
@@ -171,7 +181,6 @@ Static Public Sub _exit()
   
 End
 
-
 Public Sub _new()
   
   $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
@@ -204,9 +213,15 @@ Public Sub _new()
     .Border = False
   End With
   
+  $hProgress = New ProgressBar($hBorder)
+  $hProgress.H = 1 + Desktop.Scale \ 4
+  $hProgress.Border = False
+  $hProgress.Label = False
+  $hProgress.Hide
+  
   $hVoidView = New TextLabel(Me) As "View"
   $hVoidView.Alignment = Align.Center
-  $hVoidView.Text = ("No file in this folder.")
+  $hVoidView.Text = ("This folder is empty.")
   $hVoidView.Font.Grade = 2
   $hVoidView.Foreground = Color.LightForeground
   $hVoidView.Visible = False
@@ -415,6 +430,8 @@ Private Sub RefreshView()
   
   Inc Application.Busy
   
+  StopPreview
+  
   $bRefreshTriggered = False
   bFilter = Object.CanRaise(Me, "Filter")
   
@@ -555,7 +572,7 @@ Private Sub RefreshView()
     
     hCache.Unlock
     
-    If aPreview.Count Then RunPreview(aPreview)
+    If aPreview.Count Then StartPreview(aPreview)
   
   Endif
   
@@ -606,10 +623,19 @@ ADD_PREVIEW:
   
 End
 
-Private Sub RunPreview(aPreview As String[])
+Private Sub StopPreview()
+  
+  If $hPreview Then $hPreview.Stop
+  $hProgress.Hide
+  
+End
 
-  If $hPreview Then $hPreview.Stop  
-  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), aPreview) As "TaskPreview"
+Private Sub StartPreview(aPreview As String[])
+
+  $hProgress.Show
+  $iPreviewMax = aPreview.Count
+  $iPreviewCount = 0
+  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview) As "TaskPreview"
 
 End
 
@@ -625,7 +651,7 @@ Public Sub TaskPreview_Read(Data As String)
   For Each sLine In Split(Data, "\n", "", True)
   
     If sLine = "." Then
-      Try $hPreview.Stop
+      Try StopPreview
       Return
     Endif
     
@@ -633,7 +659,12 @@ Public Sub TaskPreview_Read(Data As String)
     sPath = Left(sLine, iPos - 1)
     sPreview = Mid$(sLine, iPos + 1)
     
-    Try GetView()[PREFIX_FILE & sPath].Picture = Image.Load(sPreview).Picture
+    If sPreview Then
+      Try GetView()[PREFIX_FILE & sPath].Picture = Image.Load(sPreview).Picture
+    Endif
+    
+    Inc $iPreviewCount
+    $hProgress.Value = $iPreviewCount / $iPreviewMax
     
   Next
   
@@ -1262,6 +1293,7 @@ End
 Public Sub Watcher_Hide()
 
   'Debug  
+  StopPreview
   $hWatch = Null
   $bVisible = False
   
@@ -1493,3 +1525,10 @@ Public Sub View_Scroll()
   
 End
 
+Private Sub MaxPreviewSize_Write(Value As Integer)
+  
+  If $iMaxPreviewSize = Value Then Return
+  $iMaxPreviewSize = Value
+  If $bShowPreview Then Reload
+  
+End

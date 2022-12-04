@@ -5,11 +5,14 @@ Inherits Task
 Private $sDir As String
 Private $iSize As Integer
 Private $aPreview As String[]
+Private $iMaxFileSize As Integer
 
-Public Sub _new(sDir As String, iSize As Integer, aPreview As String[])
+Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[])
   
   $sDir = sDir
   $iSize = iSize
+  $iMaxFileSize = iMaxFileSize
+  If $iMaxFileSize = 0 Then $iMaxFileSize = 4194304
   $aPreview = aPreview
   
 End
@@ -52,10 +55,10 @@ Public Sub Main()
     
     If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Then
       
-      If Stat(sPath).Size > 4194304 Then Continue
+      If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto IGNORE_FILE
       
       Try hImage = Image.Load(sPath)
-      If Error Then Continue
+      If Error Then Goto IGNORE_FILE
       
       If Not (hImage.Width = $iSize And hImage.Height = $iSize) Then 
         If hImage.Width > hImage.Height Then 
@@ -66,11 +69,12 @@ Public Sub Main()
       Endif
       
       PrintIcon(sFile, hImage)
+      Continue
     
     Else If sExt = "svg" Or If sExt = "svgz" Then
       
       Try hSvgImage = SvgImage.Load(sPath)
-      If Error Then Continue
+      If Error Then Goto IGNORE_FILE
       
       If hSvgImage.Width > hSvgImage.Height Then 
         hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
@@ -84,9 +88,14 @@ Public Sub Main()
       Paint.End
     
       PrintIcon(sFile, hImage)
+      Continue 
       
     Endif
     
+  IGNORE_FILE:
+      
+    Print sFile; "\t"
+      
   Next
   
   Print "."
