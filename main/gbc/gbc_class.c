@@ -58,8 +58,8 @@ void CLASS_create(CLASS **result)
 	ARRAY_create(&class->structure);
 	ARRAY_create(&class->names);
 
-	TABLE_create(&class->table, sizeof(CLASS_SYMBOL), TF_IGNORE_CASE);
-	TABLE_create(&class->string, sizeof(SYMBOL), TF_NORMAL);
+	TABLE_create_inc(&class->table, sizeof(CLASS_SYMBOL), TF_IGNORE_CASE, 1024);
+	TABLE_create_inc(&class->string, sizeof(SYMBOL), TF_NORMAL, 1024);
 
 	CLEAR(&func);
 	TYPE_clear(&func.type);

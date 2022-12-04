@@ -352,6 +352,103 @@ NOINLINE static void _push_me(ushort code)
 	PUSH();
 }
 
+NOINLINE static bool _push_misc(ushort code)
+{
+	static const void *_jump[] =
+		{ &&__PUSH_NULL, &&__PUSH_VOID, &&__PUSH_FALSE, &&__PUSH_TRUE, &&__PUSH_LAST, &&__PUSH_STRING, &&__PUSH_PINF, &&__PUSH_MINF, &&__PUSH_COMPLEX,
+			&&__PUSH_VARGS, &&__PUSH_DROP_VARGS, &&__JIT_RETURN, &&__PUSH_END_VARGS };
+		//, &&__POP_LAST };
+
+	goto *_jump[GET_UX()];
+
+__PUSH_NULL:
+
+	VALUE_null(SP);
+	SP++;
+	return FALSE;
+
+__PUSH_VOID:
+
+	SP->type = T_VOID;
+	SP++;
+	return FALSE;
+
+__PUSH_FALSE:
+
+	SP->type = T_BOOLEAN;
+	SP->_integer.value = 0;
+	SP++;
+	return FALSE;
+
+__PUSH_TRUE:
+
+	SP->type = T_BOOLEAN;
+	SP->_integer.value = -1;
+	SP++;
+	return FALSE;
+
+__PUSH_LAST:
+
+	SP->type = T_OBJECT;
+	SP->_object.object = EVENT_Last;
+	OBJECT_REF_CHECK(EVENT_Last);
+	SP++;
+	return FALSE;
+
+__PUSH_STRING:
+
+	SP->type = T_CSTRING;
+	SP->_string.addr = ""; // NULL
+	SP->_string.start = SP->_string.len = 0;
+	SP++;
+	return FALSE;
+
+__PUSH_PINF:
+
+	SP->type = T_FLOAT;
+	SP->_float.value = INFINITY;
+	SP++;
+	return FALSE;
+
+__PUSH_MINF:
+
+	SP->type = T_FLOAT;
+	SP->_float.value = -INFINITY;
+	SP++;
+	return FALSE;
+
+__PUSH_COMPLEX:
+
+	EXEC_push_complex();
+	return FALSE;
+
+__PUSH_VARGS:
+
+	EXEC_push_vargs();
+	return FALSE;
+
+__PUSH_DROP_VARGS:
+
+	EXEC_drop_vargs();
+	return FALSE;
+
+__JIT_RETURN:
+	return TRUE;
+
+__PUSH_END_VARGS:
+
+	EXEC_end_vargs();
+	return FALSE;
+
+/*__POP_LAST:
+
+	VALUE_conv(&SP[-1], T_OBJECT);
+	OBJECT_UNREF(EVENT_Last);
+	SP--;
+	EVENT_Last = SP->_object.object;
+	goto _NEXT;*/
+}
+
 void EXEC_loop(void)
 {
 	static const void *jump_table[256] =
@@ -748,7 +845,6 @@ _PUSH_LOCAL:
 
 	*SP = BP[GET_XX()];
 	PUSH();
-
 	goto _NEXT;
 
 _PUSH_LOCAL_NOREF:
@@ -762,7 +858,6 @@ _PUSH_PARAM:
 
 	*SP = PP[GET_XX()];
 	PUSH();
-
 	goto _NEXT;
 
 _PUSH_PARAM_NOREF:
@@ -783,13 +878,6 @@ _PUSH_UNKNOWN:
 
 	EXEC_push_unknown();
 	goto _NEXT;
-
-/*-----------------------------------------------*/
-
-/*_PUSH_SPECIAL:
-
-	EXEC_push_special();
-	goto _NEXT;*/
 
 /*-----------------------------------------------*/
 
@@ -930,101 +1018,10 @@ _PUSH_ME:
 
 _PUSH_MISC:
 
-	{
-		static const void *_jump[] =
-			{ &&__PUSH_NULL, &&__PUSH_VOID, &&__PUSH_FALSE, &&__PUSH_TRUE, &&__PUSH_LAST, &&__PUSH_STRING, &&__PUSH_PINF, &&__PUSH_MINF, &&__PUSH_COMPLEX,
-				&&__PUSH_VARGS, &&__PUSH_DROP_VARGS, &&__JIT_RETURN, &&__PUSH_END_VARGS };
-			//, &&__POP_LAST };
-
-		goto *_jump[GET_UX()];
-
-	__PUSH_NULL:
-
-		VALUE_null(SP);
-		SP++;
-		goto _NEXT;
-
-	__PUSH_VOID:
-
-		SP->type = T_VOID;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_FALSE:
-
-		SP->type = T_BOOLEAN;
-		SP->_integer.value = 0;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_TRUE:
-
-		SP->type = T_BOOLEAN;
-		SP->_integer.value = -1;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_LAST:
-
-		SP->type = T_OBJECT;
-		SP->_object.object = EVENT_Last;
-		OBJECT_REF_CHECK(EVENT_Last);
-		SP++;
-		goto _NEXT;
-
-	__PUSH_STRING:
-
-		SP->type = T_CSTRING;
-		SP->_string.addr = ""; // NULL
-		SP->_string.start = SP->_string.len = 0;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_PINF:
-
-		SP->type = T_FLOAT;
-		SP->_float.value = INFINITY;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_MINF:
-
-		SP->type = T_FLOAT;
-		SP->_float.value = -INFINITY;
-		SP++;
-		goto _NEXT;
-
-	__PUSH_COMPLEX:
-
-		EXEC_push_complex();
-		goto _NEXT;
-
-	__PUSH_VARGS:
-
-		EXEC_push_vargs();
-		goto _NEXT;
-
-	__PUSH_DROP_VARGS:
-
-		EXEC_drop_vargs();
-		goto _NEXT;
-		
-	__JIT_RETURN:
+	if (_push_misc(code))
 		return;
-		
-	__PUSH_END_VARGS:
-	
-		EXEC_end_vargs();
-		goto _NEXT;
+	goto _NEXT;
 
-	/*__POP_LAST:
-
-		VALUE_conv(&SP[-1], T_OBJECT);
-		OBJECT_UNREF(EVENT_Last);
-		SP--;
-		EVENT_Last = SP->_object.object;
-		goto _NEXT;*/
-	}
 
 /*-----------------------------------------------*/
 

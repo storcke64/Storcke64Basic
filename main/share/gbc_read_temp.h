@@ -221,7 +221,7 @@ static void add_identifier()
 	PATTERN last_pattern, last_last_pattern;
 	bool not_first;
 	bool can_be_reserved;
-	bool last_identifier, last_type, last_class, last_pub, last_point, last_excl;
+	bool last_next_ident, last_type, last_class, last_pub, last_point, last_excl;
 #ifdef __EVAL_READ_C
 	bool exist = TRUE;
 #endif
@@ -310,26 +310,27 @@ static void add_identifier()
 	
 	if (can_be_reserved)
 	{
-		//fprintf(stderr, "can_be_reserved: %.*s\n", len, start);
 		index = RESERVED_find_word(start, len);
 		can_be_reserved = (index >= 0);
 	}
-	
+
 	if (can_be_reserved)
 	{
 		static void *jump[] = { 
-			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN, &&__ENUM, &&__READ, &&__DATATYPE
+			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN_ENUM, &&__READ,
+			&&__DATATYPE, &&__OPTIONAL, &&__BYREF
 		};
 		
-		last_identifier = (flag & RSF_IDENT) != 0;
+		last_next_ident = (flag & RSF_IDENT) != 0;
 		last_pub = (flag & RSF_PUB) != 0;
 
+		//fprintf(stderr, "read_switch = %d\n", RES_get_read_switch(index));
 		goto *jump[RES_get_read_switch(index)];
 		
 		do
 		{
 		__ME_NEW_LAST_SUPER:
-			can_be_reserved = !last_identifier;
+			can_be_reserved = !last_next_ident;
 			break;
 			
 		__CLASS:
@@ -344,16 +345,12 @@ static void add_identifier()
 			can_be_reserved = canres_car[car] && (_begin_line || last_pub || PATTERN_is(last_pattern, RS_END));
 			break;
 		
-		__CONST_EXTERN:
-			can_be_reserved = canres_car[car] && (_begin_line || last_pub);
-			break;
-			
-		__ENUM:
+		__CONST_EXTERN_ENUM:
 			can_be_reserved = canres_car[car] && (_begin_line || last_pub);
 			break;
 			
 		__READ:
-			can_be_reserved = canres_car[car] && (!last_identifier || PATTERN_is(last_pattern, RS_PROPERTY));
+			can_be_reserved = canres_car[car] && (!last_next_ident || PATTERN_is(last_pattern, RS_PROPERTY));
 			break;
 
 		__DATATYPE:
@@ -372,11 +369,27 @@ static void add_identifier()
 			}
 			break;
 			
-		__OTHERS:
-			if (last_type || last_identifier || (PATTERN_is(last_pattern, RS_LBRA) && car == ')' && PATTERN_is_reserved(get_last_last_pattern())))
+		__OPTIONAL:
+			if (!(PATTERN_is(last_pattern, RS_LBRA) || PATTERN_is(last_pattern, RS_COMMA) || PATTERN_is(last_pattern, RS_EXPORT)))
 				can_be_reserved = FALSE;
-			else
-				can_be_reserved = canres_car[car];
+			break;
+
+		__BYREF:
+			if (!(PATTERN_is(last_pattern, RS_LBRA) || PATTERN_is(last_pattern, RS_COMMA) || PATTERN_is(last_pattern, RS_OPTIONAL)))
+				can_be_reserved = FALSE;
+			break;
+
+		__OTHERS:
+			if (!canres_car[car])
+				can_be_reserved = FALSE;
+			else if (last_type || last_next_ident || (PATTERN_is(last_pattern, RS_LBRA) && car == ')' && PATTERN_is_reserved(get_last_last_pattern())))
+				can_be_reserved = FALSE;
+			else if (PATTERN_is(last_pattern, RS_EQUAL))
+			{
+				can_be_reserved = (index >= RS_COLON || index == RS_NEW || index == RS_OPEN || index == RS_CLOSE || index == RS_SHELL || index == RS_EXEC || index == RS_RAISE || index == RS_PIPE || index == RS_LOCK || index == RS_MEMORY || index == RS_READ || index == RS_PEEK);
+			}
+			else if (!_begin_line && !last_type && index < RS_P_IF && PATTERN_is_reserved(last_pattern) && !RES_is_identifier(PATTERN_index(last_pattern)) && !PATTERN_is(last_pattern, RS_RBRA) && !PATTERN_is(last_pattern, RS_RSQR))
+				can_be_reserved = FALSE;
 			break;
 		}
 		while (0);

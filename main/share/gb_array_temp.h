@@ -58,6 +58,7 @@ void ARRAY_delete(void *p_data)
 	*data = NULL;
 }
 
+
 static inline ARRAY *array_realloc(ARRAY *array)
 {
 	ARRAY *new_array;
@@ -67,6 +68,7 @@ static inline ARRAY *array_realloc(ARRAY *array)
 	REALLOC(&new_array, sizeof(ARRAY) + array->max * array->size);
 	return new_array;
 }
+
 
 void *ARRAY_add_data(void *p_data, uint num, bool zero)
 {
@@ -93,25 +95,17 @@ void *ARRAY_add_data(void *p_data, uint num, bool zero)
 	return ptr;
 }
 
-void ARRAY_realloc(void *p_data) //, bool zero)
+
+void ARRAY_realloc(void *p_data)
 {
 	void **data = (void **)p_data;
 	ARRAY *array = DATA_TO_ARRAY(*data);
 	
-	/*array->max = array->inc + ((array->count + array->inc) / array->inc) * array->inc;
-	new_array = array;
-	REALLOC(&new_array, sizeof(ARRAY) + array->max * size);*/
 	*data = ARRAY_TO_DATA(array_realloc(array));
-	//fprintf(stderr, "ARRAY_realloc: %p (%d) -> %p (%d) [%d]\n", array, old_max, new_array, new_array->max, size);
-	/*if (zero)
-	{
-		//fprintf(stderr, "ARRAY_realloc: memset(%p, 0, %d)\n", ARRAY_TO_DATA(new_array) + old_max * size, (new_array->max - old_max) * size);
-		memset(ARRAY_TO_DATA(new_array) + old_max * size, 0, (new_array->max - old_max) * size);
-	}*/
 }
 
 
-void *ARRAY_add_data_one(void *p_data, bool zero)
+/*void *ARRAY_add_data_one(void *p_data, bool zero)
 {
 	void **data = (void **)p_data;
 	register ARRAY *array = DATA_TO_ARRAY(*data);
@@ -122,20 +116,16 @@ void *ARRAY_add_data_one(void *p_data, bool zero)
 
 	if (array->count > array->max)
 	{
-		/*array->max = ((array->count + array->inc - 1) / array->inc) * array->inc;
-		new_array = array;
-		REALLOC(&new_array, sizeof(ARRAY) + array->max * size);*/
 		array = array_realloc(array);
 		*data = ARRAY_TO_DATA(array);
 	}
 
 	ptr = (char *)array + sizeof(ARRAY) + size * (array->count - 1);
-	
+
 	if (zero) memset(ptr, 0, size);
 
 	return ptr;
-}
-
+}*/
 
 
 void ARRAY_remove_last(void *p_data)
@@ -149,14 +139,6 @@ void ARRAY_remove_last(void *p_data)
 	array->count--;
 }
 
-#if 0
-void *ARRAY_get(void *data, int pos)
-{
-	ARRAY *array = DATA_TO_ARRAY(data);
-
-	return (char *)data + array->size * pos;
-}
-#endif
 
 void *ARRAY_insert_many(void *p_data, int pos, uint count)
 {

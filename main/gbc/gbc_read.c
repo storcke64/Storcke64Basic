@@ -48,7 +48,6 @@
 #include "gbc_read.h"
 
 //#define DEBUG
-//#define BIG_COMMENT 1
 
 static bool is_init = FALSE;
 static COMPILE *comp;
@@ -76,10 +75,11 @@ enum
 	GOTO_STRING, 
 	GOTO_IDENT, 
 	GOTO_QUOTED_IDENT, 
-	GOTO_NUMBER,
 	GOTO_ERROR,
 	GOTO_SHARP,
-	GOTO_OTHER
+	GOTO_NUMBER,
+	GOTO_NUMBER_OR_OPERATOR,
+	GOTO_OPERATOR
 };
 
 static void READ_init(void)
@@ -116,8 +116,10 @@ static void READ_init(void)
 				first_car[i] = GOTO_NUMBER;
 			else if (i >= 127)
 				first_car[i] = GOTO_ERROR;
+			else if (i == '+' || i == '-' || i == '&')
+				first_car[i] = GOTO_NUMBER_OR_OPERATOR;
 			else
-				first_car[i] = GOTO_OTHER;
+				first_car[i] = GOTO_OPERATOR;
 		}
 	
 		is_init = TRUE;
@@ -383,7 +385,7 @@ static unsigned char next_char(void)
 
 static void add_pattern_no_dump(int type, int index)
 {
-	comp->pattern[comp->pattern_count] = PATTERN_make(type, index);
+	comp->pattern[comp->pattern_count] = _last_pattern = PATTERN_make(type, index);
 	comp->pattern_pos[comp->pattern_count] = source_ptr - _line_start;
 	comp->pattern_count++;
 }
@@ -461,7 +463,7 @@ static void jump_to_next_prep(void)
 	}
 }
 
-static void add_newline()
+INLINE static void add_newline()
 {
 	int action = PREP_CONTINUE;
 	
@@ -757,10 +759,11 @@ void READ_do(void)
 		&&__STRING, 
 		&&__IDENT, 
 		&&__QUOTED_IDENT,
-		&&__NUMBER,
 		&&__ERROR, 
 		&&__SHARP,
-		&&__OTHER
+		&&__NUMBER,
+		&&__NUMBER_OR_OPERATOR,
+		&&__OPERATOR
 	};
 	
 	unsigned char car;
@@ -835,12 +838,6 @@ void READ_do(void)
 		_begin_line = FALSE;
 		continue;
 		
-	__NUMBER:
-	
-		add_number();
-		_begin_line = FALSE;
-		continue;
-		
 	__SHARP:
 	
 		if (_begin_line)
@@ -853,37 +850,27 @@ void READ_do(void)
 			continue;
 		}
 		else
-			goto __OTHER;
+			goto __OPERATOR;
 	
-	__OTHER:
-	
-#if BIG_COMMENT
-		if (car == '/' && get_char_offset(1) == '*')
-		{
-			for(;;)
-			{
-				source_ptr++;
-				car = get_char();
-				if (car == 0)
-					break;
-				if (car == '*' && get_char_offset(1) == '/')
-				{
-					source_ptr += 2;
-					break;
-				}
-				if (car == '\n')
-					add_newline();
-			}
+	__NUMBER_OR_OPERATOR:
 
-			_begin_line = FALSE;
-			continue;
-		}
-#endif
-		
 		if (add_number())
-			add_operator();
-		
+			goto __OPERATOR;
+
 		_begin_line = FALSE;
+		continue;
+
+	__NUMBER:
+
+		add_number();
+		_begin_line = FALSE;
+		continue;
+
+	__OPERATOR:
+
+		add_operator();
+		_begin_line = FALSE;
+		continue;
 	}
 
 __BREAK:

@@ -36,14 +36,16 @@ typedef
 typedef
   int (*ARRAY_COMP_FUNC)(const void *, const void *);
 
-#define DATA_TO_ARRAY(data) ((ARRAY *)(data) - 1)
-#define ARRAY_TO_DATA(array) ((char *)((ARRAY *)(array) + 1))
+#define DATA_TO_ARRAY(_data) ((ARRAY *)(_data) - 1)
+#define ARRAY_TO_DATA(_array) ((char *)((ARRAY *)(_array) + 1))
 
-#define ARRAY_create(data) ARRAY_create_with_size((data), sizeof(**(data)), 32)
-#define ARRAY_create_inc(data, inc) ARRAY_create_with_size((data), sizeof(**(data)), (inc))
+#define ARRAY_create(_data) ARRAY_create_with_size((_data), sizeof(**(_data)), 32)
+#define ARRAY_create_inc(_data, _inc) ARRAY_create_with_size((_data), sizeof(**(_data)), (_inc))
 
 void ARRAY_create_with_size(void *p_data, size_t size, uint inc);
 void ARRAY_delete(void *p_data);
+
+#define ARRAY_set_inc(_data, _inc) (DATA_TO_ARRAY(_data)->inc = _inc)
 
 #define ARRAY_size(_data) (DATA_TO_ARRAY(_data)->size)
 #define ARRAY_count(_data) ((_data) ? DATA_TO_ARRAY(_data)->count : 0)
@@ -72,6 +74,28 @@ void *ARRAY_add_data_one(void *p_data, bool zero);
 	} \
 	if (_zero) memset(ptr, 0, sizeof(*ptr)); \
 	ptr; \
+})
+
+#define ARRAY_add_data_one(_pdata, _zero) \
+({ \
+	ARRAY *__array = DATA_TO_ARRAY(*(_pdata)); \
+	int size = __array->size; \
+	char *ptr; \
+	int old_count = __array->count; \
+	\
+	__array->count++; \
+	\
+	if (__array->count <= __array->max) \
+	{ \
+		ptr = (char *)*(_pdata) + size * old_count; \
+	} \
+	else \
+	{ \
+		ARRAY_realloc(_pdata); \
+		ptr = (char *)*(_pdata) + size * old_count; \
+	} \
+	if (_zero) memset(ptr, 0, size); \
+	(void *)ptr; \
 })
 
 #define ARRAY_add(_pdata) ARRAY_add_one(_pdata, FALSE)

@@ -74,6 +74,19 @@ enum {
 	RST_READ
 };
 
+enum {
+	RSJ_OTHER,
+	RSJ_ME,
+	RSJ_CLASS,
+	RSJ_STRUCT,
+	RSJ_SUB,
+	RSJ_CONST,
+	RSJ_READ,
+	RSJ_DATATYPE,
+	RSJ_OPTIONAL,
+	RSJ_BYREF
+};
+
 #define RES_is_operator(value) (COMP_res_info[value].flag & RSF_OP)
 #define RES_is_type(value) (COMP_res_info[value].flag & RSF_TYPE)
 #define RES_is_assignment(value) (COMP_res_info[value].flag & RSF_ASGN)
@@ -94,6 +107,8 @@ enum {
 #define RES_can_have_not_before(value) (COMP_res_info[value].flag & RSF_NOT)
 
 #define RES_is_preprocessor(value) (COMP_res_info[value].flag & RSF_PREP)
+
+#define RES_is_identifier(value) (isalpha(*COMP_res_info[value].name))
 
 typedef
 	enum {

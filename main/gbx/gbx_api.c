@@ -2186,7 +2186,7 @@ int GB_CountArray(void *data)
 
 void *GB_Add(void *pdata)
 {
-	return ARRAY_add_void_size(pdata);
+	return ARRAY_add_void_size((char **)pdata);
 }
 
 char *GB_NewZeroString(char *src)

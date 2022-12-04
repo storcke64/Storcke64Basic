@@ -338,6 +338,14 @@ void TABLE_create(TABLE **result, size_t size, TABLE_FLAG flag)
 }
 
 
+void TABLE_create_inc(TABLE **result, size_t size, TABLE_FLAG flag, uint inc)
+{
+	TABLE_create(result, size, flag);
+	ARRAY_set_inc((*result)->symbol, inc);
+	ARRAY_set_inc((*result)->sort, inc);
+}
+
+
 void TABLE_create_from(TABLE **result, size_t size, const char *sym_list[], TABLE_FLAG flag)
 {
 	TABLE *table;
