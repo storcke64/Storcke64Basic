@@ -318,7 +318,7 @@ static void add_identifier()
 	{
 		static void *jump[] = { 
 			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN_ENUM, &&__READ,
-			&&__DATATYPE, &&__OPTIONAL, &&__BYREF
+			&&__DATATYPE, &&__OPTIONAL, &&__BYREF, &&__ERROR
 		};
 		
 		last_next_ident = (flag & RSF_IDENT) != 0;
@@ -377,6 +377,10 @@ static void add_identifier()
 		__BYREF:
 			if (!(PATTERN_is(last_pattern, RS_LBRA) || PATTERN_is(last_pattern, RS_COMMA) || PATTERN_is(last_pattern, RS_OPTIONAL)))
 				can_be_reserved = FALSE;
+			break;
+
+		__ERROR:
+			can_be_reserved = canres_car[car] && !last_next_ident;
 			break;
 
 		__OTHERS:

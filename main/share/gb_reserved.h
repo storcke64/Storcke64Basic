@@ -84,7 +84,8 @@ enum {
 	RSJ_READ,
 	RSJ_DATATYPE,
 	RSJ_OPTIONAL,
-	RSJ_BYREF
+	RSJ_BYREF,
+	RSJ_ERROR
 };
 
 #define RES_is_operator(value) (COMP_res_info[value].flag & RSF_OP)

@@ -105,7 +105,7 @@ COMP_INFO COMP_res_info[] =
 	{ "Stop"                                                                 },
 	{ "Quit"                                                                 },
 	{ "Raise",        RSF_IDENT|RSF_EVENT                                    },
-	{ "Error"                                                                },
+	{ "Error",        0,                        0,          RSJ_ERROR        },
 	{ "Super",        0,                        0,          RSJ_ME           },
 	{ "Enum",         0,                        0,          RSJ_CONST        },
 	{ "Let"                                                                  },
