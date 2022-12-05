@@ -469,7 +469,7 @@ READ_HELP:
 Catch
   
   Dec Application.Busy
-  FMain.ShowErrorWith(("Unable to load component."))
+  FMain.ShowErrorWith(("Unable to load component."), "*")
   
 End
 

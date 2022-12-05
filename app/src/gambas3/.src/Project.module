@@ -1124,7 +1124,7 @@ Public Sub Exit()
   CSampleCode.Exit
   CLibraryInfo.Exit
   CRecentProject.Exit
-  Wiki.Documentation.Exit
+  If Class.IsLoaded("Wiki") Then Wiki.Documentation.Exit
   Documentation.Exit
 
 End
