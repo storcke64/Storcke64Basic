@@ -1031,7 +1031,7 @@ Private Sub Start(sCmd As String)
   $bRemote = Project.Config["/Debug/Remote"]
   If $bRemote Then
     
-    If Project.MakeExecutable(True, True) Then Return
+    If Project.MakeExecutable(True, True, False) Then Return
     
     ' Create the debugger helper
     

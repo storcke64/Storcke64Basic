@@ -285,7 +285,7 @@ Public Function Make() As Boolean
   Endif
 
   If Project.Systems.Exist("slackware") Then 
-    If Project.MakeExecutable(True, True) Then Return True
+    If Project.MakeExecutable(True, True, False) Then Return True
   Endif  
   
   ' Save old rpm macro file

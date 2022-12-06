@@ -2821,7 +2821,7 @@ Public Sub InstallLibrary(sExecPath As String, sVendor As String, sVersion As St
 End
 
 
-Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bSilent As Boolean) As Boolean
+Public Function MakeExecutable(bDoNotIncVersion As Boolean, bSilent As Boolean, bCopyPath As Boolean) As Boolean
 
   Dim sExec As String
   Dim sExecPath As String
@@ -2939,7 +2939,7 @@ Public Function MakeExecutable(Optional bDoNotIncVersion As Boolean, Optional bS
       If sErr Then FMain.ShowWarning(sErr)
     Endif
     
-    If Not bSilent Then Clipboard.Copy(sExecPath, "text/uri-list")
+    If bCopyPath Then Clipboard.Copy(sExecPath, "text/uri-list")
 
     If RunAfterMakingExec Then
       'Shell Replace(RunAfterMakingExec, "$(FILE)", Shell$(sExecPath)) Wait
@@ -5051,7 +5051,7 @@ Public Sub MakeInstall()
 
   'Dim iRelease As Integer = Project.ReleaseVersion
 
-  If MakeExecutable(True, True) Then Return
+  If MakeExecutable(True, True, False) Then Return
   If FMakeInstall.ShowModal() Then Return
 
   'Project.ReleaseVersion = iRelease

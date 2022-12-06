@@ -1649,9 +1649,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
     Case "send-mail"
       Project.SendMail
     Case "exec"
-      Project.MakeExecutable
+      Project.MakeExecutable(False, False, True)
     Case "exec-now"
-      Project.MakeExecutable(False, True)
+      Project.MakeExecutable(False, True, True)
     Case "install"
       Project.MakeInstall
     Case "shortcut"
