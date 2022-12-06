@@ -582,6 +582,11 @@ void THROW_MATH(bool zero)
 	THROW(zero ? E_ZERO : E_MATH);
 }
 
+void THROW_OVERFLOW(void)
+{
+	THROW(E_OVERFLOW);
+}
+
 
 void ERROR_fatal(const char *error, ...)
 {

@@ -206,4 +206,4 @@ typedef
 			break; \
 	} if (errno)
 
-#endif /* __COMMON_H */
+#endif /* __GB_COMMON_H */

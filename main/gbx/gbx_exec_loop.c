@@ -26,6 +26,8 @@
 #include "gb_common.h"
 #include "gb_common_check.h"
 #include "gb_error.h"
+#include "gb_overflow.h"
+
 #include "gbx_type.h"
 #include "gbx_debug.h"
 
@@ -1922,9 +1924,11 @@ _ADD_QUICK:
 
 		THROW(E_NRETURN);
 
+#if DO_NOT_CHECK_OVERFLOW
+
 	__AQ_BYTE:
 
-		val->_integer.value = (unsigned char)(val->_integer.value + ind);
+		val->_integer.value = (uchar)(val->_integer.value + ind);
 		goto *jump_end;
 
 	__AQ_SHORT:
@@ -1941,6 +1945,44 @@ _ADD_QUICK:
 
 		val->_long.value += (int64_t)ind;
 		goto *jump_end;
+
+#else
+
+	__AQ_BYTE:
+
+		{
+			uchar result;
+
+			if (__builtin_add_overflow((uchar)val->_integer.value, (uchar)ind, &result))
+				THROW_OVERFLOW();
+			val->_integer.value = result;
+			goto *jump_end;
+		}
+
+	__AQ_SHORT:
+
+		{
+			short result;
+
+			if (__builtin_add_overflow((short)val->_integer.value, (short)ind, &result))
+				THROW_OVERFLOW();
+			val->_integer.value = result;
+			goto *jump_end;
+		}
+
+	__AQ_INTEGER:
+
+		if (__builtin_sadd_overflow(val->_integer.value, ind, &val->_integer.value))
+			THROW_OVERFLOW();
+		goto *jump_end;
+
+	__AQ_LONG:
+
+		if (__builtin_saddl_overflow(val->_long.value, (int64_t)ind, &val->_long.value))
+			THROW_OVERFLOW();
+		goto *jump_end;
+
+#endif
 
 	__AQ_SINGLE:
 
@@ -2145,7 +2187,12 @@ _POP_ARRAY_NATIVE_COLLECTION:
 _ADD_INTEGER:
 
 	SP--;
+#if DO_NOT_CHECK_OVERFLOW
 	SP[-1]._integer.value += SP->_integer.value;
+#else
+	if (__builtin_sadd_overflow(SP[-1]._integer.value, SP->_integer.value, &SP[-1]._integer.value))
+		THROW_OVERFLOW();
+#endif
 	goto _NEXT;
 
 _ADD_FLOAT:
@@ -2157,7 +2204,12 @@ _ADD_FLOAT:
 _SUB_INTEGER:
 
 	SP--;
+#if DO_NOT_CHECK_OVERFLOW
 	SP[-1]._integer.value -= SP->_integer.value;
+#else
+	if (__builtin_ssub_overflow(SP[-1]._integer.value, SP->_integer.value, &SP[-1]._integer.value))
+		THROW_OVERFLOW();
+#endif
 	goto _NEXT;
 
 _SUB_FLOAT:
@@ -2169,7 +2221,12 @@ _SUB_FLOAT:
 _MUL_INTEGER:
 
 	SP--;
+#if DO_NOT_CHECK_OVERFLOW
 	SP[-1]._integer.value *= SP->_integer.value;
+#else
+	if (__builtin_smul_overflow(SP[-1]._integer.value, SP->_integer.value, &SP[-1]._integer.value))
+		THROW_OVERFLOW();
+#endif
 	goto _NEXT;
 
 _MUL_FLOAT:
@@ -3156,6 +3213,8 @@ __BOOLEAN:
 	P1->type = T_BOOLEAN;
 	P1->_integer.value = P1->_integer.value | P2->_integer.value; SP--; return;
 
+#if DO_NOT_CHECK_OVERFLOW
+
 __BYTE:
 
 	P1->type = T_BYTE;
@@ -3179,6 +3238,58 @@ __LONG:
 __LONG_NC:
 
 	P1->_long.value += P2->_long.value; SP--; return;
+
+#else
+
+__BYTE:
+
+	{
+		uchar result;
+
+		if (__builtin_add_overflow((uchar)P1->_integer.value, (uchar)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_BYTE;
+		SP--;
+		return;
+	}
+
+__SHORT:
+
+	{
+		short result;
+
+		if (__builtin_add_overflow((short)P1->_integer.value, (short)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_SHORT;
+		SP--;
+		return;
+	}
+
+__INTEGER:
+
+	if (__builtin_sadd_overflow(P1->_integer.value, P2->_integer.value, &P1->_integer.value))
+		THROW_OVERFLOW();
+	P1->type = T_INTEGER;
+	SP--;
+	return;
+
+__LONG:
+
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+
+__LONG_NC:
+
+	if (__builtin_saddl_overflow(P1->_long.value, P2->_long.value, &P1->_long.value))
+		THROW_OVERFLOW();
+	SP--;
+	return;
+
+#endif
 
 __SINGLE:
 
@@ -3262,6 +3373,8 @@ __BOOLEAN:
 	P1->type = T_BOOLEAN;
 	P1->_integer.value = P1->_integer.value ^ P2->_integer.value; SP--; return;
 
+#if DO_NOT_CHECK_OVERFLOW
+
 __BYTE:
 
 	P1->type = T_BYTE;
@@ -3285,6 +3398,58 @@ __LONG:
 __LONG_NC:
 
 	P1->_long.value -= P2->_long.value; SP--; return;
+
+#else
+
+__BYTE:
+
+	{
+		uchar result;
+
+		if (__builtin_sub_overflow((uchar)P1->_integer.value, (uchar)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_BYTE;
+		SP--;
+		return;
+	}
+
+__SHORT:
+
+	{
+		short result;
+
+		if (__builtin_sub_overflow((short)P1->_integer.value, (short)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_SHORT;
+		SP--;
+		return;
+	}
+
+__INTEGER:
+
+	if (__builtin_ssub_overflow(P1->_integer.value, P2->_integer.value, &P1->_integer.value))
+		THROW_OVERFLOW();
+	P1->type = T_INTEGER;
+	SP--;
+	return;
+
+__LONG:
+
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+
+__LONG_NC:
+
+	if (__builtin_ssubl_overflow(P1->_long.value, P2->_long.value, &P1->_long.value))
+		THROW_OVERFLOW();
+	SP--;
+	return;
+
+#endif
 
 __SINGLE:
 
@@ -3367,6 +3532,8 @@ __BOOLEAN:
 	P1->type = T_BOOLEAN;
 	P1->_integer.value = P1->_integer.value & P2->_integer.value; SP--; return;
 
+#if DO_NOT_CHECK_OVERFLOW
+
 __BYTE:
 
 	P1->type = T_BYTE;
@@ -3390,6 +3557,58 @@ __LONG:
 __LONG_NC:
 
 	P1->_long.value *= P2->_long.value; SP--; return;
+
+#else
+
+__BYTE:
+
+	{
+		uchar result;
+
+		if (__builtin_mul_overflow((uchar)P1->_integer.value, (uchar)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_BYTE;
+		SP--;
+		return;
+	}
+
+__SHORT:
+
+	{
+		short result;
+
+		if (__builtin_mul_overflow((short)P1->_integer.value, (short)P2->_integer.value, &result))
+			THROW_OVERFLOW();
+
+		P1->_integer.value = result;
+		P1->type = T_SHORT;
+		SP--;
+		return;
+	}
+
+__INTEGER:
+
+	if (__builtin_smul_overflow(P1->_integer.value, P2->_integer.value, &P1->_integer.value))
+		THROW_OVERFLOW();
+	P1->type = T_INTEGER;
+	SP--;
+	return;
+
+__LONG:
+
+	VALUE_conv(P1, T_LONG);
+	VALUE_conv(P2, T_LONG);
+
+__LONG_NC:
+
+	if (__builtin_smull_overflow(P1->_long.value, P2->_long.value, &P1->_long.value))
+		THROW_OVERFLOW();
+	SP--;
+	return;
+
+#endif
 
 __SINGLE:
 

@@ -25,6 +25,7 @@
 
 #include "gb_common.h"
 #include "gb_common_case.h"
+#include "gb_overflow.h"
 
 #include "gbx_math.h"
 #include "gbx_type.h"
@@ -419,19 +420,51 @@ __p2b:
 	value->type = T_BOOLEAN;
 	return;
 
+#ifdef DO_NOT_CHECK_OVERFLOW
+
 __b2c:
 __h2c:
 __i2c:
-
-	value->_integer.value = (unsigned char)value->_integer.value;
+	value->_integer.value = (uchar)value->_integer.value;
 	value->type = T_BYTE;
 	return;
 
 __l2c:
-
-	value->_integer.value = (unsigned char)value->_long.value;
+	value->_integer.value = (uchar)value->_long.value;
 	value->type = T_BYTE;
 	return;
+
+#else
+
+__b2c:
+	value->_integer.value = (uchar)value->_integer.value;
+	value->type = T_BYTE;
+	return;
+
+__h2c:
+__i2c:
+	{
+		uchar result;
+
+		if (__builtin_add_overflow(value->_integer.value, 0, &result))
+			THROW_OVERFLOW();
+		value->_integer.value = result;
+		value->type = T_BYTE;
+		return;
+	}
+
+__l2c:
+	{
+		uchar result;
+
+		if (__builtin_add_overflow(value->_long.value, 0, &result))
+			THROW_OVERFLOW();
+		value->_integer.value = result;
+		value->type = T_BYTE;
+		return;
+	}
+
+#endif
 
 __g2c:
 
@@ -445,19 +478,49 @@ __f2c:
 	value->type = T_BYTE;
 	return;
 
+#ifdef DO_NOT_CHECK_OVERFLOW
+
 __b2h:
 __c2h:
 __i2h:
-
-	value->_integer.value = (short)value->_integer.value;
 	value->type = T_SHORT;
 	return;
 
 __l2h:
-
 	value->_integer.value = (short)value->_long.value;
 	value->type = T_SHORT;
 	return;
+
+#else
+
+__b2h:
+__c2h:
+	value->type = T_SHORT;
+	return;
+
+__i2h:
+	{
+		short result;
+
+		if (__builtin_add_overflow(value->_integer.value, 0, &result))
+			THROW_OVERFLOW();
+		value->_integer.value = result;
+		value->type = T_SHORT;
+		return;
+	}
+
+__l2h:
+	{
+		short result;
+
+		if (__builtin_add_overflow(value->_long.value, 0, &result))
+			THROW_OVERFLOW();
+		value->_integer.value = result;
+		value->type = T_SHORT;
+		return;
+	}
+
+#endif
 
 __g2h:
 
@@ -471,11 +534,22 @@ __f2h:
 	value->type = T_SHORT;
 	return;
 
-__l2i:
+#ifdef DO_NOT_CHECK_OVERFLOW
 
+__l2i:
 	value->_integer.value = (int)value->_long.value;
 	value->type = T_INTEGER;
 	return;
+
+#else
+
+__l2i:
+	if (__builtin_add_overflow(value->_long.value, 0, &value->_integer.value))
+		THROW_OVERFLOW();
+	value->type = T_INTEGER;
+	return;
+
+#endif
 
 __g2i:
 

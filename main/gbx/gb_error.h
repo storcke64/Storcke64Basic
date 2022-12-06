@@ -168,6 +168,7 @@ void THROW_STACK(void) NORETURN;
 void THROW_BOUND(void) NORETURN;
 void THROW_CLASS(void *class, char *arg1, char *arg2) NORETURN;
 void THROW_MATH(bool zero) NORETURN;
+void THROW_OVERFLOW(void) NORETURN;
 
 void ERROR_fatal(const char *error, ...) NORETURN;
 void ERROR_panic(const char *error, ...) NORETURN;
