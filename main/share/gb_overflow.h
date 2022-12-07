@@ -26,40 +26,13 @@
 
 #define DO_NOT_CHECK_OVERFLOW 0
 
+#if defined __has_builtin
 #if !__has_builtin(__builtin_add_overflow)
-#define __builtin_add_overflow(_a, _b, _c) (*(_c) = (_a) + (_b),0)
-#endif
 
-#if !__has_builtin(__builtin_sadd_overflow)
-#define __builtin_sadd_overflow(_a, _b, _c) (*(_c) = (_a) + (_b),0)
-#endif
+#undef DO_NOT_CHECK_OVERFLOW
+#define DO_NOT_CHECK_OVERFLOW 1
 
-#if !__has_builtin(__builtin_saddl_overflow)
-#define __builtin_saddl_overflow(_a, _b, _c) (*(_c) = (_a) + (_b),0)
 #endif
-
-#if !__has_builtin(__builtin_sub_overflow)
-#define __builtin_sub_overflow(_a, _b, _c) (*(_c) = (_a) - (_b),0)
-#endif
-
-#if !__has_builtin(__builtin_ssub_overflow)
-#define __builtin_ssub_overflow(_a, _b, _c) (*(_c) = (_a) - (_b),0)
-#endif
-
-#if !__has_builtin(__builtin_ssubl_overflow)
-#define __builtin_ssubl_overflow(_a, _b, _c) (*(_c) = (_a) - (_b),0)
-#endif
-
-#if !__has_builtin(__builtin_mul_overflow)
-#define __builtin_mul_overflow(_a, _b, _c) (*(_c) = (_a) * (_b),0)
-#endif
-
-#if !__has_builtin(__builtin_smul_overflow)
-#define __builtin_smul_overflow(_a, _b, _c) (*(_c) = (_a) * (_b),0)
-#endif
-
-#if !__has_builtin(__builtin_smull_overflow)
-#define __builtin_smull_overflow(_a, _b, _c) (*(_c) = (_a) * (_b),0)
 #endif
 
 #endif /* __GB_OVERFLOW_H */
