@@ -516,7 +516,7 @@ static void trans_operation(short op, short nparam, PATTERN previous)
 				type = T_FLOAT;
 			ftype = TYPE_make_simple(type);
 			break;
-			
+
 		case RST_AND:
 			type1 = get_type_id(0, nparam);
 			type2 = get_type_id(1, nparam);
@@ -558,6 +558,15 @@ static void trans_operation(short op, short nparam, PATTERN previous)
 			ftype = TYPE_make_simple(Max(type1, type2));
 			break;
 			
+		case RST_DIV:
+			type = Max(get_type_id(0, nparam), get_type_id(1, nparam));
+			if (type < T_FLOAT)
+				type = T_FLOAT;
+			else
+				type = T_VARIANT;
+			ftype = TYPE_make_simple(type);
+			break;
+
 		case RST_GET:
 			ftype = TYPE_make_simple(T_VARIANT);
 			break;
