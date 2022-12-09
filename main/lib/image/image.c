@@ -554,7 +554,7 @@ int IMAGE_size(GB_IMG *img)
 	return img->width * img->height * (GB_IMAGE_FMT_IS_24_BITS(img->format) ? 3 : 4);
 }
 
-void IMAGE_create(GB_IMG *img, int width, int height, int format)
+void IMAGE_create(GB_IMG *img, int width, int height, int format, GB_COLOR fill)
 {
 	GB_BASE save = img->ob;
 	CLEAR(img);	
@@ -570,8 +570,14 @@ void IMAGE_create(GB_IMG *img, int width, int height, int format)
 	img->width = width;
 	img->height = height;
 	img->format = format;
-	GB.Alloc(POINTER(&img->data), IMAGE_size(img));
+	if (fill == 0)
+		GB.AllocZero(POINTER(&img->data), IMAGE_size(img));
+	else
+		GB.Alloc(POINTER(&img->data), IMAGE_size(img));
 	img->owner_handle = img->data;
+
+	if (fill && fill != GB_COLOR_DEFAULT)
+		IMAGE_fill(img, fill);
 	
 	#ifdef DEBUG_ME
 	fprintf(stderr, "IMAGE_create: %p\n", img);
@@ -581,7 +587,7 @@ void IMAGE_create(GB_IMG *img, int width, int height, int format)
 
 void IMAGE_create_with_data(GB_IMG *img, int width, int height, int format, unsigned char *data)
 {
-	IMAGE_create(img, width, height, format);
+	IMAGE_create(img, width, height, format, GB_COLOR_DEFAULT);
 	if (data && !IMAGE_is_void(img))
 		memcpy(img->data, data, IMAGE_size(img));
 }
