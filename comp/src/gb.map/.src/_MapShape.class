@@ -38,12 +38,12 @@ Private $hImage As Image                  '' Stores user defined default by Prop
 'Private $colKeyShape As New Collection
 
 
-Public Sub _new(Parent As Object)
-
-  Object.Attach(Me, Parent, "Layer")
-  ' $hImgPoint = Image.Load("point.png")
-
-End
+' Public Sub _new(Parent As Object)
+' 
+'   
+'   ' $hImgPoint = Image.Load("point.png")
+' 
+' End
 
 Public Sub _Load()
 
