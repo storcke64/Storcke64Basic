@@ -47,7 +47,7 @@ Public TileBoundValue As MapBounds
 ' Private $bHaveCache As Boolean
 Event Refresh
 
-Public Sub _new(Optional CacheName As String, Parent As Object)
+Public Sub _new(Optional CacheName As String)
 
   Dim sTempPath As String
   Dim hClient As HttpClient
@@ -55,7 +55,7 @@ Public Sub _new(Optional CacheName As String, Parent As Object)
   'Dim hTable As Table
 
   'db.Debug = True
-  Object.Attach(Me, Parent, "Layer")
+  
   $prjLatLon = New Proj("epsg:4326")
 
   $sCachePath = Me._GetMap().DefaultCache
