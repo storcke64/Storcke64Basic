@@ -34,9 +34,9 @@
 #include "gb_code.h"
 #include "gb_limit.h"
 
-/*#define DEBUG*/
+//#define DEBUG
 
-ushort *TRANS_labels = NULL;
+//ushort *TRANS_labels = NULL;
 
 static FUNCTION *_func;
 

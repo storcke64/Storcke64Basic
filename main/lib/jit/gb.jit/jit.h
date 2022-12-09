@@ -644,3 +644,42 @@ enum
     temp.value.len = len; \
   } \
   temp; })
+
+#define MATH_ADD_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a + _b;})
+#define MATH_SUB_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a - _b;})
+#define MATH_MUL_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a * _b;})
+
+#if DO_NOT_CHECK_OVERFLOW
+
+#define MATH_ADD MATH_ADD_UNSAFE
+#define MATH_SUB MATH_SUB_UNSAFE
+#define MATH_MUL MATH_MUL_UNSAFE
+
+#else
+
+#define MATH_ADD(_ctype, _expr1, _expr2) \
+({ \
+  _ctype result; \
+  if (__builtin_add_overflow((_ctype)(_expr1), (_ctype)(_expr2), &result)) \
+    THROW(E_OVERFLOW); \
+  result; \
+})
+
+#define MATH_SUB(_ctype, _expr1, _expr2) \
+({ \
+  _ctype result; \
+  if (__builtin_sub_overflow((_ctype)(_expr1), (_ctype)(_expr2), &result)) \
+    THROW(E_OVERFLOW); \
+  result; \
+})
+
+#define MATH_MUL(_ctype, _expr1, _expr2) \
+({ \
+  _ctype result; \
+  if (__builtin_mul_overflow((_ctype)(_expr1), (_ctype)(_expr2), &result)) \
+    THROW(E_OVERFLOW); \
+  result; \
+})
+
+#endif
+

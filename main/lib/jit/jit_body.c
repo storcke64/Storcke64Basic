@@ -658,7 +658,7 @@ static char *peek_pop(int n, TYPE conv, const char *fmt, va_list args)
 		{
 			JIT_print("  ");
 			JIT_print(dest, expr);
-			JIT_print(";\n");
+			JIT_print("; ");
 		}
 		else
 		{
@@ -1541,7 +1541,9 @@ static void push_subr_add(ushort code, const char *op, const char *opb, bool all
 	char *expr;
 	char *expr1, *expr2;
 	TYPE type1, type2, type;
-	
+	const char *unsafe;
+	const char *func;
+
 	check_stack(2);
 	
 	type1 = get_type(-2);
@@ -1576,8 +1578,21 @@ static void push_subr_add(ushort code, const char *op, const char *opb, bool all
 	if (type == T_BOOLEAN)
 		op = opb;
 	
-	expr = STR_print("({%s _a = %s; %s _b = %s; _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, op);
-	
+	unsafe = (_unsafe || type > T_LONG) ? "_UNSAFE" : "";
+
+	switch (*op)
+	{
+		case '+': func = "_ADD"; break;
+		case '-': func = "_SUB"; break;
+		case '*': func = "_MUL"; break;
+		default: func = NULL;
+	}
+
+	if (func)
+		expr = STR_print("MATH%s%s(%s, %s, %s)", func, unsafe, JIT_get_ctype(type), expr1, expr2);
+	else
+		expr = STR_print("({%s _a = %s; %s _b = %s; _a %s _b;})", JIT_get_ctype(type), expr1, JIT_get_ctype(type), expr2, op);
+
 	pop_stack(2);
 	
 	push(type, "(%s)", expr);

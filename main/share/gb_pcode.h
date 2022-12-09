@@ -32,6 +32,8 @@
 
 #define C_PUSH_LOCAL_NOREF        0xF100
 #define C_PUSH_PARAM_NOREF        0xF200
+#define C_JUMP_IF_TRUE_FAST       0XF300
+#define C_JUMP_IF_FALSE_FAST      0XF400
 #define C_PUSH_VARIABLE           0xF500
 #define C_POP_VARIABLE            0xF600
 #define C_PUSH_FLOAT              0xF700
@@ -194,6 +196,7 @@ typedef
 #define PCODE_is_void(pcode)    ((pcode) & CODE_CALL_VOID)
 
 #define PCODE_is_breakpoint(pcode) PCODE_is(pcode, C_BREAK)
+#define PCODE_is_jump(pcode) PCODE_is(pcode, C_JUMP)
 
 #define PCODE_BREAKPOINT(num) ((PCODE)(C_BREAK | (num)))
 

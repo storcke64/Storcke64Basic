@@ -136,7 +136,7 @@ typedef
 EXTERN short TRANS_in_assignment;
 EXTERN short TRANS_in_left_value;
 EXTERN bool TRANS_in_try;
-EXTERN ushort *TRANS_labels;
+//EXTERN ushort *TRANS_labels;
 #endif
 
 #define TRANS_newline() (PATTERN_is_newline(*JOB->current) ? JOB->line = PATTERN_index(*JOB->current) + 1, JOB->current++, TRUE : FALSE)
@@ -166,7 +166,7 @@ void TRANS_code(void);
 bool TRANS_init_var(TRANS_DECL *decl);
 void TRANS_statement(void);
 void TRANS_init_optional(TRANS_PARAM *param);
-#define TRANS_add_label(_pos) (TRANS_labels ? *ARRAY_add(&TRANS_labels) = (_pos) : 0)
+//#define TRANS_add_label(_pos) (TRANS_labels ? *ARRAY_add(&TRANS_labels) = (_pos) : 0)
 int TRANS_loop_local(bool allow_arg);
 
 // gbc_trans_expr.c

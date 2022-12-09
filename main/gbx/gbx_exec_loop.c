@@ -272,6 +272,17 @@ NOINLINE static void _push_event(int ind)
 	SP++;
 }
 
+NOINLINE static void _push_extern(int ind)
+{
+	SP->type = T_FUNCTION;
+	SP->_function.class = CP;
+	SP->_function.object = NULL;
+	SP->_function.kind = FUNCTION_EXTERN;
+	SP->_function.index = ind;
+	SP->_function.defined = TRUE;
+	SP++;
+}
+
 NOINLINE static void _pop_optional(int ind)
 {
 	VALUE *val = &PP[ind];
@@ -698,8 +709,8 @@ void EXEC_loop(void)
 		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F1 PUSH QUICK      */  &&_PUSH_LOCAL_NOREF,
 		/* F2 PUSH QUICK      */  &&_PUSH_PARAM_NOREF,
-		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F3 PUSH QUICK      */  &&_JUMP_IF_TRUE_FAST,
+		/* F4 PUSH QUICK      */  &&_JUMP_IF_FALSE_FAST,
 		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
 		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
@@ -736,8 +747,8 @@ void EXEC_loop(void)
 		/* F0 PUSH QUICK      */  &&_PUSH_QUICK,
 		/* F1 PUSH QUICK      */  &&_PUSH_LOCAL_NOREF,
 		/* F2 PUSH QUICK      */  &&_PUSH_PARAM_NOREF,
-		/* F3 PUSH QUICK      */  &&_PUSH_QUICK,
-		/* F4 PUSH QUICK      */  &&_PUSH_QUICK,
+		/* F3 PUSH QUICK      */  &&_JUMP_IF_TRUE_FAST,
+		/* F4 PUSH QUICK      */  &&_JUMP_IF_FALSE_FAST,
 		/* F5 PUSH QUICK      */  &&_PUSH_VARIABLE,
 		/* F6 PUSH QUICK      */  &&_POP_VARIABLE,
 		/* F7 PUSH QUICK      */  &&_PUSH_FLOAT,
@@ -778,8 +789,8 @@ _MAIN:
 
 #if DEBUG_PCODE
 		DEBUG_where();
-		fprintf(stderr, "[%4d %ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
-		if (*PC >> 8 && FP)
+		fprintf(stderr, "[%4d %3ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
+		if (FP)
 			PCODE_dump(stderr, PC - FP->code, PC);
 		else
 			fprintf(stderr, "?\n");
@@ -824,11 +835,11 @@ _NEXT:
 
 #if DEBUG_PCODE
 		DEBUG_where();
-		fprintf(stderr, "[%4d %ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
-		if (*PC >> 8 && FP)
+		fprintf(stderr, "[%4d %3ld] ", (int)(intptr_t)(SP - (VALUE *)STACK_base), SP - PP);
+		if (FP)
 			PCODE_dump(stderr, PC - FP->code, PC);
 		else
-			fprintf(stderr, "\n");
+			fprintf(stderr, "?\n");
 		fflush(stderr);
 #endif
 
@@ -1103,7 +1114,13 @@ _JUMP:
 
 _JUMP_IF_TRUE:
 
-	VALUE_conv_boolean(&SP[-1]);
+	if (SP[-1].type == T_BOOLEAN)
+		*PC = C_JUMP_IF_TRUE_FAST;
+	else
+		VALUE_convert_boolean(&SP[-1]);
+
+_JUMP_IF_TRUE_FAST:
+
 	SP--;
 	if (SP->_boolean.value & 1)
 		PC += (signed short)PC[1];
@@ -1115,7 +1132,13 @@ _JUMP_IF_TRUE:
 
 _JUMP_IF_FALSE:
 
-	VALUE_conv_boolean(&SP[-1]);
+	if (SP[-1].type == T_BOOLEAN)
+		*PC = C_JUMP_IF_FALSE_FAST;
+	else
+		VALUE_convert_boolean(&SP[-1]);
+
+_JUMP_IF_FALSE_FAST:
+
 	SP--;
 	if ((SP->_boolean.value & 1) == 0)
 		PC += (signed short)PC[1];
@@ -1785,18 +1808,7 @@ _PUSH_FUNCTION:
 
 _PUSH_EXTERN:
 
-	/*ind = GET_7XX();*/
-
-	SP->type = T_FUNCTION;
-	SP->_function.class = CP;
-	SP->_function.object = NULL;
-	SP->_function.kind = FUNCTION_EXTERN;
-	SP->_function.index = GET_UX();
-	SP->_function.defined = TRUE;
-
-	//OBJECT_REF(OP, "exec_loop._PUSH_FUNCTION (FUNCTION)");
-	SP++;
-
+	_push_extern(GET_UX());
 	goto _NEXT;
 
 /*-----------------------------------------------*/

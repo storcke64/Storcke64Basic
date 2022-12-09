@@ -58,6 +58,7 @@ Public Sub _Compile(sArch As String) As Boolean
     Print #hFile, "#define NO_CONFIG_H"
     
     Print #hFile, File.Load("gambas.h");
+    Print #hFile, File.Load("gb_overflow.h");
     Print #hFile, File.Load("jit.h");
     Print #hFile, File.Load("gb.jit.h");
 

@@ -62,13 +62,27 @@ static TRANS_GOTO *goto_info;
 static TRANS_LABEL *label_info;
 static short *ctrl_parent;
 
-static short *_relocation = NULL;
+static ushort *_relocation = NULL;
 
+typedef
+	struct {
+		ushort src;
+		ushort dst;
+	}
+	JUMP;
+
+static JUMP *_jumps = NULL;
 
 static void jump_length(ushort src, ushort dst)
 {
+	JUMP *jump;
+
 	CODE_jump_length(src, dst);
-	TRANS_add_label(dst);
+
+	jump = ARRAY_add(&_jumps);
+	jump->src = src;
+	jump->dst = dst;
+	//TRANS_add_label(dst);
 }
 
 
@@ -348,17 +362,19 @@ void TRANS_control_init(void)
 	JOB->func->nctrl = 0;
 
 	ARRAY_create(&ctrl_parent);
+	ARRAY_create(&_jumps);
 }
 
 
 void TRANS_control_exit(void)
 {
-	int i;
+	int i, j;
 	CLASS_SYMBOL *sym;
 	int line;
 	TRANS_LABEL *label;
 	short id;
 	ushort *pcode;
+	JUMP *jump;
 
 	// Relocate locals
 	
@@ -429,7 +445,24 @@ void TRANS_control_exit(void)
 		JOB->line = line;
 	}
 
-	/* Remove previously declared labels */
+	// Optimize jumps
+
+	for (i = 0; i < ARRAY_count(_jumps); i++)
+	{
+		jump = &_jumps[i];
+
+		for(j = 1; j <= 4; j++) // avoid infinite loop
+		{
+			pcode = &JOB->func->code[jump->dst];
+			if (!PCODE_is_jump(*pcode))
+				break;
+
+			jump->dst += ((short *)pcode)[1] + 2;
+			CODE_jump_length(jump->src, jump->dst);
+		}
+	}
+
+	// Remove previously declared labels
 
 	if (label_info)
 	{
@@ -443,8 +476,9 @@ void TRANS_control_exit(void)
 	ARRAY_delete(&goto_info);
 	ARRAY_delete(&ctrl_parent);
 	ARRAY_delete(&label_info);
+	ARRAY_delete(&_jumps);
 
-	/* On ne doit pas laisser une structure de controle ouverte */
+	// Detect structures still opened
 
 	if (ctrl_level == 0) return;
 
@@ -731,20 +765,11 @@ void TRANS_do(int type)
 	if (PATTERN_is(*JOB->current, RS_WHILE)
 			|| is_until)
 	{
-
 		JOB->current++;
 
 		TRANS_expression(FALSE);
 
-		/*control_add_current_pos();
-
-		if (is_until)
-			CODE_jump_if_true();
-		else
-			CODE_jump_if_false();*/
-			
 		control_add_this_pos(trans_jump_if(is_until));
-		
 	}
 }
 
@@ -772,13 +797,6 @@ void TRANS_loop(int type)
 
 		TRANS_expression(FALSE);
 
-		/*pos = CODE_get_current_pos();
-
-		if (is_until)
-			CODE_jump_if_false();
-		else
-			CODE_jump_if_true();*/
-			
 		pos = trans_jump_if(!is_until);
 		
 		jump_length(pos, control_get_value());

@@ -92,6 +92,7 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 		case C_JUMP: case C_JUMP_IF_TRUE: case C_JUMP_IF_FALSE: case C_GOSUB:
 		case C_NEXT: case C_JUMP_NEXT:
 		case C_TRY:
+		case C_JUMP_IF_TRUE_FAST: case C_JUMP_IF_FALSE_FAST:
 
 			ncode = 2;
 			break;
@@ -143,8 +144,6 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 
 	switch (digit)
 	{
-		#ifdef PROJECT_COMP
-
 		case 0xF:
 			switch (op & 0xFF00)
 			{
@@ -189,13 +188,68 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 					break;
 
 				case C_JUMP_NEXT_INTEGER:
-					fprintf(out, "JUMP_NEXT_INTEGER %d", (op & 0xFF));
+					fprintf(out, "JUMP NEXT INTEGER %d", (op & 0xFF));
+					break;
+
+				case C_JUMP_IF_TRUE_FAST:
+				case C_JUMP_IF_FALSE_FAST:
+					value = code[1];
+					fprintf(out, "JUMP IF %s FAST %04d",
+						(digit == C_JUMP_IF_TRUE_FAST ? "TRUE" : "FALSE"),
+						(short)(addr + value + 2));
 					break;
 
 				default:
 					fprintf(out, "PUSH QUICK %d", (short)value);
 			}
 			break;
+
+		case 0xA:
+
+			switch(op & 0xFF00)
+			{
+				case C_PUSH_ARRAY_NATIVE_INTEGER:
+					fprintf(out, "PUSH ARRAY NATIVE INTEGER %d", (op & 0xFF));
+					break;
+				case C_POP_ARRAY_NATIVE_INTEGER:
+					fprintf(out, "POP ARRAY NATIVE INTEGER %d", (op & 0xFF));
+					break;
+				case C_PUSH_ARRAY_NATIVE_FLOAT:
+					fprintf(out, "PUSH ARRAY NATIVE FLOAT %d", (op & 0xFF));
+					break;
+				case C_POP_ARRAY_NATIVE_FLOAT:
+					fprintf(out, "POP ARRAY NATIVE FLOAT %d", (op & 0xFF));
+					break;
+				case C_ADD_INTEGER:
+					fprintf(out, "ADD INTEGER %d", (op & 0xFF));
+					break;
+				case C_ADD_FLOAT:
+					fprintf(out, "ADD FLOAT %d", (op & 0xFF));
+					break;
+				case C_SUB_INTEGER:
+					fprintf(out, "SUB INTEGER %d", (op & 0xFF));
+					break;
+				case C_SUB_FLOAT:
+					fprintf(out, "SUB FLOAT %d", (op & 0xFF));
+					break;
+				case C_MUL_INTEGER:
+					fprintf(out, "MUL INTEGER %d", (op & 0xFF));
+					break;
+				case C_MUL_FLOAT:
+					fprintf(out, "MUL FLOAT %d", (op & 0xFF));
+					break;
+				case C_DIV_INTEGER:
+					fprintf(out, "DIV INTEGER %d", (op & 0xFF));
+					break;
+				case C_DIV_FLOAT:
+					fprintf(out, "DIV FLOAT %d", (op & 0xFF));
+					break;
+				default:
+					fprintf(out, "ADD QUICK %d", (short)value);
+			}
+			break;
+
+		#ifdef PROJECT_COMP
 
 		case 0xE:
 			if ((op & 0xF00) == 0xF00)
@@ -249,104 +303,7 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 			fprintf(out, "%s", TABLE_get_symbol_name(JOB->class->table, index));
 			break;
 
-		case 0xA:
-
-			switch(op & 0xFF00)
-			{
-				case C_PUSH_ARRAY_NATIVE_INTEGER:
-					fprintf(out, "PUSH ARRAY NATIVE INTEGER %d", (op & 0xFF));
-					break;
-				case C_POP_ARRAY_NATIVE_INTEGER:
-					fprintf(out, "POP ARRAY NATIVE INTEGER %d", (op & 0xFF));
-					break;
-				case C_PUSH_ARRAY_NATIVE_FLOAT:
-					fprintf(out, "PUSH ARRAY NATIVE FLOAT %d", (op & 0xFF));
-					break;
-				case C_POP_ARRAY_NATIVE_FLOAT:
-					fprintf(out, "POP ARRAY NATIVE FLOAT %d", (op & 0xFF));
-					break;
-				case C_ADD_INTEGER:
-					fprintf(out, "ADD INTEGER %d", (op & 0xFF));
-					break;
-				case C_ADD_FLOAT:
-					fprintf(out, "ADD FLOAT %d", (op & 0xFF));
-					break;
-				case C_SUB_INTEGER:
-					fprintf(out, "SUB INTEGER %d", (op & 0xFF));
-					break;
-				case C_SUB_FLOAT:
-					fprintf(out, "SUB FLOAT %d", (op & 0xFF));
-					break;
-				case C_MUL_INTEGER:
-					fprintf(out, "MUL INTEGER %d", (op & 0xFF));
-					break;
-				case C_MUL_FLOAT:
-					fprintf(out, "MUL FLOAT %d", (op & 0xFF));
-					break;
-				case C_DIV_INTEGER:
-					fprintf(out, "DIV INTEGER %d", (op & 0xFF));
-					break;
-				case C_DIV_FLOAT:
-					fprintf(out, "DIV FLOAT %d", (op & 0xFF));
-					break;
-				default:
-					fprintf(out, "ADD QUICK %d", (short)value);
-			}
-			break;
-
 		#else
-
-		case 0xF:
-			switch (op & 0xFF00)
-			{
-				case C_PUSH_LOCAL_NOREF:
-					fprintf(out, "PUSH LOCAL NOREF %d", (op & 0xFF));
-					break;
-
-				case C_PUSH_PARAM_NOREF:
-					fprintf(out, "PUSH PARAM NOREF %d", (char)(op & 0xFF));
-					break;
-
-				case C_PUSH_VARIABLE:
-					fprintf(out, "PUSH VARIABLE %d", (op & 0xFF));
-					break;
-
-				case C_POP_VARIABLE:
-					fprintf(out, "POP VARIABLE %d", (op & 0xFF));
-					break;
-
-				case C_PUSH_FLOAT:
-					fprintf(out, "PUSH FLOAT %d", (char)(op & 0xFF));
-					break;
-
-				case C_POKE:
-					fprintf(out, "POKE %d", (op & 0xFF));
-					break;
-
-				case C_POP_LOCAL_NOREF:
-					fprintf(out, "POP LOCAL NOREF %d", (op & 0xFF));
-					break;
-
-				case C_POP_PARAM_NOREF:
-					fprintf(out, "POP PARAM NOREF %d", (char)(op & 0xFF));
-					break;
-
-				case C_POP_LOCAL_FAST:
-					fprintf(out, "POP LOCAL FAST %d", (op & 0xFF));
-					break;
-
-				case C_POP_PARAM_FAST:
-					fprintf(out, "POP PARAM FAST %d", (char)(op & 0xFF));
-					break;
-
-				case C_JUMP_NEXT_INTEGER:
-					fprintf(out, "JUMP_NEXT_INTEGER %d", (op & 0xFF));
-					break;
-
-				default:
-					fprintf(out, "PUSH QUICK %d", (short)value);
-			}
-			break;
 
 		case 0xE:
 			fprintf(out, "PUSH CONST %d", (short)value);
@@ -362,50 +319,6 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 
 		case 0xB:
 			fprintf(out, "PUSH %s %d", (value & 0x800) ? "FUNCTION" : "CLASS", value & 0x7FF);
-			break;
-
-		case 0xA:
-			switch(op & 0xFF00)
-			{
-				case C_PUSH_ARRAY_NATIVE_INTEGER:
-					fprintf(out, "PUSH ARRAY NATIVE INTEGER %d", (op & 0xFF));
-					break;
-				case C_POP_ARRAY_NATIVE_INTEGER:
-					fprintf(out, "POP ARRAY NATIVE INTEGER %d", (op & 0xFF));
-					break;
-				case C_PUSH_ARRAY_NATIVE_FLOAT:
-					fprintf(out, "PUSH ARRAY NATIVE FLOAT %d", (op & 0xFF));
-					break;
-				case C_POP_ARRAY_NATIVE_FLOAT:
-					fprintf(out, "POP ARRAY NATIVE FLOAT %d", (op & 0xFF));
-					break;
-				case C_ADD_INTEGER:
-					fprintf(out, "ADD INTEGER %d", (op & 0xFF));
-					break;
-				case C_ADD_FLOAT:
-					fprintf(out, "ADD FLOAT %d", (op & 0xFF));
-					break;
-				case C_SUB_INTEGER:
-					fprintf(out, "SUB INTEGER %d", (op & 0xFF));
-					break;
-				case C_SUB_FLOAT:
-					fprintf(out, "SUB FLOAT %d", (op & 0xFF));
-					break;
-				case C_MUL_INTEGER:
-					fprintf(out, "MUL INTEGER %d", (op & 0xFF));
-					break;
-				case C_MUL_FLOAT:
-					fprintf(out, "MUL FLOAT %d", (op & 0xFF));
-					break;
-				case C_DIV_INTEGER:
-					fprintf(out, "DIV INTEGER %d", (op & 0xFF));
-					break;
-				case C_DIV_FLOAT:
-					fprintf(out, "DIV FLOAT %d", (op & 0xFF));
-					break;
-				default:
-					fprintf(out, "ADD QUICK %d", (short)value);
-			}
 			break;
 
 		#endif
@@ -624,6 +537,10 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 
 				case C_CATCH:
 					fprintf(out, "CATCH");
+					break;
+
+				case C_NOP:
+					fprintf(out, "NOP");
 					break;
 
 				default:
