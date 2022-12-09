@@ -357,6 +357,11 @@ static void window_set_transient_for(QWidget *window, QWidget *parent)
 	X11_set_transient_for(window->effectiveWinId(), parent->effectiveWinId());
 }
 
+static void window_activate(QWidget *window)
+{
+	window->activateWindow();
+}
+
 //-------------------------------------------------------------------------
 
 static void x11_set_event_filter(int (*filter)(XEvent *))
@@ -391,7 +396,8 @@ void *GB_QT5_X11_1[] EXPORT = {
   (void *)window_set_properties,
   (void *)window_set_user_time,
   (void *)window_set_transient_for,
-  
+  (void *)window_activate,
+
   NULL
   };
 

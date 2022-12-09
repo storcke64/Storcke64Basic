@@ -72,6 +72,7 @@ typedef
 			void (*SetProperties)(QWidget *window, int which, QT_WINDOW_PROP *prop);
 			void (*SetUserTime)(QWidget *window, int timestamp);
 			void (*SetTransientFor)(QWidget *window, QWidget *parent);
+			void (*Activate)(QWidget *window);
 			}	Window;
 		}
 	QT_PLATFORM_INTERFACE;

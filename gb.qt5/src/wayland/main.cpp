@@ -171,6 +171,11 @@ static void window_set_transient_for(QWidget *window, QWidget *parent)
 #endif
 }
 
+static void window_activate(QWidget *win)
+{
+	win->windowHandle()->alert(0);
+}
+
 //-------------------------------------------------------------------------
 
 extern "C" {
@@ -198,6 +203,7 @@ void *GB_QT5_WAYLAND_1[] EXPORT = {
   (void *)window_set_properties,
   (void *)window_set_user_time,
   (void *)window_set_transient_for,
+  (void *)window_activate,
   
   NULL
   };

@@ -2880,9 +2880,10 @@ void MyMainWindow::setBetterMask(QPixmap &bg)
 void MyMainWindow::activate(void)
 {
 #ifdef QT5
-	if (!MAIN_platform_is_wayland)
+	PLATFORM.Window.Activate(this);
+#else
+	activateWindow();
 #endif
-		activateWindow();
 }
 
 bool MyMainWindow::focusNextPrevChild(bool next)
