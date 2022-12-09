@@ -1965,7 +1965,7 @@ _ADD_QUICK:
 		{
 			uchar result;
 
-			if (__builtin_add_overflow((uchar)val->_integer.value, (uchar)ind, &result))
+			if (__builtin_add_overflow((uchar)val->_integer.value, ind, &result))
 				THROW_OVERFLOW();
 			val->_integer.value = result;
 			goto *jump_end;

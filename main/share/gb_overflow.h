@@ -24,13 +24,13 @@
 #ifndef __GB_OVERFLOW_H
 #define __GB_OVERFLOW_H
 
-#define DO_NOT_CHECK_OVERFLOW 0
+#define DO_NOT_CHECK_OVERFLOW 1
 
 #if defined __has_builtin
-#if !__has_builtin(__builtin_add_overflow)
+#if __has_builtin(__builtin_add_overflow)
 
 #undef DO_NOT_CHECK_OVERFLOW
-#define DO_NOT_CHECK_OVERFLOW 1
+#define DO_NOT_CHECK_OVERFLOW 0
 
 #endif
 #endif

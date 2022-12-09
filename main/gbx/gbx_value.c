@@ -420,7 +420,7 @@ __p2b:
 	value->type = T_BOOLEAN;
 	return;
 
-#ifdef DO_NOT_CHECK_OVERFLOW
+#if DO_NOT_CHECK_OVERFLOW
 
 __b2c:
 __h2c:
@@ -478,7 +478,7 @@ __f2c:
 	value->type = T_BYTE;
 	return;
 
-#ifdef DO_NOT_CHECK_OVERFLOW
+#if DO_NOT_CHECK_OVERFLOW
 
 __b2h:
 __c2h:
@@ -534,7 +534,7 @@ __f2h:
 	value->type = T_SHORT;
 	return;
 
-#ifdef DO_NOT_CHECK_OVERFLOW
+#if DO_NOT_CHECK_OVERFLOW
 
 __l2i:
 	value->_integer.value = (int)value->_long.value;
@@ -1879,7 +1879,12 @@ __CONV:
 
 __l2i:
 
+#if DO_NOT_CHECK_OVERFLOW
 	value->_integer.value = (int)value->_long.value;
+#else
+	if (__builtin_add_overflow(value->_long.value, 0, &value->_integer.value))
+		THROW_OVERFLOW();
+#endif
 	goto __TYPE;
 
 __g2i:
@@ -2182,136 +2187,6 @@ __NR:
 	THROW(E_NRETURN);
 }
 
-#if 0
-void VALUE_convert_object(VALUE *value, TYPE type)
-{
-	CLASS *class;
-
-__CONV:
-
-	#if 0
-	if (!TYPE_is_object(type))
-	{
-		if (type == T_BOOLEAN)
-		{
-			test = (value->_object.object != NULL);
-			OBJECT_UNREF(value->_object.object);
-			value->_boolean.value = test ? -1 : 0;
-			goto __TYPE;
-		}
-
-		if (type == T_VARIANT)
-			goto __2v;
-
-		goto __N;
-	}
-	#endif
-
-	if (!TYPE_is_object(value->type))
-	{
-		if (value->type == T_NULL)
-		{
-			OBJECT_null(value, (CLASS *)type); /* marche aussi pour type = T_OBJECT */
-			goto __TYPE;
-		}
-
-		if (value->type == T_VARIANT)
-			goto __v2;
-
-		if (value->type == T_FUNCTION)
-			goto __func;
-
-		if (value->type == T_CLASS)
-		{
-			class = value->_class.class;
-
-			if (CLASS_is_virtual(class))
-				THROW(E_VIRTUAL);
-
-			CLASS_load(class);
-
-			if (class->auto_create)
-				value->_object.object = CLASS_auto_create(class, 0);
-			else
-				value->_object.object = class;
-
-			OBJECT_REF(value->_object.object);
-			value->type = T_OBJECT;
-			/* on continue... */
-		}
-		else
-			goto __N;
-
-	}
-
-	if (value->_object.object == NULL)
-		goto __TYPE;
-
-	if (value->type == T_OBJECT)
-	{
-		/*if (value->_object.object == NULL)
-			goto __TYPE;*/
-
-		class = OBJECT_class(value->_object.object);
-		/* on continue */
-	}
-	else
-		class = value->_object.class;
-
-	if (CLASS_is_virtual(class))
-		THROW(E_VIRTUAL);
-
-	if (type == T_OBJECT)
-		goto __TYPE;
-
-__RETRY:
-
-	if ((class == (CLASS *)type) || CLASS_inherits(class, (CLASS *)type))
-		goto __TYPE;
-
-	if (value->type != T_OBJECT && value->_object.object)
-	{
-		class = OBJECT_class(value->_object.object);
-		value->type = T_OBJECT;
-		goto __RETRY;
-	}
-
-	if (class->special[SPEC_CONVERT] != NO_SYMBOL)
-	{
-		void *conv = ((void *(*)())(CLASS_get_desc(class, class->special[SPEC_CONVERT])->constant.value._pointer))(value->_object.object, type);
-		if (conv)
-		{
-			OBJECT_REF(conv);
-			OBJECT_UNREF(value->_object.object);
-			value->_object.object = conv;
-			goto __TYPE;
-		}
-	}
-
-	THROW(E_TYPE, TYPE_get_name(type), TYPE_get_name((TYPE)class));
-
-__v2:
-
-	undo_variant(value);
-	goto __CONV;
-
-__func:
-
-	//if (unknown_function(value))
-	//	goto __CONV;
-	//else
-		goto __N;
-
-__TYPE:
-
-	value->type = type;
-	return;
-
-__N:
-
-	THROW(E_TYPE, TYPE_get_name(type), TYPE_get_name(value->type));
-}
-#endif
 
 void VALUE_undo_variant(VALUE *value)
 {
