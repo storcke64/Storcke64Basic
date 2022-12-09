@@ -631,8 +631,8 @@ void EXEC_loop(void)
 		/* A2 ADD QUICK       */  &&_POP_ARRAY_NATIVE_INTEGER,
 		/* A3 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_FLOAT,
 		/* A4 ADD QUICK       */  &&_POP_ARRAY_NATIVE_FLOAT,
-		/* A5 ADD QUICK       */  &&_NEXT,
-		/* A6 ADD QUICK       */  &&_NEXT,
+		/* A5 ADD QUICK       */  &&_ADD_QUICK,
+		/* A6 ADD QUICK       */  &&_ADD_QUICK,
 		/* A7 ADD QUICK       */  &&_ADD_INTEGER,
 		/* A8 ADD QUICK       */  &&_ADD_FLOAT,
 		/* A9 ADD QUICK       */  &&_SUB_INTEGER,
@@ -730,8 +730,8 @@ void EXEC_loop(void)
 		/* A2 ADD QUICK       */  &&_POP_ARRAY_NATIVE_INTEGER,
 		/* A3 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_FLOAT,
 		/* A4 ADD QUICK       */  &&_POP_ARRAY_NATIVE_FLOAT,
-		/* A5 ADD QUICK       */  &&_PUSH_ARRAY_NATIVE_COLLECTION,
-		/* A6 ADD QUICK       */  &&_POP_ARRAY_NATIVE_COLLECTION,
+		/* A5 ADD QUICK       */  &&_ADD_QUICK,
+		/* A6 ADD QUICK       */  &&_ADD_QUICK,
 		/* A7 ADD QUICK       */  &&_ADD_INTEGER,
 		/* A8 ADD QUICK       */  &&_ADD_FLOAT,
 		/* A9 ADD QUICK       */  &&_SUB_INTEGER,
@@ -2093,9 +2093,9 @@ _PUSH_ARRAY_NATIVE_FLOAT:
 		goto _NEXT;
 	}
 
+#if 0
 _PUSH_ARRAY_NATIVE_COLLECTION:
 
-#if 0
 	{
 		GB_COLLECTION col;
 
@@ -2169,9 +2169,9 @@ _POP_ARRAY_NATIVE_FLOAT:
 		goto _NEXT;
 	}
 
+#if 0
 _POP_ARRAY_NATIVE_COLLECTION:
 
-#if 0
 	{
 		GB_COLLECTION col;
 
