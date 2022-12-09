@@ -453,6 +453,8 @@ void TRANS_control_exit(void)
 
 		for(j = 1; j <= 4; j++) // avoid infinite loop
 		{
+			if (jump->dst >= JOB->func->ncode)
+				break;
 			pcode = &JOB->func->code[jump->dst];
 			if (!PCODE_is_jump(*pcode))
 				break;
