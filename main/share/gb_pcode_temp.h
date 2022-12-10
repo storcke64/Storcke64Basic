@@ -124,15 +124,13 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 
 	fprintf(out, "%04d : ", addr);
 
-	for (j = 0; j < ncode; j++)
+	for (j = 0; j < 3; j++)
 	{
-		if (j > 2 && (j % 3) == 0)
-			fprintf(out, "\n     : ");
-		fprintf(out, " %04hX", code[j]);
+		if (j >= ncode)
+			fprintf(out, "     ");
+		else
+			fprintf(out, " %04hX", code[j]);
 	}
-
-	for (; j < ((ncode + 2) / 3 * 3); j++)
-		fprintf(out, "     ");
 
 	fprintf(out, "  ");
 
@@ -470,7 +468,7 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 					break;
 
 				case C_ON:
-					fprintf(out, "ON %d", (short)value);
+					fprintf(out, "ON (%d)", (short)value);
 					break;
 
 				case C_FIRST:
@@ -578,6 +576,20 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 	}
 
 	fprintf(out, "\n");
+
+	if (ncode > 3)
+	{
+		for (j = 3; j < ncode; j++)
+		{
+			if (((j - 3) % 16) == 0)
+				fprintf(out, "       ");
+			fprintf(out, " %04hX", code[j]);
+			if (((j - 3) % 16) == 15)
+				fprintf(out, "\n");
+		}
+		fprintf(out, "\n");
+	}
+
 	return ncode;
 }
 
