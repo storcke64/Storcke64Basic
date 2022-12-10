@@ -1901,13 +1901,15 @@ End
 
 Private Sub MakeSpan(iRowSpan As Integer, iColSpan As Integer) As Integer
   
+  If iColSpan < 0 Then Stop
+  
   Return Lsl(iRowSpan, 16) Or (iColSpan And &HFFFF&)
   
 End
 
 Private Sub UnmakeSpan(iSpan As Integer) As Short[]
   
-  Return [CShort(Lsr(iSpan, 16)), CShort(iSpan And &HFFFF&)]
+  Return [CShort(Asr(iSpan, 16)), CShort(Asr(Lsl(iSpan, 16), 16))]
   
 End
 
