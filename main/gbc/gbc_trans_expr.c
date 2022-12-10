@@ -560,7 +560,7 @@ static void trans_operation(short op, short nparam, PATTERN previous)
 			
 		case RST_DIV:
 			type = Max(get_type_id(0, nparam), get_type_id(1, nparam));
-			if (type < T_FLOAT)
+			if (type <= T_FLOAT)
 				type = T_FLOAT;
 			else
 				type = T_VARIANT;
@@ -1022,6 +1022,7 @@ void TRANS_reference(void)
 void TRANS_reference_type(TYPE type)
 {
 	TRANS_expression(FALSE);
+	//printf("TRANS_reference_type: %d := %d\n", TYPE_get_id(_last_type), TYPE_get_id(type));
 	if (TRANS_popify_last(TYPE_get_id(_last_type) == TYPE_get_id(type)))
 		THROW("Invalid assignment");
 }
@@ -1189,3 +1190,8 @@ void TRANS_expression(bool check_statement)
 	trans_expression(check_statement);
 }
 
+
+TYPE TRANS_get_last_type(void)
+{
+	return _last_type;
+}

@@ -1114,10 +1114,7 @@ _JUMP:
 
 _JUMP_IF_TRUE:
 
-	if (SP[-1].type == T_BOOLEAN)
-		*PC = C_JUMP_IF_TRUE_FAST;
-	else
-		VALUE_convert_boolean(&SP[-1]);
+	VALUE_convert_boolean(&SP[-1]);
 
 _JUMP_IF_TRUE_FAST:
 
@@ -1132,10 +1129,7 @@ _JUMP_IF_TRUE_FAST:
 
 _JUMP_IF_FALSE:
 
-	if (SP[-1].type == T_BOOLEAN)
-		*PC = C_JUMP_IF_FALSE_FAST;
-	else
-		VALUE_convert_boolean(&SP[-1]);
+	VALUE_convert_boolean(&SP[-1]);
 
 _JUMP_IF_FALSE_FAST:
 

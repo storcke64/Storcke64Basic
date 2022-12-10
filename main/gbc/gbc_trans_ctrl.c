@@ -456,6 +456,13 @@ void TRANS_control_exit(void)
 			if (jump->dst >= JOB->func->ncode)
 				break;
 			pcode = &JOB->func->code[jump->dst];
+
+			if (PCODE_is_breakpoint(*pcode))
+			{
+				pcode++;
+				jump->dst++;
+			}
+
 			if (!PCODE_is_jump(*pcode))
 				break;
 
@@ -504,20 +511,20 @@ void TRANS_control_exit(void)
 	}
 }
 
-static ushort trans_jump_if(bool if_true)
+static ushort trans_jump_if(bool if_true, bool fast)
 {
 	ushort pos;
 	
 	if (CODE_check_jump_not())
+	{
 		if_true = !if_true;
+		fast = FALSE;
+	}
 	
 	pos = CODE_get_current_pos();
-		
-	if (if_true)
-		CODE_jump_if_true();
-	else
-		CODE_jump_if_false();
-		
+
+	CODE_jump_if(if_true, fast);
+
 	return pos;
 }
 
@@ -545,15 +552,23 @@ static void trans_else(void)
 	current_ctrl->state = 1;
 }
 
-static void trans_if(void)
+static bool trans_boolean_expr(void)
 {
 	TRANS_expression(FALSE);
+	return TYPE_is_boolean(TRANS_get_last_type());
+}
+
+static void trans_if(void)
+{
+	bool fast;
+
+	fast = trans_boolean_expr();
 
 	if (PATTERN_is(*JOB->current, RS_AND))
 	{
 		for(;;)
 		{
-			control_add_this_pos_continue(trans_jump_if(FALSE));
+			control_add_this_pos_continue(trans_jump_if(FALSE, fast));
 			
 			if (!PATTERN_is(*JOB->current, RS_AND))
 				break;
@@ -562,14 +577,14 @@ static void trans_if(void)
 			
 			TRANS_want(RS_IF, "AND IF");
 			
-			TRANS_expression(FALSE);
+			fast = trans_boolean_expr();
 		}
 	}
 	else if (PATTERN_is(*JOB->current, RS_OR))
 	{
 		for(;;)
 		{
-			control_add_this_pos(trans_jump_if(TRUE));
+			control_add_this_pos(trans_jump_if(TRUE, fast));
 			
 			if (!PATTERN_is(*JOB->current, RS_OR))
 				break;
@@ -578,7 +593,7 @@ static void trans_if(void)
 			
 			TRANS_want(RS_IF, "OR IF");
 			
-			TRANS_expression(FALSE);
+			fast = trans_boolean_expr();
 		}
 		
 		control_add_current_pos_continue();
@@ -586,7 +601,7 @@ static void trans_if(void)
 	}
 	else
 	{
-		control_add_this_pos_continue(trans_jump_if(FALSE));
+		control_add_this_pos_continue(trans_jump_if(FALSE, fast));
 	}
 	
 	if (PATTERN_is(*JOB->current, RS_THEN))
@@ -755,6 +770,7 @@ void TRANS_on_goto_gosub(void)
 void TRANS_do(int type)
 {
 	bool is_until;
+	bool fast;
 
 	control_enter(type);
 	control_set_value(CODE_get_current_pos());
@@ -769,9 +785,8 @@ void TRANS_do(int type)
 	{
 		JOB->current++;
 
-		TRANS_expression(FALSE);
-
-		control_add_this_pos(trans_jump_if(is_until));
+		fast = trans_boolean_expr();
+		control_add_this_pos(trans_jump_if(is_until, fast));
 	}
 }
 
@@ -779,8 +794,8 @@ void TRANS_do(int type)
 void TRANS_loop(int type)
 {
 	ushort pos;
-
 	bool is_until;
+	bool fast;
 
 	if (type == RS_LOOP)
 		control_check(RS_DO, "LOOP without DO", "LOOP");
@@ -797,9 +812,8 @@ void TRANS_loop(int type)
 	{
 		JOB->current++;
 
-		TRANS_expression(FALSE);
-
-		pos = trans_jump_if(!is_until);
+		fast = trans_boolean_expr();
+		pos = trans_jump_if(!is_until, fast);
 		
 		jump_length(pos, control_get_value());
 	}
@@ -921,12 +935,12 @@ void TRANS_case(void)
 		{
 			//TRANS_ignore(RS_THEN);
 			pos = CODE_get_current_pos();
-			CODE_jump_if_false();
+			CODE_jump_if(FALSE, FALSE);
 			break;
 		}
 
 		control_add_current_pos();
-		CODE_jump_if_true();
+		CODE_jump_if(TRUE, FALSE);
 
 		JOB->current++;
 		TRANS_newline();
@@ -1172,7 +1186,7 @@ void TRANS_assert(void)
 	{
 		CODE_dup();
 		pos = CODE_get_current_pos();
-		CODE_jump_if_true();
+		CODE_jump_if(TRUE, FALSE);
 	
 		TRANS_statement();
 	

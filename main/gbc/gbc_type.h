@@ -79,6 +79,8 @@ EXTERN char *TYPE_name[];
 
 #define TYPE_is_array(type)      (TYPE_get_id(type) == T_ARRAY)
 #define TYPE_is_object(type)     ((TYPE_get_id(type) == T_OBJECT) && (TYPE_get_value(type) >= 0))
+#define TYPE_is_boolean(type) (TYPE_get_id(type) == T_BOOLEAN)
+#define TYPE_can_be_long(type)  (TYPE_get_id(type) <= T_LONG)
 
 #define TYPE_get_value(type)     ((type).t.value)
 #define TYPE_get_kind(type)      ((type).t.flag & 0x7)
@@ -92,8 +94,6 @@ EXTERN char *TYPE_name[];
 #define TYPE_set_flag(type, _flag)       ((type)->t.flag |= (_flag))
 #define TYPE_clear_flag(type, _flag)     ((type)->t.flag &= ~(_flag))
 #define TYPE_clear(type)                 ((type)->l = 0)
-
-#define TYPE_can_be_long(type)  (TYPE_get_id(type) <= T_LONG)
 
 #define TYPE_compare(_t1, _t2) ((_t1)->t.id == (_t2)->t.id && (_t1)->t.value == (_t2)->t.value)
 

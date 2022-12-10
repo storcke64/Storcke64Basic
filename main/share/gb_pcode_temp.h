@@ -509,7 +509,13 @@ short PCODE_dump(FILE *out, ushort addr, PCODE *code)
 					break;
 
 				case C_RETURN:
-					fprintf(out, "RETURN (%d)", (short)value);
+					switch(value)
+					{
+						case 0: fprintf(out, "RETURN VOID"); break;
+						case 1: fprintf(out, "RETURN"); break;
+						case 2: fprintf(out, "RETURN VOID"); break;
+						default: fprintf(out, "RETURN (%d) ?", (short)value);
+					}
 					break;
 
 				case C_QUIT:

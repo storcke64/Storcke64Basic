@@ -647,8 +647,8 @@ void COMPILE_end(void)
 
 void COMPILE_exit(bool can_dump_count)
 {
-	if (COMP_verbose && can_dump_count)
-		PCODE_dump_count(stdout);
+	/*if (COMP_verbose && can_dump_count)
+		PCODE_dump_count(stdout);*/
 
 	RESERVED_exit();
 	BUFFER_delete(&COMP_classes);

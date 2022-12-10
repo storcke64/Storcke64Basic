@@ -779,60 +779,33 @@ void CODE_on(uchar num)
 }
 
 
-void CODE_jump_if_true()
+void CODE_jump_if(bool test, bool fast)
 {
-	/*
-	ushort *last_code = get_last_code();
 	ushort op;
-
-	if (last_code && PCODE_is(*last_code, C_NOT))
-	{
-		remove_last();
-		op = C_JUMP_IF_FALSE;
-	}
-	else
-		op = C_JUMP_IF_TRUE;
-	*/
 
 	use_stack(-1);
 
 	#ifdef DEBUG
-	printf("JUMP IF TRUE\n");
+	printf("JUMP IF %s\n", test ? "TRUE" : "FALSE");
 	#endif
 
 	LAST_CODE;
 
-	write_short(C_JUMP_IF_TRUE);
-	/**pos = CODE_get_current_pos();*/
-	write_short(0);
-}
-
-
-void CODE_jump_if_false()
-{
-	/*
-	ushort *last_code = get_last_code();
-	ushort op;
-
-	if (last_code && PCODE_is(*last_code, C_NOT))
+	if (test)
 	{
-		remove_last();
-		op = C_JUMP_IF_TRUE;
+		if (fast && COMP_version >= 0x03180000)
+			op = C_JUMP_IF_TRUE_FAST;
+		else
+			op = C_JUMP_IF_TRUE;
 	}
 	else
-		op = C_JUMP_IF_FALSE;
-	*/
-
-	use_stack(-1);
-
-	#ifdef DEBUG
-	printf("JUMP IF FALSE\n");
-	#endif
-
-	LAST_CODE;
-
-	write_short(C_JUMP_IF_FALSE);
-	/**pos = CODE_get_current_pos();*/
+	{
+		if (fast && COMP_version >= 0x03180000)
+			op = C_JUMP_IF_FALSE_FAST;
+		else
+			op = C_JUMP_IF_FALSE;
+	}
+	write_short(op);
 	write_short(0);
 }
 

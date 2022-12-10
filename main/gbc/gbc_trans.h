@@ -181,6 +181,7 @@ void TRANS_new(void);
 TYPE TRANS_variable_get_type(void);
 void TRANS_class(int index);
 bool TRANS_string(PATTERN pattern);
+TYPE TRANS_get_last_type(void);
 
 // gbc_trans_const.c
 
