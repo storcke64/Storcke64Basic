@@ -36,9 +36,11 @@
 
 void FixStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter * painter, const QWidget * widget) const
 {
+	QStyleOptionButton newOption;
+
 	if (element == CE_CheckBoxLabel || element == CE_RadioButtonLabel)
 	{
-		QStyleOptionButton newOption = *(QStyleOptionButton *)option;
+		newOption = *(QStyleOptionButton *)option;
 		newOption.direction = qApp->layoutDirection();
 		option = &newOption;
 	}

@@ -1257,6 +1257,7 @@ void MyMenu::setVisible(bool visible)
 void CMENU_update_menubar(CWINDOW *window)
 {
 	static bool init = FALSE;
+	static bool norec = FALSE;
 
 	if (!init)
 	{
@@ -1264,7 +1265,12 @@ void CMENU_update_menubar(CWINDOW *window)
 		init = TRUE;
 	}
 
+	if (norec)
+		return;
+
+	norec = TRUE;
 	GB.Push(1, GB_T_OBJECT, window);
 	GB.Call(&_init_menubar_shortcut_func, 1, FALSE);
+	norec = FALSE;
 }
 
