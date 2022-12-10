@@ -875,7 +875,7 @@ Private Function ConvertToString(vVal As Variant, hProp As CPropertyInfo) As Str
       If IsLong(vVal) Then
         sVal = Hex$(vVal, 8)
         If sVal Begins "00" Then sVal = Mid$(sVal, 3)
-        Return "&H" & sVal & "&"
+        Return "&H" & sVal
       Else
         Return vVal
       Endif

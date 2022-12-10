@@ -440,6 +440,10 @@ Private Sub FromString(sData As String, Optional hParent As CControl) As String
           
         Else
 
+          If sValue Begins "&" And If sValue Ends "&" Then 
+            sValue = Left(sValue, -1)
+          Endif
+
           Try vValue = CInt(Val(sValue))
           If Not Error Then Goto SET_PROPERTY
 
