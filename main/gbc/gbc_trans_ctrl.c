@@ -397,54 +397,6 @@ void TRANS_control_exit(void)
 		ARRAY_delete(&_relocation);
 	}
 	
-	// Resolve GOTOs
-
-	if (goto_info)
-	{
-		line = JOB->line;
-
-		for (i = 0; i < ARRAY_count(goto_info); i++)
-		{
-			JOB->line = goto_info[i].line;
-			/*printf("%d\n", JOB->line);*/
-
-			sym = CLASS_get_symbol(JOB->class, goto_info[i].index);
-
-			if (TYPE_get_kind(sym->local.type) != TK_LABEL)
-				THROW("Label '&1' not declared", TABLE_get_symbol_name(JOB->class->table, goto_info[i].index));
-
-			label = &label_info[sym->local.value];
-
-			id = goto_info[i].ctrl_id;
-			
-			if (goto_info[i].gosub)
-			{
-				if (label->ctrl_id)
-					THROW("Forbidden GOSUB");
-			}
-			else
-			{
-				for(;;)
-				{
-					if (label->ctrl_id == id)
-						break;
-
-					if (id == 0)
-						THROW("Forbidden GOTO");
-
-					#ifdef DEBUG_GOTO
-						printf("id = %d ctrl_parent[id - 1] = %d (%ld)\n", id, ctrl_parent[id - 1], ARRAY_count(ctrl_parent));
-					#endif
-					id = ctrl_parent[id - 1];
-				}
-			}
-			
-			jump_length(goto_info[i].pos, label->pos);
-		}
-
-		JOB->line = line;
-	}
-
 	// Optimize jumps
 
 	for (i = 0; i < ARRAY_count(_jumps); i++)
@@ -469,6 +421,54 @@ void TRANS_control_exit(void)
 			jump->dst += ((short *)pcode)[1] + 2;
 			CODE_jump_length(jump->src, jump->dst);
 		}
+	}
+
+	// Resolve GOTOs
+
+	if (goto_info)
+	{
+		line = JOB->line;
+
+		for (i = 0; i < ARRAY_count(goto_info); i++)
+		{
+			JOB->line = goto_info[i].line;
+			/*printf("%d\n", JOB->line);*/
+
+			sym = CLASS_get_symbol(JOB->class, goto_info[i].index);
+
+			if (TYPE_get_kind(sym->local.type) != TK_LABEL)
+				THROW("Label '&1' not declared", TABLE_get_symbol_name(JOB->class->table, goto_info[i].index));
+
+			label = &label_info[sym->local.value];
+
+			id = goto_info[i].ctrl_id;
+
+			if (goto_info[i].gosub)
+			{
+				if (label->ctrl_id)
+					THROW("Forbidden GOSUB");
+			}
+			else
+			{
+				for(;;)
+				{
+					if (label->ctrl_id == id)
+						break;
+
+					if (id == 0)
+						THROW("Forbidden GOTO");
+
+					#ifdef DEBUG_GOTO
+						printf("id = %d ctrl_parent[id - 1] = %d (%ld)\n", id, ctrl_parent[id - 1], ARRAY_count(ctrl_parent));
+					#endif
+					id = ctrl_parent[id - 1];
+				}
+			}
+
+			jump_length(goto_info[i].pos, label->pos);
+		}
+
+		JOB->line = line;
 	}
 
 	// Remove previously declared labels
