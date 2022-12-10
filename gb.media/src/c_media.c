@@ -326,38 +326,63 @@ static void return_value(const GValue *value)
 			}
 			else if(GST_VALUE_HOLDS_LIST(value))
 			{
-				guint listSize = gst_value_list_get_size(value);
+				guint size = gst_value_list_get_size(value);
 				GB_ARRAY array;
-				
-				if(listSize <= 0)
+
+				if(size <= 0)
 				{
 					GB.Array.New(&array, GB_T_VARIANT, 0);
 				}
 				else
 				{
-					GB.Array.New(&array, GB_T_VARIANT, listSize);
-					
+					GB.Array.New(&array, GB_T_VARIANT, size);
+
 					GB_VALUE val;
 					int i;
-					for (i = 0; i < listSize; i++)
+					for (i = 0; i < size; i++)
 					{
 						to_gambas_value(gst_value_list_get_value(value, i), &val);
 						GB.Store(GB_T_VARIANT, &val, GB.Array.Get(array, i));
 						GB.ReleaseValue(&val);
 					}
 				}
-				
+
 				GB.ReturnObject(array);
 			}
-#ifdef G_TYPE_VALUE_ARRAY
+			else if(GST_VALUE_HOLDS_ARRAY(value))
+			{
+				guint size = gst_value_array_get_size(value);
+				GB_ARRAY array;
+
+				if(size <= 0)
+				{
+					GB.Array.New(&array, GB_T_VARIANT, 0);
+				}
+				else
+				{
+					GB.Array.New(&array, GB_T_VARIANT, size);
+
+					GB_VALUE val;
+					int i;
+					for (i = 0; i < size; i++)
+					{
+						to_gambas_value(gst_value_array_get_value(value, i), &val);
+						GB.Store(GB_T_VARIANT, &val, GB.Array.Get(array, i));
+						GB.ReleaseValue(&val);
+					}
+				}
+
+				GB.ReturnObject(array);
+			}
+#if defined(G_TYPE_VALUE_ARRAY) && !GLIB_CHECK_VERSION(2, 32, 0)
 			else if (G_VALUE_HOLDS(value, G_TYPE_VALUE_ARRAY))
 			{
 				GValueArray *garray = (GValueArray *)g_value_get_boxed(value);
 				guint len = garray->n_values;
 				GB_ARRAY array;
-				
+
 				GB.Array.New(&array, GB_T_VARIANT, len);
-				
+
 				if (len <= 0)
 				{
 					GB.Array.New(&array, GB_T_VARIANT, 0);
@@ -373,7 +398,6 @@ static void return_value(const GValue *value)
 						GB.ReleaseValue(&val);
 					}
 				}
-				
 				GB.ReturnObject(array);
 			}
 #endif
