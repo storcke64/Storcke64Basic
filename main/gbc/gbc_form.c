@@ -524,6 +524,9 @@ void FORM_do(char *source, bool convert, bool ctrl_public)
 			/*FORM_print("  %.*s", len_word, word);*/
 			FORM_print_indent();
 			FORM_print_len("\t.", 2);
+			// Fix incorrect use of unsigned color constants by the IDE form editor
+			/*if (line[len - 1] == '&')
+				len--;*/
 			FORM_print_len(line, len);
 			FORM_print("\n");
 		}
