@@ -1602,7 +1602,7 @@ Public Sub imvImage_MouseUp()
       '   If $hFirstPoint Then $hSelect.AddMagnet($hFirstPoint)
       ' Endif
       
-      $hSelect.CleanLastShape
+      '$hSelect.CleanLastShape
       
     Case "rectangle", "ellipse"
 

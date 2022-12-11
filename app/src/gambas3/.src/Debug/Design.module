@@ -398,18 +398,14 @@ Public Sub Debug_Read(Data As String)
         bLineChanged = SetCurrentLine(sComp, sClass, iLine)
       Endif
       
-      If Not aData[1] Then 
+      If Not aData[1] And If bLineChanged And If Not sClass Then 
         
-        If Not sClass Or If bLineChanged Then 
-          If Not sClass Or If Not DebugInside Then
-            If $bIgnoreNextInfo Then 
-              $bIgnoreNextInfo = False
-            Else
-              Command("", STATE_RUNNING)
-            Endif
-            Return
-          Endif
+        If $bIgnoreNextInfo Then 
+          $bIgnoreNextInfo = False
+        Else
+          Command("", STATE_RUNNING)
         Endif
+        Return
         
       Endif
   
@@ -788,7 +784,6 @@ Private Function SetCurrentLine(sComp As String, sClass As String, iLine As Inte
         If $iPosLine <= .GetEditor().Count Then
           Project.OpenFile(hForm.Path, $iPosLine)
           .GetEditor().StopLine = $iPosLine - 1
-          Return True
         Endif
       End With
     Endif
@@ -796,7 +791,7 @@ Private Function SetCurrentLine(sComp As String, sClass As String, iLine As Inte
   Endif
 
   Return True
-
+  
 End
 
 Private Sub WriteCommand(sCmd As String)
