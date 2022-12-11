@@ -100,7 +100,7 @@ Static Public Sub _init()
   $cStructClose["FINALLY"] = "<"
   
   StructControlCompletion = Settings["/Editor/ControlStructCompletion", 1]
-  LocalVariableDeclaration = Settings["/Editor/LocalVariableDeclaration", 0]
+  LocalVariableDeclaration = Settings["/Editor/LocalVariableDeclaration", 1]
   AutoComment = Settings["/Editor/AutoComment", 1]
   
 End
