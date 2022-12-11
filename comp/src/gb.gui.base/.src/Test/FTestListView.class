@@ -22,6 +22,8 @@ Public Sub Form_Open()
   For I = 1 To 5
     ListView1.Add(i, "Item " & Str(i))  
   Next
+  
+  ListView1[1].Selectable = False
 
 End
 

@@ -1901,8 +1901,6 @@ End
 
 Private Sub MakeSpan(iRowSpan As Integer, iColSpan As Integer) As Integer
   
-  If iColSpan < 0 Then Stop
-  
   Return Lsl(iRowSpan, 16) Or (iColSpan And &HFFFF&)
   
 End

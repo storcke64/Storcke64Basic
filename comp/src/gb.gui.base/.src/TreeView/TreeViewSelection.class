@@ -43,7 +43,7 @@ Public Sub Select(iStart As Integer, Optional iLength As Integer = 1)
     
     hItem = hParent._RowToItem(I)
     If Not hItem Then Break
-    Keys[hItem.Key] = True
+    If hItem.Selectable Then Keys[hItem.Key] = True
     
   Next
   
@@ -51,6 +51,13 @@ End
 
 Public Sub SelectItem(sKey As String, bSelected As Boolean)
   
+  Dim hParent As _TreeView = GetParent()
+  Dim hItem As _TreeView_Item
+
+  hItem = hParent[sKey]
+  If Not hItem Then Return
+  If Not hItem.Selectable Then Return
+
   If bSelected Then
     Keys[sKey] = True
   Else
@@ -84,11 +91,12 @@ End
 
 Public Sub SelectAll((nRows) As Integer)
 
+  Dim hParent As _TreeView = GetParent()
   Dim sKey As String
   
   Keys.Clear
   For Each sKey In GetParent().Keys
-    Keys[sKey] = True
+    If hParent[sKey].Selectable Then Keys[sKey] = True
   Next
   
 End

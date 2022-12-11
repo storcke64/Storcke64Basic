@@ -46,6 +46,8 @@ Property Read ScrollH, ScrollHeight As Integer
 
 Property Read Indent As Integer
 
+Property Read _Items As Collection
+
 Event Click
 Event Activate
 Event Select
@@ -1123,7 +1125,14 @@ Public Sub GridView_Select()
 End
 
 Public Sub GridView_Change()
+
+  Dim hItem As _TreeView_Item
   
+  hItem = _RowToItem($hView.Row)
+  If Not hItem Or If Not hItem.Selectable Then 
+    Stop Event
+    Return
+  Endif
   $hView.Rows[$hView.Row].EnsureVisible()
   
 End
@@ -1980,5 +1989,11 @@ Private Function Selected_Read() As Boolean
   Else If $hView.Mode = Select.Multiple Then
     Return $hSelection.Keys.Count
   Endif
+
+End
+
+Private Function _Items_Read() As Collection
+
+  Return $cItem
 
 End
