@@ -54,8 +54,8 @@ Public Sub SelectItem(sKey As String, bSelected As Boolean)
   Dim hParent As _TreeView = GetParent()
   Dim hItem As _TreeView_Item
 
-  hItem = hParent[sKey]
-  If Not hItem Then Return
+  Try hItem = hParent[sKey]
+  If Error Then Return
   If Not hItem.Selectable Then Return
 
   If bSelected Then

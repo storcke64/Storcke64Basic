@@ -1127,12 +1127,9 @@ End
 Public Sub GridView_Change()
 
   Dim hItem As _TreeView_Item
-  
-  hItem = _RowToItem($hView.Row)
-  If Not hItem Or If Not hItem.Selectable Then 
-    Stop Event
-    Return
-  Endif
+
+  Try hItem = _RowToItem($hView.Row)
+  If Not hItem Or If Not hItem.Selectable Then Stop Event
   $hView.Rows[$hView.Row].EnsureVisible()
   
 End
