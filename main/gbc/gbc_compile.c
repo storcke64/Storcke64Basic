@@ -66,7 +66,7 @@ char *COMP_classes = NULL;
 COMPILE COMP_current;
 uint COMP_version = GAMBAS_PCODE_VERSION;
 char *COMP_default_namespace = NULL;
-bool COMP_do_not_lock = FALSE;
+bool COMP_do_not_lock = TRUE;
 
 #define STARTUP_MAX_LINE 256
 

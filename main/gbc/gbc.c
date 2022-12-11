@@ -798,7 +798,6 @@ int main(int argc, char **argv)
 		
 		if (_convert_form)
 		{
-			COMP_do_not_lock = TRUE;
 			FORM_convert(_convert_form);
 			STR_free(_convert_form);
 		}
@@ -814,6 +813,7 @@ int main(int argc, char **argv)
 			}
 
 			COMPILE_init();
+			COMP_do_not_lock = FALSE;
 
 			// Remove information files if we are compiling everything
 
