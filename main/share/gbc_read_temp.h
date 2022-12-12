@@ -25,9 +25,15 @@
 #define __GBC_READ_TEMP_H
 
 #ifdef __EVAL_READ_C
+
 #define SYMBOL_TABLE EVAL->table
+#define PREPROCESSOR_LINE FALSE
+
 #else
+
 #define SYMBOL_TABLE comp->class->table
+#define PREPROCESSOR_LINE _prep
+
 #endif
 
 static bool add_number()
@@ -314,7 +320,7 @@ static void add_identifier()
 		can_be_reserved = (index >= 0);
 	}
 
-	if (can_be_reserved)
+	if (can_be_reserved && !PREPROCESSOR_LINE)
 	{
 		static void *jump[] = { 
 			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN_ENUM, &&__READ,
