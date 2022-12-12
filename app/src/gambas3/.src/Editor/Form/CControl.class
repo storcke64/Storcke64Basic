@@ -1195,7 +1195,7 @@ Public Sub Select(hForm As FForm, Optional bMaster As Boolean)
   Selected = True
 
   hForm.Selection[Name] = Me
-
+  
   If bMaster Then
     If hForm.Master Then hForm.Master.Select(hForm)
     hForm.Master = Me
