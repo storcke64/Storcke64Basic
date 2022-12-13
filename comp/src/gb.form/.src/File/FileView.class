@@ -54,7 +54,18 @@ Property Read TotalSize As Long Use $iSize
 ''
 '' - If 'MaxPreviewSize' is zero (the default), the size limit is 4Mb.
 '' - If 'MaxPreviewSize' is negative, there is no size limit.
+
 Property MaxPreviewSize As Integer Use $iMaxPreviewSize
+
+'' Return or set the orientation of the icon view.
+''
+'' It can be one of the following value:
+'' - [Arrange.Horizontal](/comp/gb.qt4/arrange/horizontal)
+'' - [Arrange.Vertical](/comp/gb.qt4/arrange/vertical)
+''
+'' The default orientation is vertical.
+
+Property Orientation As Integer
 
 Static Private $cExt As New Collection(gb.IgnoreCase)
 
@@ -110,6 +121,7 @@ Private $hHighlightPicture As Picture
 
 Private $hBorder As Panel
 Private $hProgress As ProgressBar
+Private $bRefreshPreview As Boolean
 
 Static Public Sub _init()
   
@@ -166,6 +178,7 @@ Static Public Sub _init()
   $cExt["xcf"] = "image"
   $cExt["svg"] = "image"
   $cExt["svgz"] = "image"
+  $cExt["webp"] = "image"
   
   $cExt["pdf"] = "pdf"
   
@@ -197,6 +210,7 @@ Public Sub _new()
     .Drop = True
     .Expand = True
     .Border = False
+    '.Orientation = Arrange.Horizontal
   End With
   
   With $hColumnView = New ColumnView($hBorder) As "View"
@@ -214,6 +228,7 @@ Public Sub _new()
   End With
   
   $hProgress = New ProgressBar($hBorder)
+  $hProgress.Ignore = True
   $hProgress.H = 1 + Desktop.Scale \ 4
   $hProgress.Border = False
   $hProgress.Label = False
@@ -430,8 +445,6 @@ Private Sub RefreshView()
   
   Inc Application.Busy
   
-  StopPreview
-  
   $bRefreshTriggered = False
   bFilter = Object.CanRaise(Me, "Filter")
   
@@ -632,10 +645,12 @@ End
 
 Private Sub StartPreview(aPreview As String[])
 
+  StopPreview
+  Component.Load("gb.hash")
   $hProgress.Show
   $iPreviewMax = aPreview.Count
   $iPreviewCount = 0
-  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview) As "TaskPreview"
+  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview, File.Dir(Temp$())) As "TaskPreview"
 
 End
 
@@ -1126,7 +1141,7 @@ Private Sub IconSize_Write(Value As Integer)
   $iIconSize = Value
   $bRefreshIcon = True
   RefreshViewLater
-  $hIconView.GridSize = Min(40, (Value + 8) \ 3)
+  '$hIconView.GridSize = Min(40, (Value + 8) \ 3)
   
 End
 
@@ -1293,7 +1308,10 @@ End
 Public Sub Watcher_Hide()
 
   'Debug  
-  StopPreview
+  If $hPreview Then
+    StopPreview
+    $bRefreshPreview = True
+  Endif
   $hWatch = Null
   $bVisible = False
   
@@ -1301,9 +1319,9 @@ End
 
 Public Sub Watcher_Show()
   
-  'Debug  
   $bVisible = True
-  RefreshViewLater
+  RefreshViewLater($bRefreshPreview)
+  $bRefreshPreview = False
   
 End
 
@@ -1314,6 +1332,7 @@ Public Sub Watcher_Resize()
   If picLock And If picLock.Visible Then
     picLock.Move((Me.W - picLock.W) \ 2, (Me.H - picLock.H) \ 2)
   Endif
+  $hProgress.Move(0, Me.H - $hProgress.H, Me.W, $hProgress.H)
   
 End
 
@@ -1531,4 +1550,16 @@ Private Sub MaxPreviewSize_Write(Value As Integer)
   $iMaxPreviewSize = Value
   If $bShowPreview Then Reload
   
+End
+
+Private Function Orientation_Read() As Integer
+
+  Return $hIconView.Orientation
+
+End
+
+Private Sub Orientation_Write(Value As Integer)
+
+  $hIconView.Orientation = Value
+
 End

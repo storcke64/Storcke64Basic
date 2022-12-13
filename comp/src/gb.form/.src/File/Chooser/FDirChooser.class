@@ -1029,6 +1029,7 @@ Private Sub FillMenu()
     hMenu.Text = ("&Edit bookmarks...")
     hMenu.Picture = Picture["icon:/small/edit"]
     mnuEditBookmark = hMenu
+    mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
     
     hMenu = New Menu(mnuBookmark)
 
@@ -1112,8 +1113,6 @@ Private Sub FillMenu()
     mnuProperty = hMenu
     
   Endif
-  
-  If $hBookmarkList Then mnuEditBookmark.Enabled = $hBookmarkList.GetEditableCount() > 0
   
   If dvwChoose.HasFocus Then
 

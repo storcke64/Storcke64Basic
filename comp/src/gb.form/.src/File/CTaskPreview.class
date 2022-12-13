@@ -2,40 +2,54 @@
 
 Inherits Task
 
+Class Hash
+
 Private $sDir As String
 Private $iSize As Integer
 Private $aPreview As String[]
 Private $iMaxFileSize As Integer
+Private $sCache As String
 
-Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[])
+Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
   
   $sDir = sDir
   $iSize = iSize
   $iMaxFileSize = iMaxFileSize
   If $iMaxFileSize = 0 Then $iMaxFileSize = 4194304
   $aPreview = aPreview
+  $sCache = sTempDir &/ "gb.form/thumbnails"
+  Main.MkDir($sCache)
   
 End
 
-Private Sub PrintIcon(sFile As String, hImage As Image)
+Private Sub PrintIcon(sFile As String, hImage As Image, sThumb As String)
 
   Dim hIcon As Image
-  Dim sTemp As String
+  Dim hRect As RectF
 
-  hIcon = New Image(hImage.W + 4, hImage.H + 4, Color.Transparent)
+  hIcon = New Image($iSize, $iSize) ', Color.Transparent)
   Paint.Begin(hIcon)
-  Paint.AntiAlias = False
-  Paint.LineWidth = 2
-  Paint.Rectangle(0, 0, hIcon.W, hIcon.H)
+  
+  hRect = Paint.StretchImage(hImage, 0, 0, $iSize, $iSize)
+  
+  Paint.Rectangle(hRect.X + 0.5, hRect.Y + 0.5, hRect.W - 1, hRect.H - 1)
   Paint.Background = Color.Gray
   Paint.Stroke
   Paint.End
-  hIcon.DrawImage(hImage, 2, 2)
   
-  sTemp = File.SetExt(Temp$(), "png")
-  hIcon.Save(sTemp)
-  Print sFile; "\t"; sTemp
+  Try hIcon.Save(sThumb)
+  If Error Then
+    Print sFile; "\t"
+  Else
+    Print sFile; "\t"; sThumb
+  Endif
     
+End
+
+Private Sub GetThumbnailPath(sPath As String) As String
+  
+  Try Return $sCache &/ Hash.Sha256(File.Load(sPath)) & "." & CStr($iSize) & ".png"
+  
 End
 
 Public Sub Main()
@@ -45,6 +59,7 @@ Public Sub Main()
   Dim sPath As String
   Dim hImage As Image
   Dim hSvgImage As SvgImage
+  Dim sThumb As String
 
   Application.Priority += 10
 
@@ -53,41 +68,51 @@ Public Sub Main()
     sPath = $sDir &/ sFile
     sExt = LCase(File.Ext(sFile))
     
-    If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Then
+    If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Or If sExt = "webp" Then
       
       If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto IGNORE_FILE
       
-      Try hImage = Image.Load(sPath)
-      If Error Then Goto IGNORE_FILE
+      sThumb = GetThumbnailPath(sPath)
+      If Exist(sThumb) Then
+        
+        Print sFile; "\t"; sThumb
+        
+      Else
       
-      If Not (hImage.Width = $iSize And hImage.Height = $iSize) Then 
-        If hImage.Width > hImage.Height Then 
-          hImage = hImage.Stretch($iSize, ($iSize * hImage.Height) \ hImage.Width)
-        Else
-          hImage = hImage.Stretch(($iSize * hImage.Width) \ hImage.Height, $iSize)
-        Endif
+        Try hImage = Image.Load(sPath)
+        If Error Then Goto IGNORE_FILE
+        PrintIcon(sFile, hImage, sThumb)
+        
       Endif
       
-      PrintIcon(sFile, hImage)
       Continue
     
     Else If sExt = "svg" Or If sExt = "svgz" Then
       
-      Try hSvgImage = SvgImage.Load(sPath)
-      If Error Then Goto IGNORE_FILE
+      sThumb = GetThumbnailPath(sPath)
+      If Exist(sThumb) Then
       
-      If hSvgImage.Width > hSvgImage.Height Then 
-        hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
+        Print sFile; "\t"; sThumb
+        
       Else
-        hSvgImage.Resize($iSize * hSvgImage.Width / hSvgImage.Height, $iSize)
+        
+        Try hSvgImage = SvgImage.Load(sPath)
+        If Error Then Goto IGNORE_FILE
+        
+        If hSvgImage.Width > hSvgImage.Height Then 
+          hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
+        Else
+          hSvgImage.Resize($iSize * hSvgImage.Width / hSvgImage.Height, $iSize)
+        Endif
+  
+        hImage = New Image(hSvgImage.Width, hSvgImage.Height)
+        Paint.Begin(hImage)
+        hSvgImage.Paint()
+        Paint.End
+        
       Endif
-
-      hImage = New Image(hSvgImage.Width, hSvgImage.Height, Color.Transparent)
-      Paint.Begin(hImage)
-      hSvgImage.Paint()
-      Paint.End
     
-      PrintIcon(sFile, hImage)
+      PrintIcon(sFile, hImage, sThumb)
       Continue 
       
     Endif
