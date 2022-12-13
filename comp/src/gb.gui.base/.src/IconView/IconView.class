@@ -228,15 +228,31 @@ Public Sub _FindItem(hItem As _IconView_Item) As Integer
 End
 
 Public Sub _UpdateIconSize((Picture) As Picture)
-  
-  If {Picture} And If Picture.Height > $iIconSize Then
-    $iIconSize = Picture.Height
-    ScrollArea_Arrange
-  Else If Not {Picture} Or If Picture.Height < $iIconSize Then
-    If Not $hArrangeTimer Then
-      $hArrangeTimer = New Timer As "ArrangeTimer"
-      $hArrangeTimer.Trigger
+
+  If $bHorizontal Then
+    
+    If {Picture} And If Picture.Width > $iIconSize Then
+      $iIconSize = Picture.Width
+      ScrollArea_Arrange
+    Else If Not {Picture} Or If Picture.Width < $iIconSize Then
+      If Not $hArrangeTimer Then
+        $hArrangeTimer = New Timer As "ArrangeTimer"
+        $hArrangeTimer.Trigger
+      Endif
     Endif
+    
+  Else
+  
+    If {Picture} And If Picture.Height > $iIconSize Then
+      $iIconSize = Picture.Height
+      ScrollArea_Arrange
+    Else If Not {Picture} Or If Picture.Height < $iIconSize Then
+      If Not $hArrangeTimer Then
+        $hArrangeTimer = New Timer As "ArrangeTimer"
+        $hArrangeTimer.Trigger
+      Endif
+    Endif
+    
   Endif
   
 End
@@ -249,7 +265,13 @@ Public Sub ArrangeTimer_Timer()
   $iIconSize = 0
   For Each hItem In $aItems
     hPicture = hItem.Picture
-    If hPicture And If hPicture.Height > $iIconSize Then $iIconSize = hPicture.Height
+    If hPicture Then 
+      If $bHorizontal Then
+        If hPicture.Width > $iIconSize Then $iIconSize = hPicture.Width
+      Else
+        If hPicture.Height > $iIconSize Then $iIconSize = hPicture.Height
+      Endif
+    Endif
   Next
   
   ScrollArea_Arrange
@@ -574,15 +596,15 @@ Public Sub ScrollArea_Arrange()
   If $bHorizontal Then
     
     $iGridHeight = Max(DS, $iIconSize) + DS * 2
-    $iGridHeight = Max($iGridHeight, Me.Font.Height * $iIconLines + DS)
+    $iGridHeight = Max($iGridHeight, Me.Font.Height * $iIconLines + DS * 2)
     
     If $iGridSize Then
       $iGridWidth = $iGridSize * DS
+      $iGridWidth = Max($iGridWidth, $iIconSize + DS * 2)
     Else
-      $iGridWidth = $iIconSize + DS * 2
+      Debug $iIconSize
+      $iGridWidth = 32 * DS + $iIconSize + DS * 2
     Endif
-
-    $iGridWidth = Max($iGridWidth, $iIconSize + DS)
     
     $nColumn = Max(1, (H - $iPad * 2) \ $iGridHeight)
     nRow = ($aItems.Count + $nColumn - 1) \ $nColumn
@@ -597,7 +619,7 @@ Public Sub ScrollArea_Arrange()
     
   Else
     
-    $iGridHeight = Max(DS * 4, $iIconSize) + $iIconLines * Me.Font.Height + DS * 4
+    $iGridHeight = Max(DS * 4, $iIconSize) + $iIconLines * Me.Font.Height + DS * 6
     
     If $iGridSize Then
       $iGridWidth = $iGridSize * DS
@@ -1451,7 +1473,11 @@ End
 
 Private Sub GridSize_Write(Value As Integer)
 
-  $iGridSize = Max(16, Min(1024, Value))
+  If Value Then
+    $iGridSize = Max(Desktop.Scale * 2, Min(1024, Value))
+  Else 
+    $iGridSize = 0
+  Endif
   ScrollArea_Arrange
 
 End
@@ -1472,15 +1498,16 @@ End
 Public Sub _RenameItem(hItem As _IconView_Item)
   
   Dim hRect As New Rect
+  Dim hRect1, hRect2 As Rect
   
   ExitRename
   $iRename = _FindItem(hItem)
   
   _EnsureVisible($iRename)
   GetIconGeometry($iRename, hRect)
-  hRect = hItem._GetTextRect(hRect, $bHorizontal)
-  hRect.Adjust(-1, 0, -1, 0)
-  'hRect.Y += 4
+  hItem._GetRects(hRect, $bHorizontal, ByRef hRect1, ByRef hRect2)
+  hRect2.Adjust(0, Desktop.Scale \ 2)
+  hRect = hRect2
   
   If Not $hRenameBox Then 
     Object.Lock(Me)
@@ -1559,7 +1586,8 @@ Private Sub Orientation_Write(Value As Integer)
 
   $bHorizontal = bHor
   $hView.ScrollBar = If($bHorizontal, Scroll.Horizontal, Scroll.Vertical)
-  ScrollArea_Arrange
+  ArrangeTimer_Timer
+  'ScrollArea_Arrange
 
 End
 

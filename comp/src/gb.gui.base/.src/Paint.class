@@ -285,8 +285,10 @@ End
 '' - ~Alignment~ is the alignment of the stretched image inside the targer rectangle. It's [Align.Center](../../align/center) by default.
 '' - ~Opacity~ is the opacity of the painting. By default it is '1.0', i.e. fully opaque.
 '' - ~Source~ defines the part of the image to draw. By default it is 'NULL', i.e. the entire image is drawn.
+''
+'' The final image position and size is returned as a [/comp/gb.qt4/rectf] object.
 
-Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width As Float, Height As Float, Optional Alignment As Integer = Align.Center, Optional Opacity As Float = 1, Optional Source As Rect)
+Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width As Float, Height As Float, Optional Alignment As Integer = Align.Center, Optional Opacity As Float = 1, Optional Source As Rect) As RectF
   
   Dim W As Float
   Dim H As Float
@@ -319,6 +321,8 @@ Static Public Sub StretchImage((Image) As Image, X As Float, Y As Float, Width A
   Endif
   
   Paint.DrawImage(Image, X, Y, W, H, Opacity, Source)
+  
+  Return RectF(X, Y, W, H)
   
 End
 
