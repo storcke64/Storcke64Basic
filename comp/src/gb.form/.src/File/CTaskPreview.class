@@ -110,9 +110,10 @@ Public Sub Main()
         hSvgImage.Paint()
         Paint.End
         
+        PrintIcon(sFile, hImage, sThumb)
+        
       Endif
     
-      PrintIcon(sFile, hImage, sThumb)
       Continue 
       
     Endif
