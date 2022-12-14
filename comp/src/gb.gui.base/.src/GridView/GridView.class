@@ -138,6 +138,7 @@ Public Sub _new()
   $iRow = -1
   $iCol = 0
   $iPadding = Desktop.Scale \ 4
+  $cSpan.Default = 0
   
   Me.Proxy = $hView
   
@@ -404,7 +405,6 @@ Public Sub ScrollArea_Draw()
   Dim hData As _GridView_Data
   Dim F As Integer = _GetFrameWidth()
   Dim iGrid As Integer
-  Dim aSpan As Short[]
   Dim bHasSpan As Boolean
   Dim iRowSpan, iColSpan As Integer
   Dim hSpan, hCursor As Rect
@@ -708,9 +708,7 @@ Public Sub ScrollArea_Draw()
       
       If bHasSpan Then
         
-        aSpan = _GetSpan(I, J)
-        iRowSpan = aSpan[0]
-        iColSpan = aSpan[1]
+        _GetSpan(I, J, ByRef iRowSpan, ByRef iColSpan)
         
         'Draw.ClipRect = hClip
         'Draw.Foreground = Color.Green
@@ -721,9 +719,7 @@ Public Sub ScrollArea_Draw()
 
         If (iRowSpan < 0 Or iColSpan < 0) And If R >= iRow And If C >= iCol Then Goto NEXT_CELL
 
-        aSpan = _GetSpan(R, C)
-        iRowSpan = aSpan[0]
-        iColSpan = aSpan[1]
+        _GetSpan(R, C, ByRef iRowSpan, ByRef iColSpan)
         
       ' Else
       '   
@@ -735,6 +731,8 @@ Public Sub ScrollArea_Draw()
         ' Draw.Text(iRowSpan & " / " & iColSpan, X, Y, $hColumns[J].Width, H, Align.Center)
         
       Endif
+      
+      hData = _GetCellData(R, C)
       
       If bHasSpan Then
       
@@ -754,8 +752,6 @@ Public Sub ScrollArea_Draw()
       Endif
       
       If Not hClip.Intersection(hSpan) Then Goto NEXT_CELL
-      
-      hData = _GetCellData(R, C)
       
       Paint.Save
       
@@ -1905,16 +1901,15 @@ Private Sub MakeSpan(iRowSpan As Integer, iColSpan As Integer) As Integer
   
 End
 
-Private Sub UnmakeSpan(iSpan As Integer) As Short[]
+Private Sub UnmakeSpan(iSpan As Integer, ByRef iRowSpan As Integer, ByRef iColSpan As Integer) As Short[]
   
-  Return [CShort(Asr(iSpan, 16)), CShort(Asr(Lsl(iSpan, 16), 16))]
+  iRowSpan = Asr(iSpan, 16)
+  iColSpan = Asr(Lsl(iSpan, 16), 16)
   
 End
 
-
 Public Sub _SetSpan(iRow As Integer, iCol As Integer, iRowSpan As Integer, iColSpan As Integer)
   
-  Dim aOldSpan As Short[]
   Dim iOldRowSpan As Integer
   Dim iOldColSpan As Integer
   Dim I, J As Integer
@@ -1927,9 +1922,8 @@ Public Sub _SetSpan(iRow As Integer, iCol As Integer, iRowSpan As Integer, iColS
   If iRowSpan > 0 And If iColSpan < 0 Then iColSpan = 0
   If iColSpan > 0 And If iRowSpan < 0 Then iRowSpan = 0
   
-  aOldSpan = _GetSpan(iRow, iCol)
-  iOldRowSpan = aOldSpan[0]
-  iOldColSpan = aOldSpan[1]
+  _GetSpan(iRow, iCol, ByRef iOldRowSpan, ByRef iOldColSpan)
+  'Debug iRow;; iCol; " old = "; iOldRowSpan;; iOldColSpan
   
   If (iOldRowSpan < 0 Or iOldColSpan < 0) And If (iRowSpan <> 0 Or iColSpan <> 0) Then Return
   
@@ -1945,11 +1939,13 @@ Public Sub _SetSpan(iRow As Integer, iCol As Integer, iRowSpan As Integer, iColS
         Inc J
         If J > iOldRowSpan Then Break
       Endif
-      _SetSpan(iCol + I, iRow + J, 0, 0)
+      _SetSpan(iRow + J, iCol + I, 0, 0)
       Inc I
     Loop
     
   Endif
+
+  'Debug iRow;; iCol; " := "; iRowSpan;; iColSpan
 
   If iRowSpan = 0 And If iColSpan = 0 Then Return
   
@@ -1974,22 +1970,70 @@ Private Sub HasSpan(iRow As Integer, iCol As Integer) As Boolean
   
 End
 
+' Public Sub _DumpSpan()
+' 
+'   Dim J As Integer
+'   Dim I As Integer
+'   Dim RS, CS As Integer
+' 
+'   Print "------";
+'   For I = 0 To $hColumns.Max
+'     Print "-----";
+'   Next
+'   Print
+'   
+'   Print "    | ";
+'   For I = 0 To $hColumns.Max
+'     Print Format(I, "-###");;
+'   Next
+'   Print
+'   
+'   Print "------";
+'   For I = 0 To $hColumns.Max
+'     Print "-----";
+'   Next
+'   Print
+'   
+'   For J = 0 To $hRows.Max
+'     Print Format(J, "###");; "|";;
+'     For I = 0 To $hColumns.Max
+'       _GetSpan(J, I, ByRef RS, ByRef CS)
+'       Print Format(CS, "-###");;
+'     Next
+'     Print
+'   Next
+'   
+'   Print "------";
+'   For I = 0 To $hColumns.Max
+'     Print "-----";
+'   Next
+'   Print
+'   
+' End
 
-Public Sub _GetSpan(iRow As Integer, iCol As Integer) As Short[]
+Public Sub _GetSpan(iRow As Integer, iCol As Integer, ByRef iRowSpan As Integer, ByRef iColSpan As Integer) 
   
-  Dim aSpan As New Short[2]
   Dim iSpan As Integer
   
-  If iRow < 0 Or If iCol < 0 Or If iRow >= $hRows.Count Or If iCol >= $hColumns.Count Then Return aSpan
-  Try iSpan = $cSpan[GetCellKey(iRow, iCol)]
-  If iSpan = 0 Then Return aSpan
-  aSpan = UnmakeSpan(iSpan)
-  aSpan[0] = Min(aSpan[0], $hRows.Count - iRow - 1)
-  aSpan[1] = Min(aSpan[1], $hColumns.Count - iCol - 1)
-  Return aSpan
+  If iRow < 0 Or If iCol < 0 Or If iRow >= $hRows.Count Or If iCol >= $hColumns.Count Then
+    iRowSpan = 0
+    iColSpan = 0
+    Return
+  Endif
+  
+  iSpan = $cSpan[GetCellKey(iRow, iCol)]
+  If iSpan = 0 Then
+    iRowSpan = 0
+    iColSpan = 0
+  Else
+    UnmakeSpan(iSpan, ByRef iRowSpan, ByRef iColSpan)
+    iRowSpan = Min(iRowSpan, $hRows.Count - iRow - 1)
+    iColSpan = Min(iColSpan, $hColumns.Count - iCol - 1)
+  Endif
+  
+  'If iRowSpan Or If iColSpan Then Debug iRow;; iCol; " -> ";; iRowSpan;; iColSpan
   
 End
-
 
 Private Function ShowCursor_Read() As Boolean
 
@@ -2007,10 +2051,13 @@ End
 Public Sub _GetCellWidth(iRow As Integer, iCol As Integer) As Integer
   
   Dim W, I As Integer
+  Dim iColSpan As Integer
 
   If Not HasSpan(iRow, iCol) Then Return $hColumns[iCol].Width
 
-  For I = iCol To iCol + Max(0, _GetSpan(iRow, iCol)[1])
+  _GetSpan(iRow, iCol, 0, ByRef iColSpan)
+
+  For I = iCol To iCol + Max(0, iColSpan)
     W += $hColumns[I].Width
   Next
   
@@ -2021,10 +2068,13 @@ End
 Public Sub _GetCellHeight(iRow As Integer, iCol As Integer) As Integer
   
   Dim H, I As Integer
+  Dim iRowSpan As Integer
 
   If Not HasSpan(iRow, iCol) Then Return $hRows._GetRowHeight(iRow)
 
-  For I = iRow To iRow + Max(0, _GetSpan(iRow, iCol)[0])
+  _GetSpan(iRow, iCol, ByRef iRowSpan, 0)
+
+  For I = iRow To iRow + Max(0, iRowSpan)
     H += $hRows._GetRowHeight(I)
   Next
   
@@ -2180,10 +2230,10 @@ Public Sub _GetPreferredWidth(iCol As Integer) As Integer
       hData = _GetCellData(I, iCol)
       
       If HasSpan(I, iCol) Then
-        iColSpan = _GetSpan(I, iCol)[1]
+        _GetSpan(I, iCol, 0, ByRef iColSpan)
         If iColSpan < 0 Then
           hData = _GetCellData(I, iCol + iColSpan)
-          iColSpan = _GetSpan(I, iCol + iColSpan)[1]
+          _GetSpan(I, iCol + iColSpan, 0, ByRef iColSpan)
         Endif
         D = iColSpan + 1
       Else
@@ -2273,15 +2323,11 @@ Public Sub _GetPreferredHeight(iRow As Integer) As Integer
     iCol = I
     
     If HasSpan(iRow, iCol) Then
-      hSpan = _GetSpan(iRow, iCol)
-      iRowSpan = hSpan[0]
-      iColSpan = hSpan[1]
+      hSpan = _GetSpan(iRow, iCol, ByRef iRowSpan, ByRef iColSpan)
       If iRowSpan < 0 Then iRow += iRowSpan
       If iColSpan < 0 Then iCol += iColSpan
       hData = _GetCellData(iRow, iCol)
-      hSpan = _GetSpan(iRow, iCol)
-      iRowSpan = hSpan[0]
-      iColSpan = hSpan[1]
+      hSpan = _GetSpan(iRow, iCol, ByRef iRowSpan, ByRef iColSpan)
       D = iRowSpan + 1
     Else
       D = 1

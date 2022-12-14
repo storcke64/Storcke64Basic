@@ -15,7 +15,7 @@ Property Read Width, W As Integer
 Property Height, H As Integer
 Property Editable As Boolean
 Property Selected As Boolean
-Property Span As Boolean Use $bSpan
+Property Span As Boolean
 Property Selectable As Boolean
 
 '' @{since 3.11}
@@ -84,6 +84,7 @@ Public _GrandChildren As Integer
 Event _Refresh
 
 Private $iLock As Integer
+Private $bSpan As Boolean
 
 Private Sub GetTree() As _TreeView
   
@@ -673,5 +674,19 @@ End
 Private Sub Selectable_Write(Value As Boolean)
 
   $bNotSelectable = Not Value
+
+End
+
+Private Function Span_Read() As Boolean
+
+  Return $bSpan
+
+End
+
+Private Sub Span_Write(Value As Boolean)
+
+  If Value = $bSpan Then Return
+  $bSpan = Value
+  GetTree()._UpdateSpan()
 
 End

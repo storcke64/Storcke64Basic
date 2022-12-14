@@ -110,6 +110,7 @@ Private $vSaveSelection As Variant
 Private $iDepthW As Integer
 Private $bShowLines As Boolean
 Private $bShowCheck As Boolean
+Private $hUpdateSpan As Timer
 
 Public Sub _new()
   
@@ -133,6 +134,8 @@ Public Sub _new()
   
   $hRoot = New _TreeView_Item("", "") As "Item"
   
+  $hUpdateSpan = New Timer As "UpdateSpan"
+  
 End
 
 Public Sub _get((Key) As String) As _TreeView_Item
@@ -155,6 +158,7 @@ Public Sub Clear()
   $sCursor = ""
   $hRoot = New _TreeView_Item("", "") As "Item"
   $hView.Rows.Count = 0
+  _UpdateSpan
   
 End
 
@@ -542,13 +546,6 @@ Public Sub GridView_Data(Row As Integer, (Column) As Integer)
   If Not hItem Then Return
   
   $hView.Data.Background = hItem.Background
-  If Column = 0 Then
-    If hItem.Span Then
-      $hView[Row, Column].ColumnSpan = $hView.Columns.Count
-    Else 
-      $hView[Row, Column].ColumnSpan = 1
-    Endif
-  Endif
   
 End
 
@@ -1192,6 +1189,8 @@ Public Sub _RaiseExpand(sKey As String, bExpand As Boolean)
   
   ResizeColumns
   
+  _UpdateSpan
+  
 End
 
 Public Sub _EnsureVisible(hItem As _TreeView_Item, Optional bChild As Boolean)
@@ -1608,6 +1607,7 @@ Public Sub _RefreshView()
   $iLastRow = -2
   $sLastKey = ""
   $hView.Refresh
+  _UpdateSpan
   
 End
 
@@ -1994,3 +1994,29 @@ Private Function _Items_Read() As Collection
   Return $cItem
 
 End
+
+Public Sub _UpdateSpan()
+  
+  $hUpdateSpan.Trigger
+  
+End
+
+Public Sub UpdateSpan_Timer()
+
+  Dim I As Integer
+  Dim hItem As _TreeView_Item
+  
+  For I = 0 To $hView.Rows.Max
+    
+    hItem = _RowToItem(I)
+    If Not hItem Then Continue
+    If hItem.Span Then
+      $hView[I, 0].ColumnSpan = $hView.Columns.Count
+    Else 
+      $hView[I, 0].ColumnSpan = 1
+    Endif
+    
+  Next
+  
+End
+
