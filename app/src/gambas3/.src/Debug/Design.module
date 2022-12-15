@@ -151,7 +151,6 @@ Private Sub SetState(iState As Integer)
   If iState = $iState Then Return
   
   $iState = iState
-
   FOutput.OnProjectDebugState
   FDebugInfo.OnProjectDebugState
   
@@ -398,15 +397,17 @@ Public Sub Debug_Read(Data As String)
         bLineChanged = SetCurrentLine(sComp, sClass, iLine)
       Endif
       
-      If Not aData[1] And If bLineChanged And If Not sClass Then 
+      If Not aData[1] Then
+        If Not bLineChanged Or If aPos.Count = 0 Then 
         
-        If $bIgnoreNextInfo Then 
-          $bIgnoreNextInfo = False
-        Else
-          Command("", STATE_RUNNING)
+          If $bIgnoreNextInfo Then 
+            $bIgnoreNextInfo = False
+          Else
+            Command("", STATE_RUNNING)
+          Endif
+          Return
+          
         Endif
-        Return
-        
       Endif
   
       FDebugInfo.DefineVariable(Trim(aData[3]), Trim(aData[4]))
