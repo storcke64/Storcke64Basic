@@ -906,7 +906,13 @@ void MyContainer::changeEvent(QEvent *e)
 	}
 	
 	if (e->type() == QEvent::FontChange)
+	{
 		CALL_FUNCTION(THIS_USERCONTROL, font_func);
+	}
+	else if (e->type() == QEvent::EnabledChange)
+	{
+		update();
+	}
 }
 
 
