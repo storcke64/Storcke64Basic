@@ -203,7 +203,7 @@ Public Sub Run(aCmd As String[], Optional bIdent As Boolean, Optional bOutput As
     
     If $bEnd Then Break
     
-    If DateDiff($dOutput, Now, gb.Second) >= 15 Then
+    If DateDiff($dOutput, Now, gb.Second) >= 30 Then
       Try Close #hProcess
       hProcess.Kill
       Process_Error(("Command timeout.") & "\n" & ("Please check your network connection.") & "\n")
@@ -228,7 +228,6 @@ Public Sub Process_Error(({Error}) As String)
   Insert({Error})
   
 End
-
 
 Public Sub Process_Read()
 

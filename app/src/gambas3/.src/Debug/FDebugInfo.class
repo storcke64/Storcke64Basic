@@ -479,27 +479,27 @@ Public Sub wizDebug_Click()
   
 End
 
-Public Sub tbvLocal_Activate()
-  
-  Dim hTable As TableView = Last
-  Dim sExpr As String 
-  Dim sVal As String 
-  Dim iCol As Integer
-  
-  If hTable[hTable.Row, 0].ColumnSpan >= 2 Then Return
-  
-  iCol = hTable.Column And Not 1
-  sExpr = hTable[hTable.Row, iCol].Text
-  sVal = hTable[hTable.Row, iCol + 1].Text
-  
-  If Left(sVal) = "(" Then 
-    Design.Command("#X" & sExpr & "\t" & sExpr)
-  Else
-    hTable.Column = iCol + 1 
-    hTable.Edit
-  Endif
-  
-End
+' Public Sub tbvLocal_Activate()
+'   
+'   Dim hTable As TableView = Last
+'   Dim sExpr As String 
+'   Dim sVal As String 
+'   Dim iCol As Integer
+'   
+'   If hTable[hTable.Row, 0].ColumnSpan >= 2 Then Return
+'   
+'   iCol = hTable.Column And Not 1
+'   sExpr = hTable[hTable.Row, iCol].Text
+'   sVal = hTable[hTable.Row, iCol + 1].Text
+'   
+'   If Left(sVal) = "(" Then 
+'     Design.Command("#X" & sExpr & "\t" & sExpr)
+'   Else
+'     hTable.Column = iCol + 1 
+'     hTable.Edit
+'   Endif
+'   
+' End
 
 Public Sub IsEditing() As Boolean
   
@@ -507,11 +507,11 @@ Public Sub IsEditing() As Boolean
   
 End
 
-Public Sub tbvObject_Activate()
-  
-  tbvLocal_Activate
-  
-End
+' Public Sub tbvObject_Activate()
+'   
+'   tbvLocal_Activate
+'   
+' End
 
 Public Sub WriteWatchSettings()
   
@@ -639,29 +639,29 @@ Public Sub btnShowMe_Click()
   
 End
 
-Public Sub tbvLocal_Scroll()
-  
-  Balloon.Hide(Last)
-  
-End
+' Public Sub tbvLocal_Scroll()
+'   
+'   Balloon.Hide(Last)
+'   
+' End
 
-Public Sub tbvLocal_Select()
-  
-  Balloon.Hide(Last)
-  
-End
+' Public Sub tbvLocal_Select()
+'   
+'   Balloon.Hide(Last)
+'   
+' End
 
-Public Sub tbvObject_Scroll()
-  
-  Balloon.Hide(Last)
-  
-End
+' Public Sub tbvObject_Scroll()
+'   
+'   Balloon.Hide(Last)
+'   
+' End
 
-Public Sub tbvObject_Select()
-  
-  Balloon.Hide(Last)
-  
-End
+' Public Sub tbvObject_Select()
+'   
+'   Balloon.Hide(Last)
+'   
+' End
 
 Public Sub GetSearchList() As Control
   

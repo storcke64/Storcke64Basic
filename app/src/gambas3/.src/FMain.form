@@ -310,19 +310,19 @@
     { mnuStep Menu
       Action = "step"
       Text = Shortcut(("Step"), "e")
-      Picture = Picture["icon:/small/end"]
+      Picture = Picture["icon:/small/debug-into"]
       Shortcut = "F8"
     }
     { mnuForward Menu
       Action = "forward"
       Text = Shortcut(("Forward"), "F")
-      Picture = Picture["icon:/small/forward"]
+      Picture = Picture["icon:/small/debug-over"]
       Shortcut = "Shift+F8"
     }
     { mnuFrom Menu
       Action = "return"
       Text = Shortcut(("Finish"), "h")
-      Picture = Picture["icon:/small/eject"]
+      Picture = Picture["icon:/small/debug-out"]
     }
     { Menu36 Menu
     }
@@ -1111,26 +1111,26 @@
       MoveScaled(93,0,4,4)
       ToolTip = ("Step")
       Action = "step"
-      Picture = Picture["icon:/small/end"]
+      Picture = Picture["icon:/small/debug-into"]
     }
     { btnForward ToolButton
       MoveScaled(97,0,4,4)
       ToolTip = ("Forward")
       Action = "forward"
-      Picture = Picture["icon:/small/forward"]
+      Picture = Picture["icon:/small/debug-over"]
     }
     { btnFrom ToolButton
       MoveScaled(100,0,4,4)
       ToolTip = ("Finish current function")
       Action = "return"
-      Picture = Picture["icon:/small/eject"]
+      Picture = Picture["icon:/small/debug-out"]
     }
     { btnUntil ToolButton mnuUntil
       Name = "btnUntil"
       MoveScaled(104,0,4,4)
       ToolTip = ("Run until current line")
       Action = "until"
-      Picture = Picture["icon:/small/jump"]
+      Picture = Picture["icon:/small/debug-cursor"]
     }
     { Panel3 Panel
       MoveScaled(108,0,2,4)
@@ -1737,7 +1737,7 @@
   { Action forward
     Text = "Forward"
     Shortcut = "Shift+F8"
-    Picture = "icon:/small/forward"
+    Picture = "icon:/small/debug-over"
   }
   { Action go-back
     Text = "Go back"
@@ -1914,7 +1914,7 @@
   { Action return
     Text = "Finish"
     Shortcut = ""
-    Picture = "icon:/small/eject"
+    Picture = "icon:/small/debug-out"
   }
   { Action run-extern
     Text = "Debug extern process"
@@ -1959,7 +1959,7 @@
   { Action step
     Text = "Step"
     Shortcut = "F8"
-    Picture = "icon:/small/end"
+    Picture = "icon:/small/debug-into"
   }
   { Action stop
     Text = "Stop"
@@ -1997,7 +1997,7 @@
   }
   { Action until
     Text = "Run until current line"
-    Picture = "icon:/small/jump"
+    Picture = "icon:/small/debug-cursor"
   }
   { Action update-all-forms
     Text = "Update all forms"

@@ -1133,6 +1133,7 @@ Public Sub AddEmblem(hSource As Image, sEmblem As String, Optional iSize As Inte
 
   Dim hEmblem As Image
   Dim hImage As Image
+  Dim D As Integer
 
   Try hEmblem = Picture[sEmblem].Image
   If Error Then 
@@ -1140,14 +1141,13 @@ Public Sub AddEmblem(hSource As Image, sEmblem As String, Optional iSize As Inte
     Return hSource
   Endif
 
-  If iSize = 0 Then iSize = hEmblem.H
-  iSize = Min(iSize, hSource.H * 0.75)
+  iSize = Desktop.Scale * 2
   hEmblem = hEmblem.Stretch(-1, iSize) ', iSize * hEmblem.H / hEmblem.W)
 
-  'iSize -= hSource.W \ 4
+  D = iSize \ 6
 
-  hImage = New Image(hSource.Width + iSize, hSource.Height, Color.Transparent)
-  hImage.PaintImage(hSource, iSize, 0)
+  hImage = New Image(hSource.Width + iSize + D, hSource.Height, Color.Transparent)
+  hImage.PaintImage(hSource, iSize + D, 0)
   hImage.PaintImage(hEmblem, 0, (hImage.H - hEmblem.H) / 2)
   Return hImage
 
