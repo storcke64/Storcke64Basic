@@ -39,14 +39,6 @@ Private $hTimerAutoHide As Timer
 Private $bNoAutoHide As Boolean
 Private $bShowButtons As Boolean = True
 
-' Static Public Sub _init()
-'   
-'   $hHandleH = Picture["img/handle-h.png"]
-'   $hHandleV = Picture["img/handle-v.png"]
-'   
-' End
-
-
 Public Sub _new()
 
   $bVisible = True
@@ -58,7 +50,6 @@ Public Sub _new()
   TRANS_H = Max(2, BUTTON_H * 0.5)
   
 End
-
 
 Public Sub Form_Open()
 
@@ -80,7 +71,6 @@ Private Sub GetLangOrientation(iOrientation As Integer) As Integer
   Return iOrientation
   
 End
-
 
 Public Function GetOrientation() As Integer
 
@@ -218,7 +208,7 @@ Private Sub RefreshPanel()
   sepSide.Visible = bSeparator And $bVisible
   
   If $bTransparent Then
-    D = IIf(bSeparator, 1, 0)
+    D = IIf(sepSide.Visible, 1, 0)
   Else
     D = BUTTON_H
   Endif
@@ -227,7 +217,7 @@ Private Sub RefreshPanel()
 
     Case Align.Bottom
       sepSide.Move(0, 0, Me.ClientW, 1)
-      panSide.Move(0, D, Me.ClientW, Me.ClientH - D)
+      panSide.Move(0, D, Me.ClientW, Me.H - D)
 
     Case Align.Top
       sepSide.Move(0, Me.ClientH - 1, Me.ClientW, 1)
@@ -261,7 +251,6 @@ Private Sub GetParent() As SidePanel
   Return Me.Parent
   
 End
-
 
 Public Sub Form_Resize()
 
@@ -832,7 +821,6 @@ Public Sub SetDimension(iDim As Integer)
   
 End
 
-
 Public Function IsFixed() As Boolean
 
   Return $bFixed
@@ -879,43 +867,6 @@ Public Sub SetDesign()
   RefreshPanel
   
 End
-
-
-' PUBLIC SUB panMove_Draw()
-' 
-'   IF IsVertical() THEN
-'     Draw.FillX = 0
-'     Draw.FillY = panMove.H / 2 - 2
-'     Draw.Tile($hHandleH, panMove.W * 0.1, panMove.H / 2 - 3, panMove.W * 0.8, 4)
-'   ELSE
-'     Draw.FillX = panMove.W / 2 - 2
-'     Draw.FillY = 0
-'     Draw.Tile($hHandleV, panMove.W / 2 - 3, panMove.H * 0.1, 4, panMove.H * 0.8)
-'   ENDIF   
-' 
-' END
-
-' Public Sub panMove_Enter()
-' 
-'   $iColor = panMove.Background
-' 
-'   If Not $bVisible Then Return
-'   If $bFixed Then Return
-'   If Me.Parent.Design Then Return
-' 
-'   'panMove.Background = Color.ButtonBackground
-'   'btnSide.Background = Color.ButtonBackground  
-'   'btnSide2.Background = Color.ButtonBackground  
-' 
-' End
-' 
-' Public Sub panMove_Leave()
-' 
-'   'panMove.Background = $iColor
-'   'btnSide.Background = $iColor
-'   'btnSide2.Background = $iColor
-' 
-' End
 
 Public Sub btnSide_Draw()
 
