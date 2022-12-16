@@ -218,6 +218,7 @@ Private Sub Paste(aPaths As String[], Optional sSubDir As String, Optional bClon
   Dim sStrip As String
   Dim sText As String
   Dim sButton As String
+  Dim bApplyToAll As Boolean
   
   If Not aPaths Or If aPaths.Count = 0 Then Return
   
@@ -268,18 +269,29 @@ Private Sub Paste(aPaths As String[], Optional sSubDir As String, Optional bClon
     sName = File.Name(sPath)
     sDest = sDir &/ sName
     If Exist(sDest) Then
+      
       If bClone Then 
+        
         sDest = sDir &/ Project.GetUniqueName(sDir, sName)
+        
       Else
-        Select Case Message.Question(Project.GetMessagePrefix(sDest) & ("Destination already exists.") & "\n\n" & Subst(("Do you want to rename it as <b><tt>&1</tt></b>?"), Project.GetUniqueName(sDir, sName)), ("Rename"), ("Ignore"), ("Cancel"))
-          Case 1
+        
+        If Not bApplyToAll Then
+          If FFileOverwrite.Run(sName) Then Break
+          bApplyToAll = FFileOverwrite.ApplyToAll
+        Endif
+        
+        Select Case FFileOverwrite.FileAction
+          Case FFileOverwrite.ACTION_OVERWRITE
+            Try Project.DeleteFile(sDest)
+            sDest = sDir &/ sName
+          Case FFileOverwrite.ACTION_RENAME
             sDest = sDir &/ Project.GetUniqueName(sDir, sName)
-          Case 2
+          Case FFileOverwrite.ACTION_IGNORE
             Continue
-          Case 3
-            Break
         End Select
       Endif
+      
     Endif
     
     If $bCut Then
