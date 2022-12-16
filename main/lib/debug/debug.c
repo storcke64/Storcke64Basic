@@ -702,14 +702,14 @@ void DEBUG_backtrace(FILE *out)
 }
 
 
-static void debug_info()
+static void debug_info(bool frame)
 {
 	const char *p;
 	char c;
 	int i;
 	DEBUG_WATCH *watch;
 	
-	fprintf(_out, "*[%d]\t", getpid());
+	fprintf(_out, "%c[%d]\t", frame ? '@' : '*', getpid());
 	
 	if (_error)
 	{
@@ -798,7 +798,7 @@ static void command_frame(char *cmd)
 	}
 
 	set_info(context);
-	debug_info();
+	debug_info(cmd != NULL);
 }
 
 
