@@ -112,7 +112,6 @@ Static Private $hIconExec As Picture
 
 Private picLock As PictureBox
 
-Static Private $hLocked As Image
 Private $DX As Integer
 Private $DY As Integer
 
@@ -155,6 +154,7 @@ Static Public Sub _init()
   $cExt["avi"] = "video"
   $cExt["wmv"] = "video"
   $cExt["mov"] = "video"
+  $cExt["mp4"] = "video"
   
   $cExt["gambas"] = "gambas"
   $cExt["gbs"] = "gambas"
@@ -276,8 +276,6 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
   
   Dim sIcon As String
   Dim hPict As Picture
-  Dim S As Integer
-  Dim hImage As Image
   
   $hPict = Null
   Try Raise Icon(sPath)
@@ -346,24 +344,14 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
   
 LOCK_ICON:
 
-  If Not Access(sPath, gb.Write) Then
-    If Not $hLocked Then
-      $hLocked = Picture["icon:/128/lock"].Image
-      If Not $hLocked Then $hLocked = Image.Load("locked.png")
-    Endif
-    If $hLocked Then 
-      hImage = hPict.Image
-      S = Min(hImage.W \ 2, hImage.H \ 2)
-      hImage.PaintImage($hLocked, hImage.W - S, hImage.H - S, S, S)
-      hPict = hImage.Picture
-    Endif
-  Endif
-
+  If Not hPict Then hPict = Picture["icon:/" & CStr(iSize) &/ "file"]
+  If Not hPict Then Stop
+  If Not Access(sPath, gb.Write) Then hPict = Main.AddEmblem(hPict, "lock")
   Return hPict
   
 Catch
   
-  Error "gb.form: unable to get icon for file: "; File.Name(sPath); ": "; Error.Text
+  Error "gb.form: unable to get icon for file: "; File.Name(sPath); ": "; Error.Text;; Error.Backtrace.Join(" ")
   
 End
 
@@ -1092,6 +1080,8 @@ Private Function Settings_Read() As Variant[]
 End
 
 Private Sub Settings_Write(Value As Variant[])
+  
+  If IsNull(Value) Then Return
   
   If TypeOf(Value[0]) = gb.Integer Then
     ShowDetailed_Write(Value[1])

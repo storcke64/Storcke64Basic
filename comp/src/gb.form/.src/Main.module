@@ -5,6 +5,7 @@
 Private $cArrow As New Collection
 Private $bInitGTK As Boolean
 Private $bUseGTK As Boolean
+Private $cEmblem As New Collection
 
 Public Sub GetArrow(iType As Integer, iSize As Integer) As Image
   
@@ -390,5 +391,27 @@ Public Sub FormatPath(Path As String) As String
   If Path = User.Home Then Return "~"
   If Path Begins (User.Home & "/") Then Return "~/" & Mid$(Path, Len(User.Home) + 2)
   Return Path
+  
+End
+
+Public Sub AddEmblem(hPict As Picture, sIcon As String) As Picture
+  
+  Dim hEmblem As Image
+  Dim hImage As Image
+  Dim S As Integer
+  
+  hEmblem = $cEmblem[sIcon]
+  If Not hEmblem Then
+    hEmblem = Picture["icon:/128" &/ sIcon].Image
+    If Not hEmblem Then hEmblem = Image.Load("emblem" &/ sIcon & ".png")
+    If Not hEmblem Then Return hPict
+    $cEmblem[sIcon] = hEmblem
+  Endif
+
+  hImage = hPict.Image
+  S = Min(hImage.W \ 2, hImage.H \ 2)
+  hImage.PaintImage(hEmblem, hImage.W - S, hImage.H - S, S, S)
+  
+  Return hImage.Picture
   
 End

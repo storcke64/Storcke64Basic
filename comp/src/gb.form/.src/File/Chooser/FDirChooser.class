@@ -92,7 +92,7 @@ Public Sub _new(Optional bFile As Boolean)
   
   '$hWatch = New Watcher(fvwChoose) As "FileView"
 
-  '''FillMenu
+  FillMenu
 
   SetRoot()
   
@@ -986,7 +986,6 @@ Private Sub AddBookmarkMenu(hBookmark As CBookmark)
   hMenu.Enabled = hBookmark.Exist()
   
 End
-
 
 Private Sub FillMenu()
   

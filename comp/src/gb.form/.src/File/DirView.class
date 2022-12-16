@@ -4,6 +4,7 @@ Export
 Inherits UserControl
 
 Class Watch
+Class DesktopMime
 
 Public Const _Properties As String = "*,Border=True,Root,Picture,ShowHidden,HideRoot"
 Public Const _DefaultEvent As String = "Click"
@@ -43,9 +44,11 @@ Private $hRefreshTimer As Timer
 Private $bRefreshTimerTriggered As Boolean
 Private $hWatcher As Watcher
 Private $bRefreshAfterRename As Boolean
+Private $bDesktopIsLoaded As Boolean
 
 Public Sub _new()
 
+  $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
   $bWatch = Component.IsLoaded("gb.inotify")
   If $bWatch Then $hWatcher = New Watcher(Me) As "Watcher"
   
@@ -466,11 +469,17 @@ End
 
 Private Function GetIcon(sPath As String) As Picture
 
+  Dim hPict As Picture
+  
   If sPath = GetRoot() Then Return $hRootPict  
   $hPict = Null
   Try Raise Icon(sPath)
   If $hPict Then Return $hPict
-  Return Picture["icon:/small/directory"]
+  
+  If Not hPict Then hPict = Picture["icon:/small/directory"]
+
+  If Not Access(sPath, gb.Write) Then hPict = Main.AddEmblem(hPict, "lock")
+  Return hPict
   
 End
 
