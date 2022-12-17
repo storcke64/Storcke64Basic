@@ -32,7 +32,7 @@
 #include "gdrag.h"
 #include "gdesktop.h"
 
-#define DEBUG_DND 1
+//#define DEBUG_DND 1
 
 static void cb_destroy(GtkWidget *object, gControl *data)
 {
