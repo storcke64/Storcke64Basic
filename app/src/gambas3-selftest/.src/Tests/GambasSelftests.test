@@ -159,13 +159,13 @@ Fast Public Function FastTests() As Integer
 
     If Exist(Application.Path &/ ".src" &/ "TestSources" &/ "mTest.module") = False Then
         'Message.Error("Cannot open source file for testing! Test must be executed from GambasTest project root folder.")
-        Inform(("Cannot open source file for testing! Test must be executed from GambasTest project root folder."))
-        Return -1
+        Error.Raise(("Cannot open source file for testing! Test must be executed from GambasTest project root folder."))
+        'Return -1
     Endif
 
     If DebuggingEnabled = False Then
-        Inform(("GambasTester cannot be run without debugging information! Recompile debugging information enabled."))
-        Return -1
+        Error.Raise(("GambasTester cannot be run without debugging information! Recompile debugging information enabled."))
+        'Return -1
     Endif
 
     ' ------------------------------------------------- End Prerequisites
