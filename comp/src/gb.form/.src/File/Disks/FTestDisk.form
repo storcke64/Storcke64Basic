@@ -1,0 +1,52 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,105,62)
+  Text = ("Simple File Navigator")
+  Arrangement = Arrange.Vertical
+  { HBox2 HBox
+    MoveScaled(0,0,103,5)
+    { ToolButton1 ToolButton
+      MoveScaled(1,0,5,4)
+      Picture = Picture["icon:/22/up"]
+    }
+    { Spring1 Spring
+      MoveScaled(38,2,10,2)
+    }
+    { Panel1 Panel
+      MoveScaled(88,0,10.8571,5.8571)
+      Arrangement = Arrange.Horizontal
+      { ToolButton2 ToolButton Views
+        Name = "ToolButton2"
+        MoveScaled(0,1,5,4)
+        Picture = Picture["icon:/22/view-detail"]
+        Radio = True
+        Toggle = True
+      }
+      { ToolButton3 ToolButton Views
+        Name = "ToolButton3"
+        MoveScaled(5,0,5,5)
+        Picture = Picture["icon:/22/view-icon"]
+        Radio = True
+        Toggle = True
+        Value = True
+      }
+    }
+  }
+  { DirBrowser1 DirBrowser
+    MoveScaled(1,6,97,4)
+  }
+  { HBox1 HBox
+    MoveScaled(1,13,106,57)
+    Expand = True
+    { DiskPanel1 DiskPanel
+      MoveScaled(2,8,34,46)
+    }
+    { FileView1 FileView
+      MoveScaled(40,0,66,61)
+      Expand = True
+      ShowDirectory = True
+      ShowPreview = True
+    }
+  }
+}

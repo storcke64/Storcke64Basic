@@ -1,0 +1,107 @@
+' Gambas class file
+
+Inherits _Drive
+
+Class DBus
+
+Static Private Const $sBus As String = "system://"
+Static Private Const $sApplication As String = "org.freedesktop.UDisks2"
+Static Private Const $sRootDbusPath As String = "/org/freedesktop/UDisks2/drives"
+Static Private Const $sBaseInterface As String = "org.freedesktop.UDisks2."
+
+Private $sMyPath As String
+
+Property Read CanPowerOff As Boolean
+Property Read Ejectable As Boolean
+Property Read MediaAvailable As Boolean
+Property Read MediaChangeDetected As Boolean
+Property Read MediaRemovable As Boolean
+Property Read Optical As Boolean
+Property Read OpticalBlank As Boolean
+Property Read Removable As Boolean
+Property Read ConnectionBus As String
+Property Read Size As Long
+Property Read Id As String
+Private $sDrv As String
+
+
+Public Sub _new(sDrv As String)
+
+  
+  If Not DBus[$sBus & $sApplication][$sRootDbusPath].Children.Exist(sDrv) Then
+    
+    Error.Raise("Unknown Drive device")
+    Return
+    
+  Endif
+  
+  $sDrv = sDrv
+  $sMyPath = $sRootDbusPath &/ sDrv
+End 
+
+Private Function CanPowerOff_Read() As Boolean
+
+ Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].CanPowerOff
+
+End
+
+Private Function Ejectable_Read() As Boolean
+
+   Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].Ejectable
+
+End
+
+Private Function MediaAvailable_Read() As Boolean
+
+   Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].MediaAvailable
+
+End
+
+Private Function MediaChangeDetected_Read() As Boolean
+
+   Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].MediaChangeDetected
+
+End
+
+Private Function MediaRemovable_Read() As Boolean
+
+   Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].MediaRemovable
+
+End
+
+Private Function Optical_Read() As Boolean
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].Optical
+
+End
+
+Private Function OpticalBlank_Read() As Boolean
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].OpticalBlank
+
+End
+
+Private Function Removable_Read() As Boolean
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].Removable
+
+End
+
+Private Function ConnectionBus_Read() As String
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].ConnectionBus
+
+End
+
+Private Function Size_Read() As Long
+  
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].Size
+
+End
+
+
+Private Function Id_Read() As String
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Drive"].Id
+
+End

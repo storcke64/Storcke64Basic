@@ -1,0 +1,34 @@
+' Gambas class file
+
+
+Public Sub _new()
+
+  FileView1.Dir = User.Home
+
+End
+
+Public Sub Form_Close()
+
+  DiskPanel1.Free
+
+End
+
+Public Sub FileView1_Activate()
+
+  FileView1.Dir = FileView1.Dir &/ FileView1.Current
+
+End
+
+Public Sub FileView1_Icon(Path As String)
+  Dim hImage As Image
+  hImage = thumbnailer.GetThumbnail(Path)
+
+  FileView1.Icon = hImage.Picture
+
+End
+
+Public Sub Form_Open()
+
+  
+
+End

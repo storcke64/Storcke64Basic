@@ -1,0 +1,138 @@
+' Gambas class file
+
+Inherits _Block
+
+Class DBus
+
+Private $sDrv As String
+
+Static Private Const $sBus As String = "system://"
+Static Private Const $sApplication As String = "org.freedesktop.UDisks2"
+Static Private Const $sRootDbusPath As String = "/org/freedesktop/UDisks2/block_devices"
+Static Private Const $sBaseInterface As String = "org.freedesktop.UDisks2."
+
+Private $sMyPath As String
+
+Property Read Device As String
+Property Read Drive As _Drive
+Property Read ReadOnly As Boolean
+Property Read FileSystem As String
+Property Read MountPoints As String[]
+Property Read CanMount As Boolean
+Property Read IsMounted As Boolean
+Property Read IdType As String
+Property Read IdLabel As String
+Property Read IdUUID As String
+Property Read IdUsage As String
+
+Public Sub _new(sDrv As String)
+
+  If Not DBus[$sBus & $sApplication][$sRootDbusPath].Children.Exist(sDrv) Then
+
+    Error.Raise("Unknown block device")
+    Return
+
+  Endif
+
+  $sDrv = sDrv
+  $sMyPath = $sRootDbusPath &/ sDrv
+
+End
+
+Private Function Device_Read() As String
+
+  Dim aBytes As Byte[]
+
+  aBytes = Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].Device
+
+  Return aBytes.ToString()
+
+End
+
+Private Function Drive_Read() As _Drive
+
+  Dim sDrive As String = Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].Drive
+
+  If Component.IsLoaded("gb.dbus") Then
+    Return New _DriveDBus(File.Name(sDrive))
+  Else
+    Return New _DriveNoDBus(File.Name(sDrive))
+  Endif
+
+End
+
+Private Function ReadOnly_Read() As Boolean
+
+  Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].ReadOnly
+
+End
+
+Private Function FileSystem_Read() As String
+
+  Try Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].IdType
+
+End
+
+Private Function MountPoints_Read() As String[]
+
+  Dim aMountPoints As New String[]
+  Dim aMp As Byte[]
+  Dim aMps As Byte[][]
+  'If InStr(Me.Device, "sda3") Then Stop
+  If Me.FileSystem Then
+    Try aMps = Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Filesystem"].MountPoints
+
+    If Not aMps Then Return aMountPoints
+
+    For Each aMP In Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Filesystem"].MountPoints
+      aMountPoints.Add(aMp.ToString())
+    Next
+    'Catch
+  Endif
+  Return aMountPoints
+
+End
+
+Private Function CanMount_Read() As Boolean
+
+  Dim i As Integer
+
+  Try i = Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Filesystem"].Children.Count
+
+  If Not Error Then
+    Return True
+  Else
+    Return False
+  Endif
+
+End
+
+Private Function IsMounted_Read() As Boolean
+
+  Return Me.MountPoints.Count > 0
+
+End
+
+Private Function IdType_Read() As String
+
+  Try Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].IdType
+
+End
+
+Private Function IdLabel_Read() As String
+
+  Try Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].IdLabel
+
+End
+
+Private Function IdUUID_Read() As String
+
+  Try Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].IdUUID
+
+End
+
+Private Function IdUsage_Read() As String
+
+  Try Return Dbus[$sBus & $sApplication][$sMyPath, $sBaseInterface & "Block"].IdUsage
+
+End

@@ -1,0 +1,92 @@
+' Gambas class file
+
+Create Static
+Class DBus
+Private Const $sBus As String = "system://"
+Private Const $sApplication As String = "org.freedesktop.UDisks2"
+Private $sRootDbusPath As String = "/org/freedesktop/UDisks2/drives"
+Private Const $sBaseInterface As String = "org.freedesktop.UDisks2."
+
+Private $aListDrive As String[]
+Private $cDrive As New Collection
+Private $bDBus As Boolean
+
+Static Public Sub _init()
+
+  Component.Load("gb.dbus")
+
+End
+
+Public Sub _new()
+
+  Disks._USEDBUS = Component.IsLoaded("gb.dbus")
+  If Env["GB_DISKS_NODBUS"] = 1 Then Disks._USEDBUS = False
+  
+End
+
+Public Sub _next() As String
+
+  Dim s As String
+
+  If Not $aListDrive Then $aListDrive = GetList()
+
+  If IsNull(Enum.Index) Then
+    Enum.Index = 0
+  Else
+    Inc Enum.Index
+  Endif
+  If Enum.Index >= $aListDrive.Count Then
+    Enum.Stop
+    $aListDrive = Null
+    Return
+  Endif
+
+  s = $aListDrive[Enum.Index]
+  Return s
+
+End
+
+Public Sub _get(Drive As String) As _Drive
+
+  Dim hDrive As _Drive
+
+  If Not $cDrive.Exist(Drive) Then
+    If Disks._USEDBUS Then
+      hDrive = New _DriveDBus(Drive) As "Drive"
+    Else
+      hDrive = New _DriveNoDBus(Drive) As "Drive"
+    Endif
+    'If Error Then Return Null
+    $cDrive[Drive] = hDrive
+  Endif
+  Return $cDrive[Drive]
+
+End
+
+Public Sub GetList() As String[]
+
+  Dim aRet As New String[]
+  If $bDBus Then
+    Return DBus[$sBus & $sApplication][$sRootDbusPath]._GetSymbols("node")
+  Else
+    
+    'Return GetDrives("/sys/block")
+    
+  Endif
+
+End
+
+Private Sub GetDrives(sPath As String) As String[]
+  Dim aRet As New String[]
+  Dim aSub As String[]
+  Dim s As String
+  For Each s In Dir(sPath, File.BaseName(sPath) & "*", gb.Directory)
+    aRet.Add(s)
+    aSub = GetDrives(sPath &/ s)
+    aRet.Insert(aSub)
+  Next
+  Return aRet
+End
+
+
+

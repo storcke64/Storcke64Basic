@@ -1,0 +1,83 @@
+' Gambas class file
+
+' ' Gambas class file
+
+Inherits _Drive
+
+' Property Read CanPowerOff As Boolean
+' Property Read Ejectable As Boolean
+' Property Read MediaAvailable As Boolean
+' Property Read MediaChangeDetected As Boolean
+' Property Read MediaRemovable As Boolean
+' Property Read Optical As Boolean
+' Property Read OpticalBlank As Boolean
+' Property Read Removable As Boolean
+' Property Read ConnectionBus As String
+' Property Read Size As Long
+' Property Read Id As String
+' 
+' Private $sDrv As String
+' Private $sPath As String
+' 
+' Public Sub _new(sDrv As String)
+'   $sDrv = sDrv
+'   $sPath = "/sys/block" &/ sDrv 
+'   
+'   If Not Exist($sPath) Then 
+'     Error.Raise("Unknown Drive device")
+'     Return
+'   Endif
+' End
+' 
+' Private Function CanPowerOff_Read() As Boolean
+'   
+' End
+' 
+' Private Function Ejectable_Read() As Boolean
+' 
+' End
+' 
+' Private Function MediaAvailable_Read() As Boolean
+' 
+' End
+' 
+' Private Function MediaChangeDetected_Read() As Boolean
+' 
+' End
+' 
+' Private Function MediaRemovable_Read() As Boolean
+' 
+' End
+' 
+' Private Function Optical_Read() As Boolean
+' 
+' End
+' 
+' Private Function OpticalBlank_Read() As Boolean
+' 
+' End
+' 
+' Private Function Removable_Read() As Boolean
+'   Dim s As String
+'   s = File.Load($sPath &/ "removable")
+'   
+'   If s = "1" Then Return True
+'   
+' End
+' 
+' Private Function ConnectionBus_Read() As String
+' 
+' End
+' 
+' Private Function Size_Read() As Long
+' 
+'   Dim l As Long
+'   
+'   l = File.Load($sPath &/ "size")
+'   Return l
+'   
+' End
+' 
+' Private Function Id_Read() As String
+'   
+' End

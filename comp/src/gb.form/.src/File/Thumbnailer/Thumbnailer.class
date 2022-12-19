@@ -1,0 +1,355 @@
+' Gambas class file
+
+Create Static
+
+Class Hash
+Class Date
+Class Shell
+Class DesktopMime
+
+'Const THUMBSPATH As String = ".cache/thumbnails"
+Const THUMBNAILERSPATH As String = "/usr/share/thumbnailers"
+Private $sFullThumbPath As String
+'Private $sThumbnailersPath As String
+Private $cSizeToDirName As New Collection
+Private $cMimeToThumbnailer As New Collection
+
+Public Struct Thumbnailer
+  TryExec As String
+  {Exec} As String
+End Struct
+
+Public Struct Chunk
+  Size As Integer
+  Type As String
+  Crc As String
+  Datas As String
+End Struct
+
+Public Sub _new()
+  
+  Component.Load("gb.hash")
+  Component.Load("gb.util")
+  Component.Load("gb.Desktop")
+  
+  'Generate the thumbnails cache directory if not exist
+  $sFullThumbPath = Desktop.CacheDir &/ "thumbnails"
+  If Not Exist($sFullThumbPath) Then Main.MkDir($sFullThumbPath)
+
+  '$sThumbnailersPath =
+
+  $cSizeToDirName["128"] = "normal"
+  $cSizeToDirName["256"] = "large"
+  $cSizeToDirName["512"] = "x-large"
+  $cSizeToDirName["1028"] = "xx-large"
+
+  LoadThumbnailers
+
+End
+
+Private Sub LoadThumbnailers()
+
+  Dim s As String
+  Dim sFile As String
+  Dim sLine As String
+  Dim a As String[]
+  Dim hThumbnailer As Thumbnailer
+  Dim ss As String
+
+  For Each s In Dir(THUMBNAILERSPATH, "*.thumbnailer", gb.File)
+    sFile = File.Load(THUMBNAILERSPATH &/ s)
+    hThumbnailer = New Thumbnailer
+    For Each sLine In Split(sFile, "\n")
+      If InStr(sLine, "=") Then
+        Try a = Scan(sLine, "*=*")
+        If Error Then Break
+        Select Case LCase(Trim(a[0]))
+          Case "tryexec"
+            hThumbnailer.TryExec = Trim(a[1])
+          Case "exec"
+            hThumbnailer.Exec = Trim(a[1])
+          Case "mimetype"
+            For Each ss In Split(a[1], ";")
+              If ss = "" Then Continue
+              $cMimeToThumbnailer[ss] = hThumbnailer
+            Next
+        End Select
+      Endif
+    Next
+  Next
+
+End
+
+Public Sub GetThumbnail(Path As String, Optional Size As Integer = 256) As Image
+
+  Dim sThumbName As String = LCase(Hash.Md5(MakeURI(Path))) & ".png"
+  Dim hImg As Image
+  Dim iGoodSize As Integer = GetGoodSize(Size)
+  Dim sDir As String = $sFullThumbPath &/ $cSizeToDirName[iGoodSize] &/ sThumbName
+  Dim cInfo As Collection
+
+  If Exist(sdir) Then
+    cInfo = GetInfoFromPng(sdir)
+    'Verify if the thumbnail is uptodate
+    If Date.ToUnixTime(Stat(Path).LastModified) <> CLong(cInfo["Thumb::MTime"]) Then MakeThumbNail(Path, Size)
+    Try hImg = Image.Load(sdir)
+  Else
+    MakeThumbNail(Path, Size)
+    Try hImg = Image.Load(sdir)
+  Endif
+  Return himg
+
+End
+
+Private Sub MakeThumbNail(Path As String, Optional Size As Integer) As Image
+
+  Dim iGoodSize As Integer
+
+  Dim sThumbName As String
+  Dim sdir As String
+  Dim sMime As String
+  Dim sExec As String
+  Dim dmTime As Date
+  Dim cInfo As New Collection
+  Dim sFailDir As String = $sFullThumbPath &/ "fail/gambas-thumbnail-factory"
+  Dim hImg As Image
+  
+  sThumbName = GetThumbnailName(Path)
+
+  'Check if the Thumbnail generation have already fail
+  If Exist(sFailDir &/ sThumbName) Then 
+     cInfo = GetInfoFromPng(sFailDir &/ sThumbName)
+    'Verify if the thumbnail is uptodate
+    If Date.ToUnixTime(Stat(Path).LastModified) = CLong(cInfo["Thumb::MTime"]) Then Return 
+    'else retry
+    cInfo.Clear
+    Try Kill sFailDir &/ sThumbName
+  Endif
+
+  'Define the Thumb directory
+  iGoodSize = GetGoodSize(Size)
+  sDir = $sFullThumbPath &/ $cSizeToDirName[iGoodSize]
+  If Not Exist(sDir) Then
+    Main.MkDir(sDir)
+  Endif
+
+  'Generate the preview file
+
+  '->Call script depend of mimetype
+  sMime = DesktopMime.FromFile(Path).Type
+  If $cMimeToThumbnailer.Exist(sMime) Then
+    'Debug "Make thumbnail with : " & $cMimeToThumbnailer[sMime].Exec
+    sExec = Replace($cMimeToThumbnailer[sMime].Exec, "%s", Str(iGoodSize))
+    sExec = Replace(sExec, "%u", "'" & Path & "'")
+    sExec = Replace(sExec, "%i", "'" & Path & "'")
+    sExec = Replace(sExec, "%o", "'" & sDir &/ sThumbName & "'")
+    'Debug "Shell command : " & sExec
+    Shell sExec Wait
+  Else
+    Return
+  Endif
+
+'Fail management
+If Not Exist(sDir &/ sThumbName) Then
+  If Not Exist(sFailDir) Then Shell.MkDir(sFailDir)
+  hImg = New Image(1, 1, Color.Black)
+  hImg.Save(sFailDir &/ sThumbName)
+  sDir = sFailDir
+Endif
+
+
+  dmTime = Stat(Path).LastModified
+  'Set the png chunks
+
+  cInfo["Thumb::URI"] = MakeURI(Path)
+  cInfo["Thumb::MTime"] = Date.ToUnixTime(dmTime)
+  cInfo["Software"] = "GAMBAS::ThumbnailFactory"
+
+  SaveInfoToPng(sDir &/ sThumbName, cInfo)
+
+End
+
+Private Sub GetThumbnailName(Path As String) As String
+
+  Dim sPathName As String
+
+  Path = MakeURI(Path)
+  sPathName = LCase(Hash.Md5(Path)) & ".png"
+
+  Return sPathName
+
+End
+
+Private Sub GetGoodSize(Size As Integer) As Integer
+
+  Dim i As Integer
+
+  For Each i In [128, 256, 512, 1028]
+    If size <= i Then Return i
+  Next
+
+End
+
+Private Sub MakeURI((Path) As String) As String
+
+  ''This Function quote the file URI
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If IsLetter(sCar) Or If IsDigit(sCar) Or If InStr("-._~,$!/", sCar) Then
+    Else
+      sCar = "%" & Hex$(Asc(sCar), 2)
+    Endif
+    sRes &= sCar
+  Next
+
+  'Add the protocol
+  sRes = "file://" & sRes
+
+  Return sRes
+
+End
+
+Private Sub GetUri((Path) As String, Optional DoNotDecodePlus As Boolean) As String
+
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = "%" Then
+      sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
+      iInd += 2
+    Else If sCar = "+" And If Not DoNotDecodePlus Then
+      sCar = " "
+    Endif
+    sRes &= sCar
+  Next
+
+  If sRes Begins "file://" Then
+    sRes = Right(sRes, -7)
+  Endif
+
+  Return sRes
+
+End
+
+Private Sub GetInfoFromPng(Path As String) As Collection
+
+  Dim hFile As File
+  Dim iSize As Integer
+  Dim sType As String
+  Dim hCol As New Collection
+  Dim sData As String
+  Dim a As String[]
+
+  hFile = Open Path For Read
+  hFile.ByteOrder = gb.BigEndian
+  'move after magic
+  Seek #hfile, 8
+  Do
+    iSize = Read #hFile As Integer
+    sType = Read #hFile, 4
+    If sType = "tEXt" Then
+      sData = Read #hFile, iSize
+      a = Split(sData, Chr(0))
+      hCol[a[0]] = a[1]
+      Seek #hFile, Seek(hFile) + 4
+    Else
+      Seek #hfile, Seek(hFile) + iSize + 4
+    Endif
+    If sType = "IEND" And iSize = 0 Then Break
+  Loop
+  hfile.Close
+  Return hCol
+
+End
+
+Private Sub SaveInfoToPng(Path As String, cInfo As Collection)
+
+  Dim hFile As File
+  Dim aChunks As New Chunk[]
+  Dim hChunk As Chunk
+  Dim i As Integer
+  Dim s As String
+  Dim isPng As Byte[] = [137, 80, 78, 71, 13, 10, 26, 10]
+  Dim sMagic As String
+
+  hFile = Open Path For Read
+  hfile.ByteOrder = gb.BigEndian
+
+  'Load the full datas
+  sMagic = Read #hfile, 8
+
+  If sMagic <> isPng.ToString() Then
+    Error.Raise("This file is not a valid png file")
+    hfile.Close
+    Return
+  Endif
+
+  Do
+    hChunk = New Chunk
+    hChunk.Size = Read #hFile As Integer
+    hChunk.Type = Read #hFile, 4
+    hChunk.Datas = Read #hFile, hChunk.Size
+    hChunk.Crc = Read #hFile, 4
+    'forgot the existing tEXt chunks
+    If hChunk.Type <> "tEXt" Then aChunks.Add(hChunk)
+    If hChunk.Type = "IEND" And hChunk.Size = 0 Then Break
+  Loop
+
+  hfile.Close
+
+  'Adding the collection entries in the chunks array just before the iDAT chunk
+  For i = 0 To aChunks.Max
+    If aChunks[i].Type = "IDAT" Then Break
+  Next
+
+  For Each s In cInfo
+    s = cInfo.Key & Chr(0) & s
+    hChunk = New Chunk
+    hChunk.Type = "tEXt"
+    hChunk.Size = s.Len
+    hChunk.Datas = s
+    hChunk.Crc = String(4, Chr(0))
+    aChunks.Add(hChunk, i)
+    Inc i
+  Next
+
+  'Saving the new file
+
+  hFile = Open Path For Write Create
+  hFile.ByteOrder = gb.BigEndian
+
+  'Writing the file
+  Write #hFile, sMagic
+
+  For Each hChunk In aChunks
+    Write #hFile, hChunk.Size As Integer
+    Write #hFile, hChunk.Type
+    Write #hFile, hChunk.Datas
+    Write #hFile, hChunk.Crc
+  Next
+
+  hFile.Close
+
+End
+
+Public Sub RemoveThumbnail(Path As String)
+
+  Dim sThumbName As String = LCase(Hash.Md5(MakeURI(Path))) & ".png"
+  Dim s As String
+  Dim sDir As String
+
+  For Each s In $cSizeToDirName
+    sDir = $sFullThumbPath &/ s &/ sThumbName
+    If Exist(sDir) Then
+      Try Kill sdir
+    Endif
+  Next
+
+End

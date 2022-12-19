@@ -1,0 +1,66 @@
+' Gambas class file
+
+Export 
+Inherits UserControl
+Private $hView As New ColumnView(Me) As "View" 
+Private $hBookmarks As New CBookmarkList
+
+Public Sub _new()
+  Dim hb As CBookmark
+  Component.Load("gb.desktop")
+  'Dim hGrid As GridView
+  $hView.Background = Color.Background
+  $hView.Header = GridView.None
+  '$hView.Font.Grade = 1
+  'hGrid = $hView.Children[0]
+  'hGrid.Rows.Height = 50
+  $hView.Add("Places", "Places")
+  $hView.Add("Devices", "Devices")
+  $hView["Places"].Expanded = True
+  $hView["Places"].Font = Font["Bold"]
+  $hView["Devices"].Expanded = True
+  $hView["Devices"].Font = $hView["Places"].Font
+  For Each hb In $hBookmarks
+    $hView.Add(hb.Path, hb.Name, Picture[Replace(hb.Icon, "small", "22")], "Places")
+  Next
+  
+  LoadDrives()
+  
+  
+End
+
+Private Sub LoadDrives()
+  
+  Dim s As String
+  Dim hDisk As _Block
+  $hView["Devices"].Clear
+  
+  For Each s In Disks.GetList()
+    'Print s
+    'print Disks[s].Device
+    'Print Disks[s].Drive.Optical
+    hDisk = Disks[s]
+    If Not hDisk.CanMount Then Continue 
+    If Not hDisk.Drive.Removable Then Continue 
+    If hDisk.IsMounted And If $hBookmarks.FindBookmark(hDisk.MountPoints[0]) <> Null Then Continue 
+    
+    $hView.Add(s, hDisk.IdLabel, Picture["icon:/22" &/ hDisk.Icon], "Devices")
+    
+  Next
+  
+End
+
+Private Sub IsInBookmark(sValue As String) As Boolean
+
+  $hBookmarks.FindBookmark
+  
+End
+
+Public Sub Free()
+  
+  Disks.Free
+  
+End
+
+
+

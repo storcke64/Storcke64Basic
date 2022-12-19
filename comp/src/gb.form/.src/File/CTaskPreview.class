@@ -12,13 +12,15 @@ Private $sCache As String
 
 Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
   
-  $sDir = sDir
-  $iSize = iSize
-  $iMaxFileSize = iMaxFileSize
-  If $iMaxFileSize = 0 Then $iMaxFileSize = 4194304
-  $aPreview = aPreview
-  $sCache = sTempDir &/ "gb.form/thumbnails"
-  Main.MkDir($sCache)
+  ' $sDir = sDir
+  ' $iSize = iSize
+  ' $iMaxFileSize = iMaxFileSize
+  ' If $iMaxFileSize = 0 Then $iMaxFileSize = 4194304
+  ' $aPreview = aPreview
+  ' $sCache = sTempDir &/ "gb.form/thumbnails"
+  ' Main.MkDir($sCache)
+  
+  
   
 End
 

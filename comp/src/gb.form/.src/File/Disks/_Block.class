@@ -1,0 +1,91 @@
+' Gambas class file
+
+Property Read Device As String
+Property Read Drive As _Drive
+Property Read ReadOnly As Boolean
+Property Read FileSystem As String
+Property Read MountPoints As String[]
+Property Read CanMount As Boolean
+Property Read IsMounted As Boolean
+Property Read Icon As String
+Property Read IdType As String
+Property Read IdLabel As String
+Property Read IdUUID As String
+Property Read IdUsage As String
+
+Public Sub _new()
+
+End
+
+Private Function Device_Read() As String
+
+End
+
+Private Function Drive_Read() As _Drive
+
+End
+
+Private Function ReadOnly_Read() As Boolean
+
+End
+
+Private Function FileSystem_Read() As String
+
+End
+
+Private Function MountPoints_Read() As String[]
+
+End
+
+Private Function CanMount_Read() As Boolean
+
+End
+
+Private Function IsMounted_Read() As Boolean
+
+End
+
+
+
+Private Function Icon_Read() As String
+
+'      If InStr(Me.Device, "sr") Then Stop
+      If Not Me.CanMount Then Return 
+      If Me.Drive.Optical Then
+        Return "cdrom"
+      Else
+        Select Case Me.Drive.ConnectionBus
+          Case "usb"
+            Return "usb"
+          Case "cpio"
+            Return "sdcard"
+          Case Else
+           Return "harddisk"
+        End Select
+      Endif
+
+End
+
+Private Function IdType_Read() As String
+
+  
+
+End
+
+Private Function IdLabel_Read() As String
+
+  
+
+End
+
+Private Function IdUUID_Read() As String
+
+  
+
+End
+
+Private Function IdUsage_Read() As String
+
+  
+
+End

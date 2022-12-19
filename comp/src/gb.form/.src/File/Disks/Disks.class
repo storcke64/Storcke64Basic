@@ -1,0 +1,172 @@
+' Gambas class file
+
+Create Static
+Class DBusSignal
+Class DBusConnection
+Class DBus
+Private Const $sBus As String = "system://"
+Private Const $sApplication As String = "org.freedesktop.UDisks2"
+Private $sRootDbusPath As String = "/org/freedesktop/UDisks2/block_devices"
+Private Const $sBaseInterface As String = "org.freedesktop.UDisks2."
+
+Private $aListBlock As String[]
+Private $cBlock As New Collection
+Private $hSignal As DBusSignal
+Private $hDBusConnection As DBusConnection
+
+Static Public _USEDBUS As Boolean
+
+Event DeviceAdded(Block As String)
+Event DeviceRemoved(Block As String)
+Event DeviceMounted(Block As String)
+Event DeviceUnMounted(Block As String)
+Private $cJobs As New Collection
+
+Static Public Sub _init()
+
+  Component.Load("gb.dbus")
+
+End
+
+Public Sub _new()
+
+  Disks._USEDBUS = Component.IsLoaded("gb.dbus")
+  
+  If Env["GB_DISKS_NODBUS"] = 1 Then Disks._USEDBUS = False
+  
+  If Disks._USEDBUS Then
+    Try $hDBusConnection = DBus[$sBus & $sApplication].Connection
+    $hSignal = New DBusSignal($hDBusConnection, "org.freedesktop.DBus.ObjectManager", True) As "Signal"
+  Endif
+
+End
+
+Public Sub _next() As String
+
+  Dim s As String
+
+  If Not $aListBlock Then $aListBlock = GetList() 'GetPathChildsDBus($sRootDbusPath)
+
+  If IsNull(Enum.Index) Then
+    Enum.Index = 0
+  Else
+    Inc Enum.Index
+  Endif
+  If Enum.Index >= $aListBlock.Count Then
+    Enum.Stop
+    $aListBlock = Null
+    Return
+  Endif
+
+  s = $aListBlock[Enum.Index]
+  Return s
+
+End
+
+' Private Function GetPathChildsDBus(sPath As String) As String[]
+'
+'   Dim s As String
+'   Dim aList As New String[]
+'
+'   For Each s In DBus[$sBus & $sApplication][sPath].Children
+'     If Not DBus[$sBus & $sApplication][$sRootDbusPath].Children.Exist(s) Then Continue 'dblcheck
+'     aList.Add(s)
+'   Next
+'
+'   Return aList.Sort(gb.Natural)
+'
+' End
+
+Public Sub _get(Block As String) As _Block
+
+  Dim hBlock As _Block
+
+  If Not $cBlock.Exist(Block) Then
+    If Disks._USEDBUS Then
+      hBlock = New _BlockDBus(Block) As "Block"
+    Else
+      hBlock = New _BlockNoDBus(Block) As "Block"
+    Endif
+    'If Error Then Return Null
+    $cBlock[Block] = hBlock
+  Endif
+  Return $cBlock[Block]
+
+End
+
+Public Sub Free()
+
+  If Disks._USEDBUS Then
+    $hSignal.Enabled = False
+    $hSignal = Null
+  Endif
+
+End
+
+Public Sub Signal_Signal(Signal As String, Arguments As Variant[])
+
+  Print Signal
+  Print Arguments[0]
+
+  'If InStr(Arguments[0], "jobs") Then Stop
+  If Signal = "InterfacesRemoved" Then
+    If InStr(Arguments[0], "block_devices") Then
+      Raise DeviceRemoved(File.name(Arguments[0]))
+      Return
+
+    Endif
+    If InStr(Arguments[0], "jobs") Then
+      If $cJobs.Exist(Arguments[0]) Then
+        Select Case $cJobs[Arguments[0]]["org.freedesktop.UDisks2.Job"]["Operation"]
+          Case "filesystem-mount"
+            Raise DeviceMounted(File.name($cJobs[Arguments[0]]["org.freedesktop.UDisks2.Job"]["Objects"][0]))
+          Case "filesystem-unmount"
+            Raise DeviceUnMounted(File.name($cJobs[Arguments[0]]["org.freedesktop.UDisks2.Job"]["Objects"][0]))
+        End Select
+
+        $cJobs.Remove(Arguments[0])
+      Endif
+      'Stop
+    Endif
+
+  Endif
+
+  If Signal = "InterfacesAdded" Then
+    If InStr(Arguments[0], "block_devices") Then
+      Raise DeviceAdded(File.name(Arguments[0]))
+    Endif
+  Endif
+
+  If Signal = "InterfacesAdded" Then
+    If InStr(Arguments[0], "jobs") Then 'And If Arguments[1]["org.freedesktop.UDisks2.Job"]["Operation"] = "filesystem-mount" Then
+      $cJobs[Arguments[0]] = Arguments[1]
+      'sDeviceMount =
+    Endif
+  Endif
+
+End
+
+Public Sub GetList() As String[]
+
+  Dim aRet As New String[]
+  If Disks._USEDBUS Then
+
+    Return DBus[$sBus & $sApplication][$sRootDbusPath]._GetSymbols("node")
+  Else
+    Return aRet
+    'Return GetDrives("/sys/block")
+  Endif
+
+End
+
+Private Sub GetDrives(sPath As String) As String[]
+  Dim aRet As New String[]
+  Dim aSub As String[]
+  Dim s As String
+  For Each s In Dir(sPath, File.BaseName(sPath) & "*", gb.Directory)
+    aRet.Add(s)
+    aSub = GetDrives(sPath &/ s)
+    aRet.Insert(aSub)
+  Next
+  Return aRet
+End
