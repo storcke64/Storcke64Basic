@@ -335,9 +335,16 @@ Public Sub _GetRects(hRect As Rect, bHorizontal As Boolean, ByRef hRect1 As Rect
   If $sText Or If $sRichText Then 
     hRect2 = _GetTextRect(hRect, bHorizontal)
     hRect2.Adjust(-(DS \ 2))
-    If bHorizontal And If hRect2.H < hRect1.H Then
-      hRect2.Y = hRect1.Y
-      hRect2.H = hRect1.H
+    If bHorizontal Then 
+      If hRect2.H < hRect1.H Then
+        hRect2.Y = hRect1.Y
+        hRect2.H = hRect1.H
+      Endif
+    Else
+      If hRect2.W < hRect1.W Then
+        hRect2.X = hRect1.X
+        hRect2.W = hRect1.W
+      Endif
     Endif
   Else 
     hRect2 = Null

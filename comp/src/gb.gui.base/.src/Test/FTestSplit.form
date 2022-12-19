@@ -1,9 +1,8 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,64,64)
+  MoveScaled(0,0,90,64)
   Persistent = True
-  Utility = True
   Arrangement = Arrange.Vertical
   { HBox1 HBox
     MoveScaled(6,3,47,4)
@@ -12,20 +11,32 @@
     }
   }
   { Panel1 Panel
-    MoveScaled(5,10,51,46)
+    MoveScaled(5,10,84,46)
     Expand = True
     Arrangement = Arrange.Fill
     Border = Border.Plain
     { HSplit1 Splitter
-      MoveScaled(1,2,46,41)
+      MoveScaled(2,2,82,41)
+      Arrangement = Arrange.Vertical
+      Spacing = True
+      Invert = True
+      Border = False
       { TreeView1 TreeView
-        MoveScaled(2,11,13,22)
+        MoveScaled(2,6,13,22)
         Expand = True
         Border = False
       }
       { Panel2 Panel
-        MoveScaled(16,10,27,20)
+        MoveScaled(17,9,15,20)
         Background = Color.Yellow
+      }
+      { Panel3 Panel
+        MoveScaled(33,10,15,20)
+        Background = Color.SoftRoyal
+      }
+      { Panel4 Panel
+        MoveScaled(50,12,15,20)
+        Background = Color.SoftViolet
       }
     }
   }
