@@ -470,7 +470,7 @@ End
 Public Function CrashJIT4(x As String, Optional s As String = CJ1(), Optional b As Boolean = True) As Byte
 
     If s = "TEST" Then
-        Return -1
+        Return 255
     Else
         Print 1 / 0
     Endif
