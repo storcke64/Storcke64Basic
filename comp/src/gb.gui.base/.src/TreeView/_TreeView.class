@@ -784,10 +784,10 @@ Public Sub GridView_Draw(X As Integer, Y As Integer, W As Integer, H As Integer,
     
   Else
     
-    If Me Is ColumnView Then
-      X += Desktop.Scale
-      W -= Desktop.Scale * 2
-    Endif
+    ' If Me Is ColumnView Then
+    '   X += Desktop.Scale
+    '   W -= Desktop.Scale * 2
+    ' Endif
     If hItem.Foreground <> Color.Default Then Paint.Background = hItem.Foreground
     Paint.DrawText(hItem[Column], X, Y, W, H, $hView.Columns[Column].Alignment)
     
@@ -1512,9 +1512,11 @@ Private Sub UpdateRenameBox() As Boolean
   Else
     X = $hView.Columns[$iColRenaming].X - $hView.ScrollX
     W = Min($hView.ClientW - X, $hView.Columns[$iColRenaming].Width)
+    X += $hView.Padding + $hView.Columns.Padding - 2
+    W -= ($hView.Padding + $hView.Columns.Padding) * 2 - 4
   Endif
   
-  If W < 32 Then 
+  If W < Desktop.Scale * 4 Then 
     Cancel
     Return
   Endif

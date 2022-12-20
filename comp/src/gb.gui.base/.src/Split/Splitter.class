@@ -386,11 +386,12 @@ Public Sub Resize_MouseMove()
   ' [0 -> I] / [I + 1 -> N - 1]
   
   XMin = (S + 1) * ($iMinSize + SW) - SW
-  XMax = $hPanel.W - (($aLayout.Count - S - 1) * ($iMinSize + SW) - SW)
   
   If $bVertical Then
+    XMax = $hPanel.H - (($aLayout.Count - S - 1) * ($iMinSize + SW) - SW)
     X = Mouse.ScreenY - $hPanel.ScreenY - Mouse.StartY + Desktop.Scale \ 2
   Else 
+    XMax = $hPanel.W - (($aLayout.Count - S - 1) * ($iMinSize + SW) - SW)
     X = Mouse.ScreenX - $hPanel.ScreenX - Mouse.StartX + Desktop.Scale \ 2
   Endif
   
@@ -537,4 +538,17 @@ Private Sub Arrangement_Write(Value As Integer)
   DoLayout
   UpdateMouse
 
+End
+
+Public Sub Resize_DblClick()
+
+  Dim aLayout As Integer[]
+  Dim I As Integer
+  
+  aLayout = Layout_Read()
+  For I = 0 To aLayout.Max
+    If aLayout[I] Then aLayout[I] = 1
+  Next
+  Layout_Write(aLayout)
+  
 End
