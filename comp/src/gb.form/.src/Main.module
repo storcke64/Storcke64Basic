@@ -232,7 +232,11 @@ End
 
 Public Sub Main()
 
+  Dim hPict As Picture
+  
   MakeColorMap
+  hPict = Stock["20/.places/folder-music"]
+  Debug hPict
   
 End
 
@@ -292,6 +296,8 @@ Private Sub MakeColorMap()
   Dim H, S As Integer
   Dim V As Integer
   Dim hImage2 As Image
+
+  Return
 
   hImage = New Image(360, 256)
   hImage2 = New Image(360, 256)

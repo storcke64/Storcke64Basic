@@ -21,6 +21,9 @@ Static Private $aRoots As String[] = ["~/.icons", "~/.local/share/icons", "/usr/
 
 Class _DefaultStock
 Class DesktopMime
+Class DesktopFile
+
+Static Private $cReverseMap As Collection
 
 ' Static Private Sub GetDesktop() As String
 '
@@ -80,6 +83,8 @@ Static Private Sub LoadMap()
   Dim sIcon As String
 
   $cIconMap = New Collection
+  $cReverseMap = New Collection
+  
   $aList = New String[]
 
   hFile = Open "map" &/ "icon.map"
@@ -98,6 +103,10 @@ Static Private Sub LoadMap()
 
     $cIconMap[sKey] = sIcon
     $aList.Add(sKey)
+    
+    For Each sIcon In Split(sIcon, ";")
+      If sIcon Then $cReverseMap[sIcon] = sKey
+    Next
 
   Next
 
@@ -159,8 +168,6 @@ Static Private Sub AddGlobalPath(sMap As String, sRelPath As String)
   Next
   
 End
-
-
 
 Static Private Sub FindInConfigFile(aPath As String[], sPattern As String, Optional sFindFirst As String) As String[]
 
@@ -589,6 +596,8 @@ Static Public Function _get((Key) As String, Optional {Default} As String) As Pi
 
     If sPath Begins "#" Then
 
+      If Key Begins "." Then Key = $cReverseMap[Mid$(Key, 2)]
+
       If Key Begins "$(mime)/" Then
         Key = Mid$(Key, 9)
       Else If Not Stock.Icons.Exist(Key) Then
@@ -795,6 +804,7 @@ Static Public Sub Refresh()
   InitTheme
   Picture.Refresh
   Try DesktopMime.Refresh
+  Try DesktopFile._Refresh()
 
 End
 
