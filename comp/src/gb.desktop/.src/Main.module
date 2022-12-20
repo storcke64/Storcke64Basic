@@ -1,6 +1,7 @@
 ' Gambas module file
 
 Class X11
+Class DesktopWindow
 
 Public Result As String
 
@@ -170,11 +171,17 @@ End
 
 Public Sub Main()
 
-  Dim hMime As DesktopMime
+  Dim w As DesktopWindow
   
-  'DesktopFile.FromMime("application/vnd.oasis.opendocument.text")
-  hMime = DesktopMime.FromFile("~/gambas/git/master/gb.poppler/src/.libs/gb.poppler.so.0.0.0")
-  Print hMime.Type
+  Shell "chromium https://tinyurl.com/gblongurl"
+  
+  While 1 > 0
+      For Each w In Desktop.Windows
+        Debug w.visiblename
+      Next
+      Debug "finished"
+      Wait 1
+  Wend
   
 End
 
