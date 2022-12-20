@@ -5,6 +5,7 @@ Inherits UserControl
 
 Class Watch
 Class DesktopMime
+Class DesktopFile
 
 Public Const _Properties As String = "*,Border=True,Root,Picture,ShowHidden,HideRoot"
 Public Const _DefaultEvent As String = "Click"
@@ -26,10 +27,11 @@ Property Read Renaming As Boolean
 Property Settings As Variant[]
 Property HideRoot As Boolean
 
+Static Private $hRootPict As Picture
+
 Private $sRoot As String
 Private $hTreeView As TreeView
 Private $bShowHidden As Boolean
-Private $hRootPict As Picture
 Private $hPict As Picture
 Private $bDeleteOnCancel As Boolean
 Private $bNoExpand As Boolean
@@ -56,7 +58,7 @@ Public Sub _new()
   $hTreeView.Editable = True
   $hTimerExpand = New Timer As "TimerExpand"
   Me.Proxy = $hTreeView
-  $hRootPict = Picture["icon:/small/directory"] 'open
+  If Not $hRootPict Then $hRootPict = Picture["icon:/small/directory"] 'open
   ClearView
   $hRefreshTimer = New Timer As "Refresh"
 
@@ -467,14 +469,31 @@ Private Function Border_Read() As Boolean
 
 End
 
+Static Public Sub _GetIcon(sPath As String, iSize As Integer) As Picture
+  
+  Dim hDesktopFile As DesktopFile
+  
+  If Not Exist(sPath &/ ".directory") Then Return
+  
+  Try hDesktopFile = New DesktopFile(sPath &/ ".directory")
+  If Not Error Then
+    Try Return hDesktopFile.GetIcon(iSize).Picture
+  Endif
+  
+End
+
 Private Function GetIcon(sPath As String) As Picture
 
   Dim hPict As Picture
   
-  If sPath = GetRoot() Then Return $hRootPict  
+  If sPath = GetRoot() Then Return $hRootPict
   $hPict = Null
   Try Raise Icon(sPath)
   If $hPict Then Return $hPict
+  
+  If Not hPict And If $bDesktopIsLoaded Then
+    hPict = _GetIcon(sPath, Stock.GetSize("small"))
+  Endif
   
   If Not hPict Then hPict = Picture["icon:/small/directory"]
 

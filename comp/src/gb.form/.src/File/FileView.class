@@ -282,7 +282,11 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
   Try Raise Icon(sPath)
   If $hPict Then Return $hPict
   
-  If IsDir(sPath) Then Return
+  If IsDir(sPath) Then 
+    hPict = DirView._GetIcon(sPath, iSize)
+    If Not hPict Then hPict = Picture["icon:/" & CStr(iSize) &/ "directory"]
+    Goto LOCK_ICON
+  Endif
   
   'If $bShowPreview And If $cPreview.Exist(sPath) Then Return $cPreview[sPath].Picture
   
@@ -346,7 +350,6 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
 LOCK_ICON:
 
   If Not hPict Then hPict = Picture["icon:/" & CStr(iSize) &/ "file"]
-  If Not hPict Then Stop
   If Not Access(sPath, gb.Write) Then hPict = Main.AddEmblem(hPict, "lock")
   Return hPict
   

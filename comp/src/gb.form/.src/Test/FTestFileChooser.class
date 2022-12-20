@@ -39,6 +39,7 @@ Static Public Sub _init()
   'Application.Theme = "gambas"
   Print Application.Theme
   Component.Load("gb.inotify")
+  Component.Load("gb.desktop")
 
 End
 
