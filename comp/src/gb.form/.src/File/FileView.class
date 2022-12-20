@@ -225,6 +225,7 @@ Public Sub _new()
     .Drop = True
     .Expand = True
     .Border = False
+    .Columns.Padding = Desktop.Scale
   End With
   
   $hProgress = New ProgressBar($hBorder)
