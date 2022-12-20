@@ -2,7 +2,7 @@
 
 { Form Form
   MoveScaled(0,0,103,110)
-  Font = Font["Italic,+5"]
+  Font = Font["DejaVu Sans,Italic,+5"]
   Spacing = True
   { Label6 Label
     MoveScaled(6,3,84,9)
@@ -22,7 +22,7 @@
   { Label5 Label
     MoveScaled(6,23,71,13)
     Background = Color.Pink
-    Foreground = Color.SelectedBackground
+    Foreground = Color.SoftGreen
     Alignment = Align.Center
     Border = Border.Plain
     Text = ("This is a Label test line\nwith another one")
@@ -36,25 +36,26 @@
   }
   { Label2 TextLabel
     MoveScaled(1,51,77,6)
-    Background = Color.Pink
+    Background = Color.SoftGreen
     Text = ("Le programme a retourné")
   }
   { Label3 TextLabel
-    MoveScaled(1,59,59,13)
-    Background = Color.Pink
+    MoveScaled(1,59,47,13)
+    Background = Color.SoftGreen
     AutoResize = True
     Text = ("This is a TextLabel test line")
     Alignment = Align.TopRight
   }
   { Label7 TextLabel
-    MoveScaled(1,74,55,14)
-    Background = Color.Pink
-    Text = ("This is a TextLabel test line")
-    Alignment = Align.TopRight
+    MoveScaled(4,74,54,14)
+    Font = Font["+6"]
+    Background = Color.SoftGreen
+    Text = ("line This is a TextLabel test line with another One")
+    Alignment = Align.TopLeft
   }
   { Label8 TextLabel
     MoveScaled(2,89,59,14)
-    Background = Color.Pink
+    Background = Color.SoftGreen
     Text = ("This is a TextLabel test line")
     Alignment = Align.Center
   }

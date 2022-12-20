@@ -143,8 +143,6 @@ Public Sub _UpdateSize()
   W = hRect.W + P * 2
   H = hRect.H + P * 2
   
-  'Debug Me.Name; ": "; Me.Font.ToString();; W
-    
   If Align.IsMiddle($iAlign) And If Not $bRichText Then
     If H < Me.H Then H = Me.H
   Endif
@@ -224,7 +222,7 @@ Public Sub UserControl_Draw()
   P = GetPadding()
 
   If Align.IsLeft($iAlign) Then
-    X = P - Int(hExt.X)
+    X = P - hExt.X
   Else If Align.IsRight($iAlign) Then
     X = Me.W - hExt.W - hExt.X - P
   Else
@@ -232,6 +230,17 @@ Public Sub UserControl_Draw()
   Endif
 
   W = Me.W - X - P - hExt.X
+  
+  'If Not _Wrap Then
+    If Align.IsLeft($iAlign) Then
+      Inc W
+    Else If Align.IsRight($iAlign) Then
+      Dec X
+      Inc W
+    Else
+      Inc W
+    Endif
+  'Endif
   
   If Not Me.Enabled Then Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
 
@@ -270,5 +279,11 @@ Public Sub Adjust()
   $bAutoResize = True  
   _UpdateSize
   $bAutoResize = bSave
+  
+End
+
+Public Sub UserControl_Resize()
+
+  _UpdateSize()
   
 End
