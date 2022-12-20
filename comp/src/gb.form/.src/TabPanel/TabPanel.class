@@ -244,6 +244,7 @@ Private Sub UpdateLayout()
   Dim X As Integer
   Dim PL, PR As Integer
   Dim Y As Integer
+  Dim HT As Integer
   
   If $bUpdateLayout Then Return
   $bUpdateLayout = True
@@ -252,9 +253,14 @@ Private Sub UpdateLayout()
 
   W = Me.W
   H = TabBarSize_Read()
-  $hTabBar.H = H + 1
+  If H Then
+    HT = H + 1
+    $hTabBar.H = HT
+  Else 
+    HT = 0
+  Endif
   
-  Y = If($iOrientation = Align.Top, 0, Me.H - $hTabBar.H)
+  Y = If($iOrientation = Align.Top, 0, Me.H - HT)
   
   If $hClosePanel Then
     If W >= H And If H > 0 Then
@@ -293,12 +299,12 @@ Private Sub UpdateLayout()
   
   Select Case $iOrientation
     Case Align.Top
-      $hTabBar.Move(X, 0, W, $hTabBar.H)
-      $hPanel.Move(0, $hTabBar.H, Me.W, Me.H - $hTabBar.H)
+      $hTabBar.Move(X, 0, W, HT)
+      $hPanel.Move(0, HT, Me.W, Me.H - HT)
       '$hTabBar.Next = $hPanel
     Case Align.Bottom
-      $hTabBar.Move(X, Me.H - $hTabBar.H, W, $hTabBar.H)
-      $hPanel.Move(0, 0, Me.W, Me.H - $hTabBar.H)
+      $hTabBar.Move(X, Me.H - HT, W, HT)
+      $hPanel.Move(0, 0, Me.W, Me.H - HT)
       'Me._Arrangement = Arrange.Vertical
       '$hPanel.Next = $hTabBar
   End Select
