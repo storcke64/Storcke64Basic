@@ -718,9 +718,15 @@ Fast Public Function FastTests() As Integer
     Endif
 
     Test.Note("CShort")
-    If CShort(1000) <> 1000 Or CShort("17") <> 17 Or CShort(True) <> -1 Then
+    If CShort("17") <> 17 Or CShort(True) <> -1 Then
         Assert.Fail("CShort")
     Endif
+
+    Test.Note("CShort Overflow")
+    Test.TODO("Expected error, that an overflow happened in CShort")
+    Dim siShort As Short
+    Try siShort = CShort(100000)
+    Assert.Error()
 
     Test.Note("CSingle")
     If Format$(CSingle("+3.1416"), "#.####") <> Str$(3.1416) Or CSingle("1.0E+3") <> 1000 Then
