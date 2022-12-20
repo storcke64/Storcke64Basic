@@ -15,7 +15,7 @@
         MoveScaled(0,0,9,4)
         AutoResize = True
         { picProcess PictureBox
-          MoveScaled(0,0,3,3)
+          MoveScaled(0,0,4,4)
           Alignment = Align.Center
         }
         { lblProcessId Label
@@ -29,7 +29,7 @@
         ToolTip = ("Read-only memory")
         AutoResize = True
         { picProcessMemoryRead PictureBox
-          MoveScaled(0,0,3,3)
+          MoveScaled(0,0,4,4)
           Picture = Picture.Load("icon:/small/cdrom")
           Alignment = Align.Center
         }
@@ -43,7 +43,7 @@
         ToolTip = ("Allocated memory")
         AutoResize = True
         { picProcessMemory PictureBox
-          MoveScaled(0,0,3,3)
+          MoveScaled(0,0,4,4)
           Picture = Picture.Load("icon:/small/memory")
           Alignment = Align.Center
         }
@@ -57,7 +57,7 @@
         ToolTip = ("Open file descriptors")
         AutoResize = True
         { picProcessFiles PictureBox
-          MoveScaled(0,0,3,3)
+          MoveScaled(0,0,4,4)
           Picture = Picture.Load("icon:/small/open")
           Alignment = Align.Center
         }

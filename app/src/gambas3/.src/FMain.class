@@ -2211,7 +2211,7 @@ Public Sub Form_KeyPress()
       Return
     Endif
     
-    If FDebugInfo.IsEditing() Then
+    If FDebugger.IsEditing() Then
       Return
     Endif
     

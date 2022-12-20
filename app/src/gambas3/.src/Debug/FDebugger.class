@@ -330,7 +330,7 @@ Public Sub ReadConfig()
   $hHeaderFont = Project.GetSmallFont()
   $hHeaderFont.Bold = True
   
-  panProcess.H = FMain.GetTabBarHeight() - 1
+  'panProcess.H = FMain.GetTabBarHeight() - 1
   'btnCloseTree.W = panProcess.H - 1
   
   fSize = Project.GetPercentFontSize("/DebuggerFontSize", 80)
