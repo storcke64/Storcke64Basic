@@ -21,6 +21,7 @@ Private tvwEnv As TableView
 Private panEnv As Panel
 
 Private $aEnv As String[]
+Private $hFont As Font
   
 Private {HBox3} As HBox
 Private {btnInsertEnv} As MenuButton
@@ -88,6 +89,8 @@ Public Sub _new()
 
   tvwEnv.Rows.Resizable = False
   
+  $hFont = Project.GetEditorFont()
+  
 End
 
 Private Sub IsEnvDisabled(Row As Integer) As Boolean
@@ -133,6 +136,7 @@ Public Sub tvwEnv_Data(Row As Integer, Column As Integer)
   
   aEnv = Scan(sEnv, "*=*")
   Try tvwEnv.Data.Text = aEnv[Column - 1]
+  tvwEnv.Data.Font = $hFont
   
 End
 

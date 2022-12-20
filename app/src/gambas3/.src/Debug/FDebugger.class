@@ -28,11 +28,13 @@ Private $iErrorColor As Integer
 Private $hHeaderFont As Font
 
 Private $iLastBreakpointsTimeStamp As Integer
+Private $bWatchFont As Boolean
 
 Public Sub _new()
   
   With cvwDebug
     .Columns.Count = 2
+    .Columns.Padding = 0
   End With
   
   ReadConfig
@@ -136,7 +138,6 @@ Public Sub lvwStack_Click()
   
   sLoc = lvwStack.Current.Tag
   If InStr(sLoc, "(") Then Return
-  
   Design.Goto(sLoc)
   
 'Catch
@@ -159,7 +160,7 @@ End
 
 Private Sub UpdateWatch(sExpr As String, Optional sVal As String)
 
-  AddVariableHeader(cvwDebug, "@", ("Watch expressions"))
+  AddVariableHeader(cvwDebug, "@", ("Expressions"))
   cvwDebug["@"].MoveLast
   
   Try cvwDebug.Add("@" & sExpr, sExpr,, "@").EnsureVisible
@@ -321,6 +322,8 @@ Private Sub InitFont(hView As ColumnView, fSize As Float)
   Next
   hView.Font.Size *= fSize
   
+  hView.Columns[0].W = -1
+  
 End
 
 Public Sub ReadConfig()
@@ -347,8 +350,7 @@ Public Sub ReadConfig()
   Project.SetSmallFont(tlbBreakpoint)
   
   Project.SetEditorFont(lblError)
-  panError.Padding = 1
-  lblError.Padding = Desktop.Scale \ 2
+  lblError.Padding = Desktop.Scale
   
   'btnChanges.Picture = Picture["img/32/modified.png"].Stretch(Stock.GetSize("small"))
   
@@ -364,15 +366,6 @@ Public Sub ReadConfig()
   $hBreakpoint = Picture["img/32/breakpoint.png"].Stretch(cvwDebug.Font.H)
   $hDisabledBreakpoint = $hBreakpoint.Image.Desaturate().Gamma(0.3).Picture
   
-End
-
-Public Sub wizDebug_Click()
-  
-  If Design.IsRunning() Then
-    DefineVariable($sLastLocal, $sLastObject)
-    RefreshBreakpoints
-  Endif
-      
 End
 
 ' Public Sub tbvLocal_Activate()
@@ -826,6 +819,20 @@ Public Sub OnProjectDebugState()
   lvwBreakpoint.Enabled = tlbBreakpoint.Enabled
   Action[".break"].Enabled = tlbBreakpoint.Enabled
   
+  If Design.IsStarting() Then
+    splDebug.Hide
+    panProcess.Hide
+    sepProcess.Hide
+    panDebugWait.Show
+    spnDebugWait.Start
+  Else
+    splDebug.Show
+    panProcess.Show
+    sepProcess.Show
+    panDebugWait.Hide
+    spnDebugWait.Stop
+  Endif
+  
 End
 
 Public Sub StartWaitForRemote()
@@ -861,7 +868,7 @@ Public Sub cvwDebug_Rename()
     
     sVar = .Key
     
-    Design.SetBalloon(hView, hView.Columns[1].X + Desktop.Scale, .Y + .H / 2)
+    'Design.SetBalloon(hView, hView.Columns[1].X + Desktop.Scale, .Y + .H / 2)
     Design.Command("=V" & sVar & "\t" & .Text & " = " & .[1])
     'Design.Command("&V" & sVar & "\t" & .Text)
     
@@ -1013,9 +1020,12 @@ Public Sub cmbWatch_Change()
 
   If cmbWatch.Length = 0 Then
     cmbWatch.Font = lvwStack.Font
+    $bWatchFont = False
     'cmbWatch.Font.Italic = True
-  Else
-    Project.SetEditorFont(cmbWatch)
+  Else If Not $bWatchFont Then
+    $bWatchFont = True
+    Project.SetConsoleFont(cmbWatch)
+    cmbWatch.Font.Grade = -2
   Endif
   
   UpdateWatchButtons
@@ -1123,3 +1133,12 @@ Public Sub Form_Close()
   
 End
 
+Public Sub lblError_MouseDown()
+
+  Dim sLoc As String
+
+  Try sLoc = lvwStack["0"].Tag  
+  If Not sLoc Or If InStr(sLoc, "(") Then Return
+  Design.Goto(sLoc)
+
+End

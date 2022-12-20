@@ -116,6 +116,8 @@ End
 
 Public Sub wizDebug_Click()
   
+  If Project.AboutToQuit Then Return
+  
   Select Case wizDebug.Index
     Case TAB_CONSOLE
       If FMain.IsDebugVisible() Then FOutput.SetFocus
