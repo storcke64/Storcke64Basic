@@ -20,14 +20,20 @@ Public Sub FileView1_Activate()
 End
 
 Public Sub FileView1_Icon(Path As String)
-  Dim hImage As Image
-  hImage = thumbnailer.GetThumbnail(Path)
-
-  FileView1.Icon = hImage.Picture
+  ' Dim hImage As Image
+  ' hImage = ThumbnailFactory.GetThumbnail(Path).Stretch(20, 20)
+  ' 
+  ' FileView1.Icon = hImage.Picture
 
 End
 
 Public Sub Form_Open()
+
+  
+
+End
+
+Public Sub HBox1_MouseDown()
 
   
 

@@ -4,6 +4,7 @@ Export
 Inherits UserControl
 Private $hView As New ColumnView(Me) As "View" 
 Private $hBookmarks As New CBookmarkList
+Private $hDisks As New Disks
 
 Public Sub _new()
   Dim hb As CBookmark
@@ -20,6 +21,8 @@ Public Sub _new()
   $hView["Places"].Font = Font["Bold"]
   $hView["Devices"].Expanded = True
   $hView["Devices"].Font = $hView["Places"].Font
+  Object.Attach($hDisks, Me, "MesDisks")
+  
   For Each hb In $hBookmarks
     $hView.Add(hb.Path, hb.Name, Picture[Replace(hb.Icon, "small", "22")], "Places")
   Next
@@ -35,11 +38,11 @@ Private Sub LoadDrives()
   Dim hDisk As _Block
   $hView["Devices"].Clear
   
-  For Each s In Disks.GetList()
+  For Each s In $hDisks.GetList()
     'Print s
     'print Disks[s].Device
     'Print Disks[s].Drive.Optical
-    hDisk = Disks[s]
+    hDisk = $hDisks[s]
     If Not hDisk.CanMount Then Continue 
     If Not hDisk.Drive.Removable Then Continue 
     If hDisk.IsMounted And If $hBookmarks.FindBookmark(hDisk.MountPoints[0]) <> Null Then Continue 
@@ -58,9 +61,26 @@ End
 
 Public Sub Free()
   
-  Disks.Free
+  $hDisks.Free
   
 End
+
+
+
+Public Sub MesDisks_DeviceAdded(Block As String)
+  
+  LoadDrives
+  
+End
+
+Public Sub MesDisks_DeviceRemoved(Block As String)
+  
+  LoadDrives
+  
+End
+
+
+
 
 
 

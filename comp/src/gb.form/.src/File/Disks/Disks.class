@@ -1,6 +1,6 @@
 ' Gambas class file
 
-Create Static
+'Create Static
 Class DBusSignal
 Class DBusConnection
 Class DBus
@@ -105,8 +105,8 @@ End
 
 Public Sub Signal_Signal(Signal As String, Arguments As Variant[])
 
-  Print Signal
-  Print Arguments[0]
+  'Print Signal
+  'Print Arguments[0]
 
   'If InStr(Arguments[0], "jobs") Then Stop
   If Signal = "InterfacesRemoved" Then

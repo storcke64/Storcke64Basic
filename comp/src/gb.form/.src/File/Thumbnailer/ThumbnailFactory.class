@@ -3,9 +3,10 @@
 Create Static
 
 Class Hash
+Class Shell 
 Class Date
-Class Shell
 Class DesktopMime
+
 
 'Const THUMBSPATH As String = ".cache/thumbnails"
 Const THUMBNAILERSPATH As String = "/usr/share/thumbnailers"
@@ -26,15 +27,22 @@ Public Struct Chunk
   Datas As String
 End Struct
 
-Public Sub _new()
+Static Public Sub _init()
   
-  Component.Load("gb.hash")
+  Component.Load("gb.desktop")
   Component.Load("gb.util")
-  Component.Load("gb.Desktop")
+  Component.Load("gb.hash")
   
+End
+
+
+
+
+Public Sub _new()
+
   'Generate the thumbnails cache directory if not exist
   $sFullThumbPath = Desktop.CacheDir &/ "thumbnails"
-  If Not Exist($sFullThumbPath) Then Main.MkDir($sFullThumbPath)
+  If Not Exist($sFullThumbPath) Then Shell.MkDir($sFullThumbPath)
 
   '$sThumbnailersPath =
 
@@ -130,7 +138,7 @@ Private Sub MakeThumbNail(Path As String, Optional Size As Integer) As Image
   iGoodSize = GetGoodSize(Size)
   sDir = $sFullThumbPath &/ $cSizeToDirName[iGoodSize]
   If Not Exist(sDir) Then
-    Main.MkDir(sDir)
+    Shell.MkDir(sDir)
   Endif
 
   'Generate the preview file
