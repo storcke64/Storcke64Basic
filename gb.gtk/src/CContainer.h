@@ -95,6 +95,7 @@ typedef
 		ushort paint_func;
 		ushort font_func;
 		ushort change_func;
+		ushort resize_func;
 	}
 	CUSERCONTROL;
 

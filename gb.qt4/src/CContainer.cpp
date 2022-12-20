@@ -915,50 +915,11 @@ void MyContainer::changeEvent(QEvent *e)
 	}
 }
 
-
-/*void MyContainer::childEvent(QChildEvent *e)
+void MyContainer::resizeEvent(QResizeEvent *e)
 {
-	//void *_object = CWidget::get(this);
-	void *child;
-	//qDebug("MyContainer::childEvent %p", CWidget::get(this));
-	
-	QFrame::childEvent(e);
-
-	if (!e->child()->isWidgetType())
-		return;
-
-	child = CWidget::get((QWidget *)e->child());
-
-	if (e->added())
-	{
-		//e->child()->installEventFilter(this);
-		//qApp->sendEvent(WIDGET, new QEvent(EVENT_INSERT));
-		//if (THIS_ARRANGEMENT->user)
-		//	GB.Raise(THIS, EVENT_Insert, 1, GB_T_OBJECT, child);    
-	}
-	else if (e->removed())
-	{
-		//e->child()->removeEventFilter(this);
-		//if (THIS_ARRANGEMENT->user)
-		//	GB.Raise(THIS, EVENT_Remove, 1, GB_T_OBJECT, child);
-	}
-
-	arrange_later(this);
-}*/
-
-/*bool MyContainer::eventFilter(QObject *o, QEvent *e)
-{
-	int type = e->type();
-
-	if (type == QEvent::Move || type == QEvent::Resize || type == QEvent::Show || type == QEvent::Hide || type == EVENT_EXPAND)
-	{
-		CWIDGET *ob = CWidget::getReal(o);
-		if (ob && (type == EVENT_EXPAND || !ob->flag.ignore))
-			arrange_now(this);
-	}
-
-	return QObject::eventFilter(o, e);
-}*/
+	void *_object = CWidget::get(this);
+	CALL_FUNCTION(THIS_USERCONTROL, resize_func);
+}
 
 
 /***************************************************************************
@@ -1295,6 +1256,8 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 			THIS_USERCONTROL->font_func = func.index;
 		if (!GB.GetFunction(&func, THIS, "UserControl_Change", NULL, NULL))
 			THIS_USERCONTROL->change_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Resize", NULL, NULL))
+			THIS_USERCONTROL->resize_func = func.index;
 	}
 	
 	GB.Error(NULL);

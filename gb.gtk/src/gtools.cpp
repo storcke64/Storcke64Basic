@@ -2119,7 +2119,7 @@ const char *gt_get_style_class(GType type)
 
 GtkStyleContext *gt_get_style(GType type, const char *node, const char *more_klass)
 {
-	int index;
+	int index = 0;
 	GtkStyleContext *style;
 
 	if (!node && !more_klass)
@@ -2150,7 +2150,7 @@ GtkStyleContext *gt_get_style(GType type, const char *node, const char *more_kla
 		gtk_widget_path_append_type(path, type);
 		gtk_widget_path_iter_set_object_name(path, 1, node);
 	}
-#endif
+	#endif
 
 	gtk_style_context_set_path(style, path);
 

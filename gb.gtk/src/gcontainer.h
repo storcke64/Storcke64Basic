@@ -32,6 +32,7 @@ void CUSERCONTROL_cb_draw(gContainer *sender, cairo_t *cr);
 void CUSERCONTROL_cb_draw(gContainer *sender, GdkRegion *region, int dx, int dy);
 #endif
 void CUSERCONTROL_cb_font(gContainer *sender);
+void CUSERCONTROL_cb_resize(gContainer *sender);
 
 struct gContainerArrangement
 {

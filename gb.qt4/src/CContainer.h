@@ -83,6 +83,7 @@ typedef
 		ushort paint_func;
 		ushort font_func;
 		ushort change_func;
+		ushort resize_func;
 		}
 	CUSERCONTROL;
 	
@@ -188,6 +189,7 @@ protected:
 	virtual void hideEvent(QHideEvent *);
 	virtual void paintEvent(QPaintEvent *);
 	virtual void changeEvent(QEvent *);
+	virtual void resizeEvent(QResizeEvent *);
 };
 
 #endif

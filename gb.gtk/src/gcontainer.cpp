@@ -781,6 +781,9 @@ bool gContainer::resize(int w, int h, bool no_decide)
 	_client_w = 0;
 	_client_h = 0;
 	
+	if (arrangement.paint)
+		CUSERCONTROL_cb_resize(this);
+
 	performArrange();
 	return false;
 }

@@ -169,6 +169,13 @@ static void get_client_area(gContainer *cont, int *x, int *y, int *w, int *h)
 	}
 }
 
+void CUSERCONTROL_cb_resize(gContainer *sender)
+{
+	CWIDGET *_object = GetObject(sender);
+	CALL_FUNCTION(THIS_USERCONTROL, resize_func);
+}
+
+//-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Container_ClientX)
 
@@ -494,6 +501,8 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 			THIS_USERCONTROL->font_func = func.index;
 		if (!GB.GetFunction(&func, THIS, "UserControl_Change", NULL, NULL))
 			THIS_USERCONTROL->change_func = func.index;
+		if (!GB.GetFunction(&func, THIS, "UserControl_Resize", NULL, NULL))
+			THIS_USERCONTROL->resize_func = func.index;
 	}
 	
 	GB.Error(NULL);
