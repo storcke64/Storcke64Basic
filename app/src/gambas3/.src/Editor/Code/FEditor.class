@@ -2555,7 +2555,7 @@ Public Sub WatchExpression()
   sWatch = Trim($hEditor.SelectedText)
   If Not sWatch Then Return
 
-  FDebugInfo.AddWatch(Trim($hEditor.SelectedText))
+  FDebugger.AddWatch(Trim($hEditor.SelectedText))
 
 End
 
@@ -2645,7 +2645,7 @@ Public Sub Editors_MouseUp()
   sText = Trim($hEditor.SelectedText)
   If Not Project.Running Then
   Else
-    FDebugInfo.InstantWatch(sText, Me) ', Me, $hEditor.ToPosX($hEditor.Column), $hEditor.ToPosY() + $hEditor.LineHeight)
+    FDebugger.InstantWatch(sText, Me) ', Me, $hEditor.ToPosX($hEditor.Column), $hEditor.ToPosY() + $hEditor.LineHeight)
   Endif
 
 End
@@ -3425,7 +3425,7 @@ End
 Public Sub mnuWatch_Click()
 
   WatchExpression
-  FDebugInfo.ShowDebugging
+  FMain.ShowDebugging
 
 End
 

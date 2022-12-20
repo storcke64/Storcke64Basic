@@ -162,7 +162,9 @@ Public Sub RefreshOne(sKey As String)
   If Not Me.Visible Then Return
   If GetForm() Then Return
   
+  Object.Lock(tvwControl)
   FillTree($hForm.Control[sKey])
+  Object.Unlock(tvwControl)
   SelectCurrent
   'TRY tvwControl[sKey].Selected = TRUE
   'TRY tvwControl[sKey].EnsureVisible

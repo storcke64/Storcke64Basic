@@ -1,0 +1,242 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,65,105)
+  Expand = True
+  Arrangement = Arrange.Vertical
+  { panDebug VBox
+    MoveScaled(1,2,62,81)
+    Expand = True
+    { panProcess HBox
+      MoveScaled(0,0,60,4)
+      Font = Font["-2"]
+      Spacing = True
+      { Panel17 HBox
+        MoveScaled(0,0,9,4)
+        AutoResize = True
+        { picProcess PictureBox
+          MoveScaled(0,0,3,3)
+          Alignment = Align.Center
+        }
+        { lblProcessId Label
+          MoveScaled(4,0,4,3)
+          AutoResize = True
+        }
+      }
+      { panProcessMemoryRead HBox
+        MoveScaled(12,0,9,4)
+        Visible = False
+        ToolTip = ("Read-only memory")
+        AutoResize = True
+        { picProcessMemoryRead PictureBox
+          MoveScaled(0,0,3,3)
+          Picture = Picture.Load("icon:/small/cdrom")
+          Alignment = Align.Center
+        }
+        { lblProcessMemoryRead Label
+          MoveScaled(4,0,4,3)
+          AutoResize = True
+        }
+      }
+      { panProcessMemory HBox
+        MoveScaled(24,0,9,4)
+        ToolTip = ("Allocated memory")
+        AutoResize = True
+        { picProcessMemory PictureBox
+          MoveScaled(0,0,3,3)
+          Picture = Picture.Load("icon:/small/memory")
+          Alignment = Align.Center
+        }
+        { lblProcessMemory Label
+          MoveScaled(4,0,4,3)
+          AutoResize = True
+        }
+      }
+      { panProcessFiles HBox
+        MoveScaled(37,0,9,4)
+        ToolTip = ("Open file descriptors")
+        AutoResize = True
+        { picProcessFiles PictureBox
+          MoveScaled(0,0,3,3)
+          Picture = Picture.Load("icon:/small/open")
+          Alignment = Align.Center
+        }
+        { lblProcessFiles Label
+          MoveScaled(4,0,4,3)
+          AutoResize = True
+        }
+      }
+    }
+    { Separator1 Separator
+      MoveScaled(13,5,21,0)
+    }
+    { panError VBox
+      MoveScaled(1,6,58,11)
+      Margin = True
+      Padding = 4
+      { lblError TextLabel
+        MoveScaled(1,1,56,6)
+        Background = Color.SelectedBackground
+        Foreground = Color.SelectedForeground
+        Padding = 4
+        Text = ("Le nouveau debugger n'est pas encore terminé.")
+      }
+      { Separator2 Separator
+        MoveScaled(5,9,23,0)
+      }
+    }
+    { splDebug Splitter
+      MoveScaled(1,20,60,55)
+      Expand = True
+      Arrangement = Arrange.Vertical
+      { VBox5 VBox
+        MoveScaled(0,1,57,26)
+        { panWatch HBox
+          MoveScaled(1,1,55,4)
+          Drop = True
+          { Panel5 HBox
+            MoveScaled(1,0,39,4)
+            Background = Color.TextBackground
+            Expand = True
+            { btnAddWatch ToolButton
+              MoveScaled(0,0,4,4)
+              ToolTip = ("Add expression")
+              Picture = Picture["icon:/small/add"]
+            }
+            { btnAddTrack ToolButton
+              MoveScaled(4,0,4,4)
+              ToolTip = ("Watch expression")
+              Picture = Picture["icon:/small/watch"]
+            }
+            { btnKillWatch ToolButton
+              MoveScaled(8,0,4,4)
+              ToolTip = ("Remove current expression")
+              Picture = Picture["icon:/small/remove"]
+            }
+            { btnKillAllWatch ToolButton
+              MoveScaled(12,0,4,4)
+              ToolTip = ("Remove all expressions")
+              Picture = Picture["icon:/small/trash"]
+            }
+            { Panel10 Panel
+              MoveScaled(17,0,1,3)
+            }
+            { cmbWatch ComboBox
+              MoveScaled(20,0,17,4)
+              Expand = True
+              Placeholder = ("Enter an expression")
+              Border = False
+            }
+          }
+          { Separator6 Separator
+            MoveScaled(42,0,0,3)
+          }
+          { btnShowMe ToolButton
+            MoveScaled(46,0,4,3)
+            Font = Font["-1"]
+            ToolTip = ("Display ME")
+            Text = ("ME")
+          }
+        }
+        { Separator3 Separator
+          MoveScaled(2,6,23,0)
+        }
+        { cvwDebug ColumnView
+          MoveScaled(3,8,27,17)
+          Expand = True
+          Header = False
+          Border = False
+        }
+      }
+      { VBox1 VBox
+        MoveScaled(1,30,55,24)
+        { lvwStack ListView
+          MoveScaled(1,1,18,6)
+          Mouse = Cursor.Pointing
+          Expand = True
+          Border = False
+        }
+        { panBreakpoint VBox
+          MoveScaled(1,8,53,14)
+          { Separator4 Separator
+            MoveScaled(17,1,7,0)
+          }
+          { tlbBreakpoint HBox
+            MoveScaled(1,2,51,4)
+            Font = Font["-2"]
+            { PictureBox1 PictureBox
+              MoveScaled(0,0,4,4)
+              Picture = Picture.Load("icon:/small/halt")
+              Alignment = Align.Center
+            }
+            { Label2 Label
+              MoveScaled(5,0,12,4)
+              Expand = True
+              Text = ("Breakpoints")
+            }
+            { btnRemoveBreakpoint ToolButton
+              MoveScaled(41,0,4,4)
+              ToolTip = ("Remove breakpoint")
+              AutoResize = True
+              Picture = Picture["icon:/small/remove"]
+            }
+            { btnRemoveAllBreakpoints ToolButton
+              MoveScaled(45,0,4,4)
+              ToolTip = ("Remove all breakpoints")
+              AutoResize = True
+              Picture = Picture["icon:/small/trash"]
+            }
+          }
+          { lvwBreakpoint ListView
+            MoveScaled(1,7,28,6)
+            Mouse = Cursor.Pointing
+            Border = False
+          }
+        }
+      }
+    }
+  }
+  { panRemoteDebug Panel
+    MoveScaled(2,84,38,20)
+    Visible = False
+    Background = Color.TextBackground
+    Expand = True
+    Arrangement = Arrange.Vertical
+    Centered = True
+    Spacing = True
+    Margin = True
+    { spnRemoteDebug Spinner
+      MoveScaled(9,1,13,6)
+      Type = Spinner.Circle
+    }
+    { Label1 TextLabel
+      MoveScaled(7,8,18,5)
+      Foreground = Color.LightForeground
+      AutoResize = True
+      Text = ("Waiting for extern process") & "..."
+      Alignment = Align.Center
+    }
+    { HBox2 HBox
+      MoveScaled(2,14,34,4)
+      Centered = True
+      Spacing = True
+      { Label3 Label
+        MoveScaled(1,0,6,4)
+        Foreground = Color.LightForeground
+        AutoResize = True
+        Text = ("Ignore")
+      }
+      { spnIgnoreExtern SpinBox
+        MoveScaled(9,0,9,4)
+        Foreground = Color.LightForeground
+        MaxValue = 8
+      }
+      { Label4 Label
+        MoveScaled(19,0,9,4)
+        Foreground = Color.LightForeground
+        AutoResize = True
+        Text = ("processes")
+      }
+    }
+  }
+}

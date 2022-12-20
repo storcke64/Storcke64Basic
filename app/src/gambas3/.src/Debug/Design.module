@@ -123,7 +123,7 @@ Public Sub CheckErrorMessage(hEditor As FEditor)
     Endif
   Endif
   
-  FDebugInfo.ShowError($sError)
+  FDebugger.ShowError($sError)
   $hTimerShowConsole.Stop
   
 End
@@ -152,7 +152,7 @@ Private Sub SetState(iState As Integer)
   
   $iState = iState
   FOutput.OnProjectDebugState
-  FDebugInfo.OnProjectDebugState
+  FDebugger.OnProjectDebugState
   
   If $hTimerWatch Then
     If $iState = STATE_RUNNING Then
@@ -362,7 +362,7 @@ Public Sub Debug_Read(Data As String)
           $hTimerWatch.Delay = 1000
           $hTimerWatch.Start
           TimerWatch_Timer
-          FDebugInfo.UpdateProcessInfo(ProcessId, ProcessFiles, ProcessMemory)
+          FDebugger.UpdateProcessInfo(ProcessId, ProcessFiles, ProcessMemory)
         Endif
       Endif
     
@@ -410,9 +410,9 @@ Public Sub Debug_Read(Data As String)
         Endif
       Endif
   
-      FDebugInfo.DefineVariable(Trim(aData[3]), Trim(aData[4]))
+      FDebugger.DefineVariable(Trim(aData[3]), Trim(aData[4]))
 
-      FDebugInfo.FillStack(aPos, bLineChanged)
+      FDebugger.FillStack(aPos, bLineChanged)
       
       If aData[1] Then 
         
@@ -453,13 +453,13 @@ Public Sub Debug_Read(Data As String)
         '   FDebugInfo.AddObject(Mid$(sVar, 2), aData[1])
         '   
         Case "V"
-          FDebugInfo.AddVariable(Mid$(sVar, 2), aData[1])
+          FDebugger.AddVariable(Mid$(sVar, 2), aData[1])
 
         Case "W"
-          FDebugInfo.AddResultWatch(Mid$(sVar, 2), aData[1])
+          FDebugger.AddResultWatch(Mid$(sVar, 2), aData[1])
 
         Case "I"
-          FDebugInfo.AddResultWatch(Mid$(sVar, 2), aData[1], True)
+          FDebugger.AddResultWatch(Mid$(sVar, 2), aData[1], True)
           
         Case "X"
           FDebugExpr.AddResult(Mid$(sVar, 2), aData[1])
@@ -480,13 +480,13 @@ Public Sub Debug_Read(Data As String)
           FDebugExpr.AddResult(Mid$(sVar, 2), aData[1], True)
           
         Case "L"
-          FDebugInfo.AddLocal(Mid$(sVar, 2), aData[1], True)
+          FDebugger.AddLocal(Mid$(sVar, 2), aData[1], True)
  
         Case "O"
-          FDebugInfo.AddObject(Mid$(sVar, 2), aData[1], True)
+          FDebugger.AddObject(Mid$(sVar, 2), aData[1], True)
  
         Case "V"
-          FDebugInfo.AddVariable(Mid$(sVar, 2), aData[1], True)
+          FDebugger.AddVariable(Mid$(sVar, 2), aData[1], True)
 
       End Select
       
@@ -530,7 +530,7 @@ Public Sub Debug_Read(Data As String)
         aData = Split(sVar)
         Try ProcessFiles = CInt(aData[0])
         Try ProcessMemory = CLong(aData[1])
-        FDebugInfo.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
+        FDebugger.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
       Endif
 
   End Select
@@ -626,7 +626,7 @@ Private Sub AfterStop()
 
   WriteDebugSettings()
 
-  FDebugInfo.Clear
+  FDebugger.Clear
   FDebugExpr.Clear
 
   $sError = ""
@@ -648,6 +648,7 @@ Private Sub AfterStop()
 
   If Not $bConsole Then FMain.ShowDebug(False, True)
   FDebugInfo.UpdateView
+  FDebugger.OnProjectDebug
   FDebugInfo.OnProjectDebug
   
   If $bExtern Then
@@ -657,7 +658,7 @@ Private Sub AfterStop()
     For I = 1 To MAX_IGNORE_EXTERN
       Try Kill $sExternLink & ".*"
     Next
-    FDebugInfo.StopWaitForRemote
+    FDebugger.StopWaitForRemote
     $bExtern = False
   Endif
 
@@ -1108,6 +1109,7 @@ Private Sub Start(sCmd As String)
   FMain.ShowDebug(True, True)
   
   FDebugInfo.UpdateView
+  FDebugger.OnProjectDebug
   FDebugInfo.OnProjectDebug
 
   aEnv = Project.GetEnvironment().Copy()
@@ -1348,7 +1350,7 @@ Private Sub Start(sCmd As String)
   If $bTest Then
     FDebugInfo.ShowTest
   Else
-    FDebugInfo.ShowDebugging
+    FMain.ShowDebugging
   Endif
 
   'PRINT "Debug.Start"
@@ -1409,8 +1411,9 @@ Public Sub RunExtern()
   
   FDebugInfo.UpdateView
   FDebugInfo.OnProjectDebug
-  FDebugInfo.StartWaitForRemote
-  FDebugInfo.ShowDebugging
+  FDebugger.OnProjectDebug
+  FDebugger.StartWaitForRemote
+  FMain.ShowDebugging
   
   SetState(STATE_STARTING)
   
@@ -1460,7 +1463,7 @@ Public Sub TimerExtern_Timer()
     If Not Exist(sPath) Then Break
   Next
   
-  FDebugInfo.SetExternIgnore(I - 1)
+  FDebugger.SetExternIgnore(I - 1)
 
   If ProcessId Then
     sPath = File.SetExt($sFifo, "lock")
@@ -1527,7 +1530,7 @@ Private Sub Signal()
   'PRINT "Signal"
 
   If $bStart Then
-    If $bExtern Then FDebugInfo.StopWaitForRemote
+    If $bExtern Then FDebugger.StopWaitForRemote
     'PRINT "START Debug.Write: "; $sCmdStart
     If $aCmdStart.Count Then WriteCommand($aCmdStart.Join("\n"))
     $bStart = False
@@ -1559,7 +1562,7 @@ Private Sub Signal()
   'Command("w", TRUE)
   'Command("l", TRUE)
 
-  FDebugInfo.RefreshAllWatch
+  FDebugger.RefreshAllWatch
 
   Try FDebugExpr.RefreshAll
   
@@ -1646,7 +1649,7 @@ End
 Public Sub ReadDebugSettings()
   
   ReadSettings
-  FDebugInfo.ReadWatchSettings()
+  FDebugger.ReadWatchSettings()
   FDebugExpr.ReadSettings()
 
 End
@@ -1663,7 +1666,7 @@ End
 
 Public Sub WriteDebugSettings()
   
-  FDebugInfo.WriteWatchSettings()
+  FDebugger.WriteWatchSettings()
   FDebugExpr.WriteSettings()
 
 End
@@ -1737,7 +1740,7 @@ Public Sub TimerWatch_Timer()
     Next
   Endif
   
-  FDebugInfo.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
+  FDebugger.UpdateProcessInfo(-1, ProcessFiles, ProcessMemory)
   
 End
 
@@ -1854,7 +1857,7 @@ Private Sub MakeInitialCommands(sCmd As String)
     $sAddBreakpoint = ""
   Endif
   
-  $aCmdStart.Insert(FDebugInfo.GetWatches())
+  $aCmdStart.Insert(FDebugger.GetWatches())
 
   'If Project.BreakOnError Then $aCmdStart.Add("o+")
   

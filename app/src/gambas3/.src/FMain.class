@@ -61,6 +61,9 @@ Public Sub _new()
   tabProperty.Index = 1
   FFormStack.Load(tabProperty)
   tabProperty.Index = 0
+  tabProject.Index = 1
+  FDebugger.Load(tabProject)
+  tabProject.Index = 0
   
   txtSearchProject._AddButton(btnOpenStartup)
   txtSearchProject._AddButton(btnUseInheritance)
@@ -142,6 +145,7 @@ Public Sub Form_Close()
     ' settings key !
     FProperty.Close
     FOutput.Close
+    FDebugger.Close
     FDebugInfo.Close
     
     Design.Exit
@@ -1230,17 +1234,21 @@ Public Sub ReadConfig()
   
   Dim H As Integer
   Dim hChild As Control
+  Dim hFont As Font
   
   Project.SetNormalFont(tvwProject)
   Project.SetNormalFont(tlbMain)
-  tabProperty.TextFont = Project.GetSmallFont()
+  
+  hFont = Project.GetSmallFont()
+  tabProperty.TextFont = hFont
+  tabProject.TextFont = hFont
 
   H = tabProperty.TabBarSize
   $iTabBarHeight = H  
   
   panSearchProject.H = H
-  panBranchColor.H = H
   
+  panBranchColor.H = H
   For Each hChild In panBranchColor.Children
     If hChild Is ToolButton Then hChild.W = H - 2
   Next
@@ -1253,6 +1261,8 @@ Public Sub ReadConfig()
   
   UpdateWorkspaceButtons
   UpdatePropertyButtons
+  
+  FDebugger.ReadConfig
   
 End
 
@@ -1499,9 +1509,38 @@ Public Sub OnProjectChange()
   
 End
 
+Private Sub UpdateCloseTree()
+
+  If tabProject.ShowTabBar Then
+    
+    txtSearchProject.Button = False
+    btnCloseTree.Hide
+    
+  Else If VersionControl.Enabled Then
+    
+    txtSearchProject.Button = False
+    btnCloseTree.Show
+    
+  Else
+    
+    txtSearchProject.Button = True
+    
+  Endif
+
+End
+
 Public Sub OnProjectDebug()
   
+  If Project.Running Then
+    tabProject.ShowTabBar = True
+    tabProject.Index = 1
+  Else
+    tabProject.ShowTabBar = False
+    tabProject.Index = 0
+  Endif
+
   UpdateMenu
+  UpdateCloseTree
   
 End
 
@@ -2083,7 +2122,7 @@ End
 
 Public Sub mnuClearBreakpoints_Click()
   
-  FDebugInfo.RemoveAllBreakpoints
+  FDebugger.RemoveAllBreakpoints
   
 End
 
@@ -3078,14 +3117,16 @@ Public Sub OnVersionControlChange()
   
   If VersionControl.Enabled Then
     panBranchColor.Show
-    txtSearchProject.Button = False
+    sepBranchColor.Show
   Else
     panBranchColor.Hide
-    txtSearchProject.Button = True
+    sepBranchColor.Hide
   Endif
   
   dwgBranchColor.Visible = VersionControl.Enabled
   dwgBranchColor.Refresh
+  
+  UpdateCloseTree
   
 End
 
@@ -3466,5 +3507,17 @@ Public Sub PaintStatus()
   Endif
   
 Catch
+  
+End
+
+Public Sub ShowDebugging()
+  
+  tabProject.Index = 1
+  
+End
+
+Public Sub tabProject_CloseAll()
+
+  txtSearchProject_Click 
   
 End

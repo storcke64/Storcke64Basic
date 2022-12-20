@@ -388,6 +388,7 @@ End
 Public Sub cmbDebuggerFontSize_Click()
 
   Settings["/DebuggerFontSize"] = GetPercentSize(cmbDebuggerFontSize)
+  FDebugger.ReadConfig
   FDebugInfo.ReadConfig
 
 End

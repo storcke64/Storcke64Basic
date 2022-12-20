@@ -878,7 +878,7 @@ Public Sub mnuWatch_Click()
   
   sExpr = GetCurrentExpr()
   If Not sExpr Then Return
-  FDebugInfo.AddWatch(sExpr)
+  FDebugger.AddWatch(sExpr)
   
 End
 
