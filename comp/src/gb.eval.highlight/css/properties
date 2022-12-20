@@ -71,7 +71,7 @@ clip auto,#shape,initial,inherit,unset
 color #color,initial,inherit,unset
 column-count #number,auto,initial,inherit,unset
 column-fill balance,auto,initial,inherit,unset
-column-gap #length,normal,initial,inherit,unset
+column-gap #length,#%,auto,initial,inherit,unset,revert,revert-layer
 column-rule @column-rule-width,@column-rule-style,@column-rule-color,initial,inherit,unset
 column-rule-color #color,initial,inherit,unset
 column-rule-style none,hidden,dotted,dashed,solid,double,groove,ridge,inset,outset,initial,inherit,unset
@@ -113,6 +113,7 @@ font-variant-ligatures inherit,initial,unset
 font-variant-numeric inherit,initial,unset
 font-variant-position inherit,initial,unset
 font-weight normal,bold,bolder,lighter,initial,inherit,unset
+gap #length,#%,auto,initial,inherit,unset,revert,revert-layer
 hanging-punctuation none,first,last,allow-end,force-end,initial,inherit,unset
 height auto,#length,#%,initial,inherit,unset
 hyphens inherit,initial,unset
@@ -186,6 +187,7 @@ rest inherit,initial,unset
 rest-after inherit,initial,unset
 rest-before inherit,initial,unset
 right auto,#length,#%,initial,inherit,unset
+row-gap #length,#%,auto,initial,inherit,unset,revert,revert-layer
 scrollbar-color #color,auto
 scrollbar-width none,thin,auto
 tab-size #number,#length,initial,inherit,unset

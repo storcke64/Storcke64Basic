@@ -133,7 +133,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
   aText = Split(Text, "\n")
   
   iColor = 0
-  aResult.Add("<pre><span style=\"color:#000000;\">")
+  aResult.Add("<tt><span style=\"color:#000000;\">")
   sOldStyle = "color:#000000;"
   
   For Y = 0 To aText.Max
@@ -199,7 +199,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
     
   Next
   
-  aResult.Add("</span></pre>")
+  aResult.Add("</span></tt>")
   
   Return aResult.Join("")
   
