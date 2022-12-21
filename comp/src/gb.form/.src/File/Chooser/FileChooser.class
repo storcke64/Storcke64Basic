@@ -3,7 +3,7 @@
 Inherits UserControl
 Export
 
-Public Const _Properties As String = "*,Border=True,Root,Picture,Multi,Filter,AutoExt,ShowHidden,ShowDirectory,ShowDetailed,ShowPreview,ShowBookmark=True,ShowFile=True,ShowButton,ShowToolbar=True,Margin,ReadOnly"
+Public Const _Properties As String = "*,Border=True,Root,Picture,Multi,Filter,AutoExt,Style{FileView.Normal;Compact;Detailed}=Normal,ShowHidden,ShowDirectory,ShowPreview,ShowBookmark=True,ShowFile=True,ShowButton,ShowToolbar=True,Margin,ReadOnly"
 Public Const _DefaultEvent As String = "Change"
 Public Const _DefaultSize As String = "36,36"
 Public Const _Group As String = "Chooser"
@@ -21,6 +21,7 @@ Property ShowDetailed As Boolean
 Property ShowBookmark As Boolean
 Property ShowFile As Boolean
 Property ShowPreview As Boolean
+Property Style As Integer
 
 '' Return or set if the toolbar is visible.
 Property ShowToolbar As Boolean
@@ -454,5 +455,17 @@ End
 Private Sub UncompressFilter_Write(Value As String[])
 
   frmChooser.UncompressFilter = Value
+
+End
+
+Private Function Style_Read() As Integer
+
+  Return frmChooser.GetStyle()
+
+End
+
+Private Sub Style_Write(Value As Integer)
+
+  frmChooser.SetStyle(Value)
 
 End

@@ -5,9 +5,11 @@ Inherits UserControl
 
 Class Watch
 
-Public Const _Properties As String = "*,Border=True,Mode{Select.*}=Single,Dir,ShowDetailed,ShowHidden,ShowDirectory,ShowPreview"
+Public Const _Properties As String = "*,Border=True,Style{FileView.Normal;Compact;Detailed}=Normal,Mode{Select.*}=Single,Dir,ShowHidden,ShowDirectory,ShowPreview"
 Public Const _DefaultEvent As String = "Click"
 Public Const _Group As String = "View"
+
+Public Enum Normal, Compact, Detailed
 
 Event {Select}
 Event Click
@@ -34,6 +36,7 @@ Property ShowDirectory As Boolean
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
+Property Style As Integer
 
 Property Selection As String[]
 Property Filter As String[]
@@ -91,8 +94,10 @@ Private $aFilter As String[]
 Private $hPict As Picture
 Private $hRefresh As Timer
 Private $bRefreshTriggered As Boolean
-Private $iIconSize As Integer = 32
 Private $bDesktopIsLoaded As Boolean
+
+Private $iIconSizeNormal As Integer
+Private $iIconSizeCompact As Integer
 
 Private $hPreview As CTaskPreview
 Private $iPreviewMax As Integer
@@ -199,6 +204,9 @@ Public Sub _new()
   $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
   $bWatch = Component.IsLoaded("gb.inotify")
   $hWatcher = New Watcher(Me) As "Watcher"
+  
+  $iIconSizeCompact = 16
+  $iIconSizeNormal = 64
   
   $hBorder = New Panel(Me)
   $hBorder.Arrangement = Arrange.Vertical
@@ -363,8 +371,10 @@ Private Sub GetIconSize() As Integer
 
   If $hColumnView.Visible Then
     Return Stock.GetSize("small")
+  Else If $hIconView.Orientation = Arrange.Horizontal Then
+    Return $iIconSizeCompact
   Else
-    Return $iIconSize
+    Return $iIconSizeNormal
   Endif
 
 End
@@ -448,7 +458,10 @@ Private Sub RefreshView()
   
   aSel = GetView().Selection
   
+  iSize = GetIconSize()
+  
   If $hColumnView.Visible Then
+    
     SX = $hColumnView.ScrollX
     SY = $hColumnView.ScrollY
     If Not $bWatch Or If $bRefreshAll Then 
@@ -460,18 +473,19 @@ Private Sub RefreshView()
     $hColumnView.Sorted = False
     hPictFile = Picture["icon:/small/file"]
     hPictFolder = Picture["icon:/small/directory"]
+    
   Else
+    
     SX = $hIconView.ScrollX
     SY = $hIconView.ScrollY
     If Not $bWatch Or If $bRefreshAll Then $hIconView.Clear
     $hIconView._Begin
-    hPictFile = Picture["icon:/" & $iIconSize & "/file"]
-    hPictFolder = Picture["icon:/" & $iIconSize & "/directory"]
+    hPictFile = Picture["icon:/" & CStr(iSize) & "/file"]
+    hPictFolder = Picture["icon:/" & CStr(iSize) & "/directory"]
     $hInfoFont = $hIconView.Font.Copy()
     $hInfoFont.Size *= 0.7
+    
   Endif
-  
-  iSize = GetIconSize()
   
   sDir = GetCurrentDir()
   
@@ -683,8 +697,9 @@ Public Sub TaskPreview_Kill()
   
 End
 
-
 Private Sub RefreshViewLater(Optional bClear As Boolean)
+  
+  UpdateIconView
   
   If $bRefreshTriggered Then 
     If bClear Then $bRefreshAll = True
@@ -1077,9 +1092,7 @@ End
 
 Private Function Settings_Read() As Variant[]
   
-  Return [1, CVariant(ShowDetailed_Read()), ShowHidden_Read(), $hColumnView.Settings, $iIconSize, ShowPreview_Read()]
-  
-  'Return IIf(ShowDetailed_Read(), "1", "0") & "," & IIf(ShowHidden_Read(), "1", "0") & "," & $hColumnView.Settings
+  Return [2, CVariant(Style_Read()), ShowHidden_Read(), $hColumnView.Settings, $iIconSizeNormal, ShowPreview_Read(), $iIconSizeCompact]
   
 End
 
@@ -1088,11 +1101,24 @@ Private Sub Settings_Write(Value As Variant[])
   If IsNull(Value) Then Return
   
   If TypeOf(Value[0]) = gb.Integer Then
-    ShowDetailed_Write(Value[1])
+    If Value[0] = 1 Then
+      Style_Write(If(Value[1], Detailed, Normal))
+    Else 
+      Style_Write(Value[1])
+    Endif
     ShowHidden_Write(Value[2])
     $hColumnView.Settings = Value[3]
-    IconSize_Write(Value[4])
+    $iIconSizeNormal = Value[4]
     If Value.Count >= 6 Then ShowPreview_Write(Value[5])
+    If Value.Count >= 7 Then
+      $iIconSizeCompact = Value[6]
+    Else
+      $iIconSizeCompact = $iIconSizeNormal
+    Endif
+    
+    $bRefreshIcon = True
+    RefreshViewLater
+    
   Else
     ShowDetailed_Write(Value[0])
     ShowHidden_Write(Value[1])
@@ -1126,16 +1152,23 @@ End
 
 Private Function IconSize_Read() As Integer
   
-  Return $iIconSize
+  Return GetIconSize()
   
 End
 
 Private Sub IconSize_Write(Value As Integer)
   
-  $iIconSize = Value
+  If $hColumnView.Visible Then Return
+  If Value < 8 Or Value > 512 Then Return
+  
+  If $hIconView.Orientation = Arrange.Horizontal Then
+    $iIconSizeCompact = Value
+  Else 
+    $iIconSizeNormal = Value
+  Endif
+  
   $bRefreshIcon = True
   RefreshViewLater
-  '$hIconView.GridSize = Min(40, (Value + 8) \ 3)
   
 End
 
@@ -1556,4 +1589,57 @@ Private Sub Orientation_Write(Value As Integer)
 
   $hIconView.Orientation = Value
 
+End
+
+Private Function Style_Read() As Integer
+
+  If $hColumnView.Visible Then
+    Return Detailed
+  Else If $hIconView.Orientation = Arrange.Horizontal Then
+    Return Compact
+  Else
+    Return Normal
+  Endif
+
+End
+
+Private Sub Style_Write(Value As Integer)
+
+  Dim iIconSize As Integer
+  
+  If Value = Detailed Then
+    ShowDetailed_Write(True)
+  Else
+    ShowDetailed_Write(False)
+    iIconSize = GetIconSize()
+    If Value = Compact Then
+      $hIconView.Orientation = Arrange.Horizontal
+    Else
+      $hIconView.Orientation = Arrange.Vertical
+    Endif 
+    UpdateIconView
+    If iIconSize <> GetIconSize() Then 
+      $bRefreshIcon = True
+      RefreshView
+    Endif
+  Endif
+
+End
+
+Private Sub UpdateIconView()
+
+  If Not $hIconView.Visible Then Return
+
+  If $hIconView.Orientation = Arrange.Horizontal Then
+    $hIconView.IconLines = Max(1, GetIconSize() \ $hIconView.Font.Height)
+  Else 
+    $hIconView.IconLines = 3
+  Endif
+
+End
+
+Public Sub UserControl_Font()
+  
+  UpdateIconView
+  
 End

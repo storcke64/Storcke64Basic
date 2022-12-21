@@ -18,7 +18,6 @@ Property UncompressFilter As String[]
 Private mnuBookmark As Menu
 Private mnuEditBookmark As Menu
 Private mnuShowHiddenFiles As Menu
-Private mnuShowDetailed As Menu
 Private mnuShowPreview As Menu
 Private mnuUncompress As Menu
 Private mnuRename As Menu
@@ -183,8 +182,6 @@ Public Sub DirButton_Click()
   
 End
 
-
-
 Public Sub dvwChoose_Click()
 
   If dvwChoose.Current = $sLast Then Return
@@ -233,16 +230,32 @@ End
 Private Sub UpdateZoom()
   
   panIconSize.Visible = Not fvwChoose.ShowDetailed And $bView And fvwChoose.Visible
+  If panIconSize.Visible Then
+    Object.Lock(sldIconSize)
+    sldIconSize.Value = $aIconSize.Find(fvwChoose.IconSize)
+    Object.Unlock(sldIconSize)
+  Endif
+  
+  Select fvwChoose.Style
+    Case FileView.Normal
+      btnViewNormal.Value = True
+    Case FileView.Compact
+      btnViewCompact.Value = True
+    Case FileView.Detailed
+      btnViewDetailed.Value = True
+  End Select
   
 End
 
 Private Sub UpdateView()
 
   panView.Visible = $bView
-  btnDetail.Visible = $bView
+  btnViewNormal.Visible = $bView
+  btnViewCompact.Visible = $bView
+  btnViewDetailed.Visible = $bView
   btnPreview.Visible = $bView
+  sepView.Visible = $bView
 
-  '''FillMenu
   UpdateZoom
   
 End
@@ -260,17 +273,6 @@ Public Sub btnView_Click()
 End
 
 Public Sub mnuShowDetailed_Click()
-
-  fvwChoose.ShowDetailed = Not fvwChoose.ShowDetailed
-  Object.Lock(btnDetail)
-  btnDetail.Value = fvwChoose.ShowDetailed
-  Object.Unlock(btnDetail)
-  UpdateZoom
-  ' If fvwChoose.ShowDetailed Then
-  '   btnDetailed.Picture = Picture["icon:/small/view-icon"]
-  ' Else
-  '   btnDetailed.Picture = Picture["icon:/small/view-detail"]
-  ' Endif
 
 End
 
@@ -819,9 +821,15 @@ Public Sub SetSettings(aVar As Variant[])
   Endif
 
   btnPreview.Value = fvwChoose.ShowPreview
-  Object.Lock(btnDetail)
-  btnDetail.Value = fvwChoose.ShowDetailed
-  Object.Unlock(btnDetail)
+  
+  Select Case fvwChoose.Style
+    Case FileView.Compact
+      btnViewCompact.Value = True
+    Case FileView.Detailed
+      btnViewDetailed.Value = True
+    Case Else
+      btnViewNormal.Value = True
+  End Select
 
   UpdateShowHidden
   ShowBookmark($bShowBookmark)
@@ -1035,13 +1043,36 @@ Private Sub FillMenu()
     UpdateBookmarkButton
     
   Endif
+
+  If Not dvwChoose.HasFocus Then
   
-  hMenu = New Menu(mnuPopup) As "mnuShowDetailed"
-  hMenu.Text = ("Show details")
-  hMenu.Checked = fvwChoose.ShowDetailed
-  hMenu.Visible = fvwChoose.Visible And $bView
-  mnuShowDetailed = hMenu
+    hMenu = New Menu(mnuPopup)
+  
+    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu.Text = ("Icon view")
+    hMenu.Checked = fvwChoose.Style = FileView.Normal
+    hMenu.Visible = fvwChoose.Visible And $bView
+    hMenu.Picture = Picture["icon:/small/view-icon"]
+    hMenu.Tag = FileView.Normal
+      
+    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu.Text = ("Compact view")
+    hMenu.Checked = fvwChoose.Style = FileView.Compact
+    hMenu.Visible = fvwChoose.Visible And $bView
+    hMenu.Picture = Picture["icon:/small/view-compact"]
+    hMenu.Tag = FileView.Compact
+      
+    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu.Text = ("Detailed view")
+    hMenu.Checked = fvwChoose.Style = FileView.Detailed
+    hMenu.Visible = fvwChoose.Visible And $bView
+    hMenu.Picture = Picture["icon:/small/view-detail"]
+    hMenu.Tag = FileView.Detailed
     
+  Endif
+    
+  hMenu = New Menu(mnuPopup)
+
   hMenu = New Menu(mnuPopup) As "mnuShowHiddenFiles"
   hMenu.Text = ("Show hidden files")
   hMenu.Checked = fvwChoose.ShowHidden
@@ -1116,7 +1147,6 @@ Private Sub FillMenu()
   If dvwChoose.HasFocus Then
 
     mnuUncompress.Hide
-    mnuShowDetailed.Hide
     mnuShowPreview.Hide
     mnuRename.Show
     mnuDelete.Hide
@@ -1127,7 +1157,6 @@ Private Sub FillMenu()
 
     sFile = fvwChoose.Current
     mnuUncompress.Visible = IsCompressedFile(sFile)
-    mnuShowDetailed.Show
     mnuShowPreview.Show
     mnuRename.Visible = sFile
     mnuDelete.Visible = sFile
@@ -1786,5 +1815,25 @@ End
 Public Sub mnuPopup_Show()
   
   FillMenu
+  
+End
+
+Public Sub mnuStyle_Click()
+  
+  fvwChoose.Style = Last.Tag
+  UpdateZoom
+
+End
+
+Public Sub GetStyle() As Integer
+  
+  Return fvwChoose.Style
+  
+End
+
+
+Public Sub SetStyle(iStyle As Integer)
+  
+  fvwChoose.Style = iStyle
   
 End

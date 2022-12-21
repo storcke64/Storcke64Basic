@@ -25,24 +25,31 @@ End
 Private Sub PrintIcon(sFile As String, hImage As Image, sThumb As String)
 
   Dim hIcon As Image
-  Dim hRect As RectF
+  Dim X As Integer
+  Dim Y As Integer
 
-  hIcon = New Image($iSize, $iSize) ', Color.Transparent)
+  If hImage.W > hImage.H Then
+    hImage = hImage.Stretch($iSize, ($iSize * hImage.H) \ hImage.W)
+  Else
+    hImage = hImage.Stretch(($iSize * hImage.W) \ hImage.H, $iSize)
+  Endif
+  
+  X = ($iSize - hImage.W) \ 2
+  Y = ($iSize - hImage.H) \ 2
+
+  hIcon = New Image($iSize, $iSize)
+  
   Paint.Begin(hIcon)
+  Paint.DrawImage(hImage, X, Y)
   
-  hRect = Paint.StretchImage(hImage, 0, 0, $iSize, $iSize)
+  'hRect = Paint.StretchImage(hImage, 0, 0, $iSize, $iSize)
   
-  Paint.Rectangle(hRect.X + 0.5, hRect.Y + 0.5, hRect.W - 1, hRect.H - 1)
-  Paint.Background = Color.Gray
+  Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W - 1, hImage.H - 1)
+  Paint.Background = Color.LightForeground
   Paint.Stroke
   Paint.End
   
   Try hIcon.Save(sThumb)
-  If Error Then
-    Print sFile; "\t"
-  Else
-    Print sFile; "\t"; sThumb
-  Endif
     
 End
 
@@ -68,37 +75,27 @@ Public Sub Main()
     sPath = $sDir &/ sFile
     sExt = LCase(File.Ext(sFile))
     
+    If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then
+      Print sFile; "\t"
+      Continue
+    Endif
+      
+    sThumb = GetThumbnailPath(sPath)
+    If Exist(sThumb) Then
+      Print sFile; "\t"; sThumb
+      Continue
+    Endif
+    
     If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Or If sExt = "webp" Then
       
-      If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto IGNORE_FILE
-      
-      sThumb = GetThumbnailPath(sPath)
-      If Exist(sThumb) Then
-        
-        Print sFile; "\t"; sThumb
-        
-      Else
-      
-        Try hImage = Image.Load(sPath)
-        If Error Then Goto IGNORE_FILE
-        PrintIcon(sFile, hImage, sThumb)
-        
-      Endif
-      
-      Continue
+      Try hImage = Image.Load(sPath)
+      If Not Error Then PrintIcon(sFile, hImage, sThumb)
     
     Else If sExt = "svg" Or If sExt = "svgz" Then
       
-      sThumb = GetThumbnailPath(sPath)
-      If Exist(sThumb) Then
+      Try hSvgImage = SvgImage.Load(sPath)
+      If Not Error Then
       
-        Print sFile; "\t"; sThumb
-        
-      Else
-        
-        Try hSvgImage = SvgImage.Load(sPath)
-        If Error Then Goto IGNORE_FILE
-        
         If hSvgImage.Width > hSvgImage.Height Then 
           hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
         Else
@@ -111,17 +108,14 @@ Public Sub Main()
         Paint.End
         
         PrintIcon(sFile, hImage, sThumb)
-        
       Endif
-    
-      Continue 
-      
+        
     Endif
     
-  IGNORE_FILE:
-      
-    Print sFile; "\t"
-      
+    Print sFile; "\t";
+    If Exist(sThumb) Then Print sThumb;
+    Print
+    
   Next
   
   Print "."

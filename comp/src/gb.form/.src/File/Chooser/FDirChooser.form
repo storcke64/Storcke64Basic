@@ -18,7 +18,7 @@
       MoveScaled(2,3,82,53)
       Expand = True
       { panToolbar HBox
-        MoveScaled(1,1,78,4)
+        MoveScaled(1,1,80,4)
         AutoResize = True
         { btnParent ToolButton
           MoveScaled(1,0,4,4)
@@ -48,7 +48,7 @@
           Visible = False
         }
         { panTool HBox
-          MoveScaled(23,0,46,4)
+          MoveScaled(21,0,58,4)
           AutoResize = True
           { btnBack ToolButton
             MoveScaled(0,0,4,4)
@@ -85,21 +85,48 @@
             Picture = Picture["icon:/small/view-preview"]
             Toggle = True
           }
-          { btnDetail ToolButton mnuShowDetailed
-            Name = "btnDetail"
-            MoveScaled(35,0,4,4)
+          { sepView Separator
+            MoveScaled(35,0,1,4)
+          }
+          { btnViewNormal ToolButton mnuStyle
+            Name = "btnViewNormal"
+            MoveScaled(36,0,4,4)
+            Tag = "0"
+            ToolTip = ("Icon view")
+            Picture = Picture["icon:/small/view-icon"]
+            Radio = True
+            Toggle = True
+            Value = True
+          }
+          { btnViewCompact ToolButton mnuStyle
+            Name = "btnViewCompact"
+            MoveScaled(40,0,4,4)
+            Tag = "1"
+            ToolTip = ("Compact view")
+            Picture = Picture["icon:/small/view-compact"]
+            Radio = True
+            Toggle = True
+          }
+          { btnViewDetailed ToolButton mnuStyle
+            Name = "btnViewDetailed"
+            MoveScaled(44,0,4,4)
+            Tag = "2"
             ToolTip = ("Detailed view")
             Picture = Picture["icon:/small/view-detail"]
+            Radio = True
             Toggle = True
+          }
+          { Separator4 Separator
+            MoveScaled(48,0,1,4)
           }
           { btnProperty ToolButton mnuProperty
             Name = "btnProperty"
-            MoveScaled(38,0,4,4)
+            MoveScaled(49,0,4,4)
             ToolTip = ("File properties")
             Picture = Picture["icon:/small/info"]
           }
           { btnView ToolButton
-            MoveScaled(42,0,4,4)
+            MoveScaled(53,0,4,4)
             ToolTip = ("Show files")
             Picture = Picture["icon:/small/view-split-h"]
           }
