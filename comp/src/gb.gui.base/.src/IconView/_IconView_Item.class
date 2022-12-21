@@ -362,6 +362,7 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
   Dim hRect1, hRect2, hRectBg As Rect
   Dim DS As Integer = Desktop.Scale
   Dim bSelected As Boolean
+  Dim iAlign As Integer
   
   hRect = hRect.Copy()
   'hRect.Adjust(DS \ 4)
@@ -410,12 +411,18 @@ Public Sub _Draw(hRect As Rect, hClip As Rect, hIconView As IconView, bHorizonta
     
     hRect2.Adjust(DS \ 2)
     
+    If bHorizontal Then
+      iAlign = Align.Normal
+    Else 
+      iAlign = Align.Top
+    Endif
+    
     If Not bFrame Then
       Paint.Background = GetBackground(hIconView, False) '$bSelected) 'If($bSelected, Color.SelectedBackground, Color.TextBackground)
-      DrawText($sText, sText, hRect2.X + 1, hRect2.Y + 1, hRect2.W, hRect2.H, Align.Top)
+      DrawText($sText, sText, hRect2.X + 1, hRect2.Y + 1, hRect2.W, hRect2.H, iAlign)
     Endif
     Paint.Background = GetForeground(hIconView, False) '$bSelected) 'If($bSelected, Color.SelectedForeground, Color.TextForeground)
-    DrawText($sText, sText, hRect2.X, hRect2.Y, hRect2.W, hRect2.H, Align.Top)
+    DrawText($sText, sText, hRect2.X, hRect2.Y, hRect2.W, hRect2.H, iAlign)
     'Draw.Clip.Enabled = False
   Endif
     
@@ -538,11 +545,8 @@ Public Sub _Intersect(hRect As Rect, hOther As Rect, bHorizontal As Boolean) As 
   
 End
 
-Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean, X As Integer, Y As Integer) As Boolean
+Public Sub _Inside(hRect As Rect, (hIconView) As IconView, bHorizontal As Boolean, X As Integer, Y As Integer) As Boolean
   
-  Dim H, YT, HT, PW, PH As Integer
-  Dim hInside As Rect
-  Dim sText As String
   Dim DS As Integer
   Dim hRect1, hRect2 As Rect
   
@@ -552,39 +556,39 @@ Public Sub _Inside(hRect As Rect, hIconView As IconView, bHorizontal As Boolean,
   
   If Not hRect.Contains(X, Y) Then Return False
   
-  If bHorizontal Then
+  _GetRects(hRect, bHorizontal, ByRef hRect1, ByRef hRect2)
+  If hRect1.Contains(X, Y) Then Return True
+  If hRect2 And If hRect2.Contains(X, Y) Then Return True
+  Return False
   
-    Return True
-    
-  Else
-  
-    _GetRects(hRect, bHorizontal, ByRef hRect1, ByRef hRect2)
-    If hRect1.Contains(X, Y) Then Return True
-    If hRect2 And If hRect2.Contains(X, Y) Then Return True
-    Return False
-  
-    GetIconSize(ByRef PW, ByRef PH)
-  
-    YT = hRect.Y
-    
-    If PW Then 
-      hInside = New Rect(hRect.X + (hRect.W - PW) / 2 - (DS \ 2), hRect.Y - (DS \ 2), PW + DS, PH + DS)
-      If hInside.Contains(X, Y) Then Return True
-      YT += PH + DS \ 2
-    Endif
-    
-    If $sText Then
-      sText = $sText
-      H = hIconView.Font.RichTextHeight(sText, hRect.W)
-      HT = hRect.H - (YT - hRect.Y)
-      If H > HT Then 
-        sText = Ellipsize(sText, hIconView.Font, hRect.W, HT)
-      Endif
-      hInside = New Rect(hRect.X - DS \ 2, YT - DS \ 2, hRect.W + DS, hIconView.Font.RichTextHeight(sText, hRect.W) + DS)
-      If hInside.Contains(X, Y) Then Return True
-    Endif
-    
-  Endif
+  ' If bHorizontal Then
+  ' 
+  '   Return True
+  '   
+  ' Else
+  ' 
+  '   GetIconSize(ByRef PW, ByRef PH)
+  ' 
+  '   YT = hRect.Y
+  '   
+  '   If PW Then 
+  '     hInside = New Rect(hRect.X + (hRect.W - PW) / 2 - (DS \ 2), hRect.Y - (DS \ 2), PW + DS, PH + DS)
+  '     If hInside.Contains(X, Y) Then Return True
+  '     YT += PH + DS \ 2
+  '   Endif
+  '   
+  '   If $sText Then
+  '     sText = $sText
+  '     H = hIconView.Font.RichTextHeight(sText, hRect.W)
+  '     HT = hRect.H - (YT - hRect.Y)
+  '     If H > HT Then 
+  '       sText = Ellipsize(sText, hIconView.Font, hRect.W, HT)
+  '     Endif
+  '     hInside = New Rect(hRect.X - DS \ 2, YT - DS \ 2, hRect.W + DS, hIconView.Font.RichTextHeight(sText, hRect.W) + DS)
+  '     If hInside.Contains(X, Y) Then Return True
+  '   Endif
+  '   
+  ' Endif
   
 End
 
@@ -701,30 +705,30 @@ Public Sub MoveLast()
   
 End
 
-Private Sub Ellipsize(sText As String, hFont As Font, W As Integer, H As Integer) As String
-  
-  Dim sPoints As String = "…"
-  Dim iPos As Integer
-  Dim sCar As String
-  Dim bMarkup As Boolean
-  
-  If Not sText Then Return
-  
-  For iPos = 1 To String.Len(sText)
-    sCar = String.Mid(sText, iPos, 1)
-    If sCar = "<" Then
-      bMarkup = True
-    Else If sCar = ">" Then
-      bMarkup = False
-    Endif
-    If bMarkup Then Continue
-    If hFont.RichTextHeight(String.Left(sText, iPos) & sPoints, W) > H Then Break
-  Next
-  
-  Return String.Left(sText, iPos - 1) & sPoints
-  
-End
-
+' Private Sub Ellipsize(sText As String, hFont As Font, W As Integer, H As Integer) As String
+'   
+'   Dim sPoints As String = "…"
+'   Dim iPos As Integer
+'   Dim sCar As String
+'   Dim bMarkup As Boolean
+'   
+'   If Not sText Then Return
+'   
+'   For iPos = 1 To String.Len(sText)
+'     sCar = String.Mid(sText, iPos, 1)
+'     If sCar = "<" Then
+'       bMarkup = True
+'     Else If sCar = ">" Then
+'       bMarkup = False
+'     Endif
+'     If bMarkup Then Continue
+'     If hFont.RichTextHeight(String.Left(sText, iPos) & sPoints, W) > H Then Break
+'   Next
+'   
+'   Return String.Left(sText, iPos - 1) & sPoints
+'   
+' End
+' 
 Public Sub _IsEllipsized() As Boolean
   
   Return $bEllipsized

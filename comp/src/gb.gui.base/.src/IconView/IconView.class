@@ -261,7 +261,9 @@ Public Sub ArrangeTimer_Timer()
 
   Dim hItem As _IconView_Item
   Dim hPicture As Picture
+  Dim iOld As Integer
   
+  iOld = $iIconSize
   $iIconSize = 0
   For Each hItem In $aItems
     hPicture = hItem.Picture
@@ -274,7 +276,7 @@ Public Sub ArrangeTimer_Timer()
     Endif
   Next
   
-  ScrollArea_Arrange
+  If $iIconSize <> iOld Then ScrollArea_Arrange
   $hArrangeTimer = Null
   
 End
@@ -602,7 +604,6 @@ Public Sub ScrollArea_Arrange()
       $iGridWidth = $iGridSize * DS
       $iGridWidth = Max($iGridWidth, $iIconSize + DS * 2)
     Else
-      Debug $iIconSize
       $iGridWidth = 32 * DS + $iIconSize + DS * 2
     Endif
     
@@ -1490,7 +1491,9 @@ End
 
 Private Sub IconLines_Write(Value As Integer)
 
-  $iIconLines = Max(1, Min(8, Value))
+  Value = Max(1, Min(8, Value))
+  If $iIconLines = Value Then Return
+  $iIconLines = Value
   ScrollArea_Arrange
 
 End
