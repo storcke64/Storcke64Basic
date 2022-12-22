@@ -150,13 +150,13 @@
           Picture = Picture["icon:/small/clear"]
         }
         { btnVcChanges ToolButton
-          MoveScaled(5,0,7,4)
+          MoveScaled(5,0,8,4)
           AutoResize = True
           Text = ("Modifications.") & "..."
           Picture = Picture["icon:/small/modified"]
         }
         { btnVcCommit ToolButton
-          MoveScaled(13,0,6,4)
+          MoveScaled(15,0,10,4)
           AutoResize = True
           Text = ("Commit") & "..."
           Picture = Picture["icon:/small/upload"]
@@ -165,13 +165,13 @@
           MoveScaled(26,0,0,4)
         }
         { btnVcUpdate ToolButton
-          MoveScaled(33,0,8,4)
+          MoveScaled(27,0,11,4)
           AutoResize = True
           Text = ("Synchronize repository") & "..."
           Picture = Picture["icon:/small/download"]
         }
         { btnVcRevert ToolButton
-          MoveScaled(41,0,9,4)
+          MoveScaled(40,0,9,4)
           AutoResize = True
           Text = ("Revert all changes") & "..."
           Picture = Picture["icon:/small/undo"]

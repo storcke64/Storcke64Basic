@@ -10,61 +10,54 @@
     { panProcess HBox
       MoveScaled(0,0,60,4)
       Font = Font["-2"]
-      Spacing = True
-      { Panel17 HBox
-        MoveScaled(0,0,9,4)
-        AutoResize = True
-        { picProcess PictureBox
+      { btnShowProject ToolButton
+        MoveScaled(0,0,4,4)
+        Picture = Picture["icon:/small/view-tree"]
+      }
+      { Panel1 HBox
+        MoveScaled(7,0,43,4)
+        Expand = True
+        { picProcessId PictureBox
           MoveScaled(0,0,4,4)
           Alignment = Align.Center
         }
         { lblProcessId Label
-          MoveScaled(4,0,4,3)
+          MoveScaled(4,0,4,4)
           AutoResize = True
         }
-      }
-      { panProcessMemoryRead HBox
-        MoveScaled(12,0,9,4)
-        Visible = False
-        ToolTip = ("Read-only memory")
-        AutoResize = True
         { picProcessMemoryRead PictureBox
-          MoveScaled(0,0,4,4)
+          MoveScaled(9,0,4,4)
+          Visible = False
           Picture = Picture.Load("icon:/small/cdrom")
           Alignment = Align.Center
         }
         { lblProcessMemoryRead Label
-          MoveScaled(4,0,4,3)
+          MoveScaled(13,0,4,4)
+          Visible = False
           AutoResize = True
         }
-      }
-      { panProcessMemory HBox
-        MoveScaled(24,0,9,4)
-        ToolTip = ("Allocated memory")
-        AutoResize = True
         { picProcessMemory PictureBox
-          MoveScaled(0,0,4,4)
+          MoveScaled(19,0,4,4)
           Picture = Picture.Load("icon:/small/memory")
           Alignment = Align.Center
         }
         { lblProcessMemory Label
-          MoveScaled(4,0,4,3)
+          MoveScaled(23,0,4,4)
           AutoResize = True
         }
-      }
-      { panProcessFiles HBox
-        MoveScaled(37,0,9,4)
-        ToolTip = ("Open file descriptors")
-        AutoResize = True
         { picProcessFiles PictureBox
-          MoveScaled(0,0,4,4)
+          MoveScaled(29,0,4,4)
           Picture = Picture.Load("icon:/small/open")
           Alignment = Align.Center
         }
         { lblProcessFiles Label
-          MoveScaled(4,0,4,3)
+          MoveScaled(34,0,4,4)
           AutoResize = True
         }
+      }
+      { btnCloseTree ToolButton
+        MoveScaled(56,0,4,4)
+        Picture = Picture["icon:/small/close"]
       }
     }
     { sepProcess Separator

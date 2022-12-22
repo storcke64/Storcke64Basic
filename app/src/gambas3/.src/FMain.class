@@ -1309,6 +1309,13 @@ Public Sub UpdateMenu()
     Action[sAction].Enabled = bEnabled
   Next
   
+  Action["version-control"].Visible = VersionControl.Enabled
+  For Each sAction In ["vc-commit", "vc-update", "vc-revert", "vc-add-all", "vc-branch"]
+    Action[sAction].Enabled = bEnabled
+  Next
+  
+  Action["patch-apply"].Enabled = bEnabled
+  
   'mnuEnvDbDebug.Enabled = bEnabled
   'mnuEnvJitDebug.Enabled = bEnabled
   'mnuEnvNoJit.Enabled = bEnabled
@@ -1319,8 +1326,6 @@ Public Sub UpdateMenu()
   Action["start"].Tooltip = sText
   
   UpdateProperty
-  
-  Action["version-control"].Visible = VersionControl.Enabled
   
   mnuStartup.Visible = bVisible
   mnuRenameFile.Visible = bVisible
@@ -1511,19 +1516,15 @@ End
 
 Private Sub UpdateCloseTree()
 
-  If tabProject.ShowTabBar Then
+  If Project.Running Or If Not VersionControl.Enabled Then
     
-    txtSearchProject.Button = False
+    txtSearchProject.Button = True
     btnCloseTree.Hide
-    
-  Else If VersionControl.Enabled Then
-    
-    txtSearchProject.Button = False
-    btnCloseTree.Show
     
   Else
     
-    txtSearchProject.Button = True
+    txtSearchProject.Button = False
+    btnCloseTree.Show
     
   Endif
 
@@ -1532,15 +1533,16 @@ End
 Public Sub OnProjectDebug()
   
   If Project.Running Then
-    tabProject.ShowTabBar = True
     tabProject.Index = 1
+    btnShowDebugger.Show
   Else
-    tabProject.ShowTabBar = False
+    btnShowDebugger.Hide
     tabProject.Index = 0
   Endif
 
   UpdateMenu
   UpdateCloseTree
+  UpdateVersionControl
   
 End
 
@@ -3101,6 +3103,21 @@ Public Sub mnuCompressNow_Click()
   
 End
 
+Private Sub UpdateVersionControl()
+
+  If VersionControl.Enabled And If Not Project.Running Then
+    panBranchColor.Show
+    sepBranchColor.Show
+  Else
+    panBranchColor.Hide
+    sepBranchColor.Hide
+  Endif
+  
+  dwgBranchColor.Visible = VersionControl.Enabled
+  dwgBranchColor.Refresh
+  
+End
+
 Public Sub OnVersionControlChange()
 
   Action["version-control"].Visible = VersionControl.Enabled
@@ -3115,17 +3132,7 @@ Public Sub OnVersionControlChange()
   VersionControl.InitControlProjectMenu(mnuVersionControlWith)
   mnuVersionControlWith.Visible = mnuVersionControlWith.Children.Count
   
-  If VersionControl.Enabled Then
-    panBranchColor.Show
-    sepBranchColor.Show
-  Else
-    panBranchColor.Hide
-    sepBranchColor.Hide
-  Endif
-  
-  dwgBranchColor.Visible = VersionControl.Enabled
-  dwgBranchColor.Refresh
-  
+  UpdateVersionControl
   UpdateCloseTree
   
 End
@@ -3510,6 +3517,12 @@ Catch
   
 End
 
+Public Sub ShowTree()
+  
+  tabProject.Index = 0
+  
+End
+
 Public Sub ShowDebugging()
   
   tabProject.Index = 1
@@ -3520,4 +3533,22 @@ Public Sub tabProject_CloseAll()
 
   txtSearchProject_Click 
   
+End
+
+Public Sub tabProject_Click()
+
+  If tabProject.Index = 0 Then
+    btnWorkspaceProject.Picture = Picture["icon:/small/view-tree"]
+    btnWorkspaceProject.Tooltip = ("Show project tree")
+  Else
+    btnWorkspaceProject.Picture = Picture["icon:/small/monitor"]
+    btnWorkspaceProject.Tooltip = ("Show debugger")
+  Endif
+
+End
+
+Public Sub btnShowDebugger_Click()
+
+  ShowDebugging
+
 End

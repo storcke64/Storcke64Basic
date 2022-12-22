@@ -333,8 +333,8 @@ Public Sub ReadConfig()
   $hHeaderFont = Project.GetSmallFont()
   $hHeaderFont.Bold = True
   
-  'panProcess.H = FMain.GetTabBarHeight() - 1
-  'btnCloseTree.W = panProcess.H - 1
+  panProcess.H = FMain.GetTabBarHeight()
+  btnCloseTree.W = panProcess.H
   
   fSize = Project.GetPercentFontSize("/DebuggerFontSize", 80)
   
@@ -770,17 +770,19 @@ Public Sub UpdateProcessInfo(iProcessId As Integer, iProcessFiles As Integer, iP
   If iProcessId >= 0 Then
     
     If Design.IsExtern() Then
-      picProcess.Picture = Picture["icon:/small/connect"]
+      picProcessId.Picture = Picture["icon:/small/connect"]
     Else
-      picProcess.Picture = Picture["icon:/small/exec"]
+      picProcessId.Picture = Picture["icon:/small/exec"]
     Endif
     
     If iProcessId = 0 Then
       
+      picProcessId.Hide
       lblProcessId.Hide
       
     Else
       
+      picProcessId.Show
       lblProcessId.Show
       lblProcessId.Text = Subst(("Process &1"), iProcessId)
       
@@ -790,22 +792,28 @@ Public Sub UpdateProcessInfo(iProcessId As Integer, iProcessFiles As Integer, iP
   
   If iProcessId = 0 Then
     
-    panProcessFiles.Hide
-    panProcessMemoryRead.Hide
+    picProcessFiles.Hide
+    lblProcessFiles.Hide
+    picProcessMemoryRead.Hide
+    lblProcessMemoryRead.Hide
     
   Else
     
     If iProcessFiles < 0 Then
-      panProcessFiles.Hide
+      picProcessFiles.Hide
+      lblProcessFiles.Hide
     Else
-      panProcessFiles.Show
+      picProcessFiles.Show
+      lblProcessFiles.Show
       lblProcessFiles.Text = CStr(iProcessFiles)
     Endif
     
     If iProcessMemory < 0 Then
-      panProcessMemory.Hide
+      picProcessMemory.Hide
+      lblProcessMemory.Hide
     Else
-      panProcessMemory.Show
+      picProcessMemory.Show
+      lblProcessMemory.Show
       lblProcessMemory.Text = File.FormatSize(iProcessMemory, True) 
     Endif
     
@@ -1140,5 +1148,17 @@ Public Sub lblError_MouseDown()
   Try sLoc = lvwStack["0"].Tag  
   If Not sLoc Or If InStr(sLoc, "(") Then Return
   Design.Goto(sLoc)
+
+End
+
+Public Sub btnShowProject_Click()
+
+  FMain.ShowTree
+
+End
+
+Public Sub btnCloseTree_Click()
+
+  FMain.btnCloseTree_Click
 
 End

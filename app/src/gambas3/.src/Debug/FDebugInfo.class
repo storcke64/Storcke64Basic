@@ -707,19 +707,17 @@ End
 
 Public Sub OnProjectDebug()
   
+  Dim hCtrl As Control
+  
   $sLastLocal = ""
   $sLastObject = ""
   If Settings["/ShowDebugPanelAutomatically", True] Then Action["console"].Value = True
   
   cmbTest.Enabled = Not Project.Running
   
-  ' If Design.IsRemote() Then
-  '   btnDebugProcess.Picture = Picture["icon:/small/connect"]
-  ' Else
-  '   btnDebugProcess.Picture = Picture["icon:/small/exec"]
-  ' Endif
-  ' 
-  ' btnDebugProcess.Text = ""
+  For Each hCtrl In [btnVcAddAll, btnVcBranch, btnVcClear, btnVcCommit, btnVcRevert, btnVcUpdate]
+    hCtrl.Enabled = Not Project.Running
+  Next
   
 End
 

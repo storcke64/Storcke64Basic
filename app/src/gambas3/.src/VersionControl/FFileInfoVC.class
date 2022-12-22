@@ -45,6 +45,8 @@ Public Sub Form_Open()
   
   btnClose.SetFocus
   
+  btnRevert.Enabled = Not Project.Running
+  
   tabInfo_Click
   
 End

@@ -187,6 +187,7 @@
       }
       { mnuVcAddAll Menu mnuAddVersionAll
         Name = "mnuVcAddAll"
+        Action = "vc-add-all"
         Text = ("Add everything to repository")
         Picture = Picture["icon:/small/added"]
       }
@@ -220,10 +221,12 @@
     { Menu15 Menu
     }
     { mnuPatch Menu
+      Action = "patch-create"
       Text = ("Create patch") & "..."
       Picture = Picture["icon:/small/text"]
     }
     { mnuPatchProject Menu
+      Action = "patch-apply"
       Text = ("Apply patch") & "..."
       Picture = Picture["icon:/small/apply"]
     }
@@ -1320,11 +1323,11 @@
     Animated = True
   }
   { panGlobal Panel
-    MoveScaled(2,17,170,77)
+    MoveScaled(1,17,172,77)
     Expand = True
     Arrangement = Arrange.Horizontal
     { panProject SidePanel
-      MoveScaled(1,3,32,73)
+      MoveScaled(1,3,34,73)
       Visible = False
       ToolTip = ("Project")
       Arrangement = Arrange.Fill
@@ -1334,7 +1337,7 @@
       Separator = True
       Transparent = True
       { tabProject TabPanel
-        MoveScaled(0,1,30,70)
+        MoveScaled(0,1,33,70)
         Arrangement = Arrange.Vertical
         Border = False
         Count = 2
@@ -1381,27 +1384,32 @@
           MoveScaled(3,5,9,0)
         }
         { panSearchProject HBox
-          MoveScaled(1,6,28,5)
+          MoveScaled(1,6,32,5)
           Background = Color.TextBackground
-          Padding = 1
-          { btnOpenStartup ToolButton
+          { btnShowDebugger ToolButton
             MoveScaled(0,0,4,4)
+            Visible = False
+            ToolTip = ("Open startup class")
+            Picture = Picture["icon:/small/monitor"]
+          }
+          { btnOpenStartup ToolButton
+            MoveScaled(4,0,4,4)
             ToolTip = ("Open startup class")
             Picture = Picture["icon:/small/home"]
           }
           { btnUseInheritance ToolButton
-            MoveScaled(4,0,4,4)
+            MoveScaled(8,0,4,4)
             ToolTip = ("Dispose class files according to inheritance")
             Picture = Picture["icon:/small/inheritance"]
             Toggle = True
           }
           { btnShowAllClasses ToolButton
-            MoveScaled(8,0,4,4)
+            MoveScaled(12,0,4,4)
             ToolTip = ("Display form class files")
             Toggle = True
           }
           { txtSearchProject ButtonBox
-            MoveScaled(13,1,14,3)
+            MoveScaled(17,1,14,3)
             Foreground = Color.LightForeground
             Expand = True
             Picture = Picture["icon:/small/close"]
@@ -1432,7 +1440,7 @@
       }
     }
     { Panel4 VBox
-      MoveScaled(34,2,135,74)
+      MoveScaled(36,2,135,74)
       Expand = True
       { Panel5 HBox
         MoveScaled(1,1,133,66)
@@ -1459,7 +1467,6 @@
               MoveScaled(22,1,4,4)
               Visible = False
               Background = Color.Background
-              ToolTip = ("Show project tree")
               Ignore = True
               Picture = Picture["icon:/small/view-tree"]
             }
@@ -1869,6 +1876,16 @@
     Shortcut = "Ctrl+V"
     Picture = "icon:/small/paste"
   }
+  { Action patch-apply
+    Text = "Apply patch"
+    Shortcut = ""
+    Picture = "icon:/small/apply"
+  }
+  { Action patch-create
+    Text = "Create patch"
+    Shortcut = ""
+    Picture = "icon:/small/text"
+  }
   { Action pause
     Text = "Pause"
     Shortcut = "Pause"
@@ -2014,6 +2031,11 @@
     Text = "Update all forms"
     Shortcut = ""
     Picture = "icon:/small/refresh"
+  }
+  { Action vc-add-all
+    Text = "Add everything to repository"
+    Shortcut = ""
+    Picture = "icon:/small/added"
   }
   { Action vc-branch
     Text = "Branch"
