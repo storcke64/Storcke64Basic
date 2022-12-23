@@ -2,6 +2,8 @@
 
 'Class DesktopMime
 
+Public Ext As New Collection(gb.IgnoreCase)
+
 Private $cArrow As New Collection
 Private $bInitGTK As Boolean
 Private $bUseGTK As Boolean
@@ -422,3 +424,69 @@ Public Sub AddEmblem(hPict As Picture, sIcon As String) As Picture
   
 End
 
+Public Sub InitExt()
+  
+  Ext["html"] = "html"
+  Ext["htm"] = "html"
+  Ext["css"] = "css"
+  Ext["js"] = "js"
+  Ext["xml"] = "xml"
+  
+  Ext["tar"] = "archive"
+  Ext["gz"] = "archive"
+  Ext["tgz"] = "archive"
+  Ext["bz2"] = "archive"
+  Ext["z"] = "archive"
+  Ext["zip"] = "archive"
+  Ext["xz"] = "archive"
+  
+  Ext["txt"] = "text"
+  Ext["log"] = "text"
+  Ext["json"] = "text"
+  
+  Ext["mp3"] = "audio"
+  Ext["aac"] = "audio"
+  Ext["ogg"] = "audio"
+  Ext["oga"] = "audio"
+  Ext["flac"] = "audio"
+  Ext["wav"] = "audio"
+  
+  Ext["mpg"] = "video"
+  Ext["mpeg"] = "video"
+  Ext["avi"] = "video"
+  Ext["wmv"] = "video"
+  Ext["mov"] = "video"
+  Ext["mp4"] = "video"
+  Ext["mkv"] = "video"
+  
+  Ext["gambas"] = "gambas"
+  Ext["gbs"] = "gambas"
+  
+  Ext["c"] = "c"
+  Ext["cpp"] = "cpp"
+  Ext["h"] = "h"
+  
+  Ext["deb"] = "package"
+  Ext["rpm"] = "package"
+  
+  Ext["iso"] = "cdrom"
+  
+  Ext["jpg"] = "image"
+  Ext["jpeg"] = "image"
+  Ext["png"] = "image"
+  Ext["gif"] = "image"
+  Ext["xpm"] = "image"
+  Ext["bmp"] = "image"
+  Ext["ico"] = "image"
+  Ext["xcf"] = "image"
+  Ext["svg"] = "image"
+  Ext["svgz"] = "image"
+  Ext["webp"] = "image"
+  
+  Ext["pdf"] = "pdf"
+  
+  Ext["ttf"] = "font"
+  Ext["otf"] = "font"
+  Ext["bdf"] = "font"
+  
+End

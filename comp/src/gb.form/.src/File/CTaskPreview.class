@@ -11,6 +11,7 @@ Private $sDir As String
 Private $iSize As Integer
 Private $iMaxFileSize As Integer
 Private $sCache As String
+Private $sFFmpeg As String
 
 Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
   
@@ -56,11 +57,13 @@ Private Sub IsTextFile(sPath As String) As Boolean
 
 End
 
-Private Sub PrintIcon(hImage As Image, sThumb As String)
+Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Boolean)
 
   Dim hIcon As Image
   Dim X As Integer
   Dim Y As Integer
+  Dim W As Integer
+  Dim I As Integer
 
   If hImage.W > hImage.H Then
     hImage = hImage.Stretch($iSize, ($iSize * hImage.H) \ hImage.W)
@@ -77,6 +80,18 @@ Private Sub PrintIcon(hImage As Image, sThumb As String)
   Paint.DrawImage(hImage, X, Y)
   
   'hRect = Paint.StretchImage(hImage, 0, 0, $iSize, $iSize)
+  
+  If bVideo Then
+    W = $iSize \ 16
+    Paint.FillRect(X, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
+    Paint.FillRect(X + hImage.W - W, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
+    Paint.Background = Color.White
+    For I = 0 To hImage.H Step W
+      Paint.Ellipse(X + W \ 4, Y + I + W \ 4, W \ 2, W \ 2)
+      Paint.Ellipse(X + hImage.W - W + W \ 4, Y + I + W \ 4, W \ 2, W \ 2)
+      Paint.Fill()
+    Next
+  Endif
   
   Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W - 1, hImage.H - 1)
   Paint.Background = Color.LightForeground
@@ -113,6 +128,7 @@ Private Sub PrintTextFile(sPath As String, sThumb As String)
   
   If fSize >= 4 Then
     
+    Paint.Font = Font["monospace"]
     Paint.Font.Size = fSize
   
     While Not Eof(hFile)
@@ -166,9 +182,26 @@ Private Sub PrintPdfFile(sPath As String, sThumb As String)
 
 End
 
+Private Sub PrintVideoFile(sPath As String, sThumb As String)
+
+  Dim sFile As String
+  Dim hImage As Image
+  
+  If Not $sFFmpeg Then Return
+  sFile = File.SetExt(Temp$("ffmpeg"), "png")
+  Exec [$sFFmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-i", sPath, "-frames:v", "1", "-y", "-t", "00:00:03", "-vf", "scale=" & CStr($iSize) & ":-1", sFile] Wait
+  'Exec [$sFFmpeg, "-nostdin", "-hide_banner", "-i", sPath, "-frames:v", "1", "-y", "-t", "00:00:03", sFile] Wait
+  Try hImage = Image.Load(sFile)
+  Try Kill sFile
+  If Error Then Return
+  PrintIcon(hImage, sThumb, True)
+  
+End
+
 Private Sub GetThumbnailPath(sPath As String) As String
   
-  Try Return $sCache &/ Hash.Sha256(File.Load(sPath)) & "." & CStr($iSize) & ".png"
+  sPath &= "." & CStr(Stat(sPath).LastModified)
+  Try Return $sCache &/ Hash.Sha256(sPath) & "." & CStr($iSize) & ".png"
   
 End
 
@@ -182,6 +215,8 @@ Public Sub Main()
   Dim sThumb As String
 
   Application.Priority += 10
+  
+  $sFFmpeg = System.Find("ffmpeg")
 
   For Each sFile In Preview
     
@@ -199,35 +234,43 @@ Public Sub Main()
       Continue
     Endif
     
-    If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Or If sExt = "webp" Then
+    If Main.Ext[sExt] = "image" Then
       
-      Try hImage = Image.Load(sPath)
-      If Not Error Then PrintIcon(hImage, sThumb)
-    
-    Else If sExt = "svg" Or If sExt = "svgz" Then
-      
-      Try hSvgImage = SvgImage.Load(sPath)
-      If Not Error Then
-      
-        If hSvgImage.Width > hSvgImage.Height Then 
-          hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
-        Else
-          hSvgImage.Resize($iSize * hSvgImage.Width / hSvgImage.Height, $iSize)
-        Endif
-  
-        hImage = New Image(hSvgImage.Width, hSvgImage.Height)
-        Paint.Begin(hImage)
-        hSvgImage.Paint()
-        Paint.End
+      If sExt = "svg" Or If sExt = "svgz" Then
         
-        PrintIcon(hImage, sThumb)
+        Try hSvgImage = SvgImage.Load(sPath)
+        If Not Error Then
+        
+          If hSvgImage.Width > hSvgImage.Height Then 
+            hSvgImage.Resize($iSize, $iSize * hSvgImage.Height / hSvgImage.Width)
+          Else
+            hSvgImage.Resize($iSize * hSvgImage.Width / hSvgImage.Height, $iSize)
+          Endif
+    
+          hImage = New Image(hSvgImage.Width, hSvgImage.Height)
+          Paint.Begin(hImage)
+          hSvgImage.Paint()
+          Paint.End
+          
+          PrintIcon(hImage, sThumb)
+        
+        Endif
       
+      Else
+      
+        Try hImage = Image.Load(sPath)
+        If Not Error Then PrintIcon(hImage, sThumb)
+        
       Endif
-      
+    
     Else If sExt = "pdf" Then
       
       Try PrintPdfFile(sPath, sThumb)
-        
+    
+    Else If Main.Ext[sExt] = "video" Then
+    
+      Try PrintVideoFile(sPath, sThumb)
+    
     Else If IsTextFile(sPath) Then
       
       Try PrintTextFile(sPath, sThumb)

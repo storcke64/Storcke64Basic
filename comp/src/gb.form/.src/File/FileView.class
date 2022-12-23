@@ -70,8 +70,6 @@ Property MaxPreviewSize As Integer Use $iMaxPreviewSize
 
 Property Orientation As Integer
 
-Static Private $cExt As New Collection(gb.IgnoreCase)
-
 Private Const PREFIX_DIR As String = "0"
 Private Const PREFIX_FILE As String = "1"
 
@@ -130,68 +128,8 @@ Private $sLastPreview As String
 
 Static Public Sub _init()
   
-  $cExt["html"] = "html"
-  $cExt["htm"] = "html"
-  $cExt["css"] = "css"
-  $cExt["js"] = "js"
-  $cExt["xml"] = "xml"
+  Main.InitExt
   
-  $cExt["tar"] = "archive"
-  $cExt["gz"] = "archive"
-  $cExt["tgz"] = "archive"
-  $cExt["bz2"] = "archive"
-  $cExt["z"] = "archive"
-  $cExt["zip"] = "archive"
-  $cExt["xz"] = "archive"
-  
-  $cExt["txt"] = "text"
-  $cExt["log"] = "text"
-  $cExt["json"] = "text"
-  
-  $cExt["mp3"] = "audio"
-  $cExt["aac"] = "audio"
-  $cExt["ogg"] = "audio"
-  $cExt["oga"] = "audio"
-  $cExt["flac"] = "audio"
-  $cExt["wav"] = "audio"
-  
-  $cExt["mpg"] = "video"
-  $cExt["mpeg"] = "video"
-  $cExt["avi"] = "video"
-  $cExt["wmv"] = "video"
-  $cExt["mov"] = "video"
-  $cExt["mp4"] = "video"
-  
-  $cExt["gambas"] = "gambas"
-  $cExt["gbs"] = "gambas"
-  
-  $cExt["c"] = "c"
-  $cExt["cpp"] = "cpp"
-  $cExt["h"] = "h"
-  
-  $cExt["deb"] = "package"
-  $cExt["rpm"] = "package"
-  
-  $cExt["iso"] = "cdrom"
-  
-  $cExt["jpg"] = "image"
-  $cExt["jpeg"] = "image"
-  $cExt["png"] = "image"
-  $cExt["gif"] = "image"
-  $cExt["xpm"] = "image"
-  $cExt["bmp"] = "image"
-  $cExt["ico"] = "image"
-  $cExt["xcf"] = "image"
-  $cExt["svg"] = "image"
-  $cExt["svgz"] = "image"
-  $cExt["webp"] = "image"
-  
-  $cExt["pdf"] = "pdf"
-  
-  $cExt["ttf"] = "font"
-  $cExt["otf"] = "font"
-  $cExt["bdf"] = "font"
-
 End
 
 Static Public Sub _exit()
@@ -339,7 +277,7 @@ Private Sub GetIcon(sPath As String, iSize As Integer) As Picture
     
   Endif
     
-  Try sIcon = $cExt[File.Ext(sPath)]
+  Try sIcon = Main.Ext[File.Ext(sPath)]
   If sIcon Then 
     hPict = Picture["icon:/" & CStr(iSize) &/ sIcon]
     Goto LOCK_ICON
