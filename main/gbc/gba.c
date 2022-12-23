@@ -66,8 +66,11 @@ static const char *allowed_hidden_files[] = { ".gambas", ".info", ".list", ".tes
 static const char *remove_ext_lang[] = { "pot", "po", NULL };
 
 static bool _extract = FALSE;
-static char *_extract_archive;
 static char *_extract_file = NULL;
+
+static bool _list_all = FALSE;
+
+static char *_archive;
 
 static void print_version()
 {
@@ -94,9 +97,9 @@ static void get_arguments(int argc, char **argv)
 	for(;;)
 	{
 		#if HAVE_GETOPT_LONG
-			opt = getopt_long(argc, argv, "vVLhso:x:", Long_options, &index);
+			opt = getopt_long(argc, argv, "vVLhso:x:l:", Long_options, &index);
 		#else
-			opt = getopt(argc, argv, "vVLhso:x:");
+			opt = getopt(argc, argv, "vVLhso:x:l:");
 		#endif
 
 		if (opt < 0) break;
@@ -117,12 +120,16 @@ static void get_arguments(int argc, char **argv)
 
 			case 'o':
 				ARCH_define_output(optarg);
-				_extract = FALSE;
 				break;
 				
 			case 'x':
-				_extract_archive = optarg;
+				_archive = optarg;
 				_extract = TRUE;
+				break;
+
+			case 'l':
+				_archive = optarg;
+				_list_all = TRUE;
 				break;
 				
 			case 'L':
@@ -136,7 +143,9 @@ static void get_arguments(int argc, char **argv)
 					"\nCreate a standalone one-file executable from a Gambas project.\n"
 					"\n    gba" GAMBAS_VERSION_STRING " [options] [<project directory>]\n"
 					"\nExtract a specific file from a Gambas executable (-x option).\n"
-					"\n    gba" GAMBAS_VERSION_STRING " -x <archive path> <file>\n\n"
+					"\n    gba" GAMBAS_VERSION_STRING " -x <archive path> <file>\n"
+					"\nList all files included in a Gambas executable (-l option).\n"
+					"\n    gba" GAMBAS_VERSION_STRING " -l <archive path>\n\n"
 					"Options:"
 					#if HAVE_GETOPT_LONG
 					"\n\n"
@@ -146,7 +155,8 @@ static void get_arguments(int argc, char **argv)
 					"  -s  --swap                 swap endianness\n"
 					"  -v  --verbose              verbose output\n"
 					"  -V  --version              display version\n"
-					"  -x  --extract=ARCHIVE      archive path\n"
+					"  -x  --extract=ARCHIVE      extract a specific file from the archive\n"
+					"  -l  --list=ARCHIVE         list archive files\n"
 					#else
 					" (no long options on this system)\n\n"
 					"  -h                     display this help\n"
@@ -155,7 +165,8 @@ static void get_arguments(int argc, char **argv)
 					"  -s                     swap endianness\n"
 					"  -v                     verbose output\n"
 					"  -V                     display version\n"
-					"  -x=ARCHIVE             archive path\n"
+					"  -x=ARCHIVE             extract a specific file from the archive\n"
+					"  -l=ARCHIVE             list archie files\n"
 					#endif
 					"\n"
 					);
@@ -196,6 +207,49 @@ static void get_arguments(int argc, char **argv)
 			exit(1);
 		}
 	}
+}
+
+
+static void print_resolved_path_rec(ARCH *arch, int n)
+{
+	static char buffer[16];
+
+	const char *name = arch->symbol[n].sym.name;
+	int len = arch->symbol[n].sym.len;
+	int nrec;
+	const char *p = NULL;
+
+	if (*name == '/')
+	{
+		p = index(name, ':');
+		if (p)
+		{
+			nrec = p - name - 1;
+			if (nrec > 0 && nrec < 16)
+			{
+				strncpy(buffer, &name[1], nrec);
+				buffer[nrec] = 0;
+				nrec = atoi(buffer);
+				if (nrec > 0 && nrec < arch->header.n_symbol)
+				{
+					print_resolved_path_rec(arch, nrec);
+					putchar('/');
+				}
+			}
+		}
+	}
+
+	if (p)
+		fwrite(p + 1, sizeof(char), len - (p - name) - 1, stdout);
+	else
+		fwrite(name, sizeof(char), len, stdout);
+}
+
+
+static void print_resolved_path(ARCH *arch, int n)
+{
+	print_resolved_path_rec(arch, n);
+	putchar('\n');
 }
 
 
@@ -255,13 +309,22 @@ int main(int argc, char **argv)
 	{
 		if (_extract) // Extract a file from an archive
 		{
-			arch = ARCH_open(_extract_archive);
+			arch = ARCH_open(_archive);
 			
 			if (ARCH_find(arch, _extract_file, 0, &find))
 				fprintf(stderr, "gba: file not found in archive\n");
 			else
 				fwrite(&arch->addr[find.pos], sizeof(char), find.len, stdout);
 			
+			ARCH_close(arch);
+		}
+		else if (_list_all)
+		{
+			arch = ARCH_open(_archive);
+
+			for (i = 0; i < arch->header.n_symbol; i++)
+				print_resolved_path(arch, i);
+
 			ARCH_close(arch);
 		}
 		else // Create an archive

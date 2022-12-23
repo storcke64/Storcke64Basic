@@ -37,7 +37,7 @@ static const char *_message[] =
 {
   /*  0 E_UNKNOWN */ "Unknown error",
   /*  1 E_MEMORY */ "Out of memory",
-  /*  2 E_OPEN */ "Cannot open file: &1",
+  /*  2 E_OPEN */ "Cannot open file: &1: &2",
   /*  3 E_READ */ "Cannot read file: &1",
   /*  4 E_SYNTAX */ "Syntax error",
   /*  5 E_UNEXPECTED */ "Unexpected &1",
