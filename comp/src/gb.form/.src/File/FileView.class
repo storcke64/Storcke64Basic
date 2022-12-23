@@ -126,6 +126,7 @@ Private $hHighlightPicture As Picture
 Private $hBorder As Panel
 Private $hProgress As ProgressBar
 Private $bRefreshPreview As Boolean
+Private $sLastPreview As String
 
 Static Public Sub _init()
   
@@ -438,7 +439,7 @@ Private Sub RefreshView()
   Dim SY As Integer
   Dim sKey As String
   Dim aPreview As New String[]
-  Dim sExt As String
+  'Dim sExt As String
   Dim bVoid As Boolean
   Dim iSort As Integer
   Dim bSortAscent As Boolean
@@ -635,9 +636,9 @@ Catch
 ADD_PREVIEW:
 
   If Not $bShowPreview Then Return
-  sExt = LCase(File.Ext(sFile))
-  If Not sExt Then Return
-  If $cExt[sExt] <> "image" Then Return
+  'sExt = LCase(File.Ext(sFile))
+  'If Not sExt Then Return
+  'If $cExt[sExt] <> "image" Then Return
   aPreview.Add(sFile)
   Return
   
@@ -647,6 +648,7 @@ Private Sub StopPreview()
   
   If $hPreview Then $hPreview.Stop
   $hProgress.Hide
+  $sLastPreview = ""
   
 End
 
@@ -688,13 +690,24 @@ Public Sub TaskPreview_Read(Data As String)
     Inc $iPreviewCount
     $hProgress.Value = $iPreviewCount / $iPreviewMax
     
+    $sLastPreview = sPath
+    
   Next
   
 End
 
 Public Sub TaskPreview_Kill()
   
-  If $hPreview = Last Then $hPreview = Null
+  Dim iPos As Integer
+  
+  If $hPreview = Last Then 
+    If $sLastPreview Then 
+      iPos = $hPreview.Preview.Find($sLastPreview)
+      Error "gb.form: preview failed: "; $hPreview.Preview[iPos + 1]
+    Endif
+    $hPreview = Null
+    StopPreview
+  Endif
   
 End
 

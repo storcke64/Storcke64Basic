@@ -3,10 +3,12 @@
 Inherits Task
 
 Class Hash
+Class PdfDocument
+
+Public Preview As String[]
 
 Private $sDir As String
 Private $iSize As Integer
-Private $aPreview As String[]
 Private $iMaxFileSize As Integer
 Private $sCache As String
 
@@ -16,10 +18,42 @@ Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPrev
   $iSize = iSize
   $iMaxFileSize = iMaxFileSize
   If $iMaxFileSize = 0 Then $iMaxFileSize = 4194304
-  $aPreview = aPreview
+  Preview = aPreview
   $sCache = sTempDir &/ "gb.form/thumbnails"
   Main.MkDir($sCache)
   
+End
+
+Private Sub IsTextFile(sPath As String) As Boolean
+
+  Dim hFile As File
+  Dim sStr As String
+  Dim sCar As String
+  Dim iCode As Integer
+  Dim sTest As String
+
+  Try hFile = Open sPath
+  If Error Then Return
+  
+  sStr = Read #hFile, -256
+
+  While sStr
+    sCar = String.Left(sStr)
+    sStr = Mid$(sStr, Len(sCar) + 1)
+    If Not sCar Then Break
+    If Len(sCar) = 1 Then
+      iCode = Asc(sCar)
+      If iCode = &HFE Then Return False
+      If iCode = &HFF Then Return False
+      If iCode < 32 And If iCode <> 10 And If iCode <> 13 And If iCode <> 9 Then Return False
+    Else If sStr Then
+      Try sTest = Conv(sCar, "UTF-8", "UCS-4LE")
+      If Error Then Return False
+    Endif
+  Wend
+
+  Return True
+
 End
 
 Private Sub PrintIcon(hImage As Image, sThumb As String)
@@ -53,6 +87,85 @@ Private Sub PrintIcon(hImage As Image, sThumb As String)
     
 End
 
+Private Sub PrintTextFile(sPath As String, sThumb As String)
+
+  Dim hImage As Image
+  Dim hFile As File
+  Dim sLine As String
+  Dim X, Y As Integer
+  Dim fSize As Float
+
+  If $iSize <= 16 Then Return
+
+  hImage = New Image($iSize, $iSize, Color.TextBackground)
+  
+  hFile = Open sPath
+
+  Paint.Begin(hImage)
+  
+  fSize = Min($iSize / 16, Desktop.Scale)
+  
+  X = CInt(fSize) + 1
+  Y = X
+  
+  Paint.Save
+  Paint.ClipRect = Rect(X, Y, hImage.W - X * 2, hImage.H - Y * 2)
+  
+  If fSize >= 4 Then
+    
+    Paint.Font.Size = fSize
+  
+    While Not Eof(hFile)
+      Line Input #hFile, sLine
+      Paint.DrawText(sLine, X, Y + Paint.Font.Ascent)
+      Y += Paint.Font.Height
+      If Y > hImage.H Then Break
+    Wend
+    
+  Else
+    
+    hFile = Open sPath
+    While Not Eof(hFile)
+      Line Input #hFile, sLine
+      Paint.FillRect(X, Y, String.Len(sLine), 1, Color.LightForeground)
+      Y += 2
+      If Y > hImage.H Then Break
+    Wend
+
+  Endif
+
+  Paint.Restore
+    
+  Paint.Rectangle(0.5, 0.5, hImage.W - 1, hImage.H - 1)
+  Paint.Background = Color.LightForeground
+  Paint.Stroke
+  Paint.End
+
+  Paint.End
+
+  Close hFile
+    
+  Try hImage.Save(sThumb)
+    
+End
+
+Private Sub PrintPdfFile(sPath As String, sThumb As String)
+
+  Dim hPdf As PdfDocument
+  Dim hPage As Image
+  
+  Try Component.Load("gb.poppler")
+  If Error Then Return
+  
+  Try hPdf = New PdfDocument(sPath)
+  If Error Then Return
+  If hPdf.Count = 0 Then Return
+  
+  hPage = hPdf[0].Render()
+  PrintIcon(hPage, sThumb)
+
+End
+
 Private Sub GetThumbnailPath(sPath As String) As String
   
   Try Return $sCache &/ Hash.Sha256(File.Load(sPath)) & "." & CStr($iSize) & ".png"
@@ -70,7 +183,7 @@ Public Sub Main()
 
   Application.Priority += 10
 
-  For Each sFile In $aPreview
+  For Each sFile In Preview
     
     sPath = $sDir &/ sFile
     sExt = LCase(File.Ext(sFile))
@@ -108,8 +221,16 @@ Public Sub Main()
         Paint.End
         
         PrintIcon(hImage, sThumb)
-        
+      
       Endif
+      
+    Else If sExt = "pdf" Then
+      
+      Try PrintPdfFile(sPath, sThumb)
+        
+    Else If IsTextFile(sPath) Then
+      
+      Try PrintTextFile(sPath, sThumb)
         
     Endif
     
