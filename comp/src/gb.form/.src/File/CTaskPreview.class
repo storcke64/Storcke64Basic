@@ -22,7 +22,7 @@ Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPrev
   
 End
 
-Private Sub PrintIcon(sFile As String, hImage As Image, sThumb As String)
+Private Sub PrintIcon(hImage As Image, sThumb As String)
 
   Dim hIcon As Image
   Dim X As Integer
@@ -89,7 +89,7 @@ Public Sub Main()
     If sExt = "jpg" Or If sExt = "jpeg" Or If sExt = "png" Or If sExt = "gif" Or If sExt = "bmp" Or If sExt = "xpm" Or If sExt = "webp" Then
       
       Try hImage = Image.Load(sPath)
-      If Not Error Then PrintIcon(sFile, hImage, sThumb)
+      If Not Error Then PrintIcon(hImage, sThumb)
     
     Else If sExt = "svg" Or If sExt = "svgz" Then
       
@@ -107,7 +107,8 @@ Public Sub Main()
         hSvgImage.Paint()
         Paint.End
         
-        PrintIcon(sFile, hImage, sThumb)
+        PrintIcon(hImage, sThumb)
+        
       Endif
         
     Endif

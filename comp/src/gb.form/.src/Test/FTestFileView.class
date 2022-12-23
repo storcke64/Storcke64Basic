@@ -1,5 +1,11 @@
 ' Gambas class file
 
+Static Public Sub _init()
+  
+  Component.Load("gb.desktop")
+  
+End
+
 
 Public Sub Button1_Click()
 
@@ -9,6 +15,6 @@ End
 
 Public Sub Form_Open()
 
-  FileView1.Dir = "~/Musique"
+  'FileView1.Dir = "~/Musique"
 
 End

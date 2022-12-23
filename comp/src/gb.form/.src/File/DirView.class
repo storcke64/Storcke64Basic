@@ -28,6 +28,9 @@ Property Settings As Variant[]
 Property HideRoot As Boolean
 
 Static Private $hRootPict As Picture
+Static Private $bDesktopIsLoaded As Boolean
+Static Private $cDesktopDirCache As Collection
+Static Private $bWatchIsLoaded As Boolean
 
 Private $sRoot As String
 Private $hTreeView As TreeView
@@ -41,18 +44,39 @@ Private $bInRename As Boolean
 Private $bHideRoot As Boolean
 
 Private $cWatch As Collection
-Private $bWatch As Boolean
 Private $hRefreshTimer As Timer
 Private $bRefreshTimerTriggered As Boolean
 Private $hWatcher As Watcher
 Private $bRefreshAfterRename As Boolean
-Private $bDesktopIsLoaded As Boolean
+
+Static Public Sub _CheckComponents()
+
+  $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
+  $bWatchIsLoaded = Component.IsLoaded("gb.inotify")
+  
+  If $bDesktopIsLoaded Then
+    If Not $cDesktopDirCache Then
+      $cDesktopDirCache = New Collection
+      $cDesktopDirCache[Desktop.GetDirectory("DESKTOP")] = "desktop"
+      $cDesktopDirCache[Desktop.GetDirectory("DOWNLOAD")] = "folder-download"
+      $cDesktopDirCache[Desktop.GetDirectory("DOCUMENTS")] = "folder-document"
+      $cDesktopDirCache[Desktop.GetDirectory("MUSIC")] = "folder-music"
+      $cDesktopDirCache[Desktop.GetDirectory("PICTURES")] = "folder-image"
+      $cDesktopDirCache[Desktop.GetDirectory("VIDEOS")] = "folder-video"
+      $cDesktopDirCache[Desktop.GetDirectory("PUBLICSHARE")] = "folder-share"
+      $cDesktopDirCache[Desktop.GetDirectory("TEMPLATES")] = "folder-template"
+      $cDesktopDirCache[User.Home] = "folder-home"
+      $cDesktopDirCache["/"] = "folder-root"
+    Endif
+  Endif
+  
+End
 
 Public Sub _new()
 
-  $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
-  $bWatch = Component.IsLoaded("gb.inotify")
-  If $bWatch Then $hWatcher = New Watcher(Me) As "Watcher"
+  _CheckComponents
+
+  If $bWatchIsLoaded Then $hWatcher = New Watcher(Me) As "Watcher"
   
   $hTreeView = New TreeView(Me) As "TreeView"
   $hTreeView.Editable = True
@@ -101,7 +125,7 @@ Private Sub ClearView()
   $bNoEvent = True
   $hTreeView.Clear
   
-  If $bWatch Then
+  If $bWatchIsLoaded Then
     If $cWatch Then $cWatch.Clear
   Endif
   
@@ -214,7 +238,7 @@ Public Sub TreeView_Expand()
   
   sDir = $hTreeView.Item.Key
   
-  If $bWatch Then AddWatch(sDir)
+  If $bWatchIsLoaded Then AddWatch(sDir)
   
   If sDir = GetRoot() Then
     $hTreeView.Item.Picture = $hRootPict
@@ -267,7 +291,7 @@ Public Sub TreeView_Collapse()
   Last.Item.Selected = True
   $bNoExpand = False
   
-  If $bWatch Then RemoveWatch(Last.Item.Key)
+  If $bWatchIsLoaded Then RemoveWatch(Last.Item.Key)
 
 End
 
@@ -472,12 +496,20 @@ End
 Static Public Sub _GetIcon(sPath As String, iSize As Integer) As Picture
   
   Dim hDesktopFile As DesktopFile
+  Dim sIcon As String
   
-  If Not Exist(sPath &/ ".directory") Then Return
+  If Exist(sPath &/ ".directory") Then
   
-  Try hDesktopFile = New DesktopFile(sPath &/ ".directory")
-  If Not Error Then
-    Try Return hDesktopFile.GetIcon(iSize).Picture
+    Try hDesktopFile = New DesktopFile(sPath &/ ".directory")
+    If Not Error Then
+      Try Return hDesktopFile.GetIcon(iSize).Picture
+    Endif
+    
+  Endif
+  
+  If $bDesktopIsLoaded Then
+    sIcon = $cDesktopDirCache[sPath]
+    If sIcon Then Return Picture["icon:/" & CStr(iSize) &/ sIcon]
   Endif
   
 End
@@ -738,7 +770,7 @@ End
 Public Sub Watcher_Show()
   
   'Debug
-  If $bWatch And If Not $cWatch Then 
+  If $bWatchIsLoaded And If Not $cWatch Then 
     $cWatch = New Collection
     RefreshView
   Endif

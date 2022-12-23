@@ -204,6 +204,7 @@ Public Sub _new()
   $bDesktopIsLoaded = Component.IsLoaded("gb.desktop")
   $bWatch = Component.IsLoaded("gb.inotify")
   $hWatcher = New Watcher(Me) As "Watcher"
+  DirView._CheckComponents
   
   $iIconSizeCompact = 16
   $iIconSizeNormal = 64
