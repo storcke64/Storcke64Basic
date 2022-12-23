@@ -1226,7 +1226,7 @@ Private Sub AddCompressedEmblem(hSource As Image) As Image
 
 End
 
-  Public Sub AddOtherProject(sDir As String)
+Public Sub AddOtherProject(sDir As String)
   
   sDir = File.RealPath(sDir)
   If $aOtherProjects.Exist(sDir) Then Return

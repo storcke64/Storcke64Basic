@@ -37,7 +37,7 @@ Public Sub _new(hDrawingArea As DrawingArea, Optional bHasTear As Boolean, bWith
   $bTear = bHasTear
   
   dNow = Now
-  If dNow >= Date(Year(dNow), 12, 25) Then
+  If dNow >= Date(Year(dNow), 12, 24) Then
   
     $aImage = New Image[8]
     For I = 0 To $aImage.Max
