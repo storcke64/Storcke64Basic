@@ -194,6 +194,10 @@ static void get_arguments(int argc, char **argv)
 		}
 		_extract_file = argv[optind];
 	}
+	else if (_list_all)
+	{
+		// everything is ok
+	}
 	else
 	{
 		if (optind == argc)
