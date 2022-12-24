@@ -186,7 +186,7 @@ Private Sub FillAbout()
   Close #hFile
 
   aAuthor.Sort(gb.Language + gb.IgnoreCase)
-  aFinancial.Reverse()
+  'aFinancial.Reverse()
   
   gvwAbout.Columns.Count = 1
   N = 6
