@@ -232,8 +232,12 @@ Public Sub MakeSearchPath(sKey As String, aList As String[]) As String[]
   Dim aDir As String[]
   Dim sVar As String
   Dim aResult As New String[]
+  Dim sDesktop As String
   
   If $cSearchPath.Exist(sKey) Then Return $cSearchPath[sKey]
+  
+  sDesktop = LCase(Desktop.Type)
+  If sDesktop Begins "kde" Then sDesktop = "kde"
   
   aDir = aList.Copy()
   
@@ -253,7 +257,7 @@ Public Sub MakeSearchPath(sKey As String, aList As String[]) As String[]
     
     Endif
     
-    sDir = Replace(sDir, "$desktop", LCase(Desktop.Type))
+    sDir = Replace(sDir, "$desktop", sDesktop)
     If Exist(sDir) Then aResult.Add(sDir)
     
   Wend

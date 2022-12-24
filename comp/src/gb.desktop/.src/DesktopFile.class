@@ -499,12 +499,13 @@ Static Public Sub FromMime(MimeType As String) As DesktopFile[]
 
   Dim hProgList As DesktopFile[]
   Dim hProg As DesktopFile
-  Dim sList As String
   Dim aMime As String[]
   Dim sMime As String
   Dim sFound As String
   Dim aPath As String[]
   Dim sPath As String
+  Dim aList As String[]
+  Dim sList As String
 
   hProgList = $cMimeCache[MimeType]
 
@@ -514,32 +515,25 @@ Static Public Sub FromMime(MimeType As String) As DesktopFile[]
     aMime = [MimeType]
     If MimeType Begins "text/" And If MimeType <> "text/plain" Then aMime.Add("text/plain")
 
+    aPath = Main.MakeSearchPath("mimeapps.list", ["$XDG_CONFIG_HOME/$desktop-mimeapps.list", "$XDG_CONFIG_HOME/mimeapps.list", "$XDG_CONFIG_DIRS/$desktop-mimeapps.list", "$XDG_CONFIG_DIRS/mimeapps.list", "$XDG_DATA_DIRS/applications/$desktop-mimeapps.list", "$XDG_DATA_DIRS/applications/mimeapps.list"])
+      
+    aPath.Insert(Main.MakeSearchPath("mimeinfo.cache", ["$XDG_CONFIG_HOME/mimeinfo.cache", "$XDG_CONFIG_DIRS/mimeinfo.cache", "$XDG_DATA_DIRS/applications/mimeinfo.cache"]))
+      
     For Each sMime In aMime
 
-      sList = ""
+      aList = New String[]
 
       'Print "["; sMime; "]"
       
-      aPath = Main.MakeSearchPath("mimeapps.list", ["$XDG_CONFIG_HOME/$desktop-mimeapps.list", "$XDG_CONFIG_HOME/mimeapps.list", "$XDG_CONFIG_DIRS/$desktop-mimeapps.list", "$XDG_CONFIG_DIRS/mimeapps.list", "$XDG_DATA_DIRS/applications/$desktop-mimeapps.list", "$XDG_DATA_DIRS/applications/mimeapps.list"])
-      
       For Each sPath In aPath
         sFound = FindInMimeInfoCache(sPath, sMime)
-        If sFound Then sList &= ";" & sFound
+        If sFound Then aList.Insert(Split(sFound, ";"))
       Next
-
-      If Not sList Then
-      
-        aPath = Main.MakeSearchPath("mimeinfo.cache", ["$XDG_CONFIG_HOME/mimeinfo.cache", "$XDG_CONFIG_DIRS/mimeinfo.cache", "$XDG_DATA_DIRS/applications/mimeinfo.cache"])
-        
-        For Each sPath In aPath
-          sFound = FindInMimeInfoCache(sPath, sMime)
-          If sFound Then sList &= ";" & sFound
-        Next
-      Endif
 
       'Print "--> "; sList
 
-      For Each sList In Split(sList, ";", "", True)
+      For Each sList In aList
+        If Not sList Then Continue
         hProg = DesktopFile[sList]
         If Not hProg Then hProg = DesktopFile[Replace(sList, "-", "/")]
         If Not hProg Then Continue
