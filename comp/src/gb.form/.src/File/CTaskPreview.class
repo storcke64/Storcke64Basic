@@ -86,11 +86,14 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
     Paint.FillRect(X, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
     Paint.FillRect(X + hImage.W - W, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
     Paint.Background = Color.White
+    Paint.Save()
+    Paint.ClipRect = Rect(X, Y, hImage.W, hImage.H)
     For I = 0 To hImage.H Step W
       Paint.Ellipse(X + W \ 4, Y + I + W \ 4, W \ 2, W \ 2)
       Paint.Ellipse(X + hImage.W - W + W \ 4, Y + I + W \ 4, W \ 2, W \ 2)
       Paint.Fill()
     Next
+    Paint.Restore()
   Endif
   
   Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W - 1, hImage.H - 1)
@@ -223,11 +226,6 @@ Public Sub Main()
     sPath = $sDir &/ sFile
     sExt = LCase(File.Ext(sFile))
     
-    If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then
-      Print sFile; "\t"
-      Continue
-    Endif
-      
     sThumb = GetThumbnailPath(sPath)
     If Exist(sThumb) Then
       Print sFile; "\t"; sThumb
@@ -236,6 +234,8 @@ Public Sub Main()
     
     If Main.Ext[sExt] = "image" Then
       
+      If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto NEXT_FILE
+        
       If sExt = "svg" Or If sExt = "svgz" Then
         
         Try hSvgImage = SvgImage.Load(sPath)
@@ -265,6 +265,7 @@ Public Sub Main()
     
     Else If sExt = "pdf" Then
       
+      If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto NEXT_FILE
       Try PrintPdfFile(sPath, sThumb)
     
     Else If Main.Ext[sExt] = "video" Then
@@ -276,6 +277,8 @@ Public Sub Main()
       Try PrintTextFile(sPath, sThumb)
         
     Endif
+    
+  NEXT_FILE:
     
     Print sFile; "\t";
     If Exist(sThumb) Then Print sThumb;
