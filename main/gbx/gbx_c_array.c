@@ -619,7 +619,7 @@ static bool copy_remove(CARRAY *_object, int start, int length, bool copy, bool 
 			return TRUE;
 	}
 
-	if (remove && check_not_static(THIS))
+	if (remove && check_not_static(THIS) && check_not_read_only(THIS))
 		return TRUE;
 
 	if (check_start_length(count, &start, &length))
@@ -728,7 +728,7 @@ BEGIN_METHOD(Array_Resize, GB_INTEGER size)
 
 	int size = VARG(size);
 
-	if (check_not_static(THIS) && check_not_multi(THIS))
+	if (check_not_static(THIS) && check_not_multi(THIS) && check_not_read_only(THIS))
 		return;
 
 	CARRAY_resize(THIS, size);
@@ -886,7 +886,7 @@ static void add(CARRAY *_object, GB_VALUE *value, int index)
 {
 	void *data;
 
-	if (check_not_static(THIS) && check_not_multi(THIS))
+	if (check_not_static(THIS) && check_not_multi(THIS) && check_not_read_only(THIS))
 		return;
 
 	data = insert(THIS, index);
