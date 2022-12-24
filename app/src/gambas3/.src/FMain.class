@@ -2269,13 +2269,14 @@ End
 '   
 ' End
 
-Public Sub CreateRunWithMenu(hParent As Menu, sPath As String)
+Public Sub CreateRunWithMenu(hParent As Menu)
   
   Dim hProg As DesktopFile
   Dim hMenu As Menu
   
-  hParent.Children.Clear
   If Not hParent.Tag Then Return
+
+  hParent.Children.Clear
   
   For Each hProg In hParent.Tag
     hMenu = New Menu(hParent) As "mnuEditWithProg"
@@ -2284,13 +2285,13 @@ Public Sub CreateRunWithMenu(hParent As Menu, sPath As String)
     hMenu.Tag = hProg
   Next
   
-  hParent.Tag = sPath
+  hParent.Tag = Null
 
 End
 
 Public Sub mnuEditWith_Show()
 
-  CreateRunWithMenu(Last, tvwProject.Key)  
+  CreateRunWithMenu(Last)
   
 End
 
