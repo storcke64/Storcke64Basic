@@ -52,8 +52,10 @@ public:
 	static void setActiveControl(gControl *control, bool on);
 	static void finishFocus();
 
-	static void enableTooltips(bool vl);
 	static bool areTooltipsEnabled();
+	static void enableTooltips(bool vl);
+
+	static bool hasMiddleClickPaste();
 
 	static int dblClickTime();
 

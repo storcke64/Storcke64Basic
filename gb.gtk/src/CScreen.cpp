@@ -50,6 +50,7 @@ static CSCREEN *_screens[MAX_SCREEN] = { NULL };
 
 static bool _animations = FALSE;
 static bool _shadows = FALSE;
+static bool _middle_click_paste = TRUE;
 
 //-------------------------------------------------------------------------
 
@@ -261,6 +262,16 @@ BEGIN_PROPERTY(Application_Animations)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(Application_MiddleClickPaste)
+
+	if (READ_PROPERTY)
+		GB.ReturnBoolean(_middle_click_paste);
+	else
+		_middle_click_paste = VPROP(GB_BOOLEAN);
+
+END_PROPERTY
+
+
 BEGIN_PROPERTY(Application_Shadows)
 
 	if (READ_PROPERTY)
@@ -285,6 +296,13 @@ BEGIN_PROPERTY(Application_MainWindow)
 	}
 
 END_PROPERTY
+
+
+BEGIN_METHOD_VOID(Application_init)
+
+	_middle_click_paste = gApplication::hasMiddleClickPaste();
+
+END_METHOD
 
 
 BEGIN_METHOD_VOID(Application_exit)
@@ -523,6 +541,7 @@ GB_DESC ApplicationDesc[] =
 {
 	GB_DECLARE("Application", 0), GB_VIRTUAL_CLASS(),
 
+	GB_STATIC_METHOD("_init", NULL, Application_init, 0),
 	GB_STATIC_METHOD("_exit", NULL, Application_exit, 0),
 
 	GB_STATIC_PROPERTY("Font", "Font", Application_Font),
@@ -534,6 +553,7 @@ GB_DESC ApplicationDesc[] =
 	GB_STATIC_PROPERTY("ShowTooltips", "b", Application_ShowTooltips),
 	GB_STATIC_PROPERTY("Animations", "b", Application_Animations),
 	GB_STATIC_PROPERTY("Shadows", "b", Application_Shadows),
+	GB_STATIC_PROPERTY("MiddleClickPaste", "b", Application_MiddleClickPaste),
 	GB_STATIC_PROPERTY("Embedder", "i", Application_Embedder),
 	GB_STATIC_PROPERTY("Theme", "s", Application_Theme),
 	GB_STATIC_PROPERTY_READ("DarkTheme", "s", Application_DarkTheme),

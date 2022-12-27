@@ -1808,3 +1808,16 @@ bool gApplication::eventsPending()
 	return gtk_events_pending();
 		
 }
+
+bool gApplication::hasMiddleClickPaste()
+{
+  gboolean enabled;
+  GtkSettings *settings;
+
+  settings = gtk_settings_get_default();
+
+  g_object_get(settings, "gtk-enable-primary-paste", &enabled, (char *)NULL);
+
+  return enabled;
+}
+
