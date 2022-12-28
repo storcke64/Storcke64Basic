@@ -1091,10 +1091,13 @@ static void draw_text(GB_PAINT *d, bool rich, const char *text, int len, float w
 	}
 
 	cairo_rel_move_to(CONTEXT(d), offx, offy);
+
 	if (draw)
 		pango_cairo_show_layout(CONTEXT(d), layout);
 	else
 		pango_cairo_layout_path(CONTEXT(d), layout);
+
+	cairo_rel_move_to(CONTEXT(d), -offx, -offy);
 
 	if (html) g_free(html);
 }
