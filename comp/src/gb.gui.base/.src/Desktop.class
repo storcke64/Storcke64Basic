@@ -14,7 +14,6 @@ Static Private Sub GetDesktop() As String
 
   If Not $aDesktopType Then 
     $aDesktopType = Split(UCase(Application.Env["XDG_CURRENT_DESKTOP"]), ":")
-    $aDesktopType.ReadOnly = True
   Endif
   
   If $aDesktopType.Count = 0 Then
@@ -45,9 +44,9 @@ Static Private Sub GetDesktop() As String
   
     If $aDesktopType[0] = "KDE" Then
       If Application.Env["KDE_SESSION_VERSION"] = "4" Then
-        $aDesktopType.Add("KDE4", 0)
+        $aDesktopType.Add("KDE4")
       Else If Application.Env["KDE_SESSION_VERSION"] = "5" Then
-        $aDesktopType.Add("KDE5", 0)
+        $aDesktopType.Add("KDE5")
       Endif
     Endif
     
@@ -56,6 +55,8 @@ Static Private Sub GetDesktop() As String
     
   Endif
 
+  $aDesktopType.ReadOnly = True
+  
   Return $sDesktop
 
 End

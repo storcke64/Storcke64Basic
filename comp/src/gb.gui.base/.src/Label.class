@@ -106,7 +106,7 @@ Private Sub GetPadding() As Integer
     Case Border.Plain
       Inc P
     Case Border.Raised, Border.Sunken
-      P += Style.FrameWidth
+      P += Style.FrameWidth + 1
   End Select
     
   Return P  
@@ -205,12 +205,20 @@ Public Sub UserControl_Draw()
   Dim X As Float
   
   If $iBorder Then
-    Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
     If $iBorder = Border.Plain Then
       F = 1
     Else
       F = Style.FrameWidth + 1
     Endif
+    
+    Paint.Save
+    Paint.Rectangle(0, 0, Paint.W, F)
+    Paint.Rectangle(0, Paint.H - F, Paint.W, F)
+    Paint.Rectangle(0, 0, F, Paint.H)
+    Paint.Rectangle(Paint.W - F, 0, F, Paint.H)
+    Paint.Clip()
+    Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
+    Paint.Restore
     Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
     Paint.Clip()
   Endif
@@ -242,7 +250,11 @@ Public Sub UserControl_Draw()
     Endif
   'Endif
   
-  If Not Me.Enabled Then Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
+  If Not Me.Enabled Then 
+    Paint.Background = Color.Merge(Style.BackgroundOf(Me), Style.ForegroundOf(Me))
+  Else 
+    Paint.Background = Style.ForegroundOf(Me)
+  Endif
 
   If $bRichText Then
     Paint.DrawRichText($sText, X, P, W, Me.H - P * 2, $iAlign)
