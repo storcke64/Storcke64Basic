@@ -907,7 +907,7 @@ Private Sub CheckFile() As Boolean ' FIXME: If 'As Boolean' is forgotten, and 'R
   Endif
 
   If Exist(dvwChoose.Current &/ sFile) Then 
-    If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("&Overwrite"), ("Cancel")) = 2 Then Return True
+    If Message.Warning(("This file already exists.\n\nDo you want to overwrite it?"), ("Overwrite"), ("Cancel")) = 2 Then Return True
   Endif 
   
 End

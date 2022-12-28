@@ -20,7 +20,7 @@ End
 
 Public Sub Button1_Click()
 
-  DirChooser1.Background = Color.Default
+  FileChooser1.Background = Color.Default
 
 End
 
@@ -48,6 +48,6 @@ Public Sub Form_Open()
 
   'FileChooser1.Dir = "/usr/bin"
   'FileChooser1.SelectedPath = "/home/benoit/gambas/git/master/app/src/gambas3/img/broken.svg"
-  DirChooser1.Settings = [1, "", "", Null, True, Null, Null, -1]
+  'FileChooser1.Settings = [1, "", "", Null, True, Null, Null, -1]
 
 End
