@@ -17,6 +17,7 @@ apply                   actions/dialog-apply;actions/dialog-ok-apply
 archive                 $(mime)/package-x-generic;apps/utilities-file-archiver;;apps/ark;apps/org.gnome.ArchiveManager
 attach                  status/mail-attachment;actions/mail-attachment
 android                 $(mime)/application-vnd.android.package-archive
+application             categories/applications-all
 audio                   $(mime)/audio-x-generic;;preferences/preferences-desktop-sound;apps/preferences-desktop-sound;;apps/multimedia-volume-control
 average                 #
 battery                 devices/battery
@@ -65,6 +66,7 @@ column-after            actions/edit-table-insert-column-right
 column-before           actions/edit-table-insert-column-left
 column-remove           actions/edit-table-delete-column
 compress                actions/archive-insert
+cookie                  apps/preferences-web-browser-cookies
 clear                   actions/edit-clear-locationbar-rtl;actions/edit-clear
 clock                   apps/clock;actions/chronometer;;preferences/preferences-system-time;apps/preferences-system-time
 clone                   actions/edit-clone;actions/edit-duplicate
@@ -72,6 +74,7 @@ close                   actions/window-close
 cloud                   applets/weather-many-clouds;status/weather-many-clouds;status/weather-cloudy;;applets/weather-overcast
 color                   [-breeze*]actions/color-picker-grey;[breeze*]apps/preferences-desktop-color;categories/applications-graphics;;preferences/preferences-desktop-color;apps/preferences-desktop-color
 color-picker            actions/color-picker
+compass                 actions/compass
 component               categories/applications-utilities;apps/nepomuk;;apps/synaptic
 computer                devices/computer;;apps/virtualbox
 conflict                emblems/vcs-conflicting;emblems/emblem-cvs-conflict
@@ -231,14 +234,17 @@ love                    actions/love
 mail                    apps/evolution-mail;actions/mail-mark-unread;;preferences/preferences-mail;apps/preferences-mail
 make                    actions/arrow-down
 make-all                actions/arrow-down-double
+map                     #
 marker                  places/poi-marker
 math                    actions/preview-math;actions/preview_math
 md                      $(mime)/text-x-markdown
 media-player            devices/multimedia-player;;apps/org.gnome.Totem
 memory                  devices/media-memory
 menu                    apps/alacarte;apps/kmenuedit;actions/application-menu
+message                 status/applications-chat-panel
 microphone              devices/audio-input-microphone
 microphone-off          status/audio-input-microphone-muted;status/microphone-disabled
+modem                   devices/modem;devices/network-modem
 modified                emblems/vcs-locally-modified;emblems/emblem-csv-modified
 monitor                 apps/utilities-system-monitor;;apps/org.gnome.SystemMonitor
 moon                    applets/weather-clear-night;status/weather-clear-night
@@ -260,7 +266,7 @@ new-tag                 actions/tag-new
 new-window              actions/window-new
 next                    actions/go-next-view
 notification            actions/notifications;;preferences/preferences-desktop-notifications;apps/preferences-desktop-notifications;preferences/preferences-desktop-notification;apps/preferences-desktop-notification;preferences/preferences-desktop-notification-bell;apps/preferences-desktop-notification-bell
-office                  $(mime)/x-office-document;;apps/libreoffice;apps/libreoffice-writer
+office                  $(mime)/x-office-document;;apps/libreoffice;apps/libreoffice-writer;;categories/applications-office
 office-calc             $(mime)/x-office-spreadsheet;;apps/libreoffice-calc
 office-draw             $(mime)/x-office-drawing;;apps/libreoffice-draw
 office-math             $(mime)/x-office-math;;apps/libreoffice-math
@@ -366,6 +372,7 @@ tab                     #
 table                   [breeze*]actions/table
 tablet                  devices/input-tablet;;preferences/preferences-desktop-tablet;apps/preferences-desktop-tablet
 tag                     actions/tag
+taxi                    #
 template                actions/template
 terminal                apps/utilities-terminal;;apps/mini.xterm;apps/org.gnome.Terminal
 text                    $(mime)/text-x-generic;$(mime)/text-plain
