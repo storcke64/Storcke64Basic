@@ -75,7 +75,7 @@ Public Sub Form_Open()
     If sVendor Then aGroup.Add(CSoftwareGroup(sVendor, ("Other software from") & "\n« " & sVendor & " »", "people"))
   Endif
   
-  aGroup.Add(CSoftwareGroup("", ("All software"), "img/48/all.png"))
+  aGroup.Add(CSoftwareGroup("", ("All software"), "application"))
   
   For Each hGroup In aGroup
     

@@ -253,9 +253,9 @@ Private Sub UpdateColor()
   Else
     Value = Val(sColor)
     If $bAlpha Then
-      ColorName = "&H" & Hex$(Value, 8) & "&"
+      ColorName = "&H" & Hex$(Value, 8)
     Else
-      ColorName = "&H" & Hex$(Value, 6) & "&"
+      ColorName = "&H" & Hex$(Value, 6)
     Endif
   Endif
   
