@@ -1615,7 +1615,7 @@ Private Sub TriggerShortcut(sShortcut As String) As Boolean
       If hCtrl.IsHidden() Then Continue 
       If Not hCtrl.Enabled Then Continue
       
-      If hCtrl Is WebMenu Then
+      If hCtrl Is WebMenu And If Not _CurrentPopup Then
         Object.Raise(hCtrl, "Click")
         Return True
       Endif
