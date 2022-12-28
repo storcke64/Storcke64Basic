@@ -42,6 +42,7 @@ extern int MAIN_scale;
 
 char *CAPPLICATION_Theme = 0;
 GB_ARRAY CAPPLICATION_Restart = NULL;
+bool CAPPLICATION_MiddleClickPaste = TRUE;
 
 static int _busy = 0;
 
@@ -50,7 +51,6 @@ static CSCREEN *_screens[MAX_SCREEN] = { NULL };
 
 static bool _animations = FALSE;
 static bool _shadows = FALSE;
-static bool _middle_click_paste = TRUE;
 
 //-------------------------------------------------------------------------
 
@@ -265,9 +265,9 @@ END_PROPERTY
 BEGIN_PROPERTY(Application_MiddleClickPaste)
 
 	if (READ_PROPERTY)
-		GB.ReturnBoolean(_middle_click_paste);
+		GB.ReturnBoolean(CAPPLICATION_MiddleClickPaste);
 	else
-		_middle_click_paste = VPROP(GB_BOOLEAN);
+		CAPPLICATION_MiddleClickPaste = VPROP(GB_BOOLEAN);
 
 END_PROPERTY
 
@@ -296,13 +296,6 @@ BEGIN_PROPERTY(Application_MainWindow)
 	}
 
 END_PROPERTY
-
-
-BEGIN_METHOD_VOID(Application_init)
-
-	_middle_click_paste = gApplication::hasMiddleClickPaste();
-
-END_METHOD
 
 
 BEGIN_METHOD_VOID(Application_exit)
@@ -541,7 +534,6 @@ GB_DESC ApplicationDesc[] =
 {
 	GB_DECLARE("Application", 0), GB_VIRTUAL_CLASS(),
 
-	GB_STATIC_METHOD("_init", NULL, Application_init, 0),
 	GB_STATIC_METHOD("_exit", NULL, Application_exit, 0),
 
 	GB_STATIC_PROPERTY("Font", "Font", Application_Font),

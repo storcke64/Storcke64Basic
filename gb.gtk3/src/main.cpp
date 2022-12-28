@@ -471,6 +471,7 @@ static void hook_main(int *argc, char ***argv)
 	gApplication::init(argc, argv);
 
 	gApplication::setDefaultTitle(GB.Application.Title());
+	CAPPLICATION_MiddleClickPaste = gApplication::hasMiddleClickPaste();
 
 	gApplication::onEnterEventLoop = GB.Debug.EnterEventLoop;
 	gApplication::onLeaveEventLoop = GB.Debug.LeaveEventLoop;
