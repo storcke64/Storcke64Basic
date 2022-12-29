@@ -11,7 +11,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Padding{Range:0;64},AutoResize,Alignment{Align.*}=Normal,Border{Border.None;Plain;Sunken;Raised;Etched},Text"
+Public Const _Properties As String = "*,Padding{Range:0;256},AutoResize,Alignment{Align.*}=Normal,Border{Border.None;Plain;Sunken;Raised;Etched},BorderWidth{Range:0;256},BorderRadius{Range:0;256},BorderColor{Color},Text"
 Public Const _DefaultEvent As String = "MouseDown"
 Public Const _DefaultSize As String = "8,3"
 Public Const _IsContainer As Boolean = False
@@ -41,6 +41,27 @@ Property AutoResize As Boolean Use $bAutoResize
 
 '' Return or set if the control background is transparent. This property is deprecated.
 Property Transparent As Boolean Use $bTransparent
+
+Property Background As Integer Use $iBackground = Color.Default
+
+'' Return or set the background border radius
+''
+'' [[ warning
+'' This property has an effect when the [../border] property is set to [Border.None] or [Border.Plain] only.
+'' ]]
+Property BorderRadius As Integer Use $iBorderRadius
+
+'' Return or set the border width
+'' [[ warning
+'' This property has an effect when the [../border] property is set to [Border.Plain] only.
+'' ]]
+Property BorderWidth As Integer Use $iBorderWidth
+
+'' Return or set the border color
+'' [[ warning
+'' This property has an effect when the [../border] property is set to [Border.Plain] only.
+'' ]]
+Property BorderColor As Integer Use $iBorderColor = Color.Default
 
 Private $iAlign As Integer = Align.Normal
 Private $hExt As RectF
@@ -97,6 +118,17 @@ Private Sub Padding_Write(Value As Integer)
 
 End
 
+Private Sub GetBorderWidth() As Integer
+  
+  If $iBorderWidth Then 
+    Return $iBorderWidth
+  Else 
+    Return Max(Desktop.Scale \ 8, 1)
+  Endif
+  
+End
+
+
 Private Sub GetPadding() As Integer
 
   Dim P As Integer
@@ -104,7 +136,7 @@ Private Sub GetPadding() As Integer
   P = $iPadding
   Select Case $iBorder
     Case Border.Plain
-      Inc P
+      P += GetBorderWidth()
     Case Border.Raised, Border.Sunken
       P += Style.FrameWidth + 1
   End Select
@@ -206,21 +238,52 @@ Public Sub UserControl_Draw()
   
   If $iBorder Then
     If $iBorder = Border.Plain Then
-      F = 1
+      
+      F = GetBorderWidth()
+      
     Else
+      
       F = Style.FrameWidth + 1
+    
+      Paint.Save
+      Paint.Rectangle(0, 0, Paint.W, F)
+      Paint.Rectangle(0, Paint.H - F, Paint.W, F)
+      Paint.Rectangle(0, 0, F, Paint.H)
+      Paint.Rectangle(Paint.W - F, 0, F, Paint.H)
+      Paint.Clip()
+      Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
+      Paint.Restore
+      
     Endif
     
-    Paint.Save
-    Paint.Rectangle(0, 0, Paint.W, F)
-    Paint.Rectangle(0, Paint.H - F, Paint.W, F)
-    Paint.Rectangle(0, 0, F, Paint.H)
-    Paint.Rectangle(Paint.W - F, 0, F, Paint.H)
-    Paint.Clip()
-    Style.PaintPanel(0, 0, Paint.W, Paint.H, $iBorder)
-    Paint.Restore
-    Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
-    Paint.Clip()
+  Endif
+  
+  If $iBorder = Border.Plain Then 
+    Paint.Rectangle(0, 0, Paint.W, Paint.H, $iBorderRadius)
+    If Min(Paint.H, Paint.W) > F * 2 Then
+      Paint.Rectangle(Paint.W - F, Paint.H - F, -Paint.W + F * 2, -Paint.H + F * 2, $iBorderRadius - F)
+    Endif
+    'Paint.Rectangle(F / 2, F / 2, Paint.W - F, Paint.H - F, $iBorderRadius)
+    'Paint.LineWidth = F
+    If $iBorderColor = Color.Default Then 
+      Paint.Background = Color.LightForeground
+    Else
+      Paint.Background = $iBorderColor
+    Endif
+    Paint.Fill
+    'Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
+    'Paint.Clip()
+  Endif
+  
+  If Min(Paint.H, Paint.W) <= F * 2 Then Return
+  
+  Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2, $iBorderRadius - F)
+  Paint.Clip()
+    
+  If $iBackground <> Color.Default Then
+    Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2, $iBorderRadius - F)
+    Paint.Background = $iBackground
+    Paint.Fill()
   Endif
   
   If Not $sText Then Return
@@ -297,5 +360,41 @@ End
 Public Sub UserControl_Resize()
 
   _UpdateSize()
+  
+End
+
+Private Sub Background_Write(Value As Integer)
+  
+  If $iBackground = Value Then Return
+  
+  $iBackground = Value
+  Me.Refresh
+  
+End
+
+Private Sub BorderRadius_Write(Value As Integer)
+  
+  If $iBorderRadius = Value Then Return
+  
+  $iBorderRadius = Value
+  Me.Refresh
+  
+End
+
+Private Sub BorderWidth_Write(Value As Integer)
+  
+  If $iBorderWidth = Value Then Return
+  
+  $iBorderWidth = Value
+  Me.Refresh
+  
+End
+
+Private Sub BorderColor_Write(Value As Integer)
+  
+  If $iBorderColor = Value Then Return
+  
+  $iBorderColor = Value
+  Me.Refresh
   
 End

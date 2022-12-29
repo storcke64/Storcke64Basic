@@ -4,12 +4,6 @@
   MoveScaled(0,0,103,110)
   Font = Font["DejaVu Sans,Italic,+5"]
   Spacing = True
-  { Label6 Label
-    MoveScaled(6,3,55,9)
-    Alignment = Align.Center
-    Border = Border.Raised
-    Text = ("This is a Label test line")
-  }
   { Label4 Label
     MoveScaled(6,13,72,9)
     Background = Color.Pink
@@ -61,6 +55,14 @@
     MoveScaled(4,48,94,3)
   }
   { Button1 Button
-    MoveScaled(82,15,16,6)
+    MoveScaled(81,16,16,6)
+  }
+  { Label6 Label
+    MoveScaled(61,59,35,21)
+    Background = Color.SoftOrange
+    Alignment = Align.Center
+    Border = Border.Plain
+    BorderColor = &H801F1FFF
+    Text = ("This is a Label test line")
   }
 }
