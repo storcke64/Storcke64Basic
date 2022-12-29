@@ -565,6 +565,8 @@ Public Sub ScrollArea_Draw()
   ' FIXME: GTK+ bug
   If $hRenameBox And If $hRenameBox.Visible Then $hRenameBox.Refresh
   
+  CheckHoverItem
+  
   'Debug ">>>"
   
 End
@@ -1080,6 +1082,21 @@ Private Sub UpdateSelRect(X As Integer, Y As Integer)
   
 End
 
+Private Sub CheckHoverItem()
+
+  Dim X, Y As Integer
+  Dim iPos As Integer
+  
+  If Not Me.Enabled Or If Me.Design Then Return
+  If $aItems.Count = 0 Then Return
+  If $iMode = Select.None Then Return
+
+  X = Mouse.ScreenX - $hView.ScreenX + $hView.ScrollX
+  Y = Mouse.ScreenY - $hView.ScreenY + $hView.ScrollY
+  iPos = FindIconAccurate(X, Y)
+  SetHoverItem(iPos)
+  
+End
 
 Public Sub ScrollArea_MouseMove()
   
@@ -1306,14 +1323,11 @@ Private Sub RaiseEvent(iEvent As Integer, iItem As Integer) As Boolean
   
 End
 
-
 Public Sub ScrollArea_DblClick()
   
   If Not Me.Enabled Or If Me.Design Then Return
   
-  If $iCurrent >= 0 Then 
-    RaiseEvent(EVENT_ACTIVATE, $iCurrent)
-  Endif
+  If $iCurrent >= 0 Then RaiseEvent(EVENT_ACTIVATE, $iCurrent)
   
 End
 
