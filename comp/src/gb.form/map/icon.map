@@ -40,6 +40,7 @@ border-vertical         actions/format-border-set-internal-vertical
 brightness              #
 blue                    [breeze*]actions/colors-chromablue
 bluetooth               preferences/preferences-system-bluetooth;apps/preferences-system-bluetooth;apps/bluetooth
+bluetooth-off           status/bluetooth-disabled
 blur                    #
 book                    [-breeze*]actions/address-book-new;apps/accessories-dictionary
 bookmark                places/bookmarks;actions/bookmark-new;places/user-bookmarks
@@ -87,6 +88,7 @@ cpu                     devices/cpu
 crop                    actions/image-crop;actions/transform-crop
 css                     $(mime)/text-css
 csv                     $(mime)/text-csv
+currency                actions/view-currency-list;actions/format-currency
 cut                     actions/edit-cut
 database                [breeze*]places/network-server-database;apps/office-database
 debug-cursor            actions/debug-execute-to-cursor
@@ -248,6 +250,7 @@ microphone              devices/audio-input-microphone
 microphone-off          status/audio-input-microphone-muted;status/microphone-disabled
 modem                   devices/modem;devices/network-modem
 modified                emblems/vcs-locally-modified;emblems/emblem-csv-modified
+money                   status/emblem-money
 monitor                 apps/utilities-system-monitor;;apps/org.gnome.SystemMonitor
 moon                    applets/weather-clear-night;status/weather-clear-night
 moon-cloud              applets/weather-clouds-night;applets/weather-few-clouds-night;status/weather-clouds-night;status/weather-few-clouds-night
@@ -265,6 +268,7 @@ new-dir                 actions/folder-new
 new-mail                actions/mail-message-new
 new-tab                 actions/tab-new
 new-tag                 actions/tag-new
+new-user                actions/list-add-user
 new-window              actions/window-new
 next                    actions/go-next-view
 notification            actions/notifications;;preferences/preferences-desktop-notifications;apps/preferences-desktop-notifications;preferences/preferences-desktop-notification;apps/preferences-desktop-notification;preferences/preferences-desktop-notification-bell;apps/preferences-desktop-notification-bell
@@ -358,6 +362,7 @@ sort-ascent             actions/view-sort-ascending;actions/view-sort
 sort-descent            actions/view-sort-descending
 speaker                 [breeze*]apps/kmix;devices/audio-speakers;;apps/kmix
 spell-check             actions/tools-check-spelling
+sport                   categories/applications-sport
 star                    status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
 statistics              actions/office-chart-pie;;apps/filelight;apps/org.gnome.baobab
@@ -407,10 +412,12 @@ toilet                  #
 tools                   [elementary]categories/applications-development;[breeze*]categories/applications-system;actions/applications-system;categories/applications-system
 top                     actions/go-top
 town                    places/poi-town
+traffic                 #
 train                   places/poi-railway-station
 transparency            #
 trash                   [breeze*!16]places/user-trash;places/user-trash
 trash-full              [breeze*!16]places/user-trash-full;places/user-trash-full
+truck                   #
 usb                     devices/media-removable;devices/drive-removable-media;devices/drive-removable;devices/drive-removable-media-usb;;apps/usb-creator;apps/usb-creator-kde;apps/usb-creator-gtk
 uncompress              actions/archive-extract;actions/extract-archive
 undo                    actions/edit-undo
