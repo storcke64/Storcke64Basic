@@ -145,7 +145,9 @@ SDL_Texture *SDL_GetTextureFromImage(SDL_Image *image, CWINDOW *window, bool mod
 
 SDL_Texture *IMAGE_get_texture(CIMAGE *_object, CWINDOW *window)
 {
-	return SDL_GetTextureFromImage(IMAGE_get(THIS), window, THIS->img.modified);
+	SDL_Texture *texture = SDL_GetTextureFromImage(IMAGE_get(THIS), window, THIS->img.modified);
+	THIS->img.modified = FALSE;
+	return texture;
 }
 
 CIMAGE *IMAGE_create_from_window(CWINDOW *window, int x, int y, int w, int h)
