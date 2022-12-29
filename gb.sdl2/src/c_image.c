@@ -115,13 +115,21 @@ CIMAGE *IMAGE_create(SDL_Image *image)
 	return img;
 }
 
-SDL_Texture *SDL_GetTextureFromImage(SDL_Image *image, CWINDOW *window)
+SDL_Texture *SDL_GetTextureFromImage(SDL_Image *image, CWINDOW *window, bool modified)
 {
-	if (image->texture && image->window != window)
+	if (image->texture)
 	{
-		SDL_DestroyTexture(image->texture);
-		GB.Unref(POINTER(&image->window));
-		image->texture = NULL;
+		if (image->window != window)
+		{
+			SDL_DestroyTexture(image->texture);
+			GB.Unref(POINTER(&image->window));
+			image->texture = NULL;
+		}
+		else if (modified)
+		{
+			SDL_DestroyTexture(image->texture);
+			image->texture = NULL;
+		}
 	}
 
 	if (!image->texture)
@@ -137,7 +145,7 @@ SDL_Texture *SDL_GetTextureFromImage(SDL_Image *image, CWINDOW *window)
 
 SDL_Texture *IMAGE_get_texture(CIMAGE *_object, CWINDOW *window)
 {
-	return SDL_GetTextureFromImage(IMAGE_get(THIS), window);
+	return SDL_GetTextureFromImage(IMAGE_get(THIS), window, THIS->img.modified);
 }
 
 CIMAGE *IMAGE_create_from_window(CWINDOW *window, int x, int y, int w, int h)

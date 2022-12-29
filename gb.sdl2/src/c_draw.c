@@ -377,7 +377,7 @@ BEGIN_METHOD(Draw_Text, GB_STRING text; GB_INTEGER x; GB_INTEGER y)
 	if (!image)
 		return;
 
-	texture = SDL_GetTextureFromImage(image, (CWINDOW *)THIS->device);
+	texture = SDL_GetTextureFromImage(image, (CWINDOW *)THIS->device, FALSE);
 	if (image->surface)
 	{
 		SDL_FreeSurface(image->surface);
