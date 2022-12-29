@@ -4,7 +4,7 @@ Public Path As String
 Public RichText As String
 
 Public Enum EFFECT_BALANCE, EFFECT_COLORIZE, EFFECT_DESATURATE, EFFECT_TRANSPARENT, EFFECT_INVERT
-Private Enum TRANS_FLIP_H, TRANS_FLIP_V, TRANS_ROTATE_L, TRANS_ROTATE_R
+Private Enum TRANS_FLIP_H, TRANS_FLIP_V, TRANS_ROTATE_L, TRANS_ROTATE_R, TRANS_EXPAND
 
 Property Read ReadOnly As Boolean
 
@@ -283,6 +283,9 @@ Private Sub ApplyTransformation(iTrans As Integer)
           $hSelect.Rotate(Rad(90))
         Case TRANS_ROTATE_R
           $hSelect.Rotate(Rad(-90))
+        Case TRANS_EXPAND
+          $hSelect.Expand($hImage)
+          
       End Select
       
       RefreshSelection
@@ -294,22 +297,14 @@ Private Sub ApplyTransformation(iTrans As Integer)
       Select Case iTrans
         Case TRANS_FLIP_H
           $hPaste.Mirror(True, False)
-          '$hPasteCurrent.HFlip
-          '$hPasteSelect.HFlip
         Case TRANS_FLIP_V
           $hPaste.Mirror(False, True)
-          '$hPasteCurrent.VFlip
-          '$hPasteSelect.VFlip
         Case TRANS_ROTATE_L
-          '$hPaste.RotateLeft()
-          'Swap $hChangeRect.W, $hChangeRect.H
           $hPasteCurrent.Rotate(Rad(90))
-          '$hPasteSelect.Rotate(Rad(90))
         Case TRANS_ROTATE_R
-          '$hPaste.RotateRight()
-          'Swap $hChangeRect.W, $hChangeRect.H
           $hPasteCurrent.Rotate(Rad(-90))
-          '$hPasteSelect.Rotate(Rad(-90))
+        Case TRANS_EXPAND
+          $hPasteCurrent.Expand($hImage)
       End Select
       
       UpdatePasteCurrent
@@ -794,6 +789,7 @@ Public Sub imvImage_MouseDown()
 
   Me.SetFocus
   
+  If $bPress Then Return
   $bPress = Mouse.Left
   
   If $bPress Then 
@@ -1562,7 +1558,8 @@ Public Sub imvImage_MouseUp()
   Dim hImage As Image
 
   If Not $bPress Then Return
-
+  If Mouse.Button <> 1 Then Return
+  
   $bPress = False
   
   If $bDblClick Then 
@@ -3060,7 +3057,7 @@ Private Sub MagicWand()
   
   If hMask Then
     aPoly = CreateSelectionFromMask(hMask)
-    aPoly = Clipper.Simplify(aPoly, Clipper.FillWinding)
+    'aPoly = Clipper.Simplify(aPoly, Clipper.FillWinding)
     
     For Each hPoly In aPoly
       hShape = New CImageShape
@@ -3443,3 +3440,10 @@ Public Sub mnuSaveAs_Click()
   
 End
 
+
+Public Sub btnExpandSelection_Click()
+
+  If Not $hChangeRect Then SetTool("change")
+  ApplyTransformation(TRANS_EXPAND)
+
+End

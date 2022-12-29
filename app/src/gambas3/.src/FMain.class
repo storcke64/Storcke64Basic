@@ -3106,6 +3106,8 @@ End
 
 Private Sub UpdateVersionControl()
 
+  Dim sBranch As String
+  
   If VersionControl.Enabled And If Not Project.Running Then
     panBranchColor.Show
     sepBranchColor.Show
@@ -3114,8 +3116,15 @@ Private Sub UpdateVersionControl()
     sepBranchColor.Hide
   Endif
   
-  dwgBranchColor.Visible = VersionControl.Enabled
-  dwgBranchColor.Refresh
+  sBranch = VersionControl.GetCurrentBranch()
+  lblBranchColor.Visible = VersionControl.Enabled
+  lblBranchColor.Text = sBranch
+  lblBranchColor.Background = VersionControl.GetBranchColor(sBranch)
+  lblBranchColor.BorderRadius = Desktop.Scale * 2
+  lblBranchColor.Foreground = Color.White
+  lblBranchColor.BorderWidth = Desktop.Scale \ 4
+  lblBranchColor.BorderColor = Color.Transparent
+  lblBranchColor.Border = Border.Plain
   
 End
 
@@ -3402,26 +3411,6 @@ Public Sub btnOpenStartup_Click()
 
 End
 
-Public Sub dwgBranchColor_Draw()
-
-  Dim DS As Integer
-  Dim sBranch As String
-
-  DS = Desktop.Scale \ 2
-  
-  sBranch = VersionControl.GetCurrentBranch()
-  
-  Paint.Rectangle(DS \ 2, DS \ 2, Paint.W - DS, Paint.H - DS, DS * 4)
-  Paint.Background = VersionControl.GetBranchColor(sBranch)
-  Paint.Fill
-  
-  Paint.Background = Color.TextBackground
-  Paint.Font.Bold = True
-  sBranch = Paint.TrimText(sBranch, Paint.W - DS * 5)
-  Paint.DrawText(sBranch, DS \ 2, DS \ 2, Paint.W - DS, Paint.H - DS, Align.Center)
-  
-End
-
 Public Sub btnCloseTree_Click()
 
   txtSearchProject_Click
@@ -3446,9 +3435,9 @@ Public Sub btnVcUpdate_Click()
 
 End
 
-Public Sub dwgBranchColor_MouseDown()
+Public Sub lblBranchColor_MouseDown()
 
-  mnuVcBranch.Popup(dwgBranchColor.ScreenX + Desktop.Scale, dwgBranchColor.ScreenY + dwgBranchColor.H)
+  mnuVcBranch.Popup(lblBranchColor.ScreenX + Desktop.Scale, lblBranchColor.ScreenY + lblBranchColor.H)
 
 End
 

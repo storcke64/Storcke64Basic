@@ -127,9 +127,9 @@ Public Sub dwgStatus_Draw()
     W = Paint.TextSize($sMessage).W + DS * 3
     X = dwgStatus.W - W - DS \ 2
     Paint.Rectangle(X, DS \ 2, W, dwgStatus.H - DS, DS * 2)
-    Paint.Background = Color.LightBackground
+    Paint.Background = Color.SelectedBackground
     Paint.Fill
-    Paint.Background = Color.TextForeground
+    Paint.Background = Color.SelectedForeground
     Paint.DrawText($sMessage, X, DS \ 2, W, dwgStatus.H - DS, Align.Center)
   Else
     FMain.PaintStatus()

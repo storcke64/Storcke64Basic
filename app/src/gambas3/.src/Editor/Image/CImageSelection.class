@@ -1213,3 +1213,15 @@ Public Sub Load(sSave As String)
   Next
   
 End
+
+Public Sub Expand(hImage As Image)
+
+  Dim hExt As RectF
+  
+  hExt = GetExtents()
+  If Not hExt Then Return 
+  
+  Translate(-hExt.X, -hExt.Y)
+  Scale(hImage.W / hExt.W, hImage.H / hExt.H, True)
+  
+End

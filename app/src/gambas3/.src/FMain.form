@@ -1349,11 +1349,12 @@
         { panBranchColor HBox
           MoveScaled(2,0,27,4)
           Padding = 1
-          { dwgBranchColor DrawingArea
-            MoveScaled(0,0,5,4)
-            Visible = False
+          { lblBranchColor Label
+            MoveScaled(1,0,4,4)
+            Font = Font["-1,Bold"]
             Mouse = Cursor.Pointing
             Expand = True
+            Alignment = Align.Center
           }
           { btnVcChanges ToolButton
             MoveScaled(6,0,4,4)

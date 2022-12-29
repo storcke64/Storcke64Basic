@@ -478,109 +478,116 @@
     }
     { btnEditSelection ToolButton btnTool
       Name = "btnEditSelection"
-      MoveScaled(90,0,4,4)
+      MoveScaled(91,0,4,4)
       Tag = "change"
       ToolTip = ("Edit selection")
       Action = ".tool-change"
       Picture = Picture["img/draw/move.png"]
       Toggle = True
     }
-    { btnSaveSelection ToolButton
+    { btnExpandSelection ToolButton
       MoveScaled(95,0,4,4)
+      Tag = "change"
+      ToolTip = ("Fit selection to image")
+      Action = ".expand-selection"
+      Picture = Picture["img/draw/expand.png"]
+    }
+    { btnSaveSelection ToolButton
+      MoveScaled(101,0,4,4)
       ToolTip = ("Save selection")
       Action = ".save-selection"
       Picture = Picture["img/draw/save-selection.png"]
     }
     { Separator8 Separator
-      MoveScaled(99,0,1,4)
+      MoveScaled(105,0,1,4)
     }
     { btnUnion ToolButton
-      MoveScaled(100,0,4,4)
+      MoveScaled(106,0,4,4)
       ToolTip = ("Union")
       Action = ".union"
       Picture = Picture["icon:/small/union"]
     }
     { btnDifference ToolButton
-      MoveScaled(103,0,4,4)
+      MoveScaled(109,0,4,4)
       ToolTip = ("Difference")
       Action = ".difference"
       Picture = Picture["icon:/small/difference"]
     }
     { btnIntersection ToolButton
-      MoveScaled(106,0,4,4)
+      MoveScaled(112,0,4,4)
       Visible = False
       ToolTip = ("Intersection")
       Action = ".intersection"
       Picture = Picture["icon:/small/intersection"]
     }
     { btnExclusive ToolButton
-      MoveScaled(109,0,4,4)
+      MoveScaled(115,0,4,4)
       Visible = False
       ToolTip = ("Exclusive or")
       Action = ".exclusive"
       Picture = Picture["icon:/small/exclusive"]
     }
     { btnInvert ToolButton
-      MoveScaled(113,0,4,4)
+      MoveScaled(119,0,4,4)
       ToolTip = ("Invert selection")
       Action = ".invert"
       Picture = Picture["img/draw/invert.png"]
     }
     { btnDuplicate ToolButton
-      MoveScaled(116,0,4,4)
+      MoveScaled(122,0,4,4)
       ToolTip = ("Duplicate selection")
       Action = ".duplicate"
       Picture = Picture["icon:/small/clone"]
     }
     { btnOffset ToolButton
-      MoveScaled(120,0,4,4)
+      MoveScaled(126,0,4,4)
       ToolTip = ("Offset selection")
       Action = ".offset"
       Picture = Picture["img/draw/offset.png"]
     }
     { Separator5 Separator
-      MoveScaled(124,0,1,4)
+      MoveScaled(130,0,1,4)
     }
     { btnCrop ToolButton
-      MoveScaled(125,0,4,4)
+      MoveScaled(131,0,4,4)
       Visible = False
       ToolTip = ("Crop")
       Action = ".crop"
       Picture = Picture["icon:/small/crop"]
     }
     { btnFlipH ToolButton
-      MoveScaled(128,0,4,4)
+      MoveScaled(134,0,4,4)
       ToolTip = ("Horizontal flip")
       Action = ".flip-h"
       Picture = Picture["icon:/small/flip-h"]
     }
     { btnFlipV ToolButton
-      MoveScaled(131,0,4,4)
+      MoveScaled(137,0,4,4)
       ToolTip = ("Vertical flip")
       Action = ".flip-v"
       Picture = Picture["icon:/small/flip-v"]
     }
     { btnRotateR ToolButton
-      MoveScaled(134,0,4,4)
+      MoveScaled(140,0,4,4)
       ToolTip = ("Rotate clockwise")
       Action = ".rotate-r"
       Picture = Picture["icon:/small/rotate-right"]
     }
     { btnRotateL ToolButton
-      MoveScaled(137,0,4,4)
+      MoveScaled(143,0,4,4)
       ToolTip = ("Rotate counter-clockwise")
       Action = ".rotate-l"
       Picture = Picture["icon:/small/rotate-left"]
     }
     { btnResize ToolButton
-      MoveScaled(140,0,4,4)
+      MoveScaled(146,0,4,4)
       ToolTip = ("Resize or stretch image")
       Action = ".resize"
       AutoResize = True
       Picture = Picture["icon:/small/resize"]
     }
     { btnRotate ToolButton
-      MoveScaled(143,0,4,4)
+      MoveScaled(149,0,4,4)
       Visible = False
       ToolTip = ("Rotate image")
       Action = ".rotate"
@@ -589,14 +596,14 @@
     }
     { btnSaveAs ToolButton mnuSaveAs
       Name = "btnSaveAs"
-      MoveScaled(148,0,4,4)
+      MoveScaled(154,0,4,4)
       Visible = False
       ToolTip = ("Save as")
       Action = ".save-as"
       Picture = Picture["icon:/small/save-as"]
     }
     { Spring1 Spring
-      MoveScaled(153,0,2,4)
+      MoveScaled(159,0,2,4)
     }
     { ToolButton7 ToolButton
       MoveScaled(163,0,4,4)
@@ -673,6 +680,10 @@
   { Action exclusive
     Text = "Exclusive or"
     Picture = "icon:/small/exclusive"
+  }
+  { Action expand-selection
+    Text = "Fit selection to image"
+    Picture = "img/draw/expand.png"
   }
   { Action flip-h
     Text = "Horizontal flip"
@@ -861,7 +872,7 @@
 { Toolbars
   { Toolbar image
     Text = "Image editor"
-    List = "save,reload,undo,redo,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,copy,cut,tool-paste,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,save-selection,union,difference,intersection,exclusive,invert,duplicate,offset,crop,flip-h,flip-v,rotate-r,rotate-l,resize,rotate,save-as,locked"
-    Default = "save,reload,|,undo,redo,|,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,|,copy,cut,tool-paste,|,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,save-selection,|,union,difference,invert,duplicate,offset,|,flip-h,flip-v,rotate-r,rotate-l,resize,~,locked"
+    List = "save,reload,undo,redo,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,copy,cut,tool-paste,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,expand-selection,save-selection,union,difference,intersection,exclusive,invert,duplicate,offset,crop,flip-h,flip-v,rotate-r,rotate-l,resize,rotate,save-as,locked"
+    Default = "save,reload,|,undo,redo,|,zoom-in,zoom,zoom-out,zoom-normal,zoom-fit,grid,tooltip,|,copy,cut,tool-paste,|,tool-move,tool-draw,tool-erase,tool-line,tool-rectangle,tool-ellipse,tool-text,tool-magic,hide,tool-change,expand-selection,save-selection,|,union,difference,invert,duplicate,offset,|,flip-h,flip-v,rotate-r,rotate-l,resize,~,locked"
   }
 }
