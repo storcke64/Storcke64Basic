@@ -60,7 +60,9 @@ camera                  devices/camera-photo;;apps/spectacle
 cancel                  actions/dialog-cancel
 car                     places/poi-car
 cdrom                   devices/media-optical
-chart                   actions/view-statistics
+chart                   actions/office-chart-bar
+chart-line              actions/office-chart-line
+chart-pie               actions/office-chart-pie;;apps/filelight;apps/org.gnome.baobab
 chat                    categories/applications-chat
 cherry                  #
 city                    #
@@ -365,7 +367,7 @@ spell-check             actions/tools-check-spelling
 sport                   categories/applications-sport
 star                    status/starred;;preferences/preferences-desktop-default-applications;apps/preferences-desktop-default-applications
 start                   actions/media-skip-backward
-statistics              actions/office-chart-pie;;apps/filelight;apps/org.gnome.baobab
+statistics              actions/view-statistics
 storm                   applets/weather-storm;status/weather-storm
 stop                    actions/media-playback-stop
 subtitle                actions/media-view-subtitles;actions/add-subtitle
