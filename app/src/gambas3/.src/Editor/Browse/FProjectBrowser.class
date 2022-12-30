@@ -784,3 +784,9 @@ Public Sub dbrProject_Click(Dir As String)
   SetDir(Dir)
 
 End
+
+Public Sub Form_Activate()
+
+  Project.SetCurrentPopup(mnuPopup)
+
+End
