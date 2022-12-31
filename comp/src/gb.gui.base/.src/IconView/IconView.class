@@ -847,6 +847,8 @@ Public Sub ScrollArea_KeyPress()
   Dim iInd As Integer
   Dim iPos As Integer
   Dim iStart As Integer
+  Dim N As Integer
+  Dim iCurrent As Integer
   
   If Not Me.Enabled Or If Me.Design Then Return
 
@@ -894,6 +896,21 @@ Public Sub ScrollArea_KeyPress()
           SetCurrentItem($iCurrent + $nColumn, True, bShift)
         Endif
         Stop Event
+      
+      Case Key.PageUp, Key.PageDown
+        If $bHorizontal Then
+          N = $hView.ClientW \ $iGridWidth
+        Else
+          N = $hView.ClientH \ $iGridHeight
+        Endif
+        N = Max(1, N)
+        If iCode = Key.PageUp Then
+          iCurrent = $iCurrent - N * $nColumn
+          If iCurrent < 0 Then iCurrent += (Abs(iCurrent + 1) \ $nColumn + 1) * $nColumn
+        Else
+          iCurrent = Min($aItems.Max, $iCurrent + N * $nColumn)
+        Endif
+        SetCurrentItem(iCurrent, True, bShift)
         
       Case Key.Home
         SetCurrentItem(0, True, bShift)
