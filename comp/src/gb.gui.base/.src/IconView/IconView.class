@@ -622,7 +622,7 @@ Public Sub ScrollArea_Arrange()
     
   Else
     
-    $iGridHeight = Max(DS * 4, $iIconSize) + $iIconLines * Me.Font.Height + DS * 6
+    $iGridHeight = $iIconSize + $iIconLines * Me.Font.Height + DS * 4
     
     If $iGridSize Then
       $iGridWidth = $iGridSize * DS
@@ -1045,7 +1045,7 @@ End
 
 Public Sub ScrollArea_MouseDrag()
   
-  If $bSelRect Then Stop Event
+  If $bSelRect Or If $iHover < 0 Then Stop Event
   
 End
 

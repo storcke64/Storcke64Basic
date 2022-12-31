@@ -224,7 +224,7 @@ Public Sub _GetTextRect(hRect As Rect, bHorizontal As Boolean) As Rect
     
   Else
   
-    Y = hRect.Y + PH + DS * 2
+    Y = hRect.Y + PH + DS '* 2
     
     If $sRichText Then
       With GetIconView().Font.RichTextSize($sRichText, hRect.W)
@@ -329,7 +329,7 @@ Public Sub _GetRects(hRect As Rect, bHorizontal As Boolean, ByRef hRect1 As Rect
   If bHorizontal Then
     hRect1 = Rect(hRect.X, hRect.Y + (hRect.H - PH) / 2 - DS, PW + DS * 2, PH + DS * 2)
   Else
-    hRect1 = Rect(hRect.X + (hRect.W - PW) / 2 - DS, hRect.Y, PW + DS * 2, PH + DS * 2)
+    hRect1 = Rect(hRect.X + (hRect.W - PW) / 2 - DS, hRect.Y, PW + DS * 2, PH + DS)
   Endif
   
   If $sText Or If $sRichText Then 
