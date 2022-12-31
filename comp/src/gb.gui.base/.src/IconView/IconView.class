@@ -908,9 +908,19 @@ Public Sub ScrollArea_KeyPress()
           iCurrent = $iCurrent - N * $nColumn
           If iCurrent < 0 Then iCurrent += (Abs(iCurrent + 1) \ $nColumn + 1) * $nColumn
         Else
-          iCurrent = Min($aItems.Max, $iCurrent + N * $nColumn)
+          iCurrent = $iCurrent + N * $nColumn
+          If iCurrent > $aItems.Max Then
+            If ($aItems.Max \ $nColumn) > ($iCurrent \ $nColumn) Then
+              iCurrent = $aItems.Max
+            Else
+              While iCurrent > $aItems.Max
+                iCurrent -= $nColumn
+              Wend
+            Endif
+          Endif
         Endif
         SetCurrentItem(iCurrent, True, bShift)
+        Stop Event
         
       Case Key.Home
         SetCurrentItem(0, True, bShift)
