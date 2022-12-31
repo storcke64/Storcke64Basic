@@ -133,28 +133,31 @@ BEGIN_METHOD_VOID(PdfDocument_free)
 
 	int i;
 	
-	if (THIS->pages)
+	if (THIS->doc)
 	{
-		for (i = 0; i < poppler_document_get_n_pages(THIS->doc); i++)
+		if (THIS->pages)
 		{
-			if (THIS->pages[i])
-				g_object_unref(THIS->pages[i]);
-		}
-		
-		GB.Free(POINTER(&THIS->pages));
-	}
-	
-	if (THIS->index)
-	{
-		for (i = 0; i < GB.Count(THIS->index); i++)
-			GB.Unref(POINTER(&THIS->index[i]));
-		
-		GB.FreeArray(POINTER(&THIS->index));
-	}
+			for (i = 0; i < poppler_document_get_n_pages(THIS->doc); i++)
+			{
+				if (THIS->pages[i])
+					g_object_unref(THIS->pages[i]);
+			}
 
-	delete THIS->renderer;
-	delete THIS->rdoc;
-	g_object_unref(THIS->doc);
+			GB.Free(POINTER(&THIS->pages));
+		}
+
+		if (THIS->index)
+		{
+			for (i = 0; i < GB.Count(THIS->index); i++)
+				GB.Unref(POINTER(&THIS->index[i]));
+
+			GB.FreeArray(POINTER(&THIS->index));
+		}
+
+		delete THIS->renderer;
+		delete THIS->rdoc;
+		g_object_unref(THIS->doc);
+	}
 	
 	GB.ReleaseFile(THIS->buffer, THIS->length);
 	
