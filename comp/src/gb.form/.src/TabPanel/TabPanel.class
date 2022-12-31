@@ -119,6 +119,7 @@ Public Sub EnsureCurrentVisible_Timer()
   
   Dim X, W As Integer
   Dim iLeftIndex, iRightIndex As Integer
+  Dim iMax As Integer
   
   $hTimerEnsureVisible = Null
   
@@ -186,7 +187,8 @@ Public Sub EnsureCurrentVisible_Timer()
     
       Endif
       
-      $X = Max($hTabBar.W - ($aButton[$aButton.Max].X + $aButton[$aButton.Max].W), $X)
+      iMax = GetLastIndex()
+      $X = Max($hTabBar.W - ($aButton[iMax].X + $aButton[iMax].W), $X)
       $X = Min(0, $X)
       
     Endif
@@ -408,19 +410,17 @@ Public Sub TimerRepeat_Timer()
 End
 
 
-Public Sub Arrow_DblClick()
-  
-  If Mouse.Left Then
-    If Last = $hRightArrow Then
-      Try Me.Index = GetLastIndex()
-    Else
-      Try Me.Index = _GetFirstIndex()
-    Endif
-  Endif
-  
-End
-
-
+' Public Sub Arrow_DblClick()
+'   
+'   If Mouse.Left Then
+'     If Last = $hRightArrow Then
+'       Try Me.Index = GetLastIndex()
+'     Else
+'       Try Me.Index = _GetFirstIndex()
+'     Endif
+'   Endif
+'   
+' End
 
 Private Function Count_Read() As Integer
 
