@@ -489,4 +489,38 @@ Public Sub InitExt()
   Ext["otf"] = "font"
   Ext["bdf"] = "font"
   
+  Ext["odt"] = "office"
+  Ext["ods"] = "office-calc"
+  Ext["odg"] = "office-draw"
+  Ext["odp"] = "office-presentation"
+  Ext["odf"] = "office-math"
+  
+  Ext["doc"] = "office"
+  Ext["docx"] = "office"
+  Ext["xls"] = "office-calc"
+  Ext["xlsx"] = "office-calc"
+  Ext["ppt"] = "office-presentation"
+  Ext["pptx"] = "office-presentation"
+  
+End
+
+Public Sub UrlUnquote((Path) As String, Optional DoNotDecodePlus As Boolean) As String
+  
+  Dim iInd As Integer
+  Dim sRes As String
+  Dim sCar As String
+  
+  For iInd = 1 To Len(Path)
+    sCar = Mid$(Path, iInd, 1)
+    If sCar = "%" Then 
+      sCar = Chr$(Val("&H" & Mid$(Path, iInd + 1, 2)))
+      iInd += 2
+    Else If sCar = "+" And If Not DoNotDecodePlus Then 
+      sCar = " "
+    Endif
+    sRes &= sCar
+  Next
+
+  Return sRes  
+  
 End

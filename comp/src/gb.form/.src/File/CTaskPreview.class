@@ -12,6 +12,7 @@ Private $iSize As Integer
 Private $iMaxFileSize As Integer
 Private $sCache As String
 Private $sFFmpeg As String
+Private $sUnzip As String
 
 Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
   
@@ -57,22 +58,31 @@ Private Sub IsTextFile(sPath As String) As Boolean
 
 End
 
-Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Boolean)
+Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Boolean, Optional nPage As Integer)
 
   Dim hIcon As Image
   Dim X As Integer
   Dim Y As Integer
   Dim W As Integer
   Dim I As Integer
+  Dim iSize As Integer
+  Dim iSizeBinding As Integer
+  Dim hRect As RectF
 
-  If hImage.W > hImage.H Then
-    hImage = hImage.Stretch($iSize, ($iSize * hImage.H) \ hImage.W)
-  Else
-    hImage = hImage.Stretch(($iSize * hImage.W) \ hImage.H, $iSize)
+  If nPage > 1 And If Not bVideo Then
+    iSizeBinding = Min(Min($iSize / 8, Max(1, nPage / 512 * $iSize)), (nPage - 1))
   Endif
   
-  X = ($iSize - hImage.W) \ 2
-  Y = ($iSize - hImage.H) \ 2
+  iSize = $iSize - iSizeBinding * 2
+
+  If hImage.W > hImage.H Then
+    hImage = hImage.Stretch(iSize, (iSize * hImage.H) \ hImage.W)
+  Else
+    hImage = hImage.Stretch((iSize * hImage.W) \ hImage.H, iSize)
+  Endif
+  
+  X = ($iSize - hImage.W - iSizeBinding) \ 2
+  Y = ($iSize - hImage.H - iSizeBinding) \ 2
 
   hIcon = New Image($iSize, $iSize)
   
@@ -82,6 +92,7 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   'hRect = Paint.StretchImage(hImage, 0, 0, $iSize, $iSize)
   
   If bVideo Then
+    
     W = $iSize \ 16
     Paint.FillRect(X, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
     Paint.FillRect(X + hImage.W - W, Y, W, hImage.H, Color.SetAlpha(Color.Black, 128))
@@ -94,11 +105,35 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
       Paint.Fill()
     Next
     Paint.Restore()
+    
   Endif
   
   Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W - 1, hImage.H - 1)
   Paint.Background = Color.LightForeground
   Paint.Stroke
+  
+  If iSizeBinding Then
+    
+    For I = 1 To iSizeBinding Step 2
+      Paint.FillRect(X + hImage.W + I, Y + I + 1, 1, hImage.H, Color.LightForeground)
+      Paint.FillRect(X + I + 1, Y + hImage.H + I, hImage.W, 1, Color.LightForeground)
+    Next
+    
+    If $iSize >= 64 Then
+      Paint.Font.Size = Min($iSize / 12, Application.Font.Size)
+      hRect = Paint.TextSize(CStr(nPage))
+      hRect.W += hRect.H
+      hRect.X = X + hImage.W - hRect.W - hRect.H / 4
+      hRect.Y = Y + hImage.H - hRect.H - hRect.H / 4
+      Paint.Rectangle(hRect.X, hRect.Y, hRect.W, hRect.H, hRect.H)
+      Paint.Background = Color.TextForeground
+      Paint.Fill
+      Paint.Background = Color.TextBackground
+      Paint.DrawText(CStr(nPage), hRect.X, hRect.Y, hRect.W, hRect.H, Align.Center)
+    Endif
+    
+  Endif
+  
   Paint.End
   
   Try hIcon.Save(sThumb)
@@ -177,15 +212,18 @@ Private Sub PrintPdfFile(sPath As String, sThumb As String)
   If Error Then Return
   
   Try hPdf = New PdfDocument(sPath)
-  If Error Then Return
+  If Error Then 
+    Error File.Name(sPath); ": "; Error.Text
+    Return
+  Endif
   If hPdf.Count = 0 Then Return
   
   hPage = hPdf[0].Render()
-  PrintIcon(hPage, sThumb)
+  PrintIcon(hPage, sThumb,, hPdf.Count)
 
 End
 
-Private Sub PrintVideoFile(sPath As String, sThumb As String)
+Private Sub PrintVideo(sPath As String, sThumb As String)
 
   Dim sFile As String
   Dim hImage As Image
@@ -198,6 +236,77 @@ Private Sub PrintVideoFile(sPath As String, sThumb As String)
   Try Kill sFile
   If Error Then Return
   PrintIcon(hImage, sThumb, True)
+  
+End
+
+Private Sub PrintLibreOffice(sPath As String, sThumb As String)
+
+  Dim sData As String
+  Dim hImage As Image
+  Dim nPage As Integer
+  
+  If Not $sUnzip Then Return
+  Exec [$sUnzip, "-p", sPath, "Thumbnails/thumbnail.png"] To sData
+  Try hImage = Image.FromString(sData)
+  If Error Then Return
+
+  sData = ""
+  Exec [$sUnzip, "-p", sPath, "meta.xml"] To sData
+  If sData Then Try nPage = CInt(Scan(sData, "*meta:page-count=\"*\"*")[1])
+
+  PrintIcon(hImage, sThumb,, nPage)
+  
+End
+
+Private Sub PrintEPub(sPath As String, sThumb As String)
+
+  Dim sData As String
+  Dim hImage As Image
+  Dim sCover As String
+  Dim sDir As String
+  Dim iPos As Integer
+  Dim iPos2 As Integer
+  
+  If Not $sUnzip Then Return
+  
+  For Each sDir In ["", "OEBPS", "Ops"]
+    Exec [$sUnzip, "-p", "-C", sPath, sDir &/ "content.opf"] To sData
+    Try sCover = Scan(sData, "*<meta name=\"cover\" content=\"*\"*")[1]
+    If sCover Then Break
+  Next
+  
+  If sCover Then
+    iPos = InStr(sData, "id=\"" & sCover & "\"")
+    If iPos Then
+      iPos2 = InStr(sData, "/>", iPos)
+      iPos = RInStr(sData, "<item ", iPos - 1)
+      Try sCover = sDir &/ Scan(Mid$(sData, iPos, iPos2 - iPos), "*href=\"*\"*")[1]
+      If Not Error Then 
+        sCover = Main.UrlUnquote(sCover)
+      Else 
+        sCover = ""
+      Endif
+    Endif
+  Endif
+  
+  'Error File.Name(sPath) & " -> " & sCover
+  
+  sData = ""
+  
+  If sCover Then
+    Exec [$sUnzip, "-p", "-C", sPath, sCover] To sData
+    If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, sCover & ".jpg"] To sData
+    If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, sCover & ".jpeg"] To sData
+  Endif
+  If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, "cover.jpg"] To sData
+  If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, "cover.jpeg"] To sData
+  If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, "OEBPS/images/cover.jpg"] To sData
+  If Not sData Then Exec [$sUnzip, "-p", "-C", sPath, "OEBPS/images/cover.jpeg"] To sData
+  
+  Try hImage = Image.FromString(sData)
+  If Error Then Return
+
+  PrintIcon(hImage, sThumb,, 16)
   
 End
 
@@ -220,6 +329,7 @@ Public Sub Main()
   Application.Priority += 10
   
   $sFFmpeg = System.Find("ffmpeg")
+  $sUnzip = System.Find("unzip")
 
   For Each sFile In Preview
     
@@ -270,7 +380,15 @@ Public Sub Main()
     
     Else If Main.Ext[sExt] = "video" Then
     
-      Try PrintVideoFile(sPath, sThumb)
+      Try PrintVideo(sPath, sThumb)
+      
+    Else If Main.Ext[sExt] Begins "office" And If sExt Begins "od" Then
+      
+      Try PrintLibreOffice(sPath, sThumb)
+      
+    Else If sExt = "epub" Then
+      
+      Try PrintEPub(sPath, sThumb)
     
     Else If IsTextFile(sPath) Then
       

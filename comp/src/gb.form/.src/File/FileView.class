@@ -573,7 +573,7 @@ Catch
   
 ADD_PREVIEW:
 
-  If Not $bShowPreview Then Return
+  If Not $bShowPreview Or If Me.Design Then Return
   'sExt = LCase(File.Ext(sFile))
   'If Not sExt Then Return
   'If $cExt[sExt] <> "image" Then Return
