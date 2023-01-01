@@ -57,4 +57,6 @@ typedef
 
 #define MAX_TASK 256
 
+void CTASK_callback_child(void);
+
 #endif

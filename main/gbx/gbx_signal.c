@@ -27,6 +27,8 @@
 #include "gb_error.h"
 #include "gb_array.h"
 #include "gbx_api.h"
+#include "gbx_c_process.h"
+#include "gbx_c_task.h"
 #include "gbx_signal.h"
 
 //#define DEBUG_ME 1
@@ -478,6 +480,12 @@ void SIGNAL_do_check(int signum)
 		return;
 	
 	SIGNAL_install(handler, signum, handle_signal);
+
+	if (signum == SIGCHLD)
+	{
+		CPROCESS_callback_child();
+		CTASK_callback_child();
+	}
 }
 
 void SIGNAL_must_check(int signum)

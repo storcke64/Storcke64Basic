@@ -141,6 +141,11 @@ static void callback_child(int signum, intptr_t data)
 	#endif
 }
 
+void CTASK_callback_child(void)
+{
+	callback_child(SIGCHLD, 0);
+}
+
 static int get_readable(int fd)
 {
 	int len;

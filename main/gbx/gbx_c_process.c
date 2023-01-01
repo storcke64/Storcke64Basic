@@ -906,6 +906,11 @@ static void callback_child(int signum, intptr_t data)
 	#endif
 }
 
+void CPROCESS_callback_child(void)
+{
+	callback_child(SIGCHLD, 0);
+}
+
 static void init_child(void)
 {
 	if (!_init)
