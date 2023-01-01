@@ -102,8 +102,11 @@ Static Public Sub GetInfo() As String[]
   Dim aSearchPath As New String[]
   Dim sVar As String
   Dim aEnv As String[]
+  Dim sProg As String
+  Dim sForTrans As String
   
   aText.Add("[System]")
+  sForTrans = ("System")
   ' getting Version: set to FullVersionWithRevision at Project.initVersion
   aText.Add("Gambas=" & Project.FullVersionWithRevision)
 
@@ -140,6 +143,18 @@ Static Public Sub GetInfo() As String[]
     Try sTemp = Format(CInt(sTemp) / 1024, "0") & "M"
     If Not Error Then aText.Add("Memory=" & sTemp)
   Endif
+  
+  aText.Add("")
+  aText.Add("[Programs]")
+  sForTrans = ("Programs")
+  
+  For Each sProg In ["git", "gcc", "clang", "pngquant", "translate-shell"].Sort()
+    Try Exec [sProg, "--version"] To sTemp
+    If Error Or If Not sTemp Then Continue
+    If sTemp Then sTemp = Split(sTemp, "\n", "", True)[0]
+    aText.Add(sProg & "=" & sTemp)
+  Next
+  
   If System.Family = "Cygwin" Then
     
     aSearchPath = ["/bin", "/usr/lib"]
@@ -168,6 +183,7 @@ Static Public Sub GetInfo() As String[]
   cFile = New Collection
   aText.Add("")
   aText.Add("[Libraries]")
+  sForTrans = ("Libraries")
 
   For Each sDir In aSearchPath
     For Each sFile In RDir(sDir, "", gb.File, False)
@@ -186,6 +202,7 @@ Static Public Sub GetInfo() As String[]
 
   aText.Add("")
   aText.Add("[Environment]")
+  sForTrans = ("Environment")
   
   aEnv = New String[]
   For Each sVar In Env
@@ -224,19 +241,21 @@ Public Sub Form_Open()
     .Text = ("Please copy these informations in all your bug reports.")
     .ColumnSpan = 3
     .Font = Font["Italic,-1"]
-    .Foreground = Color.LightForeground
+    '.Foreground = Color.Foreground
   End With
-  gvwInfo.Rows[0].Height = Desktop.Scale * 4
+  gvwInfo.Rows[0].Height = Desktop.Scale * 6
   
   I = 1
   For Each sText In aText
     If Left(sText) = "[" Then
       With gvwInfo[I, 0]
-        .Text = Mid$(sText, 2, -1)
+        .Text = Tr(Mid$(sText, 2, -1))
         .Font.Bold = True
-        .Font.Underline = True
+        '.Font.Underline = True
         .ColumnSpan = 3
         .Padding = 4
+        .Background = Color.LightForeground
+        .Foreground = Color.TextBackground
       End With
     Else If sText Then 
       aLine = Split(sText, "=")

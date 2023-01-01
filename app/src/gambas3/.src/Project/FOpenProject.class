@@ -226,3 +226,9 @@ Public Sub pchProject_Open((Path) As String, Extern As Boolean)
   btnOpen_Click
 
 End
+
+Public Sub Form_KeyPress()
+
+  If Key.Code = Key.Escape Then Me.Close
+
+End

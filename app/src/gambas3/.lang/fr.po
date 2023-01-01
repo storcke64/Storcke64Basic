@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.17.90\n"
-"PO-Revision-Date: 2022-12-29 01:11 UTC\n"
+"PO-Revision-Date: 2023-01-01 08:51 UTC\n"
 "Last-Translator: benoit <benoit@benoit-TOWER>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2077,7 +2077,7 @@ msgstr "Navigateur de débogage"
 msgid "Debug extern process"
 msgstr "Débogage d'un processus externe"
 
-#: FDebugConfig.form:241 FHelpShortcut.form:25 FMain.form:2024
+#: FDebugConfig.form:241 FHelpShortcut.form:25 FMain.form:2025
 msgid "Debugger"
 msgstr "Débogueur"
 
@@ -2285,7 +2285,7 @@ msgstr "Désactiver le compilateur « just-in-time »"
 msgid "Display changes in history"
 msgstr "Afficher les changements dans l'historique"
 
-#: FMain.form:1992
+#: FMain.form:1993
 msgid "Display form class files"
 msgstr "Afficher les fichiers classes des formulaires"
 
@@ -2297,7 +2297,7 @@ msgstr "Afficher ME"
 msgid "Display metadata"
 msgstr "Afficher les métadonnées"
 
-#: FMain.form:1985
+#: FMain.form:1986
 msgid "Dispose class files according to inheritance"
 msgstr "Disposer les fichiers classes selon l'héritage"
 
@@ -2709,7 +2709,7 @@ msgstr "Entrez le nom de la nouvelle branche"
 msgid "enumerable"
 msgstr "énumérable"
 
-#: FDebugConfig.form:428
+#: FDebugConfig.form:428 FSystemInfo.class:205
 msgid "Environment"
 msgstr "Environnement"
 
@@ -3418,7 +3418,7 @@ msgstr "Cacher la sélection"
 msgid "Hide translation changes"
 msgstr "Cacher les modifications des traductions"
 
-#: FFormStack.form:14 FMain.form:2146
+#: FFormStack.form:14 FMain.form:2147
 msgid "Hierarchy"
 msgstr "Hiérarchie"
 
@@ -3699,7 +3699,7 @@ msgstr "Index"
 msgid "Indonesian (Indonesia)"
 msgstr "Indonésien (Indonésie)"
 
-#: FProjectProperty.form:462
+#: FProjectProperty.form:473
 msgid "Information"
 msgstr "Information"
 
@@ -4031,7 +4031,7 @@ msgstr "Aligner à gauche"
 msgid "Length"
 msgstr "Longueur"
 
-#: FProjectProperty.form:680 FSoftwareFarm.class:65
+#: FProjectProperty.form:680 FSoftwareFarm.class:65 FSystemInfo.class:186
 msgid "Libraries"
 msgstr "Bibliothèques"
 
@@ -4325,7 +4325,7 @@ msgstr "Opérateur manquant"
 msgid "Missing right brace"
 msgstr "Parenthèse fermante manquante"
 
-#: FDebugInfo.form:252 FMain.form:1934
+#: FDebugInfo.form:252 FMain.form:1935
 msgid "Modifications."
 msgstr "Modifications."
 
@@ -4941,7 +4941,7 @@ msgstr "Ouvrir un projet récent"
 msgid "OpenSSL library routines"
 msgstr "Routines de la bibliothèque OpenSSL"
 
-#: FMain.form:1973
+#: FMain.form:1974
 msgid "Open startup class"
 msgstr "Ouvrir la classe de démarrage"
 
@@ -5177,7 +5177,7 @@ msgstr "Veuillez sélectionner un emplacement de menu pour chaque distribution c
 msgid "Please choose the package group for each target distribution."
 msgstr "Veuillez sélectionner un groupe de paquet pour chaque distribution cible."
 
-#: FSystemInfo.class:224
+#: FSystemInfo.class:241
 msgid "Please copy these informations in all your bug reports."
 msgstr "Veuillez recopier ces informations dans tous vos rapports de bugs."
 
@@ -5393,6 +5393,10 @@ msgstr "Profilage pour le projet &1"
 msgid "Program arguments parser"
 msgstr "Analyseur des arguments du programme"
 
+#: FSystemInfo.class:149
+msgid "Programs"
+msgstr "Programmes"
+
 #: FProjectProperty.form:483 FTranslate.class:76
 msgid "Progress"
 msgstr "Avancement"
@@ -5429,7 +5433,7 @@ msgstr "Répertoire du projet"
 msgid "Project files conversion..."
 msgstr "Conversion des fichiers du projet..."
 
-#: FMain.form:2001
+#: FMain.form:2002
 msgid "Project filter"
 msgstr "Filtre de projet"
 
@@ -5481,7 +5485,7 @@ msgstr "Type de projet"
 msgid "Project Version Control"
 msgstr "Suivi de version du projet"
 
-#: CClassInfo.class:638 FMain.form:642 FProjectBrowser.form:226 FProperty.form:28
+#: CClassInfo.class:638 FMain.form:642 FProjectBrowser.form:226 FProjectProperty.form:462 FProperty.form:28
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -6333,7 +6337,7 @@ msgstr "Afficher la moyenne"
 msgid "Show compressed files"
 msgstr "Afficher les fichiers compressés"
 
-#: FMain.form:2161
+#: FMain.form:2162
 msgid "Show controls"
 msgstr "Afficher les contrôles"
 
@@ -6345,7 +6349,7 @@ msgstr "Afficher les requêtes de bases de données"
 msgid "Show DBus identifiers"
 msgstr "Afficher les identificateurs DBus"
 
-#: FMain.class:3546
+#: FMain.class:3535
 msgid "Show debugger"
 msgstr "Afficher le débogueur"
 
@@ -6421,7 +6425,7 @@ msgstr "Afficher les anciennes versions"
 msgid "Show Preview"
 msgstr "Afficher la prévisualisation"
 
-#: FMain.form:2080
+#: FMain.form:2081
 msgid "Show project browser"
 msgstr "Afficher l'explorateur de projet"
 
@@ -6429,15 +6433,15 @@ msgstr "Afficher l'explorateur de projet"
 msgid "Show project tabs"
 msgstr "Afficher les onglets du projet"
 
-#: FMain.class:3543
+#: FMain.class:3532
 msgid "Show project tree"
 msgstr "Afficher l'arbre du projet"
 
-#: FMain.form:2071
+#: FMain.form:2072
 msgid "Show properties sheet"
 msgstr "Afficher la feuille de propriétés"
 
-#: FMain.form:2153
+#: FMain.form:2154
 msgid "Show property help"
 msgstr "Afficher l'aide sur les propriétés"
 
@@ -6930,7 +6934,7 @@ msgstr "Erreur de syntaxe dans le type de retour"
 msgid "Syntax highlighter routines"
 msgstr "Routines de coloration syntaxique"
 
-#: FColorChooser.form:27 FDebugInfo.form:441 FSoftwareFarm.class:59
+#: FColorChooser.form:27 FDebugInfo.form:441 FSoftwareFarm.class:59 FSystemInfo.class:109
 msgid "System"
 msgstr "Système"
 
@@ -7678,7 +7682,7 @@ msgstr "Basculer l'affichage de l'aperçu"
 msgid "Tolerance"
 msgstr "Tolérance"
 
-#: FMain.form:2169
+#: FMain.form:2170
 msgid "Toolbox"
 msgstr "Boîte à outils"
 
