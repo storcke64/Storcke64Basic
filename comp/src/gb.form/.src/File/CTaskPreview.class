@@ -126,9 +126,11 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
       hRect.X = X + hImage.W - hRect.W - hRect.H / 4
       hRect.Y = Y + hImage.H - hRect.H - hRect.H / 4
       Paint.Rectangle(hRect.X, hRect.Y, hRect.W, hRect.H, hRect.H)
-      Paint.Background = Color.TextForeground
-      Paint.Fill
+      Paint.Background = Color.Gradient(Color.TextForeground, Color.TextBackground, 0.33)
+      Paint.Fill(True)
       Paint.Background = Color.TextBackground
+      Paint.LineWidth = 1
+      Paint.Stroke
       Paint.DrawText(CStr(nPage), hRect.X, hRect.Y, hRect.W, hRect.H, Align.Center)
     Endif
     
@@ -213,7 +215,7 @@ Private Sub PrintPdfFile(sPath As String, sThumb As String)
   
   Try hPdf = New PdfDocument(sPath)
   If Error Then 
-    Error File.Name(sPath); ": "; Error.Text
+    'Error File.Name(sPath); ": "; Error.Text
     Return
   Endif
   If hPdf.Count = 0 Then Return
