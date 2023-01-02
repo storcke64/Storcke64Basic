@@ -566,6 +566,7 @@ AC_DEFUN([GB_CHECK_MATH_FUNC],
   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #define _ISOC9X_SOURCE	1
       #define _ISOC99_SOURCE	1
+      #define _GNU_SOURCE	1
       #define __USE_ISOC99	1
       #define __USE_ISOC9X	1
       #include <math.h>
