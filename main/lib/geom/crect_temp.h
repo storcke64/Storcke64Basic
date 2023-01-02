@@ -298,7 +298,7 @@ BEGIN_METHOD(__name##_Contains, __gtype x; __gtype y)                           
                                                                                                                               \
 END_METHOD                                                                                                                    \
                                                                                                                               \
-BEGIN_METHOD(__name##_Adjust, __gtype left; __gtype top; __gtype right; __gtype bottom)                                       \
+BEGIN_METHOD(__name##_Shrink, __gtype left; __gtype top; __gtype right; __gtype bottom)                                       \
                                                                                                                               \
   __ctype left = VARG(left);                                                                                                  \
   __ctype top = VARGOPT(top, left);                                                                                           \
@@ -309,6 +309,23 @@ BEGIN_METHOD(__name##_Adjust, __gtype left; __gtype top; __gtype right; __gtype 
   __this->w -= (left + right);                                                                                                \
   __this->y += top;                                                                                                           \
   __this->h -= (top + bottom);                                                                                                \
+                                                                                                                              \
+  if (__this->w < 1 || __this->h < 1)                                                                                         \
+    __this->w = __this->h = 0;                                                                                                \
+                                                                                                                              \
+END_METHOD                                                                                                                    \
+                                                                                                                              \
+BEGIN_METHOD(__name##_Expand, __gtype left; __gtype top; __gtype right; __gtype bottom)                                       \
+                                                                                                                              \
+  __ctype left = VARG(left);                                                                                                  \
+  __ctype top = VARGOPT(top, left);                                                                                           \
+  __ctype right = VARGOPT(right, left);                                                                                       \
+  __ctype bottom = VARGOPT(bottom, top);                                                                                      \
+                                                                                                                              \
+  __this->x -= left;                                                                                                          \
+  __this->w += (left + right);                                                                                                \
+  __this->y -= top;                                                                                                           \
+  __this->h += (top + bottom);                                                                                                \
                                                                                                                               \
   if (__this->w < 1 || __this->h < 1)                                                                                         \
     __this->w = __this->h = 0;                                                                                                \
@@ -399,7 +416,9 @@ GB_DESC __name##Desc[] =                                                        
   GB_METHOD("Union", #__name, __name##_Union, "(Rect)" #__name ";"),                                                          \
   GB_METHOD("Intersection", #__name, __name##_Intersection, "(Rect)" #__name ";"),                                            \
   GB_METHOD("Contains", "b", __name##_Contains, "(X)" __sign "(Y)" __sign ""),                                                \
-  GB_METHOD("Adjust", NULL, __name##_Adjust, "(Left)" __sign "[(Top)" __sign "(Right)" __sign "(Bottom)" __sign "]"),         \
+  GB_METHOD("Adjust", NULL, __name##_Shrink, "(Left)" __sign "[(Top)" __sign "(Right)" __sign "(Bottom)" __sign "]"),         \
+  GB_METHOD("Expand", NULL, __name##_Expand, "(Left)" __sign "[(Top)" __sign "(Right)" __sign "(Bottom)" __sign "]"),         \
+  GB_METHOD("Shrink", NULL, __name##_Shrink, "(Left)" __sign "[(Top)" __sign "(Right)" __sign "(Bottom)" __sign "]"),         \
   GB_METHOD("Center", #__pname, __name##_Center, NULL),                                                                       \
                                                                                                                               \
   GB_STATIC_METHOD("Stretch", #__name, __name##_Stretch, "(Width)" __sign "(Height)" __sign "(Frame)" #__name ";[(Alignment)i]"), \
