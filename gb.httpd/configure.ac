@@ -28,7 +28,7 @@ dnl
 AC_MSG_CHECKING(how to link static binaries)
 AC_CACHE_VAL(ac_cv_lbl_static_flag,
     ac_cv_lbl_static_flag=unknown
-    echo 'main() {}' > conftest.c
+    echo 'int main() {}' > conftest.c
     if test "$GCC" != yes ; then
 	    trial_flag="-Bstatic"
 	    test=`$CC $trial_flag -o conftest conftest.c 2>&1`
@@ -53,7 +53,8 @@ fi
 
 AC_MSG_CHECKING(for __progname)
 AC_CACHE_VAL(ac_cv_extern__progname,
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[extern char *__progname; 
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+        [[extern char *__progname;
 	puts(__progname)]])],[ac_cv_extern__progname=yes],[ac_cv_extern__progname=no]))
 if test $ac_cv_extern__progname = yes ; then
 	AC_DEFINE([HAVE__PROGNAME], [], [have __progname])
