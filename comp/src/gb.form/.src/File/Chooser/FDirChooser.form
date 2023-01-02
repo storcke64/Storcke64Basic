@@ -79,18 +79,12 @@
               Picture = Picture["icon:/small/zoom-in"]
             }
           }
-          { btnPreview ToolButton
-            MoveScaled(31,0,4,4)
-            ToolTip = ("Image preview")
-            Picture = Picture["icon:/small/view-preview"]
-            Toggle = True
-          }
           { sepView Separator
-            MoveScaled(35,0,1,4)
+            MoveScaled(31,0,1,4)
           }
-          { btnViewNormal ToolButton mnuStyle
+          { btnViewNormal ToolButton mnuView
             Name = "btnViewNormal"
-            MoveScaled(36,0,4,4)
+            MoveScaled(32,0,4,4)
             Tag = "0"
             ToolTip = ("Icon view")
             Picture = Picture["icon:/small/view-icon"]
@@ -98,16 +92,25 @@
             Toggle = True
             Value = True
           }
-          { btnViewCompact ToolButton mnuStyle
+          { btnViewCompact ToolButton mnuView
             Name = "btnViewCompact"
-            MoveScaled(40,0,4,4)
+            MoveScaled(36,0,4,4)
             Tag = "1"
             ToolTip = ("Compact view")
             Picture = Picture["icon:/small/view-compact"]
             Radio = True
             Toggle = True
           }
-          { btnViewDetailed ToolButton mnuStyle
+          { btnViewPreview ToolButton mnuView
+            Name = "btnViewPreview"
+            MoveScaled(40,0,4,4)
+            Tag = "3"
+            ToolTip = ("Preview view")
+            Picture = Picture["icon:/small/view-preview"]
+            Radio = True
+            Toggle = True
+          }
+          { btnViewDetailed ToolButton mnuView
             Name = "btnViewDetailed"
             MoveScaled(44,0,4,4)
             Tag = "2"
@@ -136,7 +139,7 @@
         MoveScaled(30,6,39,0)
       }
       { splChoose HSplit
-        MoveScaled(6,7,67,43)
+        MoveScaled(6,7,74,43)
         Expand = True
         { panDirectory Panel
           MoveScaled(2,4,27,38)
@@ -161,12 +164,13 @@
           }
         }
         { panView Panel
-          MoveScaled(38,5,25,33)
+          MoveScaled(30,6,40,33)
           Visible = False
           Arrangement = Arrange.Fill
           { fvwChoose FileView
-            MoveScaled(1,1,23,31)
+            MoveScaled(0,2,38,31)
             Border = False
+            View = FileView.Compact
           }
         }
       }

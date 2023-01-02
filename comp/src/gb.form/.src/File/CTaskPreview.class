@@ -224,10 +224,12 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
     iPos = 0
     Do
       iPos = InStr(sData, "\n", iPos + 1)
-      If iPos = 0 Then Break 
+      If iPos = 0 Then Break
       Inc nLines
     Loop
   Wend
+  
+  If sData Not Ends "\n" Then Inc nLines
   
   If $iSize >= 64 Then PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
 

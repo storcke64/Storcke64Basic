@@ -3,7 +3,7 @@
 Inherits UserControl
 Export
 
-Public Const _Properties As String = "*,Border=True,Root,Picture,Style{FileView.Normal;Compact;Detailed}=Normal,ShowHidden,ShowFile,ShowPreview,ShowBookmark=True,ShowSplitter=True,ShowToolbar=True"
+Public Const _Properties As String = "*,Border=True,Root,Picture,View{FileView.Normal;Compact;Detailed;Preview}=Normal,ShowHidden,ShowFile,ShowBookmark=True,ShowSplitter=True,ShowToolbar=True"
 Public Const _DefaultEvent As String = "Change"
 Public Const _DefaultSize As String = "36,36"
 Public Const _Group As String = "Chooser"
@@ -18,7 +18,7 @@ Property ShowDetailed As Boolean
 Property ShowBookmark As Boolean
 Property ShowSplitter As Boolean
 Property ShowPreview As Boolean
-Property Style As Integer
+Property View As Integer
 
 '' Return or set if the toolbar is visible.
 Property ShowToolbar As Boolean
@@ -192,14 +192,14 @@ End
 
 Private Function Icon_Read() As Picture
 
-  Return frmChooser.FileView.Icon
+  Return frmChooser._FileView.Icon
 
 End
 
 Private Sub Icon_Write(Value As Picture)
 
-  frmChooser.FileView.Icon = Value
-  frmChooser.DirView.Icon = Value
+  frmChooser._FileView.Icon = Value
+  frmChooser._DirView.Icon = Value
 
 End
 
@@ -242,13 +242,13 @@ End
 
 Private Function FileView_Read() As FileView
 
-  Return frmChooser.FileView
+  Return frmChooser._FileView
 
 End
 
 Private Function DirView_Read() As DirView
 
-  Return frmChooser.DirView
+  Return frmChooser._DirView
 
 End
 
@@ -300,14 +300,14 @@ Private Sub UncompressFilter_Write(Value As String[])
 
 End
 
-Private Function Style_Read() As Integer
+Private Function View_Read() As Integer
 
-  Return frmChooser.GetStyle()
+  Return frmChooser.GetView()
 
 End
 
-Private Sub Style_Write(Value As Integer)
+Private Sub View_Write(Value As Integer)
 
-  frmChooser.SetStyle(Value)
+  frmChooser.SetView(Value)
 
 End

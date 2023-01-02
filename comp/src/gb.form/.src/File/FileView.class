@@ -5,11 +5,11 @@ Inherits UserControl
 
 Class Watch
 
-Public Const _Properties As String = "*,Border=True,Style{FileView.Normal;Compact;Detailed}=Normal,Mode{Select.*}=Single,Dir,ShowHidden,ShowDirectory,ShowPreview"
+Public Const _Properties As String = "*,Border=True,View{FileView.Normal;Compact;Detailed;Preview}=Normal,Mode{Select.*}=Single,Dir,ShowHidden,ShowDirectory"
 Public Const _DefaultEvent As String = "Click"
 Public Const _Group As String = "View"
 
-Public Enum Normal, Compact, Detailed
+Public Enum Normal, Compact, Detailed, Preview
 
 Event {Select}
 Event Click
@@ -36,7 +36,7 @@ Property ShowDirectory As Boolean
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
-Property Style As Integer
+Property View As Integer
 
 Property Selection As String[]
 Property Filter As String[]
@@ -94,8 +94,7 @@ Private $hRefresh As Timer
 Private $bRefreshTriggered As Boolean
 Private $bDesktopIsLoaded As Boolean
 
-Private $iIconSizeNormal As Integer
-Private $iIconSizeCompact As Integer
+Private $aIconSize As New Integer[4]
 
 Private $hPreview As CTaskPreview
 Private $iPreviewMax As Integer
@@ -145,8 +144,10 @@ Public Sub _new()
   $hWatcher = New Watcher(Me) As "Watcher"
   DirView._CheckComponents
   
-  $iIconSizeCompact = 16
-  $iIconSizeNormal = 64
+  $aIconSize[Detailed] = Stock.GetSize("small")
+  $aIconSize[Compact] = Stock.GetSize("small")
+  $aIconSize[Normal] = 64
+  $aIconSize[Preview] = 128
   
   $hBorder = New Panel(Me)
   $hBorder.Arrangement = Arrange.Vertical
@@ -309,13 +310,7 @@ End
 
 Private Sub GetIconSize() As Integer
 
-  If $hColumnView.Visible Then
-    Return Stock.GetSize("small")
-  Else If $hIconView.Orientation = Arrange.Horizontal Then
-    Return $iIconSizeCompact
-  Else
-    Return $iIconSizeNormal
-  Endif
+  Return $aIconSize[View_Read()]
 
 End
 
@@ -749,7 +744,9 @@ End
 
 Private Sub Dir_Write(sDir As String)
   
+  If $sDir = sDir Then Return
   $sDir = sDir
+  StopPreview
   RefreshViewLater(True)
   
 End
@@ -1093,7 +1090,7 @@ End
 
 Private Function Settings_Read() As Variant[]
   
-  Return [2, CVariant(Style_Read()), ShowHidden_Read(), $hColumnView.Settings, $iIconSizeNormal, ShowPreview_Read(), $iIconSizeCompact]
+  Return [3, CVariant(View_Read()), ShowHidden_Read(), $hColumnView.Settings, $aIconSize]
   
 End
 
@@ -1102,28 +1099,44 @@ Private Sub Settings_Write(Value As Variant[])
   If IsNull(Value) Then Return
   
   If TypeOf(Value[0]) = gb.Integer Then
-    If Value[0] = 1 Then
-      Style_Write(If(Value[1], Detailed, Normal))
-    Else 
-      Style_Write(Value[1])
-    Endif
-    ShowHidden_Write(Value[2])
-    $hColumnView.Settings = Value[3]
-    $iIconSizeNormal = Value[4]
-    If Value.Count >= 6 Then ShowPreview_Write(Value[5])
-    If Value.Count >= 7 Then
-      $iIconSizeCompact = Value[6]
-    Else
-      $iIconSizeCompact = $iIconSizeNormal
-    Endif
+    
+    Select Case value[0]
+    
+      Case 1, 2
+    
+        If Value[0] = 1 Then
+          View_Write(If(Value[1], Detailed, Normal))
+        Else 
+          View_Write(Value[1])
+        Endif
+        ShowHidden_Write(Value[2])
+        $hColumnView.Settings = Value[3]
+        $aIconSize[Normal] = Value[4]
+        If Value.Count >= 6 Then ShowPreview_Write(Value[5])
+        If Value.Count >= 7 Then
+          $aIconSize[Compact] = Value[6]
+        Else
+          $aIconSize[Compact] = $aIconSize[Normal]
+        Endif
+        
+      Case Else 
+        
+        View_Write(Value[1])
+        ShowHidden_Write(Value[2])
+        $hColumnView.Settings = Value[3]
+        $aIconSize = Value[4]
+        
+    End Select
     
     $bRefreshIcon = True
     RefreshViewLater
     
   Else
+    
     ShowDetailed_Write(Value[0])
     ShowHidden_Write(Value[1])
     $hColumnView.Settings = Value[2]
+    
   Endif
   
 Catch
@@ -1159,15 +1172,15 @@ End
 
 Private Sub IconSize_Write(Value As Integer)
   
+  Dim iView As Integer
+  
   If $hColumnView.Visible Then Return
   If Value < 8 Or Value > 512 Then Return
   
-  If $hIconView.Orientation = Arrange.Horizontal Then
-    $iIconSizeCompact = Value
-  Else 
-    $iIconSizeNormal = Value
-  Endif
+  iView = View_Read()
+  If $aIconSize[iView] = Value Then Return
   
+  $aIconSize[iView] = Value
   $bRefreshIcon = True
   RefreshViewLater
   
@@ -1224,6 +1237,7 @@ Private Sub ShowPreview_Write(Value As Boolean)
 
   If $bShowPreview = Value Then Return
   $bShowPreview = Value
+  StopPreview
   $bRefreshIcon = True
   RefreshViewLater
   
@@ -1592,31 +1606,37 @@ Private Sub Orientation_Write(Value As Integer)
 
 End
 
-Private Function Style_Read() As Integer
+Private Function View_Read() As Integer
 
   If $hColumnView.Visible Then
     Return Detailed
   Else If $hIconView.Orientation = Arrange.Horizontal Then
     Return Compact
+  Else If $bShowPreview Then
+    Return Preview
   Else
     Return Normal
   Endif
 
 End
 
-Private Sub Style_Write(Value As Integer)
+Private Sub View_Write(Value As Integer)
 
   Dim iIconSize As Integer
   
+  If Value = View_Read() Then Return
+  
+  ShowPreview_Write(False)
   If Value = Detailed Then
     ShowDetailed_Write(True)
   Else
-    ShowDetailed_Write(False)
     iIconSize = GetIconSize()
+    ShowDetailed_Write(False)
     If Value = Compact Then
       $hIconView.Orientation = Arrange.Horizontal
     Else
       $hIconView.Orientation = Arrange.Vertical
+      If Value = Preview Then ShowPreview_Write(True)
     Endif 
     UpdateIconView
     If iIconSize <> GetIconSize() Then 

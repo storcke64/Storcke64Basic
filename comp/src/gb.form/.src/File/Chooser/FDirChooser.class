@@ -2,8 +2,8 @@
 
 Class Desktop
 
-Public (DirView) As DirView 
-Public (FileView) As FileView
+Public _DirView As DirView 
+Public _FileView As FileView
 
 Event Change
 Event {Select}
@@ -18,7 +18,6 @@ Property UncompressFilter As String[]
 Private mnuBookmark As Menu
 Private mnuEditBookmark As Menu
 Private mnuShowHiddenFiles As Menu
-Private mnuShowPreview As Menu
 Private mnuUncompress As Menu
 Private mnuRename As Menu
 Private mnuCopy As Menu
@@ -53,8 +52,8 @@ Public Sub _new(Optional bFile As Boolean)
   'Dim hChild As Control
   Dim iCol As Integer
   
-  DirView = dvwChoose
-  FileView = fvwChoose
+  _DirView = dvwChoose
+  _FileView = fvwChoose
   
   $hGradient = New Image(dwgGradient.W, dwgGradient.H, Color.Transparent)
   
@@ -236,13 +235,15 @@ Private Sub UpdateZoom()
     Object.Unlock(sldIconSize)
   Endif
   
-  Select fvwChoose.Style
+  Select fvwChoose.View
     Case FileView.Normal
       btnViewNormal.Value = True
     Case FileView.Compact
       btnViewCompact.Value = True
     Case FileView.Detailed
       btnViewDetailed.Value = True
+    Case FileView.Preview
+      btnViewPreview.Value = True
   End Select
   
 End
@@ -253,7 +254,7 @@ Private Sub UpdateView()
   btnViewNormal.Visible = $bView
   btnViewCompact.Visible = $bView
   btnViewDetailed.Visible = $bView
-  btnPreview.Visible = $bView
+  btnViewPreview.Visible = $bView
   sepView.Visible = $bView
 
   UpdateZoom
@@ -392,13 +393,6 @@ Public Sub mnuShowHiddenFiles_Click()
   Raise ShowHidden
 
 End
-
-Public Sub mnuShowPreview_Click()
-
-  btnPreview.Value = Not btnPreview.Value
-
-End
-
 
 Public Sub mnuNoPreviewMax_Click()
 
@@ -820,7 +814,7 @@ Public Sub SetSettings(aVar As Variant[])
     
   Endif
 
-  btnPreview.Value = fvwChoose.ShowPreview
+  btnViewPreview.Value = fvwChoose.ShowPreview
   
   Select Case fvwChoose.Style
     Case FileView.Compact
@@ -1048,27 +1042,39 @@ Private Sub FillMenu()
   
     hMenu = New Menu(mnuPopup)
   
-    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu = New Menu(mnuPopup) As "mnuView"
     hMenu.Text = ("Icon view")
-    hMenu.Checked = fvwChoose.Style = FileView.Normal
+    hMenu.Checked = fvwChoose.View = FileView.Normal
     hMenu.Visible = fvwChoose.Visible And $bView
     hMenu.Picture = Picture["icon:/small/view-icon"]
     hMenu.Tag = FileView.Normal
       
-    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu = New Menu(mnuPopup) As "mnuView"
     hMenu.Text = ("Compact view")
-    hMenu.Checked = fvwChoose.Style = FileView.Compact
+    hMenu.Checked = fvwChoose.View = FileView.Compact
     hMenu.Visible = fvwChoose.Visible And $bView
     hMenu.Picture = Picture["icon:/small/view-compact"]
     hMenu.Tag = FileView.Compact
       
-    hMenu = New Menu(mnuPopup) As "mnuStyle"
+    hMenu = New Menu(mnuPopup) As "mnuView"
     hMenu.Text = ("Detailed view")
-    hMenu.Checked = fvwChoose.Style = FileView.Detailed
+    hMenu.Checked = fvwChoose.View = FileView.Detailed
     hMenu.Visible = fvwChoose.Visible And $bView
     hMenu.Picture = Picture["icon:/small/view-detail"]
     hMenu.Tag = FileView.Detailed
     
+    hMenu = New Menu(mnuPopup) As "mnuView"
+    hMenu.Text = ("Preview view")
+    hMenu.Checked = fvwChoose.View = FileView.Preview
+    hMenu.Visible = fvwChoose.Visible And $bView
+    hMenu.Picture = Picture["icon:/small/view-preview"]
+    hMenu.Tag = FileView.Preview
+    
+    hMenu = New Menu(mnuPopup) As "mnuNoPreviewMax"
+    hMenu.Text = ("Preview big files")
+    hMenu.Visible = fvwChoose.View = FileView.Preview
+    hMenu.Checked = fvwChoose.MaxPreviewSize < 0
+  
   Endif
     
   hMenu = New Menu(mnuPopup)
@@ -1078,17 +1084,6 @@ Private Sub FillMenu()
   hMenu.Checked = fvwChoose.ShowHidden
   'hMenu.Visible = fvwChoose.Visible
   mnuShowHiddenFiles = hMenu
-  
-  hMenu = New Menu(mnuPopup) As "mnuShowPreview"
-  hMenu.Text = ("Show image preview")
-  hMenu.Checked = fvwChoose.ShowPreview
-  hMenu.Visible = fvwChoose.Visible And $bView
-  mnuShowPreview = hMenu
-  
-  hMenu = New Menu(mnuPopup) As "mnuNoPreviewMax"
-  hMenu.Text = ("Preview big files")
-  hMenu.Visible = fvwChoose.ShowPreview
-  hMenu.Checked = fvwChoose.MaxPreviewSize < 0
   
   hMenu = New Menu(mnuPopup)
   
@@ -1147,7 +1142,6 @@ Private Sub FillMenu()
   If dvwChoose.HasFocus Then
 
     mnuUncompress.Hide
-    mnuShowPreview.Hide
     mnuRename.Show
     mnuDelete.Hide
     mnuDeleteDir.Hide
@@ -1157,7 +1151,6 @@ Private Sub FillMenu()
 
     sFile = fvwChoose.Current
     mnuUncompress.Visible = IsCompressedFile(sFile)
-    mnuShowPreview.Show
     mnuRename.Visible = sFile
     mnuDelete.Visible = sFile
     mnuDeleteDir.Hide
@@ -1624,9 +1617,9 @@ Public Sub SetMargin(bMargin As Boolean)
 End
 
 
-Public Sub btnPreview_Click()
+Public Sub btnViewPreview_Click()
 
-  fvwChoose.ShowPreview = btnPreview.Value
+  fvwChoose.ShowPreview = btnViewPreview.Value
 
 End
 
@@ -1638,7 +1631,7 @@ End
 
 Public Sub SetShowPreview(bPreview As Boolean)
   
-  btnPreview.Value = bPreview
+  btnViewPreview.Value = bPreview
   
 End
 
@@ -1817,22 +1810,22 @@ Public Sub mnuPopup_Show()
   
 End
 
-Public Sub mnuStyle_Click()
+Public Sub mnuView_Click()
   
-  fvwChoose.Style = Last.Tag
+  fvwChoose.View = Last.Tag
   UpdateZoom
 
 End
 
-Public Sub GetStyle() As Integer
+Public Sub GetView() As Integer
   
-  Return fvwChoose.Style
+  Return fvwChoose.View
   
 End
 
 
-Public Sub SetStyle(iStyle As Integer)
+Public Sub SetView(iView As Integer)
   
-  fvwChoose.Style = iStyle
+  fvwChoose.View = iView
   
 End
