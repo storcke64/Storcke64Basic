@@ -33,16 +33,18 @@
 
 Public Sub Main()
 
-  ' Component.Load("gb.form")
-  ' 
-  ' Message.Style = "integrated"
-  ' 'Message.ColoredButtons = True
-  ' 
-  ' Message.Question("Ceci est un très long message qui doit permettre de tester la nouvelle disposition des boutons des boites de dialogues affichant des messages.", "Oui", "Non", "Peut-être")
-  ' 'Message.Warning("Ceci est un message.") ', "Oui", "Non")
+  Dim aHtml As String[]
+  Dim nCar As Integer
+  Dim I As Integer
 
-  Clipboard.Copy("/home/benoit/20091225.jpg", "text/uri-list")
-
+  aHtml = SplitHTML("&#x27;V&#x27; - <b><i>À écouter</i> jusqu&#x27;à la fin</b> et oups il dit quoi l&#x27;astronaute...🤔-1564611614275518478.mp4", ByRef nCar)
+  
+  Print nCar
+  
+  For I = 1 To nCar
+    Print I;; HtmlLeft(aHtml, I)
+  Next
+  
 End
 
 Public Sub GetFileSize(iSize As Long, Optional nDigit As Integer = 1) As String
@@ -63,7 +65,41 @@ Public Sub GetFileSize(iSize As Long, Optional nDigit As Integer = 1) As String
   
 End
 
-Public Sub SplitHTML(Html As String) As String[]
+Public Sub HtmlLeft(aHtml As String[], iPos As Integer) As String
+
+  Dim I As Integer
+  Dim sElt As String
+  Dim sHtml As String
+  Dim iLen As Integer
+
+  If iPos = 0 Then Return
+
+  For I = 0 To aHtml.Max
+    sElt = aHtml[I]
+    If sElt Begins "<" Then
+      sHtml &= sElt
+    Else If iPos > 0 Then
+      If sElt Begins "&" Then
+        sHtml &= sElt
+        Dec iPos
+      Else
+        iLen = String.Len(sElt)
+        If iLen <= iPos Then
+          sHtml &= sElt
+          iPos -= iLen
+        Else
+          sHtml &= String.Left(sElt, iPos)
+          iPos = 0
+        Endif
+      Endif
+    Endif
+  Next
+  
+  Return sHtml
+
+End
+
+Public Sub SplitHTML(Html As String, ByRef Count As Integer) As String[]
 
   Dim P As Integer
   Dim iLen As Integer
@@ -73,6 +109,7 @@ Public Sub SplitHTML(Html As String) As String[]
   Dim aResult As String[]
   
   aResult = New String[]
+  Count = 0
   iLen = String.Len(Html)
   
 READ_TEXT:
@@ -121,7 +158,7 @@ READ_STRING:
 
   GoSub READ_CHAR
   
-  If C = C2 Then Goto READ_MARKUP
+  If C = C2 Then Goto READ_MARKUP_REST
   
   Goto READ_STRING
 
@@ -162,6 +199,11 @@ ADD_RESULT:
 
   If sResult Then
     aResult.Add(sResult)
+    If sResult Begins "&" Then
+      Inc Count
+    Else If sResult Not Begins "<" Then
+      Count += String.Len(sResult)
+    Endif
     sResult = ""
   Endif
   Return

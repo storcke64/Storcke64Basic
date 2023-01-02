@@ -100,82 +100,43 @@ Static Public Sub TrimText(Text As String, W As Float, Optional H As Float) As S
   
 End
 
-Static Private Sub HtmlLeft(sHtml As String, iPos As Integer) As String
-
-  Dim sRes As String
-  Dim bMarkup As Boolean
-  Dim sCar As String
-  Dim I As Integer
-  Dim aHtml As String[]
-
-  For I = 1 To String.Len(sHtml)
-    
-    sCar = String.Mid(sHtml, I, 1)
-    
-    If sCar = "<" Then
-      bMarkup = True
-      sRes &= sCar
-      Continue
-    Else If sCar = ">" Then
-      bMarkup = False
-      sRes &= sCar
-      Continue
-    Endif
-    
-    If bMarkup Or If I <= iPos Then sRes &= sCar
-    
-  Next
-
-  aHtml = Main.SplitHTML(sRes)
-  I = 0
-  While I < aHtml.Max
-    sCar = aHtml[I]
-    If sCar Begins "<" And If sCar Ends ">" Then
-      If aHtml[I + 1] = "</" & Mid$(sCar, 2, -1) & ">" Then
-        aHtml.Remove(I, 2)
-        Continue
-      Endif
-    Endif
-    Inc I
-  Wend
-
-  Return RTrim(aHtml.Join(""))
-  
-End
-
 Static Public Sub TrimRichText(RichText As String, W As Float, Optional H As Float) As String
   
-  Dim I As Integer
-  Dim sCar As String
-  Dim bMarkup As Boolean
-  Dim iLen As Integer
-  Dim sText As String
   Dim sLeft As String
-  Dim sPrevLeft As String
+  Dim aHtml As String[]
+  Dim N As Integer
+  Dim PD As Integer
+  Dim PF As Integer
+  Dim P As Integer
+  Dim HT As Integer
   
   If Not RichText Or If W <= 0 Then Return
   If H = 0 Then H = Paint.Font.TextHeight("")
   
-  iLen = String.Len(RichText)
-  For I = 1 To iLen
-    sCar = String.Mid(RichText, I, 1)
-    If sCar = "<" Then
-      bMarkup = True
-    Else If sCar = ">" Then
-      bMarkup = False
+  aHtml = Main.SplitHTML(RichText, ByRef N)
+  
+  PD = 0
+  PF = N + 1
+  
+  Do
+    
+    P = (PD + PF) \ 2
+    If P = N Then
+      sLeft = RichText
+    Else 
+      sLeft = AddThreeDots(Main.HtmlLeft(aHtml, P))
     Endif
-    If bMarkup Then Continue
-    sPrevLeft = sLeft
-    sLeft = HtmlLeft(RichText, I)
-    If Paint.Font.RichTextHeight(AddThreeDots(sLeft), W) > H Then Break
-  Next
+    HT = Paint.Font.RichTextHeight(sLeft, W)
+    If HT > H Then
+      PF = P
+    Else
+      If PD = P Then Break
+      PD = P
+    Endif
+    
+  Loop
   
-  If I = 1 Then Return
-  If I > iLen Then Return RichText
-  
-  sText = sPrevLeft
-  If sText Then sText = AddThreeDots(sText)
-  Return sText
+  Return sLeft
   
 End
 

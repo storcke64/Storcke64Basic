@@ -1830,8 +1830,8 @@ Public Sub GridView_ColumnSize(Column As Integer)
     Next
   Endif
   
-  W += Desktop.Scale
-  If Column > 0 Then W += Desktop.Scale
+  W += $hView.Columns.Padding * 2
+  'If Column > 0 Then W += Desktop.Scale
   $hView.Columns[Column].W = W
   UpdateRenameBox
   
