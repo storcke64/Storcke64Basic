@@ -13,6 +13,7 @@ Private $iMaxFileSize As Integer
 Private $sCache As String
 Private $sFFmpeg As String
 Private $sUnzip As String
+Private $cIcon As New Collection
 
 Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
   
@@ -58,7 +59,37 @@ Private Sub IsTextFile(sPath As String) As Boolean
 
 End
 
-Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Boolean, Optional nPage As Integer)
+Private Sub PaintRoundText(sText As String, sIcon As String, hImage As Image, X As Float, Y As Float)
+
+  Dim hRect As RectF
+  Dim iSize As Integer
+  
+  Paint.Font.Size = Max(7, Min($iSize / 12, Application.Font.Size))
+  hRect = Paint.TextSize(sText)
+  hRect.W += hRect.H * 2
+  hRect.X = Max(0, X + hImage.W - hRect.W - hRect.H / 4)
+  hRect.Y = Y + hImage.H - hRect.H - hRect.H / 4
+  Paint.Rectangle(hRect.X, hRect.Y, hRect.W, hRect.H, hRect.H)
+  Paint.Background = Color.Gradient(Color.TextForeground, Color.TextBackground, 0.33)
+  Paint.Fill(True)
+  Paint.Background = Color.TextBackground
+  Paint.LineWidth = 1
+  Paint.Stroke
+
+  iSize = CInt(hRect.H * 0.7)
+  hImage = $cIcon[sIcon]
+  If Not hImage Then 
+    hImage = Image.Load("img/" & sIcon & ".png").Stretch(iSize, iSize)
+    $cIcon[sIcon] = hImage
+  Endif
+  
+  Paint.DrawImage(hImage, CInt(hRect.X + hRect.H / 2), CInt(hRect.Y + (hRect.H - iSize) / 2))
+
+  Paint.DrawText(sText, CInt(hRect.X + hRect.H / 2 + iSize + hRect.H / 4), hRect.Y, hRect.W, hRect.H, Align.Normal)
+  
+End
+
+Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Boolean, Optional nPage As Integer) As Rect
 
   Dim hIcon As Image
   Dim X As Integer
@@ -67,7 +98,6 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   Dim I As Integer
   Dim iSize As Integer
   Dim iSizeBinding As Integer
-  Dim hRect As RectF
 
   If nPage > 1 And If Not bVideo Then
     iSizeBinding = Min(Min($iSize / 8, Max(1, nPage / 512 * $iSize)), (nPage - 1))
@@ -119,46 +149,38 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
       Paint.FillRect(X + I + 1, Y + hImage.H + I, hImage.W, 1, Color.LightForeground)
     Next
     
-    If $iSize >= 64 Then
-      Paint.Font.Size = Min($iSize / 12, Application.Font.Size)
-      hRect = Paint.TextSize(CStr(nPage))
-      hRect.W += hRect.H
-      hRect.X = X + hImage.W - hRect.W - hRect.H / 4
-      hRect.Y = Y + hImage.H - hRect.H - hRect.H / 4
-      Paint.Rectangle(hRect.X, hRect.Y, hRect.W, hRect.H, hRect.H)
-      Paint.Background = Color.Gradient(Color.TextForeground, Color.TextBackground, 0.33)
-      Paint.Fill(True)
-      Paint.Background = Color.TextBackground
-      Paint.LineWidth = 1
-      Paint.Stroke
-      Paint.DrawText(CStr(nPage), hRect.X, hRect.Y, hRect.W, hRect.H, Align.Center)
-    Endif
+    If $iSize >= 64 Then PaintRoundText(CStr(nPage), "page", hImage, X, Y)
     
   Endif
   
   Paint.End
   
   Try hIcon.Save(sThumb)
+  
+  Return Rect(X, Y, hImage.W, hImage.H)
     
 End
 
-Private Sub PrintTextFile(sPath As String, sThumb As String)
+Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
 
   Dim hImage As Image
   Dim hFile As File
   Dim sLine As String
   Dim X, Y As Integer
   Dim fSize As Float
+  Dim sData As String
+  Dim iPos As Integer
+  Dim nLines As Integer
 
   If $iSize <= 16 Then Return
 
-  hImage = New Image($iSize, $iSize, Color.TextBackground)
+  hImage = New Image($iSize, $iSize, Color.Merge(Color.TextBackground, Color.TextForeground, 0.05))
   
   hFile = Open sPath
 
   Paint.Begin(hImage)
   
-  fSize = Min($iSize / 16, Desktop.Scale)
+  fSize = Min($iSize / 16, Desktop.Scale * 0.8)
   
   X = CInt(fSize) + 1
   Y = X
@@ -195,17 +217,31 @@ Private Sub PrintTextFile(sPath As String, sThumb As String)
   Paint.Rectangle(0.5, 0.5, hImage.W - 1, hImage.H - 1)
   Paint.Background = Color.LightForeground
   Paint.Stroke
-  Paint.End
+  
+  Seek #hFile, 0
+  While Not Eof(hFile)
+    sData = Read #hFile, -4096
+    iPos = 0
+    Do
+      iPos = InStr(sData, "\n", iPos + 1)
+      If iPos = 0 Then Break 
+      Inc nLines
+    Loop
+  Wend
+  
+  If $iSize >= 64 Then PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
 
   Paint.End
 
-  Close hFile
+  Close #hFile
     
   Try hImage.Save(sThumb)
-    
+  
+  Return Rect(0, 0, $iSize, $iSize)
+  
 End
 
-Private Sub PrintPdfFile(sPath As String, sThumb As String)
+Private Sub PrintPdfFile(sPath As String, sThumb As String) As Rect
 
   Dim hPdf As PdfDocument
   Dim hPage As Image
@@ -221,11 +257,11 @@ Private Sub PrintPdfFile(sPath As String, sThumb As String)
   If hPdf.Count = 0 Then Return
   
   hPage = hPdf[0].Render()
-  PrintIcon(hPage, sThumb,, hPdf.Count)
+  Return PrintIcon(hPage, sThumb,, hPdf.Count)
 
 End
 
-Private Sub PrintVideo(sPath As String, sThumb As String)
+Private Sub PrintVideo(sPath As String, sThumb As String) As Rect
 
   Dim sFile As String
   Dim hImage As Image
@@ -237,11 +273,11 @@ Private Sub PrintVideo(sPath As String, sThumb As String)
   Try hImage = Image.Load(sFile)
   Try Kill sFile
   If Error Then Return
-  PrintIcon(hImage, sThumb, True)
+  Return PrintIcon(hImage, sThumb, True)
   
 End
 
-Private Sub PrintLibreOffice(sPath As String, sThumb As String)
+Private Sub PrintLibreOffice(sPath As String, sThumb As String) As Rect
 
   Dim sData As String
   Dim hImage As Image
@@ -256,11 +292,11 @@ Private Sub PrintLibreOffice(sPath As String, sThumb As String)
   Exec [$sUnzip, "-p", sPath, "meta.xml"] To sData
   If sData Then Try nPage = CInt(Scan(sData, "*meta:page-count=\"*\"*")[1])
 
-  PrintIcon(hImage, sThumb,, nPage)
+  Return PrintIcon(hImage, sThumb,, nPage)
   
 End
 
-Private Sub PrintEPub(sPath As String, sThumb As String)
+Private Sub PrintEPub(sPath As String, sThumb As String) As Rect
 
   Dim sData As String
   Dim hImage As Image
@@ -308,7 +344,7 @@ Private Sub PrintEPub(sPath As String, sThumb As String)
   Try hImage = Image.FromString(sData)
   If Error Then Return
 
-  PrintIcon(hImage, sThumb,, 16)
+  Return PrintIcon(hImage, sThumb,, 16)
   
 End
 
@@ -327,6 +363,9 @@ Public Sub Main()
   Dim hImage As Image
   Dim hSvgImage As SvgImage
   Dim sThumb As String
+  Dim sType As String
+  Dim hRect As Rect
+  Dim sRect As String
 
   Application.Priority += 10
   
@@ -340,11 +379,16 @@ Public Sub Main()
     
     sThumb = GetThumbnailPath(sPath)
     If Exist(sThumb) Then
-      Print sFile; "\t"; sThumb
+      Print sFile; "\t"; sThumb; "\t"; 
+      Try Print File.Load(File.SetExt(sThumb, "inf"));
+      Print
       Continue
     Endif
     
-    If Main.Ext[sExt] = "image" Then
+    If sExt Ends "~" Then sExt = Left(sExt, -1)
+    sType = Main.Ext[sExt]
+    
+    If sType = "image" Then
       
       If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto NEXT_FILE
         
@@ -364,37 +408,37 @@ Public Sub Main()
           hSvgImage.Paint()
           Paint.End
           
-          PrintIcon(hImage, sThumb)
+          hRect = PrintIcon(hImage, sThumb)
         
         Endif
       
       Else
       
         Try hImage = Image.Load(sPath)
-        If Not Error Then PrintIcon(hImage, sThumb)
+        If Not Error Then hRect = PrintIcon(hImage, sThumb)
         
       Endif
     
     Else If sExt = "pdf" Then
       
       If $iMaxFileSize > 0 And If Stat(sPath).Size > $iMaxFileSize Then Goto NEXT_FILE
-      Try PrintPdfFile(sPath, sThumb)
+      hRect = PrintPdfFile(sPath, sThumb)
     
-    Else If Main.Ext[sExt] = "video" Then
+    Else If sType = "video" Then
     
-      Try PrintVideo(sPath, sThumb)
+      hRect = PrintVideo(sPath, sThumb)
       
-    Else If Main.Ext[sExt] Begins "office" And If sExt Begins "od" Then
+    Else If sType Begins "office" And If sExt Begins "od" Then
       
-      Try PrintLibreOffice(sPath, sThumb)
+      hRect = PrintLibreOffice(sPath, sThumb)
       
     Else If sExt = "epub" Then
       
-      Try PrintEPub(sPath, sThumb)
+      hRect = PrintEPub(sPath, sThumb)
     
-    Else If IsTextFile(sPath) Then
+    Else If sType Not Begins "office" And If IsTextFile(sPath) Then
       
-      Try PrintTextFile(sPath, sThumb)
+      hRect = PrintTextFile(sPath, sThumb)
         
     Endif
     
@@ -402,6 +446,12 @@ Public Sub Main()
     
     Print sFile; "\t";
     If Exist(sThumb) Then Print sThumb;
+    Print "\t";
+    If hRect Then
+      sRect = CStr(hRect.X) & "," & CStr(hRect.Y) & "," & CStr(hRect.W) & "," & CStr(hRect.H)
+      File.Save(File.SetExt(sThumb, "inf"), sRect)
+      Print sRect;
+    Endif 
     Print
     
   Next

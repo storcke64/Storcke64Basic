@@ -601,14 +601,40 @@ Private Sub StartPreview(aPreview As String[])
 
 End
 
+Private Sub PaintImageWithOutline(hImage As Image, X As Float, Y As Float, W As Integer, H As Integer)
+
+  Dim hOutline As Image
+
+  hOutline = hImage.Stretch(W, H)
+  hOutline.Brightness(1)
+  hOutline.Colorize(Color.TextBackground)
+  
+  Paint.DrawImage(hOutline, X - 1, Y - 1)
+  Paint.DrawImage(hOutline, X + 1, Y - 1)
+  Paint.DrawImage(hOutline, X + 1, Y + 1)
+  Paint.DrawImage(hOutline, X - 1, Y + 1)
+  
+  Paint.DrawImage(hImage, X, Y, W, H)
+
+End
+
 Public Sub TaskPreview_Read(Data As String)
   
-  Dim iPos As Integer
   Dim sPath As String
   Dim sPreview As String
   Dim sLine As String
+  Dim hImage As Image
+  Dim DS As Integer
+  Dim hItem As Object
+  Dim sType As String
+  Dim S As Integer
+  Dim aLine As String[]
+  Dim aRect As String[]
+  Dim hRect As Rect
   
   If Not $bShowPreview Then Return
+  
+  DS = Desktop.Scale
   
   For Each sLine In Split(Data, "\n", "", True)
   
@@ -617,12 +643,35 @@ Public Sub TaskPreview_Read(Data As String)
       Return
     Endif
     
-    iPos = InStr(sLine, "\t")
-    sPath = Left(sLine, iPos - 1)
-    sPreview = Mid$(sLine, iPos + 1)
+    aLine = Split(sLine, "\t")
+    
+    sPath = aLine[0]
+    sPreview = aLine[1]
     
     If sPreview Then
-      Try GetView()[PREFIX_FILE & sPath].Picture = Image.Load(sPreview).Picture
+      hItem = GetView()[PREFIX_FILE & sPath]
+      If hItem Then
+        Try hImage = Image.Load(sPreview)
+        If Not Error And If hItem.Picture Then
+          sType = Main.Ext[File.Ext(sPath)]
+          If sType <> "image" And If sType <> "video" Then
+            If hImage.W > DS * 8 Then
+              
+              hRect = Null
+              Try aRect = Split(aLine[2])
+              If Not Error Then Try hRect = Rect(CInt(aRect[0]), CInt(aRect[1]), CInt(aRect[2]), CInt(aRect[3]))
+              If Not hRect Then hRect = Rect(0, 0, hImage.W, hImage.H)
+              
+              Paint.Begin(hImage)
+              S = GetIconSize() \ 32
+              PaintImageWithOutline(hItem.Picture.Image, hRect.X + hRect.W - DS * 4 - S, hRect.Y + S, DS * 4, DS * 4)
+              Paint.End
+              
+            Endif
+          Endif
+          hItem.Picture = hImage.Picture
+        Endif
+      Endif
     Endif
     
     Inc $iPreviewCount
