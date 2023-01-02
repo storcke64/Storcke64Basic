@@ -1954,8 +1954,12 @@ gw = {
   
   makeShortcut: function(event)
   {
-    var shortcut = '';
+    var shortcut;
     
+    if (event.key == undefined)
+      return;
+    
+    shortcut = '';
     if (event.ctrlKey && event.key != 'Control') shortcut += 'CTRL+';
     if (event.shiftKey && event.key != 'Shift') shortcut += 'SHIFT+';
     if (event.altKey && event.key != 'Alt') shortcut += 'ALT+';
@@ -2008,7 +2012,7 @@ gw = {
     if (event.bubbles && gw.shortcuts)
     {
       var shortcut = gw.makeShortcut(event);
-      if (gw.shortcuts[shortcut])
+      if (shortcut && gw.shortcuts[shortcut])
       {
         //gw.log('shortcut -> ' + shortcut);
         gw.sendKeyPress(event, '');
