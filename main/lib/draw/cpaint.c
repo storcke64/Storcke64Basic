@@ -1069,24 +1069,30 @@ BEGIN_METHOD(Paint_Rectangle, GB_FLOAT x; GB_FLOAT y; GB_FLOAT w; GB_FLOAT h; GB
 	float h = VARG(h);
 	float r = VARGOPT(radius, 0.0);
 	
+	if (w == 0.0 || h == 0.0)
+		return;
+
+	float sw = w > 0.0 ? 1 : -1;
+	float sh = h > 0.0 ? 1 : -1;
+
 	if (r <= 0.0)
+	{
 		PAINT->Rectangle(THIS, x, y, w, h);
+	}
 	else
 	{
-		r = Min(r, Min(w, h) / 2);
+		r = Min(r, Min(fabsf(w), fabsf(h)) / 2);
 		float r2 = r * (1-0.55228475);
 
-		//PAINT->NewPath(THIS);
-		
-		PAINT->MoveTo(THIS, x + r, y);
-		PAINT->LineTo(THIS, x + w - r, y);
-		PAINT->CurveTo(THIS, x + w - r2, y, x + w, y + r2, x + w, y + r);
-		PAINT->LineTo(THIS, x + w, y + h - r);
-		PAINT->CurveTo(THIS, x + w, y + h - r2, x + w - r2, y + h, x + w - r, y + h);
-		PAINT->LineTo(THIS, x + r, y + h);
-		PAINT->CurveTo(THIS, x + r2, y + h, x, y + h - r2, x, y + h - r);
-		PAINT->LineTo(THIS, x, y + r);
-		PAINT->CurveTo(THIS, x, y + r2, x + r2, y, x + r, y);
+		PAINT->MoveTo(THIS, x + r * sw, y);
+		PAINT->LineTo(THIS, x + w - r * sw, y);
+		PAINT->CurveTo(THIS, x + w - r2 * sw, y, x + w, y + r2 * sh, x + w, y + r * sh);
+		PAINT->LineTo(THIS, x + w, y + h - r * sh);
+		PAINT->CurveTo(THIS, x + w, y + h - r2 * sh, x + w - r2 * sw, y + h, x + w - r * sw, y + h);
+		PAINT->LineTo(THIS, x + r * sw, y + h);
+		PAINT->CurveTo(THIS, x + r2 * sw, y + h, x, y + h - r2 * sh, x, y + h - r * sh);
+		PAINT->LineTo(THIS, x, y + r * sh);
+		PAINT->CurveTo(THIS, x, y + r2 * sh, x + r2 * sw, y, x + r * sw, y);
 	}
 
 	THIS->has_path = TRUE;
