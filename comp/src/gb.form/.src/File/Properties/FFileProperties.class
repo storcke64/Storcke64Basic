@@ -149,6 +149,7 @@ Private Sub RefreshPath()
       UpdateSize()
       
       lblLastModified.Text = Format(.LastModified, gb.GeneralDate)
+      lblLastAccess.Text = Format(.LastAccess, gb.GeneralDate)
       
       sAuth = .Auth
       'sAuth = Left$(sAuth, 3) & " " & Mid$(sAuth, 4, 3) & " " & Right$(sAuth, 3)

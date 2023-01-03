@@ -1,11 +1,11 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,55,59)
+  MoveScaled(0,0,55,68)
   Arrangement = Arrange.Vertical
   Spacing = True
   { tabInfo TabPanel
-    MoveScaled(1,1,52,51)
+    MoveScaled(1,1,52,60)
     Expand = True
     Arrangement = Arrange.Vertical
     Count = 4
@@ -28,7 +28,7 @@
       }
     }
     { panProperty Panel
-      MoveScaled(0,12,50,34)
+      MoveScaled(0,12,50,43)
       Expand = True
       Arrangement = Arrange.Row
       Margin = True
@@ -85,34 +85,44 @@
         Expand = True
         Alignment = Align.TopNormal
       }
-      { Label6 Label
+      { Label1 Label
         MoveScaled(1,21,18,4)
+        Alignment = Align.TopNormal
+        Text = ("Last access")
+      }
+      { lblLastAccess Label
+        MoveScaled(22,21,26,4)
+        Expand = True
+        Alignment = Align.TopNormal
+      }
+      { Label6 Label
+        MoveScaled(1,25,18,4)
         Alignment = Align.TopNormal
         Text = ("Permissions")
       }
       { lblAuth Label
-        MoveScaled(22,21,26,4)
+        MoveScaled(22,25,26,4)
         Font = Font["Monospace"]
         Expand = True
         Alignment = Align.TopNormal
       }
       { Label7 Label
-        MoveScaled(1,25,18,4)
+        MoveScaled(1,29,18,4)
         Alignment = Align.TopNormal
         Text = ("Owner")
       }
       { lblUser Label
-        MoveScaled(22,25,26,4)
+        MoveScaled(22,29,26,4)
         Expand = True
         Alignment = Align.TopNormal
       }
       { Label8 Label
-        MoveScaled(1,29,18,4)
+        MoveScaled(1,33,18,4)
         Alignment = Align.TopNormal
         Text = ("Group")
       }
       { lblGroup Label
-        MoveScaled(22,29,26,4)
+        MoveScaled(22,33,26,4)
         Expand = True
         Alignment = Align.TopNormal
       }
@@ -189,7 +199,7 @@
     Index = 0
   }
   { panClose HBox
-    MoveScaled(2,53,48,4)
+    MoveScaled(2,63,48,4)
     Visible = False
     Centered = True
     { btnClose Button

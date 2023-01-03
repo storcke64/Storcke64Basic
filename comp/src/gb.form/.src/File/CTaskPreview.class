@@ -145,10 +145,6 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   X -= 2
   Y -= 2
   
-  Paint.Rectangle(X + 1.5, Y + 1.5, hImage.W + 1, hImage.H + 1)
-  Paint.Background = Color.TextBackground
-  Paint.Stroke
-  
   Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W + 3, hImage.H + 3)
   Paint.Background = Color.LightForeground
   Paint.Stroke
