@@ -72,8 +72,6 @@ Public Sub Attach(hWindow As Window)
   
 End
 
-
-
 Public Sub Lock()
   
   $hWorkspace.Lock
@@ -91,7 +89,6 @@ End
 '   $hWorkspace.SetResizable(Window, Resizable, Grid)
 '   
 ' END
-
 
 Private Function ActiveWindow_Read() As Window
 
@@ -143,8 +140,6 @@ Public Sub _RaiseCloseAll()
   Raise CloseAll
   
 End
-
-
 
 ' Private Function ShowTitle_Read() As Boolean
 ' 
