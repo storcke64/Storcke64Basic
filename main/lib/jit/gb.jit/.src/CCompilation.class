@@ -28,7 +28,7 @@ Static Public Sub Init()
   If Not $sCompiler Then Error.Raise("Compiler not found")
 
   sFlag = Env["GB_JIT_CFLAGS"] 
-  If Not sFlag Then sFlag = "-O3 -march=native -mtune=native"
+  If Not sFlag Then sFlag = "-O2 -march=native -mtune=native"
   
   $aFlags = Split(sFlag, " ")
   

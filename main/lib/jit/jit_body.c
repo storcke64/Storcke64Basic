@@ -163,16 +163,8 @@ static void enter_function(FUNCTION *func, int index)
 static void print_catch(void)
 {
 	JIT_print("\n  } CATCH {\n\n");
-	JIT_print("  CP = (void *)%p;\n", JIT_class);
-	JIT_print("  FP = (void *)%p;\n", _func);
-	if (_has_catch || _has_finally)
-		JIT_print("  JIT.error_set_last(FALSE); \n");
-	//JIT_print("  fprintf(stderr, \"EP = %%p SP = %%p sp = %%p\\n\", EP, SP, sp);\n");
-	JIT_print("  if (SP > sp) sp = SP; else SP = sp;\n");
-	JIT_print("  LEAVE_SUPER();\n");
-	//JIT_print("  if (sp > bp) { fprintf(stderr, \"sp = %%p bp = %%p release %%d\\n\", sp, bp, sp - bp); JIT.release_many(sp, sp - bp); SP = sp = bp; }\n");
-	JIT_print("  if (sp > ssp) { JIT.release_many(sp, sp - ssp); SP = sp = ssp; }\n");
-	//JIT_print("  PP = SP;\n");
+
+	JIT_print("  sp = _jit_print_catch(psp, sp, ssp, (void *)%p, (void *)%p, %d);\n", JIT_class, _func, _has_catch || _has_finally);
 	JIT_print("  error = TRUE;\n");
 	JIT_print("\n  } END_TRY\n\n");
 	JIT_print("__FINALLY:;\n");
@@ -3710,12 +3702,7 @@ _END_TRY:
 
 	JIT_print("  *JIT.got_error = 0;\n");
 	JIT_print("  } CATCH {\n");
-	JIT_print("  if (SP > sp) sp = SP; else SP = sp;\n");
-	JIT_print("  LEAVE_SUPER();\n");
-	//JIT_print("  if (sp > EP) { fprintf(stderr, \"release try %%d\\n\", sp - EP); JIT.release_many(sp, sp - EP); SP = sp = EP; }\n");
-	JIT_print("  if (sp > EP) { JIT.release_many(sp, sp - EP); SP = sp = EP; }\n");
-	JIT_print("  *JIT.got_error = 1;\n");
-	JIT_print("  JIT.error_set_last(FALSE);\n");
+	JIT_print("  sp = _jit_end_try(psp, sp);\n");
 	JIT_print("  } END_TRY }\n");
 	JIT_print("  EP = tp;\n");
 	goto _MAIN;
