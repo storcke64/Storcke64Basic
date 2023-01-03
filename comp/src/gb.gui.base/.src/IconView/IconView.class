@@ -626,9 +626,9 @@ Public Sub ScrollArea_Arrange()
     $iGridHeight = $iIconSize + $iIconLines * Me.Font.Height + DS * 4
     
     If $iGridSize Then
-      $iGridWidth = $iGridSize * DS
+      $iGridWidth = Max($iIconSize + DS * 2, $iGridSize * DS)
     Else
-      $iGridWidth = $iIconSize + DS * 2
+      $iGridWidth = $iIconSize + DS * 4
     Endif
     $iGridWidth = Max($iGridWidth, Me.Font.Height * DS)
     
@@ -1517,7 +1517,7 @@ End
 Private Sub GridSize_Write(Value As Integer)
 
   If Value Then
-    $iGridSize = Max(Desktop.Scale * 2, Min(1024, Value))
+    $iGridSize = Max(2, Min(1024, Value))
   Else 
     $iGridSize = 0
   Endif

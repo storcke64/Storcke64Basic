@@ -11,7 +11,7 @@
 Export
 Inherits UserControl
 
-Public Const _Properties As String = "*,Padding{Range:0;256},AutoResize,Alignment{Align.*}=Normal,Border{Border.None;Plain;Sunken;Raised;Etched},BorderWidth{Range:0;256},BorderRadius{Range:0;256},BorderColor{Color},Text"
+Public Const _Properties As String = "*,Padding{Range:0;256},AutoResize,Alignment{Align.*}=Normal,Border{Border.None;Plain;Sunken;Raised;Etched},BorderWidth{Range:0;256},BorderRadius{Range:0;256},BorderColor{Color},Text,Trim"
 Public Const _DefaultEvent As String = "MouseDown"
 Public Const _DefaultSize As String = "8,3"
 Public Const _IsContainer As Boolean = False
@@ -63,6 +63,8 @@ Property BorderWidth As Integer Use $iBorderWidth
 '' ]]
 Property BorderColor As Integer Use $iBorderColor = Color.Default
 
+Property Trim As Boolean
+
 Private $iAlign As Integer = Align.Normal
 Private $hExt As RectF
 Private $bWarningTransparent As Boolean
@@ -70,6 +72,7 @@ Private $bRichText As Boolean
 
 Public _Wrap As Boolean
 Private $bLocked As Boolean
+Private $bTrim As Boolean
 
 '' Create a new Label.
 
@@ -230,13 +233,15 @@ End
 
 Public Sub UserControl_Draw()
   
-  Dim P As Integer
+  Dim P, PW As Integer
   Dim F As Integer
   Dim hExt As RectF
   Dim W As Float
   Dim X As Float
+  Dim sText As String
   
   If $iBorder Then
+    
     If $iBorder = Border.Plain Then
       
       F = GetBorderWidth()
@@ -291,16 +296,17 @@ Public Sub UserControl_Draw()
   hExt = GetExtents()
 
   P = GetPadding()
+  PW = P + Min($iBorderRadius, Me.H \ 2)
 
   If Align.IsLeft($iAlign) Then
-    X = P - hExt.X
+    X = PW - hExt.X
   Else If Align.IsRight($iAlign) Then
-    X = Me.W - hExt.W - hExt.X - P
+    X = Me.W - hExt.W - hExt.X - PW
   Else
-    X = P - Int(hExt.X + 1)
+    X = PW - Int(hExt.X + 1)
   Endif
 
-  W = Me.W - X - P - hExt.X
+  W = Me.W - X - PW - hExt.X
   
   'If Not _Wrap Then
     If Align.IsLeft($iAlign) Then
@@ -319,10 +325,14 @@ Public Sub UserControl_Draw()
     Paint.Background = Style.ForegroundOf(Me)
   Endif
 
+  sText = $sText
+  
   If $bRichText Then
-    Paint.DrawRichText($sText, X, P, W, Me.H - P * 2, $iAlign)
+    If $bTrim Then sText = Paint.TrimRichText(sText, W, Me.H - P * 2)
+    Paint.DrawRichText(sText, X, P, W, Me.H - P * 2, $iAlign)
   Else
-    Paint.DrawText($sText, X, P, W, Me.H - P * 2, $iAlign)
+    If $bTrim Then sText = Paint.TrimText(sText, W, Me.H - P * 2)
+    Paint.DrawText(sText, X, P, W, Me.H - P * 2, $iAlign)
   Endif
   
 End
@@ -397,4 +407,18 @@ Private Sub BorderColor_Write(Value As Integer)
   $iBorderColor = Value
   Me.Refresh
   
+End
+
+Private Function Trim_Read() As Boolean
+
+  Return $bTrim
+
+End
+
+Private Sub Trim_Write(Value As Boolean)
+
+  If $bTrim = Value Then Return
+  $bTrim = Value
+  Me.Refresh
+
 End
