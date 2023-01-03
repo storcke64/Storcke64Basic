@@ -46,7 +46,6 @@ Private $bAutoExt As Boolean
 Private $sLastExt As String
 Private $aUncompressFilter As String[]
 
-
 Public Sub _new(Optional bFile As Boolean)
 
   'Dim hChild As Control
@@ -839,9 +838,15 @@ End
 
 Public Sub mnuRefresh_Click()
 
+  Dim bClearCache As Boolean
+  
   DirCache[dvwChoose.Current].Clear
   dvwChoose.Reload
-  fvwChoose.Reload
+  
+  Try bClearCache = Mouse.Shift
+  Try bClearCache = bClearCache Or Key.Shift
+  
+  fvwChoose.Reload(bClearCache)
   
 End
 

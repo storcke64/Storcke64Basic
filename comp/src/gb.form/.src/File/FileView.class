@@ -124,6 +124,7 @@ Private $hBorder As Panel
 Private $hProgress As ProgressBar
 Private $bRefreshPreview As Boolean
 Private $sLastPreview As String
+Private $bIgnorePreviewCache As Boolean
 
 Static Public Sub _init()
   
@@ -587,12 +588,21 @@ End
 
 Private Sub StartPreview(aPreview As String[])
 
+  Dim sDir As String
+  
   StopPreview
   Component.Load("gb.hash")
   $hProgress.Show
   $iPreviewMax = aPreview.Count
   $iPreviewCount = 0
-  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview, File.Dir(Temp$())) As "TaskPreview"
+  
+  If $bDesktopIsLoaded Then
+    sDir = Main.GetCacheDir() &/ "gambas3"
+  Else
+    sDir = File.Dir(Temp$())
+  Endif
+  
+  $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview, sDir, $bIgnorePreviewCache) As "TaskPreview"
 
 End
 
@@ -729,9 +739,10 @@ Public Sub Refresh_Timer()
   
 End
 
-Public Sub Reload()
+Public Sub Reload(Optional ClearCache As Boolean)
   
   $bInvalidate = True
+  $bIgnorePreviewCache = ClearCache
   RefreshViewLater(True)
   
 End

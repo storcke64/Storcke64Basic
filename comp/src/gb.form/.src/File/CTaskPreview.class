@@ -14,8 +14,9 @@ Private $sCache As String
 Private $sFFmpeg As String
 Private $sUnzip As String
 Private $cIcon As New Collection
+Private $bIgnoreCache As Boolean
 
-Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String)
+Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPreview As String[], sTempDir As String, bIgnoreCache As Boolean)
   
   $sDir = sDir
   $iSize = iSize
@@ -24,6 +25,7 @@ Public Sub _new(sDir As String, iSize As Integer, iMaxFileSize As Integer, aPrev
   Preview = aPreview
   $sCache = sTempDir &/ "gb.form/thumbnails"
   Main.MkDir($sCache)
+  $bIgnoreCache = bIgnoreCache
   
 End
 
@@ -99,11 +101,13 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   Dim iSize As Integer
   Dim iSizeBinding As Integer
 
-  If nPage > 1 And If Not bVideo Then
+  If nPage < 0 Then
+    iSizeBinding = 4
+  Else If nPage > 1 Then
     iSizeBinding = Min(Min($iSize / 8, Max(1, nPage / 512 * $iSize)), (nPage - 1))
   Endif
   
-  iSize = $iSize - iSizeBinding * 2
+  iSize = $iSize - 4 - iSizeBinding * 2
 
   If hImage.W > hImage.H Then
     hImage = hImage.Stretch(iSize, (iSize * hImage.H) \ hImage.W)
@@ -111,8 +115,8 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
     hImage = hImage.Stretch((iSize * hImage.W) \ hImage.H, iSize)
   Endif
   
-  X = ($iSize - hImage.W - iSizeBinding) \ 2
-  Y = ($iSize - hImage.H - iSizeBinding) \ 2
+  X = ($iSize - hImage.W - iSizeBinding) \ 2 
+  Y = ($iSize - hImage.H - iSizeBinding) \ 2 
 
   hIcon = New Image($iSize, $iSize)
   
@@ -138,18 +142,25 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
     
   Endif
   
-  Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W - 1, hImage.H - 1)
+  X -= 2
+  Y -= 2
+  
+  Paint.Rectangle(X + 1.5, Y + 1.5, hImage.W + 1, hImage.H + 1)
+  Paint.Background = Color.TextBackground
+  Paint.Stroke
+  
+  Paint.Rectangle(X + 0.5, Y + 0.5, hImage.W + 3, hImage.H + 3)
   Paint.Background = Color.LightForeground
   Paint.Stroke
   
   If iSizeBinding Then
     
     For I = 1 To iSizeBinding Step 2
-      Paint.FillRect(X + hImage.W + I, Y + I + 1, 1, hImage.H, Color.LightForeground)
-      Paint.FillRect(X + I + 1, Y + hImage.H + I, hImage.W, 1, Color.LightForeground)
+      Paint.FillRect(X + hImage.W + 4 + I, Y + I + 1, 1, hImage.H + 4, Color.LightForeground)
+      Paint.FillRect(X + I + 1, Y + hImage.H + 4 + I, hImage.W + 4, 1, Color.LightForeground)
     Next
     
-    If $iSize >= 64 Then PaintRoundText(CStr(nPage), "page", hImage, X, Y)
+    If $iSize >= 64 And If nPage > 1 Then PaintRoundText(CStr(nPage), "page", hImage, X, Y)
     
   Endif
   
@@ -157,7 +168,7 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   
   Try hIcon.Save(sThumb)
   
-  Return Rect(X, Y, hImage.W, hImage.H)
+  Return Rect(X, Y, hImage.W + 4, hImage.H + 4)
     
 End
 
@@ -218,20 +229,29 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
   Paint.Background = Color.LightForeground
   Paint.Stroke
   
-  Seek #hFile, 0
-  While Not Eof(hFile)
-    sData = Read #hFile, -4096
-    iPos = 0
-    Do
-      iPos = InStr(sData, "\n", iPos + 1)
-      If iPos = 0 Then Break
-      Inc nLines
-    Loop
-  Wend
+  If $iSize >= 64 Then
+
+    Seek #hFile, 0
+    While Not Eof(hFile)
+      sData = Read #hFile, -4096
+      iPos = 0
+      Do
+        iPos = InStr(sData, "\n", iPos + 1)
+        If iPos = 0 Then Break
+        Inc nLines
+      Loop
+      If nLines > 100000 Then Break
+    Wend
+    
+    If sData Not Ends "\n" Then Inc nLines
   
-  If sData Not Ends "\n" Then Inc nLines
-  
-  If $iSize >= 64 Then PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
+    If nLines > 100000 Then 
+      PaintRoundText(Format(100000, ",0") & "+", "line", hImage, 0, 0)
+    Else
+      PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
+    Endif
+    
+  Endif
 
   Paint.End
 
@@ -346,7 +366,7 @@ Private Sub PrintEPub(sPath As String, sThumb As String) As Rect
   Try hImage = Image.FromString(sData)
   If Error Then Return
 
-  Return PrintIcon(hImage, sThumb,, 16)
+  Return PrintIcon(hImage, sThumb,, -1)
   
 End
 
@@ -381,10 +401,14 @@ Public Sub Main()
     
     sThumb = GetThumbnailPath(sPath)
     If Exist(sThumb) Then
-      Print sFile; "\t"; sThumb; "\t"; 
-      Try Print File.Load(File.SetExt(sThumb, "inf"));
-      Print
-      Continue
+      If $bIgnoreCache Then
+        Try Kill sThumb
+      Else
+        Print sFile; "\t"; sThumb; "\t"; 
+        Try Print File.Load(File.SetExt(sThumb, "inf"));
+        Print
+        Continue
+      Endif
     Endif
     
     If sExt Ends "~" Then sExt = Left(sExt, -1)
