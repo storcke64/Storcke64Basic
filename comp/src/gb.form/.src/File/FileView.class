@@ -596,11 +596,11 @@ Private Sub StartPreview(aPreview As String[])
   $iPreviewMax = aPreview.Count
   $iPreviewCount = 0
   
-  If $bDesktopIsLoaded Then
-    sDir = Main.GetCacheDir() &/ "gambas3"
-  Else
+  ' If $bDesktopIsLoaded Then
+  '   sDir = Main.GetCacheDir() &/ "gambas3"
+  ' Else
     sDir = File.Dir(Temp$())
-  Endif
+  ' Endif
   
   $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview, sDir, $bIgnorePreviewCache) As "TaskPreview"
 
