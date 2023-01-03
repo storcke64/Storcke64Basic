@@ -1,6 +1,6 @@
 ' Gambas module file
 
-'Class DesktopMime
+Class DesktopMime
 
 Public Ext As New Collection(gb.IgnoreCase)
 
@@ -234,12 +234,8 @@ End
 
 Public Sub Main()
 
-  Dim hPict As Picture
-  
   MakeColorMap
-  hPict = Stock["20/.places/folder-music"]
-  Debug hPict
-  
+
 End
 
 Public Sub Task_Read(sData As String)
