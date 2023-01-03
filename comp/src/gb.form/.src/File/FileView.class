@@ -1101,7 +1101,7 @@ End
 
 Private Function Settings_Read() As Variant[]
   
-  Return [3, CVariant(View_Read()), ShowHidden_Read(), $hColumnView.Settings, $aIconSize]
+  Return [3, CVariant(View_Read()), ShowHidden_Read(), $hColumnView.Settings, $aIconSize, $iMaxPreviewSize]
   
 End
 
@@ -1136,6 +1136,7 @@ Private Sub Settings_Write(Value As Variant[])
         ShowHidden_Write(Value[2])
         $hColumnView.Settings = Value[3]
         $aIconSize = Value[4]
+        If Value.Count >= 6 Then $iMaxPreviewSize = Value[5]
         
     End Select
     
