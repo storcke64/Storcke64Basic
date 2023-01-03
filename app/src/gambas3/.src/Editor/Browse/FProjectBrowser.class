@@ -5,8 +5,6 @@ Static Private $aIconSize As Integer[] = [16, 22, 32, 48, 64, 96, 128, 192, 256]
 Private $bProjectHasChanged As Boolean = True
 Private $bCut As Boolean
 
-Private $iIconSizePreview As Integer
-Private $iIconSizeNormal As Integer
 Private $iIndent As Integer
 
 Private $hView As FileView
@@ -20,17 +18,12 @@ End
 
 Public Sub Form_Open()
 
-  Settings.Read(fvwProject)
-  $iIconSizeNormal = Settings["FProjectBrowser/IconSize", 3] 
-  $iIconSizePreview = Settings["FProjectBrowser/PreviewIconSize", 3]
-  
-  btnPreview.Value = fvwProject.ShowPreview
-  btnDetail.Value = fvwProject.ShowDetailed
-  
   ReadConfig
   sldIconSize_Change
   fvwProject.SetFocus
   $hView = fvwProject
+  
+  Settings.Read(fvwProject)
   
   $bProjectHasChanged = True
   Reload
@@ -48,7 +41,7 @@ End
 Private Sub Reload()
 
   If $bProjectHasChanged Then 
-    mnuViewNormal_Click
+    mnuViewSingle_Click
     dbrProject.Root = Project.Dir
     dbrProject2.Root = Project.Dir
     SetDir(Project.Dir)
@@ -92,20 +85,16 @@ End
 Public Sub sldIconSize_Change()
 
   fvwProject.IconSize = $aIconSize[sldIconSize.Value]
-  sldIconSize.Tooltip = fvwProject.IconSize
-  If fvwProject.ShowPreview Then
-    $iIconSizePreview = sldIconSize.Value
-  Else
-    $iIconSizeNormal = sldIconSize.Value
-  Endif
-  
   fvwProject2.IconSize = fvwProject.IconSize
+  sldIconSize.Tooltip = fvwProject.IconSize
 
 End
 
 Private Sub UpdateMenu()
 
   Dim iSel As Integer
+  Dim hChild As ToolButton
+  Dim iView As Integer
 
   If Not $hView Then Return
   iSel = $hView.Selection.Count
@@ -116,9 +105,17 @@ Private Sub UpdateMenu()
   Action[".cut,.copy,.delete,.clone", Me].Enabled = iSel > 0
   Action[".rename"].Enabled = iSel = 1
   Action[".paste"].Enabled = Clipboard.Format = MMime.URI
-  Action[".view-normal"].Visible = panProject.Visible And panProject2.Visible
+  Action[".view-single"].Visible = panProject.Visible And panProject2.Visible
   Action[".view-split"].Visible = Not (panProject.Visible And panProject2.Visible)
   
+  iView = $hView.View
+  For Each hChild In panView.Children
+    If hChild.Tag = iView Then
+      hChild.Value = True
+      Break
+    Endif
+  Next
+
 End
 
 Public Sub tlbProject_Configure()
@@ -140,30 +137,30 @@ Public Sub fvwProject_Activate()
 
 End
 
-Public Sub btnPreview_Click()
-
-  Dim iIconSize As Integer
-  
-  If panProject.Visible Then fvwProject.ShowPreview = btnPreview.Value
-  If panProject2.Visible Then fvwProject2.ShowPreview = btnPreview.Value
-  'mnuShowPreview.Checked = btnPreview.Value
-
-  If btnPreview.Value Then
-    iIconSize = $iIconSizePreview
-  Else 
-    iIconSize = $iIconSizeNormal
-  Endif
-  sldIconSize.Value = iIconSize
-
-End
-
-Public Sub btnDetail_Click()
-
-  If panProject.Visible Then fvwProject.ShowDetailed = btnDetail.Value
-  If panProject2.Visible Then fvwProject2.ShowDetailed = btnDetail.Value
-  UpdateMenu
-  
-End
+' Public Sub btnPreview_Click()
+' 
+'   Dim iIconSize As Integer
+'   
+'   If panProject.Visible Then fvwProject.ShowPreview = btnPreview.Value
+'   If panProject2.Visible Then fvwProject2.ShowPreview = btnPreview.Value
+'   'mnuShowPreview.Checked = btnPreview.Value
+' 
+'   If btnPreview.Value Then
+'     iIconSize = $iIconSizePreview
+'   Else 
+'     iIconSize = $iIconSizeNormal
+'   Endif
+'   sldIconSize.Value = iIconSize
+' 
+' End
+' 
+' Public Sub btnDetail_Click()
+' 
+'   If panProject.Visible Then fvwProject.ShowDetailed = btnDetail.Value
+'   If panProject2.Visible Then fvwProject2.ShowDetailed = btnDetail.Value
+'   UpdateMenu
+'   
+' End
 
 Public Sub btnParent_Click()
 
@@ -173,8 +170,8 @@ End
 
 Public Sub btnReload_Click()
 
-  If panProject.Visible Then fvwProject.Reload
-  If panProject2.Visible Then fvwProject2.Reload
+  If panProject.Visible Then fvwProject.Reload(Mouse.Shift)
+  If panProject2.Visible Then fvwProject2.Reload(Mouse.Shift)
 
 End
 
@@ -424,8 +421,6 @@ End
 Public Sub Form_Close()
 
   Settings.Write($hView)
-  Settings["FProjectBrowser/IconSize"] = $iIconSizeNormal
-  Settings["FProjectBrowser/PreviewIconSize"] = $iIconSizePreview
 
 End
 
@@ -680,7 +675,7 @@ Private Sub GetOtherView() As FileView
 
 End
 
-Public Sub mnuViewNormal_Click()
+Public Sub mnuViewSingle_Click()
 
   If Not (panProject.Visible And panProject2.Visible) Then Return
   
@@ -789,4 +784,16 @@ Public Sub Form_Activate()
 
   Project.SetCurrentPopup(mnuPopup)
 
+End
+
+Public Sub btnView_Click()
+
+  Dim iView As Integer
+  
+  iView = Last.Tag
+  If panProject.Visible Then fvwProject.View = iView
+  If panProject2.Visible Then fvwProject2.View = iView
+  Try sldIconSize.Value = $aIconSize.Find(fvwProject.IconSize)
+  UpdateMenu
+  
 End

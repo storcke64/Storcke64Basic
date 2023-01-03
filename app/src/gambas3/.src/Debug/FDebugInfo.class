@@ -715,7 +715,7 @@ Public Sub OnProjectDebug()
   
   cmbTest.Enabled = Not Project.Running
   
-  For Each hCtrl In [btnVcAddAll, btnVcBranch, btnVcClear, btnVcCommit, btnVcRevert, btnVcUpdate]
+  For Each hCtrl In [btnVcAddAll, btnVcBranch, btnVcClear, btnVcCommit, btnVcUpdate]
     hCtrl.Enabled = Not Project.Running
   Next
   
@@ -764,12 +764,6 @@ Public Sub btnVcUpdate_Click()
 
   If Message.Question(("Do you really want to synchronize the repository?"), ("Synchronize"), ("Cancel")) = 2 Then Return
   VersionControl.Update
-
-End
-
-Public Sub btnVcRevert_Click()
-
-  VersionControl.Revert
 
 End
 

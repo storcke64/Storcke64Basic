@@ -170,12 +170,6 @@
           Text = ("Synchronize repository") & "..."
           Picture = Picture["icon:/small/download"]
         }
-        { btnVcRevert ToolButton
-          MoveScaled(40,0,9,4)
-          AutoResize = True
-          Text = ("Revert all changes") & "..."
-          Picture = Picture["icon:/small/undo"]
-        }
         { btnVcAddAll ToolButton
           MoveScaled(51,0,13,4)
           AutoResize = True
