@@ -579,7 +579,7 @@ Public Sub mnuPopup_Show()
       If sMime Then
         hProgList = DesktopFile.FromMime(sMime)
         If hProgList And If hProgList.Count Then
-          mnuEditWith.Visible = sMime
+          mnuEditWith.Visible = True
           mnuEditWith.Tag = hProgList
         Endif
       Endif
@@ -2297,15 +2297,15 @@ End
 
 Public Sub mnuEditWithProg_Click()
   
-  Dim sKey As String = Last.Parent.Tag
   Dim hProcess As Process
+  Dim hDesktopFile As DesktopFile
+  Dim sPath As String
   
-  If sKey Then
-    If CanEdit(sKey) Then
-      hProcess = Last.Tag.Run(sKey)
-      hProcess.Ignore = True
-    Endif
-  Endif
+  sPath = GetCurrent()
+  If Not sPath Then Return
+  hDesktopFile = Last.Tag
+  hProcess = hDesktopFile.Run(sPath)
+  hProcess.Ignore = True
   
 End
 
