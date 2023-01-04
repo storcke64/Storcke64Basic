@@ -98,7 +98,7 @@ static int get_type(PATTERN *pattern)
 	return type;
 }
 
-static bool is_me_last_kind(PATTERN pattern)
+static bool is_me_last_error_kind(PATTERN pattern)
 {
 	return PATTERN_is(pattern, RS_ME)
 		|| PATTERN_is(pattern, RS_SUPER)
@@ -107,6 +107,7 @@ static bool is_me_last_kind(PATTERN pattern)
 		|| PATTERN_is(pattern, RS_FALSE)
 		|| PATTERN_is(pattern, RS_PINF)
 		|| PATTERN_is(pattern, RS_MINF)
+		|| PATTERN_is(pattern, RS_ERROR)
 		|| PATTERN_is(pattern, RS_NULL);
 }
 
@@ -404,7 +405,7 @@ static void analyze(EVAL_ANALYZE *result)
 				//if (old_type != RT_OPERATOR)
 				//me = is_me_last(*pattern);
 				
-				if (is_me_last_kind(*pattern))
+				if (is_me_last_error_kind(*pattern))
 				{
 					if (old_type != RT_OPERATOR)
 						space_before = TRUE;

@@ -69,18 +69,20 @@ static char canres_car[256];
 
 enum
 {
-	GOTO_BREAK, 
-	GOTO_SPACE, 
-	GOTO_COMMENT, 
-	GOTO_STRING, 
-	GOTO_IDENT, 
-	GOTO_QUOTED_IDENT, 
+	GOTO_BREAK,
+	GOTO_SPACE,
+	GOTO_NEWLINE,
+	GOTO_COMMENT,
+	GOTO_STRING,
+	GOTO_IDENT,
+	GOTO_QUOTED_IDENT,
 	GOTO_ERROR,
 	GOTO_SHARP,
 	GOTO_NUMBER,
 	GOTO_NUMBER_OR_OPERATOR,
 	GOTO_OPERATOR
 };
+
 
 static void READ_init(void)
 {
@@ -94,12 +96,13 @@ static void READ_init(void)
 		for (i = 0; i < 255; i++)
 		{
 			ident_car[i] = (i != 0) && ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9') || strchr("$_?@", i));
-			//READ_digit_car[i] = (i >= '0' && i <= '9');
 			noop_car[i] = ident_car[i] || (i >= '0' && i <= '9') || i <= ' ';
 			canres_car[i] = (i != ':') && (i != '.') && (i != '!') && (i != '(');
 			
 			if (i == 0)
 				first_car[i] = GOTO_BREAK;
+			else if (i == '\n')
+				first_car[i] = GOTO_NEWLINE;
 			else if (i <= ' ')
 				first_car[i] = GOTO_SPACE;
 			else if (i == '\'')
@@ -499,7 +502,9 @@ static void add_end()
 	comp->line++;
 }
 
+
 #include "gbc_read_temp.h"
+
 
 static void add_quoted_identifier(void)
 {
@@ -509,7 +514,7 @@ static void add_quoted_identifier(void)
 	int index;
 	int type;
 	PATTERN last_pattern;
-	
+
 	last_pattern = get_last_pattern();
 
 	type = RT_IDENTIFIER;
@@ -751,10 +756,11 @@ static void add_command()
 
 void READ_do(void)
 {
-	static void *jump_char[] =
+	static const void *jump_char[12] =
 	{
 		&&__BREAK, 
 		&&__SPACE, 
+		&&__NEWLINE,
 		&&__COMMENT, 
 		&&__STRING, 
 		&&__IDENT, 
@@ -795,12 +801,14 @@ void READ_do(void)
 	__SPACE:
 
 		source_ptr++;
-		if (car == '\n')
-		{
-			add_newline();
-			_begin_line = TRUE;
-			_line_start = source_ptr;
-		}
+		continue;
+
+	__NEWLINE:
+
+		source_ptr++;
+		add_newline();
+		_begin_line = TRUE;
+		_line_start = source_ptr;
 		continue;
 
 	__COMMENT:

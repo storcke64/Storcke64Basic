@@ -33,7 +33,6 @@
 #include "eval_read.h"
 
 //#define DEBUG 1
-//#define ENABLE_BIG_COMMENT
 
 PUBLIC const char *READ_source_ptr;
 #define source_ptr READ_source_ptr
@@ -60,11 +59,13 @@ enum
 	GOTO_STRING,
 	GOTO_IDENT,
 	GOTO_QUOTED_IDENT,
-	GOTO_NUMBER,
 	GOTO_ERROR,
 	GOTO_SHARP,
-	GOTO_OTHER
+	GOTO_NUMBER,
+	GOTO_NUMBER_OR_OPERATOR,
+	GOTO_OPERATOR
 };
+
 
 static void READ_init(void)
 {
@@ -75,7 +76,7 @@ static void READ_init(void)
 		for (i = 0; i < 255; i++)
 		{
 			ident_car[i] = (i != 0) && ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9') || strchr("$_?@", i));
-			noop_car[i] = ident_car[i] || isdigit(i) || i <= ' ';
+			noop_car[i] = ident_car[i] || (i >= '0' && i <= '9') || i <= ' ';
 			canres_car[i] = (i != ':') && (i != '.') && (i != '!') && (i != '(');
 
 			if (i == 0)
@@ -98,8 +99,10 @@ static void READ_init(void)
 				first_car[i] = GOTO_NUMBER;
 			else if (i >= 127)
 				first_car[i] = GOTO_ERROR;
+			else if (i == '+' || i == '-' || i == '&')
+				first_car[i] = GOTO_NUMBER_OR_OPERATOR;
 			else
-				first_car[i] = GOTO_OTHER;
+				first_car[i] = GOTO_OPERATOR;
 		}
 
 		is_init = TRUE;
@@ -297,246 +300,6 @@ static void add_end()
 
 #include "gbc_read_temp.h"
 
-#if 0
-static void add_identifier()
-{
-	unsigned char car;
-	const char *start;
-	int len;
-	int index;
-	int type;
-	int flag;
-	PATTERN last_pattern, last_last_pattern;
-	bool not_first;
-	bool can_be_reserved;
-	bool last_identifier, last_type, last_class, last_pub;
-	bool exist = TRUE;
-
-	last_pattern = get_last_pattern();
-
-	if (PATTERN_is_reserved(last_pattern))
-	{
-		flag = RES_get_ident_flag(PATTERN_index(last_pattern));
-		if (flag & RSF_PREV)
-		{
-			last_last_pattern = get_last_last_pattern();
-			if (PATTERN_is_reserved(last_last_pattern))
-				flag = RES_get_ident_flag(PATTERN_index(last_last_pattern));
-			else
-				flag = 0;
-		}
-	}
-	else
-		flag = 0;
-
-	type = RT_IDENTIFIER;
-
-	last_class = (flag & RSF_CLASS) != 0;
-	last_type = (flag & RSF_AS) != 0;
-
-	start = source_ptr;
-	for(;;)
-	{
-		source_ptr++;
-		if (!ident_car[get_char()])
-			break;
-	}
-	
-	if (last_type && get_char() == ':')
-	{
-		for(;;)
-		{
-			source_ptr++;
-			if (!ident_car[get_char()])
-				break;
-		}
-	}
-	
-	len = source_ptr - start;
-
-	if (last_type)
-	{
-		source_ptr--;
-		
-		for(;;)
-		{
-			source_ptr++;
-			len++;
-			car = get_char();
-			if (car == '[')
-			{
-				car = get_char_offset(1);
-				if (car == ']')
-				{
-					source_ptr++;
-					len++;
-					index = TABLE_add_symbol(EVAL->table, start, len - 2);
-					continue;
-				}
-			}
-
-			len--;
-			break;
-		}
-	}
-
-	not_first = (flag & RSF_POINT) != 0;
-
-	car = get_char();
-
-	//can_be_reserved = !not_first && TABLE_find_symbol(COMP_res_table, &comp->source[start], len, NULL, &index);
-
-	can_be_reserved = !not_first && !last_class;
-
-	if (can_be_reserved)
-	{
-		index = RESERVED_find_word(start, len);
-		can_be_reserved = (index >= 0);
-	}
-
-	if (can_be_reserved)
-	{
-		static void *jump[] = {
-			&&__OTHERS, &&__ME_NEW_LAST_SUPER, &&__CLASS, &&__STRUCT, &&__SUB_PROCEDURE_FUNCTION, &&__CONST_EXTERN, &&__ENUM, &&__READ, &&__DATATYPE
-		};
-
-		last_identifier = (flag & RSF_IDENT) != 0;
-		last_pub = (flag & RSF_PUB) != 0;
-
-		goto *jump[RES_get_read_switch(index)];
-
-		do
-		{
-		__ME_NEW_LAST_SUPER:
-			can_be_reserved = !last_identifier;
-			break;
-
-		__CLASS:
-			can_be_reserved = canres_car[car] && (_begin_line || PATTERN_is(last_pattern, RS_END));
-			break;
-
-		__STRUCT:
-			can_be_reserved = canres_car[car] && (_begin_line || last_pub || PATTERN_is(last_pattern, RS_AS) || PATTERN_is(last_pattern, RS_END) || PATTERN_is(last_pattern, RS_NEW));
-			break;
-
-		__SUB_PROCEDURE_FUNCTION:
-			can_be_reserved = canres_car[car] && (_begin_line || last_pub || PATTERN_is(last_pattern, RS_END));
-			break;
-
-		__CONST_EXTERN:
-			can_be_reserved = canres_car[car] && (_begin_line || last_pub);
-			break;
-
-		__ENUM:
-			can_be_reserved = canres_car[car] && (_begin_line || last_pub);
-			break;
-
-		__READ:
-			can_be_reserved = canres_car[car] && (!last_identifier || PATTERN_is(last_pattern, RS_PROPERTY));
-			break;
-
-		__DATATYPE:
-			if (car == '[' && get_char_offset(1) == ']')
-			{
-				len += 2;
-				source_ptr += 2;
-				can_be_reserved = FALSE;
-			}
-			else
-			{
-				if (last_type || PATTERN_is(last_pattern, RS_OPEN))
-					can_be_reserved = TRUE;
-				else
-					can_be_reserved = FALSE;
-			}
-			break;
-
-		__OTHERS:
-			if (last_type || last_identifier || (PATTERN_is(last_pattern, RS_LBRA) && car == ')' && PATTERN_is_reserved(get_last_last_pattern())))
-				can_be_reserved = FALSE;
-			else
-				can_be_reserved = canres_car[car];
-			break;
-		}
-		while (0);
-	}
-
-	if (can_be_reserved)
-	{
-		type = RT_RESERVED;
-		goto __ADD_PATTERN;
-	}
-
-	if ((flag == 0) && car != '.' && car != '!')
-	{
-		index = RESERVED_find_subr(start, len);
-		if (index >= 0)
-		{
-			if (COMP_subr_info[index].min_param == 0 || car == '(')
-			{
-				type = RT_SUBR;
-
-				if (EVAL->custom)
-				{
-					GB_FUNCTION func;
-					GB_VALUE *ret;
-
-					if (!GB.GetFunction(&func, (void *)GB.GetClass(EVAL->parent), "IsSubr", NULL, NULL))
-					{
-						GB.Push(1, GB_T_STRING, start, len);
-						ret = GB.Call(&func, 1, FALSE);
-						if (!ret->_boolean.value)
-						{
-							exist = TABLE_add_symbol_exist(EVAL->table, start, len, &index);
-							type = RT_IDENTIFIER;
-						}
-					}
-				}
-
-				goto __ADD_PATTERN;
-			}
-		}
-	}
-
-	if (last_type)
-		type = RT_CLASS;
-
-	/*if (flag & RSF_EVENT)
-	{
-		start--;
-		len++;
-		*((char *)start) = ':';
-	}*/
-
-	if (!EVAL->analyze && PATTERN_is(last_pattern, RS_EXCL))
-	{
-		index = TABLE_add_symbol(EVAL->string, start, len);
-		type = RT_STRING;
-	}
-	else
-	{
-		exist = TABLE_add_symbol_exist(EVAL->table, start, len, &index);
-	}
-
-__ADD_PATTERN:
-
-	if (EVAL->custom && !exist)
-	{
-		GB_FUNCTION func;
-		GB_VALUE *ret;
-
-		if (!GB.GetFunction(&func, (void *)GB.GetClass(EVAL->parent), "IsIdentifier", NULL, NULL))
-		{
-			GB.Push(1, GB_T_STRING, start, len);
-			ret = GB.Call(&func, 1, FALSE);
-			if (!ret->_boolean.value)
-				THROW("Unknown symbol");
-		}
-	}
-
-	add_pattern(type, index);
-}
-#endif
 
 static void add_quoted_identifier(void)
 {
@@ -548,7 +311,7 @@ static void add_quoted_identifier(void)
 	PATTERN last_pattern;
 
 	last_pattern = get_last_pattern();
-	
+
 	type = RT_IDENTIFIER;
 
 	start = source_ptr;
@@ -773,78 +536,6 @@ static void add_string()
 	source_ptr -= newline;
 }
 
-#if ENABLE_BIG_COMMENT
-static void add_big_comment()
-{
-	unsigned char car;
-	const char *start;
-	int len;
-	int index;
-	int type;
-	//bool space = FALSE;
-
-	start = source_ptr;
-	len = 0;
-	EVAL->comment = TRUE;
-
-	/*for(;;)
-	{
-		if (start == EVAL->source)
-			break;
-
-		start--;
-		car = *start;
-		if (car == '\n')
-			break;
-
-		if (car > ' ')
-		{
-			start++;
-			space = TRUE;
-			break;
-		}
-		len++;
-	}
-
-	if (!space)
-	{
-		start = source_ptr;
-		len = 1;
-	}*/
-
-	for(;;)
-	{
-		car = get_char();
-		if (car == 0)
-			break;
-
-		/*if (car == '\n')
-		{
-			TABLE_add_symbol(EVAL->string, start, len, NULL, &index);
-			type = RT_COMMENT;
-			add_pattern(type, index);
-			add_newline();
-			len = 1;
-			start = source_ptr + 1;
-			continue;
-		}*/
-
-		if (car == '*' && get_char_offset(1) == '/')
-		{
-			source_ptr += 2;
-			len += 2;
-			EVAL->comment = FALSE;
-			break;
-		}
-		len++;
-		source_ptr++;
-	}
-
-	index = TABLE_add_symbol(EVAL->string, start, len);
-	type = RT_COMMENT;
-	add_pattern(type, index);
-}
-#endif
 
 static void add_comment()
 {
@@ -934,7 +625,7 @@ static void add_spaces()
 
 PUBLIC void EVAL_read(void)
 {
-	static void *jump_char[11] =
+	static const void *jump_char[12] =
 	{
 		&&__BREAK,
 		&&__SPACE,
@@ -943,10 +634,11 @@ PUBLIC void EVAL_read(void)
 		&&__STRING,
 		&&__IDENT,
 		&&__QUOTED_IDENT,
-		&&__NUMBER,
 		&&__ERROR,
 		&&__SHARP,
-		&&__OTHER
+		&&__NUMBER,
+		&&__NUMBER_OR_OPERATOR,
+		&&__OPERATOR
 	};
 
 	unsigned char car;
@@ -955,11 +647,6 @@ PUBLIC void EVAL_read(void)
 
 	source_ptr = EVAL->source;
 	_begin_line = TRUE;
-
-#if ENABLE_BIG_COMMENT
-	if (EVAL->comment)
-		goto __BIG_COMMENT;
-#endif
 
 	for(;;)
 	{
@@ -1026,12 +713,6 @@ PUBLIC void EVAL_read(void)
 		_begin_line = FALSE;
 		continue;
 
-	__NUMBER:
-
-		add_number();
-		_begin_line = FALSE;
-		continue;
-
 	__SHARP:
 
 		if (_begin_line)
@@ -1044,48 +725,31 @@ PUBLIC void EVAL_read(void)
 			continue;
 		}
 
-	__OTHER:
-
-#if ENABLE_BIG_COMMENT
-		if (car == '/' && get_char_offset(1) == '*')
-			goto __BIG_COMMENT;
-#endif
+	__NUMBER_OR_OPERATOR:
 
 		if (add_number())
-			add_operator();
+			goto __OPERATOR;
 
 		_begin_line = FALSE;
 		continue;
 
-#if ENABLE_BIG_COMMENT
-	__BIG_COMMENT:
+	__NUMBER:
 
-		if (EVAL->analyze)
-			add_big_comment();
-		else
-		{
-			for(;;)
-			{
-				car = get_char();
-				if (car == 0)
-					break;
-				if (car == '*' && get_char_offset(1) == '/')
-				{
-					source_ptr += 2;
-					break;
-				}
-				if (car == '\n')
-					add_newline();
-				source_ptr++;
-			}
-		}
-
+		add_number();
 		_begin_line = FALSE;
 		continue;
-#endif
+
+	__OPERATOR:
+
+		add_operator();
+		_begin_line = FALSE;
+		continue;
 	}
 
 __BREAK:
+
+	// We add end markers to simplify the compiler job, when it needs to look
+	// at many patterns in one shot.
 
 	add_end();
 	add_end();
