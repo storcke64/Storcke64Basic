@@ -69,7 +69,6 @@ typedef
 		GB_VALUE **sp;
 		JIT_CONTEXT *exec;
 		GB_VALUE *ret;
-		bool *exec_debug;
 		GB_VALUE **exec_super;
 		void (*debug)(const char *fmt, ...);
 		JIT_PCODE *(*get_code)(void *func);
@@ -96,7 +95,7 @@ typedef
 		void *error_handler;
 		void (*error_reset)(void *);
 		void (*error_set_last)(bool);
-		bool *got_error;
+		void (*set_got_error)(bool);
 		void **event_last;
 		void (*push_complex)(void);
 		void (*push_vargs)(void);

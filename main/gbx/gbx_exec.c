@@ -56,8 +56,6 @@ VALUE *EXEC_super = NULL; // SUPER was used for this stack pointer
 CENUM *EXEC_enum; // Current iterator
 
 EXEC_FLAG FLAG = { 0 };
-bool EXEC_debug = FALSE; // debugging mode
-bool EXEC_got_error = FALSE;
 
 const char *EXEC_profile_path = NULL; // profile file path
 const char *EXEC_fifo_name = NULL; // fifo name
@@ -2056,3 +2054,7 @@ void EXEC_drop_vargs(void)
 	PC[-1] -= nargs;
 }
 
+void EXEC_set_got_error(bool err)
+{
+	EXEC_got_error = err;
+}

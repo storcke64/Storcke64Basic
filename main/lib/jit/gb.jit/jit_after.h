@@ -15,7 +15,7 @@ static VALUE *_jit_end_try(VALUE **psp, VALUE *sp)
   if (SP > sp) sp = SP; else SP = sp;
   LEAVE_SUPER();
   if (sp > EP) { JIT.release_many(sp, sp - EP); SP = sp = EP; }
-  *JIT.got_error = 1;
+  JIT.set_got_error(1);
   JIT.error_set_last(FALSE);
   return sp;
 }

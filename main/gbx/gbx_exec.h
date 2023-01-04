@@ -51,6 +51,8 @@ typedef
 
 typedef
 	struct {
+		unsigned debug : 1;            // running in debugging mode
+		unsigned got_error : 1;        // if a native function has returned an error
 		unsigned debug_inside : 1;     // debug inside components
 		unsigned debug_hold : 1;       // hold execution at program end
 		unsigned task : 1;             // I am a background task
@@ -60,7 +62,7 @@ typedef
 		unsigned arch : 1;             // executing an archive
 		unsigned fifo : 1;             // debugging through a fifo
 		unsigned keep_library : 1;     // do not unload libraries
-		unsigned main_hook_done : 1;
+		unsigned main_hook_done : 1;   // the main hook has been run
 		unsigned break_on_error : 1;   // if we must break into the debugger as soon as there is an error.
 		unsigned in_event_loop : 1;    // if we are in the event loop
 		unsigned check_overflow : 1;   // if we should check for overflow
@@ -115,10 +117,9 @@ extern VALUE RET;
 
 extern VALUE *EXEC_super;
 
+/*
 extern bool EXEC_debug;
 extern bool EXEC_got_error;
-
-/*
 extern bool EXEC_debug_inside;
 extern bool EXEC_debug_hold;
 extern bool EXEC_task;
@@ -158,6 +159,8 @@ extern const void *EXEC_subr_table[];
 
 #endif
 
+#define EXEC_debug FLAG.debug
+#define EXEC_got_error FLAG.got_error
 #define EXEC_debug_inside FLAG.debug_inside
 #define EXEC_profile FLAG.profile
 #define EXEC_fifo FLAG.fifo
@@ -433,5 +436,7 @@ void EXEC_quit(ushort code);
 
 void EXEC_push_array(ushort code);
 void EXEC_pop_array(ushort code);
+
+void EXEC_set_got_error(bool err);
 
 #endif /* */

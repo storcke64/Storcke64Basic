@@ -496,3 +496,5 @@ void JIT_add_string_global(char **pstr, GB_STRING val)
 	
 	if (val.type == T_STRING) STRING_unref(&val.value.addr);
 }
+
+

@@ -3700,7 +3700,7 @@ _TRY:
 	
 _END_TRY:
 
-	JIT_print("  *JIT.got_error = 0;\n");
+	JIT_print("  JIT.set_got_error(0);\n");
 	JIT_print("  } CATCH {\n");
 	JIT_print("  sp = _jit_end_try(psp, sp);\n");
 	JIT_print("  } END_TRY }\n");
