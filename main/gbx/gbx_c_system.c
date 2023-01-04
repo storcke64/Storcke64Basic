@@ -39,6 +39,7 @@
 #include "gb_common_case.h"
 #include "gb_system.h"
 #include "gb_error.h"
+#include "gb_overflow.h"
 #include "gbx_api.h"
 #include "gbx_class.h"
 #include "gbx_date.h"
@@ -350,6 +351,27 @@ BEGIN_PROPERTY(System_Cores)
 END_PROPERTY
 
 
+BEGIN_PROPERTY(System_IgnoreOverflow)
+
+#if DO_NOT_CHECK_OVERFLOW
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(TRUE);
+	else
+		GB_Error("Overflow detection is not supported on this system");
+
+#else
+
+	if (READ_PROPERTY)
+		GB_ReturnBoolean(!EXEC_check_overflow);
+	else
+		EXEC_check_overflow = !VPROP(GB_BOOLEAN);
+
+#endif
+
+END_PROPERTY
+
+
 //-------------------------------------------------------------------------
 
 BEGIN_PROPERTY(Jit_Time)
@@ -398,6 +420,7 @@ GB_DESC NATIVE_System[] =
 	GB_STATIC_PROPERTY("Shell", "s", System_Shell),
 	GB_STATIC_PROPERTY("Profile", "b", System_Profile),
 	GB_STATIC_PROPERTY("Trace", "b", System_Trace),
+	GB_STATIC_PROPERTY("IgnoreOverflow", "b", System_IgnoreOverflow),
 
 	GB_STATIC_PROPERTY_READ("RightToLeft", "b", System_RightToLeft),
 	GB_STATIC_PROPERTY_READ("Charset", "s", System_Charset),

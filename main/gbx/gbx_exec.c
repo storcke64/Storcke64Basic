@@ -25,6 +25,7 @@
 
 #include "gb_common.h"
 #include "gb_error.h"
+#include "gb_overflow.h"
 #include "gbx_type.h"
 
 #include <unistd.h>
@@ -52,8 +53,11 @@ VALUE *SP = NULL; // Stack pointer
 VALUE TEMP; // Temporary storage or return value of a native function
 VALUE RET; // Return value of a gambas function
 VALUE *EXEC_super = NULL; // SUPER was used for this stack pointer
-bool EXEC_big_endian; // CPU endianness
 CENUM *EXEC_enum; // Current iterator
+
+EXEC_FLAG FLAG = { 0 };
+bool EXEC_debug = FALSE; // debugging mode
+bool EXEC_got_error = FALSE;
 
 const char *EXEC_profile_path = NULL; // profile file path
 const char *EXEC_fifo_name = NULL; // fifo name
@@ -62,7 +66,9 @@ EXEC_GLOBAL EXEC;
 uint64_t EXEC_byref = 0;
 
 unsigned char EXEC_quit_value = 0; // interpreter return value
-bool EXEC_debug = FALSE; // debugging mode
+
+#if 0
+bool EXEC_big_endian; // CPU endianness
 bool EXEC_debug_inside = FALSE; // debug inside components
 bool EXEC_debug_hold = FALSE; // hold execution at program end
 bool EXEC_task = FALSE; // I am a background task
@@ -72,11 +78,14 @@ bool EXEC_trace = FALSE; // tracing mode
 bool EXEC_arch = FALSE; // executing an archive
 bool EXEC_fifo = FALSE; // debugging through a fifo
 bool EXEC_keep_library = FALSE; // do not unload libraries
-bool EXEC_string_add = FALSE; // next '&' operator is done for a '&='
 bool EXEC_main_hook_done = FALSE;
-bool EXEC_got_error = FALSE;
 bool EXEC_break_on_error = FALSE; // if we must break into the debugger as soon as there is an error.
 bool EXEC_in_event_loop = FALSE; // if we are in the event loop
+#if DO_NOT_CHECK_OVERFLOW
+#else
+bool EXEC_check_overflow = TRUE; // if we should check for overflow
+#endif
+#endif
 
 const char EXEC_should_borrow[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 2, 0, 0, 1 };
 
@@ -103,10 +112,12 @@ void EXEC_init(void)
 	test._string[2] = 0xCC;
 	test._string[3] = 0xDD;
 
-	EXEC_big_endian = test._int == 0xAABBCCDDL;
+	FLAG.big_endian = test._int == 0xAABBCCDDL;
 
-	if (EXEC_big_endian)
-		ERROR_warning("CPU is big endian");
+	/*if (EXEC_big_endian)
+		ERROR_warning("CPU is big endian");*/
+
+	FLAG.check_overflow = TRUE;
 
 	DATE_init();
 

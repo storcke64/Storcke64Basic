@@ -26,6 +26,7 @@
 
 #include "gb_alloc.h"
 #include "gb_error.h"
+#include "gb_overflow.h"
 #include "gbx_class.h"
 #include "gbx_value.h"
 #include "gb_pcode.h"
@@ -47,7 +48,26 @@ typedef
 	
 typedef
 	void (*EXEC_FUNC_CODE_SP)(ushort, VALUE *);
-	
+
+typedef
+	struct {
+		unsigned debug_inside : 1;     // debug inside components
+		unsigned debug_hold : 1;       // hold execution at program end
+		unsigned task : 1;             // I am a background task
+		unsigned profile : 1;          // profiling mode
+		unsigned profile_instr : 1;    // profiling mode at instruction level
+		unsigned trace : 1;            // tracing mode
+		unsigned arch : 1;             // executing an archive
+		unsigned fifo : 1;             // debugging through a fifo
+		unsigned keep_library : 1;     // do not unload libraries
+		unsigned main_hook_done : 1;
+		unsigned break_on_error : 1;   // if we must break into the debugger as soon as there is an error.
+		unsigned in_event_loop : 1;    // if we are in the event loop
+		unsigned check_overflow : 1;   // if we should check for overflow
+		unsigned big_endian : 1;       // if the CPU is big endian
+	}
+	EXEC_FLAG;
+
 typedef
 	struct {
 		CLASS *class;
@@ -96,28 +116,34 @@ extern VALUE RET;
 extern VALUE *EXEC_super;
 
 extern bool EXEC_debug;
+extern bool EXEC_got_error;
+
+/*
 extern bool EXEC_debug_inside;
 extern bool EXEC_debug_hold;
 extern bool EXEC_task;
 extern bool EXEC_profile;
 extern bool EXEC_trace;
-extern const char *EXEC_profile_path;
 extern bool EXEC_profile_instr;
 extern bool EXEC_arch;
 extern bool EXEC_fifo;
-extern const char *EXEC_fifo_name;
 extern bool EXEC_keep_library;
-extern bool EXEC_string_add;
 extern bool EXEC_break_on_error;
 extern bool EXEC_in_event_loop;
+#if DO_NOT_CHECK_OVERFLOW
+#else
+extern bool EXEC_check_overflow;
+#endif
+extern bool EXEC_big_endian;
+extern bool EXEC_main_hook_done;
+*/
+
+extern const char *EXEC_fifo_name;
+extern const char *EXEC_profile_path;
 
 extern EXEC_HOOK EXEC_Hook;
 
 extern CENUM *EXEC_enum;
-
-extern bool EXEC_big_endian;
-extern bool EXEC_main_hook_done;
-extern bool EXEC_got_error;
 
 extern const char EXEC_should_borrow[];
 
@@ -126,10 +152,25 @@ extern char EXEC_unknown_nparam;
 extern uchar EXEC_quit_value;
 
 extern EXEC_GLOBAL EXEC;
+extern EXEC_FLAG FLAG;
 
 extern const void *EXEC_subr_table[];
 
 #endif
+
+#define EXEC_debug_inside FLAG.debug_inside
+#define EXEC_profile FLAG.profile
+#define EXEC_fifo FLAG.fifo
+#define EXEC_arch FLAG.arch
+#define EXEC_profile_instr FLAG.profile_instr
+#define EXEC_trace FLAG.trace
+#define EXEC_big_endian FLAG.big_endian
+#define EXEC_break_on_error FLAG.break_on_error
+#define EXEC_debug_hold FLAG.debug_hold
+#define EXEC_task FLAG.task
+#define EXEC_keep_library FLAG.keep_library
+#define EXEC_main_hook_done FLAG.main_hook_done
+#define EXEC_check_overflow FLAG.check_overflow
 
 // Local variables base pointer
 #define BP EXEC_current.bp

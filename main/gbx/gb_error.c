@@ -582,7 +582,7 @@ void THROW_MATH(bool zero)
 	THROW(zero ? E_ZERO : E_MATH);
 }
 
-void THROW_OVERFLOW(void)
+void THROW_OVERFLOW_(void)
 {
 	THROW(E_OVERFLOW);
 }
