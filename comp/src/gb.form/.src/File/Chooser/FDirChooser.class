@@ -750,6 +750,8 @@ Public Sub GetSettings() As Variant[]
 
   Dim sBookmark As String
   
+  'Debug String[](splChoose.Layout).Join()
+  
   Try sBookmark = $hCurrentBookmark.Name
   
   If Not $bFile Then 
@@ -1805,7 +1807,8 @@ End
 
 Public Sub UpdateBookmark()
   
-  '''FillMenu
+  FillMenu
+  UpdateBookmarkButton
   
 End
 
