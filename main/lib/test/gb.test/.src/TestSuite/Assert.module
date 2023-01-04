@@ -311,7 +311,7 @@ Public Sub Noterror(Optional Description As String) As Boolean
 
     Dim bRes As Boolean
 
-    bRes = Ok(Not Error , Description)
+    bRes = Ok(Not Error, Description)
     If Not bRes Then
         Test.Note(Subst$(("Error was: &1 (code: &2) at &3"), Error.Text, Error.Code, Error.Where))
     Endif
