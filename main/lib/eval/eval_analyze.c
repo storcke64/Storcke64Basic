@@ -401,15 +401,14 @@ static void analyze(EVAL_ANALYZE *result)
 		switch(type)
 		{
 			case RT_RESERVED:
-				//state = Keyword;
-				//if (old_type != RT_OPERATOR)
-				//me = is_me_last(*pattern);
 				
 				if (is_me_last_error_kind(*pattern))
 				{
 					if (old_type != RT_OPERATOR)
 						space_before = TRUE;
 					next_type = RT_IDENTIFIER;
+					if (PATTERN_is(*pattern, RS_ERROR) && old_type == RT_END)
+						space_after = TRUE;
 				}
 				else if (is_optional_kind(*pattern))
 				{
