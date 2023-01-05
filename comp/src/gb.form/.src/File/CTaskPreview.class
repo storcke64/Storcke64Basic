@@ -178,6 +178,8 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
   Dim sData As String
   Dim iPos As Integer
   Dim nLines As Integer
+  Dim T As Float
+  Dim nLinesMax As Integer
 
   If $iSize <= 16 Then Return
 
@@ -227,6 +229,9 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
   
   If $iSize >= 64 Then
 
+    T = Timer
+    nLinesMax = 10000
+
     Seek #hFile, 0
     While Not Eof(hFile)
       sData = Read #hFile, -4096
@@ -236,13 +241,20 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
         If iPos = 0 Then Break
         Inc nLines
       Loop
-      If nLines > 100000 Then Break
+      
+      If nLines > nLinesMax Then
+        If nLinesMax = 100000 Or If Timer - T >= 0.25 Then
+          Break 
+        Else 
+          nLinesMax += 10000
+        Endif
+      Endif
     Wend
     
     If sData Not Ends "\n" Then Inc nLines
   
-    If nLines > 100000 Then 
-      PaintRoundText(Format(100000, ",0") & "+", "line", hImage, 0, 0)
+    If nLines > nLinesMax Then 
+      PaintRoundText(Format(nLinesMax, ",0") & "+", "line", hImage, 0, 0)
     Else
       PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
     Endif
