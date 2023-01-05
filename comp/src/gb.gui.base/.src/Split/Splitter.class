@@ -224,7 +224,7 @@ Private Sub DoLayout()
       Try fTotalWeight += $cWeight[Object.Address(hChild)]
     Next
   
-    WMax = If($bVertical, $hPanel.H, $hPanel.W) - aChildren.Max * SW
+    WMax = If($bVertical, Me.H, Me.W) - aChildren.Max * SW
     
     For I = 0 To aChildren.Max
       
@@ -311,7 +311,7 @@ Private Sub Layout_Write(Value As Integer[])
   Dim hChild As Control
   Dim aChildren As Control[]
   
-  'Debug String[](Value).Join(",")
+  'Debug Me.Name;; String[](Value).Join()
   
   ' Value = Value.Copy()
   ' iTotal = NormalizeLayout(Value)
