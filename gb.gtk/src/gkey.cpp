@@ -108,29 +108,29 @@ int gKey::state()
 		return _event.state;
 }
 
-bool gKey::alt()
+bool gKey::shift()
 {
-	return state() & GDK_MOD1_MASK; // || _event.keyval == GDK_Alt_L || _event.keyval == GDK_Alt_R;
+	return state() & GDK_SHIFT_MASK;
 }
 
 bool gKey::control()
 {
-	return state() & GDK_CONTROL_MASK; // || _event.keyval == GDK_Control_L || _event.keyval == GDK_Control_R;
+	return state() & GDK_CONTROL_MASK;
+}
+
+bool gKey::alt()
+{
+	return state() & GDK_MOD1_MASK;
 }
 
 bool gKey::meta()
 {
-	return state() & GDK_META_MASK; // || _event.keyval == GDK_Meta_L || _event.keyval == GDK_Meta_R;
+	return state() & GDK_META_MASK;
 }
 
 bool gKey::normal()
 {
 	return (state() & (GDK_MOD1_MASK | GDK_CONTROL_MASK | GDK_META_MASK | GDK_SHIFT_MASK)) == 0;
-}
-
-bool gKey::shift()
-{
-	return state() & GDK_SHIFT_MASK; // || _event.keyval == GDK_Shift_L || _event.keyval == GDK_Shift_R;
 }
 
 int gKey::fromString(const char *str)
@@ -185,6 +185,15 @@ bool gKey::enable(gControl *control, GdkEventKey *event)
 
 		_event = *event;
 		_event.window = _im_window;
+
+		if (_event.keyval == GDK_Alt_L || _event.keyval == GDK_Alt_R)
+			_event.state ^= GDK_MOD1_MASK;
+		if (_event.keyval == GDK_Control_L || _event.keyval == GDK_Control_R)
+			_event.state ^= GDK_CONTROL_MASK;
+		if (_event.keyval == GDK_Meta_L || _event.keyval == GDK_Meta_R)
+			_event.state ^= GDK_META_MASK;
+		if (_event.keyval == GDK_Shift_L || _event.keyval == GDK_Shift_R)
+			_event.state ^= GDK_SHIFT_MASK;
 
 		if (gKey::mustIgnoreEvent(event))
 			return true;
