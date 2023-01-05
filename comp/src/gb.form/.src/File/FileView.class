@@ -103,7 +103,6 @@ Private $iPreviewCount As Integer
 Private $hEnsureVisible As Timer
 Private $hWatch As Watch
 Private $bWatch As Boolean
-Private $bRefreshIcon As Boolean
 Private $bRefreshAll As Boolean
 Private $hWatcher As Watcher
 Private $bVisible As Boolean
@@ -122,9 +121,10 @@ Private $hHighlightPicture As Picture
 
 Private $hBorder As Panel
 Private $hProgress As ProgressBar
-Private $bRefreshPreview As Boolean
 Private $sLastPreview As String
 Private $bIgnorePreviewCache As Boolean
+Private $bPreviewDone As Boolean
+Private $bRefreshView As Boolean
 
 Static Public Sub _init()
   
@@ -384,6 +384,8 @@ Private Sub RefreshView()
   Inc Application.Busy
   
   $bRefreshTriggered = False
+  $bRefreshView = False
+  
   bFilter = Object.CanRaise(Me, "Filter")
   
   $nFile = 0
@@ -495,10 +497,8 @@ Private Sub RefreshView()
             GoSub ADD_PREVIEW
           Else
             $hColumnView[sKey].Editable = Access(sDir, gb.Write)
-            If $bRefreshIcon Then 
-              $hColumnView[sKey].Picture = hPict
-              GoSub ADD_PREVIEW
-            Endif
+            $hColumnView[sKey].Picture = hPict
+            GoSub ADD_PREVIEW
           Endif
           
           With $hColumnView[sKey]
@@ -513,10 +513,8 @@ Private Sub RefreshView()
             GoSub ADD_PREVIEW
           Else
             $hIconView[sKey].Editable = Access(sDir, gb.Write)
-            If $bRefreshIcon Then 
-              $hIconView[sKey].Picture = hPict
-              GoSub ADD_PREVIEW
-            Endif
+            $hIconView[sKey].Picture = hPict
+            GoSub ADD_PREVIEW
           Endif
           If sRichText Then $hIconView[sKey].RichText = sRichText
         Endif
@@ -533,7 +531,6 @@ Private Sub RefreshView()
   
 Finally
   
-  $bRefreshIcon = False
   $bRefreshAll = False
   If $hColumnView.Visible Then 
     $hColumnView._End
@@ -580,7 +577,10 @@ End
 
 Private Sub StopPreview()
   
-  If $hPreview Then $hPreview.Stop
+  If $hPreview Then
+    $hPreview.Stop
+    'Debug Me.Name
+  Endif
   $hProgress.Hide
   $sLastPreview = ""
   
@@ -589,6 +589,9 @@ End
 Private Sub StartPreview(aPreview As String[])
 
   Dim sDir As String
+  
+  If Not $bVisible Then Return
+  If Not $bShowPreview Then Return
   
   StopPreview
   Component.Load("gb.hash")
@@ -603,6 +606,7 @@ Private Sub StartPreview(aPreview As String[])
   ' Endif
   
   $hPreview = New CTaskPreview(GetCurrentDir(), GetIconSize(), $iMaxPreviewSize, aPreview, sDir, $bIgnorePreviewCache) As "TaskPreview"
+  'Debug Me.Name;; System.Backtrace.Join(" ")
 
 End
 
@@ -644,6 +648,7 @@ Public Sub TaskPreview_Read(Data As String)
   For Each sLine In Split(Data, "\n", "", True)
   
     If sLine = "." Then
+      $bPreviewDone = True
       Try StopPreview
       Return
     Endif
@@ -705,31 +710,27 @@ End
 
 Private Sub RefreshViewLater(Optional bClear As Boolean)
   
-  UpdateIconView
+  $bRefreshView = True
+  If bClear Then $bRefreshAll = True
+  If Not $bVisible Then Return
   
-  If $bRefreshTriggered Then 
-    If bClear Then $bRefreshAll = True
-    Return
-  Endif
+  If $bRefreshTriggered Then Return
   
-  If $hRefresh.Enabled Then $hRefresh.Stop
-
-  $bRefreshAll = bClear
   $bRefreshTriggered = True
+  UpdateIconView
   $hRefresh.Trigger
   
 End
 
-Public Sub _RefreshViewAfter()
-  
-  If $bRefreshTriggered Then Return
-  If $hRefresh.Enabled Then Return
-  
-  $hRefresh.Delay = 100
-  $hRefresh.Start
-  
-End
-
+' Public Sub _RefreshViewAfter()
+'   
+'   If $bRefreshTriggered Then Return
+'   If $hRefresh.Enabled Then Return
+'   
+'   $hRefresh.Delay = 100
+'   $hRefresh.Start
+'   
+' End
 
 Public Sub Refresh_Timer()
   
@@ -1140,8 +1141,7 @@ Private Sub Settings_Write(Value As Variant[])
         
     End Select
     
-    $bRefreshIcon = True
-    RefreshViewLater
+    'RefreshViewLater(True)
     
   Else
     
@@ -1193,8 +1193,7 @@ Private Sub IconSize_Write(Value As Integer)
   If $aIconSize[iView] = Value Then Return
   
   $aIconSize[iView] = Value
-  $bRefreshIcon = True
-  RefreshViewLater
+  RefreshViewLater(True)
   
 End
 
@@ -1250,7 +1249,6 @@ Private Sub ShowPreview_Write(Value As Boolean)
   If $bShowPreview = Value Then Return
   $bShowPreview = Value
   StopPreview
-  $bRefreshIcon = True
   RefreshViewLater
   
 End
@@ -1361,21 +1359,20 @@ End
 
 Public Sub Watcher_Hide()
 
-  'Debug Me.Name
-  If $hPreview Then
-    StopPreview
-    $bRefreshPreview = True
-  Endif
-  $hWatch = Null
   $bVisible = False
+  $hWatch = Null
+  If $hPreview Then 
+    StopPreview
+    RefreshViewLater
+  Endif
   
 End
 
 Public Sub Watcher_Show()
   
+  'Debug Me.Name;; $bRefreshView
   $bVisible = True
-  RefreshViewLater($bRefreshPreview)
-  $bRefreshPreview = False
+  If $bRefreshView Then RefreshViewLater()
   
 End
 
@@ -1652,8 +1649,7 @@ Private Sub View_Write(Value As Integer)
     Endif 
     UpdateIconView
     If iIconSize <> GetIconSize() Then 
-      $bRefreshIcon = True
-      RefreshView
+      RefreshViewLater(True)
     Endif
   Endif
 

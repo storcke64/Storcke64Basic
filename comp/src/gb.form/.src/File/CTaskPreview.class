@@ -102,7 +102,7 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   Dim iSizeBinding As Integer
 
   If nPage < 0 Then
-    iSizeBinding = 4
+    iSizeBinding = $iSize \ 16
   Else If nPage > 1 Then
     iSizeBinding = Min(Min($iSize / 8, Max(1, nPage / 512 * $iSize)), (nPage - 1))
   Endif
@@ -319,24 +319,40 @@ Private Sub PrintEPub(sPath As String, sThumb As String) As Rect
   Dim sData As String
   Dim hImage As Image
   Dim sCover As String
-  Dim sDir As String
   Dim iPos As Integer
   Dim iPos2 As Integer
+  Dim sContent As String
   
   If Not $sUnzip Then Return
   
-  For Each sDir In ["", "OEBPS", "Ops"]
-    Exec [$sUnzip, "-p", "-C", sPath, sDir &/ "content.opf"] To sData
-    Try sCover = Scan(sData, "*<meta name=\"cover\" content=\"*\"*")[1]
-    If sCover Then Break
-  Next
+  Exec [$sUnzip, "-p", "-C", sPath, "META-INF/container.xml"] To sData
+  Try sContent = Scan(sData, "*full-path=\"*\"*")[1]
+  If Not sContent Then Return  
+
+  Exec [$sUnzip, "-p", "-C", sPath, sContent] To sData
+  If Not sData Then Return
+  
+  Try sCover = Scan(sData, "*<meta name=\"cover\" content=\"*\"*")[1]
+  
+  If Not sCover Then
+  
+    iPos = InStr(sData, "media-type=\"image/")
+    If iPos = 0 Then Return
+    iPos = RInStr(sData, "<item", iPos)
+    If iPos = 0 Then Return
+    iPos2 = InStr(sData, "/>", iPos)
+    If iPos2 = 0 Then Return
+    Try sCover = Scan(Mid$(sData, iPos, iPos2 - iPos), "*id=\"*\"*")[1]
+    If Not sCover Then Return
+    
+  Endif
   
   If sCover Then
     iPos = InStr(sData, "id=\"" & sCover & "\"")
     If iPos Then
       iPos2 = InStr(sData, "/>", iPos)
       iPos = RInStr(sData, "<item ", iPos - 1)
-      Try sCover = sDir &/ Scan(Mid$(sData, iPos, iPos2 - iPos), "*href=\"*\"*")[1]
+      Try sCover = File.Dir(sContent) &/ Scan(Mid$(sData, iPos, iPos2 - iPos), "*href=\"*\"*")[1]
       If Not Error Then 
         sCover = Main.UrlUnquote(sCover)
       Else 
