@@ -389,7 +389,7 @@ Private Sub ReadWindow(hWindow As Window, sKey As String)
     If Not hWindow.Modal Then hWindow.Move(X, Y)
   Endif
   
-  If aPos.Count > 5 And If aPos[5] Then hWindow.Maximized = True
+  If aPos.Count > 5 Then hWindow.Maximized = aPos[5]
 
 End
 
