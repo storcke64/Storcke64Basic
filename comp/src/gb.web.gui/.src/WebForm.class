@@ -110,6 +110,8 @@ Private $aShortcuts As String[]
 Private $iDefault As Integer
 Private $iCancel As Integer
 
+Static Private Const DEBUG_RUNNER As Boolean = False
+
 'Private $bOpened As Boolean
 
 Static Public Sub _init()
@@ -240,32 +242,32 @@ Static Public Sub Main()
   
   If Args.Count = 3 And If Args[1] = Application.ParentHandle Then
   
-    PrintLog("Start: " & Args.All.Join(" | "))
+    If DEBUG_RUNNER Then PrintLog("Start: " & Args.All.Join(" | "))
     
     If Args[2] <> "TEST" Then Application.Daemon = True
   
     $bSendCookie = True
     Session.Id = Args[2]
 
-    PrintLog("Catch SIGUSR1 signal")
+    If DEBUG_RUNNER Then PrintLog("Catch SIGUSR1 signal")
     Signal[Signal.SIGUSR1].Catch()
 
-    PrintLog("Create startup form")
+    If DEBUG_RUNNER Then PrintLog("Create startup form")
     Try _Current = Application.Startup.AutoCreate()
     If Error Then
       $sStartupError = Error.Text & "\n\n" & Error.Backtrace.Join(" ")
     Endif
     
-    PrintLog("Start request timeout")
+    If DEBUG_RUNNER Then PrintLog("Start request timeout")
     $hTimeout = New Timer As "Timeout"
     $hTimeout.Delay = Session.Timeout * 1000
     $hTimeout.Start
     
     Try Kill sTemp &/ Session.Id
     Link "/proc" &/ CStr(Application.Id) To sTemp &/ Session.Id
-    PrintLog("Create session file: " & sTemp &/ Session.Id)
+    If DEBUG_RUNNER Then PrintLog("Create session file: " & sTemp &/ Session.Id)
 
-    PrintLog("Waiting for SIGUSR1")
+    If DEBUG_RUNNER Then PrintLog("Waiting for SIGUSR1")
     Return
     
   Endif
@@ -342,12 +344,12 @@ Static Public Sub Main()
   PrintLog("================ NEW REQUEST: " & Application.Request)
 
   sCookie = Request.Cookies[Session.CookieName]
-  PrintLog("COOKIE = " & If(sCookie, sCookie, "<none>"))
+  If DEBUG_RUNNER Then PrintLog("COOKIE = " & If(sCookie, sCookie, "<none>"))
   
   If sCookie Then
-    PrintLog(sTemp &/ sCookie & " = " & Str(Exist(sTemp &/ sCookie, True)))
+    If DEBUG_RUNNER Then PrintLog(sTemp &/ sCookie & " = " & Str(Exist(sTemp &/ sCookie, True)))
     If Not Exist(sTemp &/ sCookie, True) Then 
-      PrintLog("UNKNOWN SESSION")
+      If DEBUG_RUNNER Then PrintLog("UNKNOWN SESSION")
       'Response.RemoveCookie("GBSESSIONID", sCookie, "", GetCookiePath())
       Session.Abandon
       If Request.Path = "/x" Then
@@ -362,7 +364,7 @@ Static Public Sub Main()
     Endif
   Endif
   
-  PrintLog("CATCH SIGUSR1 SIGNAL")
+  If DEBUG_RUNNER Then PrintLog("CATCH SIGUSR1 SIGNAL")
   Signal[Signal.SIGUSR1].Catch()
   
   If Not sCookie Then 
@@ -370,41 +372,43 @@ Static Public Sub Main()
     'If Dir(sTemp, "*.in").Count > 
     
     If Class.IsLoaded("Debug") Then
-      PrintLog("Fifo = " & Debug.Fifo)
+      If DEBUG_RUNNER Then PrintLog("Fifo = " & Debug.Fifo)
     Endif
     
     sCookie = Session.Create()
     Try hLock = Lock sTemp &/ sCookie & ".lock" Wait 10
 
-    PrintLog("EXEC Application.Path = " & Application.Path)
-    PrintLog("EXEC Args = " & Args.All.Join(" | "))
+    If DEBUG_RUNNER Then 
+      PrintLog("EXEC Application.Path = " & Application.Path)
+      PrintLog("EXEC Args = " & Args.All.Join(" | "))
+    Endif
 
     sExec = Application.Path &/ File.Name(Args[0])
 
     If Not Exist(sExec) Then
       If Class.IsLoaded("Debug") And If Debug.Fifo Then
-        PrintLog("---------------- EXEC gbx3 -g -f " & Debug.Fifo & " " & Application.Path & " -- " & Application.Handle & " " & sCookie)
+        If DEBUG_RUNNER Then PrintLog("---------------- EXEC gbx3 -g -f " & Debug.Fifo & " " & Application.Path & " -- " & Application.Handle & " " & sCookie)
         hProcess = Exec ["gbx3", "-g", "-f", Debug.Fifo, Application.Path, "--", Application.Handle, sCookie] Wait
       Else
-        PrintLog("---------------- EXEC gbx3 " & Application.Path & " -- " & Application.Handle & " " & sCookie)
+        If DEBUG_RUNNER Then PrintLog("---------------- EXEC gbx3 " & Application.Path & " -- " & Application.Handle & " " & sCookie)
         hProcess = Exec ["gbx3", Application.Path, "--", Application.Handle, sCookie] Wait
       Endif
     Else
-      PrintLog("---------------- EXEC " & sExec & " " & Application.Handle & " " & sCookie)
+      If DEBUG_RUNNER Then PrintLog("---------------- EXEC " & sExec & " " & Application.Handle & " " & sCookie)
       hProcess = Exec [sExec, Application.Handle, sCookie] Wait
     Endif
     
-    PrintLog("Waiting for: " & sTemp &/ sCookie & "...")
+    If DEBUG_RUNNER Then PrintLog("Waiting for: " & sTemp &/ sCookie & "...")
     While Not Exist(sTemp &/ sCookie, True)
       Sleep 0.05
     Wend
     
-    PrintLog("COOKIE = " & sCookie & " [NEW]")
+    If DEBUG_RUNNER Then PrintLog("COOKIE = " & sCookie & " [NEW]")
     
   Else
     
     Try hLock = Lock sTemp &/ sCookie & ".lock" Wait 10
-    PrintLog("COOKIE = " & sCookie)
+    If DEBUG_RUNNER Then PrintLog("COOKIE = " & sCookie)
     
   Endif
   
@@ -421,17 +425,17 @@ Static Public Sub Main()
   sRead = sTemp &/ sCookie & ".out"
   sWrite = sTemp &/ sCookie & ".in"
   
-  PrintLog("OPEN READ " & sRead)
+  If DEBUG_RUNNER Then PrintLog("OPEN READ " & sRead)
   $hRead = Open Pipe sRead For Read
     
-  PrintLog("OPEN WRITE " & sWrite)
+  If DEBUG_RUNNER Then PrintLog("OPEN WRITE " & sWrite)
   $hWrite = Open Pipe sWrite For Write
   
   iPid = CInt(File.Name(Stat(sTemp &/ sCookie).Link))
-  PrintLog("SEND SIGUSR1 TO PROCESS " & CStr(iPid))
+  If DEBUG_RUNNER Then PrintLog("SEND SIGUSR1 TO PROCESS " & CStr(iPid))
   Signal.Send(iPid, Signal.SIGUSR1)
     
-  PrintLog("WRITE ENV")
+  If DEBUG_RUNNER Then PrintLog("WRITE ENV")
 
   Write #$hWrite, Application.Id As Integer
   Write #$hWrite, CGI.All As Collection
@@ -444,7 +448,7 @@ Static Public Sub Main()
   '   Wend
   ' Endif
   
-  PrintLog("WAITING FOR SIGUSR1")
+  If DEBUG_RUNNER Then PrintLog("WAITING FOR SIGUSR1")
   ' Now we wait SIGUSR1 from session process
   Return
   
@@ -469,7 +473,7 @@ Static Private Sub BeginResponse()
   Dim cEnv As Collection
   Dim sVal As String
   
-  PrintLog("BeginResponse")
+  If DEBUG_RUNNER Then PrintLog("BeginResponse")
   
   $hTimeout.Stop
   
@@ -477,11 +481,11 @@ Static Private Sub BeginResponse()
   sRead = sTemp &/ Session.Id & ".in"
   sWrite = sTemp &/ Session.Id & ".out"
   
-  PrintLog("Open read " & sRead)
+  If DEBUG_RUNNER Then PrintLog("Open read " & sRead)
   $hRead = Open Pipe sRead For Read
   Input From $hRead
   
-  PrintLog("Read env")
+  If DEBUG_RUNNER Then PrintLog("Read env")
   $iRequestProcess = Read As Integer
   cEnv = Read As Collection
 
@@ -492,13 +496,13 @@ Static Private Sub BeginResponse()
   ' To disable compression
   CGI["HTTP_ACCEPT_ENCODING"] = ""
   
-  PrintLog("Open write " & sWrite)
+  If DEBUG_RUNNER Then PrintLog("Open write " & sWrite)
   $hWrite = Open Pipe sWrite For Write
   $hWrite.Blocking = True
   $hWrite.Begin
   Output To $hWrite
   
-  PrintLog("Send SIGUSR1 to request process " & CStr($iRequestProcess))
+  If DEBUG_RUNNER Then PrintLog("Send SIGUSR1 to request process " & CStr($iRequestProcess))
   Signal.Send($iRequestProcess, Signal.SIGUSR1)
   
 End
@@ -506,7 +510,7 @@ End
 Static Private Sub EndResponse()
   
   If $bDoNotRespond Then 
-    PrintLog("EndResponse ignore")
+    If DEBUG_RUNNER Then PrintLog("EndResponse ignore")
     Return
   Endif
   
@@ -515,11 +519,11 @@ Static Private Sub EndResponse()
   Input From Default
   Output To Default
   
-  PrintLog("Close read")
+  If DEBUG_RUNNER Then PrintLog("Close read")
   Close $hRead
   $hRead = Null
   
-  PrintLog("Close write")
+  If DEBUG_RUNNER Then PrintLog("Close write")
   Close $hWrite
   $hWrite = Null
   
@@ -530,11 +534,11 @@ End
 Static Private Sub SendResponse()
   
   If $bDoNotRespond Then 
-    PrintLog("SendResponse ignore")
+    If DEBUG_RUNNER Then PrintLog("SendResponse ignore")
     Return
   Endif
 
-  PrintLog("SendResponse")  
+  If DEBUG_RUNNER Then PrintLog("SendResponse")  
   Response.Buffered = True
   Response.ContentType = "text/javascript;charset=utf-8"
   Response.Begin
@@ -551,7 +555,7 @@ Static Public Sub Application_Signal(Num As Integer)
   
   If Application.Daemon Then
     
-    PrintLog("Caught SIGUSR1")
+    If DEBUG_RUNNER Then PrintLog("Caught SIGUSR1")
   
     BeginResponse
     HandleRequest
@@ -559,7 +563,7 @@ Static Public Sub Application_Signal(Num As Integer)
   
   Else
     
-    PrintLog("CAUGHT SIGUSR1")
+    If DEBUG_RUNNER Then PrintLog("CAUGHT SIGUSR1")
     
     ' sTemp = File.Dir(File.Dir(Temp$())) &/ "session"
     ' sRead = sTemp &/ $sCookie & ".out"
