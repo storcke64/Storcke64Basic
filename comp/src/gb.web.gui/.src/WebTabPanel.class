@@ -121,12 +121,21 @@ End
 Private Sub SetCurrent(iIndex As Integer)
 
   Dim I As Integer
+  Dim bShow As Boolean
 
+  Inc Me._NoRefresh
   $iIndex = iIndex
   Me._SetContainer($aTab[iIndex])
   For I = 0 To $aTab.Max
-    $aTab[I].Visible = I = iIndex
+    bShow = (I = iIndex)
+    If $aTab[I].Visible = bShow Then Continue
+    $aTab[I].Visible = bShow
+    If Not bShow Then WebForm._AddJavascript("gw.setVisible(" & JS($aTab[I].Name) & "," & JS(bShow) & ");")
   Next
+  Dec Me._NoRefresh
+  
+  WebForm._AddJavascript("gw.setOuterHtml(" & JS(Me.Name & ":header") & "," & JS(GetHeaderHTML()) & ");")
+  $aTab[iIndex].Refresh
 
 End
 
@@ -139,24 +148,34 @@ Private Sub Index_Write(Value As Integer)
 
 End
 
+Private Sub GetHeaderHTML() As String
+
+  Dim sHtml As String
+  Dim I As Integer
+  
+  If $bHideTabs Then Return
+  
+  sHtml &= "<div id=\"" & Html(Me.Name & ":header") & "\" class=\"gw-tab-header"
+  If Not Me.Border Then sHtml &= " gw-noborder"
+  sHtml &= "\" style=\"display:flex;flex-flow:row;\">"
+  For I = 0 To $aTab.Max
+    sHtml &= "<div class=\"" & If(I = $iIndex, "gw-tab-selected", "gw-tab") & "\""
+    If I <> $iIndex Then sHtml &= Me._GetUpdateWaitJS("onclick", "index", CStr(I))
+    sHtml &= ">" & $aText[I] & "</div>"
+  Next
+  sHtml &= "</div>"
+  
+  Return sHtml
+  
+End
+
+
 Public Sub _Render()
   
   Dim I As Integer
 
-  If Not $bHideTabs Then
+  Print GetHeaderHTML();
     
-    Print "<div class=\"gw-tab-header";
-    If Not Me.Border Then Print " gw-noborder";
-    Print "\" style=\"display:flex;flex-flow:row;\">"
-    For I = 0 To $aTab.Max
-      Print "<div class=\""; If(I = $iIndex, "gw-tab-selected", "gw-tab"); "\"";
-      If I <> $iIndex Then Print Me._GetUpdateWaitJS("onclick", "index", CStr(I));
-      Print ">"; $aText[I]; "</div>"
-    Next
-    Print "</div>"
-    
-  Endif
-  
   Print "<div class=\"gw-tab-contents";
   If Not Me.Border Then Print " gw-noborder";
   Print "\">"
@@ -188,7 +207,6 @@ Public Sub _UpdateProperty(sProp As String, vValue As Variant)
   If sProp = "index" Then Try Me.Index = vValue
   
 End
-
 
 Private Function ShowTabs_Read() As Boolean
 
