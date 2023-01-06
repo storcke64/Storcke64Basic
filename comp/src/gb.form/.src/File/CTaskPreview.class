@@ -61,33 +61,45 @@ Private Sub IsTextFile(sPath As String) As Boolean
 
 End
 
-Private Sub PaintRoundText(sText As String, sIcon As String, hImage As Image, X As Float, Y As Float)
+Private Sub PaintRoundText(sText As String, sIcon As String, X As Float, Y As Float, W As Float, H As Float)
 
   Dim hRect As RectF
   Dim iSize As Integer
+  Dim HT As Float
+  Dim hImage As Image
   
-  Paint.Font.Size = Max(7, Min($iSize / 12, Application.Font.Size))
-  hRect = Paint.TextSize(sText)
-  hRect.W += hRect.H * 2
-  hRect.X = Max(0, X + hImage.W - hRect.W - hRect.H / 4)
-  hRect.Y = Y + hImage.H - hRect.H - hRect.H / 4
-  Paint.Rectangle(hRect.X, hRect.Y, hRect.W, hRect.H, hRect.H)
-  Paint.Background = Color.Gradient(Color.TextForeground, Color.TextBackground, 0.33)
-  Paint.Fill(True)
-  Paint.Background = Color.TextBackground
-  Paint.LineWidth = 1
-  Paint.Stroke
+  HT = $iSize / 8
+  Paint.Font.Size *= HT / Paint.TextHeight
+  Paint.Font.Size = Min(Paint.Font.Size, Application.Font.Size)
+  HT = Paint.TextHeight
+  If HT < 12 Then Return
+  
+  X += 2
+  Y -= 2
+  W -= 4
+  
+  Paint.Rectangle(X, Y + H - HT, W, HT)
+  Paint.Background = Color.Merge(Color.LightForeground, Color.TextBackground)
+  Paint.Fill
 
-  iSize = CInt(hRect.H * 0.7)
+  iSize = CInt(HT * 0.7)
   hImage = $cIcon[sIcon]
   If Not hImage Then 
     hImage = Image.Load("img/" & sIcon & ".png").Stretch(iSize, iSize)
+    If Application.DarkTheme Then hImage = hImage.Invert(True)
     $cIcon[sIcon] = hImage
   Endif
   
-  Paint.DrawImage(hImage, CInt(hRect.X + hRect.H / 2), CInt(hRect.Y + (hRect.H - iSize) / 2))
+  hRect = Paint.TextSize(sText)
+  hRect.W += iSize + HT / 4
+  hRect.H = HT
+  hRect.X = Max(0, X + (W - hRect.W) / 2)
+  hRect.Y = Y + H - hRect.H
+  
+  Paint.DrawImage(hImage, CInt(hRect.X), hRect.Y + (hRect.H - iSize) / 2)
 
-  Paint.DrawText(sText, CInt(hRect.X + hRect.H / 2 + iSize + hRect.H / 4), hRect.Y, hRect.W, hRect.H, Align.Normal)
+  Paint.Background = Color.TextForeground
+  Paint.DrawText(sText, CInt(hRect.X + iSize + HT / 4), hRect.Y, hRect.W, hRect.H, Align.Normal)
   
 End
 
@@ -105,6 +117,7 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
     iSizeBinding = $iSize \ 16
   Else If nPage > 1 Then
     iSizeBinding = Min(Min($iSize / 8, Max(1, nPage / 512 * $iSize)), (nPage - 1))
+    iSizeBinding = Min(iSizeBinding, 16)
   Endif
   
   iSize = $iSize - 4 - iSizeBinding * 2
@@ -156,7 +169,7 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
       Paint.FillRect(X + I + 1, Y + hImage.H + 4 + I, hImage.W + 4, 1, Color.LightForeground)
     Next
     
-    If $iSize >= 64 And If nPage > 1 Then PaintRoundText(CStr(nPage), "page", hImage, X, Y)
+    If nPage > 1 Then PaintRoundText(CStr(nPage), "page", X, Y, hImage.W + 4, hImage.H + 4)
     
   Endif
   
@@ -165,7 +178,11 @@ Private Sub PrintIcon(hImage As Image, sThumb As String, Optional bVideo As Bool
   Try hIcon.Save(sThumb)
   
   Return Rect(X, Y, hImage.W + 4, hImage.H + 4)
-    
+
+Catch
+  
+  Error Error.Where;; Error.Text
+  
 End
 
 Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
@@ -183,7 +200,7 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
 
   If $iSize <= 16 Then Return
 
-  hImage = New Image($iSize, $iSize, Color.Merge(Color.TextBackground, Color.TextForeground, 0.05))
+  hImage = New Image($iSize, $iSize, Color.Merge(Color.TextBackground, Color.TextForeground, 0.025))
   
   hFile = Open sPath
 
@@ -254,9 +271,9 @@ Private Sub PrintTextFile(sPath As String, sThumb As String) As Rect
     If sData Not Ends "\n" Then Inc nLines
   
     If nLines > nLinesMax Then 
-      PaintRoundText(Format(nLinesMax, ",0") & "+", "line", hImage, 0, 0)
+      PaintRoundText(Format(nLinesMax, ",0") & "+", "line", 0, 0, hImage.W, hImage.H)
     Else
-      PaintRoundText(Format(nLines, ",0"), "line", hImage, 0, 0)
+      PaintRoundText(Format(nLines, ",0"), "line", 0, 0, hImage.W, hImage.H)
     Endif
     
   Endif
