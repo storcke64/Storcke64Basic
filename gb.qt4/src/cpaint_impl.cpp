@@ -398,10 +398,20 @@ static void Antialias(GB_PAINT *d, int set, int *antialias)
 
 static void set_painter_font(QPainter *p, const QFont &f)
 {
-	p->setFont(f);	
+	QFont pf;
+
+	pf.setFamily(f.family());
+	pf.setPointSizeF(f.pointSizeF());
+	pf.setWeight(f.weight());
+	pf.setStyle(f.style());
+	pf.setUnderline(f.underline());
+	pf.setStrikeOut(f.strikeOut());
+
+	p->setFont(pf);
+
 	// Strange bug of QT. Sometimes the font does not apply (cf. DrawTextShadow)
 		
-	/*if (f != p->font())
+	/*if (pf != p->font())
 	{
 		fprintf(stderr, "set_painter_font: %s / %s\n", TO_UTF8(f.toString()), TO_UTF8(p->font().toString()));
 		QFont f2;
