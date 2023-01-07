@@ -53,6 +53,7 @@ Public Sub btnOK_Click()
   'TRY sFormat = Clipboard.Paste(sFormat & ";charset=UTF-8")
   'IF ERROR THEN sFormat = Clipboard.Paste(sFormat)
   sFormat = Clipboard.Paste(sFormat)
+  sFormat = Replace(sFormat, String.Chr(160), " ")
 
   If radPasteNormal.Value Then 
     $hEditor.Insert(sFormat)
