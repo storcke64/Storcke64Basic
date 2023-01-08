@@ -63,6 +63,8 @@ Property BorderWidth As Integer Use $iBorderWidth
 '' ]]
 Property BorderColor As Integer Use $iBorderColor = Color.Default
 
+'' Return or set if the displayed text must be trimmed with an ellipsis when it overflows the Label frame.
+
 Property Trim As Boolean
 
 Private $iAlign As Integer = Align.Normal
@@ -266,18 +268,14 @@ Public Sub UserControl_Draw()
   If $iBorder = Border.Plain Then 
     Paint.Rectangle(0, 0, Paint.W, Paint.H, $iBorderRadius)
     If Min(Paint.H, Paint.W) > F * 2 Then
-      Paint.Rectangle(Paint.W - F, Paint.H - F, -Paint.W + F * 2, -Paint.H + F * 2, $iBorderRadius - F)
+      Paint.Rectangle(F, Paint.H - F, Paint.W - F * 2, -Paint.H + F * 2, $iBorderRadius - F)
     Endif
-    'Paint.Rectangle(F / 2, F / 2, Paint.W - F, Paint.H - F, $iBorderRadius)
-    'Paint.LineWidth = F
     If $iBorderColor = Color.Default Then 
       Paint.Background = Color.LightForeground
     Else
       Paint.Background = $iBorderColor
     Endif
     Paint.Fill
-    'Paint.Rectangle(F, F, Paint.W - F * 2, Paint.H - F * 2)
-    'Paint.Clip()
   Endif
   
   If Min(Paint.H, Paint.W) <= F * 2 Then Return

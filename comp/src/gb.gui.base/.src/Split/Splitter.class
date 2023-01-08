@@ -3,6 +3,8 @@
 Export
 Inherits UserContainer
 
+''' This class implements a horizontal or vertical splitter container.
+
 Public Const _Properties As String = "*,-Margin,-Padding,-AutoResize,-Indent,Border=True,Arrangement{Arrange.Horizontal;Vertical}=Horizontal"
 Public Const _DefaultEvent As String = "Resize"
 Public Const _Similar As String = "Panel"
