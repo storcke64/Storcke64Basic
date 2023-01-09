@@ -14,7 +14,7 @@ Static Public Sub _call(Source As Control, Data As Variant, Optional Format As S
     Endif
   Endif
   
-  If IsMissing(Format) Then
+  If IsMissing(Format) Or If Not Format Then
     Return Super(Source, Data)
   Else 
     Return Super(Source, Data, Format)

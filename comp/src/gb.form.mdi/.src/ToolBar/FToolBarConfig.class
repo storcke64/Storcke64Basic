@@ -287,9 +287,14 @@ Public Sub DragAction(hCtrl As Control, sAction As String)
     Drag.Icon = Null
   Endif
 
-  'Debug "START DRAG";; sAction
+  ' Debug "START DRAG";; sAction
   hDest = Drag(hCtrl, sAction, MAction.MIME)
-  'Debug "END DRAG"
+  ' Debug "END DRAG";;
+  ' If hDest Then 
+  '   Error hDest.Name
+  ' Else 
+  '   Error
+  ' Endif
   
   If hDest Then
   

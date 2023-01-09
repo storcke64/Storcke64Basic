@@ -1797,7 +1797,25 @@ END_METHOD*/
 
 BEGIN_METHOD(Control_Drag, GB_VARIANT data; GB_STRING format)
 
-	GB.ReturnObject(CDRAG_drag(OBJECT(CWIDGET), &VARG(data), MISSING(format) ? NULL : ARG(format)));
+	static GB_FUNCTION func;
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		GB.GetFunction(&func, (void *)GB.FindClass("Drag"), "_call", NULL, NULL);
+		init = TRUE;
+	}
+
+	GB.Push(2, GB_T_OBJECT, THIS, GB_T_VARIANT, &VARG(data));
+	if (MISSING(format))
+	{
+		GB.Call(&func, 2, FALSE);
+	}
+	else
+	{
+		GB.Push(1, GB_T_STRING, STRING(format), LENGTH(format));
+		GB.Call(&func, 3, FALSE);
+	}
 
 END_METHOD
 

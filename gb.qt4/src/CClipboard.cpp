@@ -48,7 +48,7 @@
 
 CDRAG_INFO CDRAG_info = { 0 };
 bool CDRAG_dragging = false;
-void *CDRAG_destination = 0;
+void *CDRAG_destination = NULL;
 static char CDRAG_action = DRAG_MOVE;
 
 static CPICTURE *_picture = 0;
@@ -515,8 +515,12 @@ void *CDRAG_drag(CWIDGET *source, GB_VARIANT_VALUE *data, GB_STRING *fmt)
 
 	CDRAG_dragging = true;
 	
-	GB.Unref(POINTER(&CDRAG_destination));
-	CDRAG_destination = 0;
+	/*if (CDRAG_destination)
+	{
+		fprintf(stderr, "%d: unref destination %p\n", __LINE__, CDRAG_destination);
+		GB.Unref(POINTER(&CDRAG_destination));
+	}*/
+
 	CDRAG_action = DRAG_MOVE;
 	
 	//qDebug("start drag");
@@ -528,12 +532,14 @@ void *CDRAG_drag(CWIDGET *source, GB_VARIANT_VALUE *data, GB_STRING *fmt)
 	hide_frame(NULL);
 	GB.Post((GB_CALLBACK)post_exit_drag, 0);
 
-	if (CDRAG_destination)
-		GB.Unref(POINTER(&CDRAG_destination));
-	
 	dest = CDRAG_destination;
-	CDRAG_destination = 0;
-		
+	if (dest)
+	{
+		//fprintf(stderr, "%d: unref destination %p\n", __LINE__, CDRAG_destination);
+		GB.Unref(POINTER(&CDRAG_destination));
+		CDRAG_destination = NULL;
+	}
+
 	return dest;
 
 _BAD_FORMAT:
@@ -666,6 +672,7 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 	CDRAG_clear(true);
 	CDRAG_info.event = e;
 	CDRAG_destination = control;
+	//fprintf(stderr, "%d: ref destination %p\n", __LINE__, CDRAG_destination);
 	GB.Ref(CDRAG_destination);
 
 	p = e->pos();
@@ -677,7 +684,9 @@ bool CDRAG_drag_drop(QWidget *w, CWIDGET *control, QDropEvent *e)
 
 	if (!CDRAG_dragging) // DnD run outside of the application
 	{
+		//fprintf(stderr, "%d: unref destination %p\n", __LINE__, CDRAG_destination);
 		GB.Unref(&CDRAG_destination);
+		CDRAG_destination = NULL;
 		hide_frame(control);
 	}
 	

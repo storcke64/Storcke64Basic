@@ -485,6 +485,7 @@ bool GB_LoadComponent(const char *name)
 static void push(int nval, va_list args)
 {
 	TYPE type;
+	GB_VARIANT_VALUE *val;
 
 	STACK_check(nval);
 
@@ -520,6 +521,13 @@ static void push(int nval, va_list args)
 			case T_OBJECT:
 				SP->_object.object = va_arg(args, void *);
 				OBJECT_REF_CHECK(SP->_object.object);
+				break;
+
+			case T_VARIANT:
+				val = va_arg(args, GB_VARIANT_VALUE *);
+				SP->_variant.vtype = val->type;
+				SP->_variant.value.data = val->value.data;
+				BORROW(SP);
 				break;
 
 			default:
