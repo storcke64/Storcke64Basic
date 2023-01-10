@@ -7,6 +7,8 @@ Private Sub RunScript(sScript As String, sRun As String, bGambasOnly As Boolean)
   Dim aResult as String[]
   Dim sResult As String
   Dim fTime As Float
+
+  If Not Exist(Application.Dir &/ sScript) Then Return -1
   
   If bGambasOnly Then
     Print "Running benchmark: '"; sRun; " "; sScript; "'"
@@ -37,7 +39,9 @@ Private Sub FormatResult(cResult As Collection, iCount As Integer, sLang As Stri
   Dim sFormat As String
   Dim sTest As String
 
-  For Each sTest In ["python", "perl", "gambas"]
+  If cResult[sLang] <= 0 Then Return "-"
+
+  For Each sTest In ["python", "perl", "java","gambas"]
     If cResult[sTest] < cResult[sLang] Then
       bBetter = False
       Break
@@ -95,8 +99,14 @@ For I = 1 To iCount
 			cAllResult[sBenchmark] = cResult
 		Endif
 		
-		If Not bGambasOnly Then cResult!python += RunScript(sBenchmark & ".py", "python", bGambasOnly)
-		If Not bGambasOnly Then cResult!perl += RunScript(sBenchmark & ".pl", "perl", bGambasOnly)
+		If Not bGambasOnly Then
+          cResult!python += RunScript(sBenchmark & ".py", "python", bGambasOnly)
+          cResult!perl += RunScript(sBenchmark & ".pl", "perl", bGambasOnly)
+          If sBenchmark Not Begins "string" Then
+            cResult!java += RunScript(sBenchmark & ".jvs", "java -Xint --source 11", bGambasOnly)
+          Endif
+          cResult!javajit += RunScript(sBenchmark & ".jvs", "java --source 11", bGambasOnly)
+        Endif
 		fTime = RunScript(sBenchmark & ".gbs", "gbs3 -f -U -c", bGambasOnly)
 		cResult!gambasjit += fTime
 		cResult!gambasjitwct += fTime - $fCompileTime
@@ -136,7 +146,7 @@ Else
 
   Print "<table class=\"table\">"
   Print "<tr>\n<th>Benchmark</th>"
-  For Each sLang In ["Python", "Perl", "Gambas", "Gambas JIT", "Gambas JIT without compilation time"]
+  For Each sLang In ["Python", "Perl", "Java", "Gambas", "Java JIT", "Gambas JIT", "Gambas JIT without compilation time"]
     Print "<th style=\"width:12em;\">"; Html(sLang); "</th>"
   Next
   Print "</tr>"
@@ -145,7 +155,9 @@ Else
     Print "<td><tt>"; cResult!name; "</tt></td>"
     Print "<td align=\"right\">"; FormatResult(cResult, iCount, "python"); "&nbsp;</td>"
     Print "<td align=\"right\">"; FormatResult(cResult, iCount, "perl"); "&nbsp;</td>"
+    Print "<td align=\"right\">"; FormatResult(cResult, iCount, "java"); "&nbsp;</td>"
     Print "<td align=\"right\">"; FormatResult(cResult, iCount, "gambas"); "&nbsp;</td>"
+    Print "<td align=\"right\">"; Format(cResult!javajit / iCount, "0.00"); "&nbsp;</td>"
     Print "<td align=\"right\">"; Format(cResult!gambasjit / iCount, "0.00"); "&nbsp;</td>"
     Print "<td align=\"right\">"; Format(cResult!gambasjitwct / iCount, "0.00"); "&nbsp;</td>"
     Print "</tr>"
