@@ -552,7 +552,7 @@ bool DATE_from_string(const char *str, int len, VALUE *val, bool local)
 	bool has_date = FALSE;
 	bool zero, zero2;
 	bool has_timezone = FALSE;
-	int timezone;
+	int timezone = 0;
 
 	if (!len)
 	{

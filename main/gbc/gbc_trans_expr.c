@@ -1022,7 +1022,6 @@ void TRANS_reference(void)
 void TRANS_reference_type(TYPE type)
 {
 	TRANS_expression(FALSE);
-	//printf("TRANS_reference_type: %d := %d\n", TYPE_get_id(_last_type), TYPE_get_id(type));
 	if (TRANS_popify_last(TYPE_get_id(_last_type) == TYPE_get_id(type)))
 		THROW("Invalid assignment");
 }

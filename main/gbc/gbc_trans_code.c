@@ -210,7 +210,8 @@ static bool TRANS_local(void)
 
 				if (TRANS_init_var(&decl))
 				{
-					CODE_pop_local(sym->local.value);
+					CODE_push_local_ref(sym->local.value, TYPE_must_ref(sym->local.type));
+					TRANS_popify_last(TYPE_get_id(TRANS_get_last_type()) == TYPE_get_id(sym->local.type));
 					sym->local_assigned = TRUE;
 				}
 

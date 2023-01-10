@@ -8,7 +8,11 @@ GB_INIT([main])
 GB_TRUNK_VERSION
 GB_MATH_FUNC
 LT_INIT([dlopen win32-dll])
+
 AM_PROG_CC_C_O
+
+CFLAGS=$gb_save_cflags
+CXXFLAGS=$gb_save_cxxflags
 
 if test "x${GAMBAS_CONFIG_FAILURE}" != "x"; then
   SAVE_GAMBAS_CONFIG_FAILURE=${GAMBAS_CONFIG_FAILURE}
