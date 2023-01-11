@@ -206,7 +206,7 @@ static bool paste(const QMimeData *data, const char *fmt)
 ***************************************************************************/
 
 static GB_ARRAY _clipboard_formats[2] = { NULL };
-static bool _clipboard_has_changed[2] = { FALSE };
+static bool _clipboard_has_changed[2] = { TRUE };
 
 #define CURRENT_MODE() (_current_clipboard == CLIPBOARD_SELECTION ? QClipboard::Selection : QClipboard::Clipboard)
 
