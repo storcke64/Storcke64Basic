@@ -54,7 +54,7 @@ typedef
 static int _current_clipboard = gClipboard::Clipboard;
 static GtkClipboard *_clipboard = NULL;
 static GtkClipboard *_selection = NULL;
-static bool _clipboard_has_changed[2] = { FALSE };
+static bool _clipboard_has_changed[2] = { TRUE };
 
 static char *convert_format(char *fmt)
 {

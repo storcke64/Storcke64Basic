@@ -843,7 +843,10 @@ void gMenu::doPopup(bool move, int x, int y)
 		return;
 	
 	gMenu *save_current_popup = _current_popup;
+	GtkWidget *save_grab = gApplication::_popup_grab;
+
 	_current_popup = this;
+	gApplication::_popup_grab = GTK_WIDGET(_popup);
 	
 	_in_popup++;
 	_popup_count++;
@@ -917,7 +920,9 @@ void gMenu::doPopup(bool move, int x, int y)
 		MAIN_do_iteration(false);
 
 	_exec = false;
+
 	_current_popup = save_current_popup;
+	gApplication::_popup_grab = save_grab;
 
 	_in_popup--;
 

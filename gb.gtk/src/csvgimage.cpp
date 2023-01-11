@@ -78,8 +78,22 @@ static const char *load_file(CSVGIMAGE *_object, const char *path, int len_path)
 
 	THIS->handle = handle;
 
-#if LIBRSVG_CHECK_VERSION(2,52,0)
-	rsvg_handle_get_intrinsic_size_in_pixels(handle, &THIS->width, &THIS->height);
+#if LIBRSVG_CHECK_VERSION(2,46,0)
+	gboolean has_width, has_height, has_viewbox;
+	RsvgLength width;
+	RsvgLength height;
+	RsvgRectangle viewbox;
+	rsvg_handle_get_intrinsic_dimensions(handle, &has_width, &width, &has_height, &height, &has_viewbox, &viewbox);
+	if (has_viewbox)
+	{
+		THIS->width = viewbox.width;
+		THIS->height = viewbox.height;
+	}
+	else if (has_width && has_height && width.unit == height.unit)
+	{
+		THIS->width = width.length;
+		THIS->height = height.length;
+	}
 #else
 	RsvgDimensionData dim;
 	rsvg_handle_get_dimensions(handle, &dim);
@@ -97,7 +111,7 @@ __RETURN:
 static void paint_svg(CSVGIMAGE *_object, cairo_t *context, double x, double y, double w, double h)
 {
 	cairo_matrix_t matrix;
-	double sx, sy;
+	double sx, sy, ss;
 
 	if (!context)
 		return;
@@ -108,44 +122,66 @@ static void paint_svg(CSVGIMAGE *_object, cairo_t *context, double x, double y, 
 	if (!HANDLE && !SURFACE)
 		return;
 
-	if (w <= 0)
-	{
-		w = THIS->width;
-		sx = 1;
-	}
-	else
-		sx = w / THIS->width;
-
-	if (h <= 0)
-	{
-		h = THIS->height;
-		sy = 1;
-	}
-	else
-		sy = h / THIS->height;
-
 	cairo_get_matrix(context, &matrix);
-	cairo_scale(context, sx, sy);
-	cairo_translate(context, x, y);
 
 	if (HANDLE)
 	{
-	#if LIBRSVG_CHECK_VERSION(2,46,0)
+		if (w <= 0)
+		{
+			w = THIS->width;
+			sx = 1;
+		}
+		else
+			sx = w / THIS->width;
+
+		if (h <= 0)
+		{
+			h = THIS->height;
+			sy = 1;
+		}
+		else
+			sy = h / THIS->height;
+
+		#if LIBRSVG_CHECK_VERSION(2,46,0)
 
 		RsvgRectangle view;
-		view.x = 0;
-		view.y = 0;
-		view.width = THIS->width;
-		view.height = THIS->height;
+		view.x = x;
+		view.y = y;
+		view.width = w;
+		view.height = h;
+
+		if ((h/w) != (THIS->height/THIS->width))
+		{
+			//fprintf(stderr, "%g / %g\n", h/w, THIS->height/THIS->width);
+
+			if ((h/w) < (THIS->height/THIS->width))
+			{
+				ss = w/h/(THIS->width/THIS->height);
+				cairo_translate(context, -((x + w / 2) * (ss - 1)), 0);
+				cairo_scale(context, ss, 1);
+			}
+			else
+			{
+				ss = h/w/(THIS->height/THIS->width);
+				cairo_translate(context, 0, -((y + h / 2) * (ss - 1)));
+				cairo_scale(context, 1, ss);
+			}
+		}
 
 		rsvg_handle_render_document(HANDLE, context, &view, NULL);
 
-	#else
+		cairo_set_matrix(context, &matrix);
+
+		#endif
+
+		cairo_scale(context, sx, sy);
+		cairo_translate(context, x, y);
+
+		#if !LIBRSVG_CHECK_VERSION(2,46,0)
 
 		rsvg_handle_render_cairo(HANDLE, context);
 
-	#endif
-
+		#endif
 	}
 
 	if (SURFACE)

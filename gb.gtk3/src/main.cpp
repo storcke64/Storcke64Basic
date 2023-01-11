@@ -353,10 +353,8 @@ void EXPORT GB_SIGNAL(int signal, void *param)
 			break;
 
 		case GB_SIGNAL_DEBUG_FORWARD:
-			//while (qApp->activePopupWidget())
-			//	delete qApp->activePopupWidget();
 			if (gdk_display_get_default())
-			gdk_display_sync(gdk_display_get_default());
+				gdk_display_sync(gdk_display_get_default());
 			break;
 
 		case GB_SIGNAL_DEBUG_CONTINUE:
