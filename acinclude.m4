@@ -445,10 +445,12 @@ AC_DEFUN([GB_INIT],
 
   dnl ---- Checks for programs
 
+  save_CFLAGS=$CFLAGS
   AC_PROG_CPP
   AC_PROG_CXX
   AC_PROG_CC
   AC_PROG_MAKE_SET
+  CFLAGS=$save_CFLAGS
 
   AC_SUBST(AM_CFLAGS)
   AC_SUBST(AM_CFLAGS_OPT)
