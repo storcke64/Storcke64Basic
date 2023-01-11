@@ -12,6 +12,7 @@
       Font = Font["-2"]
       { btnShowProject ToolButton
         MoveScaled(0,0,4,4)
+        ToolTip = ("Show project tree")
         Picture = Picture["icon:/small/view-tree"]
       }
       { Panel1 HBox
@@ -69,9 +70,9 @@
       { lblError TextLabel
         MoveScaled(1,1,56,6)
         Background = Color.SoftRed
-        Foreground = Color.SelectedForeground
+        Foreground = Color.TextForeground
         Mouse = Cursor.Pointing
-        Padding = 4
+        Padding = 8
       }
       { Separator2 Separator
         MoveScaled(5,9,23,0)

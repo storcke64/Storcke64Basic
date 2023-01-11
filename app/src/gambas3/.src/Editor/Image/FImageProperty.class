@@ -888,16 +888,24 @@ End
 
 Private Sub RefreshClipboard()
 
-  'Dim aFormat As String[]
-  'Dim iFormat As Integer
+  Dim aFormat As String[]
+  Dim iFormat As Integer
   
   If Not Clipboard.HasChanged Then Return
+  If $aClipboard.Count = 0 Then Return
   
   Inc Application.Busy
   'aFormat = Clipboard.Formats
   'iFormat = aFormat.Find("image/*", gb.Like)
   'If iFormat >= 0 Then 
-    Try $aClipboard[0].Image = Clipboard.Paste()
+  Try $aClipboard[0].Image = Clipboard.Paste()
+  If Error Then
+    aFormat = Clipboard.Formats
+    iFormat = aFormat.Find("image/*", gb.Like)
+    If iFormat >= 0 Then 
+      Try $aClipboard[0].Image = Clipboard.Paste(aFormat[iFormat])
+    Endif
+  Endif
   'Endif
   Dec Application.Busy
   

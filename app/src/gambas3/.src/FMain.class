@@ -3492,6 +3492,7 @@ Public Sub CloseProjectEditor()
   UpdateProperty
   UpdateWorkspaceButtons
   Project.UpdateStatus(True)
+  Try Project.ActiveForm.SetFocus
   
 End
 

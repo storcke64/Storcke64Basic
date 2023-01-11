@@ -1391,7 +1391,7 @@
           { btnShowDebugger ToolButton
             MoveScaled(0,0,4,4)
             Visible = False
-            ToolTip = ("Open startup class")
+            ToolTip = ("Show debugger")
             Picture = Picture["icon:/small/monitor"]
           }
           { btnOpenStartup ToolButton
@@ -1469,6 +1469,7 @@
               MoveScaled(22,1,4,4)
               Visible = False
               Background = Color.Background
+              ToolTip = ("Show project tree")
               Ignore = True
               Picture = Picture["icon:/small/view-tree"]
             }
