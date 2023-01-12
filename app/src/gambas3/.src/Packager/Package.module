@@ -56,7 +56,7 @@ Private Const DEBIAN_STANDARD As String = "3.9.6"
 Private Const DEBIAN_DEBHELPER_VERSION As String = "10"
 Private DEBIAN_ICON_SIZES As Integer[] = [16, 22, 32, 48, 64, 128, 256, 512, 1024]
 
-Private RUNTIME_COMPONENTS As String[] = ["gb.debug", "gb.draw", "gb.eval", "gb.geom", "gb.gui", "gb.gui.base", "gb.gui.opengl", "gb.gui.qt", "gb.gui.qt.opengl", "gb.gui.qt.webkit", "gb.gui.trayicon", "gb.gui.webview", "gb.test"]
+Private RUNTIME_COMPONENTS As String[] = ["gb.debug", "gb.draw", "gb.eval", "gb.geom", "gb.gui", "gb.gui.base", "gb.gui.opengl", "gb.gui.qt", "gb.gui.qt.opengl", "gb.gui.qt.webkit", "gb.gui.trayicon", "gb.gui.webview", "gb.hash", "gb.test"]
 
 Public Sub CheckProgram()
   
