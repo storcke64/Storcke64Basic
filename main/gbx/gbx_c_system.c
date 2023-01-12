@@ -357,7 +357,7 @@ BEGIN_PROPERTY(System_IgnoreOverflow)
 
 	if (READ_PROPERTY)
 		GB_ReturnBoolean(TRUE);
-	else
+	else if (!VPROP(GB_BOOLEAN))
 		GB_Error("Overflow detection is not supported on this system");
 
 #else
