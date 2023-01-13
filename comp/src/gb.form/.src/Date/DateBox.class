@@ -18,6 +18,8 @@ Property ReadOnly As Boolean
 Property Border As Boolean
 Property Mode As Integer
 Property Read Text As String
+
+'' Return the inner [../../maskbox] control used for editing the date.
 Property Read Editor As MaskBox
 
 Private $hButtonBox As ButtonBox

@@ -24,6 +24,10 @@ Property Settings As Variant[]
 Property Transparent As Boolean
 Property MinSize As Integer
 Property AutoHide As Boolean
+
+'' Return or set if the little arrow buttons that toggle the panels should be visible.
+''
+'' This property is 'TRUE' by default.
 Property ShowButtons As Boolean
 
 Private $hObs As Observer

@@ -21,6 +21,12 @@ Property ShowDetailed As Boolean
 Property ShowBookmark As Boolean
 Property ShowFile As Boolean
 Property ShowPreview As Boolean
+
+'' Return or set the view mode of the internal file view.
+''
+'' ### See also
+'' [../../fileview/view]
+
 Property View As Integer
 
 '' Return or set if the toolbar is visible.

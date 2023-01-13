@@ -111,6 +111,7 @@ Static Private Sub LoadMap()
   Next
 
   $aList.Sort
+  $aList.ReadOnly = True
 
 End
 

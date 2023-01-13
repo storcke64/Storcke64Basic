@@ -16,8 +16,16 @@ Event Click
 Event Activate
 Event Menu
 Event Icon(Path As String)
+
+'' This event is raised just after the FileView has been refreshed.
 Event Refresh
+
 Event Rename(OldName As String, NewName As String)
+
+'' This event is raised for each file that may be displayed in the view.
+''
+'' By cancelling this event, you prevent the file from being displayed.
+
 Event Filter(Name As String, Info As Stat)
 
 Property {Dir} As String
@@ -28,7 +36,7 @@ Property Current As String
 '' It's an equivalent of '[../dir] &/ [../current]'.
 Property Read Path As String
 
-'' Return the absolute paths of the selected elements
+'' Return the absolute paths of the selected elements.
 Property Read Paths As String[]
 
 Property ShowHidden As Boolean
@@ -36,6 +44,15 @@ Property ShowDirectory As Boolean
 Property Mode As Integer
 Property ShowDetailed As Boolean
 Property ShowPreview As Boolean
+
+'' Return or set the view mode of control.
+''
+'' It can take one of the following value:
+'' - [../Normal] for a normal vertical icon view.
+'' - [../Compact] for a compact horizontal icon view.
+'' - [../Detailed] for a detailed view based on a ColumnView table.
+'' - [../Preview] for a vertical icon view with file preview.
+
 Property View As Integer
 
 Property Selection As String[]
@@ -47,10 +64,15 @@ Property Settings As Variant[]
 Property Read Count As Integer
 Property Background As Integer
 Property Foreground As Integer
+
+'' Return if at least one item is selected in the view.
 Property Read Selected As Boolean
 
+'' Return the number of files displayed by the view.
 Property Read FileCount As Integer Use $nFile
+'' Return the number of directories displayed by the view.
 Property Read DirCount As Integer Use $nDir
+'' Return the total size of the files displayed by the view.
 Property Read TotalSize As Long Use $iSize
 
 '' Return or set the size limit in bytes of files that will be previewed.
@@ -59,16 +81,6 @@ Property Read TotalSize As Long Use $iSize
 '' - If 'MaxPreviewSize' is negative, there is no size limit.
 
 Property MaxPreviewSize As Integer Use $iMaxPreviewSize
-
-'' Return or set the orientation of the icon view.
-''
-'' It can be one of the following value:
-'' - [Arrange.Horizontal](/comp/gb.qt4/arrange/horizontal)
-'' - [Arrange.Vertical](/comp/gb.qt4/arrange/vertical)
-''
-'' The default orientation is vertical.
-
-Property Orientation As Integer
 
 Private Const PREFIX_DIR As String = "0"
 Private Const PREFIX_FILE As String = "1"
@@ -739,6 +751,10 @@ Public Sub Refresh_Timer()
   $hRefresh.Stop
   
 End
+
+'' Refresh the view contents.
+''
+'' If ~ClearCache~ is 'TRUE', then the preview are refreshed.
 
 Public Sub Reload(Optional ClearCache As Boolean)
   
@@ -1495,6 +1511,8 @@ Public Sub View_MouseDrag()
   
 End
 
+'' Copy the selected items as a list of URI in the clipboard.
+
 Public Sub Copy()
   
   Dim aPaths As String[] = GetSelection()
@@ -1601,18 +1619,6 @@ Private Sub MaxPreviewSize_Write(Value As Integer)
   $iMaxPreviewSize = Value
   If $bShowPreview Then Reload
   
-End
-
-Private Function Orientation_Read() As Integer
-
-  Return $hIconView.Orientation
-
-End
-
-Private Sub Orientation_Write(Value As Integer)
-
-  $hIconView.Orientation = Value
-
 End
 
 Private Function View_Read() As Integer

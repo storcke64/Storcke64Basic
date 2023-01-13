@@ -15,7 +15,11 @@ Property Text As String
 Property Moveable As Boolean
 Property ReadOnly As Boolean
 Property Read Editor As Control
+
+'' Return or set if the item text must wrap and the item height expands automatically.
 Property Wrap As Boolean
+
+'' Return or set if a grid should be displayed between the items.
 Property Grid As Boolean
 
 '' Return or set if duplicates are allowed in the list.
