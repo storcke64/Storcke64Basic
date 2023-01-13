@@ -7,6 +7,7 @@ Static Property Read List As String[]
 Static Property Read Themes As String[]
 Static Property Read Icons As String[]
 Static Property Read Sizes As String[]
+Static Property Read Flags As String[]
 
 Static Private $bInit As Boolean
 'Static Private $sTheme As String
@@ -875,5 +876,32 @@ End
 Static Private Function Sizes_Read() As String[]
 
   Return ["tiny", "small", "medium", "large", "huge"]
+
+End
+
+Static Public Sub GetFlag((Key) As String) As Picture
+  
+  Dim iSize As Integer
+  Dim iPos As Integer
+  Dim sSize As String
+  
+  Try Component.Load("gb.form.stock")
+  
+  iSize = 16
+  iPos = InStr(Key, "/")
+  If iPos Then
+    sSize = Left$(Key, iPos - 1)
+    Key = Mid$(Key, iPos + 1)
+    iSize = GetSize(sSize)
+  Endif
+  
+  Return _DefaultStock.LoadFlag(Key, iSize).Picture
+  
+End
+
+Static Private Function Flags_Read() As String[]
+
+  Try Component.Load("gb.form.stock")
+  Return _DefaultStock.GetFlags()
 
 End
