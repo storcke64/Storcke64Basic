@@ -160,10 +160,12 @@ char *TYPE_get_desc(TYPE type)
 			sprintf(buf, "%.*s", sym->symbol.len, sym->symbol.name);
 		}
 	}
-  else
+  else if (id < T_OBJECT)
   {
     strcpy(buf, TYPE_name[id]);
   }
+  else
+    *buf = 0;
   
   return buf;
 }
