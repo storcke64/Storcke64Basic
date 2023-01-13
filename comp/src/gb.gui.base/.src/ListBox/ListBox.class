@@ -19,7 +19,11 @@ Property Index As Integer
 Property Read Text As String
 Property List As String[]
 Property Font As Font
+
+'' Return or set if the item text must wrap and the item height expands automatically.
 Property Wrap As Boolean
+
+'' Return or set if a grid should be displayed between the items.
 Property Grid As Boolean
 
 Property ScrollX As Integer

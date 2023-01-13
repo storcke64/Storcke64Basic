@@ -11,7 +11,7 @@ Static Private Sub GetKey(sPath As String, Optional sSize As String) As String
   
   Dim sKey As String
   
-  If sPath Begins "icon:/" Then
+  If sPath Begins "icon:/" Or If sPath Begins "flag:/" Then
     
     sKey = sPath
     
@@ -49,6 +49,10 @@ Static Public Sub Load(Path As String) As Picture
   If Path Begins "icon:/" Then
     
     Try Return Stock[Mid$(Path, 7)]
+    
+  Else If Path Begins "flag:/" Then 
+    
+    Try Return Stock.GetFlag(Mid$(Path, 7))
     
   Else
 
@@ -91,6 +95,11 @@ Static Public Sub _get(Path As String, Optional Size As String) As Picture
   If Path Begins "icon:/" Then
     
     Try hPict = Stock[Mid$(Path, 7)]
+    If Not hPict Then Return 
+    
+  Else If Path Begins "flag:/" Then
+    
+    Try hPict = Stock.GetFlag(Mid$(Path, 7))
     If Not hPict Then Return 
     
   Else
