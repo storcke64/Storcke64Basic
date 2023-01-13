@@ -45,32 +45,34 @@ Private Sub SuiteToSelection(sSuite As String, aTest As String[]) As String[]
   Dim sMethod As String
   Dim bAdd As Boolean
   
-  If Not sSuite Then Return
+  If sSuite Then 
   
-  For Each sTest In Split(sSuite)
-    
-    iPos = InStr(sTest, ".")
-    
-    If iPos Then
-      aMethod = Split(Mid$(sTest, iPos + 1), ";")
-      sTest = Left(sTest, iPos - 1)
-      bAdd = False
-      For Each sMethod In aMethod
-        If aTest.Exist(sTest & "." & sMethod) Then 
-          If Not bAdd Then 
-            aSelection.Add(sTest)
-            bAdd = True
+    For Each sTest In Split(sSuite)
+      
+      iPos = InStr(sTest, ".")
+      
+      If iPos Then
+        aMethod = Split(Mid$(sTest, iPos + 1), ";")
+        sTest = Left(sTest, iPos - 1)
+        bAdd = False
+        For Each sMethod In aMethod
+          If aTest.Exist(sTest & "." & sMethod) Then 
+            If Not bAdd Then 
+              aSelection.Add(sTest)
+              bAdd = True
+            Endif
+            aSelection.Add(sTest & "." & sMethod)
           Endif
-          aSelection.Add(sTest & "." & sMethod)
+        Next
+      Else
+        If aTest.Exist(sTest & ".*", gb.Like) Then
+          aSelection.Add(sTest)
         Endif
-      Next
-    Else
-      If aTest.Exist(sTest & ".*", gb.Like) Then
-        aSelection.Add(sTest)
       Endif
-    Endif
+      
+    Next
     
-  Next
+  Endif
   
   Return aSelection
 

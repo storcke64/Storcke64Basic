@@ -32,15 +32,15 @@ Private Sub LoadSuites()
     
     sName = $cSuites.Key
     If sName = "$" Then
-      With lvwSuite.Add(sName, "")
+      With lvwSuite.Add("$", "")
         .RichText = "<i>" & ("Default") & "</i>"
         .Editable = False
       End With
-      lvwSuite.Key = "$"
     Else
       lvwSuite.Add(sName, sName)
-      If I = iTestWith Then lvwSuite.Key = sName
     Endif
+    
+    If I = iTestWith Then lvwSuite.Key = sName
     
     Inc I
   Next
@@ -84,6 +84,8 @@ Public Sub lvwSuite_Select()
   Else
     tvwSuite.UnselectAll
   Endif
+  
+  btnDelete.Enabled = lvwSuite.Key <> "$"
 
   tvwSuite.MoveFirst()
   While tvwSuite.Available

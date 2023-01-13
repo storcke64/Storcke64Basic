@@ -65,9 +65,9 @@
     Index = 3
     Text = ("Unit tests")
     { Panel12 HBox
-      MoveScaled(0,0,120,4)
+      MoveScaled(0,0,127,4)
       { panTest HBox
-        MoveScaled(0,0,104,4)
+        MoveScaled(0,0,116,4)
         Expand = True
         { btnTestClear ToolButton
           MoveScaled(0,0,4,4)
@@ -82,30 +82,23 @@
           Picture = Picture["icon:/small/ok"]
         }
         { Panel6 Panel
-          MoveScaled(19,0,28,4)
+          MoveScaled(19,0,42,4)
           Arrangement = Arrange.Vertical
           Centered = True
           { cmbTest ComboBox
-            MoveScaled(0,0,26,3)
+            MoveScaled(0,0,40,3)
             Background = Color.Background
             ReadOnly = True
           }
         }
-        { btnConfigTest ToolButton
-          MoveScaled(48,0,15,4)
-          Action = "test-suite"
-          AutoResize = True
-          Text = ("Test suites") & "..."
-          Picture = Picture["icon:/small/text-list"]
-        }
         { spnTest Spinner
-          MoveScaled(65,0,4,4)
+          MoveScaled(62,0,4,4)
           Visible = False
           Margin = True
           Type = Spinner.Circle
         }
         { panTestResult DrawingArea
-          MoveScaled(71,0,27,4)
+          MoveScaled(67,0,27,4)
           Arrangement = Arrange.Horizontal
           Centered = True
           Spacing = True
@@ -119,9 +112,19 @@
             AutoResize = True
           }
         }
+        { Spring2 Spring
+          MoveScaled(95,2,5,1)
+        }
+        { btnConfigTest ToolButton
+          MoveScaled(100,0,15,4)
+          Action = "test-suite"
+          AutoResize = True
+          Text = ("Test suites") & "..."
+          Picture = Picture["icon:/small/text-list"]
+        }
       }
       { Panel13 Panel
-        MoveScaled(110,0,4,4)
+        MoveScaled(119,0,4,4)
       }
     }
     { Separator2 Separator
