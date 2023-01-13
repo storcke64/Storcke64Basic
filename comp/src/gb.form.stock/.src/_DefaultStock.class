@@ -7,8 +7,8 @@ Class SvgImage
 
 Static Private $cSynonymous As New Collection
 Static Private $cRightToLeft As Collection
-
 Static Private $bDebug As Boolean
+Static Private $aFlags As String[]
 
 Static Public Sub _init()
 
@@ -118,3 +118,34 @@ Static Public Sub InstallIconTheme()
   
 End
 
+Static Public Sub LoadFlag(sKey As String, iSize As Integer) As Image
+
+  Dim hImage As Image
+  Dim sPath As String
+
+  sPath = "flag/256/" & sKey & ".png"
+  If Not Exist(sPath) Then Error.Raise("Unknown flag")
+  
+  hImage = Image.Load(sPath)
+  If iSize <> 256 Then hImage = hImage.Stretch(iSize, iSize)
+  Return hImage
+  
+End
+
+Static Public Sub GetFlags() As String[]
+
+  Dim I As Integer
+  
+  If Not $aFlags Then
+  
+    $aFlags = Dir("flag/256", "*.png")
+    For I = 0 To $aFlags.Max
+      $aFlags[I] = File.BaseName($aFlags[I])
+    Next
+    $aFlags.ReadOnly = True
+    
+  Endif
+  
+  Return $aFlags
+  
+End
