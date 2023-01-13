@@ -1230,3 +1230,12 @@ Public Sub lvwExclude_Select()
   lvwRequire.UnSelectAll
 
 End
+
+Public Sub cmbDefaultLanguage_Click()
+
+  Dim sLang As String
+
+  sLang = MyLanguage.FromName(cmbDefaultLanguage.Text)
+  picDefaultLanguage.Picture = Picture["flag:/small/" & Language[sLang].Country]
+
+End

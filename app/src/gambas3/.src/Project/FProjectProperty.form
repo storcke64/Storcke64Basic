@@ -706,8 +706,12 @@
           Expand = True
           Text = ("Default language")
         }
+        { picDefaultLanguage PictureBox
+          MoveScaled(40,0,3,4)
+          Alignment = Align.Center
+        }
         { cmbDefaultLanguage ComboBox
-          MoveScaled(38,0,45,4)
+          MoveScaled(45,0,38,4)
           Expand = True
           ReadOnly = True
           Sorted = True

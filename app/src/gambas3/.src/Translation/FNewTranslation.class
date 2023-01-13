@@ -19,7 +19,10 @@ Public Sub Form_Open()
   
   For Each sLang In MyLanguage.GetAll()
     If Project.HasTranslation(sLang) Then Continue
-    cvwLanguage.Add(sLang, MyLanguage.ToName(sLang))[1] = sLang & ".po"
+    With cvwLanguage.Add(sLang, MyLanguage.ToName(sLang))
+      .[1] = sLang & ".po"
+      .Picture = Picture["flag:/small/" &/ Language[sLang].Country]
+    End With
   Next
   
   btnOK.Enabled = False

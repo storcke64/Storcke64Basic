@@ -610,7 +610,7 @@ Static Public Sub PaintImage(hCtrl As CControl, sRoot As String, Optional iAlign
     hCtrl["#Image"] = Null
     hCtrl["#SvgImage"] = Null
     
-    If sPath Begins "icon:/" Then
+    If sPath Begins "icon:/" Or If sPath Begins "flag:/" Then
       Try hCtrl["#Image"] = Picture[sPath].Image
     Else
       sExt = File.Ext(sPath)
@@ -689,7 +689,7 @@ Public Sub GetPicture(sPict As String) As Picture
   
   If Not sPict Then Return
 
-  If sPict Begins "icon:/" Then
+  If sPict Begins "icon:/" Or If sPict Begins "flag:/" Then
     Return Picture[sPict]
   Else If Me.SelectImagePublic Then
     Return Picture.Load(Project.Dir &/ ".public" &/ sPict)

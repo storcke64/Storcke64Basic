@@ -252,7 +252,7 @@ End
 
 Public Sub IsPath(sWord As String) As Boolean
   
-   If Left(sWord) = "/" Or If Left(sWord) = "~" Or If Left(sWord, 2) = "./" Or If sWord Begins "icon:/" Then Return True
+   If Left(sWord) = "/" Or If Left(sWord) = "~" Or If Left(sWord, 2) = "./" Or If sWord Begins "icon:/" Or If sWord Begins "flag:/" Then Return True
   
 End
 

@@ -579,7 +579,7 @@ Private Function GetRealValue(hProp As CPropertyInfo, vVal As Variant) As Varian
 
     Case "Picture"
 
-      If vRealVal Begins "icon:/" Then 
+      If vRealVal Begins "icon:/" Or If vRealVal Begins "flag:/" Then 
         vRealVal = Picture[vRealVal]
       Else
         vRealVal = Picture.Load(File.Dir(Project.Path) &/ vRealVal)

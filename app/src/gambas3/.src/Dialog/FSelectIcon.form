@@ -1,7 +1,7 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,75,71)
+  MoveScaled(0,0,131,71)
   Text = ("Select a picture")
   Persistent = True
   Arrangement = Arrange.Vertical
@@ -11,7 +11,7 @@
     MoveScaled(1,1,73,48)
     Expand = True
     Arrangement = Arrange.Vertical
-    Count = 2
+    Count = 3
     Index = 0
     Text = ("Project")
     { fchIcon FileChooser
@@ -19,15 +19,42 @@
       Expand = True
       Border = False
       Picture = Picture["icon:/small/gambas"]
-      ShowPreview = True
       ShowBookmark = False
       Margin = True
       ReadOnly = True
     }
     Index = 1
     Text = ("Stock")
+    Index = 2
+    Text = ("Flags")
+    Index = 0
+  }
+  { HBox1 HBox
+    MoveScaled(3,52,44,4)
+    Spacing = True
+    Invert = True
+    { btnCancel Button
+      MoveScaled(29,0,15,4)
+      Text = ("Cancel")
+      Cancel = True
+    }
+    { btnOK Button
+      MoveScaled(13,0,15,4)
+      Text = ("OK")
+    }
+    { Panel1 Panel
+      MoveScaled(7,1,4,3)
+      Visible = False
+      Expand = True
+    }
+  }
+  { panStock Panel
+    MoveScaled(76,3,69,49)
+    Visible = False
+    Ignore = True
+    Arrangement = Arrange.Vertical
     { HBox2 HBox
-      MoveScaled(1,2,71,6)
+      MoveScaled(0,0,71,6)
       Spacing = True
       Margin = True
       { txtFilter ButtonBox
@@ -52,35 +79,26 @@
       }
     }
     { Separator1 Separator
-      MoveScaled(7,10,20,0)
+      MoveScaled(6,8,20,0)
     }
     { icwStock IconView
-      MoveScaled(3,14,47,26)
+      MoveScaled(2,12,47,26)
+      Visible = False
       Font = Font["-1"]
       Expand = True
       Sorted = True
       IconLines = 1
       Border = False
     }
-    Index = 0
-  }
-  { HBox1 HBox
-    MoveScaled(3,52,44,4)
-    Spacing = True
-    Invert = True
-    { btnCancel Button
-      MoveScaled(29,0,15,4)
-      Text = ("Cancel")
-      Cancel = True
-    }
-    { btnOK Button
-      MoveScaled(13,0,15,4)
-      Text = ("OK")
-    }
-    { Panel1 Panel
-      MoveScaled(7,1,4,3)
+    { icwFlag IconView icwStock
+      Name = "icwFlag"
+      MoveScaled(6,19,47,26)
       Visible = False
+      Font = Font["-1"]
       Expand = True
+      Sorted = True
+      IconLines = 1
+      Border = False
     }
   }
 }

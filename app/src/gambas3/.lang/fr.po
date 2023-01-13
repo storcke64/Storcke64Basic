@@ -222,7 +222,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gambas3 3.17.90\n"
-"POT-Creation-Date: 2023-01-11 19:43 UTC\n"
+"POT-Creation-Date: 2023-01-13 11:01 UTC\n"
 "PO-Revision-Date: 2023-01-03 11:38 UTC\n"
 "Last-Translator: benoit <benoit@benoit-TOWER>\n"
 "Language: fr\n"
@@ -1044,9 +1044,9 @@ msgstr "Extension de l'EDI"
 #: FReportBoxShadowChooser.form:27 FReportBrushChooser.form:36
 #: FReportCoordChooser.form:26 FReportPaddingChooser.form:75 FSave.form:29
 #: FSaveProjectAs.form:81 FSearch.class:959 FSelectComponent.form:39
-#: FSelectExtraFile.form:43 FSelectIcon.form:99 FSelectLibrary.form:66
+#: FSelectExtraFile.form:43 FSelectIcon.form:59 FSelectLibrary.form:66
 #: FSnippet.form:57 FSoftwareFarm.class:562 FTableChooser.form:68
-#: FTestSuite.class:261 FText.form:40 FTranslate.class:689
+#: FTestSuite.class:261 FText.form:40 FTranslate.class:690
 #: FVersionControl.form:212 FWebFontChooser.form:129 Project.module:612
 #: VersionControl.module:469
 msgid "Cancel"
@@ -1073,7 +1073,7 @@ msgid "Files"
 msgstr "Fichiers"
 
 #: CProjectTree.class:405 FDebugger.class:98 FHelpShortcut.form:21
-#: FMain.form:459 FSearch.class:134 FSelectIcon.form:32
+#: FMain.form:459 FSearch.class:134 FSelectIcon.form:34
 msgid "Project"
 msgstr "Projet"
 
@@ -1257,7 +1257,7 @@ msgstr "Un nouveau référentiel Git sera créé pour ce projet."
 #: FProjectProperty.form:1049 FProxy.form:63 FReportBorderChooser.form:54
 #: FReportBoxShadowChooser.form:33 FReportBrushChooser.form:42
 #: FReportCoordChooser.form:32 FReportPaddingChooser.form:69
-#: FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:105
+#: FSelectComponent.form:34 FSelectExtraFile.form:37 FSelectIcon.form:65
 #: FSelectLibrary.form:60 FSnippet.form:51 FTableChooser.form:62 FText.form:34
 #: FWebFontChooser.form:123 Project.module:2261
 msgid "OK"
@@ -1296,7 +1296,7 @@ msgstr "La police Gambas est publiée sous licence « SIL Open Font License »."
 msgid "This program is published under the GNU General Public License."
 msgstr "Ce programme est publié sous la « Licence Publique Générale GNU »."
 
-#: Design.module:4 FOption.class:93 FTranslate.class:153
+#: Design.module:4 FOption.class:93 FTranslate.class:154
 msgid "(Default)"
 msgstr "(Défaut)"
 
@@ -2099,7 +2099,7 @@ msgstr "Déselectionner tout"
 msgid "Gambas 3 project conversion"
 msgstr "Conversion en projet Gambas 3"
 
-#: FCrash.class:72 FTranslate.class:253 Project.module:4489
+#: FCrash.class:72 FTranslate.class:254 Project.module:4489
 msgid "The '&1' command has failed."
 msgstr "La commande '&1' a échoué."
 
@@ -2586,7 +2586,7 @@ msgstr "Afficher la fenêtre de recherche"
 msgid "Search again"
 msgstr "Rechercher de nouveau"
 
-#: FDebugInfo.form:410 FSearch.class:537 FTranslate.class:651
+#: FDebugInfo.form:410 FSearch.class:537 FTranslate.class:652
 msgid "Search string cannot be found."
 msgstr "La chaîne recherchée est introuvable."
 
@@ -3488,7 +3488,7 @@ msgstr "Sélections"
 msgid "Stroke"
 msgstr "Tracer"
 
-#: FImageProperty.form:378 FTranslate.class:1770
+#: FImageProperty.form:378 FTranslate.class:1771
 msgid "Fill"
 msgstr "Remplir"
 
@@ -3524,7 +3524,7 @@ msgstr "Règle de remplissage"
 msgid "Opacity"
 msgstr "Opacité"
 
-#: FImageProperty.form:480 FSelectIcon.form:63 FTranslate.class:79
+#: FImageProperty.form:480 FSelectIcon.form:97 FTranslate.class:79
 msgid "Size"
 msgstr "Taille"
 
@@ -3762,7 +3762,7 @@ msgstr "Importer des fichiers"
 msgid "Create symbolic links"
 msgstr "Créer des liens symboliques"
 
-#: FImportTable.class:58 FSearch.form:196 FTranslate.class:1387
+#: FImportTable.class:58 FSearch.form:196 FTranslate.class:1388
 msgid "All files"
 msgstr "Tous les fichiers"
 
@@ -6305,15 +6305,19 @@ msgstr "Fichiers images SVG"
 msgid "Audio files"
 msgstr "Fichiers audio"
 
-#: FSelectIcon.form:20
+#: FSelectIcon.form:22
 msgid "Select a picture"
 msgstr "Sélectionnez une image"
 
-#: FSelectIcon.form:45
+#: FSelectIcon.form:46
 msgid "Stock"
 msgstr "Stock"
 
-#: FSelectIcon.form:73
+#: FSelectIcon.form:48
+msgid "Flags"
+msgstr ""
+
+#: FSelectIcon.form:107
 msgid "Size preview"
 msgstr "Aperçu de la taille"
 
@@ -6689,75 +6693,75 @@ msgstr "Le projet est vide. Il n'y a rien à traduire."
 msgid "Not translated"
 msgstr "Non traduit"
 
-#: FTranslate.class:177
+#: FTranslate.class:178
 msgid "Translation files"
 msgstr "Fichiers de traduction"
 
-#: FTranslate.class:337
+#: FTranslate.class:338
 msgid "Cannot read translation file for language '&1'"
 msgstr "Impossible de lire le fichier de traduction pour la langue « &1 »"
 
-#: FTranslate.class:576
+#: FTranslate.class:577
 msgid "Cannot save translation."
 msgstr "Impossible de sauvegarder la traduction."
 
-#: FTranslate.class:689
+#: FTranslate.class:690
 msgid "Do you really want to delete this translation ?"
 msgstr "Voulez-vous vraiment supprimer cette traduction ?"
 
-#: FTranslate.class:798
+#: FTranslate.class:799
 msgid "Do you really want to reload this translation ?"
 msgstr "Voulez-vous vraiment recharger cette traduction ?"
 
-#: FTranslate.class:812
+#: FTranslate.class:813
 msgid "Export a translation"
 msgstr "Exporter une traduction"
 
-#: FTranslate.class:1027
+#: FTranslate.class:1028
 msgid "Please select the translation file to import."
 msgstr "Veuillez sélectionner le fichier de traduction à importer."
 
-#: FTranslate.class:1065
+#: FTranslate.class:1066
 msgid "No translation were picked up."
 msgstr "Aucune traduction n'a été récupérée."
 
-#: FTranslate.class:1067
+#: FTranslate.class:1068
 msgid "One translation was picked up."
 msgstr "Une traduction a été récupérée."
 
-#: FTranslate.class:1069
+#: FTranslate.class:1070
 msgid "&1 translations were picked up."
 msgstr "&1 traductions ont été récupérées."
 
-#: FTranslate.class:1077
+#: FTranslate.class:1078
 msgid "Cannot import translation file."
 msgstr "Impossible d'importer le fichier de traduction."
 
-#: FTranslate.class:1126
+#: FTranslate.class:1127
 msgid "Everything seems to be correct."
 msgstr "Tout semble correct."
 
-#: FTranslate.class:1136
+#: FTranslate.class:1137
 msgid "Translated string symbols do not match untranslated string ones."
 msgstr "Les symboles de la chaîne traduite ne correspondent pas à ceux de la chaîne non traduite."
 
-#: FTranslate.class:1162
+#: FTranslate.class:1163
 msgid "&1 strings. Everything is translated!"
 msgstr "&1 chaînes de caractères. Tout est traduit !"
 
-#: FTranslate.class:1164
+#: FTranslate.class:1165
 msgid "&1 strings. One is not translated. &3% done."
 msgstr "&1 chaînes de caractères. Une n'est pas traduite. &3% effectué."
 
-#: FTranslate.class:1166
+#: FTranslate.class:1167
 msgid "&1 strings. &2 are not translated. &3% done."
 msgstr "&1 chaînes de caractères. &2 ne sont pas traduites. &3% effectué."
 
-#: FTranslate.class:1758
+#: FTranslate.class:1759
 msgid "Automatic translation has failed."
 msgstr "La traduction automatique a échoué."
 
-#: FTranslate.class:1770
+#: FTranslate.class:1771
 msgid "Do you want to fill the translation automatically?"
 msgstr "Voulez-vous remplir la traduction automatiquement ?"
 

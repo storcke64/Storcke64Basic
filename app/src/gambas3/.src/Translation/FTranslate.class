@@ -126,6 +126,7 @@ Private Sub ComputeTransStat(sLang As String, Optional nTrans As Integer)
     .[2] = CStr(nTrans - nStr) & " "
     .[3] = sLang & ".po"
     Try .[4] = Project.GetFileSize(Stat(MyLanguage.GetPath(sLang, "po")).Size)
+    .Picture = Picture["flag:/small/" & Language[sLang].Country]
   End With
 
 End
@@ -318,6 +319,8 @@ Private Sub SetLang(Optional sLang As String) As Boolean
   Try cvwLang.Add($sLang, sName)
   If Not Error Then cmbLang.Add(sName)
   'If Not Error And If chkStat.Value Then cvwLang[$sLang][1] = "0%"
+
+  picLang.Picture = Picture["flag:/small/" & Language[$sLang].Country]
 
   'Try cvwLang[$sLang].Selected = True
   Try cmbLang.Index = cmbLang.Find(sName)

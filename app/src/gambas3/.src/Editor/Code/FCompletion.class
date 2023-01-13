@@ -766,7 +766,7 @@ Private Sub FillWithFiles(sWord As String)
   
   sDir = sWord
   
-  If sDir = "icon:/" Then
+  If sDir = "icon:/" Or If sDir = "flag:/" Then
     
     aDir = Stock.Sizes.Insert(["16", "22", "32", "48", "96", "128", "256"])
     
@@ -777,14 +777,18 @@ Private Sub FillWithFiles(sWord As String)
       $iMaxLen = Max($iMaxLen, String.Len(sName))
     Next
     
-  Else If sDir Like "icon:/*/" Then
+  Else If sDir Like "icon:/*/" Or If sDir Like "flag:/*/" Then
     
-    aDir = Stock.Icons
+    If sDir Begins "icon:" Then
+      aDir = Stock.Icons
+    Else 
+      aDir = Stock.Flags
+    Endif
     
     For Each sName In aDir.Sort(gb.Natural)
       'hPict = Desktop.GetFileIcon(sDir &/ sName, 16)
       'If Not hPict Then hPict = hPictFile
-      AddRow(CStr(MHelp.TYPE_FILE) & sName, sName, Picture["icon:/small" &/ sName])
+      AddRow(CStr(MHelp.TYPE_FILE) & sName, sName, Picture[Left(sDir, InStr(sDir, ":")) & "/small" &/ sName])
       $iMaxLen = Max($iMaxLen, String.Len(sName))
     Next
     
