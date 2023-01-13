@@ -4,83 +4,16 @@ Export
 
 Fast
 
-Private fTime As Float = Timer
-
-Library "libc:6"
-Private Extern modf(param As Float, pp As Pointer) As Float
-
-#If SYSTEM = "Linux"
-Private sSystem As String = "Linux"
-#Else If SYSTEM = "FreeBSD"
-Private sSystem As String = "FreeBSD"
-#Else If SYSTEM = "OpenBSD"
-Private sSystem As String = "OpenBSD"
-#Else If SYSTEM = "NetBSD"
-Private sSystem As String = "NetBSD"
-#Else If SYSTEM = "Solaris"
-Private sSystem As String = "Solaris"
-#Else
-Private sSystem As String = "Unknown"
-#Endif
-
-#If ARCHITECTURE = "x86"
-Private sArchitecture As String = "x86"
-#Else If ARCHITECTURE = "x86_64"
-Private sArchitecture As String = "x86_64"
-#Else If ARCHITECTURE = "ARM"
-Private sArchitecture As String = "ARM"
-#Else If ARCHITECTURE = "PPC"
-Private sArchitecture As String = "PPC"
-#Else
-Private sArchitecture As String = "Unknown"
-#Endif
-
-#If Debug
-Private DebuggingEnabled As Boolean = True
-#Else
-Private DebuggingEnabled As Boolean = False
-#Endif
-
 Private $sGrep As String
 Private sSearch As New String[]
-Private Const TestConst2 As Integer = 2
-Public Const LowestLong As Long = -9223372036854775808
-Public Const HighestLong As Long = 9223372036854775807
-Public Const LowestInteger As Integer = -2147483648
-Public Const HighestInteger As Integer = 2147483647
-Public Const LowestShort As Short = -32768
-Public Const HighestShort As Short = 32767
-
-Public Struct MyPoint
-    x As Integer
-    y As Integer
-End Struct
 
 Private arr As New Integer[2, 2]
-
-Private hProcess As Process
-Private sTest As String '
-
-Private hStillHere1 As New MyPoint
-
-Private Enum Zero, One, Two
-
 Public hFormForEvent As New TestClass3
 
 Private iTestAndIf As Integer = 0
-
-Private Errors As New String[]
-
-Private hFile2 As File
 Private iseek As Integer
 
 Private hCrash2 As New ChildClass
-
-Private bRun As Boolean = False
-
-Public Const kkX As Integer = 1999
-Public Const kkY As Integer = 1499
-
 Public hChild As New ChildClass
 
 Public timo As Integer
@@ -90,9 +23,6 @@ Public Const gHour As Integer = 30833
 
 Public Const bbb As Integer = 50
 Public bArray As New Boolean[100]
-Private ctrl_dc[7] As Integer
-
-Public sPublic As String = "Test"
 
 Fast Private Sub VoidFn()
 
