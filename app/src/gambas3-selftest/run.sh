@@ -10,6 +10,9 @@ fi
 MYDIR=$(cd `dirname $0` && pwd)
 
 # run Production without JIT
+
+echo "########### Run without JIT ############"
+
 gbx3 -j -T "$TESTSUITE" $MYDIR
 
 if [ $? -ne 0 ] 
@@ -19,7 +22,8 @@ then
 fi
 
 # run Production with JIT
-GB_NO_JIT=01 GB_JIT_CFLAGS=-O0 gbx3 -T "$TESTSUITE" $MYDIR
+echo "########### Now run with JIT ############"
+GB_JIT_CFLAGS=-O0 gbx3 -T "$TESTSUITE" $MYDIR
 
 if [ $? -ne 0 ] 
 then
