@@ -681,4 +681,12 @@ enum
   result; \
 })
 
+#define MATH_CONV(_ctype, _expr) \
+({ \
+  _ctype result; \
+  if (__builtin_add_overflow((_expr), (_ctype)0, &result)) \
+    THROW(E_OVERFLOW); \
+  result; \
+})
+
 #endif
