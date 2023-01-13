@@ -395,6 +395,9 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 		sprintf(buffer, "(THROW_PC(E_NRETURN, %d),%s)", _pc, JIT_get_default_value(TYPEID(dest)));
 		return buffer;
 	}
+
+	if (src == dest)
+		return "%s";
 			
 	switch(dest)
 	{
@@ -419,8 +422,16 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 			{
 				case T_BOOLEAN:
 					return "((uchar)(%s)?255:0)";
-				case T_SHORT: case T_INTEGER: case T_LONG: case T_SINGLE: case T_FLOAT:
-					return "((uchar)(%s))";
+				case T_SHORT: case T_INTEGER: case T_LONG: case T_POINTER:
+					if (_unsafe)
+						return "((uchar)(%s))";
+					else
+						return "MATH_CONV(uchar, (%s))";
+				case T_SINGLE: case T_FLOAT:
+					if (_unsafe)
+						return "((uchar)(%s))";
+					else
+						return "MATH_CONV(uchar, ((int64_t)(%s))";
 			}
 			break;
 			
@@ -430,8 +441,18 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 			{
 				case T_BOOLEAN:
 					return "((short)(%s)?-1:0)";
-				case T_BYTE: case T_INTEGER: case T_LONG: case T_SINGLE: case T_FLOAT:
+				case T_BYTE:
 					return "((short)(%s))";
+				case T_INTEGER: case T_LONG: case T_POINTER:
+					if (_unsafe)
+						return "((short)(%s))";
+					else
+						return "MATH_CONV(short, (%s))";
+				case T_SINGLE: case T_FLOAT:
+					if (_unsafe)
+						return "((short)(%s))";
+					else
+						return "MATH_CONV(short, ((int64_t)(%s)))";
 			}
 			break;
 
@@ -441,8 +462,18 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 			{
 				case T_BOOLEAN:
 					return "((int)(%s)?-1:0)";
-				case T_BYTE: case T_SHORT: case T_LONG: case T_SINGLE: case T_FLOAT: case T_POINTER:
+				case T_BYTE: case T_SHORT:
 					return "((int)(%s))";
+				case T_LONG: case T_POINTER:
+					if (_unsafe)
+						return "((int)(%s))";
+					else
+						return "MATH_CONV(int, (%s))";
+				case T_SINGLE: case T_FLOAT:
+					if (_unsafe)
+						return "((int)(%s))";
+					else
+						return "MATH_CONV(int, ((int64_t)(%s)))";
 			}
 			break;
 		
@@ -452,7 +483,7 @@ static const char *get_conv_format(TYPE src, TYPE dest)
 			{
 				case T_BOOLEAN:
 					return "((int64_t)(%s)?-1:0)";
-				case T_BYTE: case T_SHORT: case T_INTEGER: case T_SINGLE: case T_FLOAT: case T_POINTER:
+				case T_BYTE: case T_SHORT: case T_INTEGER: case T_POINTER: case T_SINGLE: case T_FLOAT:
 					return "((int64_t)(%s))";
 			}
 			break;
