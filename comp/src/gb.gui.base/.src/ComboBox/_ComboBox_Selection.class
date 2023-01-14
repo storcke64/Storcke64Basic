@@ -16,38 +16,41 @@ Property Text As String
 Property Read Length As String
 Property Read Start, Pos As Integer
 
-Private Sub GetParent() As ComboBox
+Private Sub GetTextBox() As TextBox
+
+  Dim hTextBox As ComboBox
   
-  Return Object.Parent(Me)
+  hTextBox = Object.Parent(Me)
+  Return hTextBox._GetTextBox()
   
 End
 
 Public Sub Hide()
   
-  GetParent().Selection.Hide()
+  GetTextBox().Selection.Hide
   
 End
 
 Private Function Text_Read() As String
 
-  Return GetParent().Selection.Text
+  Return GetTextBox().Selection.Text
 
 End
 
 Private Sub Text_Write(Value As String)
 
-  GetParent().Selection.Text = Value
+  GetTextBox().Selection.Text = Value
 
 End
 
 Private Function Length_Read() As String
 
-  Return GetParent().Selection.Length
+  Return GetTextBox().Selection.Length
 
 End
 
 Private Function Start_Read() As Integer
 
-  Return GetParent().Selection.Start
+  Return GetTextBox().Selection.Start
 
 End
