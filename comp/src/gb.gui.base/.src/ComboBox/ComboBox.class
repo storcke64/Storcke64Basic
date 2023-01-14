@@ -694,3 +694,9 @@ Private Function Selected_Read() As Boolean
   Return $hTextBox.Selected
 
 End
+
+Public Sub _GetTextBox() As TextBox
+  
+  Return $hTextBox
+  
+End
