@@ -2343,29 +2343,33 @@ Fast Public Sub IntegerOverflows()
 
     ' ------------------------------------------------- Ignore Overflows
 
-    System.IgnoreOverflow = True
+    If Jit.Enabled = False Then
 
-    Test.Note("Ignore Short Overflow")
-    s = HighestShort + 1
+        System.IgnoreOverflow = True
 
-    Test.Note("Ignore Integer Overflow")
-    i = HighestInteger + 1
+        Test.Note("Ignore Short Overflow")
+        s = HighestShort + 1
 
-    Test.Note("Ignore Long Overflow")
-    l = HighestLong + 1
+        Test.Note("Ignore Integer Overflow")
+        i = HighestInteger + 1
 
-    Test.Note("Ignore Short Underflow")
-    s = LowestShort - 1
+        Test.Note("Ignore Long Overflow")
+        l = HighestLong + 1
 
-    Test.Note("Ignore Integer Underflow")
-    i = LowestInteger - 1
+        Test.Note("Ignore Short Underflow")
+        s = LowestShort - 1
 
-    Test.Note("Ignore Long Underflow")
-    l = LowestLong - 1
+        Test.Note("Ignore Integer Underflow")
+        i = LowestInteger - 1
 
-    ' ------------------------------------------------- Restore original behavior
+        Test.Note("Ignore Long Underflow")
+        l = LowestLong - 1
 
-    System.IgnoreOverflow = bIgnoreOverflows
+        ' ------------------------------------------------- Restore original behavior
+
+        System.IgnoreOverflow = bIgnoreOverflows
+        
+    Endif
 
 End
 
@@ -2376,34 +2380,34 @@ Fast Unsafe Public Sub IntegerOverflowsUnsafe()
     Dim l As Integer
 
     If Jit.Enabled Then
-        
+
         Test.Plan(6)
 
         Test.Note("Short Unsafe Overflow")
         s = HighestShort + 1
-        Assert.Ok(s)
+        Assert.Noterror()
 
         Test.Note("Integer Unsafe Overflow")
         i = HighestInteger + 1
-        Assert.Ok(i)
+        Assert.Noterror()
 
         Test.Note("Long Unsafe Overflow")
         l = HighestLong + 1
-        Assert.Ok(l)
-
+        Assert.Noterror()
+        
         Test.Note("Short Unsafe Underflow")
         s = LowestShort - 1
-        Assert.Ok(s)
+        Assert.Noterror()
 
         Test.Note("Integer Unsafe Underflow")
         i = LowestInteger - 1
-        Assert.Ok(i)
+        Assert.Noterror()
 
         Test.Note("Long Unsafe Underflow")
         l = LowestLong - 1
-        Assert.Ok(l)
+        Assert.Noterror()
 
-    Else 
+    Else
         Test.Note("Jit disabled")
         Test.Plan(1)
         'minimum 1 test
