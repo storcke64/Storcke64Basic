@@ -37,6 +37,8 @@ Public Sub Close()
   
 End
 
+'' Return an application connected on this bus from its name.
+
 Public Sub _get((Application) As String) As DBusApplication
   
   Dim hApp As DBusApplication
