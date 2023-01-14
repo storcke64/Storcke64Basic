@@ -2385,27 +2385,27 @@ Fast Unsafe Public Sub IntegerOverflowsUnsafe()
 
         Test.Note("Short Unsafe Overflow")
         s = HighestShort + 1
-        Assert.Ok(s)
+        Assert.Noterror()
 
         Test.Note("Integer Unsafe Overflow")
         i = HighestInteger + 1
-        Assert.Ok(i)
+        Assert.Noterror()
 
         Test.Note("Long Unsafe Overflow")
         l = HighestLong + 1
-        Assert.Ok(l)
-
+        Assert.Noterror()
+        
         Test.Note("Short Unsafe Underflow")
         s = LowestShort - 1
-        Assert.Ok(s)
+        Assert.Noterror()
 
         Test.Note("Integer Unsafe Underflow")
         i = LowestInteger - 1
-        Assert.Ok(i)
+        Assert.Noterror()
 
         Test.Note("Long Unsafe Underflow")
         l = LowestLong - 1
-        Assert.Ok(l)
+        Assert.Noterror()
 
     Else
         Test.Note("Jit disabled")
