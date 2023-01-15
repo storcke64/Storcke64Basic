@@ -333,6 +333,8 @@ GB_COLOR COLOR_darker(GB_COLOR color)
 	return v;
 }
 
+//-------------------------------------------------------------------------
+
 BEGIN_METHOD(Color_RGB, GB_INTEGER r; GB_INTEGER g; GB_INTEGER b; GB_INTEGER a)
 
   GB.ReturnInteger(gt_rgba_to_color(VARG(r), VARG(g), VARG(b), VARGOPT(a, 0)));
@@ -628,7 +630,27 @@ BEGIN_METHOD(Color_Invert, GB_INTEGER color; GB_BOOLEAN keep_hue)
 
 END_METHOD
 
-GB_DESC CColorInfoDesc[] =
+BEGIN_METHOD(Color_ToHTML, GB_INTEGER color)
+
+	char buffer[32];
+	int r, g, b, a;
+	int len;
+
+	gt_color_to_rgba(VARG(color), &r, &g, &b, &a);
+	a = 255 - a;
+
+	if (a < 255)
+		len = sprintf(buffer, "rgba(%d,%d,%d,0.%03d)", r, g, b, (int)(a / 255.0 * 1000));
+	else
+		len = sprintf(buffer, "#%02X%02X%02X", r, g, b);
+
+	GB.ReturnNewString(buffer, len);
+
+END_METHOD
+
+//-------------------------------------------------------------------------
+
+GB_DESC ColorInfoDesc[] =
 {
   GB_DECLARE("ColorInfo", sizeof(CCOLOR)), GB_NOT_CREATABLE(),
 
@@ -645,7 +667,7 @@ GB_DESC CColorInfoDesc[] =
   GB_END_DECLARE
 };
 
-GB_DESC CColorDesc[] =
+GB_DESC ColorDesc[] =
 {
   GB_DECLARE_STATIC("Color"),
 
@@ -719,6 +741,8 @@ GB_DESC CColorDesc[] =
 	GB_STATIC_METHOD("GetAlpha", "i", Color_GetAlpha, "(Color)i"),
 
   GB_STATIC_METHOD("Distance", "f", Color_Distance, "(Color1)i(Color2)i"),
+
+  GB_STATIC_METHOD("ToHTML", "s", Color_ToHTML, "(Color)i"),
 
   GB_STATIC_METHOD("_get", "ColorInfo", Color_get, "(Color)i"),
   //GB_STATIC_METHOD("_call", "ColorInfo", Color_get, "(Color)i"),
