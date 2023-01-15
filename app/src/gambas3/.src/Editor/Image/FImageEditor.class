@@ -131,7 +131,7 @@ Public Sub Reload()
   ClearSelection
   $aUndo.Clear
   $aRedo.Clear
-  btnZoomFit_Click
+  ZoomFit
   SetReadOnly
   panBackground_Arrange  
   Modify(True)
@@ -403,6 +403,62 @@ Public Sub btnReload_Click()
 
 End
 
+Private Sub FitToContents()
+
+  Dim X, Y, X2, Y2 As Integer
+  Dim I As Integer
+  Dim hImage As Image
+
+  Y = 0
+  
+  While Y < $hImage.H
+    For I = 0 To $hImage.W - 1
+      If Color[$hImage[I, Y]].Alpha < 255 Then Break
+    Next
+    If I < $hImage.W Then Break
+    Inc Y
+  Wend
+  
+  Y2 = $hImage.H - 1
+  
+  While Y2 >= Y
+    For I = 0 To $hImage.W - 1
+      If Color[$hImage[I, Y2]].Alpha < 255 Then Break
+    Next
+    If I < $hImage.W Then Break
+    Dec Y2
+  Wend
+  
+  X = 0
+  
+  While X < $hImage.W
+    For I = 0 To $hImage.H - 1
+      If Color[$hImage[X, I]].Alpha < 255 Then Break
+    Next
+    If I < $hImage.H Then Break
+    Inc X
+  Wend
+  
+  X2 = $hImage.W - 1
+  
+  While X2 >= X
+    For I = 0 To $hImage.H - 1
+      If Color[$hImage[X2, I]].Alpha < 255 Then Break
+    Next
+    If I < $hImage.H Then Break
+    Dec X2
+  Wend
+  
+  If X > X2 Or If Y > Y2 Then
+    hImage = $hImage.Copy(0, 0, 1, 1)
+  Else 
+    hImage = $hImage.Copy(X, Y, X2 - X + 1, Y2 - Y + 1)
+  Endif
+  
+  SetImage(hImage)
+
+End
+
 Public Sub btnResize_Click()
 
   Dim X, Y, W, H As Integer
@@ -420,6 +476,7 @@ Public Sub btnResize_Click()
   If W = $hImage.W And If H = $hImage.H Then Return
   
   If FImageResize.Stretch Then
+    
     F = W / $hImage.W
     If F > 1 And If Frac(F) = 0 And If F = H / $hImage.H Then
       hImage = New Image(W, H, Color.Transparent)
@@ -430,6 +487,7 @@ Public Sub btnResize_Click()
     Else
       SetImage($hImage.Stretch(W, H))
     Endif
+      
   Else
     hImage = New Image(W, H, Color.Transparent)
     If FImageResize.CenterH Then X = (W - $hImage.W) \ 2
@@ -438,7 +496,7 @@ Public Sub btnResize_Click()
     SetImage(hImage)
   Endif
   
-  btnZoomFit_Click
+  ZoomFit
 
 End
 
@@ -550,8 +608,13 @@ Private Sub Undo()
 
   Dim vUndo As Variant
   Dim iLevel As Integer
+  Dim W As Integer
+  Dim H As Integer
 
   If $aUndo.Count = 0 Then Return
+  
+  W = $hImage.W
+  H = $hImage.H
   
   Repeat
   
@@ -585,6 +648,8 @@ Private Sub Undo()
     
   Until iLevel = 0
 
+  If $hImage.W <> W Or If $hImage.H <> H Then ZoomFit
+  
   RefreshSelection
   UpdateInfo
 
@@ -600,8 +665,13 @@ Public Sub btnRedo_Click()
 
   Dim vUndo As Variant
   Dim iLevel As Integer
+  Dim W As Integer
+  Dim H As Integer
 
   If $aRedo.Count = 0 Then Return
+  
+  W = $hImage.W
+  H = $hImage.H
   
   Repeat
     
@@ -631,6 +701,7 @@ Public Sub btnRedo_Click()
     
   Until iLevel = 0
 
+  If $hImage.W <> W Or If $hImage.H <> H Then ZoomFit
   RefreshSelection
   UpdateInfo
   
@@ -2173,7 +2244,7 @@ End
 
 Public Sub timCheckZoom_Timer()
 
-  btnZoomFit_Click
+  ZoomFit
 
 End
 
@@ -2213,27 +2284,10 @@ End
 Public Sub btnCrop_Click()
 
   Dim hImage As Image
-  Dim hRect As Rect
-  Dim X As Integer
-  Dim Y As Integer
   
   If $hSelect Then
     
-    $hSelect.Invert($hImage)
-    
-    hImage = $hImage.Copy()
-    
-    Paint.Begin(hImage)
-    Paint.Brush = Paint.Color(Color.Black)
-    $hSelect.Paint(hImage, CImageSelection.ACTION_CLEAR)
-    Paint.End
-
-    $hSelect.Invert($hImage)
-
-    ' If Not $hSelect.IsInverted() Then
-    '   hRect = $hSelect.GetExtentsInt(True)
-    '   If hRect Then hImage = hImage.Copy(hRect.X, hRect.Y, hRect.Width, hRect.Height)
-    ' Endif
+    hImage = GetSelectedImage()
     
     BeginUndo
     AddUndo($hSelect.Copy())
@@ -2243,57 +2297,8 @@ Public Sub btnCrop_Click()
     
   Else
     
-    hRect = New Rect(0, 0, $hImage.W, $hImage.H)
-    
-    For X = 0 To $hImage.W - 1
-      For Y = 0 To $hImage.H - 1
-        If Color.GetAlpha($hImage[X, Y]) < 255 Then Break
-      Next
-      If Y < $hImage.H Then
-        hRect.Left = X
-        Break
-      Endif
-    Next
-    
-    For X = $hImage.W - 1 DownTo hRect.Left
-      For Y = 0 To $hImage.H - 1
-        If Color.GetAlpha($hImage[X, Y]) < 255 Then Break
-      Next
-      If Y < $hImage.H Then
-        hRect.Right = X + 1
-        Break
-      Endif
-    Next
-    
-    For Y = 0 To $hImage.H - 1
-      For X = hRect.Left To hRect.Right
-        If Color.GetAlpha($hImage[X, Y]) < 255 Then Break
-      Next
-      If X <= hRect.Right Then
-        hRect.Top = Y
-        Break
-      Endif
-    Next
-    
-    For Y = $hImage.H - 1 DownTo hRect.Top
-      For X = hRect.Left To hRect.Right
-        If Color.GetAlpha($hImage[X, Y]) < 255 Then Break
-      Next
-      If X <= hRect.Right Then
-        hRect.Bottom = Y + 1
-        Break
-      Endif
-    Next
-    
-    If Not hRect.IsVoid() Then
-      If hRect.W < $hImage.W Or If hRect.H < $hImage.H Then
-        BeginUndo
-        AddUndo($hImage.Copy())
-        SetImage($hImage.Copy(hRect.X, hRect.Y, hRect.W, hRect.H))
-        EndUndo
-      Endif
-    Endif
-    
+    FitToContents
+   
   Endif
 
 End
@@ -2517,7 +2522,7 @@ End
 '   
 ' End
 
-Public Sub btnZoomFit_Click()
+Private Sub ZoomFit()
 
   Dim iIndex As Integer
   Dim fZoom As Float
@@ -2537,28 +2542,42 @@ Public Sub btnZoomFit_Click()
 
 End
 
-Public Sub btnCopy_Click()
+Public Sub btnZoomFit_Click()
+
+  ZoomFit
+
+End
+
+Private Sub GetSelectedImage() As Image
 
   Dim hImage As Image
   Dim hExt As Rect
+
+  $hSelect.Invert($hImage)
+  
+  hImage = $hImage.Copy()
+  
+  Paint.Begin(hImage)
+  Paint.Brush = Paint.Color(Color.Black)
+  $hSelect.Paint(hImage, CImageSelection.ACTION_CLEAR)
+  Paint.End
+
+  $hSelect.Invert($hImage)
+
+  hExt = $hSelect.GetExtentsInt(True)
+  If hExt Then hImage = hImage.Copy(hExt.X, hExt.Y, hExt.Width, hExt.Height)
+  
+  Return hImage
+
+End
+
+Public Sub btnCopy_Click()
+
+  Dim hImage As Image
   
   If $hSelect Then
     
-    $hSelect.Invert($hImage)
-    
-    hImage = $hImage.Copy()
-    
-    Paint.Begin(hImage)
-    Paint.Brush = Paint.Color(Color.Black)
-    $hSelect.Paint(hImage, CImageSelection.ACTION_CLEAR)
-    Paint.End
-
-    $hSelect.Invert($hImage)
-
-    ' If Not $hSelect.IsInverted() Then
-      hExt = $hSelect.GetExtentsInt(True)
-      If hExt Then hImage = hImage.Copy(hExt.X, hExt.Y, hExt.Width, hExt.Height)
-    ' Endif
+    hImage = GetSelectedImage()
     
     Inc $iClipboard
     FImageProperty.AddClipboard(hImage, Me.Name & " [" & CStr($iClipboard) & "]")
@@ -2631,7 +2650,7 @@ End
 Public Sub Form_Activate()
 
   If Not $bFirstTime Then 
-    btnZoomFit_Click
+    ZoomFit
     $bFirstTime = True
   Endif
 

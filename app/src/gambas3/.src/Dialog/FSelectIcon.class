@@ -13,6 +13,7 @@ Private $sSize As String
 Private $iOption As Integer
 Private $aSizes As String[]
 Private $bNoRefreshStock As Boolean
+Private $sSelectKey As String
 
 Public Sub Run(sIcon As String, Optional iOption As Integer = SELECT_IMAGE + SELECT_STOCK, aSizes As String[]) As String
   
@@ -70,19 +71,15 @@ Public Sub Form_Open()
   Endif
   
   If $sIcon Begins "icon:/" Or If $sIcon Begins "flag:/" Then 
-    sIcon = Mid$($sIcon, InStr(sIcon, "/") + 1)
+    sIcon = Mid$($sIcon, InStr($sIcon, "/") + 1)
     iPos = InStr(sIcon, "/")
     If iPos Then 
       SetSize(Left$(sIcon, iPos - 1))
     Else 
       SetSize(Settings["FSelectIcon/Size", "32"])
     Endif
-    sIcon = Mid$(sIcon, iPos + 1)
+    $sSelectKey = Mid$(sIcon, iPos + 1)
     hIconView = GetIconView()
-    If hIconView.Exist(sIcon) Then
-      hIconView[sIcon].Selected = True
-      hIconView[sIcon].EnsureVisible
-    Endif
   Else If $sIcon Then
     fchIcon.SelectedPath = fchIcon.Root &/ $sIcon
   Endif
@@ -301,5 +298,18 @@ End
 Public Sub tabIcon_Arrange()
 
   panStock.Move(tabIcon.X + tabIcon.ClientX, tabIcon.Y + tabIcon.ClientY, tabIcon.ClientW, tabIcon.ClientH)
+
+End
+
+Public Sub Form_Activate()
+
+  Dim hIconView As IconView
+  
+  If Not $sSelectKey Then Return
+  
+  hIconView = GetIconView()
+  Try hIconView[$sSelectKey].Selected = True
+  If Not Error Then hIconView[$sSelectKey].EnsureVisible
+  $sSelectKey = ""
 
 End

@@ -130,8 +130,8 @@ Public Sub fvwProject_Activate()
   If IsDir($hView.Path) Then
     SetDir($hView.Path)
   Else 
-    FMain.CloseProjectEditor()
-    Project.OpenFile($hView.Path)
+    FMain.CloseProjectEditor
+    Project.Activate(Project.OpenFile($hView.Path))
     Stop Event
   Endif
 
@@ -164,7 +164,11 @@ End
 
 Public Sub btnParent_Click()
 
+  Dim sName As String
+
+  sName = File.Name($hView.Dir)
   SetDir(File.Dir($hView.Dir))
+  Try $hView.Current = sName
 
 End
 
