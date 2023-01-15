@@ -23,7 +23,7 @@ Property Tag As Variant
 
 Static Private $iCount As Integer
 Static Public _GnomeDesktop As Boolean
-Static Public _CinnamonDesktop As Boolean
+Static Public _CinnamonMateDesktop As Boolean
 
 Private $bAppIndicator As Boolean
 Private $sName As String
@@ -45,7 +45,7 @@ Public Sub _new()
     
     aDesktop = Split(Env["XDG_CURRENT_DESKTOP"], ":")
     _GnomeDesktop = aDesktop.Exist("GNOME", gb.IgnoreCase)
-    If aDesktop.Exist("x-cinnamon", gb.IgnoreCase) Or If aDesktop.Exist("cinnamon", gb.IgnoreCase) Then _CinnamonDesktop = True
+    If aDesktop.Exist("x-cinnamon", gb.IgnoreCase) Or If aDesktop.Exist("cinnamon", gb.IgnoreCase) Or If aDesktop.Exist("x-mate", gb.IgnoreCase) Or If aDesktop.Exist("mate", gb.IgnoreCase) Then _CinnamonMateDesktop = True
     
   Endif
 

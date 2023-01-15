@@ -235,7 +235,7 @@ Public Sub _UpdateMenu(hMenu As Menu) As Boolean
   $sProp = sProp
   Inc $iRevision
   
-  If TrayIcon._CinnamonDesktop Then
+  If TrayIcon._CinnamonMateDesktop Then
     If DBus.IsRegistered(Me) Then DBus.Raise(Me, "com.canonical.dbusmenu.LayoutUpdated", [_DBusUInt($iRevision), 0])
   Endif
   
