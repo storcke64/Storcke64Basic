@@ -899,6 +899,7 @@ Private Sub ImportMessage(sPath As String, bReplace As Boolean) As Integer
   Dim iIndex As Integer
   Dim nTrans As Integer
   Dim sCharset As String
+  Dim bIgnore As Boolean
 
   ' sTemp = Temp$()
   ' sOutput = Temp$()
@@ -918,18 +919,23 @@ Private Sub ImportMessage(sPath As String, bReplace As Boolean) As Integer
 
       Line Input #hFic, sLine
 
-      If Left$(sLine) = "#" Then
+      If sLine Begins "#" Then
 
-        If Left$(sLine, 2) = "#:" Then
+        If Mid$(sLine, 2, 1) = ":" Then
           sMsgComment = Trim(Mid$(sLine, 3))
           Continue
         Endif
 
-        If Left$(sLine, 2) = "#," Then
+        If Mid$(sLine, 2, 1) = "," Then
           If InStr(sLine, "fuzzy") Then
             bFuzzy = True
             Continue
           Endif
+        Endif
+        
+        If Trim(Mid$(sLine, 2)) = "gb-ignore" Then
+          bIgnore = True
+          Continue
         Endif
 
         Continue
@@ -981,7 +987,7 @@ Private Sub ImportMessage(sPath As String, bReplace As Boolean) As Integer
       If iIndex > 0 Then
         If bReplace Or If cvwTranslate[iIndex][1] = "" Then
 
-          If sMsgStr = "-\\n" Then sMsgStr = "-"
+          If sMsgStr = "-\\n" Or If bIgnore Then sMsgStr = "-"
   
           If bFuzzy Then
             bFuzzy = False
@@ -1003,6 +1009,7 @@ Private Sub ImportMessage(sPath As String, bReplace As Boolean) As Integer
     sMsgComment = ""
     sMsgStr = ""
     bFuzzy = False
+    bIgnore = False
 
     If Eof(hFic) Then Break
 
