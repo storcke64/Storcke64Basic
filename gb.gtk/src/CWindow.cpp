@@ -810,6 +810,30 @@ BEGIN_PROPERTY(Window_MinHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Window_Geometry)
+
+	GEOM_RECT *rect = GEOM.CreateRect();
+
+	if (WINDOW->isTopLevel())
+	{
+		rect->x = WINDOW->_sx;
+		rect->y = WINDOW->_sy;
+		rect->w = WINDOW->_sw;
+		rect->h = WINDOW->_sh;
+	}
+	else
+	{
+		rect->x = WINDOW->bufX;
+		rect->y = WINDOW->bufY;
+		rect->w = WINDOW->bufW;
+		rect->h = WINDOW->bufH;
+	}
+
+	GB.ReturnObject(rect);
+
+END_PROPERTY
+
+
 //-------------------------------------------------------------------------
 
 BEGIN_METHOD_VOID(Form_new)
@@ -933,6 +957,7 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Picture", "Picture", CWINDOW_picture),
 
 	GB_PROPERTY_READ("Screen", "i", Window_Screen),
+	GB_PROPERTY_READ("Geometry", "Rect", Window_Geometry),
 
 	GB_PROPERTY_SELF("Menus", ".Window.Menus"),
 	GB_PROPERTY_SELF("Controls", ".Window.Controls"),

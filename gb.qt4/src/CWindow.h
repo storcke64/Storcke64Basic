@@ -72,6 +72,7 @@ typedef
 		int default_minh;
 		int last_resize_w;
 		int last_resize_h;
+		int sx, sy, sw, sh;
 		
 		unsigned toplevel : 1;
 		unsigned persistent : 1;

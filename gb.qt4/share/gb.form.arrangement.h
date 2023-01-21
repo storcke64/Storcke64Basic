@@ -156,11 +156,15 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 	int indent;
 	bool centered;
 
+	arr = GET_ARRANGEMENT(_object);
+
 	if (!CAN_ARRANGE(_object))
+	{
+		arr->dirty = TRUE;
 		return;
+	}
 		
 	cont = (CONTAINER_TYPE)GET_CONTAINER(_object);
-	arr = GET_ARRANGEMENT(_object);
 
 	//if (!IS_WIDGET_VISIBLE(cont) && !IS_WIDGET_VISIBLE(GET_WIDGET(_object)))
 	//  return;
@@ -723,12 +727,13 @@ void FUNCTION_NAME(void *_object) //(QFrame *cont)
 
 __RETURN:
 
+	arr->dirty = false;
+
 	RAISE_ARRANGE_EVENT(_object);
 
 	arr->locked = false;
 
 	//qDebug("%p: dirty = FALSE", THIS);
-	//arr->dirty = false;
 
 	//qDebug("CCONTAINER_arrange: END %p", THIS);
 

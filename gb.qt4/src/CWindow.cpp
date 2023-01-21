@@ -262,6 +262,8 @@ static void raise_resize_event(void *_object)
 
 static void post_show_event(void *_object)
 {
+	THIS->sx = THIS->x;
+	THIS->sy = THIS->y;
 	GB.Raise(THIS, EVENT_Move, 0);
 	raise_resize_event(THIS);
 	handle_focus(THIS);
@@ -1390,6 +1392,29 @@ BEGIN_PROPERTY(Window_MinHeight)
 
 END_PROPERTY
 
+BEGIN_PROPERTY(Window_Geometry)
+
+	GEOM_RECT *rect = GEOM.CreateRect();
+
+	if (THIS->toplevel)
+	{
+		rect->x = THIS->sx;
+		rect->y = THIS->sy;
+		rect->w = THIS->sw;
+		rect->h = THIS->sh;
+	}
+	else
+	{
+		rect->x = THIS->x;
+		rect->y = THIS->y;
+		rect->w = THIS->w;
+		rect->h = THIS->h;
+	}
+
+	GB.ReturnObject(rect);
+
+END_PROPERTY
+
 
 /***************************************************************************/
 
@@ -1504,6 +1529,7 @@ GB_DESC CWindowDesc[] =
 	GB_PROPERTY("Resizable", "b", Window_Resizable),
 
 	GB_PROPERTY_READ("Screen", "i", Window_Screen),
+	GB_PROPERTY_READ("Geometry", "Rect", Window_Geometry),
 
 	GB_PROPERTY_SELF("Menus", ".Window.Menus"),
 	GB_PROPERTY_SELF("Controls", ".Window.Controls"),
@@ -2295,6 +2321,11 @@ void MyMainWindow::moveEvent(QMoveEvent *e)
 		{
 			THIS->x = x();
 			THIS->y = y();
+			if ((_state & (Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen)) == 0)
+			{
+				THIS->sx = THIS->x;
+				THIS->sy = THIS->y;
+			}
 			//qDebug("moveEvent: x= %d y = %d", x(), y());
 		}
 	}
@@ -2335,7 +2366,14 @@ void MyMainWindow::resizeEvent(QResizeEvent *e)
 		THIS->w = THIS->container->width();
 		THIS->h = THIS->container->height();
 		if (isTopLevel())
+		{
+			if ((_state & (Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen)) == 0)
+			{
+				THIS->sw = THIS->w;
+				THIS->sh = THIS->h;
+			}
 			CCONTAINER_arrange(THIS);
+		}
 	}
 
 #ifndef NO_X_WINDOW
@@ -2818,21 +2856,21 @@ void MyMainWindow::changeEvent(QEvent *e)
 	}
 	else if (e->type() == QEvent::WindowStateChange)
 	{
+		_state = windowState();
 		GB.Raise(CWidget::get(this), EVENT_State, 0);
 	}
 }
 
 Qt::WindowStates MyMainWindow::getState() const
 {
-	return isVisible() ? windowState() : _state;
+	return _state;
 }
 
 void MyMainWindow::setState(Qt::WindowStates state)
 {
+	_state = state;
 	if (isVisible())
 		setWindowState(state);
-	else
-		_state = state;
 }
 
 void MyMainWindow::setVisible(bool visible)

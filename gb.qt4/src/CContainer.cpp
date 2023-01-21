@@ -941,6 +941,7 @@ static QRect getRect(void *_object)
 	return w->contentsRect();
 }
 
+
 BEGIN_PROPERTY(Container_ClientX)
 
 	#ifdef DEBUG
@@ -994,6 +995,7 @@ BEGIN_PROPERTY(Container_ClientHeight)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(Container_Border)
 
 	MyContainer *w = qobject_cast<MyContainer *>(THIS->container);
@@ -1010,6 +1012,7 @@ BEGIN_PROPERTY(Container_Border)
 	}
 
 END_PROPERTY
+
 
 BEGIN_PROPERTY(Container_SimpleBorder)
 
@@ -1028,6 +1031,7 @@ BEGIN_PROPERTY(Container_SimpleBorder)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(Container_Arrangement)
 
 	if (READ_PROPERTY)
@@ -1043,6 +1047,7 @@ BEGIN_PROPERTY(Container_Arrangement)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(UserContainer_Arrangement)
 
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
@@ -1055,6 +1060,7 @@ BEGIN_PROPERTY(UserContainer_Arrangement)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(UserControl_Focus)
 
 	if (READ_PROPERTY)
@@ -1063,6 +1069,7 @@ BEGIN_PROPERTY(UserControl_Focus)
 		CWIDGET_set_allow_focus(THIS, VPROP(GB_BOOLEAN));
 
 END_PROPERTY
+
 
 BEGIN_PROPERTY(Container_AutoResize)
 
@@ -1079,6 +1086,7 @@ BEGIN_PROPERTY(Container_AutoResize)
 	}
 
 END_PROPERTY
+
 
 BEGIN_PROPERTY(UserContainer_AutoResize)
 
@@ -1109,6 +1117,7 @@ BEGIN_PROPERTY(Container_Margin)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(UserContainer_Margin)
 
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
@@ -1137,6 +1146,7 @@ BEGIN_PROPERTY(Container_Spacing)
   }
 
 END_PROPERTY
+
 
 BEGIN_PROPERTY(UserContainer_Spacing)
 
@@ -1167,6 +1177,7 @@ BEGIN_PROPERTY(Container_Invert)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(UserContainer_Invert)
 
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
@@ -1193,6 +1204,7 @@ BEGIN_PROPERTY(Container_Padding)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(UserContainer_Padding)
 
 	CCONTAINER *cont = (CCONTAINER *)CWidget::get(CONTAINER);
@@ -1204,6 +1216,7 @@ BEGIN_PROPERTY(UserContainer_Padding)
 	}
 
 END_PROPERTY
+
 
 BEGIN_PROPERTY(Container_Indent)
 
@@ -1221,6 +1234,7 @@ BEGIN_PROPERTY(Container_Indent)
 
 END_PROPERTY
 
+
 BEGIN_PROPERTY(Container_Centered)
 
   if (READ_PROPERTY)
@@ -1236,6 +1250,7 @@ BEGIN_PROPERTY(Container_Centered)
   }
 
 END_PROPERTY
+
 
 BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 
@@ -1263,6 +1278,7 @@ BEGIN_METHOD(UserControl_new, GB_OBJECT parent)
 	GB.Error(NULL);
 	
 END_METHOD
+
 
 BEGIN_PROPERTY(UserControl_Container)
 
@@ -1450,6 +1466,13 @@ BEGIN_METHOD(Container_unknown, GB_VALUE x; GB_VALUE y)
 END_METHOD
 
 
+BEGIN_PROPERTY(Container_Dirty)
+
+	GB.ReturnBoolean(THIS_ARRANGEMENT->dirty);
+
+END_PROPERTY
+
+
 //---------------------------------------------------------------------------
 
 
@@ -1582,6 +1605,8 @@ GB_DESC ContainerDesc[] =
 {
 	GB_DECLARE("Container", sizeof(CCONTAINER)), GB_INHERITS("Control"),
 	GB_NOT_CREATABLE(),
+
+	GB_PROPERTY_READ("Dirty", "b", Container_Dirty),
 
 	GB_PROPERTY_READ("Children", "ContainerChildren", Container_Children),
 

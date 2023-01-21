@@ -69,6 +69,7 @@ public:
 	bool centered() const { return arrangement.centered; }
 	bool isPaint() const { return arrangement.paint; }
 	bool isArranging() const { return arrangement.locked; }
+	bool isDirty() const { return arrangement.dirty; }
 	
 	virtual int clientWidth();
 	virtual int clientHeight();
