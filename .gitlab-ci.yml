@@ -37,7 +37,7 @@ build:archlinux-clang:
        zlib gettext qt5-webengine webkit2gtk
   script:
     - ./reconf-all
-    - GAMBAS_CONFIG_FAILURE=1 ./configure CC=clang CXX=clang++ -C --disable-sqlite2 --disable-qt4 --disable-pdf --disable-poppler --disable-qt5webkit
+    - GAMBAS_CONFIG_FAILURE=1 ./configure CC=clang CXX=clang++ -C --disable-sqlite2 --disable-qt4 --disable-pdf --disable-qt5webkit
     - make -j$(nproc)
     - make install
 
