@@ -102,7 +102,7 @@ Public Sub RunWith(sText As String, cKeyword As Collection, cOperator As Collect
         Else If InStr(Trim(sText), "function") = 1 Then
           
           TextHighlighter.Add(State.Keyword, 9)
-          If InStr(sText,"(") Then TextHighlighter.Add(State.Function, RInStr(sText, "(") - 10)
+          If InStr(sText, "(") Then TextHighlighter.Add(State.Function, RInStr(sText, "(") - 10)
           Break
 
         Else If sCar = "#" Then
