@@ -298,8 +298,6 @@ Static Public Sub DndFrame_DragMove()
   Dim Y As Integer
   Dim bStopEvent As Boolean
 
-  'Debug
-
   $bInFrame = True
   StopHideFrameTimer
   
@@ -337,6 +335,12 @@ Static Public Sub DndFrame_DragMove()
   If Not bStopEvent Then 
     While hCtrl <> $hFrameCtrl
       If hCtrl.Drop Then Break
+      hCtrl = hCtrl.Parent
+    Wend
+    ' FIXME: Replace that fix by a new 'ProxyFor' property.
+    While hCtrl.Parent.Proxy = hCtrl
+      Drag.X += hCtrl.X + hCtrl.Parent.ClientX
+      Drag.Y += hCtrl.Y + hCtrl.Parent.ClientY
       hCtrl = hCtrl.Parent
     Wend
     bStopEvent = Object.Raise(hCtrl, "DragMove")
