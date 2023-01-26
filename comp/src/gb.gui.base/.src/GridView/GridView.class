@@ -2218,8 +2218,11 @@ Public Sub _GetPreferredWidth(iCol As Integer) As Integer
   Dim fDiff As Float
   Dim bBusy As Boolean
   Dim J As Integer
+  Dim iColPadding As Integer
   
-  PW = Me.Font.TextWidth($hColumns[iCol].Text) + Max(Desktop.Scale \ 2, $iPadding) * 2 + $hColumns.Padding * 2 + If($bSorted, 16, 0) + 2
+  iColPadding = $hColumns.Padding
+  
+  PW = Me.Font.TextWidth($hColumns[iCol].Text) + Max(Desktop.Scale \ 2, $iPadding) * 2 + iColPadding * 2 + If($bSorted, 16, 0) + 2
   
   fTime = Timer
   
@@ -2242,7 +2245,7 @@ Public Sub _GetPreferredWidth(iCol As Integer) As Integer
       
       With hData
         
-        iPadding = Max($iPadding, .Padding)
+        iPadding = Max($iPadding, .Padding) + iColPadding
         W = iPadding * 2
         hFont = .Font
         If Not hFont Then hFont = Me.Font

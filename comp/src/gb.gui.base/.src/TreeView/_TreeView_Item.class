@@ -348,7 +348,7 @@ Private Function X_Read() As Integer
 
   Dim hView As GridView = GetView()
   'Dim FW As Integer = hView._GetFrameWidth()
-  Return GetTree()._GetItemX(Me) - hView.ScrollX + hView.ClientX + hView.Padding '+ FW
+  Return GetTree()._GetItemX(Me) - hView.ScrollX + hView.ClientX + hView.Padding + hView.Columns.Padding'+ FW
 
 End
 

@@ -262,6 +262,7 @@ End
 
 Private Sub Padding_Write(Value As Integer)
   
+  If $iPadding = Value Then Return
   $iPadding = Value
   _Layout
   

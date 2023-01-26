@@ -225,8 +225,6 @@ Public Sub _Add((Key) As String, Text As String, Optional (Picture) As Picture, 
     _UpdateItemHeight(hItem, True)
   Endif
   
-  ResizeColumns
-  
   If $bSorted Then _SortParent(Parent)
   
   $sCursor = Key
@@ -305,8 +303,6 @@ Public Sub Remove((Key) As String)
   
   _UpdateCurrent(sCurrent)
   
-  ResizeColumns
-  
   If iRow >= 0 Then UpdateRowHeight(Null, iRow, -1)
   
   _RestoreSelection
@@ -364,7 +360,6 @@ Public Sub _ReparentItem(hItem As _TreeView_Item, Parent As String)
   
   If $bSorted Then _SortParent(Parent)
   
-  ResizeColumns
   _RefreshView
   
   _UpdateCurrent(sCurrent)  
@@ -530,6 +525,8 @@ Public Sub _GetItemX(hItem As _TreeView_Item) As Integer
   
   X = hItem._Depth * $iDepthW
   If Not $bNoRoot Then X += $iDepthW
+  If $bShowCheck And If $hView.Mode Then X += $iDepthW + Desktop.Scale \ 2
+  
   Return X
 
 End
@@ -1052,6 +1049,8 @@ End
 
 Public Sub ResizeColumns_Timer()
 
+  Dim I As Integer
+  
   $hResizeColumnTimer = Null
   
   If $cItem.Count = 0 Then Return
@@ -1061,7 +1060,9 @@ Public Sub ResizeColumns_Timer()
     If ($hView.ScrollBar And Scroll.Horizontal) = 0 Then Return
   Endif
   
-  GridView_ColumnSize(0)
+  For I = 0 To $hView.Columns.Max
+    GridView_ColumnSize(I)
+  Next
   
 End
 
@@ -1512,9 +1513,8 @@ Private Sub UpdateRenameBox() As Boolean
     W = Min($hView.ClientW, $hView.Columns[0].Width) - X
   Else
     X = $hView.Columns[$iColRenaming].X - $hView.ScrollX
-    W = Min($hView.ClientW - X, $hView.Columns[$iColRenaming].Width)
     X += $hView.Padding + $hView.Columns.Padding - 2
-    W -= ($hView.Padding + $hView.Columns.Padding) * 2 - 4
+    W = Min($hView.ClientW - X, $hView.Columns[$iColRenaming].Width - ($hView.Padding + $hView.Columns.Padding) * 1 + 4)
   Endif
   
   If W < Desktop.Scale * 4 Then 
@@ -1523,31 +1523,22 @@ Private Sub UpdateRenameBox() As Boolean
   Endif
   
   $hRenameBox.Move(X, hItem.Y, W, hItem.H)
+  $hRenameBox.ResizeTextArea
 
 End
 
 Public Sub _Rename(hItem As _TreeView_Item, iCol As Integer)
   
-  Dim X As Integer
-  Dim SX As Integer
-  
   If iCol < 0 Or If iCol >= $hView.Columns.Count Then Error.Raise("Out of bounds")
   
   Cancel()
   
-  _EnsureVisible(hItem)
+  $hView._EnsureVisible(_ItemToRow(hItem), iCol)
+  '_EnsureVisible(hItem)
   Wait
   Key_Write(hItem.Key)
   
-  Do
-    X = hItem.X 
-    If iCol Then X += $hView.Columns[iCol].X
-    SX = Max(0, X - $hView.ClientW - 32)
-    If SX = $hView.ScrollX Then Break
-    $hView.ScrollX = SX
-  Loop
-  
-  $hRenameBox = New RenameBox(Me, $hView.Padding, False) As "Editor"
+  $hRenameBox = New RenameBox(Me, 0, False) As "Editor"
   $hRenameBox.Text = hItem[iCol]
   $hRenameBox.SetFocus
   
@@ -1611,6 +1602,7 @@ Public Sub _RefreshView()
   $sLastKey = ""
   $hView.Refresh
   _UpdateSpan
+  ResizeColumns
   
 End
 
@@ -1674,7 +1666,8 @@ End
 
 Public Sub GridView_Scroll()
   
-  Cancel
+  'Cancel
+  UpdateRenameBox
   Raise Scroll
   
 End
@@ -1823,14 +1816,15 @@ Public Sub GridView_ColumnSize(Column As Integer)
       If Not IsItemVisible(hItem) Then Continue
       W = Max(W, hItem._GetWidth() + _GetItemX(hItem))
     Next
+    W += $hView.Padding + $hView.Columns.Padding
   Else
     For Each hItem In $cItem
       If Not IsItemVisible(hItem) Then Continue
       W = Max(W, Me.Font.TextWidth(hItem[Column]))
     Next
+    W += $hView.Padding * 2 + $hView.Columns.Padding * 2
   Endif
   
-  W += $hView.Columns.Padding * 2
   'If Column > 0 Then W += Desktop.Scale
   $hView.Columns[Column].W = W
   UpdateRenameBox
