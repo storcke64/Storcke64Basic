@@ -256,7 +256,7 @@ static int Begin(GB_PAINT *d)
 	void *device = d->device;
 	cairo_surface_t *target = NULL;
 	double w, h;
-	int rx = 96, ry = 96;
+	int rx = gDesktop::resolution(), ry = rx;
 
 	EXTRA(d)->print_context = NULL;
 	EXTRA(d)->dx = EXTRA(d)->dy = 0;
@@ -354,9 +354,6 @@ static int Begin(GB_PAINT *d)
 			dr = gtk_widget_get_window(wid->widget);
 		}
 
-		rx = gDesktop::resolution(); //device->physicalDpiX();
-		ry = gDesktop::resolution(); //device->physicalDpiY();
-
 		EXTRA(d)->context = gdk_cairo_create(dr);
 #endif
 
@@ -392,9 +389,6 @@ static int Begin(GB_PAINT *d)
 
 		EXTRA(d)->context = gdk_cairo_create(dr);
 #endif
-
-		rx = gDesktop::resolution();
-		ry = gDesktop::resolution();
 
 		EXTRA(d)->dx = dx;
 		EXTRA(d)->dy = dy;
@@ -1039,7 +1033,10 @@ static PangoLayout *create_pango_layout(GB_PAINT *d)
 	GB_PAINT_EXTRA *dx = EXTRA(d);
 
 	if (!dx->layout)
+	{
 		dx->layout = pango_cairo_create_layout(dx->context);
+		pango_cairo_context_set_resolution(pango_layout_get_context(dx->layout), d->resolutionX);
+	}
 
 	return dx->layout;
 }
