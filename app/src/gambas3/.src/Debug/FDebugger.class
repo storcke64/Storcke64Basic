@@ -34,7 +34,7 @@ Public Sub _new()
   
   With cvwDebug
     .Columns.Count = 2
-    .Columns.Padding = 0
+    .Columns.Padding = Desktop.Scale
   End With
   
   ReadConfig

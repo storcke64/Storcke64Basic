@@ -111,17 +111,13 @@ Static Public Sub GetInfo() As String[]
   aText.Add("Gambas=" & Project.FullVersionWithRevision)
 
   aText.Add("OperatingSystem=" & System.Family)
+  aText.Add("Distribution=" & GetDistribution())
   
   Exec ["uname", "-r"] To sTemp
   aText.Add("Kernel=" & Trim(sTemp))
   
   aText.Add("Architecture=" & System.Architecture)
-  aText.Add("Distribution=" & GetDistribution())
-  aText.Add("Desktop=" & Desktop.Type)
-  aText.Add("Font=" & Application.Font.ToString())
-  aText.Add("Scale=" & Desktop.Scale)
-  aText.Add("Theme=" & Style.Name)
-  aText.Add("Language=" & System.Language)
+  aText.Add("Cores=" & System.Cores)
 
   If System.Family = "FreeBSD" Then
     Exec ["sysctl", "-n", "hw.physmem"] To sTemp
@@ -144,6 +140,13 @@ Static Public Sub GetInfo() As String[]
     If Not Error Then aText.Add("Memory=" & sTemp)
   Endif
   
+  aText.Add("Language=" & System.Language)
+  aText.Add("Desktop=" & Desktop.Type)
+  aText.Add("DesktopResolution=" & Desktop.Resolution)
+  aText.Add("DesktopScale=" & Desktop.Scale)
+  aText.Add("WidgetTheme=" & Style.Name)
+  aText.Add("Font=" & Application.Font.ToString())
+
   aText.Add("")
   aText.Add("[Programs]")
   sForTrans = ("Programs")
