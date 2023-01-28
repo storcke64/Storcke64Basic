@@ -80,6 +80,8 @@ Public Sub _IsFirstVisibleChild(hChild As WebControl) As Boolean
   Dim I As Integer
   Dim hCtrl As WebControl
   
+  If _Container Then Return True
+  
   For I = 0 To $aChildren.Max
     If $aChildren[I] = hChild.Name Then Return True
     hCtrl = WebControl.FromName($aChildren[I])
@@ -106,7 +108,7 @@ Public Sub _RenderStyleSheet()
   
   Super._RenderStyleSheet()
   
-  If Not _Container And If Me.Visible Then
+  If Not _Container Then ' And If Me.Visible breaks TabPanel containers
   
     If $iArrangement Then
     
