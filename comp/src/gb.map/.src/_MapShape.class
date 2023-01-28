@@ -49,7 +49,7 @@ Public Sub _Load()
 
   Dim hMap As Map = Me._GetMap()
   Dim pt1, pt2 As Point
-
+  
   $aInView.Clear
   For i As Integer = 0 To $aShapes.Max
     If Not ($aShapes[i].Type = _Point) Then
@@ -80,7 +80,7 @@ End
 Public Sub AddPoint(Key As String, Points As MapPoint, Optional {Color} As Integer, Optional Icon As Image) As _MapShapeItem
 
   If $aShapeNames.Exist(Key) Then Error.Raise("This key already exist")
-
+  If IsNull(Points) Then Error.Raise("Points is null")
   Dim hItem As New _MapShapeItem(Key) As "Item"
 
   If Not IsMissing(Icon) Then hItem.Image = Icon
@@ -207,6 +207,7 @@ Public Sub Draw()
   Dim iAlpha As Integer
 
   If $aShapes.Count = 0 Then Return
+  
   For i As Integer = 0 To $aInView.Max
 
     'TODO: Check opacity
