@@ -335,7 +335,7 @@ Public Sub Install(Optional bJustDownload As Boolean) As String
   Else If sPath Ends ".tar.bz2" Then
     sOption = "j"
   Else
-    Error.Raise("Unknown archive format")
+    Error.Raise("Unknown archive format: " & sPath)
   Endif
   
   Shell "cd " & Shell(File.Dir(sPath)) & " && tar x" & sOption & "f " & Shell(sPath) Wait
