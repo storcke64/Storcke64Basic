@@ -63,7 +63,7 @@ End
 Public Sub RunWith(sText As String, cKeyword As Collection, cOperator As Collection, cType As Collection)
   
   Dim iState As Integer
-  Dim iTag As Integer
+  Dim iTag As Short
   Dim iLenText As Integer
   Dim iPos, iSavePos As Integer
   Dim sCar As String

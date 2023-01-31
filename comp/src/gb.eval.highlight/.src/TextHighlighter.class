@@ -22,7 +22,7 @@ Property Read Styles As String[]
 Static Public _Highlight As Byte[]
 
 Static Public (Line) As Integer
-Static Public State As Integer
+Static Public State As Short
 Static Public Tag As Short
 Static Public TextAfter As String
 Static Public Alternate As Boolean
@@ -44,7 +44,7 @@ Private Sub GetAlternate() As Integer
 End
 
 
-Fast Static Public Sub Add((State) As Integer, Optional Count As Integer = 1)
+Fast Static Public Sub Add((State) As Short, Optional Count As Integer = 1)
 
   Dim iState As Integer
   Dim I As Integer
@@ -112,7 +112,7 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
   Dim I As Integer
   Dim sHTML As String
   Dim aText As String[]
-  Dim iState As Integer
+  Dim iState As Short
   Dim hStyle As TextHighlighterStyle
   Dim bAlt As Boolean
   Dim iLen As Integer
