@@ -6723,6 +6723,8 @@ Public Sub FindNextDiff(Y As Integer) As Integer
   
 End
 
+'' Display the text search panel.
+
 Public Sub ShowFindPanel()
 
   If Not $hFind Then $hFind = New FFind($hVPanel)
@@ -6732,6 +6734,8 @@ Public Sub ShowFindPanel()
   $hFind.SetFocus()
 
 End
+
+'' Display the goto line panel.
 
 Public Sub ShowGotoPanel()
 
