@@ -648,12 +648,14 @@ enum
 #define MATH_ADD_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a + _b;})
 #define MATH_SUB_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a - _b;})
 #define MATH_MUL_UNSAFE(_ctype, _expr1, _expr2) ({_ctype _a = (_expr1); _ctype _b = (_expr2); _a * _b;})
+#define MATH_CONV_UNSAFE(_ctype, _expr) ((_ctype)(_expr))
 
 #if DO_NOT_CHECK_OVERFLOW
 
 #define MATH_ADD MATH_ADD_UNSAFE
 #define MATH_SUB MATH_SUB_UNSAFE
 #define MATH_MUL MATH_MUL_UNSAFE
+#define MATH_CONV MATH_CONV_UNSAFE
 
 #else
 
