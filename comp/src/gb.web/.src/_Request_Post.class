@@ -119,7 +119,7 @@ Private Sub Decode()
   
     sLine = ReadLine()
     
-    If sLine Begins "Content-Disposition:" Then 
+    If sLine Like "content-disposition:*" Then 
       bFile = False
       sFileName = ""
       aElt = Split(sLine, ";", Chr$(34))
