@@ -6,6 +6,13 @@ Private $X As Integer
 Private $Y As Integer
 Private $iHue As Integer
 
+Public Sub _new()
+  
+  WebForm.Debug = True
+  
+End
+
+
 Public Sub WebDrawingArea1_Draw()
 
   Paint.LineWidth = 8
