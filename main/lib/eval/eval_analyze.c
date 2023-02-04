@@ -349,6 +349,7 @@ static void analyze(EVAL_ANALYZE *result)
 	bool space_before, space_after;
 	int len, i, l;
 	bool preprocessor;
+	uint last;
 
 	_colors_len = 0;
 	EVAL_analyze_exit();
@@ -407,8 +408,12 @@ static void analyze(EVAL_ANALYZE *result)
 					if (old_type != RT_OPERATOR)
 						space_before = TRUE;
 					next_type = RT_IDENTIFIER;
-					if (PATTERN_is(*pattern, RS_ERROR) && old_type == RT_END)
-						space_after = TRUE;
+					if (PATTERN_is(*pattern, RS_ERROR))
+					{
+						last = get_last_pattern(pattern);
+						if (old_type == RT_END || PATTERN_is(last, RS_THEN) || PATTERN_is(last, RS_ELSE))
+							space_after = TRUE;
+					}
 				}
 				else if (is_optional_kind(*pattern))
 				{
