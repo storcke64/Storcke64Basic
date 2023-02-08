@@ -1023,14 +1023,8 @@ End
 
 Static Public Sub _GetImageLink(sImage As String) As String
 
-  ' If Left(sImage) = "/" Then
-  '   Return Application.Root &/ "img:" & Me.Name & "?z=" & Base64(Format(Now, "hhnnssuuu"))
-  ' Else
-  '   Return Application.Root &/ sImage
-  ' Endif
-  
-  If sImage Begins "icon:/" Then
-    Return "/" &/ Application.Root &/ "icon:" & Replace(Mid$(sImage, 7), "/", ":")
+  If InStr(sImage, ":/") Then
+    Return "/" &/ Application.Root &/ "icon:" & Replace(sImage, "/", ":")
   Else 
     Return _GetLink(sImage)
   Endif

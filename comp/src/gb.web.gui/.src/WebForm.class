@@ -135,29 +135,46 @@ Static Public Sub PrintLog(sLog As String)
 
 End
 
-Static Private Sub RenderIcon(sPath As String) As Boolean
+Static Private Sub RenderIcon(sIcon As String) As Boolean
 
   Dim iPos As Integer
-  Dim sIcon As String
   Dim sSize As String
+  Dim sType As String
+  Dim sPath As String
   
-  iPos = InStr(sPath, ":")
+  iPos = InStr(sIcon, "::")
   If iPos = 0 Then Return True
   
-  sSize = Left(sPath, iPos - 1)
-  sIcon = Mid$(sPath, iPos + 1)
+  sType = Left(sIcon, iPos - 1)
+  sIcon = Mid$(sIcon, iPos + 2)
   
+  iPos = InStr(sIcon, ":")
+  If iPos = 0 Then Return True
+  
+  sSize = Left(sIcon, iPos - 1)
+  sIcon = Mid$(sIcon, iPos + 1) & ".png"
+
+  sPath = "./gb.form.stock/"
   Component.Load("gb.form.stock")
+
+  If sType = "icon" Then
   
-  If sSize = "huge" Then
-    sPath = "./gb.form.stock/gambas/128/" &/ sIcon & ".png"
-    If Exist(sPath) Then 
-      Response.SendFile(sPath)
-      Return
+    If sSize = "huge" And If Exist(sPath & "gambas/128/" & sIcon) Then
+      sPath &= "gambas/128/" & sIcon
+    Else
+      sPath &= "gambas/32/" & sIcon
     Endif
-  Endif
   
-  sPath = "./gb.form.stock/gambas/32/" &/ sIcon & ".png"
+  Else If sType = "flag" Then
+  
+    sPath &= "flag/256" &/ sIcon
+    
+  Else 
+    
+    Return True
+  
+  Endif
+
   Response.SendFile(sPath)
   
 End
