@@ -4,6 +4,7 @@
 
 Property Volume As Float
 Property Muted As Boolean
+Property Read State As Integer
 
 Private $hPlayer As MediaPlayer
 Private $hImage As MediaControl
@@ -481,5 +482,11 @@ Private Sub Muted_Write(Value As Boolean)
 
   If sldVolume.Enabled = Value Then Return
   btnVolume_Click
+
+End
+
+Private Function State_Read() As Integer
+
+  If $hPlayer Then Return $hPlayer.State
 
 End
