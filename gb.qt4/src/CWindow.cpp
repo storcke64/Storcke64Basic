@@ -622,7 +622,7 @@ static bool do_close(CWINDOW *_object, int ret, bool destroyed = false)
 	bool closed;
 
 	#if DEBUG_WINDOW
-	qDebug("do_close: (%s %p) %d %d", GB.GetClassName(THIS), THIS, THIS->closing, THIS->closed);
+	fprintf(stderr, "do_close: (%s %p) %d %d\n", GB.GetClassName(THIS), THIS, THIS->closing, THIS->closed);
 	#endif
 
 	if (THIS->closing || THIS->closed) // || WIDGET->isHidden())
@@ -1913,10 +1913,15 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 
 	_enterLoop = false; // Do not call exitLoop() if we do not entered the loop yet!
 
+	parent = CWINDOW_Current;
+	if (!parent)
+		parent = CWINDOW_Active;
+
 	if (popup)
 	{
-		setWindowFlags(Qt::Popup | info.flags);
-		
+		if (parent)
+			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Popup | info.flags);
+
 		move(0, 0);
 		move(*pos);
 		setFocus();
@@ -1927,10 +1932,6 @@ void MyMainWindow::doShowModal(bool popup, const QPoint *pos)
 	{
 		if (_resizable && _border)
 			setSizeGrip(true);
-
-		parent = CWINDOW_Current;
-		if (!parent)
-			parent = CWINDOW_Active;
 
 		if (parent)
 			setParent(CWidget::getTopLevel((CWIDGET *)parent)->widget.widget, Qt::Window | info.flags);

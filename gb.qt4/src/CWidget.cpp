@@ -2645,9 +2645,10 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		
 		/*if (type == QEvent::MouseButtonPress)
 		{
-			qDebug("mouse event on [%s %s %p] (%s %p) %s%s%s", widget->metaObject()->className(), qPrintable(widget->objectName()), widget, 
+			qDebug("mouse event on [%s %s %p] (%s %p) %s%s%s", widget->metaObject()->className(), qPrintable(widget->objectName()), widget,
 						control ? GB.GetClassName(control) : "-", control, real ? "REAL " : "", design ? "DESIGN " : "", original ? "ORIGINAL ": "");
 			//getDesignDebug(widget);
+			fprintf(stderr, "MouseButtonPress: %s (%p)\n", control ? GB.GetClassName(control) : "-", control);
 		}*/
 		
 		if (!real)
@@ -2809,7 +2810,7 @@ bool CWidget::eventFilter(QObject *widget, QEvent *event)
 		
 		if (cancel)
 			goto __MOUSE_RETURN_TRUE;
-		
+
 		if (EXT(control) && EXT(control)->proxy_for)
 		{
 			control = (CWIDGET *)(EXT(control)->proxy_for);
