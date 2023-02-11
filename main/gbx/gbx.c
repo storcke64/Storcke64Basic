@@ -513,7 +513,10 @@ int main(int argc, char *argv[])
 		if (ERROR->info.code)
 		{
 			if (ERROR->info.code == E_ABORT)
+			{
+				FILE_exit();
 				do_exit(ret, TRUE);
+			}
 
 			ERROR_hook();
 
