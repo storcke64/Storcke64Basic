@@ -195,13 +195,11 @@ Public Sub ToHTML(Text As String, Optional Theme As Variant) As String
     '   Endif
     ' Endif
     
-    aResult.Add(sLineHtml & "\n")
+    aResult.Add(sLineHtml)
     
   Next
   
-  aResult.Add("</span></tt>")
-  
-  Return aResult.Join("")
+  Return aResult.Join("<br>") & "</span></tt>"
   
  End
 
