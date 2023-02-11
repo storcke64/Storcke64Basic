@@ -7022,7 +7022,7 @@ Public Sub ClearOtherProjects()
   For Each hForm In Files
     Try hEditor = hForm
     If Error Then Continue
-    If hEditor.Component Then hForm.Close
+    If hEditor.Component Then UnloadFile(hForm.Path)
   Next
   
 End

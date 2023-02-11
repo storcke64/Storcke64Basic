@@ -1916,7 +1916,6 @@ End
 Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As FEditor
   
   Dim sPath As String
-  Dim hForm As FEditor
   
   If sComp = "$" Or If Not sComp Then
     
@@ -1947,10 +1946,7 @@ Private Sub FindEditor(sComp As String, sClass As String, bLocate As Boolean) As
     
   Endif
   
-  If sPath Then 
-    hForm = Project.LoadFile(sPath)
-    Return hForm
-  Endif
+  If sPath Then Return Project.LoadFile(sPath)
   
 End
 
