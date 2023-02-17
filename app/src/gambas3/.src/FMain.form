@@ -203,15 +203,12 @@
         Text = ("Branch")
         Picture = Picture["icon:/small/tag"]
       }
-      { mnuVcBrowse Menu
-        Action = "vc-browse"
-        Text = ("Browse repository") & "..."
-        Picture = Picture["icon:/small/file-manager"]
+      { Menu53 Menu
       }
-      { mnuVcOpenTerminal Menu
-        Action = "vc-open-terminal"
-        Text = ("Open a terminal") & "..."
-        Picture = Picture["icon:/small/terminal"]
+      { Menu54 Menu
+        Action = "vc-repository"
+        Text = ("Repository") & "..."
+        Picture = Picture["icon:/medium/version-control"]
       }
     }
     { mnuVersionControlWith Menu
@@ -2045,20 +2042,15 @@
     Shortcut = ""
     Picture = "icon:/small/tag"
   }
-  { Action vc-browse
-    Text = "Browse repository"
-    Shortcut = ""
-    Picture = "icon:/small/file-manager"
-  }
   { Action vc-commit
     Text = "Commit"
     Shortcut = ""
     Picture = "icon:/small/upload"
   }
-  { Action vc-open-terminal
-    Text = "Open a terminal"
+  { Action vc-repository
+    Text = "Repository"
     Shortcut = ""
-    Picture = "icon:/small/terminal"
+    Picture = "icon:/medium/version-control"
   }
   { Action vc-revert
     Text = "Revert all changes"

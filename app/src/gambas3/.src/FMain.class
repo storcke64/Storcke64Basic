@@ -1310,7 +1310,7 @@ Public Sub UpdateMenu()
   Next
   
   Action["version-control"].Visible = VersionControl.Enabled
-  For Each sAction In ["vc-commit", "vc-update", "vc-revert", "vc-add-all", "vc-branch"]
+  For Each sAction In ["vc-commit", "vc-update", "vc-revert", "vc-add-all", "vc-branch", "vc-repository"]
     Action[sAction].Enabled = bEnabled
   Next
   
@@ -1816,6 +1816,9 @@ Public Sub Action_Activate((Key) As String) As Boolean
       
     Case "vc-open-terminal"
       Project.OpenTerminal(VersionControl.GetRoot())
+      
+    Case "vc-repository"
+      FRepository.ShowModal
       
   End Select 
   
