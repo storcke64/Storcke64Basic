@@ -176,17 +176,18 @@
           Picture = Picture["icon:/small/download"]
         }
         { btnVcAddAll ToolButton
-          MoveScaled(51,0,13,4)
+          MoveScaled(42,0,13,4)
           AutoResize = True
           Text = ("Add everything to repository")
           Picture = Picture["icon:/small/added"]
         }
-        { btnVcBrowse ToolButton
-          MoveScaled(65,0,13,4)
-          Visible = False
-          AutoResize = True
-          Text = ("Browse repository") & "..."
-          Picture = Picture["icon:/small/file-manager"]
+        { Separator3 Separator
+          MoveScaled(56,0,1,4)
+        }
+        { btnRepository ToolButton
+          MoveScaled(60,0,14,4)
+          Text = ("Repository") & "..."
+          Picture = Picture["icon:/small/version-control"]
         }
         { Spring1 Spring
           MoveScaled(82,0,4,4)

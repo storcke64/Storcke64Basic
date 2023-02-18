@@ -10,7 +10,7 @@
     MoveScaled(1,1,115,57)
     Expand = True
     Arrangement = Arrange.Vertical
-    Count = 4
+    Count = 3
     Index = 0
     Text = ("Journal")
     { edtJournal TextEditor
@@ -37,55 +37,6 @@
       Highlight = "Custom"
       ReadOnly = True
       Wrap = True
-    }
-    Index = 3
-    Text = ("Repository")
-    { panIdentity HBox
-      MoveScaled(2,1,96,6)
-      Spacing = True
-      Margin = True
-      { Label34 Label
-        MoveScaled(0,0,11,4)
-        AutoResize = True
-        Text = ("User name")
-      }
-      { txtVcName TextBox
-        MoveScaled(13,0,19,4)
-        Expand = True
-      }
-      { Label35 Label
-        MoveScaled(33,0,15,4)
-        AutoResize = True
-        Text = ("E-mail address")
-      }
-      { txtVcMail TextBox
-        MoveScaled(49,0,19,4)
-        Expand = True
-      }
-      { btnUpdateIdentity Button
-        MoveScaled(69,0,24,4)
-        AutoResize = True
-        Text = ("Update identity")
-        Picture = Picture["icon:/small/rename"]
-      }
-    }
-    { sepIdentity Separator
-      MoveScaled(2,9,35,0)
-    }
-    { gvwVcInfo GridView
-      MoveScaled(2,12,66,16)
-      Expand = True
-      Border = False
-      Padding = 4
-    }
-    { sepIdentity2 Separator
-      MoveScaled(3,31,35,0)
-    }
-    { trmShell TerminalView
-      MoveScaled(8,33,24,16)
-      Expand = True
-      Border = False
-      ShowLink = True
     }
     Index = 0
   }
