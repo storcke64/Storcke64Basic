@@ -31,7 +31,7 @@
 '   
 ' End
 
-Public Sub Main()
+Public Sub Main1()
 
   Dim aHtml As String[]
   Dim nCar As Integer
@@ -46,6 +46,18 @@ Public Sub Main()
   Next
   
 End
+
+Public Sub Main()
+
+  Dim hImage As Image
+
+  hImage = New Image(32, 32)
+  Paint.Begin(hImage)
+  Print Paint.ResolutionX;; Paint.ResolutionY
+  Paint.End
+
+End
+
 
 Public Sub GetFileSize(iSize As Long, Optional nDigit As Integer = 1) As String
 
