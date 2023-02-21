@@ -1,0 +1,46 @@
+<p><strong>Note:</strong> This document is itself written using Markdown; you
+can <a href="/projects/markdown/syntax.text">see the source for it by adding '.text' to the URL</a>.</p>
+
+<hr>
+
+<h2>Overview</h2>
+
+<h3>Philosophy</h3>
+
+<p>Markdown is intended to be as easy-to-read and easy-to-write as is feasible.</p>
+
+<p>Readability, however, is emphasized above all else. A Markdown-formatted
+document should be publishable as-is, as plain text, without looking
+like it's been marked up with tags or formatting instructions. While
+Markdown's syntax has been influenced by several existing text-to-HTML
+filters &ndash; including <a href="http://docutils.sourceforge.net/mirror/setext.html">Setext</a>, <a href="http://www.aaronsw.com/2002/atx/">atx</a>, <a href="http://textism.com/tools/textile/">Textile</a>, <a href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>,
+<a href="http://www.triptico.com/software/grutatxt.html">Grutatext</a>, and <a href="http://ettext.taint.org/doc/">EtText</a> &ndash; the single biggest source of
+inspiration for Markdown's syntax is the format of plain text email.</p>
+
+<h2>Block Elements</h2>
+
+<h3>Paragraphs and Line Breaks</h3>
+
+<p>A paragraph is simply one or more consecutive lines of text, separated
+by one or more blank lines. (A blank line is any line that looks like a
+blank line &ndash; a line containing nothing but spaces or tabs is considered
+blank.) Normal paragraphs should not be indented with spaces or tabs.</p>
+
+<p>The implication of the "one or more consecutive lines of text" rule is
+that Markdown supports "hard-wrapped" text paragraphs. This differs
+significantly from most other text-to-HTML formatters (including Movable
+Type's "Convert Line Breaks" option) which translate every line break
+character in a paragraph into a <code style="white-space:nowrap;">&lt;br /&gt;</code> tag.</p>
+
+<p>When you <em>do</em> want to insert a <code style="white-space:nowrap;">&lt;br /&gt;</code> break tag using Markdown, you
+end a line with two or more spaces, then type return.</p>
+
+<h3>Headers</h3>
+
+<p>Markdown supports two styles of headers, &#91;Setext&#93; &#91;1&#93; and &#91;atx&#93; &#91;2&#93;.</p>
+
+<p>Optionally, you may "close" atx-style headers. This is purely
+cosmetic &ndash; you can use this if you think it looks better. The
+closing hashes don't even need to match the number of hashes
+used to open the header. (The number of opening hashes
+determines the header level.)</p>
