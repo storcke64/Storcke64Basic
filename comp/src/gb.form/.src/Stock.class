@@ -68,7 +68,13 @@ Static Private Sub SearchDesktop()
   Dim sDesktop As String
 
   If Application.Theme Then Return
-  sDesktop = Desktop.Type
+  If Desktop.Is("KDE4") Then
+    sDesktop = "KDE4"
+  Else If Desktop.Is("KDE5") Then 
+    sDesktop = "KDE5"
+  Else
+    sDesktop = Desktop.Type
+  Endif
   If $bDebug Then Error "gb.form: desktop is " & sDesktop
   Application.Theme = LCase(sDesktop)
 
@@ -326,9 +332,7 @@ Static Private Sub SearchTheme(sDesktop As String)
 
     Case Else
 
-      If sDesktop <> "gambas" Then
-        GetAllThemePath("gnome", $aRoots, Application.Theme)
-      Endif
+      GetAllThemePath("gnome", $aRoots, Application.Theme)
 
   End Select
 
