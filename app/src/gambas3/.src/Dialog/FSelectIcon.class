@@ -66,7 +66,7 @@ Public Sub Form_Open()
     tabIcon.Index = 1
   Else If $sIcon Begins "flag:/" Then
     tabIcon.Index = 2
-  Else 
+  Else If $sIcon Then 
     tabIcon.Index = 0
   Endif
   
@@ -131,22 +131,25 @@ End
 Private Sub RefreshStock(Optional bClear As Boolean)
   
   Dim sIcon As String
+  Dim sKey As String
   Dim sFilter As String
   Dim bPreviewSize As Boolean
   Dim aIcons As String[]
-  Dim sKey As String
   Dim hPict As Picture
   Dim hIconView As IconView
+  Dim sLastIcon As String
   
   If $bNoRefreshStock Then Return
   If tabIcon.Index = 0 Then Return
   
+  hIconView = GetIconView()
+  sLastIcon = hIconView.Key
+
   If bClear Then
     icwStock.Clear
     icwFlag.Clear
   Endif
   
-  hIconView = GetIconView()
   If hIconView.Count Then Return
   
   Inc Application.Busy
@@ -160,7 +163,6 @@ Private Sub RefreshStock(Optional bClear As Boolean)
     aIcons = Stock.Flags
   Endif
   
-  sKey = hIconView.Key
   hIconView.Clear
 
   For Each sIcon In aIcons
@@ -174,9 +176,9 @@ Private Sub RefreshStock(Optional bClear As Boolean)
     hIconView.Add(sIcon, sIcon, hPict)
   Next
   
-  If hIconView.Exist(sKey) Then
-    hIconView[sKey].Selected = True
-    hIconView[sKey].EnsureVisible
+  If hIconView.Exist(sLastIcon) Then
+    hIconView[sLastIcon].Selected = True
+    hIconView[sLastIcon].EnsureVisible
   Endif
   
   Dec Application.Busy
