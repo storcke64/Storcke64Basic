@@ -68,15 +68,6 @@ Private $bShowTabBar As Boolean = True
 Public Sub _new()
 
   $hTabBar = New DrawingArea(Me) As "TabBar"
-  '$hTabBar.Arrangement = Arrange.Fill
-  
-  ' $hLeftArrow = New DrawingArea($hTabBar) As "Arrow"
-  ' $hLeftArrow.Ignore = True
-  ' $hLeftArrow.Hide
-  ' 
-  ' $hRightArrow = New DrawingArea($hTabBar) As "Arrow"
-  ' $hRightArrow.Ignore = True
-  ' $hRightArrow.Hide
 
   $hTabBarContainer = New DrawingArea($hTabBar) As "TabBarContainer"
   $hTabBarContainer.Name = Me.Name & "_TabBarContainer"
