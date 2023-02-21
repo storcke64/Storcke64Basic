@@ -1,26 +1,25 @@
 ' Gambas class file
 
+Private $bInitStatus As Boolean
+Private $bInitTerminal As Boolean
 
 Public Sub tabRepository_Click()
 
-  Static bInitTerminal As Boolean
-  Static bInitStatus As Boolean
-  
   Select Case tabRepository.Text
     
     Case ("Status")
-      If Not bInitStatus Then
+      If Not $bInitStatus Then
         edtStatus.ReadConfig()
         edtStatus.TabSize = 8
-        edtStatus.Text = VersionControl.Status()
-        bInitStatus = True
+        edtStatus.Text = VersionControl.Status(VersionControl.GetRoot())
+        $bInitStatus = True
       Endif
     
     Case ("Terminal")
-      If Not bInitTerminal Then
+      If Not $bInitTerminal Then
         Try trmShell.Exec(["bash"], ["PWD=" & VersionControl.GetRoot()])
         trmShell.SetFocus
-        bInitTerminal = True
+        $bInitTerminal = True
       Endif
     
   End Select
