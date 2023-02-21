@@ -36,6 +36,8 @@ Static Private Sub GetDesktop() As String
       $aDesktopType.Add("XFCE")
     Else If InStr(Env["XDG_DATA_DIR"], "/xfce") Then
       $aDesktopType.Add("XFCE")
+    Else 
+      $aDesktopType.Add("UNKNOWN")
     Endif
 
   Endif

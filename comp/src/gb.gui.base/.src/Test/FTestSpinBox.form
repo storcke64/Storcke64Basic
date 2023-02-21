@@ -15,6 +15,7 @@
     { SpinBox1 SpinBox
       MoveScaled(22,0,20,5)
       Expand = True
+      Direction = Direction.RightToLeft
       MaxValue = 999
     }
     { SpinBox2 SpinBox
@@ -22,5 +23,9 @@
       Expand = True
       ReadOnly = True
     }
+  }
+  { SpinBox4 SpinBox
+    MoveScaled(7,18,10,4)
+    Direction = Direction.RightToLeft
   }
 }

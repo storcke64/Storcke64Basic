@@ -50,8 +50,11 @@ Private $bWide As Boolean
 Private $hButtonInc As ToolButton
 Private $hButtonDec As ToolButton
 Private $iWidth As Integer
+Private $bRightToLeft As Boolean
 
 Public Sub _new()
+  
+  $bRightToLeft = Me.RightToLeft
   
   $hView = New DrawingArea(Me) As "View"
   
@@ -88,6 +91,8 @@ Private Sub GetArrowRect(iArrow As Integer, Optional bForDrawing As Boolean) As 
   Else
     hRect = Rect(Me.W - W, Me.H - H - BH, W, H)
   Endif
+  
+  If Me.RightToLeft Then hRect.X = 0
   
   If bForDrawing Then hRect = Rect(hRect.Center().X - D / 2, hRect.Center().Y - D \ 2, D, D)
   Return hRect
@@ -163,13 +168,22 @@ Public Sub View_Arrange()
   If W < 1 Or If H < 1 Then
     $hTextBox.Hide
   Else
-    $hTextBox.Move(BW, BH, W, H)
+    If Me.RightToLeft Then 
+      $hTextBox.Move(Me.W - W - BW, BH, W, H)
+    Else
+      $hTextBox.Move(BW, BH, W, H)
+    Endif
     $hTextBox.Show
   Endif
   
   If $bWide Then
-    $hButtonInc.Move(Me.W - BW - DS * 6, BH, DS * 3, Me.H - BH * 2)
-    $hButtonDec.Move(Me.W - BW - DS * 3, BH, DS * 3, Me.H - BH * 2)
+    If Me.RightToLeft Then 
+      $hButtonInc.Move(BW + DS * 3, BH, DS * 3, Me.H - BH * 2)
+      $hButtonDec.Move(BW, BH, DS * 3, Me.H - BH * 2)
+    Else
+      $hButtonInc.Move(Me.W - BW - DS * 6, BH, DS * 3, Me.H - BH * 2)
+      $hButtonDec.Move(Me.W - BW - DS * 3, BH, DS * 3, Me.H - BH * 2)
+    Endif
   Endif
   
   $bArrange = False
@@ -181,6 +195,11 @@ Public Sub View_Draw()
   Dim iState As Integer
   Dim hRect As Rect
   Dim iCol As Integer
+
+  If Me.RightToLeft <> $bRightToLeft Then
+    $bRightToLeft = Me.RightToLeft
+    View_Arrange
+  Endif
 
   iCol = $hTextBox.Background
   If iCol = Color.Default Then
