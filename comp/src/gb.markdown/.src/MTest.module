@@ -1,6 +1,5 @@
 ' Gambas module file
 
-'TODO: Remove this or integrate it into TestMarkdown
 Public Sub Main()
 
   Print Markdown.ToHTML(File.Load("test3.txt"))
