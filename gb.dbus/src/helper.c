@@ -1208,9 +1208,12 @@ char *DBUS_introspect(DBusConnection *connection, const char *application, const
 	dbus_message_iter_init(reply, &iter);
 	type = dbus_message_iter_get_arg_type(&iter);
 	if (type == DBUS_TYPE_STRING)
+	{
 		dbus_message_iter_get_basic(&iter, &signature);
+		signature = GB.TempString(signature, strlen(signature));
+	}
 	
-	dbus_message_unref (reply);
+	dbus_message_unref(reply);
 
 __RETURN:
 
