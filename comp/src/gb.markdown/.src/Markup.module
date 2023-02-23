@@ -217,7 +217,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
       '   sText = Replace(sLine, " ", "")
       '   If Len(sText) >= 3 And If sText = String$(Len(sText), "*") Then
       '     GoSub CLOSE_PARA
-      '     aResult.Add("<hr />")
+      '     aResult.Add("<hr>")
       '     Continue
       '   Endif
       ' Endif
@@ -226,7 +226,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
         'sText = Replace(sLine, " ", "")
         If Len(sLine) >= 3 And If sLine = String$(Len(sLine), "-") Then
           GoSub CLOSE_PARA
-          aResult.Add("<hr />")
+          aResult.Add("<hr>")
           Continue
         Endif
       Endif
@@ -465,7 +465,7 @@ Private Sub ConvertMarkup(aLine As String[], Optional bNoLineAnchors As Boolean)
           sLine = Mid$(sLine, 5)
         Endif
         If sLine = "----" Then
-          sLine = "<hr/>"
+          sLine = "<hr>"
         Else
           sLine = Html$(sLine)
         Endif
