@@ -1111,7 +1111,7 @@ Public Sub gvwMenu_Draw(X As Integer, Y As Integer, Width As Integer, Height As 
     X += D
     Width -= D
   
-    If .Picture Then
+    If .Picture And If .Level Then
       Try hPict = $hFamily.GetPicture(.Picture)
       If hPict Then hPict = hPict.Image.Stretch($iIconSize, $iIconSize).Picture
       If hPict Then Paint.DrawPicture(hPict, X - $iIconSize - Desktop.Scale / 2, Y + (Height - $iIconSize) / 2)
