@@ -398,7 +398,7 @@ Public Sub wizInstall_BeforeChange()
       
       bEnabled = False
       For Each sSys In Project.Systems
-        If sSys <> "autotools" And If sSys <> "self" Then
+        If sSys <> "autotools" And If sSys <> "self" And If sSys <> "appimage" Then
           bEnabled = True
           Break
         Endif
