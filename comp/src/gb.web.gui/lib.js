@@ -1306,7 +1306,7 @@ gw = {
       else
         gw.table.checkRange(id, row, row, checked);
       
-      if (event.target == elt)
+      if (event && event.target == elt)
         elt.checked = !checked;
 
       $_(id).gw_current = row;
