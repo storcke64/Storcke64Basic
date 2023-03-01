@@ -18,3 +18,12 @@ Public Sub Button2_Click()
   MediaView1.Visible = Not MediaView1.Visible
 
 End
+
+Public Sub btnOpen_Click()
+
+  If Dialog.OpenFile() Then Return 
+  MediaView1.Stop
+  MediaView1.URL = Dialog.Path
+  MediaView1.Play
+
+End

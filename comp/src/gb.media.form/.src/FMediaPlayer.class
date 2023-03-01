@@ -224,8 +224,6 @@ Public Sub dwgTime_Draw()
   
   If fLength > 0 Then
     sText &= " / " & Format(CDate((fLength + 0.5) / 86400), "hh:nn:ss")
-  Else
-    sText &= " / 00:00:00"
   Endif
   
   Paint.Background = Color.White
@@ -428,6 +426,13 @@ Public Sub MediaPlayer_Position()
   dwgTime.Refresh
   
 End
+
+Public Sub MediaPlayer_Duration()
+  
+  dwgTime.Refresh
+  
+End
+
 
 Public Sub GetSpeed() As Float
   

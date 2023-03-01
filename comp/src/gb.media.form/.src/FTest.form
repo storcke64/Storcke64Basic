@@ -8,7 +8,6 @@
   { MediaView1 MediaView
     MoveScaled(4,5,38,30)
     Expand = True
-    URL = "/home/benoit/StopHatingRussians.mp4"
   }
   { HBox1 HBox
     MoveScaled(4,39,78,4)
@@ -20,6 +19,10 @@
     { Button2 Button
       MoveScaled(23,0,16,4)
       Text = ("Hide")
+    }
+    { btnOpen Button
+      MoveScaled(43,0,16,4)
+      Text = ("Open") & "..."
     }
   }
 }
