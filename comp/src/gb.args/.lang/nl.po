@@ -1,36 +1,39 @@
-# Willy Raets < gbWilly@openmailbox.org >, 2014
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.args 3.10.90\n"
-"PO-Revision-Date: 2017-08-26 19:36 UTC\n"
-"Last-Translator: Willy Raets <gbWilly@openmailbox.org>\n"
+"Project-Id-Version: gb.args 3.18.90\n"
+"PO-Revision-Date: 2023-03-02 01:53 UTC\n"
+"Last-Translator: benoit <benoit@benoit-TOWER>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: Args.module:93
+msgid "Display this help"
+msgstr "Toon deze help"
+
+#: Args.module:86
+msgid "Display version"
+msgstr "Toon versie"
+
+#: Args.module:118
+msgid "Error: Args.Helptext() must be called after the command Args.Begin()"
+msgstr ""
+
 #: .project:1
 msgid "gb.args"
 msgstr "gb.args"
 
-#: Args.module:73
-msgid "Display version"
-msgstr "Toon versie"
-
-#: Args.module:78
-msgid "Display this help"
-msgstr "Toon deze help"
-
-#: Args.module:82
-msgid "Usage: &1 <options> <arguments>"
-msgstr "Gebruik: &1 <opties> <argumenten>"
-
-#: Args.module:85
+#: Args.module:128
 msgid "Options:"
 msgstr "Opties:"
 
-#: Args.module:92
+#: Args.module:101
 msgid "unknown option: &1"
 msgstr "onbekende optie: &1"
+
+#: Args.module:125
+msgid "Usage: &1 <options> <arguments>"
+msgstr "Gebruik: &1 <opties> <argumenten>"
 

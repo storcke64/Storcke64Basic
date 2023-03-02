@@ -1,156 +1,123 @@
-# Catalan translation of gb.db.form
-# Copyright (C) 2000-2010 Benoît Minisini.
-# This file is distributed under the same license as gb.db.form package.
-# Jordi Sayol <g.sayol@yahoo.es>, 2007-2010.
-#
-#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.db.form\n"
-"POT-Creation-Date: 2002-11-01 04:27+0100\n"
-"PO-Revision-Date: 2011-03-20 14:50+0100\n"
-"Last-Translator: Jordi Sayol <g.sayol@yahoo.es>\n"
-"Language-Team: \n"
-"Language: \n"
+"Project-Id-Version: gb.db.form 3.18.90\n"
+"PO-Revision-Date: 2023-03-02 01:53 UTC\n"
+"Last-Translator: benoit <benoit@benoit-TOWER>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Poedit-Language: Catalan\n"
 
-#: FMain.form:103
-msgid "Active"
-msgstr "Actiu"
+#: FBlobEditor.class:29
+msgid "&1 byte(s)"
+msgstr ""
 
-#: FMain.form:98
-msgid "Birth"
-msgstr "Natalici"
+#: FBlobEditor.form:15
+msgid "Blob contents"
+msgstr ""
 
-#: FMain.form:83
-msgid "Color"
-msgstr "Color"
+#: FBlobEditor.class:153
+msgid "Cancel"
+msgstr ""
 
-#: FMain.form:109
-msgid "Comment"
-msgstr "Comentari"
-
-#: FTest.form:24
-msgid "Create"
-msgstr "Crea"
+#: FBlobEditor.form:39
+msgid "Clear"
+msgstr ""
 
 #: .project:1
 msgid "Data bound controls"
 msgstr "Controls enllaçats a dades"
 
-#: FBrowser.form:50
+#: FBrowser.form:62
 msgid "Delete"
 msgstr "Suprimeix"
 
-#: FTest.form:34
-msgid "Élément 1"
-msgstr "Element 1"
+#: FBlobEditor.class:153
+msgid "Do you really want to clear blob?"
+msgstr ""
 
-#: FTest.form:34
-msgid "Élément 2"
-msgstr "Element 2"
-
-#: FTest.form:34
-msgid "Élément 3"
-msgstr "Element 3"
-
-#: FTest.form:34
-msgid "Élément 4"
-msgstr "Element 4"
-
-#: FTest.form:34
-msgid "Élément 5"
-msgstr "Element 5"
-
-#: FTest.form:34
-msgid "Élément 6"
-msgstr "Element 6"
-
-#: FTest.form:34
-msgid "Élément 7"
-msgstr "Element 7"
-
-#: FBrowser.form:74
+#: FBrowser.form:86
 msgid "End"
 msgstr "Fi"
 
-#: DataControl.class:84 DataField.class:19 DataView.class:415
+#: DataControl.class:113 DataField.class:19 DataView.class:459
 msgid "False"
 msgstr "Fals"
 
-#: FMain.form:88
-msgid "First Name"
-msgstr "Nom"
-
-#: FMain.form:78
-msgid "Id"
-msgstr "-"
-
-#: DataView.class:583
-msgid "Incorrect value."
-msgstr "Valor incorrecte."
-
-#: DataSource.class:414
+#: DataSource.class:424 DataView.class:745
 msgid "Invalid value."
 msgstr "Valor invàlid."
 
-#: FMain.form:93
-msgid "Name"
-msgstr "Cognom"
+#: FBlobEditor.form:32
+msgid "Load"
+msgstr ""
 
-#: FBrowser.form:32
+#: FBlobEditor.class:138
+msgid "Load blob from file"
+msgstr ""
+
+#: FBrowser.form:44
 msgid "New"
 msgstr "Nou"
 
-#: FBrowser.form:68
+#: FBrowser.form:80
 msgid "Next"
 msgstr "Següent"
 
-#: FBrowser.form:62
+#: FBrowser.form:74
 msgid "Previous"
 msgstr "Previ"
 
-#: FBrowser.form:44 FMain.form:37 FTest.form:29
+#: FBrowser.form:56
 msgid "Refresh"
 msgstr "Actualitza"
 
-#: FMain.form:115
-msgid "Salary"
-msgstr "Sou"
-
-#: FBrowser.form:38
+#: FBlobEditor.form:25 FBrowser.form:50
 msgid "Save"
 msgstr "Desa"
 
-#: FBrowser.form:56
+#: FBlobEditor.class:123
+msgid "Save blob to file"
+msgstr ""
+
+#: FBrowser.form:68
 msgid "Start"
 msgstr "Inici"
 
-#: DataControl.class:83 DataView.class:415
+#: DataControl.class:112 DataView.class:459
 msgid "True"
 msgstr "Cert"
 
-#: DataView.class:889
+#: FBlobEditor.class:161
+msgid "Unable to clear blob"
+msgstr ""
+
+#: DataView.class:1089
 msgid "Unable to delete record."
 msgstr "No s'ha pogut suprimir el registre."
 
-#: DataView.class:747
+#: FBlobEditor.class:147
+msgid "Unable to load file"
+msgstr ""
+
+#: FBlobEditor.class:132
+msgid "Unable to save file"
+msgstr ""
+
+#: DataView.class:909
 msgid "Unable to save record."
 msgstr "No s'ha pogut desar el registre."
 
-#: DataView.class:581
+#: DataView.class:743
 msgid "Unable to save value."
 msgstr "No s'ha pogut desar el valor."
 
-#: DataControl.class:85
+#: DataControl.class:114
 msgid "Unknown"
 msgstr "Desconegut"
 
-#: DataSource.class:437
+#: DataSource.class:449
 msgid "You must fill all mandatory fields."
 msgstr "Heu d'omplir els camps obligatoris."
 

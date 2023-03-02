@@ -1,96 +1,119 @@
-# Catalan translation of gb.form.mdi
-# Copyright (C) 2000-2010 Benoît Minisini.
-# This file is distributed under the same license as gb.form.mdi package.
-# Jordi Sayol <g.sayol@yahoo.es>, 2007-2010.
-#
-#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.form.mdi\n"
-"POT-Creation-Date: 2002-11-01 04:27+0100\n"
-"PO-Revision-Date: 2011-03-20 15:17+0100\n"
-"Last-Translator: Jordi Sayol <g.sayol@yahoo.es>\n"
-"Language-Team: \n"
-"Language: \n"
+"Project-Id-Version: gb.form.mdi 3.18.90\n"
+"PO-Revision-Date: 2023-03-02 01:55 UTC\n"
+"Last-Translator: benoit <benoit@benoit-TOWER>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Poedit-Language: Catalan\n"
 
-#: FToolBarConfig.class:43
+#: FToolBarConfig.class:47
 msgid "'&1' toolbar configuration"
 msgstr "Configuració barra d'eines '&1'"
 
-#: FShortcut.class:37
+#: FShortcut.class:65
 msgid "Action"
 msgstr "Acció"
 
-#: FMain.form:49 Form2.form:16
-msgid "Button1"
-msgstr "Botó 1"
+#: FWorkspace.form:67
+msgid "Attach tab"
+msgstr ""
 
-#: FShortcut.form:60 FToolBarConfig.form:61
+#: FShortcut.form:78 FToolBarConfig.form:72
 msgid "Cancel"
 msgstr "Canceŀla"
 
-#: FToolBarConfig.form:126
-msgid "&Close"
-msgstr "&Tanca"
+#: FToolBarConfig.form:133
+msgid "Close"
+msgstr "Tanca"
 
-#: FWorkspace.class:607
-msgid "Close &all other tabs"
-msgstr "Tanca totes les &altres pestanyes"
+#: FWorkspace.form:60
+msgid "Close all tabs"
+msgstr ""
 
-#: FWorkspace.class:602
-msgid "&Close current tab"
-msgstr "&Tanta la pestanya actual"
+#: FWorkspace.form:55
+msgid "Close other tabs"
+msgstr ""
 
-#: FToolBarConfig.form:81
-msgid "ComboBox1"
-msgstr "Quadre combinat 1"
+#: FWorkspace.form:76
+msgid "Close tab"
+msgstr ""
 
-#: FToolBarConfig.form:34
-msgid "Configure..."
-msgstr "Configuració..."
+#: FWorkspace.form:50
+msgid "Close tabs on the right"
+msgstr ""
 
-#: FToolBar.class:977
+#: FToolBarConfig.form:35
+msgid "Configure"
+msgstr "Configuració"
+
+#: FToolBar.class:1229
 msgid "Configure &1 toolbar"
 msgstr "Configura la barra d'eines &1"
 
-#: FToolBar.class:979
+#: FToolBar.class:1231
 msgid "Configure main toolbar"
 msgstr "Configura la barra d'eines principal"
 
-#: FShortcut.form:15
+#: FShortcut.form:17
 msgid "Configure shortcuts"
 msgstr "Configura les dreceres"
 
-#: FToolBarConfig.class:375
+#: FWorkspace.form:71
+msgid "Detach tab"
+msgstr ""
+
+#: FToolBarConfig.class:393
 msgid "Do you really want to reset the toolbar?"
 msgstr "Voleu reinicialitzar la barra d'eines?"
 
-#: FToolBarConfig.class:162
+#: FToolBarConfig.class:148
 msgid "Expander"
 msgstr "Extensor"
 
-#: FShortcut.form:37
+#: FShortcut.form:61
+msgid "Export"
+msgstr ""
+
+#: FShortcut.class:314
+msgid "Export shortcuts"
+msgstr ""
+
+#: FShortcut.form:42
 msgid "Find shortcut"
 msgstr "Cerca drecera"
 
-#: FShortcut.class:161
+#: FShortcut.class:313
+msgid "Gambas shortcuts files"
+msgstr ""
+
+#: FShortcut.class:178
 msgid "Go back"
 msgstr "Enrere"
 
-#: FToolBarConfig.form:39
+#: FToolBarConfig.form:63
+msgid "Huge"
+msgstr ""
+
+#: FToolBarConfig.form:40
 msgid "Icon size"
 msgstr "Mida de l'icona"
 
-#: FToolBarConfig.form:52
+#: FShortcut.form:55
+msgid "Import"
+msgstr ""
+
+#: FShortcut.class:327
+msgid "Import shortcuts"
+msgstr ""
+
+#: FToolBarConfig.form:58
 msgid "Large"
 msgstr "Gran"
 
-#: FToolBarConfig.form:47
+#: FToolBarConfig.form:53
 msgid "Medium"
 msgstr "Mitjà"
 
@@ -98,63 +121,79 @@ msgstr "Mitjà"
 msgid "Multiple document interface management"
 msgstr "Gestió de la interfície de documents múltiples"
 
-#: FWorkspace.form:35
+#: FWorkspace.form:91
 msgid "Next tab"
 msgstr "Pestanya següent"
 
-#: FShortcut.form:54
+#: FShortcut.form:72
 msgid "OK"
 msgstr "D'acord"
 
-#: FMain.form:64
-msgid "Orientation"
-msgstr "Orientació"
-
-#: FWorkspace.form:29
+#: FWorkspace.form:85
 msgid "Previous tab"
 msgstr "Pestanya anterior"
 
-#: FShortcut.form:43 FToolBarConfig.class:375
+#: FShortcut.form:49 FToolBarConfig.form:127
 msgid "Reset"
 msgstr "Reinicialitza"
 
-#: FToolBarConfig.form:113
-msgid "&Reset"
-msgstr "&Reinicialitza"
-
-#: FToolBarConfig.class:159
+#: FToolBarConfig.class:146
 msgid "Separator"
 msgstr "Separador"
 
-#: FShortcut.class:38
+#: FShortcut.class:67
 msgid "Shortcut"
 msgstr "Drecera"
 
-#: FToolBarConfig.form:42
+#: FWorkspace.form:36
+msgid "Show"
+msgstr ""
+
+#: FToolBarConfig.form:105
+msgid "Size"
+msgstr ""
+
+#: FToolBarConfig.form:48
 msgid "Small"
 msgstr "Petit"
 
-#: FWorkspace.class:594
-msgid "&Sort tabs"
-msgstr "&Ordena les pestanyes"
+#: FWorkspace.form:41
+msgid "Sort tabs"
+msgstr "Ordena les pestanyes"
+
+#: FToolBarConfig.class:150
+msgid "Space"
+msgstr ""
+
+#: FShortcut.class:281
+msgid "This file is not a Gambas shortcuts file."
+msgstr ""
 
 #: FShortcutEditor.class:75
 msgid "This shortcut is already used by the following action:"
 msgstr "Aquesta drecera encara la fa servir la següen acció:"
 
-#: FToolBarConfig.class:45
+#: FToolBarConfig.form:43
+msgid "Tiny"
+msgstr ""
+
+#: FToolBarConfig.class:49
 msgid "Toolbar configuration"
 msgstr "Configuració de barra d'eines"
 
-#: FToolBarConfig.form:120
-msgid "&Undo"
-msgstr "&Desfés"
+#: FShortcut.class:264
+msgid "Unable to export shortcut files."
+msgstr ""
 
-#: FMain.form:59
-msgid "Window"
-msgstr "Finestra"
+#: FShortcut.class:305
+msgid "Unable to import shortcut files."
+msgstr ""
 
-#: FShortcut.class:161
+#: FToolBarConfig.form:121
+msgid "Undo"
+msgstr "Desfés"
+
+#: FShortcut.class:178
 msgid "You are going back to the default shortcuts."
 msgstr "Esteu tornat a les dreceres predeterminades"
 

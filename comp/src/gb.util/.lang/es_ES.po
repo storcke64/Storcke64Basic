@@ -1,29 +1,20 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gb.util 3.16.90\n"
-"POT-Creation-Date: 2022-02-04 01:26 UTC\n"
-"PO-Revision-Date: 2022-02-04 01:29 UTC\n"
-"Last-Translator: Benoît Minisini <g4mba5@gmail.com>\n"
+"Project-Id-Version: gb.util 3.18.90\n"
+"PO-Revision-Date: 2023-03-02 01:57 UTC\n"
+"Last-Translator: benoit <benoit@benoit-TOWER>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .project:1
-msgid "Utility routines"
-msgstr ""
-
 #: File.class:22
 msgid "&1 B"
 msgstr ""
 
-#: File.class:24
-msgid "&1 KiB"
-msgstr ""
-
-#: File.class:26
-msgid "&1 MiB"
+#: File.class:38
+msgid "&1 GB"
 msgstr ""
 
 #: File.class:28
@@ -34,274 +25,311 @@ msgstr ""
 msgid "&1 KB"
 msgstr ""
 
+#: File.class:24
+msgid "&1 KiB"
+msgstr ""
+
 #: File.class:36
 msgid "&1 MB"
 msgstr ""
 
-#: File.class:38
-msgid "&1 GB"
+#: File.class:26
+msgid "&1 MiB"
 msgstr ""
 
-#: Language.class:14
+#: Language.class:31
 msgid "Afrikaans (South Africa)"
 msgstr "Africano (Sudáfrica)"
 
-#: Language.class:17
-msgid "Arabic (Egypt)"
-msgstr "Arábico (Egipto)"
-
-#: Language.class:18
-msgid "Arabic (Tunisia)"
-msgstr "Arábico (Tunicia)"
-
-#: Language.class:21
-msgid "Azerbaijani (Azerbaijan)"
-msgstr "Azerbayano (Azerbayán)"
-
-#: Language.class:24
-msgid "Bulgarian (Bulgaria)"
-msgstr "Búlgaro (Bulgaria)"
-
-#: Language.class:27
-msgid "Catalan (Catalonia, Spain)"
-msgstr "Catalán (Cataluña, España)"
-
-#: Language.class:31
-msgid "Welsh (United Kingdom)"
-msgstr "Galeico (Reino Unido)"
-
-#: Language.class:34
-msgid "Czech (Czech Republic)"
-msgstr "Checo (República Checa)"
-
-#: Language.class:37
-msgid "Danish (Denmark)"
-msgstr "Danés (Dinamarca)"
-
-#: Language.class:40
-msgid "German (Germany)"
-msgstr "Alemán (Alemania)"
-
-#: Language.class:41
-msgid "German (Belgium)"
-msgstr "Alemán (Bélgica)"
-
-#: Language.class:44
-msgid "Greek (Greece)"
-msgstr "Griego (Grecia)"
-
-#: Language.class:47
-msgid "English (common)"
-msgstr "Inglés (común)"
-
-#: Language.class:48
-msgid "English (United Kingdom)"
-msgstr "Inglés (Reino Unido)"
-
-#: Language.class:49
-msgid "English (U.S.A.)"
-msgstr "Inglés (U.S.A.)"
-
-#: Language.class:50
-msgid "English (Australia)"
-msgstr "Inglés (Australia)"
-
-#: Language.class:51
-msgid "English (Canada)"
-msgstr "Inglés (Canadá)"
-
-#: Language.class:54
-msgid "Esperanto (Anywhere!)"
-msgstr "Esperanto (¡En todo el mundo!)"
-
-#: Language.class:57
-msgid "Spanish (common)"
-msgstr "Español (común)"
-
-#: Language.class:58
-msgid "Spanish (Spain)"
-msgstr "Español (España)"
-
-#: Language.class:59
-msgid "Spanish (Argentina)"
-msgstr "Español (Argentina)"
-
-#: Language.class:62
-msgid "Estonian (Estonia)"
-msgstr "Estonio (Estonia)"
-
-#: Language.class:65
-msgid "Basque (Basque country)"
-msgstr "Basco (País Basco)"
-
-#: Language.class:68
-msgid "Farsi (Iran)"
-msgstr "Farsi (Irán)"
-
-#: Language.class:71
-msgid "Finnish (Finland)"
-msgstr "Finlandés (Finlandia)"
-
-#: Language.class:74
-msgid "French (France)"
-msgstr "Francés (Francia)"
-
-#: Language.class:75
-msgid "French (Belgium)"
-msgstr "Francés (Bélgica)"
-
-#: Language.class:76
-msgid "French (Canada)"
-msgstr "Francés (Canadá)"
-
-#: Language.class:77
-msgid "French (Switzerland)"
-msgstr "Francés (Suiza)"
-
-#: Language.class:80
-msgid "Galician (Spain)"
-msgstr "Gallego (España)"
-
-#: Language.class:83
-msgid "Hebrew (Israel)"
-msgstr "Hebreo (Israel)"
-
-#: Language.class:86
-msgid "Hindi (India)"
-msgstr "Hindi (India)"
-
-#: Language.class:89
-msgid "Hungarian (Hungary)"
-msgstr "Húngaro (Hungría)"
-
-#: Language.class:92
-msgid "Croatian (Croatia)"
-msgstr "Croata (Croacia)"
-
-#: Language.class:95
-msgid "Indonesian (Indonesia)"
-msgstr "Indonesio (Indonesia)"
-
-#: Language.class:98
-msgid "Irish (Ireland)"
-msgstr "Galéico (Irlanda)"
-
-#: Language.class:101
-msgid "Icelandic (Iceland)"
-msgstr "Islandés (Islandia)"
-
-#: Language.class:104
-msgid "Italian (Italy)"
-msgstr "Italiano (Italia)"
-
-#: Language.class:107
-msgid "Japanese (Japan)"
-msgstr "Japonés (Japón)"
-
-#: Language.class:110
-msgid "Khmer (Cambodia)"
-msgstr "Jemer (Camboya)"
-
-#: Language.class:113
-msgid "Korean (Korea)"
-msgstr "Koreano (Korea)"
-
-#: Language.class:116
-msgid "Latin"
-msgstr "Latín"
-
-#: Language.class:119
-msgid "Lithuanian (Lithuania)"
-msgstr "Lituano (Lituania)"
-
-#: Language.class:122
-msgid "Malayalam (India)"
-msgstr "Malabar (India)"
-
-#: Language.class:125
-msgid "Macedonian (Republic of Macedonia)"
-msgstr "Macedonio (Republica de Macedonia)"
-
-#: Language.class:128
-msgid "Dutch (Netherlands)"
-msgstr "Flamenco (Holanda)"
-
-#: Language.class:129
-msgid "Dutch (Belgium)"
-msgstr "Flamenco (Bélgica)"
-
-#: Language.class:132
-msgid "Norwegian (Norway)"
-msgstr "Noruego (noruega)"
-
-#: Language.class:135
-msgid "Punjabi (India)"
-msgstr "Punjabi (India)"
-
-#: Language.class:138
-msgid "Polish (Poland)"
-msgstr "Polaco (Polonia)"
-
-#: Language.class:141
-msgid "Portuguese (Portugal)"
-msgstr "Portugués (Portugal)"
-
-#: Language.class:142
-msgid "Portuguese (Brazil)"
-msgstr "Portugués (Brasil)"
-
-#: Language.class:145
-msgid "Valencian (Valencian Community, Spain)"
-msgstr "Valenciano (Comunidad Valenciana, España)"
-
-#: Language.class:148
-msgid "Romanian (Romania)"
-msgstr "Rumano (Rumania)"
-
-#: Language.class:151
-msgid "Russian (Russia)"
-msgstr "Ruso (Rusia)"
-
-#: Language.class:154
-msgid "Slovenian (Slovenia)"
-msgstr "Esloveno (Eslovenia)"
-
-#: Language.class:157
+#: Language.class:225
 msgid "Albanian (Albania)"
 msgstr "Albanés (Albania)"
 
-#: Language.class:160
+#: Language.class:36
+msgid "Arabic (Algeria)"
+msgstr ""
+
+#: Language.class:34
+msgid "Arabic (Egypt)"
+msgstr "Arábico (Egipto)"
+
+#: Language.class:35
+msgid "Arabic (Tunisia)"
+msgstr "Arábico (Tunicia)"
+
+#: Language.class:40
+msgid "Azerbaijani (Azerbaijan)"
+msgstr "Azerbayano (Azerbayán)"
+
+#: Language.class:90
+msgid "Basque (Basque country)"
+msgstr "Basco (País Basco)"
+
+#: Language.class:201
+msgid "Bokmål (Norway)"
+msgstr ""
+
+#: Language.class:43
+msgid "Bulgarian (Bulgaria)"
+msgstr "Búlgaro (Bulgaria)"
+
+#: Language.class:46
+msgid "Catalan (Catalonia, Spain)"
+msgstr "Catalán (Cataluña, España)"
+
+#: Language.class:119
+msgid "Croatian (Croatia)"
+msgstr "Croata (Croacia)"
+
+#: Language.class:54
+msgid "Czech (Czech Republic)"
+msgstr "Checo (República Checa)"
+
+#: Language.class:58
+msgid "Danish (Denmark)"
+msgstr "Danés (Dinamarca)"
+
+#: Language.class:196
+msgid "Dutch (Belgium)"
+msgstr "Flamenco (Bélgica)"
+
+#: Language.class:195
+msgid "Dutch (Netherlands)"
+msgstr "Flamenco (Holanda)"
+
+#: Language.class:72
+msgid "English (Australia)"
+msgstr "Inglés (Australia)"
+
+#: Language.class:73
+msgid "English (Canada)"
+msgstr "Inglés (Canadá)"
+
+#: Language.class:69
+msgid "English (common)"
+msgstr "Inglés (común)"
+
+#: Language.class:74
+msgid "English (India)"
+msgstr ""
+
+#: Language.class:71
+msgid "English (U.S.A.)"
+msgstr "Inglés (U.S.A.)"
+
+#: Language.class:70
+msgid "English (United Kingdom)"
+msgstr "Inglés (Reino Unido)"
+
+#: Language.class:78
+msgid "Esperanto (Anywhere!)"
+msgstr "Esperanto (¡En todo el mundo!)"
+
+#: Language.class:87
+msgid "Estonian (Estonia)"
+msgstr "Estonio (Estonia)"
+
+#: Language.class:93
+msgid "Farsi (Iran)"
+msgstr "Farsi (Irán)"
+
+#: Language.class:96
+msgid "Finnish (Finland)"
+msgstr "Finlandés (Finlandia)"
+
+#: Language.class:101
+msgid "French (Belgium)"
+msgstr "Francés (Bélgica)"
+
+#: Language.class:102
+msgid "French (Canada)"
+msgstr "Francés (Canadá)"
+
+#: Language.class:100
+msgid "French (France)"
+msgstr "Francés (Francia)"
+
+#: Language.class:103
+msgid "French (Switzerland)"
+msgstr "Francés (Suiza)"
+
+#: Language.class:107
+msgid "Galician (Spain)"
+msgstr "Gallego (España)"
+
+#: Language.class:62
+msgid "German (Belgium)"
+msgstr "Alemán (Bélgica)"
+
+#: Language.class:61
+msgid "German (Germany)"
+msgstr "Alemán (Alemania)"
+
+#: Language.class:66
+msgid "Greek (Greece)"
+msgstr "Griego (Grecia)"
+
+#: Language.class:110
+msgid "Hebrew (Israel)"
+msgstr "Hebreo (Israel)"
+
+#: Language.class:113
+msgid "Hindi (India)"
+msgstr "Hindi (India)"
+
+#: Language.class:116
+msgid "Hungarian (Hungary)"
+msgstr "Húngaro (Hungría)"
+
+#: Language.class:168
+msgid "Icelandic (Iceland)"
+msgstr "Islandés (Islandia)"
+
+#: Language.class:122
+msgid "Indonesian (Indonesia)"
+msgstr "Indonesio (Indonesia)"
+
+#: Language.class:165
+msgid "Irish (Ireland)"
+msgstr "Galéico (Irlanda)"
+
+#: Language.class:171
+msgid "Italian (Italy)"
+msgstr "Italiano (Italia)"
+
+#: Language.class:172
+msgid "Italian (Switzerland)"
+msgstr ""
+
+#: Language.class:176
+msgid "Japanese (Japan)"
+msgstr "Japonés (Japón)"
+
+#: Language.class:138
+msgid "Kannada (India)"
+msgstr ""
+
+#: Language.class:179
+msgid "Khmer (Cambodia)"
+msgstr "Jemer (Camboya)"
+
+#: Language.class:182
+msgid "Korean (Korea)"
+msgstr "Koreano (Korea)"
+
+#: Language.class:186
+msgid "Latin"
+msgstr "Latín"
+
+#: Language.class:189
+msgid "Lithuanian (Lithuania)"
+msgstr "Lituano (Lituania)"
+
+#: Language.class:192
+msgid "Macedonian (Republic of Macedonia)"
+msgstr "Macedonio (Republica de Macedonia)"
+
+#: Language.class:134
+msgid "Malayalam (India)"
+msgstr "Malabar (India)"
+
+#: Language.class:200
+msgid "Norwegian (Norway)"
+msgstr "Noruego (noruega)"
+
+#: Language.class:205
+msgid "Polish (Poland)"
+msgstr "Polaco (Polonia)"
+
+#: Language.class:209
+msgid "Portuguese (Brazil)"
+msgstr "Portugués (Brasil)"
+
+#: Language.class:208
+msgid "Portuguese (Portugal)"
+msgstr "Portugués (Portugal)"
+
+#: Language.class:146
+msgid "Punjabi (India)"
+msgstr "Punjabi (India)"
+
+#: Language.class:215
+msgid "Romanian (Romania)"
+msgstr "Rumano (Rumania)"
+
+#: Language.class:218
+msgid "Russian (Russia)"
+msgstr "Ruso (Rusia)"
+
+#: Language.class:228
 msgid "Serbian (Serbia & Montenegro)"
 msgstr "Serbio (Serbia & Montenegro)"
 
-#: Language.class:163
-msgid "Swedish (Sweden)"
-msgstr "Sueco (Suecia)"
-
-#: Language.class:166
-msgid "Turkish (Turkey)"
-msgstr "Turco (Turquía)"
-
-#: Language.class:169
-msgid "Ukrainian (Ukrain)"
-msgstr "Ucrania (Ucraniano)"
-
-#: Language.class:172
-msgid "Vietnamese (Vietnam)"
-msgstr "Vietnamita (Vietnam)"
-
-#: Language.class:175
-msgid "Wallon (Belgium)"
-msgstr "Valón (Bélgica)"
-
-#: Language.class:178
+#: Language.class:247
 msgid "Simplified chinese (China)"
 msgstr "Chino simplificado (China)"
 
-#: Language.class:179
+#: Language.class:222
+msgid "Slovenian (Slovenia)"
+msgstr "Esloveno (Eslovenia)"
+
+#: Language.class:83
+msgid "Spanish (Argentina)"
+msgstr "Español (Argentina)"
+
+#: Language.class:81
+msgid "Spanish (common)"
+msgstr "Español (común)"
+
+#: Language.class:82
+msgid "Spanish (Spain)"
+msgstr "Español (España)"
+
+#: Language.class:231
+msgid "Swedish (Sweden)"
+msgstr "Sueco (Suecia)"
+
+#: Language.class:126
+msgid "Tamil (India)"
+msgstr ""
+
+#: Language.class:130
+msgid "Telugu (India)"
+msgstr ""
+
+#: Language.class:248
 msgid "Traditional chinese (Taiwan)"
 msgstr "Chino tradicional (Taiwan)"
 
-#: Language.class:241
+#: Language.class:234
+msgid "Turkish (Turkey)"
+msgstr "Turco (Turquía)"
+
+#: Language.class:238
+msgid "Ukrainian (Ukrain)"
+msgstr "Ucrania (Ucraniano)"
+
+#: Language.class:324
 msgid "Unknown"
 msgstr "Desconocido"
+
+#: .project:1
+msgid "Utility routines"
+msgstr ""
+
+#: Language.class:212
+msgid "Valencian (Valencian Community, Spain)"
+msgstr "Valenciano (Comunidad Valenciana, España)"
+
+#: Language.class:241
+msgid "Vietnamese (Vietnam)"
+msgstr "Vietnamita (Vietnam)"
+
+#: Language.class:244
+msgid "Wallon (Belgium)"
+msgstr "Valón (Bélgica)"
+
+#: Language.class:51
+msgid "Welsh (United Kingdom)"
+msgstr "Galeico (Reino Unido)"
+
