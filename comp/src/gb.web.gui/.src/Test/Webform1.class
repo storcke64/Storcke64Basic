@@ -129,6 +129,8 @@ Public Sub WebTable1_Data(Row As Integer, Column As Integer, Data As WebTableDat
     If Not hStat Then Return
     $aStat[Row] = hStat
   Endif
+  
+  If hStat.Size < 1024 Then Data.Background = Color.Yellow
 
   Select Case Column
     Case 0
