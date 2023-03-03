@@ -92,14 +92,12 @@ Private Sub LoadTranslation(sLang As String)
   While Not Eof(hFile)
     Line Input #hFile, sLine
     If Not sLine Then Break
+    If sLine Begins "#," And If Trim(Mid$(sLine, 3)) = "fuzzy" Then Continue
+    If sLine Begins "msg" Then Continue
     Header &= sLine & "\n"
   Wend
 
-  iPos = InStr(Header, "#, fuzzy")
-  If iPos = 0 Then iPos = InStr(Header, "#,fuzzy")
-  If iPos Then Header = Left(Header, iPos - 1)
-
-  Header &= SubstHeader(File.Load("po-header.txt"), sLang)
+  Header = SubstHeader(File.Load("po-header.txt"), sLang)
 
   Do
 

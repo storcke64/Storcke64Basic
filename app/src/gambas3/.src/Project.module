@@ -344,7 +344,7 @@ Public Sub Main()
       Quit
     Else If Left(sArg) = "-" Then
       Error "gambas3: unknown option: " & sArg
-      Quit
+      Quit 1
     Else
       If Not sPath Then
         sPath = Args[iInd]
