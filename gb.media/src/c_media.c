@@ -142,8 +142,6 @@ void MEDIA_set_flag(void *element, char *property, int flag, bool value)
 	g_object_set(G_OBJECT(element), property, flags, NULL);
 }
 
-
-
 static GB_TYPE to_gambas_type(const GValue *value)
 {
 	switch (G_VALUE_TYPE(value))
@@ -763,6 +761,13 @@ static void set_pipeline_rate(void *_object)
 	gst_object_unref(sink);
 
 	THIS_PIPELINE->rate = THIS_PIPELINE->next_rate;	
+}
+
+static gint64 get_pipeline_duration(void *_object)
+{
+	if (THIS_PIPELINE->duration < 0)
+		gst_element_query_duration(ELEMENT, GST_FORMAT_TIME, &THIS_PIPELINE->duration);
+	return THIS_PIPELINE->duration;
 }
 
 #if 0
@@ -1794,13 +1799,17 @@ static int cb_message(CMEDIAPIPELINE *_object)
 					break;
 				}
 				case GST_MESSAGE_BUFFERING: GB.Raise(THIS, EVENT_Buffering, 0); break;
-				case GST_MESSAGE_DURATION_CHANGED: GB.Raise(THIS, EVENT_Duration, 0); break;
+
+				case GST_MESSAGE_DURATION_CHANGED:
+					THIS_PIPELINE->duration = -1;
+					GB.Raise(THIS, EVENT_Duration, 0);
+					break;
+
 				case GST_MESSAGE_PROGRESS: GB.Raise(THIS, EVENT_Progress, 0); break;
 				
 				case GST_MESSAGE_STREAM_START:
 					THIS_PIPELINE->about_to_finish = FALSE;
 					THIS_PIPELINE->pos = 0;
-					gst_element_query_duration(ELEMENT, GST_FORMAT_TIME, &THIS_PIPELINE->duration);
 					GB.Raise(THIS, EVENT_Start, 0);
 					break;
 						
@@ -1824,7 +1833,7 @@ static int cb_message(CMEDIAPIPELINE *_object)
 			THIS_PIPELINE->pos = pos;
 			GB.Raise(THIS, EVENT_Position, 0);
 			//fprintf(stderr, "%" PRId64 " / %" PRId64 "\n", THIS_PIPELINE->pos, THIS_PIPELINE->duration);
-			if (!THIS_PIPELINE->about_to_finish && THIS_PIPELINE->pos > (THIS_PIPELINE->duration - 2000000000))
+			if (!THIS_PIPELINE->about_to_finish && THIS_PIPELINE->pos > (get_pipeline_duration(THIS_PIPELINE) - 2000000000))
 			{
 				THIS_PIPELINE->about_to_finish = TRUE;
 				GB.Raise(THIS, EVENT_AboutToFinish, 0);
@@ -1880,6 +1889,7 @@ BEGIN_METHOD(MediaPipeline_new, GB_INTEGER polling)
 	}
 	
 	THIS_PIPELINE->rate = THIS_PIPELINE->next_rate = 1.0;
+	THIS_PIPELINE->duration = -1;
 
 END_METHOD
 
@@ -1955,7 +1965,7 @@ END_PROPERTY
 
 BEGIN_PROPERTY(MediaPipeline_Duration)
 
-	GB.ReturnFloat((double)(THIS_PIPELINE->duration / 1000) / 1E6);
+	GB.ReturnFloat((double)(get_pipeline_duration(THIS_PIPELINE) / 1000) / 1E6);
 
 END_PROPERTY
 
