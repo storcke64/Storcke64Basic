@@ -115,7 +115,7 @@ End
 
 Public Sub _GetSignature(sSymbol As String, Optional bFormat As Boolean) As String
   
-  Dim iPos, iStart, iEnd As Integer
+  Dim iPos, iStart As Integer
   Dim sSignIn, sSignOut As String
   Dim sDir, sType As String
   Dim sAccess As String
