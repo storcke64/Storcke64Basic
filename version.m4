@@ -1,7 +1,7 @@
 ## Package version and e-mail for bugs are defined here
 
 m4_define([GB_VERSION], [3.18.90])
-m4_define([GB_MAIL], [g4mba5@gmail.com])
+m4_define([GB_MAIL], [benoit.minisini@gambas-basic.org])
 m4_define([GB_URL], [http://gambas.sourceforge.net])
 
 m4_define([GB_VERSION_MAJOR], [3])
