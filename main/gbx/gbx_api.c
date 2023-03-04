@@ -2508,6 +2508,8 @@ void GB_SystemHasForked(void)
 	EXEC_profile_instr = FALSE;
 
 	SIGNAL_has_forked();
+
+	FLAG.has_forked = TRUE;
 }
 
 bool GB_ExistClass(const char *name)

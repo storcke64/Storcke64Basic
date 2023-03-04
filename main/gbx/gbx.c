@@ -81,7 +81,7 @@ static void NORETURN do_exit(int ret, bool immediate)
 		sleep(86400);
 	}
 	
-	if (immediate)
+	if (immediate || FLAG.has_forked)
 		_exit(ret);
 	else
 		exit(ret);

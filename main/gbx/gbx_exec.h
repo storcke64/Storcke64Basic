@@ -67,6 +67,7 @@ typedef
 		unsigned in_event_loop : 1;    // if we are in the event loop
 		unsigned check_overflow : 1;   // if we should check for overflow
 		unsigned big_endian : 1;       // if the CPU is big endian
+		unsigned has_forked : 1;       // if the process has forked
 	}
 	EXEC_FLAG;
 
@@ -174,6 +175,7 @@ extern const void *EXEC_subr_table[];
 #define EXEC_keep_library FLAG.keep_library
 #define EXEC_main_hook_done FLAG.main_hook_done
 #define EXEC_check_overflow FLAG.check_overflow
+
 
 // Local variables base pointer
 #define BP EXEC_current.bp
