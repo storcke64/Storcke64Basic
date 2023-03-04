@@ -547,9 +547,13 @@ BEGIN_PROPERTY(Menu_Picture)
 		QIcon icon;
 
 		GB.StoreObject(PROP(GB_OBJECT), POINTER(&(THIS->picture)));
-		if (THIS->picture)
-			icon = QIcon(*THIS->picture->pixmap);
-		ACTION->setIcon(icon);
+
+		if (!CMENU_is_toplevel(THIS))
+		{
+			if (THIS->picture)
+				icon = QIcon(*THIS->picture->pixmap);
+			ACTION->setIcon(icon);
+		}
 	}
 
 END_PROPERTY
