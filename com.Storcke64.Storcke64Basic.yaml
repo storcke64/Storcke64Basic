@@ -1,0 +1,13 @@
+app-id: com.Storcke64.Storcke64Basic
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: storcke64
+modules:
+  - name: storcke64
+    buildsystem: simple
+    build-commands:
+      - install -D storcke64 /app/bin/storcke64
+    sources:
+      - type: file
+        path: storcke64
