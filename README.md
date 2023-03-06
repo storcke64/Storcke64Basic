@@ -3,7 +3,7 @@ We are working on the flatpak version of the GAMBAS app. The Gambas developers d
 I am working on developing the flatpak, but I do not have all of the skills nbecesaey to build it.
 anyone who can assist or whould like to see a flatpak version of Gambas, please email me. 
 
-In order to elimnate confusion, this project will be rebranded STORCKE64 Basic. 
+In order to eliminate confusion, this project will be rebranded STORCKE64 Basic. 
 Once the Gambas tream has relased  a flatpak then this project will likley cease. 
 
 
