@@ -6,6 +6,8 @@ anyone who can assist or whould like to see a flatpak version of Gambas, please 
 In order to eliminate confusion, this project will be rebranded STORCKE64 Basic. 
 Once the Gambas tream has relased  a flatpak then this project will likley cease. 
 
+We have other projects relating to computer software avd will be using GAMBAS as our foundational technology. 
+
 
 ![Storcke64 Basic](https://user-images.githubusercontent.com/127038157/223004329-8dec3c67-2fb6-4b93-8fa6-ebc3a602bd06.png)
 
