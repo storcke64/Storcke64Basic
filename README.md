@@ -4,7 +4,7 @@ I am working on developing the flatpak, but I do not have all of the skills nbec
 anyone who can assist or whould like to see a flatpak version of Gambas, please email me. 
 
 In order to elimnate confusion, this project will be rebranded STORCKE64 Basic. 
-Oncee the Gambas tream has relased  a flatpak then this project will likley cease. 
+Once the Gambas tream has relased  a flatpak then this project will likley cease. 
 
 
 
