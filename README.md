@@ -7,5 +7,8 @@ In order to eliminate confusion, this project will be rebranded STORCKE64 Basic.
 Once the Gambas tream has relased  a flatpak then this project will likley cease. 
 
 
+![Storcke64 Basic](https://user-images.githubusercontent.com/127038157/223004329-8dec3c67-2fb6-4b93-8fa6-ebc3a602bd06.png)
 
 storcke64@storcke.com
+
+
